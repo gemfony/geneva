@@ -1,9 +1,0 @@
-Goals for the near future
--------------------------
-- Offer suitable documentation
-- Offer various parts of the library as separate packages. Important
-  examples are the broker code and the random number factory.
-- Work on portability and a more comfortable installation
-- Integrate other optimization techniques, such as a gradient descent
-  or swarm algorithms
-- Remove boost::xtime in favour of date_time, see http://www.boost.org/doc/libs/1_35_0/doc/html/thread/changes.html
