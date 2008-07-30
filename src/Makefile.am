@@ -1,0 +1,7 @@
+INCLUDES = -I ../include 
+lib_LTLIBRARIES = libgeneva.la
+
+libgeneva_la_LDFLAGS = -version-info  0:5:0
+libgeneva_la_SOURCES = GAsioTCPClient.cpp GLogger.cpp GAsioTCPConsumer.cpp GLogStreamer.cpp GBaseClient.cpp GLogTargets.cpp GBasePopulation.cpp  GLowBitsAdaptor.cpp GBitCollection.cpp GManagedMemberCollection.cpp GBit.cpp GManipulator.cpp GBitFlipAdaptor.cpp GMemberBroker.cpp GBoostThreadConsumer.cpp GMemberCarrier.cpp GBoostThreadPopulation.cpp GMember.cpp GBoundary.cpp GObject.cpp GConsumer.cpp GRandom.cpp GDoubleCollection.cpp GRange.cpp GDouble.cpp GServerSession.cpp GDoubleGaussAdaptor.cpp GSimpleMemberAdaptor.cpp GException.cpp GTransferPopulation.cpp GHelperFunctions.cpp
+
+#include_HEADERS="GAsioTCPClient.hpp GBoostThreadGeneral.hpp GException.hpp GMemberCarrier.hpp GTemplateBitValue.hpp GAsioTCPConsumer.hpp GBoostThreadPopulation.hpp GHelperFunctions.hpp GMember.hpp GTemplateHelperFunctions.hpp GBaseClient.hpp GBoundary.hpp GLogger.hpp GMutable.hpp GTemplateValueCollection.hpp GBasePopulation.hpp GBoundedBuffer.hpp GLogStreamer.hpp GObject.hpp GTemplateValue.hpp GBiBuffer.hpp GConsumer.hpp GLogTargets.hpp GRandom.hpp GTransferPopulation.hpp GBitCollection.hpp GDoubleCollection.hpp GLowBitsAdaptor.hpp GRange.hpp GBitFlipAdaptor.hpp GDoubleGaussAdaptor.hpp GManagedMemberCollection.hpp  GServerSession.hpp GBit.hpp GDouble.hpp GManipulator.hpp GSimpleMemberAdaptor.hpp GBoostThreadConsumer.hpp GEnums.hpp GMemberBroker.hpp GTemplateAdaptor.hpp GRateable.hpp"
