@@ -1,0 +1,42 @@
+This is an early beta version of the Geneva library. As the name -
+it stands for "Grid-enabled evolutionary algorithms" -- suggests, it
+aims to provide the necessary tools to perform parametric optimization
+in parallel on devices ranging from multi-processor machines over
+clusters all the way to the Grid.
+
+[Note: Due to an ongoing revision effort of the entire library the
+networking functionality has been removed at the time of writing. Have 
+a look at version 0.4, available in the repository, to get an idea of
+where we're heading ]
+
+Geneva does not want to be the fastest library of evolutionary
+algorithms on single-processor machines, but is instead targetted at
+large scale problems, where the evaluation of a single individual will
+typically take longer than a few seconds.
+
+Geneva is the flag ship offer of "Gemfony scientific", an initiative
+led by Forschungszentrum Karlsruhe, aiming to transfer scientific
+research into the industry.
+
+Geneva is made available as an Open Source software, under the Affero
+GPL, version 3 (AGPL v3). External contributions to the code are very
+welcome, and indeed we make this code available in the hope that it
+will not only be useful, but will also encourage users to let us know
+about bugs or suggest or even implement features they would want to
+see in Geneva.
+
+By the same token, however, we aim to remain the single largest
+contributor to the code and will only be able to accept contributions
+where an appropriate transfer of rights takes place. 
+
+To users and programmers wishing to contribute to this software the
+terms of the AGPL guarantee the continued availability of the code
+under this license.
+
+Geneva is currently somewhere between alpha and beta status. The release
+you're looking at will soon become version 0.5 (once networking functionality
+has again gone into the library).
+
+Its single largest deficiency at the moment is likely a lack of
+documentation. We recommend to have a look at the examples shipped
+with the code.

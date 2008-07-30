@@ -1,0 +1,18 @@
+Installation instructions for this software are short at this time. 
+
+You will need a copy of Boost (see http://www.boost.org), in version
+1.36.  You will also need to add the threadpool library - have a look
+at threadpool.sf.net .
+
+The build system now uses CMake in version 2.6 . In order to compile
+this project and the examples, create a build directory and change
+into it. Then call
+
+cmake /path/to/geneva-top-dir/
+
+followed by a simple "make".
+
+The CMakeLists.txt files are still a bit preliminary. Some paths are
+hardcoded - Boost should reside in /opt/boost136 at this time. Also
+the target installation directories default to whatever CMake chooses.
+This is work in progress.
