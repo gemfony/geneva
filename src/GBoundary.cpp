@@ -46,7 +46,7 @@ namespace GenEvA
 	  GObject(),
 	  boundary_(0),
 	  isactive_(false),
-	  isupper(true),
+	  isupper_(true),
 	  isopen_(false)
   { /* nothing */ }
 
@@ -152,9 +152,9 @@ namespace GenEvA
 	GObject::load(cp);
 
     boundary_=gb_load->boundary_;
-    isactive_=gb_load->cp.isactive_;
-    isupper_=gb_load->cp.isupper_;
-    isopen_=gb_load->cp.isopen_;
+    isactive_=gb_load->isactive_;
+    isupper_=gb_load->isupper_;
+    isopen_=gb_load->isopen_;
   }
 
   /***************************************************************************/
@@ -184,7 +184,7 @@ namespace GenEvA
    * @param isactive A parameter indicating whether or not this is an active boundary
    */
   void GBoundary::setIsActive(bool isactive) throw(){
-    _isactive = isactive;
+    isactive_ = isactive;
   }
 
   /***************************************************************************/
@@ -194,7 +194,7 @@ namespace GenEvA
    * @return A value indicating whether or not this is an active boundary
    */
   bool GBoundary::isActive() const throw(){
-    return _isactive;
+    return isactive_;
   }
 
   /***************************************************************************/
@@ -244,7 +244,7 @@ namespace GenEvA
    * @return The new value of the boundary, after application of correction factors
    */
   double GBoundary::setBoundary(double boundary, bool isupper, bool isopen){
-    double result = 0., factor = 0.;
+    double result = 0.;
 
     if(isopen){
     	// Add/substract the smallest distinguishable double value
