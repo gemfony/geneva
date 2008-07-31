@@ -23,10 +23,6 @@ SET ( GENEVAINCLUDEDIRS
 
 add_library ( geneva SHARED ${GENEVASOURCES} )
 
-IF(UNIX)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-ENDIF(UNIX)
-
 include_directories ( 
 ${GENEVAINCLUDEDIRS} 
 ${Boost_INCLUDE_DIRS}

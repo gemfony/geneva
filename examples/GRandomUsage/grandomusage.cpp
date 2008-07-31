@@ -24,7 +24,7 @@
 
 
 /**
- * This test creates 20000 random numbers each for numbers and items with
+ * This test creates NENTRIES random numbers each for numbers and items with
  * different characteristics. Each set is created in its own thread.
  * Note that the random numbers are usually not created in the GRandom
  * object, but by the GRandomFactory class in a different thread.
@@ -63,49 +63,42 @@ CHARRND
 
 const std::size_t NENTRIES=20000;
 
-void createDoubleRandomVector(std::vector<double>& vecd, const distType& dType){
+template <class T>
+void createRandomVector(std::vector<T>& vec_t, const distType& dType){
 	GRandom gr; // create our own local consumer
 	std::size_t i;
 
 	switch(dType){
 	case GAUSSIAN: // standard distribution
-		for(i=0; i<NENTRIES; i++) vecd.push_back(gr.gaussRandom(-3.,1.));
+		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.gaussRandom(-3.,1.));
 		break;
 	case DOUBLEGAUSSIAN:
-		for(i=0; i<NENTRIES; i++) vecd.push_back(gr.doubleGaussRandom(-3.,0.5,3.));
+		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.doubleGaussRandom(-3.,0.5,3.));
 		break;
 	case EVEN: // double in the range [0,1[
-		for(i=0; i<NENTRIES; i++) vecd.push_back(gr.evenRandom());
+		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.evenRandom());
 		break;
 	case EVENWITHBOUNDARIES: // double in the range [-3,2[
-		for(i=0; i<NENTRIES; i++) vecd.push_back(gr.evenRandom(-3.,2.));
+		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.evenRandom(-3.,2.));
 		break;
-	}
-}
-
-void createDiscreteRandomVector(std::vector<int16_t>& veci, const distType& dType){
-	GRandom gr; // create our own local consumer
-	std::size_t i;
-
-	switch(dType){
 	case DISCRETE:
-		for(i=0; i<NENTRIES; i++) veci.push_back(gr.discreteRandom(10));
+		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.discreteRandom(10));
 		break;
 	case DISCRETEBOUND:
-		for(i=0; i<NENTRIES; i++) veci.push_back(gr.discreteRandom(-3,10));
+		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.discreteRandom(-3,10));
 		break;
 	case BITPROB:
 		for(i=0; i<NENTRIES; i++){
 			if(gr.bitRandom(0.7) == Gem::GenEvA::TRUE)
-				veci.push_back(1);
+				vec_t.push_back(1);
 			else
-				veci.push_back(0);
+				vec_t.push_back(0);
 		}
 		break;
 	case CHARRND:
 		for(i=0; i<NENTRIES; i++){
 			char tmp = gr.charRandom(false); // also non-printable ASCII characters
-			veci.push_back((int16_t)tmp);
+			vec_t.push_back((int16_t)tmp);
 		}
 		break;
 	}
@@ -120,14 +113,14 @@ int main(int argc, char **argv){
 	// 3 threads produce random numbers with a gaussian distribution
 	GRANDOMFACTORY.setNProducerThreads(6,2);
 
-	boost::thread g_thread(boost::bind(createDoubleRandomVector, boost::ref(gaussian), GAUSSIAN));
-	boost::thread dg_thread(boost::bind(createDoubleRandomVector, boost::ref(doublegaussian), DOUBLEGAUSSIAN));
-	boost::thread e_thread(boost::bind(createDoubleRandomVector, boost::ref(even), EVEN));
-	boost::thread ewb_thread(boost::bind(createDoubleRandomVector, boost::ref(evenwithboundaries), EVENWITHBOUNDARIES));
-	boost::thread dc_thread(boost::bind(createDiscreteRandomVector, boost::ref(discrete), DISCRETE));
-	boost::thread dcb_thread(boost::bind(createDiscreteRandomVector, boost::ref(discretebound), DISCRETEBOUND));
-	boost::thread bp_thread(boost::bind(createDiscreteRandomVector, boost::ref(bitprob), BITPROB));
-	boost::thread cr_thread(boost::bind(createDiscreteRandomVector, boost::ref(charrnd), CHARRND));
+	boost::thread g_thread(boost::bind(createRandomVector<double>, boost::ref(gaussian), GAUSSIAN));
+	boost::thread dg_thread(boost::bind(createRandomVector<double>, boost::ref(doublegaussian), DOUBLEGAUSSIAN));
+	boost::thread e_thread(boost::bind(createRandomVector<double>, boost::ref(even), EVEN));
+	boost::thread ewb_thread(boost::bind(createRandomVector<double>, boost::ref(evenwithboundaries), EVENWITHBOUNDARIES));
+	boost::thread dc_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discrete), DISCRETE));
+	boost::thread dcb_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discretebound), DISCRETEBOUND));
+	boost::thread bp_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(bitprob), BITPROB));
+	boost::thread cr_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(charrnd), CHARRND));
 
 	g_thread.join();
 	dg_thread.join();

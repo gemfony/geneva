@@ -81,6 +81,14 @@ namespace GLogFramework {
 
   /***********************************************************************************/
   /**
+   * A standard copy constructor
+   */
+  GDiskLogger::GDiskLogger(const GDiskLogger& cp)
+	  :fname_(cp.fname_)
+  { /* nothing */ }
+
+  /***********************************************************************************/
+  /**
    * A constructor that accepts the name of the log file as argument.
    *
    * @param fname The name of the file log messages should be written to
@@ -98,6 +106,14 @@ namespace GLogFramework {
 
   /***********************************************************************************/
   /**
+   * Standard assignment operator
+   */
+  const GDiskLogger& GDiskLogger::operator=(const GDiskLogger& cp){
+	  fname_ = cp.fname_;
+  }
+
+  /***********************************************************************************/
+  /**
    * This function logs a message to a file, whose name it takes from the private
    * variable fname_. The file is reopened in append mode for every log message. Local
    * caching of messages might be possible at a later stage.
@@ -105,17 +121,24 @@ namespace GLogFramework {
    * @param msg The log message
    */
   void GDiskLogger::log(const std::string& msg){
-    std::ofstream ofstr(fname_.c_str(), std::ios_base::app);
-    if(ofstr.good()){
-      ofstr << msg;
-      ofstr.close();
-    }
-    else{
-      std::cerr << "In GDiskLogger::log() : Error" << std::endl
-		<< "ofstring is in a bad state" << std::endl;
+	if(fname_.empty()){
+		std::cerr << "In GDiskLogger::log() : Error" << std::endl
+			      << "Filename fname_ is empty." << std::endl;
 
-      std::terminate();
+		std::terminate();
+	}
+
+    std::ofstream ofstr(fname_.c_str(), std::ios_base::app);
+
+    if(!ofstr.good()){
+        std::cerr << "In GDiskLogger::log() : Error" << std::endl
+  		<< "ofstring is in a bad state" << std::endl;
+
+        std::terminate();
     }
+
+    ofstr << msg;
+    ofstr.close();
   }
 
   /***********************************************************************************/

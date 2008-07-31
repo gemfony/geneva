@@ -67,8 +67,6 @@
 #ifndef GRANDOM_H
 #define GRANDOM_H
 
-using namespace boost;
-
 #include "GBoundedBuffer.hpp"
 #include "GEnums.hpp"
 #include "GLogger.hpp"
@@ -78,12 +76,11 @@ using namespace boost;
 
 namespace Gem {
 namespace GenEvA {
-  // should be uint32_t or std::size_t ??
-  const uint16_t DEFAULTARRAYSIZE = 1000;
-  const uint16_t DEFAULTFACTORYBUFFERSIZE = 1000;
-  const uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
-  const uint16_t DEFAULTFACTORYGETWAIT = 10; ///< waiting time in milliseconds
-  const uint16_t DEFAULTFACTORYGAUSSWAIT = 200; ///< waiting time in milliseconds
+  const std::size_t DEFAULTARRAYSIZE = 1000;
+  const std::size_t DEFAULTFACTORYBUFFERSIZE = 1000;
+  const boost::uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
+  const boost::uint16_t DEFAULTFACTORYGETWAIT = 10; ///< waiting time in milliseconds
+  const boost::uint16_t DEFAULTFACTORYGAUSSWAIT = 200; ///< waiting time in milliseconds
 
 
   /****************************************************************************/
@@ -92,8 +89,7 @@ namespace GenEvA {
   /**
    * \brief Returns a seed based on the current time.
    */
-  uint32_t
-  GSeed(void);
+  boost::uint32_t GSeed(void);
 
   /****************************************************************************/
   //////////////////////////////////////////////////////////////////////////////
@@ -107,12 +103,12 @@ namespace GenEvA {
   /**
    * The number of threads that simultaneously produce [0,1[ random numbers
    */
-  const uint8_t DEFAULT01PRODUCERTHREADS = 3;
+  const boost::uint8_t DEFAULT01PRODUCERTHREADS = 3;
 
   /**
    * The number of threads that simultaneously produce gauss random numbers
    */
-  const uint8_t DEFAULTGAUSSPRODUCERTHREADS = 3;
+  const boost::uint8_t DEFAULTGAUSSPRODUCERTHREADS = 3;
 
   /**
    * Past implementations of random numbers for the Geneva library showed a
@@ -129,6 +125,12 @@ namespace GenEvA {
    * This class produces packets of random numbers and stores them in bounded buffers.
    * Clients can retrieve packets of random numbers, while a separate thread keeps
    * filling the buffer up.
+   *
+   * The implementation currently uses the lagged fibonacci generator. According to
+   * http://www.boost.org/doc/libs/1_35_0/libs/random/random-performance.html this is
+   * the fastest generator amongst all of Boost's generators. It is the author's belief that
+   * the "quality" of random numbers is of less concern in evolutionary algorithms, as the
+   * geometry of the quality surface adds to the randomness.
    */
   class GRandomFactory
   {
@@ -152,7 +154,7 @@ namespace GenEvA {
      * gauss threads. It seeds the random number generator and starts the
      * producer01 thread. Note that we enforce a minimum number of threads.
      */
-    GRandomFactory(uint8_t n01Threads, uint8_t nGaussThreads) throw() :
+    GRandomFactory(boost::uint8_t n01Threads, boost::uint8_t nGaussThreads) throw() :
       g01_(DEFAULTFACTORYBUFFERSIZE), gGauss_(DEFAULTFACTORYBUFFERSIZE), seed_(
           GSeed()), n01Threads_(n01Threads ? n01Threads : 1), nGaussThreads_(
           nGaussThreads ? nGaussThreads : 1)
@@ -200,11 +202,11 @@ namespace GenEvA {
      * @param n01Threads
      * @param nGaussThreads
      */
-    void setNProducerThreads(uint8_t n01Threads, uint8_t nGaussThreads){
+    void setNProducerThreads(boost::uint8_t n01Threads, boost::uint8_t nGaussThreads){
       if(n01Threads > n01Threads_){ // start new 01 threads
-        for(uint8_t i=n01Threads_; i<n01Threads; i++){
+        for(boost::uint8_t i=n01Threads_; i<n01Threads; i++){
           producer_threads_01_.create_thread(boost::bind(
-                       &GRandomFactory::producer01, this, seed_ + uint32_t(i)));
+                       &GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
         }
       }
       else if(n01Threads < n01Threads_){ // We need to remove threads
@@ -212,9 +214,9 @@ namespace GenEvA {
       }
 
       if(nGaussThreads > nGaussThreads_){ // start new gauss threads
-        for(uint8_t i=nGaussThreads_; i<nGaussThreads; i++){
+        for(boost::uint8_t i=nGaussThreads_; i<nGaussThreads; i++){
           producer_threads_gauss_.create_thread(boost::bind(
-                       &GRandomFactory::producer01, this, seed_ + uint32_t(i)));
+                       &GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
         }
       }
       else if(nGaussThreads < nGaussThreads_){ // We need to remove threads
@@ -283,15 +285,15 @@ namespace GenEvA {
     void
     startProducerThreads(void) throw()
     {
-      for (uint8_t i = 0; i < n01Threads_; i++)
+      for (boost::uint8_t i = 0; i < n01Threads_; i++)
         {
           // thread() doesn't throw, and no exceptions are listed in the documentation
           // for the create_thread() function, so we assume it doesn't throw.
           producer_threads_01_.create_thread(boost::bind(
-              &GRandomFactory::producer01, this, seed_ + uint32_t(i)));
+              &GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
         }
 
-      for (uint8_t i = 0; i < nGaussThreads_; i++)
+      for (boost::uint8_t i = 0; i < nGaussThreads_; i++)
         {
           producer_threads_gauss_.create_thread(boost::bind(
               &GRandomFactory::producerGauss, this));
@@ -308,7 +310,7 @@ namespace GenEvA {
      * @param seed The seed for our local random number generator
      */
     void
-    producer01(const uint32_t& seed) throw()
+    producer01(const boost::uint32_t& seed) throw()
     {
       try
         {
@@ -325,7 +327,7 @@ namespace GenEvA {
                   boost::shared_ptr<GRandomNumberContainer_dbl> p(
                       new GRandomNumberContainer_dbl);
 
-                  for (uint16_t i = 0; i < DEFAULTARRAYSIZE; i++)
+                  for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
                     {
 #ifdef DEBUG
                       double value = lf();
@@ -435,7 +437,7 @@ namespace GenEvA {
 
                   if (x1_ && x2_)
                     {
-                      for (uint16_t i = 0; i < DEFAULTARRAYSIZE; i++)
+                      for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
                         {
                           double d1 = 0., d2 = 0.;
 
@@ -520,10 +522,10 @@ namespace GenEvA {
     GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > g01_; ///< A bounded buffer holding the [0,1[ random number packages
     GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > gGauss_; ///< A bounded buffer holding gaussian random number packages
 
-    uint32_t seed_; ///< The seed for the random number generators
+    boost::uint32_t seed_; ///< The seed for the random number generators
 
-    uint8_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers (255)
-    uint8_t nGaussThreads_; ///< The number of threads used to produce gauss random numbers (255)
+    boost::uint8_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers (255)
+    boost::uint8_t nGaussThreads_; ///< The number of threads used to produce gauss random numbers (255)
 
     GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
     GThreadGroup producer_threads_gauss_; ///< A thread group that holds [0,1[ producer threads
@@ -670,10 +672,10 @@ public:
    * @param max The maximum (excluded) value of the range
    * @return Discrete random numbers evenly distributed in the range [0,max[
    */
-  uint16_t
-  discreteRandom(uint16_t max)
+  boost::uint16_t
+  discreteRandom(boost::uint16_t max)
   {
-    uint16_t result = static_cast<uint16_t> (GRandom::evenRandom(
+    boost::uint16_t result = static_cast<boost::uint16_t> (GRandom::evenRandom(
         static_cast<double> (max)));
 #ifdef DEBUG
     assert(result<max);
@@ -690,13 +692,13 @@ public:
    * @param max The maximum (excluded) value of the range
    * @return Discrete random numbers evenly distributed in the range [min,max[
    */
-  int16_t
-  discreteRandom(int16_t min, int16_t max)
+  boost::int16_t
+  discreteRandom(boost::int16_t min, boost::int16_t max)
   {
 #ifdef DEBUG
 	assert(min < max);
 #endif
-	int16_t result = discreteRandom(static_cast<int16_t>(max-min)) + min;
+	boost::int16_t result = discreteRandom(static_cast<boost::int16_t>(max-min)) + min;
 
 #ifdef DEBUG
     assert(result>=min && result<max);
@@ -771,7 +773,7 @@ private:
     boost::lagged_fibonacci607 lf(GSeed());
     boost::shared_ptr<GRandomNumberContainer_dbl> p(new GRandomNumberContainer_dbl);
 
-    for (uint16_t i = 0; i < DEFAULTARRAYSIZE; i++)
+    for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
       {
 #ifdef DEBUG
         double value = lf();
@@ -795,7 +797,7 @@ private:
   {
     boost::shared_ptr<GRandomNumberContainer_dbl> p(new GRandomNumberContainer_dbl);
 
-    for (uint16_t i = 0; i < DEFAULTARRAYSIZE; i++)
+    for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
       {
 #ifdef DEBUG
         double value = sqrt(fabs(-2. * log(1. - evenRandom()))) * sin(2. * M_PI * evenRandom());
@@ -848,14 +850,15 @@ private:
   boost::shared_ptr<GRandomNumberContainer_dbl> p01_; ///< Holds the container of [0,1[ random numbers
   boost::shared_ptr<GRandomNumberContainer_dbl> pGauss_; ///< Holds the container of gaussian random numbers
 
-  uint16_t current01_;
-  uint16_t currentGauss_;
+  std::size_t current01_;
+  std::size_t currentGauss_;
 };
 
 /****************************************************************************/
 //////////////////////////////////////////////////////////////////////////////
 /****************************************************************************/
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 #endif /* GRANDOM_H */

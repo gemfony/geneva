@@ -85,15 +85,19 @@ namespace GLogFramework {
   public:
     /** @brief A standard constructor */
     GDiskLogger();
+    /** @brief The copy constructor */
+    GDiskLogger(const GDiskLogger&);
     /** @brief This constructor accepts the name of the log file as argument */
     explicit GDiskLogger(const std::string& fname);
     /** @brief The standard destructor */
     virtual ~GDiskLogger();
+    /** @brief Standard assignment operator */
+    const GDiskLogger& operator=(const GDiskLogger&);
     /** @brief Implements logging to a file on disk */
     virtual void log(const std::string& msg);
 
   private:
-    const std::string& fname_; ///< The name of the log file
+    std::string fname_; ///< The name of the log file
   };
 
   /***********************************************************************************/

@@ -112,7 +112,7 @@ int main(int argc, char **argv){
 	LOGGER.addLogLevel(GLogFramework::PROGRESS);
 
 	// Add log targets to the system
-	LOGGER.addTarget(new GLogFramework::GDiskLogger());
+	LOGGER.addTarget(new GLogFramework::GDiskLogger("GSimpleBasePopulation.log"));
 	LOGGER.addTarget(new GLogFramework::GConsoleLogger());
 
 	// Random numbers are our most valuable good. Set the number of threads
