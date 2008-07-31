@@ -29,7 +29,7 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(GenEvA::GBoundary)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GBoundary)
 
 
 namespace Gem
