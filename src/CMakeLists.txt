@@ -15,6 +15,7 @@ GObject
 GParameterBase
 GParameterSet
 GRandom
+GRange
 )
 
 SET ( GENEVAINCLUDEDIRS

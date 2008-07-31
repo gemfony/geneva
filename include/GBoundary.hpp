@@ -95,9 +95,6 @@ namespace GenEvA
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone();
 
-    /** @brief Retrieves the current value of this boundary */
-    virtual double value() const throw();
-
     /** @brief Marks the boundary as active or inactive */
     void setIsActive(bool) throw();
     /** @brief Checks whether this boundary is active */

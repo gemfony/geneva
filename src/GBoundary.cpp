@@ -169,16 +169,6 @@ namespace GenEvA
 
   /***************************************************************************/
   /**
-   * Returns the current value of the boundary_ variable.
-   *
-   * @return The current boundary value
-   */
-  double GBoundary::value() const throw() {
-    return boundary_;
-  }
-
-  /***************************************************************************/
-  /**
    * Specifies whether this boundary is active.
    *
    * @param isactive A parameter indicating whether or not this is an active boundary

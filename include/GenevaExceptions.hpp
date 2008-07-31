@@ -87,9 +87,12 @@ class geneva_duplicate_adaptor : public boost::exception {};
 // GParameterSet
 /** @brief Class to be thrown as an error if an empty evaluation function was supplied */
 class geneva_empty_evaluation_function : public boost::exception {};
-
 /** @brief Class to be thrown as an error if no or not the required adaptor was found */
 class geneva_no_adaptor_found : public boost::exception {};
+
+//GRange
+/** @brief Class to be thrown as an error if some range data was invalid */
+class geneva_invalid_range_data : public boost::exception {};
 
 // Several classes
 /** @brief Class to be thrown as an error by GenEvA's load functions */
