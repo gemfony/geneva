@@ -49,6 +49,8 @@ namespace Gem
 {
 namespace GenEvA
 {
+	const bool BNDISCLOSED=false;
+	const bool BNDISOPEN=true;
 
   /***************************************************************************/
   /**

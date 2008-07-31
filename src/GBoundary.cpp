@@ -47,7 +47,7 @@ namespace GenEvA
 	  boundary_(0),
 	  isactive_(false),
 	  isupper_(true),
-	  isopen_(false)
+	  isopen_(BNDISCLOSED)
   { /* nothing */ }
 
   /***************************************************************************/
@@ -111,7 +111,7 @@ namespace GenEvA
     setBoundary(0.);
     setIsActive(false);
     setIsUpper(true);
-    setIsOpen(false);
+    setIsOpen(BNDISCLOSED);
 
     // then we reset the parent class
     GObject::reset();
@@ -273,7 +273,8 @@ namespace GenEvA
   /**
    * Finds the smallest double x for which x+getMinDouble(x) > x
    * Attention : This implementation seems to be close to the smallest
-   * distinguishable double, but apparently still returns slightly too large values.
+   * distinguishable double, but apparently still returns slightly too
+   * large values.
    *
    * \param val double value for which to search for smallest larger neighbour
    * \return Smallest distinguishable double (for "val").

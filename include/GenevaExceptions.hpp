@@ -76,6 +76,12 @@ class geneva_result_not_in_range: public boost::exception {};
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
 class geneva_condition_time_out: public boost::exception {};
 
+// GBoundedDouble
+/** @brief Class to be thrown as an error in the case of a resize with ranges present */
+class geneva_resize_with_ranges: public boost::exception {};
+/** @brief Class to be thrown as an error if an invalid range was added */
+class geneva_invalid_range_added: public boost::exception {};
+
 // GIndividual
 /** @brief Class to be thrown as an error if the dirty flag is set while lazy evaluation is not allowed */
 class geneva_dirtyflag_set_lazyevaluation_not : public boost::exception {};

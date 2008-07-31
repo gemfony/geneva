@@ -114,7 +114,7 @@ public:
 	 * @param val The new value for val_
 	 * @return The new value of val_
 	 */
-	const T& operator=(const T& val){
+	virtual T operator=(T val){
 		val_ = val;
 		return val_;
 	}
@@ -204,7 +204,7 @@ public:
 		}
 	}
 
-private:
+protected:
 	/*******************************************************************************************/
 
 	T val_; ///< The internal representation of our value
