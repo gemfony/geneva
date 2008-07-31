@@ -68,6 +68,10 @@ class geneva_too_few_children : public boost::exception {};
  * GBasePopulation::fitnessCalculation() */
 class geneva_dirty_individual : public boost::exception {};
 
+// GBoundary
+/** @brief Class to be thrown as an error if the result was not in the expected range */
+class geneva_result_not_in_range: public boost::exception {};
+
 // GBoundedBuffer
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
 class geneva_condition_time_out: public boost::exception {};
