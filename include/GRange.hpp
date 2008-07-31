@@ -45,6 +45,7 @@
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
+namespace Gem {
 namespace GenEvA {
 
 /***********************************************************************/
@@ -65,7 +66,9 @@ const double DEFAULTRANGE = 10.;
  * A GRange object can be either active or inactive. This class represents this concept.
  * The class is mainly used in the context of the GDouble class.
  */
-class GRange: public GenEvA::GObject {
+class GRange
+	:public GObject
+{
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 

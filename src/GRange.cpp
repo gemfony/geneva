@@ -346,7 +346,7 @@ namespace Gem
 					 other.upperBoundary()> lowerBoundary() && \
 					 other.upperBoundary() <= upperBoundary())) \
 					 ?true \
-					 :flase;
+					 :false;
 		}
 
 		/***********************************************************************/
@@ -357,8 +357,8 @@ namespace Gem
 		 * @return A boolean indicating whether the other object is contained in this range
 		 */
 		bool GRange::contains(GRange& other) {
-			return ((other.lowerBoundary() >= this->lowerBoundary()
-				  && other.upperBoundary() <= this->upperBoundary()) \
+			return (other.lowerBoundary() >= this->lowerBoundary()
+				 && other.upperBoundary() <= this->upperBoundary()) \
 				  ?true \
 				  :false;
 		}

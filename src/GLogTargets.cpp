@@ -107,9 +107,13 @@ namespace GLogFramework {
   /***********************************************************************************/
   /**
    * Standard assignment operator
+   *
+   * @param cp A copy of another GDiskLogger object
+   * @return A constant reference to this object
    */
   const GDiskLogger& GDiskLogger::operator=(const GDiskLogger& cp){
 	  fname_ = cp.fname_;
+	  return *this;
   }
 
   /***********************************************************************************/
