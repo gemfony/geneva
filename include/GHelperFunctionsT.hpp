@@ -33,8 +33,8 @@
 #include <boost/cstdint.hpp>
 
 
-#ifndef GTEMPLATEHELPERFUNCTIONS_H_
-#define GTEMPLATEHELPERFUNCTIONS_H_
+#ifndef GHELPFERFUNCTIONST_HPP_
+#define GHELPFERFUNCTIONST_HPP_
 
 using namespace std;
 
@@ -55,7 +55,7 @@ namespace GenEvA
  * @param load_ptr A pointer to another T-object, camouflaged as a GObject
  */
 template <class T>
-const T* checkConversion(const GObject *load_ptr, const T* This){
+const T* checkConversion(const Gem::GenEvA::GObject *load_ptr, const T* This){
 	const T *result = dynamic_cast<const T *> (load_ptr);
 
 	// dynamic_cast will emit a NULL pointer, if the conversion failed
@@ -88,4 +88,4 @@ const T* checkConversion(const GObject *load_ptr, const T* This){
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GTEMPLATEHELPERFUNCTIONS_H_*/
+#endif /* GHELPFERFUNCTIONST_HPP_*/
