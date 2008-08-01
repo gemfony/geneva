@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.6)
 SET ( GENEVASOURCES
 GBasePopulation
 GBoostThreadPopulation
-GBoundary
 # GBoundedDouble
 GDoubleCollection 
 GDoubleGaussAdaptor
@@ -16,7 +15,6 @@ GObject
 GParameterBase
 GParameterSet
 GRandom
-GRange
 )
 
 SET ( GENEVAINCLUDEDIRS
