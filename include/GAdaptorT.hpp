@@ -171,7 +171,7 @@ public:
 	 * @param gb A pointer to another GAdaptorT<T>, camouflaged as a GObject
 	 */
 	virtual void load(const GObject *cp) {
-		const GAdaptorT<T> *gat = GObject::checkConversion(cp, this);
+		const GAdaptorT<T> *gat = this->checkConversion(cp, this);
 
 		/*
 		const GAdaptorT<T> *gat = dynamic_cast<const GAdaptorT<T> *> (cp);
