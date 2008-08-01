@@ -166,7 +166,7 @@ void GBasePopulation::reset()
  */
 void GBasePopulation::load(const GObject * cp)
 {
-	const GBasePopulation *gbp_load = checkedConversion<GBasePopulation>(cp,this);
+	const GBasePopulation *gbp_load = this->checkedConversion<GBasePopulation>(cp,this);
 
 	// First load the parent class'es data ...
 	GIndividualSet::load(cp);

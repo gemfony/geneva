@@ -347,7 +347,7 @@ GObject *GDoubleGaussAdaptor::clone(void)
 void GDoubleGaussAdaptor::load(const GObject *cp)
 {
 	// Convert GObject pointer to local format
-	const GDoubleGaussAdaptor *gdga = checkedConversion<GDoubleGaussAdaptor>(cp, this);
+	const GDoubleGaussAdaptor *gdga = this->checkedConversion<GDoubleGaussAdaptor>(cp, this);
 
 	// Load the data of our parent class ...
 	GAdaptorT<double>::load(cp);

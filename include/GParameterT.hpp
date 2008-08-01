@@ -40,8 +40,8 @@
 
 // GenEvA header files go here
 #include "GParameterBaseWithAdaptorsT.hpp"
+#include "GObject.hpp"
 #include "GLogger.hpp"
-#include "GHelperFunctionsT.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem {

@@ -45,6 +45,7 @@
 
 // GenEvA headers go here
 #include "GParameterBase.hpp"
+#include "GObject.hpp"
 #include "GAdaptorT.hpp"
 #include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
@@ -135,7 +136,7 @@ public:
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
 		const  GParameterBaseWithAdaptorsT<T> *gpbwa =
-			checkedConversion<GParameterBaseWithAdaptorsT<T> >(cp, this);
+			this->checkedConversion<GParameterBaseWithAdaptorsT<T> >(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBase::load(cp);

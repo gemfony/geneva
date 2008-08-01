@@ -145,31 +145,15 @@ namespace GenEvA
   /**
    * Loads the content of another GBitFlipAdaptor, camouflaged as a GObject
    *
-   * @param gb A pointer to another GBitFlipAdaptor object, camouflaged as a GObject
+   * @param cp A pointer to another GBitFlipAdaptor object, camouflaged as a GObject
    */
+  void GBitFlipAdaptor::load(const GObject *cp){
+    const GBitFlipAdaptor *gbfa = this->checkedConversion<GBitFlipAdaptor>(cp, this);
 
-  void GBitFlipAdaptor::load(const GObject *gb){
-    const GBitFlipAdaptor *gbfa = dynamic_cast<const GBitFlipAdaptor *>(gb);
+    // Now we can load our parent class'es data ...
+    GAdaptorT<GenEvA::bit>::load(cp);
 
-    // dynamic_cast will emit a NULL pointer, if the conversion failed
-    if(!gb){
-      gls << "In GBitFlipAdaptor::load() : Conversion error!" << endl
-	  << logLevel(CRITICAL);
-
-      exit(1);
-    }
-
-    // Check that this object is not accidently assigned to itself.
-    if(gbfa == this){
-      gls << "In GBitFlipAdaptor::load(): Error!" << endl
-	  << "Tried to assign an object to itself." << endl
-	  << logLevel(CRITICAL);
-
-      exit(1);
-    }
-
-    // Now we can load the actual data
-    GAdaptorT<GenEvA::bit>::load(gb);
+    // ... and then our own
     mutProb_ = gbfa->mutProb_;
     allowProbabilityMutation_ = gbfa->allowProbabilityMutation_;
   }

@@ -125,7 +125,7 @@ namespace GenEvA
    */
   void GBoundary::load(const GObject *cp){
 	// Convert GObject pointer to local format
-    const GBoundary *gb_load = checkedConversion<GBoundary>(cp,this);
+    const GBoundary *gb_load = this->checkedConversion<GBoundary>(cp,this);
 
 	// Load the parent class'es data
 	GObject::load(cp);

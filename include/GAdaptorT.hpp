@@ -173,7 +173,7 @@ public:
 	 */
 	virtual void load(const GObject *cp) {
 		// Convert cp into local format
-		const GAdaptorT<T> *gat = checkedConversion<GAdaptorT<T> >(cp, this);
+		const GAdaptorT<T> *gat = this->checkedConversion<GAdaptorT<T> >(cp, this);
 
 		// Load the parent class'es data
 		GObject::load(cp);

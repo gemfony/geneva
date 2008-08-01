@@ -45,7 +45,6 @@
 #include "GMutableSetT.hpp"
 #include "GParameterBase.hpp"
 #include "GEvaluator.hpp"
-#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 

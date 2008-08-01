@@ -101,7 +101,7 @@ void GBoostThreadPopulation::reset(void) {
  */
 void GBoostThreadPopulation::load(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GBoostThreadPopulation *gbp = checkedConversion<GBoostThreadPopulation>(cp, this);
+	const GBoostThreadPopulation *gbp = this->checkedConversion<GBoostThreadPopulation>(cp, this);
 
 		dynamic_cast<const GBoostThreadPopulation *>(cp);
 

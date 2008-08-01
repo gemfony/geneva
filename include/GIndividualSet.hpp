@@ -42,7 +42,7 @@
 // GenEvA headers go here
 #include "GMutableSetT.hpp"
 #include "GIndividual.hpp"
-#include "GHelperFunctionsT.hpp"
+#include "GObject.hpp"
 
 namespace Gem {
 namespace GenEvA {

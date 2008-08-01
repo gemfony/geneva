@@ -36,6 +36,7 @@
 using namespace std;
 
 #include "GAdaptorT.hpp"
+#include "GObject.hpp"
 #include "GBoundedDouble.hpp"
 #include "GEnums.hpp"
 

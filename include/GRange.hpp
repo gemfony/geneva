@@ -42,7 +42,6 @@
 // Geneva headers go here
 #include "GObject.hpp"
 #include "GBoundary.hpp"
-#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 

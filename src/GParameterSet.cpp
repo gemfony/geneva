@@ -101,7 +101,7 @@ namespace Gem
 		 */
 		void GParameterSet::load(const GObject* cp){
 			// Convert to local format
-			const GParameterSet *gps_load = checkedConversion<GParameterSet>(cp, this);
+			const GParameterSet *gps_load = this->checkedConversion<GParameterSet>(cp, this);
 
 			// Load the parent class'es data
 			GMutableSetT<Gem::GenEvA::GParameterBase>::load(cp);

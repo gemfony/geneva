@@ -41,6 +41,7 @@
 
 // GenEvA header files go here
 #include "GParameterBaseWithAdaptorsT.hpp"
+#include "GObject.hpp"
 #include "GHelperFunctionsT.hpp"
 
 namespace Gem {
@@ -128,7 +129,7 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
-		const GParameterCollectionT<T> *gpct = checkedConversion<GParameterCollectionT<T> >(cp, this);
+		const GParameterCollectionT<T> *gpct = this->checkedConversion<GParameterCollectionT<T> >(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<T>::load(cp);
