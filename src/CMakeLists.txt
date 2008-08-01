@@ -4,7 +4,7 @@ SET ( GENEVASOURCES
 GBasePopulation
 GBoostThreadPopulation
 GBoundary
-GBoundedDouble
+# GBoundedDouble
 GDoubleCollection 
 GDoubleGaussAdaptor
 GEvaluator

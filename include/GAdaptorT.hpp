@@ -170,8 +170,11 @@ public:
 	 *
 	 * @param gb A pointer to another GAdaptorT<T>, camouflaged as a GObject
 	 */
-	virtual void load(const GObject *gb) {
-		const GAdaptorT<T> *gat = dynamic_cast<const GAdaptorT<T> *> (gb);
+	virtual void load(const GObject *cp) {
+		const GAdaptorT<T> *gat = GBobject::checkConversion(cp, this);
+
+		/*
+		const GAdaptorT<T> *gat = dynamic_cast<const GAdaptorT<T> *> (cp);
 
 		// dynamic_cast will emit a NULL pointer, if the conversion failed
 		if (!gat) {
@@ -194,9 +197,10 @@ public:
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_object_assigned_to_itself() << error_string(error.str());
 		}
+	*/
 
 		// Load the parent class'es data
-		GObject::load(gb);
+		GObject::load(cp);
 
 		// Then our own data
 		alwaysInit_ = gat->alwaysInit_;

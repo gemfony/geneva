@@ -86,6 +86,12 @@ class geneva_invalid_range_added: public boost::exception {};
 /** @brief Class to be thrown as an error if the dirty flag is set while lazy evaluation is not allowed */
 class geneva_dirtyflag_set_lazyevaluation_not : public boost::exception {};
 
+// GObject
+/** @brief Class to be thrown as an error by GenEvA's load functions */
+class geneva_object_assigned_to_itself :public boost::exception {};
+/** @brief Class to be thrown as an error in case of conversion errors */
+class geneva_dynamic_cast_conversion_error :public boost::exception {};
+
 // GParameterBaseWithAdaptorsT
 /** @brief Class to be thrown as an error if an adaptor with the same name is already present */
 class geneva_duplicate_adaptor : public boost::exception {};
@@ -101,10 +107,6 @@ class geneva_no_adaptor_found : public boost::exception {};
 class geneva_invalid_range_data : public boost::exception {};
 
 // Several classes
-/** @brief Class to be thrown as an error by GenEvA's load functions */
-class geneva_object_assigned_to_itself :public boost::exception {};
-/** @brief Class to be thrown as an error in case of conversion errors */
-class geneva_dynamic_cast_conversion_error :public boost::exception {};
 /** @brief Class to be thrown as an error if an evaluation is attempted while no evaluation function
  * object has been registered. */
 class geneva_evaluation_function_not_present : public boost::exception {};

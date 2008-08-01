@@ -27,6 +27,7 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
+#include <typeinfo>
 
 // Boost header files go here
 
@@ -132,6 +133,10 @@ public:
 	void setSerializationMode(const serializationMode&);
 
 protected:
+	/** @brief Checks pointers in the load function */
+	template <class T>
+	virtual const T* checkConversion(GObject *, const T*);
+
     /**
      * @brief A random number generator. Each GenEvA object has
      * its own instance with a separate seed. Note that the actual
