@@ -53,19 +53,17 @@ namespace GenEvA {
  * long, GenEvA::bit, ...). The class is non-virtual, so that it is possible to store simple
  * values in this class without too much fuss.
  */
-template <class T>
-class GParameterCollectionT
-	:public GParameterBaseWithAdaptorsT<T>,
-	 public std::vector<T>
-{
+template<class T>
+class GParameterCollectionT: public GParameterBaseWithAdaptorsT<T> ,
+		public std::vector<T> {
 public:
 	/*******************************************************************************************/
 	/**
 	 * The default constructor
 	 */
-	GParameterCollectionT()
-		:GParameterBaseWithAdaptorsT<T>()
-	{ /* nothing */ }
+	GParameterCollectionT() :
+		GParameterBaseWithAdaptorsT<T> () { /* nothing */
+	}
 
 	/*******************************************************************************************/
 	/**
@@ -73,19 +71,19 @@ public:
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object
 	 */
-	GParameterCollectionT(const GParameterCollectionT<T>& cp)
-		:GParameterBaseWithAdaptorsT<T>(cp)
-	{
+	GParameterCollectionT(const GParameterCollectionT<T>& cp) :
+		GParameterBaseWithAdaptorsT<T> (cp) {
 		typename std::vector<T>::const_iterator cit;
-		for(cit=cp.begin(); cit!=cp.end(); ++cit) this->push_back(*cit);
+		for (cit = cp.begin(); cit != cp.end(); ++cit)
+			this->push_back(*cit);
 	}
 
 	/*******************************************************************************************/
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GParameterCollectionT()
-	{ /* nothing */	}
+	virtual ~GParameterCollectionT() { /* nothing */
+	}
 
 	/*******************************************************************************************/
 	/**
@@ -94,7 +92,8 @@ public:
 	 * @param cp A copy of another GParameterCollectionT object
 	 * @return A constant reference to this object
 	 */
-	const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp){
+	const GParameterCollectionT<T>& operator=(
+			const GParameterCollectionT<T>& cp) {
 		GParameterCollectionT<T>::load(cp);
 		return *this;
 	}
@@ -105,15 +104,15 @@ public:
 	 *
 	 * @return A copy of this object, camouflaged as a GObject
 	 */
-	virtual GObject* clone(){
-		return new GParameterCollectionT<T>(*this);
+	virtual GObject* clone() {
+		return new GParameterCollectionT<T> (*this);
 	}
 
 	/*******************************************************************************************/
 	/**
 	 * Resets the class to its initial state.
 	 */
-	virtual void reset(){
+	virtual void reset() {
 		// First reset our local data ...
 		this->clear();
 
@@ -127,7 +126,7 @@ public:
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
 	 */
-	virtual void load(const GObject* cp){
+	virtual void load(const GObject* cp) {
 		// Convert cp into local format
 		const GParameterCollectionT<T> *gpct = this->checkedConversion<GParameterCollectionT<T> >(cp, this);
 
@@ -138,20 +137,20 @@ public:
 		typename std::vector<T>::iterator it;
 		typename std::vector<T>::const_iterator cit;
 
-		for(cit=gpct->begin(), it=this->begin();
-			cit!=gpct->end(), it!=this->end();
-			++it, ++cit){
+		for (cit = gpct->begin(), it = this->begin(); cit != gpct->end(), it
+				!= this->end(); ++it, ++cit) {
 			(*it) = (*cit);
 		}
 
 		std::size_t gpct_sz = gpct->size(), this_sz = this->size();
-		if(gpct->size() == this->size()) return; // Likely the most probable case
-		else if(gpct_sz > this_sz){
-			for(cit=gpct->begin()+this_sz; cit!=gpct->end(); ++cit){
+		if (gpct->size() == this->size())
+			return; // Likely the most probable case
+		else if (gpct_sz > this_sz) {
+			for (cit = gpct->begin() + this_sz; cit != gpct->end(); ++cit) {
 				this->push_back(*cit);
 			}
-		}
-		else if(this_sz > gpct_sz) this->resize(gpct_sz); // get rid of the surplus elements
+		} else if (this_sz > gpct_sz)
+			this->resize(gpct_sz); // get rid of the surplus elements
 	}
 
 	/*******************************************************************************************/
@@ -161,17 +160,17 @@ public:
 	 * to a vector<T>. As we are derived from this class, we can just pass a reference to ourselves
 	 * to the functions.
 	 */
-	virtual void mutate(void){
-		if(GParameterBaseWithAdaptorsT<T>::numberOfAdaptors() == 1){
+	virtual void mutate(void) {
+		if (GParameterBaseWithAdaptorsT<T>::numberOfAdaptors() == 1) {
 			GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(*this);
-		}
-		else {
+		} else {
 			GParameterBaseWithAdaptorsT<T>::applyAllAdaptors(*this);
 		}
 	}
 	/*******************************************************************************************/
 };
 
-}} /* namespace Gem::GenEvA */
+}
+} /* namespace Gem::GenEvA */
 
 #endif /* GPARAMETERCOLLECTIONT_HPP_ */
