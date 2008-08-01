@@ -122,7 +122,7 @@ namespace Gem
 		 * @param cp Another GRange object, camouflaged as a GObject
 		 */
 		void GRange::load(const GObject * cp) {
-			const GRange *gr_load = this->checkedConversion<GRange>(cp, this);
+			const GRange *gr_load = this->checkedConversion(cp, this);
 
 			// First load our parent class'es data ...
 			GObject::load(cp);

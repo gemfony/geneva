@@ -47,7 +47,6 @@
 #include "GDoubleGaussAdaptor.hpp"
 #include "GParameterT.hpp"
 #include "GObject.hpp"
-#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 

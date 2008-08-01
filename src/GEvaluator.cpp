@@ -98,7 +98,7 @@ namespace Gem
 		/** @brief Loads the data of another GEvaluator, camouflaged as a GObject */
 		void GEvaluator::load(const GObject* cp){
 			// Convert to local format
-			const GEvaluator *ge_load = this->checkedConversion<GEvaluator>(cp, this);
+			const GEvaluator *ge_load = this->checkedConversion(cp, this);
 
 			// Load the parent class'es data
 			GObject::load(cp);

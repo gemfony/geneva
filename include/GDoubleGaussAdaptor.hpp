@@ -45,7 +45,6 @@
 #include "GAdaptorT.hpp"
 #include "GObject.hpp"
 #include "GRandom.hpp"
-#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 

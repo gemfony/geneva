@@ -47,7 +47,6 @@
 #include "GParameterBase.hpp"
 #include "GObject.hpp"
 #include "GAdaptorT.hpp"
-#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
@@ -135,8 +134,7 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
-		const  GParameterBaseWithAdaptorsT<T> *gpbwa =
-			this->checkedConversion<GParameterBaseWithAdaptorsT<T> >(cp, this);
+		const  GParameterBaseWithAdaptorsT<T> *gpbwa = this->checkedConversion(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBase::load(cp);

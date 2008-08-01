@@ -93,7 +93,7 @@ void GIndividual::reset() {
  * @param cp A copy of another GIndividual object, camouflaged as a GObject
  */
 void GIndividual::load(const GObject* cp) {
-	const GIndividual *gi_load = this->checkedConversion<GIndividual>(cp, this);
+	const GIndividual *gi_load = this->checkedConversion(cp, this);
 
 	// Load the parent class'es data
 	GObject::load(cp);
