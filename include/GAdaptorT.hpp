@@ -161,7 +161,7 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Loads the content of another GAdaptorT<T>. The function
+	 * Loads the contents of another GAdaptorT<T>. The function
 	 * is similar to a copy constructor (but with a pointer as
 	 * argument). As this function might be called in an environment
 	 * where we do not know the exact type of the class, the
