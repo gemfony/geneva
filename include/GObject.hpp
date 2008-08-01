@@ -150,9 +150,9 @@ protected:
 	 *
 	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
 	 */
-	template <class T>
-	inline const T* checkedConversion(const GObject *load_ptr, const T* This){
-		const T *result = dynamic_cast<const T *> (load_ptr);
+	template <class load_type>
+	inline const load_type* checkedConversion(const GObject *load_ptr, const load_type* This){
+		const load_type *result = dynamic_cast<const load_type *> (load_ptr);
 
 		// dynamic_cast will emit a NULL pointer, if the conversion failed
 		if (!result) {
