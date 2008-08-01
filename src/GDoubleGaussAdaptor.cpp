@@ -344,13 +344,13 @@ GObject *GDoubleGaussAdaptor::clone(void)
  *
  * @param A copy of another GDoubleGaussAdaptor, camouflaged as a GObject
  */
-void GDoubleGaussAdaptor::load(const GObject *gb)
+void GDoubleGaussAdaptor::load(const GObject *cp)
 {
 	// Convert GObject pointer to local format
 	const GDoubleGaussAdaptor *gdga = checkedConversion<GDoubleGaussAdaptor>(cp, this);
 
 	// Load the data of our parent class ...
-	GAdaptorT<double>::load(gb);
+	GAdaptorT<double>::load(cp);
 
 	// ... and then our own data
 	sigma_ = gdga->sigma_;
