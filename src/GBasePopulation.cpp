@@ -230,6 +230,9 @@ void GBasePopulation::optimize() {
 		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo();
 
 		generation_++; // update the generation_ counter
+
+		// Let parents and children know their new status and the current generation
+		this->markParents();
 	}
 	while(!halt()); // allows custom halt criteria
 }
@@ -741,24 +744,8 @@ void GBasePopulation::recombine()
 		throw geneva_too_few_children() << error_string(error.str());
 	}
 
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-
-	// Let parents know which generation they are in and that they
-	// are parents.
-	for(it=this->begin(); it!=this->begin()+nParents_; ++it) {
-		(*it)->setParentPopGeneration(generation_);
-		(*it)->setIsParent();
-	}
-
 	// Do the actual recombination
 	this->customRecombine();
-
-	// Let children know they are children and what generation
-	// they are in.
-	for(it=this->begin()+nParents_; it!=this->end(); ++it) {
-		(*it)->setParentPopGeneration(generation_);
-		(*it)->setIsChild();
-	}
 }
 
 /***********************************************************************************/
@@ -830,9 +817,6 @@ void GBasePopulation::select()
 	// this is the MUCOMMANU case
 	if(!muplusnu_)
 		std::swap_ranges(this->begin(),this->begin()+nParents_,this->begin()+nParents_);
-
-	// Tell parents and children about their status
-	markParents();
 }
 
 /***********************************************************************************/
@@ -880,8 +864,15 @@ double GBasePopulation::fitnessCalculation() {
  */
 void GBasePopulation::markParents() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=this->begin(); it!=this->begin()+nParents_; ++it) (*it)->setIsParent();
-	for(it=this->begin()+nParents_; it!=this->end(); ++it) (*it)->setIsChild();
+	for(it=this->begin(); it!=this->begin()+nParents_; ++it){
+		(*it)->setIsParent();
+		(*it)->setParentPopGeneration(generation_);
+	}
+
+	for(it=this->begin()+nParents_; it!=this->end(); ++it){
+		(*it)->setIsChild();
+		(*it)->setParentPopGeneration(generation_);
+	}
 }
 
 /******************************************************************************/

@@ -76,7 +76,7 @@ class GIndividual
 	  ar & make_nvp("dirtyFlag_",dirtyFlag_);
 	  ar & make_nvp("allowLazyEvaluation_",allowLazyEvaluation_);
 	  ar & make_nvp("parentPopGeneration_",parentPopGeneration_);
-	  ar & make_nvp("isParent_",isParent_);
+	  ar & make_nvp("parentCounter_",parentCounter_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -113,9 +113,9 @@ public:
 	bool isDirty() const throw();
 
 	/** @brief Sets the parentPopGeneration_ parameter */
-	void setParentPopGeneration(const uint32_t&) throw();
+	void setParentPopGeneration(const boost::uint32_t&) throw();
 	/** @brief Retrieve the parentPopGeneration_ parameter */
-	uint32_t getParentPopGeneration() const throw();
+	boost::uint32_t getParentPopGeneration() const throw();
 
 	/** @brief Checks whether this is a parent individual */
 	bool isParent() const throw();
@@ -125,6 +125,8 @@ public:
 	/** @brief Marks an individual as a child */
 	bool setIsChild(void);
 
+	/** @brief Retrieves the current value of the parentCounter_ variable */
+	boost::uint32_t getParentCounter() const throw();
 protected:
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;
@@ -135,7 +137,7 @@ protected:
 	void setDirtyFlag() throw();
 
 private:
-	/** @brief Sets the isParent_ parameter */
+	/** @brief Sets the parentCounter_ parameter */
 	bool setIsParent(const bool&) throw();
 
 	/** @brief Sets the dirtyFlag_ to any desired value */
@@ -148,9 +150,9 @@ private:
     /** @brief Steers whether lazy evaluation is allowed */
     bool allowLazyEvaluation_;
     /** @brief Holds the parent population's current generation */
-    uint32_t parentPopGeneration_;
+    boost::uint32_t parentPopGeneration_;
     /** @brief Allows populations to mark members as parents or children */
-    bool isParent_;
+    boost::uint32_t parentCounter_;
 };
 
 }} /* namespace Gem::GenEvA */
