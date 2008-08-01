@@ -222,7 +222,7 @@ void GObject::setSerializationMode(const serializationMode& ser) {
  */
 template <class T>
 inline const T* Gem::GenEvA::GObject::checkConversion(const Gem::GenEvA::GObject *load_ptr, const T* This){
-	const T *result = std::dynamic_cast<const T *> (load_ptr);
+	const T *result = dynamic_cast<const T *> (load_ptr);
 
 	// dynamic_cast will emit a NULL pointer, if the conversion failed
 	if (!result) {
