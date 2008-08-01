@@ -133,10 +133,6 @@ public:
 	void setSerializationMode(const serializationMode&);
 
 protected:
-	/** @brief Checks pointers in the load function */
-	template <class T>
-	const T* checkConversion(const GObject *, T*);
-
     /**
      * @brief A random number generator. Each GenEvA object has
      * its own instance with a separate seed. Note that the actual

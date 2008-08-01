@@ -39,7 +39,6 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GBoostThreadPopulation.hpp"
-#include "GObject.hpp"
 
 using namespace boost;
 using namespace Gem;
