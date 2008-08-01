@@ -46,6 +46,7 @@
 #include <boost/cstdint.hpp>
 
 #include "GRandom.hpp"
+#include "GObject.hpp"
 
 using namespace Gem::GenEvA;
 using namespace boost;
