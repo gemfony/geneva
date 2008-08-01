@@ -221,7 +221,7 @@ void GObject::setSerializationMode(const serializationMode& ser) {
  * @param load_ptr A pointer to another T-object, camouflaged as a GObject
  */
 template <class T>
-inline const T* GBobject::checkConversion(const GObject *load_ptr, const T* This){
+inline const T* GObject::checkConversion(const GObject *load_ptr, const T* This){
 	const T *result = dynamic_cast<const T *> (load_ptr);
 
 	// dynamic_cast will emit a NULL pointer, if the conversion failed
@@ -237,7 +237,7 @@ inline const T* GBobject::checkConversion(const GObject *load_ptr, const T* This
 	}
 
 	// Check that this object is not accidentally assigned to itself.
-	if (gb_load == This) {
+	if (load_ptr == This) {
 		std::ostringstream error;
 		error << "In GObject::checkConversion<T>() : Error!" << std::endl
 				<< "Tried to assign an object to itself." << std::endl;
