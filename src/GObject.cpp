@@ -221,7 +221,7 @@ void GObject::setSerializationMode(const serializationMode& ser) {
  * @param load_ptr A pointer to another T-object, camouflaged as a GObject
  */
 template <class T>
-inline const T* Gem::GenEvA::GObject::checkConversion(const Gem::GenEvA::GObject *load_ptr, const T* This){
+inline const T* GObject::checkConversion(const GObject *load_ptr, const T* This){
 	const T *result = dynamic_cast<const T *> (load_ptr);
 
 	// dynamic_cast will emit a NULL pointer, if the conversion failed
