@@ -150,29 +150,7 @@ public:
 	 * @param cp A copy of another GMutableSetT object, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-	    const GMutableSetT<T> *gms_load = dynamic_cast<const GMutableSetT<T> *>(cp);
-
-	    // dynamic_cast will emit a NULL pointer, if the conversion failed
-	    if(!gms_load){
-	    	std::ostringstream error;
-			error << "In GMutableSetT<T>::load(): Conversion error!" << std::endl;
-
-	    	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-	    }
-
-	    // Check that this object is not accidentally assigned to itself.
-	    if(gms_load == this){
-	    	std::ostringstream error;
-			error << "In GMutableSetT<T>::load(): Error!" << std::endl
-				  << "Tried to assign an object to itself." << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-	    }
+	    const GMutableSetT<T> *gms_load = checkConversion<GMutableSetT<T> >(cp, this);
 
 	    // No local data - first load the GIndividual data
 	    GIndividual::load(cp);

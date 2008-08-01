@@ -44,6 +44,7 @@
 #include "GMutableI.hpp"
 #include "GRateableI.hpp"
 #include "GObject.hpp"
+#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 

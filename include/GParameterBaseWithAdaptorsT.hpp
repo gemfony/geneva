@@ -46,6 +46,7 @@
 // GenEvA headers go here
 #include "GParameterBase.hpp"
 #include "GAdaptorT.hpp"
+#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 

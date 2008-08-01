@@ -41,6 +41,7 @@
 
 // GenEvA header files go here
 #include "GParameterBaseWithAdaptorsT.hpp"
+#include "GHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace GenEvA {

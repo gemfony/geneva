@@ -59,6 +59,7 @@ using namespace boost;
 #include "GIndividual.hpp"
 #include "GIndividualSet.hpp"
 #include "GRandom.hpp"
+#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 

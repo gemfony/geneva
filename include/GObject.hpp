@@ -62,6 +62,7 @@
 
 #include "GSerializableI.hpp"
 #include "GenevaExceptions.hpp"
+#include "GHelperFunctionsT.hpp"
 #include "GRandom.hpp"
 
 namespace Gem {

@@ -41,6 +41,7 @@
 
 // GenEvA headers go here
 #include "GObject.hpp"
+#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 
 namespace Gem {

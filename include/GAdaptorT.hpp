@@ -174,32 +174,6 @@ public:
 	virtual void load(const GObject *cp) {
 		const GAdaptorT<T> *gat = checkConversion<GAdaptorT<T> >(cp, this);
 
-		/*
-		const GAdaptorT<T> *gat = dynamic_cast<const GAdaptorT<T> *> (cp);
-
-		// dynamic_cast will emit a NULL pointer, if the conversion failed
-		if (!gat) {
-			std::ostringstream error;
-			error << "In GAdaptorT::load(): Conversion error!" << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-		}
-
-		// Check that this object is not accidently assigned to itself.
-		if (gat == this) {
-			std::ostringstream error;
-			error << "In GAdaptorT::load(): Error!" << std::endl
-				  << "Tried to assign an object to itself." << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_object_assigned_to_itself() << error_string(error.str());
-		}
-		 */
-
 		// Load the parent class'es data
 		GObject::load(cp);
 

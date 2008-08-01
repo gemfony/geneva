@@ -42,6 +42,7 @@
 
 // GenEvA header files go here
 #include "GObject.hpp"
+#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 

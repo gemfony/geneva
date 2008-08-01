@@ -51,6 +51,7 @@ using namespace boost::threadpool;
 
 #include "GBasePopulation.hpp"
 #include "GIndividual.hpp"
+#include "GHelperFunctionsT.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
