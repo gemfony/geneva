@@ -346,29 +346,8 @@ GObject *GDoubleGaussAdaptor::clone(void)
  */
 void GDoubleGaussAdaptor::load(const GObject *gb)
 {
-	const GDoubleGaussAdaptor *gdga = dynamic_cast<const GDoubleGaussAdaptor *>(gb);
-
-	// dynamic_cast will emit a NULL pointer, if the conversion failed
-	if(!gdga) {
-		std::ostringstream error;
-		error << "In GDoubleGaussAdaptor::load(): Conversion error!" << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-	}
-
-	// Check that this object is not accidently assigned to itself.
-	if(gdga == this) {
-		std::ostringstream error;
-		error << "In GDoubleGaussAdaptor::load(): Error!" << std::endl
-			  << "Tried to assign an object to itself." << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_object_assigned_to_itself() << error_string(error.str());
-	}
+	// Convert GObject pointer to local format
+	const GDoubleGaussAdaptor *gdga = checkedConversion<GDoubleGaussAdaptor>(cp, this);
 
 	// Load the data of our parent class ...
 	GAdaptorT<double>::load(gb);

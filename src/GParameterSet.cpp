@@ -100,29 +100,8 @@ namespace Gem
 		 * @param cp A copy of another GParameterSet object, camouflaged as a GObject
 		 */
 		void GParameterSet::load(const GObject* cp){
-			const GParameterSet *gps_load = dynamic_cast<const GParameterSet *> (cp);
-
-			// dynamic_cast will emit a NULL pointer, if the conversion failed
-			if (!gps_load) {
-				std::ostringstream error;
-				error << "In GParameterSet::load(): Conversion error!" << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				// throw an exception. Add some information so that if the exception
-				// is caught through a base object, no information is lost.
-				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-			}
-
-			// Check that this object is not accidentally assigned to itself.
-			if (gps_load == this) {
-				std::ostringstream error;
-				error << "In GParameterSet::load(): Error!" << std::endl
-					  << "Tried to assign an object to itself." << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_object_assigned_to_itself() << error_string(error.str());
-			}
+			// Convert to local format
+			const GParameterSet *gps_load = checkedConversion<GParameterSet>(cp, this);
 
 			// Load the parent class'es data
 			GMutableSetT<Gem::GenEvA::GParameterBase>::load(cp);

@@ -93,31 +93,7 @@ void GIndividual::reset() {
  * @param cp A copy of another GIndividual object, camouflaged as a GObject
  */
 void GIndividual::load(const GObject* cp) {
-	const GIndividual *gi_load = dynamic_cast<const GIndividual *> (cp);
-
-	// dynamic_cast will emit a NULL pointer, if the conversion failed
-	if (!gi_load) {
-		std::ostringstream error;
-		error << "In GIndividual::load(): Conversion error!" << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_dynamic_cast_conversion_error() << error_string(
-				error.str());
-	}
-
-	// Check that this object is not accidentally assigned to itself.
-	if (gi_load == this) {
-		std::ostringstream error;
-		error << "In GIndividual::load(): Error!" << std::endl
-				<< "Tried to assign an object to itself." << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_dynamic_cast_conversion_error() << error_string(
-				error.str());
-	}
+	const GIndividual *gi_load = checkedConversion<GIndividual>(cp, this);
 
 	// Load the parent class'es data
 	GObject::load(cp);

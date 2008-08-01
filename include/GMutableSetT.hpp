@@ -150,7 +150,8 @@ public:
 	 * @param cp A copy of another GMutableSetT object, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-	    const GMutableSetT<T> *gms_load = checkConversion<GMutableSetT<T> >(cp, this);
+		// Convert cp into local format
+	    const GMutableSetT<T> *gms_load = checkedConversion<GMutableSetT<T> >(cp, this);
 
 	    // No local data - first load the GIndividual data
 	    GIndividual::load(cp);

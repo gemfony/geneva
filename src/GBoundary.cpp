@@ -124,29 +124,8 @@ namespace GenEvA
    *  @param cp A copy of another GBoundary object, camouflaged as a GObject
    */
   void GBoundary::load(const GObject *cp){
-	const GBoundary *gb_load = dynamic_cast<const GBoundary *> (cp);
-
-	// dynamic_cast will emit a NULL pointer, if the conversion failed
-	if (!gb_load) {
-		std::ostringstream error;
-		error << "In GBoundary::load(): Conversion error!" << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-	}
-
-	// Check that this object is not accidentally assigned to itself.
-	if (gb_load == this) {
-		std::ostringstream error;
-		error << "In GBoundary::load(): Error!" << std::endl
-				<< "Tried to assign an object to itself." << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_object_assigned_to_itself() << error_string(error.str());
-	}
+	// Convert GObject pointer to local format
+    const GBoundary *gb_load = checkedConversion<GBoundary>(cp,this);
 
 	// Load the parent class'es data
 	GObject::load(cp);

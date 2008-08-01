@@ -159,30 +159,8 @@ public:
 	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		// Convert argument to GParameterCollectionT<T>
-		const GParameterT<T> *gpt	= dynamic_cast<const GParameterT<T> *> (cp);
-
-		// dynamic_cast will emit a NULL pointer, if the conversion failed
-		if (!gpt) {
-			std::ostringstream error;
-			error << "In GParameterT<T>::load(): Conversion error!" << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-		}
-
-		// Check that this object is not accidently assigned to itself.
-		if (gpt == this) {
-			std::ostringstream error;
-			error << "In GParameterT<T>::load(): Error!" << std::endl
-				  << "Tried to assign an object to itself." << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_object_assigned_to_itself() << error_string(error.str());
-		}
+		// Convert cp into local format
+		const GParameterT<T> *gpt = checkedConversion<GParameterT<T> >(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<T>::load(cp);

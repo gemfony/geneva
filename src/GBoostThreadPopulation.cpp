@@ -100,7 +100,10 @@ void GBoostThreadPopulation::reset(void) {
  * @param Pointer to another GBoostThreadPopulation object, camouflaged as a GObject
  */
 void GBoostThreadPopulation::load(const GObject *cp) {
-	const GBoostThreadPopulation *gbp = dynamic_cast<const GBoostThreadPopulation *>(cp);
+	// Convert GObject pointer to local format
+	const GBoostThreadPopulation *gbp = checkedConversion<GBoostThreadPopulation>(cp, this);
+
+		dynamic_cast<const GBoostThreadPopulation *>(cp);
 
 	// dynamic_cast will emit a NULL pointer, if the conversion failed
 	if(!gbp) {

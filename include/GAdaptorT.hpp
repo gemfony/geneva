@@ -172,7 +172,8 @@ public:
 	 * @param gb A pointer to another GAdaptorT<T>, camouflaged as a GObject
 	 */
 	virtual void load(const GObject *cp) {
-		const GAdaptorT<T> *gat = checkConversion<GAdaptorT<T> >(cp, this);
+		// Convert cp into local format
+		const GAdaptorT<T> *gat = checkedConversion<GAdaptorT<T> >(cp, this);
 
 		// Load the parent class'es data
 		GObject::load(cp);

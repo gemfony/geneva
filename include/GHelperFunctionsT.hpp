@@ -55,7 +55,7 @@ namespace GenEvA
  * @param load_ptr A pointer to another T-object, camouflaged as a GObject
  */
 template <class T>
-const T* checkConversion(const Gem::GenEvA::GObject *load_ptr, const T* This){
+const T* checkedConversion(const Gem::GenEvA::GObject *load_ptr, const T* This){
 	const T *result = dynamic_cast<const T *> (load_ptr);
 
 	// dynamic_cast will emit a NULL pointer, if the conversion failed

@@ -97,29 +97,8 @@ namespace Gem
 		/******************************************************************/
 		/** @brief Loads the data of another GEvaluator, camouflaged as a GObject */
 		void GEvaluator::load(const GObject* cp){
-			const GEvaluator *ge_load = dynamic_cast<const GEvaluator *> (cp);
-
-			// dynamic_cast will emit a NULL pointer, if the conversion failed
-			if (!ge_load) {
-				std::ostringstream error;
-				error << "In GEvaluator::load(): Conversion error!" << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				// throw an exception. Add some information so that if the exception
-				// is caught through a base object, no information is lost.
-				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-			}
-
-			// Check that this object is not accidentally assigned to itself.
-			if (ge_load == this) {
-				std::ostringstream error;
-				error << "In GEvaluator::load(): Error!" << std::endl
-						<< "Tried to assign an object to itself." << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_object_assigned_to_itself() << error_string(error.str());
-			}
+			// Convert to local format
+			const GEvaluator *ge_load = checkedConversion<GEvaluator>(cp, this);
 
 			// Load the parent class'es data
 			GObject::load(cp);

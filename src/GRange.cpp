@@ -122,29 +122,7 @@ namespace Gem
 		 * @param cp Another GRange object, camouflaged as a GObject
 		 */
 		void GRange::load(const GObject * cp) {
-			const GRange *gr_load = dynamic_cast<const GRange *> (cp);
-
-			// dynamic_cast will emit a NULL pointer, if the conversion failed
-			if (!gr_load) {
-				std::ostringstream error;
-				error << "In GRange::load(): Conversion error!" << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				// throw an exception. Add some information so that if the exception
-				// is caught through a base object, no information is lost.
-				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-			}
-
-			// Check that this object is not accidentally assigned to itself.
-			if (gr_load == this) {
-				std::ostringstream error;
-				error << "In GRange::load(): Error!" << std::endl
-						<< "Tried to assign an object to itself." << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_object_assigned_to_itself() << error_string(error.str());
-			}
+			const GRange *gr_load = checkedConversion<GRange>(cp, this);
 
 			// First load our parent class'es data ...
 			GObject::load(cp);
