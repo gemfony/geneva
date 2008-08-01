@@ -221,7 +221,7 @@ void GObject::setSerializationMode(const serializationMode& ser) {
  * @param load_ptr A pointer to another T-object, camouflaged as a GObject
  */
 template <class T>
-inline const T* GBobject::checkConversion(GObject *load_ptr, const T* This){
+inline const T* GBobject::checkConversion(const GObject *load_ptr, const T* This){
 	const T *result = dynamic_cast<const T *> (load_ptr);
 
 	// dynamic_cast will emit a NULL pointer, if the conversion failed

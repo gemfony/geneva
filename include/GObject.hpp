@@ -135,7 +135,7 @@ public:
 protected:
 	/** @brief Checks pointers in the load function */
 	template <class T>
-	const T* checkConversion(GObject *, const T*);
+	const T* checkConversion(const GObject *, const T*);
 
     /**
      * @brief A random number generator. Each GenEvA object has
