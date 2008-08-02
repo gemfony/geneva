@@ -54,7 +54,19 @@ namespace GenEvA {
  */
 template<class T>
 class GParameterCollectionT: public GParameterBaseWithAdaptorsT<T> ,
-		public std::vector<T> {
+							 public std::vector<T>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version) {
+		using boost::serialization::make_nvp;
+		ar & make_nvp("GParameterBaseWithAdaptorsT_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this));
+		ar & make_nvp("vector_T", boost::serialization::base_object<std::vector<T> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/*******************************************************************************************/
 	/**
