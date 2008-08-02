@@ -74,7 +74,7 @@ namespace GenEvA
       ar & make_nvp("GParameterT_dbl", boost::serialization::base_object<GParameterT<double> >(*this));
       ar & make_nvp("internalValue_", internalValue_);
       ar & make_nvp("lowerBoundary_", lowerBoundary_);
-      ar & make_nvp("lowerBoundary_", upperBoundary_);
+      ar & make_nvp("upperBoundary_", upperBoundary_);
     }
     ///////////////////////////////////////////////////////////////////////
 

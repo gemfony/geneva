@@ -36,6 +36,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 // Boost header files go here
 #include <boost/thread.hpp>
@@ -148,8 +149,47 @@ int main(int argc, char **argv){
 				  << "exception with message " << std::endl
 				  << error.diagnostic_information() << std::endl
 				  << std::endl
-				  << "Don't worry - this is expected!" << std::endl;
+				  << "Don't worry - this is expected!" << std::endl
+			      << std::endl;
 	}
+
+	std::cout << "Now serializing gbd052 and gbd13 in TEXT und XML mode ..." << std::endl;
+
+	// Serialize gbd13 in XML mode and save to a file
+	gbd13.setSerializationMode(XMLSERIALIZATION);
+	std::ofstream serialRepresentation1("GBoundedDouble-gbd13.xml");
+	serialRepresentation1 << gbd13.toString();
+	serialRepresentation1.close();
+
+	// Serialize gbd052 in XML mode
+	gbd052.setSerializationMode(XMLSERIALIZATION);
+	std::ofstream serialRepresentation2("GBoundedDouble-gbd052.xml");
+	serialRepresentation2 << gbd052.toString();
+	serialRepresentation2.close();
+
+	// Serialize gbd13 in text mode and save to file
+	// Serialize gbd052 in text mode
+	gbd13.setSerializationMode(TEXTSERIALIZATION);
+	std::ofstream serialRepresentation3("GBoundedDouble-gbd13.txt");
+	serialRepresentation3 << gbd052.toString();
+	serialRepresentation3.close();
+
+	// Serialize gbd052 in text mode
+	gbd052.setSerializationMode(TEXTSERIALIZATION);
+	std::ofstream serialRepresentation4("GBoundedDouble-gbd052.txt");
+	serialRepresentation4 << gbd052.toString();
+	serialRepresentation4.close();
+
+	// Serialize gbd13 in text mode and load into gbd052. Note that both
+	// must have the same serialization mode ...
+	gbd13.setSerializationMode(TEXTSERIALIZATION);
+	gbd052.fromString(gbd13.toString());
+
+	// Serialize gbd13 in text mode and save to file
+	gbd052.setSerializationMode(XMLSERIALIZATION);
+	std::ofstream serialRepresentation5("GBoundedDouble-gbd052-gbd13clone.xml");
+	serialRepresentation5 << gbd052.toString();
+	serialRepresentation5.close();
 
 	return 0;
 }

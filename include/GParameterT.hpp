@@ -57,6 +57,17 @@ template <class T>
 class GParameterT
 	:public GParameterBaseWithAdaptorsT<T>
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version){
+	  using boost::serialization::make_nvp;
+	  ar & make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this));
+	  ar & make_nvp("val_", val_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/*******************************************************************************************/
 	/**

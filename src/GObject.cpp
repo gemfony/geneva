@@ -90,18 +90,28 @@ const GObject& GObject::operator=(const GObject& cp){
 
 /**************************************************************************************************/
 /**
- * Converts the class to a text representation.
+ * Converts the class to a text representation. Note that you will have to take care yourself
+ * that serialization and de-serialization happens in the same mode.
  *
  * @return A text-representation of this class (or its derivative)
  */
 std::string GObject::toString() {
     std::ostringstream oarchive_stream;
+    GObject *local = this;
 
+    switch(serializationMode_)
     {
-      GObject *local = this;
-      boost::archive::xml_oarchive oa(oarchive_stream);
-      oa & boost::serialization::make_nvp("classhierarchyFromGObject",local);
-    } // note: explicit scope here is essential so oa-destructor gets called
+    case TEXTSERIALIZATION:
+		{
+			boost::archive::text_oarchive oa(oarchive_stream);
+			oa << local;
+		} // note: explicit scope here is essential so the oa-destructor gets called
+    case XMLSERIALIZATION:
+		{
+			boost::archive::xml_oarchive oa(oarchive_stream);
+			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
+		} // note: explicit scope here is essential so the oa-destructor gets called
+    }
 
     return oarchive_stream.str();
 }
@@ -109,18 +119,32 @@ std::string GObject::toString() {
 /**************************************************************************************************/
 /**
  * Initializes the object from its string representation. Note that the string will
- * likely describe a derivative of GObject.
+ * likely describe a derivative of GObject. Note also that you will have to take care yourself
+ * that serialization and de-serialization happens in the same mode.
  *
  * @param descr A text representation of a GObject-derivative
  */
 void GObject::fromString(const std::string& descr) {
     std::istringstream istr(descr);
+    GObject *local = this->clone();
 
-    {
-      GObject *local = this;
-      boost::archive::xml_iarchive ia(istr);
-      ia & boost::serialization::make_nvp("classhierarchyFromGObject",local);
-    } // note: explicit scope here is essential so ia-destructor gets called
+    switch(serializationMode_)
+     {
+     case TEXTSERIALIZATION:
+ 		{
+		    boost::archive::text_iarchive ia(istr);
+		    ia >> local;
+		    this->load(local);
+ 		} // note: explicit scope here is essential so the ia-destructor gets called
+     case XMLSERIALIZATION:
+		{
+		    boost::archive::xml_iarchive ia(istr);
+		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
+		    this->load(local);
+		} // note: explicit scope here is essential so the ia-destructor gets called
+     }
+
+    delete local;
 }
 
 /**************************************************************************************************/
