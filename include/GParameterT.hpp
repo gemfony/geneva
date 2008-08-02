@@ -63,7 +63,7 @@ public:
 	 * The default constructor
 	 */
 	GParameterT()
-		:GParameterBaseWithAdaptorsT(),
+		:GParameterBaseWithAdaptorsT<T>(),
 		 val_((T)NULL)
 	{ /* nothing */ }
 
@@ -175,7 +175,7 @@ public:
 	 * all will be applied to the value.
 	 */
 	virtual void mutate(void){
-		if(numberOfAdaptors() == 1){
+		if(this->numberOfAdaptors() == 1){
 			GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(val_);
 		}
 		else {

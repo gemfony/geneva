@@ -125,8 +125,9 @@ int main(int argc, char **argv){
 	GDoubleCollection *gdc = new GDoubleCollection(1000,-100.,100.);
 
 	// Set up and register an adaptor for the collection, so it
-	// knows how to be mutated
-	GDoubleGaussAdaptor *gdga = new GDoubleGaussAdaptor("gauss_mutation");
+	// knows how to be mutated. We want a sigma of 0.5, sigma-adaption of 0.05 and
+	// a minimum sigma of 0.02.
+	GDoubleGaussAdaptor *gdga = new GDoubleGaussAdaptor(0.5,0.05,0.02,"gauss_mutation");
 	gdc->addAdaptor(gdga);
 
 	// Set up an evaluator and give it an evaluation function
@@ -140,8 +141,15 @@ int main(int argc, char **argv){
 	// Add the double numbers to the parameter set
 	parabolaIndividual->append(gdc);
 
-	// Now we've got our first individual and can create a population
+	// Now we've got our first individual and can create a population.
+	// You can choose between a simple, non-parallel population and a
+	// multi-threaded population.
+
+	// Uncomment the next line and comment out the GBoostThreadPopulation lines
+	// to get the slower, serial execution.
+
 	// GBasePopulation pop;
+
 	GBoostThreadPopulation pop;
 	pop.setNThreads(4);
 

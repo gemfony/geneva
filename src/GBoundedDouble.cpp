@@ -212,10 +212,10 @@ namespace Gem
 		void GBoundedDouble::mutate(){
 			// First apply the mutation to the internal representation of our value
 			if(numberOfAdaptors() == 1){
-				GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(internalValue_);
+				this->applyFirstAdaptor(internalValue_);
 			}
 			else {
-				GParameterBaseWithAdaptorsT<T>::applyAllAdaptors(internalValue_);
+				this->applyAllAdaptors(internalValue_);
 			}
 
 			// Then calculate the corresponding external value and set it accordingly
@@ -237,16 +237,16 @@ namespace Gem
 
 			// b) find out which region the value is in (compare figure transferFunction.pdf
 			// that should have been delivered with this software
-			boost::uint32_t region = std::floor((internal_value_ - lowerBoundary) / (upperBoundary_ - lowerBoundary_));
+			boost::uint32_t region = std::floor((internalValue_ - lowerBoundary_) / (upperBoundary_ - lowerBoundary_));
 
 			// c) Check whether we are in an odd or an even range and calculate the
 			// external value accordingly
 			double externalValue = 0.;
-			if(range%2 == 0){ // can it be divided by 2 ? Region 0,2,... or a negative even range
-				externalValue = internalValue_ - range * (upperBoundary_ - lowerBoundary_);
+			if(region%2 == 0){ // can it be divided by 2 ? Region 0,2,... or a negative even range
+				externalValue = internalValue_ - region * (upperBoundary_ - lowerBoundary_);
 			}
 			else{ // Range 1,3,... or a negative odd range
-				externalValue = -internalValue_ + ((range-1)*(upperBoundary_ - lowerBoundary_) + 2*upperBoundary_);
+				externalValue = -internalValue_ + ((region-1)*(upperBoundary_ - lowerBoundary_) + 2*upperBoundary_);
 			}
 
 			// d) Set the external value accordingly. This will transfer the internal value
@@ -298,6 +298,8 @@ namespace Gem
 			// assign the external to the internal value.
 			internalValue_ = val;
 			this->setValue(val);
+
+			return previous;
 		}
 
 		/******************************************************************************/

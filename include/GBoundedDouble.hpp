@@ -42,8 +42,6 @@
 #define GBOUNDEDDOUBLE_HPP_
 
 // GenEvA headers go here
-#include "GRange.hpp"
-#include "GBoundary.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GParameterT.hpp"
 #include "GObject.hpp"
@@ -74,8 +72,8 @@ namespace GenEvA
       using boost::serialization::make_nvp;
       ar & make_nvp("GParameterT_dbl", boost::serialization::base_object<GParameterT<double> >(*this));
       ar & make_nvp("internalValue_", internalValue_);
-      ar & make_nvp("lower_boundary_", lower_boundary_);
-      ar & make_nvp("lower_boundary_", upper_boundary_);
+      ar & make_nvp("lowerBoundary_", lowerBoundary_);
+      ar & make_nvp("lowerBoundary_", upperBoundary_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -118,8 +116,8 @@ namespace GenEvA
     /** @brief Sets the external value */
 	double setExternalValue(double);
 
-    double internalValue_; ///< The internal representation of this classes value
     double lowerBoundary_, upperBoundary_;
+    double internalValue_; ///< The internal representation of this classes value
   };
 
   /******************************************************************************/
