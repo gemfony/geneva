@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 SET ( GENEVASOURCES
 GBasePopulation
 GBit
+GBitCollection
 GBitFlipAdaptor
 GBoostThreadPopulation
 GBoundedDouble

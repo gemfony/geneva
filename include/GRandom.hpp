@@ -721,7 +721,7 @@ public:
 
   /*************************************************************************/
   /**
-   * This function returns true with a probability p, otherwise false.
+   * This function returns true with a probability "probability", otherwise false.
    *
    * @param p The probability for the value "true" to be returned
    * @return A boolean value, which will be true with a user-defined likelihood
