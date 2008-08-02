@@ -106,11 +106,16 @@ std::string GObject::toString() {
 			boost::archive::text_oarchive oa(oarchive_stream);
 			oa << local;
 		} // note: explicit scope here is essential so the oa-destructor gets called
+
+		break;
+
     case XMLSERIALIZATION:
 		{
 			boost::archive::xml_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
 		} // note: explicit scope here is essential so the oa-destructor gets called
+
+		break;
     }
 
     return oarchive_stream.str();
@@ -136,12 +141,17 @@ void GObject::fromString(const std::string& descr) {
 		    ia >> local;
 		    this->load(local);
  		} // note: explicit scope here is essential so the ia-destructor gets called
+
+ 		break;
+
      case XMLSERIALIZATION:
 		{
 		    boost::archive::xml_iarchive ia(istr);
 		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
 		    this->load(local);
 		} // note: explicit scope here is essential so the ia-destructor gets called
+
+		break;
      }
 
     delete local;

@@ -171,7 +171,7 @@ int main(int argc, char **argv){
 	// Serialize gbd052 in text mode
 	gbd13.setSerializationMode(TEXTSERIALIZATION);
 	std::ofstream serialRepresentation3("GBoundedDouble-gbd13.txt");
-	serialRepresentation3 << gbd052.toString();
+	serialRepresentation3 << gbd13.toString();
 	serialRepresentation3.close();
 
 	// Serialize gbd052 in text mode
