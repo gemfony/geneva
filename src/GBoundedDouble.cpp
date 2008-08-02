@@ -209,7 +209,7 @@ namespace Gem
 		 * that gets mutated. This value is then "translated" into the external value (stored
 		 * in GParameterT<double>, which is set accordingly.
 		 */
-		void GBoundedDouble::mutate(void){
+		void GBoundedDouble::mutate(){
 			// First apply the mutation to the internal representation of our value
 			if(numberOfAdaptors() == 1){
 				GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(internalValue_);
@@ -220,6 +220,39 @@ namespace Gem
 
 			// Then calculate the corresponding external value and set it accordingly
 
+			// a) Check the boundaries we've been given
+			if(upperBoundary_ <= lowerBoundary_){
+				std::ostringstream error;
+				error << "In GBoundedDouble::mutate() : Error!" << std::endl
+					  << "Got invalid upper and/or lower boundaries" << std::endl
+					  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					  << "upperBoundary_ = " << upperBoundary_ << std::endl;
+
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+				// throw an exception. Add some information so that if the exception
+				// is caught through a base object, no information is lost.
+				throw geneva_invalid_boundaries() << error_string(error.str());
+			}
+
+			// b) find out which region the value is in (compare figure transferFunction.pdf
+			// that should have been delivered with this software
+			boost::uint32_t region = std::floor((internal_value_ - lowerBoundary) / (upperBoundary_ - lowerBoundary_));
+
+			// c) Check whether we are in an odd or an even range and calculate the
+			// external value accordingly
+			double externalValue = 0.;
+			if(range%2 == 0){ // can it be divided by 2 ? Region 0,2,... or a negative even range
+				externalValue = internalValue_ - range * (upperBoundary_ - lowerBoundary_);
+			}
+			else{ // Range 1,3,... or a negative odd range
+				externalValue = -internalValue_ + ((range-1)*(upperBoundary_ - lowerBoundary_) + 2*upperBoundary_);
+			}
+
+			// d) Set the external value accordingly. This will transfer the internal value
+			// back into region 0. This is important, so the internal value does not
+			// become too large due to the mutation.
+			setExternalValue(externalValue);
 		}
 
 		/******************************************************************************/
@@ -234,187 +267,39 @@ namespace Gem
 		 * @return The original value
 		 */
 		double GBoundedDouble::setExternalValue(double val) {
-			double result, gapcounter, sumgaps;
-			double low, up, lov=val;
+			double previous = this->value();
 
-			std::vector<boost::shared_ptr<GRange> >::iterator it;
+			// Check the lower an upper boundaries
+			if(upperBoundary_ <= lowerBoundary_){
+				std::ostringstream error;
+				error << "In GBoundedDouble::setExternalValue() : Error!" << std::endl
+					  << "Got invalid upper and/or lower boundaries" << std::endl
+					  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					  << "upperBoundary_ = " << upperBoundary_ << std::endl;
 
-			low = range_.lowerBoundary();
-			up = range_.upperBoundary();
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			// check that the value is inside the allowed range.
-			// Adapt if necessary ...
-			if(lov> up) lov=up;
-			else if(lov < low) lov=low;
-
-			// no gaps ? result is just f(x)=x
-			if(gps_.size()==0) {
-				result=lov;
-			}
-			else {
-				// The overall sum of gap-widths
-				sumgaps=0.;
-				for(it=gps_.begin(); it!=gps_.end(); ++it) sumgaps += (*it)->width();
-
-				// find out, where we are with respect to the gaps
-
-				// we are below the lowest gap
-				if(lov< gps_.front()->lowerBoundary()) result=lov;
-				// we are inside the lowest gap if the following is true
-				else if(lov>=gps_.front()->lowerBoundary() && lov<=gps_.front()->upperBoundary()) {
-					result=gps_.front()->lowerBoundary();
-				}
-				else if(lov>gps_.back()->upperBoundary()) { // above the uppermost gap
-					result=lov-sumgaps;
-				}
-				else { // somewhere above the lowest upper-gap and below the highest upper gap boundary
-					gapcounter=0;
-					result=0.;
-
-					for(it=gps_.begin()+1; it!=gps_.end(); ++it) {
-						// if we are in the range of a gap, return
-						// the y-value of the lower boundary
-						gapcounter += (*(it-1))->width();
-						if(lov>=(*it)->lowerBoundary() && lov<=(*it)->upperBoundary()) {
-							result=(*it)->lowerBoundary() - gapcounter;
-							break;
-						}
-						else if(lov>(*(it-1))->upperBoundary() && lov<(*it)->lowerBoundary()) { // between gaps
-							result=lov-gapcounter;
-							break;
-						}
-					}
-				}
+				// throw an exception. Add some information so that if the exception
+				// is caught through a base object, no information is lost.
+				throw geneva_invalid_boundaries() << error_string(error.str());
 			}
 
-			// Ready to set the internal value ...
-			GParameterT<double>::setInternalValue(result);
+			// Check that the value is inside the allowed range
+			if(val < lowerBoundary_ || val > upperBoundary_){
+				std::ostringstream error;
+				error << "In GBoundedDouble::setExternalValue() : Error!" << std::endl
+					  << "Attempt to set external value outside of allowed range." << std::endl
+					  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					  << "upperBoundary_ = " << upperBoundary_ << std::endl
+					  << "val = " << val << std::endl;
+			}
 
-			// We have changed the internal state of this object and hence need
-			// to mark it as dirty. Note that evaluation will only take place when
-			// the fitness() function is called (either directly, or through the
-			// getValue() wrapper).
-			setDirtyFlag();
-
-			// Return the original value for reference
-			return lov;
+			// The transferfunction in this area is just f(x)=x, so we can just
+			// assign the external to the internal value.
+			internalValue_ = val;
+			this->setValue(val);
 		}
 
 		/******************************************************************************/
-		/**
-		 * This function implements the mapping from internal to external
-		 * value.
-		 *
-		 * @return The user-visible value
-		 *
-		 * \todo Inefficient. The first part of the function will always
-		 * be calculated, although this is really only necessary during
-		 * changes of gps_ or range_ . Also, if gps_size() == 0, we
-		 * nevertheless follow all the code.
-		 */
-		double GBoundedDouble::customFitness(void) {
-			double result=0.,low, up;
-			double sumgaps, sumgapsm1, gapcounter, peak=0.;
-			double distance=0., current_region=0.;
-			double iValue = GParameterT<double>::getInternalValue();
-			std::vector<boost::shared_ptr<GRange> >::iterator it;
-
-			low = range_.lowerBoundary();
-			up = range_.upperBoundary();
-
-			// Find out where the first peak of the transfer function is.
-			// width() takes care of open/closed gap boundaries
-			peak=up;
-			for(it=gps_.begin(); it!=gps_.end(); ++it) peak -= (*it)->width();
-
-			// find out the distance between adjacent (lower+upper) peaks
-			// This will fail if (peak-low) > DBL_MAX
-			if((peak - DBL_MAX) >= low) {
-				GException ge;
-				ge << "In GBoundedDouble::customFitness(): Error!" << std::endl
-				<< "Bad peak or low : " << peak << " " << low << std::endl
-				<< raiseException;
-			}
-
-			distance = peak-low;
-			if(distance <= 0.) {
-				GException ge;
-				ge << "In GBoundedDouble::customFitness(): Error!" << std::endl
-				<< "Bad distance : " << distance << std::endl
-				<< raiseException;
-			}
-
-			// Find out which region "iValue" is in :
-
-			// (iValue-low) may not be larger than DBL_MAX
-			if((iValue - DBL_MAX) >= low) {
-				GException ge;
-				ge << "In GBoundedDouble::customFitness(): Error!" << std::endl
-				<< "Bad iValue or low : " << iValue << " " << low << std::endl
-				<< raiseException;
-			}
-
-			// how many integer multiples of distance fit into region
-			// right of "low" on x-Axis. "+1" is being used due to the numbering
-			// scheme being used.
-			current_region=floor((iValue-low)/distance)+1.;
-
-			// shift iValue back to region 1, so iValue doesn't keep increasing over time :
-
-			// if(current_region%2==0.) // we are in region 0,2,...
-			if(fmod(current_region,2.)==0.) { // we are in region 0,2,...
-				// shift variable to region 2
-				iValue-=(current_region-2.)*distance;
-
-				// shift variable into region 1 (i.e., search for iValue that reproduces
-				// last y-value of iValue within region 1
-				iValue -= (2*distance + 2*low);
-				iValue *= -1.;
-			}
-			else { // we are in region 1,3,...
-				// shift variable to region 1
-				iValue-=(current_region-1.)*distance;
-			}
-
-			// set the internal value as desired
-			GParameterT<double>::setInternalValue(iValue);
-
-			// this is the real transformation x->y. All the code before this line was
-			// just needed to find a suitable x-variable yielding the same y-value as "var".
-			if(gps_.size()==0) {
-				result=iValue;
-			}
-			else {
-				// needed to find out, in the range of which gap we are
-				sumgaps=0.;
-				for(it=gps_.begin(); it!=gps_.end(); ++it) sumgaps += (*it)->width();
-				sumgapsm1=sumgaps - gps_.back()->width();
-
-				// find out, where we are with respect to the gaps
-				if(iValue <= gps_.front()->lowerBoundary() && iValue>low) { // we are below the lowest gap
-					result=iValue; // just f(x)=x
-				}
-				else if(iValue<=(up-sumgaps) &&
-						iValue>(gps_.back()->lowerBoundary()-sumgapsm1)) { // above the uppermost gap
-					result=iValue+sumgaps;
-				}
-				else { // somewhere in the range of the gaps
-					gapcounter=0;
-					result=0.;
-					for(it=gps_.begin(); it!=(gps_.end()-1);++it) {
-						gapcounter += (*it)->width();
-						if(iValue <= ((*(it+1))->lowerBoundary() - gapcounter)) {
-							result=iValue+gapcounter;
-							break;
-						}
-					}
-				}
-			}
-
-			return result;
-		}
-
-		/******************************************************************************/
-
 	} /* namespace GenEvA */
 } /* namespace Gem */

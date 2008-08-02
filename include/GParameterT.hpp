@@ -185,6 +185,18 @@ public:
 
 protected:
 	/*******************************************************************************************/
+	/**
+	 * Allows derivatives to set the internal value. Note that we assume here that T has an
+	 * operator=() or is a basic value type, such as double or int.
+	 *
+	 * @param val The new T value stored in this class
+	 */
+	void setValue(T val) throw() {
+		val_ = val;
+	}
+
+private:
+	/*******************************************************************************************/
 
 	T val_; ///< The internal representation of our value. It is protected as it needs to accessible to derived classes.
 };

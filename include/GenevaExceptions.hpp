@@ -68,19 +68,14 @@ class geneva_too_few_children : public boost::exception {};
  * GBasePopulation::fitnessCalculation() */
 class geneva_dirty_individual : public boost::exception {};
 
-// GBoundary
-/** @brief Class to be thrown as an error if the result was not in the expected range */
-class geneva_result_not_in_range: public boost::exception {};
-
 // GBoundedBuffer
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
 class geneva_condition_time_out: public boost::exception {};
 
 // GBoundedDouble
-/** @brief Class to be thrown as an error in the case of a resize with ranges present */
-class geneva_resize_with_ranges: public boost::exception {};
-/** @brief Class to be thrown as an error if an invalid range was added */
-class geneva_invalid_range_added: public boost::exception {};
+/** @brief Class to be thrown as an error if invalid boundaries were found */
+class geneva_invalid_boundaries: public boost::exception {};
+
 
 // GIndividual
 /** @brief Class to be thrown as an error if the dirty flag is set while lazy evaluation is not allowed */
@@ -101,10 +96,6 @@ class geneva_duplicate_adaptor : public boost::exception {};
 class geneva_empty_evaluation_function : public boost::exception {};
 /** @brief Class to be thrown as an error if no or not the required adaptor was found */
 class geneva_no_adaptor_found : public boost::exception {};
-
-//GRange
-/** @brief Class to be thrown as an error if some range data was invalid */
-class geneva_invalid_range_data : public boost::exception {};
 
 // Several classes
 /** @brief Class to be thrown as an error if an evaluation is attempted while no evaluation function
