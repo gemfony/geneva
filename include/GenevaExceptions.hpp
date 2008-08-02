@@ -68,6 +68,10 @@ class geneva_too_few_children : public boost::exception {};
  * GBasePopulation::fitnessCalculation() */
 class geneva_dirty_individual : public boost::exception {};
 
+// GBitFlipAdaptor
+/** @brief Class to be thrown as an error if a bad mutation probability was supplied */
+class geneva_bad_mutation_probability : public boost::exception {};
+
 // GBoundedBuffer
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
 class geneva_condition_time_out: public boost::exception {};
@@ -95,13 +99,13 @@ class geneva_duplicate_adaptor : public boost::exception {};
 // GParameterSet
 /** @brief Class to be thrown as an error if an empty evaluation function was supplied */
 class geneva_empty_evaluation_function : public boost::exception {};
-/** @brief Class to be thrown as an error if no or not the required adaptor was found */
-class geneva_no_adaptor_found : public boost::exception {};
 
 // Several classes
 /** @brief Class to be thrown as an error if an evaluation is attempted while no evaluation function
  * object has been registered. */
 class geneva_evaluation_function_not_present : public boost::exception {};
+/** @brief Class to be thrown as an error if no or not the required adaptor was found */
+class geneva_no_adaptor_found : public boost::exception {};
 
 /**************************************************************************************************/
 

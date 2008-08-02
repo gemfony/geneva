@@ -143,6 +143,12 @@ namespace Gem
 			// Reset the local data
 			internalValue_=0.;
 
+			// NOTE TO AUTHORS: IF THIS CLASS GAINS THE ABILITY TO
+			// DYNAMICALLY SET THE BOUNDARIES AND THEY ARE RESET IN
+			// THIS FUNCTION AS WELL, E.G: GBITFLIPADAPTOR NEEDS TO
+			// BE ADAPTED. OTHERWISE THE PROBABILITY WILL HAVE A BAD
+			// VALUE.
+
 			// Reset the parent class
 			GParameterT<double>::reset();
 		}

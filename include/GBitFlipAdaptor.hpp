@@ -22,6 +22,11 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Standard headers go here
+#include <sstream>
+
+// Boost headers go here
+
 #include <boost/version.hpp>
 
 #if BOOST_VERSION < 103600
@@ -33,101 +38,101 @@
 #ifndef GBITFLIPADAPTOR_H_
 #define GBITFLIPADAPTOR_H_
 
-using namespace std;
+// GenEvA headers go here
 
 #include "GAdaptorT.hpp"
 #include "GObject.hpp"
 #include "GBoundedDouble.hpp"
 #include "GEnums.hpp"
+#include "GLogger.hpp"
+#include "GenevaExceptions.hpp"
 
-namespace Gem
+namespace Gem {
+namespace GenEvA {
+
+const double SGM = 0.01;
+const double SGMSGM = 0.001;
+const double MSGM = 0.001;
+
+const double DEFAULTMUTPROB = 0.05; // 5 percent mutation probability
+const std::string DEFAULTGDGANAME = "GDoubleGaussAdaptor";
+
+/***********************************************************************************/
+/**
+ * This class is designed to allow mutations of bit values. Bits can be flipped with
+ * a probability that is mutated along with the bit value. Hence the adaptor can
+ * adapt itself to varying conditions, if desired. Note that this makes the allegedly
+ * simple application of flipping a bit a rather complicated procedure. Hence it is
+ * recommended to limit usage of this adaptor to bit collections rather than single
+ * bits.
+ */
+class GBitFlipAdaptor
+	: public GAdaptorT<GenEvA::bit>
 {
-namespace GenEvA
-{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-  const double SGM=0.001;
-  const double SGMSGM=0.00001;
-  const double MSGM=0.00001;
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version) {
+		using boost::serialization::make_nvp;
+		ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<GenEvA::bit> >(*this));
+		ar & make_nvp("mutProb_", mutProb_);
+		ar & make_nvp("allowProbabilityMutation_", allowProbabilityMutation_);
+	}
+	///////////////////////////////////////////////////////////////////////
 
-  const double DEFAULTMUTPROB=0.01;
-  const string DEFAULTGDGANAME="probabilityMutation";
+public:
+	/** @brief Standard constructor. Every adaptor needs a name */
+	explicit GBitFlipAdaptor(std::string);
+	/** @brief Constructor sets the mutation probability to a given value */
+	GBitFlipAdaptor(double, std::string);
+	/** @brief Standard copy constructor */
+	GBitFlipAdaptor(const GBitFlipAdaptor&);
+	/** @brief Standard destructor */
+	virtual ~GBitFlipAdaptor();
 
-  /***********************************************************************************/
-  /**
-   * This class is designed to allow mutations of bit values. Bits can be flipped with
-   * a probability that is mutated along with the bit value. Hence the adaptor can
-   * adapt itself to varying conditions, if desired. Note that this makes the allegedly
-   * simple application of flipping a bit a rather complicated procedure. Hence it is
-   * recommended to limit usage of this adaptor to bit collections rather than single
-   * bits.
-   */
-  class GBitFlipAdaptor
-    :public GAdaptorT<GenEvA::bit>
-  {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
+	/** @brief A standard assignment operator */
+	const GBitFlipAdaptor& operator=(const GBitFlipAdaptor&);
 
-    template<class Archive>
-      void serialize(Archive & ar, const unsigned int version){
-      using boost::serialization::make_nvp;
-      ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<GenEvA::bit> >(*this));
-      ar & make_nvp("mutProb_",mutProb_);
-      ar & make_nvp("allowProbabilityMutation_", allowProbabilityMutation_);
-    }
-    ///////////////////////////////////////////////////////////////////////
+	/** @brief Resets the object to its initial state */
+	virtual void reset();
+	/** @brief Loads the content of another GBitFlipAdaptor */
+	virtual void load(const GObject *);
+	/** @brief Creates a deep copy of this object */
+	virtual GObject *clone();
 
-  public:
-    /** @brief Standard constructor. Every adaptor needs a name */
-    explicit GBitFlipAdaptor(string);
-    /** @brief Constructor sets the mutation probability to a given value */
-    GBitFlipAdaptor(double, string);
-    /** @brief Standard copy constructor */
-    GBitFlipAdaptor(const GBitFlipAdaptor&);
-    /** @brief Standard destructor */
-    virtual ~GBitFlipAdaptor();
+	/** @brief Retrieves the current mutation probability */
+	double getMutationProbability();
+	/** @brief Sets the mutation probability to a given value */
+	void setMutationProbability(double);
 
-    /** @brief A standard assignment operator */
-    const GBitFlipAdaptor& operator=(const GBitFlipAdaptor&);
+	/** @brief Sets the mutation parameters of the internal GDouble */
+	void setMutationParameters(double, double, double);
 
-    /** @brief Resets the object to its initial state */
-    virtual void reset();
-    /** @brief Loads the content of another GBitFlipAdaptor */
-    virtual void load(const GObject *);
-    /** @brief Creates a deep copy of this object */
-    virtual GObject *clone();
+	/** @brief Allow or disallow mutation of mutation probability */
+	void setAllowProbabilityMutation(bool);
+	/** @brief Retrieves value of allowProbabilityMutation */
+	bool getAllowProbabilityMutation() const throw();
 
-    /** @brief Retrieves the current mutation probability */
-    double getMutationProbability();
-    /** @brief Sets the mutation probability to a given value */
-    void setMutationProbability(double);
+	/** @brief Initializes a new mutation run */
+	virtual void initNewRun();
 
-    /** @brief Sets the mutation parameters of the internal GDouble */
-    void setInternalMutationParameters(double,double,double);
+protected:
+	/** @brief The actual mutation of the bit value */
+	virtual void customMutations(Gem::GenEvA::bit &);
 
-    /** @brief Allow or disallow mutation of mutation probability */
-    void setAllowProbabilityMutation(bool);
-    /** @brief Retrieves value of allowProbabilityMutation */
-    bool getAllowProbabilityMutation() const throw();
+private:
+	/** @brief Standard constructor - not needed */
+	GBitFlipAdaptor() throw();
 
-    /** @brief Initializes a new mutation run */
-    virtual void initNewRun();
+	/** @brief Simple flip of a bit value */
+	void flip(bit&) const throw();
 
-  protected:
-    /** @brief The actual mutation of the bit value */
-    virtual void customMutate(bit &value);
+	GBoundedDouble mutProb_; ///< internal representation of the mutation probability
+	bool allowProbabilityMutation_; ///< do we allow the probability to be adapted ?
+};
 
-  private:
-    /** @brief Standard constructor - not needed */
-    GBitFlipAdaptor() throw();
-
-    /** @brief Simple flip of a bit value */
-    void flip(bit&) const throw();
-
-    GBoundedDouble mutProb_; ///< internal representation of the mutation probability
-    bool allowProbabilityMutation_; ///< do we allow the probability to be adapted ?
-  };
-
-  /***********************************************************************************/
+/***********************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
