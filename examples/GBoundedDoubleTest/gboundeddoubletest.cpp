@@ -32,18 +32,21 @@
  * Once installed call "root -l mapping.C" .
  */
 
-// Standard header files
+// Standard header files go here
 #include <vector>
 #include <iostream>
 #include <fstream>
 
-// Boost header files
+// Boost header files go here
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
 #include <boost/cstdint.hpp>
 
+// GenEvA header files go here
+
 #include "GBoundedDouble.hpp"
+#include "GDoubleGaussAdaptor.hpp"
 
 using namespace Gem::GenEvA;
 using namespace boost;
@@ -53,12 +56,19 @@ const boost::uint32_t NTESTS=10000;
 int main(int argc, char **argv){
 	GBoundedDouble gbd13(-1.,3.); // lower boundary -1, upper Boundary 3
 	GBoundedDouble gbd052(0.5,2.); // lower boundary 0.5, upper Boundary 2
+
 	double internalValue = 0., externalValue = 0.;
 
 	std::ofstream mapping("mapping.C");
 
+	// Essentially the following will create a C++ program as input for the
+	// Root interpreter. It will then display the results of this test.
 	mapping << "{" << std::endl
+	        << "  gROOT->Reset();" << std::endl
+	        << "  gStyle->SetOptTitle(0);" << std::endl
+	        << std::endl
 		    << "  double x13[" << NTESTS << "], y13[" << NTESTS << "];" << std::endl
+		    << "  double x13mutate[" << NTESTS << "], y13mutate[" << NTESTS << "];" << std::endl
 		    << "  double x052[" << NTESTS << "], y052[" << NTESTS << "];" << std::endl
 		    << std::endl;
 
@@ -66,9 +76,6 @@ int main(int argc, char **argv){
 		internalValue=-10.+20.*double(i)/double(NTESTS);
 
 		externalValue = gbd13.calculateExternalValue(internalValue);
-
-		// std::cout << internalValue << " " << externalValue << std::endl;
-
 		mapping << "  x13[" << i << "] = " << internalValue << ";" << std::endl
 		        << "  y13[" << i << "] = " << externalValue << ";" << std::endl;
 	}
@@ -81,29 +88,68 @@ int main(int argc, char **argv){
 		        << "  y052[" << i << "] = " << externalValue << ";" << std::endl;
 	}
 
+	// Set up and register an adaptor for dbd13, so it
+	// knows how to be mutated. We want a sigma of 0.5, sigma-adaption of 0.05 and
+	// a minimum sigma of 0.02. The adaptor will be deleted automatically by the
+	// GBoundedDouble.
+	GDoubleGaussAdaptor *gdga = new GDoubleGaussAdaptor(0.5,0.05,0.02,"gauss_mutation");
+	gbd13.addAdaptor(gdga);
+
+	gbd13 = 0.; // We can assign a value inside of the allowed value range
+	for(boost::uint32_t i=0; i<NTESTS; i++){
+		// mutate the value and have a look at the
+		// internal and external values.
+		gbd13.mutate();
+
+		mapping << " x13mutate[" << i << "] = " << gbd13.getInternalValue() << ";" << std::endl
+			    << " y13mutate[" << i << "] = " << gbd13.value() << ";" << std::endl;
+	}
+
 	mapping << std::endl
 	        << "  TGraph *tg13 = new TGraph(" << NTESTS << ", x13, y13);" << std::endl
+	        << "  TGraph *tg13mutate = new TGraph(" << NTESTS << ", x13mutate, y13mutate);" << std::endl
 	        << "  TGraph *tg052 = new TGraph(" << NTESTS << ", x052, y052);" << std::endl
 	        << std::endl
 	        << "  tg13->SetMarkerStyle(21);" << std::endl
 	        << "  tg13->SetMarkerSize(0.2);" << std::endl
 	        << "  tg13->SetMarkerColor(4);" << std::endl
+	        << "  tg13mutate->SetMarkerStyle(21);" << std::endl
+	        << "  tg13mutate->SetMarkerSize(0.2);" << std::endl
+	        << "  tg13mutate->SetMarkerColor(3);" << std::endl
 	        << "  tg052->SetMarkerStyle(21);" << std::endl
 	        << "  tg052->SetMarkerSize(0.2);" << std::endl
 	        << "  tg052->SetMarkerColor(2);" << std::endl
 	        << std::endl
-	        << "  tg13->Draw(\"ALP\");" << std::endl
-	        << "  tg052->Draw(\"LP\");" << std::endl
+	        << "  tg13->Draw(\"AP\");" << std::endl
+	        << "  tg052->Draw(\"P\");" << std::endl
+	        << "  tg13mutate->Draw(\"P\");" << std::endl
 		    << std::endl
-		    << "TLine *xaxis = new TLine(-12.,0.,12.,0.);" << std::endl
-		    << "TLine *yaxis = new TLine(0.,-1.4,0.,3.4);" << std::endl
+		    << "  TLine *xaxis = new TLine(-12.,0.,12.,0.);" << std::endl
+		    << "  TLine *yaxis = new TLine(0.,-1.4,0.,3.4);" << std::endl
 		    << std::endl
-		    << "xaxis->Draw();" << std::endl
-		    << "yaxis->Draw();" << std::endl
+		    << "  xaxis->Draw();" << std::endl
+		    << "  yaxis->Draw();" << std::endl
 		    << std::endl
+		    << "  TPaveText *pt = new TPaveText(0.349138,0.872881,0.637931,0.963983,\"blNDC\");" << std::endl
+		    << "  pt->SetBorderSize(2);" << std::endl
+		    << "  pt->SetFillColor(19);" << std::endl
+		    << "  pt->AddText(\"Test of the GBoundedDouble class\");" << std::endl
+		    << "  pt->Draw();" << std::endl
 	        << "}" << std::endl;
 
 	mapping.close();
+
+	// gbd13 has a value range of [-1,3]. Try to assign 4:
+	try{
+		gbd13 = 4;
+	}
+	catch(geneva_value_outside_range& error){
+		std::cout << "In GBoundedDouble test: Caught geneva_value_outside_range" << std::endl
+				  << "exception with message " << std::endl
+				  << error.diagnostic_information() << std::endl
+				  << std::endl
+				  << "Don't worry - this is expected!" << std::endl;
+	}
 
 	return 0;
 }

@@ -75,7 +75,8 @@ class geneva_condition_time_out: public boost::exception {};
 // GBoundedDouble
 /** @brief Class to be thrown as an error if invalid boundaries were found */
 class geneva_invalid_boundaries: public boost::exception {};
-
+/** @brief Class to be thrown as an error if a value outside of the allowed range has been assigned */
+class geneva_value_outside_range: public boost::exception {};
 
 // GIndividual
 /** @brief Class to be thrown as an error if the dirty flag is set while lazy evaluation is not allowed */

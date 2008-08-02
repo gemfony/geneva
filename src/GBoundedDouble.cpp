@@ -260,10 +260,14 @@ namespace Gem
 			if(val < lowerBoundary_ || val > upperBoundary_){
 				std::ostringstream error;
 				error << "In GBoundedDouble::setExternalValue() : Error!" << std::endl
-					  << "Attempt to set external value outside of allowed range." << std::endl
-					  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-					  << "upperBoundary_ = " << upperBoundary_ << std::endl
-					  << "val = " << val << std::endl;
+					  << "Attempt to set external value " << val << std::endl
+					  << "outside of allowed range " << "[" << lowerBoundary_ << ":" << upperBoundary_ << "]" << std::endl;
+
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+				// throw an exception. Add some information so that if the exception
+				// is caught through a base object, no information is lost.
+				throw geneva_value_outside_range() << error_string(error.str());
 			}
 
 			// The transfer function in this area is just f(x)=x, so we can just
@@ -317,6 +321,15 @@ namespace Gem
 	    }
 
 	    /******************************************************************************/
+	    /**
+	     * Retrieves the internal representation of our value
+	     *
+	     * @param The current value of internalValue_
+	     */
+	    double GBoundedDouble::getInternalValue() const throw(){
+	    	return internalValue_;
+	    }
 
+	    /******************************************************************************/
 	} /* namespace GenEvA */
 } /* namespace Gem */

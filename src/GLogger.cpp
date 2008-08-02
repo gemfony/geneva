@@ -82,7 +82,7 @@ namespace Gem {
 
 			if(logVector_.empty()) {
 				std::clog << "In GLogger::log: Warning!" << std::endl
-				<< "No log targets present. Will" << ""
+				<< "No log targets present. Will" << std::endl
 				<< "add a console logger" << std::endl;
 
 				this->addTarget(new GConsoleLogger());

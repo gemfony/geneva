@@ -114,6 +114,9 @@ namespace GenEvA
 	/** @brief The actual transfer from internal to external value */
 	double calculateExternalValue(const double&);
 
+	/** @brief Retrieves the internal representation of our value */
+	double getInternalValue() const throw();
+
   private:
 	/** @brief Standard constructor, intentionally private */
 	GBoundedDouble();
