@@ -219,37 +219,9 @@ namespace Gem
 			}
 
 			// Then calculate the corresponding external value and set it accordingly
+			double externalValue = calculateExternalValue(internalValue_);
 
-			// a) Check the boundaries we've been given
-			if(upperBoundary_ <= lowerBoundary_){
-				std::ostringstream error;
-				error << "In GBoundedDouble::mutate() : Error!" << std::endl
-					  << "Got invalid upper and/or lower boundaries" << std::endl
-					  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-					  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				// throw an exception. Add some information so that if the exception
-				// is caught through a base object, no information is lost.
-				throw geneva_invalid_boundaries() << error_string(error.str());
-			}
-
-			// b) find out which region the value is in (compare figure transferFunction.pdf
-			// that should have been delivered with this software
-			boost::uint32_t region = std::floor((internalValue_ - lowerBoundary_) / (upperBoundary_ - lowerBoundary_));
-
-			// c) Check whether we are in an odd or an even range and calculate the
-			// external value accordingly
-			double externalValue = 0.;
-			if(region%2 == 0){ // can it be divided by 2 ? Region 0,2,... or a negative even range
-				externalValue = internalValue_ - region * (upperBoundary_ - lowerBoundary_);
-			}
-			else{ // Range 1,3,... or a negative odd range
-				externalValue = -internalValue_ + ((region-1)*(upperBoundary_ - lowerBoundary_) + 2*upperBoundary_);
-			}
-
-			// d) Set the external value accordingly. This will transfer the internal value
+			// Set the external value accordingly. This will transfer the internal value
 			// back into region 0. This is important, so the internal value does not
 			// become too large due to the mutation.
 			setExternalValue(externalValue);
@@ -294,7 +266,7 @@ namespace Gem
 					  << "val = " << val << std::endl;
 			}
 
-			// The transferfunction in this area is just f(x)=x, so we can just
+			// The transfer function in this area is just f(x)=x, so we can just
 			// assign the external to the internal value.
 			internalValue_ = val;
 			this->setValue(val);
@@ -303,5 +275,48 @@ namespace Gem
 		}
 
 		/******************************************************************************/
+	    /**
+	     * Does the actual mapping from external to internal value
+	     *
+	     * @param in The internal value that is to be converted to an external value
+	     * @param out The externally visible representation of in
+	     */
+	    double GBoundedDouble::calculateExternalValue(const double& in) {
+			// Check the boundaries we've been given
+			if(upperBoundary_ <= lowerBoundary_){
+				std::ostringstream error;
+				error << "In GBoundedDouble::calculateExternalValue() : Error!" << std::endl
+					  << "Got invalid upper and/or lower boundaries" << std::endl
+					  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					  << "upperBoundary_ = " << upperBoundary_ << std::endl;
+
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+				// throw an exception. Add some information so that if the exception
+				// is caught through a base object, no information is lost.
+				throw geneva_invalid_boundaries() << error_string(error.str());
+			}
+
+			// b) find out which region the value is in (compare figure transferFunction.pdf
+			// that should have been delivered with this software . Note that numeric_cast
+			// may throw - exceptions must be caught in surrounding functions.
+			boost::int32_t region =
+				boost::numeric_cast<boost::int32_t>(std::floor((in - lowerBoundary_) / (upperBoundary_ - lowerBoundary_)));
+
+			// c) Check whether we are in an odd or an even range and calculate the
+			// external value accordingly
+			double externalValue = 0.;
+			if(region%2 == 0){ // can it be divided by 2 ? Region 0,2,... or a negative even range
+				externalValue = in - region * (upperBoundary_ - lowerBoundary_);
+			}
+			else{ // Range 1,3,... or a negative odd range
+				externalValue = -in + ((region-1)*(upperBoundary_ - lowerBoundary_) + 2*upperBoundary_);
+			}
+
+			return externalValue;
+	    }
+
+	    /******************************************************************************/
+
 	} /* namespace GenEvA */
 } /* namespace Gem */

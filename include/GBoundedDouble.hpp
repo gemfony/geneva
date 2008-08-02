@@ -37,6 +37,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
+#include <boost/cast.hpp> // For boost::numeric_cast<>
 
 #ifndef GBOUNDEDDOUBLE_HPP_
 #define GBOUNDEDDOUBLE_HPP_
@@ -110,9 +111,13 @@ namespace GenEvA
     /** @brief Mutates this object */
     virtual void mutate();
 
+	/** @brief The actual transfer from internal to external value */
+	double calculateExternalValue(const double&);
+
   private:
 	/** @brief Standard constructor, intentionally private */
 	GBoundedDouble();
+
     /** @brief Sets the external value */
 	double setExternalValue(double);
 

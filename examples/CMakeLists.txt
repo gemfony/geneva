@@ -5,3 +5,7 @@ add_subdirectory (
 add_subdirectory (
 	GSimpleBasePopulation
 )
+
+add_subdirectory (
+    GBoundedDoubleTest
+) 
