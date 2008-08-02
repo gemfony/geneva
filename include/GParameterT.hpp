@@ -186,7 +186,7 @@ public:
 protected:
 	/*******************************************************************************************/
 
-	T val_; ///< The internal representation of our value
+	T val_; ///< The internal representation of our value. It is protected as it needs to accessible to derived classes.
 };
 
 }} /* namespace Gem::GenEvA */

@@ -35,36 +35,52 @@ namespace Gem
 {
 	namespace GenEvA
 	{
-
 		/******************************************************************************/
 		/**
 		 * The default constructor. As this class uses the adaptor scheme
 		 * (see GTemplateAdaptor<T>), you will need to add your own adaptors,
-		 * such as the GDoubleGaussAdaptor.
+		 * such as the GDoubleGaussAdaptor. This constructor is private and thus
+		 * cannot be used. It is here as it is needed by the serialization
+		 * framework.
 		 */
 		GBoundedDouble::GBoundedDouble()
-			:GTemplateValue<double>(0.),
-			 internal_value_(0.)
+			:GParameterT<double>(0.),
+			 lowerBoundary_(0.),
+			 upperBoundary_(0.),
+			 internalValue_(0.)
+		{ /* nothing */ }
 
+		/******************************************************************************/
+	    /**
+	     * Initializes the boundaries and sets the external value to a random number
+	     * inside the allowed value range.
+	     *
+	     * @param lowerBoundary The lower boundary of the value range
+	     * @param upperBoundary The upper boundary of the value range
+	     */
+		GBoundedDouble::GBoundedDouble(double lowerBoundary, double upperBoundary)
+			:GParameterT<double>(0.),
+			 lowerBoundary_(lowerBoundary),
+			 upperBoundary_(upperBoundary),
+			 internalValue_(0.)
 		{
-			// Initialize randomly within the allowed value range.
-			// Also checks whether the supplied value is inside the allowed range
-			setExternalValue(gr.evenRandom(range_.lowerBoundary(),range_.upperBoundary()));
+			// This function also sets the internalValue_ variable.
+			setExternalValue(gr.evenRandom(lowerBoundary_,upperBoundary_));
 		}
 
 		/******************************************************************************/
 		/**
-		 * Initialize with a given double value. Note that this constructor
-		 * can also be used for conversion. GTemplateValue<double> is initialized
-		 * with 0, as that class holds the internal representation. The correct
-		 * internal value will be set by GBoundedDouble::setExternalValue() . The
-		 * function purposely allows conversions from double values.
+		 * Initialize with a given double value and the allowed value range.
 		 *
 		 * @param val Initialisation value
+  	     * @param lowerBoundary The lower boundary of the value range
+	     * @param upperBoundary The upper boundary of the value range
 		 */
-		GBoundedDouble::GBoundedDouble(double val)
-			:GTemplateValue<double>(0.),
-			 internal_value_(0.)
+		GBoundedDouble::GBoundedDouble(double val, double lowerBoundary, double upperBoundary)
+			:GParameterT<double>(0.),
+			 lowerBoundary_(lowerBoundary),
+			 upperBoundary_(upperBoundary),
+			 internalValue_(0.)
 		{
 			setExternalValue(val);
 		}
@@ -72,32 +88,29 @@ namespace Gem
 		/******************************************************************************/
 		/**
 		 * A standard copy constructor. Most work is done by the parent
-		 * classes, we only need to copy ranges and gaps.
+		 * classes, we only need to copy the internal value and the allowed
+		 * value range.
 		 *
 		 * @param cp Another GBoundedDouble object
 		 */
 		GBoundedDouble::GBoundedDouble(const GBoundedDouble& cp)
-			:GTemplateValue<double>(cp),
-			 range_(cp.range_),
-			 internal_value_(cp.internal_value_)
-		{
-			// this part is complicated. Use a helper function
-			copyRanges(cp.gps_);
-		}
+			:GParameterT<double>(cp),
+			 lowerBoundary_(cp.lowerBoundary_),
+			 upperBoundary_(cp.upperBoundary_),
+			 internalValue_(cp.internalValue_)
+		{ /* nothing */	}
 
 		/******************************************************************************/
 		/**
 		 * A standard destructor. No local, dynamically allocated data,
-		 * hence nothing to do. Note that the pointers to GRange objects
-		 * stored in the gps_ vector will be cleared automatically, as they
-		 * are wrapped into a boost::shared_ptr<> object.
+		 * hence nothing to do.
 		 */
 		GBoundedDouble::~GBoundedDouble()
 		{ /* nothing */}
 
 		/******************************************************************************/
 		/**
-		 * A standard assignment operator for GBoundedDouble.
+		 * A standard assignment operator for GBoundedDouble objects
 		 *
 		 * @param cp A constant reference to another GBoundedDouble object
 		 * @return A constant reference to this object
@@ -109,7 +122,8 @@ namespace Gem
 
 		/******************************************************************************/
 		/**
-		 * A standard assignment operator for double values
+		 * A standard assignment operator for double values. Note that this function
+		 * will throw an exception if the new value is not in the allowed value range.
 		 *
 		 * @param The desired new external value
 		 * @return The new external value of this object
@@ -121,16 +135,16 @@ namespace Gem
 
 		/******************************************************************************/
 		/**
-		 * Resets the object to its initial state.
+		 * Resets the object to its initial state. Note that the allowed value range is
+		 * not reset, as it is not possible to set it externally. It is thus considered
+		 * to be part of the initial state.
 		 */
 		void GBoundedDouble::reset(void) {
 			// Reset the local data
-			range_.reset();
-			gps_.clear();
-			internal_value_=0.;
+			internalValue_=0.;
 
 			// Reset the parent class
-			GTemplateValue<double>::reset();
+			GParameterT<double>::reset();
 		}
 
 		/******************************************************************************/
@@ -148,9 +162,9 @@ namespace Gem
 			GParameterT<double>::load(cp);
 
 			// ... and then our own
-			range_ = gbd_load->range_;
-			copyRanges(gbd_load->gps_);
-			internal_value_ = gbd_load->internal_value_;
+			lowerBoundary_ = gbd_load->lowerBoundary_;
+			upperBoundary_ = gbd_load->upperBoundary_;
+			internalValue_ = gbd_load->internalValue_;
 		}
 
 		/******************************************************************************/
@@ -164,133 +178,48 @@ namespace Gem
 		}
 
 		/******************************************************************************/
-		/**
-		 * Sets the upper and lower boundaries of this object. Boundaries
-		 * can be open or closed. Note that this function may only be called
-		 * while no gaps have been added. So once you have added gaps, this
-		 * function will throw an exception.
-		 *
-		 * @param lower_bound The new lower boundary
-		 * @param lower_bound_open A boolean indicating whether or not lower_bound is open
-		 * @param upper_bound The new upper boundary
-		 * @param upper_bound_open A boolean indicating whether or not upper_bound is open
-		 */
-		void GBoundedDouble::setBoundaries(double lower_bound, bool lower_bound_open,
-										   double upper_bound, bool upper_bound_open) {
-			// Resizing the boundaries with gaps present could result in the need to
-			// remove gaps - a situation which we do not know how to handle - after all a gap
-			// could indicate a crucial area of the parameter space that may not be touched.
-			if(!gps_.empty()){
-				std::ostringstream error;
-				error << "In GBoundedDouble::setBoundaries(): Error!" << std::endl
-					  << "Tried to change boundaries while GRange objects were present." << std::endl;
+	    /**
+	     * Retrieves the lower boundary
+	     */
+	    double GBoundedDouble::getLowerBoundary() const throw(){
+	    	return lowerBoundary_;
+	    }
 
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				// throw an exception. Add some information so that if the exception
-				// is caught through a base object, no information is lost.
-				throw geneva_resize_with_ranges() << error_string(error.str());
-			}
-
-			// save current external value;
-			double val = this->value();
-
-			// set the boundaries as required
-			range_.setBoundaries(lower_bound,lower_bound_open,
-								 upper_bound,upper_bound_open);
-
-			// Reset the external value if it is outside of the range
-			if(val < range_.lowerBoundary()) val = range_.lowerBoundary();
-			else if(val> range_.upperBoundary()) val = range_.upperBoundary();
-
-			// set the external value to the original value (if possible).
-			// Note that in the presence of boundaries the internal representation
-			// will be re-calculated.
-			setExternalValue(val);
-		}
+	    /******************************************************************************/
+	    /**
+	     * Retrieves the upper boundary
+	     */
+	    double GBoundedDouble::getUpperBoundary() const throw(){
+	    	return upperBoundary_;
+	    }
 
 		/******************************************************************************/
 		/**
-		 * A similar function to GBoundedDouble::setBoundaries(double, bool, double, bool),
-		 * but assumes that the boundaries are closed.
-		 *
-		 * @param lower_bound The new lower boundary
-		 * @param upper_bound The new upper boundary
+		 * This function allows automatic conversion from GBoundedDouble to GBoundedDouble. This
+		 * allows us to define only few operators, as the bulk of the work will be
+		 * done by automatic conversions done by the C++ compiler.
 		 */
-		void GBoundedDouble::setBoundaries(double lower_bound, double upper_bound) {
-			this->setBoundaries(lower_bound, BNDISCLOSED, upper_bound, BNDISCLOSED);
-		}
-
-		/******************************************************************************/
-		/**
-		 * Adds a gap to the value range_ of this object. Gaps can have open
-		 * or closed boundaries. As gaps act as helper classes, there is no
-		 * function that allows to add a gap object. Users should not be
-		 * required to know about the internal implementation of this class.
-	     * Note that this function needs to be called after the external boundaries
-	     * of the object have been set. Adding a range which overlaps with these boundaries
-	     * or with other ranges will result in an exception being thrown. Note also that,
-	     * as a post-condition, if the externally visible value suddenly lies within
-	     * one of the disallowed ranges, it will be adapted to the lower boundary of
-	     * that range.
-		 *
-		 * @param lower_bound The new lower boundary
-		 * @param lower_bound_open A boolean indicating whether or not lower_bound is open
-		 * @param upper_bound The new upper boundary
-		 * @param upper_bound_open A boolean indicating whether or not upper_bound is open
-		 */
-		void GBoundedDouble::addRange(double lower_bound, bool lower_bound_open,
-								      double upper_bound, bool upper_bound_open)
-		{
-			// create and add range
-			boost::shared_ptr<GRange> p(
-					new GRange(lower_bound, lower_bound_open,
-							   upper_bound, upper_bound_open);
-			)
-			gps_.push_back(p);
-
-			// sort gaps
-			sortRanges();
-
-			// check that nothing overlaps
-			if(!rangesOk()) {
-				std::ostringstream error;
-				error << "In GBoundedDouble::addRange() : Error!" << std::endl
-					  << "Range seems to overlap another" << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				// throw an exception. Add some information so that if the exception
-				// is caught through a base object, no information is lost.
-				throw geneva_invalid_range_added() << error_string(error.str());
-			}
-
-			// Adjust the external value, if necessary
-		}
-
-		/******************************************************************************/
-		/**
-		 * A similar function to GBoundedDouble::addRange(double, bool, double, bool), but
-		 * assumes that both boundaries of the gap are closed.
-		 *
-		 * @param lbnd The new lower boundary
-		 * @param ubnd The new upper boundary
-		 */
-		void GBoundedDouble::addRange(double lbnd, double ubnd) {
-			this->addRange(lbnd,BNDISCLOSED,ubnd,BNDISCLOSED);
-		}
-
-		/******************************************************************************/
-		/**
-		 * The standard way to retrieve the external value of a class
-		 * derived from GTemplateValue<T> is the getValue() function.
-		 * In the case of a GBoundedDouble the external value is different from
-		 * the internal value and needs to be recalculated after every
-		 * mutation. Hence we need to overload this function from the
-		 * default version, which just returns the internal value.
-		 */
-		double GBoundedDouble::getValue(void) {
+		GBoundedDouble::operator double () {
 			return this->value();
+		}
+
+		/******************************************************************************/
+		/**
+		 * Mutates this object. It is the internal representation of the class'es value
+		 * that gets mutated. This value is then "translated" into the external value (stored
+		 * in GParameterT<double>, which is set accordingly.
+		 */
+		void GBoundedDouble::mutate(void){
+			// First apply the mutation to the internal representation of our value
+			if(numberOfAdaptors() == 1){
+				GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(internalValue_);
+			}
+			else {
+				GParameterBaseWithAdaptorsT<T>::applyAllAdaptors(internalValue_);
+			}
+
+			// Then calculate the corresponding external value and set it accordingly
+
 		}
 
 		/******************************************************************************/
@@ -359,7 +288,7 @@ namespace Gem
 			}
 
 			// Ready to set the internal value ...
-			GTemplateValue<double>::setInternalValue(result);
+			GParameterT<double>::setInternalValue(result);
 
 			// We have changed the internal state of this object and hence need
 			// to mark it as dirty. Note that evaluation will only take place when
@@ -369,175 +298,6 @@ namespace Gem
 
 			// Return the original value for reference
 			return lov;
-		}
-
-		/******************************************************************************/
-		/**
-		 * This function allows automatic conversion from GBoundedDouble to GBoundedDouble. This
-		 * allows us to define only few operators, as the bulk of the work will be
-		 * done by automatic conversions done by the C++ compiler.
-		 */
-		GBoundedDouble::operator double () {
-			return this->value();
-		}
-
-		/******************************************************************************/
-		/**
-		 * A comparison operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value to be compared with this object
-		 * @return A boolean indicating whether val is larger than this object
-		 */
-		bool GBoundedDouble::operator<(GBoundedDouble& val) {
-			return this->value() < val.value();
-		}
-
-		/******************************************************************************/
-		/**
-		 * A comparison operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value to be compared with this object
-		 * @return A boolean indicating equivalence
-		 */
-		bool GBoundedDouble::operator==(GBoundedDouble& val) {
-			return this->value() == val.value();
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value to be added to this object
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator+=(GBoundedDouble& val) {
-			this->setExternalValue(this->value()+val.value());
-			return *this;
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value to be subtracted from this object
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator-=(GBoundedDouble& val) {
-			this->setExternalValue(this->value()-val.value());
-			return *this;
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value to be multiplied with this object
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator*=(GBoundedDouble& val) {
-			this->setExternalValue(this->value() * val.value());
-			return *this;
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value by which this object should be divided
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator/=(GBoundedDouble& val) {
-			double divisor=val.value();
-			if(divisor==0.) {
-				GException ge;
-				ge << "In GBoundedDouble::operator/=() : Attempted division by 0." << std::endl
-				<< raiseException;
-			}
-
-			setExternalValue(this->value()/divisor);
-			return *this;
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value used for assignment
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator%=(GBoundedDouble& val) {
-			this->setExternalValue(double(int32_t(this->value()) % int32_t(val.value())));
-			return *this;
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value used for assignment
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator|=(GBoundedDouble& val) {
-			this->setExternalValue(double(int32_t(this->value()) | int32_t(val.value())));
-			return *this;
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value used for assignment
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator&=(GBoundedDouble& val) {
-			this->setExternalValue(double(int32_t(this->value()) & int32_t(val.value())));
-			return *this;
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @param  val The value used for assignment
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator^=(GBoundedDouble& val) {
-			this->setExternalValue(double(int32_t(this->value()) ^ int32_t(val.value())));
-			return *this;
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator++() {
-			this->setExternalValue(this->value() + 1.);
-			return *this;
-		}
-
-		/******************************************************************************/
-		/**
-		 * An assignment operator, which aids Boost.operators in the definition of
-		 * arithmentic operators for calculations performed with this class.
-		 *
-		 * @return A constant reference to this object
-		 */
-		GBoundedDouble& GBoundedDouble::operator--() {
-			this->setExternalValue(this->value() - 1.);
-			return *this;
 		}
 
 		/******************************************************************************/
@@ -556,7 +316,7 @@ namespace Gem
 			double result=0.,low, up;
 			double sumgaps, sumgapsm1, gapcounter, peak=0.;
 			double distance=0., current_region=0.;
-			double iValue = GTemplateValue<double>::getInternalValue();
+			double iValue = GParameterT<double>::getInternalValue();
 			std::vector<boost::shared_ptr<GRange> >::iterator it;
 
 			low = range_.lowerBoundary();
@@ -617,7 +377,7 @@ namespace Gem
 			}
 
 			// set the internal value as desired
-			GTemplateValue<double>::setInternalValue(iValue);
+			GParameterT<double>::setInternalValue(iValue);
 
 			// this is the real transformation x->y. All the code before this line was
 			// just needed to find a suitable x-variable yielding the same y-value as "var".
@@ -652,88 +412,6 @@ namespace Gem
 			}
 
 			return result;
-		}
-
-		/******************************************************************************/
-		/**
-		 * Sanity check - do any ranges overlap ? Is any range beyond the
-		 * boundaries of this GBoundedDouble ? NOTE: This function assumes that the
-		 * ranges have been sorted. A return value "true" means that there
-		 * are no overlapping regions.
-		 *
-		 * @return A boolean indicating whether no overlapping regions exist
-		 */
-		bool GBoundedDouble::rangesOk(void) {
-			// No local gaps ? Nothing to do.
-			if(gps_.size() == 0) return true;
-
-			// Check that the ranges themselves don't overlap
-			std::vector<boost::shared_ptr<GRange> >::iterator gr_it;
-			for(gt_it=gps_.begin()+1; gr_it!=gps_.end(); ++gr_it) {
-				if((*gr_it)->overlaps(*((gr_it-1)->get()))) return false;
-			}
-
-			// Now we know that the upper boundary of each range is below
-			// the lower boundary of the next range.
-
-			// Check that no range overlaps the boundaries of this GBoundedDouble
-			if(gps_.front()->lowerBoundary() < range_.lowerBoundary() ||
-			   gps_.back()->upperBoundary() > range_upperBoundary()) return false;
-
-			return true;
-		}
-
-		/******************************************************************************/
-		/**
-		 * This is a helper function used in the copy constructor and
-		 * the GBoundedDouble::load() function. It is used to copy the gaps of
-		 * another GBoundedDouble into our own gps_ vector.
-		 *
-		 * @param cp A vector holding gaps.
-		 */
-		void GBoundedDouble::copyRanges(const std::vector<boost::shared_ptr<GRange> > & cp) {
-			std::vector<boost::shared_ptr<GRange> >::iterator it_this;
-			std::vector<boost::shared_ptr<GRange> >::const_iterator cit_cp;
-
-			// Copy all GRange objects until we reach the end of one of the vectors
-			for(it_this=gps_.begin, cit_cp=cp.gps_.begin();
-				it_this!=gps_.end(), cit_cp!=cp.gps_.end();
-				++it_this, ++cit_cp){
-				it_this->load = cit_cp->get();
-			}
-
-			std::size_t this_size = gps_.size(), cp_size = cp.gps_.size();
-			if(this_size == cp_size); // Nothing to do
-			else if(this_size < cp_size){
-				// Attach remaining GRange objects
-				for(cit_cp=cp.gps_.begin()+this_size; cit_cp!=cp.gps_.end(); ++cit_cp){
-					shared_ptr<GRange> p(new GRange());
-					p->load(cit_cp->get());
-					this->push_back(p);
-				}
-			}
-			else{ // this_size > cp_size
-				// Removes the surplus items at the end of the vector
-				gps_.resize(cp_size);
-			}
-
-			// Make sure the GRange objects are sorted
-			sortRanges();
-		}
-
-		/******************************************************************************/
-		/**
-		 * Sorts the gaps according to their lower values. This function creates
-		 * a function object on the fly using the Boost.Bind framework. See
-		 * http://www.boost.org/libs/bind/bind.html for further information.
-		 */
-		void GBoundedDouble::sortRanges(void) {
-			std::sort(gps_.begin(), gps_.end(),
-					boost::bind(
-							std::less<double>(),
-							boost::bind(&GRange::lowerBoundary,_1),
-							boost::bind(&GRange::lowerBoundary,_2)
-					));
 		}
 
 		/******************************************************************************/

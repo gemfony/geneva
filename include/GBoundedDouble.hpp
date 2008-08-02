@@ -25,6 +25,7 @@
 // Standard headers go here
 #include <vector>
 #include <sstream>
+#include <cmath>
 
 // Boost headers go here
 #include <boost/version.hpp>
@@ -34,7 +35,6 @@
 #endif /* BOOST_VERSION */
 
 #include <boost/cstdint.hpp>
-#include <boost/operators.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
 
@@ -58,24 +58,13 @@ namespace GenEvA
   /******************************************************************************/
   /* The GBoundedDouble class represents a double value, equipped with the
    * ability to mutate itself. The value range can have an upper and a lower
-   * limit, and gaps may be added to the value range. Mutated values will
-   * then only appear inside the given range and outside the gaps. Note that
-   * appropriate adaptors (see e.g the GDoubleGaussAdaptor class) need to
-   * be loaded in order to benefit from the mutation capabilities.
-   *
-   * Note that this class has several issues that need to be fixed:
-   * - Constructors may still throw exceptions (?)
-   * - This class (and its sibling GDoubleCollection), together with
-   *   GDoubleGaussAdaptor are the source of most CPU time used in
-   *   Evolutionary Strategies
-   * - Floating point accuracy needs to be examined for the conversion
-   *   applied between internal and external value. In particular there
-   *   seems to be problems at the peaks.
+   * limit. The range has to be set during the initial creation. Once set, it cannot
+   * be changed anymore. Mutated values will only appear inside the given range.
+   * Note that appropriate adaptors (see e.g the GDoubleGaussAdaptor class) need
+   * to be loaded in order to benefit from the mutation capabilities.
    */
-
   class GBoundedDouble
-    :public GParameterT<double>,
-     private boost::operators<GBoundedDouble>
+     :public GParameterT<double>
   {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -84,17 +73,17 @@ namespace GenEvA
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
       ar & make_nvp("GParameterT_dbl", boost::serialization::base_object<GParameterT<double> >(*this));
-      ar & make_nvp("range_", range_);
-      ar & make_nvp("gps_",gps_);
-      ar & make_nvp("internal_value_", internal_value_);
+      ar & make_nvp("internalValue_", internalValue_);
+      ar & make_nvp("lower_boundary_", lower_boundary_);
+      ar & make_nvp("lower_boundary_", upper_boundary_);
     }
     ///////////////////////////////////////////////////////////////////////
 
   public:
-    /** @brief The standard constructor */
-    GBoundedDouble();
-    /** @brief Initialization with a double */
-    GBoundedDouble(double);
+	/** @brief Initialization with the boundaries */
+	GBoundedDouble(double, double);
+    /** @brief Initialization with a double and the boundaries */
+    GBoundedDouble(double, double, double);
     /** @brief Standard copy constructor */
     GBoundedDouble(const GBoundedDouble&);
     /** @brief Standard destructor */
@@ -106,75 +95,31 @@ namespace GenEvA
     virtual double operator=(double);
 
     /** @brief Resets the class to its initial state */
-    virtual void reset(void);
+    virtual void reset();
     /** @brief Loads the data of another GBoundedDouble */
     virtual void load(const GObject *);
-    /** @brief Creats a deep copy of this class */
-    virtual GObject *clone(void);
+    /** @brief Creates a deep copy of this class */
+    virtual GObject *clone();
 
-    /** @brief Sets the outer boundaries of the double value */
-    void setBoundaries(double, bool, double, bool);
-    /** @brief Sets the outer, closed boundaries of the double value */
-    void setBoundaries(double, double);
-    /** @brief Adds a gap in the value range */
-    void addRange(double, bool, double, bool);
-    /** @brief Adds a closed gap in the value range */
-    void addRange(double, double);
+    /** @brief Retrieves the lower boundary */
+    double getLowerBoundary() const throw();
+    /** @brief Retrieves the upper boundary */
+    double getUpperBoundary() const throw();
 
-    /** @brief Retrieves the external value */
-    virtual double getValue();
-    /** @brief Sets the extern value */
-    double setExternalValue(double);
-
-    /** @brief  Automatic conversion to a double */
+    /** @brief Automatic conversion to a double */
     operator double ();
 
-    /** @brief Comparison operator, aids Boost.Operators */
-    bool operator<(GBoundedDouble&);
-    /** @brief Comparison operator, aids Boost.Operators */
-    bool operator==(GBoundedDouble&);
-    /** @brief Self-assignment operator, aids Boost.Operators */
-    GBoundedDouble& operator+=(GBoundedDouble&);
-    /** @brief Self-assignment operator, aids Boost.Operators */
-    GBoundedDouble& operator-=(GBoundedDouble&);
-    /** @brief Self-assignment operator, aids Boost.Operators */
-    GBoundedDouble& operator*=(GBoundedDouble&);
-    /** @brief Self-assignment operator, aids Boost.Operators */
-    GBoundedDouble& operator/=(GBoundedDouble&);
-    /** @brief Self-assignment operator, aids Boost.Operators */
-    GBoundedDouble& operator%=(GBoundedDouble&);
-    /** @brief Self-assignment operator, aids Boost.Operators */
-    GBoundedDouble& operator|=(GBoundedDouble&);
-    /** @brief Self-assignment operator, aids Boost.Operators */
-    GBoundedDouble& operator&=(GBoundedDouble&);
-    /** @brief Self-assignment operator, aids Boost.Operators */
-    GBoundedDouble& operator^=(GBoundedDouble&);
-    /** @brief Increment operator, aids Boost.Operators */
-    GBoundedDouble& operator++();
-    /** @brief Decrement operator, aids Boost.Operators */
-    GBoundedDouble& operator--();
-
-  protected:
-    /** @brief Allows to customize value calculation */
-    virtual double customFitness(void);
+    /** @brief Mutates this object */
+    virtual void mutate();
 
   private:
-	/** @brief Sanity check for overlapping ranges/gaps */
-	bool rangesOk(void);
+	/** @brief Standard constructor, intentionally private */
+	GBoundedDouble();
+    /** @brief Sets the external value */
+	double setExternalValue(double);
 
-	/** @brief Checks whether a given value is inside one of the ranges */
-	bool valueInsideRange(double);
-
-	/** @brief Helper function to copy the ranges/gaps of another vector */
-	void copyRanges(const vector<shared_ptr<GRange> > & cp);
-
-	/** @brief Sorts gaps according to their lower value */
-	void sortRanges(void);
-
-    GRange range_; ///< A GBoundedDouble can be assigned boundaries
-    vector<shared_ptr<GRange> > gps_; /// < Holds gaps in the external value range, if set
-
-    double internal_value_; ///< The internal representation of this classes value
+    double internalValue_; ///< The internal representation of this classes value
+    double lowerBoundary_, upperBoundary_;
   };
 
   /******************************************************************************/
