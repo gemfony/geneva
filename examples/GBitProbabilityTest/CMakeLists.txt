@@ -22,8 +22,5 @@ ADD_EXECUTABLE(gbitprobabilitytest
 
 target_link_libraries (gbitprobabilitytest
 	geneva
-	boost_thread-gcc43-mt
-	boost_system-gcc43-mt
-	boost_serialization-gcc43-mt
-	boost_date_time-gcc43-mt
+	${Boost_LIBRARIES}
 )
