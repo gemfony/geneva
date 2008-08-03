@@ -1,0 +1,6 @@
+- Create a look-up table for the sin() and other functions in the gauss-random facility. Is this really faster than calculation of a sin in the processor ?
+- Add cross-over function to GParameterCollectionT
+- Let the GRandomFactory only create [0,1[ random numbers, but create an automatic adaption of the number of producer threads
+- Bring the GRandom classes into their own namespace and make it independent of GenEvA, so that the framework can develop independently
+
+

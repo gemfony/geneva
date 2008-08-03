@@ -75,7 +75,8 @@
 /****************************************************************************/
 
 namespace Gem {
-namespace GenEvA {
+namespace Util {
+
   const std::size_t DEFAULTARRAYSIZE = 1000;
   const std::size_t DEFAULTFACTORYBUFFERSIZE = 1000;
   const boost::uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
@@ -244,7 +245,7 @@ namespace GenEvA {
         {
           g01_.pop_back(&result, 0, DEFAULTFACTORYGETWAIT);
         }
-      catch (Gem::GenEvA::geneva_condition_time_out&)
+      catch (Gem::Util::gem_util_condition_time_out&)
         {
           // nothing - our way of signaling a time out
           // is to return an empty boost::shared_ptr
@@ -268,7 +269,7 @@ namespace GenEvA {
         {
           gGauss_.pop_back(&dummy, 0, DEFAULTFACTORYGETWAIT);
         }
-      catch (Gem::GenEvA::geneva_condition_time_out&)
+      catch (Gem::Util::gem_util_condition_time_out&)
         {
           // nothing - our way of signaling a time out
           // is to return an empty boost::shared_ptr
@@ -342,7 +343,7 @@ namespace GenEvA {
                     {
                       g01_.push_front(p, 0, DEFAULTFACTORYPUTWAIT);
                     }
-                  catch (Gem::GenEvA::geneva_condition_time_out&)
+                  catch (Gem::Util::gem_util_condition_time_out&)
                     {
                       p.reset();
                     }
@@ -457,7 +458,7 @@ namespace GenEvA {
                         {
                           gGauss_.push_front(p, 0, DEFAULTFACTORYPUTWAIT);
                         }
-                      catch (Gem::GenEvA::geneva_condition_time_out&)
+                      catch (Gem::Util::gem_util_condition_time_out&)
                         {
                           p.reset();
                         }
@@ -519,8 +520,10 @@ namespace GenEvA {
 
     /*************************************************************************/
 
-    GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > g01_; ///< A bounded buffer holding the [0,1[ random number packages
-    GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > gGauss_; ///< A bounded buffer holding gaussian random number packages
+    /** @brief A bounded buffer holding the [0,1[ random number packages */
+    Gem::Util::GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > g01_;
+    /** @brief A bounded buffer holding gaussian random number packages */
+    Gem::Util::GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > gGauss_;
 
     boost::uint32_t seed_; ///< The seed for the random number generators
 
@@ -534,7 +537,7 @@ namespace GenEvA {
 /**
  * A single, global random number factory is created.
  */
-typedef boost::details::pool::singleton_default<GRandomFactory> grfactory;
+typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
 #define GRANDOMFACTORY grfactory::instance()
 
 /****************************************************************************/
@@ -858,7 +861,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 /****************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Util */
 } /* namespace Gem */
 
 #endif /* GRANDOM_H */

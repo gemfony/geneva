@@ -141,7 +141,7 @@ protected:
      * created from serialization data will re-initialize the random
      * number generator.
      */
-	GRandom gr;
+	Gem::Util::GRandom gr;
 
 	/**************************************************************************************************/
 	/**

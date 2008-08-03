@@ -41,8 +41,9 @@
 #include "GBoostThreadPopulation.hpp"
 
 using namespace boost;
-using namespace Gem;
 using namespace Gem::GenEvA;
+using namespace Gem::Util;
+using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
@@ -59,7 +60,7 @@ void infoFunction(GBasePopulation * const gbp){
 
   information << std::endl;
 
-  LOGGER.log(information.str(), GLogFramework::PROGRESS);
+  LOGGER.log(information.str(), Gem::GLogFramework::PROGRESS);
 }
 
 /************************************************************************************************/
@@ -106,14 +107,14 @@ double parabola(const GParameterSet& gps){
  */
 int main(int argc, char **argv){
 	// Add some log levels to the logger
-	LOGGER.addLogLevel(GLogFramework::CRITICAL);
-	LOGGER.addLogLevel(GLogFramework::WARNING);
-	LOGGER.addLogLevel(GLogFramework::INFORMATIONAL);
-	LOGGER.addLogLevel(GLogFramework::PROGRESS);
+	LOGGER.addLogLevel(Gem::GLogFramework::CRITICAL);
+	LOGGER.addLogLevel(Gem::GLogFramework::WARNING);
+	LOGGER.addLogLevel(Gem::GLogFramework::INFORMATIONAL);
+	LOGGER.addLogLevel(Gem::GLogFramework::PROGRESS);
 
 	// Add log targets to the system
-	LOGGER.addTarget(new GLogFramework::GDiskLogger("GSimpleBasePopulation.log"));
-	LOGGER.addTarget(new GLogFramework::GConsoleLogger());
+	LOGGER.addTarget(new Gem::GLogFramework::GDiskLogger("GSimpleBasePopulation.log"));
+	LOGGER.addTarget(new Gem::GLogFramework::GConsoleLogger());
 
 	// Random numbers are our most valuable good. Set the number of threads
 	// 7 threads will be producing [0,1[ floating point values, 3 threads

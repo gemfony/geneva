@@ -64,9 +64,13 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+// Standard headers go here
+
 #include <string>
 #include <iostream>
 #include <deque>
+
+// Boost headers go here
 
 #include <boost/version.hpp>
 
@@ -87,13 +91,14 @@
 #ifndef GBOUNDEDBUFFER_H_
 #define GBOUNDEDBUFFER_H_
 
-using namespace boost;
-
-#include "GLogger.hpp"
-#include "GenevaExceptions.hpp"
+// GenEvA headers go here
 
 namespace Gem {
-namespace GenEvA {
+namespace Util {
+
+/***********************************************************************************/
+/** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
+class gem_util_condition_time_out: public boost::exception {};
 
 /***********************************************************************************/
 /**
@@ -104,7 +109,7 @@ namespace GenEvA {
  * conditions, however, the buffer should never reach its upper
  * limit.
  */
-const uint16_t DEFAULTBUFFERSIZE = 10000;
+const std::size_t DEFAULTBUFFERSIZE = 10000;
 
 /********************************************************************/
 /**
@@ -129,7 +134,6 @@ class GBoundedBuffer
 public:
 
 	typedef typename std::deque<T> container_type;
-	typedef	typename container_type::size_type size_type;
 	typedef typename container_type::value_type value_type;
 
 	/***************************************************************/
@@ -137,7 +141,7 @@ public:
 	 * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
 	 */
 	GBoundedBuffer(void) throw()
-	:capacity_(DEFAULTBUFFERSIZE)
+		:capacity_(DEFAULTBUFFERSIZE)
 	{ /* nothing */}
 
 	/***************************************************************/
@@ -147,18 +151,19 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBuffer(size_type capacity) throw()
-	:capacity_(capacity?capacity:1)
+	explicit GBoundedBuffer(std::size_t capacity) throw()
+		:capacity_(capacity?capacity:1)
 	{ /* nothing */}
 
 	/***************************************************************/
 	/**
-	 * A standard destructor. Not virtual, as we do not expect any
-	 * classes to be derived from this one. We do not assume deletion
-	 * of the buffer to be time-critical, hence we try to catch all
-	 * errors locally. Any error here means termination of the program.
+	 * A standard destructor. Virtual, as classes such as a producer-type
+	 * class might get derived from this one. We do not want the destructor
+	 * to throw, hence we try to catch all errors locally. Any error here
+	 * means termination of the program. No logging takes place, as we want
+	 * this class to be independent of the GenEvA framework
 	 */
-	~GBoundedBuffer() throw()
+	virtual ~GBoundedBuffer()
 	{
 		// Any error here is deadly ...
 		try {
@@ -167,20 +172,13 @@ public:
 		}
 		// This is a standard error raised by the lock/mutex
 		catch(boost::thread_resource_error&) {
-			LOGGER.log(
-					"Caught thread_resource_error in GBoundedBuffer::~GBoundedBuffer(). Terminating ...",
-					Gem::GLogFramework::CRITICAL
-			);
 
+			std::cerr << "Caught thread_resource_error in GBoundedBuffer::~GBoundedBuffer(). Terminating ..." << std::endl;
 			std::terminate();
 		}
 		// We do not know whether any of the destructors of the items in the buffer throw anything
 		catch(...) {
-			LOGGER.log(
-					"Caught unknown exception in GBoundedBuffer::~GBoundedBuffer(). Terminating ...",
-					Gem::GLogFramework::CRITICAL
-			);
-
+			std::cerr << "Caught unknown exception in GBoundedBuffer::~GBoundedBuffer(). Terminating ..." << std::endl;
 			std::terminate();
 		}
 	}
@@ -210,7 +208,7 @@ public:
 	 *
 	 * @param item An item to be added to the front of the buffer
 	 */
-	virtual void push_front(const value_type& item, uint16_t sec, uint16_t msec)
+	virtual void push_front(const value_type& item, boost::uint32_t sec, boost::uint32_t msec)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 
@@ -220,7 +218,7 @@ public:
 			+boost::posix_time::milliseconds(msec);
 
 			if(!not_full_.timed_wait(lock,timeout) || container_.size() >= capacity_)
-			throw Gem::GenEvA::geneva_condition_time_out();
+			throw Gem::Util::gem_util_condition_time_out();
 		}
 
 		container_.push_front(item);
@@ -254,7 +252,7 @@ public:
 	 *
 	 * @param pItem Pointer to a single item that was removed from the end of the buffer
 	 */
-	void pop_back(value_type* pItem, uint16_t sec, uint16_t msec)
+	void pop_back(value_type* pItem, boost::uint32_t sec, boost::uint32_t msec)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 
@@ -264,7 +262,7 @@ public:
 			+boost::posix_time::milliseconds(msec);
 
 			if(!not_empty_.timed_wait(lock,timeout) || container_.empty())
-			throw Gem::GenEvA::geneva_condition_time_out();
+			throw Gem::Util::gem_util_condition_time_out();
 		}
 
 		*pItem = container_.back();
@@ -281,7 +279,7 @@ public:
 	 *
 	 * @return The maximum allowed capacity
 	 */
-	size_type getCapacity(void) const throw()
+	std::size_t getCapacity(void) const throw()
 	{
 		return capacity_;
 	}
@@ -295,7 +293,7 @@ public:
 	 *
 	 * @return The currently remaining space in the buffer
 	 */
-	size_type remainingSpace(void)
+	std::size_t remainingSpace(void)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		return container_.size() - capacity_;
@@ -316,7 +314,7 @@ protected:
 	 */
 	bool is_not_empty() const throw()
 	{
-		return container_.size()> 0;
+		return (container_.size() > 0);
 	}
 
 	/**
@@ -328,14 +326,14 @@ protected:
 	 */
 	bool is_not_full() const throw()
 	{
-		return container_.size() < capacity_;
+		return (container_.size() < capacity_);
 	}
 
-	const size_type capacity_; ///< The maximum allowed size of the container
+	const std::size_t capacity_; ///< The maximum allowed size of the container
 	container_type container_; ///< The actual data store
-	boost::mutex mutex_; ///< Used for synchronisation of access to the container
-	boost::condition_variable not_empty_; ///< Used for synchronisation of access to the container
-	boost::condition_variable not_full_; ///< Used for synchronisation of access to the container
+	boost::mutex mutex_; ///< Used for synchronization of access to the container
+	boost::condition_variable not_empty_; ///< Used for synchronization of access to the container
+	boost::condition_variable not_full_; ///< Used for synchronization of access to the container
 
 private:
 	/***************************************************************/
@@ -343,6 +341,7 @@ private:
 	GBoundedBuffer& operator = (const GBoundedBuffer&); ///< Disabled assign operator
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace Util */
+} /* namespace Gem */
 
 #endif /* GBOUNDEDBUFFER_H_ */

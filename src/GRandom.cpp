@@ -26,7 +26,7 @@
 #include "GRandom.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Util {
 
   /**
    * This mutex is used for seeding in GSeed. It is not clear whether
@@ -50,4 +50,5 @@ namespace GenEvA {
     return (uint32_t)t1.time_of_day().total_microseconds();
   }
 
-}} /* namespace Gem::GenEvA */
+} /* namespace Util */
+} /* namespace Gem */

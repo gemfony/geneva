@@ -72,10 +72,6 @@ class geneva_dirty_individual : public boost::exception {};
 /** @brief Class to be thrown as an error if a bad mutation probability was supplied */
 class geneva_bad_mutation_probability : public boost::exception {};
 
-// GBoundedBuffer
-/** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
-class geneva_condition_time_out: public boost::exception {};
-
 // GBoundedDouble
 /** @brief Class to be thrown as an error if invalid boundaries were found */
 class geneva_invalid_boundaries: public boost::exception {};

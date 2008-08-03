@@ -75,7 +75,7 @@
 using namespace boost;
 
 namespace Gem {
-namespace GenEvA {
+namespace Util {
   /******************************************************************************/
   /**
    * A simple thread group that extends the standard Boost thread group by the
@@ -249,6 +249,7 @@ namespace GenEvA {
     mutable mutex m_; ///< Needed to synchronize access to the vector
   };
 
-}} /* namespace GenEvA */
+} /* namespace Util*/
+} /* namespace Gem */
 
 #endif /* GTHREADGROUP_HPP_ */

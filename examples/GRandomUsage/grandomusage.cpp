@@ -48,6 +48,7 @@
 #include "GRandom.hpp"
 
 using namespace Gem::GenEvA;
+using namespace Gem::Util;
 using namespace boost;
 
 enum distType {
@@ -65,7 +66,7 @@ const std::size_t NENTRIES=20000;
 
 template <class T>
 void createRandomVector(std::vector<T>& vec_t, const distType& dType){
-	GRandom gr; // create our own local consumer
+	Gem::Util::GRandom gr; // create our own local consumer
 	std::size_t i;
 
 	switch(dType){
