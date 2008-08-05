@@ -21,7 +21,13 @@
 /*
  * This example tries to find suitable ways of simultaneously 
  * starting execution of a number of Boost.Threads's main
- * execution function.
+ * execution function. Compile with a line similar to
+ *
+ * g++ -o threadStart -L/opt/boost136/lib -I/opt/boost136/include/boost-1_36/ \
+ *     -lboost_thread-gcc43-mt -lboost_system-gcc43-mt threadStart.cpp
+ *
+ * Current problems: Not all threads get called even remotely equally often.
+ * Call numbers are 14564 1607 8676 
  */
 
 #include <iostream>
@@ -48,62 +54,58 @@ using namespace std;
 class test
 {
 public:
-  test()
-    :lock(helloMutex_),
-     startProcessing_(false),
-     jointData_(0),
-     thread1(boost::bind(&test::sayHello,this,1)),
-     thread2(boost::bind(&test::sayHello,this,2)),
-     thread3(boost::bind(&test::sayHello,this,3))
-  { /* nothing */ }
+    test()
+	:lock(helloMutex_),
+	 jointData_(0),
+	 MAXJOINTDATA(10000),
+	 thread1(boost::bind(&test::sayHello, this)),
+	 thread2(boost::bind(&test::sayHello, this)),
+	 thread3(boost::bind(&test::sayHello, this))
+	{ /* nothing */ }
 
-  void startAndStopThreads(){
-    startProcessing_ = true;
-    lock.unlock();
-    allReady_.notify_all();
+    void startAndStopThreads(){
+	lock.unlock();
 
-    usleep(1000);
+	while(true){
+	    boost::unique_lock<boost::mutex> local_lock(helloMutex_);
 
-    thread1.interrupt();
-    thread2.interrupt();
-    thread2.interrupt();
-    
-    thread1.join();
-    thread2.join();
-    thread2.join();    
-  }
+	    if(jointData_ >= MAXJOINTDATA){
+		thread1.interrupt();
+		thread2.interrupt();
+		thread3.interrupt();
 
-  void sayHello(const uint8_t& threadNumber){
-    for(;;){
-      boost::unique_lock<boost::mutex> local_lock(helloMutex_);
-      while(!startProcessing_){
-	  allReady_.wait(local_lock);
-      }
+		break;
+	    }
+	}
 
-      if(boost::this_thread::interruption_requested()) break;
-
-      std::cout << "Hello world Nr. " << jointData_++ 
-		<< " from thread " << threadNumber << std::endl;
+	thread1.join();
+	thread2.join();
+	thread3.join();    
     }
-  }
+
+    void sayHello(){
+	for(;;){
+	    if(boost::this_thread::interruption_requested()) break;
+
+	    boost::unique_lock<boost::mutex> local_lock(helloMutex_);
+	    std::cout << "Hello world Nr. " << jointData_++ 
+		      << " from thread " << boost::this_thread::get_id() << std::endl;
+	}
+    }
 
 private:
-  boost::mutex helloMutex_;
-  boost::unique_lock<boost::mutex> lock;
-  boost::condition_variable allReady_;
+    boost::mutex helloMutex_;
+    boost::unique_lock<boost::mutex> lock;
 
-  bool startProcessing_;
-  uint32_t jointData_;
+    uint32_t jointData_;
+    const uint32_t MAXJOINTDATA;
 
-  boost::thread thread1, thread2, thread3;
+    boost::thread thread1, thread2, thread3;
 };
 
 main(){
-  std::cout << "Instantiating test class" << std::endl;
-  test Test;
-  std::cout << "Starting threads" << std::endl;
+    test Test;
+    Test.startAndStopThreads();
 
-  Test.startAndStopThreads();
-
-  std::cout << "Done ..." << std::endl;
+    std::cout << "Done ..." << std::endl;
 }
