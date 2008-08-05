@@ -193,13 +193,21 @@ void GBoostThreadPopulation::mutateChildren(void) {
 	// selection model.
 	if(generation==0 && (this->getSortingScheme()==MUPLUSNU)) {
 		for(it=this->begin(); it!=this->begin() + nParents; ++it) {
+#ifdef DEBUG
 			tp_.schedule(boost::bind(&GIndividual::checkedFitness, it->get()));
+#else
+			tp_.schedule(boost::bind(&GIndividual::fitness, it->get()));
+#endif
 		}
 	}
 
 	// Next we mutate the children
 	for(it=this->begin() + nParents; it!=this->end(); ++it) {
+#ifdef DEBUG
 		tp_.schedule(boost::bind(&GIndividual::checkedMutate, it->get()));
+#else
+		tp_.schedule(boost::bind(&GIndividual::mutate, it->get()));
+#endif
 	}
 
 	// ... and wait for the pool to become empty

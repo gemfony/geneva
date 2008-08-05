@@ -150,7 +150,6 @@ int main(int argc, char **argv){
 	// to get the slower, serial execution.
 
 	// GBasePopulation pop;
-
 	GBoostThreadPopulation pop;
 	pop.setNThreads(4);
 
