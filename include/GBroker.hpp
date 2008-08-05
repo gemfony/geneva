@@ -60,7 +60,7 @@
 // GenEvA headers go here
 
 #include "GException.hpp"
-#include "GBiBuffer.hpp"
+#include "GBufferPort.hpp"
 #include "GMemberCarrier.hpp"
 #include "GConsumer.hpp"
 
@@ -112,12 +112,12 @@ namespace Util
     /** @brief Creates a new GBiBuffer object for a given (new) id */
     void enrol(std::string);
     /** @brief Makes a consumer known to this class */
-    void enrol(GConsumer<carryer_type> *);
+    void enrol(GConsumer *);
     /** @brief Removes a GBiBuffer object with a given id from the list */
     void signoff(std::string);
 
     /** @brief Retrieves a "raw" item from a GBiBuffer, observing a timeout */
-    bool get(carryer_ptr&, bool &);
+    bool get(carryer_ptr&, bool&);
     /** @brief Retrieves an item from the broker in text format */
     bool get(std::string&, bool&);
 

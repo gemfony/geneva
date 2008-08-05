@@ -23,6 +23,7 @@
  */
 
 // Standard header files go here
+#include <sstream>
 
 // Boost header files go here
 
@@ -36,6 +37,7 @@
 #define GMUTABLEI_HPP_
 
 // Geneva header files go here
+#include "GLogger.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -50,8 +52,44 @@ public:
 
 	/** @brief Allows derivatives to be mutated */
 	virtual void mutate(void) = 0;
+
+	/*********************************************************************************************/
+	/**
+	 * A version of the mutation functionality that also checks for
+	 * exceptions. To be used when mutate() is to become the main
+	 * function to be called by a thread.
+	 */
+	void checkedMutate(void){
+		try{
+			this->mutate();
+		}
+		catch(std::exception& e){
+			std::ostringstream error;
+			error << "In GMutableI::checkedMutate(): Caught std::exception with message" << std::endl
+				  << e.what() << std::endl;
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			std::terminate();
+		}
+		catch(boost::exception& e){
+			std::ostringstream error;
+			error << "In GMutableI::checkedMutate(): Caught boost::exception with message" << std::endl
+				  << e.diagnostic_information() << std::endl;
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			std::terminate();
+		}
+		catch(...){
+			std::ostringstream error;
+			error << "In GMutableI::checkedMutate(): Caught unknown exception" << std::endl;
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			std::terminate();
+		}
+	}
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 #endif /* GMUTABLEI_HPP_ */

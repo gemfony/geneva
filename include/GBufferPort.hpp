@@ -36,8 +36,8 @@
 #include <boost/utility.hpp>
 
 
-#ifndef GBIBUFFER_H_
-#define GBIBUFFER_H_
+#ifndef GBUFFERPORT_H_
+#define GBUFFERPORT_H_
 
 // GenEvA header files go here
 
@@ -50,7 +50,7 @@ namespace Util
 
   /*****************************************************************************/
   /**
-   * A GBiBuffer<T> consists of two GBoundedBuffer<T> objects, one intended for "raw"
+   * A GBufferPort<T> consists of two GBoundedBuffer<T> objects, one intended for "raw"
    * items, the other for returning, processed items. While this class could
    * be useful in many scenarios, the most common application is as a mediator
    * between GTransferPopulation and GConsumer-derivatives. The GTransferPopulation
@@ -58,11 +58,11 @@ namespace Util
    * (such as GBoostThreadConsumer and GAsioTCPConsumer) and then returned to the
    * population. GBroker-derivatives (such as the GMemberBroker) orchestrate this exchange.
    * All of this happens in a multi-threaded environment. It is not possible to
-   * create copies of this class, as one GBiBuffer is intended to serve one
+   * create copies of this class, as one GBufferPort is intended to serve one
    * single population.
    */
   template <class T>
-  class GBiBuffer
+  class GBufferPort
     :boost::noncopyable
   {
   public:
@@ -71,7 +71,7 @@ namespace Util
      * The default constructor. Note that, when using this constructor, the GBoundedBuffer
      * objects will assume the default sizes.
      */
-    GBiBuffer(void)
+    GBufferPort(void)
     { /* nothing */ }
 
     /*****************************************************************************/
@@ -80,7 +80,7 @@ namespace Util
      *
      * @param size The desired capacity of the GBoundedBuffer objects
      */
-    explicit GBiBuffer(std::size_t size)
+    explicit GBufferPort(std::size_t size)
       :original_(size),
        processed_(size)
     { /* nothing */ }
@@ -97,7 +97,7 @@ namespace Util
 
     /*****************************************************************************/
     /**
-     * Timed version of GBiBuffer::push_front_orig() . If the item could not be added
+     * Timed version of GBufferPort::push_front_orig() . If the item could not be added
      * after sec seconds and msec milliseconds, the function returns. Note that a time_out
      * exception will be thrown in this case.
      *
@@ -121,7 +121,7 @@ namespace Util
 
     /*****************************************************************************/
     /**
-     * A version of GBiBuffer::push_back_orig() with the ability to time-out. Note
+     * A version of GBufferPort::push_back_orig() with the ability to time-out. Note
      * that a time_out exception will be thrown by original_ if the time-out was
      * reached. It needs to be caught by the calling function.
      *
@@ -145,7 +145,7 @@ namespace Util
 
     /*****************************************************************************/
     /**
-     * Timed version of GBiBuffer::putProc() . If the item could not be added
+     * Timed version of GBufferPort::putProc() . If the item could not be added
      * after sec seconds and msec milliseconds, a timed_out exception will be thrown
      * by processed_.
      *
@@ -170,7 +170,7 @@ namespace Util
 
     /*****************************************************************************/
     /**
-     * A version of GBiBuffer::getProc() with the ability to time-out. If the
+     * A version of GBufferPort::getProc() with the ability to time-out. If the
      * time-out was reached, processed_ will throw a time_out exception.
      *
      * @param item The item that was retrieved from the queue
@@ -193,4 +193,4 @@ namespace Util
 } /* namespace Util */
 } /* namespace Gem */
 
-#endif /* GBIBUFFER_H_ */
+#endif /* GBUFFERPORT_H_ */

@@ -23,6 +23,7 @@
  */
 
 // Standard header files go here
+#include <sstream>
 
 // Boost header files go here
 
@@ -50,8 +51,44 @@ public:
 
 	/** @brief Retrieve a value for this class */
 	virtual double fitness(void) = 0;
+
+	/*********************************************************************************************/
+	/**
+	 * A version of the fitness framework that also checks for
+	 * exceptions. To be used when fitness() is to become the main
+	 * function to be called by a thread.
+	 */
+	double checkedFitness(void){
+		try{
+			return this->fitness();
+		}
+		catch(std::exception& e){
+			std::ostringstream error;
+			error << "In GRateableI::checkedFitness(): Caught std::exception with message" << std::endl
+				  << e.what() << std::endl;
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			std::terminate();
+		}
+		catch(boost::exception& e){
+			std::ostringstream error;
+			error << "In GRateableI::checkedFitness(): Caught boost::exception with message" << std::endl
+				  << e.diagnostic_information() << std::endl;
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			std::terminate();
+		}
+		catch(...){
+			std::ostringstream error;
+			error << "In GRateableI::checkedFitness(): Caught unknown exception" << std::endl;
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			std::terminate();
+		}
+	}
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 #endif /* GRATEABLEI_HPP_ */
