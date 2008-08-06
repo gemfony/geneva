@@ -112,7 +112,7 @@ int main(int argc, char **argv){
 
 	// 5 threads produce even [0,1[ random numbers,
 	// 3 threads produce random numbers with a gaussian distribution
-	GRANDOMFACTORY.setNProducerThreads(6,2);
+	GRANDOMFACTORY.setNProducerThreads(8);
 
 	boost::thread g_thread(boost::bind(createRandomVector<double>, boost::ref(gaussian), GAUSSIAN));
 	boost::thread dg_thread(boost::bind(createRandomVector<double>, boost::ref(doublegaussian), DOUBLEGAUSSIAN));
