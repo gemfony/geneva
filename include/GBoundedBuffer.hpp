@@ -208,7 +208,7 @@ public:
 	 *
 	 * @param item An item to be added to the front of the buffer
 	 */
-	virtual void push_front(const value_type& item, boost::uint32_t sec, boost::uint32_t msec)
+	virtual void push_front(const value_type& item, long sec, long msec) // boost::date_time uses long, unfortunately
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 
@@ -252,7 +252,7 @@ public:
 	 *
 	 * @param pItem Pointer to a single item that was removed from the end of the buffer
 	 */
-	void pop_back(value_type* pItem, boost::uint32_t sec, boost::uint32_t msec)
+	void pop_back(value_type* pItem, long sec, long msec)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 

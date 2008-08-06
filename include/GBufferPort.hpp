@@ -35,7 +35,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/utility.hpp>
 
-
 #ifndef GBUFFERPORT_H_
 #define GBUFFERPORT_H_
 
@@ -43,152 +42,172 @@
 
 #include "GBoundedBuffer.hpp"
 
-namespace Gem
-{
-namespace Util
-{
+namespace Gem {
+namespace Util {
 
-  /*****************************************************************************/
-  /**
-   * A GBufferPort<T> consists of two GBoundedBuffer<T> objects, one intended for "raw"
-   * items, the other for returning, processed items. While this class could
-   * be useful in many scenarios, the most common application is as a mediator
-   * between GTransferPopulation and GConsumer-derivatives. The GTransferPopulation
-   * is a source of raw items, which are processed by GConsumer-derivatives
-   * (such as GBoostThreadConsumer and GAsioTCPConsumer) and then returned to the
-   * population. GBroker-derivatives (such as the GMemberBroker) orchestrate this exchange.
-   * All of this happens in a multi-threaded environment. It is not possible to
-   * create copies of this class, as one GBufferPort is intended to serve one
-   * single population.
-   */
-  template <class T>
-  class GBufferPort
-    :boost::noncopyable
-  {
-  public:
-    /*****************************************************************************/
-    /**
-     * The default constructor. Note that, when using this constructor, the GBoundedBuffer
-     * objects will assume the default sizes.
-     */
-    GBufferPort(void)
-    { /* nothing */ }
+/*****************************************************************************/
+/**
+ * A GBufferPort<T> consists of two GBoundedBuffer<T> objects, one intended for "raw"
+ * items, the other for returning, processed items. While this class could
+ * be useful in many scenarios, the most common application is as a mediator
+ * between GTransferPopulation and GConsumer-derivatives. The GTransferPopulation
+ * is a source of raw items, which are processed by GConsumer-derivatives
+ * (such as GBoostThreadConsumer and GAsioTCPConsumer) and then returned to the
+ * population. GBroker-derivatives (such as the GMemberBroker) orchestrate this exchange.
+ * All of this happens in a multi-threaded environment. It is not possible to
+ * create copies of this class, as one GBufferPort is intended to serve one
+ * single population.
+ */
+template<class T>
+class GBufferPort: boost::noncopyable {
+public:
+	/*****************************************************************************/
+	/**
+	 * The default constructor. Note that, when using this constructor, the GBoundedBuffer
+	 * objects will assume the default sizes.
+	 */
+	GBufferPort(void) :
+		original_(new Gem::GenEvA::GBoundedBuffer<T>()), processed_(
+				  new Gem::GenEvA::GBoundedBuffer<T>())
+				{ /* nothing */	}
 
-    /*****************************************************************************/
-    /**
-     * Here we initialize the two GBoundedBuffer objects with a given size.
-     *
-     * @param size The desired capacity of the GBoundedBuffer objects
-     */
-    explicit GBufferPort(std::size_t size)
-      :original_(size),
-       processed_(size)
-    { /* nothing */ }
+	/*****************************************************************************/
+	/**
+	 * Here we initialize the two GBoundedBuffer objects with a given size.
+	 *
+	 * @param size The desired capacity of the GBoundedBuffer objects
+	 */
+	explicit GBufferPort(std::size_t size) :
+		original_(new Gem::GenEvA::GBoundedBuffer<T>(size)), processed_(
+				  new Gem::GenEvA::GBoundedBuffer<T>(size))
+				{ /* nothing */ }
 
-    /*****************************************************************************/
-    /**
-     * Puts an item into the original queue. This is the queue for "raw" objects.
-     *
-     * @param item A raw object that needs to be processed
-     */
-    inline void push_front_orig(const T& item){
-      original_.push_front(item);
-    }
+	/*****************************************************************************/
+	/**
+	 * Retrieves a shared_ptr to the "original" queue, for consumption by the broker.
+	 *
+	 * @return A shared_ptr with the "original" queue
+	 */
+	boost::shared_ptr<Gem::Util::GBoundedBuffer<T> > getOriginal() {
+		return original_;
+	}
 
-    /*****************************************************************************/
-    /**
-     * Timed version of GBufferPort::push_front_orig() . If the item could not be added
-     * after sec seconds and msec milliseconds, the function returns. Note that a time_out
-     * exception will be thrown in this case.
-     *
-     * @param item An item to be added to the buffer
-     * @param sec The second-part of the maximum waiting time
-     * @param msec The millisecond-part of the maximum waiting time
-     * @return A boolean indicating whether the operation was successful
-     */
-    inline void push_front_orig(const T& item, boost::uint32_t sec, boost::uint32_t msec){
-    	original_.push_front(item, sec, msec);
-    }
+	/*****************************************************************************/
+	/**
+	 * Retrieves a shared_ptr to the "processed" queue, for consumption by the broker.
+	 *
+	 * @return A shared_ptr with the "processed" queue
+	 */
+	boost::shared_ptr<Gem::Util::GBoundedBuffer<T> > getProcessed() {
+		return processed_;
+	}
 
-    /*****************************************************************************/
-    /**
-     * Retrieves an item from the back of the "original_" queue. Blocks until
-     * an item could be retrieved.
-     */
-    inline void pop_back_orig(T* item){
-    	original_.pop_back(item);
-    }
+	/*****************************************************************************/
+	/**
+	 * Puts an item into the original queue. This is the queue for "raw" objects.
+	 *
+	 * @param item A raw object that needs to be processed
+	 */
+	inline void push_front_orig(const T& item) {
+		original_->push_front(item);
+	}
 
-    /*****************************************************************************/
-    /**
-     * A version of GBufferPort::push_back_orig() with the ability to time-out. Note
-     * that a time_out exception will be thrown by original_ if the time-out was
-     * reached. It needs to be caught by the calling function.
-     *
-     * @param item The item that was retrieved from the queue
-     * @param sec The second-part of the maximum waiting time
-     * @param msec The millisecond-part of the maximum waiting time
-     */
-    inline void pop_back_orig(T *item, boost::uint32_t sec, boost::uint32_t msec){
-    	original_.pop_back(item, sec, msec);
-    }
+	/*****************************************************************************/
+	/**
+	 * Timed version of GBufferPort::push_front_orig() . If the item could not be added
+	 * after sec seconds and msec milliseconds, the function returns. Note that a time_out
+	 * exception will be thrown in this case.
+	 *
+	 * @param item An item to be added to the buffer
+	 * @param sec The second-part of the maximum waiting time
+	 * @param msec The millisecond-part of the maximum waiting time
+	 * @return A boolean indicating whether the operation was successful
+	 */
+	inline void push_front_orig(const T& item, long sec, long msec) { // boost::date_time uses long, unfortunately
+		original_->push_front(item, sec, msec);
+	}
 
-    /*****************************************************************************/
-    /**
-     * Puts an item into the "processed" queue.
-     *
-     * @param item A raw object that needs to be processed
-     */
-    inline void push_front_processed(const T& item){
-      processed_.push_front(item);
-    }
+	/*****************************************************************************/
+	/**
+	 * Retrieves an item from the back of the "original_" queue. Blocks until
+	 * an item could be retrieved.
+	 */
+	inline void pop_back_orig(T* item) {
+		original_->pop_back(item);
+	}
 
-    /*****************************************************************************/
-    /**
-     * Timed version of GBufferPort::putProc() . If the item could not be added
-     * after sec seconds and msec milliseconds, a timed_out exception will be thrown
-     * by processed_.
-     *
-     * @param item An item to be added to the buffer
-     * @param sec The second-part of the maximum waiting time
-     * @param msec The millisecond-part of the maximum waiting time
-     */
-    inline void push_front_processed(const T& item, boost::uint32_t sec, boost::uint32_t msec){
-    	processed_.push_front(item, sec, msec);
-    }
+	/*****************************************************************************/
+	/**
+	 * A version of GBufferPort::push_back_orig() with the ability to time-out. Note
+	 * that a time_out exception will be thrown by original_ if the time-out was
+	 * reached. It needs to be caught by the calling function.
+	 *
+	 * @param item The item that was retrieved from the queue
+	 * @param sec The second-part of the maximum waiting time
+	 * @param msec The millisecond-part of the maximum waiting time
+	 */
+	inline void pop_back_orig(T *item, long, long msec) {
+		original_->pop_back(item, sec, msec);
+	}
 
-    /*****************************************************************************/
-    /**
-     * Retrieves an item from the "processed" queue. This function will usually be
-     * called directly or indirectly by GTransferPopulation.
-     *
-     * @param The item that was retrieved from the queue
-     */
-    inline void pop_back_processed(T* item){
-    	processed_.pop_back(item);
-    }
+	/*****************************************************************************/
+	/**
+	 * Puts an item into the "processed" queue.
+	 *
+	 * @param item A raw object that needs to be processed
+	 */
+	inline void push_front_processed(const T& item) {
+		processed_->push_front(item);
+	}
 
-    /*****************************************************************************/
-    /**
-     * A version of GBufferPort::getProc() with the ability to time-out. If the
-     * time-out was reached, processed_ will throw a time_out exception.
-     *
-     * @param item The item that was retrieved from the queue
-     * @param sec The second-part of the maximum waiting time
-     * @param msec The millisecond-part of the maximum waiting time
-     */
-    inline void pop_back_processed(T* item, boost::uint32_t sec, boost::uint32_t msec){
-    	processed_.pop_back(item, sec, msec);
-    }
+	/*****************************************************************************/
+	/**
+	 * Timed version of GBufferPort::putProc() . If the item could not be added
+	 * after sec seconds and msec milliseconds, a timed_out exception will be thrown
+	 * by processed_.
+	 *
+	 * @param item An item to be added to the buffer
+	 * @param sec The second-part of the maximum waiting time
+	 * @param msec The millisecond-part of the maximum waiting time
+	 */
+	inline void push_front_processed(const T& item, boost::uint32_t sec,
+			boost::uint32_t msec) {
+		processed_->push_front(item, sec, msec);
+	}
 
-    /*****************************************************************************/
+	/*****************************************************************************/
+	/**
+	 * Retrieves an item from the "processed" queue. This function will usually be
+	 * called directly or indirectly by GTransferPopulation.
+	 *
+	 * @param The item that was retrieved from the queue
+	 */
+	inline void pop_back_processed(T* item) {
+		processed_->pop_back(item);
+	}
 
-  private:
-    Gem::Util::GBoundedBuffer<T> original_; ///< The queue for raw objects
-    Gem::Util::GBoundedBuffer<T> processed_; ///< The queue for processed objects
-  };
+	/*****************************************************************************/
+	/**
+	 * A version of GBufferPort::getProc() with the ability to time-out. If the
+	 * time-out was reached, processed_ will throw a time_out exception.
+	 *
+	 * @param item The item that was retrieved from the queue
+	 * @param sec The second-part of the maximum waiting time
+	 * @param msec The millisecond-part of the maximum waiting time
+	 */
+	inline void pop_back_processed(T* item, boost::uint32_t sec,
+			boost::uint32_t msec) {
+		processed_->pop_back(item, sec, msec);
+	}
 
-  /*****************************************************************************/
+	/*****************************************************************************/
+
+private:
+	boost::shared_ptr<Gem::Util::GBoundedBuffer<T> > original_; ///< The queue for raw objects
+	boost::shared_ptr<Gem::Util::GBoundedBuffer<T> > processed_; ///< The queue for processed objects
+};
+
+/*****************************************************************************/
 
 } /* namespace Util */
 } /* namespace Gem */
