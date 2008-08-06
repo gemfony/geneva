@@ -75,793 +75,603 @@
 /****************************************************************************/
 
 namespace Gem {
-namespace Util {
+	namespace Util {
 
-  const std::size_t DEFAULTARRAYSIZE = 1000;
-  const std::size_t DEFAULTFACTORYBUFFERSIZE = 1000;
-  const boost::uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
-  const boost::uint16_t DEFAULTFACTORYGETWAIT = 10; ///< waiting time in milliseconds
-  const boost::uint16_t DEFAULTFACTORYGAUSSWAIT = 200; ///< waiting time in milliseconds
+		const std::size_t DEFAULTARRAYSIZE = 1000;
+		const std::size_t DEFAULTFACTORYBUFFERSIZE = 1000;
+		const boost::uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
+		const boost::uint16_t DEFAULTFACTORYGETWAIT = 10; ///< waiting time in milliseconds
+		const boost::uint8_t DEFAULTMAXNTHREADS=20; ///< maximum number of producer threads
 
+		/****************************************************************************/
+		//////////////////////////////////////////////////////////////////////////////
+		/****************************************************************************/
+		/**
+		 * @brief Returns a seed based on the current time.
+		 */
+		boost::uint32_t GSeed(void);
 
-  /****************************************************************************/
-  //////////////////////////////////////////////////////////////////////////////
-  /****************************************************************************/
-  /**
-   * \brief Returns a seed based on the current time.
-   */
-  boost::uint32_t GSeed(void);
+		/****************************************************************************/
+		//////////////////////////////////////////////////////////////////////////////
+		/****************************************************************************/
 
-  /****************************************************************************/
-  //////////////////////////////////////////////////////////////////////////////
-  /****************************************************************************/
+		/**
+		 * Holds the random number packages
+		 */
+		typedef boost::array<double,DEFAULTARRAYSIZE> GRandomNumberContainer_dbl;
 
-  /**
-   * Holds the random number packages
-   */
-  typedef boost::array<double,DEFAULTARRAYSIZE> GRandomNumberContainer_dbl;
+		/**
+		 * The number of threads that simultaneously produce [0,1[ random numbers
+		 */
+		const boost::uint8_t DEFAULT01PRODUCERTHREADS = 2;
 
-  /**
-   * The number of threads that simultaneously produce [0,1[ random numbers
-   */
-  const boost::uint8_t DEFAULT01PRODUCERTHREADS = 3;
+		/**
+		 * Past implementations of random numbers for the Geneva library showed a
+		 * particular bottle neck in the random number generation. Every GObject
+		 * had its own random number generator, and seeding was very expensive.
+		 * We thus now produce floating point numbers in the range [0,1[ in separate
+		 * threads in this class and calculate other numbers from this in the GRandom class.
+		 * This circumvents the necessity to seed the generator over and over again and
+		 * allows us to get rid of dependencies from libraries outside Boost.
+		 *
+		 * This class produces packets of random numbers and stores them in bounded buffers.
+		 * Clients can retrieve packets of random numbers, while separate threads keep
+		 * filling the buffer up.
+		 *
+		 * The implementation currently uses the lagged fibonacci generator. According to
+		 * http://www.boost.org/doc/libs/1_35_0/libs/random/random-performance.html this is
+		 * the fastest generator amongst all of Boost's generators. It is the author's belief that
+		 * the "quality" of random numbers is of less concern in evolutionary algorithms, as the
+		 * geometry of the quality surface adds to the randomness.
+		 */
+		class GRandomFactory
+		{
+		public:
+			/*************************************************************************/
+			/**
+			 * The default constructor. It seeds the random number generator and starts the
+			 * producer threads.
+			 */
+			GRandomFactory(void) throw() :
+				g01_(DEFAULTFACTORYBUFFERSIZE),
+				seed_(GSeed()),
+				n01Threads_(DEFAULT01PRODUCERTHREADS),
+				maxNThreads_(DEFAULTMAXNTHREADS)
+			{
+				startProducerThreads();
+			}
 
-  /**
-   * The number of threads that simultaneously produce gauss random numbers
-   */
-  const boost::uint8_t DEFAULTGAUSSPRODUCERTHREADS = 3;
+			/*************************************************************************/
+			/**
+			 * A constructor that creates a user-specified number of [0,1[ threads. It
+			 * seeds the random number generator and starts the producer01 thread. Note
+			 * that we enforce a minimum number of threads.
+			 *
+			 * @param n01Threads The initial number of [0,1[ producer threads
+			 */
+			GRandomFactory(boost::uint8_t n01Threads) throw() :
+				g01_(DEFAULTFACTORYBUFFERSIZE),
+				seed_(GSeed()),
+				n01Threads_(n01Threads ? n01Threads : 1),
+				maxNThreads_(DEFAULTMAXNTHREADS)
+			{
+				startProducerThreads();
+			}
 
-  /**
-   * Past implementations of random numbers for the Geneva library showed a
-   * particular bottle neck in the random number generation. Every GObject
-   * had its own random number generator, and seeding was very expensive.
-   * We thus now produce floating point numbers in the range [0,1[ in a separate
-   * thread in this class and calculate other numbers from this in the GRandom class.
-   * A second thread is responsible for the creation of gaussian random numbers.
-   * This circumvents the necessity to seed the generator over and over again and
-   * allows us to get rid of a dependency on the MersenneTwister library. We are now
-   * using a generator from the boost library instead, so users need to download fewer
-   * libraries to use the GenEvA library.
-   *
-   * This class produces packets of random numbers and stores them in bounded buffers.
-   * Clients can retrieve packets of random numbers, while a separate thread keeps
-   * filling the buffer up.
-   *
-   * The implementation currently uses the lagged fibonacci generator. According to
-   * http://www.boost.org/doc/libs/1_35_0/libs/random/random-performance.html this is
-   * the fastest generator amongst all of Boost's generators. It is the author's belief that
-   * the "quality" of random numbers is of less concern in evolutionary algorithms, as the
-   * geometry of the quality surface adds to the randomness.
-   */
-  class GRandomFactory
-  {
-  public:
-    /*************************************************************************/
-    /**
-     * The default constructor. It seeds the random number generator and starts the
-     * producer threads.
-     */
-    GRandomFactory(void) throw() :
-      g01_(DEFAULTFACTORYBUFFERSIZE), gGauss_(DEFAULTFACTORYBUFFERSIZE), seed_(
-          GSeed()), n01Threads_(DEFAULT01PRODUCERTHREADS), nGaussThreads_(
-          DEFAULTGAUSSPRODUCERTHREADS)
-    {
-      startProducerThreads();
-    }
+			/*************************************************************************/
+			/**
+			 * The destructor. All threads are given the interrupt signal. Then
+			 * we wait for them to join us.
+			 */
+			~GRandomFactory() throw()
+			{
+				producer_threads_01_.interrupt_all(); // doesn't throw
 
-    /*************************************************************************/
-    /**
-     * A constructor that creates a user-specified number of [0,1[ threads and
-     * gauss threads. It seeds the random number generator and starts the
-     * producer01 thread. Note that we enforce a minimum number of threads.
-     */
-    GRandomFactory(boost::uint8_t n01Threads, boost::uint8_t nGaussThreads) throw() :
-      g01_(DEFAULTFACTORYBUFFERSIZE), gGauss_(DEFAULTFACTORYBUFFERSIZE), seed_(
-          GSeed()), n01Threads_(n01Threads ? n01Threads : 1), nGaussThreads_(
-          nGaussThreads ? nGaussThreads : 1)
-    {
-      startProducerThreads();
-    }
+				try
+				{
+					producer_threads_01_.join_all();
+				}
+				catch (boost::thread_interrupted&)
+				{
+					// This should not happen - we should have caught all thread_interrupted
+					// signals in the threads themselves.
+					std::ostringstream error;
+					error << "In GRandomFactory::~GRandomFactory: Error!" << std::endl
+					<< "Caught boost::thread_interrupted exception." << std::endl;
 
-    /*************************************************************************/
-    /**
-     * The destructor. All threads are given the interrupt signal. Then
-     * we wait for them to join us.
-     */
-    ~GRandomFactory() throw()
-    {
-      producer_threads_01_.interrupt_all(); // doesn't throw
-      producer_threads_gauss_.interrupt_all(); // doesn't throw
+					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-      try
-        {
-          producer_threads_01_.join_all();
-          producer_threads_gauss_.join_all();
+					// Terminate the process - nothing else to do in a destructor
+					std::terminate();
+				}
+			}
 
-        }
-      catch (boost::thread_interrupted&)
-        {
-          // This should not happen - we should have caught all thread_interrupted
-          // signals in the threads themselves.
-    	  std::ostringstream error;
-          error << "In GRandomFactory::~GRandomFactory: Error!" << std::endl
-				<< "Caught boost::thread_interrupted exception." << std::endl;
+			/*************************************************************************/
+			/**
+			 * Sets the maximum number of allowed producer threads
+			 *
+			 * @param maxNThreads The maximum number of allowed producer threads
+			 */
+			void setMaxNThreads(uint8_t maxNThreads){
+				boost::mutex::scoped_lock lock(mutex_);
 
-          LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				// Check validity of the setting
+				maxNThreads_ = maxNThreads;
+			}
 
-          // Terminate the process - nothing else to do in a destructor
-          std::terminate();
-        }
-    }
+			/*************************************************************************/
+			/**
+			 * Sets the number of producer threads for this factory. The number should
+			 * be relatively low. 3 01 producer threads and 2 gauss producer threads (the
+			 * default in this library) should be a good choice for most applications.
+			 *
+			 * @param n01Threads
+			 */
+			void setNProducerThreads(boost::uint8_t n01Threads) {
+				boost::mutex::scoped_lock lock(mutex_);
 
-    /*************************************************************************/
-    /**
-     * Sets the number of producer threads for this factory. The number should
-     * be relatively low. 3 01 producer threads and 2 gauss producer threads (the
-     * default in this library) should be a good choice for most applications.
-     *
-     * @param n01Threads
-     * @param nGaussThreads
-     */
-    void setNProducerThreads(boost::uint8_t n01Threads, boost::uint8_t nGaussThreads){
-      if(n01Threads > n01Threads_){ // start new 01 threads
-        for(boost::uint8_t i=n01Threads_; i<n01Threads; i++){
-          producer_threads_01_.create_thread(boost::bind(
-                       &GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
-        }
-      }
-      else if(n01Threads < n01Threads_){ // We need to remove threads
-        producer_threads_01_.remove_last(n01Threads_-n01Threads);
-      }
+				boost::uint8_t localN01Threads = n01Threads;
+				if(localN01Threads > maxNThreads_) localN01Threads = maxNThreads_;
 
-      if(nGaussThreads > nGaussThreads_){ // start new gauss threads
-        for(boost::uint8_t i=nGaussThreads_; i<nGaussThreads; i++){
-          producer_threads_gauss_.create_thread(boost::bind(
-                       &GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
-        }
-      }
-      else if(nGaussThreads < nGaussThreads_){ // We need to remove threads
-        producer_threads_gauss_.remove_last(nGaussThreads_-nGaussThreads);
-      }
+				if(localN01Threads> n01Threads_) { // start new 01 threads
+					for(boost::uint8_t i=n01Threads_; i<localN01Threads; i++) {
+						producer_threads_01_.create_thread(boost::bind(
+										&GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
+					}
+				}
+				else if(n01Threads < n01Threads_) { // We need to remove threads
+					// A mininum of 1 threads is required
+					if(localN01Threads < 1) return;
 
-      n01Threads_ = n01Threads;
-      nGaussThreads_=nGaussThreads;
-    }
+					// Remove the surplus threads
+					producer_threads_01_.remove_last(n01Threads_-localN01Threads);
+				}
 
-    /*************************************************************************/
-    /**
-     * When objects need new [0,1[ random numbers, they call this function. Note
-     * that calling threads are responsible for catching the boost::thread_interrupted
-     * exception.
-     *
-     * @return A packet of new [0,1[ random numbers
-     */
-    boost::shared_ptr<GRandomNumberContainer_dbl>
-    new01Container(void)
-    {
-      boost::shared_ptr<GRandomNumberContainer_dbl> result; // empty
+				n01Threads_ = localN01Threads;
+			}
 
-      try
-        {
-          g01_.pop_back(&result, 0, DEFAULTFACTORYGETWAIT);
-        }
-      catch (Gem::Util::gem_util_condition_time_out&)
-        {
-          // nothing - our way of signaling a time out
-          // is to return an empty boost::shared_ptr
-        }
+			/*************************************************************************/
+			/**
+			 * When objects need new [0,1[ random numbers, they call this function. Note
+			 * that calling threads are responsible for catching the boost::thread_interrupted
+			 * exception.
+			 *
+			 * @return A packet of new [0,1[ random numbers
+			 */
+			boost::shared_ptr<GRandomNumberContainer_dbl>
+			new01Container(void)
+			{
+				boost::shared_ptr<GRandomNumberContainer_dbl> result; // empty
 
-      return result;
-    }
+				try
+				{
+					g01_.pop_back(&result, 0, DEFAULTFACTORYGETWAIT);
+				}
+				catch (Gem::Util::gem_util_condition_time_out&)
+				{
+					// Increase the number of threads by one
+					setNProducerThreads(n01Threads_ + 1);
 
-    /*************************************************************************/
-    /**
-     * When objects need new gaussian random numbers, they call this function.
-     *
-     * @return A packet of new gaussian random numbers
-     */
-    boost::shared_ptr<GRandomNumberContainer_dbl>
-    newGaussContainer(void)
-    {
-      boost::shared_ptr<GRandomNumberContainer_dbl> dummy; // empty
+					// nothing else - our way of signaling a time out
+					// is to return an empty boost::shared_ptr
+				}
 
-      try
-        {
-          gGauss_.pop_back(&dummy, 0, DEFAULTFACTORYGETWAIT);
-        }
-      catch (Gem::Util::gem_util_condition_time_out&)
-        {
-          // nothing - our way of signaling a time out
-          // is to return an empty boost::shared_ptr
-        }
+				return result;
+			}
 
-      return dummy;
-    }
+		private:
+			/*************************************************************************/
+			/**
+			 * This function starts the threads needed for the production of random numbers
+			 */
+			void
+			startProducerThreads(void) throw()
+			{
+				for (boost::uint8_t i = 0; i < n01Threads_; i++)
+				{
+					// thread() doesn't throw, and no exceptions are listed in the documentation
+					// for the create_thread() function, so we assume it doesn't throw.
+					producer_threads_01_.create_thread(boost::bind(
+									&GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
+				}
+			}
 
-  private:
-    /*************************************************************************/
-    /**
-     * This function starts the threads needed for the production of random numbers
-     */
-    void
-    startProducerThreads(void) throw()
-    {
-      for (boost::uint8_t i = 0; i < n01Threads_; i++)
-        {
-          // thread() doesn't throw, and no exceptions are listed in the documentation
-          // for the create_thread() function, so we assume it doesn't throw.
-          producer_threads_01_.create_thread(boost::bind(
-              &GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
-        }
+			/*************************************************************************/
+			/**
+			 * The production of [0,1[ random numbers takes place here. As this function
+			 * is called in a thread, it may not throw under any circumstance. Exceptions
+			 * could otherwise go unnoticed. Hence this function has a possibly confusing
+			 * setup.
+			 *
+			 * @param seed The seed for our local random number generator
+			 */
+			void
+			producer01(const boost::uint32_t& seed) throw()
+			{
+				try
+				{
+					boost::lagged_fibonacci607 lf(seed);
 
-      for (boost::uint8_t i = 0; i < nGaussThreads_; i++)
-        {
-          producer_threads_gauss_.create_thread(boost::bind(
-              &GRandomFactory::producerGauss, this));
-        }
-    }
+					while (true)
+					{
+						// Interruption requested ?
+						if (boost::this_thread::interruption_requested()) break;
 
-    /*************************************************************************/
-    /**
-     * The production of [0,1[ random numbers takes place here. As this function
-     * is called in a thread, it may not throw under any circumstance. Exceptions
-     * could otherwise go unnoticed. Hence this function has a possibly confusing
-     * setup.
-     *
-     * @param seed The seed for our local random number generator
-     */
-    void
-    producer01(const boost::uint32_t& seed) throw()
-    {
-      try
-        {
-          boost::lagged_fibonacci607 lf(seed);
+						if (g01_.remainingSpace())
+						{ // any space left ?
+							boost::shared_ptr<GRandomNumberContainer_dbl> p(
+									new GRandomNumberContainer_dbl);
 
-          while (true)
-            {
-              // Interruption requested ?
-              if (boost::this_thread::interruption_requested())
-                break;
-
-              if (g01_.remainingSpace())
-                { // any space left ?
-                  boost::shared_ptr<GRandomNumberContainer_dbl> p(
-                      new GRandomNumberContainer_dbl);
-
-                  for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
-                    {
+							for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
+							{
 #ifdef DEBUG
-                      double value = lf();
-                      assert(value>=0. && value<1.);
-                      p->at(i)=value;
+								double value = lf();
+								assert(value>=0. && value<1.);
+								p->at(i)=value;
 #else
-                      (*p)[i] = lf();
+								(*p)[i] = lf();
 #endif /* DEBUG */
-                    }
+							}
 
-                  try
-                    {
-                      g01_.push_front(p, 0, DEFAULTFACTORYPUTWAIT);
-                    }
-                  catch (Gem::Util::gem_util_condition_time_out&)
-                    {
-                      p.reset();
-                    }
-                }
-              else
-                {
-                  // we put ourselves to sleep for a while.
-                  // Note that this is also an interruption point,
-                  // whose exception is caught outside of the loop.
-                  boost::this_thread::sleep(
-                  boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
-                }
-            }
-        }
-      catch (boost::thread_interrupted&)
-        { // Not an error
-          return; // We're done
-        }
-      catch (std::bad_alloc& e)
-        {
-    	  std::ostringstream error;
-    	  error << "In GRandomFactory::producer01(): Error!" << std::endl
-                << "Caught std::bad_alloc exception with message" << std::endl
-                << e.what() << std::endl;
+							try
+							{
+								g01_.push_front(p, 0, DEFAULTFACTORYPUTWAIT);
+							}
+							catch (Gem::Util::gem_util_condition_time_out&)
+							{
+								p.reset();
+							}
+						}
+						else
+						{
+							// Let the object know we need fewer threads
+							setNProducerThreads(n01Threads_ -1);
 
-    	  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+							// we put ourselves to sleep for a while.
+							// Note that this is also an interruption point,
+							// whose exception is caught outside of the loop.
+							boost::this_thread::sleep(
+									boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+						}
+					}
+				}
+				catch (boost::thread_interrupted&)
+				{ // Not an error
+					return; // We're done
+				}
+				catch (std::bad_alloc& e)
+				{
+					std::ostringstream error;
+					error << "In GRandomFactory::producer01(): Error!" << std::endl
+					<< "Caught std::bad_alloc exception with message" << std::endl
+					<< e.what() << std::endl;
 
-          std::terminate();
-        }
-      catch (std::invalid_argument& e)
-        {
-    	  std::ostringstream error;
-    	  error << "In GRandomFactory::producer01(): Error!" << std::endl
-                << "Caught std::invalid_argument exception with message" << std::endl
-                << e.what() << std::endl;
+					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-    	  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+					std::terminate();
+				}
+				catch (std::invalid_argument& e)
+				{
+					std::ostringstream error;
+					error << "In GRandomFactory::producer01(): Error!" << std::endl
+					<< "Caught std::invalid_argument exception with message" << std::endl
+					<< e.what() << std::endl;
 
-          std::terminate();
-        }
-      catch (boost::thread_resource_error&)
-        {
-    	  std::ostringstream error;
-          error << "In GRandomFactory::producer01(): Error!" << std::endl
-                << "Caught boost::thread_resource_error exception which" << std::endl
-                << "likely indicates that a mutex could not be locked." << std::endl;
+					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-          LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+					std::terminate();
+				}
+				catch (boost::thread_resource_error&)
+				{
+					std::ostringstream error;
+					error << "In GRandomFactory::producer01(): Error!" << std::endl
+					<< "Caught boost::thread_resource_error exception which" << std::endl
+					<< "likely indicates that a mutex could not be locked." << std::endl;
 
-          // Terminate the process
-          std::terminate();
-        }
-      catch (...)
-        {
-    	  std::ostringstream error;
-          error << "In GRandomFactory::producer01(): Error!" << std::endl
-                << "Caught unkown exception." << std::endl;
+					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-          LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+					// Terminate the process
+					std::terminate();
+				}
+				catch (...)
+				{
+					std::ostringstream error;
+					error << "In GRandomFactory::producer01(): Error!" << std::endl
+					<< "Caught unknown exception." << std::endl;
 
-          // Terminate the process
-          std::terminate();
-        }
-    }
+					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-    /*************************************************************************/
-    /**
-     * The production of gaussian random numbers takes place here.
-     */
-    void
-    producerGauss(void) throw()
-    {
-      try
-        {
-          // Give the [0,1[ thread(s) time to produce some packages before we start
-          boost::this_thread::sleep(
-          boost::posix_time::milliseconds(DEFAULTFACTORYGAUSSWAIT));
+					// Terminate the process
+					std::terminate();
+				}
+			}
 
-          while (true)
-            {
-              // Interruption requested ?
-              if (boost::this_thread::interruption_requested())
-                break;
+			/*************************************************************************/
 
-              if (gGauss_.remainingSpace()) // any space left in the buffer ?
-                {
-                  boost::shared_ptr<GRandomNumberContainer_dbl> p(
-                      new GRandomNumberContainer_dbl);
+			/** @brief A bounded buffer holding the [0,1[ random number packages */
+			Gem::Util::GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > g01_;
 
-                  boost::shared_ptr<GRandomNumberContainer_dbl> x1_ = new01Container();
-                  boost::shared_ptr<GRandomNumberContainer_dbl> x2_ = new01Container();
+			boost::uint32_t seed_; ///< The seed for the random number generators
+			boost::uint8_t n01Threads_; ///< The current number of threads used to produce [0,1[ random numbers (255)
+			boost::uint8_t maxNThreads_; ///< The maximum number of allowed producer threads
+			GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
-                  if (x1_ && x2_)
-                    {
-                      for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
-                        {
-                          double d1 = 0., d2 = 0.;
+			boost::mutex mutex_; ///< Regulates access to some internal variables
+		};
 
-#ifdef DEBUG
-                          d1 = x1_->at(i);
-                          d2 = x2_->at(i);
-                          p->at(i) = sqrt(fabs(-2. * log(1. - d1))) * sin(2. * M_PI * d2);
-#else
-                          d1 = (*x1_)[i];
-                          d2 = (*x2_)[i];
-                          (*p)[i] = sqrt(fabs(-2. * log(1. - d1))) * sin(2.
-                              * M_PI * d2);
-#endif /* DEBUG */
-                        }
-
-                      try
-                        {
-                          gGauss_.push_front(p, 0, DEFAULTFACTORYPUTWAIT);
-                        }
-                      catch (Gem::Util::gem_util_condition_time_out&)
-                        {
-                          p.reset();
-                        }
-                    }
-                  else
-                    {
-                      // couldn't get valid arrays. Go to sleep. This is a possible interruption point.
-                      boost::this_thread::sleep(
-                      boost::posix_time::milliseconds(DEFAULTFACTORYGAUSSWAIT));
-                    }
-                }
-              else
-                { // no space available. Sleep for a while
-                  boost::this_thread::sleep(
-                  boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
-                }
-            }
-        }
-      catch (boost::thread_interrupted&)
-        {
-          return; // Leave the function. We're done.
-        }
-      catch (std::bad_alloc& e)
-        {
-          std::ostringstream error;
-          error << "In GRandomFactory::producerGauss(): Error!" << std::endl
-                << "Caught std::bad_alloc exception with message" << std::endl
-                << e.what() << std::endl;
-
-          LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-          // Terminate the process
-          std::terminate();
-        }
-      catch (boost::thread_resource_error&)
-        {
-    	  std::ostringstream error;
-    	  error << "In GRandomFactory::producerGauss(): Error!" << std::endl
-                << "Caught boost::thread_resource_error exception which" << std::endl
-                << "likely indicates that a mutex could not be locked." << std::endl;
-
-    	  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-          // Terminate the process
-          std::terminate();
-        }
-      catch (...)
-        {
-    	  std::ostringstream error;
-    	  error << "In GRandomFactory::producerGauss(): Error!" << std::endl
-                << "Caught unknown exception" << std::endl;
-
-    	  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-          // Terminate the process
-          std::terminate();
-        }
-    }
-
-    /*************************************************************************/
-
-    /** @brief A bounded buffer holding the [0,1[ random number packages */
-    Gem::Util::GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > g01_;
-    /** @brief A bounded buffer holding gaussian random number packages */
-    Gem::Util::GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > gGauss_;
-
-    boost::uint32_t seed_; ///< The seed for the random number generators
-
-    boost::uint8_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers (255)
-    boost::uint8_t nGaussThreads_; ///< The number of threads used to produce gauss random numbers (255)
-
-    GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
-    GThreadGroup producer_threads_gauss_; ///< A thread group that holds [0,1[ producer threads
-  };
-
-/**
- * A single, global random number factory is created.
- */
-typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
+		/**
+		 * A single, global random number factory is created.
+		 */
+		typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
 #define GRANDOMFACTORY grfactory::instance()
 
-/****************************************************************************/
-//////////////////////////////////////////////////////////////////////////////
-/****************************************************************************/
-/**
- * This class gives objects access to random numbers. It internally handles
- * retrieval of random numbers from the GRandomFactory class as needed. Random
- * distributions are calculated on the fly from these numbers. Usage is thus
- * transparent to the user.
- */
-class GRandom : boost::noncopyable
-{
-public:
-  /*************************************************************************/
-  /**
-   * The standard constructor. It gets the initial random containers from the
-   * random factory.
-   */
-  GRandom(void) throw() :
-    current01_(0),
-    currentGauss_(0)
-  { /* nothing */
-  }
+		/****************************************************************************/
+		//////////////////////////////////////////////////////////////////////////////
+		/****************************************************************************/
+		/**
+		 * This class gives objects access to random numbers. It internally handles
+		 * retrieval of random numbers from the GRandomFactory class as needed. Random
+		 * distributions are calculated on the fly from these numbers. Usage is thus
+		 * transparent to the user.
+		 */
+		class GRandom : boost::noncopyable
+		{
+		public:
+			/*************************************************************************/
+			/**
+			 * The standard constructor. It gets the initial random containers from the
+			 * random factory.
+			 */
+			GRandom(void) throw() :
+			current01_(0)
+			{ /* nothing */
+			}
 
-  /*************************************************************************/
-  /**
-   * This function emits evenly distributed random numbers in the range [0,1[ .
-   * Random numbers are usually not produced locally, but are taken from an array
-   * provided by the the GRandomFactory class. Random numbers are only produced
-   * locally if no valid array could be retrieved.
-   *
-   * @return Random numbers evenly distributed in the range [0,1[ .
-   */
-  double
-  evenRandom(void)
-  {
-    // If the object has been newly created,
-    // p01_ will be empty
-    if(!p01_ || current01_ == DEFAULTARRAYSIZE){
-       getNewP01();
-       current01_ = 0;
-    }
+			/*************************************************************************/
+			/**
+			 * This function emits evenly distributed random numbers in the range [0,1[ .
+			 * Random numbers are usually not produced locally, but are taken from an array
+			 * provided by the the GRandomFactory class. Random numbers are only produced
+			 * locally if no valid array could be retrieved.
+			 *
+			 * @return Random numbers evenly distributed in the range [0,1[ .
+			 */
+			double
+			evenRandom(void)
+			{
+				// If the object has been newly created,
+				// p01_ will be empty
+				if(!p01_ || current01_ == DEFAULTARRAYSIZE) {
+					getNewP01();
+					current01_ = 0;
+				}
 
 #ifdef DEBUG
-    return p01_->at(current01_++); // throws
+				return p01_->at(current01_++); // throws
 #else
-    return (*p01_)[current01_++];
+				return (*p01_)[current01_++];
 #endif
-  }
+			}
 
-  /*************************************************************************/
-  /**
-   * This function emits evenly distributed random numbers in the range [0,max[ .
-   *
-   * @param max The maximum (excluded) value of the range
-   * @return Random numbers evenly distributed in the range [0,max[
-   */
-  double
-  evenRandom(double max)
-  {
+			/*************************************************************************/
+			/**
+			 * This function emits evenly distributed random numbers in the range [0,max[ .
+			 *
+			 * @param max The maximum (excluded) value of the range
+			 * @return Random numbers evenly distributed in the range [0,max[
+			 */
+			double
+			evenRandom(double max)
+			{
 #ifdef DEBUG
-    // Check that min and max have appropriate values
-    assert(max>0.);
+				// Check that min and max have appropriate values
+				assert(max>0.);
 #endif
-    return GRandom::evenRandom() * max;
-  }
+				return GRandom::evenRandom() * max;
+			}
 
-  /*************************************************************************/
-  /**
-   * This function produces evenly distributed random numbers in the range [min,max[ .
-   *
-   * @param min The minimum value of the range
-   * @param max The maximum (excluded) value of the range
-   * @return Random numbers evenly distributed in the range [min,max[
-   */
-  double
-  evenRandom(double min, double max)
-  {
+			/*************************************************************************/
+			/**
+			 * This function produces evenly distributed random numbers in the range [min,max[ .
+			 *
+			 * @param min The minimum value of the range
+			 * @param max The maximum (excluded) value of the range
+			 * @return Random numbers evenly distributed in the range [min,max[
+			 */
+			double
+			evenRandom(double min, double max)
+			{
 #ifdef DEBUG
-    // Check that min and max have appropriate values
-    assert(min<=max);
+				// Check that min and max have appropriate values
+				assert(min<=max);
 #endif
-    return GRandom::evenRandom() * (max - min) + min;
-  }
+				return GRandom::evenRandom() * (max - min) + min;
+			}
 
-  /*************************************************************************/
-  /**
-   * Gaussian-distributed random numbers form the core of Evolutionary Strategies.
-   * This function provides an easy means of producing such random numbers with
-   * mean "mean" and sigma "sigma".
-   *
-   * @param mean The mean value of the Gaussian
-   * @param sigma The sigma of the Gaussian
-   * @return double random numbers with a gaussian distribution
-   */
-  double
-  gaussRandom(double mean, double sigma)
-  {
-    if(!pGauss_ || currentGauss_==DEFAULTARRAYSIZE){
-      getNewPGauss();
-      currentGauss_=0;
-    }
+			/*************************************************************************/
+			/**
+			 * Gaussian-distributed random numbers form the core of Evolutionary Strategies.
+			 * This function provides an easy means of producing such random numbers with
+			 * mean "mean" and sigma "sigma".
+			 *
+			 * @param mean The mean value of the Gaussian
+			 * @param sigma The sigma of the Gaussian
+			 * @return double random numbers with a gaussian distribution
+			 */
+			double
+			gaussRandom(double mean, double sigma)
+			{
+				return sigma*sqrt(fabs(-2.*log(1.-GRandom::evenRandom())))*sin(2.*M_PI*GRandom::evenRandom()) + mean;
+			}
+
+			/*************************************************************************/
+			/**
+			 * This function adds two gaussians with sigma "sigma" and a distance
+			 * "distance" from each other of distance, centered around mean.
+			 *
+			 * @param mean The mean value of the entire distribution
+			 * @param sigma The sigma of both gaussians
+			 * @param distance The distance between both peaks
+			 * @return Random numbers with a double-gaussian shape
+			 */
+			double
+			doubleGaussRandom(double mean, double sigma, double distance)
+			{
+				if(GRandom::bitRandom() == Gem::GenEvA::TRUE)
+				return GRandom::gaussRandom(mean - fabs(distance / 2.), sigma);
+				else
+				return GRandom::gaussRandom(mean + fabs(distance / 2.), sigma);
+			}
+
+			/*************************************************************************/
+			/**
+			 * This function produces integer random numbers in the range of [0, max[ .
+			 *
+			 * @param max The maximum (excluded) value of the range
+			 * @return Discrete random numbers evenly distributed in the range [0,max[
+			 */
+			boost::uint16_t
+			discreteRandom(boost::uint16_t max)
+			{
+				boost::uint16_t result = static_cast<boost::uint16_t> (GRandom::evenRandom(
+								static_cast<double> (max)));
+#ifdef DEBUG
+				assert(result<max);
+#endif
+				return result;
+			}
+
+			/*************************************************************************/
+			/**
+			 * This function produces integer random numbers in the range of [min, max[ .
+			 * Note that max may also be < 0. .
+			 *
+			 * @param min The minimum value of the range
+			 * @param max The maximum (excluded) value of the range
+			 * @return Discrete random numbers evenly distributed in the range [min,max[
+			 */
+			boost::int16_t
+			discreteRandom(boost::int16_t min, boost::int16_t max)
+			{
+#ifdef DEBUG
+				assert(min < max);
+#endif
+				boost::int16_t result = discreteRandom(static_cast<boost::int16_t>(max-min)) + min;
 
 #ifdef DEBUG
-    return sigma * pGauss_->at(currentGauss_++) + mean; // throws
+				assert(result>=min && result<max);
+#endif
+				return result;
+			}
+
+			/*************************************************************************/
+			/**
+			 * This function produces boolean values with a 50% likelihood each for
+			 * true and false.
+			 *
+			 * @return Boolean values with a 50% likelihood for true/false respectively
+			 */
+			GenEvA::bit
+			bitRandom(void)
+			{
+				return bitRandom(0.5);
+			}
+
+			/*************************************************************************/
+			/**
+			 * This function returns true with a probability "probability", otherwise false.
+			 *
+			 * @param p The probability for the value "true" to be returned
+			 * @return A boolean value, which will be true with a user-defined likelihood
+			 */
+			GenEvA::bit
+			bitRandom(double probability)
+			{
+#ifdef DEBUG
+				assert(probability>=0 && probability<=1);
+#endif
+				return (GRandom::evenRandom() < probability ? GenEvA::TRUE : GenEvA::FALSE);
+			}
+
+			/*************************************************************************/
+			/**
+			 * This function produces random ASCII characters. Please note that that
+			 * includes also non-printable characters, if "printable" is set to false
+			 * (default is true).
+			 *
+			 * @param printable A boolean variable indicating whether only printable characters should be produced
+			 * @return Random ASCII characters
+			 */
+			char
+			charRandom(bool printable = true)
+			{
+				if (!printable)
+				{
+					return (char) discreteRandom(0, 128);
+				}
+				else
+				{
+					return (char) discreteRandom(33, 127);
+				}
+			}
+
+		private:
+			GRandom(const GRandom&); ///< Intentionally left undefined
+			GRandom& operator=(const GRandom&); ///< Intentionally left undefined
+
+			/*************************************************************************/
+			/**
+			 * In cases where GRandomFactory was not able to supply us with a suitable
+			 * array of [0,1[ random numbers we need to produce our own.
+			 */
+			void
+			fillContainer01(void)
+			{
+				boost::lagged_fibonacci607 lf(GSeed());
+				boost::shared_ptr<GRandomNumberContainer_dbl> p(new GRandomNumberContainer_dbl);
+
+				for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
+				{
+#ifdef DEBUG
+					double value = lf();
+					assert(value>=0. && value<1.);
+					p->at(i)=value;
 #else
-    return sigma * (*pGauss_)[currentGauss_++] + mean;
-#endif
-  }
-
-  /*************************************************************************/
-  /**
-   * This function adds two gaussians with sigma "sigma" and a distance
-   * "distance" from each other of distance, centered around mean.
-   *
-   * @param mean The mean value of the entire distribution
-   * @param sigma The sigma of both gaussians
-   * @param distance The distance between both peaks
-   * @return Random numbers with a double-gaussian shape
-   */
-  double
-  doubleGaussRandom(double mean, double sigma, double distance)
-  {
-	  if(GRandom::bitRandom() == Gem::GenEvA::TRUE)
-		  return GRandom::gaussRandom(mean - fabs(distance / 2.), sigma);
-	  else
-		  return GRandom::gaussRandom(mean + fabs(distance / 2.), sigma);
-  }
-
-  /*************************************************************************/
-  /**
-   * This function produces integer random numbers in the range of [0, max[ .
-   *
-   * @param max The maximum (excluded) value of the range
-   * @return Discrete random numbers evenly distributed in the range [0,max[
-   */
-  boost::uint16_t
-  discreteRandom(boost::uint16_t max)
-  {
-    boost::uint16_t result = static_cast<boost::uint16_t> (GRandom::evenRandom(
-        static_cast<double> (max)));
-#ifdef DEBUG
-    assert(result<max);
-#endif
-    return result;
-  }
-
-  /*************************************************************************/
-  /**
-   * This function produces integer random numbers in the range of [min, max[ .
-   * Note that max may also be < 0. .
-   *
-   * @param min The minimum value of the range
-   * @param max The maximum (excluded) value of the range
-   * @return Discrete random numbers evenly distributed in the range [min,max[
-   */
-  boost::int16_t
-  discreteRandom(boost::int16_t min, boost::int16_t max)
-  {
-#ifdef DEBUG
-	assert(min < max);
-#endif
-	boost::int16_t result = discreteRandom(static_cast<boost::int16_t>(max-min)) + min;
-
-#ifdef DEBUG
-    assert(result>=min && result<max);
-#endif
-    return result;
-  }
-
-  /*************************************************************************/
-  /**
-   * This function produces boolean values with a 50% likelihood each for
-   * true and false.
-   *
-   * @return Boolean values with a 50% likelihood for true/false respectively
-   */
-  GenEvA::bit
-  bitRandom(void)
-  {
-    return bitRandom(0.5);
-  }
-
-  /*************************************************************************/
-  /**
-   * This function returns true with a probability "probability", otherwise false.
-   *
-   * @param p The probability for the value "true" to be returned
-   * @return A boolean value, which will be true with a user-defined likelihood
-   */
-  GenEvA::bit
-  bitRandom(double probability)
-  {
-#ifdef DEBUG
-    assert(probability>=0 && probability<=1);
-#endif
-    return (GRandom::evenRandom() < probability ? GenEvA::TRUE : GenEvA::FALSE);
-  }
-
-  /*************************************************************************/
-  /**
-   * This function produces random ASCII characters. Please note that that
-   * includes also non-printable characters, if "printable" is set to false
-   * (default is true).
-   *
-   * @param printable A boolean variable indicating whether only printable characters should be produced
-   * @return Random ASCII characters
-   */
-  char
-  charRandom(bool printable = true)
-  {
-    if (!printable)
-      {
-        return (char) discreteRandom(0, 128);
-      }
-    else
-      {
-        return (char) discreteRandom(33, 127);
-      }
-  }
-
-private:
-  GRandom(const GRandom&); ///< Intentionally left undefined
-  GRandom&
-  operator=(const GRandom&); ///< Intentionally left undefined
-
-  /*************************************************************************/
-  /**
-   * In cases where GRandomFactory was not able to supply us with a suitable
-   * array of [0,1[ random numbers we need to produce our own.
-   */
-  void
-  fillContainer01(void)
-  {
-    boost::lagged_fibonacci607 lf(GSeed());
-    boost::shared_ptr<GRandomNumberContainer_dbl> p(new GRandomNumberContainer_dbl);
-
-    for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
-      {
-#ifdef DEBUG
-        double value = lf();
-        assert(value>=0. && value<1.);
-        p->at(i)=value;
-#else
-        (*p)[i] = lf();
+					(*p)[i] = lf();
 #endif /* DEBUG */
-      }
+				}
 
-    p01_ = p;
-  }
+				p01_ = p;
+			}
 
-  /*************************************************************************/
-  /**
-   * In cases where GRandomFactory was not able to supply us with a suitable
-   * array of gaussian random numbers we need to produce our own.
-   */
-  void
-  fillContainerGauss(void)
-  {
-    boost::shared_ptr<GRandomNumberContainer_dbl> p(new GRandomNumberContainer_dbl);
+			/*************************************************************************/
+			/**
+			 * (Re-)Initialization of p01_
+			 */
+			inline void
+			getNewP01(void)
+			{
+				p01_ = GRANDOMFACTORY.new01Container();
 
-    for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
-      {
-#ifdef DEBUG
-        double value = sqrt(fabs(-2. * log(1. - evenRandom()))) * sin(2. * M_PI * evenRandom());
-        p->at(i)=value;
-#else
-        (*p)[i] = sqrt(fabs(-2. * log(1. - evenRandom()))) * sin(2. * M_PI * evenRandom());
-#endif /* DEBUG */
-      }
+				if (!p01_)
+				{
+					// Something went wrong with the retrieval of the
+					// random number container. We need to create
+					// our own instead.
+					GRandom::fillContainer01();
+				}
+			}
 
-    pGauss_ = p;
-  }
+			/*************************************************************************/
+			boost::shared_ptr<GRandomNumberContainer_dbl> p01_; ///< Holds the container of [0,1[ random numbers
 
-  /*************************************************************************/
-  /**
-   * (Re-)Initialization of p01_
-   */
-  inline void
-  getNewP01(void)
-  {
-    p01_ = GRANDOMFACTORY.new01Container();
+			std::size_t current01_;
 
-    if (!p01_)
-      {
-        // Something went wrong with the retrieval of the
-        // random number container. We need to create
-        // our own instead.
-        GRandom::fillContainer01();
-      }
-  }
+			/****************************************************************************/
+			//////////////////////////////////////////////////////////////////////////////
+			/****************************************************************************/
 
-  /*************************************************************************/
-  /**
-   * (Re-)Initialization of pGauss_
-   */
-  inline void
-  getNewPGauss(void)
-  {
-    pGauss_ = GRANDOMFACTORY.newGaussContainer();
-
-    if (!pGauss_)
-      {
-        // Something went wrong with the retrieval of the
-        // random number container. We need to create
-        // our own instead.
-        GRandom::fillContainerGauss();
-      }
-  }
-
-  /*************************************************************************/
-  boost::shared_ptr<GRandomNumberContainer_dbl> p01_; ///< Holds the container of [0,1[ random numbers
-  boost::shared_ptr<GRandomNumberContainer_dbl> pGauss_; ///< Holds the container of gaussian random numbers
-
-  std::size_t current01_;
-  std::size_t currentGauss_;
-};
-
-/****************************************************************************/
-//////////////////////////////////////////////////////////////////////////////
-/****************************************************************************/
-
-} /* namespace Util */
-} /* namespace Gem */
+		} /* namespace Util */
+	} /* namespace Gem */
 
 #endif /* GRANDOM_H */
