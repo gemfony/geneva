@@ -2,7 +2,7 @@ project (geneva)
 cmake_minimum_required(VERSION 2.6)
 
 IF(UNIX)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -pthread")
 ENDIF(UNIX)
 
 SET (BOOST_ROOT "/opt/boost136")
