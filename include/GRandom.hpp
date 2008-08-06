@@ -475,7 +475,7 @@ public:
   double
   gaussRandom(double mean, double sigma)
   {
-	return sima*sqrt(fabs(-2.*log(1.-evenRandom()))) * sin(2.*M_PI*evenRandom()) + mean;
+	return sigma*sqrt(fabs(-2.*log(1.-evenRandom()))) * sin(2.*M_PI*evenRandom()) + mean;
   }
 
   /*************************************************************************/
