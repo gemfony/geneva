@@ -148,7 +148,7 @@ namespace Util {
      * gauss threads. It seeds the random number generator and starts the
      * producer01 thread. Note that we enforce a minimum number of threads.
      */
-    GRandomFactory(boost::uint8_t n01Threads, boost::uint8_t nGaussThreads) throw() :
+    GRandomFactory(boost::uint8_t n01Threads) throw() :
 		  g01_(DEFAULTFACTORYBUFFERSIZE),
 		  seed_(GSeed()),
           n01Threads_(n01Threads ? n01Threads : 1)
@@ -397,8 +397,7 @@ public:
    * random factory.
    */
   GRandom(void) throw() :
-    current01_(0),
-    currentGauss_(0)
+    current01_(0)
   { /* nothing */
   }
 
