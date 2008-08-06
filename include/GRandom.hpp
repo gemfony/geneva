@@ -194,7 +194,7 @@ namespace Util {
      * @param n01Threads
      * @param nGaussThreads
      */
-    void setNProducerThreads(boost::uint8_t n01Threads, boost::uint8_t nGaussThreads){
+    void setNProducerThreads(boost::uint8_t n01Threads){
       if(n01Threads > n01Threads_){ // start new 01 threads
         for(boost::uint8_t i=n01Threads_; i<n01Threads; i++){
           producer_threads_01_.create_thread(boost::bind(
