@@ -119,7 +119,7 @@ int main(int argc, char **argv){
 	// Random numbers are our most valuable good. Set the number of threads
 	// 7 threads will be producing [0,1[ floating point values, 3 threads
 	// will create gaussian random numbers
-    GRANDOMFACTORY.setNProducerThreads(12);
+    GRANDOMFACTORY.setNProducerThreads(20);
 
 	// Set up a GDoubleCollection with 1000 values, each initialized
 	// with a random number in the range [-100,100[
@@ -151,7 +151,7 @@ int main(int argc, char **argv){
 
 	// GBasePopulation pop;
 	GBoostThreadPopulation pop;
-	pop.setNThreads(4);
+	pop.setNThreads(10);
 
 	pop.append(parabolaIndividual);
 
