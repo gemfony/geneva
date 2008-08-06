@@ -476,17 +476,6 @@ public:
   gaussRandom(double mean, double sigma)
   {
 	return sima*sqrt(fabs(-2.*log(1.-evenRandom()))) * sin(2.*M_PI*evenRandom()) + mean;
-
-    if(!pGauss_ || currentGauss_==DEFAULTARRAYSIZE){
-      getNewPGauss();
-      currentGauss_=0;
-    }
-
-#ifdef DEBUG
-    return sigma * pGauss_->at(currentGauss_++) + mean; // throws
-#else
-    return sigma * (*pGauss_)[currentGauss_++] + mean;
-#endif
   }
 
   /*************************************************************************/
