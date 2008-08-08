@@ -64,8 +64,10 @@ namespace Util {
 
 /**************************************************************************************/
 
-template<class carryer_type>
+template<class carryer_type, std::size_t MAXBUFFERS = 1000>
 class GBroker: boost::noncopyable {
+	typedef std::vector<boost::shared_ptr<GBoundedBuffer<carryer_type> > > BufferPtrCollection;
+
 public:
 	/**********************************************************************************/
 	/**
@@ -73,7 +75,7 @@ public:
 	 * at least one producer has been registered. When this is the case, we unlock
 	 * the mutex
 	 */
-	GBroker(void){
+	GBroker(void) {
 
 	}
 
@@ -81,19 +83,8 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	~GBroker(){
+	virtual ~GBroker() {
 
-	}
-
-	/**********************************************************************************/
-	/**
-	 * Adds a new consumer to this class and starts its thread. Note that boost::bind
-	 * knows how to handle a shared_ptr.
-	 *
-	 * @param gc A pointer to a GConsumer object
-	 */
-	void enrol(boost::shared_ptr<GConsumer> gc){
-		consumerThreads_.createThread(boost::bind(&GConsumer::process, gc));
 	}
 
 	/**********************************************************************************/
@@ -102,18 +93,18 @@ public:
 	 *
 	 * @param gbp A shared pointer to a new GBufferPort object
 	 */
-	void enrol(const shared_ptr<GBufferPort>& gbp){
+	void enrol(const shared_ptr<GBufferPort>& gbp) {
 		boost::mutex::scoped_lock lock(bufferPortCollectionMutex_);
 
 		// Create a key based on the GBufferPort object's address
-		std::string key = lexical_cast<std::string>(gbp.get());
+		std::string key = lexical_cast<std::string> (gbp.get());
 
 		// Check that "key" does not exist yet in the map. Raise an error
 		// if this is the case ... . This is a serious error.
-		if(bufferPortCollection_.find(key) != bufferPortCollection_.end()){
+		if (bufferPortCollection_.find(key) != bufferPortCollection_.end()) {
 			std::ostringstream error;
 			error << "In GBroker<carryer_type>::enrol() : Error!" << std::endl
-				  << "Key " << key << " already exists" << std::endl;
+					<< "Key " << key << " already exists" << std::endl;
 
 			// All we can do in this situation is to terminate the
 			// entire application
@@ -125,6 +116,17 @@ public:
 
 	/**********************************************************************************/
 	/**
+	 * Adds a new consumer to this class and starts its thread. Note that boost::bind
+	 * knows how to handle a shared_ptr.
+	 *
+	 * @param gc A pointer to a GConsumer object
+	 */
+	void enrol(boost::shared_ptr<GConsumer> gc) {
+		consumerThreads_.createThread(boost::bind(&GConsumer::process, gc));
+	}
+
+	/**********************************************************************************/
+	/**
 	 * Retrieves a "raw" item from a GBufferPort. This function will block
 	 * if no item can be retrieved
 	 *
@@ -132,8 +134,7 @@ public:
 	 * @param p Holds the retrieved "raw" item
 	 * @return A boolean indicating whether a time-out has occurred.
 	 */
-	bool get(string& key, shared_ptr<carryer_type>& p)
-	{
+	bool get(string& key, shared_ptr<carryer_type>& p) {
 	}
 
 	/**********************************************************************************/
@@ -146,8 +147,8 @@ public:
 	 * @param msec Milli-second part of the maximum waiting time
 	 * @return A boolean indicating whether a time-out has occurred.
 	 */
-	bool get(string& key, shared_ptr<carryer_type>& p, boost::int32_t sec, boost::int32_t msec)
-	{
+	bool get(string& key, shared_ptr<carryer_type>& p, boost::int32_t sec,
+			boost::int32_t msec) {
 	}
 
 	/**********************************************************************************/
@@ -160,8 +161,7 @@ public:
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 * @return A boolean indicating whether a time-out has occurred
 	 */
-	bool put(const string& key, const shared_ptr<carryer_type>& p)
-	{
+	bool put(const string& key, const shared_ptr<carryer_type>& p) {
 	}
 
 	/**********************************************************************************/
@@ -176,8 +176,7 @@ public:
 	 * @return A boolean indicating whether a time-out has occurred
 	 */
 	bool put(const string& key, const shared_ptr<carryer_type>& p,
-			 boost::int32_t sec = 0, boost::int32_t msec = 0)
-	{
+			boost::int32_t sec = 0, boost::int32_t msec = 0) {
 	}
 
 private:
@@ -187,19 +186,20 @@ private:
 
 	/**********************************************************************************/
 	// Locking
-	boost::mutex bufferPortCollectionMutex_; ///< Controls access to the GBufferPort collection
-	boost::mutex::lock bufferPortCollectionlock_;
+	boost::mutex RawBuffersMutex_; ///< Regulates access to the RawBuffers_ collection
+	boost::mutex ProcessedBuffersMutex_; ///< Regulates access to the ProcessedBuffers_ collection
 
 	/**********************************************************************************/
-	// Containers
+	// Resources shared by different threads
+	BufferPtrCollection::iterator rawBufferIterator_;
+	BufferPtrCollection::iterator processedBufferIterator_;
+
+	BufferPtrCollection RawBuffers_; ///< Holds GBoundedBuffer objects with raw items
+	BufferPtrCollection ProcessedBuffers_; ///< Holds GBoundedBuffer objects for processed items
+
+	/**********************************************************************************/
 	GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
-	std::map<std::string, shared_ptr<GBufferPort>, less<string> > bufferPortCollection_; ///< Holds the GBufferPort objects
 };
-
-/**************************************************************************************/
-
-
-
 
 /**************************************************************************************/
 
