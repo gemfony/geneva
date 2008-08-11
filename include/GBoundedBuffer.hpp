@@ -191,7 +191,7 @@ public:
 	 *
 	 * @param item An item to be added to the front of the buffer
 	 */
-	virtual void push_front(const value_type& item)
+	void push_front(const value_type& item)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		not_full_.wait(lock, boost::bind(&GBoundedBuffer<value_type>::is_not_full, this));
@@ -208,7 +208,7 @@ public:
 	 *
 	 * @param item An item to be added to the front of the buffer
 	 */
-	virtual void push_front(const value_type& item, long sec, long msec) // boost::date_time uses long, unfortunately
+	void push_front(const value_type& item, long sec, long msec) // boost::date_time uses long, unfortunately
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 

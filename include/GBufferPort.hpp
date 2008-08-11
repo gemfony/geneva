@@ -47,7 +47,77 @@ namespace Util {
 
 /*****************************************************************************/
 /**
- * A GBufferPort<T> consists of two GBoundedBuffer<T> objects, one intended for "raw"
+ * A small helper class that adds a unique id to the GBoundedBuffer class. Note
+ * that, once it has been set, it may not be modified anymore.
+ */
+template<class T>
+class GBoundedBufferWithId
+	:public GBoundedBuffer<T>
+{
+public:
+	/***************************************************************/
+	/**
+	 * The default constructor.
+	 */
+	GBoundedBufferWithId(void) throw()
+		:GBoundedBuffer(),
+		 id_(0),
+		 idSet_(false)
+	{ /* nothing */}
+
+	/***************************************************************/
+	/**
+	 * A constructor that creates a buffer with custom size "capacity".
+	 * It enforces a minimum buffer size of 1.
+	 *
+	 * @param capacity The desired size of the buffer
+	 */
+	explicit GBoundedBufferWithId(std::size_t capacity) throw()
+		:GBoundedBuffer(capacity),
+		 id_(0),
+		 idSet_(false)
+	{ /* nothing */}
+
+	/***************************************************************/
+	/**
+	 * A standard destructor.
+	 */
+	virtual ~GBoundedBufferWithId()
+	{ /* nothing */ }
+
+	/***************************************************************/
+	/*
+	 * Retrieves the id_ variable.
+	 *
+	 * @return The value of the id_ variable
+	 */
+	boost::uint32_t getId() const throw(){
+		return id_;
+	}
+
+	/***************************************************************/
+	/*
+	 * Allows to set the id_ once. Any subsequent calls to this
+	 * function will have no effect.
+	 *
+	 * @param id The desired value of the id_ variable
+	 */
+	void setId(boost::uint32_t id) throw(){
+		if(!idSet_){
+			id_ = id;
+			idSet_ = true;
+		}
+	}
+
+private:
+	/***************************************************************/
+	volatile boost::uint32_t id_; ///< An id that allows to identify this class
+	volatile bool idSet_;
+};
+
+/*****************************************************************************/
+/**
+ * A GBufferPort<T> consists of two GBoundedBufferWithId<T> objects, one intended for "raw"
  * items, the other for returning, processed items. While this class could
  * be useful in many scenarios, the most common application is as a mediator
  * between GTransferPopulation and GConsumer-derivatives. The GTransferPopulation
@@ -63,24 +133,24 @@ class GBufferPort: boost::noncopyable {
 public:
 	/*****************************************************************************/
 	/**
-	 * The default constructor. Note that, when using this constructor, the GBoundedBuffer
+	 * The default constructor. Note that, when using this constructor, the GBoundedBufferWithId
 	 * objects will assume the default sizes.
 	 */
 	GBufferPort(void) :
-		original_(new Gem::GenEvA::GBoundedBuffer<T>()), processed_(
-				  new Gem::GenEvA::GBoundedBuffer<T>())
-				{ /* nothing */	}
+		original_(new Gem::GenEvA::GBoundedBufferWithId<T>()),
+		processed_(new Gem::GenEvA::GBoundedBufferWithId<T>())
+	{ /* nothing */	}
 
 	/*****************************************************************************/
 	/**
-	 * Here we initialize the two GBoundedBuffer objects with a given size.
+	 * Here we initialize the two GBoundedBufferWithId objects with a given size.
 	 *
-	 * @param size The desired capacity of the GBoundedBuffer objects
+	 * @param size The desired capacity of the GBoundedBufferWithId objects
 	 */
 	explicit GBufferPort(std::size_t size) :
-		original_(new Gem::GenEvA::GBoundedBuffer<T>(size)), processed_(
-				  new Gem::GenEvA::GBoundedBuffer<T>(size))
-				{ /* nothing */ }
+		original_(new Gem::GenEvA::GBoundedBufferWithId<T>(size)),
+		processed_(new Gem::GenEvA::GBoundedBufferWithId<T>(size))
+	{ /* nothing */ }
 
 	/*****************************************************************************/
 	/**
@@ -88,7 +158,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "original" queue
 	 */
-	boost::shared_ptr<Gem::Util::GBoundedBuffer<T> > getOriginal() {
+	boost::shared_ptr<Gem::Util::GBoundedBufferWithId<T> > getOriginal() {
 		return original_;
 	}
 
@@ -98,7 +168,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "processed" queue
 	 */
-	boost::shared_ptr<Gem::Util::GBoundedBuffer<T> > getProcessed() {
+	boost::shared_ptr<Gem::Util::GBoundedBufferWithId<T> > getProcessed() {
 		return processed_;
 	}
 
@@ -203,8 +273,8 @@ public:
 	/*****************************************************************************/
 
 private:
-	boost::shared_ptr<Gem::Util::GBoundedBuffer<T> > original_; ///< The queue for raw objects
-	boost::shared_ptr<Gem::Util::GBoundedBuffer<T> > processed_; ///< The queue for processed objects
+	boost::shared_ptr<Gem::Util::GBoundedBufferWithId<T> > original_; ///< The queue for raw objects
+	boost::shared_ptr<Gem::Util::GBoundedBufferWithId<T> > processed_; ///< The queue for processed objects
 };
 
 /*****************************************************************************/

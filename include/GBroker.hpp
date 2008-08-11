@@ -26,6 +26,7 @@
 
 #include <sstream>
 #include <vector>
+#include <list>
 #include <map>
 #include <string>
 #include <utility>
@@ -57,16 +58,23 @@
 
 #include "GenevaExceptions.hpp"
 #include "GBufferPort.hpp"
+#include "GBoundedBuffer.hpp"
+#include "GThreadGroup.hpp"
 #include "GConsumer.hpp"
 
 namespace Gem {
 namespace Util {
 
+const boost::uint32_t MAXPORTID=100000000;
+
 /**************************************************************************************/
 
 template<class carryer_type, std::size_t MAXBUFFERS = 1000>
 class GBroker: boost::noncopyable {
-	typedef std::vector<boost::shared_ptr<GBoundedBuffer<carryer_type> > > BufferPtrCollection;
+	typedef typename boost::shared_ptr<carryer_type> carryer_type_ptr;
+	typedef typename boost::shared_ptr<GBoundedBufferWithId<carryer_type_ptr> > GBoundedBufferWithId_Ptr;
+	typedef typename std::list<GBoundedBufferWithId_Ptr> BufferPtrList;
+	typedef typename std::map<boost::uint32_t, GBoundedBufferWithId_Ptr> BufferPtrMap;
 
 public:
 	/**********************************************************************************/
@@ -75,43 +83,91 @@ public:
 	 * at least one producer has been registered. When this is the case, we unlock
 	 * the mutex
 	 */
-	GBroker(void) {
-
-	}
+	GBroker(void)
+		:lastId_(0),
+		 currentGetPosition_(RawBuffers_.begin()),
+		 buffersPresentRaw_(false),
+		 buffersPresentProcessed_(false)
+	{ /* nothing */	}
 
 	/**********************************************************************************/
 	/**
-	 * The standard destructor
+	 * The standard destructor. Notifies all threads that they should stop, then waits
+	 * for their termination.
 	 */
-	virtual ~GBroker() {
-
+	virtual ~GBroker()
+	{
+		consumerThreads_.interrupt_all();
+		consumerThreads_.join_all();
 	}
 
 	/**********************************************************************************/
 	/**
-	 * Registers a new GBufferPort object
+	 * This function is used by producers to register a new GBufferPort object
+	 * with the broker. A GBufferPort object contains bounded buffers for raw (i.e.
+	 * unprocessed) items and for processed items. A producer may at any time decide
+	 * to drop a GBufferPort. This is simply done by letting the shared_ptr<GBufferPort>
+	 * go out of scope. As the producer holds the only copy, the GBufferPort will then be
+	 * deleted. A BufferPort contains two shared_ptr<GBoundedBufferWithId> objects. A shared_ptr
+	 * to these objects is saved upon enrollment with the broker, so that letting the
+	 * shared_ptr<GBufferPort> go out of scope will not drop the shared_ptr<GBoundedBufferWithId>
+	 * objects immediately. This is important, as there may still be active connections
+	 * with items being collected from or dropped into them by the consumers. It is the
+	 * task of this function to remove the orphaned shared_ptr<GBoundedBufferWithId> objects.
+	 * It thus needs to block access to the entire object during its operation. Note that one of
+	 * the effects of this function is that the buffer collections will never run empty,
+	 * once the first buffer has been registered.
 	 *
 	 * @param gbp A shared pointer to a new GBufferPort object
+	 *
+	 * \todo: We currently can exceed the value range of lastId.
 	 */
 	void enrol(const shared_ptr<GBufferPort>& gbp) {
-		boost::mutex::scoped_lock lock(bufferPortCollectionMutex_);
+		// Lock the access to our internal data
+		boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
+		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
 
-		// Create a key based on the GBufferPort object's address
-		std::string key = lexical_cast<std::string> (gbp.get());
+		// Calculate a valid id for GBoundedBufferWithId classes and increment
+		// the id afterwards for later use.
+		boost::uint32_t portId = lastId_++;
 
-		// Check that "key" does not exist yet in the map. Raise an error
-		// if this is the case ... . This is a serious error.
-		if (bufferPortCollection_.find(key) != bufferPortCollection_.end()) {
-			std::ostringstream error;
-			error << "In GBroker<carryer_type>::enrol() : Error!" << std::endl
-					<< "Key " << key << " already exists" << std::endl;
+		// Roll-over. BAD: This relies on the fact that
+		// MAXPORTID is much larger than the expected number of buffers.
+		if(lastId_ >= MAXPORTID) lastId_ = 0;
 
-			// All we can do in this situation is to terminate the
-			// entire application
-			std::terminate();
+		// Retrieve the processed and original queues and tag them with
+		// a suitable id. Increment the id for later use during other enrollments.
+		sharted_ptr<GBoundedBufferWithId<carryer_type> > original = gbp->getOriginal();
+		sharted_ptr<GBoundedBufferWithId<carryer_type> > processed = gbp->getProcessed();
+		original->setId(portId);
+		processed->setId(portId);
+
+		// Find orphaned items in the two collections and remove them.
+		RawBuffers_.remove_if(boost::bind(&boost::shared_ptr<booleanClass>::unique,_1));
+
+		for(BufferPtrMap::iterator it=ProcessedBuffers_.begin(); it!=ProcessedBuffers_.end();){
+			if((it->second).unique()) { // Orphaned ? Get rid of it
+				ProcessedBuffers_.erase(it++);
+			}
+			else ++it;
 		}
 
-		bufferPortCollection_[key] = gbp; // add new GBufferPort object
+		// Attach the new items to the lists
+		RawBuffers_.push_back(original);
+		ProcessedBuffers_[portId] = processed;
+
+		// Fix the current get-pointer. We simply attach it to the start of the list
+		currentGetPosition_= RawBuffers_.begin();
+
+		// If this was the first registered GBufferPort object, we need to notify any
+		// available consumer objects
+		if(!buffersPresentRaw_ || buffersPresentProcessed_){
+			buffersPresentRaw_ = true;
+			buffersPresentProcessed_ = true;
+
+			readyToGoRaw_.notify_all();
+			readyToGoProcessed_.notify_all();
+		}
 	}
 
 	/**********************************************************************************/
@@ -128,27 +184,33 @@ public:
 	/**********************************************************************************/
 	/**
 	 * Retrieves a "raw" item from a GBufferPort. This function will block
-	 * if no item can be retrieved
+	 * if no item can be retrieved.
 	 *
-	 * @param key A key that uniquely identifies the origin of p
 	 * @param p Holds the retrieved "raw" item
-	 * @return A boolean indicating whether a time-out has occurred.
+	 * @return A key that uniquely identifies the origin of p
 	 */
-	bool get(string& key, shared_ptr<carryer_type>& p) {
-	}
+	boost::uint32_t get(shared_ptr<carryer_type>& p) {
+		GBoundedBufferWithId_Ptr currentBuffer;
 
-	/**********************************************************************************/
-	/**
-	 * Retrieves a "raw" item from a GBufferPort, observing a time-out.
-	 *
-	 * @param key A key that uniquely identifies the origin of p
-	 * @param p Holds the retrieved "raw" item
-	 * @param sec Second-portion of the maximum waiting time
-	 * @param msec Milli-second part of the maximum waiting time
-	 * @return A boolean indicating whether a time-out has occurred.
-	 */
-	bool get(string& key, shared_ptr<carryer_type>& p, boost::int32_t sec,
-			boost::int32_t msec) {
+		// Locks access to our internal data until we have a copy of a buffer.
+		// This will prevent the buffer from being removed, as the use count
+		// is increased. Also fixes the iterator.
+		{
+			boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
+
+			// Do not let execution start before the first buffer has been enrolled
+			while(!buffersPresentRaw_) readyToGoRaw_.wait(rawLock);
+
+			currentBuffer = *currentGetPosition_;
+			if(++currentGetPosition_ == RawBuffers_.end()) currentGetPosition_ = RawBuffers_.begin();
+		}
+
+		// Retrieve the item. This function is thread-safe.
+		currentBuffer->pop_back(&p);
+
+		// Return the id. The function is const, hence we should be
+		// able to call it in a multi-threaded environment.
+		return currentBuffer->getId();
 	}
 
 	/**********************************************************************************/
@@ -159,24 +221,25 @@ public:
 	 *
 	 * @param key A key that uniquely identifies the origin of p
 	 * @param p Holds the "raw" item to be submitted to the processed queue
-	 * @return A boolean indicating whether a time-out has occurred
 	 */
-	bool put(const string& key, const shared_ptr<carryer_type>& p) {
-	}
+	void put(const boost::uint32_t& id, const shared_ptr<carryer_type>& p) {
+		GBoundedBufferWithId_Ptr currentBuffer;
 
-	/**********************************************************************************/
-	/**
-	 * Puts a processed item into the processed queue, observing a time-out. Note that
-	 * the item will simply be discarded if no target queue with the required id exists.
-	 *
-	 * @param key A key that uniquely identifies the origin of p
-	 * @param p Holds the "raw" item to be submitted to the processed queue
-	 * @param sec Second-portion of the maximum waiting time
-	 * @param msec Milli-second part of the maximum waiting time
-	 * @return A boolean indicating whether a time-out has occurred
-	 */
-	bool put(const string& key, const shared_ptr<carryer_type>& p,
-			boost::int32_t sec = 0, boost::int32_t msec = 0) {
+		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
+
+		// Do not let execution start before the first buffer has been enrolled
+		while(!buffersPresentProcessed_) readyToGoProcessed_.wait(processedLock);
+
+		// Cross-check that the id is indeed available and retrieve the buffer
+		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end())
+			currentBuffer = ProcessedBuffers_[id].second;
+
+		// Make the mutex available again, as the last call in this
+		// function could block.
+		processedLock.unlock();
+
+		// Add p to the correct buffer, if it is a valid pointer
+		if(currentBuffer) currentBuffer->push_front_processed(p);
 	}
 
 private:
@@ -184,112 +247,21 @@ private:
 	GBroker(const GBroker<carryer_type>&); ///< Intentionally left undefined
 	const GBroker& operator=(const GBroker<carryer_type>&); ///< Intentionally left undefined
 
-	/**********************************************************************************/
-	// Locking
 	boost::mutex RawBuffersMutex_; ///< Regulates access to the RawBuffers_ collection
 	boost::mutex ProcessedBuffersMutex_; ///< Regulates access to the ProcessedBuffers_ collection
 
-	/**********************************************************************************/
-	// Resources shared by different threads
-	BufferPtrCollection::iterator rawBufferIterator_;
-	BufferPtrCollection::iterator processedBufferIterator_;
+	boost::condition_variable readyToGoRaw_; ///< The get function will block until this condition variable is set
+	boost::condition_variable readyToGoProcessed_; ///< The put function will block until this condition variable is set
 
-	BufferPtrCollection RawBuffers_; ///< Holds GBoundedBuffer objects with raw items
-	BufferPtrCollection ProcessedBuffers_; ///< Holds GBoundedBuffer objects for processed items
+	BufferPtrList RawBuffers_; ///< Holds GBoundedBufferWithId objects with raw items
+	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferWithId objects for processed items
 
-	/**********************************************************************************/
+	boost::uint32_t lastId_; ///< The last id we've assigned to a buffer
+	BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection
+	bool buffersPresentRaw_; ///< Set to true once the first "raw" bounded buffer has been enrolled
+	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled
+
 	GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
-};
-
-/**************************************************************************************/
-
-const boost::uint32_t DEFAULTWAITINGTIMEMSEC = 2; // 0.002 seconds
-const boost::uint32_t DEFAULTWAITINGTIMESEC = 0;
-
-/**************************************************************************************/
-/**
- * The GBroker class has a collection of GBiBuffer objects. It manages communication
- * between communicators and populations. Asynchronous processing requests by populations
- * are effectively serialized, so consumer objects can handle communication with the outside
- * world.
- *
- * One other important duty of this class is to start the GConsumer object's processing threads
- * once the first population is registered with this class. Note that no GConsumer threads
- * will be started once this has happened.
- *
- * Note that this class internally uses a vector of pointers. This is usually
- * not good style. However, we do not own these pointers and are not responsible
- * for their destruction. If this GBroker object goes away, the GConsumer
- * objects pointed to will still be there. Also, the gcv_ vector is private
- * and noone except for this class has access to it.
- *
- * This class acts behind the scenes, as it is created as a global singleton that
- * usually only the GTransferPopulation class and the GConsumer derivatives will
- * have knowledge of. There is no need to manually create a GBroker object.
- */
-template<class carrier_type>
-class GBroker: boost::noncopyable {
-public:
-	typedef shared_ptr<carryer_type> carryer_ptr;
-	typedef std::Map<std::string, shared_ptr<GBiBuffer<carryer_ptr> >, less<std::string> >
-			carryer_buffer_map;
-
-	/** * @brief The default constructor */
-	GBroker(void);
-	/** @brief Standard destructor */
-	~GBroker();
-
-	/** @brief Retrieves a shared_ptr to a GBiBuffer, using a key string */
-	GBiBufferPtr at(const std::string&);
-	/** @brief Creates a new GBiBuffer object for a given (new) id */
-	void enrol(std::string);
-	/** @brief Makes a consumer known to this class */
-	void enrol(GConsumer *);
-	/** @brief Removes a GBiBuffer object with a given id from the list */
-	void signoff(std::string);
-
-	/** @brief Retrieves a "raw" item from a GBiBuffer, observing a timeout */
-	bool get(carryer_ptr&, bool&);
-	/** @brief Retrieves an item from the broker in text format */
-	bool get(std::string&, bool&);
-
-	/** @brief Puts a processed item into the processed queue */
-	bool put(const carryer_ptr&);
-	/** @brief Submits an item to the broker in text format */
-	bool put(const std::string&);
-
-	/** @brief Sets the waiting time used for the GBroker::get function */
-	void setWaitingTime(boost::uint32_t, boost::uint32_t);
-	/** @brief Retrieves the second part of the timeout value of the get function */
-	boost::uint32_t getWaitingTimeSec(void) const;
-	/** @brief Retrieves the millisecond part of the timeout value of the get function */
-	boost::uint32_t getWaitingTimeMSec(void) const;
-
-	/** @brief Check for the halt condition */
-	bool stop(void) const;
-
-	/** @brief Shuts down the broker */
-	void shutdown(void);
-
-private:
-	GBroker(const GBroker&); ///< Intentionally left undefined
-	const GBroker& operator=(const GBroker&); ///< Intentionally left undefined
-
-	vector<GConsumer *> gcv_; ///< Holds pointers to consumers
-	boost::thread_group consumerThreads_; ///< A thread group used to hold consumer threads
-	bool noPopulationEnrolled_; ///< No further consumer threads will be started after this variable is set to true
-
-	carryer_buffer_map gbpMap_; ///< Holds GBiBuffer objects and keys
-
-	boost::mutex gbp_mutex_; ///< Access synchronisation for gbpMap_
-	boost::mutex gcv_mutex_; ///< Access synchronisation for gcv_
-	boost::mutex variable_mutex_; ///< Access to internal variables
-	boost::uint32_t waitingTimeSec_; ///< Waiting time of get functions in seconds
-	boost::uint32_t waitingTimeMSec_; ///< Waiting time of get functions in milli seconds
-	bool halt_; ///< If set to true, a general halt condition was reached
-	bool stopped_; ///< Set if stopBrokering() has been called
-
-	bool processingInProgress_; ///< Set by GConsumer::startProcessing()
 };
 
 /**************************************************************************************/
@@ -297,6 +269,8 @@ private:
  * We require the global GBroker object to be a singleton. This
  * ensures that one and only one Broker objet exists that is constructed
  * before main begins. All external communication should refer to BROKER.
+ *
+ * \todo: This won't work, as we are dealing with a template now
  */
 typedef boost::details::pool::singleton_default<GBroker> gbroker;
 #define BROKER gbroker::instance()
