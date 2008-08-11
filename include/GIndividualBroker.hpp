@@ -47,8 +47,8 @@
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
 
-#ifndef GINDIVIVIDUALBROKER_HPP_
-#define GINDIVIVIDUALBROKER_HPP_
+#ifndef GINDIVIDUALBROKER_HPP_
+#define GINDIVIDUALBROKER_HPP_
 
 // GenEvA headers go here
 #include "GBroker.hpp"
@@ -87,4 +87,4 @@ typedef boost::details::pool::singleton_default<GIndividualBroker> gindividualbr
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GINDIVIVIDUALBROKER_HPP_ */
+#endif /* GINDIVIDUALBROKER_HPP_ */
