@@ -50,6 +50,7 @@
 namespace Gem {
 namespace GenEvA {
 
+/**************************************************************************************************/
 /**
  * This class acts as an interface class for all objects that can take part
  * in an evolutionary improvement. Such items must possess mutation functionality

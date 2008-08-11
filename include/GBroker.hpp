@@ -181,7 +181,7 @@ const boost::uint32_t MAXPORTID = 1000000000; ///< The maximum allowed port id
  */
 template<class carryer_type>
 class GBroker: boost::noncopyable {
-typedef	typename boost::shared_ptr<carryer_type> carryer_type_ptr;
+	typedef	typename boost::shared_ptr<carryer_type> carryer_type_ptr;
 	typedef typename boost::shared_ptr<GBoundedBufferWithId<carryer_type_ptr> > GBoundedBufferWithId_Ptr;
 	typedef typename std::list<GBoundedBufferWithId_Ptr> BufferPtrList;
 	typedef typename std::map<boost::uint32_t, GBoundedBufferWithId_Ptr> BufferPtrMap;
@@ -229,8 +229,6 @@ public:
 	 * once the first buffer has been registered.
 	 *
 	 * @param gbp A shared pointer to a new GBufferPort object
-	 *
-	 * \todo: We currently can exceed the value range of lastId.
 	 */
 	void enrol(const shared_ptr<GBufferPort>& gbp) {
 		// Lock the access to our internal data
@@ -241,8 +239,8 @@ public:
 		// the id afterwards for later use.
 		boost::uint32_t portId = lastId_++;
 
-		// Roll-over. BAD: This relies on the fact that
-		// MAXPORTID is much larger than the expected number of buffers.
+		// Roll-over - BAD, we rely on the fact that no "old" items return
+		// when a new producer with the same id has already been registered.
 		if(lastId_ >= MAXPORTID) lastId_ = 0;
 
 		// Retrieve the processed and original queues and tag them with
@@ -373,17 +371,6 @@ private:
 
 	GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
 };
-
-/**************************************************************************************/
-/**
- * We require the global GBroker object to be a singleton. This
- * ensures that one and only one Broker object exists that is constructed
- * before main begins. All external communication should refer to BROKER.
- *
- * \todo: This won't work, as we are dealing with a template now
- */
-// typedef boost::details::pool::singleton_default<GBroker> gbroker;
-// #define BROKER gbroker::instance()
 
 /**************************************************************************************/
 
