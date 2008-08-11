@@ -60,16 +60,83 @@
 #include "GBufferPort.hpp"
 #include "GBoundedBuffer.hpp"
 #include "GThreadGroup.hpp"
-#include "GConsumer.hpp"
 
 namespace Gem {
 namespace Util {
 
-const boost::uint32_t MAXPORTID=100000000;
+// Forward declaration
+template <class carryer_type>
+class GBroker;
 
 /**************************************************************************************/
+/**
+ * This class forms the basis of a hierarchy of classes that take
+ * objects from GBroker and process them, either locally or remotely.
+ * Derived classes such as the GAsioTCPConsumer form the single point
+ * of contact for remote clients. We do not want this class and its
+ * derivatives to be copyable, hence we derive it from the
+ * boost::noncopyable class.
+ */
+template<class carryer_type>
+class GConsumer
+	:boost::noncopyable
+{
+public:
+	/**********************************************************************************/
+	/**
+	 * GBroker is declared friend so that it is the only class
+	 * that can access the GConsumer::process() function
+	 */
+	friend class GBroker<carryer_type> ;
 
-template<class carryer_type, std::size_t MAXBUFFERS = 1000>
+	/**********************************************************************************/
+	/**
+	 * The initialization of a consumer requires access to a broker
+	 *
+	 * @param gb The external broker the consumer should connect to
+	 */
+	GConsumer(GBroker<carryer_type>* gb) {
+		if(gb){
+			gb->enrol(shared_ptr<GConsumer<carryer_type> >(this));
+			gb_=gb;
+		}
+	}
+
+	/** @brief Standard destructor */
+	virtual ~GConsumer();
+
+protected:
+	/** @brief To be called from GConsumer::process() */
+	virtual void init() = 0;
+	/** @brief The actual business logic */
+	virtual void customProcess() = 0;
+	/** @brief To be called from GConsumer::process() */
+	virtual void finally() = 0;
+
+	/** @brief A wrapper around customProcess needed to catch exceptions */
+	void process() {
+	}
+
+	/**********************************************************************************/
+	GBroker<carryer_type> gb_;
+
+private:
+	GConsumer(); ///< Intentionally left undefined
+	GConsumer(const GConsumer<carryer_type>&); ///< Intentionally left undefined
+	const GConsumer& operator=(const GConsumer<carryer_type>&); ///< Intentionally left undefined
+};
+
+/**************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************/
+
+const boost::uint32_t MAXPORTID=100000000; ///< The maximum allowed port id
+
+/**************************************************************************************/
+/**
+ * This class acts as the main interface between producers and consumers.
+ */
+template<class carryer_type>
 class GBroker: boost::noncopyable {
 	typedef typename boost::shared_ptr<carryer_type> carryer_type_ptr;
 	typedef typename boost::shared_ptr<GBoundedBufferWithId<carryer_type_ptr> > GBoundedBufferWithId_Ptr;
@@ -177,8 +244,8 @@ public:
 	 *
 	 * @param gc A pointer to a GConsumer object
 	 */
-	void enrol(boost::shared_ptr<GConsumer> gc) {
-		consumerThreads_.createThread(boost::bind(&GConsumer::process, gc));
+	void enrol(boost::shared_ptr<GConsumer<carryer_type> > gc) {
+		consumerThreads_.createThread(boost::bind(&GConsumer<carryer_type>::process, gc));
 	}
 
 	/**********************************************************************************/
@@ -267,13 +334,13 @@ private:
 /**************************************************************************************/
 /**
  * We require the global GBroker object to be a singleton. This
- * ensures that one and only one Broker objet exists that is constructed
+ * ensures that one and only one Broker object exists that is constructed
  * before main begins. All external communication should refer to BROKER.
  *
  * \todo: This won't work, as we are dealing with a template now
  */
-typedef boost::details::pool::singleton_default<GBroker> gbroker;
-#define BROKER gbroker::instance()
+// typedef boost::details::pool::singleton_default<GBroker> gbroker;
+// #define BROKER gbroker::instance()
 
 /**************************************************************************************/
 
