@@ -311,7 +311,67 @@ boost::uint32_t GIndividual::getParentCounter() const throw(){
 }
 
 /**********************************************************************************/
+/**
+ * Adds or sets an attribute in the object. Note that, if the attribute wasn't
+ * available so far, std::map() will create a corresponding entry. If the entry
+ * was available, the old setting will be returned by the function.
+ *
+ * @param key A key to be assigned to the attribute
+ * @param attribute The actual attribute
+ * @return The previous entry for this key, if any
+ */
+std::string setAttribute(const std::string& key, const std::string& attribute){
+	std::string previous;
 
+	if(attributeTable_.find(key) != attributeTable_.end())	previous = attributeTable_[key];
+	attributeTable_[key]=attribute;
+
+	return previous;
 }
-} /* namespace Gem::GenEvA */
+
+/**********************************************************************************/
+/**
+ * Retrieves an attribute from the object. An empty string will be returned if no
+ * attribute with this key is available.
+ *
+ * @param key The key for the attribute.
+ * @return The attribute associated with key (or an empty string, if this key doesn't exist)
+ */
+std::string getAttribute(const std::string& key){
+	std::string result;
+	if(attributeTable_.find(key) != attributeTable_.end()) result = attributeTable_[key];
+    return result;
+}
+
+/**********************************************************************************/
+/**
+ * Removes an attribute from the object, if the corresponding key exists in the map. An
+ * empty string will be returned, if this key doesn't exist-
+ *
+ * @param key The key of the attribute to be removed
+ * @return The value of the attribute that has been removed (or an empty string, if this key doesn't exist)
+ */
+std::string delAttribute(const std::string& key){
+	std::string previous;
+
+	if(attributeTable_.find(key) != attributeTable_.end()) {
+		previous = attributeTable_[key];
+		attributeTable_.erase(key);
+	}
+
+	return previous;
+}
+
+/**********************************************************************************/
+/**
+ * Clears the attribute table.
+ */
+void clearAttributes() {
+	attributeTable_.clear();
+}
+
+/**********************************************************************************/
+
+} /* namespace GenEvA */
+} /* namespace Gem */
 

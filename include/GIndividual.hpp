@@ -24,6 +24,8 @@
 
 // Standard header files go here
 #include <sstream>
+#include <string>
+#include <map>
 
 // Boost header files go here
 
@@ -77,6 +79,7 @@ class GIndividual
 	  ar & make_nvp("allowLazyEvaluation_",allowLazyEvaluation_);
 	  ar & make_nvp("parentPopGeneration_",parentPopGeneration_);
 	  ar & make_nvp("parentCounter_",parentCounter_);
+	  ar & make_nvp("attributeTable_",attributeTable_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -127,6 +130,16 @@ public:
 
 	/** @brief Retrieves the current value of the parentCounter_ variable */
 	boost::uint32_t getParentCounter() const throw();
+
+	/** @brief Adds an attribute to the individual */
+	std::string setAttribute(const std::string&, const std::string&);
+	/** @brief Retrieves an attribute from the individual */
+	std::string getAttribute(const std::string&);
+	/** @brief Removes an attribute from the individual */
+	std::string delAttribute(const std::string&);
+	/** @brief Clears the attribute table */
+	void clearAttributes();
+
 protected:
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;
@@ -153,9 +166,12 @@ private:
     boost::uint32_t parentPopGeneration_;
     /** @brief Allows populations to mark members as parents or children */
     boost::uint32_t parentCounter_;
+    /** @brief Holds string attributes assigned to this class */
+    std::map<std::string, std::string> attributeTable_;
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 /**************************************************************************************************/
 /**

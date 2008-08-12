@@ -115,8 +115,6 @@ public:
 
 protected:
 	/**********************************************************************************/
-	/** @brief To be called from GConsumer::process() */
-	virtual void init() = 0;
 	/** @brief The actual business logic */
 	virtual void customProcess() = 0;
 	/** @brief To be called from GConsumer::process() */
@@ -128,11 +126,10 @@ protected:
 	 */
 	void process() {
 		  try{
-			  this->init(); // Initialize the object
 			  this->customProcess(); // The actual business logic
-			  this->finally(); // Final actions
 		  }
 		  catch(boost::thread_interrupted&){ // We have been asked to stop
+			  this->finally(); // Final actions
 			  return;
 		  }
 		  catch(boost::exception& e){
@@ -141,6 +138,8 @@ protected:
 				    << e.diagnostic_information() << std::endl;
 
 			  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			  this->finally(); // Final actions
 			  std::terminate();
 		  }
 		  catch(std::exception& e){
@@ -149,6 +148,8 @@ protected:
 				    << e.what() << std::endl;
 
 			  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			  this->finally(); // Final actions
 			  std::terminate();
 		  }
 		  catch(...){
@@ -156,6 +157,8 @@ protected:
 			  error << "In GConsumer::process(): Caught unknown exception." << std::endl;
 
 			  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			  this->finally(); // Final actions
 			  std::terminate();
 		  }
 	}

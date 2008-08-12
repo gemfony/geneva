@@ -32,10 +32,10 @@ namespace GenEvA {
  * The default constructor. Nothing special here.
  */
 GBoostThreadConsumer::GBoostThreadConsumer()
-	:GConsumer<GIndividual>(),
+	:GConsumer<GIndividual>(GINDIVIDUALBROKER),
 	 maxThreads_(DEFAULTGBTCMAXTHREADS),
-	 tp_(maxThreads_) { /* nothing */
-}
+	 tp_(maxThreads_)
+{ /* nothing */ }
 
 /***************************************************************/
 /**
@@ -47,19 +47,37 @@ GBoostThreadConsumer::~GBoostThreadConsumer()
 
 /***************************************************************/
 /**
- * Initialization code. As we only start threads locally, unlike
- * e.g. an MPI consumer we do not have to do any work here.
- */
-void GBoostThreadConsumer::init()
-{ /* nothing */ }
-
-/***************************************************************/
-/**
  * The actual business logic. We retrieve work items from the
  * GMemberBroker, process them with the help of a thread pool
- * and put processed items back into the broker.
+ * and put processed items back into the broker. BROKER.get() or
+ * BROKER.put() will throw an exception if our thread has been
+ * interrupted. This terminates the while() loop. The exception
+ * is caught in GConsumer::process(). GBoostThreadConsumer::finally()
+ * then clears the remaining tasks in our queue and waits for the
+ * termination of the remaining threads.
  */
 void GBoostThreadConsumer::customProcess() {
+
+
+	boost::uint16_t counter = 0;
+
+	while(true){
+
+		counter=0;
+
+		// Start a predefined number of threads
+		while (counter++ < this->getMaxThreads()) {
+			boost::shared_ptr<GIndividual> p;
+			boost::uint32_t id = GINDIVIDUALBROKER.get(p);
+			p->setAttribute("key",boost::lexical_cast<string>(id));
+			tp_.schedule(boost::bind(&GIndividual::checkedFitness, p));
+		}
+
+		// Wait for the threads to finish
+		tp_.wait();
+
+	}
+
 	typedef multimap<string, shared_ptr<GMemberCarrier> , less<string> >
 			storeMultiMap;
 	bool timeout = false;
@@ -103,11 +121,22 @@ void GBoostThreadConsumer::customProcess() {
 
 /***************************************************************/
 /**
- * Finalization code. As we operate with threads in this class,
- * there is no work to be done here.
+ * The function that gets new items from the broker, processes them
+ * and returns them when finished.
+ */
+void GBoostThreadConsumer::processItems(){
+
+}
+
+/***************************************************************/
+/**
+ * Finalization code. Removes all pending tasks and waits for the
+ * termination of the remaining threads.
  */
 void GBoostThreadConsumer::finally()
-{ /* nothing */ }
+{
+
+}
 
 /***************************************************************/
 /**

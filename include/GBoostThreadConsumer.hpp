@@ -30,6 +30,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/version.hpp>
@@ -47,11 +48,12 @@
 
 #include "GIndividualBroker.hpp"
 #include "GIndividual.hpp"
+#include "GThreadGroup.hpp"
 
 namespace Gem {
 namespace GenEvA {
 
-const uint16_t DEFAULTGBTCMAXTHREADS = 4;
+const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
 
 /***************************************************************/
 /**
@@ -81,8 +83,6 @@ public:
 	uint16_t getMaxThreads() const throw();
 
 protected:
-	/** @brief Initializes the processing run */
-	virtual void init();
 	/** @brief The actual business logic */
 	virtual void customProcess();
 	/** @brief To be called after customProcess() */
@@ -92,8 +92,11 @@ private:
 	GBoostThreadConsumer(const GBoostThreadConsumer&); ///< Intentionally left undefined
 	const GBoostThreadConsumer& operator=(const GBoostThreadConsumer&); ///< Intentionally left undefined
 
+	/** @brief Retrieves, processes and submits items */
+	void processItems();
+
 	boost::uint16_t maxThreads_; ///< The maxumum number of allowed threads in the pool
-	boost::threadpool::pool tp_; ///< A thread pool
+	Gem::Util::GThreadGroup gtg_;
 };
 
 /***************************************************************/
