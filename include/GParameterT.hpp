@@ -153,18 +153,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Resets the class to its initial state.
-	 */
-	virtual void reset(){
-		// First reset our local data
-		val_ = (T)NULL;
-
-		// Then reset our parent class
-		GParameterBaseWithAdaptorsT<T>::reset();
-	}
-
-	/*******************************************************************************************/
-	/**
 	 * Loads the data of another GObject
 	 *
 	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject

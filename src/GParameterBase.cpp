@@ -57,15 +57,6 @@ GParameterBase::~GParameterBase()
 
 /**********************************************************************************/
 /**
- * Resets the class to its initial state
- */
-void GParameterBase::reset(){
-	// GMutableI doesn't have a reset function
-	GObject::reset();
-}
-
-/**********************************************************************************/
-/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GParameterBase object, camouflaged as a GObject

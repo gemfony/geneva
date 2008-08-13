@@ -135,26 +135,6 @@ namespace Gem
 
 		/******************************************************************************/
 		/**
-		 * Resets the object to its initial state. Note that the allowed value range is
-		 * not reset, as it is not possible to set it externally. It is thus considered
-		 * to be part of the initial state.
-		 */
-		void GBoundedDouble::reset(void) {
-			// Reset the local data
-			internalValue_=0.;
-
-			// NOTE TO AUTHORS: IF THIS CLASS GAINS THE ABILITY TO
-			// DYNAMICALLY SET THE BOUNDARIES AND THEY ARE RESET IN
-			// THIS FUNCTION AS WELL, E.G: GBITFLIPADAPTOR NEEDS TO
-			// BE ADAPTED. OTHERWISE THE PROBABILITY WILL HAVE A BAD
-			// VALUE.
-
-			// Reset the parent class
-			GParameterT<double>::reset();
-		}
-
-		/******************************************************************************/
-		/**
 		 * Loads the data of another GBoundedDouble, camouflaged as a GObject
 		 * into this object.
 		 *

@@ -171,9 +171,6 @@ public:
 	/** @brief A standard assignment operator */
 	const GBasePopulation& operator=(const GBasePopulation&);
 
-	/** @brief Resets the object to the state it had upon initialization
-	 * with the default constructor */
-	virtual void reset();
 	/** @brief Loads the data of another population */
 	virtual void load(const GObject *);
 	/** @brief Creates a deep clone of this object */

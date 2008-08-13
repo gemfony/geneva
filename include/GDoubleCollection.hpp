@@ -91,8 +91,6 @@ public:
 
 	/** @brief Creates a deep copy of this object. */
 	virtual GObject *clone();
-	/** @brief Resets the object to its initial state */
-	virtual void reset();
 	/** @brief Loads the data fron another GDoubleCollection object */
 	virtual void load(const GObject *);
 

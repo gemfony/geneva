@@ -22,11 +22,15 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Standard headers go here
+
 #include <cstdlib>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <fstream>
+
+// Boost headers go here
 
 #include <boost/version.hpp>
 
@@ -38,6 +42,8 @@
 
 #ifndef GLOGTARGETS_HPP_
 #define GLOGTARGETS_HPP_
+
+// GenEvA headers go here
 
 namespace Gem {
 namespace GLogFramework {

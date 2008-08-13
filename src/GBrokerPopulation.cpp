@@ -92,19 +92,6 @@ const GBrokerPopulation& GBrokerPopulation::operator=(const GBrokerPopulation& c
 
 /******************************************************************************/
 /**
- * Resets the object to its initial state.
- */
-void GBrokerPopulation::reset() {
-	waitFactor_=DEFAULTWAITFACTOR;
-	firstTimeOut_=boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT);
-
-	setLoopTime(DEFAULTLOOPSEC,DEFAULTLOOPMSEC);
-
-	GBasePopulation::reset();
-}
-
-/******************************************************************************/
-/**
  * Loads the data of another GBrokerPopulation object, camouflaged as a
  * pointer to a GObject
  *

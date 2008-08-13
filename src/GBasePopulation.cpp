@@ -120,46 +120,6 @@ const GBasePopulation& GBasePopulation::operator=(const GBasePopulation& cp) {
 
 /***********************************************************************************/
 /**
- * We reset the population to the same state it was in upon initialization with the default
- * constructor. In particular, all individuals of the population are destroyed in the
- * GIndividualSet::reset() function. Afterwards, the population is empty, and we need
- * to set the nParents_ and popSize_ variables manually.
- */
-void GBasePopulation::reset()
-{
-	// First reset our local data
-	nParents_=0;
-	popSize_=0;
-	generation_=0;
-	maxGeneration_=DEFAULTMAXGEN;
-	reportGeneration_=DEFAULTREPORTGEN;
-	recombinationMethod_=DEFAULTRECOMBINE;
-	muplusnu_=MUPLUSNU;
-	maximize_=DEFAULTMAXMODE;
-	id_="empty";
-	firstId_=true; // The "real" id will be set in the GBasePopulation::optimize function
-	maxDuration_=boost::posix_time::duration_from_string(DEFAULTDURATION);
-	maxDurationTotalSeconds_=maxDuration_.total_seconds();
-	defaultNChildren_=0;
-
-	// Store function objects for minimization and maximization.
-	// Uses Boost.Bind and Boost.Function.
-	f_min_ = boost::bind(std::less<double>(), boost::bind(&GIndividual::fitness, _1), boost::bind(&GIndividual::fitness, _2));
-
-	// Maximization can be achieved by swapping
-	// the two input parameters while still using
-	// the std::less<double>() adaptor.
-	f_max_ = boost::bind(std::less<double>(), boost::bind(&GIndividual::fitness, _2), boost::bind(&GIndividual::fitness, _1));
-
-	// Reset the info function
-	infoFunction_.clear();
-
-	// And then the parent data
-	GIndividualSet::reset();
-}
-
-/***********************************************************************************/
-/**
  * Loads the data of another GBasePopulation object, camouflaged as a GObject.
  *
  * @param cp A pointer to another GBasePopulation object, camouflaged as a GObject

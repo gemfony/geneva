@@ -98,15 +98,6 @@ namespace GenEvA
 
   /**********************************************************************/
   /**
-   * Resets the class to its initial state. As we have no local data,
-   * all work is done by the parent class.
-   */
-  void GBitCollection::reset(void){
-    GParameterCollectionT<Gem::GenEvA::bit>::reset();
-  }
-
-  /**********************************************************************/
-  /**
    * Loads the data of another GBitCollection object, camouflaged as
    * a GObject.
    *

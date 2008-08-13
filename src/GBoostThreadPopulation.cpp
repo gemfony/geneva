@@ -82,19 +82,6 @@ const GBoostThreadPopulation& GBoostThreadPopulation::operator=(const GBoostThre
 
 /********************************************************************/
 /**
- * Resets this object to its initial state. As there is no local,
- * dynamically allocated data, all work is done by the parent class.
- */
-void GBoostThreadPopulation::reset(void) {
-	nThreads_=DEFAULTBOOSTTHREADS;
-	tp_.clear();
-	tp_.size_controller().resize(nThreads_);
-
-	GBasePopulation::reset();
-}
-
-/********************************************************************/
-/**
  * Loads the data from another GBoostThreadPopulation object.
  *
  * @param Pointer to another GBoostThreadPopulation object, camouflaged as a GObject

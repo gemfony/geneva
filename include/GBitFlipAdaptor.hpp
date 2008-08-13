@@ -94,8 +94,6 @@ public:
 	/** @brief A standard assignment operator */
 	const GBitFlipAdaptor& operator=(const GBitFlipAdaptor&);
 
-	/** @brief Resets the object to its initial state */
-	virtual void reset();
 	/** @brief Loads the content of another GBitFlipAdaptor */
 	virtual void load(const GObject *);
 	/** @brief Creates a deep copy of this object */

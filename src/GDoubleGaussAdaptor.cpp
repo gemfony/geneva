@@ -129,21 +129,6 @@ const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(const GDoubleGaussAdap
 
 /*************************************************************************/
 /**
- * Resets the object to its initial state.
- */
-void GDoubleGaussAdaptor::reset()
-{
-	// First we reset our own values
-	sigma_=DEFAULTSIGMA;
-	sigmaSigma_=DEFAULTSIGMASIGMA;
-	minSigma_=DEFAULTMINSIGMA;
-
-	// and then our parent class
-	GAdaptorT<double>::reset();
-}
-
-/*************************************************************************/
-/**
  * This is where the actual mutation of the supplied value takes place.
  * The sigma_ retrieved with GDoubleGaussAdaptor::getSigma() might get
  * mutated itself, if the sigmaSigma_ parameter is not 0. The function is

@@ -76,10 +76,9 @@ enum serializationMode {TEXTSERIALIZATION,XMLSERIALIZATION};
 /**
  * GObject is the parent class for the majority of GenEvA classes. Essentially, GObject gives a
  * GenEvA class the ability to carry a name and defines a number of interface functions.
- * The GObject::reset(void) , GObject::load(const GObject *) and  GObject::clone(void)
- * member functions should be re-implemented for each derived class. Unfortunately,
- * there is no way to enforce this in C++. Further common functionality of many GenEvA classes will
- * be implemented here over time.
+ * The GObject::load(const GObject *) and  GObject::clone(void) member functions should be
+ * re-implemented for each derived class. Unfortunately, there is no way to enforce this in C++.
+ * Further common functionality of many GenEvA classes will be implemented here over time.
  */
 class GObject :public GSerializableI
 {
@@ -114,8 +113,6 @@ public:
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() = 0;
-	/** @brief Resets the class to its initial state */
-	virtual void reset();
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 

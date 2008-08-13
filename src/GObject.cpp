@@ -159,15 +159,6 @@ void GObject::fromString(const std::string& descr) {
 
 /**************************************************************************************************/
 /**
- * Resets the class to its initial state
- */
-void GObject::reset() {
-	name_ = "GObject";
-	serializationMode_ = TEXTSERIALIZATION;
-}
-
-/**************************************************************************************************/
-/**
  * Loads the data of another GObject
  *
  * @param cp A pointer to another GObject object

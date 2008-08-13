@@ -124,8 +124,6 @@ namespace GenEvA
     /** \brief A standard assignment operator */
     const GBrokerPopulation& operator=(const GBrokerPopulation&);
 
-    /** \brief Resets the object to its initial state */
-    virtual void reset(); /// Useful ? What happens to the broker ???
     /** \brief Loads the data of another GTransfer Population */
     virtual void load(const GObject *);
     /** \brief Creates a deep copy of this object */

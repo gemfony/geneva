@@ -95,8 +95,6 @@ public:
 	/** @brief A standard assignment operator */
 	const GDoubleGaussAdaptor& operator=(const GDoubleGaussAdaptor&);
 
-	/** @brief Resets the object to its initial state */
-	virtual void reset(void);
 	/** @brief Loads the values of another GDoubleGaussAdaptor */
 	virtual void load(const GObject *gb);
 	/** @brief Creates a deep copy of this object */

@@ -72,22 +72,6 @@ GIndividual::~GIndividual() { /* nothing */ }
 
 /**********************************************************************************/
 /**
- * Resets the class to its initial state
- */
-void GIndividual::reset() {
-	// First reset our local data
-	currentFitness_ = 0.;
-	dirtyFlag_ = true;
-	allowLazyEvaluation_ = false;
-	parentPopGeneration_ = 0;
-	parentCounter_ = 0;
-
-	// Then the data of our parents
-	GObject::reset();
-}
-
-/**********************************************************************************/
-/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GIndividual object, camouflaged as a GObject

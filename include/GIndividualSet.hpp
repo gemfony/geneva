@@ -71,8 +71,6 @@ public:
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() = 0;
-	/** @brief Resets the class to its initial state */
-	virtual void reset();
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 

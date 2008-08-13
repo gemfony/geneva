@@ -92,8 +92,6 @@ public:
 	/** @brief Assignment operator */
 	const GBoostThreadPopulation& operator=(const GBoostThreadPopulation&);
 
-	/** @brief Resets the object to its initial state */
-	virtual void reset(void);
 	/** @brief Loads data from another object */
 	virtual void load(const GObject *);
 	/** @brief Creates a deep clone of this object */

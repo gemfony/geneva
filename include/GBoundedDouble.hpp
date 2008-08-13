@@ -93,8 +93,6 @@ namespace GenEvA
     /** @brief An assignment operator for double values */
     virtual double operator=(double);
 
-    /** @brief Resets the class to its initial state */
-    virtual void reset();
     /** @brief Loads the data of another GBoundedDouble */
     virtual void load(const GObject *);
     /** @brief Creates a deep copy of this class */

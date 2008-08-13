@@ -134,18 +134,6 @@ public:
 
 	/**********************************************************************************/
 	/**
-	 * Resets the class to its initial state
-	 */
-	virtual void reset(){
-		// No local data.
-
-		// Reset our parent classes
-		std::vector<tobj_ptr>::clear();
-		GIndividual::reset();
-	}
-
-	/**********************************************************************************/
-	/**
 	 * Loads the data of another GParameterBase object, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GMutableSetT object, camouflaged as a GObject

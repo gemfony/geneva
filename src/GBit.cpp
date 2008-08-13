@@ -90,15 +90,6 @@ namespace Gem
 
 		/************************************************************************/
 		/**
-		 * Resets the object to its initial state. As we have no local data,
-		 * we can rely on the parent class.
-		 */
-		void GBit::reset(void) {
-			GParameterT<Gem::GenEvA::bit>::reset();
-		}
-
-		/************************************************************************/
-		/**
 		 * Loads the data of another GBit Object.
 		 *
 		 * @param gb A pointer to another GBit object, camouflaged as a GObject

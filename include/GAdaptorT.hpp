@@ -152,15 +152,6 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * This function resets the GAdaptorT<T> to its initial state.
-	 */
-	virtual void reset(void) {
-		alwaysInit_ = true;
-		GObject::reset();
-	}
-
-	/***********************************************************************************/
-	/**
 	 * Loads the contents of another GAdaptorT<T>. The function
 	 * is similar to a copy constructor (but with a pointer as
 	 * argument). As this function might be called in an environment

@@ -84,17 +84,6 @@ namespace Gem
 
 		/**********************************************************************************/
 		/**
-		 * Resets the class to its initial state.
-		 */
-		void GParameterSet::reset(){
-			// Reset our local data
-			eval_.reset();
-			// Reset our parent class
-			GMutableSetT<Gem::GenEvA::GParameterBase>::reset();
-		}
-
-		/**********************************************************************************/
-		/**
 		 * Loads the data of another GParameterSet object, camouflaged as a GObject.
 		 *
 		 * @param cp A copy of another GParameterSet object, camouflaged as a GObject

@@ -83,18 +83,6 @@ namespace Gem
 		}
 
 		/******************************************************************/
-		/**
-		 * Resets the class to its initial state
-		 */
-		void GEvaluator::reset(){
-			// Erase our local data
-			eval_.clear();
-
-			// Then erase our parent object's data
-			GObject::reset();
-		}
-
-		/******************************************************************/
 		/** @brief Loads the data of another GEvaluator, camouflaged as a GObject */
 		void GEvaluator::load(const GObject* cp){
 			// Convert to local format

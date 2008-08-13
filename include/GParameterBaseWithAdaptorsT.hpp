@@ -116,17 +116,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Resets the class to its initial state
-	 */
-	virtual void reset(){
-		// first reset our adaptor list ...
-		adaptors_.clear();
-		// ... and then the parent class
-		GParameterBase::reset();
-	}
-
-	/*******************************************************************************************/
-	/**
 	 * Loads the data of another GParameterBaseWithAdaptorsT object, which
 	 * is camouflaged as a GObject.
 	 *

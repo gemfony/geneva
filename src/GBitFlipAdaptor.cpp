@@ -120,24 +120,6 @@ namespace Gem
 
 		/*************************************************************************/
 		/**
-		 * Resets the object to its initial state.
-		 */
-		void GBitFlipAdaptor::reset() {
-			// Note that this does not reset the boundaries of mutProb_;
-			mutProb_.reset();
-
-			GDoubleGaussAdaptor *gaussAdaptor =
-				new GDoubleGaussAdaptor(SGM, SGMSGM, MSGM, DEFAULTGDGANAME);
-			mutProb_.addAdaptor(gaussAdaptor);
-
-			mutProb_ = DEFAULTMUTPROB;
-			allowProbabilityMutation_ = false,
-
-			GAdaptorT<GenEvA::bit>::reset();
-		}
-
-		/*************************************************************************/
-		/**
 		 * Loads the content of another GBitFlipAdaptor, camouflaged as a GObject
 		 *
 		 * @param cp A pointer to another GBitFlipAdaptor object, camouflaged as a GObject

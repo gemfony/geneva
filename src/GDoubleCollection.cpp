@@ -113,16 +113,6 @@ GObject *GDoubleCollection::clone()
 
 /**********************************************************************/
 /**
- * Resets the class to its original values. As we have no local, dynamically
- * allocated data, all work is done by the parent class.
- */
-void GDoubleCollection::reset()
-{
-	GParameterCollectionT<double>::reset();
-}
-
-/**********************************************************************/
-/**
  * Loads the data of another GDoubleCollection object,
  * camouflaged as a GObject. We have no local data, so
  * all we need to do is to the standard identity check,

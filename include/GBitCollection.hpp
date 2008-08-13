@@ -89,8 +89,6 @@ namespace GenEvA
 
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone(void)=0;
-    /** @brief Resets the object to its initial state */
-    virtual void reset(void);
     /** @brief Loads the data of another GBitCollection class */
     virtual void load(const GObject *);
   };

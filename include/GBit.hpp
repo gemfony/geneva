@@ -83,8 +83,6 @@ public:
 	/** \brief The standard assignment operator */
 	const GBit& operator=(const GBit&);
 
-	/** \brief Resets the class to its original state */
-	virtual void reset(void);
 	/** \brief Loads another GBit object, camouflaged as a GObject */
 	virtual void load(const GObject * gb);
 	/** \brief Creates a deep copy of this object */

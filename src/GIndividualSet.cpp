@@ -59,15 +59,6 @@ namespace Gem
 
 		/******************************************************************/
 		/**
-		 * Resets the class to its initial state
-		 */
-		void GIndividualSet::reset()
-		{
-			GMutableSetT<Gem::GenEvA::GIndividual>::reset();
-		}
-
-		/******************************************************************/
-		/**
 		 * Loads the data of another GObject
 		 *
 		 * @param cp Another GIndividualSet object, camouflaged as a GObject
