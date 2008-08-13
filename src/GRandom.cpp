@@ -2,8 +2,7 @@
  * @file
  */
 
-/**
- * GRandom.cpp
+/* GRandom.cpp
  *
  * Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
