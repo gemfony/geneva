@@ -24,6 +24,7 @@
 
 // Standard headers go here
 
+#include <sstream>
 #include <algorithm>
 
 
@@ -47,12 +48,12 @@
 
 // GenEvA headers go here
 
+#include "GenevaExceptions.hpp"
+#include "GLogger.hpp"
+#include "GIndividual.hpp"
 #include "GBasePopulation.hpp"
-#include "GBiBuffer.hpp"
-#include "GTemplateHelperFunctions.hpp"
-#include "GMemberCarrier.hpp"
-#include "GMemberBroker.hpp"
-#include "GConsumer.hpp"
+#include "GBufferPort.hpp"
+#include "GIndividualBroker.hpp"
 
 namespace Gem
 {
@@ -64,23 +65,23 @@ namespace GenEvA
    * of the first individual in the first generation. Used to
    * find a suitable timeout-value for following individuals.
    */
-  const boost::uint16_t DEFAULTWAITFACTOR = 5;
+  const boost::uint32_t DEFAULTWAITFACTOR = 5;
 
   /**
    * The default allowed time in seconds for the first individual
    * in generation 0 to return. Set it to 0 to disable this timeout.
    */
-  const std::string DEFAULTFIRSTTIMEOUT = EMPTYDURATION;
+  const std::string DEFAULTFIRSTTIMEOUT = EMPTYDURATION; // defined in GBasePopulation
 
   /**
    * The default number seconds before the broker times out
    */
-  const boost::uint16_t DEFAULTLOOPSEC = 0;
+  const boost::uint32_t DEFAULTLOOPSEC = 0;
 
   /**
    * The default number of milliseconds before the broker times out
    */
-  const boost::uint16_t DEFAULTLOOPMSEC = 20;
+  const boost::uint32_t DEFAULTLOOPMSEC = 20;
 
   /**********************************************************************************/
   /**
@@ -133,9 +134,9 @@ namespace GenEvA
     virtual void optimize();
 
     /** \brief Sets the wait factor */
-    void setWaitFactor(boost::uint16_t);
+    void setWaitFactor(boost::uint32_t) throw();
     /** \brief Retrieves the wait factor */
-    uint16_t getWaitFactor() const;
+    uint32_t getWaitFactor() const throw();
 
     /** \brief Sets the first timeout factor */
     void setFirstTimeOut(boost::int32_t, boost::int32_t, boost::int32_t, boost::int32_t);
@@ -143,11 +144,11 @@ namespace GenEvA
     boost::int32_t getFirstTimeOut() const;
 
     /** \brief Sets the loop time */
-    void setLoopTime(boost::uint16_t, boost::uint16_t);
+    void setLoopTime(boost::uint32_t, boost::uint32_t);
     /** \brief Retieves the second part of the loop time */
-    boost::uint16_t getLoopSec() const;
+    boost::uint32_t getLoopSec() const;
     /** \brief Retrieves the millisecond part of the loop time */
-    boost::uint16_t getLoopMSec() const;
+    boost::uint32_t getLoopMSec() const;
 
   protected:
     /** \brief Mutates all children in sequence */
@@ -158,13 +159,13 @@ namespace GenEvA
   private:
     boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
 
-    boost::uint16_t loopMSec_; ///< Timeout milli second value for GBoundedBuffer call
-    boost::uint16_t loopSec_; ///< Timeout second value for GBoundedBuffer call
-    boost::uint16_t waitFactor_; ///< Affects the timeout for returning individuals
-
-    boost::shared_ptr<GBiBuffer<boost::shared_ptr<GMemberCarrier> > > CurrentGBiBufferPtr_;
+    boost::uint32_t loopMSec_; ///< Timeout milli second value for GBoundedBuffer call
+    boost::uint32_t loopSec_; ///< Timeout second value for GBoundedBuffer call
+    boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
 
     boost::function<bool (boost::shared_ptr<GMember>, boost::shared_ptr<GMember>)> f_isparent_; ///< Sorts parents and children
+
+    shared_ptr<GBufferPort> CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle
   };
 
   /**********************************************************************************/

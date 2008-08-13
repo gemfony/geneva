@@ -78,6 +78,10 @@ class geneva_invalid_boundaries: public boost::exception {};
 /** @brief Class to be thrown as an error if a value outside of the allowed range has been assigned */
 class geneva_value_outside_range: public boost::exception {};
 
+// GBrokerPopulation
+/** @brief Class to be thrown as an error if an invalid loop-time was provided */
+class geneva_invalid_loop_time: public boost::exception {};
+
 // GIndividual
 /** @brief Class to be thrown as an error if the dirty flag is set while lazy evaluation is not allowed */
 class geneva_dirtyflag_set_lazyevaluation_not : public boost::exception {};

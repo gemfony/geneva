@@ -148,7 +148,7 @@ public:
 	    // For the vector we need to take into account several cases, as
 	    // we do not want to assume anything for the GParameterBase objects
 
-		// Copy all objects with identical type, then check how many ojects were copied
+		// Copy all objects with identical type, then check how many objects were copied
 		typename std::vector<tobj_ptr>::iterator it_this;
 		typename std::vector<tobj_ptr>::const_iterator it_gms;
 

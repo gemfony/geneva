@@ -29,7 +29,7 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(GenEvA::GBrokerPopulation)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GBrokerPopulation)
 
 namespace Gem
 {
@@ -38,41 +38,38 @@ namespace GenEvA
 
 /******************************************************************************/
 /**
- * The default constructor. A global GMemberBroker object is available
- * through the BROKER define (which in turn calls gbroker.instance() ,
- * referring to a singleton).
+ * The default constructor
  */
-GBrokerPopulation::GBrokerPopulation() :
-	GBasePopulation() {
-	waitFactor_ = DEFAULTWAITFACTOR;
-	firstTimeOut_
-			= boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT);
-	setLoopTime(DEFAULTLOOPSEC, DEFAULTLOOPMSEC);
+GBrokerPopulation::GBrokerPopulation()
+	:GBasePopulation(),
+     waitFactor_(DEFAULTWAITFACTOR),
+     firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT)),
+     loopSec_(DEFAULTLOOPSEC),
+     loopMSec_(DEFAULTLOOPMSEC)
 
-	// Note that _2 comes after _1 , as false < true and parents should
-	// go to the beginning of the array.
-	f_isparent_ = boost::bind(std::less<bool>(), boost::bind(&GMember::isParent,
-			_2), boost::bind(&GMember::isParent, _1));
+{
+	// Note that _2 comes after _1 , as false < true and parents should go to the beginning of the array.
+	f_isparent_ = boost::bind(std::less<bool>(), boost::bind(&GIndividual::isParent, _2), boost::bind(&GIndividual::isParent, _1));
 }
 
 /******************************************************************************/
 /**
  * The standard copy constructor
  *
- * \param cp A copy of another GBrokerPopulation object
+ * @param cp A copy of another GBrokerPopulation object
  */
-GBrokerPopulation::GBrokerPopulation(const GBrokerPopulation& cp) :
-	GBasePopulation(cp) {
-	waitFactor_ = cp.waitFactor_;
-	firstTimeOut_ = cp.firstTimeOut_;
-	loopMSec_ = cp.loopMSec_;
-	loopSec_ = cp.loopSec_;
-	f_isparent_ = cp.f_isparent_;
-}
+GBrokerPopulation::GBrokerPopulation(const GBrokerPopulation& cp)
+	:GBasePopulation(cp),
+	 waitFactor_(cp.waitFactor_),
+	firstTimeOut_(cp.firstTimeOut_),
+	loopMSec_(cp.loopMSec_),
+	loopSec_(cp.loopSec_),
+	f_isparent_(cp.f_isparent_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
- * The standard destructor. We have no local, dynamically allocated data, hence
+ * The standard destructor. We have no object-wide dynamically allocated data, hence
  * this function is empty.
  */
 GBrokerPopulation::~GBrokerPopulation()
@@ -82,8 +79,8 @@ GBrokerPopulation::~GBrokerPopulation()
 /**
  * A standard assignment operator for GBrokerPopulation objects,
  *
- * \param cp A copy of another GBrokerPopulation object
- * \return A constant reference to this object
+ * @param cp A copy of another GBrokerPopulation object
+ * @return A constant reference to this object
  */
 const GBrokerPopulation& GBrokerPopulation::operator=(const GBrokerPopulation& cp) {
 	GBrokerPopulation::load(&cp);
@@ -95,28 +92,15 @@ const GBrokerPopulation& GBrokerPopulation::operator=(const GBrokerPopulation& c
  * Loads the data of another GBrokerPopulation object, camouflaged as a
  * pointer to a GObject
  *
- * \param cp A pointer to another GBrokerPopulation object, camouflaged as a GObject
+ * @param cp A pointer to another GBrokerPopulation object, camouflaged as a GObject
  */
 void GBrokerPopulation::load(const GObject * cp) {
-	// Check that this object is not accidently assigned to itself.
-	// As we do not actually do any calls with this pointer, we
-	// can use the faster static_cast<>
-	if(static_cast<const GBrokerPopulation *>(cp) == this) {
-		GException ge;
-		ge << "In GBrokerPopulation::load(): Error!" << endl
-		<< "Tried to assign an object to itself." << endl
-		<< raiseException;
-	}
+	const GBrokerPopulation *gbp_load = this->checkedConversion(cp, this);
 
+	// Load the parent class'es data ...
 	GBasePopulation::load(cp);
 
-	const GBrokerPopulation * gtp = dynamic_cast<const GBrokerPopulation *>(cp);
-	if(!gtp) {
-		GException ge;
-		ge << "In GBrokerPopulation::load() : Conversion Error!" << endl
-		<< raiseException;
-	}
-
+	// ... and then our own
 	waitFactor_=gtp->waitFactor_;
 	firstTimeOut_=gtp->firstTimeOut_;
 
@@ -129,7 +113,7 @@ void GBrokerPopulation::load(const GObject * cp) {
 /**
  * Creates a deep copy of this object
  *
- * \return A deep copy of this object
+ * @return A deep copy of this object
  */
 GObject *GBrokerPopulation::clone() {
 	return new GBrokerPopulation(*this);
@@ -143,9 +127,9 @@ GObject *GBrokerPopulation::clone() {
  * waitFactor_ is by default set to DEFAULTWAITFACTOR. You can disable this
  * timeout by setting waitFactor_ to 0.
  *
- * \param waitFactor The desired new value for waitFactor_ .
+ * @param waitFactor The desired new value for waitFactor_ .
  */
-void GBrokerPopulation::setWaitFactor(boost::uint16_t waitFactor) {
+void GBrokerPopulation::setWaitFactor(boost::uint32_t waitFactor) throw() {
 	waitFactor_ = waitFactor;
 }
 
@@ -153,9 +137,9 @@ void GBrokerPopulation::setWaitFactor(boost::uint16_t waitFactor) {
 /**
  * Retrieves the waitFactor_ variable.
  *
- * \return The value of the waitFactor_ variable
+ * @return The value of the waitFactor_ variable
  */
-boost::uint16_t GBrokerPopulation::getWaitFactor() const {
+boost::uint32_t GBrokerPopulation::getWaitFactor() const throw() {
 	return waitFactor_;
 }
 
@@ -163,26 +147,26 @@ boost::uint16_t GBrokerPopulation::getWaitFactor() const {
 /**
  * Sets the maximum turn-around time for the first individual. When this time
  * has passed, an exception will be raised. If set to 0, this timeout is disabled.
- * The default value is DEFAULTFIRSTTIMEOUT (likely 0.).
+ * The default value is DEFAULTFIRSTTIMEOUT.
  *
- * \param d The maximum turn-around time in days for the first individual in generation 0
- * \param h The maximum turn-around time in hours for the first individual in generation 0
- * \param m The maximum turn-around time in minutes for the first individual in generation 0
- * \param s The maximum turn-around time in seconds for the first individual in generation 0
+ * @param d The maximum turn-around time in days for the first individual in generation 0
+ * @param h The maximum turn-around time in hours for the first individual in generation 0
+ * @param m The maximum turn-around time in minutes for the first individual in generation 0
+ * @param s The maximum turn-around time in seconds for the first individual in generation 0
  */
 void GBrokerPopulation::setFirstTimeOut(boost::int32_t d, boost::int32_t h, boost::int32_t m, boost::int32_t s) {
 	using namespace boost::posix_time;
-	firstTimeOut_ = hours(d*24+h) + minutes(m) + seconds(s);
+	firstTimeOut_ = hours(long(d*24+h)) + minutes(long(m)) + seconds(long(s));
 }
 
 /******************************************************************************/
 /**
  * Retrieves the number of seconds allowed for the return of the first individual
  *
- * \return The value of firstTimeOut_ in seconds
+ * @return The value of firstTimeOut_ in seconds
  */
 boost::int32_t GBrokerPopulation::getFirstTimeOut() const {
-	return firstTimeOut_.total_seconds();
+	return (boost::int32_t)firstTimeOut_.total_seconds();
 }
 
 /******************************************************************************/
@@ -192,19 +176,18 @@ boost::int32_t GBrokerPopulation::getFirstTimeOut() const {
  * default values are DEFAULTLOOPSEC and DEFAULTLOOPMSEC. Values are in seconds
  * and milli seconds respectively.
  *
- * Check what needs to be done with the broker in case of an exception ...
- * BROKER.shutdown() ???
- *
- * \param loopSec  Timeout in seconds
- * \param loopMSec Timeout in milli seconds
+ * @param loopSec  Timeout in seconds
+ * @param loopMSec Timeout in milli seconds
  */
-void GBrokerPopulation::setLoopTime(boost::uint16_t loopSec, boost::uint16_t loopMSec) {
+void GBrokerPopulation::setLoopTime(boost::uint32_t loopSec, boost::uint32_t loopMSec) {
 	// Only allow "real" values
 	if(loopSec==0 && loopMSec==0) {
-		GException ge;
-		ge << "In GBrokerPopulation::setLoopTime() : Error!" << endl
-		<< "Both seconds and milli-seconds are set to 0" << endl
-		<< raiseException;
+		std::ostringstream error;
+		error << "In GBrokerPopulation::setLoopTime() : Error!" << std::endl
+			  << "Both seconds and milli-seconds are set to 0" << std::endl;
+
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		throw geneva_invalid_loop_time()  << error_string(error.str());;
 	}
 
 	loopSec_ = loopSec;
@@ -215,9 +198,9 @@ void GBrokerPopulation::setLoopTime(boost::uint16_t loopSec, boost::uint16_t loo
 /**
  * Retrieves the second part of the GBoundedBuffer timeout factor
  *
- * \return seconds before GBoundedBuffer::get() times out
+ * @return seconds before GBoundedBuffer::get() times out
  */
-boost::uint16_t GBrokerPopulation::getLoopSec() const {
+boost::uint32_t GBrokerPopulation::getLoopSec() const {
 	return loopSec_;
 }
 
@@ -225,39 +208,28 @@ boost::uint16_t GBrokerPopulation::getLoopSec() const {
 /**
  * Retrieves the milli second part of the GBoundedBuffer timeout factor
  *
- * \return milli seconds before GBoundedBuffer::get() times out
+ * @return milli seconds before GBoundedBuffer::get() times out
  */
-boost::uint16_t GBrokerPopulation::getLoopMSec() const {
+boost::uint32_t GBrokerPopulation::getLoopMSec() const {
 	return loopMSec_;
 }
 
 /******************************************************************************/
 /**
- * We make ourselves known to the broker. Next the standard optimization cycle
- * of the parent population is started. When it has finished, the broker is informed
- * that it can remove the population from its lists. Note that we explicitly disallow
- * lazy evaluation in all contexts. This means that, whenever mutate() is called
- * for a GMember object, the value of that object is updated instantly.
+ * We provide the broker with a new GBufferPort object. Next the standard optimization cycle
+ * of the parent population is started. When it is finished, we reset the shared_ptr<GBufferPort>.
+ * The corresponding object is then deleted, and the GBoundedBuffer objects  owned by the broker are
+ * orphaned. They will then be removed during the next enrollment.
  */
 void GBrokerPopulation::optimize() {
-	std::string id = GBasePopulation::getId();
+	CurrentBufferPort_ = shared_ptr<GBufferPort>(new GBufferPort());
+	GINDIVIDUALBROKER.enrol(CurrentBufferPort_);
 
-	BROKER.enrol(id);
-	CurrentGBiBufferPtr_ = BROKER.at(id);
-	// Check that a GBiBuffer with this key actually exists ...
-	if(!CurrentGBiBufferPtr_) {
-		GException ge;
-		ge << "In GBrokerPopulation::optimize() : Error!" << endl
-		<< "Could not retrieve GBiBuffer" << endl
-		<< raiseException;
-	}
-
-	boost::uint8_t originalEvaluationPermission = GManagedMemberCollection::setEvaluationPermission(PREVENTEVALUATION);
+	// The main optimization cycle
 	GBasePopulation::optimize();
-	GManagedMemberCollection::setEvaluationPermission(originalEvaluationPermission);
 
-	BROKER.signoff(id);
-	CurrentGBiBufferPtr_.reset();
+	// Remove the GBufferPort object
+	CurrentBufferPort_.reset();
 }
 
 /******************************************************************************/
@@ -553,7 +525,7 @@ void GBrokerPopulation::select() {
 	// At this point we have a sorted list of individuals and can take care of
 	// too many members, so the next generation finds an intact population. This
 	// function will remove the last items.
-	this->resize(nParents + defaultChildren);
+	this->resize(nParents + defaultChildren); // Was passiert bei zu wenigen Individuen ?
 
 	// Everything should be back to normal ...
 }
