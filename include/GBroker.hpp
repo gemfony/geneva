@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <limits>
 
 // Boost headers go here
 
@@ -51,6 +52,7 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/limits.hpp>
 
 #ifndef GBROKER_HPP_
 #define GBROKER_HPP_
@@ -102,7 +104,7 @@ public:
 		if (gb_) {
 			// GBroker expects a shared_ptr<GConsumer<carryer_type> >, so we
 			// use Boost's enable_shared_from_this class to create one.
-			gb->enrol(this->shared_from_this());
+			gb_->enrol(this->shared_from_this());
 		}
 	}
 
@@ -176,7 +178,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////
 /**************************************************************************************/
 
-const boost::uint32_t MAXPORTID = 1000000000; ///< The maximum allowed port id
+/** @brief The maximum allowed port id. Note that, if we have no 64 integer types,
+ * we will only be able to count up to roughly 4 billion. PORTIDTYPE is defined in
+ * GBufferPort.hpp, based on whether BOOST_HAS_LONG_LONG is defined or not. */
+const PORTIDTYPE MAXPORTID = std::numeric_limits<PORTIDTYPE>::max()-1;
 
 /**************************************************************************************/
 /**
@@ -187,7 +192,7 @@ class GBroker: boost::noncopyable {
 	typedef	typename boost::shared_ptr<carryer_type> carryer_type_ptr;
 	typedef typename boost::shared_ptr<GBoundedBufferWithId<carryer_type_ptr> > GBoundedBufferWithId_Ptr;
 	typedef typename std::list<GBoundedBufferWithId_Ptr> BufferPtrList;
-	typedef typename std::map<boost::uint32_t, GBoundedBufferWithId_Ptr> BufferPtrMap;
+	typedef typename std::map<PORTIDTYPE, GBoundedBufferWithId_Ptr> BufferPtrMap;
 
 public:
 	/**********************************************************************************/
@@ -238,13 +243,21 @@ public:
 		boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
 
-		// Calculate a valid id for GBoundedBufferWithId classes and increment
-		// the id afterwards for later use.
-		boost::uint32_t portId = lastId_++;
+		// Complain if the lastId_ is getting too large. lastId_ should
+		// be replaced by a GUID/UUID, when it becomes available in Boost.
+		// Note that, if this machine has no 64 bit integer types, we can
+		// only count up to roughly 4 billion.
+		if(lastId_ >= MAXPORTID){
+			std::ostringstream error;
+		    error << "In GBroker<T>::enrol(): lastId_ is getting too large: " << lastId_ << std::endl;
+   		    LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-		// Roll-over - BAD, we rely on the fact that no "old" items return
-		// when a new producer with the same id has already been registered.
-		if(lastId_ >= MAXPORTID) lastId_ = 0;
+  		    std::terminate();
+		}
+
+		// Get new id for GBoundedBufferWithId classes and increment
+		// the id afterwards for later use.
+		PORTIDTYPE portId = lastId_++;
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
@@ -271,8 +284,9 @@ public:
 		currentGetPosition_= RawBuffers_.begin();
 
 		// If this was the first registered GBufferPort object, we need to notify any
-		// available consumer objects
-		if(!buffersPresentRaw_ || buffersPresentProcessed_) {
+		// available consumer objects. We only check one variable, as both are set
+		// simultaneously.
+		if(!buffersPresentRaw_) {
 			buffersPresentRaw_ = true;
 			buffersPresentProcessed_ = true;
 
@@ -300,7 +314,7 @@ public:
 	 * @param p Holds the retrieved "raw" item
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	boost::uint32_t get(shared_ptr<carryer_type>& p) {
+	PORTIDTYPE get(shared_ptr<carryer_type>& p) {
 		GBoundedBufferWithId_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -326,6 +340,39 @@ public:
 
 	/**********************************************************************************/
 	/**
+	 * Retrieves a "raw" item from a GBufferPort, observing a timeout. Note that upon
+	 * time-out an exception is thrown.
+	 *
+	 * @param p Holds the retrieved "raw" item
+	 * @param timeout Time after which the function should time out
+	 * @return A key that uniquely identifies the origin of p
+	 */
+	PORTIDTYPE get(shared_ptr<carryer_type>& p, const boost::posix_time::time_duration& timeout) {
+		GBoundedBufferWithId_Ptr currentBuffer;
+
+		// Locks access to our internal data until we have a copy of a buffer.
+		// This will prevent the buffer from being removed, as the use count
+		// is increased. Also fixes the iterator.
+		{
+			boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
+
+			// Do not let execution start before the first buffer has been enrolled
+			while(!buffersPresentRaw_) readyToGoRaw_.wait(rawLock);
+
+			currentBuffer = *currentGetPosition_;
+			if(++currentGetPosition_ == RawBuffers_.end()) currentGetPosition_ = RawBuffers_.begin();
+		}
+
+		// Retrieve the item. This function is thread-safe.
+		currentBuffer->pop_back(&p, timeout);
+
+		// Return the id. The function is const, hence we should be
+		// able to call it in a multi-threaded environment.
+		return currentBuffer->getId();
+	}
+
+	/**********************************************************************************/
+	/**
 	 * Puts a processed item into the processed queue. Note that the item will simply
 	 * be discarded if no target queue with the required id exists. The function will
 	 * block otherwise, until it is again possible to submit the item.
@@ -333,7 +380,7 @@ public:
 	 * @param key A key that uniquely identifies the origin of p
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 */
-	void put(const boost::uint32_t& id, const shared_ptr<carryer_type>& p) {
+	void put(const PORTIDTYPE& id, const shared_ptr<carryer_type>& p) {
 		GBoundedBufferWithId_Ptr currentBuffer;
 
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -353,6 +400,38 @@ public:
 		if(currentBuffer) currentBuffer->push_front_processed(p);
 	}
 
+	/**********************************************************************************/
+	/**
+	 * Puts a processed item into the processed queue, observing a timeout. Note that
+	 * the item will simply be discarded if no target queue with the required id exists.
+	 * An exception will be thrown when the timeout has been reached.
+	 *
+	 * @param key A key that uniquely identifies the origin of p
+	 * @param p Holds the "raw" item to be submitted to the processed queue
+	 * @param timeout Time after which the function should time out
+	 */
+	void put(const PORTIDTYPE& id, const shared_ptr<carryer_type>& p,
+			 const boost::posix_time::time_duration& timeout)
+	{
+		GBoundedBufferWithId_Ptr currentBuffer;
+
+		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
+
+		// Do not let execution start before the first buffer has been enrolled
+		while(!buffersPresentProcessed_) readyToGoProcessed_.wait(processedLock);
+
+		// Cross-check that the id is indeed available and retrieve the buffer
+		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end())
+		currentBuffer = ProcessedBuffers_[id].second;
+
+		// Make the mutex available again, as the last call in this
+		// function could block.
+		processedLock.unlock();
+
+		// Add p to the correct buffer, if it is a valid pointer
+		if(currentBuffer) currentBuffer->push_front_processed(p, timeout);
+	}
+
 private:
 	/**********************************************************************************/
 	GBroker(const GBroker<carryer_type>&); ///< Intentionally left undefined
@@ -367,7 +446,7 @@ private:
 	BufferPtrList RawBuffers_; ///< Holds GBoundedBufferWithId objects with raw items
 	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferWithId objects for processed items
 
-	boost::uint32_t lastId_; ///< The last id we've assigned to a buffer
+	PORTIDTYPE lastId_; ///< The last id we've assigned to a buffer
 	BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection
 	bool buffersPresentRaw_; ///< Set to true once the first "raw" bounded buffer has been enrolled
 	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled

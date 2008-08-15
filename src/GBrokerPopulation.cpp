@@ -46,11 +46,7 @@ GBrokerPopulation::GBrokerPopulation()
      firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT)),
      loopSec_(DEFAULTLOOPSEC),
      loopMSec_(DEFAULTLOOPMSEC)
-
-{
-	// Note that _2 comes after _1 , as false < true and parents should go to the beginning of the array.
-	f_isparent_ = boost::bind(std::less<bool>(), boost::bind(&GIndividual::isParent, _2), boost::bind(&GIndividual::isParent, _1));
-}
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -63,8 +59,7 @@ GBrokerPopulation::GBrokerPopulation(const GBrokerPopulation& cp)
 	 waitFactor_(cp.waitFactor_),
 	firstTimeOut_(cp.firstTimeOut_),
 	loopMSec_(cp.loopMSec_),
-	loopSec_(cp.loopSec_),
-	f_isparent_(cp.f_isparent_)
+	loopSec_(cp.loopSec_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -105,8 +100,6 @@ void GBrokerPopulation::load(const GObject * cp) {
 	firstTimeOut_=gtp->firstTimeOut_;
 
 	setLoopTime(gtp->loopSec_, gtp->loopMSec_);
-
-	f_isparent_ = gtp->f_isparent_;
 }
 
 /******************************************************************************/
@@ -305,7 +298,7 @@ void GBrokerPopulation::mutateChildren() {
 
 	// First we wait for the first individual from the current generation to arrive
 	// or until a timeout has been reached. Individuals from older generations will
-	// alsobe accepted in this loop. If firstTimeOut_ is set to 0, we do not timeout.
+	// also be accepted in this loop. If firstTimeOut_ is set to 0, we do not timeout.
 	shared_ptr<GMemberCarrier> p;
 	bool ok = false;
 	boost::uint16_t nReceivedCurrent = 0;
@@ -443,11 +436,12 @@ void GBrokerPopulation::select() {
 	// Note that in this case the quality of the population can actually decrease
 	// (unlike the normal situation in MUPLUSNU, where the quality always stays at
 	// least constant). The user should know. This is usually not critical, as we
-	// can replace parents with children and the quality will increase in furture
+	// can replace parents with children and the quality will increase in future
 	// generations.
 	if(generation==0 && sortingScheme==MUPLUSNU) {
 		// Let's first sort the individuals according to their parent status
-		sort(this->begin(),this->end(),f_isparent_);
+		sort(this->begin(), this->end(),
+			 boost::bind(&GIndividual::isParent, _1) > boost::bind(&GIndividual::isParent, _2));
 
 		// Find out how many parents we have received.
 		npar=0;

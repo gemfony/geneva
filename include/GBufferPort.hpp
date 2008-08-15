@@ -34,6 +34,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/utility.hpp>
+#include <boost/date_time.hpp>
 
 #ifndef GBUFFERPORT_H_
 #define GBUFFERPORT_H_
@@ -44,6 +45,12 @@
 
 namespace Gem {
 namespace Util {
+
+#ifdef BOOST_HAS_LONG_LONG
+typedef boost::uint64_t PORTIDTYPE;
+#else
+typedef boost::uint32_t PORTIDTYPE;
+#endif
 
 /*****************************************************************************/
 /**
@@ -91,7 +98,7 @@ public:
 	 *
 	 * @return The value of the id_ variable
 	 */
-	boost::uint32_t getId() const throw(){
+	PORTIDTYPE getId() const throw(){
 		return id_;
 	}
 
@@ -102,7 +109,7 @@ public:
 	 *
 	 * @param id The desired value of the id_ variable
 	 */
-	void setId(boost::uint32_t id) throw(){
+	void setId(PORTIDTYPE id) throw(){
 		if(!idSet_){
 			id_ = id;
 			idSet_ = true;
@@ -111,7 +118,7 @@ public:
 
 private:
 	/***************************************************************/
-	volatile boost::uint32_t id_; ///< An id that allows to identify this class
+	volatile PORTIDTYPE id_; ///< An id that allows to identify this class
 	volatile bool idSet_;
 };
 
@@ -189,12 +196,10 @@ public:
 	 * exception will be thrown in this case.
 	 *
 	 * @param item An item to be added to the buffer
-	 * @param sec The second-part of the maximum waiting time
-	 * @param msec The millisecond-part of the maximum waiting time
-	 * @return A boolean indicating whether the operation was successful
+	 * @param timeout duration until a timeout occurs
 	 */
-	inline void push_front_orig(const T& item, long sec, long msec) { // boost::date_time uses long, unfortunately
-		original_->push_front(item, sec, msec);
+	inline void push_front_orig(const T& item, const boost::posix_time::time_duration& timeout) {
+		original_->push_front(item, timeout);
 	}
 
 	/*****************************************************************************/
@@ -213,11 +218,10 @@ public:
 	 * reached. It needs to be caught by the calling function.
 	 *
 	 * @param item The item that was retrieved from the queue
-	 * @param sec The second-part of the maximum waiting time
-	 * @param msec The millisecond-part of the maximum waiting time
+	 * @param timeout duration until a timeout occurs
 	 */
-	inline void pop_back_orig(T *item, long, long msec) {
-		original_->pop_back(item, sec, msec);
+	inline void pop_back_orig(T *item, const boost::posix_time::time_duration& timeout) {
+		original_->pop_back(item, timeout);
 	}
 
 	/*****************************************************************************/
@@ -237,12 +241,10 @@ public:
 	 * by processed_.
 	 *
 	 * @param item An item to be added to the buffer
-	 * @param sec The second-part of the maximum waiting time
-	 * @param msec The millisecond-part of the maximum waiting time
+	 * @param timeout duration until a timeout occurs
 	 */
-	inline void push_front_processed(const T& item, boost::uint32_t sec,
-			boost::uint32_t msec) {
-		processed_->push_front(item, sec, msec);
+	inline void push_front_processed(const T& item, const boost::posix_time::time_duration& timeout) {
+		processed_->push_front(item, timeout);
 	}
 
 	/*****************************************************************************/
@@ -262,12 +264,10 @@ public:
 	 * time-out was reached, processed_ will throw a time_out exception.
 	 *
 	 * @param item The item that was retrieved from the queue
-	 * @param sec The second-part of the maximum waiting time
-	 * @param msec The millisecond-part of the maximum waiting time
+	 * @param timeout duration until a timeout occurs
 	 */
-	inline void pop_back_processed(T* item, boost::uint32_t sec,
-			boost::uint32_t msec) {
-		processed_->pop_back(item, sec, msec);
+	inline void pop_back_processed(T* item, const boost::posix_time::time_duration& timeout) {
+		processed_->pop_back(item, sec, timeout);
 	}
 
 	/*****************************************************************************/

@@ -36,6 +36,7 @@
 #endif /* BOOST_VERSION */
 
 #include <boost/cstdint.hpp>
+#include <boost/serialization/map.hpp>
 
 
 #ifndef GINDIVIDUAL_HPP_

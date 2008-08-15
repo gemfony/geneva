@@ -87,6 +87,7 @@
 #include <boost/utility.hpp>
 #include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/date_time.hpp>
 
 #ifndef GBOUNDEDBUFFER_H_
 #define GBOUNDEDBUFFER_H_
@@ -194,6 +195,8 @@ public:
 	void push_front(const value_type& item)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
+		// Note that this overload of wait() internally runs a loop on is_not_full to
+		// deal with spurious wakeups
 		not_full_.wait(lock, boost::bind(&GBoundedBuffer<value_type>::is_not_full, this));
 		container_.push_front(item);
 		lock.unlock();
@@ -207,20 +210,13 @@ public:
 	 * added to Jan Gaspar's original implementation.
 	 *
 	 * @param item An item to be added to the front of the buffer
+	 * @param timeout duration until a timeout occurs
 	 */
-	void push_front(const value_type& item, long sec, long msec) // boost::date_time uses long, unfortunately
+	void push_front(const value_type& item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-
-		if (container_.size() >= capacity_) {
-			boost::system_time const timeout=boost::get_system_time()
-			+boost::posix_time::seconds(sec)
-			+boost::posix_time::milliseconds(msec);
-
-			if(!not_full_.timed_wait(lock,timeout) || container_.size() >= capacity_)
+		if(!not_full_.timed_wait(lock,timeout,boost::bind(&GBoundedBuffer<value_type>::is_not_full, this)))
 			throw Gem::Util::gem_util_condition_time_out();
-		}
-
 		container_.push_front(item);
 		lock.unlock();
 		not_empty_.notify_one();
@@ -251,20 +247,13 @@ public:
 	 * added to Jan Gaspar's original implementation.
 	 *
 	 * @param pItem Pointer to a single item that was removed from the end of the buffer
+	 * @param timeout duration until a timeout occurs
 	 */
-	void pop_back(value_type* pItem, long sec, long msec)
+	void pop_back(value_type* pItem, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-
-		if(container_.empty()) {
-			boost::system_time const timeout=boost::get_system_time()
-			+boost::posix_time::seconds(sec)
-			+boost::posix_time::milliseconds(msec);
-
-			if(!not_empty_.timed_wait(lock,timeout) || container_.empty())
+		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBuffer<value_type>::is_not_empty, this)))
 			throw Gem::Util::gem_util_condition_time_out();
-		}
-
 		*pItem = container_.back();
 		container_.pop_back();
 		lock.unlock();

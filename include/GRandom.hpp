@@ -225,7 +225,7 @@ namespace Util {
 
       try
         {
-          g01_.pop_back(&result, 0, DEFAULTFACTORYGETWAIT);
+          g01_.pop_back(&result, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
         }
       catch (Gem::Util::gem_util_condition_time_out&)
         {
@@ -293,7 +293,7 @@ namespace Util {
 
                   try
                     {
-                      g01_.push_front(p, 0, DEFAULTFACTORYPUTWAIT);
+                      g01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
                     }
                   catch (Gem::Util::gem_util_condition_time_out&)
                     {
@@ -305,8 +305,7 @@ namespace Util {
                   // we put ourselves to sleep for a while.
                   // Note that this is also an interruption point,
                   // whose exception is caught outside of the loop.
-                  boost::this_thread::sleep(
-                  boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+                  boost::this_thread::sleep(boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
                 }
             }
         }

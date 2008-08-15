@@ -145,7 +145,7 @@ namespace GenEvA
 
     /** \brief Sets the loop time */
     void setLoopTime(boost::uint32_t, boost::uint32_t);
-    /** \brief Retieves the second part of the loop time */
+    /** \brief Retrieves the second part of the loop time */
     boost::uint32_t getLoopSec() const;
     /** \brief Retrieves the millisecond part of the loop time */
     boost::uint32_t getLoopMSec() const;
@@ -162,8 +162,6 @@ namespace GenEvA
     boost::uint32_t loopMSec_; ///< Timeout milli second value for GBoundedBuffer call
     boost::uint32_t loopSec_; ///< Timeout second value for GBoundedBuffer call
     boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
-
-    boost::function<bool (boost::shared_ptr<GMember>, boost::shared_ptr<GMember>)> f_isparent_; ///< Sorts parents and children
 
     shared_ptr<GBufferPort> CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle
   };
