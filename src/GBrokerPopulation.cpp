@@ -195,7 +195,7 @@ boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
  * orphaned. They will then be removed during the next enrollment.
  */
 void GBrokerPopulation::optimize() {
-	CurrentBufferPort_ = shared_ptr<GBufferPort>(new GBufferPort());
+	CurrentBufferPort_ = boost::shared_ptr<GBufferPort>(new GBufferPort());
 	GINDIVIDUALBROKER.enrol(CurrentBufferPort_);
 
 	// The main optimization cycle
@@ -249,14 +249,15 @@ void GBrokerPopulation::mutateChildren() {
 	}
 
 	//--------------------------------------------------------------------------------
-	// If we are running in MUPLUSNU mode, we now have a clean set of parents in the
-	// population. "Dirty" parents have been sent away for evaluation. If this is the
-	// MUCOMMANU mode, parents do not participate in the sorting and can be ignored.
-	// We can now wait for individuals to return from their journey.
+	// If we are running in MUPLUSNU mode, we now have an empty population, as parents
+	// have been sent away for evaluation. If this is the MUCOMMANU mode, parents do not
+	// participate in the sorting and can be ignored. We can now wait for individuals
+	// to return from their journey.
 
 	// First we wait for the first individual from the current generation to arrive
 	// or until a timeout has been reached. Individuals from older generations will
-	// also be accepted in this loop. If firstTimeOut_ is set to 0, we do not timeout.
+	// also be accepted in this loop, unless they are parents. If firstTimeOut_ is set
+	// to 0, we do not timeout.
 
 	// start to measure time. Uses the Boost.date_time library
 	ptime startTime = boost::posix_time::microsec_clock::local_time();
@@ -265,26 +266,36 @@ void GBrokerPopulation::mutateChildren() {
 	while(true)
 	{
 		try {
-			shared_ptr<GIndividual> p;
+			boost::shared_ptr<GIndividual> p;
 			CurrentGBiBufferPtr_->pop_back_processed(&p,loopTime_);
-
-			// Add the individual to our list.
-			this->push_back(p);
 
 			// If it is from the current generation, break the loop.
 			// Count the number of items received.
 			if(p->getParentPopGeneration() == generation){
+				// Add the individual to our list.
+				this->push_back(p);
+
+				// Update the counter.
 				nReceivedCurrent++;
 				break;
 			}
-			else nReceivedOlder++;
+			else {
+				if(!p->isParent()){ // We do not accept parents from older populations
+					// Add the individual to our list.
+					this->push_back(p);
+
+					// Update the counter
+					nReceivedOlder++;
+				}
+				else p.reset();
+			}
 		}
 		catch(time_out&) {
 			// Find out whether we have exceeded a threshold
 			if(firstTimeOut_.total_microseconds() && ((microsec_clock::local_time()-startTime) > firstTimeOut_)){
 				std::ostringstream error;
-				error << "In GBrokerPopulation::mutateChildren() : Error!" << endl
-					  << "Timeout for first individual reached." << endl;
+				error << "In GBrokerPopulation::mutateChildren() : Error!" << std::endl
+					  << "Timeout for first individual reached." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_first_individual_timeout() << error_string(error.str());
@@ -300,16 +311,26 @@ void GBrokerPopulation::mutateChildren() {
 	// Wait for further arrivals
 	while(true){
 		try {
-			shared_ptr<GIndividual> p;
+			boost::shared_ptr<GIndividual> p;
 			CurrentGBiBufferPtr_->pop_back_processed(&p,loopTime_);
 
-			// Add the individual to our list.
-			this->push_back(p);
-
-			// If it is from the current generation, break the loop.
 			// Count the number of items received.
-			if(p->getParentPopGeneration() == generation) nReceivedCurrent++;
-			else nReceivedOlder++;
+			if(p->getParentPopGeneration() == generation) {
+				// Add the individual to our list.
+				this->push_back(p);
+
+				// Update the counter
+				nReceivedCurrent++;
+			}
+			else {
+				if(!p->isParent()){  // We do not accept parents from older populations
+					// Add the individual to our list.
+					this->push_back(p);
+
+					// Update the counter
+					nReceivedOlder++;
+				}
+			}
 		}
 		catch(time_out&) {
 			// Break if we have reached the timeout
@@ -317,7 +338,9 @@ void GBrokerPopulation::mutateChildren() {
 			if(waitFactor_ && (totalElapsed > totalElapsedFirst*waitFactor_)) break;
 		}
 
-		// Break if all children (and parents in generation 0 / MUPLUSNU) have returned
+		// Break if all children (and parents in generation 0 / MUPLUSNU) of the
+		// current generation have returned. Older individuals have another chance
+		// to return in the next generation, unless they are parents.
 		if(generation == 0 && this->getSortingScheme()==MUPLUSNU) {
 			if(nReceivedCurrent==np+this->getDefaultNChildren()) break;
 		}
@@ -325,186 +348,78 @@ void GBrokerPopulation::mutateChildren() {
 			if(nReceivedCurrent==this->getDefaultNChildren()) break;
 		}
 	}
-}
 
+	//--------------------------------------------------------------------------------
+	// Fix the population, as far as is possible here.
 
-/******************************************************************************/
-/**
- * Starting from the end of the children's list, we wrap the GMember objects
- * into GMemberCarrier objects and tell them the kind of command we wish to have
- * executed. We use a unique identifier to put the GMemberCarriers into the GMemberBroker
- * for further processing. Once this has been done for all children, we wait for
- * the first child to come back and measure the time that has passed. We then wait
- * a predefined amount of time (by default up to three times the time of the first
- * child) for further children to arrive. It is expected that some individuals do not
- * return (due to network problems, crashed clients, ...). This is remedied in
- * the GBrokerPopulation::select() function.
- */
-void GBrokerPopulation::mutateChildren() {
-	boost::uint16_t np = getNParents(), nc = getNChildren();
-	boost::uint32_t generation = GBasePopulation::getGeneration();
-	std::vector<boost::shared_ptr<GMember> >::reverse_iterator rit;
-	std::vector<boost::shared_ptr<GMember> >::iterator it;
-	std::string id = GBasePopulation::getId();
-	boost::uint16_t nParentsSentAway = 0;
+	if(generation==0 && this->getSortingScheme()==MUPLUSNU){
+		// Have any individuals returned at all ??
+		if(this->size()==0) { // No way out ...
+			std::ostringstream error;
+			error << "In GBrokerPopulation::mutateChildren() : Error!" << std::endl
+				  << "Population is empty when it shouldn't be." << std::endl;
 
-	// First we send all individuals abroad
-
-	// Start with the children from the back of the population
-	// This is the same for MUPLUSNU and MUCOMMANU mode
-	for(rit=this->rbegin(); rit!=this->rbegin()+nc; ++rit) {
-		GMemberCarrier *gmc = new GMemberCarrier(*rit,"mutate", id, generation, false);
-		shared_ptr<GMemberCarrier> p(gmc);
-		CurrentGBiBufferPtr_->push_front_orig(p); // let's get rid of it
-	}
-
-	// We can remove children, so only parents remain in the population
-	this->resize(np);
-
-	// Make sure we also evaluate the parents in the first generation, if needed.
-	// This is only applicable to the MUPLUSNU mode.
-	if(generation==0 && getSortingScheme()==MUPLUSNU) {
-		// We might need to temporary store some parent objects
-		std::vector<boost::shared_ptr<GMember> > tempParents;
-
-		// Note that we only have parents left in this generation
-		for(rit=this->rbegin(); rit!=this->rend(); ++rit) {
-			if((*rit)->isDirty()) {
-				// Last "true" in the GMemberCarrier constructor
-				// means: This is a parent individual!
-				GMemberCarrier *gmc = new GMemberCarrier(*rit,"evaluate", id, generation, true);
-				shared_ptr<GMemberCarrier> p(gmc);
-				CurrentGBiBufferPtr_->push_front_orig(p); // let's get rid of it
-				nParentsSentAway++; // We need to count how many parents were sent away
-			}
-			else { // clean, let's store it
-				tempParents.push_back(*rit);
-			}
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			throw geneva_population_empty() << error_string(error.str());
 		}
 
-		// Next we clear the population. Some members are now stored in
-		// GMemberCarrier objects and the clean members are in the tempParents
-		// vector, so we do not loose anything (unless of course there are any
-		// failures, such as stalled connections, etc.).
-		this->clear();
+		// Sort according to parent/child tag
+		sort(this->begin(), this->end(),
+			 boost::bind(&GIndividual::isParent, _1) > boost::bind(&GIndividual::isParent, _2));
 
-		// Now we move the items in the tempParents vector back
-		for(it=tempParents.begin(); it!=tempParents.end(); ++it) this->push_back(*it);
-		// Nothing is lost as we are dealing with shared_ptr objects.
-		tempParents.clear();
-	}
-
-	// If we are running in MUPLUSNU mode, we now have a clean set of parents in the
-	// population. "Dirty" parents have been sent away for evaluation. If this is the
-	// MUCOMMANU mode, parents do not participate in the sorting and can be ignored.
-	// We can now wait for individuals to return from their journey.
-
-	// First we wait for the first individual from the current generation to arrive
-	// or until a timeout has been reached. Individuals from older generations will
-	// also be accepted in this loop. If firstTimeOut_ is set to 0, we do not timeout.
-	shared_ptr<GMemberCarrier> p;
-	bool ok = false;
-	boost::uint16_t nReceivedCurrent = 0;
-	boost::uint16_t nReceivedOlder = 0;
-
-	// start to measure time. Uses the Boost.date_time library
-	boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
-	boost::posix_time::time_duration totalElapsedFirst;
-	bool foundFirst=false;
-	while(true) {
-		try {
-			CurrentGBiBufferPtr_->pop_back_processed(&p,getLoopSec(), getLoopMSec());
-			ok = true;
-		}
-		catch(time_out& t) { /* nothing */ }
-
-		if(ok) { // p now contains a GMemberCarrier
-			// is this a member of the current generation ?
-			if(p->getGeneration() == generation) {
-				nReceivedCurrent++;
-				foundFirst=true;
-			}
-			else {
-				nReceivedOlder++;
-			}
-
-			// store first individual in the list
-			this->push_back(p->payload());
-
-			// Is this an individual from the current generation ? Then we do not
-			// need to continue with the loop. Otherwise we want to continue until
-			// the first individual from the current generation has been received.
-			if(foundFirst) {
-				// note the time it took until the first individual has returned
-				boost::posix_time::ptime firstTime = boost::posix_time::microsec_clock::local_time();
-				totalElapsedFirst = (firstTime - startTime);
-
-				// make sure the duration is at least one second
-				if(totalElapsedFirst.total_seconds() == 0)
-				totalElapsedFirst += boost::posix_time::seconds(1);
-
-				break; // we can stop the loop
-			}
+		// Check how many parents have returned. We can continue even if no
+		// parent has returned. We do warn in this case, though.
+		std::size_t nParentsReturned=0;
+		std::vector<shared_ptr<GIndividual> >::iterator it = this->begin();
+		while((*it)->isParent() && it!=this->end()){
+			nParentsReturned++;
+			++it;
 		}
 
-		// No individual from current generation received.
-		// Find out whether we have exceeded the timeout
-		boost::posix_time::ptime firstTimeMissed = boost::posix_time::microsec_clock::local_time();
+		// No parent has returned. This is fatal.
+		if(nParentsReturned == 0){
+			std::ostringstream warning;
+			warning << "In GBrokerPopulation::mutateChildren() : Warning!" << std::endl
+				    << "No parent has returned at all. It may not return in" << std::endl
+				    << "later generations. Quality may decrease in the next " << std::endl
+				    << "generation. We nevertheless continue." << std::endl;
 
-		// Check what can be done with the broker in case of an error. BROKER.shutdown() ???
-		// Is a maximum allowed time set ? If so: have we exceeded this allowed time ?
-		if(getFirstTimeOut() && ((firstTimeMissed-startTime)> firstTimeOut_)) {
-			GException ge;
-			ge << "In GBrokerPopulation::mutateChildren() : Error!" << endl
-			<< "Timeout for first individual reached." << endl
-			<< raiseException;
+			LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
+		}
+
+		// Too few parents have returned. Not a big problem.
+		if(nParentsReturned < np && nParentsReturned > 0){
+			std::ostringstream warning;
+			warning << "In GBrokerPopulation::mutateChildren() : Warning!" << std::endl
+					<< "Too few parents have returned. They may not return in" << std::endl
+					<< "later generations." << std::endl
+					<< "nParentsReturned = " << nParentsReturned << std::endl
+					<< "nParents = " << np << std::endl;
+
+			LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
 		}
 	}
 
-	// Great. Now we can wait for further arrivals, until waitFactor_*totalFirstElapsed has been reached
-	// or until all members of this generation have returned. Please note that we do allow late arrivals
-	// from earlier generations.
-	while(true) {
-		try {
-			CurrentGBiBufferPtr_->pop_back_processed(&p,getLoopSec(), getLoopMSec());
-			ok = true;
-		}
-		catch(time_out& t) { /* nothing */ }
+	// If population has too few individuals: We clone the first individual a number of times.
+	// ATTENTION: Können wir so zu viele Eltern bauen ??? Macht das was ??
+	if(this->size() < np + this->getDefaultNChildren()){
+		for(std::size_t i=0; i< (np +this->getDefaultNChildren()-this->size()); i++)
+			GIndividual *gi = dynamic_cast<GIndividual *>((this->front())->clone());
 
-		if(ok) {
-			// is this a member of the current generation ?
-			if(p->getGeneration() == generation) nReceivedCurrent++;
-			else nReceivedOlder++;
+			if(!gi){ // Cross check that the conversion worked
+				std:ostringstream error;
+				error << "In GBrokerPopulation::mutateChildren() : Conversion Error!" << std::endl;
 
-			// Add individual to the list
-			this->push_back(p->payload());
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			// Have all members of the current generation returned ? If so, we can stop.
-			// FALSCH: Hier nehmen wir an, dass alle Eltern weggeschickt wurden. Gilt auch nur
-			// fuer MUPLUSNU ...
-			boost::uint16_t defaultChildren = getDefaultChildren();
-			if(((generation==0) && (getSortingScheme()==MUPLUSNU))?
-					nReceivedCurrent==(defaultChildren+nParentsSentAway):
-					nReceivedCurrent==defaultChildren)
-			break;
-		}
+				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
+			}
 
-		// Have we reached the timeout ?
-		boost::posix_time::ptime subsequentTimeMissed = boost::posix_time::microsec_clock::local_time();
-		boost::posix_time::time_duration totalElapsed = (subsequentTimeMissed-startTime);
-		if(getWaitFactor() && (totalElapsed> totalElapsedFirst*getWaitFactor())) {
-			GLogStreamer gls;
-			gls << "In GBrokerPopulation::mutateChildren():" << this << " : " << endl
-			<< "In generation " << generation << ":" << endl
-			<< "Timeout reached after " << totalElapsed.total_seconds() << " seconds" << endl
-			<< "with nReceivedCurrent = " << nReceivedCurrent << " and" << endl
-			<< "nReceivedOlder =" << nReceivedOlder << " where " << endl
-			<< "nParents = " << np << " and" << endl
-			<< "nChildren = " << nc << endl
-			<< logLevel(UNCRITICAL);
-			break;
-		}
+			this->push_back(shared_ptr<GIndividual>(gi));
 	}
+
+	// We care for too many returned individuals in the select() function. Older
+	// individuals might nevertheless have a better quality. We do not want to loose them.
 }
 
 /******************************************************************************/
@@ -528,9 +443,9 @@ void GBrokerPopulation::select() {
 		// No - this should only be possible in generation 0 in MUPLUSNU mode, where we
 		// also send away the parents for evaluation. In any case we cannot cope ...
 		GException ge;
-		ge << "In GBrokerPopulation::select() : Error in population " << this << endl
-		<< "Population is empty in generation " << generation << endl
-		<< "We cannot cope with this." << endl
+		ge << "In GBrokerPopulation::select() : Error in population " << this << std::endl
+		<< "Population is empty in generation " << generation << std::endl
+		<< "We cannot cope with this." << std::endl
 		<< raiseException;
 	}
 
@@ -553,9 +468,9 @@ void GBrokerPopulation::select() {
 		if(npar < nParents) {
 			// No parents at all received ? Emit a warning
 			if(npar==0) {
-				gls << "In GBrokerPopulation::select(): Warning in population " << this << endl
-				<< "No parents received in generation " << generation << " with a" << endl
-				<< "population size of " << sz << endl
+				gls << "In GBrokerPopulation::select(): Warning in population " << this << std::endl
+				<< "No parents received in generation " << generation << " with a" << std::endl
+				<< "population size of " << sz << std::endl
 				<< logLevel(UNCRITICAL);
 			}
 
@@ -564,8 +479,8 @@ void GBrokerPopulation::select() {
 			boost::uint16_t missing = nParents - npar;
 
 			// Let the user know
-			gls << "In GBrokerPopulation::select(): Adding " << missing << " missing" << endl
-			<< "parents to the population " << this << endl
+			gls << "In GBrokerPopulation::select(): Adding " << missing << " missing" << std::endl
+			<< "parents to the population " << this << std::endl
 			<< logLevel(UNCRITICAL);
 
 			// Do the actual fill-up
@@ -574,12 +489,12 @@ void GBrokerPopulation::select() {
 				if(!newParent) {
 					GException ge;
 					ge << "In GBrokerPopulation::select(): Conversion error "
-					<< "in population " << this << endl
+					<< "in population " << this << std::endl
 					<< raiseException;
 				}
 				// Make sure the parent knows about his role
 				newParent->setIsParent(true);
-				shared_ptr<GMember> p(newParent);
+				boost::shared_ptr<GMember> p(newParent);
 				this->insert(this->begin(), p);
 			}
 		}
@@ -593,8 +508,8 @@ void GBrokerPopulation::select() {
 		boost::uint16_t missingChildren = defaultChildren - currentChildren;
 
 		// Let the user know
-		gls << "In GBrokerPopulation::select(): Adding " << missingChildren << " missing" << endl
-		<< "children to the population " << this << endl
+		gls << "In GBrokerPopulation::select(): Adding " << missingChildren << " missing" << std::endl
+		<< "children to the population " << this << std::endl
 		<< logLevel(UNCRITICAL);
 
 		// Add copies of last available member
@@ -603,11 +518,11 @@ void GBrokerPopulation::select() {
 			GMember *gm = dynamic_cast<GMember *>(this->back()->clone());
 			if(!gm) {
 				GException ge;
-				ge << "In GBrokerPopulation::select(): Conversion error (2)!" << endl
+				ge << "In GBrokerPopulation::select(): Conversion error (2)!" << std::endl
 				<< raiseException;
 			}
 			gm->setIsParent(false); // Make sure they know their role
-			shared_ptr<GMember> p(gm);
+			boost::shared_ptr<GMember> p(gm);
 			this->push_back(p);
 		}
 	}
