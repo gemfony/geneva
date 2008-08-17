@@ -206,10 +206,10 @@ public:
 	/** @brief Get information about the current generation */
 	boost::uint32_t getGeneration() const;
 
-	/** @brief Sets the maximum allowed processing time day/hour/minute/second */
-	boost::uint32_t setMaxTime(const boost::uint32_t&, const boost::uint32_t&, const boost::uint32_t&, const boost::uint32_t&);
+	/** @brief Sets the maximum allowed processing time */
+	void setMaxTime(boost::posix_time::time_duration);
 	/** @brief Retrieves the maximum allowed processing time */
-	boost::uint32_t getMaxTime();
+	boost::posix_time::time_duration getMaxTime();
 
 	/** @brief Specify whether we want to work in maximization or minimization mode */
 	void setMaximize(const bool& val);
@@ -284,8 +284,6 @@ private:
 	boost::uint32_t maxDurationTotalSeconds_; ///< maxDuration translated to an uint32_t
 	std::size_t defaultNChildren_; ///< Expected number of children
 
-	boost::function<bool (boost::shared_ptr<GIndividual>, boost::shared_ptr<GIndividual>)> f_min_; ///< Function object for minimization
-	boost::function<bool (boost::shared_ptr<GIndividual>, boost::shared_ptr<GIndividual>)> f_max_; ///< Function object for maximization
 	boost::function<void (GBasePopulation * const)> infoFunction_; ///< Used to emit information with doInfo()
 };
 
