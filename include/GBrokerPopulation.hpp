@@ -74,11 +74,6 @@ namespace GenEvA
   const std::string DEFAULTFIRSTTIMEOUT = EMPTYDURATION; // defined in GBasePopulation
 
   /**
-   * The default number seconds before the broker times out
-   */
-  const boost::uint32_t DEFAULTLOOPSEC = 0;
-
-  /**
    * The default number of milliseconds before the broker times out
    */
   const boost::uint32_t DEFAULTLOOPMSEC = 20;
@@ -108,8 +103,7 @@ namespace GenEvA
       using boost::serialization::make_nvp;
       ar & make_nvp("GBasePopulation", boost::serialization::base_object<GBasePopulation>(*this));
       ar & make_nvp("firstTimeOut_", firstTimeOut_);
-      ar & make_nvp("loopMSec_",loopMSec_);
-      ar & make_nvp("loopSec_",loopSec_);
+      ar & make_nvp("loopTime_",loopTime_);
       ar & make_nvp("waitFactor_", waitFactor_);
     }
     ///////////////////////////////////////////////////////////////////////
@@ -139,16 +133,14 @@ namespace GenEvA
     uint32_t getWaitFactor() const throw();
 
     /** \brief Sets the first timeout factor */
-    void setFirstTimeOut(boost::int32_t, boost::int32_t, boost::int32_t, boost::int32_t);
+    void setFirstTimeOut(const boost::posix_time::time_duration&);
     /** \brief Retrieves the first timeout factor */
-    boost::int32_t getFirstTimeOut() const;
+    boost::posix_time::time_duration getFirstTimeOut() const;
 
     /** \brief Sets the loop time */
-    void setLoopTime(boost::uint32_t, boost::uint32_t);
+    void setLoopTime(const boost::posix_time::time_duration&);
     /** \brief Retrieves the second part of the loop time */
-    boost::uint32_t getLoopSec() const;
-    /** \brief Retrieves the millisecond part of the loop time */
-    boost::uint32_t getLoopMSec() const;
+    boost::posix_time::time_duration getLoopTime() const;
 
   protected:
     /** \brief Mutates all children in sequence */
@@ -158,9 +150,8 @@ namespace GenEvA
 
   private:
     boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
+    boost::posix_time::time_duration loopTime_;
 
-    boost::uint32_t loopMSec_; ///< Timeout milli second value for GBoundedBuffer call
-    boost::uint32_t loopSec_; ///< Timeout second value for GBoundedBuffer call
     boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
 
     shared_ptr<GBufferPort> CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle

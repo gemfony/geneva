@@ -44,8 +44,7 @@ GBrokerPopulation::GBrokerPopulation()
 	:GBasePopulation(),
      waitFactor_(DEFAULTWAITFACTOR),
      firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT)),
-     loopSec_(DEFAULTLOOPSEC),
-     loopMSec_(DEFAULTLOOPMSEC)
+     loopTime_(boost::posix_time::milliseconds(DEFAULTLOOPMSEC))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -58,8 +57,7 @@ GBrokerPopulation::GBrokerPopulation(const GBrokerPopulation& cp)
 	:GBasePopulation(cp),
 	 waitFactor_(cp.waitFactor_),
 	firstTimeOut_(cp.firstTimeOut_),
-	loopMSec_(cp.loopMSec_),
-	loopSec_(cp.loopSec_)
+	loopTime_(cp.loopTime_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -96,10 +94,9 @@ void GBrokerPopulation::load(const GObject * cp) {
 	GBasePopulation::load(cp);
 
 	// ... and then our own
-	waitFactor_=gtp->waitFactor_;
-	firstTimeOut_=gtp->firstTimeOut_;
-
-	setLoopTime(gtp->loopSec_, gtp->loopMSec_);
+	waitFactor_=gbp_load->waitFactor_;
+	firstTimeOut_=gbp_load->firstTimeOut_;
+	loopTime_=gbp_load->loopTime_;
 }
 
 /******************************************************************************/
@@ -139,72 +136,54 @@ boost::uint32_t GBrokerPopulation::getWaitFactor() const throw() {
 /******************************************************************************/
 /**
  * Sets the maximum turn-around time for the first individual. When this time
- * has passed, an exception will be raised. If set to 0, this timeout is disabled.
- * The default value is DEFAULTFIRSTTIMEOUT.
+ * has passed, an exception will be raised.
  *
- * @param d The maximum turn-around time in days for the first individual in generation 0
- * @param h The maximum turn-around time in hours for the first individual in generation 0
- * @param m The maximum turn-around time in minutes for the first individual in generation 0
- * @param s The maximum turn-around time in seconds for the first individual in generation 0
+ * @param firstTimeOut The maximum allowed time until the first individual returns
  */
-void GBrokerPopulation::setFirstTimeOut(boost::int32_t d, boost::int32_t h, boost::int32_t m, boost::int32_t s) {
-	using namespace boost::posix_time;
-	firstTimeOut_ = hours(long(d*24+h)) + minutes(long(m)) + seconds(long(s));
+void GBrokerPopulation::setFirstTimeOut(const boost::posix_time::time_duration& firstTimeOut) {
+	firstTimeOut_ = firstTimeOut;
 }
 
 /******************************************************************************/
 /**
- * Retrieves the number of seconds allowed for the return of the first individual
+ * Retrieves the value of the firstTimeOut_ variable.
  *
- * @return The value of firstTimeOut_ in seconds
+ * @return The value of firstTimeOut_ variable
  */
-boost::int32_t GBrokerPopulation::getFirstTimeOut() const {
-	return (boost::int32_t)firstTimeOut_.total_seconds();
+boost::posix_time::time_duration GBrokerPopulation::getFirstTimeOut() const {
+	return firstTimeOut_;
 }
 
 /******************************************************************************/
 /**
  * When retrieving items from the GBoundedBuffer queue (which in turn is accessed through
  * the GBroker interface), a time-out factor can be set with this function. The
- * default values are DEFAULTLOOPSEC and DEFAULTLOOPMSEC. Values are in seconds
- * and milli seconds respectively.
+ * default values is DEFAULTLOOPMSEC.
  *
- * @param loopSec  Timeout in seconds
- * @param loopMSec Timeout in milli seconds
+ * @param loopTime Timeout until an item was retrieved from the GBoundedBuffer
  */
-void GBrokerPopulation::setLoopTime(boost::uint32_t loopSec, boost::uint32_t loopMSec) {
+void GBrokerPopulation::setLoopTime(const boost::posix_time::time_duration& loopTime) {
 	// Only allow "real" values
-	if(loopSec==0 && loopMSec==0) {
+	if(loopTime==boost::posix_time::duration_from_string(EMPTYDURATION)) {
 		std::ostringstream error;
 		error << "In GBrokerPopulation::setLoopTime() : Error!" << std::endl
-			  << "Both seconds and milli-seconds are set to 0" << std::endl;
+			  << "loopTime is set to 0" << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 		throw geneva_invalid_loop_time()  << error_string(error.str());;
 	}
 
-	loopSec_ = loopSec;
-	loopMSec_ = loopMSec;
+	loopTime_ = loopTime;
 }
 
 /******************************************************************************/
 /**
- * Retrieves the second part of the GBoundedBuffer timeout factor
+ * Retrieves the value of the loopTime_ variable
  *
- * @return seconds before GBoundedBuffer::get() times out
+ * @return The value of the loopTime_ variable
  */
-boost::uint32_t GBrokerPopulation::getLoopSec() const {
-	return loopSec_;
-}
-
-/******************************************************************************/
-/**
- * Retrieves the milli second part of the GBoundedBuffer timeout factor
- *
- * @return milli seconds before GBoundedBuffer::get() times out
- */
-boost::uint32_t GBrokerPopulation::getLoopMSec() const {
-	return loopMSec_;
+boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
+	return loopTime_;
 }
 
 /******************************************************************************/
