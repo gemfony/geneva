@@ -158,7 +158,7 @@ int main(int argc, char **argv){
 	// Specify some population settings
 	pop.setPopulationSize(100,5); // 100 individuals, 5 parents
 	pop.setMaxGeneration(2000); // A maximum of 2000 generations is allowed
-	pop.setMaxTime(0,0,5,0); // Calculation should be finished after 5 minutes
+	pop.setMaxTime(boost::posix_time::minutes(5)); // Calculation should be finished after 5 minutes
 	pop.setReportGeneration(1); // Emit information during every generation
     pop.registerInfoFunction(infoFunction); // Determines how information is submitted
     pop.setRecombinationMethod(VALUERECOMBINE); // The best parents have higher chances of survival
