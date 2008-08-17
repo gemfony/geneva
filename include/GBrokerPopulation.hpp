@@ -131,7 +131,7 @@ namespace GenEvA
     /** \brief Sets the wait factor */
     void setWaitFactor(boost::uint32_t) throw();
     /** \brief Retrieves the wait factor */
-    uint32_t getWaitFactor() const throw();
+    boost::uint32_t getWaitFactor() const throw();
 
     /** \brief Sets the first timeout factor */
     void setFirstTimeOut(const boost::posix_time::time_duration&);
@@ -155,7 +155,7 @@ namespace GenEvA
 
     boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
 
-    shared_ptr<GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> > > CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle
+    boost::shared_ptr<GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> > > CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle
   };
 
   /**********************************************************************************/

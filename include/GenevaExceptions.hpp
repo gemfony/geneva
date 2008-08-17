@@ -83,6 +83,8 @@ class geneva_value_outside_range: public boost::exception {};
 class geneva_invalid_loop_time: public boost::exception {};
 /** @brief Class to be thrown as an error if the first individual didn't return in time */
 class geneva_first_individual_timeout: public boost::exception {};
+/** @brief Class to be thrown as an error if population is empty */
+class geneva_population_empty: public boost::exception {};
 
 // GIndividual
 /** @brief Class to be thrown as an error if the dirty flag is set while lazy evaluation is not allowed */

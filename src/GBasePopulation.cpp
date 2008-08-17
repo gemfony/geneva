@@ -56,18 +56,7 @@ GBasePopulation::GBasePopulation() :
 	maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION)),
 	maxDurationTotalSeconds_(maxDuration_.total_seconds()),
 	defaultNChildren_(0)
-{
-	// Store function objects for minimization and maximization.
-	// Uses Boost.Bind and Boost.Function.
-	f_min_ = boost::bind(std::less<double>(), boost::bind(&GIndividual::fitness, _1), boost::bind(&GIndividual::fitness, _2));
-
-	// Maximization can be achieved by swapping
-	// the two input parameters while still using
-	// the std::less<double>() adaptor.
-	f_max_ = boost::bind(std::less<double>(), boost::bind(&GIndividual::fitness, _2), boost::bind(&GIndividual::fitness, _1));
-
-	// infoFunction_ is not initialized. If it is empty, doInfo() will just do nothing
-}
+{ /* nothing */ }
 
 /***********************************************************************************/
 /**
@@ -94,8 +83,6 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	defaultNChildren_(cp.defaultNChildren_)
 {
 	// We can copy boost::function objects like any ordinary variable
-	f_max_ = cp.f_max_;
-	f_min_ = cp.f_min_;
 	infoFunction_ = cp.infoFunction_;
 }
 
@@ -146,8 +133,6 @@ void GBasePopulation::load(const GObject * cp)
 	maxDurationTotalSeconds_ = maxDuration_.total_seconds(); // Intentionally re-calculated
 	defaultNChildren_ = gbp_load->defaultNChildren_;
 
-	f_max_ = gbp_load->f_max_;
-	f_min_ = gbp_load->f_min_;
 	infoFunction_ = gbp_load->infoFunction_;
 }
 
@@ -481,32 +466,33 @@ boost::uint32_t GBasePopulation::getGeneration() const {
 
 /***********************************************************************************/
 /**
- * Sets the maximum allowed processing time in days, hours, minutes, seconds . In order to
- * terminate the optimization after 3 days, 15 hours and 12 seconds, you would call
- * setMaxTime(3,15,0,12). Entries for all quantities may also be larger than
- * 23 and 59 respectively.
+ * Sets the maximum allowed processing time
  *
- * @param days    The number of    days allowed for this optimization
- * @param hours   The number of   hours allowed for this optimization
- * @param minutes The number of minutes allowed for this optimization
- * @param seconds The number of seconds allowed for this optimization
- * @return        The total requested processing time in seconds
+ * @param maxDuration The maximum allowed processing time
  */
-boost::uint32_t GBasePopulation::setMaxTime(const boost::uint32_t& d, const boost::uint32_t& h, const boost::uint32_t& m, const boost::uint32_t& s) {
+void GBasePopulation::setMaxTime(boost::posix_time::time_duration maxDuration) {
 	using namespace boost::posix_time;
-	maxDuration_ = hours(d*24 + h) + minutes(m) + seconds(s);
-	maxDurationTotalSeconds_ = maxDuration_.total_seconds();
-	return maxDurationTotalSeconds_;
+
+	// Only allow "real" values
+	if(maxDuration.is_special() || maxDuration.is_negative() || maxDuration.total_microseconds()==0) {
+		std::ostringstream error;
+		error << "In GBasePopulation::setMaxTime() : Error!" << std::endl
+			  << "maxDuration is set to 0" << std::endl;
+
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		throw geneva_invalid_loop_time()  << error_string(error.str());
+	}
+	maxDuration_ = maxDuration;
 }
 
 /***********************************************************************************/
 /**
- * Retrieves the maximum allowed processing time in seconds.
+ * Retrieves the value of the maxDuration_ parameter.
  *
- * @return The maximum allowed processing time in seconds
+ * @return The maximum allowed processing time
  */
-boost::uint32_t GBasePopulation::getMaxTime() {
-	return maxDurationTotalSeconds_;
+boost::posix_time::time_duration GBasePopulation::getMaxTime() {
+	return maxDuration_;
 }
 
 /***********************************************************************************/
@@ -518,7 +504,7 @@ boost::uint32_t GBasePopulation::getMaxTime() {
  */
 bool GBasePopulation::timedHalt() {
 	using namespace boost::posix_time;
-	ptime currentTime = second_clock::local_time();
+	ptime currentTime = microsec_clock::local_time();
 	if((currentTime - startTime_) >= maxDuration_) return true;
 	return false;
 }
@@ -770,8 +756,14 @@ void GBasePopulation::select()
 	// Sort the arrays. Note that we are using boost::function
 	// objects here, that have been "loaded" with function objects
 	// in the default constructor
-	if(maximize_) std::sort(it_begin, this->end(), f_max_);
-	else std::sort(it_begin, this->end(), f_min_);
+	if(maximize_){
+		std::sort(it_begin, this->end(),
+				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+	}
+	else{
+		std::sort(it_begin, this->end(),
+				  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+	}
 
 	// Move the parents' region to the end of the range if
 	// this is the MUCOMMANU case
@@ -865,7 +857,7 @@ bool GBasePopulation::halt()
 	// Do we have a scheduled halt time ? The comparatively expensive
 	// timedHalt() calculation is only called if maxDurationTotalSeconds_
 	// has a value != 0.
-	if(maxDurationTotalSeconds_ && timedHalt()) return true;
+	if(maxDuration_.total_microseconds() && timedHalt()) return true;
 
 	// Has the user specified an additional break condition ?
 	if(customHalt()) return true;
