@@ -136,7 +136,8 @@ boost::uint32_t GBrokerPopulation::getWaitFactor() const throw() {
 /******************************************************************************/
 /**
  * Sets the maximum turn-around time for the first individual. When this time
- * has passed, an exception will be raised.
+ * has passed, an exception will be raised. Set the time out value to 0 if you
+ * do not want the first individual to time out.
  *
  * @param firstTimeOut The maximum allowed time until the first individual returns
  */
@@ -158,19 +159,19 @@ boost::posix_time::time_duration GBrokerPopulation::getFirstTimeOut() const {
 /**
  * When retrieving items from the GBoundedBuffer queue (which in turn is accessed through
  * the GBroker interface), a time-out factor can be set with this function. The
- * default values is DEFAULTLOOPMSEC.
+ * default values is DEFAULTLOOPMSEC. A minimum value of 1 micro second is required.
  *
  * @param loopTime Timeout until an item was retrieved from the GBoundedBuffer
  */
 void GBrokerPopulation::setLoopTime(const boost::posix_time::time_duration& loopTime) {
 	// Only allow "real" values
-	if(loopTime==boost::posix_time::duration_from_string(EMPTYDURATION)) {
+	if(loopTime.is_special() || loopTime.is_negative() || loopTime.total_microseconds()==0) {
 		std::ostringstream error;
 		error << "In GBrokerPopulation::setLoopTime() : Error!" << std::endl
 			  << "loopTime is set to 0" << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_invalid_loop_time()  << error_string(error.str());;
+		throw geneva_invalid_loop_time()  << error_string(error.str());
 	}
 
 	loopTime_ = loopTime;
@@ -203,6 +204,129 @@ void GBrokerPopulation::optimize() {
 	// Remove the GBufferPort object
 	CurrentBufferPort_.reset();
 }
+
+/******************************************************************************/
+/**
+ * Starting from the end of the children's list, we submit individuals  to the
+ * broker. In the first generation, in the case of the MUPLUSNU sorting strategy,
+ * also the fitness of the parents is calculated. The type of command intended to
+ * be executed on the individuals is stored in their attributes. The function
+ * then waits for the first individual to come back. The timeframe for all other
+ * individuals to come back is a multiple of this timeframe.
+ */
+void GBrokerPopulation::mutateChildren() {
+	using namespace boost::posix_time;
+
+	std::vector<boost::shared_ptr<GIndividual> >::reverse_iterator rit;
+	std::size_t np = getNParents(), nc=this-size()-np;
+	boost::uint32_t generation=this->getGeneration();
+
+	//--------------------------------------------------------------------------------
+	// First we send all individuals abroad
+
+	// Start with the children from the back of the population
+	// This is the same for MUPLUSNU and MUCOMMANU mode
+	for(rit=this->rbegin(); rit!=this->rbegin()+nc; ++rit) {
+		(*rit)->setAttribute("command","mutate");
+		CurrentBufferPort_->push_front_orig(*rit);
+	}
+
+	// We can remove children, so only parents remain in the population
+	this->resize(p);
+
+	// Make sure we also evaluate the parents in the first generation, if needed.
+	// This is only applicable to the MUPLUSNU mode.
+	if(generation==0 && this->getSortingScheme()==MUPLUSNU) {
+		// Note that we only have parents left in this generation
+		for(rit=this->rbegin(); rit!=this->rend(); ++rit) {
+			(*rit)->setAttribute("command","evaluate");
+			CurrentBufferPort_->push_front_orig(*rit);
+		}
+
+		// Next we clear the population. We do not loose anything,
+		// as at least one shared_ptr to our individuals remains
+		this->clear();
+	}
+
+	//--------------------------------------------------------------------------------
+	// If we are running in MUPLUSNU mode, we now have a clean set of parents in the
+	// population. "Dirty" parents have been sent away for evaluation. If this is the
+	// MUCOMMANU mode, parents do not participate in the sorting and can be ignored.
+	// We can now wait for individuals to return from their journey.
+
+	// First we wait for the first individual from the current generation to arrive
+	// or until a timeout has been reached. Individuals from older generations will
+	// also be accepted in this loop. If firstTimeOut_ is set to 0, we do not timeout.
+
+	// start to measure time. Uses the Boost.date_time library
+	ptime startTime = boost::posix_time::microsec_clock::local_time();
+	std::size_t nReceivedCurrent = 0, nReceivedOlder = 0;
+
+	while(true)
+	{
+		try {
+			shared_ptr<GIndividual> p;
+			CurrentGBiBufferPtr_->pop_back_processed(&p,loopTime_);
+
+			// Add the individual to our list.
+			this->push_back(p);
+
+			// If it is from the current generation, break the loop.
+			// Count the number of items received.
+			if(p->getParentPopGeneration() == generation){
+				nReceivedCurrent++;
+				break;
+			}
+			else nReceivedOlder++;
+		}
+		catch(time_out&) {
+			// Find out whether we have exceeded a threshold
+			if(firstTimeOut_.total_microseconds() && ((microsec_clock::local_time()-startTime) > firstTimeOut_)){
+				std::ostringstream error;
+				error << "In GBrokerPopulation::mutateChildren() : Error!" << endl
+					  << "Timeout for first individual reached." << endl;
+
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				throw geneva_first_individual_timeout() << error_string(error.str());
+			}
+		}
+	}
+
+	// At this point we have received the first individual of the current generation back.
+	// Record the time
+	time_duration totalElapsedFirst = microsec_clock::local_time()-startTime;
+	time_duration totalElapsed = totalElapsedFirst;
+
+	// Wait for further arrivals
+	while(true){
+		try {
+			shared_ptr<GIndividual> p;
+			CurrentGBiBufferPtr_->pop_back_processed(&p,loopTime_);
+
+			// Add the individual to our list.
+			this->push_back(p);
+
+			// If it is from the current generation, break the loop.
+			// Count the number of items received.
+			if(p->getParentPopGeneration() == generation) nReceivedCurrent++;
+			else nReceivedOlder++;
+		}
+		catch(time_out&) {
+			// Break if we have reached the timeout
+			totalElapsed = microsec_clock::local_time()-startTime;
+			if(waitFactor_ && (totalElapsed > totalElapsedFirst*waitFactor_)) break;
+		}
+
+		// Break if all children (and parents in generation 0 / MUPLUSNU) have returned
+		if(generation == 0 && this->getSortingScheme()==MUPLUSNU) {
+			if(nReceivedCurrent==np+this->getDefaultNChildren()) break;
+		}
+		else {
+			if(nReceivedCurrent==this->getDefaultNChildren()) break;
+		}
+	}
+}
+
 
 /******************************************************************************/
 /**

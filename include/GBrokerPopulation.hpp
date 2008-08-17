@@ -26,6 +26,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <vector>
 
 
 // Boost headers go here
@@ -154,7 +155,7 @@ namespace GenEvA
 
     boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
 
-    shared_ptr<GBufferPort> CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle
+    shared_ptr<GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> > > CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle
   };
 
   /**********************************************************************************/

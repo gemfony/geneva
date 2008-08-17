@@ -228,7 +228,7 @@ void GBasePopulation::registerInfoFunction(boost::function<void (GBasePopulation
  *
  * @param reportGeneration The number of generations after which information should be emitted
  */
-void GBasePopulation::setReportGeneration(const uint32_t& reportGeneration) {
+void GBasePopulation::setReportGeneration(const boost::uint32_t& reportGeneration) {
 	reportGeneration_ = reportGeneration;
 }
 
@@ -239,7 +239,7 @@ void GBasePopulation::setReportGeneration(const uint32_t& reportGeneration) {
  *
  * @return The number of generations after which reporting should be done
  */
-uint32_t GBasePopulation::getReportGeneration() const {
+boost::uint32_t GBasePopulation::getReportGeneration() const {
 	return reportGeneration_;
 }
 
@@ -348,7 +348,7 @@ void GBasePopulation::adjustPopulation() {
 		for(std::size_t i=0; i<(popSize_-this_sz); i++) {
 			GIndividual *gi = dynamic_cast<GIndividual *>(this->at(0)->clone());
 			if(gi) { // did the conversion work ?
-				shared_ptr<GIndividual> p(gi);
+				boost::shared_ptr<GIndividual> p(gi);
 				this->push_back(p);
 			}
 			else {
@@ -455,7 +455,7 @@ bool GBasePopulation::getSortingScheme() const {
  *
  * @param The maximum number of allowed generations
  */
-void GBasePopulation::setMaxGeneration(const uint32_t& maxGeneration) {
+void GBasePopulation::setMaxGeneration(const boost::uint32_t& maxGeneration) {
 	maxGeneration_ = maxGeneration;
 }
 
@@ -465,7 +465,7 @@ void GBasePopulation::setMaxGeneration(const uint32_t& maxGeneration) {
  *
  * @return The maximum number of generations
  */
-uint32_t GBasePopulation::getMaxGeneration() const {
+boost::uint32_t GBasePopulation::getMaxGeneration() const {
 	return maxGeneration_;
 }
 
@@ -475,7 +475,7 @@ uint32_t GBasePopulation::getMaxGeneration() const {
  *
  * @return The currently active generation
  */
-uint32_t GBasePopulation::getGeneration() const {
+boost::uint32_t GBasePopulation::getGeneration() const {
 	return generation_;
 }
 
@@ -492,7 +492,7 @@ uint32_t GBasePopulation::getGeneration() const {
  * @param seconds The number of seconds allowed for this optimization
  * @return        The total requested processing time in seconds
  */
-uint32_t GBasePopulation::setMaxTime(const uint32_t& d, const uint32_t& h, const uint32_t& m, const uint32_t& s) {
+boost::uint32_t GBasePopulation::setMaxTime(const boost::uint32_t& d, const boost::uint32_t& h, const boost::uint32_t& m, const boost::uint32_t& s) {
 	using namespace boost::posix_time;
 	maxDuration_ = hours(d*24 + h) + minutes(m) + seconds(s);
 	maxDurationTotalSeconds_ = maxDuration_.total_seconds();
@@ -505,7 +505,7 @@ uint32_t GBasePopulation::setMaxTime(const uint32_t& d, const uint32_t& h, const
  *
  * @return The maximum allowed processing time in seconds
  */
-uint32_t GBasePopulation::getMaxTime() {
+boost::uint32_t GBasePopulation::getMaxTime() {
 	return maxDurationTotalSeconds_;
 }
 
@@ -565,7 +565,7 @@ bool GBasePopulation::customHalt() {
  * scheme.
  */
 void GBasePopulation::customRecombine() {
-	std::vector<shared_ptr<GIndividual> >::iterator it;
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	switch(recombinationMethod_){
 	case DEFAULTRECOMBINE: // we want the RANDOMRECOMBINE behavior
@@ -607,13 +607,13 @@ void GBasePopulation::customRecombine() {
  *
  * @param pos The position of the individual for which a new value should be chosen
  */
-void GBasePopulation::randomRecombine(shared_ptr<GIndividual>& p) {
+void GBasePopulation::randomRecombine(boost::shared_ptr<GIndividual>& p) {
 	std::size_t p_pos;
 
 	// Choose a parent to be used for the recombination. Note that
 	// numeric_cat may throw. Exceptions need to be caught in surrounding functions.
 	// try/catch blocks would add a non-negligible overhead in this function.
-	p_pos = numeric_cast<std::size_t>(gr.discreteRandom(numeric_cast<uint16_t>(nParents_)));
+	p_pos = numeric_cast<std::size_t>(gr.discreteRandom(numeric_cast<boost::uint16_t>(nParents_)));
 
 	p->load((this->begin() + p_pos)->get());
 }
@@ -629,7 +629,7 @@ void GBasePopulation::randomRecombine(shared_ptr<GIndividual>& p) {
  *
  * @param pos The child individual for which a parent should be chosen
  */
-void GBasePopulation::valueRecombine(shared_ptr<GIndividual>& p) {
+void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p) {
 	bool done=false;
 
 	// This function only makes sense if we have at least 2 parents

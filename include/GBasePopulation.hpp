@@ -52,8 +52,6 @@
 #ifndef GBASEPOPULATION_H_
 #define GBASEPOPULATION_H_
 
-using namespace boost;
-
 // GenEvA headers go here
 
 #include "GIndividual.hpp"
@@ -91,12 +89,12 @@ enum recoScheme {DEFAULTRECOMBINE, RANDOMRECOMBINE, VALUERECOMBINE};
  * The number of generations after which information should be
  * emitted about the inner state of the population.
  */
-const int32_t DEFAULTREPORTGEN = 20;
+const boost::int32_t DEFAULTREPORTGEN = 20;
 
 /**
  * The default maximum number of generations
  */
-const int32_t DEFAULTMAXGEN = 100;
+const boost::int32_t DEFAULTMAXGEN = 100;
 
 /**
  * The default maximization mode
@@ -202,16 +200,16 @@ public:
 	bool getSortingScheme() const;
 
 	/** @brief Set the number of generations after which sorting should be stopped */
-	void setMaxGeneration(const uint32_t&);
+	void setMaxGeneration(const boost::uint32_t&);
 	/** @brief Retrieve the number of generations after which sorting should be stopped */
-	uint32_t getMaxGeneration() const;
+	boost::uint32_t getMaxGeneration() const;
 	/** @brief Get information about the current generation */
-	uint32_t getGeneration() const;
+	boost::uint32_t getGeneration() const;
 
 	/** @brief Sets the maximum allowed processing time day/hour/minute/second */
-	uint32_t setMaxTime(const uint32_t&, const uint32_t&, const uint32_t&, const uint32_t&);
+	boost::uint32_t setMaxTime(const boost::uint32_t&, const boost::uint32_t&, const boost::uint32_t&, const boost::uint32_t&);
 	/** @brief Retrieves the maximum allowed processing time */
-	uint32_t getMaxTime();
+	boost::uint32_t getMaxTime();
 
 	/** @brief Specify whether we want to work in maximization or minimization mode */
 	void setMaximize(const bool& val);
@@ -225,10 +223,10 @@ public:
 
 	/** @brief Sets the number of generations after which the population should
 	 * report about its inner state. */
-	void setReportGeneration(const uint32_t&);
+	void setReportGeneration(const boost::uint32_t&);
 	/** @brief Returns the number of generations after which the population should
 	 * report about its inner state. */
-	uint32_t getReportGeneration() const;
+	boost::uint32_t getReportGeneration() const;
 
 	/** @brief Retrieve the id of this class */
 	std::string getId();
@@ -267,27 +265,27 @@ private:
 	bool halt();
 
 	/** @brief Implements the RANDOMRECOMBINE recombination scheme */
-	void randomRecombine(shared_ptr<GIndividual>&);
+	void randomRecombine(boost::shared_ptr<GIndividual>&);
 	/** @brief Implements the VALUERECOMBINE recombination scheme */
-	void valueRecombine(shared_ptr<GIndividual>&);
+	void valueRecombine(boost::shared_ptr<GIndividual>&);
 
 	std::size_t nParents_; ///< The number of parents
 	std::size_t popSize_; ///< The size of the population. Only used in adjustPopulation()
-	uint32_t generation_; ///< The current generation
-	uint32_t maxGeneration_; ///< The maximum number of generations
-	uint32_t reportGeneration_; ///< Number of generations after which a report should be issued
+	boost::uint32_t generation_; ///< The current generation
+	boost::uint32_t maxGeneration_; ///< The maximum number of generations
+	boost::uint32_t reportGeneration_; ///< Number of generations after which a report should be issued
 	recoScheme recombinationMethod_; ///< The chosen recombination method
 	bool muplusnu_; ///< The chosen sorting scheme
-	bool maximize_; ///< The optimisation mode (minimization/false vs. maximization/true)
+	bool maximize_; ///< The optimization mode (minimization/false vs. maximization/true)
 	std::string id_; ///< A unique id, used in networking contexts
 	bool firstId_; ///< Is this the first call to getId() ?
-	boost::posix_time::time_duration maxDuration_; ///< Maximum timeframe for the optimization
+	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
 	boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization
-	uint32_t maxDurationTotalSeconds_; ///< maxDuration translated to an uint32_t
+	boost::uint32_t maxDurationTotalSeconds_; ///< maxDuration translated to an uint32_t
 	std::size_t defaultNChildren_; ///< Expected number of children
 
-	boost::function<bool (shared_ptr<GIndividual>, shared_ptr<GIndividual>)> f_min_; ///< Function object for minimization
-	boost::function<bool (shared_ptr<GIndividual>, shared_ptr<GIndividual>)> f_max_; ///< Function object for maximization
+	boost::function<bool (boost::shared_ptr<GIndividual>, boost::shared_ptr<GIndividual>)> f_min_; ///< Function object for minimization
+	boost::function<bool (boost::shared_ptr<GIndividual>, boost::shared_ptr<GIndividual>)> f_max_; ///< Function object for maximization
 	boost::function<void (GBasePopulation * const)> infoFunction_; ///< Used to emit information with doInfo()
 };
 
