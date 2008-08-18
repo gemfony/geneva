@@ -67,7 +67,7 @@ public:
 	 * The default constructor.
 	 */
 	GBoundedBufferWithId(void) throw()
-		:GBoundedBuffer(),
+		:GBoundedBuffer<T>(),
 		 id_(0),
 		 idSet_(false)
 	{ /* nothing */}
@@ -80,7 +80,7 @@ public:
 	 * @param capacity The desired size of the buffer
 	 */
 	explicit GBoundedBufferWithId(std::size_t capacity) throw()
-		:GBoundedBuffer(capacity),
+		:GBoundedBuffer<T>(capacity),
 		 id_(0),
 		 idSet_(false)
 	{ /* nothing */}
@@ -144,8 +144,8 @@ public:
 	 * objects will assume the default sizes.
 	 */
 	GBufferPort(void) :
-		original_(new Gem::GenEvA::GBoundedBufferWithId<T>()),
-		processed_(new Gem::GenEvA::GBoundedBufferWithId<T>())
+		original_(new Gem::Util::GBoundedBufferWithId<T>()),
+		processed_(new Gem::Util::GBoundedBufferWithId<T>())
 	{ /* nothing */	}
 
 	/*****************************************************************************/
@@ -155,8 +155,8 @@ public:
 	 * @param size The desired capacity of the GBoundedBufferWithId objects
 	 */
 	explicit GBufferPort(std::size_t size) :
-		original_(new Gem::GenEvA::GBoundedBufferWithId<T>(size)),
-		processed_(new Gem::GenEvA::GBoundedBufferWithId<T>(size))
+		original_(new Gem::Util::GBoundedBufferWithId<T>(size)),
+		processed_(new Gem::Util::GBoundedBufferWithId<T>(size))
 	{ /* nothing */ }
 
 	/*****************************************************************************/
@@ -267,7 +267,7 @@ public:
 	 * @param timeout duration until a timeout occurs
 	 */
 	inline void pop_back_processed(T* item, const boost::posix_time::time_duration& timeout) {
-		processed_->pop_back(item, sec, timeout);
+		processed_->pop_back(item, timeout);
 	}
 
 	/*****************************************************************************/

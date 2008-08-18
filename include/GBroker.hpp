@@ -59,7 +59,7 @@
 
 // GenEvA headers go here
 
-#include "Gconsumer.hpp"
+#include "GConsumer.hpp"
 #include "GenevaExceptions.hpp"
 #include "GBufferPort.hpp"
 #include "GBoundedBuffer.hpp"
@@ -89,9 +89,7 @@ class GBroker: boost::noncopyable {
 public:
 	/**********************************************************************************/
 	/**
-	 * The default constructor. We lock access to the buffer port collection until
-	 * at least one producer has been registered. When this is the case, we unlock
-	 * the mutex
+	 * The default constructor.
 	 */
 	GBroker(void)
 		:lastId_(0),
@@ -130,7 +128,7 @@ public:
 	 *
 	 * @param gbp A shared pointer to a new GBufferPort object
 	 */
-	void enrol(const shared_ptr<GBufferPort<carryer_type> >& gbp) {
+	void enrol(const boost::shared_ptr<GBufferPort<carryer_type> >& gbp) {
 		// Lock the access to our internal data
 		boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -153,8 +151,8 @@ public:
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
-		sharted_ptr<GBoundedBufferWithId<carryer_type> > original = gbp->getOriginal();
-		sharted_ptr<GBoundedBufferWithId<carryer_type> > processed = gbp->getProcessed();
+		boost::shared_ptr<GBoundedBufferWithId<carryer_type> > original = gbp->getOriginal();
+		boost::shared_ptr<GBoundedBufferWithId<carryer_type> > processed = gbp->getProcessed();
 		original->setId(portId);
 		processed->setId(portId);
 
@@ -345,7 +343,7 @@ private:
 	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled
 
 	GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
-	std::vector<shared_ptr<GConsumer> > consumerCollection_;
+	std::vector<boost::shared_ptr<GConsumer> > consumerCollection_;
 };
 
 /**************************************************************************************/

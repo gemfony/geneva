@@ -8,6 +8,7 @@ GBitFlipAdaptor
 GBoostThreadConsumer
 GBoostThreadPopulation
 GBoundedDouble
+GBrokerPopulation
 GDoubleCollection 
 GDoubleGaussAdaptor
 GEvaluator
