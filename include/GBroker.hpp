@@ -59,6 +59,7 @@
 
 // GenEvA headers go here
 
+#include "Gconsumer.hpp"
 #include "GenevaExceptions.hpp"
 #include "GBufferPort.hpp"
 #include "GBoundedBuffer.hpp"
@@ -68,114 +69,6 @@
 namespace Gem {
 namespace Util {
 
-// Forward declaration
-template<class carryer_type> class GBroker;
-
-/**************************************************************************************/
-/**
- * This class forms the basis of a hierarchy of classes that take
- * objects from GBroker and process them, either locally or remotely.
- * Derived classes such as the GAsioTCPConsumer form the single point
- * of contact for remote clients. We do not want this class and its
- * derivatives to be copyable, hence we derive it from the
- * boost::noncopyable class.
- */
-template<class carryer_type>
-class GConsumer
-	: public boost::enable_shared_from_this<GConsumer<carryer_type> >,
-	  boost::noncopyable
-{
-public:
-	/**********************************************************************************/
-	/**
-	 * GBroker is declared friend so that it is the only class
-	 * that can access the GConsumer::process() function
-	 */
-	friend class GBroker<carryer_type> ;
-
-	/**********************************************************************************/
-	/**
-	 * The initialization of a consumer requires access to a broker
-	 *
-	 * @param gb The external broker the consumer should connect to
-	 */
-	GConsumer(GBroker<carryer_type>* gb) :gb_(gb)
-	{
-		if (gb_) {
-			// GBroker expects a shared_ptr<GConsumer<carryer_type> >, so we
-			// use Boost's enable_shared_from_this class to create one.
-			gb_->enrol(this->shared_from_this());
-		}
-	}
-
-	/**********************************************************************************/
-	/**
-	 * The standard destructor
-	 */
-	virtual ~GConsumer()
-	{ /* nothing */ }
-
-protected:
-	/**********************************************************************************/
-	/** @brief The actual business logic */
-	virtual void customProcess() = 0;
-	/** @brief To be called from GConsumer::process() */
-	virtual void finally() = 0;
-
-	/**********************************************************************************/
-	/**
-	 * A wrapper around customProcess needed to catch exceptions
-	 */
-	void process() {
-		  try{
-			  this->customProcess(); // The actual business logic
-		  }
-		  catch(boost::thread_interrupted&){ // We have been asked to stop
-			  this->finally(); // Final actions
-			  return;
-		  }
-		  catch(boost::exception& e){
-			  std::ostringstream error;
-			  error << "In GConsumer::process(): Caught boost::exception with message" << std::endl
-				    << e.diagnostic_information() << std::endl;
-
-			  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			  this->finally(); // Final actions
-			  std::terminate();
-		  }
-		  catch(std::exception& e){
-			  std::ostringstream error;
-			  error << "In GConsumer::process(): Caught std::exception with message" << std::endl
-				    << e.what() << std::endl;
-
-			  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			  this->finally(); // Final actions
-			  std::terminate();
-		  }
-		  catch(...){
-			  std::ostringstream error;
-			  error << "In GConsumer::process(): Caught unknown exception." << std::endl;
-
-			  LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			  this->finally(); // Final actions
-			  std::terminate();
-		  }
-	}
-
-	/**********************************************************************************/
-	const GBroker<carryer_type> *gb_;
-
-private:
-	GConsumer(); ///< Intentionally left undefined
-	GConsumer(const GConsumer<carryer_type>&); ///< Intentionally left undefined
-	const GConsumer& operator=(const GConsumer<carryer_type>&); ///< Intentionally left undefined
-};
-
-/**************************************************************************************/
-////////////////////////////////////////////////////////////////////////////////////////
 /**************************************************************************************/
 
 /** @brief The maximum allowed port id. Note that, if we have no 64 integer types,
@@ -189,8 +82,7 @@ const PORTIDTYPE MAXPORTID = std::numeric_limits<PORTIDTYPE>::max()-1;
  */
 template<class carryer_type>
 class GBroker: boost::noncopyable {
-	typedef	typename boost::shared_ptr<carryer_type> carryer_type_ptr;
-	typedef typename boost::shared_ptr<GBoundedBufferWithId<carryer_type_ptr> > GBoundedBufferWithId_Ptr;
+	typedef typename boost::shared_ptr<GBoundedBufferWithId<carryer_type> > GBoundedBufferWithId_Ptr;
 	typedef typename std::list<GBoundedBufferWithId_Ptr> BufferPtrList;
 	typedef typename std::map<PORTIDTYPE, GBoundedBufferWithId_Ptr> BufferPtrMap;
 
@@ -210,12 +102,12 @@ public:
 
 	/**********************************************************************************/
 	/**
-	 * The standard destructor. Notifies all threads that they should stop, then waits
-	 * for their termination.
+	 * The standard destructor. Notifies all consumers that they should stop, then waits
+	 * for their threads to terminate.
 	 */
 	virtual ~GBroker()
 	{
-		consumerThreads_.interrupt_all();
+		std::for_each(consumerCollection_.begin(), consumerCollection_.end(), boost::bind(&GConsumer::shutdown, _1));
 		consumerThreads_.join_all();
 	}
 
@@ -238,7 +130,7 @@ public:
 	 *
 	 * @param gbp A shared pointer to a new GBufferPort object
 	 */
-	void enrol(const shared_ptr<GBufferPort>& gbp) {
+	void enrol(const shared_ptr<GBufferPort<carryer_type> >& gbp) {
 		// Lock the access to our internal data
 		boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -267,7 +159,7 @@ public:
 		processed->setId(portId);
 
 		// Find orphaned items in the two collections and remove them.
-		RawBuffers_.remove_if(boost::bind(&boost::shared_ptr<booleanClass>::unique,_1));
+		RawBuffers_.remove_if(boost::bind(&GBoundedBufferWithId_Ptr::unique,_1));
 
 		for(BufferPtrMap::iterator it=ProcessedBuffers_.begin(); it!=ProcessedBuffers_.end();) {
 			if((it->second).unique()) { // Orphaned ? Get rid of it
@@ -302,8 +194,9 @@ public:
 	 *
 	 * @param gc A pointer to a GConsumer object
 	 */
-	void enrol(boost::shared_ptr<GConsumer<carryer_type> > gc) {
-		consumerThreads_.createThread(boost::bind(&GConsumer<carryer_type>::process, gc));
+	void enrol(boost::shared_ptr<GConsumer> gc) {
+		consumerCollection_.push_back(gc);
+		consumerThreads_.createThread(boost::bind(&GConsumer::process, gc));
 	}
 
 	/**********************************************************************************/
@@ -452,6 +345,7 @@ private:
 	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled
 
 	GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
+	std::vector<shared_ptr<GConsumer> > consumerCollection_;
 };
 
 /**************************************************************************************/

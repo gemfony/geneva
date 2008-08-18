@@ -32,9 +32,8 @@ namespace GenEvA {
  * The default constructor. Nothing special here.
  */
 GBoostThreadConsumer::GBoostThreadConsumer()
-	:GConsumer<GIndividual>(GINDIVIDUALBROKER),
-	 maxThreads_(DEFAULTGBTCMAXTHREADS),
-	 tp_(maxThreads_)
+	:GConsumer,
+	 maxThreads_(DEFAULTGBTCMAXTHREADS)
 { /* nothing */ }
 
 /***************************************************************/
@@ -56,8 +55,10 @@ GBoostThreadConsumer::~GBoostThreadConsumer()
  * then clears the remaining tasks in our queue and waits for the
  * termination of the remaining threads.
  */
-void GBoostThreadConsumer::customProcess() {
-
+void GBoostThreadConsumer::process() {
+	for(boost::uint16_t threadCounter =0; threadCounter<maxThreads_; threadCounter++){
+		gtg_.schedule_();
+	}
 
 	boost::uint16_t counter = 0;
 
@@ -130,24 +131,22 @@ void GBoostThreadConsumer::processItems(){
 
 /***************************************************************/
 /**
- * Finalization code. Removes all pending tasks and waits for the
- * termination of the remaining threads.
+ * Finalization code. Sends all threads an interrupt signal.
+ * process() then waits for them to join.
  */
-void GBoostThreadConsumer::finally()
-{
-
+void GBoostThreadConsumer::shutdown() {
+	gtg_.interrupt_all();
 }
 
 /***************************************************************/
 /**
- * Sets the maximum number of threads and adjusts the thread
- * pool accordingly.
+ * Sets the maximum number of threads. Note that this function
+ * will only have an effect before the threads have been started.
  *
  * @param maxThreads The maximum number of allowed threads
  */
 void GBoostThreadConsumer::setMaxThreads(boost::uint16_t maxThreads) {
 	maxThreads_ = maxThreads;
-	tp_.size_controller().resize(maxThreads);
 }
 
 /***************************************************************/

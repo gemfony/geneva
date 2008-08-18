@@ -78,15 +78,14 @@ public:
 	virtual ~GBoostThreadConsumer();
 
 	/** @brief Sets the maximum number of threads */
-	void setMaxThreads(boost::uint16_t);
+	void setMaxThreads(std::size_t);
 	/** @brief Retrieves the maximum number of threads */
-	uint16_t getMaxThreads() const throw();
+	std::size_t getMaxThreads() const throw();
 
-protected:
 	/** @brief The actual business logic */
-	virtual void customProcess();
-	/** @brief To be called after customProcess() */
-	virtual void finally();
+	virtual void process();
+	/** @brief Called in order to terminate the consumer */
+	virtual void shutdown();
 
 private:
 	GBoostThreadConsumer(const GBoostThreadConsumer&); ///< Intentionally left undefined
@@ -95,7 +94,7 @@ private:
 	/** @brief Retrieves, processes and submits items */
 	void processItems();
 
-	boost::uint16_t maxThreads_; ///< The maxumum number of allowed threads in the pool
+	std::size_t maxThreads_; ///< The maxumum number of allowed threads in the pool
 	Gem::Util::GThreadGroup gtg_;
 };
 
