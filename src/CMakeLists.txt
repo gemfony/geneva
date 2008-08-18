@@ -5,6 +5,7 @@ GBasePopulation
 GBit
 GBitCollection
 GBitFlipAdaptor
+GBoostThreadConsumer
 GBoostThreadPopulation
 GBoundedDouble
 GDoubleCollection 
