@@ -207,7 +207,7 @@ public:
 	 * @param p Holds the retrieved "raw" item
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	PORTIDTYPE get(shared_ptr<carryer_type>& p) {
+	PORTIDTYPE get(carryer_type& p) {
 		GBoundedBufferWithId_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -240,7 +240,7 @@ public:
 	 * @param timeout Time after which the function should time out
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	PORTIDTYPE get(shared_ptr<carryer_type>& p, const boost::posix_time::time_duration& timeout) {
+	PORTIDTYPE get(carryer_type& p, const boost::posix_time::time_duration& timeout) {
 		GBoundedBufferWithId_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -273,7 +273,7 @@ public:
 	 * @param key A key that uniquely identifies the origin of p
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 */
-	void put(const PORTIDTYPE& id, const shared_ptr<carryer_type>& p) {
+	void put(const PORTIDTYPE& id, const carryer_type& p) {
 		GBoundedBufferWithId_Ptr currentBuffer;
 
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -303,7 +303,7 @@ public:
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 * @param timeout Time after which the function should time out
 	 */
-	void put(const PORTIDTYPE& id, const shared_ptr<carryer_type>& p,
+	void put(const PORTIDTYPE& id, const carryer_type& p,
 			 const boost::posix_time::time_duration& timeout)
 	{
 		GBoundedBufferWithId_Ptr currentBuffer;

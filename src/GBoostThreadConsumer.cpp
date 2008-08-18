@@ -34,7 +34,10 @@ namespace GenEvA {
 GBoostThreadConsumer::GBoostThreadConsumer()
 	:GConsumer,
 	 maxThreads_(DEFAULTGBTCMAXTHREADS)
-{ /* nothing */ }
+{
+	// Make ourselves known to the broker.
+	GINDIVIDUALBROKER.enrol(dynamic_pointer_cast<GConsumer>(shared_from_this()));
+}
 
 /***************************************************************/
 /**
@@ -46,87 +49,71 @@ GBoostThreadConsumer::~GBoostThreadConsumer()
 
 /***************************************************************/
 /**
- * The actual business logic. We retrieve work items from the
- * GMemberBroker, process them with the help of a thread pool
- * and put processed items back into the broker. BROKER.get() or
- * BROKER.put() will throw an exception if our thread has been
- * interrupted. This terminates the while() loop. The exception
- * is caught in GConsumer::process(). GBoostThreadConsumer::finally()
- * then clears the remaining tasks in our queue and waits for the
- * termination of the remaining threads.
+ * Starts the worker threads and then waits for their termination.
+ * Termination of the threads is triggered by a call to GConsumer::shutdown().
  */
 void GBoostThreadConsumer::process() {
-	for(boost::uint16_t threadCounter =0; threadCounter<maxThreads_; threadCounter++){
-		gtg_.schedule_();
-	}
-
-	boost::uint16_t counter = 0;
-
-	while(true){
-
-		counter=0;
-
-		// Start a predefined number of threads
-		while (counter++ < this->getMaxThreads()) {
-			boost::shared_ptr<GIndividual> p;
-			boost::uint32_t id = GINDIVIDUALBROKER.get(p);
-			p->setAttribute("key",boost::lexical_cast<string>(id));
-			tp_.schedule(boost::bind(&GIndividual::checkedFitness, p));
-		}
-
-		// Wait for the threads to finish
-		tp_.wait();
-
-	}
-
-	typedef multimap<string, shared_ptr<GMemberCarrier> , less<string> >
-			storeMultiMap;
-	bool timeout = false;
-	bool success = false;
-	storeMultiMap store;
-	storeMultiMap::iterator it;
-	shared_ptr<GMemberCarrier> p; // temporary carrier storage
-	uint16_t counter = 0;
-
-	while (!stopConditionReached()) {
-		counter = 0;
-
-		while (counter++ < this->getMaxThreads()) {
-			success = BROKER.get(p, timeout);
-
-			if (!success || timeout)
-				break; // no items retrieved or timeout
-			store.insert(storeMultiMap::value_type(p->getId(), p));
-			tp_.schedule(boost::bind(&GMemberCarrier::process, p.get()));
-		}
-
-		// wait for threads to finish
-		tp_.wait();
-
-		// Put the processed GMemberCarrier objects back into the broker
-		for (it = store.begin(); it != store.end(); ++it) {
-			if (!BROKER.put(it->second)) {
-
-				// tried to put an unknown key back - needs to be logged ...
-				GLogStreamer gls;
-				gls
-						<< "In GBoostThreadConsumer::operator()(GConsumer * const) : Warning!"
-						<< endl << "Could not submit item." << endl << logLevel(UNCRITICAL);
-			}
-		}
-
-		// Empty the store
-		store.clear();
-	}
+	gtg_.create_threads(boost::bind(&GBoostThreadConsumer::processItems,this), maxThreads_);
+	gtg_.join_all();
 }
 
 /***************************************************************/
 /**
  * The function that gets new items from the broker, processes them
- * and returns them when finished.
+ * and returns them when finished. Note that we explicitly disallow lazy
+ * evaluation, so we are sure that value calculation takes place in this
+ * class. As this function is the main execution point of a thread, we
+ * need to catch all exceptions.
  */
 void GBoostThreadConsumer::processItems(){
+	try{
+		while(true){
+			// Have we been asked to finish ?
+			if(boost::this_thead::interruption_requested()) return;
 
+			shared_ptr<GIndividual> p;
+			PORTIDTYPE id = GINDIVIDUALBROKER.get(p);
+
+			if(p){
+				bool previous p->setAllowLazyEvaluation(false);
+				if(p->getAttribute("command") == "evaluate") p->fitness();
+				else if(p->getAttribute("command") == "mutate") p->mutate();
+				p->setAllowLazyEvaluation(previous);
+			}
+
+			GINDIVIDUALBROKER.put(id,p);
+		}
+	}
+	catch(boost::thread_interrupted&){
+		// Terminate
+		return;
+	}
+	catch(boost::exception& e){
+		std::ostringstream error;
+	    error << "In GBoostThreadConsumer::processItems(): Caught boost::exception with message" << std::endl
+	   		  << e.diagnostic_information() << std::endl;
+
+	    LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+  	    std::terminate();
+	}
+    catch(std::exception& e) {
+		std::ostringstream error;
+		error << "In GBoostThreadConsumer::processItems(): Caught std::exception with message" << std::endl
+	  	      << e.what() << std::endl;
+
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		std::terminate();
+	}
+	catch(...) {
+		std::ostringstream error;
+		error << "In GBoostThreadConsumer::processItems(): Caught unknown exception." << std::endl;
+
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		std::terminate();
+	}
 }
 
 /***************************************************************/
