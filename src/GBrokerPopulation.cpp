@@ -195,7 +195,7 @@ boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
  * orphaned. They will then be removed during the next enrollment.
  */
 void GBrokerPopulation::optimize() {
-	CurrentBufferPort_ = boost::shared_ptr<GBufferPort>(new GBufferPort());
+	CurrentBufferPort_ = GBufferPort_ptr(new GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
 	GINDIVIDUALBROKER.enrol(CurrentBufferPort_);
 
 	// The main optimization cycle
@@ -261,7 +261,8 @@ void GBrokerPopulation::mutateChildren() {
 
 	// start to measure time. Uses the Boost.date_time library
 	ptime startTime = boost::posix_time::microsec_clock::local_time();
-	std::size_t nReceivedCurrent = 0, nReceivedOlder = 0;
+
+	std::size_t nReceivedParent = 0, nReceivedChildCurrent=0, nReceivedChildOlder = 0;
 
 	while(true)
 	{
@@ -276,7 +277,9 @@ void GBrokerPopulation::mutateChildren() {
 				this->push_back(p);
 
 				// Update the counter.
-				nReceivedCurrent++;
+				if(p->isParent()) nReceivedParent++;
+				else nReceivedChildCurrent++;
+
 				break;
 			}
 			else {
@@ -285,7 +288,7 @@ void GBrokerPopulation::mutateChildren() {
 					this->push_back(p);
 
 					// Update the counter
-					nReceivedOlder++;
+					nReceivedChildOlder++;
 				}
 				else p.reset();
 			}
@@ -309,6 +312,7 @@ void GBrokerPopulation::mutateChildren() {
 	time_duration totalElapsed = totalElapsedFirst;
 
 	// Wait for further arrivals
+	bool complete=false;
 	while(true){
 		try {
 			boost::shared_ptr<GIndividual> p;
@@ -320,7 +324,8 @@ void GBrokerPopulation::mutateChildren() {
 				this->push_back(p);
 
 				// Update the counter
-				nReceivedCurrent++;
+				if(p->isParent()) nReceivedParent++;
+				else nReceivedChildCurrent++;
 			}
 			else {
 				if(!p->isParent()){  // We do not accept parents from older populations
@@ -328,7 +333,7 @@ void GBrokerPopulation::mutateChildren() {
 					this->push_back(p);
 
 					// Update the counter
-					nReceivedOlder++;
+					nReceivedChildOlder++;
 				}
 			}
 		}
@@ -342,15 +347,18 @@ void GBrokerPopulation::mutateChildren() {
 		// current generation have returned. Older individuals have another chance
 		// to return in the next generation, unless they are parents.
 		if(generation == 0 && this->getSortingScheme()==MUPLUSNU) {
-			if(nReceivedCurrent==np+this->getDefaultNChildren()) break;
+			if(nReceivedParent+nReceivedChildCurrent==np+this->getDefaultNChildren()) {
+				complete=true;
+				break;
+			}
 		}
 		else {
-			if(nReceivedCurrent==this->getDefaultNChildren()) break;
+			if(nReceivedChildCurrent==this->getDefaultNChildren()) {
+				complete=true;
+				break;
+			}
 		}
 	}
-
-	//--------------------------------------------------------------------------------
-	// Fix the population, as far as is possible here.
 
 	if(generation==0 && this->getSortingScheme()==MUPLUSNU){
 		// Have any individuals returned at all ??
@@ -363,48 +371,42 @@ void GBrokerPopulation::mutateChildren() {
 			throw geneva_population_empty() << error_string(error.str());
 		}
 
-		// Sort according to parent/child tag
+		// Sort according to parent/child tag. We do not know in whar order individuals have returned.
+		// Hence we need to sort them.
 		sort(this->begin(), this->end(),
 			 boost::bind(&GIndividual::isParent, _1) > boost::bind(&GIndividual::isParent, _2));
-
-		// Check how many parents have returned. We can continue even if no
-		// parent has returned. We do warn in this case, though.
-		std::size_t nParentsReturned=0;
-		std::vector<shared_ptr<GIndividual> >::iterator it = this->begin();
-		while((*it)->isParent() && it!=this->end()){
-			nParentsReturned++;
-			++it;
-		}
-
-		// No parent has returned. This is fatal.
-		if(nParentsReturned == 0){
-			std::ostringstream warning;
-			warning << "In GBrokerPopulation::mutateChildren() : Warning!" << std::endl
-				    << "No parent has returned at all. It may not return in" << std::endl
-				    << "later generations. Quality may decrease in the next " << std::endl
-				    << "generation. We nevertheless continue." << std::endl;
-
-			LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
-		}
-
-		// Too few parents have returned. Not a big problem.
-		if(nParentsReturned < np && nParentsReturned > 0){
-			std::ostringstream warning;
-			warning << "In GBrokerPopulation::mutateChildren() : Warning!" << std::endl
-					<< "Too few parents have returned. They may not return in" << std::endl
-					<< "later generations." << std::endl
-					<< "nParentsReturned = " << nParentsReturned << std::endl
-					<< "nParents = " << np << std::endl;
-
-			LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
-		}
 	}
 
-	// If population has too few individuals: We clone the first individual a number of times.
-	// ATTENTION: Können wir so zu viele Eltern bauen ??? Macht das was ??
-	if(this->size() < np + this->getDefaultNChildren()){
-		for(std::size_t i=0; i< (np +this->getDefaultNChildren()-this->size()); i++)
-			GIndividual *gi = dynamic_cast<GIndividual *>((this->front())->clone());
+	// We are done, if all individuals from this generation have returned.
+	// The population size is at least at nominal values.
+	if(complete) return;
+
+	//--------------------------------------------------------------------------------
+	// O.k., we are missing individuals from the current population. Emit messages and
+	// do some fixing.
+
+	std::ostringstream information;
+	information << "Note that in GBrokerPopulation::mutateChildren()" << std::endl
+				<< "some individuals of the current population did not return" << std::endl
+				<< "in generation " generation << "." << std::endl;
+
+	if(generation==0 && this->getSortingScheme()==MUPLUSNU){
+		information << "We have received " << nReceivedParent << " parents." << std::endl
+			        << "where " << np << " parents are required." << std::endl;
+	}
+
+	information << nReceivedChildCurrent << " children of the current population returned" << std::endl
+			    << "plus " << nReceivedChildOlder << " older children," << std::endl
+			    << "where the default number of children is " << this->getDefaultNChildren() << std::endl;
+
+	if(this->size() < np+this->getDefaultNChildren()){
+		std::size_t fixSize=np+this->getDefaultNChildren() - this->size();
+
+		information << fixSize << "individuals thus need to be added to the population." << std::endl
+					<< "Note that children may still return in later generations." << std::endl;
+
+		for(std::size_t i=0; i<fixSize; i++){
+			GIndividual *gi = dynamic_cast<GIndividual *>((this->back())->clone());
 
 			if(!gi){ // Cross check that the conversion worked
 				std:ostringstream error;
@@ -416,128 +418,37 @@ void GBrokerPopulation::mutateChildren() {
 			}
 
 			this->push_back(shared_ptr<GIndividual>(gi));
+		}
 	}
+
+	LOGGER.log(information.str(), Gem::GLogFramework::INFORMATIONAL);
 
 	// We care for too many returned individuals in the select() function. Older
 	// individuals might nevertheless have a better quality. We do not want to loose them.
+
+	// We might theoretically at this point have a population that (in generation 0 / MUPLUSNU)
+	// consists of only parents. This is not a problem, as the entire population will get sorted
+	// in this case, and new parents and children will be tagged after the select function.
 }
 
 /******************************************************************************/
 /**
- * We are at this point not sure what the population looks like and whether
- * we have to do some fixing. Open questions include: In generation 0: Have we
- * received any parents ? Have we received enough parents ? In all generations:
- * Have we received enough children ? Have we received more children than expected
- * (e.g. from older generations) ?
+ * We will at this point have a population with at least the default number
+ * of individuals. More individuals are allowed. the population will be
+ * resized to nominal values at the end of this function.
  */
 void GBrokerPopulation::select() {
-	boost::uint16_t sz = this->size();
-	boost::uint32_t generation = this->getGeneration();
-	boost::uint16_t npar, nParents=this->getNParents();
-	bool sortingScheme = this->getSortingScheme();
-
-	std::vector<boost::shared_ptr<GMember> >::iterator it;
-
-	// Do we have any individuals at all in the population ?
-	if(sz==0) {
-		// No - this should only be possible in generation 0 in MUPLUSNU mode, where we
-		// also send away the parents for evaluation. In any case we cannot cope ...
-		GException ge;
-		ge << "In GBrokerPopulation::select() : Error in population " << this << std::endl
-		<< "Population is empty in generation " << generation << std::endl
-		<< "We cannot cope with this." << std::endl
-		<< raiseException;
-	}
-
-	// If this is generation 0 and MUPLUSNU mode, we first need to check parents.
-	// We want to emit a warning if fewer parents are available than expected.
-	// Note that in this case the quality of the population can actually decrease
-	// (unlike the normal situation in MUPLUSNU, where the quality always stays at
-	// least constant). The user should know. This is usually not critical, as we
-	// can replace parents with children and the quality will increase in future
-	// generations.
-	if(generation==0 && sortingScheme==MUPLUSNU) {
-		// Let's first sort the individuals according to their parent status
-		sort(this->begin(), this->end(),
-			 boost::bind(&GIndividual::isParent, _1) > boost::bind(&GIndividual::isParent, _2));
-
-		// Find out how many parents we have received.
-		npar=0;
-		for(it=this->begin(); it!=this->end(); ++it) if((*it)->isParent()) npar++;
-
-		if(npar < nParents) {
-			// No parents at all received ? Emit a warning
-			if(npar==0) {
-				gls << "In GBrokerPopulation::select(): Warning in population " << this << std::endl
-				<< "No parents received in generation " << generation << " with a" << std::endl
-				<< "population size of " << sz << std::endl
-				<< logLevel(UNCRITICAL);
-			}
-
-			// We fill up the population to the expected level. We do this with
-			// copies of the first element.
-			boost::uint16_t missing = nParents - npar;
-
-			// Let the user know
-			gls << "In GBrokerPopulation::select(): Adding " << missing << " missing" << std::endl
-			<< "parents to the population " << this << std::endl
-			<< logLevel(UNCRITICAL);
-
-			// Do the actual fill-up
-			for(boost::uint16_t i=0; i<missing; i++) {
-				GMember *newParent = dynamic_cast<GMember *>((*(this->begin()))->clone());
-				if(!newParent) {
-					GException ge;
-					ge << "In GBrokerPopulation::select(): Conversion error "
-					<< "in population " << this << std::endl
-					<< raiseException;
-				}
-				// Make sure the parent knows about his role
-				newParent->setIsParent(true);
-				boost::shared_ptr<GMember> p(newParent);
-				this->insert(this->begin(), p);
-			}
-		}
-	}
-
-	// Next we fill up with children to the default level
-	boost::uint16_t currentChildren = this->size() - nParents;
-	boost::uint16_t defaultChildren = getDefaultChildren();
-
-	if(currentChildren < defaultChildren) {
-		boost::uint16_t missingChildren = defaultChildren - currentChildren;
-
-		// Let the user know
-		gls << "In GBrokerPopulation::select(): Adding " << missingChildren << " missing" << std::endl
-		<< "children to the population " << this << std::endl
-		<< logLevel(UNCRITICAL);
-
-		// Add copies of last available member
-		for(boost::uint16_t i = 0; i < missingChildren; i++) {
-			// Doing this with an iterator would be more difficult
-			GMember *gm = dynamic_cast<GMember *>(this->back()->clone());
-			if(!gm) {
-				GException ge;
-				ge << "In GBrokerPopulation::select(): Conversion error (2)!" << std::endl
-				<< raiseException;
-			}
-			gm->setIsParent(false); // Make sure they know their role
-			boost::shared_ptr<GMember> p(gm);
-			this->push_back(p);
-		}
-	}
-
 	////////////////////////////////////////////////////////////
 	// Great - we are at least at the default level and are
 	// ready to call the actual select() function. This will
 	// automatically take care of MUPLUSNU and MUCOMMANU mode.
 	GBasePopulation::select();
-	////////////////////////////////////////////////////////////
 
+	////////////////////////////////////////////////////////////
 	// At this point we have a sorted list of individuals and can take care of
-	// too many members, so the next generation finds an intact population. This
+	// too many members, so the next generation finds a "standard" population. This
 	// function will remove the last items.
-	this->resize(nParents + defaultChildren); // Was passiert bei zu wenigen Individuen ?
+	this->resize(nParents + defaultChildren);
 
 	// Everything should be back to normal ...
 }

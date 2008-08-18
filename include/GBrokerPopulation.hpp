@@ -110,7 +110,9 @@ namespace GenEvA
     ///////////////////////////////////////////////////////////////////////
 
   public:
-    /** \brief The standard constructor */
+	typedef boost::shared_ptr<GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> > > GBufferPort_ptr;
+
+	/** \brief The standard constructor */
     GBrokerPopulation();
     /** \brief A standard copy constructor */
     GBrokerPopulation(const GBrokerPopulation&);
@@ -155,7 +157,7 @@ namespace GenEvA
 
     boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
 
-    boost::shared_ptr<GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> > > CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle
+    GBufferPort_ptr CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle
   };
 
   /**********************************************************************************/
