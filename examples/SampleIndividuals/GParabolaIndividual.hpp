@@ -2,7 +2,7 @@
  * @file
  */
 
-/* GParabolaIndividual.cpp
+/* GParabolaIndividual.hpp
  *
  * Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
@@ -28,7 +28,6 @@
 #include <sstream>
 
 // Boost header files go here
-#include <boost/function.hpp>
 
 // GenEvA header files go here
 #include "GDoubleCollection.hpp"
