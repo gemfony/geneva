@@ -1,14 +1,9 @@
-Installation instructions for this software are short at this time. 
-
 You will need a copy of Boost (see http://www.boost.org), in version
 1.36.  You will also need to add the threadpool library (have a look
 at http://threadpool.sf.net).
 
 The build system now uses CMake in version 2.6, which is required due
 to the availability of the FindBoost macro.
-
-The CMakeLists.txt files are still a bit preliminary. Some paths are
-hardcoded in the top-level CMakeLists.txt file.
 
 In order to compile this project and the examples:
 - If your copy of Boost is installed in a non-standard location, edit the
@@ -24,7 +19,7 @@ followed by a simple "make".
 In order to choose a custom installation directory (instead of the default 
 /usr/local), call
 
- cmake /path/to/geneva-top-dir -DCMAKE_INSTALL_PREFIX="/where/the/library/goes"
+cmake /path/to/geneva-top-dir -DCMAKE_INSTALL_PREFIX="/where/the/library/goes"
  
 Note that under Linux, you will have to make the installation directory 
 known to the linker, so henceforth you can link to the library. Under OpenSUSE 11,
@@ -33,3 +28,17 @@ this can be done by creating a file /etc/ld.so.conf.d/geneva.conf with the conte
 /where/the/library/goes/lib
 
 You then need to execute "ldconfig -v".
+
+Most Linux distributions are still delivered with Boost 1.34 . You will thus likely
+have compiled your own version of Boost, which will be installed in a non-standard
+location. In order for CMake to find this directory, you can either edit the top-leve
+CMakeLists.txt file and hard-code the paths (uncomment the appropriate entries there),
+or provide the necessary variables at the command line when calling cmake. This can 
+be done in the following way (assuming that Boost is installed in /opt/boost136):
+
+cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost136"\
+                              -DBOOST_INCLUDEDIR="/opt/boost136/include/boost-1_36/"\ 
+                              -DBOOST_LIBRARYDIR="/opt/boost136/lib"
+
+The command needs to be called on a single line. This command was tested on an
+OpenSUSE 11 system.

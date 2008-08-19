@@ -9,9 +9,10 @@ SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
 # Enforce proper C++
 ADD_DEFINITIONS ("-Wall -ansi -pthread")
 
-SET (BOOST_ROOT "/opt/boost136")
-SET (BOOST_INCLUDEDIR /opt/boost136/include/boost-1_36/)
-SET (BOOST_LIBRARYDIR /opt/boost136/lib)
+# You can hardcode the paths here, if desired 
+#SET (BOOST_ROOT "/opt/boost136")
+#SET (BOOST_INCLUDEDIR /opt/boost136/include/boost-1_36/)
+#SET (BOOST_LIBRARYDIR /opt/boost136/lib)
 
 SET (Boost_USE_STATIC_LIBS OFF)
 SET (Boost_USE_MULTITHREAD ON)
