@@ -1,3 +1,16 @@
+Target systems
+==============
+
+The Geneva library has been developed on OpenSUSE systems (version 11 at the time
+of writing of this text). While it is likely that the same code will compile on 
+other Linux and possibly Unix platforms (particularly if gcc versions newer than 
+4.3 are used), no attempt has been made so far to do this. The author would very
+much appreciate your feedback, if you manage to compile the library on other systems
+than OpenSUSE 11. 
+
+Building and Installing
+=======================
+
 The build system now uses CMake in version 2.6, which is required due
 to the availability of the FindBoost macro.
 
