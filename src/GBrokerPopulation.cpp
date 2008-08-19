@@ -195,7 +195,7 @@ boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
  * orphaned. They will then be removed during the next enrollment.
  */
 void GBrokerPopulation::optimize() {
-	CurrentBufferPort_ = GBufferPort_ptr(new GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
+	CurrentBufferPort_ = GBufferPort_ptr(new Gem::Util::GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
 	GINDIVIDUALBROKER.enrol(CurrentBufferPort_);
 
 	// The main optimization cycle
@@ -218,7 +218,7 @@ void GBrokerPopulation::mutateChildren() {
 	using namespace boost::posix_time;
 
 	std::vector<boost::shared_ptr<GIndividual> >::reverse_iterator rit;
-	std::size_t np = getNParents(), nc=this-size()-np;
+	std::size_t np = getNParents(), nc=this->size()-np;
 	boost::uint32_t generation=this->getGeneration();
 
 	//--------------------------------------------------------------------------------
@@ -232,7 +232,7 @@ void GBrokerPopulation::mutateChildren() {
 	}
 
 	// We can remove children, so only parents remain in the population
-	this->resize(p);
+	this->resize(np);
 
 	// Make sure we also evaluate the parents in the first generation, if needed.
 	// This is only applicable to the MUPLUSNU mode.
@@ -268,7 +268,7 @@ void GBrokerPopulation::mutateChildren() {
 	{
 		try {
 			boost::shared_ptr<GIndividual> p;
-			CurrentGBiBufferPtr_->pop_back_processed(&p,loopTime_);
+			CurrentBufferPort_->pop_back_processed(&p,loopTime_);
 
 			// If it is from the current generation, break the loop.
 			// Count the number of items received.
@@ -293,7 +293,7 @@ void GBrokerPopulation::mutateChildren() {
 				else p.reset();
 			}
 		}
-		catch(time_out&) {
+		catch(Gem::Util::gem_util_condition_time_out&) {
 			// Find out whether we have exceeded a threshold
 			if(firstTimeOut_.total_microseconds() && ((microsec_clock::local_time()-startTime) > firstTimeOut_)){
 				std::ostringstream error;
@@ -316,7 +316,7 @@ void GBrokerPopulation::mutateChildren() {
 	while(true){
 		try {
 			boost::shared_ptr<GIndividual> p;
-			CurrentGBiBufferPtr_->pop_back_processed(&p,loopTime_);
+			CurrentBufferPort_->pop_back_processed(&p,loopTime_);
 
 			// Count the number of items received.
 			if(p->getParentPopGeneration() == generation) {
@@ -337,7 +337,7 @@ void GBrokerPopulation::mutateChildren() {
 				}
 			}
 		}
-		catch(time_out&) {
+		catch(Gem::Util::gem_util_condition_time_out&) {
 			// Break if we have reached the timeout
 			totalElapsed = microsec_clock::local_time()-startTime;
 			if(waitFactor_ && (totalElapsed > totalElapsedFirst*waitFactor_)) break;
@@ -388,7 +388,7 @@ void GBrokerPopulation::mutateChildren() {
 	std::ostringstream information;
 	information << "Note that in GBrokerPopulation::mutateChildren()" << std::endl
 				<< "some individuals of the current population did not return" << std::endl
-				<< "in generation " generation << "." << std::endl;
+				<< "in generation " << generation << "." << std::endl;
 
 	if(generation==0 && this->getSortingScheme()==MUPLUSNU){
 		information << "We have received " << nReceivedParent << " parents." << std::endl
@@ -409,7 +409,7 @@ void GBrokerPopulation::mutateChildren() {
 			GIndividual *gi = dynamic_cast<GIndividual *>((this->back())->clone());
 
 			if(!gi){ // Cross check that the conversion worked
-				std:ostringstream error;
+				std::ostringstream error;
 				error << "In GBrokerPopulation::mutateChildren() : Conversion Error!" << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
@@ -448,7 +448,7 @@ void GBrokerPopulation::select() {
 	// At this point we have a sorted list of individuals and can take care of
 	// too many members, so the next generation finds a "standard" population. This
 	// function will remove the last items.
-	this->resize(nParents + defaultChildren);
+	this->resize(this->getNParents() + this->getDefaultNChildren());
 
 	// Everything should be back to normal ...
 }

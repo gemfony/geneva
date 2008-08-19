@@ -1,26 +1,23 @@
-SET (gsimplebasepopulation_SRCS 
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+SET (EXECUTABLENAME gsimplebasepopulation)
+
+SET (${EXECUTABLENAME}_SRCS 
 	gsimplebasepopulation
 )
 
-SET ( GENEVAINCLUDEDIRS
-	../../include
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
 )
 
-include_directories ( 
-	${GENEVAINCLUDEDIRS} 
-	${Boost_INCLUDE_DIRS}
-)
-
-link_directories (
-	${GENEVA_BINARY_DIR}/src
-	${Boost_LIBRARY_DIRS}	
-)
-
-ADD_EXECUTABLE(gsimplebasepopulation
-	${gsimplebasepopulation_SRCS}
-)
-
-target_link_libraries (gsimplebasepopulation
-	geneva
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+	${PROJECT_NAME}
 	${Boost_LIBRARIES}
+)
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE OWNER_EXECUTE
+	GROUP_READ GROUP_EXECUTE
+	WORLD_READ WORLD_EXECUTE
 )

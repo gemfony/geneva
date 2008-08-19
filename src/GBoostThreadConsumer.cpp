@@ -32,7 +32,7 @@ namespace GenEvA {
  * The default constructor. Nothing special here.
  */
 GBoostThreadConsumer::GBoostThreadConsumer()
-	:GConsumer,
+	:Gem::Util::GConsumer(),
 	 maxThreads_(DEFAULTGBTCMAXTHREADS)
 {
 	// Make ourselves known to the broker.
@@ -69,13 +69,13 @@ void GBoostThreadConsumer::processItems(){
 	try{
 		while(true){
 			// Have we been asked to finish ?
-			if(boost::this_thead::interruption_requested()) return;
+			if(boost::this_thread::interruption_requested()) return;
 
 			shared_ptr<GIndividual> p;
-			PORTIDTYPE id = GINDIVIDUALBROKER.get(p);
+			Gem::Util::PORTIDTYPE id = GINDIVIDUALBROKER.get(p);
 
 			if(p){
-				bool previous p->setAllowLazyEvaluation(false);
+				bool previous=p->setAllowLazyEvaluation(false);
 				if(p->getAttribute("command") == "evaluate") p->fitness();
 				else if(p->getAttribute("command") == "mutate") p->mutate();
 				p->setAllowLazyEvaluation(previous);
@@ -132,7 +132,7 @@ void GBoostThreadConsumer::shutdown() {
  *
  * @param maxThreads The maximum number of allowed threads
  */
-void GBoostThreadConsumer::setMaxThreads(boost::uint16_t maxThreads) {
+void GBoostThreadConsumer::setMaxThreads(std::size_t maxThreads) {
 	maxThreads_ = maxThreads;
 }
 
@@ -142,7 +142,7 @@ void GBoostThreadConsumer::setMaxThreads(boost::uint16_t maxThreads) {
  *
  * @return The maximum number of allowed threads
  */
-uint16_t GBoostThreadConsumer::getMaxThreads(void) const throw() {
+std::size_t GBoostThreadConsumer::getMaxThreads(void) const throw() {
 	return maxThreads_;
 }
 

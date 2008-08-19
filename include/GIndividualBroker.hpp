@@ -66,7 +66,7 @@ class GIndividualBroker
 {
 public:
 	GIndividualBroker()
-		:Gem::Util::GBroker<Gem::GenEvA::GIndividual>()
+		:Gem::Util::GBroker<shared_ptr<Gem::GenEvA::GIndividual> >()
 	{ /* nothing */	}
 
 	~GIndividualBroker()

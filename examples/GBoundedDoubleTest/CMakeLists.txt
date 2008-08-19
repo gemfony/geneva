@@ -1,26 +1,23 @@
-SET (gboundeddoubletest_SRCS 
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+SET (EXECUTABLENAME gboundeddoubletest) 
+
+SET (${EXECUTABLENAME}_SRCS 
 	gboundeddoubletest
 )
 
-SET ( GENEVAINCLUDEDIRS
-	../../include
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
 )
 
-include_directories ( 
-	${GENEVAINCLUDEDIRS} 
-	${Boost_INCLUDE_DIRS}
-)
-
-link_directories (
-	${GENEVA_BINARY_DIR}/src
-	${Boost_LIBRARY_DIRS}	
-)
-
-ADD_EXECUTABLE(gboundeddoubletest
-	${gboundeddoubletest_SRCS}
-)
-
-target_link_libraries (gboundeddoubletest
-	geneva
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+	${PROJECT_NAME}
 	${Boost_LIBRARIES}
+)
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE OWNER_EXECUTE
+	GROUP_READ GROUP_EXECUTE
+	WORLD_READ WORLD_EXECUTE
 )

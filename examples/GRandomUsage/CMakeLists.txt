@@ -1,26 +1,23 @@
-SET (grandomusage_SRCS 
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+SET (EXECUTABLENAME grandomusage) 
+
+SET (${EXECUTABLENAME}_SRCS 
 	grandomusage
 )
 
-SET ( GENEVAINCLUDEDIRS
-	../../include
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
 )
 
-include_directories ( 
-	${GENEVAINCLUDEDIRS} 
-	${Boost_INCLUDE_DIRS}
-)
-
-link_directories (
-	${GENEVA_BINARY_DIR}/src
-	${Boost_LIBRARY_DIRS}	
-)
-
-ADD_EXECUTABLE(grandomusage
-	${grandomusage_SRCS}
-)
-
-target_link_libraries (grandomusage
-	geneva
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+	${PROJECT_NAME}
     ${Boost_LIBRARIES}
+)
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION examples
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE OWNER_EXECUTE
+	GROUP_READ GROUP_EXECUTE
+	WORLD_READ WORLD_EXECUTE
 )

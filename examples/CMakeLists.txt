@@ -1,11 +1,13 @@
-add_subdirectory (
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+ADD_SUBDIRECTORY (
 	GRandomUsage
 )
 
-add_subdirectory (
+ADD_SUBDIRECTORY (
 	GSimpleBasePopulation
 )
 
-add_subdirectory (
+ADD_SUBDIRECTORY (
     GBoundedDoubleTest
-) 
+)

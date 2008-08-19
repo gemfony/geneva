@@ -159,7 +159,7 @@ public:
 		// Find orphaned items in the two collections and remove them.
 		RawBuffers_.remove_if(boost::bind(&GBoundedBufferWithId_Ptr::unique,_1));
 
-		for(BufferPtrMap::iterator it=ProcessedBuffers_.begin(); it!=ProcessedBuffers_.end();) {
+		for(typename BufferPtrMap::iterator it=ProcessedBuffers_.begin(); it!=ProcessedBuffers_.end();) {
 			if((it->second).unique()) { // Orphaned ? Get rid of it
 				ProcessedBuffers_.erase(it++);
 			}
@@ -194,7 +194,7 @@ public:
 	 */
 	void enrol(boost::shared_ptr<GConsumer> gc) {
 		consumerCollection_.push_back(gc);
-		consumerThreads_.createThread(boost::bind(&GConsumer::process, gc));
+		consumerThreads_.create_thread(boost::bind(&GConsumer::process, gc));
 	}
 
 	/**********************************************************************************/
@@ -281,14 +281,14 @@ public:
 
 		// Cross-check that the id is indeed available and retrieve the buffer
 		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end())
-		currentBuffer = ProcessedBuffers_[id].second;
+		currentBuffer = ProcessedBuffers_[id];
 
 		// Make the mutex available again, as the last call in this
 		// function could block.
 		processedLock.unlock();
 
 		// Add p to the correct buffer, if it is a valid pointer
-		if(currentBuffer) currentBuffer->push_front_processed(p);
+		if(currentBuffer) currentBuffer->push_front(p);
 	}
 
 	/**********************************************************************************/
@@ -313,14 +313,14 @@ public:
 
 		// Cross-check that the id is indeed available and retrieve the buffer
 		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end())
-		currentBuffer = ProcessedBuffers_[id].second;
+		currentBuffer = ProcessedBuffers_[id];
 
 		// Make the mutex available again, as the last call in this
 		// function could block.
 		processedLock.unlock();
 
 		// Add p to the correct buffer, if it is a valid pointer
-		if(currentBuffer) currentBuffer->push_front_processed(p, timeout);
+		if(currentBuffer) currentBuffer->push_front(p, timeout);
 	}
 
 private:
@@ -338,7 +338,7 @@ private:
 	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferWithId objects for processed items
 
 	PORTIDTYPE lastId_; ///< The last id we've assigned to a buffer
-	BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection
+	typename BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection
 	bool buffersPresentRaw_; ///< Set to true once the first "raw" bounded buffer has been enrolled
 	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled
 

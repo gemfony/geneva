@@ -41,12 +41,15 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 #ifndef GBOOSTTHREADCONSUMER_HPP_
 #define GBOOSTTHREADCONSUMER_HPP_
 
+#include "GBroker.hpp"
 #include "GConsumer.hpp"
 #include "GIndividualBroker.hpp"
 #include "GIndividual.hpp"
@@ -71,7 +74,7 @@ const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
  * \todo Need to deal with id issue of GConsumer. get/put now work with this
  */
 class GBoostThreadConsumer
-	:public Gem::GenEvA::GConsumer,
+	:public Gem::Util::GConsumer,
 	 public enable_shared_from_this<GBoostThreadConsumer>
 {
 public:

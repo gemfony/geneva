@@ -249,7 +249,7 @@ bool GIndividual::setIsChild(void){
  *
  * @return A boolean indicating whether this object is a parent at this time
  */
-inline bool GIndividual::isParent() const throw() {
+bool GIndividual::isParent() const throw() {
 	return (parentCounter_ > 0)?true:false;
 }
 

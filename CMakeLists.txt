@@ -1,9 +1,13 @@
-project (geneva)
-cmake_minimum_required(VERSION 2.6)
+PROJECT (geneva)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-IF(UNIX)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -pthread")
-ENDIF(UNIX)
+# Define our project version
+SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
+SET( ${PROJECT_NAME}_MINOR_VERSION 5 )
+SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
+
+# Enforce proper C++
+ADD_DEFINITIONS ("-Wall -ansi -pthread")
 
 SET (BOOST_ROOT "/opt/boost136")
 SET (BOOST_INCLUDEDIR /opt/boost136/include/boost-1_36/)
@@ -14,5 +18,16 @@ SET (Boost_USE_MULTITHREAD ON)
 
 FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS date_time system thread serialization)
 
-add_subdirectory (src)
-add_subdirectory (examples)
+INCLUDE_DIRECTORIES ( 
+${PROJECT_SOURCE_DIR}/include 
+${Boost_INCLUDE_DIRS}
+)
+
+LINK_DIRECTORIES (
+	${PROJECT_SOURCE_DIR}/src
+	${Boost_LIBRARY_DIRS}	
+)
+
+ADD_SUBDIRECTORY (src)
+ADD_SUBDIRECTORY (examples)
+ADD_SUBDIRECTORY (include)

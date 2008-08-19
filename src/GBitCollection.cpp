@@ -38,7 +38,7 @@ namespace GenEvA
    * The standard constructor. As we have no local data, all work is done
    * by the parent class.
    */
-  GBitCollection::GBitCollection(void)
+  GBitCollection::GBitCollection()
 	:GParameterCollectionT<Gem::GenEvA::bit>()
   { /* nothing */ }
 

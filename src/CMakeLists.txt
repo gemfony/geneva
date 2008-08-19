@@ -1,34 +1,32 @@
-cmake_minimum_required(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( GENEVASOURCES
-GBasePopulation
-GBit
-GBitCollection
-GBitFlipAdaptor
-GBoostThreadConsumer
-GBoostThreadPopulation
-GBoundedDouble
-GBrokerPopulation
-GDoubleCollection 
-GDoubleGaussAdaptor
-GEvaluator
-GIndividual
-GIndividualSet
-GLogger
-GLogTargets
-GObject
-GParameterBase
-GParameterSet
-GRandom
+	GBasePopulation
+	GBit
+	GBitCollection
+	GBitFlipAdaptor
+	GBoostThreadConsumer
+	GBoostThreadPopulation
+	GBoundedDouble
+	GBrokerPopulation
+	GDoubleCollection 
+	GDoubleGaussAdaptor
+	GEvaluator
+	GIndividual
+	GIndividualSet
+	GLogger
+	GLogTargets
+	GObject
+	GParameterBase
+	GParameterSet
+	GRandom
 )
 
-SET ( GENEVAINCLUDEDIRS
-	../include
-)
+ADD_LIBRARY ( ${PROJECT_NAME} SHARED ${GENEVASOURCES} )
 
-add_library ( geneva SHARED ${GENEVASOURCES} )
-
-include_directories ( 
-${GENEVAINCLUDEDIRS} 
-${Boost_INCLUDE_DIRS}
+INSTALL ( TARGETS ${PROJECT_NAME} DESTINATION lib
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE
+	GROUP_READ
+	WORLD_READ
 )
