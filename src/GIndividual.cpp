@@ -216,7 +216,7 @@ boost::uint32_t GIndividual::getParentPopGeneration() const throw() {
  * @param isParent Indicates whether or not this is a parent individual
  * @return A boolean indicating the previous situation
  */
-inline bool GIndividual::setIsParent(const bool& isParent) throw() {
+bool GIndividual::setIsParent(const bool& isParent) throw() {
 	bool previous = parentCounter_>0?true:false;
 	if(isParent) parentCounter_++;
 	else parentCounter_ = 0;
