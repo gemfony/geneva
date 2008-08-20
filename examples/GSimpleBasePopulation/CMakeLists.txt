@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME gsimplebasepopulation)
+SET (EXECUTABLENAME GSimpleBasePopulation)
 
 SET (${EXECUTABLENAME}_SRCS 
-	gsimplebasepopulation
+	GSimpleBasePopulation
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

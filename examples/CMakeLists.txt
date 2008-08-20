@@ -5,5 +5,9 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GBoostThreadConsumer
+)
+
+ADD_SUBDIRECTORY (
 	SampleIndividuals
 )

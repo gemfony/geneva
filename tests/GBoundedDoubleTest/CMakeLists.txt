@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME gboundeddoubletest) 
+SET (EXECUTABLENAME GBoundedDoubleTest) 
 
 SET (${EXECUTABLENAME}_SRCS 
-	gboundeddoubletest
+ 	GBoundedDoubleTest
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

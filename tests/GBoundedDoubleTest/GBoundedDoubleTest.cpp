@@ -1,5 +1,5 @@
 /**
- * @file gboundeddoubletest.cpp
+ * @file GBoundedDoubleTest.cpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich

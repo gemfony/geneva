@@ -1,5 +1,5 @@
 /**
- * @file grandomusage.cpp
+ * @file GRandomUsage.cpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
