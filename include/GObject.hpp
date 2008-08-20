@@ -141,12 +141,14 @@ protected:
 	/**************************************************************************************************/
 	/**
 	 * The load function takes a GObject pointer and converts it to a pointer to a derived class. This
-	 * work is centralized in this function.
+	 * work and the corresponding error checks are centralized in this function. Conversion will be fast
+	 * if we do not compile in DEBUG mode.
 	 *
 	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
 	 */
 	template <class load_type>
 	inline const load_type* checkedConversion(const GObject *load_ptr, const load_type* This){
+#ifdef DEBUG
 		const load_type *result = dynamic_cast<const load_type *> (load_ptr);
 
 		// dynamic_cast will emit a NULL pointer, if the conversion failed
@@ -172,6 +174,9 @@ protected:
 		}
 
 		return result;
+#else
+		return static_cast<const load_type *>(load_ptr);
+#endif
 	}
 
 	/**************************************************************************************************/

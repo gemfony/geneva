@@ -58,8 +58,8 @@ namespace Gem
 			 mutProb_(0.,1.,DEFAULTMUTPROB), // probability is in the range [0:1]
 			 allowProbabilityMutation_(false)
 		{
-			GDoubleGaussAdaptor *gaussAdaptor =
-				new GDoubleGaussAdaptor(SGM, SGMSGM, MSGM, DEFAULTGDGANAME);
+			boost::shared_ptr<GAdaptorT<double> >
+				gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MSGM, DEFAULTGDGANAME));
 			mutProb_.addAdaptor(gaussAdaptor);
 		}
 
@@ -78,8 +78,8 @@ namespace Gem
 			 mutProb_(0.,1.,prob), // probability is in the range [0:1]
 			 allowProbabilityMutation_(true)
 		{
-			GDoubleGaussAdaptor *gaussAdaptor =
-				new GDoubleGaussAdaptor(SGM, SGMSGM, MSGM, DEFAULTGDGANAME);
+			boost::shared_ptr<GAdaptorT<double> >
+				gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MSGM, DEFAULTGDGANAME));
 			mutProb_.addAdaptor(gaussAdaptor);
 		}
 

@@ -85,6 +85,52 @@ public:
 	/** @brief Registers an evaluation function */
 	void registerEvaluator(const boost::function<double (const GParameterSet&)>&);
 
+	/**********************************************************************/
+	/**
+	 * If compiled in debug mode, this function performs all necessary error
+	 * checks on the conversion from GParameterBase to the desired parameter type.
+	 * Note that, if compiled in debug mode, this function will throw. Otherwise
+	 * a segfault may be the result if a faulty conversion was attempted. Hence
+	 * it is suggested to test your programs in debug mode before using it in a
+	 * production environment. As the data will be used in fitness calculations,
+	 * it is assumed that very fast access is needed. Hence a "real" pointer is
+	 * returned. Note that you may not try to delete the parameter (collection)
+	 * through this pointer.
+	 *
+	 * @param pos The position in our data array that shall be converted
+	 * @return A converted version of the GParameterBase object stored in the data vector
+	 */
+	template <class parameter_type>
+	inline const parameter_type *getData(std::size_t pos){
+#ifdef DEBUG
+		// Extract data. at() will throw if we have tried to access a position in the
+		// vector that does not exist.
+		GParameterBase *data_base = this->data.at(pos).get();
+
+		// Convert to the desired target type
+		const parameter_type* p_load = dynamic_cast<const parameter_type*>(data_base);
+
+		// Check that the conversion worked. dynamic_cast emits an empty pointer,
+		// if this was not the case.
+		if(!p_load){
+			std::ostringstream error;
+			error << "In GParameterSet::getData<parameter_type>() : Conversion error!" << std::endl;
+
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
+		}
+
+		return p_load;
+#else
+		return static_cast<const parameter_type *>(data[pos].get());
+#endif /* DEBUG */
+	}
+
+	/**********************************************************************/
+
 protected:
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation();

@@ -132,15 +132,26 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Adds an adaptor to the list. Please note that this class takes ownership of the adaptor and
-	 * stores it in a boost::shared_ptr. Thus, at the end of the lifetime, the adaptor will be destroyed.
+	 * Adds an adaptor to the list. Please note that this class takes ownership of the adaptor.
+	 * Thus, at the end of the lifetime, the adaptor will be destroyed.
 	 *
-	 * @param gat A pointer to an adaptor
+	 * @param gat A boost::shared_ptr to an adaptor
 	 */
-	void addAdaptor(GAdaptorT<T>  *gat) {
+	void addAdaptor(boost::shared_ptr<GAdaptorT<T> > gat) {
+		// Check that we have indeed been given an adaptor
+		if(!gat){
+			std::ostringstream error;
+			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor():" << std::endl
+				  << "Error: Empty adaptor provided." << std::endl;
+
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			throw geneva_empty_adaptor() << error_string(error.str());
+		}
+
 		typename GATvec::iterator pos;
 
-		// check that an adaptor with this name has not yet been added
+		// Check that an adaptor with this name has not yet been added
 		if (findAdaptor(gat->name(), pos)) {
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor():" << std::endl

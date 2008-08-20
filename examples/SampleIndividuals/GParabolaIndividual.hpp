@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GParabolaIndividual.hpp
  */
 
-/* GParabolaIndividual.hpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -32,46 +30,124 @@
 // GenEvA header files go here
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
-#include "GEvaluator.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GBoostThreadPopulation.hpp"
 
+namespace Gem
+{
+namespace GenEvA
+{
+
 /************************************************************************************************/
 /**
- * Set up an evaluation function. Note that we are over-cautious here. If you are
- * dealing with your own objects, you might want to deploy faster alternatives
+ * This individual searches for the minimum of a simple parabola in n dimensions. It is meant
+ * as an example of how to set up custom individuals.
  */
-double parabola(const GParameterSet& gps){
-	// Does gps have any data at all ?
-	if(gps.empty()){
-		std::cout << "In eval: Error! Supplied GParameterSet object" << std::endl
-			      << "does not contain any data" << std::endl;
-		std::terminate();
+class GParabolaIndividual
+	:public GParameterSet
+{
+public:
+	/********************************************************************************************/
+	/**
+	 * The default constructor.
+	 */
+	GParabolaIndividual()
+	{ /* nothing */ }
+
+	/********************************************************************************************/
+	/**
+	 * A constructor which initializes the individual with a suitable set of random double values.
+	 *
+	 * @param sz The desired size of the double collection
+	 * @param min The minimum value of the random numbers to fill the collection
+	 * @param max The maximum value of the random numbers to fill the collection
+	 */
+	GParabolaIndividual(std::size_t sz, double min, double max){
+		// Set up a GDoubleCollection with sz values, each initialized
+		// with a random number in the range [min,max[
+		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(sz,min,max));
+
+		// Set up and register an adaptor for the collection, so it
+		// knows how to be mutated. We want a sigma of 0.5, sigma-adaption of 0.05 and
+		// a minimum sigma of 0.02.
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.5,0.05,0.02,"gauss_mutation"));
+		gdc->addAdaptor(gdga);
+
+		// Make the parameter collection known to this individual
+		this->data.push_back(gdc);
 	}
 
-	// Extract data - we know there is at least one shared_ptr<GParameterBase> registered.
-	// gps is essentially a std::vector<boost::shared_ptr<GParameterBase> > . get() is
-	// the shared_ptr way of retrieving the stored object.
-	const GParameterBase *data_base = gps.at(0).get();
+	/********************************************************************************************/
+	/**
+	 * A standard copy constructor
+	 */
+	GParabolaIndividual(const GParabolaIndividual& cp)
+		:GParameterSet(cp)
+	{ /* nothing */	}
 
-	// We know there should be a GDOubleCollection present - extract it.
-	const GDoubleCollection *gdc_load = dynamic_cast<const GDoubleCollection*>(data_base);
+	/********************************************************************************************/
+	/**
+	 * The standard destructor
+	 */
+	~GParabolaIndividual()
+	{ /* nothing */	}
 
-	// Check that the conversion worked. dynamic_cast emits an empty pointer,
-	// if this was not the case.
-	if(!gdc_load){
-		std::cout << "In eval: Conversion error!" << std::endl;
-		std::terminate();
+	/********************************************************************************************/
+	/**
+	 * A standard assignment operator
+	 */
+	const GParabolaIndividual& operator=(const GParameterSet& cp){
+		GParabolaIndividual::load(&cp);
+		return *this;
 	}
 
-	// Great - now we can do the actual calculations. We do this the fancy way ...
-	double result = 0;
-	std::vector<double>::const_iterator cit;
-	for(cit=gdc_load->begin(); cit!=gdc_load->end(); ++cit){
-		result += std::pow(*cit, 2); // Sum up the squares
+	/********************************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 *
+	 * @return A deep clone of this object, camouflaged as a GObject
+	 */
+	virtual GObject* clone(){
+		return new GParabolaIndividual(*this);
 	}
 
-	return result;
-}
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GParabolaIndividual, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GParabolaIndividual, camouflaged as a GObject
+	 */
+	virtual void load(const GObject* cp){
+		// We have no local data. Hence we can just pass the pointer to our parent class.
+		// Note that we'd have to use the GObject::checkedConversion() function otherwise.
+		GParameterSet::load(cp);
+	}
+
+protected:
+	/********************************************************************************************/
+	/**
+	 * The actual fitness calculation takes place here
+	 *
+	 * @return The value of this object
+	 */
+	virtual double fitnessCalculation(){
+		double result = 0;
+		std::vector<double>::const_iterator cit;
+
+		// Compile in DEBUG mode in order to check this conversion
+		const GDoubleCollection *gdc_load = getData<GDoubleCollection>(0);
+
+		// Great - now we can do the actual calculations. We do this the fancy way ...
+		for(cit=gdc_load->data.begin(); cit!=gdc_load->data.end(); ++cit)
+			result += std::pow(*cit, 2);
+
+		return result;
+	}
+
+	/********************************************************************************************/
+};
+
+} /* namespace GenEvA */
+} /* namespace Gem */

@@ -97,6 +97,8 @@ class geneva_dynamic_cast_conversion_error :public boost::exception {};
 // GParameterBaseWithAdaptorsT
 /** @brief Class to be thrown as an error if an adaptor with the same name is already present */
 class geneva_duplicate_adaptor : public boost::exception {};
+/** @brief Class to be thrown as an error if an empty adaptor was provided */
+class geneva_empty_adaptor : public boost::exception {};
 
 // GParameterSet
 /** @brief Class to be thrown as an error if an empty evaluation function was supplied */

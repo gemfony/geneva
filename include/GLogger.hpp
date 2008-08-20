@@ -70,7 +70,7 @@ enum logLevels {
 	WARNING, // The flow of the operation could be affected and this should be reported
 	INFORMATIONAL, // Useful information
 	PROGRESS, // Information useful for progress checks
-	DEBUG, // Debug information
+	DEBUGGING, // Debug information
 	CUSTOM_1, // Custom log level 1
 	CUSTOM_2, // Custom log level 2
 	CUSTOM_3, // Custom log level 3

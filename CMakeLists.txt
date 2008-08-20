@@ -6,8 +6,10 @@ SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
 SET( ${PROJECT_NAME}_MINOR_VERSION 5 )
 SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
 
-# Enforce proper C++
-ADD_DEFINITIONS ("-O3 -Wall -ansi -pthread")
+# Enforce proper C++. Use this for debug builds.
+ADD_DEFINITIONS ("-DDEBUG -g -Wall -ansi -pthread")
+# Use this for release builds
+# ADD_DEFINITIONS ("-O3 -Wall -ansi -pthread")
 
 # You can hardcode the paths here, if desired 
 #SET (BOOST_ROOT "/opt/boost136")
@@ -20,8 +22,9 @@ SET (Boost_USE_MULTITHREAD ON)
 FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS date_time system thread serialization)
 
 INCLUDE_DIRECTORIES ( 
-${PROJECT_SOURCE_DIR}/include 
-${Boost_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/include 
+	${PROJECT_SOURCE_DIR}/examples/SampleIndividuals 
+	${Boost_INCLUDE_DIRS}
 )
 
 LINK_DIRECTORIES (
