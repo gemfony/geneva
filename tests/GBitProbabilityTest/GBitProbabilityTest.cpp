@@ -1,5 +1,5 @@
 /**
- * @file gbitprobabilitytest.cpp
+ * @file GBitProbabilityTest.cpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich

@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME gbitprobabilitytest) 
+SET (EXECUTABLENAME GBitProbabilityTest) 
 
 SET (${EXECUTABLENAME}_SRCS 
-	gbitprobabilitytest
+	GBitProbabilityTest
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
