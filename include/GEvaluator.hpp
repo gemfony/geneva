@@ -103,7 +103,8 @@ private:
 	boost::function<double (const GParameterSet&)> eval_;
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 /**************************************************************************************************/
 
