@@ -1,5 +1,5 @@
 /**
- * @file GParabolaIndividual.hpp
+ * @file GNoisyParabolaIndividual.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -29,8 +29,8 @@
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
 
-#ifndef GPARABOLAINDIVIDUAL_HPP_
-#define GPARABOLAINDIVIDUAL_HPP_
+#ifndef GNOISYPARABOLAINDIVIDUAL_HPP_
+#define GNOISYPARABOLAINDIVIDUAL_HPP_
 
 // GenEvA header files go here
 #include "GRandom.hpp"
@@ -48,10 +48,12 @@ namespace GenEvA
 
 /************************************************************************************************/
 /**
- * This individual searches for the minimum of a simple parabola in n dimensions. It is meant
- * as an example of how to set up custom individuals.
+ * This individual searches for the minimum of a noisy parabola in n dimensions. It is meant
+ * as an example of how to set up custom individuals. The individual is very similar to the
+ * GParabolaIndividual example, however, the function to be minimized has a very large number
+ * of local optima, making optimization much more difficult.
  */
-class GParabolaIndividual
+class GNoisyParabolaIndividual
 	:public GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
@@ -74,7 +76,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GParabolaIndividual()
+	GNoisyParabolaIndividual()
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -85,7 +87,7 @@ public:
 	 * @param min The minimum value of the random numbers to fill the collection
 	 * @param max The maximum value of the random numbers to fill the collection
 	 */
-	GParabolaIndividual(std::size_t sz, double min, double max){
+	GNoisyParabolaIndividual(std::size_t sz, double min, double max){
 		// Set up a GDoubleCollection with sz values, each initialized
 		// with a random number in the range [min,max[
 		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(sz,min,max));
@@ -104,7 +106,7 @@ public:
 	/**
 	 * A standard copy constructor
 	 */
-	GParabolaIndividual(const GParabolaIndividual& cp)
+	GNoisyParabolaIndividual(const GNoisyParabolaIndividual& cp)
 		:GParameterSet(cp)
 	{ /* nothing */	}
 
@@ -112,15 +114,15 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	~GParabolaIndividual()
+	~GNoisyParabolaIndividual()
 	{ /* nothing */	}
 
 	/********************************************************************************************/
 	/**
 	 * A standard assignment operator
 	 */
-	const GParabolaIndividual& operator=(const GParabolaIndividual& cp){
-		GParabolaIndividual::load(&cp);
+	const GNoisyParabolaIndividual& operator=(const GNoisyParabolaIndividual& cp){
+		GNoisyParabolaIndividual::load(&cp);
 		return *this;
 	}
 
@@ -131,14 +133,14 @@ public:
 	 * @return A deep clone of this object, camouflaged as a GObject
 	 */
 	virtual GObject* clone(){
-		return new GParabolaIndividual(*this);
+		return new GNoisyParabolaIndividual(*this);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Loads the data of another GParabolaIndividual, camouflaged as a GObject
+	 * Loads the data of another GNoisyParabolaIndividual, camouflaged as a GObject
 	 *
-	 * @param cp A copy of another GParabolaIndividual, camouflaged as a GObject
+	 * @param cp A copy of another GNoisyParabolaIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
 		// We have no local data. Hence we can just pass the pointer to our parent class.
@@ -161,8 +163,10 @@ protected:
 		const GDoubleCollection *gdc_load = getData<GDoubleCollection>(0);
 
 		// Great - now we can do the actual calculations. We do this the fancy way ...
-		for(cit=gdc_load->data.begin(); cit!=gdc_load->data.end(); ++cit)
-			result += std::pow(*cit, 2);
+		for(cit=gdc_load->data.begin(); cit!=gdc_load->data.end(); ++cit){
+			double xsquared = std::pow(*cit, 2);
+			result += (cos(xsquared) + 2)*xsquared;
+		}
 
 		return result;
 	}
@@ -173,4 +177,4 @@ protected:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GPARABOLAINDIVIDUAL_HPP_ */
+#endif /* GNOISYPARABOLAINDIVIDUAL_HPP_ */

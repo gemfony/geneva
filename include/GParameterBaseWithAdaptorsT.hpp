@@ -483,7 +483,8 @@ private:
 	GATvec adaptors_;
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 /********************************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)

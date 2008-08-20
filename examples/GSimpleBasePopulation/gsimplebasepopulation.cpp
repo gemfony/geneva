@@ -39,6 +39,7 @@
 #include "GBoostThreadPopulation.hpp"
 
 // The individual that should be optimized
+// This is a simple parabola
 #include "GParabolaIndividual.hpp"
 
 using namespace Gem::GenEvA;
