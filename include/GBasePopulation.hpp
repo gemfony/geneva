@@ -85,6 +85,11 @@ const bool MINIMIZE = false;
 enum recoScheme {DEFAULTRECOMBINE, RANDOMRECOMBINE, VALUERECOMBINE};
 
 /**
+ * The info function can be called in these three modes
+ */
+enum infoMode {INFOINIT,INFOPROCESSING,INFOEND};
+
+/**
  * The number of generations after which information should be
  * emitted about the inner state of the population.
  */
@@ -178,10 +183,10 @@ public:
 	virtual void optimize();
 
 	/** @brief Emits information specific to this population */
-	virtual void doInfo();
+	virtual void doInfo(const infoMode&);
 
 	/** @brief Registers a function to be called when emitting information from doInfo */
-	void registerInfoFunction(boost::function<void (GBasePopulation * const)>);
+	void registerInfoFunction(boost::function<void (const infoMode&, GBasePopulation * const)>);
 
 	/** @brief Sets population size and number of parents */
 	void setPopulationSize(const std::size_t&, const std::size_t&);
@@ -269,7 +274,7 @@ private:
 	void valueRecombine(boost::shared_ptr<GIndividual>&);
 
 	/** @brief The default function used to emit information */
-	void defaultInfoFunction(GBasePopulation * const) const;
+	void defaultInfoFunction(const infoMode&, GBasePopulation * const) const;
 
 	std::size_t nParents_; ///< The number of parents
 	std::size_t popSize_; ///< The size of the population. Only used in adjustPopulation()
@@ -286,7 +291,7 @@ private:
 	boost::uint32_t maxDurationTotalSeconds_; ///< maxDuration translated to an uint32_t
 	std::size_t defaultNChildren_; ///< Expected number of children
 
-	boost::function<void (GBasePopulation * const)> infoFunction_; ///< Used to emit information with doInfo()
+	boost::function<void (const infoMode&, GBasePopulation * const)> infoFunction_; ///< Used to emit information with doInfo()
 };
 
 /*********************************************************************************/

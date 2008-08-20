@@ -54,7 +54,7 @@ GBasePopulation::GBasePopulation() :
 	maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION)),
 	maxDurationTotalSeconds_(maxDuration_.total_seconds()),
 	defaultNChildren_(0),
-	infoFunction_(boost::bind(&GBasePopulation::defaultInfoFunction,this,this))
+	infoFunction_(boost::bind(&GBasePopulation::defaultInfoFunction,this,_1,_2))
 { /* nothing */ }
 
 /***********************************************************************************/
@@ -158,6 +158,9 @@ void GBasePopulation::optimize() {
 	// Fill up the population as needed
 	GBasePopulation::adjustPopulation();
 
+	// Emit the info header
+	doInfo(INFOINIT);
+
 	// Initialize the start time with the current time. Uses Boost::date_time
 	startTime_ = boost::posix_time::second_clock::local_time();
 
@@ -169,7 +172,7 @@ void GBasePopulation::optimize() {
 		// We want to provide feedback to the user in regular intervals.
 		// Set the reportGeneration_ variable to 0 in order not to emit
 		// any information.
-		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo();
+		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo(INFOPROCESSING);
 
 		generation_++; // update the generation_ counter
 
@@ -177,6 +180,9 @@ void GBasePopulation::optimize() {
 		this->markParents();
 	}
 	while(!halt()); // allows custom halt criteria
+
+	// Finalize the info output
+	doInfo(INFOEND);
 }
 
 /***********************************************************************************/
@@ -186,10 +192,12 @@ void GBasePopulation::optimize() {
  * using GBasePopulation::registerInfoFunction() . Please note that it is not
  * possible to serialize this function, so it will only be active on the host were
  * it was registered, but not on remote systems.
+ *
+ * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
  */
 
-void GBasePopulation::doInfo() {
-	if(!infoFunction_.empty()) infoFunction_(this);
+void GBasePopulation::doInfo(const infoMode& im) {
+	if(!infoFunction_.empty()) infoFunction_(im, this);
 }
 
 /***********************************************************************************/
@@ -199,7 +207,7 @@ void GBasePopulation::doInfo() {
  *
  * @param infoFunction A Boost.function object allowing the emission of information
  */
-void GBasePopulation::registerInfoFunction(boost::function<void (GBasePopulation * const)> infoFunction) {
+void GBasePopulation::registerInfoFunction(boost::function<void (const infoMode&, GBasePopulation * const)> infoFunction) {
 	infoFunction_ = infoFunction;
 }
 
@@ -887,22 +895,46 @@ recoScheme GBasePopulation::getRecombinationMethod() const {
 /***********************************************************************************/
 /**
  * Emits information about the population it has been given. This is the default
- * information function provided for all populations.
- * 
+ * information function provided for all populations. Information is emitted in the
+ * format of the ROOT analysis toolkit (see http://root.cern.ch).
+ *
+ * @param im Indicates the information mode
  * @param gbp A pointer to the population information should be emitted about
  */
-void GBasePopulation::defaultInfoFunction(GBasePopulation * const) const {
-  bool isDirty = false;
-  std::ostringstream information;
-  information << std::setprecision(10)
-	      << "h" << this << "->Fill(" << this->getGeneration() << ", " << data.at(0)->getCurrentFitness(isDirty) << ");";
-  if(isDirty){
-    information << "// dirty!";
-  }
+void GBasePopulation::defaultInfoFunction(const infoMode& im, GBasePopulation * const gbp) const {
+	std::ostringstream information;
 
-  information << std::endl;
+	switch(im){
+	case INFOINIT:
+		information << "{" << std::endl
+					<< "  TH1F *h" << this << " = new TH1F(\"h"
+					<< this << "\",\"h" << this << "\"," << this->getMaxGeneration()
+					<< ",0," << this->getMaxGeneration() << ");" << std::endl;
+		break;
 
-  LOGGER.log(information.str(), Gem::GLogFramework::PROGRESS);
+	case INFOPROCESSING:
+		{
+			bool isDirty = false;
+
+			information << std::setprecision(10) << "  h" << this
+						<< "->Fill(" << this->getGeneration() << ", "
+						<< data.at(0)->getCurrentFitness(isDirty) << ");";
+
+			if(isDirty) {
+				information << "// dirty!";
+			}
+			information << std::endl << std::endl;
+		}
+		break;
+
+	case INFOEND:
+		information << std::endl
+					<< "  h"<< this << "->Draw();" << std::endl
+					<< "}" << std::endl;
+		break;
+	}
+
+	LOGGER.log(information.str(), Gem::GLogFramework::PROGRESS);
 }
 
 /***********************************************************************************/
