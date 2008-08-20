@@ -18,7 +18,6 @@ SET ( GENEVAINCLUDES
 	GDoubleGaussAdaptor.hpp
 	GenevaExceptions.hpp
 	GEnums.hpp
-	GEvaluator.hpp
 	GIndividualBroker.hpp
 	GIndividual.hpp
 	GIndividualSet.hpp

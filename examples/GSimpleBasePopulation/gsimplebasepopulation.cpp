@@ -32,7 +32,6 @@
 #include "GBasePopulation.hpp"
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
-#include "GEvaluator.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
@@ -99,7 +98,7 @@ int main(int argc, char **argv){
 	// Random numbers are our most valuable good. Set the number of threads
 	// 7 threads will be producing [0,1[ floating point values, 3 threads
 	// will create gaussian random numbers
-	GRANDOMFACTORY.setNProducerThreads(20);
+	GRANDOMFACTORY.setNProducerThreads(10);
 
 	// Set up a GDoubleCollection with 1000 values, each initialized
 	// with a random number in the range [-100,100[
@@ -111,13 +110,9 @@ int main(int argc, char **argv){
 	GDoubleGaussAdaptor *gdga = new GDoubleGaussAdaptor(0.5,0.05,0.02,"gauss_mutation");
 	gdc->addAdaptor(gdga);
 
-	// Set up an evaluator and give it an evaluation function
-	boost::shared_ptr<GEvaluator> ge(new GEvaluator());
-	ge->registerEvalFunction(parabola);
-
-	// Set up a GParameterSet object and register the evaluator
+	// Set up a GParameterSet object and register the evaluation function
 	boost::shared_ptr<GParameterSet> parabolaIndividual(new GParameterSet());
-	parabolaIndividual->registerEvaluator(ge);
+	parabolaIndividual->registerEvaluator(parabola);
 
 	// Add the double numbers to the parameter set
 	parabolaIndividual->append(gdc);

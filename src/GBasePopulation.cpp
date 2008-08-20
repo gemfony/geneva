@@ -909,7 +909,7 @@ void GBasePopulation::defaultInfoFunction(const infoMode& im, GBasePopulation * 
 		information << "{" << std::endl
 					<< "  TH1F *h" << this << " = new TH1F(\"h"
 					<< this << "\",\"h" << this << "\"," << this->getMaxGeneration()
-					<< ",0," << this->getMaxGeneration() << ");" << std::endl;
+					<< ",0," << this->getMaxGeneration() << ");" << std::endl << std::endl;
 		break;
 
 	case INFOPROCESSING:
@@ -923,7 +923,7 @@ void GBasePopulation::defaultInfoFunction(const infoMode& im, GBasePopulation * 
 			if(isDirty) {
 				information << "// dirty!";
 			}
-			information << std::endl << std::endl;
+			information << std::endl;
 		}
 		break;
 

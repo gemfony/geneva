@@ -93,42 +93,21 @@ namespace Gem
 			// Load the parent class'es data
 			GMutableSetT<Gem::GenEvA::GParameterBase>::load(cp);
 
-			// Then load our local data.
-			if(gps_load->eval_) {// Only necessary if there is a local GEvaluator object
-				// in gps_load. Note that we cannot do this by
-				// simply assigning the two smart pointers. For once, we want separate
-				// evaluation function objects (with their own, modifiable local data)
-				// for each object. And then we only have a base pointer.
-				GObject *gev_tmp = ((gps_load->eval_).get())->clone();
-
-				GEvaluator *gev = dynamic_cast<GEvaluator *>(gev_tmp);
-				if(!gev){
-					std::ostringstream error;
-					error << "In GParameterSet::load(): Conversion error!" << std::endl;
-
-					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-					// throw an exception. Add some information so that if the exception
-					// is caught through a base object, no information is lost.
-					throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-				}
-
-				shared_ptr<GEvaluator> p(gev);
-				eval_ = p;
-			}
-			else eval_.reset();
+			// Then load our local data - here the evaluation function (if any)
+			eval_ = gps_load->eval_;
 		}
 
 		/**********************************************************************************/
 		/**
-		 * Registers a GEvaluator object with this class. Note that the class will take
-		 * charge of the object. It may not be deleted individually by the user.
+		 * Registers an evaluation function with this class. Note that the function object
+		 * can not be serialized. Hence, in a networked optimization run, you need to derive
+		 * your own class from GParameterSet and specifiy an evaluation function.
 		 */
-		void GParameterSet::registerEvaluator(const shared_ptr<GEvaluator>& eval){
-			if(!eval){ // empty pointer ?
+		void GParameterSet::registerEvaluator(const boost::function<double (const GParameterSet&)>& eval){
+			if(eval.empty()){ // empty function ?
 				std::ostringstream error;
 				error << "In GParameterSet::registerEvaluator(): Error" << std::endl
-					  << "Received empty pointer" << std::endl;
+					  << "Received empty function" << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
@@ -147,7 +126,7 @@ namespace Gem
 		 * @return The newly calculated fitness of this object
 		 */
 		double GParameterSet::fitnessCalculation(){
-			if(!eval_){ // Has an evaluator been stored in this class ?
+			if(eval_.empty()){ // Has an evaluator been stored in this class ?
 				std::ostringstream error;
 				error << "In GParameterSet::fitnessCalculation(): Error" << std::endl
 					  << "No evaluation function present" << std::endl;
@@ -158,7 +137,7 @@ namespace Gem
 			}
 
 			// Trigger the actual calculation
-			return eval_->eval(*this);
+			return eval_(*this);
 		}
 		/**********************************************************************************/
 

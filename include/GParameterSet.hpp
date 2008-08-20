@@ -42,7 +42,6 @@
 #include "GObject.hpp"
 #include "GMutableSetT.hpp"
 #include "GParameterBase.hpp"
-#include "GEvaluator.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
@@ -83,14 +82,15 @@ public:
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 
-	/** @brief Registers a GEvaluator object */
-	void registerEvaluator(const boost::shared_ptr<GEvaluator>&);
+	/** @brief Registers an evaluation function */
+	void registerEvaluator(const boost::function<double (const GParameterSet&)>&);
 
 protected:
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation();
 
-	boost::shared_ptr<GEvaluator> eval_;
+	/** @brief Allows to store an evaluation function for this object */
+	boost::function<double (const GParameterSet&)> eval_;
 };
 
 } /* namespace GenEvA */

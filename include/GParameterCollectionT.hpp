@@ -100,7 +100,7 @@ public:
 	 * @param cp A copy of another GParameterCollectionT object
 	 * @return A constant reference to this object
 	 */
-	const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp) 
+	const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp)
 	{
 		GParameterCollectionT<T>::load(cp);
 		return *this;
@@ -133,9 +133,9 @@ public:
 		typename std::vector<T>::iterator it;
 		typename std::vector<T>::const_iterator cit;
 
-		for (cit = gpct->data.begin(), it = data.begin(); 
-		     cit != gpct->data.end(), it!= data.end(); 
-		     ++it, ++cit) 
+		for (cit = gpct->data.begin(), it = data.begin();
+		     cit != gpct->data.end(), it!= data.end();
+		     ++it, ++cit)
 		{ (*it) = (*cit); } // Note that this assignment assumes that T has an operator=
 
 		std::size_t gpct_sz = gpct->data.size(), this_sz = data.size();
@@ -172,7 +172,7 @@ public:
 	 */
 	void append(const T& value){
 		data.push_back(value);
-	}	
+	}
 
 	/*******************************************************************************************/
 	/**
@@ -181,8 +181,8 @@ public:
 	 * to allow an easier implementation of this library in other languages, such as C# or Java. And
 	 * std::vector has a non-virtual destructor. Hence deriving from it is a) bad style and b) dangerous.
 	 * Just like in the older setting, however, access to the data shall not be obstructed in any way.
-	 * As a consequence, e.g. the GEvaluator can apply all standard algorithms to the std::vector. 
-	 * Providing the same interface without derivation or containment with this class would be 
+	 * As a consequence, all standard algorithms of a std::vector can be used out of the box.
+	 * Providing the same interface without derivation or containment with this class would be
 	 * error-prone and can be considered "syntactic sugar". Hence we do not follow this path.
 	 */
 	std::vector<T> data;
