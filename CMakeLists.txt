@@ -7,7 +7,7 @@ SET( ${PROJECT_NAME}_MINOR_VERSION 5 )
 SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
 
 # Enforce proper C++
-ADD_DEFINITIONS ("-g -Wall -ansi -pthread")
+ADD_DEFINITIONS ("-O3 -Wall -ansi -pthread")
 
 # You can hardcode the paths here, if desired 
 #SET (BOOST_ROOT "/opt/boost136")
