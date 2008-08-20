@@ -54,3 +54,11 @@ cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost136"\
 
 The command needs to be called on a single line. This command was tested on an
 OpenSUSE 11 system.
+
+Recommended Software
+====================
+By default a GenEvA population emits information suitable for the ROOT framework 
+(see http://root.cern.ch). ROOT is a C++ analysis framework wideley used in particle
+physics. It is built around the C++ interpreter cint. It is recommended to install
+ROOT in your system, as also some of the examples emit information in the ROOT format
+(they are essentially writing ROOT programs).

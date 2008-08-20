@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GRateableI.hpp
  */
 
-/* GRateableI.hpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -50,42 +48,10 @@ public:
 	virtual ~GRateableI(){ /* nothing */ }
 
 	/** @brief Retrieve a value for this class */
-	virtual double fitness(void) = 0;
+	virtual double fitness() = 0;
 
-	/*********************************************************************************************/
-	/**
-	 * A version of the fitness framework that also checks for
-	 * exceptions. To be used when fitness() is to become the main
-	 * function to be called by a thread.
-	 */
-	double checkedFitness(void){
-		try{
-			return this->fitness();
-		}
-		catch(std::exception& e){
-			std::ostringstream error;
-			error << "In GRateableI::checkedFitness(): Caught std::exception with message" << std::endl
-				  << e.what() << std::endl;
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			std::terminate();
-		}
-		catch(boost::exception& e){
-			std::ostringstream error;
-			error << "In GRateableI::checkedFitness(): Caught boost::exception with message" << std::endl
-				  << e.diagnostic_information() << std::endl;
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			std::terminate();
-		}
-		catch(...){
-			std::ostringstream error;
-			error << "In GRateableI::checkedFitness(): Caught unknown exception" << std::endl;
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			std::terminate();
-		}
-	}
+	/** @brief Retrieve a value for this class and check for exceptions. Useful for threads */
+	virtual double checkedFitness() = 0;
 };
 
 } /* namespace GenEvA */

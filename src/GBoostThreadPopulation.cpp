@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GBoostThreadPopulation.cpp
  */
 
-/* GBoostThreadPopulation.cpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -84,35 +82,11 @@ const GBoostThreadPopulation& GBoostThreadPopulation::operator=(const GBoostThre
 /**
  * Loads the data from another GBoostThreadPopulation object.
  *
- * @param Pointer to another GBoostThreadPopulation object, camouflaged as a GObject
+ * @param vp Pointer to another GBoostThreadPopulation object, camouflaged as a GObject
  */
 void GBoostThreadPopulation::load(const GObject *cp) {
 	// Convert GObject pointer to local format
 	const GBoostThreadPopulation *gbp = this->checkedConversion(cp, this);
-
-		dynamic_cast<const GBoostThreadPopulation *>(cp);
-
-	// dynamic_cast will emit a NULL pointer, if the conversion failed
-	if(!gbp) {
-		std::ostringstream error;
-		error << "In GBoostThreadPopulation::load(): Conversion error!" << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-	}
-
-	// Check that this object is not accidently assigned to itself.
-	if(gbp == this) {
-		std::ostringstream error;
-		error << "In GBoostThreadPopulation::load(): Error!" << std::endl
-			  << "Tried to assign an object to itself." << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_object_assigned_to_itself() << error_string(error.str());
-	}
 
 	// First load our parent class'es data ...
 	GBasePopulation::load(cp);
@@ -147,7 +121,7 @@ void GBoostThreadPopulation::optimize(void) {
 	// We want to prevent lazy evaluation, as all value calculation
 	// shall take place in the threads. Simultaneously we want to be
 	// able to restore the original values.
-	for(it=this->begin(); it!=this->end(); ++it){
+	for(it=data.begin(); it!=data.end(); ++it){
 		le_value.push_back((*it)->setAllowLazyEvaluation(false));
 	}
 
@@ -156,8 +130,8 @@ void GBoostThreadPopulation::optimize(void) {
 	GBasePopulation::optimize();
 
 	// Restore the original values
-	for(it=this->begin(), b_it=le_value.begin();
-		it!=this->end(), b_it != le_value.end();
+	for(it=data.begin(), b_it=le_value.begin();
+		it!=data.end(), b_it != le_value.end();
 		++it, ++b_it){
 		(*it)->setAllowLazyEvaluation(*b_it);
 	}
@@ -179,13 +153,13 @@ void GBoostThreadPopulation::mutateChildren(void) {
 	// initial fitness needs to be determined, if this is the MUPLUSNU
 	// selection model.
 	if(generation==0 && (this->getSortingScheme()==MUPLUSNU)) {
-		for(it=this->begin(); it!=this->begin() + nParents; ++it) {
+		for(it=data.begin(); it!=data.begin() + nParents; ++it) {
 			tp_.schedule(boost::bind(&GIndividual::checkedFitness, it->get()));
 		}
 	}
 
 	// Next we mutate the children
-	for(it=this->begin() + nParents; it!=this->end(); ++it) {
+	for(it=data.begin() + nParents; it!=data.end(); ++it) {
 		tp_.schedule(boost::bind(&GIndividual::checkedMutate, it->get()));
 	}
 

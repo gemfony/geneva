@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GMutableSetT.hpp
  */
 
-/* GMutableSetT.hpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -58,8 +56,7 @@ namespace GenEvA {
  */
 template <class T>
 class GMutableSetT:
-	public GIndividual,
-	public std::vector<boost::shared_ptr<T> >
+	public GIndividual
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -68,11 +65,12 @@ class GMutableSetT:
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
       ar & make_nvp("GIndividual",boost::serialization::base_object<GIndividual>(*this));
-      ar & make_nvp("vector_GParameterBase_ptr",boost::serialization::base_object<std::vector<boost::shared_ptr<T> > >(*this));
+      ar & make_nvp("data",data);
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
+	/**********************************************************************************/
 	/**
 	 * Syntactic sugar.
 	 */
@@ -82,9 +80,7 @@ public:
 	/**
 	 * The default constructor. No local data, hence nothing to do.
 	 */
-	GMutableSetT():
-		GIndividual(),
-		std::vector<tobj_ptr>()
+	GMutableSetT() :GIndividual()
 	{ /* nothing */	}
 
 	/**********************************************************************************/
@@ -98,7 +94,7 @@ public:
 		GIndividual(cp)
 	{
 		typename std::vector<tobj_ptr>::const_iterator itc;
-		for(itc=cp.begin(); itc!=cp.end(); ++itc){
+		for(itc=cp.data.begin(); itc!=cp.data.end(); ++itc){
 			// Extract a copy of the T object. Note that we assume that it has
 			// the GObject interface and particularly the clone() function
 			T* tobj = dynamic_cast<T *>((*itc)->clone());
@@ -116,7 +112,7 @@ public:
 
 			// We're safe and can attach the object to this class
 			shared_ptr<T> p(tobj);
-			this->push_back(p);
+			data.push_back(p);
 		}
 	}
 
@@ -154,8 +150,8 @@ public:
 
 		// Check that the types are the same and if so, copy the data over. In the majority of
 		// cases the rest of the code of this function should not get touched.
-		for (it_gms=gms_load->begin(), it_this=this->begin();
-			(it_gms!=gms_load->end() && it_this!=this->end());
+		for (it_gms=gms_load->data.begin(), it_this=data.begin();
+			(it_gms!=gms_load->data.end() && it_this!=data.end());
 			++it_gms, ++it_this)
 		{
 			// The same ? Just copy it over
@@ -187,14 +183,14 @@ public:
 		// Now we know that min(gms_load->size(),this->size()) items have been copied
 
 		// Likely the following is the most frequent case.
-		if (gms_load->size() == this->size())	return;
+		if (gms_load->data.size() == data.size())	return;
 
 		// As this code will only rarely be called, we store the sizes here and not above
-		std::size_t gms_sz = gms_load->size(), this_sz = this->size();
+		std::size_t gms_sz = gms_load->data.size(), this_sz = data.size();
 
 		// gms_sz > this_sz ? Great, we can just copy the rest of the objects over
 		if (gms_sz > this_sz) {
-			for(it_gms=gms_load->begin() + this_sz; it_gms!=gms_load->end(); ++it_gms){
+			for(it_gms=gms_load->data.begin() + this_sz; it_gms!=gms_load->data.end(); ++it_gms){
 				// Extract a copy of the GParameterBase object
 				T* tobj = dynamic_cast<T *>((*it_gms)->clone());
 
@@ -211,26 +207,46 @@ public:
 
 				// We're safe and can attach the object to this class
 				tobj_ptr p(tobj);
-				this->push_back(p);
+				data.push_back(p);
 			}
 		}
 		// this_sz > gms_sz ? We need to remove the surplus items. The
 		// shared_ptr will take care of the item's deletion.
-		else if (this_sz > gms_sz) this->resize(gms_sz);
+		else if (this_sz > gms_sz) data.resize(gms_sz);
 
 		return;
 	}
 
 	/**********************************************************************************/
 	/**
-	 *	Creates a shared_ptr object from item and adds it to the set.
+	 *	Adds a shared_ptr<T> to the set and checks its content.
 	 *
 	 *	@param item An item to be added to the set
 	 */
-	void append(T *item){
-		boost::shared_ptr<T> p(item);
-		this->push_back(p);
+	void append(const shared_ptr<T>& item){
+		if(item) data.push_back(item);
+		else {
+			std::ostringstream error;
+			error << "In GMutableSetT::append():" << std::endl
+			      << "Tried to add empty item" << std::endl;
+
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			throw geneva_shared_ptr_empty() << error_string(error.str());
+		}
 	}
+
+	/**********************************************************************************/
+	/**
+	 * The main data set stored in this class. This class was derived from vector<shared_ptr<T> > in older
+	 * versions of the GenEvA library. However, we want to avoid multiple inheritance in order to
+	 * to allow an easier implementation of this library in other languages, such as C# or Java. And
+	 * std::vector has a non-virtual destructor. Hence deriving from it is a) bad style and b) dangerous.
+	 * Just like in the older setting, however, access to the data shall not be obstructed in any way.
+	 * Providing the same interface without derivation or containment with this class would be 
+	 * error-prone and can be considered "syntactic sugar". Hence we do not follow this path.
+	 */
+	std::vector<tobj_ptr> data;
 
 protected:
 	/**********************************************************************************/
@@ -244,7 +260,7 @@ protected:
 	 */
 	virtual void customMutations(){
 		typename std::vector<tobj_ptr>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) (*it)->mutate();
+		for(it=data.begin(); it!=data.end(); ++it) (*it)->mutate();
 	}
 
 	/**********************************************************************************/

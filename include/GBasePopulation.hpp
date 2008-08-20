@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GBasePopulation.hpp
  */
 
-/* GBasePopulation.hpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -25,6 +23,7 @@
 // Standard headers go here
 #include <string>
 #include <sstream>
+#include <cmath>
 
 // Boost headers go here
 #include <boost/version.hpp>
@@ -268,6 +267,9 @@ private:
 	void randomRecombine(boost::shared_ptr<GIndividual>&);
 	/** @brief Implements the VALUERECOMBINE recombination scheme */
 	void valueRecombine(boost::shared_ptr<GIndividual>&);
+
+	/** @brief The default function used to emit information */
+	void defaultInfoFunction(GBasePopulation * const) const;
 
 	std::size_t nParents_; ///< The number of parents
 	std::size_t popSize_; ///< The size of the population. Only used in adjustPopulation()

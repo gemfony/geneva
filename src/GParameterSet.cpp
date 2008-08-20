@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GParameterSet.cpp
  */
 
-/* GParameterSet.cpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -96,8 +94,8 @@ namespace Gem
 			GMutableSetT<Gem::GenEvA::GParameterBase>::load(cp);
 
 			// Then load our local data.
-			if(eval_) {// Only necessary if there is a local GEvaluator object
-				// Note that we cannot do this by
+			if(gps_load->eval_) {// Only necessary if there is a local GEvaluator object
+				// in gps_load. Note that we cannot do this by
 				// simply assigning the two smart pointers. For once, we want separate
 				// evaluation function objects (with their own, modifiable local data)
 				// for each object. And then we only have a base pointer.
@@ -106,7 +104,7 @@ namespace Gem
 				GEvaluator *gev = dynamic_cast<GEvaluator *>(gev_tmp);
 				if(!gev){
 					std::ostringstream error;
-					error << "In GParameterSet::load(): Conversion error (2)!" << std::endl;
+					error << "In GParameterSet::load(): Conversion error!" << std::endl;
 
 					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
@@ -118,6 +116,7 @@ namespace Gem
 				shared_ptr<GEvaluator> p(gev);
 				eval_ = p;
 			}
+			else eval_.reset();
 		}
 
 		/**********************************************************************************/
@@ -125,7 +124,7 @@ namespace Gem
 		 * Registers a GEvaluator object with this class. Note that the class will take
 		 * charge of the object. It may not be deleted individually by the user.
 		 */
-		void GParameterSet::registerEvaluator(GEvaluator *eval){
+		void GParameterSet::registerEvaluator(const shared_ptr<GEvaluator>& eval){
 			if(!eval){ // empty pointer ?
 				std::ostringstream error;
 				error << "In GParameterSet::registerEvaluator(): Error" << std::endl
@@ -136,8 +135,7 @@ namespace Gem
 				throw geneva_empty_evaluation_function() << error_string(error.str());
 			}
 
-			shared_ptr<GEvaluator> p(eval);
-			eval_ = p;
+			eval_ = eval;
 		}
 
 		/**********************************************************************************/

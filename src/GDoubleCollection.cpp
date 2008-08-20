@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GDoubleCollection.cpp
  */
 
-/* GDoubleCollection.cpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -51,7 +49,7 @@ GDoubleCollection::GDoubleCollection() :
 GDoubleCollection::GDoubleCollection(std::size_t nval) :
 	GParameterCollectionT<double> () {
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(gr.evenRandom(-DEFINIT, DEFINIT));
+		data.push_back(gr.evenRandom(-DEFINIT, DEFINIT));
 	}
 }
 
@@ -66,7 +64,7 @@ GDoubleCollection::GDoubleCollection(std::size_t nval) :
 GDoubleCollection::GDoubleCollection(std::size_t nval, double min, double max) :
 	GParameterCollectionT<double> () {
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(gr.evenRandom(min, max));
+		data.push_back(gr.evenRandom(min, max));
 	}
 }
 
@@ -145,9 +143,9 @@ void GDoubleCollection::load(const GObject * cp) {
  * @param min The lower boundary for random entries
  * @param max The upper boundary for random entries
  */
-void GDoubleCollection::addData(std::size_t nval, double min, double max) {
+void GDoubleCollection::addRandomData(std::size_t nval, double min, double max) {
 	for(std::size_t i= 0; i<nval; i++) {
-		this->push_back(gr.evenRandom(min,max));
+		data.push_back(gr.evenRandom(min,max));
 	}
 }
 

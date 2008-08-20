@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GenevaExceptions.hpp
  */
 
-/* GenevaExceptions.hpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -110,6 +108,8 @@ class geneva_empty_evaluation_function : public boost::exception {};
 class geneva_evaluation_function_not_present : public boost::exception {};
 /** @brief Class to be thrown as an error if no or not the required adaptor was found */
 class geneva_no_adaptor_found : public boost::exception {};
+/** @brief Class to thrown as an error if a shared_ptr is empty */
+class geneva_shared_ptr_empty : public boost::exception {};
 
 /**************************************************************************************************/
 

@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GBrokerPopulation.cpp
  */
 
-/* GBrokerPopulation.cpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -218,7 +216,7 @@ void GBrokerPopulation::mutateChildren() {
 	using namespace boost::posix_time;
 
 	std::vector<boost::shared_ptr<GIndividual> >::reverse_iterator rit;
-	std::size_t np = getNParents(), nc=this->size()-np;
+	std::size_t np = getNParents(), nc=data.size()-np;
 	boost::uint32_t generation=this->getGeneration();
 
 	//--------------------------------------------------------------------------------
@@ -226,26 +224,26 @@ void GBrokerPopulation::mutateChildren() {
 
 	// Start with the children from the back of the population
 	// This is the same for MUPLUSNU and MUCOMMANU mode
-	for(rit=this->rbegin(); rit!=this->rbegin()+nc; ++rit) {
+	for(rit=data.rbegin(); rit!=data.rbegin()+nc; ++rit) {
 		(*rit)->setAttribute("command","mutate");
 		CurrentBufferPort_->push_front_orig(*rit);
 	}
 
 	// We can remove children, so only parents remain in the population
-	this->resize(np);
+	data.resize(np);
 
 	// Make sure we also evaluate the parents in the first generation, if needed.
 	// This is only applicable to the MUPLUSNU mode.
 	if(generation==0 && this->getSortingScheme()==MUPLUSNU) {
 		// Note that we only have parents left in this generation
-		for(rit=this->rbegin(); rit!=this->rend(); ++rit) {
+		for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
 			(*rit)->setAttribute("command","evaluate");
 			CurrentBufferPort_->push_front_orig(*rit);
 		}
 
 		// Next we clear the population. We do not loose anything,
 		// as at least one shared_ptr to our individuals remains
-		this->clear();
+		data.clear();
 	}
 
 	//--------------------------------------------------------------------------------
@@ -274,7 +272,7 @@ void GBrokerPopulation::mutateChildren() {
 			// Count the number of items received.
 			if(p->getParentPopGeneration() == generation){
 				// Add the individual to our list.
-				this->push_back(p);
+				data.push_back(p);
 
 				// Update the counter.
 				if(p->isParent()) nReceivedParent++;
@@ -285,7 +283,7 @@ void GBrokerPopulation::mutateChildren() {
 			else {
 				if(!p->isParent()){ // We do not accept parents from older populations
 					// Add the individual to our list.
-					this->push_back(p);
+					data.push_back(p);
 
 					// Update the counter
 					nReceivedChildOlder++;
@@ -321,7 +319,7 @@ void GBrokerPopulation::mutateChildren() {
 			// Count the number of items received.
 			if(p->getParentPopGeneration() == generation) {
 				// Add the individual to our list.
-				this->push_back(p);
+				data.push_back(p);
 
 				// Update the counter
 				if(p->isParent()) nReceivedParent++;
@@ -330,7 +328,7 @@ void GBrokerPopulation::mutateChildren() {
 			else {
 				if(!p->isParent()){  // We do not accept parents from older populations
 					// Add the individual to our list.
-					this->push_back(p);
+					data.push_back(p);
 
 					// Update the counter
 					nReceivedChildOlder++;
@@ -362,7 +360,7 @@ void GBrokerPopulation::mutateChildren() {
 
 	if(generation==0 && this->getSortingScheme()==MUPLUSNU){
 		// Have any individuals returned at all ??
-		if(this->size()==0) { // No way out ...
+		if(data.size()==0) { // No way out ...
 			std::ostringstream error;
 			error << "In GBrokerPopulation::mutateChildren() : Error!" << std::endl
 				  << "Population is empty when it shouldn't be." << std::endl;
@@ -373,7 +371,7 @@ void GBrokerPopulation::mutateChildren() {
 
 		// Sort according to parent/child tag. We do not know in whar order individuals have returned.
 		// Hence we need to sort them.
-		sort(this->begin(), this->end(),
+		sort(data.begin(), data.end(),
 			 boost::bind(&GIndividual::isParent, _1) > boost::bind(&GIndividual::isParent, _2));
 	}
 
@@ -399,14 +397,14 @@ void GBrokerPopulation::mutateChildren() {
 			    << "plus " << nReceivedChildOlder << " older children," << std::endl
 			    << "where the default number of children is " << this->getDefaultNChildren() << std::endl;
 
-	if(this->size() < np+this->getDefaultNChildren()){
-		std::size_t fixSize=np+this->getDefaultNChildren() - this->size();
+	if(data.size() < np+this->getDefaultNChildren()){
+		std::size_t fixSize=np+this->getDefaultNChildren() - data.size();
 
 		information << fixSize << "individuals thus need to be added to the population." << std::endl
 					<< "Note that children may still return in later generations." << std::endl;
 
 		for(std::size_t i=0; i<fixSize; i++){
-			GIndividual *gi = dynamic_cast<GIndividual *>((this->back())->clone());
+			GIndividual *gi = dynamic_cast<GIndividual *>((data.back())->clone());
 
 			if(!gi){ // Cross check that the conversion worked
 				std::ostringstream error;
@@ -417,7 +415,7 @@ void GBrokerPopulation::mutateChildren() {
 				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
 			}
 
-			this->push_back(shared_ptr<GIndividual>(gi));
+			data.push_back(shared_ptr<GIndividual>(gi));
 		}
 	}
 
@@ -448,7 +446,7 @@ void GBrokerPopulation::select() {
 	// At this point we have a sorted list of individuals and can take care of
 	// too many members, so the next generation finds a "standard" population. This
 	// function will remove the last items.
-	this->resize(this->getNParents() + this->getDefaultNChildren());
+	data.resize(this->getNParents() + this->getDefaultNChildren());
 
 	// Everything should be back to normal ...
 }

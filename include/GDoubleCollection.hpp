@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GDoubleCollection.hpp
  */
 
-/* GDoubleCollection.hpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -95,7 +93,7 @@ public:
 	virtual void load(const GObject *);
 
 	/** @brief Appends double values in a given range */
-	void addData(std::size_t, double, double);
+	void addRandomData(std::size_t, double, double);
 };
 
 /**********************************************************************/

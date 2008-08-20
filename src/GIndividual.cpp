@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GIndividual.cpp
  */
 
-/* GIndividual.cpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -352,6 +350,41 @@ std::string GIndividual::delAttribute(const std::string& key){
  */
 void GIndividual::clearAttributes() {
 	attributeTable_.clear();
+}
+
+/**********************************************************************************/
+/**
+ * A version of the fitness framework that also checks for
+ * exceptions. To be used when fitness() is to become the main
+ * function to be called by a thread.
+ */
+double GIndividual::checkedFitness(){
+	try{
+		return this->fitness();
+	}
+	catch(std::exception& e){
+		std::ostringstream error;
+		error << "In GIndividual::checkedFitness(): Caught std::exception with message" << std::endl
+		      << e.what() << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		std::terminate();
+	}
+	catch(boost::exception& e){
+		std::ostringstream error;
+		error << "In GIndividual::checkedFitness(): Caught boost::exception with message" << std::endl
+		      << e.diagnostic_information() << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		std::terminate();
+	}
+	catch(...){
+		std::ostringstream error;
+		error << "In GIndividual::checkedFitness(): Caught unknown exception" << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		std::terminate();
+	}
 }
 
 /**********************************************************************************/

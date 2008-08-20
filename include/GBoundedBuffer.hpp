@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GBoundedBuffer.hpp
  */
 
-/* GBoundedBuffer.hpp
- *
- * This file is part of Geneva, Gemfony scientific's optimization library.
+/* This file is part of Geneva, Gemfony scientific's optimization library.
  *
  * Note: This class was adapted from a circular_buffer test case (
  * [Boost 1.36 trunk version 17.7.08]/libs/circular_buffer/test/bounded_buffer_comparison.cpp )

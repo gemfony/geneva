@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GParameterSet.hpp
  */
 
-/* GParameterSet.hpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -86,7 +84,7 @@ public:
 	virtual void load(const GObject*);
 
 	/** @brief Registers a GEvaluator object */
-	void registerEvaluator(GEvaluator *);
+	void registerEvaluator(const boost::shared_ptr<GEvaluator>&);
 
 protected:
 	/** @brief The actual fitness calculation takes place here */
@@ -95,6 +93,7 @@ protected:
 	boost::shared_ptr<GEvaluator> eval_;
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 #endif /* GPARAMETERSET_HPP_ */

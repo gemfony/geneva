@@ -1,9 +1,8 @@
 /**
- * \file
+ * @file GBit.hpp
  */
 
-/**
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -71,21 +70,21 @@ class GBit
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/** \brief The standard constructor */
+	/** @brief The standard constructor */
 	GBit(void);
-	/** \brief Initialization with a value */
+	/** @brief Initialization with a value */
 	explicit GBit(const Gem::GenEvA::bit&);
-	/** \brief The standard copy constructor */
+	/** @brief The standard copy constructor */
 	GBit(const GBit&);
-	/** \brief The standard destructor */
+	/** @brief The standard destructor */
 	virtual ~GBit();
 
-	/** \brief The standard assignment operator */
+	/** @brief The standard assignment operator */
 	const GBit& operator=(const GBit&);
 
-	/** \brief Loads another GBit object, camouflaged as a GObject */
+	/** @brief Loads another GBit object, camouflaged as a GObject */
 	virtual void load(const GObject * gb);
-	/** \brief Creates a deep copy of this object */
+	/** @brief Creates a deep copy of this object */
 	virtual GObject *clone(void);
 };
 

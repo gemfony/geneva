@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GThreadGroup.hpp
  */
 
-/* GThreadGroup.hpp
- *
- * This file is part of Geneva, Gemfony scientific's optimization library.
+/* This file is part of Geneva, Gemfony scientific's optimization library.
  *
  * Note: This class was adapted from an early Boost 1.36 version of the
  * thread_group class. The original code containted the following text:
@@ -30,8 +28,7 @@
  ***************************************************************
  */
 
-/*
- * Boost Software License - Version 1.0 - August 17th, 2003
+/* Boost Software License - Version 1.0 - August 17th, 2003
  *
  * Permission is hereby granted, free of charge, to any person or organization
  * obtaining a copy of the software and accompanying documentation covered by

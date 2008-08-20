@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GBoostThreadPopulation.hpp
  */
 
-/* GBoostThreadPopulation.hpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -112,7 +110,7 @@ protected:
 
 private:
 	uint8_t nThreads_; ///< The number of threads
-	pool tp_; ///< A thread pool
+	boost::threadpool::pool tp_; ///< A thread pool
 };
 
 /********************************************************************/

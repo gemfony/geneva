@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GBasePopulation.cpp
  */
 
-/* GBasePopulation.cpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -55,7 +53,8 @@ GBasePopulation::GBasePopulation() :
 	firstId_(true), // The "real" id will be set in the GBasePopulation::optimize function
 	maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION)),
 	maxDurationTotalSeconds_(maxDuration_.total_seconds()),
-	defaultNChildren_(0)
+	defaultNChildren_(0),
+	infoFunction_(boost::bind(&GBasePopulation::defaultInfoFunction,this,this))
 { /* nothing */ }
 
 /***********************************************************************************/
@@ -80,11 +79,9 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	firstId_(true), // We want the id to be re-calculated for a new object
 	maxDuration_(cp.maxDuration_),
 	maxDurationTotalSeconds_(maxDuration_.total_seconds()), // this parameter can be re-calculated
-	defaultNChildren_(cp.defaultNChildren_)
-{
-	// We can copy boost::function objects like any ordinary variable
-	infoFunction_ = cp.infoFunction_;
-}
+	defaultNChildren_(cp.defaultNChildren_),
+	infoFunction_(cp.infoFunction_)
+{ /* nothing */ }
 
 /***********************************************************************************/
 /**
@@ -295,7 +292,7 @@ void GBasePopulation::adjustPopulation() {
 	}
 
 	// Check how many individuals have been added already. At least one is required.
-	std::size_t this_sz = this->size();
+	std::size_t this_sz = data.size();
 	if(this_sz == 0) {
 		std::ostringstream error;
 		error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
@@ -311,7 +308,7 @@ void GBasePopulation::adjustPopulation() {
 
 	// Do the smart pointers actually point to any objects ?
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
+	for(it=data.begin(); it!=data.end(); ++it) {
 		if(!(*it)) { // shared_ptr can be implicitly converted to bool
 			std::ostringstream error;
 			error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
@@ -331,10 +328,10 @@ void GBasePopulation::adjustPopulation() {
 	else { // We need to add members, so that we have a minimum of popSize_ members in the population
 		// Missing members are created as copies of the population's first individual
 		for(std::size_t i=0; i<(popSize_-this_sz); i++) {
-			GIndividual *gi = dynamic_cast<GIndividual *>(this->at(0)->clone());
+			GIndividual *gi = dynamic_cast<GIndividual *>(data.at(0)->clone());
 			if(gi) { // did the conversion work ?
 				boost::shared_ptr<GIndividual> p(gi);
-				this->push_back(p);
+				data.push_back(p);
 			}
 			else {
 				std::ostringstream error;
@@ -385,7 +382,7 @@ std::string GBasePopulation::getId() {
  * @return The current size of the population
  */
 std::size_t GBasePopulation::getPopulationSize() const {
-	return this->size();
+	return data.size();
 }
 
 /***********************************************************************************/
@@ -407,7 +404,7 @@ std::size_t GBasePopulation::getNParents() const {
  * @return The number of children in the population
  */
 std::size_t GBasePopulation::getNChildren() const {
-	return this->size() - nParents_;
+	return data.size() - nParents_;
 }
 
 /***********************************************************************************/
@@ -556,7 +553,7 @@ void GBasePopulation::customRecombine() {
 	switch(recombinationMethod_){
 	case DEFAULTRECOMBINE: // we want the RANDOMRECOMBINE behavior
 	case RANDOMRECOMBINE:
-		for(it=this->begin()+nParents_; it!= this->end(); ++it)	randomRecombine(*it);
+		for(it=data.begin()+nParents_; it!= data.end(); ++it) randomRecombine(*it);
 		break;
 
 	case VALUERECOMBINE:
@@ -566,7 +563,7 @@ void GBasePopulation::customRecombine() {
 		// calculation in this case. Hence we fall back to random
 		// recombination in generation 0. No value calculation takes
 		// place there.
-		for(it=this->begin()+nParents_; it!= this->end(); ++it)	{
+		for(it=data.begin()+nParents_; it!= data.end(); ++it) {
 			if(generation_ == 0) randomRecombine(*it);
 			else valueRecombine(*it);
 		}
@@ -601,7 +598,7 @@ void GBasePopulation::randomRecombine(boost::shared_ptr<GIndividual>& p) {
 	// try/catch blocks would add a non-negligible overhead in this function.
 	p_pos = numeric_cast<std::size_t>(gr.discreteRandom(numeric_cast<boost::uint16_t>(nParents_)));
 
-	p->load((this->begin() + p_pos)->get());
+	p->load((data.begin() + p_pos)->get());
 }
 
 /***********************************************************************************/
@@ -621,7 +618,7 @@ void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p) {
 	// This function only makes sense if we have at least 2 parents
 	// We do the recombination manually if we only have one parent.
 	if(nParents_==1) {
-		p->load((this->begin())->get());
+		p->load((data.begin())->get());
 		return;
 	}
 	else { // We have more than one parent - calculate the individual thresholds
@@ -644,7 +641,7 @@ void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p) {
 
 		for(i=0; i<nParents_; i++) {
 			if(randTest<threshold[i]) {
-				p->load((this->begin() + i)->get());
+				p->load((data.begin() + i)->get());
 				done = true;
 				break;
 			}
@@ -677,10 +674,10 @@ void GBasePopulation::recombine()
 	// We require at this stage that at least the default number of
 	// children is present. If individuals can get lost in your setting,
 	// you must add mechanisms to "repair" the population.
-	if((this->size()-nParents_) < defaultNChildren_){
+	if((data.size()-nParents_) < defaultNChildren_){
 		std::ostringstream error;
 		error << "In GBasePopulation::recombine(): Error!" << std::endl
-			  << "Too few children. Got " << this->size()-nParents_ << "," << std::endl
+			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 			  << "but was expecting at least " << defaultNChildren_ << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
@@ -710,14 +707,14 @@ void GBasePopulation::mutateChildren()
 	// this stage we have several identical parents in the population,
 	// due to the actions of the adjustPopulation function.
 	if(generation_ == 0) {
-		for(it=this->begin(); it!=this->begin()+nParents_; ++it) {
+		for(it=data.begin(); it!=data.begin()+nParents_; ++it) {
 			(*it)->fitness();
 		}
 	}
 
 	// Next we perform the mutation of each child individual in
 	// sequence. Note that this could also trigger fitness calculation.
-	for(it=this->begin()+nParents_; it!=this->end(); ++it) {
+	for(it=data.begin()+nParents_; it!=data.end(); ++it) {
 		(*it)->mutate();
 	}
 }
@@ -734,10 +731,10 @@ void GBasePopulation::select()
 	// We require at this stage that at least the default number of
 	// children is present. If individuals can get lost in your setting,
 	// you must add mechanisms to "repair" the population.
-	if((this->size()-nParents_) < defaultNChildren_){
+	if((data.size()-nParents_) < defaultNChildren_){
 		std::ostringstream error;
 		error << "In GBasePopulation::select(): Error!" << std::endl
-			  << "Too few children. Got " << this->size()-nParents_ << "," << std::endl
+			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 			  << "but was expecting at least " << defaultNChildren_ << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
@@ -750,25 +747,25 @@ void GBasePopulation::select()
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it_begin;
 
 	// Find suitable start and end-points
-	if(muplusnu_ == MUPLUSNU) it_begin = this->begin();
-	else it_begin = this->begin() + nParents_; // MUCOMMANU
+	if(muplusnu_ == MUPLUSNU) it_begin = data.begin();
+	else it_begin = data.begin() + nParents_; // MUCOMMANU
 
 	// Sort the arrays. Note that we are using boost::function
 	// objects here, that have been "loaded" with function objects
 	// in the default constructor
 	if(maximize_){
-		std::sort(it_begin, this->end(),
+		std::sort(it_begin, data.end(),
 				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 	}
 	else{
-		std::sort(it_begin, this->end(),
+		std::sort(it_begin, data.end(),
 				  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
 	}
 
 	// Move the parents' region to the end of the range if
 	// this is the MUCOMMANU case
 	if(!muplusnu_)
-		std::swap_ranges(this->begin(),this->begin()+nParents_,this->begin()+nParents_);
+		std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
 }
 
 /***********************************************************************************/
@@ -793,7 +790,7 @@ double GBasePopulation::fitnessCalculation() {
 
 	this->optimize();
 
-	double val = this->at(0)->getCurrentFitness(dirty);
+	double val = data.at(0)->getCurrentFitness(dirty);
 	// is this the current fitness ? We should at this stage never
 	// run across an unevaluated individual.
 	if(dirty) {
@@ -816,12 +813,12 @@ double GBasePopulation::fitnessCalculation() {
  */
 void GBasePopulation::markParents() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=this->begin(); it!=this->begin()+nParents_; ++it){
+	for(it=data.begin(); it!=data.begin()+nParents_; ++it){
 		(*it)->setIsParent();
 		(*it)->setParentPopGeneration(generation_);
 	}
 
-	for(it=this->begin()+nParents_; it!=this->end(); ++it){
+	for(it=data.begin()+nParents_; it!=data.end(); ++it){
 		(*it)->setIsChild();
 		(*it)->setParentPopGeneration(generation_);
 	}
@@ -885,6 +882,27 @@ void GBasePopulation::setRecombinationMethod(const recoScheme& recombinationMeth
  */
 recoScheme GBasePopulation::getRecombinationMethod() const {
 	return recombinationMethod_;
+}
+
+/***********************************************************************************/
+/**
+ * Emits information about the population it has been given. This is the default
+ * information function provided for all populations.
+ * 
+ * @param gbp A pointer to the population information should be emitted about
+ */
+void GBasePopulation::defaultInfoFunction(GBasePopulation * const) const {
+  bool isDirty = false;
+  std::ostringstream information;
+  information << std::setprecision(10)
+	      << "h" << this << "->Fill(" << this->getGeneration() << ", " << data.at(0)->getCurrentFitness(isDirty) << ");";
+  if(isDirty){
+    information << "// dirty!";
+  }
+
+  information << std::endl;
+
+  LOGGER.log(information.str(), Gem::GLogFramework::PROGRESS);
 }
 
 /***********************************************************************************/

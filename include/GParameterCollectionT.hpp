@@ -1,10 +1,8 @@
 /**
- * @file
+ * @file GParameterCollectionT.hpp
  */
 
-/* GParameterCollectionT.hpp
- *
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -53,8 +51,8 @@ namespace GenEvA {
  * values in this class without too much fuss.
  */
 template<class T>
-class GParameterCollectionT: public GParameterBaseWithAdaptorsT<T> ,
-							 public std::vector<T>
+class GParameterCollectionT
+	:public GParameterBaseWithAdaptorsT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -63,7 +61,7 @@ class GParameterCollectionT: public GParameterBaseWithAdaptorsT<T> ,
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GParameterBaseWithAdaptorsT_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this));
-		ar & make_nvp("vector_T", boost::serialization::base_object<std::vector<T> >(*this));
+		ar & make_nvp("data_T", data);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -85,8 +83,7 @@ public:
 	GParameterCollectionT(const GParameterCollectionT<T>& cp) :
 		GParameterBaseWithAdaptorsT<T> (cp) {
 		typename std::vector<T>::const_iterator cit;
-		for (cit = cp.begin(); cit != cp.end(); ++cit)
-			this->push_back(*cit);
+		for (cit = cp.data.begin(); cit != cp.data.end(); ++cit) data.push_back(*cit);
 	}
 
 	/*******************************************************************************************/
@@ -103,8 +100,8 @@ public:
 	 * @param cp A copy of another GParameterCollectionT object
 	 * @return A constant reference to this object
 	 */
-	const GParameterCollectionT<T>& operator=(
-			const GParameterCollectionT<T>& cp) {
+	const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp) 
+	{
 		GParameterCollectionT<T>::load(cp);
 		return *this;
 	}
@@ -136,20 +133,19 @@ public:
 		typename std::vector<T>::iterator it;
 		typename std::vector<T>::const_iterator cit;
 
-		for (cit = gpct->begin(), it = this->begin(); cit != gpct->end(), it
-				!= this->end(); ++it, ++cit) {
-			(*it) = (*cit);
-		}
+		for (cit = gpct->data.begin(), it = data.begin(); 
+		     cit != gpct->data.end(), it!= data.end(); 
+		     ++it, ++cit) 
+		{ (*it) = (*cit); } // Note that this assignment assumes that T has an operator=
 
-		std::size_t gpct_sz = gpct->size(), this_sz = this->size();
-		if (gpct->size() == this->size())
-			return; // Likely the most probable case
+		std::size_t gpct_sz = gpct->data.size(), this_sz = data.size();
+		if (gpct_sz == this_sz)	return; // Likely the most probable case
 		else if (gpct_sz > this_sz) {
-			for (cit = gpct->begin() + this_sz; cit != gpct->end(); ++cit) {
-				this->push_back(*cit);
+			for (cit = gpct->data.begin() + this_sz; cit != gpct->data.end(); ++cit) {
+				data.push_back(*cit);
 			}
 		} else if (this_sz > gpct_sz)
-			this->resize(gpct_sz); // get rid of the surplus elements
+			data.resize(gpct_sz); // get rid of the surplus elements
 	}
 
 	/*******************************************************************************************/
@@ -161,11 +157,35 @@ public:
 	 */
 	virtual void mutate(void) {
 		if (GParameterBaseWithAdaptorsT<T>::numberOfAdaptors() == 1) {
-			GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(*this);
+			GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(data);
 		} else {
-			GParameterBaseWithAdaptorsT<T>::applyAllAdaptors(*this);
+			GParameterBaseWithAdaptorsT<T>::applyAllAdaptors(data);
 		}
 	}
+
+	/*******************************************************************************************/
+	/**
+	 * Allows to add values to the data vector. Mostly syntactic sugar, giving this class
+	 * a similar interface as GMutableSetT .
+	 *
+	 * @param value A value to be appended to the data vector.
+	 */
+	void append(const T& value){
+		data.push_back(value);
+	}	
+
+	/*******************************************************************************************/
+	/**
+	 * The main data set stored in this class. This class was derived from std::vector<T> in older
+	 * versions of the GenEvA library. However, we want to avoid multiple inheritance in order to
+	 * to allow an easier implementation of this library in other languages, such as C# or Java. And
+	 * std::vector has a non-virtual destructor. Hence deriving from it is a) bad style and b) dangerous.
+	 * Just like in the older setting, however, access to the data shall not be obstructed in any way.
+	 * As a consequence, e.g. the GEvaluator can apply all standard algorithms to the std::vector. 
+	 * Providing the same interface without derivation or containment with this class would be 
+	 * error-prone and can be considered "syntactic sugar". Hence we do not follow this path.
+	 */
+	std::vector<T> data;
 	/*******************************************************************************************/
 };
 
