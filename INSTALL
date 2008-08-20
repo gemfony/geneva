@@ -52,8 +52,12 @@ cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost136"\
                               -DBOOST_INCLUDEDIR="/opt/boost136/include/boost-1_36/"\ 
                               -DBOOST_LIBRARYDIR="/opt/boost136/lib"
 
-The command needs to be called on a single line. This command was tested on an
-OpenSUSE 11 system.
+Adding another define -DCMAKE_BUILD_TYPE="Release" or -DCMAKE_BUILD_TYPE="Debug"
+switches between Release (default) and Debug builds.
+
+The command needs to be called on a single line. 
+
+This commands shown here were tested on an OpenSUSE 11 system.
 
 Recommended Software
 ====================

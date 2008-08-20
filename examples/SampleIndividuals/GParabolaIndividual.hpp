@@ -24,10 +24,16 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <vector>
 
 // Boost header files go here
+#include <boost/shared_ptr.hpp>
+
+#ifndef GPARABOLAINDIVIDUAL_HPP_
+#define GPARABOLAINDIVIDUAL_HPP_
 
 // GenEvA header files go here
+#include "GRandom.hpp"
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
@@ -48,6 +54,21 @@ namespace GenEvA
 class GParabolaIndividual
 	:public GParameterSet
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version) {
+		using boost::serialization::make_nvp;
+
+		ar & make_nvp("ParameterSet",
+				boost::serialization::base_object<GParameterSet>(*this));
+		// add all local variables here, if you want them to be serialized. E.g.:
+		// ar & make_nvp("myLocalVar_",myLocalVar_);
+		// This also works with objects, if they have a corresponding serialize() function.
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/********************************************************************************************/
 	/**
@@ -151,3 +172,5 @@ protected:
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+#endif /* GPARABOLAINDIVIDUAL_HPP_ */

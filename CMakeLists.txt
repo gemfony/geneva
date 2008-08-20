@@ -1,17 +1,22 @@
 PROJECT (geneva)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-# Define our project version
-SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
-SET( ${PROJECT_NAME}_MINOR_VERSION 5 )
-SET( ${PROJECT_NAME}_PATCH_LEVEL 0 )
+SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
-# Enforce proper C++. Use this for debug builds.
-ADD_DEFINITIONS ("-DDEBUG -g -Wall -ansi -pthread")
-# Use this for release builds
-# ADD_DEFINITIONS ("-O3 -Wall -ansi -pthread")
+# Set the build type to Release by default
+IF(NOT CMAKE_BUILD_TYPE)
+	SET(CMAKE_BUILD_TYPE Release)
+ENDIF()
 
-# You can hardcode the paths here, if desired 
+IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+	# Enforce proper C++. Use this for debug builds.
+	ADD_DEFINITIONS ("-DDEBUG -g -Wall -ansi -pthread")
+ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
+	# Enforce proper C++. Use this for release builds.
+	ADD_DEFINITIONS ("-O3 -Wall -ansi -pthread")
+ENDIF()
+
+# You can hard-code the paths here, if desired 
 #SET (BOOST_ROOT "/opt/boost136")
 #SET (BOOST_INCLUDEDIR /opt/boost136/include/boost-1_36/)
 #SET (BOOST_LIBRARYDIR /opt/boost136/lib)
@@ -23,7 +28,6 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS date_time system thread serializati
 
 INCLUDE_DIRECTORIES ( 
 	${PROJECT_SOURCE_DIR}/include 
-	${PROJECT_SOURCE_DIR}/examples/SampleIndividuals 
 	${Boost_INCLUDE_DIRS}
 )
 

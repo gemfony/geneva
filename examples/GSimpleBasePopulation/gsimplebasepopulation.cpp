@@ -29,6 +29,7 @@
 #include <boost/function.hpp>
 
 // GenEvA header files go here
+#include "GRandom.hpp"
 #include "GBasePopulation.hpp"
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
@@ -38,9 +39,10 @@
 #include "GBoostThreadPopulation.hpp"
 
 // The individual that should be optimized
-#include "GParabolaIndidvidual.hpp"
+#include "GParabolaIndividual.hpp"
 
 using namespace Gem::GenEvA;
+using namespace Gem::Util;
 
 /************************************************************************************************/
 /**
