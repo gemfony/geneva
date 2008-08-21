@@ -256,6 +256,9 @@ protected:
 	/** @brief Marks parents as parents and children as children */
 	void markParents();
 
+	/** @brief Lets individuals know about the current generation */
+	void markGeneration();
+
 	/** @brief Retrieves the defaultNChildren_ parameter */
 	std::size_t getDefaultNChildren() const;
 

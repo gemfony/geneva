@@ -206,9 +206,9 @@ namespace Util {
     void
     remove_last(void)
     {
-      if(this->size() == 0) return;
-
       boost::lock_guard<mutex> guard(m_);
+
+      if(threads_.size() == 0) return;
 
       (threads_.back())->interrupt();
       (threads_.back())->join();

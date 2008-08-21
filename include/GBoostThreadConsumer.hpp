@@ -40,9 +40,10 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
+#include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 #ifndef GBOOSTTHREADCONSUMER_HPP_
 #define GBOOSTTHREADCONSUMER_HPP_
@@ -72,8 +73,7 @@ const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
  * \todo Need to deal with id issue of GConsumer. get/put now work with this
  */
 class GBoostThreadConsumer
-	:public Gem::Util::GConsumer,
-	 public enable_shared_from_this<GBoostThreadConsumer>
+	:public Gem::Util::GConsumer
 {
 public:
 	/** @brief Standard constructor */
@@ -99,7 +99,10 @@ private:
 	void processItems();
 
 	std::size_t maxThreads_; ///< The maxumum number of allowed threads in the pool
-	Gem::Util::GThreadGroup gtg_;
+	Gem::Util::GThreadGroup gtg_; ///< Holds the processing threads
+
+	boost::mutex stopMutex_;
+	bool stop_; ///< Set to true if we are expected to stop
 };
 
 /***************************************************************/

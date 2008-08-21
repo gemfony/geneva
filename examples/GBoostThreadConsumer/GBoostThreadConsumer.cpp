@@ -38,7 +38,7 @@
 
 // Including this header is mandatory, even if you
 // don't manually instantiate any class.
-#include "GIndividualBroker.hpp" 
+#include "GIndividualBroker.hpp"
 
 #include "GBoostThreadConsumer.hpp"
 #include "GBrokerPopulation.hpp"
@@ -49,6 +49,7 @@
 
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
+using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
@@ -64,8 +65,8 @@ int main(int argc, char **argv){
 	LOGGER.addLogLevel(Gem::GLogFramework::PROGRESS);
 
 	// Add log targets to the system
-	LOGGER.addTarget(new Gem::GLogFramework::GDiskLogger("GSimpleBasePopulation.log"));
-	LOGGER.addTarget(new Gem::GLogFramework::GConsoleLogger());
+	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBoostThreadConsumer.log")));
+	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY.setNProducerThreads(10);
@@ -73,9 +74,10 @@ int main(int argc, char **argv){
 	// Set up a single parabola individual
 	boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(1000, -100.,100.));
 
-	// Create a consumer - the class that does the actual work.
-	GBoostThreadConsumer gbtc;
-	gbtc.setMaxThreads(4);	
+	// Create a consumer and make it known to the global broker
+	boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
+	gbtc->setMaxThreads(4);
+	GINDIVIDUALBROKER.enrol(gbtc);
 
 	GBrokerPopulation pop;
 	pop.append(parabolaIndividual);

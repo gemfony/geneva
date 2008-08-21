@@ -53,7 +53,7 @@ namespace Gem {
 		 *
 		 * @param gblt The log target to be added to the logger
 		 */
-		void GLogger::addTarget(GBaseLogTarget *gblt) {
+		void GLogger::addTarget(const boost::shared_ptr<GBaseLogTarget>& gblt) {
 			if(!gblt) {
 				std::cerr << "In GLogger::addTarget: Error!" << std::endl
 				<< "GBaseLogTarget is empty." << std::endl;
@@ -61,8 +61,7 @@ namespace Gem {
 				std::terminate();
 			}
 
-			boost::shared_ptr<GBaseLogTarget> p(gblt);
-			logVector_.push_back(p);
+			logVector_.push_back(gblt);
 		}
 
 		/***********************************************************************************/
@@ -83,7 +82,7 @@ namespace Gem {
 				<< "No log targets present. Will" << std::endl
 				<< "add a console logger" << std::endl;
 
-				this->addTarget(new GConsoleLogger());
+				this->addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 			}
 
 			// Only log if the requested log level is in our list

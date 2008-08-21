@@ -44,6 +44,7 @@
 
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
+using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
@@ -57,8 +58,8 @@ int main(int argc, char **argv){
 	LOGGER.addLogLevel(Gem::GLogFramework::PROGRESS);
 
 	// Add log targets to the system
-	LOGGER.addTarget(new Gem::GLogFramework::GDiskLogger("GSimpleBasePopulation.log"));
-	LOGGER.addTarget(new Gem::GLogFramework::GConsoleLogger());
+	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GSimpleBasePopulation.log")));
+	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY.setNProducerThreads(10);

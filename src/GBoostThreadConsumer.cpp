@@ -31,11 +31,9 @@ namespace GenEvA {
  */
 GBoostThreadConsumer::GBoostThreadConsumer()
 	:Gem::Util::GConsumer(),
-	 maxThreads_(DEFAULTGBTCMAXTHREADS)
-{
-	// Make ourselves known to the broker.
-	GINDIVIDUALBROKER.enrol(dynamic_pointer_cast<GConsumer>(shared_from_this()));
-}
+	 maxThreads_(DEFAULTGBTCMAXTHREADS),
+	 stop_(false)
+{ /* nothing */ }
 
 /***************************************************************/
 /**
@@ -65,24 +63,37 @@ void GBoostThreadConsumer::process() {
  */
 void GBoostThreadConsumer::processItems(){
 	try{
-		while(true){
-			// Have we been asked to finish ?
-			if(boost::this_thread::interruption_requested()) return;
+		shared_ptr<GIndividual> p;
+		Gem::Util::PORTIDTYPE id;
+		boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
-			shared_ptr<GIndividual> p;
-			Gem::Util::PORTIDTYPE id = GINDIVIDUALBROKER.get(p);
+		while(true){
+			// Have we been asked to stop ?
+			{
+				boost::mutex::scoped_lock stopLock(stopMutex_);
+				if(stop_) break;
+			}
+
+			try{
+				id = GINDIVIDUALBROKER.get(p, timeout);
+			}
+			catch(Gem::Util::gem_util_condition_time_out &) { continue; }
 
 			if(p){
 				bool previous=p->setAllowLazyEvaluation(false);
 				if(p->getAttribute("command") == "evaluate") p->fitness();
 				else if(p->getAttribute("command") == "mutate") p->mutate();
 				p->setAllowLazyEvaluation(previous);
-			}
 
-			GINDIVIDUALBROKER.put(id,p);
+				try{
+					GINDIVIDUALBROKER.put(id, p, timeout);
+				}
+				catch(Gem::Util::gem_util_condition_time_out &) { continue; }
+			}
 		}
 	}
 	catch(boost::thread_interrupted&){
+		std::cout << "Received interrupt signal (2)!" << std::endl;
 		// Terminate
 		return;
 	}
@@ -120,7 +131,8 @@ void GBoostThreadConsumer::processItems(){
  * process() then waits for them to join.
  */
 void GBoostThreadConsumer::shutdown() {
-	gtg_.interrupt_all();
+	boost::mutex::scoped_lock stopLock(stopMutex_);
+	stop_=true;
 }
 
 /***************************************************************/

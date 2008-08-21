@@ -165,6 +165,7 @@ void GBasePopulation::optimize() {
 	startTime_ = boost::posix_time::second_clock::local_time();
 
 	do {
+		this->markGeneration(); // Let all individuals know the current generation
 		this->recombine(); // create new children from parents
 		this->mutateChildren(); // mutate children and calculate their value
 		this->select(); // sort children according to their fitness
@@ -175,9 +176,6 @@ void GBasePopulation::optimize() {
 		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo(INFOPROCESSING);
 
 		generation_++; // update the generation_ counter
-
-		// Let parents and children know their new status and the current generation
-		this->markParents();
 	}
 	while(!halt()); // allows custom halt criteria
 
@@ -356,6 +354,8 @@ void GBasePopulation::adjustPopulation() {
 
 	// Let parents know they are parents and children that they are children
 	markParents();
+	// Let all individuals know about the current generation
+	markGeneration();
 
 	// Make sure derived classes (such as GTransferPopulation) have a way of finding out
 	// what the desired number of children is. This is particularly important, if - in a
@@ -697,6 +697,12 @@ void GBasePopulation::recombine()
 
 	// Do the actual recombination
 	this->customRecombine();
+
+	// Let children know they are children
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	for(it=data.begin()+nParents_; it!=data.end(); ++it){
+		(*it)->setIsChild();
+	}
 }
 
 /***********************************************************************************/
@@ -774,6 +780,12 @@ void GBasePopulation::select()
 	// this is the MUCOMMANU case
 	if(!muplusnu_)
 		std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
+
+	// Let all parents know they are parents
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	for(it=data.begin(); it!=data.begin()+nParents_; ++it){
+		(*it)->setIsParent();
+	}
 }
 
 /***********************************************************************************/
@@ -823,16 +835,25 @@ void GBasePopulation::markParents() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.begin()+nParents_; ++it){
 		(*it)->setIsParent();
-		(*it)->setParentPopGeneration(generation_);
 	}
 
 	for(it=data.begin()+nParents_; it!=data.end(); ++it){
 		(*it)->setIsChild();
+	}
+}
+
+/***********************************************************************************/
+/**
+ * This helper function lets all individuals know their current generation
+ */
+void GBasePopulation::markGeneration() {
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	for(it=data.begin(); it!=data.end(); ++it){
 		(*it)->setParentPopGeneration(generation_);
 	}
 }
 
-/******************************************************************************/
+/***********************************************************************************/
 /**
  * Retrieves the defaultNChildren_ parameter. E.g. in GTransferPopulation::mutateChildren() ,
  * this factor controls when a population is considered to be complete. The corresponding
