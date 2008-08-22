@@ -69,7 +69,7 @@ namespace GenEvA
 const boost::uint32_t ASIOMAXSTALLS=10;
 const boost::uint32_t ASIOMAXCONNECTIONATTEMPTS=10;
 
-const std::size_t CLIENTCOMMANDLENGTH=32;
+const std::size_t CLIENTCOMMANDLENGTH=64;
 
 /**
  * This class is responsible for the client side of network communication
@@ -96,7 +96,7 @@ public:
 
 protected:
 	/** @brief Retrieve work items from the server. */
-	virtual bool retrieve(std::string&, boost::uint32_t);
+	virtual bool retrieve(std::string&);
 
 	/** @brief Submit processed items to the server. */
 	virtual bool submit(const std::string&, const double&, const bool&);
@@ -105,6 +105,9 @@ private:
 	GAsioTCPClient(); ///< Default constructor intentionally left blank
 	GAsioTCPClient(const GAsioTCPClient&); ///< Intentionally left undefined
 	const GAsioTCPClient& operator=(const GAsioTCPClient&);  ///< Intentionally left undefined
+
+	/** @brief Close socket before leaving */
+	bool shutdown(const bool&);
 
 	boost::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts
 	boost::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts
