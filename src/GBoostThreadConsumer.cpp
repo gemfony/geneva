@@ -80,10 +80,7 @@ void GBoostThreadConsumer::processItems(){
 			catch(Gem::Util::gem_util_condition_time_out &) { continue; }
 
 			if(p){
-				bool previous=p->setAllowLazyEvaluation(false);
-				if(p->getAttribute("command") == "evaluate") p->fitness();
-				else if(p->getAttribute("command") == "mutate") p->mutate();
-				p->setAllowLazyEvaluation(previous);
+				p->process();
 
 				try{
 					GINDIVIDUALBROKER.put(id, p, timeout);

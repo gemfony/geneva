@@ -87,6 +87,8 @@ class geneva_population_empty: public boost::exception {};
 // GIndividual
 /** @brief Class to be thrown as an error if the dirty flag is set while lazy evaluation is not allowed */
 class geneva_dirtyflag_set_lazyevaluation_not : public boost::exception {};
+/** @brief Class to be thrown as an error if an unknown command was found */
+class geneva_unknown_command : public boost::exception {};
 
 // GObject
 /** @brief Class to be thrown as an error by GenEvA's load functions */
@@ -112,6 +114,8 @@ class geneva_evaluation_function_not_present : public boost::exception {};
 class geneva_no_adaptor_found : public boost::exception {};
 /** @brief Class to thrown as an error if a shared_ptr is empty */
 class geneva_shared_ptr_empty : public boost::exception {};
+/** @brief Class to be thrown as an error if a function was called although it shouldn't be */
+class geneva_function_called_erroneously : public boost::exception {};
 
 /**************************************************************************************************/
 

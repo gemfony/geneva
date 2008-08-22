@@ -85,13 +85,15 @@ class GIndividual
 public:
 	/** @brief The default constructor */
 	GIndividual();
+	/** @brief Initialization from string representation */
+	GIndividual(const std::string&);
 	/** @brief The copy constructor */
 	GIndividual(const GIndividual&);
 	/** @brief The destructor */
 	virtual ~GIndividual();
 
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() = 0;
+	virtual GObject* clone();
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 
@@ -99,6 +101,11 @@ public:
 	virtual void mutate();
 	/** @brief Calculate the fitness of this object */
 	virtual double fitness();
+	/** @brief Do the required processing for this object */
+	void process();
+	/** @brief Do the required processing for this object and catch all exceptions */
+	void checkedProcess();
+
 	/** @brief Retrieve a value for this class and check for exceptions. Useful for threads */
 	virtual double checkedFitness();
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
@@ -141,9 +148,9 @@ public:
 
 protected:
 	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation() = 0;
+	virtual double fitnessCalculation();
 	/** @brief The actual mutation operations */
-	virtual void customMutations() = 0;
+	virtual void customMutations();
 
 	/** @brief Sets the dirtyFlag_ */
 	void setDirtyFlag() throw();

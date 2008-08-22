@@ -52,7 +52,6 @@ GBasePopulation::GBasePopulation() :
 	id_("empty"),
 	firstId_(true), // The "real" id will be set in the GBasePopulation::optimize function
 	maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION)),
-	maxDurationTotalSeconds_(maxDuration_.total_seconds()),
 	defaultNChildren_(0),
 	infoFunction_(boost::bind(&GBasePopulation::defaultInfoFunction,this,_1,_2))
 { /* nothing */ }
@@ -78,7 +77,6 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	id_("empty"),
 	firstId_(true), // We want the id to be re-calculated for a new object
 	maxDuration_(cp.maxDuration_),
-	maxDurationTotalSeconds_(maxDuration_.total_seconds()), // this parameter can be re-calculated
 	defaultNChildren_(cp.defaultNChildren_),
 	infoFunction_(cp.infoFunction_)
 { /* nothing */ }
@@ -127,7 +125,6 @@ void GBasePopulation::load(const GObject * cp)
 	id_="empty"; // We need our own id
 	firstId_=true, // We want the id to be re-calculated for a new object
 	maxDuration_ = gbp_load->maxDuration_;
-	maxDurationTotalSeconds_ = maxDuration_.total_seconds(); // Intentionally re-calculated
 	defaultNChildren_ = gbp_load->defaultNChildren_;
 
 	infoFunction_ = gbp_load->infoFunction_;
@@ -479,14 +476,15 @@ void GBasePopulation::setMaxTime(boost::posix_time::time_duration maxDuration) {
 	using namespace boost::posix_time;
 
 	// Only allow "real" values
-	if(maxDuration.is_special() || maxDuration.is_negative() || maxDuration.total_microseconds()==0) {
+	if(maxDuration.is_special() || maxDuration.is_negative()) {
 		std::ostringstream error;
 		error << "In GBasePopulation::setMaxTime() : Error!" << std::endl
-			  << "maxDuration is set to 0" << std::endl;
+			  << "Invalid maxDuration." << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 		throw geneva_invalid_loop_time()  << error_string(error.str());
 	}
+
 	maxDuration_ = maxDuration;
 }
 
@@ -881,8 +879,8 @@ bool GBasePopulation::halt()
 	if(maxGeneration_ && (generation_ > maxGeneration_)) return true;
 
 	// Do we have a scheduled halt time ? The comparatively expensive
-	// timedHalt() calculation is only called if maxDurationTotalSeconds_
-	// has a value != 0.
+	// timedHalt() calculation is only called if maxDuration_
+	// is at least one microsecond.
 	if(maxDuration_.total_microseconds() && timedHalt()) return true;
 
 	// Has the user specified an additional break condition ?

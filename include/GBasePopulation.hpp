@@ -154,7 +154,6 @@ class GBasePopulation
 		ar & make_nvp("muplusnu_", muplusnu_);
 		ar & make_nvp("maximize_", maximize_);
 		ar & make_nvp("maxDuration_", maxDuration_);
-		ar & make_nvp("maxDurationTotalSeconds_",maxDurationTotalSeconds_);
 		ar & make_nvp("defaultNChildren_", defaultNChildren_);
 		// Note that id and firstId_ are not serialized as we need the id
 		// to be recalculated for de-serialized objects. Likewise, startTime_
@@ -291,7 +290,6 @@ private:
 	bool firstId_; ///< Is this the first call to getId() ?
 	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
 	boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization
-	boost::uint32_t maxDurationTotalSeconds_; ///< maxDuration translated to an uint32_t
 	std::size_t defaultNChildren_; ///< Expected number of children
 
 	boost::function<void (const infoMode&, GBasePopulation * const)> infoFunction_; ///< Used to emit information with doInfo()

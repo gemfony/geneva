@@ -47,6 +47,25 @@ GIndividual::GIndividual() :
 
 /**********************************************************************************/
 /**
+ * Initialization with string representation of this class
+ *
+ * @param data A string representation of this class
+ */
+GIndividual::GIndividual(const std::string& data) :
+	GMutableI(),
+	GRateableI(),
+	GObject(),
+	currentFitness_(0.),
+	dirtyFlag_(true),
+	allowLazyEvaluation_(false),
+	parentPopGeneration_(0),
+	parentCounter_(0)
+{
+	this->fromString(data);
+}
+
+/**********************************************************************************/
+/**
  * The standard copy constructor.
  *
  * @param cp A copy of another GIndividual object
@@ -86,6 +105,52 @@ void GIndividual::load(const GObject* cp) {
 	allowLazyEvaluation_ = gi_load->allowLazyEvaluation_;
 	parentPopGeneration_ = gi_load->parentPopGeneration_;
 	parentCounter_ = gi_load->parentCounter_;
+}
+
+/**********************************************************************************/
+/**
+ * Creates a deep copy of this object.
+ */
+GObject* GIndividual::clone(){
+	return new GIndividual(*this);
+}
+
+/**********************************************************************************/
+/**
+ * The actual fitness calculation is triggered by this function in derived
+ * classes. The function is not intended to be called directly on a GIndividual.
+ * However, in order to allow (de-)serialization, GIndividual must be instantiable.
+ * Hence we cannot make the class abstract.
+ *
+ * @return A 0 value - this function is not intended to be called
+ */
+double GIndividual::fitnessCalculation(){
+	std::ostringstream error;
+	error << "In GIndividual::fitnessCalculation(): Error" << std::endl
+		  << "This function should never have been called directly!" << std::endl;
+
+	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+	throw geneva_function_called_erroneously() << error_string(error.str());
+
+	return 0; // Make the compiler happy
+}
+
+/**********************************************************************************/
+/**
+ * The actual mutation operation takes place in derived classes. The function is
+ * not intended to be called directly on a GIndividual. However, in order to allow
+ * (de-)serialization, GIndividual must be instantiable. Hence we cannot make the
+ * class abstract.
+ */
+void GIndividual::customMutations(){
+	std::ostringstream error;
+	error << "In GIndividual::customMutations(): Error" << std::endl
+		  << "This function should never have been called directly!" << std::endl;
+
+	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+	throw geneva_function_called_erroneously() << error_string(error.str());
 }
 
 /**********************************************************************************/
@@ -383,6 +448,61 @@ double GIndividual::checkedFitness(){
 	catch(...){
 		std::ostringstream error;
 		error << "In GIndividual::checkedFitness(): Caught unknown exception" << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		std::terminate();
+	}
+}
+
+/**********************************************************************************/
+/**
+ * Performs all necessary processing steps for this object. Not meant to be
+ * called from threads, as no exceptions are caught. Use checkedProcess() instead.
+ */
+void GIndividual::process(){
+	bool previous=this->setAllowLazyEvaluation(false);
+	if(this->getAttribute("command") == "mutate") this->mutate();
+	else if(this->getAttribute("command") == "evaluate") this->fitness();
+	else {
+		std::ostringstream error;
+		error << "In GIndividual::process(): Unknown command:\""
+			  << this->getAttribute("command") << "\"" << std::endl;
+
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		throw geneva_unknown_command() << error_string(error.str());
+	}
+	this->setAllowLazyEvaluation(previous);
+}
+
+/**********************************************************************************/
+/**
+ * Performs all necessary processing steps for this object and catches all exceptions.
+ * Meant to be called by threads.
+ */
+void GIndividual::checkedProcess(){
+	try{
+		return this->process();
+	}
+	catch(std::exception& e){
+		std::ostringstream error;
+		error << "In GIndividual::checkedProcess(): Caught std::exception with message" << std::endl
+		      << e.what() << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		std::terminate();
+	}
+	catch(boost::exception& e){
+		std::ostringstream error;
+		error << "In GIndividual::checkedProcess(): Caught boost::exception with message" << std::endl
+		      << e.diagnostic_information() << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		std::terminate();
+	}
+	catch(...){
+		std::ostringstream error;
+		error << "In GIndividual::checkedProcess(): Caught unknown exception" << std::endl;
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();

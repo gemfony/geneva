@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( GENEVAINCLUDES
 	GAdaptorT.hpp
 	GBasePopulation.hpp
+	GBaseClient.hpp
 	GBitCollection.hpp
 	GBitFlipAdaptor.hpp
 	GBit.hpp
