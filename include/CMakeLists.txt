@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( GENEVAINCLUDES
+	GAsioHelperFunctions.hpp
 	GAdaptorT.hpp
 	GBasePopulation.hpp
 	GBaseClient.hpp

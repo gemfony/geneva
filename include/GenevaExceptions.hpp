@@ -48,6 +48,10 @@ namespace GenEvA {
 /** @brief String container for error messages */
 typedef boost::error_info<struct tag_errno, std::string> error_string;
 
+// GAsioHelperFunctions
+/** @brief Class to be thrown as an error if an invalid data header was received */
+class geneva_invalid_asio_header : public boost::exception {};
+
 // GBasePopulation
 /** @brief Class to be thrown as an error if the popSize_ or nParents_ parameters
  * haven't been set */
