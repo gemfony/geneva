@@ -63,7 +63,7 @@ void GBoostThreadConsumer::process() {
  */
 void GBoostThreadConsumer::processItems(){
 	try{
-		shared_ptr<GIndividual> p;
+		boost::shared_ptr<GIndividual> p;
 		Gem::Util::PORTIDTYPE id;
 		boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 

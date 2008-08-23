@@ -21,6 +21,7 @@ SET ( GENEVASOURCES
 	GParameterBase
 	GParameterSet
 	GRandom
+	GServerSession
 )
 
 ADD_LIBRARY ( ${PROJECT_NAME} SHARED ${GENEVASOURCES})

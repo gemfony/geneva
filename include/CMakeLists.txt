@@ -37,6 +37,7 @@ SET ( GENEVAINCLUDES
 	GRandom.hpp
 	GRateableI.hpp
 	GSerializableI.hpp
+	GServerSession.hpp
 	GThreadGroup.hpp
 )
 

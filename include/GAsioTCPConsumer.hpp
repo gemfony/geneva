@@ -1,9 +1,8 @@
 /**
- * \file
+ * @file GAsioTCPConsumer.hpp
  */
 
-/**
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of the Geneva library.
@@ -21,10 +20,14 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Standard headers go here
+
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
+
+// Boost headers go here
 
 #include <boost/version.hpp>
 
@@ -46,23 +49,23 @@
 #include <boost/threadpool.hpp>
 
 
-#ifndef GASIOTCPCONSUMER_H_
-#define GASIOTCPCONSUMER_H_
+#ifndef GASIOTCPCONSUMER_HPP_
+#define GASIOTCPCONSUMER_HPP_
 
-using namespace std;
-using namespace boost;
-using boost::asio::ip::tcp;
+// Geneva headers go here
 
 #include "GConsumer.hpp"
-#include "GMemberBroker.hpp"
-#include "GHelperFunctions.hpp"
+#include "GIndividualBroker.hpp"
+#include "GAsioHelperFunctions.hpp"
 #include "GServerSession.hpp"
+#include "GLogger.hpp"
 
-
+namespace Gem
+{
 namespace GenEvA
 {
 
-const uint16_t GASIOTCPCONSUMERTHREADS = 4;
+const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
 
 /*********************************************************************/
 ///////////////////////////////////////////////////////////////////////
@@ -77,26 +80,26 @@ class GAsioServerSession
 	:public GServerSession
 {
 public:
-	/** \brief The standard constructor */
+	/** @brief The standard constructor */
 	GAsioServerSession(boost::asio::io_service&);
-	/** \brief The standard destructor */
+	/** @brief The standard destructor */
 	virtual ~GAsioServerSession();
 
-	/** \brief Retrieves the socket */
-	boost::asio::ip::tcp::socket& socket(void);
+	/** @brief Retrieves the socket */
+	boost::asio::ip::tcp::socket& socket();
 
 protected:
-	/** \brief Retrieve a single command from the stream */
-	virtual string getSingleCommand(void);
-	/** \brief Write a single command to the stream */
-	virtual void sendSingleCommand(const string&);
-	/** \brief Retrieve items from the client. */
-	virtual bool retrieve(string&);
-	/** \brief Submit items to the client. */
-	virtual bool submit(const string&);
+	/** @brief Retrieve a single command from the stream */
+	virtual std::string getSingleCommand();
+	/** @brief Write a single command to the stream */
+	virtual void sendSingleCommand(const std::string&);
+	/** @brief Retrieve items from the client. */
+	virtual bool retrieve(std::string&, std::string&, std::string&, std::string&);
+	/** @brief Submit items to the client. */
+	virtual bool submit(const std::string&, const std::string&);
 
 private:
-	tcp::socket socket_; ///< The underlying socket.
+	boost::asio::ip::tcp::socket socket_; ///< The underlying socket.
 };
 
 /*********************************************************************/
@@ -107,31 +110,31 @@ private:
  * for each client request.
  */
 class GAsioTCPConsumer
-	:public GenEvA::GConsumer // note: GConsumer is noncopyable
+	:public Gem::Util::GConsumer // note: GConsumer is non-copyable
 {
 public:
-	/** \brief The standard constructor */
-	GAsioTCPConsumer(uint8_t);
-	/** \brief A standard destructor */
+	/** @brief The standard constructor */
+	GAsioTCPConsumer(boost::uint8_t);
+	/** @brief A standard destructor */
 	virtual ~GAsioTCPConsumer();
 
-	/** \brief Initialization code, called from GMemberBroker */
-	virtual void init(void);
-	/** \brief The actual business logic, called from GMemberBroker */
-	virtual void customProcess(void);
-	/** \brief Finalization code, called from GMemberBroker */
-	virtual void finally(void);
+	/** @brief Initialization code, called from GMemberBroker */
+	virtual void init();
+	/** @brief The actual business logic, called from GMemberBroker */
+	virtual void customProcess();
+	/** @brief Finalization code, called from GMemberBroker */
+	virtual void finally();
 
 private:
-	/** \brief Called for each new client request */
-	void handleAccept(shared_ptr<GAsioServerSession>, const boost::system::error_code&);
+	/** @brief Called for each new client request */
+	void handleAccept(boost::shared_ptr<GAsioServerSession>, const boost::system::error_code&);
 
 	/**
-	 * ASIO's ioservice, responsible for event processing, absolutely
+	 * ASIO's io service, responsible for event processing, absolutely
 	 * needs to be _before_ acceptor so it gets initialized first.
 	 */
-	boost::asio::io_service _io_service;
-	boost::asio::ip::tcp::acceptor _acceptor; ///< takes care of external connection requests
+	boost::asio::io_service io_service_;
+	boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
 
 	boost::threadpool::pool tp;
 };
@@ -139,5 +142,6 @@ private:
 /*********************************************************************/
 
 } /* namespace GenEvA */
+} /* namespace Gem */
 
-#endif /*GASIOTCPCONSUMER_H_*/
+#endif /*GASIOTCPCONSUMER_HPP_*/

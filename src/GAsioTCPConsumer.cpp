@@ -1,9 +1,8 @@
 /**
- * \file
+ * @file GAsioTCPConsumer.cpp
  */
 
-/**
- * Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of the Geneva library.
@@ -23,6 +22,8 @@
 
 #include "GAsioTCPConsumer.hpp"
 
+namespace Gem
+{
 namespace GenEvA
 {
 
@@ -32,7 +33,7 @@ namespace GenEvA
  * socket. We do not initialize the various character arrays and strings,
  * as they are overwritten for each call to this class.
  *
- * \param io_service A reference to the server's io_service
+ * @param io_service A reference to the server's io_service
  */
 GAsioServerSession::GAsioServerSession(boost::asio::io_service& io_service)
  	:socket_(io_service)
@@ -40,19 +41,33 @@ GAsioServerSession::GAsioServerSession(boost::asio::io_service& io_service)
 
 /*********************************************************************/
 /**
- * A standard destructor. Closes the socket.
+ * A standard destructor. Shuts down and closes the socket.
  */
 GAsioServerSession::~GAsioServerSession(){
-	socket_.close();
+	try{
+		// Make sure we don't leave any open sockets lying around.
+		socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+		socket_.close();
+	}
+	// It is a severe error if an exception is thrown here.
+	// Log and leave.
+	catch(boost::system::system_error&){
+		std::ostringstream error;
+		error << "In GAsioServerSession::~GAsioServerSession():" << std::endl
+			  << "Caught boost::system::system_error exception" << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		std::terminate();
+	}
 }
 
 /*********************************************************************/
 /**
  * Returns the socket used by this object
  *
- * \return The socket used by this object
+ * @return The socket used by this object
  */
-boost::asio::ip::tcp::socket& GAsioServerSession::socket(void){
+boost::asio::ip::tcp::socket& GAsioServerSession::socket(){
     return socket_;
 }
 
@@ -61,27 +76,29 @@ boost::asio::ip::tcp::socket& GAsioServerSession::socket(void){
  * Retrieve a single command from the stream. It will afterwards have
  * been removed from the stream.
  *
- * \return A single command that has been retrieved from a network socket
+ * @return A single command that has been retrieved from a network socket
  */
-string GAsioServerSession::getSingleCommand(void){
-	char inbound_command[command_length];
+std::string GAsioServerSession::getSingleCommand(){
+	std::string result = "empty";
+
+	char inbound_command[COMMANDLENGTH];
 
     // Read a command from the socket. This will remove it from the stream.
     boost::asio::read(socket_, boost::asio::buffer(inbound_command));
 
     // Remove all leading or trailing white spaces from the command.
-    return boost::algorithm::trim_copy(std::string(inbound_command, command_length));
+    return boost::algorithm::trim_copy(std::string(inbound_command, COMMANDLENGTH));
 }
 
 /*********************************************************************/
 /**
  * Write a single command to a socket.
  *
- * \param command A command to be written to a socket
+ * @param command A command to be written to a socket
  */
-void GAsioServerSession::sendSingleCommand(const string& command){
+void GAsioServerSession::sendSingleCommand(const std::string& command){
 	// Format the command ...
-	string outbound_command = assembleQueryString(command, command_length);
+	std::string outbound_command = assembleQueryString(command, COMMANDLENGTH);
 	// ... and tell the client
 	boost::asio::write(socket_, boost::asio::buffer(outbound_command));
 }
@@ -90,19 +107,19 @@ void GAsioServerSession::sendSingleCommand(const string& command){
 /**
  * Retrieves an item from the client (i.e. the socket).
  *
- * \param item An item to be retrieved from the socket
- * \return true if successful, otherwise false
+ * @param item An item to be retrieved from the socket
+ * @return true if successful, otherwise false
  */
-bool GAsioServerSession::retrieve(string& item){
-	char inbound_header[command_length];
+bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid, std::string& fitness, std::string& dirtyflag){
+	char inbound_header[COMMANDLENGTH];
 
 	// First read the header from socket_
 	boost::asio::read(socket_, boost::asio::buffer(inbound_header));
 
 	// And transform to an integer
-	uint16_t dataSize;
+	boost::uint16_t dataSize;
 	try{
-		dataSize=lexical_cast<int16_t>(boost::algorithm::trim_copy(std::string(inbound_header, command_length)));
+		dataSize=lexical_cast<boost::uint16_t>(boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH)));
 	}
 	catch(boost::bad_lexical_cast& e){
 		// tried to put an unknown key back - needs to be logged ...
@@ -120,7 +137,7 @@ bool GAsioServerSession::retrieve(string& item){
 	boost::asio::read(socket_, boost::asio::buffer(inboundData));
 
 	// Transfer data into a string
-	ostringstream oss;
+	std::ostringstream oss;
 	for(vector<char>::iterator it=inboundData.begin(); it != inboundData.end(); ++it) oss << *it;
 	item = oss.str();
 
@@ -131,15 +148,15 @@ bool GAsioServerSession::retrieve(string& item){
 /**
  * Submit an item to the client (i.e. the socket).
  *
- * \param item An item to be written to the socket
- * \return true if successful, otherwise false
+ * @param item An item to be written to the socket
+ * @return true if successful, otherwise false
  */
-bool GAsioServerSession::submit(const string& item){
+bool GAsioServerSession::submit(const std::string& item, const std::string& command){
 	// Format the command
-	string outbound_command = assembleQueryString("compute", command_length);
+	std::string outbound_command = assembleQueryString("compute", COMMANDLENGTH);
 
 	// Format the size header
-	string outbound_header = assembleQueryString(lexical_cast<string>(item.size()), command_length);
+	std::string outbound_header = assembleQueryString(lexical_cast<string>(item.size()), COMMANDLENGTH);
 
 	// Write the serialized data to the socket. We use "gather-write" to send
 	// command, header and data in a single write operation.
@@ -161,11 +178,11 @@ bool GAsioServerSession::submit(const string& item){
  * Standard constructor. Initializes the acceptor with the ioservice
  * and the port.
  *
- * \param port The port through which clients can access the server
+ * @param port The port through which clients can access the server
  */
-GAsioTCPConsumer::GAsioTCPConsumer(uint8_t port)
+GAsioTCPConsumer::GAsioTCPConsumer(boost::uint8_t port)
 	:GConsumer(),
-	 _acceptor(_io_service, tcp::endpoint(tcp::v4(), port)),
+	 acceptor_(io_service_, tcp::endpoint(tcp::v4(), port)),
 	 tp(GASIOTCPCONSUMERTHREADS)
 {
 	GLogStreamer gls;
@@ -175,8 +192,8 @@ GAsioTCPConsumer::GAsioTCPConsumer(uint8_t port)
 	// We can start the actual processing. All real work is done in the GAsioServerSession class .
 	// Note that a pointer to our class will be handed down to all GAsioServerSessions to come, so they
 	// can inform us when a stop condition was reached.
-	shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(_io_service));
-	_acceptor.async_accept(newSession->socket(),
+	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(io_service_));
+	acceptor_.async_accept(newSession->socket(),
 			boost::bind(&GAsioTCPConsumer::handleAccept, this, newSession, boost::asio::placeholders::error));
 }
 
@@ -192,20 +209,20 @@ GAsioTCPConsumer::~GAsioTCPConsumer()
 /**
  * Handles a new connection request from a client.
  *
- * \param currentSession A pointer to the current session
- * \param gmb A pointer to the GMemberBroker, so GAsioServerSession can access the data
- * \param error Possible error conditions
+ * @param currentSession A pointer to the current session
+ * @param gmb A pointer to the GMemberBroker, so GAsioServerSession can access the data
+ * @param error Possible error conditions
  */
-void GAsioTCPConsumer::handleAccept(shared_ptr<GAsioServerSession> currentSession,
+void GAsioTCPConsumer::handleAccept(boost::shared_ptr<GAsioServerSession> currentSession,
 											const boost::system::error_code& error)
 {
 	// First check whether the stop condition was reached or an error occurred in the
 	// previous call. If so, we return immediately and thus interrupt the restart of the
-	// listeners. _io_service then runs out of work, and the main loop terminates
+	// listeners. io_service_ then runs out of work, and the main loop terminates
 	if (!error && !stopConditionReached()){
 	    // First we make sure a new session is started asynchronously so the next request can be served
-	    shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(_io_service));
-	    _acceptor.async_accept(newSession->socket(),
+	    boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(io_service_));
+	    acceptor_.async_accept(newSession->socket(),
 	    	                   boost::bind(&GAsioTCPConsumer::handleAccept, this, newSession,
                 		   	   boost::asio::placeholders::error));
 
@@ -222,27 +239,28 @@ void GAsioTCPConsumer::handleAccept(shared_ptr<GAsioServerSession> currentSessio
 /**
  * Initialization code. Not needed here, hence it is empty.
  */
-void GAsioTCPConsumer::init(void)
+void GAsioTCPConsumer::init()
 { /* nothing */ }
 
 /*********************************************************************/
 /**
  * The function used as the basis of the GMemberBroker's consumer thread.
  *
- * \param gmb A pointer to the GMemberBroker object that initiated the thread
+ * @param gmb A pointer to the GMemberBroker object that initiated the thread
  */
-void GAsioTCPConsumer::customProcess(void){
+void GAsioTCPConsumer::customProcess(){
 	// The io_service's event loop
-	_io_service.run();
+	io_service_.run();
 }
 
 /*********************************************************************/
 /**
  * Finalization code. Not needed here, hence empty.
  */
-void GAsioTCPConsumer::finally(void)
+void GAsioTCPConsumer::finally()
 { /* nothing */ }
 
 /*********************************************************************/
 
 } /* namespace GenEvA */
+} /* namespace Gem */
