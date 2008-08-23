@@ -44,7 +44,11 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
+#include <boost/thread/condition_variable.hpp>
+#include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/threadpool.hpp>
 
@@ -114,16 +118,14 @@ class GAsioTCPConsumer
 {
 public:
 	/** @brief The standard constructor */
-	GAsioTCPConsumer(boost::uint8_t);
+	GAsioTCPConsumer(unsigned short);
 	/** @brief A standard destructor */
 	virtual ~GAsioTCPConsumer();
 
-	/** @brief Initialization code, called from GMemberBroker */
-	virtual void init();
 	/** @brief The actual business logic, called from GMemberBroker */
-	virtual void customProcess();
+	virtual void process();
 	/** @brief Finalization code, called from GMemberBroker */
-	virtual void finally();
+	virtual void shutdown();
 
 private:
 	/** @brief Called for each new client request */
@@ -136,7 +138,10 @@ private:
 	boost::asio::io_service io_service_;
 	boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
 
-	boost::threadpool::pool tp;
+	boost::threadpool::pool tp_; ///< A simple threadpool, see http://threadpoo.sf.net
+
+	boost::mutex stopMutex_; ///< Synchronizes access to the stop_ variable
+	bool stop_; ///< Set to true if we are expected to stop
 };
 
 /*********************************************************************/
