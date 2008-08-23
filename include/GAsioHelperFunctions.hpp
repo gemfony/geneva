@@ -48,6 +48,12 @@ namespace GenEvA
 
 /**********************************************************************************/
 /**
+ * Needed so that server and client agree about the size of the headers and commands
+ */
+const std::size_t COMMANDLENGTH=64;
+
+/**********************************************************************************/
+/**
  * Assembles a query string from a given command, emitting a string of a given size.
  * This function is used in conjunction with Boost::Asio .
  *

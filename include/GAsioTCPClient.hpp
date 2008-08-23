@@ -69,8 +69,6 @@ namespace GenEvA
 const boost::uint32_t ASIOMAXSTALLS=10;
 const boost::uint32_t ASIOMAXCONNECTIONATTEMPTS=10;
 
-const std::size_t CLIENTCOMMANDLENGTH=64;
-
 /**
  * This class is responsible for the client side of network communication
  * with Boost::Asio.
@@ -109,12 +107,15 @@ private:
 	/** @brief Close socket before leaving */
 	bool shutdown(const bool&);
 
+	/** @brief Make a connection attempt */
+	bool tryConnect();
+
 	boost::uint32_t maxStalls_; ///< The maximum allowed number of stalled connection attempts
 	boost::uint32_t maxConnectionAttempts_; ///< The maximum allowed number of failed connection attempts
 
 	boost::uint32_t stalls_; ///< counter for stalled connection attempts
 
-	std::size_t command_length_; ///< The size of the command header.
+	char tmpBuffer_[COMMANDLENGTH];
 
 	boost::asio::io_service io_service_; ///< Holds the Boost::ASIO::io_service object
 

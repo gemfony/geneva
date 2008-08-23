@@ -33,12 +33,17 @@ namespace GenEvA {
  * @param port Identifies the port on the server
  */
 GAsioTCPClient::GAsioTCPClient(std::string server, std::string port) :
-	GBaseClient(), maxStalls_(ASIOMAXSTALLS), maxConnectionAttempts_(
-			ASIOMAXCONNECTIONATTEMPTS), stalls_(0), command_length_(
-			CLIENTCOMMANDLENGTH), io_service_(), socket_(io_service_),
-			resolver_(io_service_), query_(server, port), endpoint_iterator0_(
-					resolver_.resolve(query_)), end_() { /* nothing */
-}
+	GBaseClient(),
+	maxStalls_(ASIOMAXSTALLS),
+	maxConnectionAttempts_(ASIOMAXCONNECTIONATTEMPTS),
+	stalls_(0),
+	io_service_(),
+	socket_(io_service_),
+	resolver_(io_service_),
+	query_(server, port),
+	endpoint_iterator0_(resolver_.resolve(query_)),
+	end_()
+{ /* nothing */ }
 
 /***********************************************************************/
 /**
@@ -100,66 +105,33 @@ bool GAsioTCPClient::retrieve(std::string& item) {
 	item = "empty"; // Indicates that no item could be retrieved
 
 	try {
-		// Try to make a connection, at max maxConnectionAttempts_ times
-		boost::uint32_t connectionAttempt = 0;
-
-	    // Restore the start of the iteration
-	    boost::asio::ip::tcp::resolver::iterator endpoint_iterator=endpoint_iterator0_;
-		boost::system::error_code error = boost::asio::error::host_not_found;
-		while (maxConnectionAttempts_ ? (connectionAttempt++ < maxConnectionAttempts_) : true) {
-			while (error && endpoint_iterator != end_) {
-				// Make sure we try not to re-open an already open socket
-				socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-				socket_.close();
-				// Make the connection attempt
-				socket_.connect(*endpoint_iterator++, error);
-			}
-
-			// We were successful
-			if (!error)	break;
-
-			// Unsuccessful. Sleep for a second, then try again
-			usleep(999999);
-		}
-
-		// Still error ? Return, terminate
-		if (error) return shutdown(false);
+		// Try to make a connection
+		if(!tryConnect()) return shutdown(false);
 
 		// Let the server know we want work
-		boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("ready", command_length_)));
+		boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("ready", COMMANDLENGTH)));
 
 		// Read answer. First we care for the command sent by the server
-		char inboundCommand[command_length_];
-		boost::asio::read(socket_, boost::asio::buffer(inboundCommand));
+		boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
 
 		// Remove all leading or trailing white spaces from the command
-		std::string inboundCommandString = boost::algorithm::trim_copy(
-				std::string(inboundCommand, command_length_));
+		std::string inboundCommandString = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
 
 		// Act on the command
 		if (inboundCommandString == "compute") {
 			// We have likely received data. Let's find out how big it is
-			char inboundHeader_[command_length_];
-			boost::asio::read(socket_, boost::asio::buffer(inboundHeader_));
-			std::string inboundHeader = boost::algorithm::trim_copy(
-					std::string(inboundHeader_, command_length_));
-			std::size_t dataSize = boost::lexical_cast<std::size_t>(
-					inboundHeader);
+			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
+			std::string inboundHeader = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
+			std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
 
 			// Create appropriately sized buffer
-			std::vector<char> inboundData(dataSize);
+			char inboundData[dataSize];
 
 			// Read the real data section from the stream
-			boost::asio::read(socket_, boost::asio::buffer(inboundData));
+			boost::asio::read(socket_, boost::asio::buffer(inboundData, dataSize));
 
-			// And transfer the data into a string
-			std::ostringstream oss;
-			std::vector<char>::iterator it;
-			for (it = inboundData.begin(); it != inboundData.end(); ++it)
-				oss << *it;
-
-			// Make the data known to the outside world
-			item = oss.str();
+			// And make the data known to the outside world
+			item = std::string(inboundData,dataSize);
 
 			// We have successfully retrieved an item, so we need
 			// to reset the stall-counter
@@ -175,7 +147,7 @@ bool GAsioTCPClient::retrieve(std::string& item) {
 				error << "In GAsioTCPClient::retrieve():" << std::endl
 						<< "Maximum number of consecutive stalls reached,"
 						<< std::endl << "with last command = "
-						<< inboundCommand << std::endl
+						<< inboundCommandString << std::endl
 						<< "Cannot cope. Leaving now." << std::endl;
 
 				return shutdown(false);
@@ -234,49 +206,27 @@ bool GAsioTCPClient::retrieve(std::string& item) {
 bool GAsioTCPClient::submit(const std::string& item, const double& fitness,	const bool& isDirty) {
 	// Let's assemble an appropriate buffer
 	std::vector<boost::asio::const_buffer> buffers;
-	std::string result = assembleQueryString("result", command_length_);
+	std::string result = assembleQueryString("result", COMMANDLENGTH);
 	buffers.push_back(boost::asio::buffer(result));
 
 	// Assemble a buffer for the fitness
-	std::string fitnessString = assembleQueryString(boost::lexical_cast<std::string>(fitness),command_length_);
+	std::string fitnessString = assembleQueryString(boost::lexical_cast<std::string>(fitness),COMMANDLENGTH);
 	buffers.push_back(boost::asio::buffer(fitnessString));
 
 	// Assemble a buffer for the dirty flag
-	std::string dirtyString = assembleQueryString(boost::lexical_cast<std::string>(isDirty),command_length_);
+	std::string dirtyString = assembleQueryString(boost::lexical_cast<std::string>(isDirty),COMMANDLENGTH);
 	buffers.push_back(boost::asio::buffer(dirtyString));
 
 	// Assemble the size header
-	std::string sizeHeader = assembleQueryString(boost::lexical_cast<std::string> (item.size()), command_length_);
+	std::string sizeHeader = assembleQueryString(boost::lexical_cast<std::string> (item.size()), COMMANDLENGTH);
 	buffers.push_back(boost::asio::buffer(sizeHeader));
 
 	// Finally take care of the data section.
 	buffers.push_back(boost::asio::buffer(item));
 
 	try{
-		// Try to make a connection, at max maxConnectionAttempts_ times
-		boost::uint32_t connectionAttempt = 0;
-
-	    // Restore the start of the iteration
-	    boost::asio::ip::tcp::resolver::iterator endpoint_iterator=endpoint_iterator0_;
-		boost::system::error_code error = boost::asio::error::host_not_found;
-		while (maxConnectionAttempts_ ? (connectionAttempt++ < maxConnectionAttempts_) : true) {
-			while (error && endpoint_iterator != end_) {
-				// Make sure we try not to re-open an already open socket
-				socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-				socket_.close();
-				// Make the connection attempt
-				socket_.connect(*endpoint_iterator++, error);
-			}
-
-			// We were successful
-			if (!error)	break;
-
-			// Unsuccessful. Sleep for a second, then try again
-			usleep(999999);
-		}
-
-		// Still error ? Return, terminate
-		if (error) return shutdown(false);
+		// Try to make a connection
+		if(!tryConnect()) return shutdown(false);
 
 		// And write the serialized data to the socket. We use
 		// "gather-write" to send different buffers in a single
@@ -322,7 +272,7 @@ bool GAsioTCPClient::submit(const std::string& item, const double& fitness,	cons
 
 /**********************************************************************/
 /**
- * A small helper function that closes the socket and emits a return code
+ * A small helper function that shuts down the socket and emits a return code
  *
  * @param returnCode The return code to be emitted
  * @return The return code
@@ -333,6 +283,41 @@ bool GAsioTCPClient::shutdown(const bool& returnCode){
 	socket_.close();
 
 	return returnCode;
+}
+
+/**********************************************************************/
+/**
+ * Tries to make a connection to the remote site.
+ *
+ * @return true if the connection could be established, false otherwise.
+ */
+bool GAsioTCPClient::tryConnect(){
+	// Try to make a connection, at max maxConnectionAttempts_ times
+	boost::uint32_t connectionAttempt = 0;
+
+    // Restore the start of the iteration
+    boost::asio::ip::tcp::resolver::iterator endpoint_iterator=endpoint_iterator0_;
+	boost::system::error_code error = boost::asio::error::host_not_found;
+	while (maxConnectionAttempts_ ? (connectionAttempt++ < maxConnectionAttempts_) : true) {
+		while (error && endpoint_iterator != end_) {
+			// Make sure we try not to re-open an already open socket
+			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+			socket_.close();
+			// Make the connection attempt
+			socket_.connect(*endpoint_iterator++, error);
+		}
+
+		// We were successful
+		if (!error)	break;
+
+		// Unsuccessful. Sleep for a second, then try again
+		usleep(999999);
+	}
+
+	// Still error ? Return, terminate
+	if (error) return false;
+
+	return true;
 }
 
 /**********************************************************************/

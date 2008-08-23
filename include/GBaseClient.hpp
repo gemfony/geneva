@@ -111,7 +111,7 @@ protected:
 	bool process();
 
 	/** @brief Retrieve work items from the server. To be defined by derived classes. */
-	virtual bool retrieve(std::string&, boost::uint32_t) = 0;
+	virtual bool retrieve(std::string&) = 0;
 
 	/** @brief Submit processed items to the server. To be defined by derived classes. */
 	virtual bool submit(const std::string&, const double&, const bool&) = 0;
