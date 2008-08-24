@@ -39,7 +39,10 @@
 #include "GDoubleGaussAdaptor.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
-#include "GBoostThreadPopulation.hpp"
+#include "GBrokerPopulation.hpp"
+#include "GIndividualBroker.hpp"
+#include "GAsioTCPConsumer.hpp"
+#include "GAsioTCPClient.hpp"
 
 // The individual that should be optimized
 // This is a simple parabola
@@ -80,32 +83,35 @@ int main(int argc, char **argv){
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY.setNProducerThreads(10);
 
-	// Set up a single parabola individual
-	boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(1000, -100.,100.));
+	if(mode == "server"){
+		// Create a consumer and enrol it with the broker
+		boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+		GINDIVIDUALBROKER.enrol(gatc);
 
-	// Now we've got our first individual and can create a population.
-	// You can choose between a simple, non-parallel population and a
-	// multi-threaded population.
+		// Set up a single parabola individual
+		boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(1000, -100.,100.));
 
-	// Uncomment the next line and comment out the GBoostThreadPopulation lines
-	// to get the slower, serial execution.
+		// Create the actual population
+		GBrokerPopulation pop;
 
-	// GBasePopulation pop;
+		// Make the individual known to the population
+		pop.append(parabolaIndividual);
 
-	GBoostThreadPopulation pop;
-	pop.setNThreads(4);
+		// Specify some population settings
+		pop.setPopulationSize(100,5); // 100 individuals, 5 parents
+		pop.setMaxGeneration(maxGenerations); // Set on the command line, otherwise DEFAULTMAXGENERATIONS
+		pop.setMaxTime(boost::posix_time::minutes(5)); // Calculation should be finished after 5 minutes
+		pop.setReportGeneration(1); // Emit information during every generation
+		pop.setRecombinationMethod(VALUERECOMBINE); // The best parents have higher chances of survival
 
-	pop.append(parabolaIndividual);
-
-	// Specify some population settings
-	pop.setPopulationSize(100,5); // 100 individuals, 5 parents
-	pop.setMaxGeneration(maxGenerations); // Set on the command line, otherwise DEFAULTMAXGENERATIONS
-	pop.setMaxTime(boost::posix_time::minutes(5)); // Calculation should be finished after 5 minutes
-	pop.setReportGeneration(1); // Emit information during every generation
-	pop.setRecombinationMethod(VALUERECOMBINE); // The best parents have higher chances of survival
-
-	// Do the actual optimization
-	pop.optimize();
+		// Do the actual optimization
+		pop.optimize();
+	}
+	else if(mode == "client"){
+		// Just start the client with the required parameters
+	    GAsioTCPClient gasiotcpclient(ip,boost::lexical_cast<std::string>(port));
+	    gasiotcpclient.run();
+	}
 
 	std::cout << "Done ..." << std::endl;
 

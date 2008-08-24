@@ -32,7 +32,7 @@ namespace GenEvA {
  * @param server Identifies the server
  * @param port Identifies the port on the server
  */
-GAsioTCPClient::GAsioTCPClient(std::string server, std::string port) :
+GAsioTCPClient::GAsioTCPClient(const std::string& server, const std::string& port) :
 	GBaseClient(),
 	maxStalls_(ASIOMAXSTALLS),
 	maxConnectionAttempts_(ASIOMAXCONNECTIONATTEMPTS),
@@ -50,8 +50,8 @@ GAsioTCPClient::GAsioTCPClient(std::string server, std::string port) :
  * A standard destructor. As we have no local, dynamically allocated
  * data, it is empty.
  */
-GAsioTCPClient::~GAsioTCPClient() { /* nothing */
-}
+GAsioTCPClient::~GAsioTCPClient()
+{ /* nothing */ }
 
 /**********************************************************************/
 /**
@@ -285,8 +285,9 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
  */
 bool GAsioTCPClient::shutdown(const bool& returnCode){
 	// Make sure we don't leave any open sockets lying around.
-	socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-	socket_.close();
+	// socket_.close();
+	boost::system::error_code ignored_ec;
+	socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
 
 	return returnCode;
 }
@@ -307,8 +308,9 @@ bool GAsioTCPClient::tryConnect(){
 	while (maxConnectionAttempts_ ? (connectionAttempt++ < maxConnectionAttempts_) : true) {
 		while (error && endpoint_iterator != end_) {
 			// Make sure we try not to re-open an already open socket
-			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-			socket_.close();
+			// socket_.close();
+			boost::system::error_code ignored_ec;
+			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
 			// Make the connection attempt
 			socket_.connect(*endpoint_iterator++, error);
 		}

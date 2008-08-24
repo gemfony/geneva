@@ -78,7 +78,7 @@ class GAsioTCPClient
 {
 public:
 	/** @brief The main constructor */
-	GAsioTCPClient(std::string, std::string);
+	GAsioTCPClient(const std::string&, const std::string&);
 	/** @brief A standard destructor */
 	virtual ~GAsioTCPClient();
 

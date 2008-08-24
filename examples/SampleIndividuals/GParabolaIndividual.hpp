@@ -173,4 +173,7 @@ protected:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(Gem::GenEvA::GParabolaIndividual)
+
 #endif /* GPARABOLAINDIVIDUAL_HPP_ */
