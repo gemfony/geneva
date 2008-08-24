@@ -63,7 +63,6 @@
 #include "GConsumer.hpp"
 #include "GIndividualBroker.hpp"
 #include "GAsioHelperFunctions.hpp"
-#include "GServerSession.hpp"
 #include "GLogger.hpp"
 
 namespace Gem
@@ -88,8 +87,8 @@ class GAsioServerSession
 public:
 	/** @brief The standard constructor */
 	GAsioServerSession(boost::asio::io_service&);
-	/** @brief The standard destructor */
-	virtual ~GAsioServerSession();
+	/** @brief The standard destructor. Note: Non-virtual */
+	~GAsioServerSession();
 
     /** @brief Processes an individual request from a client */
     void processRequest();
@@ -99,13 +98,13 @@ public:
 
 protected:
 	/** @brief Retrieve a single command from the stream */
-	virtual std::string getSingleCommand();
+	std::string getSingleCommand();
 	/** @brief Write a single command to the stream */
-	virtual void sendSingleCommand(const std::string&);
+	void sendSingleCommand(const std::string&);
 	/** @brief Retrieve items from the client. */
-	virtual bool retrieve(std::string&, std::string&, std::string&, std::string&);
+	bool retrieve(std::string&, std::string&, std::string&, std::string&);
 	/** @brief Submit items to the client. */
-	virtual bool submit(const std::string&, const std::string&);
+	bool submit(const std::string&, const std::string&);
 
 private:
 	boost::asio::ip::tcp::socket socket_; ///< The underlying socket.

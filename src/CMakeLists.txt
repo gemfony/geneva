@@ -1,7 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( GENEVASOURCES
+	GAsioHelperFunctions
 	GAsioTCPClient
+	GAsioTCPConsumer
 	GBaseClient
 	GBasePopulation
 	GBit

@@ -186,10 +186,23 @@ bool GBaseClient::process(){
 	bool isDirty;
 	double fitness = target.getCurrentFitness(isDirty);
 
+	std::string portid = target.getAttribute("id");
+	if(portid.empty()){ // This is a severe error
+		std::ostringstream error;
+		error << "In GBaseClient::process() : Error!" << std::endl
+			  << "Empty portid found" << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		return false;
+	}
+
 	// transform target back into a string and submit to the server. The actual
 	// actions done by submit are defined by derived classes.
-	if(!this->submit(target.toString(), fitness, isDirty)) return false;
+	if(!this->submit(target.toString(),portid,
+	   boost::lexical_cast<std::string>(fitness),
+	   boost::lexical_cast<std::string>(isDirty))) return false;
 
+	// Everything worked. Indicate that we want to continue
 	return true;
 }
 

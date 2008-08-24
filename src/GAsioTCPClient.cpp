@@ -199,22 +199,28 @@ bool GAsioTCPClient::retrieve(std::string& item) {
  * Submit processed items to the server.
  *
  * @param item String to be submitted to the server
+ * @param portid The port id of the individual to be submitted
  * @param fitness The current fitness of the individual to be submitted
  * @param isDirty Specifies whether the dirty flag was set on the individual
  * @return true if operation was successful, otherwise false
  */
-bool GAsioTCPClient::submit(const std::string& item, const double& fitness,	const bool& isDirty) {
+bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
+					        const std::string& fitness, const std::string& isDirty) {
 	// Let's assemble an appropriate buffer
 	std::vector<boost::asio::const_buffer> buffers;
-	std::string result = assembleQueryString("result", COMMANDLENGTH);
+	std::string result = assembleQueryString("result", COMMANDLENGTH); // The command
 	buffers.push_back(boost::asio::buffer(result));
 
+	// Assemble a buffer for the port id
+	std::string portidString = assembleQueryString(portidString,COMMANDLENGTH);
+	buffers.push_back(boost::asio::buffer(portidString));
+
 	// Assemble a buffer for the fitness
-	std::string fitnessString = assembleQueryString(boost::lexical_cast<std::string>(fitness),COMMANDLENGTH);
+	std::string fitnessString = assembleQueryString(fitness,COMMANDLENGTH);
 	buffers.push_back(boost::asio::buffer(fitnessString));
 
 	// Assemble a buffer for the dirty flag
-	std::string dirtyString = assembleQueryString(boost::lexical_cast<std::string>(isDirty),COMMANDLENGTH);
+	std::string dirtyString = assembleQueryString(isDirty,COMMANDLENGTH);
 	buffers.push_back(boost::asio::buffer(dirtyString));
 
 	// Assemble the size header

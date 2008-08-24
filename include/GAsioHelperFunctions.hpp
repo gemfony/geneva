@@ -47,48 +47,14 @@ namespace GenEvA
 {
 
 /**********************************************************************************/
-/**
- * Needed so that server and client agree about the size of the headers and commands
- */
+/** @brief Needed so that server and client agree about the size of the headers and commands */
 const std::size_t COMMANDLENGTH=64;
 
-/**********************************************************************************/
-/**
- * Assembles a query string from a given command, emitting a string of a given size.
- * This function is used in conjunction with Boost::Asio .
- *
- * \param str The string from which the size should be extracted
- * \param sz Resulting size of the query string
- * \return The query string
- */
-std::string assembleQueryString(const std::string& query, std::size_t sz){
-  std::ostringstream query_stream;
-  query_stream << std::setw(sz) << query;
-  return query_stream.str();
-}
+/** @brief Assembles a query string from a given command */
+std::string assembleQueryString(const std::string&, std::size_t);
 
-/**********************************************************************************/
-/**
- * Extracts the size of ASIO's data section from a C string.
- * Used in conjunction with Boost::Asio. See e.g. GAsioTCPClient.
- *
- * \param ds The data string holding the data size
- * \param sz The size of the data string
- * \return The size if the data
- */
-std::size_t extractDataSize(const char* ds, std::size_t sz){
-  std::istringstream is(std::string(ds, sz));
-  std::size_t inboundDataSize = 0;
-  if (!(is >> std::hex >> inboundDataSize)) {
-	  std::ostringstream error;
-	  error << "In extractDataSize: Got invalid header!" << std::endl;
-
-	  LOGGER.log(error.str(), Gem::GLogFramework::WARNING);
-	  throw geneva_invalid_asio_header()  << error_string(error.str());
-  }
-
-  return inboundDataSize;
-}
+/** @brief Extracts the size of ASIO's data section from a C string. */
+std::size_t extractDataSize(const char*, std::size_t);
 
 /**********************************************************************************/
 

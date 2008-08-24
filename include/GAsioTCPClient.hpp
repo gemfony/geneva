@@ -97,7 +97,7 @@ protected:
 	virtual bool retrieve(std::string&);
 
 	/** @brief Submit processed items to the server. */
-	virtual bool submit(const std::string&, const double&, const bool&);
+	virtual bool submit(const std::string&, const std::string&, const std::string&, const std::string&);
 
 private:
 	GAsioTCPClient(); ///< Default constructor intentionally left blank

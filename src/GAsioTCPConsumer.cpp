@@ -65,7 +65,7 @@ GAsioServerSession::~GAsioServerSession(){
 /**
  * This function processes an individual request from a client.
  */
-void GServerSession::processRequest() {
+void GAsioServerSession::processRequest() {
 	boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
 	// Every client transmission starts with a command
@@ -81,12 +81,13 @@ void GServerSession::processRequest() {
 			// Retrieve an item
 			id = GINDIVIDUALBROKER.get(p, timeout);
 
+
 			// Store the id in the individual
 			p->setAttribute("id", boost::lexical_cast<std::string>(id));
 
 			if (!this->submit(p->toString(),"compute")) {
 				std::ostringstream information;
-				information << "In GServerSession::processRequest():" << std::endl
+				information << "In GAsioServerSession::processRequest():" << std::endl
 							<< "Could not submit item to client!" << std::endl;
 
 				LOGGER.log(information.str(), Gem::GLogFramework::INFORMATIONAL);
@@ -106,19 +107,22 @@ void GServerSession::processRequest() {
 			// into the GBufferPort objects.
 			boost::shared_ptr<GIndividual> p(new GIndividual(itemString));
 			Gem::Util::PORTIDTYPE id = boost::lexical_cast<Gem::Util::PORTIDTYPE>(portid);
-			GINDIVIDUALBROKER.put(id, p);
+			try {
+				GINDIVIDUALBROKER.put(id, p, timeout);
+			}
+			catch(Gem::Util::gem_util_condition_time_out &){ /* nothing we can do */ }
 		}
 		else {
 			std::ostringstream information;
-			information << "GServerSession::processRequest():" << std::endl
+			information << "GAsioServerSession::processRequest():" << std::endl
 						<< "Could not retrieve item from client." << std::endl;
 			LOGGER.log(information.str(), Gem::GLogFramework::INFORMATIONAL);
 		}
 	}
-	else {
+	else { // Also covers the "empty" return value of getSingleCommand()
 		std::ostringstream warning;
-		warning << "In GServerSession::processRequest: Warning!" << std::endl
-				<< "Received unkown command." << command << std::endl;
+		warning << "In GAsioServerSession::processRequest: Warning!" << std::endl
+				<< "Received command \"" << command << "\"" << std::endl;
 		LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
 
 		this->sendSingleCommand("unknown");
@@ -143,12 +147,21 @@ boost::asio::ip::tcp::socket& GAsioServerSession::socket(){
  * @return A single command that has been retrieved from a network socket
  */
 std::string GAsioServerSession::getSingleCommand(){
-	std::string result = "empty";
-
 	char inbound_command[COMMANDLENGTH];
 
-    // Read a command from the socket. This will remove it from the stream.
-    boost::asio::read(socket_, boost::asio::buffer(inbound_command));
+	try{
+		// Read a command from the socket. This will remove it from the stream.
+		boost::asio::read(socket_, boost::asio::buffer(inbound_command));
+	}
+	catch(boost::system::system_error&){
+		std::ostringstream error;
+		error << "In GAsioServerSession::getSingleCommand(): Warning" << std::endl
+			  << "Caught boost::system::system_error exception. The function" << std::endl
+			  << "will return the \"empty\" value." << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::WARNING);
+
+		return std::string("empty");
+	}
 
     // Remove all leading or trailing white spaces from the command.
     return boost::algorithm::trim_copy(std::string(inbound_command, COMMANDLENGTH));
@@ -164,46 +177,60 @@ void GAsioServerSession::sendSingleCommand(const std::string& command){
 	// Format the command ...
 	std::string outbound_command = assembleQueryString(command, COMMANDLENGTH);
 	// ... and tell the client
-	boost::asio::write(socket_, boost::asio::buffer(outbound_command));
+	try{
+		boost::asio::write(socket_, boost::asio::buffer(outbound_command));
+	}
+	catch(boost::system::system_error&){
+		std::ostringstream error;
+		error << "In GAsioServerSession::sendSingleCommand(): Warning" << std::endl
+			  << "Caught boost::system::system_error exception" << std::endl;
+		LOGGER.log(error.str(), Gem::GLogFramework::WARNING);
+	}
 }
 
 /*********************************************************************/
 /**
  * Retrieves an item from the client (i.e. the socket).
  *
- * @param item An item to be retrieved from the socket
+ * @param itemString An item to be retrieved from the socket
+ * @param portid String representation of the id of the port the item originated from
+ * @param fitness String representation of the fitness of the item
+ * @param dirtyFlag Indicates whether the dirtyFlag of the item is set
  * @return true if successful, otherwise false
  */
-bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid, std::string& fitness, std::string& dirtyflag){
+bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid, std::string& fitness, std::string& dirtyFlag){
+	itemString="";
+	portid="";
+	fitness="";
+	dirtyFlag="";
+
 	char inbound_header[COMMANDLENGTH];
 
-	// First read the header from socket_
-	boost::asio::read(socket_, boost::asio::buffer(inbound_header));
-
-	// And transform to an integer
-	boost::uint16_t dataSize;
 	try{
-		dataSize=lexical_cast<boost::uint16_t>(boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH)));
-	}
-	catch(boost::bad_lexical_cast& e){
-		// tried to put an unknown key back - needs to be logged ...
-		GLogStreamer gls;
-		gls << "GAsioServerSession::retrieve(string&):" << endl
-			<< "Conversion of dataSize failed with message" << endl
-			<< e.what() << endl
-			<< logLevel(UNCRITICAL);
+		// Read the port id from the socket and translate it into a string
+		boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
+		portid = boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH)); // removes white spaces
 
+		// Read the fitness from the socket
+		boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
+		fitness = boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH));
+
+		// Read the dirty flag from the socket
+		boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
+		dirtyFlag = boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH));
+
+		// Read the data size from the socket and translate into a number
+		boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
+		std::size_t dataSize = boost::lexical_cast<std::size_t>(boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH)));
+
+		// Read item data and transfer into itemString
+		char data_section[dataSize];
+		boost::asio::read(socket_, boost::asio::buffer(data_section, dataSize));
+		itemString = boost::algorithm::trim_copy(std::string(data_section, dataSize));
+	}
+	catch(boost::system::system_error&){ // Retrieval didn't work
 		return false;
 	}
-
-	// Read inbound data
-	std::vector<char> inboundData(dataSize);
-	boost::asio::read(socket_, boost::asio::buffer(inboundData));
-
-	// Transfer data into a string
-	std::ostringstream oss;
-	for(vector<char>::iterator it=inboundData.begin(); it != inboundData.end(); ++it) oss << *it;
-	item = oss.str();
 
 	return true;
 }
@@ -217,20 +244,25 @@ bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid, 
  */
 bool GAsioServerSession::submit(const std::string& item, const std::string& command){
 	// Format the command
-	std::string outbound_command = assembleQueryString("compute", COMMANDLENGTH);
+	std::string outbound_command_header = assembleQueryString(command, COMMANDLENGTH);
 
 	// Format the size header
-	std::string outbound_header = assembleQueryString(lexical_cast<string>(item.size()), COMMANDLENGTH);
+	std::string outbound_size_header = assembleQueryString(boost::lexical_cast<std::string>(item.size()), COMMANDLENGTH);
 
 	// Write the serialized data to the socket. We use "gather-write" to send
 	// command, header and data in a single write operation.
 	std::vector<boost::asio::const_buffer> buffers;
 
-	buffers.push_back(boost::asio::buffer(outbound_command));
-	buffers.push_back(boost::asio::buffer(outbound_header));
+	buffers.push_back(boost::asio::buffer(outbound_command_header));
+	buffers.push_back(boost::asio::buffer(outbound_size_header));
 	buffers.push_back(boost::asio::buffer(item));
 
-	boost::asio::write(socket_, buffers);
+	try{
+		boost::asio::write(socket_, buffers);
+	}
+	catch(boost::system::system_error&){ // Transfer didn't work
+		return false;
+	}
 
 	return true;
 }
