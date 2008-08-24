@@ -1,5 +1,5 @@
 /**
- * @file GSimpleBasePopulation.cpp
+ * @file GBrokerPopulation.cpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -22,10 +22,13 @@
 
 // Standard header files go here
 #include <iostream>
+#include <iterator>
 #include <cmath>
 #include <sstream>
+#include <string>
 
 // Boost header files go here
+#include <boost/asio.hpp>
 #include <boost/function.hpp>
 
 // GenEvA header files go here
@@ -42,15 +45,28 @@
 // This is a simple parabola
 #include "GParabolaIndividual.hpp"
 
+// Parses the command line for all required options
+#include "GCommandLineParser.hpp"
+
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
 using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
- * The main function. We search for the minimum of a parabola.
+ * The main function. We search for the minimum of a parabola, with the help of multiple clients,
+ * possibly running on different machines.
  */
 int main(int argc, char **argv){
+	std::string mode, ip;
+	unsigned short port=10000;
+	boost::uint32_t maxGenerations=DEFAULTMAXGENERATIONS;
+
+	if(!parseCommandLine(argc, argv, mode, port, ip, maxGenerations)){
+		std::cout << "Error parsing the command line" << std::endl;
+		return 1;
+	}
+
 	// Add some log levels to the logger
 	LOGGER.addLogLevel(Gem::GLogFramework::CRITICAL);
 	LOGGER.addLogLevel(Gem::GLogFramework::WARNING);
@@ -58,7 +74,7 @@ int main(int argc, char **argv){
 	LOGGER.addLogLevel(Gem::GLogFramework::PROGRESS);
 
 	// Add log targets to the system
-	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GSimpleBasePopulation.log")));
+	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBrokerPopulation.log")));
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
@@ -83,7 +99,7 @@ int main(int argc, char **argv){
 
 	// Specify some population settings
 	pop.setPopulationSize(100,5); // 100 individuals, 5 parents
-	pop.setMaxGeneration(2000); // A maximum of 2000 generations is allowed
+	pop.setMaxGeneration(maxGenerations); // Set on the command line, otherwise DEFAULTMAXGENERATIONS
 	pop.setMaxTime(boost::posix_time::minutes(5)); // Calculation should be finished after 5 minutes
 	pop.setReportGeneration(1); // Emit information during every generation
 	pop.setRecombinationMethod(VALUERECOMBINE); // The best parents have higher chances of survival

@@ -4,6 +4,7 @@ SET (EXECUTABLENAME GBrokerPopulation)
 
 SET (${EXECUTABLENAME}_SRCS 
 	GBrokerPopulation
+	GCommandLineParser
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
