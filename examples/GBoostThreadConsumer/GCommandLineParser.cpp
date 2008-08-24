@@ -70,9 +70,9 @@ bool parseCommandLine(int argc, char **argv,
 					"maximum number of generations")
 			("maxMinutes,x", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
 					"The maximum number of minutes the optimization should run")
-			("reportGeneration,r",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),
+			("reportGeneration,G",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),
 					"The number of generations after which information should be emitted")
-			("rScheme,e",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
+			("rScheme,r",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")

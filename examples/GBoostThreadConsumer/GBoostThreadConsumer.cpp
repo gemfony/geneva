@@ -83,7 +83,7 @@ int main(int argc, char **argv){
 						 reportGeneration,
 						 rScheme,
 						 verbose))
-	{ exit(1); }
+	{ std::terminate(); }
 
 	// Add some log levels to the logger
 	LOGGER.addLogLevel(Gem::GLogFramework::CRITICAL);
