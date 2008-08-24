@@ -1,3 +1,4 @@
 - Add cross-over function to GParameterCollectionT
 - Let the GRandomFactory only create [0,1[ random numbers, but create an automatic adaption of the number of producer threads
-- Make the GRandom.hpp classes independent of GenEvA, so that the framework can develop independently
+- Make the GRandomFactory class a producer / integration with condition variables -> faster execution
+- Let the GRandomFactory class produce simple arrays of doubles instead of Boost's array class -> faster execution
