@@ -100,7 +100,7 @@ namespace Util {
   /**
    * The number of threads that simultaneously produce [0,1[ random numbers
    */
-  const boost::uint8_t DEFAULT01PRODUCERTHREADS = 2;
+  const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 
   /**
    * Past implementations of random numbers for the Geneva library showed a
@@ -146,7 +146,7 @@ namespace Util {
      * gauss threads. It seeds the random number generator and starts the
      * producer01 thread. Note that we enforce a minimum number of threads.
      */
-    GRandomFactory(boost::uint8_t n01Threads) throw() :
+    GRandomFactory(boost::uint16_t n01Threads) throw() :
 		  g01_(DEFAULTFACTORYBUFFERSIZE),
 		  seed_(GSeed()),
           n01Threads_(n01Threads ? n01Threads : 1)
@@ -192,9 +192,9 @@ namespace Util {
      * @param n01Threads
      * @param nGaussThreads
      */
-    void setNProducerThreads(boost::uint8_t n01Threads){
+    void setNProducerThreads(boost::uint16_t n01Threads){
       if(n01Threads > n01Threads_){ // start new 01 threads
-        for(boost::uint8_t i=n01Threads_; i<n01Threads; i++){
+        for(boost::uint16_t i=n01Threads_; i<n01Threads; i++){
           producer_threads_01_.create_thread(boost::bind(
                        &GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
         }
@@ -242,7 +242,7 @@ namespace Util {
     void
     startProducerThreads(void) throw()
     {
-      for (boost::uint8_t i = 0; i < n01Threads_; i++)
+      for (boost::uint16_t i = 0; i < n01Threads_; i++)
         {
           // thread() doesn't throw, and no exceptions are listed in the documentation
           // for the create_thread() function, so we assume it doesn't throw.
@@ -365,7 +365,7 @@ namespace Util {
 
     boost::uint32_t seed_; ///< The seed for the random number generators
 
-    boost::uint8_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers (255)
+    boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 
     GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
   };

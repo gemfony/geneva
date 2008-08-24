@@ -47,6 +47,9 @@
 // This is a simple parabola
 #include "GParabolaIndividual.hpp"
 
+// Retrieves information from the command line
+#include "GCommandLineParser.hpp"
+
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
 using namespace Gem::GLogFramework;
@@ -58,6 +61,30 @@ using namespace Gem::GLogFramework;
  * multi-threaded population.
  */
 int main(int argc, char **argv){
+	 std::size_t parabolaDimension, nConsumerThreads, populationSize, nParents;
+	 double parabolaMin, parabolaMax;
+	 boost::uint16_t nProducerThreads;
+	 boost::uint32_t maxGenerations, reportGeneration;
+	 long maxMinutes;
+	 bool verbose;
+	 recoScheme rScheme;
+
+	// Retrieve command line options
+	if(!parseCommandLine(argc, argv,
+						 parabolaDimension,
+						 parabolaMin,
+						 parabolaMax,
+						 nProducerThreads,
+						 nConsumerThreads,
+						 populationSize,
+						 nParents,
+						 maxGenerations,
+						 maxMinutes,
+						 reportGeneration,
+						 rScheme,
+						 verbose))
+	{ exit(1); }
+
 	// Add some log levels to the logger
 	LOGGER.addLogLevel(Gem::GLogFramework::CRITICAL);
 	LOGGER.addLogLevel(Gem::GLogFramework::WARNING);
@@ -69,25 +96,26 @@ int main(int argc, char **argv){
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
-	GRANDOMFACTORY.setNProducerThreads(10);
+	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
 
 	// Set up a single parabola individual
-	boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(1000, -100.,100.));
+	boost::shared_ptr<GParabolaIndividual>
+		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMin));
 
 	// Create a consumer and make it known to the global broker
 	boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
-	gbtc->setMaxThreads(4);
+	gbtc->setMaxThreads(nConsumerThreads);
 	GINDIVIDUALBROKER.enrol(gbtc);
 
 	GBrokerPopulation pop;
 	pop.append(parabolaIndividual);
 
 	// Specify some population settings
-	pop.setPopulationSize(100,5); // 100 individuals, 5 parents
-	pop.setMaxGeneration(2000); // A maximum of 2000 generations is allowed
-	pop.setMaxTime(boost::posix_time::minutes(5)); // Calculation should be finished after 5 minutes
-	pop.setReportGeneration(1); // Emit information during every generation
-	pop.setRecombinationMethod(VALUERECOMBINE); // The best parents have higher chances of survival
+	pop.setPopulationSize(populationSize,nParents);
+	pop.setMaxGeneration(maxGenerations);
+	pop.setMaxTime(boost::posix_time::minutes(maxMinutes));
+	pop.setReportGeneration(reportGeneration);
+	pop.setRecombinationMethod(rScheme);
 
 	// Do the actual optimization
 	pop.optimize();

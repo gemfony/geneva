@@ -4,6 +4,7 @@ SET (EXECUTABLENAME GBoostThreadConsumer)
 
 SET (${EXECUTABLENAME}_SRCS 
 	GBoostThreadConsumer
+	GCommandLineParser
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

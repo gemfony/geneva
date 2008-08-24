@@ -82,7 +82,7 @@ const bool MINIMIZE = false;
  * - RANDOMRECOMBINE chooses the parents to be replicated randomly from all parents
  * - VALUERECOMBINE prefers parents with a higher fitness
  */
-enum recoScheme {DEFAULTRECOMBINE, RANDOMRECOMBINE, VALUERECOMBINE};
+enum recoScheme {DEFAULTRECOMBINE=0, RANDOMRECOMBINE=1, VALUERECOMBINE=2};
 
 /**
  * The info function can be called in these three modes
