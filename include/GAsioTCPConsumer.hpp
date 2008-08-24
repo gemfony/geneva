@@ -51,6 +51,8 @@
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <boost/threadpool.hpp>
+#include <boost/date_time.hpp>
+#include <boost/lexical_cast.hpp>
 
 
 #ifndef GASIOTCPCONSUMER_HPP_
@@ -81,13 +83,16 @@ const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
  * and client are implemented here.
  */
 class GAsioServerSession
-	:public GServerSession
+	:boost::noncopyable
 {
 public:
 	/** @brief The standard constructor */
 	GAsioServerSession(boost::asio::io_service&);
 	/** @brief The standard destructor */
 	virtual ~GAsioServerSession();
+
+    /** @brief Processes an individual request from a client */
+    void processRequest();
 
 	/** @brief Retrieves the socket */
 	boost::asio::ip::tcp::socket& socket();
