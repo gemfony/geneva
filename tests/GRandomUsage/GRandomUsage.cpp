@@ -106,7 +106,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType){
 int main(int argc, char **argv){
 	std::size_t i;
 	std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
-	std::vector<int16_t> discrete, discretebound, bitprob, charrnd;
+	std::vector<boost::int16_t> discrete, discretebound, bitprob, charrnd;
 
 	// 5 threads produce even [0,1[ random numbers,
 	// 3 threads produce random numbers with a gaussian distribution

@@ -131,6 +131,14 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Automatic conversion to the target type
+	 */
+	operator T(){
+		return this->value();
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Retrieval of the value
 	 *
 	 * @return The value of val_

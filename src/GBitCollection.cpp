@@ -96,6 +96,16 @@ namespace GenEvA
 
   /**********************************************************************/
   /**
+   * Creates a deep clone of this object
+   *
+   * @return A deep clone of this object
+   */
+  GObject *GBitCollection::clone(){
+	  return new GBitCollection(*this);
+  }
+
+  /**********************************************************************/
+  /**
    * Loads the data of another GBitCollection object, camouflaged as
    * a GObject.
    *

@@ -56,7 +56,7 @@ namespace GenEvA
    * all bits, use GBit objects instead and put them into a GMemberCollection .
    */
   class GBitCollection
-    :GParameterCollectionT<Gem::GenEvA::bit>
+    :public GParameterCollectionT<Gem::GenEvA::bit>
   {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -71,7 +71,7 @@ namespace GenEvA
 
   public:
     /** @brief The default constructor */
-    GBitCollection(void);
+    GBitCollection();
     /** @brief Random initialization with a given number of values */
     explicit GBitCollection(const std::size_t&);
     /** @brief Random initialization with a given number of values of
@@ -86,7 +86,7 @@ namespace GenEvA
     const GBitCollection& operator=(const GBitCollection&);
 
     /** @brief Creates a deep copy of this object */
-    virtual GObject *clone(void)=0;
+    virtual GObject *clone();
     /** @brief Loads the data of another GBitCollection class */
     virtual void load(const GObject *);
   };

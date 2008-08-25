@@ -24,12 +24,24 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <fstream>
+#include <vector>
 
 // Boost header files go here
+#include <boost/version.hpp>
+
+#if BOOST_VERSION < 103600
+#error "Error: Boost should at least have version 1.36 !"
+#endif /* BOOST_VERSION */
+
+#include <boost/cstdint.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 // GenEvA header files go here
 #include "GBit.hpp"
+#include "GBitCollection.hpp"
+#include "GBitFlipAdaptor.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
@@ -38,17 +50,140 @@ using namespace boost;
 using namespace Gem;
 using namespace Gem::GenEvA;
 
-/*
- * Th
+/**
+ * This test checks the flip probability of GBit and a GBitCollection. Likewise this is a test
+ * for the GBitFlipAdaptor class and the class's operator=; Tests include constant flip probability
+ * as well as mutative adaption of the flip probability. Results can be viewed using the ROOT
+ * analysis toolkit (see http://root.cern.ch).
  */
 
+const std::size_t MAXFLIP=10000;
+const std::size_t NBIT=10;
 
 /************************************************************************************************/
 /**
  * The main function
  */
 int main(int argc, char **argv){
+	// Create test candidates
+	GBit A(true), A_tmp;
+	GBitCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
 
+	boost::shared_ptr<GBitFlipAdaptor> A_adaptor(new GBitFlipAdaptor(0.1, "A_adaptor"));
+	boost::shared_ptr<GBitFlipAdaptor> B_adaptor(new GBitFlipAdaptor(0.2, "B_adaptor"));
+
+	A.addAdaptor(A_adaptor);
+	B.addAdaptor(B_adaptor);
+
+	std::ofstream ofs("bitflipResult.C"); // Output file
+
+	ofs << "{" << std::endl
+		<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,800);" << std::endl
+		<< "  cc->Divide(2,2);" << std::endl
+		<< std::endl
+		<< "  TH1F *singleFlipValueNPA = new TH1F(\"singleFlipValueNPA\",\"singleFlipValueNPA\",2,-0.5,1.5);" << std::endl
+		<< "  TH1F *collectionFlipValueNPA = new TH1F(\"collectionFlipValueNPA\",\"collectionFlipValueNPA\",2,-0.5,1.5);" << std::endl
+		<< "  TH1F *singleFlipValuePA = new TH1F(\"singleFlipValuePA\",\"singleFlipValuePA\",2,-0.5,1.5);" << std::endl
+		<< "  TH1F *collectionFlipValuePA = new TH1F(\"collectionFlipValuePA\",\"collectionFlipValuePA\",2,-0.5,1.5);" << std::endl
+		<< std::endl;
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	// Tests without adaption of flip probability
+	A_adaptor->setAllowProbabilityMutation(false);
+	B_adaptor->setAllowProbabilityMutation(false);
+
+	B.setAlwaysInit(false);
+
+	double A_noprobadapt_notflipped=0., A_noprobadapt_flipped=0.;
+	double B_noprobadapt_notflipped=0., B_noprobadapt_flipped=0.;
+	for(std::size_t i=0; i<MAXFLIP; i++){
+		// GBit
+		A_tmp = A;
+		A.mutate(); // mutate
+		if(A.value() == A_tmp.value()){
+			ofs << "  singleFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
+			A_noprobadapt_notflipped += 1.;
+		}
+		else{
+			ofs << "  singleFlipValueNPA->Fill(1.);" << std::endl; // 1 means "flipped"
+			A_noprobadapt_flipped += 1.;
+		}
+
+		// GBitCollection
+		B_tmp = B;
+		B.mutate();
+		for(std::size_t i=0; i<NBIT; i++){
+			if(B.data[i] == B_tmp.data[i]){
+				ofs << "  collectionFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
+				B_noprobadapt_notflipped += 1.;
+			}
+			else {
+				ofs << "  collectionFlipValueNPA->Fill(1.);" << std::endl; // 1 means "flipped"
+				B_noprobadapt_flipped += 1.;
+			}
+		}
+	}
+
+	std::cout << "A flip ratio (no probability adaption): " << A_noprobadapt_flipped/double(MAXFLIP) << std::endl
+		      << "B flip ratio (no probability adaption): " << B_noprobadapt_flipped/double(MAXFLIP*NBIT) << std::endl;
+
+	/////////////////////////////////////////////////////////////////////////////////////////
+	// Tests with adaption of flip probability
+	A_adaptor->setAllowProbabilityMutation(true);
+	B_adaptor->setAllowProbabilityMutation(true);
+
+	A_adaptor->setMutationParameters(0.1,0.01,0.00001); // This will result in a rather large adaption rate
+	B_adaptor->setMutationParameters(0.1,0.01,0.00001);
+
+	B.setAlwaysInit(true);
+
+	A_adaptor->setMutationProbability(0.25);
+	B_adaptor->setMutationProbability(0.5);
+
+	double A_probadapt_notflipped=0., A_probadapt_flipped=0.;
+	double B_probadapt_notflipped=0., B_probadapt_flipped=0.;
+	for(std::size_t i=0; i<MAXFLIP; i++){
+		// GBit
+		A_tmp = A;
+		A.mutate(); // mutate
+		if(A.value() == A_tmp.value()){
+			ofs << "  singleFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
+			A_probadapt_notflipped += 1.;
+		}
+		else{
+			ofs << "  singleFlipValuePA->Fill(1.);" << std::endl; // 1 means "flipped"
+			A_probadapt_flipped += 1.;
+		}
+
+		// GBitCollection
+		B_tmp = B;
+		B.mutate();
+		for(std::size_t i=0; i<NBIT; i++){
+			if(B.data[i] == B_tmp.data[i]){
+				ofs << "  collectionFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
+				B_probadapt_notflipped += 1.;
+			}
+			else {
+				ofs << "  collectionFlipValuePA->Fill(1.);" << std::endl; // 1 means "flipped"
+				B_probadapt_flipped += 1.;
+			}
+		}
+	}
+
+	std::cout << "A flip ratio (probability adaption): " << A_probadapt_flipped/double(MAXFLIP) << std::endl
+		      << "B flip ratio (probability adaption): " << B_probadapt_flipped/double(MAXFLIP*NBIT) << std::endl;
+
+	ofs << std::endl
+		<< "  cc->cd(1);" << std::endl
+		<< "  singleFlipValueNPA->Draw();" << std::endl
+		<< "  cc->cd(2);" << std::endl
+		<< "  collectionFlipValueNPA->Draw();" << std::endl
+		<< "  cc->cd(3);" << std::endl
+		<< "  singleFlipValuePA->Draw();" << std::endl
+		<< "  cc->cd(4);" << std::endl
+		<< "  collectionFlipValuePA->Draw();" << std::endl
+		<< "  cc->cd();" << std::endl
+		<< "}" << std::endl;
 
 	return 0;
 }

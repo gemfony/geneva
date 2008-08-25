@@ -48,6 +48,16 @@ namespace Gem
 
 		/************************************************************************/
 		/**
+		 * Initialization with a boolean value
+		 *
+		 * @param val The value to assign (in converted form) to this object
+		 */
+		GBit::GBit(bool val)
+			:GParameterT<Gem::GenEvA::bit>(val?Gem::GenEvA::TRUE:Gem::GenEvA::FALSE)
+		{ /* nothing */ }
+
+		/************************************************************************/
+		/**
 		 * A constructor that assigns an initialisation value to the bit.
 		 *
 		 * @param val the desired initial value of the GBit object

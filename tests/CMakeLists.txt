@@ -7,3 +7,7 @@ ADD_SUBDIRECTORY (
 ADD_SUBDIRECTORY (
 	GRandomUsage
 )
+
+ADD_SUBDIRECTORY (
+	GBitProbabilityTest
+)
