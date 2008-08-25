@@ -43,7 +43,11 @@
 #include <boost/ref.hpp>
 #include <boost/cstdint.hpp>
 
+// GenEvA header files
 #include "GRandom.hpp"
+
+// Parsing of the command line
+#include "GCommandLineParser.hpp"
 
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
@@ -63,31 +67,31 @@ CHARRND
 const std::size_t NENTRIES=20000;
 
 template <class T>
-void createRandomVector(std::vector<T>& vec_t, const distType& dType){
+void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries){
 	Gem::Util::GRandom gr; // create our own local consumer
 	std::size_t i;
 
 	switch(dType){
 	case GAUSSIAN: // standard distribution
-		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.gaussRandom(-3.,1.));
+		for(i=0; i<nEntries; i++) vec_t.push_back(gr.gaussRandom(-3.,1.));
 		break;
 	case DOUBLEGAUSSIAN:
-		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.doubleGaussRandom(-3.,0.5,3.));
+		for(i=0; i<nEntries; i++) vec_t.push_back(gr.doubleGaussRandom(-3.,0.5,3.));
 		break;
 	case EVEN: // double in the range [0,1[
-		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.evenRandom());
+		for(i=0; i<nEntries; i++) vec_t.push_back(gr.evenRandom());
 		break;
 	case EVENWITHBOUNDARIES: // double in the range [-3,2[
-		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.evenRandom(-3.,2.));
+		for(i=0; i<nEntries; i++) vec_t.push_back(gr.evenRandom(-3.,2.));
 		break;
 	case DISCRETE:
-		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.discreteRandom(10));
+		for(i=0; i<nEntries; i++) vec_t.push_back(gr.discreteRandom(10));
 		break;
 	case DISCRETEBOUND:
-		for(i=0; i<NENTRIES; i++) vec_t.push_back(gr.discreteRandom(-3,10));
+		for(i=0; i<nEntries; i++) vec_t.push_back(gr.discreteRandom(-3,10));
 		break;
 	case BITPROB:
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			if(gr.bitRandom(0.7) == Gem::GenEvA::TRUE)
 				vec_t.push_back(1);
 			else
@@ -95,7 +99,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType){
 		}
 		break;
 	case CHARRND:
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			char tmp = gr.charRandom(false); // also non-printable ASCII characters
 			vec_t.push_back((int16_t)tmp);
 		}
@@ -104,22 +108,32 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType){
 }
 
 int main(int argc, char **argv){
+	bool verbose;
+	std::size_t nEntries;
+	boost::uint16_t nProducerThreads;
+
+	if(!parseCommandLine(argc, argv,
+						 nEntries,
+						 nProducerThreads,
+						 verbose))
+	{ exit(1); }
+
 	std::size_t i;
 	std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
 	std::vector<boost::int16_t> discrete, discretebound, bitprob, charrnd;
 
 	// 5 threads produce even [0,1[ random numbers,
 	// 3 threads produce random numbers with a gaussian distribution
-	GRANDOMFACTORY.setNProducerThreads(8);
+	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
 
-	boost::thread g_thread(boost::bind(createRandomVector<double>, boost::ref(gaussian), GAUSSIAN));
-	boost::thread dg_thread(boost::bind(createRandomVector<double>, boost::ref(doublegaussian), DOUBLEGAUSSIAN));
-	boost::thread e_thread(boost::bind(createRandomVector<double>, boost::ref(even), EVEN));
-	boost::thread ewb_thread(boost::bind(createRandomVector<double>, boost::ref(evenwithboundaries), EVENWITHBOUNDARIES));
-	boost::thread dc_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discrete), DISCRETE));
-	boost::thread dcb_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discretebound), DISCRETEBOUND));
-	boost::thread bp_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(bitprob), BITPROB));
-	boost::thread cr_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(charrnd), CHARRND));
+	boost::thread g_thread(boost::bind(createRandomVector<double>, boost::ref(gaussian), GAUSSIAN, nEntries));
+	boost::thread dg_thread(boost::bind(createRandomVector<double>, boost::ref(doublegaussian), DOUBLEGAUSSIAN, nEntries));
+	boost::thread e_thread(boost::bind(createRandomVector<double>, boost::ref(even), EVEN, nEntries));
+	boost::thread ewb_thread(boost::bind(createRandomVector<double>, boost::ref(evenwithboundaries), EVENWITHBOUNDARIES, nEntries));
+	boost::thread dc_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discrete), DISCRETE, nEntries));
+	boost::thread dcb_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discretebound), DISCRETEBOUND, nEntries));
+	boost::thread bp_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(bitprob), BITPROB, nEntries));
+	boost::thread cr_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(charrnd), CHARRND, nEntries));
 
 	g_thread.join();
 	dg_thread.join();
@@ -130,14 +144,14 @@ int main(int argc, char **argv){
 	bp_thread.join();
 	cr_thread.join();
 
-	if(gaussian.size() != NENTRIES ||
-	   doublegaussian.size() != NENTRIES ||
-	   even.size() != NENTRIES ||
-	   evenwithboundaries.size() != NENTRIES ||
-	   discrete.size() != NENTRIES ||
-	   discretebound.size() != NENTRIES ||
-	   bitprob.size() != NENTRIES ||
-	   charrnd.size() != NENTRIES){
+	if(gaussian.size() != nEntries ||
+	   doublegaussian.size() != nEntries ||
+	   even.size() != nEntries ||
+	   evenwithboundaries.size() != nEntries ||
+	   discrete.size() != nEntries ||
+	   discretebound.size() != nEntries ||
+	   bitprob.size() != nEntries ||
+	   charrnd.size() != nEntries){
 		std::cout << "Error: received invalid sizes for at least one vector" << std::endl;
 		return 1;
 	}
@@ -160,42 +174,42 @@ int main(int argc, char **argv){
 		ofs << "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl
 			<< std::endl;
 
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			ofs << "  gauss->Fill(" << gaussian.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
 
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			ofs << "  dgauss->Fill(" << doublegaussian.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
 
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			ofs << "  even->Fill(" << even.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
 
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			ofs << "  evenwb->Fill(" << evenwithboundaries.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
 
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			ofs << "  discrete->Fill(" << discrete.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
 
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			ofs << "  discretewb->Fill(" << discretebound.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
 
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			ofs << "  bitprob->Fill(" << bitprob.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
 
-		for(i=0; i<NENTRIES; i++){
+		for(i=0; i<nEntries; i++){
 			ofs << "  charrnd->Fill(" << charrnd.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
@@ -219,6 +233,7 @@ int main(int argc, char **argv){
 			<< "  cc->cd();" << std::endl;
 		ofs	<< "}" << std::endl;
 
+		ofs.close();
 	}
 	else {
 		std::cout << "Error: Could not write file" << std::endl;
