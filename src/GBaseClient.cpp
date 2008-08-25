@@ -175,7 +175,7 @@ bool GBaseClient::process(){
 	if(data == "empty") return true;
 
 	// unpack the data and create a new GIndividual
-	GIndividual target(data);
+	GIndividual target(data,TEXTSERIALIZATION);
 
 	// This one line is all it takes to do the processing required for this individual.
 	// GIndividual has all required functions on board. GBaseClient does not need to understand

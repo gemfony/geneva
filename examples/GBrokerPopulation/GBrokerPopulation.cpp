@@ -73,6 +73,7 @@ int main(int argc, char **argv){
 
 	// Retrieve command line options
 	if(!parseCommandLine(argc, argv,
+						 ip,
 						 mode,
 						 port,
 				         parabolaDimension,

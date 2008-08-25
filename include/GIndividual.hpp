@@ -86,7 +86,7 @@ public:
 	/** @brief The default constructor */
 	GIndividual();
 	/** @brief Initialization from string representation */
-	GIndividual(const std::string&);
+	GIndividual(const std::string&, const serializationMode&);
 	/** @brief The copy constructor */
 	GIndividual(const GIndividual&);
 	/** @brief The destructor */
@@ -178,12 +178,6 @@ private:
 
 } /* namespace GenEvA */
 } /* namespace Gem */
-
-/**************************************************************************************************/
-/**
- * @brief Needed for Boost.Serialization
- */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GIndividual)
 
 /**************************************************************************************************/
 

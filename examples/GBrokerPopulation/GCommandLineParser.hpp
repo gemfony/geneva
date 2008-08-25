@@ -59,6 +59,9 @@ namespace GenEvA
 {
 
 // Default settings
+const unsigned short DEFAULTPORT=10000;
+const std::string DEFAULTIP="localhost";
+const std::string DEFAULTMODE="server";
 const std::size_t DEFAULTPARABOLADIMENSION=1000;
 const double DEFAULTPARABOLAMIN=-100.;
 const double DEFAULTPARABOLAMAX=100.;
@@ -74,6 +77,7 @@ const bool DEFAULTVERBOSE=true;
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
+					  std::string& ip,
 					  std::string& mode,
 					  unsigned short& port,
 					  std::size_t& parabolaDimension,

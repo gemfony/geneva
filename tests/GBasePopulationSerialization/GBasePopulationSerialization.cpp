@@ -1,5 +1,5 @@
 /**
- * @file GSimpleBasePopulation.cpp
+ * @file GBasePopulationSerialization.cpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -24,9 +24,25 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <fstream>
 
 // Boost header files go here
 #include <boost/function.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/utility.hpp>
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/date_time.hpp>
+#include <boost/lexical_cast.hpp>
 
 // GenEvA header files go here
 #include "GRandom.hpp"
@@ -37,6 +53,7 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GBoostThreadPopulation.hpp"
+#include "GIndividual.hpp"
 
 // The individual that should be optimized
 // This is a simple parabola
@@ -51,10 +68,10 @@ using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
- * The main function. We search for the minimum of a parabola. This example demonstrates the use
- * of the GBasePopulation class or (at your choice) of the GBoostThreadPopulation class. Note that
- * a number of command line options are available. Call the executable with the "-h" switch
- * to get an overview.
+ * The main function. We search for the minimum of a parabola. In this test an entire population
+ * is serialized and then again de-serialized. Subsequently an optimization run searches the
+ * optimum of the de-serialized population. This is a variation of the GSimpleBasePopulation
+ * example.
  */
 int main(int argc, char **argv){
 	 std::size_t parabolaDimension, nPopThreads;
@@ -89,7 +106,7 @@ int main(int argc, char **argv){
 	LOGGER.addLogLevel(Gem::GLogFramework::PROGRESS);
 
 	// Add log targets to the system
-	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GSimpleBasePopulation.log")));
+	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBasePopulationSerialization.log")));
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
@@ -100,14 +117,6 @@ int main(int argc, char **argv){
 		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax));
 
 	// Now we've got our first individual and can create a population.
-	// You can choose between a simple, non-parallel population and a
-	// multi-threaded population.
-
-	// Uncomment the next line and comment out the GBoostThreadPopulation lines
-	// to get the slower, serial execution.
-
-	// GBasePopulation pop;
-
 	GBoostThreadPopulation pop;
 	pop.setNThreads(nPopThreads);
 
@@ -120,10 +129,33 @@ int main(int argc, char **argv){
 	pop.setReportGeneration(reportGeneration); // Emit information during every generation
 	pop.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
-	// Do the actual optimization
-	pop.optimize();
+	// Serialize
+	pop.setSerializationMode(XMLSERIALIZATION);
+	std::ostringstream popStream;
+	popStream << pop.toString();
 
-	std::cout << "Done ..." << std::endl;
+	// Write to file for later inspection
+	std::ofstream popFile("pop.xml");
+	popFile << popStream.str();
+	popFile.close();
+
+	GObject *local = (GObject *)NULL;
+	std::istringstream istr(pop.toString());
+	{
+		boost::archive::xml_iarchive ia(istr);
+		ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
+	} // note: explicit scope here is essential so the ia-destructor gets called
+
+	GBoostThreadPopulation *newPop = dynamic_cast<GBoostThreadPopulation *>(local);
+
+	// Do the actual optimization
+	if(newPop)
+		newPop->optimize();
+	else{
+		std::cout << "Error: Could not de-serialize the population" << std::endl;
+	}
+
+	delete newPop;
 
 	return 0;
 }

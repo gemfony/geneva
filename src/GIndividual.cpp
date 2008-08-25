@@ -51,7 +51,7 @@ GIndividual::GIndividual() :
  *
  * @param data A string representation of this class
  */
-GIndividual::GIndividual(const std::string& data) :
+GIndividual::GIndividual(const std::string& data, const serializationMode& sMode) :
 	GMutableI(),
 	GRateableI(),
 	GObject(),
@@ -61,6 +61,7 @@ GIndividual::GIndividual(const std::string& data) :
 	parentPopGeneration_(0),
 	parentCounter_(0)
 {
+	this->setSerializationMode(sMode);
 	this->fromString(data);
 }
 

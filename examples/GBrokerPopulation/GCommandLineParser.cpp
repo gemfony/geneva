@@ -32,6 +32,7 @@ namespace GenEvA
  * A function that parses the command line for all required parameters
  */
 bool parseCommandLine(int argc, char **argv,
+					  std::string& ip,
 					  std::string& mode,
 					  unsigned short& port,
 					  std::size_t& parabolaDimension,
@@ -49,10 +50,16 @@ bool parseCommandLine(int argc, char **argv,
 	boost::uint16_t recombinationScheme;
 
 	try{
-		// Check the command line options. Uses the Boost.Programoptions library.
+		// Check the command line options. Uses the Boost program options library.
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
+			("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP),
+					"The ip of the server - required by the client")
+			("mode",po::value<std::string>(&mode)->default_value(DEFAULTMODE),
+					"server or client, dependent on the mode")
+			("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT),
+					"The port of the server")
 			("parabolaDimension,d", po::value<std::size_t>(&parabolaDimension)->default_value(DEFAULTPARABOLADIMENSION),
 					"number of dimensions in the parabola")
 			("parabolaMin,m", po::value<double>(&parabolaMin)->default_value(DEFAULTPARABOLAMIN),
@@ -120,6 +127,9 @@ bool parseCommandLine(int argc, char **argv,
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
+				      << "ip = " << ip << std::endl
+				      << "mode = " << mode << std::endl
+				      << "port = " << port << std::endl
 					  << "parabolaDimension = " << parabolaDimension << std::endl
 					  << "parabolaMin = " << parabolaMin << std::endl
 					  << "parabolaMax = " << parabolaMax << std::endl

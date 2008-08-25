@@ -105,7 +105,7 @@ void GAsioServerSession::processRequest() {
 		if (this->retrieve(itemString, portid, fitness, dirtyflag)) {
 			// Give the object back to the broker, so it can be sorted back
 			// into the GBufferPort objects.
-			boost::shared_ptr<GIndividual> p(new GIndividual(itemString));
+			boost::shared_ptr<GIndividual> p(new GIndividual(itemString, TEXTSERIALIZATION));
 			Gem::Util::PORTIDTYPE id = boost::lexical_cast<Gem::Util::PORTIDTYPE>(portid);
 			try {
 				GINDIVIDUALBROKER.put(id, p, timeout);
