@@ -42,15 +42,46 @@
 // This is a simple parabola
 #include "GParabolaIndividual.hpp"
 
+// Declares a function to parse the command line
+#include "GCommandLineParser.hpp"
+
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
 using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
- * The main function. We search for the minimum of a parabola.
+ * The main function. We search for the minimum of a parabola. This example demonstrates the use
+ * of the GBasePopulation class or (at your choice) of the GBoostThreadPopulation class. Note that
+ * a number of command line options are available. Call the executable with the "-h" switch
+ * to get an overview.
  */
 int main(int argc, char **argv){
+	 std::size_t parabolaDimension, nPopThreads;
+	 std::size_t populationSize, nParents;
+	 double parabolaMin, parabolaMax;
+	 boost::uint16_t nProducerThreads;
+	 boost::uint32_t maxGenerations, reportGeneration;
+	 long maxMinutes;
+	 bool verbose;
+	 recoScheme rScheme;
+
+	// Parse the command line
+	if(!parseCommandLine(argc, argv,
+		  			     parabolaDimension,
+						 parabolaMin,
+						 parabolaMax,
+						 nProducerThreads,
+						 nPopThreads,
+						 populationSize,
+						 nParents,
+						 maxGenerations,
+						 maxMinutes,
+						 reportGeneration,
+						 rScheme,
+						 verbose))
+	{ std::terminate(); }
+
 	// Add some log levels to the logger
 	LOGGER.addLogLevel(Gem::GLogFramework::CRITICAL);
 	LOGGER.addLogLevel(Gem::GLogFramework::WARNING);
@@ -62,10 +93,11 @@ int main(int argc, char **argv){
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
-	GRANDOMFACTORY.setNProducerThreads(10);
+	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
 
 	// Set up a single parabola individual
-	boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(1000, -100.,100.));
+	boost::shared_ptr<GParabolaIndividual>
+		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax));
 
 	// Now we've got our first individual and can create a population.
 	// You can choose between a simple, non-parallel population and a
@@ -77,16 +109,16 @@ int main(int argc, char **argv){
 	// GBasePopulation pop;
 
 	GBoostThreadPopulation pop;
-	pop.setNThreads(4);
+	pop.setNThreads(nPopThreads);
 
 	pop.append(parabolaIndividual);
 
 	// Specify some population settings
-	pop.setPopulationSize(100,5); // 100 individuals, 5 parents
-	pop.setMaxGeneration(2000); // A maximum of 2000 generations is allowed
-	pop.setMaxTime(boost::posix_time::minutes(5)); // Calculation should be finished after 5 minutes
-	pop.setReportGeneration(1); // Emit information during every generation
-	pop.setRecombinationMethod(VALUERECOMBINE); // The best parents have higher chances of survival
+	pop.setPopulationSize(populationSize,nParents);
+	pop.setMaxGeneration(maxGenerations);
+	pop.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
+	pop.setReportGeneration(reportGeneration); // Emit information during every generation
+	pop.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
 	// Do the actual optimization
 	pop.optimize();

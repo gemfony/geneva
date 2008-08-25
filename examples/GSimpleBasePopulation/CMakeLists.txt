@@ -4,6 +4,7 @@ SET (EXECUTABLENAME GSimpleBasePopulation)
 
 SET (${EXECUTABLENAME}_SRCS 
 	GSimpleBasePopulation
+	GCommandLineParser
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

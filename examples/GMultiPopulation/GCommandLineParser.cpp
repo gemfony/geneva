@@ -69,7 +69,7 @@ bool parseCommandLine(int argc, char **argv,
 					"The amount of random number producer threads")
 			("nConsumerThreads,t",po::value<std::size_t>(&nConsumerThreads)->default_value(DEFAULTCONSUMERTHREADS),
 					"The amount of consumer threads")
-			("nSuperThreads,T",po::value<std::size_t>(&nConsumerThreads)->default_value(DEFAULTNSUPERTHREADS),
+			("nSuperThreads,T",po::value<std::size_t>(&nSuperThreads)->default_value(DEFAULTNSUPERTHREADS),
 					"The amount of threads in the super population")
 			("superPopulationSize,S",po::value<std::size_t>(&superPopulationSize)->default_value(DEFAULTSUPERPOPULATIONSIZE),
 					"The size of the super-population")
