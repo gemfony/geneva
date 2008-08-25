@@ -138,6 +138,9 @@ int main(int argc, char **argv){
 		sub->setReportGeneration(subReportGeneration);
 		sub->setRecombinationMethod(subRScheme);
 
+		// Do not time-out while waiting for children to return
+		sub->setWaitFactor(0);
+
 		// Add the sub-population to the super-population
 		super.append(sub);
 	}
@@ -147,7 +150,7 @@ int main(int argc, char **argv){
 	super.setMaxGeneration(superMaxGenerations);
 	super.setMaxTime(boost::posix_time::minutes(superMaxMinutes));
 	super.setReportGeneration(superReportGeneration);
-	super.setRecombinationMethod(suberRScheme);
+	super.setRecombinationMethod(superRScheme);
 
 	// Do the actual optimization
 	super.optimize();

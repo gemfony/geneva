@@ -380,9 +380,9 @@ void GBrokerPopulation::mutateChildren() {
 	if(complete) return;
 
 	//--------------------------------------------------------------------------------
-	// O.k., we are missing individuals from the current population. Emit messages and
-	// do some fixing.
+	// O.k., we are missing individuals from the current population. Do some fixing.
 
+#ifdef DEBUG
 	std::ostringstream information;
 	information << "Note that in GBrokerPopulation::mutateChildren()" << std::endl
 				<< "some individuals of the current population did not return" << std::endl
@@ -396,12 +396,16 @@ void GBrokerPopulation::mutateChildren() {
 	information << nReceivedChildCurrent << " children of the current population returned" << std::endl
 			    << "plus " << nReceivedChildOlder << " older children," << std::endl
 			    << "where the default number of children is " << this->getDefaultNChildren() << std::endl;
+#endif /* DEBUG*/
+
 
 	if(data.size() < np+this->getDefaultNChildren()){
 		std::size_t fixSize=np+this->getDefaultNChildren() - data.size();
 
+#ifdef DEBUG
 		information << fixSize << "individuals thus need to be added to the population." << std::endl
 					<< "Note that children may still return in later generations." << std::endl;
+#endif /* DEBUG */
 
 		for(std::size_t i=0; i<fixSize; i++){
 			GIndividual *gi = dynamic_cast<GIndividual *>((data.back())->clone());
@@ -419,7 +423,9 @@ void GBrokerPopulation::mutateChildren() {
 		}
 	}
 
+#ifdef DEBUG
 	LOGGER.log(information.str(), Gem::GLogFramework::INFORMATIONAL);
+#endif /* DEBUG */
 
 	// We care for too many returned individuals in the select() function. Older
 	// individuals might nevertheless have a better quality. We do not want to loose them.

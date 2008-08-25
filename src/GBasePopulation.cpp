@@ -155,8 +155,8 @@ void GBasePopulation::optimize() {
 	// Fill up the population as needed
 	GBasePopulation::adjustPopulation();
 
-	// Emit the info header
-	doInfo(INFOINIT);
+	// Emit the info header, unless we do not want any info
+	if(reportGeneration_) doInfo(INFOINIT);
 
 	// Initialize the start time with the current time. Uses Boost::date_time
 	startTime_ = boost::posix_time::second_clock::local_time();
@@ -177,7 +177,7 @@ void GBasePopulation::optimize() {
 	while(!halt()); // allows custom halt criteria
 
 	// Finalize the info output
-	doInfo(INFOEND);
+	if(reportGeneration_) doInfo(INFOEND);
 }
 
 /***********************************************************************************/

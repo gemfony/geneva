@@ -174,7 +174,8 @@ bool parseCommandLine(int argc, char **argv,
 					  << "subNParents = " << subNParents << std::endl
 					  << "superMaxGenerations = " << superMaxGenerations << std::endl
 					  << "subMaxGenerations = " << subMaxGenerations << std::endl
-					  << "maxMinutes = " << maxMinutes << std::endl
+					  << "superMaxMinutes = " << superMaxMinutes << std::endl
+					  << "subMaxMinutes = " << subMaxMinutes << std::endl
 					  << "superReportGeneration = " << superReportGeneration << std::endl
 					  << "subReportGeneration = " << subReportGeneration << std::endl
 					  << "superRScheme = " << (boost::uint16_t)superRScheme << std::endl

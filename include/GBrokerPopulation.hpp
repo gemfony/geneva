@@ -64,7 +64,7 @@ namespace GenEvA
    * of the first individual in the first generation. Used to
    * find a suitable timeout-value for following individuals.
    */
-  const boost::uint32_t DEFAULTWAITFACTOR = 5;
+  const boost::uint32_t DEFAULTWAITFACTOR = 20;
 
   /**
    * The default allowed time in seconds for the first individual
@@ -112,43 +112,43 @@ namespace GenEvA
   public:
 	typedef boost::shared_ptr<Gem::Util::GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> > > GBufferPort_ptr;
 
-	/** \brief The standard constructor */
+	/** @brief The standard constructor */
     GBrokerPopulation();
-    /** \brief A standard copy constructor */
+    /** @brief A standard copy constructor */
     GBrokerPopulation(const GBrokerPopulation&);
-    /** \brief The standard destructor */
+    /** @brief The standard destructor */
     virtual ~GBrokerPopulation();
 
-    /** \brief A standard assignment operator */
+    /** @brief A standard assignment operator */
     const GBrokerPopulation& operator=(const GBrokerPopulation&);
 
-    /** \brief Loads the data of another GTransfer Population */
+    /** @brief Loads the data of another GTransfer Population */
     virtual void load(const GObject *);
-    /** \brief Creates a deep copy of this object */
+    /** @brief Creates a deep copy of this object */
     virtual GObject *clone();
 
-    /** \brief Starts the optimization cycle */
+    /** @brief Starts the optimization cycle */
     virtual void optimize();
 
-    /** \brief Sets the wait factor */
+    /** @brief Sets the wait factor */
     void setWaitFactor(boost::uint32_t) throw();
-    /** \brief Retrieves the wait factor */
+    /** @brief Retrieves the wait factor */
     boost::uint32_t getWaitFactor() const throw();
 
-    /** \brief Sets the first timeout factor */
+    /** @brief Sets the first timeout factor */
     void setFirstTimeOut(const boost::posix_time::time_duration&);
-    /** \brief Retrieves the first timeout factor */
+    /** @brief Retrieves the first timeout factor */
     boost::posix_time::time_duration getFirstTimeOut() const;
 
-    /** \brief Sets the loop time */
+    /** @brief Sets the loop time */
     void setLoopTime(const boost::posix_time::time_duration&);
-    /** \brief Retrieves the second part of the loop time */
+    /** @brief Retrieves the second part of the loop time */
     boost::posix_time::time_duration getLoopTime() const;
 
   protected:
-    /** \brief Mutates all children in sequence */
+    /** @brief Mutates all children in sequence */
     virtual void mutateChildren();
-    /** \brief Selects new parents */
+    /** @brief Selects new parents */
     virtual void select();
 
   private:

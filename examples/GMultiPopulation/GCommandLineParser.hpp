@@ -70,7 +70,7 @@ const std::size_t DEFAULTSUBPOPULATIONSIZE=10;
 const std::size_t DEFAULTSUPERNPARENTS=5; // Allow to explore the parameter space from many starting points
 const std::size_t DEFAULTSUBNPARENTS=1;
 const boost::uint32_t DEFAULTSUPERMAXGENERATIONS=20;
-const boost::uint32_t DEFAULTSUPERMAXGENERATIONS=100;
+const boost::uint32_t DEFAULTSUBMAXGENERATIONS=100;
 const long DEFAULTSUPERMAXMINUTES=10;
 const long DEFAULTSUBMAXMINUTES=0;
 const boost::uint32_t DEFAULTSUPERREPORTGENERATION=1;
@@ -87,7 +87,7 @@ bool parseCommandLine(int argc, char **argv,
 					  double& parabolaMax,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& nConsumerThreads,
-					  std::site_t& nSuperThreads,
+					  std::size_t& nSuperThreads,
 					  std::size_t& superPopulationSize,
 					  std::size_t& superNParents,
 					  std::size_t& subPopulationSize,
