@@ -51,6 +51,7 @@
 #define GCOMMANDLINEPARSER_HPP_
 
 // GenEvA headers go here
+#include "GBasePopulation.hpp"
 
 namespace Gem
 {
@@ -58,11 +59,34 @@ namespace GenEvA
 {
 
 // Default settings for the maximum number of generations
+const std::size_t DEFAULTPARABOLADIMENSION=1000;
+const double DEFAULTPARABOLAMIN=-100.;
+const double DEFAULTPARABOLAMAX=100.;
+const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
+const std::size_t DEFAULTPOPULATIONSIZE=100;
+const std::size_t DEFAULTNPARENTS=5;
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
+const long DEFAULTMAXMINUTES=5;
+const boost::uint32_t DEFAULTREPORTGENERATION=1;
+const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
+const bool DEFAULTVERBOSE=true;
 
 namespace po = boost::program_options;
 
-bool parseCommandLine(int, char **, std::string&, unsigned short, std::string&,  boost::uint32_t&);
+bool parseCommandLine(int argc, char **argv,
+					  std::string& mode,
+					  unsigned short& port,
+					  std::size_t& parabolaDimension,
+					  double& parabolaMin,
+					  double& parabolaMax,
+					  boost::uint16_t& nProducerThreads,
+					  std::size_t& populationSize,
+					  std::size_t& nParents,
+					  boost::uint32_t& maxGenerations,
+					  long& maxMinutes,
+					  boost::uint32_t& reportGeneration,
+					  recoScheme& rScheme,
+					  bool& verbose);
 
 } /* namespace GenEvA */
 } /* namespace Gem */

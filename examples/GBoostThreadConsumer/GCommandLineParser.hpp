@@ -75,19 +75,18 @@ const bool DEFAULTVERBOSE=true;
 namespace po = boost::program_options;
 
 bool parseCommandLine(int, char **,
-		  std::size_t& parabolaDimension,
-		  double& parabolaMin,
-		  double& parabolaMax,
-		  boost::uint16_t& nProducerThreads,
-		  std::size_t& nConsumerThreads,
-		  std::size_t& populationSize,
-		  std::size_t& nParents,
-		  boost::uint32_t& maxGenerations,
-		  long& maxMinutes,
-		  boost::uint32_t& reportGeneration,
-		  recoScheme& rScheme,
-		  bool& verbose
-);
+					  std::size_t& parabolaDimension,
+					  double& parabolaMin,
+					  double& parabolaMax,
+					  boost::uint16_t& nProducerThreads,
+					  std::size_t& nConsumerThreads,
+					  std::size_t& populationSize,
+					  std::size_t& nParents,
+					  boost::uint32_t& maxGenerations,
+					  long& maxMinutes,
+					  boost::uint32_t& reportGeneration,
+					  recoScheme& rScheme,
+					  bool& verbose);
 
 } /* namespace GenEvA */
 } /* namespace Gem */

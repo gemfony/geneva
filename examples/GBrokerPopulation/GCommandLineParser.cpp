@@ -33,19 +33,48 @@ namespace GenEvA
  */
 bool parseCommandLine(int argc, char **argv,
 					  std::string& mode,
-					  unsigned short port,
-					  std::string& ip,
-					  boost::uint32_t& maxGenerations)
+					  unsigned short& port,
+					  std::size_t& parabolaDimension,
+					  double& parabolaMin,
+					  double& parabolaMax,
+					  boost::uint16_t& nProducerThreads,
+					  std::size_t& populationSize,
+					  std::size_t& nParents,
+					  boost::uint32_t& maxGenerations,
+					  long& maxMinutes,
+					  boost::uint32_t& reportGeneration,
+					  recoScheme& rScheme,
+					  bool& verbose)
 {
+	boost::uint16_t recombinationScheme;
+
 	try{
 		// Check the command line options. Uses the Boost.Programoptions library.
 		po::options_description desc("Allowed options");
 		desc.add_options()
-			("help", "emit help message")
-			("mode", po::value<std::string>(), "either \"server\" or \"client\" (required)")
-			("port", po::value<unsigned short>(), "the server port (required)")
-			("ip", po::value<std::string>(), "name or ip of the server (required for the client)")
-			("generations", po::value<boost::uint32_t>(), "number of generations")
+			("help,h", "emit help message")
+			("parabolaDimension,d", po::value<std::size_t>(&parabolaDimension)->default_value(DEFAULTPARABOLADIMENSION),
+					"number of dimensions in the parabola")
+			("parabolaMin,m", po::value<double>(&parabolaMin)->default_value(DEFAULTPARABOLAMIN),
+					"Lower boundary for random numbers")
+			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
+					"Upper boundary for random numbers")
+			("nProducerThreads,p",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
+					"The amount of random number producer threads")
+			("populationSize,s",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
+					"The size of the population")
+			("nParents,P",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
+					"The number of parents in the population") // Needs to be treated separately
+			("maxGenerations,g", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
+					"maximum number of generations")
+			("maxMinutes,x", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
+					"The maximum number of minutes the optimization should run")
+			("reportGeneration,G",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),
+					"The number of generations after which information should be emitted")
+			("rScheme,r",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
+					"The recombination scheme")
+			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
+					"Whether additional information should be emitted")
 		;
 
 		po::variables_map vm;
@@ -55,62 +84,57 @@ bool parseCommandLine(int argc, char **argv,
 		// Emit a help message, if necessary
 		if (vm.count("help")) {
 			 std::cout << desc << std::endl;
-			 exit(1);
+			 return false;
 		}
 
-		// Retrieve the port of the server
-		if (vm.count("port") != 1) {
-			std::cout << std::endl
-					  << "Error: port was not set or was set more than once." << std::endl
-					  << std::endl
-					  << desc << std::endl;
-			exit(1);
-		}
-		else port = vm["port"].as<unsigned short>();
+		// Check the number of parents
+		if(2*nParents > populationSize){
+			std::cout << "Error: Invalid number of parents" << std::endl
+				      << "nParents       = " << nParents << std::endl
+				      << "populationSize = " << populationSize << std::endl;
 
-		// Check whether we're running as a client or as a server
-		if (vm.count("mode") != 1) {
-			std::cout << std::endl
-					  << "Error: mode was not set or was set more than once." << std::endl
-					  << std::endl
-					  << desc << std::endl;
-			exit(1);
+			return false;
 		}
+
+		// Check the parabolaMin/Max parameters
+		if(parabolaMin >= parabolaMax){
+			std::cout << "Error: Invalid parabolaMin/Max parameters" << std::endl
+				      << "parabolaMin = " << parabolaMin << std::endl
+				      << "parabolaMax = " << parabolaMax << std::endl;
+
+			return false;;
+		}
+
+		// Workaround for assigment problem with recoScheme
+		if(recombinationScheme==(boost::uint16_t)VALUERECOMBINE)
+			rScheme=VALUERECOMBINE;
+		else if(recombinationScheme==(boost::uint16_t)RANDOMRECOMBINE)
+			rScheme=RANDOMRECOMBINE;
+		else if(recombinationScheme==(boost::uint16_t)DEFAULTRECOMBINE)
+			rScheme=DEFAULTRECOMBINE;
 		else {
-			mode = vm["mode"].as<std::string>();
-			if(mode != "client" && mode != "server"){
-				std::cout << std::endl
-						  << "Error: mode should be either \"client\" or \"server\"" << std::endl
-					      << std::endl
-					      << desc << std::endl;
-				exit(1);
-			}
+			std::cout << "Error: Invalid recombination scheme: " << recombinationScheme << std::endl;
+			return false;
 		}
 
-		// If we are a client, extract the server ip
-		if (mode == "client"){
-			if(vm.count("ip") != 1) {
-				std::cout << std::endl
-						  << "Error: server ip/name was not set or was set more than once." << std::endl
-						  << std::endl
-						  << desc << std::endl;
-				exit(1);
-			}
-			else ip=vm["ip"].as<std::string>();
-		}
-
-		// Extract the maximum number of generations
-		if (!vm.count("generations")) maxGenerations=DEFAULTMAXGENERATIONS;
-		else if(vm.count("generations") > 1){
+		if(verbose){
 			std::cout << std::endl
-				      << "Error: generations parameter was set more than once." << std::endl
-					  << std::endl
-					  << desc << std::endl;
-			exit(1);
+				      << "Running with the following options:" << std::endl
+					  << "parabolaDimension = " << parabolaDimension << std::endl
+					  << "parabolaMin = " << parabolaMin << std::endl
+					  << "parabolaMax = " << parabolaMax << std::endl
+					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
+					  << "populationSize = " << populationSize << std::endl
+					  << "nParents = " << nParents << std::endl
+					  << "maxGenerations = " << maxGenerations << std::endl
+					  << "maxMinutes = " << maxMinutes << std::endl
+					  << "reportGeneration = " << reportGeneration << std::endl
+					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
+					  << std::endl;
 		}
-		else maxGenerations=vm["generations"].as<boost::uint32_t>();
 	}
 	catch(...){
+		std::cout << "Error parsing the command line" << std::endl;
 		return false;
 	}
 
