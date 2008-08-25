@@ -38,7 +38,6 @@
 #include <fstream>
 #include <algorithm>
 #include <functional>      // For greater<T>( )
-
 // Boost header files go here
 #include <boost/function.hpp>
 #include <boost/cstdint.hpp>
@@ -63,51 +62,52 @@
 
 const boost::uint32_t MAXCOUNT = 100;
 const boost::uint32_t MAXITERATIONS = 100000;
-const std::size_t ARRAYSIZE=10;
+const std::size_t ARRAYSIZE = 10;
 
 class base {
-  ///////////////////////////////////////////////////////////////////////
-  friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-  template<class Archive>
-  void serialize(Archive & ar, const unsigned int version){
-    using boost::serialization::make_nvp;
-    ar & make_nvp("secret_",secret_);
-  }
-  ///////////////////////////////////////////////////////////////////////
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version) {
+		using boost::serialization::make_nvp;
+		ar & make_nvp("secret_", secret_);
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
-  base(){
-    for(boost::uint32_t i=0; i<MAXCOUNT; i++)
-      secret_.push_back(i);
-  }
+	base() {
+		for (boost::uint32_t i = 0; i < MAXCOUNT; i++)
+			secret_.push_back(i);
+	}
 
-  virtual ~base() {}
-  virtual void doSomeWork() = 0;
+	virtual ~base() {
+	}
+	virtual void doSomeWork() = 0;
 
 protected:
-  std::vector<boost::uint32_t> secret_;
+	std::vector<boost::uint32_t> secret_;
 };
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(base)
 
 class derived :public base {
-  ///////////////////////////////////////////////////////////////////////
-  friend class boost::serialization::access;
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-  template<class Archive>
-  void serialize(Archive & ar, const unsigned int version){
-    using boost::serialization::make_nvp;
-    ar & make_nvp("base", boost::serialization::base_object<base>(*this));
-  }
-  ///////////////////////////////////////////////////////////////////////
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version) {
+		using boost::serialization::make_nvp;
+		ar & make_nvp("base", boost::serialization::base_object<base>(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
-  virtual ~derived(){}
+	virtual ~derived() {}
 
-  virtual void doSomeWork(){
-    std::sort(secret_.begin(), secret_.end(), std::greater<boost::uint32_t>());
-  }
+	virtual void doSomeWork() {
+		std::sort(secret_.begin(), secret_.end(), std::greater<boost::uint32_t>());
+	}
 };
 
 BOOST_CLASS_EXPORT(derived)
@@ -125,39 +125,39 @@ BOOST_CLASS_EXPORT(derived)
 // #define ARCHIVETYPEIN  xml_iarchive
 // #define ARCHIVETYPEOUT xml_oarchive
 
-main(){
-  base *bDerived = new derived();
+main() {
+	base *bDerived = new derived();
 
-  // Create a string representation of Derived
-  std::ostringstream derivedStream;
-  {
-    boost::archive::ARCHIVETYPEOUT oa(derivedStream);
-    oa << boost::serialization::make_nvp("Derived" , bDerived);
-  }
+	// Create a string representation of Derived
+	std::ostringstream derivedStream;
+	{
+		boost::archive::ARCHIVETYPEOUT oa(derivedStream);
+		oa << boost::serialization::make_nvp("Derived" , bDerived);
+	}
 
-  // Make sure we have no representation of the object left.
-  delete bDerived;
+	// Make sure we have no representation of the object left.
+	delete bDerived;
 
-  for(boost::uint32_t i=0; i<MAXITERATIONS; i++){
-    base  *baseArray[ARRAYSIZE];
-    // De-serialize the text representation of Derived into the base pointers
-    for(std::size_t j=0; j<ARRAYSIZE; j++){
-      baseArray[j] = (base *)NULL;
-      std::istringstream istr(derivedStream.str());
-      {
-	boost::archive::ARCHIVETYPEIN ia(istr);
-	ia >> boost::serialization::make_nvp("Derived", baseArray[j]);
-      }
-    }
+	for(boost::uint32_t i=0; i<MAXITERATIONS; i++) {
+		base *baseArray[ARRAYSIZE];
+		// De-serialize the text representation of Derived into the base pointers
+		for(std::size_t j=0; j<ARRAYSIZE; j++) {
+			baseArray[j] = (base *)NULL;
+			std::istringstream istr(derivedStream.str());
+			{
+				boost::archive::ARCHIVETYPEIN ia(istr);
+				ia >> boost::serialization::make_nvp("Derived", baseArray[j]);
+			}
+		}
 
-    // Let the new objects do some work
-    for(std::size_t j=0; j<ARRAYSIZE; j++){
-      baseArray[j]->doSomeWork();
-      delete baseArray[j];
-    }
+		// Let the new objects do some work
+		for(std::size_t j=0; j<ARRAYSIZE; j++) {
+			baseArray[j]->doSomeWork();
+			delete baseArray[j];
+		}
 
-    if(i%100 == 0) {
-      std::cout << "Passed " << i << std::endl;
-    }
-  }
+		if(i%100 == 0) {
+			std::cout << "Passed " << i << std::endl;
+		}
+	}
 }
