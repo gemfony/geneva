@@ -21,10 +21,14 @@
  */
 
 /*
- * This test tries to determine possible problems with Boost.Serialization, 
+ * This test tries to determine possible problems with Boost.Serialization,
  * in the field of memory-(de-)allocation.
  *
  * On OpenSUSE 11, with Boost 1.36 under /opt/boost136, compile like this:
+ *
+ * g++ -g -o serializationTest -I /opt/boost136/include/boost-1_36/ \
+ *                             -L/opt/boost136/lib -lboost_system-gcc43-mt \
+ *                             -lboost_serialization-gcc43-mt serializationTest.cpp
  */
 
 // Standard header files go here
@@ -64,7 +68,7 @@ const std::size_t ARRAYSIZE=10;
 class base {
   ///////////////////////////////////////////////////////////////////////
   friend class boost::serialization::access;
-  
+
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version){
     using boost::serialization::make_nvp;
@@ -90,7 +94,7 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(base)
 class derived :public base {
   ///////////////////////////////////////////////////////////////////////
   friend class boost::serialization::access;
-  
+
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version){
     using boost::serialization::make_nvp;
