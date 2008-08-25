@@ -185,5 +185,7 @@ int main(int argc, char **argv){
 		<< "  cc->cd();" << std::endl
 		<< "}" << std::endl;
 
+	ofs.close();
+
 	return 0;
 }
