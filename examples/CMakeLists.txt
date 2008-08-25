@@ -15,3 +15,7 @@ ADD_SUBDIRECTORY (
 ADD_SUBDIRECTORY (
 	GBrokerPopulation
 )
+
+ADD_SUBDIRECTORY (
+	GMultiPopulation
+)

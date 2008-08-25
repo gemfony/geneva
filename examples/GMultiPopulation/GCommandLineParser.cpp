@@ -37,18 +37,25 @@ bool parseCommandLine(int argc, char **argv,
 					  double& parabolaMax,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& nConsumerThreads,
-					  std::size_t& populationSize,
-					  std::size_t& nParents,
-					  boost::uint32_t& maxGenerations,
-					  long& maxMinutes,
-					  boost::uint32_t& reportGeneration,
-					  recoScheme& rScheme,
+					  std::size_t& nSuperThreads,
+					  std::size_t& superPopulationSize,
+					  std::size_t& superNParents,
+					  std::size_t& subPopulationSize,
+					  std::size_t& subNParents,
+					  boost::uint32_t& superMaxGenerations,
+					  boost::uint32_t& subMaxGenerations,
+					  long& superMaxMinutes,
+					  long& subMaxMinutes,
+					  boost::uint32_t& superReportGeneration,
+					  boost::uint32_t& subReportGeneration,
+					  recoScheme& superRScheme,
+					  recoScheme& subRScheme,
 					  bool& verbose)
 {
-	boost::uint16_t recombinationScheme;
+	boost::uint16_t superRecombinationScheme=0, subRecombinationScheme=0;
 
 	try{
-		// Check the command line options. Uses the Boost.Programoptions library.
+		// Check the command line options. Uses the Boost program options library.
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
@@ -58,22 +65,36 @@ bool parseCommandLine(int argc, char **argv,
 					"Lower boundary for random numbers")
 			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
 					"Upper boundary for random numbers")
-			("nProducerThreads,p",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
+			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
-			("nConsumerThreads,c",po::value<std::size_t>(&nConsumerThreads)->default_value(DEFAULTCONSUMERTHREADS),
+			("nConsumerThreads,t",po::value<std::size_t>(&nConsumerThreads)->default_value(DEFAULTCONSUMERTHREADS),
 					"The amount of consumer threads")
-			("populationSize,s",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
-					"The size of the population")
-			("nParents,P",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
-					"The number of parents in the population") // Needs to be treated separately
-			("maxGenerations,g", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
-					"maximum number of generations")
-			("maxMinutes,x", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
-					"The maximum number of minutes the optimization should run")
-			("reportGeneration,G",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),
-					"The number of generations after which information should be emitted")
-			("rScheme,r",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
-					"The recombination scheme")
+			("nSuperThreads,T",po::value<std::size_t>(&nConsumerThreads)->default_value(DEFAULTNSUPERTHREADS),
+					"The amount of threads in the super population")
+			("superPopulationSize,S",po::value<std::size_t>(&superPopulationSize)->default_value(DEFAULTSUPERPOPULATIONSIZE),
+					"The size of the super-population")
+			("subPopulationSize,s",po::value<std::size_t>(&subPopulationSize)->default_value(DEFAULTSUBPOPULATIONSIZE),
+					"The size of the sub-population")
+			("superNParents,P",po::value<std::size_t>(&superNParents)->default_value(DEFAULTSUPERNPARENTS),
+					"The number of parents in the super-population") // Needs to be treated separately
+			("subNParents,p",po::value<std::size_t>(&subNParents)->default_value(DEFAULTSUBNPARENTS),
+					"The number of parents in the sub-population") // Needs to be treated separately
+			("superMaxGenerations,G", po::value<boost::uint32_t>(&superMaxGenerations)->default_value(DEFAULTSUPERMAXGENERATIONS),
+					"maximum number of generations in the super-population")
+			("subMaxGenerations,g", po::value<boost::uint32_t>(&subMaxGenerations)->default_value(DEFAULTSUBMAXGENERATIONS),
+					"maximum number of generations in the sub-population")
+			("superMaxMinutes,X", po::value<long>(&superMaxMinutes)->default_value(DEFAULTSUPERMAXMINUTES),
+					"The maximum number of minutes the optimization of the super-population should run")
+			("subMaxMinutes,x", po::value<long>(&subMaxMinutes)->default_value(DEFAULTSUBMAXMINUTES),
+					"The maximum number of minutes the optimization of the sub-population should run")
+			("superReportGeneration,R",po::value<boost::uint32_t>(&superReportGeneration)->default_value(DEFAULTSUPERREPORTGENERATION),
+					"The number of generations after which information should be emitted in the super-population")
+			("subReportGeneration,r",po::value<boost::uint32_t>(&subReportGeneration)->default_value(DEFAULTSUBREPORTGENERATION),
+					"The number of generations after which information should be emitted in the sub-population")
+			("superRScheme,E",po::value<boost::uint16_t>(&superRecombinationScheme)->default_value(DEFAULTSUPERRSCHEME),
+					"The recombination scheme for the super-population")
+			("subRScheme,e",po::value<boost::uint16_t>(&subRecombinationScheme)->default_value(DEFAULTSUBRSCHEME),
+					"The recombination scheme for the sub-population")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -88,11 +109,20 @@ bool parseCommandLine(int argc, char **argv,
 			 return false;
 		}
 
-		// Check the number of parents
-		if(2*nParents > populationSize){
-			std::cout << "Error: Invalid number of parents" << std::endl
-				      << "nParents       = " << nParents << std::endl
-				      << "populationSize = " << populationSize << std::endl;
+		// Check the number of parents in the super-population
+		if(2*superNParents > superPopulationSize){
+			std::cout << "Error: Invalid number of parents in super-population" << std::endl
+				      << "superNParents       = " << superNParents << std::endl
+				      << "superPopulationSize = " << superPopulationSize << std::endl;
+
+			return false;
+		}
+
+		// Check the number of parents in the sub-population
+		if(2*subNParents > subPopulationSize){
+			std::cout << "Error: Invalid number of parents in sub-population" << std::endl
+				      << "subNParents       = " << subNParents << std::endl
+				      << "subPopulationSize = " << subPopulationSize << std::endl;
 
 			return false;
 		}
@@ -106,15 +136,27 @@ bool parseCommandLine(int argc, char **argv,
 			return false;;
 		}
 
-		// Workaround for assigment problem with recoScheme
-		if(recombinationScheme==(boost::uint16_t)VALUERECOMBINE)
-			rScheme=VALUERECOMBINE;
-		else if(recombinationScheme==(boost::uint16_t)RANDOMRECOMBINE)
-			rScheme=RANDOMRECOMBINE;
-		else if(recombinationScheme==(boost::uint16_t)DEFAULTRECOMBINE)
-			rScheme=DEFAULTRECOMBINE;
+		// Workaround for assigment problem with superRScheme
+		if(superRecombinationScheme==(boost::uint16_t)VALUERECOMBINE)
+			superRScheme=VALUERECOMBINE;
+		else if(superRecombinationScheme==(boost::uint16_t)RANDOMRECOMBINE)
+			superRScheme=RANDOMRECOMBINE;
+		else if(superRecombinationScheme==(boost::uint16_t)DEFAULTRECOMBINE)
+			superRScheme=DEFAULTRECOMBINE;
 		else {
-			std::cout << "Error: Invalid recombination scheme: " << recombinationScheme << std::endl;
+			std::cout << "Error: Invalid recombination scheme in super population: " << superRecombinationScheme << std::endl;
+			return false;
+		}
+
+		// Workaround for assigment problem with subRScheme
+		if(subRecombinationScheme==(boost::uint16_t)VALUERECOMBINE)
+			subRScheme=VALUERECOMBINE;
+		else if(subRecombinationScheme==(boost::uint16_t)RANDOMRECOMBINE)
+			subRScheme=RANDOMRECOMBINE;
+		else if(subRecombinationScheme==(boost::uint16_t)DEFAULTRECOMBINE)
+			subRScheme=DEFAULTRECOMBINE;
+		else {
+			std::cout << "Error: Invalid recombination scheme in sub population: " << subRecombinationScheme << std::endl;
 			return false;
 		}
 
@@ -126,12 +168,17 @@ bool parseCommandLine(int argc, char **argv,
 					  << "parabolaMax = " << parabolaMax << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "nConsumerThreads = " << nConsumerThreads << std::endl
-					  << "populationSize = " << populationSize << std::endl
-					  << "nParents = " << nParents << std::endl
-					  << "maxGenerations = " << maxGenerations << std::endl
+					  << "superPopulationSize = " << superPopulationSize << std::endl
+					  << "subPopulationSize = " << subPopulationSize << std::endl
+					  << "superNParents = " << superNParents << std::endl
+					  << "subNParents = " << subNParents << std::endl
+					  << "superMaxGenerations = " << superMaxGenerations << std::endl
+					  << "subMaxGenerations = " << subMaxGenerations << std::endl
 					  << "maxMinutes = " << maxMinutes << std::endl
-					  << "reportGeneration = " << reportGeneration << std::endl
-					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
+					  << "superReportGeneration = " << superReportGeneration << std::endl
+					  << "subReportGeneration = " << subReportGeneration << std::endl
+					  << "superRScheme = " << (boost::uint16_t)superRScheme << std::endl
+					  << "subRScheme = " << (boost::uint16_t)subRScheme << std::endl
 					  << std::endl;
 		}
 	}

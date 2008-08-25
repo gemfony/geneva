@@ -58,7 +58,7 @@ namespace Gem
 namespace GenEvA
 {
 
-// Default settings for the maximum number of generations
+// Default settings
 const std::size_t DEFAULTPARABOLADIMENSION=1000;
 const double DEFAULTPARABOLAMIN=-100.;
 const double DEFAULTPARABOLAMAX=100.;

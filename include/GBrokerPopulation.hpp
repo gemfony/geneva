@@ -90,6 +90,8 @@ namespace GenEvA
    *
    * Serialization in a network context only happens below the level of this population,
    * it is itself usually not shipped over a network connection.
+   *
+   * @todo Find a mechanism to prevent usage of this population inside another broker population
    */
   class GBrokerPopulation
     :public GenEvA::GBasePopulation

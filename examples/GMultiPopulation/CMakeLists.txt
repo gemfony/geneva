@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GBoostThreadConsumer)
+SET (EXECUTABLENAME GMultiPopulation)
 
 SET (${EXECUTABLENAME}_SRCS 
-	GBoostThreadConsumer
+	GMultiPopulation
 	GCommandLineParser
 )
 

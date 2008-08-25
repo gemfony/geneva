@@ -59,6 +59,17 @@ The command needs to be called on a single line.
 
 This commands shown here were tested on an OpenSUSE 11 system.
 
+Known box and (possibly) fixes on some platforms
+================================================
+The Boost.data_time library in version 1.36, in conjunction with g++ 4.3.1 in OpenSUSE 11/64 bit 
+has a problem in the file <BOOST-ROOT>/include/boost-1_36/boost/date_time/date_time/tz_db_base.hpp .
+Line 161 should look like this:
+[...]
+typedef boost::date_time::dst_adjustment_offsets<time_duration_type> dst_adjustment_offsets;
+[...]
+In the vanilla sources, the scope boost::date_time:: is missing. This doesn't seem to affect older 
+compiler versions, though.
+
 Recommended Software
 ====================
 By default a GenEvA population emits information suitable for the ROOT framework 

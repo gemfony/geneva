@@ -1,5 +1,5 @@
 /**
- * @file GBoostThreadConsumer.cpp
+ * @file GMultiPopulation.cpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -42,6 +42,7 @@
 
 #include "GBoostThreadConsumer.hpp"
 #include "GBrokerPopulation.hpp"
+#include "GBoostThreadPopulation.hpp" // We need two population types
 
 // The individual that should be optimized
 // This is a simple parabola
@@ -56,33 +57,45 @@ using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
- * The main function. We search for the minimum of a parabola, with the help of a GBoostThreadConsumer.
- * This is also a test for the GBroker architecture. Compare the speed with the execution of a simple,
- * multi-threaded population.
+ * This example demonstrates the use of multipopulations. In Geneva, populations have the
+ * GIndividual interface and thus can also compete as part of a "super-population". This can help
+ * to start searching the parameter space from various different areas. As in most other
+ * examples, we use a high-dimensional parabola as (lowest level) individual. This example also
+ * serves as a stress-test for the broker infrastructure, as the competing populations are
+ * part of a GBoostThreadPopulation.
  */
 int main(int argc, char **argv){
-	 std::size_t parabolaDimension, nConsumerThreads, populationSize, nParents;
+	 std::size_t parabolaDimension, nConsumerThreads, nSuperThreads;
+	 std::size_t superPopulationSize, superNParents, subPopulationSize, subNParents;
 	 double parabolaMin, parabolaMax;
 	 boost::uint16_t nProducerThreads;
-	 boost::uint32_t maxGenerations, reportGeneration;
-	 long maxMinutes;
+	 boost::uint32_t superMaxGenerations, superReportGeneration;
+	 boost::uint32_t subMaxGenerations, subReportGeneration;
+	 long superMaxMinutes, subMaxMinutes;
 	 bool verbose;
-	 recoScheme rScheme;
+	 recoScheme superRScheme, subRScheme;
 
-	// Retrieve command line options
-	if(!parseCommandLine(argc, argv,
-						 parabolaDimension,
-						 parabolaMin,
-						 parabolaMax,
-						 nProducerThreads,
-						 nConsumerThreads,
-						 populationSize,
-						 nParents,
-						 maxGenerations,
-						 maxMinutes,
-						 reportGeneration,
-						 rScheme,
-						 verbose))
+	 // Retrieve command line options
+	 if(!parseCommandLine(argc, argv,
+	 					  parabolaDimension,
+	 					  parabolaMin,
+	 					  parabolaMax,
+	 					  nProducerThreads,
+	 					  nConsumerThreads,
+	 					  nSuperThreads,
+	 					  superPopulationSize,
+	 					  superNParents,
+	 					  subPopulationSize,
+	 					  subNParents,
+	 					  superMaxGenerations,
+	 					  subMaxGenerations,
+	 					  superMaxMinutes,
+	 					  subMaxMinutes,
+	 					  superReportGeneration,
+	 					  subReportGeneration,
+	 					  superRScheme,
+	 					  subRScheme,
+	 					  verbose))
 	{ std::terminate(); }
 
 	// Add some log levels to the logger
@@ -98,27 +111,46 @@ int main(int argc, char **argv){
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
 
-	// Set up a single parabola individual
-	boost::shared_ptr<GParabolaIndividual>
-		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMin));
+	GBoostThreadPopulation super;
+	super.setNThreads(nSuperThreads);
 
 	// Create a consumer and make it known to the global broker
 	boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
 	gbtc->setMaxThreads(nConsumerThreads);
 	GINDIVIDUALBROKER.enrol(gbtc);
 
-	GBrokerPopulation pop;
-	pop.append(parabolaIndividual);
+	// Add superNParents parents
+	for(std::size_t np=0; np<superNParents; np++){
+		shared_ptr<GBrokerPopulation> sub(new GBrokerPopulation());
+
+		// Set up a new parabola individual. Each new instance will be equipped with its
+		// own set of random numbers. Hence we start searching the parameter space from different areas.
+		boost::shared_ptr<GParabolaIndividual>
+			parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMin));
+
+		// Add the individual to the sub-population
+		sub->append(parabolaIndividual);
+
+		// Specify some population settings
+		sub->setPopulationSize(subPopulationSize,subNParents);
+		sub->setMaxGeneration(subMaxGenerations);
+		sub->setMaxTime(boost::posix_time::minutes(subMaxMinutes));
+		sub->setReportGeneration(subReportGeneration);
+		sub->setRecombinationMethod(subRScheme);
+
+		// Add the sub-population to the super-population
+		super.append(sub);
+	}
 
 	// Specify some population settings
-	pop.setPopulationSize(populationSize,nParents);
-	pop.setMaxGeneration(maxGenerations);
-	pop.setMaxTime(boost::posix_time::minutes(maxMinutes));
-	pop.setReportGeneration(reportGeneration);
-	pop.setRecombinationMethod(rScheme);
+	super.setPopulationSize(superPopulationSize,superNParents);
+	super.setMaxGeneration(superMaxGenerations);
+	super.setMaxTime(boost::posix_time::minutes(superMaxMinutes));
+	super.setReportGeneration(superReportGeneration);
+	super.setRecombinationMethod(suberRScheme);
 
 	// Do the actual optimization
-	pop.optimize();
+	super.optimize();
 
 	std::cout << "Done ..." << std::endl;
 
