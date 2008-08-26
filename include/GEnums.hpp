@@ -38,7 +38,7 @@ namespace GenEvA {
    * vector<bool>[i] returns a helper class,
    * which breaks GenEvA
    */
-  enum bit {FALSE, TRUE}; // 0,1
+  enum bit {G_FALSE=0, G_TRUE=1}; // 0,1
 
   /**
    * Return values for member functions.

@@ -55,10 +55,10 @@ namespace GenEvA
   /**********************************************************************/
   /**
    * Initializes the class with nval random bits, of which probability percent
-   * have the value Gem::GenEvA::TRUE
+   * have the value Gem::GenEvA::G_TRUE
    *
    * @param nval The size of the collection
-   * @param probability The probability for TRUE values in the collection
+   * @param probability The probability for G_TRUE values in the collection
    */
   GBitCollection::GBitCollection(const std::size_t& nval, const double& probability)
 	:GParameterCollectionT<Gem::GenEvA::bit>()

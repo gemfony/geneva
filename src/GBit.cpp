@@ -41,7 +41,7 @@ namespace Gem
 		 * to set the value again in the body of this functon.
 		 */
 		GBit::GBit(void)
-			:GParameterT<Gem::GenEvA::bit>(Gem::GenEvA::TRUE)
+			:GParameterT<Gem::GenEvA::bit>(Gem::GenEvA::G_TRUE)
 		{
 		   this->setValue(gr.bitRandom());
 		}
@@ -53,7 +53,7 @@ namespace Gem
 		 * @param val The value to assign (in converted form) to this object
 		 */
 		GBit::GBit(bool val)
-			:GParameterT<Gem::GenEvA::bit>(val?Gem::GenEvA::TRUE:Gem::GenEvA::FALSE)
+			:GParameterT<Gem::GenEvA::bit>(val?Gem::GenEvA::G_TRUE:Gem::GenEvA::G_FALSE)
 		{ /* nothing */ }
 
 		/************************************************************************/

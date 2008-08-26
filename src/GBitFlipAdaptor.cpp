@@ -280,7 +280,7 @@ namespace Gem
 		 */
 		void GBitFlipAdaptor::flip(GenEvA::bit &value) const throw()
 		{
-			value==GenEvA::TRUE ? value = GenEvA::FALSE : value=GenEvA::TRUE;
+			value==Gem::GenEvA::G_TRUE ? value = Gem::GenEvA::G_FALSE : value=Gem::GenEvA::G_TRUE;
 		}
 
 		/***********************************************************************************/

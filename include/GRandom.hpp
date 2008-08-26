@@ -42,10 +42,10 @@
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/shared_array.hpp>
 #include <boost/pool/detail/singleton.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/exception.hpp>
-#include <boost/array.hpp>
 #include <boost/cstdint.hpp>
 
 // We require at least Boost version 1.36 because of the usage of system_time
@@ -91,11 +91,6 @@ namespace Util {
   /****************************************************************************/
   //////////////////////////////////////////////////////////////////////////////
   /****************************************************************************/
-
-  /**
-   * Holds the random number packages
-   */
-  typedef boost::array<double,DEFAULTARRAYSIZE> GRandomNumberContainer_dbl;
 
   /**
    * The number of threads that simultaneously produce [0,1[ random numbers
@@ -185,12 +180,9 @@ namespace Util {
 
     /*************************************************************************/
     /**
-     * Sets the number of producer threads for this factory. The number should
-     * be relatively low. 3 01 producer threads and 2 gauss producer threads (the
-     * default in this library) should be a good choice for most applications.
+     * Sets the number of producer threads for this factory.
      *
      * @param n01Threads
-     * @param nGaussThreads
      */
     void setNProducerThreads(boost::uint16_t n01Threads){
       if(n01Threads > n01Threads_){ // start new 01 threads
@@ -216,10 +208,10 @@ namespace Util {
      *
      * @return A packet of new [0,1[ random numbers
      */
-    boost::shared_ptr<GRandomNumberContainer_dbl>
+    boost::shared_array<double>
     new01Container(void)
     {
-      boost::shared_ptr<GRandomNumberContainer_dbl> result; // empty
+      boost::shared_array<double> result; // empty
 
       try
         {
@@ -269,43 +261,22 @@ namespace Util {
 
           while (true)
             {
-              // Interruption requested ?
-              if (boost::this_thread::interruption_requested())
-                break;
+        	  double *p_raw = new double[DEFAULTARRAYSIZE];
 
-              if (g01_.remainingSpace())
-                { // any space left ?
-                  boost::shared_ptr<GRandomNumberContainer_dbl> p(
-                      new GRandomNumberContainer_dbl);
-
-                  for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
-                    {
+        	  for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
+        	  {
 #ifdef DEBUG
-                      double value = lf();
-                      assert(value>=0. && value<1.);
-                      p->at(i)=value;
+        		  double value = lf();
+        		  assert(value>=0. && value<1.);
+        		  p_raw[i]=value;
 #else
-                      (*p)[i] = lf();
+        		  p_raw[i] = lf();
 #endif /* DEBUG */
-                    }
+        	  }
 
-                  try
-                    {
-                      g01_.push_front(p, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
-                    }
-                  catch (Gem::Util::gem_util_condition_time_out&)
-                    {
-                      p.reset();
-                    }
-                }
-              else
-                {
-                  // we put ourselves to sleep for a while.
-                  // Note that this is also an interruption point,
-                  // whose exception is caught outside of the loop.
-                  boost::this_thread::sleep(boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
-                }
-            }
+        	  boost::shared_array<double> p(p_raw);
+        	  g01_.push_front(p);
+			}
         }
       catch (boost::thread_interrupted&)
         { // Not an error
@@ -361,7 +332,7 @@ namespace Util {
     /*************************************************************************/
 
     /** @brief A bounded buffer holding the [0,1[ random number packages */
-    Gem::Util::GBoundedBuffer<boost::shared_ptr<GRandomNumberContainer_dbl> > g01_;
+    Gem::Util::GBoundedBuffer<boost::shared_array<double> > g01_;
 
     boost::uint32_t seed_; ///< The seed for the random number generators
 
@@ -417,11 +388,7 @@ public:
        current01_ = 0;
     }
 
-#ifdef DEBUG
-    return p01_->at(current01_++); // throws
-#else
-    return (*p01_)[current01_++];
-#endif
+    return p_raw[current01_++];
   }
 
   /*************************************************************************/
@@ -488,7 +455,7 @@ public:
   double
   doubleGaussRandom(double mean, double sigma, double distance)
   {
-	  if(GRandom::bitRandom() == Gem::GenEvA::TRUE)
+	  if(GRandom::bitRandom() == Gem::GenEvA::G_TRUE)
 		  return GRandom::gaussRandom(mean - fabs(distance / 2.), sigma);
 	  else
 		  return GRandom::gaussRandom(mean + fabs(distance / 2.), sigma);
@@ -561,7 +528,7 @@ public:
 #ifdef DEBUG
     assert(probability>=0 && probability<=1);
 #endif
-    return (GRandom::evenRandom() < probability ? GenEvA::TRUE : GenEvA::FALSE);
+    return (GRandom::evenRandom() < probability ? Gem::GenEvA::G_TRUE : Gem::GenEvA::G_FALSE);
   }
 
   /*************************************************************************/
@@ -599,19 +566,21 @@ private:
   fillContainer01(void)
   {
     boost::lagged_fibonacci607 lf(GSeed());
-    boost::shared_ptr<GRandomNumberContainer_dbl> p(new GRandomNumberContainer_dbl);
+    boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
+    double *local_p = p.get();
 
     for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++)
       {
 #ifdef DEBUG
         double value = lf();
         assert(value>=0. && value<1.);
-        p->at(i)=value;
+        local_p[i]=value;
 #else
-        (*p)[i] = lf();
+        local_p[i] = lf();
 #endif /* DEBUG */
       }
 
+    p_raw = local_p;
     p01_ = p;
   }
 
@@ -631,12 +600,15 @@ private:
         // our own instead.
         GRandom::fillContainer01();
       }
+    else {
+    	p_raw=p01_.get();
+    }
   }
 
   /*************************************************************************/
-  boost::shared_ptr<GRandomNumberContainer_dbl> p01_; ///< Holds the container of [0,1[ random numbers
-
-  std::size_t current01_;
+  boost::shared_array<double> p01_; ///< Holds the container of [0,1[ random numbers
+  std::size_t current01_; ///< The current position in p01_
+  double *p_raw; ///< A pointer to the content of p01_ for faster access
 };
 
 /****************************************************************************/
