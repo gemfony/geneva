@@ -4,3 +4,4 @@
 - Let the GRandomFactory class produce simple arrays of doubles instead of Boost's array class -> faster execution
 - Shifting in multi-populations
 - Prevent GBrokerPopulation from being used inside itself (doesn't make sense, will likely not work)
+- Make individuals output their information in ROOT-tree format (see http://root.cern.ch)

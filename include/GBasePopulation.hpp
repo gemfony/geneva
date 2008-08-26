@@ -196,6 +196,10 @@ public:
 	std::size_t getNChildren() const;
 	/** @brief Retrieve the current population size */
 	std::size_t getPopulationSize() const;
+	/** @brief Retrieves the defaultNChildren_ parameter */
+	std::size_t getDefaultNChildren() const;
+	/** @brief Retrieves the default population size */
+	std::size_t getDefaultPopulationSize() const;
 
 	/** @brief Set the sorting scheme for this population (MUPLUSNU or MUCOMMANU) */
 	void setSortingScheme(const bool&);
@@ -257,9 +261,6 @@ protected:
 
 	/** @brief Lets individuals know about the current generation */
 	void markGeneration();
-
-	/** @brief Retrieves the defaultNChildren_ parameter */
-	std::size_t getDefaultNChildren() const;
 
 private:
 	/** @brief Emits true once a given time has passed */

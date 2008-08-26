@@ -32,7 +32,6 @@ namespace GenEvA
  * A function that parses the command line for all required parameters
  */
 bool parseCommandLine(int argc, char **argv,
-					  std::size_t& parabolaDimension,
 					  double& parabolaMin,
 					  double& parabolaMax,
 					  boost::uint16_t& nProducerThreads,
@@ -52,8 +51,6 @@ bool parseCommandLine(int argc, char **argv,
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
-			("parabolaDimension,d", po::value<std::size_t>(&parabolaDimension)->default_value(DEFAULTPARABOLADIMENSION),
-					"number of dimensions in the parabola")
 			("parabolaMin,m", po::value<double>(&parabolaMin)->default_value(DEFAULTPARABOLAMIN),
 					"Lower boundary for random numbers")
 			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
@@ -121,7 +118,6 @@ bool parseCommandLine(int argc, char **argv,
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
-					  << "parabolaDimension = " << parabolaDimension << std::endl
 					  << "parabolaMin = " << parabolaMin << std::endl
 					  << "parabolaMax = " << parabolaMax << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???

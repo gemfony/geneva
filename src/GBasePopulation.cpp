@@ -155,7 +155,9 @@ void GBasePopulation::optimize() {
 	// Fill up the population as needed
 	GBasePopulation::adjustPopulation();
 
-	// Emit the info header, unless we do not want any info
+	// Emit the info header, unless we do not want any info. Note that
+	// this call needs to come after adjustPopulation(), so we have a
+	// "complete" population available.
 	if(reportGeneration_) doInfo(INFOINIT);
 
 	// Initialize the start time with the current time. Uses Boost::date_time
@@ -862,6 +864,16 @@ void GBasePopulation::markGeneration() {
  */
 std::size_t GBasePopulation::getDefaultNChildren() const {
 	return defaultNChildren_;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the default size of the population
+ *
+ * @return The default size of the population
+ */
+std::size_t GBasePopulation::getDefaultPopulationSize() const {
+	return (defaultNChildren_ + nParents_);
 }
 
 /***********************************************************************************/

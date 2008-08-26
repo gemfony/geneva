@@ -92,23 +92,20 @@ public:
 	 * Note that, if compiled in debug mode, this function will throw. Otherwise
 	 * a segfault may be the result if a faulty conversion was attempted. Hence
 	 * it is suggested to test your programs in debug mode before using it in a
-	 * production environment. As the data will be used in fitness calculations,
-	 * it is assumed that very fast access is needed. Hence a "real" pointer is
-	 * returned. Note that you may not try to delete the parameter (collection)
-	 * through this pointer.
+	 * production environment.
 	 *
 	 * @param pos The position in our data array that shall be converted
-	 * @return A converted version of the GParameterBase object stored in the data vector
+	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <class parameter_type>
-	inline const parameter_type *getData(std::size_t pos){
+	inline boost::shared_ptr<parameter_type> getData(std::size_t pos){
 #ifdef DEBUG
 		// Extract data. at() will throw if we have tried to access a position in the
 		// vector that does not exist.
-		GParameterBase *data_base = this->data.at(pos).get();
+		boost::shared_ptr<GParameterBase> data_base = this->data.at(pos);
 
 		// Convert to the desired target type
-		const parameter_type* p_load = dynamic_cast<const parameter_type*>(data_base);
+		boost::shared_ptr<parameter_type> p_load = boost::dynamic_pointer_cast<parameter_type>(data_base);
 
 		// Check that the conversion worked. dynamic_cast emits an empty pointer,
 		// if this was not the case.
@@ -125,7 +122,7 @@ public:
 
 		return p_load;
 #else
-		return static_cast<const parameter_type *>(data[pos].get());
+		return static_pointer_cast<parameter_type>(data[pos]);
 #endif /* DEBUG */
 	}
 

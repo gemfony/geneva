@@ -158,7 +158,7 @@ protected:
 		std::vector<double>::const_iterator cit;
 
 		// Compile in DEBUG mode in order to check this conversion
-		const GDoubleCollection *gdc_load = getData<GDoubleCollection>(0);
+		boost::shared_ptr<GDoubleCollection> gdc_load = getData<GDoubleCollection>(0);
 
 		// Great - now we can do the actual calculations. We do this the fancy way ...
 		for(cit=gdc_load->data.begin(); cit!=gdc_load->data.end(); ++cit)

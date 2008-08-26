@@ -19,3 +19,7 @@ ADD_SUBDIRECTORY (
 ADD_SUBDIRECTORY (
 	GMultiPopulation
 )
+
+ADD_SUBDIRECTORY (
+	InfoFunctionUsage
+)
