@@ -87,7 +87,7 @@ enum recoScheme {DEFAULTRECOMBINE=0, RANDOMRECOMBINE=1, VALUERECOMBINE=2};
 /**
  * The info function can be called in these three modes
  */
-enum infoMode {INFOINIT,INFOPROCESSING,INFOEND};
+enum infoMode {INFOINIT=0,INFOPROCESSING=1,INFOEND=2};
 
 /**
  * The number of generations after which information should be

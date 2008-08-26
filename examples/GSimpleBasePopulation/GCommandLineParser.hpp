@@ -35,16 +35,6 @@
 #error "Error: Boost should at least have version 1.36 !"
 #endif /* BOOST_VERSION */
 
-#include <boost/cstdint.hpp>
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/program_options.hpp>
 
 #ifndef GCOMMANDLINEPARSER_HPP_

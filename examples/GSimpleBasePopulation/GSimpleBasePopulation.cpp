@@ -26,7 +26,6 @@
 #include <sstream>
 
 // Boost header files go here
-#include <boost/function.hpp>
 
 // GenEvA header files go here
 #include "GRandom.hpp"

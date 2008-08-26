@@ -31,6 +31,16 @@
 #error "Error: Boost should at least have version 1.36 !"
 #endif /* BOOST_VERSION */
 
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/is_abstract.hpp>
+
 #ifndef GRATEABLEI_HPP_
 #define GRATEABLEI_HPP_
 
@@ -39,10 +49,21 @@
 namespace Gem {
 namespace GenEvA {
 
+/**************************************************************************************************/
 /**
  * A simple interface class for objects that can be evaluated.
  */
 class GRateableI {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version){
+	  using boost::serialization::make_nvp;
+	  /* nothing - this is a base class */
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The standard destructor */
 	virtual ~GRateableI(){ /* nothing */ }
@@ -56,5 +77,13 @@ public:
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+/**************************************************************************************************/
+/**
+ * @brief Needed for Boost.Serialization
+ */
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GRateableI)
+
+/**************************************************************************************************/
 
 #endif /* GRATEABLEI_HPP_ */

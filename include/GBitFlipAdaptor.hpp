@@ -73,7 +73,7 @@ class GBitFlipAdaptor
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<GenEvA::bit> >(*this));
+		ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<Gem::GenEvA::bit> >(*this));
 		ar & make_nvp("mutProb_", mutProb_);
 		ar & make_nvp("allowProbabilityMutation_", allowProbabilityMutation_);
 	}
