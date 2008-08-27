@@ -47,6 +47,8 @@
 
 // Geneva header files go here
 
+#include "GEnums.hpp" // For the serialization mode
+
 namespace Gem {
 namespace GenEvA {
 
@@ -71,10 +73,10 @@ public:
 	virtual ~GSerializableI() { /* nothing */ }
 
 	/** @brief Create a text representation from this class */
-	virtual std::string toString(void) = 0;
+	virtual std::string toString(const serializationMode&) = 0;
 
 	/** @brief Initialize this class from a text representation */
-	virtual void fromString(const std::string&) = 0;
+	virtual void fromString(const std::string&,const serializationMode&) = 0;
 };
 
 } /* namespace GenEvA */

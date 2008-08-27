@@ -36,8 +36,8 @@ namespace GenEvA {
  * In particular, it sets the name of the Geneva object to "GObject"
  */
 GObject::GObject(void) throw() :
-	name_("GObject"), serializationMode_(TEXTSERIALIZATION) { /* nothing */
-}
+	name_("GObject"), serializationMode_(TEXTSERIALIZATION)
+{ /* nothing */ }
 
 /**************************************************************************************************/
 /**
@@ -47,8 +47,8 @@ GObject::GObject(void) throw() :
  * @param geneva_object_name The name which is assigned to a Geneva object
  */
 GObject::GObject(const std::string& geneva_object_name) throw() :
-	name_(geneva_object_name), serializationMode_(TEXTSERIALIZATION) { /* nothing */
-}
+	name_(geneva_object_name), serializationMode_(TEXTSERIALIZATION)
+{ /* nothing */ }
 
 /**************************************************************************************************/
 /**
@@ -87,21 +87,24 @@ const GObject& GObject::operator=(const GObject& cp){
 
 /**************************************************************************************************/
 /**
- * Converts the class to a text representation. Note that you will have to take care yourself
- * that serialization and de-serialization happens in the same mode.
+ * Converts the class to a text representation, using the currently set serialization mode for this
+ * class. Note that you will have to take care yourself that serialization and de-serialization
+ * happens in the same mode.
  *
+ * @param serMod The desired serialization mode
  * @return A text-representation of this class (or its derivative)
  */
-std::string GObject::toString() {
+std::string GObject::toString(const serializationMode& serMod) {
     std::ostringstream oarchive_stream;
-    GObject *local = this;
+    GObject *local = this; // Serialization should happen through a base pointer
 
-    switch(serializationMode_)
+    switch(serMod)
     {
+    case DEFAULTSERIALIZATION: // same as TEXTSERIALIZATION
     case TEXTSERIALIZATION:
 		{
 			boost::archive::text_oarchive oa(oarchive_stream);
-			oa << local;
+			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
 		} // note: explicit scope here is essential so the oa-destructor gets called
 
 		break;
@@ -113,6 +116,14 @@ std::string GObject::toString() {
 		} // note: explicit scope here is essential so the oa-destructor gets called
 
 		break;
+
+    case BINARYSERIALIZATION:
+		{
+			boost::archive::binary_oarchive oa(oarchive_stream);
+			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
+		} // note: explicit scope here is essential so the oa-destructor gets called
+
+		break;
     }
 
     return oarchive_stream.str();
@@ -120,23 +131,26 @@ std::string GObject::toString() {
 
 /**************************************************************************************************/
 /**
- * Initializes the object from its string representation. Note that the string will
- * likely describe a derivative of GObject. Note also that you will have to take care yourself
- * that serialization and de-serialization happens in the same mode.
+ * Initializes the object from its string representation, using the currently set serialization mode.
+ * Note that the string will likely describe a derivative of GObject, as GObject cannot be instantiated.
+ * Note also that you will have to take care yourself that serialization and de-serialization happens
+ * in the same mode.
  *
  * @param descr A text representation of a GObject-derivative
+ * @param serMod The desired serialization mode
  */
-void GObject::fromString(const std::string& descr) {
+void GObject::fromString(const std::string& descr, const serializationMode& serMod) {
     std::istringstream istr(descr);
-    GObject *local = this->clone();
+    // De-serialization and serialization should happen through a pointer to the same type.
+    GObject *local = (GObject *)NULL;
 
-    switch(serializationMode_)
+    switch(serMod)
      {
+     case DEFAULTSERIALIZATION: // same as TEXTSERIALIZATION
      case TEXTSERIALIZATION:
  		{
 		    boost::archive::text_iarchive ia(istr);
-		    ia >> local;
-		    this->load(local);
+		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
  		} // note: explicit scope here is essential so the ia-destructor gets called
 
  		break;
@@ -145,13 +159,21 @@ void GObject::fromString(const std::string& descr) {
 		{
 		    boost::archive::xml_iarchive ia(istr);
 		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
-		    this->load(local);
 		} // note: explicit scope here is essential so the ia-destructor gets called
 
 		break;
+
+     case BINARYSERIALIZATION:
+ 		{
+		    boost::archive::binary_iarchive ia(istr);
+		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
+ 		}
+
+ 		break;
      }
 
-    delete local;
+    this->load(local);
+    if(local) delete local;
 }
 
 /**************************************************************************************************/
@@ -227,15 +249,16 @@ serializationMode GObject::getSerializationMode(void) const throw() {
 /**************************************************************************************************/
 /**
  * Sets the serialization mode. The only allowed values of the enum serializationMode are
- * TEXTSERIALIZATION and XMLSERIALIZATION. The compiler does the error-checking for us.
+ * BINARYSERIALIZATION, TEXTSERIALIZATION and XMLSERIALIZATION. The compiler does the
+ * error-checking regarding allowed values for us.
  *
  * @param ser The new serialization mode
  */
-void GObject::setSerializationMode(const serializationMode& ser) {
+void GObject::setSerializationMode(const serializationMode& ser) throw() {
 	serializationMode_ = ser;
 }
 
 /**************************************************************************************************/
 
-}} /* namespace Gem::GenEvA */
-
+} /* namespace GenEvA */
+} /* namespace Gem */

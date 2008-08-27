@@ -47,26 +47,6 @@ GIndividual::GIndividual() :
 
 /**********************************************************************************/
 /**
- * Initialization with string representation of this class
- *
- * @param data A string representation of this class
- */
-GIndividual::GIndividual(const std::string& data, const serializationMode& sMode) :
-	GMutableI(),
-	GRateableI(),
-	GObject(),
-	currentFitness_(0.),
-	dirtyFlag_(true),
-	allowLazyEvaluation_(false),
-	parentPopGeneration_(0),
-	parentCounter_(0)
-{
-	this->setSerializationMode(sMode);
-	this->fromString(data);
-}
-
-/**********************************************************************************/
-/**
  * The standard copy constructor.
  *
  * @param cp A copy of another GIndividual object
@@ -106,14 +86,6 @@ void GIndividual::load(const GObject* cp) {
 	allowLazyEvaluation_ = gi_load->allowLazyEvaluation_;
 	parentPopGeneration_ = gi_load->parentPopGeneration_;
 	parentCounter_ = gi_load->parentCounter_;
-}
-
-/**********************************************************************************/
-/**
- * Creates a deep copy of this object.
- */
-GObject* GIndividual::clone(){
-	return new GIndividual(*this);
 }
 
 /**********************************************************************************/

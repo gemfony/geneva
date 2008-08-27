@@ -42,6 +42,8 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -61,14 +63,10 @@
 #include "GSerializableI.hpp"
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
+#include "GEnums.hpp"
 
 namespace Gem {
 namespace GenEvA {
-
-/**
- * The serialization modes that are currently allowed
- */
-enum serializationMode {TEXTSERIALIZATION,XMLSERIALIZATION};
 
 /**************************************************************************************************/
 /**
@@ -104,10 +102,10 @@ public:
 	/** @brief An assignment operator that is also suitable for derived classes */
 	virtual const GObject& operator=(const GObject&);
 
-	/** @brief Convert class to a text representation */
-	std::string toString();
-	/** @brief Initialize class from text representation */
-	void fromString(const std::string&);
+	/** @brief Convert class to a serial representation, using the current serialization mode */
+	std::string toString(const serializationMode& serMod = DEFAULTSERIALIZATION);
+	/** @brief Convert class to a serial representation, using a specific serialization mode */
+	void fromString(const std::string&, const serializationMode& serMod = DEFAULTSERIALIZATION);
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() = 0;
@@ -125,7 +123,7 @@ public:
 	/** @brief Retrieves the current serialization mode */
 	serializationMode getSerializationMode(void) const throw();
 	/** @brief Sets the serialization mode */
-	void setSerializationMode(const serializationMode&);
+	void setSerializationMode(const serializationMode&) throw();
 
 protected:
     /**
@@ -182,11 +180,12 @@ protected:
 	/**************************************************************************************************/
 
 private:
-	std::string name_;
-	serializationMode serializationMode_;
+	std::string name_; ///< Allows to assign a name to this object
+	serializationMode serializationMode_; ///< Specifies the serialization mode
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 
 /**************************************************************************************************/

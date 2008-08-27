@@ -35,8 +35,9 @@ namespace GenEvA
  *
  * @param io_service A reference to the server's io_service
  */
-GAsioServerSession::GAsioServerSession(boost::asio::io_service& io_service)
- 	:socket_(io_service)
+GAsioServerSession::GAsioServerSession(boost::asio::io_service& io_service, const serializationMode& serMod)
+ 	:socket_(io_service),
+ 	 serializationMode_(serMod)
 { /* nothing */ }
 
 /*********************************************************************/
@@ -46,7 +47,6 @@ GAsioServerSession::GAsioServerSession(boost::asio::io_service& io_service)
 GAsioServerSession::~GAsioServerSession(){
 	try{
 		// Make sure we don't leave any open sockets lying around.
-		socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
 		socket_.close();
 	}
 	// It is a severe error if an exception is thrown here.
@@ -75,17 +75,16 @@ void GAsioServerSession::processRequest() {
 	// submit it to the client.
 	if (command == "ready") {
 		try{
-			boost::shared_ptr<GIndividual> p(new GIndividual);
+			boost::shared_ptr<GIndividual> p;
 			Gem::Util::PORTIDTYPE id;
 
 			// Retrieve an item
 			id = GINDIVIDUALBROKER.get(p, timeout);
 
-
 			// Store the id in the individual
 			p->setAttribute("id", boost::lexical_cast<std::string>(id));
 
-			if (!this->submit(p->toString(),"compute")) {
+			if (!this->submit(indptrToString(p, serializationMode_),"compute")) {
 				std::ostringstream information;
 				information << "In GAsioServerSession::processRequest():" << std::endl
 							<< "Could not submit item to client!" << std::endl;
@@ -96,6 +95,9 @@ void GAsioServerSession::processRequest() {
 		catch(Gem::Util::gem_util_condition_time_out &) {
 			this->sendSingleCommand("timeout");
 		}
+
+		// p have automatically been destroyed at this point
+		// and should thus exist no longer on the system
 	}
 	// Retrieve an item from the client and
 	// submit it to the broker
@@ -105,7 +107,8 @@ void GAsioServerSession::processRequest() {
 		if (this->retrieve(itemString, portid, fitness, dirtyflag)) {
 			// Give the object back to the broker, so it can be sorted back
 			// into the GBufferPort objects.
-			boost::shared_ptr<GIndividual> p(new GIndividual(itemString, TEXTSERIALIZATION));
+			boost::shared_ptr<GIndividual> p = indptrFromString(itemString, serializationMode_);
+
 			Gem::Util::PORTIDTYPE id = boost::lexical_cast<Gem::Util::PORTIDTYPE>(portid);
 			try {
 				GINDIVIDUALBROKER.put(id, p, timeout);
@@ -281,7 +284,8 @@ GAsioTCPConsumer::GAsioTCPConsumer(unsigned short port)
 	:GConsumer(),
 	 acceptor_(io_service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
 	 tp_(GASIOTCPCONSUMERTHREADS),
-	 stop_(false)
+	 stop_(false),
+	 serializationMode_(TEXTSERIALIZATION)
 { /* nothing */ }
 
 /*********************************************************************/
@@ -313,7 +317,7 @@ void GAsioTCPConsumer::handleAccept(boost::shared_ptr<GAsioServerSession> curren
 	}
 
 	// First we make sure a new session is started asynchronously so the next request can be served
-	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(io_service_));
+	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(io_service_,serializationMode_));
 	acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumer::handleAccept, this, newSession,	boost::asio::placeholders::error));
 
 	// Now we can dispatch the actual session code to our thread pool
@@ -326,7 +330,7 @@ void GAsioTCPConsumer::handleAccept(boost::shared_ptr<GAsioServerSession> curren
  */
 void GAsioTCPConsumer::process(){
 	// Start the actual processing. All real work is done in the GAsioServerSession class .
-	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(io_service_));
+	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(io_service_,serializationMode_));
 	acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumer::handleAccept, this, newSession, boost::asio::placeholders::error));
 
 	// The io_service's event loop
@@ -343,6 +347,28 @@ void GAsioTCPConsumer::shutdown()
 {
 	boost::mutex::scoped_lock stopLock(stopMutex_);
 	stop_=true;
+}
+
+/*********************************************************************/
+/**
+ * Retrieves the current serialization mode
+ *
+ * @return The current serialization mode
+ */
+serializationMode GAsioTCPConsumer::getSerializationMode(void) const throw() {
+	return serializationMode_;
+}
+
+/*********************************************************************/
+/**
+ * Sets the serialization mode. The only allowed values of the enum serializationMode are
+ * BINARYSERIALIZATION, TEXTSERIALIZATION and XMLSERIALIZATION. The compiler does the
+ * error-checking for us.
+ *
+ * @param ser The new serialization mode
+ */
+void GAsioTCPConsumer::setSerializationMode(const serializationMode& ser) throw() {
+	serializationMode_ = ser;
 }
 
 /*********************************************************************/

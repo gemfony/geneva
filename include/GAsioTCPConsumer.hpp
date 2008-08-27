@@ -60,9 +60,11 @@
 
 // Geneva headers go here
 
+#include "GEnums.hpp"
 #include "GConsumer.hpp"
 #include "GIndividualBroker.hpp"
 #include "GAsioHelperFunctions.hpp"
+#include "GSerializationHelperFunctions.hpp"
 #include "GLogger.hpp"
 
 namespace Gem
@@ -79,14 +81,16 @@ const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
 /**
  * An instance of this class is created for each new connection request
  * by the client. All the details of the data exchange between server
- * and client are implemented here.
+ * and client are implemented here. The class is declared in the same
+ * file as the GAsioTCPConsumer in order to avoid cross referencing of
+ * header files.
  */
 class GAsioServerSession
 	:boost::noncopyable
 {
 public:
 	/** @brief The standard constructor */
-	GAsioServerSession(boost::asio::io_service&);
+	GAsioServerSession(boost::asio::io_service&, const serializationMode&);
 	/** @brief The standard destructor. Note: Non-virtual */
 	~GAsioServerSession();
 
@@ -107,7 +111,12 @@ protected:
 	bool submit(const std::string&, const std::string&);
 
 private:
-	boost::asio::ip::tcp::socket socket_; ///< The underlying socket.
+	GAsioServerSession(); ///< Intentionally left undefined
+	GAsioServerSession(const GAsioServerSession&); ///< Intentionally left undefined
+	const GAsioServerSession& operator=(const GAsioServerSession&); ///< Intentionally left undefined
+
+	boost::asio::ip::tcp::socket socket_; ///< The underlying socket
+	serializationMode serializationMode_; ///< Specifies the serialization mode
 };
 
 /*********************************************************************/
@@ -131,6 +140,11 @@ public:
 	/** @brief Finalization code, called from GMemberBroker */
 	virtual void shutdown();
 
+	/** @brief Retrieves the current serialization mode */
+	serializationMode getSerializationMode(void) const throw();
+	/** @brief Sets the serialization mode */
+	void setSerializationMode(const serializationMode&) throw();
+
 private:
 	/** @brief Called for each new client request */
 	void handleAccept(boost::shared_ptr<GAsioServerSession>, const boost::system::error_code&);
@@ -146,6 +160,8 @@ private:
 
 	boost::mutex stopMutex_; ///< Synchronizes access to the stop_ variable
 	bool stop_; ///< Set to true if we are expected to stop
+
+	serializationMode serializationMode_; ///< Specifies the serialization mode
 };
 
 /*********************************************************************/

@@ -54,10 +54,10 @@ bool parseCommandLine(int argc, char **argv,
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
-			("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP),
-					"The ip of the server - required by the client")
 			("mode",po::value<std::string>(&mode)->default_value(DEFAULTMODE),
 					"server or client, dependent on the mode")
+			("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP),
+					"The ip of the server - required by the client")
 			("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT),
 					"The port of the server")
 			("parabolaDimension,d", po::value<std::size_t>(&parabolaDimension)->default_value(DEFAULTPARABOLADIMENSION),

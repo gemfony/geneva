@@ -38,6 +38,7 @@ SET ( GENEVAINCLUDES
 	GRandom.hpp
 	GRateableI.hpp
 	GSerializableI.hpp
+	GSerializationHelperFunctions.hpp
 	GThreadGroup.hpp
 )
 

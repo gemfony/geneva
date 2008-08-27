@@ -29,6 +29,9 @@
  * g++ -g -o serializationTest -I /opt/boost136/include/boost-1_36/ \
  *                             -L/opt/boost136/lib -lboost_system-gcc43-mt \
  *                             -lboost_serialization-gcc43-mt serializationTest.cpp
+ *
+ * Add the -DSHOWRESULT switch if you want to see the result of the serialization
+ * every 1000 iterations. Note that this does not make sense for binary archives.
  */
 
 // Standard header files go here
@@ -53,6 +56,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/shared_ptr.hpp>
@@ -118,31 +122,28 @@ BOOST_CLASS_EXPORT(derived)
 // 2m10s for text archives
 // 6m57s for xml archives, almost 10 times as much as for the binary archive ...
 
-#define ARCHIVETYPEIN  binary_iarchive
-#define ARCHIVETYPEOUT binary_oarchive
+// #define ARCHIVETYPEIN  binary_iarchive
+// #define ARCHIVETYPEOUT binary_oarchive
 // #define ARCHIVETYPEIN  text_iarchive
 // #define ARCHIVETYPEOUT text_oarchive
-// #define ARCHIVETYPEIN  xml_iarchive
-// #define ARCHIVETYPEOUT xml_oarchive
+#define ARCHIVETYPEIN  xml_iarchive
+#define ARCHIVETYPEOUT xml_oarchive
 
 main() {
-	base *bDerived = new derived();
-
-	// Create a string representation of Derived
 	std::ostringstream derivedStream;
+
+	// Create a string representation of a derived object
 	{
+		boost::shared_ptr<base> bDerived (new derived());
 		boost::archive::ARCHIVETYPEOUT oa(derivedStream);
 		oa << boost::serialization::make_nvp("Derived" , bDerived);
-	}
-
-	// Make sure we have no representation of the object left.
-	delete bDerived;
+	} // bDerived is destroyed at this point, and along with it the derived object
 
 	for(boost::uint32_t i=0; i<MAXITERATIONS; i++) {
-		base *baseArray[ARRAYSIZE];
+		boost::shared_ptr<base> baseArray[ARRAYSIZE];
+
 		// De-serialize the text representation of Derived into the base pointers
 		for(std::size_t j=0; j<ARRAYSIZE; j++) {
-			baseArray[j] = (base *)NULL;
 			std::istringstream istr(derivedStream.str());
 			{
 				boost::archive::ARCHIVETYPEIN ia(istr);
@@ -153,7 +154,17 @@ main() {
 		// Let the new objects do some work
 		for(std::size_t j=0; j<ARRAYSIZE; j++) {
 			baseArray[j]->doSomeWork();
-			delete baseArray[j];
+
+#ifdef SHOWRESULT
+			if(i%1000 == 0 && j==0) { // Emit serialized derived object
+				std::ostringstream newBaseStream;
+				boost::archive::ARCHIVETYPEOUT oa(newBaseStream);
+				oa << boost::serialization::make_nvp("newBase" , baseArray[0]);
+				std::cout << newBaseStream.str() << std::endl << std::endl;
+			}
+#endif /* SHOWRESULT */
+
+			baseArray[j].reset();
 		}
 
 		if(i%100 == 0) {

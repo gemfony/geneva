@@ -23,6 +23,8 @@ SET ( GENEVASOURCES
 	GParameterBase
 	GParameterSet
 	GRandom
+	GSerializationHelperFunctions
+	GThreadGroup
 )
 
 ADD_LIBRARY ( ${PROJECT_NAME} SHARED ${GENEVASOURCES})

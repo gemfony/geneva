@@ -85,15 +85,13 @@ class GIndividual
 public:
 	/** @brief The default constructor */
 	GIndividual();
-	/** @brief Initialization from string representation */
-	GIndividual(const std::string&, const serializationMode&);
 	/** @brief The copy constructor */
 	GIndividual(const GIndividual&);
 	/** @brief The destructor */
 	virtual ~GIndividual();
 
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone();
+	virtual GObject* clone() = 0;
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 
@@ -178,6 +176,13 @@ private:
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+
+/**************************************************************************************************/
+/**
+ * @brief Needed for Boost.Serialization
+ */
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GIndividual)
 
 /**************************************************************************************************/
 

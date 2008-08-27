@@ -127,7 +127,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "nPopThreads = " << nPopThreads << std::endl
 					  << "populationSize = " << populationSize << std::endl
-					  << "superNParents = " << nParents << std::endl
+					  << "nParents = " << nParents << std::endl
 					  << "maxGenerations = " << maxGenerations << std::endl
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl

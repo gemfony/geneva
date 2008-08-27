@@ -51,8 +51,7 @@
  * FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
-*/
-
+ */
 
 #include <vector>
 
@@ -69,182 +68,80 @@
 #ifndef GTHREADGROUP_HPP_
 #define GTHREADGROUP_HPP_
 
-using namespace boost;
-
 namespace Gem {
 namespace Util {
-  /******************************************************************************/
-  /**
-   * A simple thread group that extends the standard Boost thread group by the
-   * ability to address the last threads in order to remove threads without
-   * the need for a pointer to them. This class was adapted from a version by
-   * Anthony Williams, offered as part of the Boost 1.36 release
-   */
-  class GThreadGroup : private boost::noncopyable
-  {
-    typedef boost::shared_ptr<thread> thread_ptr;
-    typedef std::vector<thread_ptr> thread_vector;
 
-  public:
-    /********************************************************************/
-    /**
-     * The standard destructor. Assumes that all threads have already
-     * been terminated (?), so that the thread objects can be safely deleted.
-     * As we are using a vector of boost::shared_ptr<thread> objects, we do not have
-     * to manually erase anything.
-     */
-    ~GThreadGroup()
-    { /* */ }
+/******************************************************************************/
+/**
+ * A simple thread group that extends the standard Boost thread group by the
+ * ability to address the last threads in order to remove threads without
+ * the need for a pointer to them. This class was adapted from a version by
+ * Anthony Williams, as offered as part of the Boost 1.36 release
+ */
+class GThreadGroup: private boost::noncopyable {
+	typedef boost::shared_ptr<boost::thread> thread_ptr;
+	typedef std::vector<thread_ptr> thread_vector;
 
-    /********************************************************************/
-    /**
-     * Creates a new thread and adds it to the group
-     *
-     * @param threadfunc The function to be run by the thread
-     * @return A pointer to the newly created thread
-     */
-    template<typename F>
-      boost::shared_ptr<thread>
-      create_thread(F threadfunc)
-      {
-        boost::lock_guard<mutex> guard(m_);
-        thread_ptr new_thread(new thread(threadfunc));
-        threads_.push_back(new_thread);
-        return new_thread;
-      }
+public:
+	/** @brief The standard destructor */
+	~GThreadGroup();
 
-    /********************************************************************/
-    /**
-     * Creates nThreads new threads with the same function
-     * and adds them to the group
-     *
-     * @param threadfunc The function to be run by the thread
-     * @param nThreads The number of threads to add to the group
-     * @return A pointer to the newly created thread
-     */
-    template<typename F>
-      void
-      create_threads(F threadfunc, std::size_t nThreads)
-      {
-        for(std::size_t i=0; i<nThreads; i++) create_thread(threadfunc);
-      }
+	/** @brief Adds an already created thread to the group */
+	void add_thread(boost::thread*);
 
-    /********************************************************************/
-    /**
-     * Adds an already created thread to the group
-     *
-     * @param thrd A pointer to a thread that should be added to the group
-     */
-    void
-    add_thread(thread* thrd)
-    {
-      if (thrd)
-        {
-          boost::lock_guard<mutex> guard(m_);
-          thread_ptr p_thrd(thrd);
-          threads_.push_back(p_thrd);
-        }
-    }
+	/** @brief Remove a thread from the group. Does nothing if the thread is empty. */
+	void remove_thread(boost::thread*);
 
-    /********************************************************************/
-    /**
-     * Remove a thread from the group. Does nothing if the thread is empty.
-     *
-     * @param thrd A pointer to the thread that shall be removed from the group
-     */
-    void
-    remove_thread(thread* thrd)
-    {
-      if(!thrd) return;
+	/** @brief Requests all threads to join */
+	void join_all();
 
-      boost::lock_guard<mutex> guard(m_);
-      thread_vector::iterator const it = std::find(threads_.begin(),
-          threads_.end(), thread_ptr(thrd));
-      if (it != threads_.end())
-        {
-          threads_.erase(it);
-        }
-    }
+	/** @brief Sends all threads the interrupt signal */
+	void interrupt_all();
 
-    /********************************************************************/
-    /**
-     * Requests all threads to join
-     */
-    void
-    join_all(void)
-    {
-      boost::lock_guard<mutex> guard(m_);
+	/** @brief Interrupts, joins and finally removes the last thread in the group. */
+	void remove_last();
 
-      for (thread_vector::iterator it = threads_.begin(), end =
-          threads_.end(); it != end; ++it)
-        {
-          (*it)->join();
-        }
-    }
+	/** @brief Interrupts, joins and finally removes the last nThreads threads in the group */
+	void remove_last(std::size_t);
 
-    /********************************************************************/
-    /**
-     * Sends all threads the interrupt signal
-     */
-    void
-    interrupt_all(void)
-    {
-      boost::lock_guard<mutex> guard(m_);
+	/** @brief Returns the size of the current thread group */
+	std::size_t size() const;
 
-      for (thread_vector::iterator it = threads_.begin(), end =
-          threads_.end(); it != end; ++it)
-        {
-          (*it)->interrupt();
-        }
-    }
+	/********************************************************************/
+	/**
+	 * Creates a new thread and adds it to the group
+	 *
+	 * @param threadfunc The function to be run by the thread
+	 * @return A pointer to the newly created thread
+	 */
+	template<typename F>
+	boost::shared_ptr<boost::thread> create_thread(F threadfunc) {
+		boost::lock_guard<boost::mutex> guard(m_);
+		thread_ptr new_thread(new boost::thread(threadfunc));
+		threads_.push_back(new_thread);
+		return new_thread;
+	}
 
-    /********************************************************************/
-    /**
-     * Interrupts, joins and finally removes the last thread in the group.
-     * Does nothing if the group is already empty.
-     */
-    void
-    remove_last(void)
-    {
-      boost::lock_guard<mutex> guard(m_);
+	/********************************************************************/
+	/**
+	 * Creates nThreads new threads with the same function
+	 * and adds them to the group
+	 *
+	 * @param threadfunc The function to be run by the thread
+	 * @param nThreads The number of threads to add to the group
+	 * @return A pointer to the newly created thread
+	 */
+	template<typename F>
+	void create_threads(F threadfunc, std::size_t nThreads)	{
+		for(std::size_t i=0; i<nThreads; i++) create_thread(threadfunc);
+	}
 
-      if(threads_.size() == 0) return;
+	/********************************************************************/
 
-      (threads_.back())->interrupt();
-      (threads_.back())->join();
-      // boost::shared_ptr takes care of the deletion of the thread object
-      threads_.pop_back();
-    }
-
-    /********************************************************************/
-    /**
-     * Interrupts, joins and finally removes the last nThreads threads
-     * in the group. Stops if the number of threads would drop below 0.
-     *
-     * @param nThreads The number of threads at the end of the group that shall be removed
-     */
-    void
-    remove_last(std::size_t nThreads){
-      for(std::size_t i=0; i<nThreads; i++) remove_last();
-    }
-
-    /********************************************************************/
-    /**
-     * Returns the size of the current thread group.
-     * @return The size of the current group
-     */
-    size_t
-    size() const
-    {
-      boost::lock_guard<mutex> guard(m_);
-      return threads_.size();
-    }
-
-  private:
-    /********************************************************************/
-    thread_vector threads_; ///< Holds the actual threads
-    mutable mutex m_; ///< Needed to synchronize access to the vector
-  };
+private:
+	thread_vector threads_; ///< Holds the actual threads
+	mutable boost::mutex m_; ///< Needed to synchronize access to the vector
+};
 
 } /* namespace Util*/
 } /* namespace Gem */

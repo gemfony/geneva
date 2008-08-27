@@ -43,8 +43,14 @@ namespace GenEvA {
   /**
    * Return values for member functions.
    */
-  const int16_t ExitOK = 0, ExitBad = 1;
+  enum GExitCode {ExitOK = 0, ExitBad = 1};
 
-}} /* namespace Gem::GenEvA */
+  /**
+   * The serialization modes that are currently allowed
+   */
+  enum serializationMode {TEXTSERIALIZATION=0,XMLSERIALIZATION=1,BINARYSERIALIZATION=2,DEFAULTSERIALIZATION=3};
+
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 #endif /*GENUMS_H_*/

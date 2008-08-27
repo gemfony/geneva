@@ -212,7 +212,7 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
 	buffers.push_back(boost::asio::buffer(result));
 
 	// Assemble a buffer for the port id
-	std::string portidString = assembleQueryString(portidString,COMMANDLENGTH);
+	std::string portidString = assembleQueryString(portid,COMMANDLENGTH);
 	buffers.push_back(boost::asio::buffer(portidString));
 
 	// Assemble a buffer for the fitness

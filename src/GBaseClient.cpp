@@ -35,7 +35,8 @@ GBaseClient::GBaseClient()
 	:startTime_(boost::posix_time::microsec_clock::local_time()),
 	 maxDuration_(boost::posix_time::microsec(0)),
 	 processed_(0),
-	 processMax_(0)
+	 processMax_(0),
+	 serializationMode_(TEXTSERIALIZATION)
 { /* nothing*/ }
 
 /*********************************************************************************/
@@ -165,28 +166,35 @@ bool GBaseClient::halt(){
  */
 bool GBaseClient::process(){
 	// Get an item from the server
-	std::string data;
-	if(!this->retrieve(data)) return false;
+	std::string istr;
+	if(!this->retrieve(istr)) return false;
 
 	// There is a possibility that we have received an unknown command
 	// or a timeout command. In this case we want to try again until retrieve
 	// returns "false". If we return true here, the next "process" command will
 	// be executed.
-	if(data == "empty") return true;
+	if(istr == "empty") return true;
 
-	// unpack the data and create a new GIndividual
-	GIndividual target(data,TEXTSERIALIZATION);
+	serializationMode localSerMod;
+	if(serializationMode_ == DEFAULTSERIALIZATION) localSerMod = TEXTSERIALIZATION;
+	else localSerMod = serializationMode_;
+
+	// unpack the data and create a new GIndividual. Note that de-serialization should
+	// generally happen through the same type that was used for serialization.
+	shared_ptr<GIndividual> target = indptrFromString(istr, localSerMod);
 
 	// This one line is all it takes to do the processing required for this individual.
 	// GIndividual has all required functions on board. GBaseClient does not need to understand
 	// what is being done during the processing.
-	target.process();
+	target->process();
 
 	// We do not want to accidently trigger value calculation if it is not desired by the user
+	// - after all we do not know in this class was is done in GIndividual::process() .
 	bool isDirty;
-	double fitness = target.getCurrentFitness(isDirty);
+	double fitness = target->getCurrentFitness(isDirty);
 
-	std::string portid = target.getAttribute("id");
+	std::string portid = target->getAttribute("id");
+
 	if(portid.empty()){ // This is a severe error
 		std::ostringstream error;
 		error << "In GBaseClient::process() : Error!" << std::endl
@@ -198,12 +206,38 @@ bool GBaseClient::process(){
 
 	// transform target back into a string and submit to the server. The actual
 	// actions done by submit are defined by derived classes.
-	if(!this->submit(target.toString(),portid,
-	   boost::lexical_cast<std::string>(fitness),
-	   boost::lexical_cast<std::string>(isDirty))) return false;
+	if(!this->submit(
+			indptrToString(target, localSerMod),
+			portid,
+			boost::lexical_cast<std::string>(fitness),
+			boost::lexical_cast<std::string>(isDirty)
+			)
+	) return false;
 
 	// Everything worked. Indicate that we want to continue
 	return true;
+} // boost::shared_ptr<GIndividual> target will cease to exist at this point
+
+/*********************************************************************************/
+/**
+ * Retrieves the current serialization mode
+ *
+ * @return The current serialization mode
+ */
+serializationMode GBaseClient::getSerializationMode(void) const throw() {
+	return serializationMode_;
+}
+
+/*********************************************************************************/
+/**
+ * Sets the serialization mode. The only allowed values of the enum serializationMode are
+ * BINARYSERIALIZATION, TEXTSERIALIZATION and XMLSERIALIZATION. The compiler does the
+ * error-checking for us.
+ *
+ * @param ser The new serialization mode
+ */
+void GBaseClient::setSerializationMode(const serializationMode& ser) throw() {
+	serializationMode_ = ser;
 }
 
 /*********************************************************************************/
