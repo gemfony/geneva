@@ -62,7 +62,7 @@ namespace Util
 /**************************************************************************************/
 /**
  * This class forms the basis of a hierarchy of classes that take
- * objects from GBroker and process them, either locally or remotely.
+ * objects from GBrokerT and process them, either locally or remotely.
  * Derived classes such as the GAsioTCPConsumer form the single point
  * of contact for remote clients. We do not want this class and its
  * derivatives to be copyable, hence we derive it from the

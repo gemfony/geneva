@@ -49,7 +49,7 @@
 #define GINDIVIDUALBROKER_HPP_
 
 // GenEvA headers go here
-#include "GBroker.hpp"
+#include "GBrokerT.hpp"
 #include "GIndividual.hpp"
 
 namespace Gem {
@@ -60,11 +60,11 @@ namespace GenEvA {
  * A broker class that is specialized on GIndividual objects
  */
 class GIndividualBroker
-	:public Gem::Util::GBroker<shared_ptr<Gem::GenEvA::GIndividual> >
+	:public Gem::Util::GBrokerT<shared_ptr<Gem::GenEvA::GIndividual> >
 {
 public:
 	GIndividualBroker()
-		:Gem::Util::GBroker<shared_ptr<Gem::GenEvA::GIndividual> >()
+		:Gem::Util::GBrokerT<shared_ptr<Gem::GenEvA::GIndividual> >()
 	{ /* nothing */	}
 
 	~GIndividualBroker()

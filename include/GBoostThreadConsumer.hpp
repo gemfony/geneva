@@ -48,7 +48,7 @@
 #ifndef GBOOSTTHREADCONSUMER_HPP_
 #define GBOOSTTHREADCONSUMER_HPP_
 
-#include "GBroker.hpp"
+#include "GBrokerT.hpp"
 #include "GConsumer.hpp"
 #include "GIndividualBroker.hpp"
 #include "GIndividual.hpp"

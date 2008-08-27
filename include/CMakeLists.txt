@@ -14,9 +14,9 @@ SET ( GENEVAINCLUDES
 	GBoostThreadPopulation.hpp
 	GBoundedBufferT.hpp
 	GBoundedDouble.hpp
-	GBroker.hpp
+	GBrokerT.hpp
 	GBrokerPopulation.hpp
-	GBufferPort.hpp
+	GBufferPortT.hpp
 	GConsumer.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp

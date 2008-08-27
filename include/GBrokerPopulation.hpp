@@ -51,7 +51,7 @@
 #include "GLogger.hpp"
 #include "GIndividual.hpp"
 #include "GBasePopulation.hpp"
-#include "GBufferPort.hpp"
+#include "GBufferPortT.hpp"
 #include "GIndividualBroker.hpp"
 
 namespace Gem
@@ -110,7 +110,7 @@ namespace GenEvA
     ///////////////////////////////////////////////////////////////////////
 
   public:
-	typedef boost::shared_ptr<Gem::Util::GBufferPort<boost::shared_ptr<Gem::GenEvA::GIndividual> > > GBufferPort_ptr;
+	typedef boost::shared_ptr<Gem::Util::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> > > GBufferPortT_ptr;
 
 	/** @brief The standard constructor */
     GBrokerPopulation();
@@ -157,7 +157,7 @@ namespace GenEvA
     boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
     boost::posix_time::time_duration loopTime_;
 
-    GBufferPort_ptr CurrentBufferPort_; ///< Holds a GBufferPort object during the optimization cycle
+    GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the optimization cycle
   };
 
   /**********************************************************************************/

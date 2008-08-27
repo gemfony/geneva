@@ -1,5 +1,5 @@
 /**
- * @file GBufferPort.hpp
+ * @file GBufferPortT.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -35,8 +35,8 @@
 #include <boost/utility.hpp>
 #include <boost/date_time.hpp>
 
-#ifndef GBUFFERPORT_H_
-#define GBUFFERPORT_H_
+#ifndef GBUFFERPORTT_H_
+#define GBUFFERPORTT_H_
 
 // GenEvA header files go here
 
@@ -57,7 +57,7 @@ typedef boost::uint32_t PORTIDTYPE;
  * that, once it has been set, it may not be modified anymore.
  */
 template<class T>
-class GBoundedBufferTWithId
+class GBoundedBufferWithIdT
 	:public GBoundedBufferT<T>
 {
 public:
@@ -65,7 +65,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GBoundedBufferTWithId(void) throw()
+	GBoundedBufferWithIdT(void) throw()
 		:GBoundedBufferT<T>(),
 		 id_(0),
 		 idSet_(false)
@@ -78,7 +78,7 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBufferTWithId(std::size_t capacity) throw()
+	explicit GBoundedBufferWithIdT(std::size_t capacity) throw()
 		:GBoundedBufferT<T>(capacity),
 		 id_(0),
 		 idSet_(false)
@@ -88,7 +88,7 @@ public:
 	/**
 	 * A standard destructor.
 	 */
-	virtual ~GBoundedBufferTWithId()
+	virtual ~GBoundedBufferWithIdT()
 	{ /* nothing */ }
 
 	/***************************************************************/
@@ -123,39 +123,39 @@ private:
 
 /*****************************************************************************/
 /**
- * A GBufferPort<T> consists of two GBoundedBufferTWithId<T> objects, one intended for "raw"
+ * A GBufferPortT<T> consists of two GBoundedBufferWithIdT<T> objects, one intended for "raw"
  * items, the other for returning, processed items. While this class could
  * be useful in many scenarios, the most common application is as a mediator
- * between GTransferPopulation and GConsumer-derivatives. The GTransferPopulation
+ * between GBrokerPopulation and GConsumer-derivatives. The GBrokerPopulation
  * is a source of raw items, which are processed by GConsumer-derivatives
  * (such as GBoostThreadConsumer and GAsioTCPConsumer) and then returned to the
- * population. GBroker-derivatives (such as the GMemberBroker) orchestrate this exchange.
+ * population. GBrokerT-derivatives (such as GIndividualBroker) orchestrate this exchange.
  * All of this happens in a multi-threaded environment. It is not possible to
- * create copies of this class, as one GBufferPort is intended to serve one
+ * create copies of this class, as one GBufferPortT is intended to serve one
  * single population.
  */
 template<class T>
-class GBufferPort: boost::noncopyable {
+class GBufferPortT: boost::noncopyable {
 public:
 	/*****************************************************************************/
 	/**
-	 * The default constructor. Note that, when using this constructor, the GBoundedBufferTWithId
+	 * The default constructor. Note that, when using this constructor, the GBoundedBufferWithIdT
 	 * objects will assume the default sizes.
 	 */
-	GBufferPort(void) :
-		original_(new Gem::Util::GBoundedBufferTWithId<T>()),
-		processed_(new Gem::Util::GBoundedBufferTWithId<T>())
+	GBufferPortT(void) :
+		original_(new Gem::Util::GBoundedBufferWithIdT<T>()),
+		processed_(new Gem::Util::GBoundedBufferWithIdT<T>())
 	{ /* nothing */	}
 
 	/*****************************************************************************/
 	/**
-	 * Here we initialize the two GBoundedBufferTWithId objects with a given size.
+	 * Here we initialize the two GBoundedBufferWithIdT objects with a given size.
 	 *
-	 * @param size The desired capacity of the GBoundedBufferTWithId objects
+	 * @param size The desired capacity of the GBoundedBufferWithIdT objects
 	 */
-	explicit GBufferPort(std::size_t size) :
-		original_(new Gem::Util::GBoundedBufferTWithId<T>(size)),
-		processed_(new Gem::Util::GBoundedBufferTWithId<T>(size))
+	explicit GBufferPortT(std::size_t size) :
+		original_(new Gem::Util::GBoundedBufferWithIdT<T>(size)),
+		processed_(new Gem::Util::GBoundedBufferWithIdT<T>(size))
 	{ /* nothing */ }
 
 	/*****************************************************************************/
@@ -164,7 +164,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "original" queue
 	 */
-	boost::shared_ptr<Gem::Util::GBoundedBufferTWithId<T> > getOriginal() {
+	boost::shared_ptr<Gem::Util::GBoundedBufferWithIdT<T> > getOriginal() {
 		return original_;
 	}
 
@@ -174,7 +174,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "processed" queue
 	 */
-	boost::shared_ptr<Gem::Util::GBoundedBufferTWithId<T> > getProcessed() {
+	boost::shared_ptr<Gem::Util::GBoundedBufferWithIdT<T> > getProcessed() {
 		return processed_;
 	}
 
@@ -190,7 +190,7 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Timed version of GBufferPort::push_front_orig() . If the item could not be added
+	 * Timed version of GBufferPortT::push_front_orig() . If the item could not be added
 	 * after sec seconds and msec milliseconds, the function returns. Note that a time_out
 	 * exception will be thrown in this case.
 	 *
@@ -212,7 +212,7 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * A version of GBufferPort::push_back_orig() with the ability to time-out. Note
+	 * A version of GBufferPortT::push_back_orig() with the ability to time-out. Note
 	 * that a time_out exception will be thrown by original_ if the time-out was
 	 * reached. It needs to be caught by the calling function.
 	 *
@@ -235,7 +235,7 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Timed version of GBufferPort::putProc() . If the item could not be added
+	 * Timed version of GBufferPortT::putProc() . If the item could not be added
 	 * after sec seconds and msec milliseconds, a timed_out exception will be thrown
 	 * by processed_.
 	 *
@@ -259,7 +259,7 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * A version of GBufferPort::getProc() with the ability to time-out. If the
+	 * A version of GBufferPortT::getProc() with the ability to time-out. If the
 	 * time-out was reached, processed_ will throw a time_out exception.
 	 *
 	 * @param item The item that was retrieved from the queue
@@ -272,8 +272,8 @@ public:
 	/*****************************************************************************/
 
 private:
-	boost::shared_ptr<Gem::Util::GBoundedBufferTWithId<T> > original_; ///< The queue for raw objects
-	boost::shared_ptr<Gem::Util::GBoundedBufferTWithId<T> > processed_; ///< The queue for processed objects
+	boost::shared_ptr<Gem::Util::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
+	boost::shared_ptr<Gem::Util::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects
 };
 
 /*****************************************************************************/
@@ -281,4 +281,4 @@ private:
 } /* namespace Util */
 } /* namespace Gem */
 
-#endif /* GBUFFERPORT_H_ */
+#endif /* GBUFFERPORTT_H_ */

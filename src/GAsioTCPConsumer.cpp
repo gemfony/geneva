@@ -106,7 +106,7 @@ void GAsioServerSession::processRequest() {
 
 		if (this->retrieve(itemString, portid, fitness, dirtyflag)) {
 			// Give the object back to the broker, so it can be sorted back
-			// into the GBufferPort objects.
+			// into the GBufferPortT objects.
 			boost::shared_ptr<GIndividual> p = indptrFromString(itemString, serializationMode_);
 
 			Gem::Util::PORTIDTYPE id = boost::lexical_cast<Gem::Util::PORTIDTYPE>(portid);
