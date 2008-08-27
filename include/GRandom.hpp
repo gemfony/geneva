@@ -65,7 +65,7 @@
 #ifndef GRANDOM_H
 #define GRANDOM_H
 
-#include "GBoundedBuffer.hpp"
+#include "GBoundedBufferT.hpp"
 #include "GEnums.hpp"
 #include "GLogger.hpp"
 #include "GThreadGroup.hpp"
@@ -332,7 +332,7 @@ namespace Util {
     /*************************************************************************/
 
     /** @brief A bounded buffer holding the [0,1[ random number packages */
-    Gem::Util::GBoundedBuffer<boost::shared_array<double> > g01_;
+    Gem::Util::GBoundedBufferT<boost::shared_array<double> > g01_;
 
     boost::uint32_t seed_; ///< The seed for the random number generators
 

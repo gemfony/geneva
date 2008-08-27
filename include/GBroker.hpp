@@ -60,7 +60,7 @@
 #include "GConsumer.hpp"
 #include "GenevaExceptions.hpp"
 #include "GBufferPort.hpp"
-#include "GBoundedBuffer.hpp"
+#include "GBoundedBufferT.hpp"
 #include "GThreadGroup.hpp"
 #include "GLogger.hpp"
 
@@ -80,9 +80,9 @@ const PORTIDTYPE MAXPORTID = std::numeric_limits<PORTIDTYPE>::max()-1;
  */
 template<class carryer_type>
 class GBroker: boost::noncopyable {
-	typedef typename boost::shared_ptr<GBoundedBufferWithId<carryer_type> > GBoundedBufferWithId_Ptr;
-	typedef typename std::list<GBoundedBufferWithId_Ptr> BufferPtrList;
-	typedef typename std::map<PORTIDTYPE, GBoundedBufferWithId_Ptr> BufferPtrMap;
+	typedef typename boost::shared_ptr<GBoundedBufferTWithId<carryer_type> > GBoundedBufferTWithId_Ptr;
+	typedef typename std::list<GBoundedBufferTWithId_Ptr> BufferPtrList;
+	typedef typename std::map<PORTIDTYPE, GBoundedBufferTWithId_Ptr> BufferPtrMap;
 
 public:
 	/**********************************************************************************/
@@ -114,12 +114,12 @@ public:
 	 * unprocessed) items and for processed items. A producer may at any time decide
 	 * to drop a GBufferPort. This is simply done by letting the shared_ptr<GBufferPort>
 	 * go out of scope. As the producer holds the only copy, the GBufferPort will then be
-	 * deleted. A BufferPort contains two shared_ptr<GBoundedBufferWithId> objects. A shared_ptr
+	 * deleted. A BufferPort contains two shared_ptr<GBoundedBufferTWithId> objects. A shared_ptr
 	 * to these objects is saved upon enrollment with the broker, so that letting the
-	 * shared_ptr<GBufferPort> go out of scope will not drop the shared_ptr<GBoundedBufferWithId>
+	 * shared_ptr<GBufferPort> go out of scope will not drop the shared_ptr<GBoundedBufferTWithId>
 	 * objects immediately. This is important, as there may still be active connections
 	 * with items being collected from or dropped into them by the consumers. It is the
-	 * task of this function to remove the orphaned shared_ptr<GBoundedBufferWithId> objects.
+	 * task of this function to remove the orphaned shared_ptr<GBoundedBufferTWithId> objects.
 	 * It thus needs to block access to the entire object during its operation. Note that one of
 	 * the effects of this function is that the buffer collections will never run empty,
 	 * once the first buffer has been registered.
@@ -143,19 +143,19 @@ public:
   		    std::terminate();
 		}
 
-		// Get new id for GBoundedBufferWithId classes and increment
+		// Get new id for GBoundedBufferTWithId classes and increment
 		// the id afterwards for later use.
 		PORTIDTYPE portId = lastId_++;
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
-		boost::shared_ptr<GBoundedBufferWithId<carryer_type> > original = gbp->getOriginal();
-		boost::shared_ptr<GBoundedBufferWithId<carryer_type> > processed = gbp->getProcessed();
+		boost::shared_ptr<GBoundedBufferTWithId<carryer_type> > original = gbp->getOriginal();
+		boost::shared_ptr<GBoundedBufferTWithId<carryer_type> > processed = gbp->getProcessed();
 		original->setId(portId);
 		processed->setId(portId);
 
 		// Find orphaned items in the two collections and remove them.
-		RawBuffers_.remove_if(boost::bind(&GBoundedBufferWithId_Ptr::unique,_1));
+		RawBuffers_.remove_if(boost::bind(&GBoundedBufferTWithId_Ptr::unique,_1));
 
 		for(typename BufferPtrMap::iterator it=ProcessedBuffers_.begin(); it!=ProcessedBuffers_.end();) {
 			if((it->second).unique()) { // Orphaned ? Get rid of it
@@ -204,7 +204,7 @@ public:
 	 * @return A key that uniquely identifies the origin of p
 	 */
 	PORTIDTYPE get(carryer_type& p) {
-		GBoundedBufferWithId_Ptr currentBuffer;
+		GBoundedBufferTWithId_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
 		// This will prevent the buffer from being removed, as the use count
@@ -237,7 +237,7 @@ public:
 	 * @return A key that uniquely identifies the origin of p
 	 */
 	PORTIDTYPE get(carryer_type& p, const boost::posix_time::time_duration& timeout) {
-		GBoundedBufferWithId_Ptr currentBuffer;
+		GBoundedBufferTWithId_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
 		// This will prevent the buffer from being removed, as the use count
@@ -270,7 +270,7 @@ public:
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 */
 	void put(const PORTIDTYPE& id, const carryer_type& p) {
-		GBoundedBufferWithId_Ptr currentBuffer;
+		GBoundedBufferTWithId_Ptr currentBuffer;
 
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
 
@@ -302,7 +302,7 @@ public:
 	void put(const PORTIDTYPE& id, const carryer_type& p,
 			 const boost::posix_time::time_duration& timeout)
 	{
-		GBoundedBufferWithId_Ptr currentBuffer;
+		GBoundedBufferTWithId_Ptr currentBuffer;
 
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
 
@@ -332,8 +332,8 @@ private:
 	boost::condition_variable readyToGoRaw_; ///< The get function will block until this condition variable is set
 	boost::condition_variable readyToGoProcessed_; ///< The put function will block until this condition variable is set
 
-	BufferPtrList RawBuffers_; ///< Holds GBoundedBufferWithId objects with raw items
-	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferWithId objects for processed items
+	BufferPtrList RawBuffers_; ///< Holds GBoundedBufferTWithId objects with raw items
+	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferTWithId objects for processed items
 
 	PORTIDTYPE lastId_; ///< The last id we've assigned to a buffer
 	typename BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection

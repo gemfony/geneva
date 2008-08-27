@@ -1,5 +1,5 @@
 /**
- * @file GBoundedBuffer.hpp
+ * @file GBoundedBufferT.hpp
  */
 
 /* This file is part of Geneva, Gemfony scientific's optimization library.
@@ -87,8 +87,8 @@
 #include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
 
-#ifndef GBOUNDEDBUFFER_H_
-#define GBOUNDEDBUFFER_H_
+#ifndef GBOUNDEDBUFFERT_H_
+#define GBOUNDEDBUFFERT_H_
 
 // GenEvA headers go here
 
@@ -127,7 +127,7 @@ const std::size_t DEFAULTBUFFERSIZE = 10000;
  * operator= is available for the items stored in the buffer.
  */
 template<class T>
-class GBoundedBuffer
+class GBoundedBufferT
 	: private boost::noncopyable
 {
 public:
@@ -139,7 +139,7 @@ public:
 	/**
 	 * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
 	 */
-	GBoundedBuffer(void) throw()
+	GBoundedBufferT(void) throw()
 		:capacity_(DEFAULTBUFFERSIZE)
 	{ /* nothing */}
 
@@ -150,7 +150,7 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBuffer(std::size_t capacity) throw()
+	explicit GBoundedBufferT(std::size_t capacity) throw()
 		:capacity_(capacity?capacity:1)
 	{ /* nothing */}
 
@@ -162,7 +162,7 @@ public:
 	 * means termination of the program. No logging takes place, as we want
 	 * this class to be independent of the GenEvA framework
 	 */
-	virtual ~GBoundedBuffer()
+	virtual ~GBoundedBufferT()
 	{
 		// Any error here is deadly ...
 		try {
@@ -172,12 +172,12 @@ public:
 		// This is a standard error raised by the lock/mutex
 		catch(boost::thread_resource_error&) {
 
-			std::cerr << "Caught thread_resource_error in GBoundedBuffer::~GBoundedBuffer(). Terminating ..." << std::endl;
+			std::cerr << "Caught thread_resource_error in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl;
 			std::terminate();
 		}
 		// We do not know whether any of the destructors of the items in the buffer throw anything
 		catch(...) {
-			std::cerr << "Caught unknown exception in GBoundedBuffer::~GBoundedBuffer(). Terminating ..." << std::endl;
+			std::cerr << "Caught unknown exception in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl;
 			std::terminate();
 		}
 	}
@@ -195,7 +195,7 @@ public:
 		boost::mutex::scoped_lock lock(mutex_);
 		// Note that this overload of wait() internally runs a loop on is_not_full to
 		// deal with spurious wakeups
-		not_full_.wait(lock, boost::bind(&GBoundedBuffer<value_type>::is_not_full, this));
+		not_full_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_full, this));
 		container_.push_front(item);
 		lock.unlock();
 		not_empty_.notify_one();
@@ -213,7 +213,7 @@ public:
 	void push_front(const value_type& item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		if(!not_full_.timed_wait(lock,timeout,boost::bind(&GBoundedBuffer<value_type>::is_not_full, this)))
+		if(!not_full_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_full, this)))
 			throw Gem::Util::gem_util_condition_time_out();
 		container_.push_front(item);
 		lock.unlock();
@@ -231,7 +231,7 @@ public:
 	void pop_back(value_type* pItem)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		not_empty_.wait(lock, boost::bind(&GBoundedBuffer<value_type>::is_not_empty, this));
+		not_empty_.wait(lock, boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this));
 		*pItem = container_.back();
 		container_.pop_back();
 		lock.unlock();
@@ -250,7 +250,7 @@ public:
 	void pop_back(value_type* pItem, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBuffer<value_type>::is_not_empty, this)))
+		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this)))
 			throw Gem::Util::gem_util_condition_time_out();
 		*pItem = container_.back();
 		container_.pop_back();
@@ -324,11 +324,11 @@ protected:
 
 private:
 	/***************************************************************/
-	GBoundedBuffer(const GBoundedBuffer&); ///< Disabled copy constructor
-	GBoundedBuffer& operator = (const GBoundedBuffer&); ///< Disabled assign operator
+	GBoundedBufferT(const GBoundedBufferT&); ///< Disabled copy constructor
+	GBoundedBufferT& operator = (const GBoundedBufferT&); ///< Disabled assign operator
 };
 
 } /* namespace Util */
 } /* namespace Gem */
 
-#endif /* GBOUNDEDBUFFER_H_ */
+#endif /* GBOUNDEDBUFFERT_H_ */

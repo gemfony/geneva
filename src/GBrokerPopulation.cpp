@@ -155,11 +155,11 @@ boost::posix_time::time_duration GBrokerPopulation::getFirstTimeOut() const {
 
 /******************************************************************************/
 /**
- * When retrieving items from the GBoundedBuffer queue (which in turn is accessed through
+ * When retrieving items from the GBoundedBufferT queue (which in turn is accessed through
  * the GBroker interface), a time-out factor can be set with this function. The
  * default values is DEFAULTLOOPMSEC. A minimum value of 1 micro second is required.
  *
- * @param loopTime Timeout until an item was retrieved from the GBoundedBuffer
+ * @param loopTime Timeout until an item was retrieved from the GBoundedBufferT
  */
 void GBrokerPopulation::setLoopTime(const boost::posix_time::time_duration& loopTime) {
 	// Only allow "real" values
@@ -189,7 +189,7 @@ boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
 /**
  * We provide the broker with a new GBufferPort object. Next the standard optimization cycle
  * of the parent population is started. When it is finished, we reset the shared_ptr<GBufferPort>.
- * The corresponding object is then deleted, and the GBoundedBuffer objects  owned by the broker are
+ * The corresponding object is then deleted, and the GBoundedBufferT objects  owned by the broker are
  * orphaned. They will then be removed during the next enrollment.
  */
 void GBrokerPopulation::optimize() {
