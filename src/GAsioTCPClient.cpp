@@ -106,7 +106,15 @@ bool GAsioTCPClient::retrieve(std::string& item) {
 
 	try {
 		// Try to make a connection
-		if(!tryConnect()) return shutdown(false);
+		if(!tryConnect()) {
+			std::ostringstream warning;
+			warning << "In GAsioTCPClient::retrieve(): Warning" << std::endl
+			        << "Could not connect to server. Shutting down now." << std::endl;
+
+			LOGGER.log(warning.str(),Gem::GLogFramework::WARNING);
+
+			return shutdown(false);
+		}
 
 		// Let the server know we want work
 		boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("ready", COMMANDLENGTH)));
@@ -232,7 +240,15 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
 
 	try{
 		// Try to make a connection
-		if(!tryConnect()) return shutdown(false);
+		if(!tryConnect()){
+			std::ostringstream warning;
+			warning << "In GAsioTCPClient::submit(): Warning" << std::endl
+					<< "Could not connect to server. Shutting down now." << std::endl;
+
+			LOGGER.log(warning.str(),Gem::GLogFramework::WARNING);
+
+			return shutdown(false);
+		}
 
 		// And write the serialized data to the socket. We use
 		// "gather-write" to send different buffers in a single
@@ -285,10 +301,7 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
  */
 bool GAsioTCPClient::shutdown(const bool& returnCode){
 	// Make sure we don't leave any open sockets lying around.
-	// socket_.close();
-	boost::system::error_code ignored_ec;
-	socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-
+	socket_.close();
 	return returnCode;
 }
 
@@ -302,15 +315,17 @@ bool GAsioTCPClient::tryConnect(){
 	// Try to make a connection, at max maxConnectionAttempts_ times
 	boost::uint32_t connectionAttempt = 0;
 
-    // Restore the start of the iteration
-    boost::asio::ip::tcp::resolver::iterator endpoint_iterator=endpoint_iterator0_;
-	boost::system::error_code error = boost::asio::error::host_not_found;
+	boost::system::error_code error;
+	boost::asio::ip::tcp::resolver::iterator endpoint_iterator;
+
 	while (maxConnectionAttempts_ ? (connectionAttempt++ < maxConnectionAttempts_) : true) {
+	    // Restore the start of the iteration
+		endpoint_iterator=endpoint_iterator0_;
+	    error = boost::asio::error::host_not_found;
+
 		while (error && endpoint_iterator != end_) {
 			// Make sure we try not to re-open an already open socket
-			// socket_.close();
-			boost::system::error_code ignored_ec;
-			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+			socket_.close();
 			// Make the connection attempt
 			socket_.connect(*endpoint_iterator++, error);
 		}

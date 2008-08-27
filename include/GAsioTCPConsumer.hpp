@@ -154,12 +154,11 @@ private:
 	 * needs to be _before_ acceptor so it gets initialized first.
 	 */
 	boost::asio::io_service io_service_;
+	boost::shared_ptr<boost::asio::io_service::work> work_;
+
 	boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
 
 	boost::threadpool::pool tp_; ///< A simple threadpool, see http://threadpoo.sf.net
-
-	boost::mutex stopMutex_; ///< Synchronizes access to the stop_ variable
-	bool stop_; ///< Set to true if we are expected to stop
 
 	serializationMode serializationMode_; ///< Specifies the serialization mode
 };

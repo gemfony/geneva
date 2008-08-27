@@ -43,6 +43,7 @@
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"
+#include "GEnums.hpp"
 
 // The individual that should be optimized
 // This is a simple parabola
@@ -105,6 +106,7 @@ int main(int argc, char **argv){
 	if(mode == "server"){
 		// Create a consumer and enrol it with the broker
 		boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+		// gatc->setSerializationMode(BINARYSERIALIZATION);
 		GINDIVIDUALBROKER.enrol(gatc);
 
 		// Set up a single parabola individual
@@ -129,6 +131,7 @@ int main(int argc, char **argv){
 	else if(mode == "client"){
 		// Just start the client with the required parameters
 	    GAsioTCPClient gasiotcpclient(ip,boost::lexical_cast<std::string>(port));
+	    // gasiotcpclient.setSerializationMode(BINARYSERIALIZATION);
 	    gasiotcpclient.run();
 	}
 

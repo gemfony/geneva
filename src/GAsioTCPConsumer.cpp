@@ -282,11 +282,15 @@ bool GAsioServerSession::submit(const std::string& item, const std::string& comm
  */
 GAsioTCPConsumer::GAsioTCPConsumer(unsigned short port)
 	:GConsumer(),
-	 acceptor_(io_service_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
+	 work_(new boost::asio::io_service::work(io_service_)),
+	 acceptor_(work_->get_io_service(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
 	 tp_(GASIOTCPCONSUMERTHREADS),
-	 stop_(false),
 	 serializationMode_(TEXTSERIALIZATION)
-{ /* nothing */ }
+{
+	// Start the actual processing. All real work is done in the GAsioServerSession class .
+	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(work_->get_io_service() ,serializationMode_));
+	acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumer::handleAccept, this, newSession, _1));
+}
 
 /*********************************************************************/
 /**
@@ -308,17 +312,12 @@ GAsioTCPConsumer::~GAsioTCPConsumer()
  */
 void GAsioTCPConsumer::handleAccept(boost::shared_ptr<GAsioServerSession> currentSession, const boost::system::error_code& error)
 {
-	// First check whether the stop condition was reached or an error occurred in the
-	// previous call. If so, we return immediately and thus interrupt the restart of the
-	// listeners. io_service_ then runs out of work, and the main loop terminates
-	{
-		boost::mutex::scoped_lock stopLock(stopMutex_);
-		if(error || stop_) return; ///< io_service_ will run out of work and terminate
-	}
+	// Check whether an error occurred. This will likely indicate that we've been asked to stop.
+	if(error) return;
 
 	// First we make sure a new session is started asynchronously so the next request can be served
-	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(io_service_,serializationMode_));
-	acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumer::handleAccept, this, newSession,	boost::asio::placeholders::error));
+	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(work_->get_io_service(), serializationMode_));
+	acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumer::handleAccept, this, newSession,	_1));
 
 	// Now we can dispatch the actual session code to our thread pool
 	tp_.schedule(boost::bind(&GAsioServerSession::processRequest, currentSession));
@@ -329,12 +328,8 @@ void GAsioTCPConsumer::handleAccept(boost::shared_ptr<GAsioServerSession> curren
  * This function is processed in a separate thread, which is started by the broker.
  */
 void GAsioTCPConsumer::process(){
-	// Start the actual processing. All real work is done in the GAsioServerSession class .
-	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(io_service_,serializationMode_));
-	acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumer::handleAccept, this, newSession, boost::asio::placeholders::error));
-
 	// The io_service's event loop
-	io_service_.run();
+	(work_->get_io_service()).run();
 }
 
 /*********************************************************************/
@@ -345,8 +340,7 @@ void GAsioTCPConsumer::process(){
  */
 void GAsioTCPConsumer::shutdown()
 {
-	boost::mutex::scoped_lock stopLock(stopMutex_);
-	stop_=true;
+	work_.reset();
 }
 
 /*********************************************************************/
