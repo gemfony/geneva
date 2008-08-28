@@ -100,15 +100,6 @@ bool parseCommandLine(int argc, char **argv,
 			return false;
 		}
 
-		// Check the parabolaMin/Max parameters
-		if(parabolaMin >= parabolaMax){
-			std::cout << "Error: Invalid parabolaMin/Max parameters" << std::endl
-				      << "parabolaMin = " << parabolaMin << std::endl
-				      << "parabolaMax = " << parabolaMax << std::endl;
-
-			return false;;
-		}
-
 		// Workaround for assigment problem with recoScheme
 		if(recombinationScheme==(boost::uint16_t)VALUERECOMBINE)
 			rScheme=VALUERECOMBINE;
@@ -124,12 +115,11 @@ bool parseCommandLine(int argc, char **argv,
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
-				      << "ip = " << ip << std::endl
-				      << "mode = " << mode << std::endl
-				      << "port = " << port << std::endl
-					  << "parabolaDimension = " << parabolaDimension << std::endl
-					  << "parabolaMin = " << parabolaMin << std::endl
-					  << "parabolaMax = " << parabolaMax << std::endl
+					  << "nData = " << nData << std::endl
+					  << "nDimOrig = " << nDimOrig << std::endl
+					  << "nDimTarget = " << nDimTarget << std::endl
+					  << "radius = " << radius << std::endl
+					  << "nClients = " << nClients << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "populationSize = " << populationSize << std::endl
 					  << "nParents = " << nParents << std::endl

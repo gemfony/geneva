@@ -49,6 +49,7 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GBoostThreadPopulation.hpp"
+#include "GRandom.hpp"
 
 namespace Gem
 {
@@ -77,7 +78,7 @@ struct projectionData
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("source", source);
-		ar & nake_nvp("nData", nData);
+		ar & make_nvp("nData", nData);
 		ar & make_nvp("nDimOrig", nDimOrig);
 		ar & make_nvp("nDimTarget", nDimTarget);
 	}
@@ -118,16 +119,10 @@ class GProjectionIndividual
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
-		// Note that we (de-)serialize none of the local data here, as it is assumed to be
-		// constant and present in every individual for which the load() function could be
-		// called. This happens for performance reasons, so we do not have to transfer the
-		// potentially very large source_ data over a network. You can uncomment the following
-		// lines to try out the difference.
-		//
-		// ar & make_nvp("source_", source_);
-		// ar & make_nvp("nData_", nData_);
-		// ar & make_nvp("nDimOrig_", nDimOrig_);
-		// ar & make_nvp("nDimTarget_", nDimTarget_);
+		ar & make_nvp("source_", source_);
+		ar & make_nvp("nData_", nData_);
+		ar & make_nvp("nDimOrig_", nDimOrig_);
+		ar & make_nvp("nDimTarget_", nDimTarget_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -200,7 +195,7 @@ public:
 	 *
 	 * @param filename The name of the file holding the necessary data
 	 */
-	GProjectionIndividual(const str::string& filename)
+	GProjectionIndividual(const std::string& filename, double min, double max)
 		:source_(),
 		 nData_(0),
 		 nDimOrig_(0),
@@ -210,7 +205,7 @@ public:
 
 		std::ifstream projDat(filename.c_str());
 
-		if(!projData){
+		if(!projDat){
 			std::ostringstream error;
 			error << "In GProjectionIndividual::GProjectionIndividual(const std::string&) : Error!" << std::endl
 				  << "Data file " << filename << " could not be opened for reading." << std::endl;
@@ -221,17 +216,17 @@ public:
 
 		// Load the data, using the Boost.Serialization library
 		{
-			boost::archive::xml_iarchive ia(istr);
+			boost::archive::xml_iarchive ia(projDat);
 			ia >> boost::serialization::make_nvp("projectionData", pD);
 		} // Explicit scope at this point is essential so that ia's destructor is called
 
 		projDat.close();
 
 		// Now copy the data over
-		source_ = projDat.source_;
-		nData_ = projDat.nData_;
-		nDimOrig_ = projData.nDimOrig_;
-		nDimTarget_ = projData.nDimTarget_;
+		source_ = pD.source;
+		nData_ = pD.nData;
+		nDimOrig_ = pD.nDimOrig;
+		nDimTarget_ = pD.nDimTarget;
 
 		// Set up a GDoubleCollection with nval values, each initialized
 		// with a random number in the range [min,max[
@@ -278,7 +273,10 @@ public:
 	 */
 	GProjectionIndividual(const GProjectionIndividual& cp)
 		:GParameterSet(cp),
-		 source_(cp.source_)
+		 source_(cp.source_),
+		 nData_(cp.nData_),
+		 nDimOrig_(cp.nDimOrig_),
+		 nDimTarget_(cp.nDimTarget_)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -317,10 +315,16 @@ public:
 	 * @param cp A copy of another GProjectionIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
+		const GProjectionIndividual *gpi_load = checkedConversion(cp, this);
+
 		// Load the parent class'es data
 		GParameterSet::load(cp);
 
-		// We do not load cp's source_ vector, as its data is assumed to be constant
+		// Load our local data
+		nData_ = gpi_load->nData_;
+		nDimOrig_ = gpi_load->nDimOrig_;
+		nDimTarget_ = gpi_load->nDimTarget_;
+		source_ = gpi_load->source_;
 	}
 
 	/********************************************************************************************/
@@ -360,6 +364,10 @@ public:
 			throw geneva_invalid_dimensions() << error_string(error.str());
 		}
 
+		// Create a local random number generator. We cannot access the
+		// class'es generator, as this function is static.
+		Gem::Util::GRandom l_gr;
+
 		// Create the required data.
 		projectionData pD;
 
@@ -368,14 +376,14 @@ public:
 		pD.nDimTarget = nDimTarget;
 
 		for(std::size_t i=0; i<nDimOrig*nData; i++)
-			pD.source.push_back(this->gr.evenRandom(-edgelength/2.,edgelength/2.));
+			pD.source.push_back(l_gr.evenRandom(-edgelength/2.,edgelength/2.));
 
 		if(fileName != ""){ // Serialize and write to a file, if requested.
 			std::ofstream fileStream(fileName.c_str());
 			if(!fileStream){
 				std::ostringstream error;
 				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
-					  << "Data file " << filename << " could not be opened for writing." << std::endl;
+					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_invalid_datafile() << error_string(error.str());
@@ -431,6 +439,10 @@ public:
 			throw geneva_invalid_dimensions() << error_string(error.str());
 		}
 
+		// Create a local random number generator. We cannot access the
+		// class'es generator, as this function is static.
+		Gem::Util::GRandom l_gr;
+
 		// Create the required data.
 		projectionData pD;
 
@@ -438,19 +450,24 @@ public:
 		pD.nDimOrig = nDimOrig;
 		pD.nDimTarget = nDimTarget;
 
+		double local_radius=1.;
+
 		for(std::size_t i=0; i<nData; i++){
+			local_radius = l_gr.evenRandom(0,radius);
+
 			//////////////////////////////////////////////////////////////////
 			// Special cases
 			switch(nDimOrig){
 			case 1:
-				pD.source.push_back(this->gr.evenRandom(0,radius));
+				pD.source.push_back(local_radius);
 				break;
 
 			case 2:
-				local_radius = this->gr.evenRandom(0,radius);
-				phi = this->gr.evenRandom(0,2*M_PI);
-				pD.source.push_back(local_radius*sin(phi)); // x
-				pD.source.push_back(local_radius*cos(phi)); // y
+				{
+					double phi = l_gr.evenRandom(0,2*M_PI);
+					pD.source.push_back(local_radius*sin(phi)); // x
+					pD.source.push_back(local_radius*cos(phi)); // y
+				}
 				break;
 
 			default: // dimensions 3 ... inf
@@ -459,11 +476,10 @@ public:
 					// Create the required random numbers in spherical coordinates.
 					// nDimOrig will be at least 3 here.
 					std::size_t nAngles = nDimOrig - 1;
-					double local_radius = this->gr.evenRandom(0,radius);
 					std::vector<double> angle_collection(nAngles);
 					for(std::size_t i=0; i<(nAngles-1); i++) // Angles in range [0,Pi[
-						angle_collection.push_back(this->gr.evenRandom(0, M_PI));
-					angle_collection[one_mpi_angles]=this->gr.evenRandom(0, 2*M_PI); // Range of last angle is [0,2*Pi[
+						angle_collection.push_back(l_gr.evenRandom(0, M_PI));
+					angle_collection[nAngles-1]=l_gr.evenRandom(0, 2*M_PI); // Range of last angle is [0,2*Pi[
 
 					//////////////////////////////////////////////////////////////////
 					// Now we can fill the source-vector itself
@@ -499,7 +515,7 @@ public:
 			if(!fileStream){
 				std::ostringstream error;
 				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
-					  << "Data file " << filename << " could not be opened for writing." << std::endl;
+					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_invalid_datafile() << error_string(error.str());
@@ -524,9 +540,14 @@ protected:
 	 * @return The value of this object
 	 */
 	virtual double fitnessCalculation() {
-		int i, j, k;
+		std::size_t i, j, k;
+
 		double enumerator = 0.;
 		double denominator = 0.;
+
+		// Retrieve the double vector. We have a single GParameterBase object in the individual,
+		// of which we know that its "real" type is "GDoubleCollection".
+		std::vector<double>& data = getData<GDoubleCollection>(0)->data;
 
 		for (i = 0; i < nData_; i++) {
 			for (j = i + 1; j < nData_; j++) {

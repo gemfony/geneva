@@ -120,6 +120,10 @@ int main(int argc, char **argv){
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
 
+	// We create a thread group of nClients threads + the server thread.
+	// Note that boost::bind knows how to handle a boost::shared_ptr.
+	Gem::Util::GThreadGroup gtg;
+
 	// Global settings
 	ip="localhost";
 	port=10000;
@@ -133,39 +137,40 @@ int main(int argc, char **argv){
 	GINDIVIDUALBROKER.enrol(gatc);
 
 	// Set up a single projection individual
-	boost::shared_ptr<GProjectionIndividual> projectionIndividual(new GProjectionIndividual("sphere.xml"));
+	boost::shared_ptr<GProjectionIndividual>
+		projectionIndividual(new GProjectionIndividual("sphere.xml",-radius, radius));
 
 	// Create the actual population
-	GBrokerPopulation pop;
+	boost::shared_ptr<GBrokerPopulation> pop(new GBrokerPopulation());
 
 	// Make the individual known to the population
-	pop.append(projectionIndividual);
+	pop->append(projectionIndividual);
 
 	// Specify some population settings
-	pop.setPopulationSize(populationSize,nParents);
-	pop.setMaxGeneration(maxGenerations);
-	pop.setMaxTime(boost::posix_time::minutes(maxMinutes));
-	pop.setReportGeneration(reportGeneration);
-	pop.setRecombinationMethod(rScheme);
+	pop->setPopulationSize(populationSize,nParents);
+	pop->setMaxGeneration(maxGenerations);
+	pop->setMaxTime(boost::posix_time::minutes(maxMinutes));
+	pop->setReportGeneration(reportGeneration);
+	pop->setRecombinationMethod(rScheme);
 
 	// Do the actual optimization
-	pop.optimize();
+	gtg.create_thread(boost::bind(&GBrokerPopulation::optimize,pop));
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Start of clients
 
-	// We create a thread group of nClients threads and start the clients one by one.
-	// Note that boost::bind knows how to handle a boost::shared_ptr, and that the
-	// GAsioTCPClients will be destroyed automatically at the end of the execution.
-	Gem::Util::GThreadGroup gtg;
-
 	std::vector<boost::shared_ptr<GAsioTCPClient> > clientCollection;
 	for(std::size_t i=0; i<nClients; i++){
 		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip,boost::lexical_cast<std::string>(port)));
-		gtb.create_thread(boost::bind(&GAsioTCPClient::run,p));
+		gtg.create_thread(boost::bind(&GAsioTCPClient::run,p));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Wait for all threads to finish
+	gtg.join_all();
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Done ...
 	std::cout << "Done ..." << std::endl;
 
 	return 0;
