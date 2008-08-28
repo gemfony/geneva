@@ -122,7 +122,7 @@ public:
 
 		return p_load;
 #else
-		return static_pointer_cast<parameter_type>(data[pos]);
+		return boost::static_pointer_cast<parameter_type>(data[pos]);
 #endif /* DEBUG */
 	}
 
