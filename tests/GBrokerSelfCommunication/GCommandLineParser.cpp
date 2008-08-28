@@ -32,12 +32,11 @@ namespace GenEvA
  * A function that parses the command line for all required parameters
  */
 bool parseCommandLine(int argc, char **argv,
-					  std::string& ip,
-					  std::string& mode,
-					  unsigned short& port,
-					  std::size_t& parabolaDimension,
-					  double& parabolaMin,
-					  double& parabolaMax,
+					  std::size_t& nData,
+					  std::size_t& nDimOrig,
+					  std::size_t& nDimTarget,
+					  double radius,
+					  std::size_t& nClients,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& populationSize,
 					  std::size_t& nParents,
@@ -54,18 +53,16 @@ bool parseCommandLine(int argc, char **argv,
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
-			("mode",po::value<std::string>(&mode)->default_value(DEFAULTMODE),
-					"server or client, dependent on the mode")
-			("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP),
-					"The ip of the server - required by the client")
-			("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT),
-					"The port of the server")
-			("parabolaDimension,d", po::value<std::size_t>(&parabolaDimension)->default_value(DEFAULTPARABOLADIMENSION),
-					"number of dimensions in the parabola")
-			("parabolaMin,m", po::value<double>(&parabolaMin)->default_value(DEFAULTPARABOLAMIN),
-					"Lower boundary for random numbers")
-			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
-					"Upper boundary for random numbers")
+			("nData,d", po::value<std::size_t>(&nData)->default_value(DEFAULTNDATA),
+					"The number of data sets in the original distribution")
+			("nDimOrig,o", po::value<std::size_t>(&nDimOrig)->default_value(DEFAULTNDIMORIG),
+					"The dimension of the original distribution")
+			("nDimTarget,T", po::value<std::size_t>(&nDimTarget)->default_value(DEFAULTNDIMTARGET),
+					"The dimension of the target distributions")
+			("radius,R", po::value<double>(&radius)->default_value(DEFAULTRADIUS),
+					"The radius of the sphere")
+			("nClients,c",po::value<std::size_t>(&nClients)->default_value(DEFAULTNCLIENTS),
+					"The number of clients trying to connect to the server")
 			("nProducerThreads,p",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
 			("populationSize,s",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),

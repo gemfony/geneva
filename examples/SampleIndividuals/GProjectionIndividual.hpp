@@ -333,7 +333,7 @@ public:
 	 *
 	 * You can call this function in the following way:
 	 *
-	 * GProjectionInvididual::createHyerCubeFile("someFileName.xml");
+	 * GProjectionInvididual::createHyerCubeFile("someFileName.xml", [other arguments]);
 	 *
 	 * @param fileName Name of the file where
 	 * @param nData The number of data sets to create

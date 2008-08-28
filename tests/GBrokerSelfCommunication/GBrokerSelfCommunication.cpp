@@ -26,10 +26,12 @@
 #include <cmath>
 #include <sstream>
 #include <string>
+#include <vector>
 
 // Boost header files go here
 #include <boost/asio.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 // GenEvA header files go here
 #include "GRandom.hpp"
@@ -44,10 +46,12 @@
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"
 #include "GEnums.hpp"
+#include "GThreadGroup.hpp"
 
-// The individual that should be optimized
-// This is a simple parabola
-#include "GParabolaIndividual.hpp"
+// The individual that should be optimized.
+// Represents the projection of an m-dimensional
+// data set to an n-dimensional data set.
+#include "GProjectionIndividual.hpp"
 
 // Parses the command line for all required options
 #include "GCommandLineParser.hpp"
@@ -62,24 +66,26 @@ using namespace Gem::GLogFramework;
  * possibly running on different machines.
  */
 int main(int argc, char **argv){
-	std::string mode, ip;
+	std::string ip;
+	std::size_t nData=10000, nDimOrig=5, nDimTarget=2;
+	std::size_t nClients;
+	double radius;
 	unsigned short port=10000;
-	std::size_t parabolaDimension, populationSize, nParents;
-	double parabolaMin, parabolaMax;
+	std::size_t populationSize, nParents;
 	boost::uint16_t nProducerThreads;
 	boost::uint32_t maxGenerations, reportGeneration;
 	long maxMinutes;
 	bool verbose;
 	recoScheme rScheme;
 
-	// Retrieve command line options
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Command-line parsing
 	if(!parseCommandLine(argc, argv,
-						 ip,
-						 mode,
-						 port,
-				         parabolaDimension,
-				         parabolaMin,
-				         parabolaMax,
+						 nData,
+				         nDimOrig,
+				         nDimTarget,
+				         radius,
+				         nClients,
 				         nProducerThreads,
 				         populationSize,
 				         nParents,
@@ -89,6 +95,17 @@ int main(int argc, char **argv){
 				         rScheme,
 				         verbose))
 		{ std::terminate(); }
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Creation of an input file for this example
+	GProjectionIndividual::createSphereFile("sphere.xml",
+											nData,
+											nDimOrig,
+											nDimTarget,
+											radius);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Set-up of local resources
 
 	// Add some log levels to the logger
 	LOGGER.addLogLevel(Gem::GLogFramework::CRITICAL);
@@ -103,38 +120,52 @@ int main(int argc, char **argv){
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
 
-	if(mode == "server"){
-		// Create a consumer and enrol it with the broker
-		boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
-		// gatc->setSerializationMode(BINARYSERIALIZATION);
-		GINDIVIDUALBROKER.enrol(gatc);
+	// Global settings
+	ip="localhost";
+	port=10000;
 
-		// Set up a single parabola individual
-		boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin,parabolaMax));
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Start of server
 
-		// Create the actual population
-		GBrokerPopulation pop;
+	// Create a consumer and enrol it with the broker
+	boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+	// gatc->setSerializationMode(BINARYSERIALIZATION);
+	GINDIVIDUALBROKER.enrol(gatc);
 
-		// Make the individual known to the population
-		pop.append(parabolaIndividual);
+	// Set up a single projection individual
+	boost::shared_ptr<GProjectionIndividual> projectionIndividual(new GProjectionIndividual("sphere.xml"));
 
-		// Specify some population settings
-		pop.setPopulationSize(populationSize,nParents);
-		pop.setMaxGeneration(maxGenerations);
-		pop.setMaxTime(boost::posix_time::minutes(maxMinutes));
-		pop.setReportGeneration(reportGeneration);
-		pop.setRecombinationMethod(rScheme);
+	// Create the actual population
+	GBrokerPopulation pop;
 
-		// Do the actual optimization
-		pop.optimize();
+	// Make the individual known to the population
+	pop.append(projectionIndividual);
+
+	// Specify some population settings
+	pop.setPopulationSize(populationSize,nParents);
+	pop.setMaxGeneration(maxGenerations);
+	pop.setMaxTime(boost::posix_time::minutes(maxMinutes));
+	pop.setReportGeneration(reportGeneration);
+	pop.setRecombinationMethod(rScheme);
+
+	// Do the actual optimization
+	pop.optimize();
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Start of clients
+
+	// We create a thread group of nClients threads and start the clients one by one.
+	// Note that boost::bind knows how to handle a boost::shared_ptr, and that the
+	// GAsioTCPClients will be destroyed automatically at the end of the execution.
+	Gem::Util::GThreadGroup gtg;
+
+	std::vector<boost::shared_ptr<GAsioTCPClient> > clientCollection;
+	for(std::size_t i=0; i<nClients; i++){
+		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip,boost::lexical_cast<std::string>(port)));
+		gtb.create_thread(boost::bind(&GAsioTCPClient::run,p));
 	}
-	else if(mode == "client"){
-		// Just start the client with the required parameters
-	    GAsioTCPClient gasiotcpclient(ip,boost::lexical_cast<std::string>(port));
-	    // gasiotcpclient.setSerializationMode(BINARYSERIALIZATION);
-	    gasiotcpclient.run();
-	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////
 	std::cout << "Done ..." << std::endl;
 
 	return 0;
