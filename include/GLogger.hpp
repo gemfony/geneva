@@ -53,10 +53,8 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/xtime.hpp>
 
-#ifndef GLOGGER_H_
-#define GLOGGER_H_
-
-using namespace boost;
+#ifndef GLOGGER_HPP_
+#define GLOGGER_HPP_
 
 #include "GLogTargets.hpp"
 
@@ -66,21 +64,21 @@ namespace GLogFramework {
 /***********************************************************************************/
 /** Definition of log levels */
 enum logLevels {
-	CRITICAL, // Warning: it is possible that the application might produce bad results
-	WARNING, // The flow of the operation could be affected and this should be reported
-	INFORMATIONAL, // Useful information
-	PROGRESS, // Information useful for progress checks
-	DEBUGGING, // Debug information
-	CUSTOM_1, // Custom log level 1
-	CUSTOM_2, // Custom log level 2
-	CUSTOM_3, // Custom log level 3
-	CUSTOM_4, // Custom log level 4
-	CUSTOM_5, // Custom log level 5
-	CUSTOM_6, // Custom log level 6
-	CUSTOM_7, // Custom log level 7
-	CUSTOM_8, // Custom log level 8
-	CUSTOM_9, // Custom log level 9
-	CUSTOM_10 // Custom log level 10
+	CRITICAL=0, // Warning: it is possible that the application might produce bad results
+	WARNING=1, // The flow of the operation could be affected and this should be reported
+	INFORMATIONAL=2, // Useful information
+	PROGRESS=3, // Information useful for progress checks
+	DEBUGGING=4, // Debug information
+	CUSTOM_1=5, // Custom log level 1
+	CUSTOM_2=6, // Custom log level 2
+	CUSTOM_3=7, // Custom log level 3
+	CUSTOM_4=8, // Custom log level 4
+	CUSTOM_5=9, // Custom log level 5
+	CUSTOM_6=10, // Custom log level 6
+	CUSTOM_7=11, // Custom log level 7
+	CUSTOM_8=12, // Custom log level 8
+	CUSTOM_9=13, // Custom log level 9
+	CUSTOM_10=14 // Custom log level 10
 };
 
 /***********************************************************************************/
@@ -95,7 +93,7 @@ enum logLevels {
 class GLogger: boost::noncopyable {
 public:
 	/** @brief The default constructor - needed for the singleton*/
-	GLogger(void);
+	GLogger();
 	/** @brief A standard destructor */
 	virtual ~GLogger();
 
@@ -109,7 +107,7 @@ public:
 	void addLogLevelsUpTo(const logLevels& level);
 
 	/** @brief Checks whether any log targets are present */
-	bool hasLogTargets(void) const;
+	bool hasLogTargets() const;
 
 private:
 	std::vector<boost::shared_ptr<GBaseLogTarget> > logVector_; ///< Contains the log targets
@@ -129,4 +127,4 @@ private:
 typedef boost::details::pool::singleton_default<Gem::GLogFramework::GLogger>  logger;
 #define LOGGER logger::instance()
 
-#endif /*GLOGGER_H_*/
+#endif /*GLOGGER_HPP_*/

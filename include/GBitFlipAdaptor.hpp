@@ -33,8 +33,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GBITFLIPADAPTOR_H_
-#define GBITFLIPADAPTOR_H_
+#ifndef GBITFLIPADAPTOR_HPP_
+#define GBITFLIPADAPTOR_HPP_
 
 // GenEvA headers go here
 
@@ -133,4 +133,4 @@ private:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /*GBITFLIPADAPTOR_H_*/
+#endif /*GBITFLIPADAPTOR_HPP_*/

@@ -39,11 +39,8 @@
 #include <boost/thread/xtime.hpp>
 #include <boost/threadpool.hpp>
 
-#ifndef GBOOSTTHREADPOPULATION_H_
-#define GBOOSTTHREADPOPULATION_H_
-
-using namespace boost;
-using namespace boost::threadpool;
+#ifndef GBOOSTTHREADPOPULATION_HPP_
+#define GBOOSTTHREADPOPULATION_HPP_
 
 // GenEvA headers go here
 
@@ -56,7 +53,7 @@ using namespace boost::threadpool;
 namespace Gem {
 namespace GenEvA {
 /** @brief The default number of threads for parallelization with boost */
-const uint16_t DEFAULTBOOSTTHREADS = 2;
+const boost::uint16_t DEFAULTBOOSTTHREADS = 2;
 
 /********************************************************************/
 /**
@@ -93,23 +90,23 @@ public:
 	/** @brief Loads data from another object */
 	virtual void load(const GObject *);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone(void);
+	virtual GObject *clone();
 
 	/** @brief Overloaded from GBasePopulation::optimize() */
-	virtual void optimize(void);
+	virtual void optimize();
 
 	/** @brief Sets the maximum number of threads */
-	void setNThreads(uint8_t);
+	void setNThreads(boost::uint8_t);
 	/** @brief Retrieves the maximum number of threads */
-	uint8_t getNThreads(void) const throw();
+	uint8_t getNThreads() const throw();
 
 protected:
 	/** @brief Overloaded version from GBasePopulation,
 	 * core of the Boost-thread implementation */
-	virtual void mutateChildren(void);
+	virtual void mutateChildren();
 
 private:
-	uint8_t nThreads_; ///< The number of threads
+	boost::uint8_t nThreads_; ///< The number of threads
 	boost::threadpool::pool tp_; ///< A thread pool
 };
 
@@ -118,4 +115,4 @@ private:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /*GBOOSTTHREADPOPULATION_H_*/
+#endif /* GBOOSTTHREADPOPULATION_HPP_ */

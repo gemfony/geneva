@@ -103,7 +103,7 @@ void GBoostThreadPopulation::load(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GBoostThreadPopulation::clone(void) {
+GObject *GBoostThreadPopulation::clone() {
 	return new GBoostThreadPopulation(*this);
 }
 
@@ -112,7 +112,7 @@ GObject *GBoostThreadPopulation::clone(void) {
  * We want to do all fitness calculation in the threads. Hence lazy
  * evaluation is not allowed.
  */
-void GBoostThreadPopulation::optimize(void) {
+void GBoostThreadPopulation::optimize() {
 	std::vector<bool> le_value;
 
 	std::vector<bool>::iterator b_it;
@@ -144,9 +144,9 @@ void GBoostThreadPopulation::optimize(void) {
  * number of threads is DEFAULTBOOSTTHREADS (possibly 2) and can be overridden
  * with the GBoostThreadPopulation::setMaxThreads() function.
  */
-void GBoostThreadPopulation::mutateChildren(void) {
+void GBoostThreadPopulation::mutateChildren() {
 	std::size_t nParents = GBasePopulation::getNParents();
-	uint32_t generation = GBasePopulation::getGeneration();
+	boost::uint32_t generation = GBasePopulation::getGeneration();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	// We start with the parents, if this is generation 0. Their
@@ -174,7 +174,7 @@ void GBoostThreadPopulation::mutateChildren(void) {
  *
  * @param nThreads The number of threads this class uses
  */
-void GBoostThreadPopulation::setNThreads(uint8_t nThreads) {
+void GBoostThreadPopulation::setNThreads(boost::uint8_t nThreads) {
 	nThreads_ = nThreads;
 	tp_.size_controller().resize(nThreads_);
 }
@@ -185,7 +185,7 @@ void GBoostThreadPopulation::setNThreads(uint8_t nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-uint8_t GBoostThreadPopulation::getNThreads(void) const throw() {
+uint8_t GBoostThreadPopulation::getNThreads() const throw() {
 	return nThreads_;
 }
 

@@ -30,7 +30,7 @@ namespace Gem {
 		 * A standard logger. By default we only log CRITICAL. Different log levels
 		 * are defined in the file GLogStreamer.h .
 		 */
-		GLogger::GLogger(void) {
+		GLogger::GLogger() {
 			addLogLevel(Gem::GLogFramework::CRITICAL);
 		}
 
@@ -113,7 +113,7 @@ namespace Gem {
 		/**
 		 * Here we can check whether any log targets are present.
 		 */
-		bool GLogger::hasLogTargets(void) const {
+		bool GLogger::hasLogTargets() const {
 			if(logVector_.empty()) return false;
 
 			return true;

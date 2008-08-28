@@ -42,8 +42,8 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/utility.hpp>
 
-#ifndef GADAPTORT_H_
-#define GADAPTORT_H_
+#ifndef GADAPTORT_HPP_
+#define GADAPTORT_HPP_
 
 #include "GObject.hpp"
 #include "GLogger.hpp"
@@ -268,4 +268,4 @@ namespace boost {
 
 /********************************************************************************************/
 
-#endif /*GADAPTORT_H_*/
+#endif /*GADAPTORT_HPP_*/

@@ -87,8 +87,8 @@
 #include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
 
-#ifndef GBOUNDEDBUFFERT_H_
-#define GBOUNDEDBUFFERT_H_
+#ifndef GBOUNDEDBUFFERT_HPP_
+#define GBOUNDEDBUFFERT_HPP_
 
 // GenEvA headers go here
 
@@ -331,4 +331,4 @@ private:
 } /* namespace Util */
 } /* namespace Gem */
 
-#endif /* GBOUNDEDBUFFERT_H_ */
+#endif /* GBOUNDEDBUFFERT_HPP_ */

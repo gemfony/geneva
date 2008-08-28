@@ -48,8 +48,8 @@
 #error "Error: Support for multi-threading does not seem to be available."
 #endif
 
-#ifndef GBASEPOPULATION_H_
-#define GBASEPOPULATION_H_
+#ifndef GBASEPOPULATION_HPP_
+#define GBASEPOPULATION_HPP_
 
 // GenEvA headers go here
 
@@ -301,4 +301,4 @@ private:
 }
 } /* namespace Gem::GenEvA */
 
-#endif /*GBASEPOPULATION_H_*/
+#endif /*GBASEPOPULATION_HPP_*/

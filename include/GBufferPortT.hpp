@@ -35,8 +35,8 @@
 #include <boost/utility.hpp>
 #include <boost/date_time.hpp>
 
-#ifndef GBUFFERPORTT_H_
-#define GBUFFERPORTT_H_
+#ifndef GBUFFERPORTT_HPP_
+#define GBUFFERPORTT_HPP_
 
 // GenEvA header files go here
 
@@ -281,4 +281,4 @@ private:
 } /* namespace Util */
 } /* namespace Gem */
 
-#endif /* GBUFFERPORTT_H_ */
+#endif /* GBUFFERPORTT_HPP_ */
