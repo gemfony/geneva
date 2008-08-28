@@ -110,7 +110,7 @@ public:
 	virtual void finally(){}; // To be called from derived classes' destructor
 
 	/** @brief Retrieves the current serialization mode */
-	serializationMode getSerializationMode(void) const throw();
+	serializationMode getSerializationMode() const throw();
 	/** @brief Sets the serialization mode */
 	void setSerializationMode(const serializationMode&) throw();
 

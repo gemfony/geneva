@@ -148,7 +148,7 @@ public:
 				generationData genDat;
 				genDat.generation = gbp->getGeneration();
 
-				std::vector<shared_ptr<GIndividual> >::iterator it;
+				std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 				for(it=gbp->data.begin(); it!=gbp->data.end(); ++it){
 					// We extract the data. (*it) is a boost::shared_ptr<GIndividual>,
 					// so we need to convert it first.

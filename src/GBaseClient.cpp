@@ -181,7 +181,7 @@ bool GBaseClient::process(){
 
 	// unpack the data and create a new GIndividual. Note that de-serialization should
 	// generally happen through the same type that was used for serialization.
-	shared_ptr<GIndividual> target = indptrFromString(istr, localSerMod);
+	boost::shared_ptr<GIndividual> target = indptrFromString(istr, localSerMod);
 
 	// This one line is all it takes to do the processing required for this individual.
 	// GIndividual has all required functions on board. GBaseClient does not need to understand
@@ -224,7 +224,7 @@ bool GBaseClient::process(){
  *
  * @return The current serialization mode
  */
-serializationMode GBaseClient::getSerializationMode(void) const throw() {
+serializationMode GBaseClient::getSerializationMode() const throw() {
 	return serializationMode_;
 }
 

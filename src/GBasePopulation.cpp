@@ -372,7 +372,7 @@ void GBasePopulation::adjustPopulation() {
  */
 std::string GBasePopulation::getId() {
 	if(firstId_) {
-		id_ = lexical_cast<std::string>(this);
+		id_ = boost::lexical_cast<std::string>(this);
 		firstId_=false;
 	}
 
@@ -604,7 +604,7 @@ void GBasePopulation::randomRecombine(boost::shared_ptr<GIndividual>& p) {
 	// Choose a parent to be used for the recombination. Note that
 	// numeric_cat may throw. Exceptions need to be caught in surrounding functions.
 	// try/catch blocks would add a non-negligible overhead in this function.
-	p_pos = numeric_cast<std::size_t>(gr.discreteRandom(numeric_cast<boost::uint16_t>(nParents_)));
+	p_pos = boost::numeric_cast<std::size_t>(gr.discreteRandom(boost::numeric_cast<boost::uint16_t>(nParents_)));
 
 	p->load((data.begin() + p_pos)->get());
 }

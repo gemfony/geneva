@@ -419,7 +419,7 @@ void GBrokerPopulation::mutateChildren() {
 				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
 			}
 
-			data.push_back(shared_ptr<GIndividual>(gi));
+			data.push_back(boost::shared_ptr<GIndividual>(gi));
 		}
 	}
 

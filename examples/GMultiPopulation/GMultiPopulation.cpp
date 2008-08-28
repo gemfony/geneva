@@ -121,7 +121,7 @@ int main(int argc, char **argv){
 
 	// Add superNParents parents
 	for(std::size_t np=0; np<superNParents; np++){
-		shared_ptr<GBrokerPopulation> sub(new GBrokerPopulation());
+		boost::shared_ptr<GBrokerPopulation> sub(new GBrokerPopulation());
 
 		// Set up a new parabola individual. Each new instance will be equipped with its
 		// own set of random numbers. Hence we start searching the parameter space from different areas.

@@ -111,7 +111,7 @@ public:
 			}
 
 			// We're safe and can attach the object to this class
-			shared_ptr<T> p(tobj);
+			boost::shared_ptr<T> p(tobj);
 			data.push_back(p);
 		}
 	}
@@ -211,7 +211,7 @@ public:
 			}
 		}
 		// this_sz > gms_sz ? We need to remove the surplus items. The
-		// shared_ptr will take care of the item's deletion.
+		// boost::shared_ptr will take care of the item's deletion.
 		else if (this_sz > gms_sz) data.resize(gms_sz);
 
 		return;
@@ -219,11 +219,11 @@ public:
 
 	/**********************************************************************************/
 	/**
-	 *	Adds a shared_ptr<T> to the set and checks its content.
+	 *	Adds a boost::shared_ptr<T> to the set and checks its content.
 	 *
 	 *	@param item An item to be added to the set
 	 */
-	void append(const shared_ptr<T>& item){
+	void append(const boost::shared_ptr<T>& item){
 		if(item) data.push_back(item);
 		else {
 			std::ostringstream error;
@@ -238,12 +238,12 @@ public:
 
 	/**********************************************************************************/
 	/**
-	 * The main data set stored in this class. This class was derived from vector<shared_ptr<T> > in older
-	 * versions of the GenEvA library. However, we want to avoid multiple inheritance in order to
+	 * The main data set stored in this class. This class was derived from std::vector<boost::shared_ptr<T> >
+	 * in older versions of the GenEvA library. However, we want to avoid multiple inheritance in order to
 	 * to allow an easier implementation of this library in other languages, such as C# or Java. And
 	 * std::vector has a non-virtual destructor. Hence deriving from it is a) bad style and b) dangerous.
 	 * Just like in the older setting, however, access to the data shall not be obstructed in any way.
-	 * Providing the same interface without derivation or containment with this class would be 
+	 * Providing the same interface without derivation or containment with this class would be
 	 * error-prone and can be considered "syntactic sugar". Hence we do not follow this path.
 	 */
 	std::vector<tobj_ptr> data;

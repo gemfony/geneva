@@ -60,11 +60,11 @@ namespace GenEvA {
  * A broker class that is specialized on GIndividual objects
  */
 class GIndividualBroker
-	:public Gem::Util::GBrokerT<shared_ptr<Gem::GenEvA::GIndividual> >
+	:public Gem::Util::GBrokerT<boost::shared_ptr<Gem::GenEvA::GIndividual> >
 {
 public:
 	GIndividualBroker()
-		:Gem::Util::GBrokerT<shared_ptr<Gem::GenEvA::GIndividual> >()
+		:Gem::Util::GBrokerT<boost::shared_ptr<Gem::GenEvA::GIndividual> >()
 	{ /* nothing */	}
 
 	~GIndividualBroker()

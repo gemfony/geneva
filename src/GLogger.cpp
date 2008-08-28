@@ -87,7 +87,7 @@ namespace Gem {
 
 			// Only log if the requested log level is in our list
 			if(std::find(logLevel_.begin(), logLevel_.end(), level) != logLevel_.end()) {
-				std::vector<shared_ptr<GBaseLogTarget> >::iterator it;
+				std::vector<boost::shared_ptr<GBaseLogTarget> >::iterator it;
 				for(it=logVector_.begin(); it!=logVector_.end(); ++it) (*it)->log(msg);
 			}
 		}

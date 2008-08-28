@@ -193,7 +193,7 @@ namespace Gem
 		 */
 		void GBitFlipAdaptor::setMutationParameters(double sgm, double sgmSgm, double mSgm) {
 			// First get a pointer to the GDoubleGaussAdaptor.
-			shared_ptr<GAdaptorT<double> > basePtr = mutProb_.getAdaptor(DEFAULTGDGANAME);
+			boost::shared_ptr<GAdaptorT<double> > basePtr = mutProb_.getAdaptor(DEFAULTGDGANAME);
 			if(!basePtr) { // This should not be!
 				std::ostringstream error;
 				error << "In GBitFlipAdaptor::setMutationParameters() : No adaptor found!" << std::endl;
