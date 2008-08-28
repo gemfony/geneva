@@ -336,12 +336,18 @@ public:
 	 * GProjectionInvididual::createHyerCubeFile("someFileName.xml");
 	 *
 	 * @param fileName Name of the file where
+	 * @param nData The number of data sets to create
+	 * @param nDimOrig The dimension of the origin distribution
+	 * @param nDimTarget The dimension of the target distribution
+	 * @param radius The desired radius of the sphere
+	 * @param fileName Name of the file where
 	 */
-	static void createHyperCubeFile(const std::string& fileName,
-				                    std::size_t nData,
-				                    std::size_t nDimOrig,
-				                    std::size_t nDimTarget,
-				                    double edgelength){
+	static projectionData createHyperCubeFile(const std::string& fileName,
+				                              std::size_t nData,
+				                              std::size_t nDimOrig,
+				                              std::size_t nDimTarget,
+				                              double edgelength)
+	{
 		// Check the data
 		if(nDimOrig<nDimTarget){
 			std::ostringstream error;
@@ -364,22 +370,25 @@ public:
 		for(std::size_t i=0; i<nDimOrig*nData; i++)
 			pD.source.push_back(this->gr.evenRandom(-edgelength/2.,edgelength/2.));
 
-		// Serialize and write to a file.
-		std::ofstream fileStream(fileName.c_str());
-		if(!fileStream){
-			std::ostringstream error;
-			error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
-				  << "Data file " << filename << " could not be opened for writing." << std::endl;
+		if(fileName != ""){ // Serialize and write to a file, if requested.
+			std::ofstream fileStream(fileName.c_str());
+			if(!fileStream){
+				std::ostringstream error;
+				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
+					  << "Data file " << filename << " could not be opened for writing." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_datafile() << error_string(error.str());
-		}
-		else {
-			boost::archive::xml_oarchive oa(fileStream);
-			oa << boost::serialization::make_nvp("projectionData", pD);
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				throw geneva_invalid_datafile() << error_string(error.str());
+			}
+			else {
+				boost::archive::xml_oarchive oa(fileStream);
+				oa << boost::serialization::make_nvp("projectionData", pD);
+			}
+
+			fileStream.close();
 		}
 
-		fileStream.close();
+		return pD;
 	}
 
 	/********************************************************************************************/
@@ -392,21 +401,24 @@ public:
 	 *
 	 * You can call this function in the following way:
 	 *
-	 * GProjectionInvididual::createSphereFile("someFileName.xml");
+	 * projectionData pd = GProjectionInvididual::createSphereFile("someFileName.xml", [other arguments]);
 	 *
-	 * @param fileName Name of the file where
+	 * If filename is an empty string ("") , then no serialization takes place and the data is retured as
+	 * a struct only.
+	 *
+	 * @param fileName Name of the file the result should be written to
 	 * @param nData The number of data sets to create
 	 * @param nDimOrig The dimension of the origin distribution
 	 * @param nDimTarget The dimension of the target distribution
-	 *
-	 * UNFINISHED
-	 *
+	 * @param radius The desired radius of the sphere
+	 * @return A projectionData struct holding the required data
 	 */
-	static void createSphereFile(const std::string& fileName,
-								 std::size_t nData,
-								 std::size_t nDimOrig,
-								 std::size_t nDimTarget,
-								 double radius){
+	static projectionData createSphereFile(const std::string& fileName,
+										   std::size_t nData,
+										   std::size_t nDimOrig,
+										   std::size_t nDimTarget,
+										   double radius)
+	{
 		// Check the data
 		if(nDimOrig<nDimTarget){
 			std::ostringstream error;
@@ -429,53 +441,78 @@ public:
 		for(std::size_t i=0; i<nData; i++){
 			//////////////////////////////////////////////////////////////////
 			// Special cases
-			if(nDimOrig==1){
+			switch(nDimOrig){
+			case 1:
 				pD.source.push_back(this->gr.evenRandom(0,radius));
-				continue;
-			}
+				break;
 
-			if(nDimOrig==2){
+			case 2:
 				local_radius = this->gr.evenRandom(0,radius);
 				phi = this->gr.evenRandom(0,2*M_PI);
+				pD.source.push_back(local_radius*sin(phi)); // x
+				pD.source.push_back(local_radius*cos(phi)); // y
+				break;
 
-				pd.source.push_back(local_radius*sin(phi)); // x
-				pd.source.push_back(local_radius*cos(phi)); // y
+			default: // dimensions 3 ... inf
+				{
+					//////////////////////////////////////////////////////////////////
+					// Create the required random numbers in spherical coordinates.
+					// nDimOrig will be at least 3 here.
+					std::size_t nAngles = nDimOrig - 1;
+					double local_radius = this->gr.evenRandom(0,radius);
+					std::vector<double> angle_collection(nAngles);
+					for(std::size_t i=0; i<(nAngles-1); i++) // Angles in range [0,Pi[
+						angle_collection.push_back(this->gr.evenRandom(0, M_PI));
+					angle_collection[one_mpi_angles]=this->gr.evenRandom(0, 2*M_PI); // Range of last angle is [0,2*Pi[
 
-				continue;
+					//////////////////////////////////////////////////////////////////
+					// Now we can fill the source-vector itself
+					std::vector<double> cartCoord(nDimOrig);
+
+					for(std::size_t i=0; i<nDimOrig; i++) cartCoord[i]=local_radius; // They all have that
+
+					cartCoord[0] *= cos(angle_collection[0]); // x_1 / cartCoord[0]
+
+					for(std::size_t i=1; i<nDimOrig-1; i++){ // x_2 ... x_(n-1) / cartCoord[1] .... cartCoord[n-2]
+						for(std::size_t j=0; j<i; j++){
+							cartCoord[i] *= sin(angle_collection[j]);
+						}
+						cartCoord[i] *=angle_collection[i];
+					}
+
+					for(std::size_t j=0; j<nAngles; j++){ // x_n / cartCoord[n-1]
+						cartCoord[nDimOrig-1] *= sin(angle_collection[j]);
+					}
+
+					// Transfer the results
+					for(std::size_t i=0; i<nDimOrig; i++){
+						pD.source.push_back(cartCoord[i]);
+					}
+				}
+				break;
+			}
+		}
+
+		if(fileName != ""){ // Serialize and write to a file, if requested.
+			// Serialize and write to a file.
+			std::ofstream fileStream(fileName.c_str());
+			if(!fileStream){
+				std::ostringstream error;
+				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
+					  << "Data file " << filename << " could not be opened for writing." << std::endl;
+
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				throw geneva_invalid_datafile() << error_string(error.str());
+			}
+			else {
+				boost::archive::xml_oarchive oa(fileStream);
+				oa << boost::serialization::make_nvp("projectionData", pD);
 			}
 
-			//////////////////////////////////////////////////////////////////
-			// Create the required random number in spherical coordinates.
-			// nDimOrig will be at least 3 here.
-			std::size_t one_mpi_angles = nDimOrig - 2;
-			double local_radius = this->gr.evenRandom(0,radius);
-			std::vector<double> angle_collection(one_mpi_angles+1);
-			for(std::size_t i=0; i<one_mpi_angles; i++)
-				one_mpi_collection.push_back(this->gr.evenRandom(0, M_PI));
-			angle_collection[one_mpi_angles]=this->gr.evenRandom(0, 2*M_PI);
-
-			//////////////////////////////////////////////////////////////////
-			// Now we can fill the source-vector itself
-			pD.source[0]=local_radius*cos(angle_collection[0]);
-
+			fileStream.close();
 		}
 
-		// Serialize and write to a file.
-		std::ofstream fileStream(fileName.c_str());
-		if(!fileStream){
-			std::ostringstream error;
-			error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
-				  << "Data file " << filename << " could not be opened for writing." << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_datafile() << error_string(error.str());
-		}
-		else {
-			boost::archive::xml_oarchive oa(fileStream);
-			oa << boost::serialization::make_nvp("projectionData", pD);
-		}
-
-		fileStream.close();
+		return pD;
 	}
 
 protected:
