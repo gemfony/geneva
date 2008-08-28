@@ -68,15 +68,15 @@ using namespace Gem::GLogFramework;
 int main(int argc, char **argv){
 	std::string ip;
 	std::size_t nData=10000, nDimOrig=5, nDimTarget=2;
-	std::size_t nClients;
-	double radius;
+	std::size_t nClients=4;
+	double radius=1.;
 	unsigned short port=10000;
-	std::size_t populationSize, nParents;
-	boost::uint16_t nProducerThreads;
-	boost::uint32_t maxGenerations, reportGeneration;
-	long maxMinutes;
-	bool verbose;
-	recoScheme rScheme;
+	std::size_t populationSize=100, nParents=5;
+	boost::uint16_t nProducerThreads=8;
+	boost::uint32_t maxGenerations=2000, reportGeneration=1;
+	long maxMinutes=10;
+	bool verbose=true;
+	recoScheme rScheme=VALUERECOMBINE;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Command-line parsing
