@@ -477,9 +477,10 @@ public:
 					// nDimOrig will be at least 3 here.
 					std::size_t nAngles = nDimOrig - 1;
 					std::vector<double> angle_collection(nAngles);
-					for(std::size_t i=0; i<(nAngles-1); i++) // Angles in range [0,Pi[
-						angle_collection.push_back(l_gr.evenRandom(0, M_PI));
-					angle_collection[nAngles-1]=l_gr.evenRandom(0, 2*M_PI); // Range of last angle is [0,2*Pi[
+					for(std::size_t i=0; i<(nAngles-1); i++){ // Angles in range [0,Pi[
+						angle_collection[i]=l_gr.evenRandom(0., M_PI);
+					}
+					angle_collection[nAngles-1]=l_gr.evenRandom(0., 2.*M_PI); // Range of last angle is [0,2*Pi[
 
 					//////////////////////////////////////////////////////////////////
 					// Now we can fill the source-vector itself
@@ -493,7 +494,7 @@ public:
 						for(std::size_t j=0; j<i; j++){
 							cartCoord[i] *= sin(angle_collection[j]);
 						}
-						cartCoord[i] *=angle_collection[i];
+						cartCoord[i] *= cos(angle_collection[i]);
 					}
 
 					for(std::size_t j=0; j<nAngles; j++){ // x_n / cartCoord[n-1]
