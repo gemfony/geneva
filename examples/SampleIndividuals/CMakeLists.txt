@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( SAMPLEINDIVIDUALSINCLUDES
 	GParabolaIndividual.hpp
 	GNoisyParabolaIndividual.hpp
+	GProjectionIndividual.hpp
 )
 
 INSTALL ( FILES ${SAMPLEINDIVIDUALSINCLUDES} DESTINATION examples/include 
