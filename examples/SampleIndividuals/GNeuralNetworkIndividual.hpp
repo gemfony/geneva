@@ -1,5 +1,5 @@
 /**
- * @file GProjectionIndividual.hpp
+ * @file GNeuralNetworkIndividual.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -37,8 +37,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
-#ifndef GPROJECTIONINDIVIDUAL_HPP_
-#define GPROJECTIONINDIVIDUAL_HPP_
+#ifndef GNEURALNETWORKINDIVIDUAL_HPP_
+#define GNEURALNETWORKINDIVIDUAL_HPP_
 
 // GenEvA header files go here
 #include "GRandom.hpp"
@@ -104,11 +104,11 @@ struct projectionData
  * For the sake of simplicity, this class contains static helper functions that you can call in
  * order to create a data file suitable for loading in this class. Just call
  *
- * GProjectionIndividual::createHyperCubeFile("someFileName.xml");
+ * GNeuralNetworkIndividual::createHyperCubeFile("someFileName.xml");
  *
  * in main(), if you want to use hypercube data. A sphere generator is also available.
  */
-class GProjectionIndividual
+class GNeuralNetworkIndividual
 	:public GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ public:
 	 * @param nDimOrig The dimension of the original distribution
 	 * @param nDimTarget The dimension of the target distribution
 	 */
-	GProjectionIndividual(double min, double max,
+	GNeuralNetworkIndividual(double min, double max,
 						  const std::vector<double>& source,
 						  const std::size_t& nData,
 						  const std::size_t& nDimOrig,
@@ -164,7 +164,7 @@ public:
 		// Check the data we have received
 		if(nDimOrig_<nDimTarget_){
 			std::ostringstream error;
-			error << "In GProjectionIndividual::GProjectionIndividual([...]) : Error!" << std::endl
+			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
 				  << "Supplied dimensions are invalid:" << std::endl
 				  << "nDimOrig = " << nDimOrig_ << std::endl
 				  << "nDimTarget = " << nDimTarget_ << std::endl;
@@ -175,7 +175,7 @@ public:
 
 		if(source_.size() != nDimOrig_*nData_){
 			std::ostringstream error;
-			error << "In GProjectionIndividual::GProjectionIndividual([...]) : Error!" << std::endl
+			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
 				  << "Supplied number of data sets and/or origin-dimension is invalid:" << std::endl
 				  << "nData = " << nData_ << std::endl
 				  << "nDimOrig = " << nDimOrig_ << std::endl;
@@ -195,7 +195,7 @@ public:
 	 *
 	 * @param filename The name of the file holding the necessary data
 	 */
-	GProjectionIndividual(const std::string& filename, double min, double max)
+	GNeuralNetworkIndividual(const std::string& filename, double min, double max)
 		:source_(),
 		 nData_(0),
 		 nDimOrig_(0),
@@ -207,7 +207,7 @@ public:
 
 		if(!projDat){
 			std::ostringstream error;
-			error << "In GProjectionIndividual::GProjectionIndividual(const std::string&) : Error!" << std::endl
+			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual(const std::string&) : Error!" << std::endl
 				  << "Data file " << filename << " could not be opened for reading." << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
@@ -244,7 +244,7 @@ public:
 		// Check the data we have received
 		if(nDimOrig_<nDimTarget_){
 			std::ostringstream error;
-			error << "In GProjectionIndividual::GProjectionIndividual(const std::string&) : Error!" << std::endl
+			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual(const std::string&) : Error!" << std::endl
 				  << "Supplied dimensions are invalid:" << std::endl
 				  << "nDimOrig = " << nDimOrig_ << std::endl
 				  << "nDimTarget = " << nDimTarget_ << std::endl;
@@ -255,7 +255,7 @@ public:
 
 		if(source_.size() != nDimOrig_*nData_){
 			std::ostringstream error;
-			error << "In GProjectionIndividual::GProjectionIndividual(const std::string&) : Error!" << std::endl
+			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual(const std::string&) : Error!" << std::endl
 				  << "Supplied number of data sets and/or origin-dimension is invalid:" << std::endl
 				  << "nData = " << nData_ << std::endl
 				  << "nDimOrig = " << nDimOrig_ << std::endl;
@@ -269,9 +269,9 @@ public:
 	/**
 	 * A standard copy constructor
 	 *
-	 * @param cp A copy of another GProjectionIndividual object
+	 * @param cp A copy of another GNeuralNetworkIndividual object
 	 */
-	GProjectionIndividual(const GProjectionIndividual& cp)
+	GNeuralNetworkIndividual(const GNeuralNetworkIndividual& cp)
 		:GParameterSet(cp),
 		 source_(cp.source_),
 		 nData_(cp.nData_),
@@ -283,18 +283,18 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	~GProjectionIndividual()
+	~GNeuralNetworkIndividual()
 	{ /* nothing */	}
 
 	/********************************************************************************************/
 	/**
 	 * A standard assignment operator
 	 *
-	 * @param cp A copy of another GProjectionIndividual object
+	 * @param cp A copy of another GNeuralNetworkIndividual object
 	 * @return A reference to this object
 	 */
-	const GProjectionIndividual& operator=(const GProjectionIndividual& cp){
-		GProjectionIndividual::load(&cp);
+	const GNeuralNetworkIndividual& operator=(const GNeuralNetworkIndividual& cp){
+		GNeuralNetworkIndividual::load(&cp);
 		return *this;
 	}
 
@@ -305,17 +305,17 @@ public:
 	 * @return A deep clone of this object, camouflaged as a GObject
 	 */
 	virtual GObject* clone(){
-		return new GProjectionIndividual(*this);
+		return new GNeuralNetworkIndividual(*this);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Loads the data of another GProjectionIndividual, camouflaged as a GObject
+	 * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GObject
 	 *
-	 * @param cp A copy of another GProjectionIndividual, camouflaged as a GObject
+	 * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		const GProjectionIndividual *gpi_load = checkedConversion(cp, this);
+		const GNeuralNetworkIndividual *gpi_load = checkedConversion(cp, this);
 
 		// Load the parent class'es data
 		GParameterSet::load(cp);
@@ -355,7 +355,7 @@ public:
 		// Check the data
 		if(nDimOrig<nDimTarget){
 			std::ostringstream error;
-			error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
+			error << "In GNeuralNetworkIndividual::createDataFile([...]) : Error!" << std::endl
 				  << "Supplied dimensions are invalid:" << std::endl
 				  << "nDimOrig = " << nDimOrig << std::endl
 				  << "nDimTarget = " << nDimTarget << std::endl;
@@ -382,7 +382,7 @@ public:
 			std::ofstream fileStream(fileName.c_str());
 			if(!fileStream){
 				std::ostringstream error;
-				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
+				error << "In GNeuralNetworkIndividual::createDataFile([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
@@ -430,7 +430,7 @@ public:
 		// Check the data
 		if(nDimOrig<nDimTarget){
 			std::ostringstream error;
-			error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
+			error << "In GNeuralNetworkIndividual::createDataFile([...]) : Error!" << std::endl
 				  << "Supplied dimensions are invalid:" << std::endl
 				  << "nDimOrig = " << nDimOrig << std::endl
 				  << "nDimTarget = " << nDimTarget << std::endl;
@@ -515,7 +515,7 @@ public:
 			std::ofstream fileStream(fileName.c_str());
 			if(!fileStream){
 				std::ostringstream error;
-				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
+				error << "In GNeuralNetworkIndividual::createDataFile([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
@@ -576,7 +576,7 @@ protected:
 	/********************************************************************************************/
 
 private:
-	GProjectionIndividual()	{ /* nothing */ } ///< Default constructor intentionally private and empty
+	GNeuralNetworkIndividual()	{ /* nothing */ } ///< Default constructor intentionally private and empty
 
 	std::vector<double> source_; ///< Holds the m-dimensional data set
 
@@ -589,6 +589,6 @@ private:
 } /* namespace Gem */
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GProjectionIndividual)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GNeuralNetworkIndividual)
 
-#endif /* GPROJECTIONINDIVIDUAL_HPP_ */
+#endif /* GNEURALNETWORKINDIVIDUAL_HPP_ */
