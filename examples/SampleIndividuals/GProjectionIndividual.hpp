@@ -35,7 +35,23 @@
 #endif /* BOOST_VERSION */
 
 #include <boost/shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/is_abstract.hpp>
+
 
 #ifndef GPROJECTIONINDIVIDUAL_HPP_
 #define GPROJECTIONINDIVIDUAL_HPP_
@@ -343,8 +359,8 @@ public:
 	 * @param nData The number of data sets to create
 	 * @param nDimOrig The dimension of the origin distribution
 	 * @param nDimTarget The dimension of the target distribution
-	 * @param radius The desired radius of the sphere
-	 * @param fileName Name of the file where
+	 * @param edgelength The desired edge length of the cube
+	 * @return A copy of the projectionData struct that has been created
 	 */
 	static projectionData createHyperCubeFile(const std::string& fileName,
 				                              std::size_t nData,
@@ -404,8 +420,8 @@ public:
 	 * This static function can be called in main() in order to create a suitable input file for
 	 * this class. It is added here as this individual is for demonstration purposes only and as the
 	 * creation of a separate helper program could be avoided in this way. We create a sphere of
-	 * radius 2. The projection e.g. into 2d should then simply be a filled circle. See
-	 * http://en.wikipedia.org/wiki/Hypersphere for a description of the formula used.
+	 * radius "radius". The projection e.g. into 2d should then simply be a filled circle. See
+	 * http://en.wikipedia.org/wiki/Hypersphere for a description of the formulae used.
 	 *
 	 * You can call this function in the following way:
 	 *
@@ -419,7 +435,7 @@ public:
 	 * @param nDimOrig The dimension of the origin distribution
 	 * @param nDimTarget The dimension of the target distribution
 	 * @param radius The desired radius of the sphere
-	 * @return A projectionData struct holding the required data
+	 * @return A copy of the projectionData struct that has been created
 	 */
 	static projectionData createSphereFile(const std::string& fileName,
 										   std::size_t nData,

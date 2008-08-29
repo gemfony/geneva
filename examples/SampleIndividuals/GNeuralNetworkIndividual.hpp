@@ -35,7 +35,23 @@
 #endif /* BOOST_VERSION */
 
 #include <boost/shared_ptr.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/is_abstract.hpp>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #ifndef GNEURALNETWORKINDIVIDUAL_HPP_
 #define GNEURALNETWORKINDIVIDUAL_HPP_
@@ -61,14 +77,20 @@ namespace GenEvA
 class geneva_invalid_dimensions : public boost::exception {};
 /** @brief Class to be thrown as an error if the data file could not be opened */
 class geneva_invalid_datafile : public boost::exception {};
+/** @brief Class to be thrown as an error if an invalid network architecture was supplied */
+class geneva_invalid_architecture : public boost::exception {};
 
 /************************************************************************************************/
 /**
- * This struct holds all necessary information for the projection individual. It is meant to
- * demonstrate initialization from a file. Here, we simply use serialized data generated from
- * the struct using the Boost.Serialization library.
+ * Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function
  */
-struct projectionData
+enum transferMode(SIGMOID=0,RBF=1);
+
+/************************************************************************************************/
+/**
+ * A single data set holding the training data of a single training iteration
+ */
+struct trainingSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -77,36 +99,40 @@ struct projectionData
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("source", source);
-		ar & make_nvp("nData", nData);
-		ar & make_nvp("nDimOrig", nDimOrig);
-		ar & make_nvp("nDimTarget", nDimTarget);
+		ar & make_nvp("Input", Input);
+		ar & make_nvp("Output", Output);
 	}
 	///////////////////////////////////////////////////////////////////////
 
-	std::vector<double> source; ///< Holds the m-dimensional data set
-	std::size_t nData; ///< The amount of data sets
-	std::size_t nDimOrig; ///< The dimension of the original distribution
-	std::size_t nDimTarget; ///< The dimension of the target distribution
+	std::vector<double> Input;
+	std::vector<double> Output;
 };
 
 /************************************************************************************************/
 /**
- * This individual searches for the best n-dimensional representation of an m-dimensional data set
- * (where m>=n). The calculation follows an example given in the book "Evolutionaere Algorithmen" by
- * Ingrid Gerdes, Frank Klawonn and Rudolf Krause (Vieweg Verlag). It extends this function to
- * arbitrary target dimensions (smaller or equal the original dimension of the data).
- *
- * The m-dimensional distribution can either be loaded from a file or is supplied as a constructor
- * argument. It is assumed that this data doesn't change, hence it is not copied in the load-function
- * (but is of course copied in the copy-constructor).
- *
- * For the sake of simplicity, this class contains static helper functions that you can call in
- * order to create a data file suitable for loading in this class. Just call
- *
- * GNeuralNetworkIndividual::createHyperCubeFile("someFileName.xml");
- *
- * in main(), if you want to use hypercube data. A sphere generator is also available.
+ * This struct holds all necessary information for the training of the neural network individual.
+ * We simply use serialized data generated from the struct using the Boost.Serialization library.
+ */
+struct trainingData
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version) {
+		using boost::serialization::make_nvp;
+
+		ar & make_nvp("data", data);
+	}
+	///////////////////////////////////////////////////////////////////////
+
+	std::vector<boost::shared_ptr<trainingSet> > data;
+};
+
+/************************************************************************************************/
+/**
+ * With this individual you can use evolutionary strategies instead of the standard
+ * backpropagation algorithm to train feedforward neural networks.
  */
 class GNeuralNetworkIndividual
 	:public GParameterSet
@@ -119,96 +145,86 @@ class GNeuralNetworkIndividual
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
-		ar & make_nvp("source_", source_);
-		ar & make_nvp("nData_", nData_);
-		ar & make_nvp("nDimOrig_", nDimOrig_);
-		ar & make_nvp("nDimTarget_", nDimTarget_);
+		ar & make_nvp("architecture_",architecture_);
+		ar & make_nvp("tD_", tD_);
+		ar & make_nvp("transferMode_", transferMode_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/********************************************************************************************/
 	/**
-	 * A constructor which initializes the individual with a suitable set of random double values.
+	 * A constructor which initializes the individual with a suitable set of network layers. It
+	 * also loads the training data from file.
 	 *
-	 * @param min The minimum value of the random numbers used to fill the collection
-	 * @param max The maximum value of the random numbers used to fill the collection
-	 * @param source A vector with the m-dimensional data to be projected to n dimensions
-	 * @param nData The amount of data sets in the original and target distributions
-	 * @param nDimOrig The dimension of the original distribution
-	 * @param nDimTarget The dimension of the target distribution
+	 * @param trainingDataFile The name of a file holding the training data
+	 * @param architecture Holds the number of nodes in the input layer, hidden(1/2) layer and output layer
+	 * @param min The minimum value of random numbers used for initialization of the network layers
+	 * @param max The maximum value of random numbers used for initialization of the network layers
 	 */
-	GNeuralNetworkIndividual(double min, double max,
-						  const std::vector<double>& source,
-						  const std::size_t& nData,
-						  const std::size_t& nDimOrig,
-						  const std::size_t& nDimTarget)
-		:source_(source),
-		 nData_(nData),
-		 nDimOrig_(nDimOrig),
-		 nDimTarget_(nDimTarget)
+	GNeuralNetworkIndividual(std::string trainingDataFile,
+				             const std::vector<std::size_t>& architecture,
+				             double min, double max)
+		:architecture_(architecture),
+		 transferMode_(SIGMOID)
 	{
-		// Set up a GDoubleCollection with nval values, each initialized
-		// with a random number in the range [min,max[
-		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(nDimTarget_*nData_,min,max));
+		// Check the architecture we've been given and create the layers
+		std::size_t nLayers = architecture.size();
 
-		// Set up and register an adaptor for the collection, so it
-		// knows how to be mutated. We want a sigma of 0.5, sigma-adaption of 0.05 and
-		// a minimum sigma of 0.02.
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.5,0.05,0.02,"gauss_mutation"));
-		gdc->addAdaptor(gdga);
-
-		// Make the parameter collection known to this individual
-		this->data.push_back(gdc);
-
-		// Check the data we have received
-		if(nDimOrig_<nDimTarget_){
+		if(nLayers < 2){ // Two layers are required at the minimum (3 and 4 layers are useful)
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
-				  << "Supplied dimensions are invalid:" << std::endl
-				  << "nDimOrig = " << nDimOrig_ << std::endl
-				  << "nDimTarget = " << nDimTarget_ << std::endl;
+				  << "Invalid number of layers supplied" << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
+			throw geneva_invalid_architecture() << error_string(error.str());
 		}
 
-		if(source_.size() != nDimOrig_*nData_){
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
-				  << "Supplied number of data sets and/or origin-dimension is invalid:" << std::endl
-				  << "nData = " << nData_ << std::endl
-				  << "nDimOrig = " << nDimOrig_ << std::endl;
+		std::vector<std::size_t>::iterator layerIterator;
+		std::size_t layerNumber=0;
+		std::size_t nNodes=0;
+		std::size_t nNodesPrevious=0;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
+		for(layerIterator=architecture.begin(); layerIterator!=architecture.end(); ++layerIterator){
+			if(*layerIterator){ // Add the next network layer to this class, if possible
+				nNodes = *layerIterator;
+
+				// Set up a GDoubleCollection
+				boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection());
+				// Set up and register an adaptor for the collection, so it
+				// knows how to be mutated. We want a sigma of 0.5, sigma-adaption of 0.05 and
+				// a minimum sigma of 0.02.
+				boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.5,0.05,0.02,"gauss_mutation"));
+				gdc->addAdaptor(gdga);
+
+				// The input layer needs 2*nNodes double values
+				if(layerNumber==0) gdc->addRandomData(2*nNodes, min, max);
+				// We need nNodes * (nNodesPrevious + 1) double values
+				else gdc->addRandomData(nNodes*(nNodesPrevious+1), min, max);
+
+				// Make the parameter collection known to this individual
+				this->data.push_back(gdc);
+
+				nNodesPrevious=nNodes;
+				layerNumber++;
+			}
+			else {
+				std::ostringstream error;
+				error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
+					  << "Found invalid number of nodes in layer: " << *layerIterator << std::endl;
+
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				throw geneva_invalid_architecture() << error_string(error.str());
+			}
 		}
-	}
 
-	/********************************************************************************************/
-	/**
-	 * A constructor which initializes the individual with a suitable set of random double values,
-	 * stored in a file. The data was generated by serializing the projectionData struct, as supplied
-	 * at the top of this file. Serialization is assumed to have happened in XML mode, so the file
-	 * could be edited manually, if necessary. It is assumed that the tag "projectionData" was used
-	 * for the serialization.
-	 *
-	 * @param filename The name of the file holding the necessary data
-	 */
-	GNeuralNetworkIndividual(const std::string& filename, double min, double max)
-		:source_(),
-		 nData_(0),
-		 nDimOrig_(0),
-		 nDimTarget_(0)
-	{
-		projectionData pD;
+		// Load the training data from file
+		std::ifstream trDat(trainingDataFile.c_str());
 
-		std::ifstream projDat(filename.c_str());
-
-		if(!projDat){
+		if(!trDat){
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual(const std::string&) : Error!" << std::endl
-				  << "Data file " << filename << " could not be opened for reading." << std::endl;
+				  << "Data file " << trainingDataFile << " could not be opened for reading." << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_invalid_datafile() << error_string(error.str());
@@ -216,53 +232,14 @@ public:
 
 		// Load the data, using the Boost.Serialization library
 		{
-			boost::archive::xml_iarchive ia(projDat);
-			ia >> boost::serialization::make_nvp("projectionData", pD);
+			boost::archive::xml_iarchive ia(trDat);
+			ia >> boost::serialization::make_nvp("projectionData", tD_);
 		} // Explicit scope at this point is essential so that ia's destructor is called
 
-		projDat.close();
+		trDat.close();
 
-		// Now copy the data over
-		source_ = pD.source;
-		nData_ = pD.nData;
-		nDimOrig_ = pD.nDimOrig;
-		nDimTarget_ = pD.nDimTarget;
-
-		// Set up a GDoubleCollection with nval values, each initialized
-		// with a random number in the range [min,max[
-		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(nDimTarget_*nData_,min,max));
-
-		// Set up and register an adaptor for the collection, so it
-		// knows how to be mutated. We want a sigma of 0.5, sigma-adaption of 0.05 and
-		// a minimum sigma of 0.02.
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.5,0.05,0.02,"gauss_mutation"));
-		gdc->addAdaptor(gdga);
-
-		// Make the parameter collection known to this individual
-		this->data.push_back(gdc);
-
-		// Check the data we have received
-		if(nDimOrig_<nDimTarget_){
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual(const std::string&) : Error!" << std::endl
-				  << "Supplied dimensions are invalid:" << std::endl
-				  << "nDimOrig = " << nDimOrig_ << std::endl
-				  << "nDimTarget = " << nDimTarget_ << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
-		}
-
-		if(source_.size() != nDimOrig_*nData_){
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual(const std::string&) : Error!" << std::endl
-				  << "Supplied number of data sets and/or origin-dimension is invalid:" << std::endl
-				  << "nData = " << nData_ << std::endl
-				  << "nDimOrig = " << nDimOrig_ << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
-		}
+		// Set the transfer function to sigmoidal
+		transfer_ = boost::bind(GNeuralNetworkIndividual::sigmoid,this,_1);
 	}
 
 	/********************************************************************************************/
@@ -272,12 +249,24 @@ public:
 	 * @param cp A copy of another GNeuralNetworkIndividual object
 	 */
 	GNeuralNetworkIndividual(const GNeuralNetworkIndividual& cp)
-		:GParameterSet(cp),
-		 source_(cp.source_),
-		 nData_(cp.nData_),
-		 nDimOrig_(cp.nDimOrig_),
-		 nDimTarget_(cp.nDimTarget_)
-	{ /* nothing */ }
+		:GParameterSet(cp)
+	{
+		tD_ = boost::shared_ptr(new trainingData());
+
+		// We need to copy the training data over manually
+		std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
+		for(cit=cp.tD_->data.begin(); cit!=cp.tD_->data.end(); ++cit){
+			boost::shared_ptr<trainingSet> p(new trainingSet);
+
+			p->Input = (*cit)->Input;
+			p->Output = (*cit)->Output;
+
+			tD_->data.push_back(p);
+		}
+
+		architecture_ = cp.architecture_;
+		setTransferMode_(cp.transferMode_); // Also assigns the correct function object
+	}
 
 	/********************************************************************************************/
 	/**
@@ -320,69 +309,118 @@ public:
 		// Load the parent class'es data
 		GParameterSet::load(cp);
 
-		// Load our local data
-		nData_ = gpi_load->nData_;
-		nDimOrig_ = gpi_load->nDimOrig_;
-		nDimTarget_ = gpi_load->nDimTarget_;
-		source_ = gpi_load->source_;
+		// Load our local data.
+
+
+		// tD_ is a shared_ptr, hence we need to copy the data itself. We do not do
+		// this, if we already have the data present. This happens as we assume that
+		// the training data doesn't change.
+		if(!tD_){
+			tD_ = boost::shared_ptr(new trainingData());
+
+			// We need to copy the training data over manually
+			std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
+			for(cit=gpi_load->tD_->data.begin(); cit!=gpi_load->tD_->data.end(); ++cit){
+				boost::shared_ptr<trainingSet> p(new trainingSet);
+
+				p->Input = (*cit)->Input;
+				p->Output = (*cit)->Output;
+
+				tD_->data.push_back(p);
+			}
+		}
+
+		// The architecture of the hidden layers could actually be changed
+		// in later versions, hence we copy it over.
+		architecture_ = gpi_load->architecture_;
+
+		// Copy and set the transfer mode
+		setTransferMode(gpi_load->transferMode_);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * This static function can be called in main() in order to create a suitable input file for
-	 * this class. It is added here as this individual is for demonstration purposes only and as the
-	 * creation of a separate helper program could be avoided in this way. We use a simple hyper-cube,
-	 * ranging from [-edgelength/2,edgelength/2[ in each dimension. The projection e.g. into 2d
-	 * should then simply be a square.
+	 * Sets the transfer mode of the neural network either to Sigmoid (the default) or Radial Basis.
+	 */
+	void setTransferMode(const transferMode& tm){
+		transferMode_=tm;
+		switch(transferMode_){
+		case SIGMOID:
+			transfer_= boost::bind(GNeuralNetworkIndividual::sigmoid,this,_1);
+			break;
+		case RBF:
+			transfer_= boost::bind(GNeuralNetworkIndividual::rbf,this,_1);
+			break;
+		}
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Retrieves the transfer mode of this neural network
+	 *
+	 * @return The current transfer mode
+	 */
+	transferMode getTransferMode() const throw(){
+		return transferMode_;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * This static function can be called in main() in order to create a suitable set of training
+	 * data for this class. It is added here as this individual is for demonstration purposes only
+	 * and as the creation of a separate helper program could be avoided in this way. We use a simple
+	 * hyper-cube, ranging from [-edgelength/2,edgelength/2[ in each dimension. Areas outside of the
+	 * cube get an output value of 0.99, areas inside of the cube get an output value of 0.01. The
+	 * training data is initialized in the range [-edgelength:edgelength[.
 	 *
 	 * You can call this function in the following way:
 	 *
-	 * GProjectionInvididual::createHyerCubeFile("someFileName.xml", [other arguments]);
+	 * GNeuralNetworkInvididual::createHyerCubeTrainingData("someFileName.xml", [other arguments]);
 	 *
-	 * @param fileName Name of the file where
-	 * @param nData The number of data sets to create
-	 * @param nDimOrig The dimension of the origin distribution
-	 * @param nDimTarget The dimension of the target distribution
-	 * @param radius The desired radius of the sphere
-	 * @param fileName Name of the file where
+	 * @param fileName of the file the result should be written to
+	 * @param nData The number of training sets to create
+	 * @param nDim The number of dimensions of the hypercube
+	 * @param edgelength The desired edge length of the cube
+	 * @return A copy of the trainingData struct that has been created, wrapped in a shared_ptr
 	 */
-	static projectionData createHyperCubeFile(const std::string& fileName,
-				                              std::size_t nData,
-				                              std::size_t nDimOrig,
-				                              std::size_t nDimTarget,
-				                              double edgelength)
+	static boost::shared_ptr<trainingData> createHyperCubeTrainingData(const std::string& fileName,
+				                                                       std::size_t nData,
+				                                                       std::site_t nDim,
+				                                                       double edgelength)
 	{
-		// Check the data
-		if(nDimOrig<nDimTarget){
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createDataFile([...]) : Error!" << std::endl
-				  << "Supplied dimensions are invalid:" << std::endl
-				  << "nDimOrig = " << nDimOrig << std::endl
-				  << "nDimTarget = " << nDimTarget << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
-		}
-
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
 		Gem::Util::GRandom l_gr;
 
 		// Create the required data.
-		projectionData pD;
+		boost::shared_ptr<trainingData> tD(new trainingData());
+		bool outside=false;
+		for(std::site_t datCounter=0; datCounter<nData; datCounter++){
+			outside=false;
+			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
-		pD.nData = nData;
-		pD.nDimOrig = nDimOrig;
-		pD.nDimTarget = nDimTarget;
+			for(std::size_t i=0; i<nDim; i++){
+				double oneDimRnd = l_gr.evenRandom(-edgelength,edgelength);
 
-		for(std::size_t i=0; i<nDimOrig*nData; i++)
-			pD.source.push_back(l_gr.evenRandom(-edgelength/2.,edgelength/2.));
+				// Need to find at least one dimension outside of the perimeter
+				// in order to set the outside flag to true.
+				if(oneDimRnd < -edgelength/2. || oneDimRnd > edgelength/2.) outside=true;
+
+				tS->Input.push_back(oneDimRnd);
+			}
+
+			if(outside) tS->Output.push_back(0.99);
+			else tS->Output.push_back(0.01);
+
+			tD.data.push_back(tS);
+		}
+
 
 		if(fileName != ""){ // Serialize and write to a file, if requested.
 			std::ofstream fileStream(fileName.c_str());
 			if(!fileStream){
 				std::ostringstream error;
-				error << "In GNeuralNetworkIndividual::createDataFile([...]) : Error!" << std::endl
+				error << "In GNeuralNetworkIndividual::createHyperCubeTrainingData([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
@@ -390,13 +428,13 @@ public:
 			}
 			else {
 				boost::archive::xml_oarchive oa(fileStream);
-				oa << boost::serialization::make_nvp("projectionData", pD);
+				oa << boost::serialization::make_nvp("trainingData", tD);
 			}
 
 			fileStream.close();
 		}
 
-		return pD;
+		return tD;
 	}
 
 	/********************************************************************************************/
@@ -404,69 +442,59 @@ public:
 	 * This static function can be called in main() in order to create a suitable input file for
 	 * this class. It is added here as this individual is for demonstration purposes only and as the
 	 * creation of a separate helper program could be avoided in this way. We create a sphere of
-	 * radius 2. The projection e.g. into 2d should then simply be a filled circle. See
-	 * http://en.wikipedia.org/wiki/Hypersphere for a description of the formula used.
+	 * radius "radius". See http://en.wikipedia.org/wiki/Hypersphere for a description of the
+	 * formulae used.  Areas outside of the sphere get an output value of 0.99, areas inside of the
+	 * cube get an output value of 0.01. The trainining data is initialized with a radius of 2*radius.
 	 *
 	 * You can call this function in the following way:
 	 *
-	 * projectionData pd = GProjectionInvididual::createSphereFile("someFileName.xml", [other arguments]);
+	 * GNeuralNetworkInvididual::::createHyperSphereTrainingData("someFileName.xml", [other arguments]);
 	 *
 	 * If filename is an empty string ("") , then no serialization takes place and the data is retured as
 	 * a struct only.
 	 *
 	 * @param fileName Name of the file the result should be written to
-	 * @param nData The number of data sets to create
-	 * @param nDimOrig The dimension of the origin distribution
-	 * @param nDimTarget The dimension of the target distribution
+	 * @param nData The number of training sets to create
+	 * @param nDim The number of dimensions of the hypersphere
 	 * @param radius The desired radius of the sphere
-	 * @return A projectionData struct holding the required data
+	 * @return A copy of the trainingData struct that has been created, wrapped in a shared_ptr
 	 */
-	static projectionData createSphereFile(const std::string& fileName,
-										   std::size_t nData,
-										   std::size_t nDimOrig,
-										   std::size_t nDimTarget,
-										   double radius)
+	static boost::shared_ptr<trainingData> createHyperSphereTrainingData(const std::string& fileName,
+															             std::size_t nData,
+															             std::site_t nDim,
+															             double radius)
 	{
-		// Check the data
-		if(nDimOrig<nDimTarget){
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createDataFile([...]) : Error!" << std::endl
-				  << "Supplied dimensions are invalid:" << std::endl
-				  << "nDimOrig = " << nDimOrig << std::endl
-				  << "nDimTarget = " << nDimTarget << std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
-		}
-
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
 		Gem::Util::GRandom l_gr;
 
 		// Create the required data.
-		projectionData pD;
-
-		pD.nData = nData;
-		pD.nDimOrig = nDimOrig;
-		pD.nDimTarget = nDimTarget;
-
+		boost::shared_ptr<trainingData> tD(new trainingData());
 		double local_radius=1.;
 
-		for(std::size_t i=0; i<nData; i++){
-			local_radius = l_gr.evenRandom(0,radius);
+		for(std::size_t datCounter=0; datCounter<nData; datCounter++)
+		{
+			boost::shared_ptr<trainingSet> tS(new trainingSet());
+
+			local_radius = l_gr.evenRandom(0,2*radius);
+			if(local_radius > radius) tS->Output.push_back(0.99);
+			else tS->Output.push_back(0.01);
 
 			//////////////////////////////////////////////////////////////////
+			// Calculate random cartesian coordinates for hyper sphere
+
 			// Special cases
-			switch(nDimOrig){
+			switch(nDimOrig)
+			{
 			case 1:
-				pD.source.push_back(local_radius);
+				tS->Input.push_back(local_radius);
 				break;
 
 			case 2:
 				{
 					double phi = l_gr.evenRandom(0,2*M_PI);
-					pD.source.push_back(local_radius*sin(phi)); // x
-					pD.source.push_back(local_radius*cos(phi)); // y
+					tS->Input.push_back(local_radius*sin(phi)); // x
+					tS->Input.push_back(local_radius*cos(phi)); // y
 				}
 				break;
 
@@ -502,20 +530,19 @@ public:
 					}
 
 					// Transfer the results
-					for(std::size_t i=0; i<nDimOrig; i++){
-						pD.source.push_back(cartCoord[i]);
-					}
+					tS->Input=cartCoord;
 				}
 				break;
 			}
+
+			tD->data.push_back(tS);
 		}
 
 		if(fileName != ""){ // Serialize and write to a file, if requested.
-			// Serialize and write to a file.
 			std::ofstream fileStream(fileName.c_str());
 			if(!fileStream){
 				std::ostringstream error;
-				error << "In GNeuralNetworkIndividual::createDataFile([...]) : Error!" << std::endl
+				error << "In GNeuralNetworkIndividual::createHyperSphereTrainingData([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
@@ -523,54 +550,112 @@ public:
 			}
 			else {
 				boost::archive::xml_oarchive oa(fileStream);
-				oa << boost::serialization::make_nvp("projectionData", pD);
+				oa << boost::serialization::make_nvp("trainingData", tD);
 			}
 
 			fileStream.close();
 		}
 
-		return pD;
+		return tD;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Creates a C++ output file for the trained network, suitable for usage in
+	 * other projects. If you just want to retrieve the C++ description of the network,
+	 * call this function with an empty string "" .
+	 *
+	 * @param fileName The name of the file the network should be saved in
+	 * @return A string holding the data that was just saved to file
+	 */
+	std::string writeTrainedNetwork(std::string fileName){
+
 	}
 
 protected:
 	/********************************************************************************************/
 	/**
-	 * The actual fitness calculation (i.e. the projection) place here. See the explanation
-	 * of the entire class for further information on what is done here.
+	 * The actual fitness calculation (i.e. the error calculation) takes place here. In the
+	 * case of a feed-forward network this fitness is equivalent to the error a network makes
+	 * for a given weight-set when trying to categorize a training set with known network output.
+	 * Minimizing this error means training the network.
 	 *
-	 * @return The value of this object
+	 * The error is implemented using the formula
+	 *
+	 * \f[
+	 * E(weights)=\sum_{\nu=1}^{p}\sum_{k}(y_{k}^{\nu}-s_{k}(x^{\nu}))^{2}
+	 * \f]
+	 *
+	 * where \f$p\f$ is the number of training patters (pairs of input/output
+	 * values), \f$k\f$ is the number of output nodes, \f$y_{k}^{\nu}\f$ is
+	 * the desired output value of output node \f$k\f$ for input pattern
+	 * \f$x^{\nu}\f$ and \f$s_{k}(x^{\nu})\f$ is the real output of output
+	 * node \f$k\f$ for input pattern \f$x^{\nu}\f$.
+	 *
+	 * The function "transfer()" used in this function can be either radial basis
+	 * or sigmoid.
+	 *
+	 * @return The fitness of this object
 	 */
 	virtual double fitnessCalculation() {
-		std::size_t i, j, k;
+		typedef std::vector<const std::vector<double>& > layers;
 
-		double enumerator = 0.;
-		double denominator = 0.;
+		// Get easier access to the layer data stored in the GDoubleCollection objects
+		layers layerData;
+		for(std::size_t layerCounter=0; layerCounter<this->data.size(); layerCounter++){
+			layerData.push_back(getData<GDoubleCollection>(layerCounter)->data);
+		}
 
-		// Retrieve the double vector. We have a single GParameterBase object in the individual,
-		// of which we know that its "real" type is "GDoubleCollection".
-		std::vector<double>& data = getData<GDoubleCollection>(0)->data;
+		double result=0;
 
-		for (i = 0; i < nData_; i++) {
-			for (j = i + 1; j < nData_; j++) {
-				double targetVal = 0;
-				double origVal = 0;
+		// Now loop over all data sets
+		std::vector<boost::shared_ptr<trainingSet> >::iterator d_it;
+		for(d_it=tD_->data.begin(); d_it!=tD_->data.end(); ++d_it){
+			shared_ptr<trainingSet> tS = *d_it;
 
-				for (k = 0; k < nDimTarget_; k++)
-					targetVal += pow(data[i*nDimTarget_ + k] - data[j*nDimTarget_ + k], 2);
+			// The input layer
+			std::vector<double> prevResults;
+			std::size_t nLayerNodes = architecture_.at(0);
+			double nodeResult;
+			for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
+				nodeResult=tS->Input.at(nodeCounter) * layerData[0]->data.at(2*nodeCounter) - layerData[0]->data.at(2*nodeCounter+1);
+				nodeResult=transfer_(nodeResult);
+				prevResults.push_back(nodeResult);
+			}
 
-				for (k = 0; k < nDimOrig_; k++)
-					origVal += pow(source_[i * nDimOrig_ + k] - source_[j * nDimOrig_ + k], 2);
+			// Loop over all following layers
+			layers::iterator l_it;
+			for(l_it=layerData.begin()+1, std::size_t layerNumber=1;
+				l_it!=layerData.end(), layerNumber != architecture_.size();
+				++l_it, ++layerNumber)
+			{
+				std::vector<double> currentResults;
+				nLayerNodes=architecture_.at(layerNumber);
+				nPrevLayerNodes=architecture_.at(layerNumber-1);
 
-				denominator += origVal;
+				for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
+					// Loop over all nodes of the previous layer
+					nodeResult=0.;
+					for(std::size_t prevNodeCounter=0; prevNodeCounter<nPrevLayerNodes; prevNodeCounter++){
+						nodeResult += prevResults.at(prevNodeCounter) * (*l_it)->data.at(nodeCounter*(nPrevLayerNodes+1)+prevNodeCounter);
+					}
+					nodeResult -= (*l_it)->data.at(nodeCounter*(nPrevLayerNodes+1)+nPrevLayerNodes);
+					nodeResult=transfer(nodeResult);
+					currentResults.push_back(nodeResult);
+				}
 
-				targetVal = sqrt(targetVal);
-				origVal = sqrt(origVal);
+				prevResults=currentResults;
+			}
 
-				enumerator += pow(targetVal - origVal, 2);
+			// At this point prevResults should contain the output values of the output layer
+
+			// Calculate the error made and add it to the result
+			for(std::site_t nodeCounter = 0; nodeCounter<prevResults.size(); nodeCounter++){
+				result += pow(prevResults.at(nodeCounter) - tS->Output.at(nodeCounter),2);
 			}
 		}
 
-		return enumerator / std::max(denominator, 0.000000000000001);
+		return result;
 	}
 
 	/********************************************************************************************/
@@ -578,11 +663,34 @@ protected:
 private:
 	GNeuralNetworkIndividual()	{ /* nothing */ } ///< Default constructor intentionally private and empty
 
-	std::vector<double> source_; ///< Holds the m-dimensional data set
+	/********************************************************************************************/
+	/**
+	 * A sigmoidal transfer function.
+	 *
+	 * @param value The value to which the sigmoid function should be applied
+	 */
+	double sigmoid(double value){
+		return 1./(1.+exp(-value));
+	}
 
-	std::size_t nData_; ///< The amount of data sets
-	std::size_t nDimOrig_; ///< The dimension of the original distribution
-	std::size_t nDimTarget_; ///< The dimension of the target distribution
+	/********************************************************************************************/
+	/**
+	 * A radial basis transfer function.
+	 *
+	 * @param value The value to which the rbf function should be applied
+	 */
+	double rbf(double value){
+		return exp(-pow(value,2));
+	}
+
+	/********************************************************************************************/
+	// Local variables
+
+	std::vector<std::size_t> architecture_; ///< Holds the network's architecture data
+	boost::shared_ptr<trainingData> tD_; ///< Holds the training data
+
+	transferMode transferMode_;
+	boost::function<double(double)> transfer_;
 };
 
 } /* namespace GenEvA */
