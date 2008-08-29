@@ -84,7 +84,7 @@ class geneva_invalid_architecture : public boost::exception {};
 /**
  * Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function
  */
-enum transferMode(SIGMOID=0,RBF=1);
+enum transferMode {SIGMOID=0,RBF=1};
 
 /************************************************************************************************/
 /**
@@ -185,7 +185,7 @@ public:
 		std::size_t nNodes=0;
 		std::size_t nNodesPrevious=0;
 
-		for(layerIterator=architecture.begin(); layerIterator!=architecture.end(); ++layerIterator){
+		for(layerIterator=architecture_.begin(); layerIterator!=architecture_.end(); ++layerIterator){
 			if(*layerIterator){ // Add the next network layer to this class, if possible
 				nNodes = *layerIterator;
 
@@ -239,7 +239,7 @@ public:
 		trDat.close();
 
 		// Set the transfer function to sigmoidal
-		transfer_ = boost::bind(GNeuralNetworkIndividual::sigmoid,this,_1);
+		transfer_ = boost::bind(&GNeuralNetworkIndividual::sigmoid,this,_1);
 	}
 
 	/********************************************************************************************/
@@ -251,7 +251,7 @@ public:
 	GNeuralNetworkIndividual(const GNeuralNetworkIndividual& cp)
 		:GParameterSet(cp)
 	{
-		tD_ = boost::shared_ptr(new trainingData());
+		tD_ = boost::shared_ptr<trainingData>(new trainingData());
 
 		// We need to copy the training data over manually
 		std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
@@ -265,7 +265,7 @@ public:
 		}
 
 		architecture_ = cp.architecture_;
-		setTransferMode_(cp.transferMode_); // Also assigns the correct function object
+		setTransferMode(cp.transferMode_); // Also assigns the correct function object
 	}
 
 	/********************************************************************************************/
@@ -316,7 +316,7 @@ public:
 		// this, if we already have the data present. This happens as we assume that
 		// the training data doesn't change.
 		if(!tD_){
-			tD_ = boost::shared_ptr(new trainingData());
+			tD_ = boost::shared_ptr<trainingData>(new trainingData());
 
 			// We need to copy the training data over manually
 			std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
@@ -346,10 +346,10 @@ public:
 		transferMode_=tm;
 		switch(transferMode_){
 		case SIGMOID:
-			transfer_= boost::bind(GNeuralNetworkIndividual::sigmoid,this,_1);
+			transfer_= boost::bind(&GNeuralNetworkIndividual::sigmoid,this,_1);
 			break;
 		case RBF:
-			transfer_= boost::bind(GNeuralNetworkIndividual::rbf,this,_1);
+			transfer_= boost::bind(&GNeuralNetworkIndividual::rbf,this,_1);
 			break;
 		}
 	}
@@ -385,7 +385,7 @@ public:
 	 */
 	static boost::shared_ptr<trainingData> createHyperCubeTrainingData(const std::string& fileName,
 				                                                       std::size_t nData,
-				                                                       std::site_t nDim,
+				                                                       std::size_t nDim,
 				                                                       double edgelength)
 	{
 		// Create a local random number generator. We cannot access the
@@ -395,7 +395,7 @@ public:
 		// Create the required data.
 		boost::shared_ptr<trainingData> tD(new trainingData());
 		bool outside=false;
-		for(std::site_t datCounter=0; datCounter<nData; datCounter++){
+		for(std::size_t datCounter=0; datCounter<nData; datCounter++){
 			outside=false;
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
@@ -412,7 +412,7 @@ public:
 			if(outside) tS->Output.push_back(0.99);
 			else tS->Output.push_back(0.01);
 
-			tD.data.push_back(tS);
+			tD->data.push_back(tS);
 		}
 
 
@@ -461,7 +461,7 @@ public:
 	 */
 	static boost::shared_ptr<trainingData> createHyperSphereTrainingData(const std::string& fileName,
 															             std::size_t nData,
-															             std::site_t nDim,
+															             std::size_t nDim,
 															             double radius)
 	{
 		// Create a local random number generator. We cannot access the
@@ -484,7 +484,7 @@ public:
 			// Calculate random cartesian coordinates for hyper sphere
 
 			// Special cases
-			switch(nDimOrig)
+			switch(nDim)
 			{
 			case 1:
 				tS->Input.push_back(local_radius);
@@ -502,8 +502,8 @@ public:
 				{
 					//////////////////////////////////////////////////////////////////
 					// Create the required random numbers in spherical coordinates.
-					// nDimOrig will be at least 3 here.
-					std::size_t nAngles = nDimOrig - 1;
+					// nDim will be at least 3 here.
+					std::size_t nAngles = nDim - 1;
 					std::vector<double> angle_collection(nAngles);
 					for(std::size_t i=0; i<(nAngles-1); i++){ // Angles in range [0,Pi[
 						angle_collection[i]=l_gr.evenRandom(0., M_PI);
@@ -512,13 +512,13 @@ public:
 
 					//////////////////////////////////////////////////////////////////
 					// Now we can fill the source-vector itself
-					std::vector<double> cartCoord(nDimOrig);
+					std::vector<double> cartCoord(nDim);
 
-					for(std::size_t i=0; i<nDimOrig; i++) cartCoord[i]=local_radius; // They all have that
+					for(std::size_t i=0; i<nDim; i++) cartCoord[i]=local_radius; // They all have that
 
 					cartCoord[0] *= cos(angle_collection[0]); // x_1 / cartCoord[0]
 
-					for(std::size_t i=1; i<nDimOrig-1; i++){ // x_2 ... x_(n-1) / cartCoord[1] .... cartCoord[n-2]
+					for(std::size_t i=1; i<nDim-1; i++){ // x_2 ... x_(n-1) / cartCoord[1] .... cartCoord[n-2]
 						for(std::size_t j=0; j<i; j++){
 							cartCoord[i] *= sin(angle_collection[j]);
 						}
@@ -526,7 +526,7 @@ public:
 					}
 
 					for(std::size_t j=0; j<nAngles; j++){ // x_n / cartCoord[n-1]
-						cartCoord[nDimOrig-1] *= sin(angle_collection[j]);
+						cartCoord[nDim-1] *= sin(angle_collection[j]);
 					}
 
 					// Transfer the results
@@ -569,7 +569,7 @@ public:
 	 * @return A string holding the data that was just saved to file
 	 */
 	std::string writeTrainedNetwork(std::string fileName){
-
+		return std::string("");
 	}
 
 protected:
@@ -650,7 +650,7 @@ protected:
 			// At this point prevResults should contain the output values of the output layer
 
 			// Calculate the error made and add it to the result
-			for(std::site_t nodeCounter = 0; nodeCounter<prevResults.size(); nodeCounter++){
+			for(std::size_t nodeCounter = 0; nodeCounter<prevResults.size(); nodeCounter++){
 				result += pow(prevResults.at(nodeCounter) - tS->Output.at(nodeCounter),2);
 			}
 		}
