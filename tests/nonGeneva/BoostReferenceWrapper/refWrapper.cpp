@@ -20,17 +20,17 @@
  */
 
 /**
- * This example demonstrates how to store and access references to a 
+ * This example demonstrates how to store and access references to a
  * std::vector<double> in a vector.
  *
  * On OpenSuSE 11, the example can be compiled with the command
  *
- * g++ -g -o mytest26 -I /opt/boost136/include/boost-1_36/ 
- *                    -L/opt/boost136/lib -lboost_system-gcc43-mt 
- *                    -lboost_serialization-gcc43-mt refWrapper.cpp
+ * g++ -g -o refWrapper -I /opt/boost136/include/boost-1_36/
+ *                      -L/opt/boost136/lib -lboost_system-gcc43-mt
+ *                      -lboost_serialization-gcc43-mt refWrapper.cpp
  *
  * This obviously assumes that the boost libraries have benn installed
- * under /opt/boost136 . 
+ * under /opt/boost136 .
  */
 
 #include <iostream>

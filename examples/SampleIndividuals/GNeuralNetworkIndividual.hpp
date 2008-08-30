@@ -667,16 +667,18 @@ protected:
 	 * The function "transfer()" used in this function can be either radial basis
 	 * or sigmoid.
 	 *
+	 * A small demonstration of the technique of storing a reference to a vector
+	 * in another vector is shown in the file refWrapper.cpp in the Geneva test cases.
+	 *
 	 * @return The fitness of this object
 	 */
 	virtual double fitnessCalculation() {
-		typedef std::vector<const std::vector<double>& > layers;
+		typedef std::vector<boost::reference_wrapper<const std::vector<double> > > layers;
 
 		// Get easier access to the layer data stored in the GDoubleCollection objects
 		layers layerData;
-		for(std::size_t layerCounter=0; layerCounter<this->data.size(); layerCounter++){
-			layerData.push_back(parameterbase_cast<GDoubleCollection>(layerCounter)->data);
-		}
+		for(std::size_t layerCounter=0; layerCounter<this->data.size(); layerCounter++)
+			layerData.push_back(boost::cref(parameterbase_cast<GDoubleCollection>(layerCounter)->data));
 
 		double result=0;
 
@@ -697,9 +699,8 @@ protected:
 
 			// Loop over all following layers
 			layers::iterator l_it;
-			for(l_it=layerData.begin()+1, std::size_t layerNumber=1;
-				l_it!=layerData.end(), layerNumber != architecture_.size();
-				++l_it, ++layerNumber)
+			std::size_t layerNumber=1;
+			for(l_it=layerData.begin()+1; l_it!=layerData.end(); ++l_it)
 			{
 				std::vector<double> currentResults;
 				nLayerNodes=architecture_.at(layerNumber);
@@ -717,6 +718,7 @@ protected:
 				}
 
 				prevResults=currentResults;
+				layerNumber++;
 			}
 
 			// At this point prevResults should contain the output values of the output layer
