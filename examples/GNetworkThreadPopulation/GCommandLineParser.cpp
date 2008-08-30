@@ -31,10 +31,15 @@ namespace GenEvA
 /**
  * A function that parses the command line for all required parameters
  */
+
 bool parseCommandLine(int argc, char **argv,
-					  std::size_t& parabolaDimension,
-					  double& parabolaMin,
-					  double& parabolaMax,
+					  std::size_t& nData,
+					  std::size_t& nDim,
+					  double& radius,
+					  double& randMin,
+					  double& randMax,
+					  std::size_t& nHiddenLayer1Nodes,
+					  std::size_t& nHiddenLayer2Nodes,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& nPopThreads,
 					  std::size_t& populationSize,
@@ -43,7 +48,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  bool& verbose)
+					  bool& verbose);
 {
 	boost::uint16_t recombinationScheme=0;
 
@@ -52,12 +57,20 @@ bool parseCommandLine(int argc, char **argv,
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
-			("parabolaDimension,d", po::value<std::size_t>(&parabolaDimension)->default_value(DEFAULTPARABOLADIMENSION),
-					"number of dimensions in the parabola")
-			("parabolaMin,m", po::value<double>(&parabolaMin)->default_value(DEFAULTPARABOLAMIN),
-					"Lower boundary for random numbers")
-			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
-					"Upper boundary for random numbers")
+			("nData,d", po::value<std::size_t>(&nData)->default_value(DEFAULTNDATA),
+					"number of data sets in the trainingData struct")
+			("nDim,D", po::value<std::size_t>(&nDim)->default_value(DEFAULTNDIM),
+					"The dimension of the hypersphere used for the training of the network")
+			("radius,r", po::value<double>(&radius)->default_value(DEFAULTRADIUS),
+					"The radius of the hypersphere used for the training of the network")
+			("randMin,m", po::value<double>(&randMin)->default_value(DEFAULTRANDMIN),
+					"The minimum allowed value for random numbers used for thr network initialization")
+			("randMax,M", po::value<double>(&randMax)->default_value(DEFAULTRANDMAX),
+					"The maximum allowed value for random numbers used for thr network initialization")
+			("nHiddenLayer1Nodes,l", po::value<std::size_t>(&nHiddenLayer1Nodes)->default_value(DEFAULTNHIDDENLAYER1NODES),
+					"The number of nodes in the first hidden layer")
+			("nHiddenLayer2Nodes,L", po::value<std::size_t>(&nHiddenLayer2Nodes)->default_value(DEFAULTNHIDDENLAYER2NODES),
+					"The number of nodes in the second hidden layer")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
 			("nPopThreads,T",po::value<std::size_t>(&nPopThreads)->default_value(DEFAULTNPOPTHREADS),
@@ -97,15 +110,6 @@ bool parseCommandLine(int argc, char **argv,
 			return false;
 		}
 
-		// Check the parabolaMin/Max parameters
-		if(parabolaMin >= parabolaMax){
-			std::cout << "Error: Invalid parabolaMin/Max parameters" << std::endl
-				      << "parabolaMin = " << parabolaMin << std::endl
-				      << "parabolaMax = " << parabolaMax << std::endl;
-
-			return false;;
-		}
-
 		// Workaround for assigment problem with rScheme
 		if(recombinationScheme==(boost::uint16_t)VALUERECOMBINE)
 			rScheme=VALUERECOMBINE;
@@ -118,12 +122,25 @@ bool parseCommandLine(int argc, char **argv,
 			return false;
 		}
 
+		  std::size_t& nData,
+		  std::size_t& nDim,
+		  double& radius,
+		  boost::uint16_t& nProducerThreads,
+		  std::size_t& nPopThreads,
+		  std::size_t& populationSize,
+		  std::size_t& nParents,
+		  boost::uint32_t& maxGenerations,
+		  long& maxMinutes,
+		  boost::uint32_t& reportGeneration,
+		  recoScheme& rScheme,
+		  bool& verbose
+
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
-					  << "parabolaDimension = " << parabolaDimension << std::endl
-					  << "parabolaMin = " << parabolaMin << std::endl
-					  << "parabolaMax = " << parabolaMax << std::endl
+				      << "nData = " << nData << std::endl
+					  << "nDim = " << nDim << std::endl
+					  << "radius = " << radius << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "nPopThreads = " << nPopThreads << std::endl
 					  << "populationSize = " << populationSize << std::endl

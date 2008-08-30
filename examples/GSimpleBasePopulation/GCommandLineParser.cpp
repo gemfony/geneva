@@ -36,7 +36,6 @@ bool parseCommandLine(int argc, char **argv,
 					  double& parabolaMin,
 					  double& parabolaMax,
 					  boost::uint16_t& nProducerThreads,
-					  std::size_t& nPopThreads,
 					  std::size_t& populationSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,
@@ -60,8 +59,6 @@ bool parseCommandLine(int argc, char **argv,
 					"Upper boundary for random numbers")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
-			("nPopThreads,T",po::value<std::size_t>(&nPopThreads)->default_value(DEFAULTNPOPTHREADS),
-					"The amount of threads in the population")
 			("populationSize,S",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
 					"The size of the super-population")
 			("nParents,P",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
@@ -125,7 +122,6 @@ bool parseCommandLine(int argc, char **argv,
 					  << "parabolaMin = " << parabolaMin << std::endl
 					  << "parabolaMax = " << parabolaMax << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
-					  << "nPopThreads = " << nPopThreads << std::endl
 					  << "populationSize = " << populationSize << std::endl
 					  << "nParents = " << nParents << std::endl
 					  << "maxGenerations = " << maxGenerations << std::endl

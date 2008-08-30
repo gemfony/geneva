@@ -564,7 +564,7 @@ protected:
 
 		// Retrieve the double vector. We have a single GParameterBase object in the individual,
 		// of which we know that its "real" type is "GDoubleCollection".
-		std::vector<double>& data = getData<GDoubleCollection>(0)->data;
+		std::vector<double>& data = parameterbase_cast<GDoubleCollection>(0)->data;
 
 		for (i = 0; i < nData_; i++) {
 			for (j = i + 1; j < nData_; j++) {

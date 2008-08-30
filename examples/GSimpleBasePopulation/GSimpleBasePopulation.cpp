@@ -56,7 +56,7 @@ using namespace Gem::GLogFramework;
  * to get an overview.
  */
 int main(int argc, char **argv){
-	 std::size_t parabolaDimension, nPopThreads;
+	 std::size_t parabolaDimension;
 	 std::size_t populationSize, nParents;
 	 double parabolaMin, parabolaMax;
 	 boost::uint16_t nProducerThreads;
@@ -71,7 +71,6 @@ int main(int argc, char **argv){
 						 parabolaMin,
 						 parabolaMax,
 						 nProducerThreads,
-						 nPopThreads,
 						 populationSize,
 						 nParents,
 						 maxGenerations,
@@ -98,17 +97,8 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GParabolaIndividual>
 		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax));
 
-	// Now we've got our first individual and can create a population.
-	// You can choose between a simple, non-parallel population and a
-	// multi-threaded population.
-
-	// Uncomment the next line and comment out the GBoostThreadPopulation lines
-	// to get the slower, serial execution.
-
-	// GBasePopulation pop;
-
-	GBoostThreadPopulation pop;
-	pop.setNThreads(nPopThreads);
+	// Now we've got our first individual and can create a simple population with serial execution.
+	GBasePopulation pop;
 
 	pop.append(parabolaIndividual);
 

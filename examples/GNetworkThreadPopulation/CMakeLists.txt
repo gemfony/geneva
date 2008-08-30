@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GSimpleBasePopulation)
+SET (EXECUTABLENAME GNetworkThreadPopulation)
 
 SET (${EXECUTABLENAME}_SRCS 
-	GSimpleBasePopulation
+	GNetworkThreadPopulation
 	GCommandLineParser
 )
 

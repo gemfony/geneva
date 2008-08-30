@@ -1,4 +1,5 @@
-/* SynchronousThreadStart.cpp
+/**
+ * @file SynchronousThreadStart.cpp
  *
  * Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
@@ -18,11 +19,11 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
+/**
  * This example tries to make several threads start after a certain condition was
  * met and let them stop after a number of counts. This works nicely except for the
  * fact that the controlling thread, which is supposed to stop the other threads,
- * is often only assigned CPU time after a while. Thus the other threads perform 
+ * is often only assigned CPU time after a while. Thus the other threads perform
  * more work than they are supposed to do.
  */
 
@@ -79,11 +80,11 @@ public:
 
     thread1.join();
     thread2.join();
-    thread3.join();    
+    thread3.join();
   }
 
   void sayHello(const uint16_t threadNumber){
-    while(true){	    
+    while(true){
       boost::unique_lock<boost::mutex> lock(helloMutex_);
 
       while(!go_) {
@@ -96,7 +97,7 @@ public:
 	}
       }
 
-      std::cout << "Hello world Nr. " << jointData_++ 
+      std::cout << "Hello world Nr. " << jointData_++
 		<< " from thread " << threadNumber << std::endl;
 
       boost::this_thread::yield();

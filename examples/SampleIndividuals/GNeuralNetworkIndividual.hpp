@@ -52,6 +52,7 @@
 #include <boost/serialization/is_abstract.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/ref.hpp>
 
 #ifndef GNEURALNETWORKINDIVIDUAL_HPP_
 #define GNEURALNETWORKINDIVIDUAL_HPP_
@@ -218,6 +219,9 @@ public:
 			}
 		}
 
+		// Set the transfer function to sigmoidal
+		transfer_ = boost::bind(&GNeuralNetworkIndividual::sigmoid,this,_1);
+
 		// Load the training data from file
 		std::ifstream trDat(trainingDataFile.c_str());
 
@@ -237,6 +241,74 @@ public:
 		} // Explicit scope at this point is essential so that ia's destructor is called
 
 		trDat.close();
+	}
+
+	/********************************************************************************************/
+	/**
+	 * A constructor that accepts a trainingData struct as argument, instead of loading the data
+	 * from file.
+	 *
+	 * @param tD A trainingData struct, holding the required training data
+	 * @param architecture Holds the number of nodes in the input layer, hidden(1/2) layer and output layer
+	 * @param min The minimum value of random numbers used for initialization of the network layers
+	 * @param max The maximum value of random numbers used for initialization of the network layers
+	 */
+	GNeuralNetworkIndividual(boost::shared_ptr<trainingData> tD,
+							 const std::vector<std::size_t>& architecture,
+							 double min, double max)
+		:architecture_(architecture),
+		 tD_(tD),
+		 transferMode_(SIGMOID)
+	{
+		// Check the architecture we've been given and create the layers
+		std::size_t nLayers = architecture.size();
+
+		if(nLayers < 2){ // Two layers are required at the minimum (3 and 4 layers are useful)
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
+				  << "Invalid number of layers supplied" << std::endl;
+
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			throw geneva_invalid_architecture() << error_string(error.str());
+		}
+
+		std::vector<std::size_t>::iterator layerIterator;
+		std::size_t layerNumber=0;
+		std::size_t nNodes=0;
+		std::size_t nNodesPrevious=0;
+
+		for(layerIterator=architecture_.begin(); layerIterator!=architecture_.end(); ++layerIterator){
+			if(*layerIterator){ // Add the next network layer to this class, if possible
+				nNodes = *layerIterator;
+
+				// Set up a GDoubleCollection
+				boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection());
+				// Set up and register an adaptor for the collection, so it
+				// knows how to be mutated. We want a sigma of 0.5, sigma-adaption of 0.05 and
+				// a minimum sigma of 0.02.
+				boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.5,0.05,0.02,"gauss_mutation"));
+				gdc->addAdaptor(gdga);
+
+				// The input layer needs 2*nNodes double values
+				if(layerNumber==0) gdc->addRandomData(2*nNodes, min, max);
+				// We need nNodes * (nNodesPrevious + 1) double values
+				else gdc->addRandomData(nNodes*(nNodesPrevious+1), min, max);
+
+				// Make the parameter collection known to this individual
+				this->data.push_back(gdc);
+
+				nNodesPrevious=nNodes;
+				layerNumber++;
+			}
+			else {
+				std::ostringstream error;
+				error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
+					  << "Found invalid number of nodes in layer: " << *layerIterator << std::endl;
+
+				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				throw geneva_invalid_architecture() << error_string(error.str());
+			}
+		}
 
 		// Set the transfer function to sigmoidal
 		transfer_ = boost::bind(&GNeuralNetworkIndividual::sigmoid,this,_1);
@@ -603,7 +675,7 @@ protected:
 		// Get easier access to the layer data stored in the GDoubleCollection objects
 		layers layerData;
 		for(std::size_t layerCounter=0; layerCounter<this->data.size(); layerCounter++){
-			layerData.push_back(getData<GDoubleCollection>(layerCounter)->data);
+			layerData.push_back(parameterbase_cast<GDoubleCollection>(layerCounter)->data);
 		}
 
 		double result=0;

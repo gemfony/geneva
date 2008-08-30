@@ -1,4 +1,5 @@
-/* threadStart.cpp
+/**
+ * @file threadStart.cpp
  *
  * Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
@@ -18,8 +19,8 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * This example tries to find suitable ways of simultaneously 
+/**
+ * This example tries to find suitable ways of simultaneously
  * starting execution of a number of Boost.Threads's main
  * execution function. Compile with a line similar to
  *
@@ -27,7 +28,7 @@
  *     -lboost_thread-gcc43-mt -lboost_system-gcc43-mt threadStart.cpp
  *
  * Current problems: Not all threads get called even remotely equally often.
- * Call numbers are 14564 1607 8676 
+ * Call frequencies are 14564 1607 8676
  */
 
 #include <iostream>
@@ -80,7 +81,7 @@ public:
 
 	thread1.join();
 	thread2.join();
-	thread3.join();    
+	thread3.join();
     }
 
     void sayHello(){
@@ -88,7 +89,7 @@ public:
 	    if(boost::this_thread::interruption_requested()) break;
 
 	    boost::unique_lock<boost::mutex> local_lock(helloMutex_);
-	    std::cout << "Hello world Nr. " << jointData_++ 
+	    std::cout << "Hello world Nr. " << jointData_++
 		      << " from thread " << boost::this_thread::get_id() << std::endl;
 	}
     }

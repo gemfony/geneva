@@ -38,8 +38,8 @@
 #include "GBoostThreadPopulation.hpp"
 
 // The individual that should be optimized
-// This is a simple parabola
-#include "GParabolaIndividual.hpp"
+// This is a neural network.
+#include "GNeuralNetworkIndividual.hpp"
 
 // Declares a function to parse the command line
 #include "GCommandLineParser.hpp"
@@ -56,9 +56,11 @@ using namespace Gem::GLogFramework;
  * to get an overview.
  */
 int main(int argc, char **argv){
-	 std::size_t parabolaDimension, nPopThreads;
+	 std::size_t nPopThreads;
 	 std::size_t populationSize, nParents;
-	 double parabolaMin, parabolaMax;
+	 std::size_t nData, nDim;
+	 std::size_t nHiddenLayer1Nodes, nHiddenLayer2Nodes;
+	 double radius, randMin, randMax;
 	 boost::uint16_t nProducerThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
 	 long maxMinutes;
@@ -67,9 +69,13 @@ int main(int argc, char **argv){
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
-		  			     parabolaDimension,
-						 parabolaMin,
-						 parabolaMax,
+		  			     nData,
+						 nDim,
+						 radius,
+						 randMin,
+						 randMax,
+						 nHiddenLayer1Nodes,
+						 nHiddenLayer2Nodes,
 						 nProducerThreads,
 						 nPopThreads,
 						 populationSize,
@@ -92,25 +98,31 @@ int main(int argc, char **argv){
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
+	// that simultaneously produce random numbers.
 	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
 
+	// Create training data for the individual
+	shared_ptr<trainingData> p = GNeuralNetworkIndividual::createHyperSphereTrainingData("", nData, nDim, radius);
+
+	// The neural network architecture is currently hard-wired to two hidden layers
+	// Note that this is a restriction of this main function only and not of the network individual.
+	std::vector<std::size_t> architecture;
+	architecture.push_back(nDim); // Input layer needs exactly the same number of nodes as the dimension of the training data
+	architecture.push_back(nHiddenLayer1Nodes);
+	architecture.push_back(nHiddenLayer2Nodes);
+	architecture.push_back(1); // Output layer has just one node (yes/no decision)
+
 	// Set up a single parabola individual
-	boost::shared_ptr<GParabolaIndividual>
-		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax));
+	boost::shared_ptr<GNeuralNetworkIndividual>
+		networkIndividual(new GNeuralNetworkIndividual(p, architecture, randMin, randMax));
 
 	// Now we've got our first individual and can create a population.
-	// You can choose between a simple, non-parallel population and a
-	// multi-threaded population.
-
-	// Uncomment the next line and comment out the GBoostThreadPopulation lines
-	// to get the slower, serial execution.
-
-	// GBasePopulation pop;
+	// We choose a multi-threaded population here.
 
 	GBoostThreadPopulation pop;
 	pop.setNThreads(nPopThreads);
 
-	pop.append(parabolaIndividual);
+	pop.append(networkIndividual);
 
 	// Specify some population settings
 	pop.setPopulationSize(populationSize,nParents);

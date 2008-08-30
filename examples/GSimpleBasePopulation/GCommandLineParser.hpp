@@ -53,7 +53,6 @@ const std::size_t DEFAULTPARABOLADIMENSION=1000;
 const double DEFAULTPARABOLAMIN=-100.;
 const double DEFAULTPARABOLAMAX=100.;
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
-const std::size_t DEFAULTNPOPTHREADS=4;
 const std::size_t DEFAULTPOPULATIONSIZE=100;
 const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
@@ -69,7 +68,6 @@ bool parseCommandLine(int argc, char **argv,
 					  double& parabolaMin,
 					  double& parabolaMax,
 					  boost::uint16_t& nProducerThreads,
-					  std::size_t& nPopThreads,
 					  std::size_t& populationSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,

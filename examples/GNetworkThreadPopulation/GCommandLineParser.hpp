@@ -49,9 +49,13 @@ namespace GenEvA
 {
 
 // Default settings
-const std::size_t DEFAULTPARABOLADIMENSION=1000;
-const double DEFAULTPARABOLAMIN=-100.;
-const double DEFAULTPARABOLAMAX=100.;
+const std::size_t DEFAULTNDATA=20000;
+const std::size_t DEFAULTNDIM=2;
+const std::size_t DEFAULTNHIDDENLAYER1NODES=8;
+const std::size_t DEFAULTNHIDDENLAYER2NODES=8;
+const double DEFAULTRADIUS=1.;
+const double DEFAULTRANDMIN=-1.;
+const double DEFAULTRANDMAX=1.;
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
 const std::size_t DEFAULTNPOPTHREADS=4;
 const std::size_t DEFAULTPOPULATIONSIZE=100;
@@ -65,9 +69,13 @@ const bool DEFAULTVERBOSE=true;
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
-					  std::size_t& parabolaDimension,
-					  double& parabolaMin,
-					  double& parabolaMax,
+					  std::size_t& nData,
+					  std::size_t& nDim,
+					  double& radius,
+					  double& randMin,
+					  double& randMax,
+					  std::size_t& nHiddenLayer1Nodes,
+					  std::size_t& nHiddenLayer2Nodes,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& nPopThreads,
 					  std::size_t& populationSize,
