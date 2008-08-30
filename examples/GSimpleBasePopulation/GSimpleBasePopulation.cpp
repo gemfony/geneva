@@ -37,8 +37,6 @@
 #include "GLogTargets.hpp"
 #include "GBoostThreadPopulation.hpp"
 
-#include "GNeuralNetworkIndividual.hpp"
-
 // The individual that should be optimized
 // This is a simple parabola
 #include "GParabolaIndividual.hpp"
