@@ -711,11 +711,11 @@ public:
 
 		switch(transferMode_) {
 			case SIGMOID:
-			network << "      return 1./(1.+exp(-value));" << std::endl;
-			break;
+				network << "      return 1./(1.+exp(-value));" << std::endl;
+				break;
 			case RBF:
-			network << "      return exp(-pow(value,2));" << std::endl;
-			break;
+				network << "      return exp(-pow(value,2));" << std::endl;
+				break;
 		}
 
 		network << "    }" << std::endl
@@ -739,7 +739,7 @@ public:
 
 		std::size_t weightOffset=0;
 
-		network << "      }" << std::endl
+		network << "      };" << std::endl
 				<< "      const std::size_t weightOffset[nLayers] = {" << std::endl
 				<< "        " << weightOffset << "," << std::endl;
 
@@ -756,7 +756,7 @@ public:
 				network << "," << std::endl;
 		}
 
-		network << "      }" << std::endl;
+		network << "      };" << std::endl;
 
 		std::size_t nWeights = 2*architecture_[0];
 		for(std::size_t i=1; i<architecture_.size(); i++) {
@@ -777,10 +777,10 @@ public:
 			}
 		}
 
-		network << "      }" << std::endl
+		network << "      };" << std::endl
 				<< std::endl
 				<< "      // Rudimentary error check" << std::endl
-				<< "      if(in.size() != nInputNodes) return false;" << std::endl
+				<< "      if(in.size() != architecture[0]) return false;" << std::endl
 				<< std::endl
 				<< "      // Clear the result vector" << std::endl
 				<< "      out.clear();" << std::endl
@@ -789,7 +789,7 @@ public:
 				<< "      std::vector<double> prevResults;" << std::endl
 				<< "      std::size_t nLayerNodes = architecture[0];" << std::endl
 				<< "      std::size_t nPrevLayerNodes = 0;" << std::endl
-				<< "      double *currentLayer=weights; // Attach to the start of the weights array" << std::endl
+				<< "      const double *currentLayer=weights; // Attach to the start of the weights array" << std::endl
 				<< std::endl
 				<< "      for(nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){" << std::endl
 				<< "        nodeResult=in[nodeCounter] * weights[2*nodeCounter] - weights[2*nodeCounter+1];" << std::endl
@@ -813,6 +813,7 @@ public:
 				<< "          }" << std::endl
 				<< "          nodeResult -= currentLayer[nodeCounter*(nPrevLayerNodes+1)+nPrevLayerNodes];" << std::endl
 				<< "          nodeResult = transfer(nodeResult);" << std::endl
+				<< "          currentResults.push_back(nodeResult);" << std::endl
 				<< "        }" << std::endl
 				<< std::endl
 				<< "        prevResults=currentResults;" << std::endl
