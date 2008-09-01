@@ -23,10 +23,12 @@
  */
 
 /*
- * Can be compiled with the command 
+ * Can be compiled with the command
  * g++ -g -o testNetwork -I/opt/boost136/include/boost-1_36/ testNetwork.cpp
  * on OpenSUSE 11 (assuming that Boost in installed under /opt in your
  * system.
+ *
+ * NOTE: This program does currently not give useful results.
  */
 
 #include <iostream>
@@ -90,7 +92,7 @@ main(){
 	  << "  double x_outside[" << x_outside.size() << "];" << std::endl
 	  << "  double y_outside[" << y_outside.size() << "];" << std::endl
 	  << std::endl;
-  
+
   for(std::size_t i=0; i<x_inside.size(); i++){
     results << "  x_inside[" << i << "] = " << x_inside[i] << ";" << std::endl
 	    << "  y_inside[" << i << "] = " << y_inside[i] << ";" << std::endl;
