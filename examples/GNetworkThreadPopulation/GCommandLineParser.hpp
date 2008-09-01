@@ -65,6 +65,7 @@ const long DEFAULTMAXMINUTES=10;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
 const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
+const std::string DEFAULTRESULTFILE="trainedNetwork.hpp";
 
 namespace po = boost::program_options;
 
@@ -84,6 +85,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
+					  std::string& resultFile,
 					  bool& verbose);
 
 } /* namespace GenEvA */

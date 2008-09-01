@@ -153,7 +153,7 @@ public:
 					// We extract the data. (*it) is a boost::shared_ptr<GIndividual>,
 					// so we need to convert it first.
 					boost::shared_ptr<GDoubleCollection> gdc =
-						(boost::dynamic_pointer_cast<GParabolaIndividual>(*it))->getData<GDoubleCollection>(0);
+						(boost::dynamic_pointer_cast<GParabolaIndividual>(*it))->parameterbase_cast<GDoubleCollection>(0);
 
 					individualData gdc_data;
 					gdc_data.parameters = gdc->data; // data is itself a std::vector<double> in this case

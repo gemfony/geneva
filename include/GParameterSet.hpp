@@ -102,7 +102,7 @@ public:
 #ifdef DEBUG
 		// Extract data. at() will throw if we have tried to access a position in the
 		// vector that does not exist.
-		boost::shared_ptr<GParameterBase> data_base = this->data.at(pos);
+		boost::shared_ptr<GParameterBase> data_base = data.at(pos);
 
 		// Convert to the desired target type
 		boost::shared_ptr<parameter_type> p_load = boost::dynamic_pointer_cast<parameter_type>(data_base);
@@ -111,7 +111,7 @@ public:
 		// if this was not the case.
 		if(!p_load){
 			std::ostringstream error;
-			error << "In GParameterSet::getData<parameter_type>() : Conversion error!" << std::endl;
+			error << "In GParameterSet::parameterbase_case<parameter_type>() : Conversion error!" << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 

@@ -238,6 +238,9 @@ public:
 	/** @brief Retrieve the id of this class */
 	std::string getId();
 
+	/** @brief Retrieves the best individual of this population */
+	boost::shared_ptr<GIndividual> getBestIndividual();
+
 protected:
 	/** @brief user-defined halt-criterium for the optimization */
 	virtual bool customHalt();
@@ -276,8 +279,54 @@ private:
 	/** @brief Implements the VALUERECOMBINE recombination scheme */
 	void valueRecombine(boost::shared_ptr<GIndividual>&);
 
-	/** @brief The default function used to emit information */
-	void defaultInfoFunction(const infoMode&, GBasePopulation * const) const;
+	/***********************************************************************************/
+	/**
+	 * Emits information about the population it has been given. This is the default
+	 * information function provided for all populations. Information is emitted in the
+	 * format of the ROOT analysis toolkit (see http://root.cern.ch). Note that we are
+	 * using a static member function in order to avoid storing a local "this" pointer in
+	 * this function when registering it in the boost::function object. This might otherwise
+	 * be problematic when copying the boost::function object.
+	 *
+	 * @param im Indicates the information mode
+	 * @param gbp A pointer to the population information should be emitted about
+	 */
+	static void defaultInfoFunction(const infoMode& im, GBasePopulation * const gbp) {
+		std::ostringstream information;
+
+		switch(im){
+		case INFOINIT:
+			information << "{" << std::endl
+						<< "  TH1F *h" << gbp << " = new TH1F(\"h"
+						<< gbp << "\",\"h" << gbp << "\"," << gbp->getMaxGeneration()+1
+						<< ",0," << gbp->getMaxGeneration() << ");" << std::endl << std::endl;
+			break;
+
+		case INFOPROCESSING:
+			{
+				bool isDirty = false;
+
+				information << std::setprecision(10) << "  h" << gbp
+							<< "->Fill(" << gbp->getGeneration() << ", "
+							<< gbp->data.at(0)->getCurrentFitness(isDirty) << ");";
+
+				if(isDirty) {
+					information << "// dirty!";
+				}
+				information << std::endl;
+			}
+			break;
+
+		case INFOEND:
+			information << std::endl
+						<< "  h"<< gbp << "->Draw();" << std::endl
+						<< "}" << std::endl;
+			break;
+		}
+
+		LOGGER.log(information.str(), Gem::GLogFramework::PROGRESS);
+	}
+	/***********************************************************************************/
 
 	std::size_t nParents_; ///< The number of parents
 	std::size_t popSize_; ///< The size of the population. Only used in adjustPopulation()

@@ -48,7 +48,8 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  bool& verbose);
+					  std::string& resultFile,
+					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
 
@@ -87,6 +88,8 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of generations after which information should be emitted in the super-population")
 			("rScheme,E",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme for the super-population")
+			("resultFile,F",po::value<std::string>(&resultFile)->default_value(DEFAULTRESULTFILE),
+					"The name of the file the trained network should be saved into")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -122,25 +125,16 @@ bool parseCommandLine(int argc, char **argv,
 			return false;
 		}
 
-		  std::size_t& nData,
-		  std::size_t& nDim,
-		  double& radius,
-		  boost::uint16_t& nProducerThreads,
-		  std::size_t& nPopThreads,
-		  std::size_t& populationSize,
-		  std::size_t& nParents,
-		  boost::uint32_t& maxGenerations,
-		  long& maxMinutes,
-		  boost::uint32_t& reportGeneration,
-		  recoScheme& rScheme,
-		  bool& verbose
-
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
 				      << "nData = " << nData << std::endl
 					  << "nDim = " << nDim << std::endl
 					  << "radius = " << radius << std::endl
+					  << "randMin = " << randMin << std::endl
+					  << "randMax = " << randMax << std::endl
+					  << "nHiddenLayer1Nodes = " << nHiddenLayer1Nodes << std::endl
+					  << "nHiddenLayer2Nodes = " << nHiddenLayer2Nodes << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "nPopThreads = " << nPopThreads << std::endl
 					  << "populationSize = " << populationSize << std::endl
@@ -149,6 +143,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
+					  << "resultFile = " << resultFile << std::endl
 					  << std::endl;
 		}
 	}

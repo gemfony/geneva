@@ -65,6 +65,7 @@ int main(int argc, char **argv){
 	 boost::uint32_t maxGenerations, reportGeneration;
 	 long maxMinutes;
 	 bool verbose;
+	 std::string resultFile;
 	 recoScheme rScheme;
 
 	// Parse the command line
@@ -84,6 +85,7 @@ int main(int argc, char **argv){
 						 maxMinutes,
 						 reportGeneration,
 						 rScheme,
+						 resultFile,
 						 verbose))
 	{ std::terminate(); }
 
@@ -102,7 +104,7 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
 
 	// Create training data for the individual
-	shared_ptr<trainingData> p = GNeuralNetworkIndividual::createHyperSphereTrainingData("", nData, nDim, radius);
+	boost::shared_ptr<trainingData> p = GNeuralNetworkIndividual::createHyperSphereTrainingData("", nData, nDim, radius);
 
 	// The neural network architecture is currently hard-wired to two hidden layers
 	// Note that this is a restriction of this main function only and not of the network individual.
@@ -133,6 +135,11 @@ int main(int argc, char **argv){
 
 	// Do the actual optimization
 	pop.optimize();
+
+	// Save the network
+	std::cout << "Saving network ..." << std::endl;
+	boost::shared_ptr<GNeuralNetworkIndividual> bestIndividual = pop.individual_cast<GNeuralNetworkIndividual>(0);
+    bestIndividual->writeTrainedNetwork("trainingResult.hpp");
 
 	std::cout << "Done ..." << std::endl;
 

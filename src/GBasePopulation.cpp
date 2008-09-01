@@ -53,7 +53,7 @@ GBasePopulation::GBasePopulation() :
 	firstId_(true), // The "real" id will be set in the GBasePopulation::optimize function
 	maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION)),
 	defaultNChildren_(0),
-	infoFunction_(boost::bind(&GBasePopulation::defaultInfoFunction,this,_1,_2))
+	infoFunction_(&GBasePopulation::defaultInfoFunction)
 { /* nothing */ }
 
 /***********************************************************************************/
@@ -925,47 +925,12 @@ recoScheme GBasePopulation::getRecombinationMethod() const {
 
 /***********************************************************************************/
 /**
- * Emits information about the population it has been given. This is the default
- * information function provided for all populations. Information is emitted in the
- * format of the ROOT analysis toolkit (see http://root.cern.ch).
+ * Retrieves the best individual of this population
  *
- * @param im Indicates the information mode
- * @param gbp A pointer to the population information should be emitted about
+ * @return The best (i.e. first) individual of the population
  */
-void GBasePopulation::defaultInfoFunction(const infoMode& im, GBasePopulation * const gbp) const {
-	std::ostringstream information;
-
-	switch(im){
-	case INFOINIT:
-		information << "{" << std::endl
-					<< "  TH1F *h" << this << " = new TH1F(\"h"
-					<< this << "\",\"h" << this << "\"," << this->getMaxGeneration()
-					<< ",0," << this->getMaxGeneration() << ");" << std::endl << std::endl;
-		break;
-
-	case INFOPROCESSING:
-		{
-			bool isDirty = false;
-
-			information << std::setprecision(10) << "  h" << this
-						<< "->Fill(" << this->getGeneration() << ", "
-						<< data.at(0)->getCurrentFitness(isDirty) << ");";
-
-			if(isDirty) {
-				information << "// dirty!";
-			}
-			information << std::endl;
-		}
-		break;
-
-	case INFOEND:
-		information << std::endl
-					<< "  h"<< this << "->Draw();" << std::endl
-					<< "}" << std::endl;
-		break;
-	}
-
-	LOGGER.log(information.str(), Gem::GLogFramework::PROGRESS);
+boost::shared_ptr<GIndividual> GBasePopulation::getBestIndividual(){
+	return this->data.at(0);
 }
 
 /***********************************************************************************/
