@@ -747,7 +747,7 @@ public:
 		network << "       " << weightOffset << "," << std::endl;
 
 		for(std::size_t i=1; i<architecture_.size()-1; i++) {
-			weightOffset += architecture_[i]*(architecture_[i-1]+1) + architecture_[i-1];
+			weightOffset += architecture_[i]*(architecture_[i-1]+1);
 			network << "        " << weightOffset;
 
 			if(i==architecture_.size() - 1)
@@ -893,6 +893,7 @@ protected:
 				prevResults.push_back(nodeResult);
 			}
 
+			// All other layers
 			for(std::size_t layerCounter=1; layerCounter<this->data.size(); layerCounter++){
 				std::vector<double> currentResults;
 				nLayerNodes=architecture_.at(layerCounter);
