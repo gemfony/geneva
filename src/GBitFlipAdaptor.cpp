@@ -192,32 +192,8 @@ namespace Gem
 		 * @param mSgm The minimal value sigma may assume
 		 */
 		void GBitFlipAdaptor::setMutationParameters(double sgm, double sgmSgm, double mSgm) {
-			// First get a pointer to the GDoubleGaussAdaptor.
-			boost::shared_ptr<GAdaptorT<double> > basePtr = mutProb_.getAdaptor(DEFAULTGDGANAME);
-			if(!basePtr) { // This should not be!
-				std::ostringstream error;
-				error << "In GBitFlipAdaptor::setMutationParameters() : No adaptor found!" << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				// throw an exception. Add some information so that if the exception
-				// is caught through a base object, no information is lost.
-				throw geneva_no_adaptor_found() << error_string(error.str());
-			}
-
-			GDoubleGaussAdaptor *gaussAdaptor = dynamic_cast<GDoubleGaussAdaptor *>(basePtr.get());
-			// dynamic_cast will emit a NULL pointer, if the conversion failed
-			if (!gaussAdaptor) {
-				std::ostringstream error;
-				error << "In GBitFlipAdaptor::setMutationParameters() : Conversion error!" << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				// throw an exception. Add some information so that if the exception
-				// is caught through a base object, no information is lost.
-				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-			}
-
+			boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor =
+				mutProb_.adaptor_cast<GDoubleGaussAdaptor>(DEFAULTGDGANAME);
 
 			// Then set the values as requested.
 			gaussAdaptor->setAll(sgm,sgmSgm,mSgm);

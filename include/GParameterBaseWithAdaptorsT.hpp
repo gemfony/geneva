@@ -196,6 +196,54 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * When compiled in debug mode, performs all necessary checks of the conversion of the
+	 * adaptor to the target type. Otherwise uses a faster static cast.
+	 *
+	 * @param adName The name of an adaptor
+	 * @return The desired adaptor instance
+	 */
+	template <class adaptor_type>
+	inline boost::shared_ptr<adaptor_type> adaptor_cast(const std::string& adName) {
+		// Extract adaptor . Will throw if we have tried to access a position in the
+		// vector that does not exist.
+		boost::shared_ptr<GAdaptorT<T> > adaptor_base = this->getAdaptor(adName);
+
+		if(!adaptor_base) { // This should not be!
+			std::ostringstream error;
+			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type> : No adaptor found!" << std::endl;
+
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_no_adaptor_found() << error_string(error.str());
+		}
+
+#ifdef DEBUG
+		// Convert to the desired target type
+		boost::shared_ptr<adaptor_type> p_adaptor = boost::dynamic_pointer_cast<adaptor_type>(adaptor_base);
+
+		// Check that the conversion worked. dynamic_cast emits an empty pointer,
+		// if this was not the case.
+		if(!p_adaptor){
+			std::ostringstream error;
+			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Conversion error!" << std::endl;
+
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
+		}
+
+		return p_adaptor;
+#else
+		return boost::static_pointer_cast<adaptor_type>(adaptor_base);
+#endif /* DEBUG */
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * This function searches an adaptor by name in the list and, if found, erases it. It returns
 	 * true in this case, false otherwise.
 	 *
