@@ -41,7 +41,7 @@
 #define GCOMMANDLINEPARSER_HPP_
 
 // GenEvA headers go here
-#include "GBasePopulation.hpp"
+#include "GEnums.hpp"
 
 namespace Gem
 {

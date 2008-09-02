@@ -43,8 +43,10 @@
 
 // GenEvA headers go here
 
-namespace Gem {
-namespace GLogFramework {
+namespace Gem
+{
+namespace GLogFramework
+{
 
   /***********************************************************************************/
   /**
@@ -106,6 +108,7 @@ namespace GLogFramework {
 
   /***********************************************************************************/
 
-}} /* namespace Gem::GLogFramework */
+} /* namespace GLogFramework */
+} /* namespace Gem */
 
 #endif /* GLOGTARGETS_HPP_ */

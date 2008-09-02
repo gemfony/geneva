@@ -58,6 +58,7 @@
 #include "GRandom.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
+#include "GEnums.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -75,19 +76,6 @@ const bool MUCOMMANU = false;
  */
 const bool MAXIMIZE = true;
 const bool MINIMIZE = false;
-
-/**
- * Currently three types of recombination schemes are supported:
- * - DEFAULTRECOMBINE defaults to RANDOMRECOMBINE
- * - RANDOMRECOMBINE chooses the parents to be replicated randomly from all parents
- * - VALUERECOMBINE prefers parents with a higher fitness
- */
-enum recoScheme {DEFAULTRECOMBINE=0, RANDOMRECOMBINE=1, VALUERECOMBINE=2};
-
-/**
- * The info function can be called in these three modes
- */
-enum infoMode {INFOINIT=0,INFOPROCESSING=1,INFOEND=2};
 
 /**
  * The number of generations after which information should be

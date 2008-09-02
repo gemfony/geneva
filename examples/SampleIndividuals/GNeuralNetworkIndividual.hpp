@@ -833,6 +833,9 @@ public:
 				<< "#include <cmath>" << std::endl
 				<< "#include <vector>" << std::endl
 				<< std::endl
+				<< "#ifndef GENEVANEURALNETHEADER_HPP_" << std::endl
+				<< "#define GENEVANEURALNETHEADER_HPP_" << std::endl
+				<< std::endl
 				<< "namespace Gem" << std::endl
 				<< "{" << std::endl
 				<< "  namespace NeuralNetwork" << std::endl
@@ -954,7 +957,9 @@ public:
 				<< "    }" << std::endl
 				<< std::endl
 				<< "  } /* namespace NeuralNetwork */" << std::endl
-				<< "} /* namespace Gem */" << std::endl;
+				<< "} /* namespace Gem */" << std::endl
+				<< std::endl
+				<< "#endif /* GENEVANEURALNETHEADER_HPP_ */" << std::endl;
 
 		// Write header to file, if requested
 		if(headerFile != "") {

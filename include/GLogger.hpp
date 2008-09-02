@@ -58,8 +58,10 @@
 
 #include "GLogTargets.hpp"
 
-namespace Gem {
-namespace GLogFramework {
+namespace Gem
+{
+namespace GLogFramework
+{
 
 /***********************************************************************************/
 /** Definition of log levels */
@@ -118,8 +120,8 @@ private:
 
 /***********************************************************************************/
 
-}
-} /* namespace Gem::GLogFramework */
+} /* namespace GLogFramework */
+} /* namespace Gem */
 
 /**
  * We currently require the global GLogger object to be a singleton
