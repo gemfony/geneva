@@ -1,9 +1,9 @@
 /**
- * @file GObject_test.cpp
+ * @file GBitFlipAdaptor_test.cpp
  *
- * This test takes a low-level instantiable Geneva class and tests
- * the GObject functionality on it. Here we choose the GBitFlipAdaptor
- * class.
+ * This test checks all public member functions of the GBitFlipAdaptor adaptor
+ * class. In addition, it attempts to check parent classes, in particular the
+ * GObject class.
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich

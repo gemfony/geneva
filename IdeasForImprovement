@@ -5,6 +5,6 @@
 - Move from GLogger to one of the two Boost logging library candidates. Requires that at least one 
   of them heads for a review (we do not want to include further candidate libraries - Geneva should work 
   with a vanilla Boost installation (>= 1.36)
-- Remove threadpool library usage, as it is not a standard Boost library yet
-- Add "real" tests, either with CTest or with the Boost testing facilities
+- Ship the threadpool library with Geneva
+- Add many tests using the Boost.Test library
 
