@@ -139,7 +139,7 @@ int main(int argc, char **argv){
 	// Save the network
 	std::cout << "Saving network ..." << std::endl;
 	boost::shared_ptr<GNeuralNetworkIndividual> bestIndividual = pop.individual_cast<GNeuralNetworkIndividual>(0);
-    bestIndividual->writeTrainedNetwork("trainingResult.hpp");
+    bestIndividual->writeTrainedNetwork("trainingResult.hpp", "testNetwork.cpp");
 
 	std::cout << "Done ..." << std::endl;
 
