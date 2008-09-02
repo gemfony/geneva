@@ -42,7 +42,7 @@ namespace Gem
 		 */
 		GBitFlipAdaptor::GBitFlipAdaptor() throw()
 			:GAdaptorT<GenEvA::bit>("GBitFlipAdaptor"),
-			 mutProb_(0.,1.,DEFAULTMUTPROB),
+			 mutProb_(DEFAULTMUTPROB,0.,1.),
 			 allowProbabilityMutation_(false)
 		{ /* nothing */ }
 
@@ -55,7 +55,7 @@ namespace Gem
 		 */
 		GBitFlipAdaptor::GBitFlipAdaptor(std::string name)
 			:GAdaptorT<GenEvA::bit>(name),
-			 mutProb_(0.,1.,DEFAULTMUTPROB), // probability is in the range [0:1]
+			 mutProb_(DEFAULTMUTPROB,0.,1.), // probability is in the range [0:1]
 			 allowProbabilityMutation_(false)
 		{
 			boost::shared_ptr<GAdaptorT<double> >

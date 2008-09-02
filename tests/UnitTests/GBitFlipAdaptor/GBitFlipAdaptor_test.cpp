@@ -41,13 +41,52 @@ using namespace Gem;
 using namespace Gem::GenEvA;
 
 const std::string ADAPTORNAME="GBitFlipAdaptor";
+const std::string ADAPTORNAME2="GBitFlipAdaptor2";
 
-BOOST_AUTO_TEST_CASE( constructors_test )
+// This test checks as much as possible of the functionality
+// provided by the parent class GObject, plus some base functionality
+// of the GBitFlipAdaptor class, such as the "named" and the copy
+// constructors.
+BOOST_AUTO_TEST_CASE( gobject_test )
 {
-	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
-	GObject *gobject = gbfa;
-	BOOST_CHECK( gobject->name() == ADAPTORNAME );
+	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME); // Construction by name
+	GBitFlipAdaptor *gbfa2=new GBitFlipAdaptor(*gbfa); // Copy construction
+
+	// Getting and setting the name
+	BOOST_CHECK(gbfa->name() == ADAPTORNAME);
+	BOOST_CHECK(gbfa->name() == gbfa2->name());
+
+	gbfa2->setName(ADAPTORNAME2);
+	BOOST_CHECK(gbfa->name() == ADAPTORNAME);
+	BOOST_CHECK(gbfa->name() != gbfa2->name());
+	BOOST_CHECK(gbfa2->name() == ADAPTORNAME2);
+
+	// Getting and setting the serialization mode
+	BOOST_CHECK(gbfa->getSerializationMode() == TEXTSERIALIZATION); // The default mode
+	gbfa->setSerializationMode(TEXTSERIALIZATION);
+	BOOST_CHECK(gbfa->getSerializationMode() == TEXTSERIALIZATION);
+	gbfa->setSerializationMode(XMLSERIALIZATION);
+	BOOST_CHECK(gbfa->getSerializationMode() == XMLSERIALIZATION);
+	gbfa->setSerializationMode(BINARYSERIALIZATION);
+	BOOST_CHECK(gbfa->getSerializationMode() == BINARYSERIALIZATION);
+	BOOST_CHECK(gbfa->getSerializationMode() != gbfa2->getSerializationMode());
+
+	// Assigning the object
+	*gbfa2 = *gbfa;
+	BOOST_CHECK(gbfa->name() == ADAPTORNAME);
+	BOOST_CHECK(gbfa->name() == gbfa2->name());
+	BOOST_CHECK(gbfa->getSerializationMode() == gbfa2->getSerializationMode());
+
+	// Changing the aspects again
+	gbfa->setSerializationMode(TEXTSERIALIZATION);
+	gbfa->setName(ADAPTORNAME2);
+	BOOST_CHECK(gbfa->name() != gbfa2->name());
+	BOOST_CHECK(gbfa->getSerializationMode() != gbfa2->getSerializationMode());
+
 	delete gbfa;
+	delete gbfa2;
 }
+
+// This test checks (de-serialization of the object in different modes
 
 // EOF
