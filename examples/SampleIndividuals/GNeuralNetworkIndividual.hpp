@@ -787,10 +787,10 @@ public:
 						<< "          << std::endl" << std::endl
 						<< "          << \"  inside->SetMarkerStyle(21);\" << std::endl" << std::endl
 						<< "          << \"  inside->SetMarkerSize(0.2);\" << std::endl" << std::endl
-						<< "          << \"  inside->SetMarkerColor(4);\" << std::endl" << std::endl
+						<< "          << \"  inside->SetMarkerColor(12);\" << std::endl" << std::endl
 						<< "          << \"  outside->SetMarkerStyle(21);\" << std::endl" << std::endl
-						<< "          << \"  outside->SetMarkerSize(0.2);\" << std::endl" << std::endl
-						<< "          << \"  outside->SetMarkerColor(3);\" << std::endl" << std::endl
+						<< "          << \"  outside->SetMarkerSize(0.35);\" << std::endl" << std::endl
+						<< "          << \"  outside->SetMarkerColor(17);\" << std::endl" << std::endl
 						<< "          << std::endl" << std::endl
 						<< "          << \"  inside->Draw(\\\"AP\\\");\" << std::endl" << std::endl
 						<< "          << \"  outside->Draw(\\\"P\\\");\" << std::endl" << std::endl
