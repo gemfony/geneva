@@ -47,6 +47,7 @@ BOOST_AUTO_TEST_CASE( constructors_test )
 	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
 	GObject *gobject = gbfa;
 	BOOST_CHECK( gobject->name() == ADAPTORNAME );
+	delete gbfa;
 }
 
 // EOF
