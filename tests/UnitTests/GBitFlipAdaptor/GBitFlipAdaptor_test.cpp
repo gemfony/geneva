@@ -3,7 +3,8 @@
  *
  * This test checks all public member functions of the GBitFlipAdaptor adaptor
  * class. In addition, it attempts to check parent classes, in particular the
- * GObject class.
+ * GObject class. You should run this test both in DEBUG and in RELEASE mode,
+ * as some functions work differently in this case.
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -33,7 +34,6 @@
 
 
 // Geneva header files go here
-
 #include "GObject.hpp"
 #include "GBitFlipAdaptor.hpp"
 
@@ -42,6 +42,7 @@ using namespace Gem::GenEvA;
 
 const std::string ADAPTORNAME="GBitFlipAdaptor";
 const std::string ADAPTORNAME2="GBitFlipAdaptor2";
+const std::string ADAPTORNAME3="GBitFlipAdaptor3";
 
 // This test checks as much as possible of the functionality
 // provided by the parent class GObject, plus some base functionality
@@ -70,6 +71,9 @@ BOOST_AUTO_TEST_CASE( gobject_test )
 	gbfa->setSerializationMode(BINARYSERIALIZATION);
 	BOOST_CHECK(gbfa->getSerializationMode() == BINARYSERIALIZATION);
 	BOOST_CHECK(gbfa->getSerializationMode() != gbfa2->getSerializationMode());
+	gbfa->setSerializationMode(DEFAULTSERIALIZATION);
+	BOOST_CHECK(gbfa->getSerializationMode() == DEFAULTSERIALIZATION);
+	BOOST_CHECK(gbfa->getSerializationMode() != gbfa2->getSerializationMode());
 
 	// Assigning the object
 	*gbfa2 = *gbfa;
@@ -83,10 +87,27 @@ BOOST_AUTO_TEST_CASE( gobject_test )
 	BOOST_CHECK(gbfa->name() != gbfa2->name());
 	BOOST_CHECK(gbfa->getSerializationMode() != gbfa2->getSerializationMode());
 
+	// Cloning should create an independent object
+	GBitFlipAdaptor *gbfa3 = dynamic_cast<GBitFlipAdaptor *>(gbfa2->clone());
+	if(!gbfa3) throw;
+	BOOST_CHECK(gbfa2->name() == gbfa3->name());
+	BOOST_CHECK(gbfa2->getSerializationMode() == gbfa3->getSerializationMode());
+	gbfa3->setSerializationMode(BINARYSERIALIZATION);
+	gbfa3->setName(ADAPTORNAME3);
+	BOOST_CHECK(gbfa2->name() != gbfa3->name());
+	BOOST_CHECK(gbfa2->getSerializationMode() != gbfa3->getSerializationMode());
+
+	gbfa2->load(gbfa3);
+	BOOST_CHECK(gbfa2->name() == gbfa3->name());
+	BOOST_CHECK(gbfa2->getSerializationMode() == gbfa3->getSerializationMode());
+
 	delete gbfa;
 	delete gbfa2;
+	delete gbfa3;
 }
 
-// This test checks (de-serialization of the object in different modes
+
+// This test checks (de-serialization of the object in different modes. This is simultaneously
+// a test for the toString/fromString functions of the GObject class.
 
 // EOF
