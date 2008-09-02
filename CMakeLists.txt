@@ -24,7 +24,14 @@ ENDIF()
 SET (Boost_USE_STATIC_LIBS OFF)
 SET (Boost_USE_MULTITHREAD ON)
 
-FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS date_time system thread serialization program_options)
+FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS 
+	date_time 
+	system 
+	thread 
+	serialization 
+	program_options
+	test_exec_monitor
+)
 
 INCLUDE_DIRECTORIES ( 
 	${PROJECT_SOURCE_DIR}/include 

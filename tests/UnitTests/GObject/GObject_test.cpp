@@ -1,5 +1,9 @@
 /**
  * @file GObject_test.cpp
+ *
+ * This test takes a low-level instantiable Geneva class and tests
+ * the GObject functionality on it. Here we choose the GBitFlipAdaptor
+ * class.
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -24,4 +28,25 @@
 
 // Boost header files go here
 
+#define BOOST_TEST_MODULE GObject_test
+#include <boost/test/unit_test.hpp>
+
+
 // Geneva header files go here
+
+#include "GObject.hpp"
+#include "GBitFlipAdaptor.hpp"
+
+using namespace Gem;
+using namespace Gem::GenEvA;
+
+const std::string ADAPTORNAME="GBitFlipAdaptor";
+
+BOOST_AUTO_TEST_CASE( constructors_test )
+{
+	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
+	GObject *gobject = gbfa;
+	BOOST_CHECK( gobject->name() == ADAPTORNAME );
+}
+
+// EOF
