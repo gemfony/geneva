@@ -173,7 +173,7 @@ bool GBaseClient::process(){
 	if(!this->retrieve(istr, serModeStr)) return false;
 
 	// Check the serialization mode we need to use
-	serMode = std::lexical_cast<serializationMode>(serModeStr);
+	serMode = boost::lexical_cast<serializationMode>(serModeStr);
 
 	// There is a possibility that we have received an unknown command
 	// or a timeout command. In this case we want to try again until retrieve
