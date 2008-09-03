@@ -334,24 +334,6 @@ void GBasePopulation::adjustPopulation() {
 		// Missing members are created as copies of the population's first individual
 		for(std::size_t i=0; i<(popSize_-this_sz); i++) {
 			data.push_back(data.at(0)->clone_bptr_cast<GIndividual>());
-
-			/*
-			GIndividual *gi = dynamic_cast<GIndividual *>(data.at(0)->clone());
-			if(gi) { // did the conversion work ?
-				boost::shared_ptr<GIndividual> p(gi);
-				data.push_back(p);
-			}
-			else {
-				std::ostringstream error;
-				error << "In GBasePopulation::adjustPopulation(): Conversion error!" << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				// throw an exception. Add some information so that if the exception
-				// is caught through a base object, no information is lost.
-				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-			}
-			*/
 		}
 	}
 
