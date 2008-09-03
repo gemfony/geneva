@@ -129,7 +129,7 @@ void GDoubleCollection::load(const GObject * cp) {
 			  << "Tried to assign an object to itself." << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_object_assigned_to_itself() << error_string(error.str());
+		throw geneva_error_condition() << error_string(error.str());
 	}
 
 	GParameterCollectionT<double>::load(cp);

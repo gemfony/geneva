@@ -111,7 +111,7 @@ namespace Gem
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-				throw geneva_empty_evaluation_function() << error_string(error.str());
+				throw geneva_error_condition() << error_string(error.str());
 			}
 
 			eval_ = eval;
@@ -133,7 +133,7 @@ namespace Gem
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-				throw geneva_evaluation_function_not_present() << error_string(error.str());
+				throw geneva_error_condition() << error_string(error.str());
 			}
 
 			// Trigger the actual calculation

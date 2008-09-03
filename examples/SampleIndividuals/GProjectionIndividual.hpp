@@ -73,12 +73,6 @@ namespace GenEvA
 {
 
 /************************************************************************************************/
-/** @brief Class to be thrown as an error if the supplied dimensions or number of datasets where incorrect */
-class geneva_invalid_dimensions : public boost::exception {};
-/** @brief Class to be thrown as an error if the data file could not be opened */
-class geneva_invalid_datafile : public boost::exception {};
-
-/************************************************************************************************/
 /**
  * This struct holds all necessary information for the projection individual. It is meant to
  * demonstrate initialization from a file. Here, we simply use serialized data generated from
@@ -186,7 +180,7 @@ public:
 				  << "nDimTarget = " << nDimTarget_ << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		if(source_.size() != nDimOrig_*nData_){
@@ -197,7 +191,7 @@ public:
 				  << "nDimOrig = " << nDimOrig_ << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
 
@@ -227,7 +221,7 @@ public:
 				  << "Data file " << filename << " could not be opened for reading." << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_datafile() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		// Load the data, using the Boost.Serialization library
@@ -266,7 +260,7 @@ public:
 				  << "nDimTarget = " << nDimTarget_ << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		if(source_.size() != nDimOrig_*nData_){
@@ -277,7 +271,7 @@ public:
 				  << "nDimOrig = " << nDimOrig_ << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
 
@@ -377,7 +371,7 @@ public:
 				  << "nDimTarget = " << nDimTarget << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		// Create a local random number generator. We cannot access the
@@ -402,7 +396,7 @@ public:
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_invalid_datafile() << error_string(error.str());
+				throw geneva_error_condition() << error_string(error.str());
 			}
 			else {
 				boost::archive::xml_oarchive oa(fileStream);
@@ -452,7 +446,7 @@ public:
 				  << "nDimTarget = " << nDimTarget << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_invalid_dimensions() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		// Create a local random number generator. We cannot access the
@@ -535,7 +529,7 @@ public:
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_invalid_datafile() << error_string(error.str());
+				throw geneva_error_condition() << error_string(error.str());
 			}
 			else {
 				boost::archive::xml_oarchive oa(fileStream);

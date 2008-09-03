@@ -142,7 +142,7 @@ public:
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		return result;
@@ -178,7 +178,7 @@ public:
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		return p_load;
@@ -222,7 +222,7 @@ protected:
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		// Check that this object is not accidentally assigned to itself.
@@ -232,7 +232,7 @@ protected:
 					<< "Tried to assign an object to itself." << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_object_assigned_to_itself() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		return result;

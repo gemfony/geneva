@@ -169,7 +169,7 @@ void GBrokerPopulation::setLoopTime(const boost::posix_time::time_duration& loop
 			  << "loopTime is set to 0" << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_invalid_loop_time()  << error_string(error.str());
+		throw geneva_error_condition()  << error_string(error.str());
 	}
 
 	loopTime_ = loopTime;
@@ -299,7 +299,7 @@ void GBrokerPopulation::mutateChildren() {
 					  << "Timeout for first individual reached." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_first_individual_timeout() << error_string(error.str());
+				throw geneva_error_condition() << error_string(error.str());
 			}
 		}
 	}
@@ -366,7 +366,7 @@ void GBrokerPopulation::mutateChildren() {
 				  << "Population is empty when it shouldn't be." << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_population_empty() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		// Sort according to parent/child tag. We do not know in whar order individuals have returned.

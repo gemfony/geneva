@@ -104,7 +104,7 @@ double GIndividual::fitnessCalculation(){
 
 	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-	throw geneva_function_called_erroneously() << error_string(error.str());
+	throw geneva_error_condition() << error_string(error.str());
 
 	return 0; // Make the compiler happy
 }
@@ -123,7 +123,7 @@ void GIndividual::customMutations(){
 
 	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-	throw geneva_function_called_erroneously() << error_string(error.str());
+	throw geneva_error_condition() << error_string(error.str());
 }
 
 /**********************************************************************************/
@@ -164,8 +164,7 @@ double GIndividual::fitness() {
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			throw geneva_dirtyflag_set_lazyevaluation_not() << error_string(
-					error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		currentFitness_ = fitnessCalculation();
@@ -443,7 +442,7 @@ void GIndividual::process(){
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-		throw geneva_unknown_command() << error_string(error.str());
+		throw geneva_error_condition() << error_string(error.str());
 	}
 	this->setAllowLazyEvaluation(previous);
 }

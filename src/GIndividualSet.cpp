@@ -72,7 +72,7 @@ namespace Gem
 					  << "Tried to assign an object to itself." << std::endl;
 
 				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_object_assigned_to_itself() << error_string(error.str());
+				throw geneva_error_condition() << error_string(error.str());
 			}
 
 			// Load the parent class'es data

@@ -146,7 +146,7 @@ public:
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			throw geneva_empty_adaptor() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		typename GATvec::iterator pos;
@@ -159,7 +159,7 @@ public:
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			throw geneva_duplicate_adaptor() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		boost::shared_ptr<GAdaptorT<T> > p(gat);
@@ -216,7 +216,7 @@ public:
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_no_adaptor_found() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 #ifdef DEBUG
@@ -233,7 +233,7 @@ public:
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 
 		return p_adaptor;
@@ -312,7 +312,7 @@ protected:
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			throw geneva_no_adaptor_found() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
 
@@ -336,7 +336,7 @@ protected:
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			throw geneva_no_adaptor_found() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
 
@@ -360,7 +360,7 @@ protected:
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			throw geneva_no_adaptor_found() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
 
@@ -414,7 +414,7 @@ protected:
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			throw geneva_no_adaptor_found() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
 

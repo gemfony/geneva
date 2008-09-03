@@ -275,7 +275,7 @@ void GBasePopulation::adjustPopulation() {
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_popsize_not_set() << error_string(error.str());
+		throw geneva_error_condition() << error_string(error.str());
 	}
 
 	// In MUCOMMANU mode we want to have at least as many children as parents,
@@ -293,7 +293,7 @@ void GBasePopulation::adjustPopulation() {
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_popsize_too_small() << error_string(error.str());
+		throw geneva_error_condition() << error_string(error.str());
 	}
 
 	// Check how many individuals have been added already. At least one is required.
@@ -308,7 +308,7 @@ void GBasePopulation::adjustPopulation() {
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_popsize_too_small() << error_string(error.str());
+		throw geneva_error_condition() << error_string(error.str());
 	}
 
 	// Do the smart pointers actually point to any objects ?
@@ -323,7 +323,7 @@ void GBasePopulation::adjustPopulation() {
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_empty_smart_pointer() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
 
@@ -470,7 +470,7 @@ void GBasePopulation::setMaxTime(boost::posix_time::time_duration maxDuration) {
 			  << "Invalid maxDuration." << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_invalid_loop_time()  << error_string(error.str());
+		throw geneva_error_condition()  << error_string(error.str());
 	}
 
 	maxDuration_ = maxDuration;
@@ -562,18 +562,6 @@ void GBasePopulation::customRecombine() {
 			else valueRecombine(*it);
 		}
 		break;
-
-	default:
-		std::ostringstream error;
-		error << "In GBasePopulation::customRecombine(): Error!" << std::endl
-			  << "Found invalid recombination mode " << recombinationMethod_ << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_invalid_recombination_mode() << error_string(error.str());
-		break;
 	}
 }
 
@@ -650,7 +638,7 @@ void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p) {
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_no_value_recombination() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
 }
@@ -678,7 +666,7 @@ void GBasePopulation::recombine()
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_too_few_children() << error_string(error.str());
+		throw geneva_error_condition() << error_string(error.str());
 	}
 
 	// Do the actual recombination
@@ -741,7 +729,7 @@ void GBasePopulation::select()
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_too_few_children() << error_string(error.str());
+		throw geneva_error_condition() << error_string(error.str());
 	}
 
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it_begin;
@@ -808,7 +796,7 @@ double GBasePopulation::fitnessCalculation() {
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_dirty_individual() << error_string(error.str());
+		throw geneva_error_condition() << error_string(error.str());
 	}
 	return val;
 }

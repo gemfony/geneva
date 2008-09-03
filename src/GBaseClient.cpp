@@ -118,7 +118,7 @@ void GBaseClient::setMaxTime(boost::posix_time::time_duration maxDuration) {
 			  << "Invalid maxDuration." << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_invalid_loop_time()  << error_string(error.str());
+		throw geneva_error_condition()  << error_string(error.str());
 	}
 
 	maxDuration_ = maxDuration;

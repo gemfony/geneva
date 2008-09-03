@@ -48,78 +48,8 @@ namespace GenEvA {
 /** @brief String container for error messages */
 typedef boost::error_info<struct tag_errno, std::string> error_string;
 
-// GAsioHelperFunctions
-/** @brief Class to be thrown as an error if an invalid data header was received */
-class geneva_invalid_asio_header : public boost::exception {};
-
-// GBasePopulation
-/** @brief Class to be thrown as an error if the popSize_ or nParents_ parameters
- * haven't been set */
-class geneva_popsize_not_set : public boost::exception {};
-/** @brief Class to be thrown as an error if the popSize_ parameter is too small */
-class geneva_popsize_too_small : public boost::exception {};
-/** @brief Class to be thrown as an error if a smart pointer was found to be empty in GBasePopulation */
-class geneva_empty_smart_pointer : public boost::exception {};
-/** @brief Class to be thrown as an error if an invalid recombination mode was found */
-class geneva_invalid_recombination_mode : public boost::exception {};
-/** @brief Class to be thrown as an error if no recombination took place in the valueRecombine function */
-class geneva_no_value_recombination : public boost::exception {};
-/** @brief Class to be thrown as an error if too few children were found */
-class geneva_too_few_children : public boost::exception {};
-/** @brief Class to be thrown as an error if a dirty individual was found after the optimize call in
- * GBasePopulation::fitnessCalculation() */
-class geneva_dirty_individual : public boost::exception {};
-
-// GBitFlipAdaptor
-/** @brief Class to be thrown as an error if a bad mutation probability was supplied */
-class geneva_bad_mutation_probability : public boost::exception {};
-
-// GBoundedDouble
-/** @brief Class to be thrown as an error if invalid boundaries were found */
-class geneva_invalid_boundaries: public boost::exception {};
-/** @brief Class to be thrown as an error if a value outside of the allowed range has been assigned */
-class geneva_value_outside_range: public boost::exception {};
-
-// GBrokerPopulation
-/** @brief Class to be thrown as an error if an invalid loop-time was provided */
-class geneva_invalid_loop_time: public boost::exception {};
-/** @brief Class to be thrown as an error if the first individual didn't return in time */
-class geneva_first_individual_timeout: public boost::exception {};
-/** @brief Class to be thrown as an error if population is empty */
-class geneva_population_empty: public boost::exception {};
-
-// GIndividual
-/** @brief Class to be thrown as an error if the dirty flag is set while lazy evaluation is not allowed */
-class geneva_dirtyflag_set_lazyevaluation_not : public boost::exception {};
-/** @brief Class to be thrown as an error if an unknown command was found */
-class geneva_unknown_command : public boost::exception {};
-
-// GObject
-/** @brief Class to be thrown as an error by GenEvA's load functions */
-class geneva_object_assigned_to_itself :public boost::exception {};
-/** @brief Class to be thrown as an error in case of conversion errors */
-class geneva_dynamic_cast_conversion_error :public boost::exception {};
-
-// GParameterBaseWithAdaptorsT
-/** @brief Class to be thrown as an error if an adaptor with the same name is already present */
-class geneva_duplicate_adaptor : public boost::exception {};
-/** @brief Class to be thrown as an error if an empty adaptor was provided */
-class geneva_empty_adaptor : public boost::exception {};
-
-// GParameterSet
-/** @brief Class to be thrown as an error if an empty evaluation function was supplied */
-class geneva_empty_evaluation_function : public boost::exception {};
-
-// Several classes
-/** @brief Class to be thrown as an error if an evaluation is attempted while no evaluation function
- * object has been registered. */
-class geneva_evaluation_function_not_present : public boost::exception {};
-/** @brief Class to be thrown as an error if no or not the required adaptor was found */
-class geneva_no_adaptor_found : public boost::exception {};
-/** @brief Class to thrown as an error if a shared_ptr is empty */
-class geneva_shared_ptr_empty : public boost::exception {};
-/** @brief Class to be thrown as an error if a function was called although it shouldn't be */
-class geneva_function_called_erroneously : public boost::exception {};
+/** @brief General error class to be thrown in the case of severe errors */
+class geneva_error_condition : public boost::exception {};
 
 /**************************************************************************************************/
 

@@ -59,7 +59,7 @@ std::size_t extractDataSize(const char* ds, std::size_t sz){
 	  error << "In extractDataSize: Got invalid header!" << std::endl;
 
 	  LOGGER.log(error.str(), Gem::GLogFramework::WARNING);
-	  throw geneva_invalid_asio_header()  << error_string(error.str());
+	  throw geneva_error_condition()  << error_string(error.str());
   }
 
   return inboundDataSize;

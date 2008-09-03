@@ -202,7 +202,7 @@ void GObject::load(const GObject *cp) {
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost
-		throw geneva_object_assigned_to_itself() << error_string(str.str());
+		throw geneva_error_condition() << error_string(str.str());
 	}
 
 	// Load the actual data

@@ -237,7 +237,7 @@ namespace Gem
 
 				// throw an exception. Add some information so that if the exception
 				// is caught through a base object, no information is lost.
-				throw geneva_invalid_boundaries() << error_string(error.str());
+				throw geneva_error_condition() << error_string(error.str());
 			}
 
 			// Check that the value is inside the allowed range
@@ -251,7 +251,7 @@ namespace Gem
 
 				// throw an exception. Add some information so that if the exception
 				// is caught through a base object, no information is lost.
-				throw geneva_value_outside_range() << error_string(error.str());
+				throw geneva_error_condition() << error_string(error.str());
 			}
 
 			// The transfer function in this area is just f(x)=x, so we can just
@@ -282,7 +282,7 @@ namespace Gem
 
 				// throw an exception. Add some information so that if the exception
 				// is caught through a base object, no information is lost.
-				throw geneva_invalid_boundaries() << error_string(error.str());
+				throw geneva_error_condition() << error_string(error.str());
 			}
 
 			// b) find out which region the value is in (compare figure transferFunction.pdf

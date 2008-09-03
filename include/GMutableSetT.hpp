@@ -182,7 +182,7 @@ public:
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			throw geneva_shared_ptr_empty() << error_string(error.str());
+			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
 
