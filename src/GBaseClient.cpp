@@ -175,13 +175,9 @@ bool GBaseClient::process(){
 	// be executed.
 	if(istr == "empty") return true;
 
-	serializationMode localSerMod;
-	if(serializationMode_ == DEFAULTSERIALIZATION) localSerMod = TEXTSERIALIZATION;
-	else localSerMod = serializationMode_;
-
 	// unpack the data and create a new GIndividual. Note that de-serialization should
 	// generally happen through the same type that was used for serialization.
-	boost::shared_ptr<GIndividual> target = indptrFromString(istr, localSerMod);
+	boost::shared_ptr<GIndividual> target = indptrFromString(istr, serializationMode_);
 
 	// This one line is all it takes to do the processing required for this individual.
 	// GIndividual has all required functions on board. GBaseClient does not need to understand
@@ -207,7 +203,7 @@ bool GBaseClient::process(){
 	// transform target back into a string and submit to the server. The actual
 	// actions done by submit are defined by derived classes.
 	if(!this->submit(
-			indptrToString(target, localSerMod),
+			indptrToString(target, serializationMode_),
 			portid,
 			boost::lexical_cast<std::string>(fitness),
 			boost::lexical_cast<std::string>(isDirty)
