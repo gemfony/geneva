@@ -87,6 +87,16 @@ const GObject& GObject::operator=(const GObject& cp){
 
 /**************************************************************************************************/
 /**
+ * Returns an XML description of the derivative it is called for
+ *
+ * @return An XML description of the GObject-derivative the function is called for
+ */
+std::string GObject::report() {
+	return toString(XMLSERIALIZATION);
+}
+
+/**************************************************************************************************/
+/**
  * Converts the class to a text representation, using the currently set serialization mode for this
  * class. Note that you will have to take care yourself that serialization and de-serialization
  * happens in the same mode.
@@ -200,20 +210,6 @@ void GObject::load(const GObject *cp) {
 	// Load the actual data
 	name_ = cp->name_;
 	serializationMode_ = cp->serializationMode_;
-}
-
-/**************************************************************************************************/
-/**
- * Returns an XML description of the derivative it is called for
- *
- * @return An XML description of the GObject-derivative the function is called for
- */
-std::string GObject::report() {
-	serializationMode tmp = serializationMode_;
-	serializationMode_ = XMLSERIALIZATION;
-	std::string result = toString();
-	serializationMode_ = tmp;
-	return result;
 }
 
 /**************************************************************************************************/

@@ -102,10 +102,10 @@ public:
 	/** @brief An assignment operator that is also suitable for derived classes */
 	virtual const GObject& operator=(const GObject&);
 
-	/** @brief Convert class to a serial representation, using the current serialization mode */
-	std::string toString(const serializationMode& serMod = DEFAULTSERIALIZATION);
+	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
+	std::string toString(const serializationMode& serMod);
 	/** @brief Convert class to a serial representation, using a specific serialization mode */
-	void fromString(const std::string&, const serializationMode& serMod = DEFAULTSERIALIZATION);
+	void fromString(const std::string&, const serializationMode& serMod);
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() = 0;
