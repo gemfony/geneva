@@ -471,6 +471,9 @@ private:
 			}
 			// Different type - need to convert
 			else {
+				*itTo = (*itFrom)->clone_bptr_cast<GAdaptorT<T> >();
+
+				/*
 				// clone() emits a GObject, so we need to use a dynamic_cast. It will emit
 				// a null-pointer, if the conversion failed.
 				GAdaptorT<T> *gatptr = dynamic_cast<GAdaptorT<T> *> ((*itFrom)->clone());
@@ -487,6 +490,7 @@ private:
 					// is caught through a base object, no information is lost.
 					throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
 				}
+				*/
 			}
 		}
 
