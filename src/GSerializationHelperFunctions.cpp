@@ -39,7 +39,6 @@ std::string indptrToString(const boost::shared_ptr<GIndividual>& gi_ptr, const s
 	std::ostringstream oarchive_stream;
 
 	switch(serMod){
-	case DEFAULTSERIALIZATION: // Same as TEXTSERIALIZATION
 	case TEXTSERIALIZATION:
 		{
 			boost::archive::text_oarchive oa(oarchive_stream);
@@ -80,7 +79,6 @@ boost::shared_ptr<GIndividual> indptrFromString(const std::string& gi_string, co
 	boost::shared_ptr<GIndividual> gi_ptr;
 
 	switch(serMod){
-	case DEFAULTSERIALIZATION: // Same as TEXTSERIALIZATION
 	case TEXTSERIALIZATION:
 		{
 			boost::archive::text_iarchive ia(istr);
