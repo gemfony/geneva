@@ -142,8 +142,11 @@ public:
 			}
 			// Differing types ? Need to reset the target item
 			else {
+				*it_this = (*it_gms)->clone_bptr_cast<T>();
+				/*
 				boost::shared_ptr<T> p = (*it_gms)->clone_bptr_cast<T>();
 				it_this->swap(p);
+				*/
 				/*
 				// Extract a copy of the GParameterBase object
 				T* tobj = dynamic_cast<T *>((*it_gms)->clone());
