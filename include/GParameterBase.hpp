@@ -80,6 +80,7 @@ class GParameterBase:
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
       ar & make_nvp("GObject",boost::serialization::base_object<GObject>(*this));
+      ar & make_nvp("GMutableI", boost::serialization::base_object<GMutableI>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -99,7 +100,8 @@ public:
 	virtual void mutate(void) = 0;
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 /**************************************************************************************************/
 /**

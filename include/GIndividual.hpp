@@ -73,6 +73,8 @@ class GIndividual
 	void serialize(Archive & ar, const unsigned int version){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
+	  ar & make_nvp("GRateableI", boost::serialization::base_object<GRateableI>(*this));
+	  ar & make_nvp("GMutableI", boost::serialization::base_object<GMutableI>(*this));
 	  ar & make_nvp("currentFitness_",currentFitness_);
 	  ar & make_nvp("dirtyFlag_",dirtyFlag_);
 	  ar & make_nvp("allowLazyEvaluation_",allowLazyEvaluation_);
