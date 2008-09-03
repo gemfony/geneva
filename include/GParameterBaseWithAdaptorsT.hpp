@@ -485,25 +485,6 @@ private:
 		if (fromSize > toSize) {
 			for (itFrom = from.begin() + toSize; itFrom != from.end(); ++itFrom) {
 				to.push_back((*itFrom)->clone_bptr_cast<GAdaptorT<T> >());
-
-				/*
-				// clone() emits a GObject, so we need to use a dynamic_cast. It will emit
-				// a null-pointer, if the conversion failed.
-				GAdaptorT<T> *gatptr = dynamic_cast<GAdaptorT<T> *> ((*itFrom)->clone());
-				if (gatptr) {
-					boost::shared_ptr<GAdaptorT<T> > p(gatptr);
-					to.push_back(p);
-				} else {
-					std::ostringstream error;
-					error << "In GParameterBaseWithAdaptorsT<T>::copyAdaptors(): Conversion error! (2)" << std::endl;
-
-					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-					// throw an exception. Add some information so that if the exception
-					// is caught through a base object, no information is lost.
-					throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-				}
-				*/
 			}
 		}
 		// toSize > fromSize ? We need to remove the surplus items. The
