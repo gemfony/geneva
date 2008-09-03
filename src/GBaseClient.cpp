@@ -35,8 +35,7 @@ GBaseClient::GBaseClient()
 	:startTime_(boost::posix_time::microsec_clock::local_time()),
 	 maxDuration_(boost::posix_time::microsec(0)),
 	 processed_(0),
-	 processMax_(0),
-	 serializationMode_(TEXTSERIALIZATION)
+	 processMax_(0)
 { /* nothing*/ }
 
 /*********************************************************************************/
@@ -165,9 +164,16 @@ bool GBaseClient::halt(){
  * which in turn makes use of the facilities provided by GMemberCarrier.
  */
 bool GBaseClient::process(){
+	 // Store the current serialization mode
+	serializationMode serMode;
+
 	// Get an item from the server
 	std::string istr;
-	if(!this->retrieve(istr)) return false;
+	std::string serModeStr;
+	if(!this->retrieve(istr, serModeStr)) return false;
+
+	// Check the serialization mode we need to use
+	serMode = std::lexical_cast<serializationMode>(serModeStr);
 
 	// There is a possibility that we have received an unknown command
 	// or a timeout command. In this case we want to try again until retrieve
@@ -177,7 +183,7 @@ bool GBaseClient::process(){
 
 	// unpack the data and create a new GIndividual. Note that de-serialization should
 	// generally happen through the same type that was used for serialization.
-	boost::shared_ptr<GIndividual> target = indptrFromString(istr, serializationMode_);
+	boost::shared_ptr<GIndividual> target = indptrFromString(istr, serMode);
 
 	// This one line is all it takes to do the processing required for this individual.
 	// GIndividual has all required functions on board. GBaseClient does not need to understand
@@ -203,7 +209,7 @@ bool GBaseClient::process(){
 	// transform target back into a string and submit to the server. The actual
 	// actions done by submit are defined by derived classes.
 	if(!this->submit(
-			indptrToString(target, serializationMode_),
+			indptrToString(target, serMode),
 			portid,
 			boost::lexical_cast<std::string>(fitness),
 			boost::lexical_cast<std::string>(isDirty)
@@ -213,28 +219,6 @@ bool GBaseClient::process(){
 	// Everything worked. Indicate that we want to continue
 	return true;
 } // boost::shared_ptr<GIndividual> target will cease to exist at this point
-
-/*********************************************************************************/
-/**
- * Retrieves the current serialization mode
- *
- * @return The current serialization mode
- */
-serializationMode GBaseClient::getSerializationMode() const throw() {
-	return serializationMode_;
-}
-
-/*********************************************************************************/
-/**
- * Sets the serialization mode. The only allowed values of the enum serializationMode are
- * BINARYSERIALIZATION, TEXTSERIALIZATION and XMLSERIALIZATION. The compiler does the
- * error-checking for us.
- *
- * @param ser The new serialization mode
- */
-void GBaseClient::setSerializationMode(const serializationMode& ser) throw() {
-	serializationMode_ = ser;
-}
 
 /*********************************************************************************/
 

@@ -109,11 +109,6 @@ public:
 	/** @brief Shuts down the network implementation */
 	virtual void finally(){}; // To be called from derived classes' destructor
 
-	/** @brief Retrieves the current serialization mode */
-	serializationMode getSerializationMode() const throw();
-	/** @brief Sets the serialization mode */
-	void setSerializationMode(const serializationMode&) throw();
-
 protected:
 	/** @brief One-time data retrieval, processing and result submission */
 	bool process();
@@ -139,8 +134,6 @@ private:
 
 	boost::uint32_t processed_; ///< The number of processed items so far
 	boost::uint32_t processMax_; ///< The maximum number of items to process
-
-	serializationMode serializationMode_; ///< Specifies the serialization mode
 };
 
 /*********************************************************************************/

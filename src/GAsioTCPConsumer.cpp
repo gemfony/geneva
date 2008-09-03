@@ -84,7 +84,7 @@ void GAsioServerSession::processRequest() {
 			// Store the id in the individual
 			p->setAttribute("id", boost::lexical_cast<std::string>(id));
 
-			if (!this->submit(indptrToString(p, serializationMode_),"compute")) {
+			if (!this->submit(indptrToString(p, serializationMode_),"compute",boost::lexical_cast<std::string>(serializationMode_))) {
 				std::ostringstream information;
 				information << "In GAsioServerSession::processRequest():" << std::endl
 							<< "Could not submit item to client!" << std::endl;
@@ -245,12 +245,15 @@ bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid, 
  * @param item An item to be written to the socket
  * @return true if successful, otherwise false
  */
-bool GAsioServerSession::submit(const std::string& item, const std::string& command){
+bool GAsioServerSession::submit(const std::string& item, const std::string& command, const std::string& serMode){
 	// Format the command
 	std::string outbound_command_header = assembleQueryString(command, COMMANDLENGTH);
 
 	// Format the size header
 	std::string outbound_size_header = assembleQueryString(boost::lexical_cast<std::string>(item.size()), COMMANDLENGTH);
+
+	// Format a header for the serialization mode
+	std::string serialization_header = assembleQueryString(serMode, COMMANDLENGTH);
 
 	// Write the serialized data to the socket. We use "gather-write" to send
 	// command, header and data in a single write operation.
@@ -258,6 +261,7 @@ bool GAsioServerSession::submit(const std::string& item, const std::string& comm
 
 	buffers.push_back(boost::asio::buffer(outbound_command_header));
 	buffers.push_back(boost::asio::buffer(outbound_size_header));
+	buffers.push_back(boost::asio::buffer(serialization_header));
 	buffers.push_back(boost::asio::buffer(item));
 
 	try{

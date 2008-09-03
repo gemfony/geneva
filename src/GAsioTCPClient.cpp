@@ -101,7 +101,7 @@ boost::uint32_t GAsioTCPClient::getMaxConnectionAttempts() const throw() {
  * @param item Holds the string representation of the work item, if successful
  * @return true if operation should be continued, otherwise false
  */
-bool GAsioTCPClient::retrieve(std::string& item) {
+bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
 	item = "empty"; // Indicates that no item could be retrieved
 
 	try {
@@ -131,6 +131,10 @@ bool GAsioTCPClient::retrieve(std::string& item) {
 			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
 			std::string inboundHeader = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
 			std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
+
+			// Now retrieve the serialization mode that was used
+			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
+			serMode = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
 
 			// Create appropriately sized buffer
 			char inboundData[dataSize];
