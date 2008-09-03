@@ -120,6 +120,39 @@ public:
 	/** @brief Give the class a name */
 	void setName(const std::string&) throw();
 
+	/**************************************************************************************************/
+	/**
+	 * The function creates a clone of the GObject pointer and converts it to a pointer to a derived class.
+	 * This work and the corresponding error checks are centralized in this function. Conversion will be fast
+	 * if we do not compile in DEBUG mode.
+	 *
+	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
+	 */
+	template <class clone_type>
+	inline clone_type* clone_cast(){
+#ifdef DEBUG
+		clone_type *result = dynamic_cast<clone_type *> (this->clone);
+
+		// dynamic_cast will emit a NULL pointer, if the conversion failed
+		if (!result) {
+			std::ostringstream error;
+			error << "In GObject::clone_cast<T>() : Conversion error!" << std::endl;
+
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
+		}
+
+		return result;
+#else
+		return static_cast<clone_type *>(this->clone());
+#endif
+	}
+
+	/**************************************************************************************************/
+
 protected:
     /**
      * A random number generator. Each GenEvA object has
