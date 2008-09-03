@@ -158,25 +158,6 @@ public:
 		if (gms_sz > this_sz) {
 			for(it_gms=gms_load->data.begin() + this_sz; it_gms!=gms_load->data.end(); ++it_gms){
 				data.push_back((*it_gms)->clone_bptr_cast<T>());
-				/*
-				// Extract a copy of the GParameterBase object
-				T* tobj = dynamic_cast<T *>((*it_gms)->clone());
-
-				// Check whether the conversion has worked
-				if(!tobj){
-					std::ostringstream error;
-					error << "In GMutableSetT::load(const GObject*):" << std::endl
-						  << "Conversion error" << std::endl;
-
-					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-					throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-				}
-
-				// We're safe and can attach the object to this class
-				tobj_ptr p(tobj);
-				data.push_back(p);
-				*/
 			}
 		}
 		// this_sz > gms_sz ? We need to remove the surplus items. The
