@@ -38,7 +38,6 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/utility.hpp>
-#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
@@ -67,14 +66,23 @@ namespace Gem
 namespace GenEvA
 {
 
+/***************************************************************************************************/
+
 /** @brief Convert a shared_ptr<GIndividual> into its string representation */
 std::string indptrToString(const boost::shared_ptr<GIndividual>&, const serializationMode&);
 
 /** @brief Load a shared_ptr<GIndividual> from its string representation */
 boost::shared_ptr<GIndividual> indptrFromString(const std::string&, const serializationMode&);
 
+/** @brief Puts a Gem::GenEvA::serializationMode into a stream */
+std::ostream& operator<<(std::ostream&, const Gem::GenEvA::serializationMode&);
+
+/** @brief Reads a Gem::GenEvA::serializationMode item from a stream */
+std::istream& operator>>(std::istream&, Gem::GenEvA::serializationMode&);
+
+/***************************************************************************************************/
+
 } /* namespace GenEvA */
 } /* namespace Gem */
 
 #endif /* GSERIALIZATIONHELPERFUNCTIONS_HPP_ */
-

@@ -107,6 +107,35 @@ boost::shared_ptr<GIndividual> indptrFromString(const std::string& gi_string, co
 }
 
 /*********************************************************************/
+/**
+ * Puts a Gem::GenEvA::serializationMode item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param serMode the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::serializationMode& serMode){
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(serMode);
+	o << tmp;
+	return o;
+}
+
+/*********************************************************************/
+/**
+ * Reads a Gem::GenEvA::serializationMode item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param serMode The item read from the stream
+ * @return The std::istream object used to reat the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::GenEvA::serializationMode& serMode){
+	boost::uint16_t tmp;
+	i >> tmp;
+	serMode = static_cast<Gem::GenEvA::serializationMode>(tmp);
+	return i;
+}
+
+/*********************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
