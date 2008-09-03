@@ -142,7 +142,7 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// We have no local data. Hence we can just pass the pointer to our parent class.
-		// Note that we'd have to use the GObject::checkedConversion() function otherwise.
+		// Note that we'd have to use the GObject::conversion_cast() function otherwise.
 		GParameterSet::load(cp);
 	}
 

@@ -124,7 +124,7 @@ public:
 	 */
 	virtual void load(const GObject* cp) {
 		// Convert cp into local format
-		const GParameterCollectionT<T> *gpct = this->checkedConversion(cp, this);
+		const GParameterCollectionT<T> *gpct = this->conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<T>::load(cp);

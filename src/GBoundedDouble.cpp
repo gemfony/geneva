@@ -140,7 +140,7 @@ namespace Gem
 		 */
 		void GBoundedDouble::load(const GObject *cp) {
 			// Convert GObject pointer to local format
-			const GBoundedDouble *gbd_load	= this->checkedConversion(cp, this);
+			const GBoundedDouble *gbd_load	= this->conversion_cast(cp, this);
 
 			// Load our parent class'es data ...
 			GParameterT<double>::load(cp);

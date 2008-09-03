@@ -123,7 +123,7 @@ namespace Gem
 		 * @param cp A pointer to another GBitFlipAdaptor object, camouflaged as a GObject
 		 */
 		void GBitFlipAdaptor::load(const GObject *cp) {
-			const GBitFlipAdaptor *gbfa = this->checkedConversion(cp, this);
+			const GBitFlipAdaptor *gbfa = this->conversion_cast(cp, this);
 
 			// Now we can load our parent class'es data ...
 			GAdaptorT<GenEvA::bit>::load(cp);

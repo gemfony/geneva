@@ -86,7 +86,7 @@ const GBrokerPopulation& GBrokerPopulation::operator=(const GBrokerPopulation& c
  * @param cp A pointer to another GBrokerPopulation object, camouflaged as a GObject
  */
 void GBrokerPopulation::load(const GObject * cp) {
-	const GBrokerPopulation *gbp_load = this->checkedConversion(cp, this);
+	const GBrokerPopulation *gbp_load = this->conversion_cast(cp, this);
 
 	// Load the parent class'es data ...
 	GBasePopulation::load(cp);

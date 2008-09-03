@@ -136,7 +136,7 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
-	    const GMutableSetT<T> *gms_load = this->checkedConversion(cp, this);
+	    const GMutableSetT<T> *gms_load = this->conversion_cast(cp, this);
 
 	    // No local data - first load the GIndividual data
 	    GIndividual::load(cp);

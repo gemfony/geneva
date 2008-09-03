@@ -86,7 +86,7 @@ const GBoostThreadPopulation& GBoostThreadPopulation::operator=(const GBoostThre
  */
 void GBoostThreadPopulation::load(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GBoostThreadPopulation *gbp = this->checkedConversion(cp, this);
+	const GBoostThreadPopulation *gbp = this->conversion_cast(cp, this);
 
 	// First load our parent class'es data ...
 	GBasePopulation::load(cp);

@@ -123,20 +123,20 @@ public:
 	/**************************************************************************************************/
 	/**
 	 * The function creates a clone of the GObject pointer and converts it to a pointer to a derived class.
-	 * This work and the corresponding error checks are centralized in this function. Conversion will be fast
+	 * This work and the corresponding error checks are centralized in this function. Conversion will be faster
 	 * if we do not compile in DEBUG mode.
 	 *
-	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
+	 * @return A converted clone of this object
 	 */
 	template <class clone_type>
-	inline clone_type* clone_cast(){
+	inline clone_type* clone_ptr_cast(){
 #ifdef DEBUG
 		clone_type *result = dynamic_cast<clone_type *> (this->clone);
 
 		// dynamic_cast will emit a NULL pointer, if the conversion failed
 		if (!result) {
 			std::ostringstream error;
-			error << "In GObject::clone_cast<T>() : Conversion error!" << std::endl;
+			error << "In GObject::clone_ptr_cast<T>() : Conversion error!" << std::endl;
 
 			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
@@ -148,6 +148,42 @@ public:
 		return result;
 #else
 		return static_cast<clone_type *>(this->clone());
+#endif
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
+	 * and emits it as a boost::shared_ptr<> . This work and the corresponding error checks are centralized
+	 * in this function. Conversion will be faster if we do not compile in DEBUG mode.
+	 *
+	 * @return A converted clone of this object, wrapped into a boost::shared_ptr
+	 */
+	template <class clone_type>
+	inline boost::shared_ptr<clone_type> clone_bptr_cast(){
+		// Get a clone of this object and wrap it in a boost::shared_ptr<GObject>
+		boost::shared_ptr<GObject> p_base(this->clone);
+
+#ifdef DEBUG
+		// Convert to the desired target type
+		boost::shared_ptr<clone_type> p_load = boost::dynamic_pointer_cast<clone_type>(p_base);
+
+		// Check that the conversion worked. dynamic_cast emits an empty pointer,
+		// if this was not the case.
+		if(!p_load){
+			std::ostringstream error;
+			error << "In GObject::clone_bptr_cast<clone_type>() : Conversion error!" << std::endl;
+
+			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
+		}
+
+		return p_load;
+#else
+		return boost::static_pointer_cast<clone_type>(p_base);
 #endif
 	}
 
@@ -173,7 +209,7 @@ protected:
 	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
 	 */
 	template <class load_type>
-	inline const load_type* checkedConversion(const GObject *load_ptr, const load_type* This){
+	inline const load_type* conversion_cast(const GObject *load_ptr, const load_type* This){
 #ifdef DEBUG
 		const load_type *result = dynamic_cast<const load_type *> (load_ptr);
 

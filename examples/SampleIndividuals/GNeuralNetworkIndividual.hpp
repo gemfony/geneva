@@ -407,7 +407,7 @@ public:
 	 * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		const GNeuralNetworkIndividual *gpi_load = checkedConversion(cp, this);
+		const GNeuralNetworkIndividual *gpi_load = conversion_cast(cp, this);
 
 		// Load the parent class'es data
 		GParameterSet::load(cp);

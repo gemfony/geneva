@@ -108,7 +108,7 @@ const GBasePopulation& GBasePopulation::operator=(const GBasePopulation& cp) {
  */
 void GBasePopulation::load(const GObject * cp)
 {
-	const GBasePopulation *gbp_load = this->checkedConversion(cp,this);
+	const GBasePopulation *gbp_load = this->conversion_cast(cp,this);
 
 	// First load the parent class'es data ...
 	GIndividualSet::load(cp);
