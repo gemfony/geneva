@@ -85,7 +85,6 @@ class GObject :public GSerializableI
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
       ar & make_nvp("name_",GObject::name_);
-      ar & make_nvp("serializationMode_",serializationMode_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -119,11 +118,6 @@ public:
 	std::string name(void) const throw();
 	/** @brief Give the class a name */
 	void setName(const std::string&) throw();
-
-	/** @brief Retrieves the current serialization mode */
-	serializationMode getSerializationMode(void) const throw();
-	/** @brief Sets the serialization mode */
-	void setSerializationMode(const serializationMode&) throw();
 
 protected:
     /**
@@ -181,7 +175,6 @@ protected:
 
 private:
 	std::string name_; ///< Allows to assign a name to this object
-	serializationMode serializationMode_; ///< Specifies the serialization mode
 };
 
 } /* namespace GenEvA */

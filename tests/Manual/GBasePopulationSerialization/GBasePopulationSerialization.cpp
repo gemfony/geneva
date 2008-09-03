@@ -130,9 +130,8 @@ int main(int argc, char **argv){
 	pop.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
 	// Serialize
-	pop.setSerializationMode(XMLSERIALIZATION);
 	std::ostringstream popStream;
-	popStream << pop.toString();
+	popStream << pop.toString(XMLSERIALIZATION);
 
 	// Write to file for later inspection
 	std::ofstream popFile("pop.xml");
@@ -140,7 +139,7 @@ int main(int argc, char **argv){
 	popFile.close();
 
 	GObject *local = (GObject *)NULL;
-	std::istringstream istr(pop.toString());
+	std::istringstream istr(pop.toString(XMLSERIALIZATION));
 	{
 		boost::archive::xml_iarchive ia(istr);
 		ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);

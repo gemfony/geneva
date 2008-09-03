@@ -48,7 +48,7 @@ namespace GenEvA {
   /**
    * The serialization modes that are currently allowed
    */
-  enum serializationMode {TEXTSERIALIZATION=0,XMLSERIALIZATION=1,BINARYSERIALIZATION=2,DEFAULTSERIALIZATION=3};
+  enum serializationMode {TEXTSERIALIZATION=0,XMLSERIALIZATION=1,BINARYSERIALIZATION=2};
 
   /**
    * Currently three types of recombination schemes are supported:

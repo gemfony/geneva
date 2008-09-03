@@ -62,52 +62,32 @@ BOOST_AUTO_TEST_CASE( gobject_test )
 	BOOST_CHECK(gbfa->name() != gbfa2->name());
 	BOOST_CHECK(gbfa2->name() == ADAPTORNAME2);
 
-	// Getting and setting the serialization mode
-	BOOST_CHECK(gbfa->getSerializationMode() == TEXTSERIALIZATION); // The default mode
-	gbfa->setSerializationMode(TEXTSERIALIZATION);
-	BOOST_CHECK(gbfa->getSerializationMode() == TEXTSERIALIZATION);
-	gbfa->setSerializationMode(XMLSERIALIZATION);
-	BOOST_CHECK(gbfa->getSerializationMode() == XMLSERIALIZATION);
-	gbfa->setSerializationMode(BINARYSERIALIZATION);
-	BOOST_CHECK(gbfa->getSerializationMode() == BINARYSERIALIZATION);
-	BOOST_CHECK(gbfa->getSerializationMode() != gbfa2->getSerializationMode());
-	gbfa->setSerializationMode(DEFAULTSERIALIZATION);
-	BOOST_CHECK(gbfa->getSerializationMode() == DEFAULTSERIALIZATION);
-	BOOST_CHECK(gbfa->getSerializationMode() != gbfa2->getSerializationMode());
-
 	// Assigning the object
 	*gbfa2 = *gbfa;
 	BOOST_CHECK(gbfa->name() == ADAPTORNAME);
 	BOOST_CHECK(gbfa->name() == gbfa2->name());
-	BOOST_CHECK(gbfa->getSerializationMode() == gbfa2->getSerializationMode());
 
 	// Changing the aspects again
-	gbfa->setSerializationMode(TEXTSERIALIZATION);
 	gbfa->setName(ADAPTORNAME2);
 	BOOST_CHECK(gbfa->name() != gbfa2->name());
-	BOOST_CHECK(gbfa->getSerializationMode() != gbfa2->getSerializationMode());
 
 	// Cloning should create an independent object
 	GBitFlipAdaptor *gbfa3 = dynamic_cast<GBitFlipAdaptor *>(gbfa2->clone());
 	if(!gbfa3) throw;
 	BOOST_CHECK(gbfa2->name() == gbfa3->name());
-	BOOST_CHECK(gbfa2->getSerializationMode() == gbfa3->getSerializationMode());
-	gbfa3->setSerializationMode(BINARYSERIALIZATION);
 	gbfa3->setName(ADAPTORNAME3);
 	BOOST_CHECK(gbfa2->name() != gbfa3->name());
-	BOOST_CHECK(gbfa2->getSerializationMode() != gbfa3->getSerializationMode());
 
 	// Loading the individual should create an identical copy of the origin
 	gbfa2->load(gbfa3);
 	BOOST_CHECK(gbfa2->name() == gbfa3->name());
-	BOOST_CHECK(gbfa2->getSerializationMode() == gbfa3->getSerializationMode());
 
 	// Create reports for both objects and check that they are the same
 	BOOST_CHECK((gbfa2->report()).size() != 0 && gbfa2->report() == gbfa3->report());
 
 	// Save to a string and load from the string in different modes
 
-	std::string goString = gbfa2->toString(DEFAULTSTRING);
+	//std::string goString = gbfa2->toString();
 
 	delete gbfa;
 	delete gbfa2;

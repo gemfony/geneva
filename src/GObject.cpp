@@ -36,7 +36,7 @@ namespace GenEvA {
  * In particular, it sets the name of the Geneva object to "GObject"
  */
 GObject::GObject(void) throw() :
-	name_("GObject"), serializationMode_(TEXTSERIALIZATION)
+	name_("GObject")
 { /* nothing */ }
 
 /**************************************************************************************************/
@@ -47,7 +47,7 @@ GObject::GObject(void) throw() :
  * @param geneva_object_name The name which is assigned to a Geneva object
  */
 GObject::GObject(const std::string& geneva_object_name) throw() :
-	name_(geneva_object_name), serializationMode_(TEXTSERIALIZATION)
+	name_(geneva_object_name)
 { /* nothing */ }
 
 /**************************************************************************************************/
@@ -62,7 +62,7 @@ GObject::GObject(const std::string& geneva_object_name) throw() :
  * @param cp A copy of another GObject object
  */
 GObject::GObject(const GObject& cp) throw() :
-	name_(cp.name_), serializationMode_(cp.serializationMode_)
+	name_(cp.name_)
 { /* nothing */ }
 
 /**************************************************************************************************/
@@ -110,7 +110,6 @@ std::string GObject::toString(const serializationMode& serMod) {
 
     switch(serMod)
     {
-    case DEFAULTSERIALIZATION: // same as TEXTSERIALIZATION
     case TEXTSERIALIZATION:
 		{
 			boost::archive::text_oarchive oa(oarchive_stream);
@@ -156,7 +155,6 @@ void GObject::fromString(const std::string& descr, const serializationMode& serM
 
     switch(serMod)
      {
-     case DEFAULTSERIALIZATION: // same as TEXTSERIALIZATION
      case TEXTSERIALIZATION:
  		{
 		    boost::archive::text_iarchive ia(istr);
@@ -209,7 +207,6 @@ void GObject::load(const GObject *cp) {
 
 	// Load the actual data
 	name_ = cp->name_;
-	serializationMode_ = cp->serializationMode_;
 }
 
 /**************************************************************************************************/
@@ -230,28 +227,6 @@ std::string GObject::name(void) const throw() {
  */
 void GObject::setName(const std::string& geneva_object_name) throw() {
 	name_ = geneva_object_name;
-}
-
-/**************************************************************************************************/
-/**
- * Retrieves the current serialization mode
- *
- * @return The current serialization mode
- */
-serializationMode GObject::getSerializationMode(void) const throw() {
-	return serializationMode_;
-}
-
-/**************************************************************************************************/
-/**
- * Sets the serialization mode. The only allowed values of the enum serializationMode are
- * BINARYSERIALIZATION, TEXTSERIALIZATION and XMLSERIALIZATION. The compiler does the
- * error-checking regarding allowed values for us.
- *
- * @param ser The new serialization mode
- */
-void GObject::setSerializationMode(const serializationMode& ser) throw() {
-	serializationMode_ = ser;
 }
 
 /**************************************************************************************************/
