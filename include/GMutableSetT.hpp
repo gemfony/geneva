@@ -94,30 +94,8 @@ public:
 		GIndividual(cp)
 	{
 		typename std::vector<tobj_ptr>::const_iterator itc;
-		for(itc=cp.data.begin(); itc!=cp.data.end(); ++itc){
+		for(itc=cp.data.begin(); itc!=cp.data.end(); ++itc)
 			data.push_back((*itc)->clone_bptr_cast<T>());
-
-			/*
-			// Extract a copy of the T object. Note that we assume that it has
-			// the GObject interface and particularly the clone() function
-			T* tobj = dynamic_cast<T *>((*itc)->clone());
-
-			// Check whether the conversion has worked
-			if(!tobj){
-				std::ostringstream error;
-				error << "In GMutableSetT(const GMutableSetT& cp):" << std::endl
-					  << "Conversion error" << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-			}
-
-			// We're safe and can attach the object to this class
-			boost::shared_ptr<T> p(tobj);
-			data.push_back(p);
-			*/
-		}
 	}
 
 	/**********************************************************************************/
@@ -164,6 +142,8 @@ public:
 			}
 			// Differing types ? Need to reset the target item
 			else {
+				it_this->swap((*it_gms)->clone_bptr_cast<T>());
+				/*
 				// Extract a copy of the GParameterBase object
 				T* tobj = dynamic_cast<T *>((*it_gms)->clone());
 
@@ -181,6 +161,7 @@ public:
 				// We're safe and can attach the object to this class
 				tobj_ptr p(tobj);
 				it_this->swap(p);
+				*/
 			}
 		}
 
