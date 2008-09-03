@@ -333,6 +333,9 @@ void GBasePopulation::adjustPopulation() {
 	else { // We need to add members, so that we have a minimum of popSize_ members in the population
 		// Missing members are created as copies of the population's first individual
 		for(std::size_t i=0; i<(popSize_-this_sz); i++) {
+			data.push_back(data.at(0)->clone_bptr_cast<GIndividual>());
+
+			/*
 			GIndividual *gi = dynamic_cast<GIndividual *>(data.at(0)->clone());
 			if(gi) { // did the conversion work ?
 				boost::shared_ptr<GIndividual> p(gi);
@@ -348,6 +351,7 @@ void GBasePopulation::adjustPopulation() {
 				// is caught through a base object, no information is lost.
 				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
 			}
+			*/
 		}
 	}
 
