@@ -142,8 +142,8 @@ int main(int argc, char **argv){
 	try{
 		gbd13 = 4;
 	}
-	catch(geneva_value_outside_range& error){
-		std::cout << "In GBoundedDouble test: Caught geneva_value_outside_range" << std::endl
+	catch(geneva_error_condition& error){
+		std::cout << "In GBoundedDouble test: Caught geneva_error_condition" << std::endl
 				  << "exception with message " << std::endl
 				  << error.diagnostic_information() << std::endl
 				  << std::endl
