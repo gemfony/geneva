@@ -409,21 +409,6 @@ void GBrokerPopulation::mutateChildren() {
 
 		for(std::size_t i=0; i<fixSize; i++){
 			data.push_back((data.back())->clone_bptr_cast<GIndividual>());
-			/*
-			GIndividual *gi = dynamic_cast<GIndividual *>((data.back())->clone());
-
-			if(!gi){ // Cross check that the conversion worked
-				std::ostringstream error;
-				error << "In GBrokerPopulation::mutateChildren() : Conversion Error!" << std::endl;
-
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				throw geneva_dynamic_cast_conversion_error() << error_string(error.str());
-			}
-
-			data.push_back(boost::shared_ptr<GIndividual>(gi));
-			*/
-
 		}
 	}
 
