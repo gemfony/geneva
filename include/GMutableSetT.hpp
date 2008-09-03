@@ -95,6 +95,9 @@ public:
 	{
 		typename std::vector<tobj_ptr>::const_iterator itc;
 		for(itc=cp.data.begin(); itc!=cp.data.end(); ++itc){
+			data.push_back((*itc)->clone_bptr_cast<T>());
+
+			/*
 			// Extract a copy of the T object. Note that we assume that it has
 			// the GObject interface and particularly the clone() function
 			T* tobj = dynamic_cast<T *>((*itc)->clone());
@@ -113,6 +116,7 @@ public:
 			// We're safe and can attach the object to this class
 			boost::shared_ptr<T> p(tobj);
 			data.push_back(p);
+			*/
 		}
 	}
 
