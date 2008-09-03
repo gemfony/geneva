@@ -132,6 +132,7 @@ private:
 
 /*************************************************************************/
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 #endif /*GDOUBLEGAUSSADAPTOR_H_*/

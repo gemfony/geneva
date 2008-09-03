@@ -1,0 +1,3 @@
+This directory contains tests that mostly require manual inspection of the
+results. As an example, the GRandomUsage test creates plots with different
+random number distributions that can be viewed with the Root analysis toolkit.
