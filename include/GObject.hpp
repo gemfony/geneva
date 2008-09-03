@@ -131,7 +131,7 @@ public:
 	template <class clone_type>
 	inline clone_type* clone_ptr_cast(){
 #ifdef DEBUG
-		clone_type *result = dynamic_cast<clone_type *> (this->clone);
+		clone_type *result = dynamic_cast<clone_type *> (this->clone());
 
 		// dynamic_cast will emit a NULL pointer, if the conversion failed
 		if (!result) {
@@ -162,7 +162,7 @@ public:
 	template <class clone_type>
 	inline boost::shared_ptr<clone_type> clone_bptr_cast(){
 		// Get a clone of this object and wrap it in a boost::shared_ptr<GObject>
-		boost::shared_ptr<GObject> p_base(this->clone);
+		boost::shared_ptr<GObject> p_base(this->clone());
 
 #ifdef DEBUG
 		// Convert to the desired target type
