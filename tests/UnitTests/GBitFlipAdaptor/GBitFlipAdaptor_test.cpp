@@ -239,6 +239,8 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 		gbfa2->mutate(bitVector);
 		BOOST_CHECK(bitVector==testVector);
 	}
+
+	throw;
 }
 
 /***********************************************************************************/
