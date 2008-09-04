@@ -32,6 +32,7 @@
 #define BOOST_TEST_MODULE GObject_test
 #include <boost/test/unit_test.hpp>
 
+#include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
 #include "GObject.hpp"
@@ -72,48 +73,63 @@ BOOST_AUTO_TEST_CASE( gobject_test )
 	BOOST_CHECK(gbfa->name() != gbfa2->name());
 
 	// Cloning should create an independent object
+	gbfa2->setName(ADAPTORNAME);
 	GBitFlipAdaptor *gbfa3 = dynamic_cast<GBitFlipAdaptor *>(gbfa2->clone());
 	if(!gbfa3) throw;
-	BOOST_CHECK(gbfa2->name() == gbfa3->name());
-	gbfa3->setName(ADAPTORNAME3);
-	BOOST_CHECK(gbfa2->name() != gbfa3->name());
+	BOOST_CHECK(gbfa3->name() == gbfa2->name());
 
-	// Loading the individual should create an identical copy of the origin
+	// We should be able to directly create an instance of the target type
+	GBitFlipAdaptor *gbfa4 = gbfa2->clone_ptr_cast<GBitFlipAdaptor>();
+
+	// And we should be able to create that target type wrapped into a boost::shared_ptr<> .
+	boost::shared_ptr<GBitFlipAdaptor> gbfa5 = gbfa2->clone_bptr_cast<GBitFlipAdaptor>();
+
+	// All should now have the same name
+	BOOST_CHECK(gbfa3->name() == gbfa2->name());
+	BOOST_CHECK(gbfa4->name() == gbfa2->name());
+	BOOST_CHECK(gbfa4->name() == gbfa2->name());
+
+	// Check that we have independent objects
+	gbfa2->setName(ADAPTORNAME2);
+	BOOST_CHECK(gbfa3->name() != gbfa2->name());
+	BOOST_CHECK(gbfa4->name() != gbfa2->name());
+	BOOST_CHECK(gbfa4->name() != gbfa2->name());
+
+	// Loading the individual should again create an identical copy of the origin
 	gbfa2->load(gbfa3);
 	BOOST_CHECK(gbfa2->name() == gbfa3->name());
 
 	// Create reports for both objects and check that they are the same
 	BOOST_CHECK((gbfa2->report()).size() != 0 && gbfa2->report() == gbfa3->report());
 
-	// Save to a string and load from the string in different modes
-	// First in XML mode
-	gbfa->setName("oneName");
-	gbfa2->setName("otherName");
-	BOOST_CHECK(gbfa->name() != gbfa2->name());
-	gbfa->fromString(gbfa2->toString(XMLSERIALIZATION),XMLSERIALIZATION);
-	BOOST_CHECK(gbfa->name() == gbfa2->name());
+	// Save to a string and load from the string in different modes, repeat a few times
+	for(std::size_t i=0; i<10; i++){
+		// First in XML mode
+		gbfa->setName("ADAPTORNAME");
+		gbfa2->setName("ADAPTORNAME2");
+		BOOST_CHECK(gbfa->name() != gbfa2->name());
+		gbfa->fromString(gbfa2->toString(XMLSERIALIZATION),XMLSERIALIZATION);
+		BOOST_CHECK(gbfa->name() == gbfa2->name());
 
-	// Then in text mode
-	gbfa->setName("oneName");
-	gbfa2->setName("otherName");
-	BOOST_CHECK(gbfa->name() != gbfa2->name());
-	gbfa->fromString(gbfa2->toString(TEXTSERIALIZATION),TEXTSERIALIZATION);
-	BOOST_CHECK(gbfa->name() == gbfa2->name());
+		// Then in text mode
+		gbfa->setName("ADAPTORNAME");
+		gbfa2->setName("ADAPTORNAME2");
+		BOOST_CHECK(gbfa->name() != gbfa2->name());
+		gbfa->fromString(gbfa2->toString(TEXTSERIALIZATION),TEXTSERIALIZATION);
+		BOOST_CHECK(gbfa->name() == gbfa2->name());
 
-	// And finally in binary mode
-	gbfa->setName("oneName");
-	gbfa2->setName("otherName");
-	BOOST_CHECK(gbfa->name() != gbfa2->name());
-	gbfa->fromString(gbfa2->toString(BINARYSERIALIZATION),BINARYSERIALIZATION);
-	BOOST_CHECK(gbfa->name() == gbfa2->name());
+		// And finally in binary mode
+		gbfa->setName("ADAPTORNAME");
+		gbfa2->setName("ADAPTORNAME2");
+		BOOST_CHECK(gbfa->name() != gbfa2->name());
+		gbfa->fromString(gbfa2->toString(BINARYSERIALIZATION),BINARYSERIALIZATION);
+		BOOST_CHECK(gbfa->name() == gbfa2->name());
+	}
 
 	delete gbfa;
 	delete gbfa2;
 	delete gbfa3;
+	delete gbfa4;
 }
-
-
-// This test checks (de-serialization of the object in different modes. This is simultaneously
-// a test for the toString/fromString functions of the GObject class.
 
 // EOF
