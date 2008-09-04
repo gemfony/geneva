@@ -101,10 +101,10 @@ int main(int argc, char **argv) {
 		   << std::endl;
 
 	// Find min/max values of mutVal and Sigma
-	double minMutVal=0.;
+	double minMutVal=0.9;
 	double maxMutVal=1.;
-	double minTstSigma=0.;
-	double maxTstSigma=0.;
+	double minTstSigma=0.9;
+	double maxTstSigma=1.;
 
 	for(boost::uint32_t i=0; i<maxIter; i++){
 		if(y_mutVal[i]<minMutVal) minMutVal = y_mutVal[i];
