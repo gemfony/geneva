@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 	BOOST_CHECK(gdga->getMinSigma() == 0.002);
 
 	// Set and get all parameters
-	gdba->setAll(1.0, 0.1, 0.001);
+	gdga->setAll(1.0, 0.1, 0.001);
 	BOOST_CHECK(gdga->getSigma() == 1.0);
 	BOOST_CHECK(gdga->getSigmaSigma() == 0.1);
 	BOOST_CHECK(gdga->getMinSigma() == 0.001);
