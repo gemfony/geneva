@@ -37,6 +37,7 @@
 // Geneva header files go here
 #include "GObject.hpp"
 #include "GBitFlipAdaptor.hpp"
+#include "GenevaExceptions.hpp"
 
 using namespace Gem;
 using namespace Gem::GenEvA;
@@ -135,12 +136,46 @@ BOOST_AUTO_TEST_CASE( gobject_test_no_failure_expected )
 }
 
 /***********************************************************************************/
+// Test functions for the following tests
+bool testGObjectSelfAssignment(){
+	try{
+		GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
+		gbfa->load(gbfa); // This must fail!!!
+		delete gbfa;
+
+		std::cerr << "Error: An exception should have been thrown prior to reaching this point" << std::endl;
+		return false;
+	}
+	catch(geneva_error_condition& gec){
+		if( boost::shared_ptr<std::string const> err=boost::get_error_info<error_string>(gec) )
+			std::ostringstream error;
+			error << "In GObject::checkConversion<T>() : Error!" << std::endl
+				  << "Tried to assign an object to itself." << std::endl;
+
+			if(error.str() == *err) return true;
+			else {
+				std::cerr << "Error: The exception contained an incorrect error description" << std::endl;
+				return false;
+			}
+		}
+
+		std::cerr << "Error: Could not retrieve error info" << std::endl;
+		return false;
+	}
+	catch(...){
+		std::cerr << "Error: Unknown exception caught" << std::endl;
+		return false;
+	}
+
+	std::cerr << "Error: This point should never have been reached" << std::endl;
+	return false;
+}
+
+/***********************************************************************************/
 // This test checks for things that are expected to fail in GObject
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES( gobject_test_failures_expected, 1 )
 BOOST_AUTO_TEST_CASE( gobject_test_failures_expected )
 {
-	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
-	gbfa->load(gbfa);
+	BOOST_CHECK(&testGObjectSelfAssignment);
 }
 
 /***********************************************************************************/

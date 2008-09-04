@@ -49,7 +49,7 @@ namespace GenEvA {
 typedef boost::error_info<struct tag_errno, std::string> error_string;
 
 /** @brief General error class to be thrown in the case of severe errors */
-class geneva_error_condition : public boost::exception {};
+class geneva_error_condition : public boost::exception, public std::exception {};
 
 /**************************************************************************************************/
 
