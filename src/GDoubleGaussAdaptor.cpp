@@ -208,7 +208,7 @@ void GDoubleGaussAdaptor::setSigmaSigma(const double& sigmaSigma, const double& 
 	}
 
 	sigmaSigma_ = sigmaSigma;
-	setMinSigma(minSigma); // Does its own error checking
+	if(sigmaSigma_) setMinSigma(minSigma); // Does its own error checking
 }
 
 /*************************************************************************/

@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 	double testValue = 1.;
 	double previousValue = testValue;
 
-	gdga->setSigmaSigma(0.); // Prevent changes of sigma
+	gdga->setSigmaSigma(0.,0.); // Prevent changes of sigma
 	for(boost::uint32_t i=0; i<100000; i++){
 		previousValue = testValue;
 		gdga->mutate(testValue);
