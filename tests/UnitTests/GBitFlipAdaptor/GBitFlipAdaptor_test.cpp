@@ -185,6 +185,23 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 	// Set and get the mutation probability
 	gbfa->setMutationProbability(0.9);
 	BOOST_CHECK(gbfa->getMutationProbability() == 0.9);
+
+	// The value of a bit should never change, if the mutation probability is set to 0
+	Gem::GenEvA::bit testBit = G_FALSE;
+	gbfa->setMutationProbability(0.);
+	for(boost::uint32_t i=0; i<10000; i++){
+		gbfa->mutate(testBit);
+		if(testBit == G_TRUE) throw;
+	}
+
+	// The value of a bit should always change, if the mutation probability is set to 1
+	gbfa->setMutationProbability(1.);
+	Gem::GenEvA::bit testBit = G_FALSE;
+	for(boost::uint32_t i=0; i<10000; i++){
+		Gem::GenEvA::bit previousBit = testBit;
+		gbfa->mutate(testBit);
+		if(testBit == previousBit) throw;
+	}
 }
 
 /***********************************************************************************/

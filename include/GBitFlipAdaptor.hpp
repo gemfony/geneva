@@ -106,7 +106,7 @@ public:
 	void setMutationParameters(const double&, const double&, const double&);
 
 	/** @brief Allow or disallow mutation of mutation probability */
-	void setAllowProbabilityMutation(const bool&);
+	void setAllowProbabilityMutation(const bool&) throw();
 	/** @brief Retrieves value of allowProbabilityMutation */
 	bool getAllowProbabilityMutation() const throw();
 
