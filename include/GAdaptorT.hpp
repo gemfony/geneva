@@ -114,7 +114,7 @@ public:
 	 *
 	 * @param name The name assigned to the adaptor
 	 */
-	explicit GAdaptorT(std::string name) throw() :
+	explicit GAdaptorT(const std::string& name) throw() :
 		GObject(name),
 		alwaysInit_(true)
 	{ /* nothing */ }
@@ -208,7 +208,7 @@ public:
 	 *
 	 * @return The value of the alwaysInit_ variable
 	 */
-	bool alwaysInit(void) const throw() {
+	bool alwaysInit() const throw() {
 		return alwaysInit_;
 	}
 
@@ -235,7 +235,7 @@ protected:
 	 *  it will be called only for the first item. It is not purely virtual, as
 	 *  we do not force derived classes to re-implement this function.
 	 */
-	virtual void initNewRun(void) { /* nothing */ }
+	virtual void initNewRun() { /* nothing */ }
 
 	/***********************************************************************************/
 	/** @brief Mutation of values as specified by the user */
@@ -245,14 +245,15 @@ private:
 	/***********************************************************************************/
 	/** @brief Default constructor. Private as we want every adaptor to have a name.
 	 Intentionally left undefined. */
-	GAdaptorT(void);
+	GAdaptorT();
 
 	bool alwaysInit_;
 };
 
 /******************************************************************************************/
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 /********************************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)

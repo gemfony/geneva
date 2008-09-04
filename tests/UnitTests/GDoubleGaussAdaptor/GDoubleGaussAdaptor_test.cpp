@@ -44,6 +44,7 @@
 #include "GenevaExceptions.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
+#include "GRandom.hpp"
 
 using namespace Gem;
 using namespace Gem::GenEvA;
@@ -179,79 +180,82 @@ BOOST_AUTO_TEST_CASE( gdga_gobject_test_failures_expected )
 // Tests of the GAdaptor<T> and GDoubleGaussAdaptor functionality
 BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 {
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(ADAPTORNAME));
+	{
+		// Construction with a given sigma
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0, ADAPTORNAME));
+		BOOST_CHECK(gdga); // Automatic conversion to bool. shared_ptr will be empty in case of a failure
+		BOOST_CHECK(gdga->getSigma() == 2.0);
+		BOOST_CHECK(gdga->name() == ADAPTORNAME);
+	} // gdga will cease to exist here
 
-	BOOST_CHECK(gdga); // Automatic conversion to bool. shared_ptr will be empty in case of a failure
+	// Construction with all parameters
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0, 0.2, 0.002, ADAPTORNAME));
+	BOOST_CHECK(gdga); // Automatic conversion to bool. shared_ptr will be empty in cas	e of a failure
 
-	// Set and get the mutation probability
-	gdga->setMutationProbability(0.9);
-	BOOST_CHECK(gdga->getMutationProbability() == 0.9);
+	// Check that the parameters have been set
+	BOOST_CHECK(gdga->name() == ADAPTORNAME);
+	BOOST_CHECK(gdga->getSigma() == 2.0);
+	BOOST_CHECK(gdga->getSigmaSigma() == 0.2);
+	BOOST_CHECK(gdga->getMinSigma() == 0.002);
 
-	// The value of a bit should never change, if the mutation probability is set to 0
-	Gem::GenEvA::bit testBit = G_FALSE;
-	gdga->setMutationProbability(0.);
-	for(boost::uint32_t i=0; i<10000; i++){
-		gdga->mutate(testBit);
-		BOOST_CHECK(testBit == G_FALSE);
+	// Set and get all parameters
+	gdba->setAll(1.0, 0.1, 0.001);
+	BOOST_CHECK(gdga->getSigma() == 1.0);
+	BOOST_CHECK(gdga->getSigmaSigma() == 0.1);
+	BOOST_CHECK(gdga->getMinSigma() == 0.001);
+
+	// Do it again with different functions
+	gdga->setSigma(2.0);
+	gdga->setSigmaSigma(0.2, 0.002);
+	BOOST_CHECK(gdga->getSigma() == 2.0);
+	BOOST_CHECK(gdga->getSigmaSigma() == 0.2);
+	BOOST_CHECK(gdga->getMinSigma() == 0.002);
+
+	// The value of a double should change during each mutation
+	double testValue = 1.;
+	double previousValue = testValue;
+
+	gdga->setSigmaSigma(0.); // Prevent changes of sigma
+	for(boost::uint32_t i=0; i<100000; i++){
+		previousValue = testValue;
+		gdga->mutate(testValue);
+		BOOST_CHECK(previousValue != testValue);
 	}
 
-	// The value of a bit should always change, if the mutation probability is set to 1
-	gdga->setMutationProbability(1.);
-	testBit = G_FALSE;
-	for(boost::uint32_t i=0; i<10000; i++){
-		Gem::GenEvA::bit previousBit = testBit;
-		gdga->mutate(testBit);
-		BOOST_CHECK(testBit != previousBit);
-	}
-
-	// Set some mutation parameters (sigma, sigmaSigma, minSigma)
-	gdga->setMutationParameters(1., 0.1, 0.01);
-
-	// Set the allowProbabilityMutation_ parameter
-	gdga->setAllowProbabilityMutation(false);
-	BOOST_CHECK(gdga->getAllowProbabilityMutation() == false);
-	gdga->setAllowProbabilityMutation(true);
-	BOOST_CHECK(gdga->getAllowProbabilityMutation() == true);
-	gdga->setAllowProbabilityMutation(false);
-	gdga->setAllowProbabilityMutation(); // default setting is "true"
-	BOOST_CHECK(gdga->getAllowProbabilityMutation() == true);
-
-	// Mutate a couple of times with allowProbabilityMutation_ set to true,
-	// see what happens.
-	for(boost::uint32_t i=0; i<1000000; i++){
-		gdga->mutate(testBit);
+	gdga->setSigmaSigma(0.2,0.002); // Allow changes of sigma
+	for(boost::uint32_t i=0; i<100000; i++){
+		previousValue = testValue;
+		gdga->mutate(testValue);
+		BOOST_CHECK(previousValue != testValue);
 	}
 
 	// Start with a new adaptor, this time for a vector
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga2(new GDoubleGaussAdaptor(ADAPTORNAME));
-	std::vector<Gem::GenEvA::bit> bitVector, testVector;
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga2(new GDoubleGaussAdaptor(2.0, 0.2, 0.002, ADAPTORNAME));
+	std::vector<double> doubleVector, previousVector;
+	GRandom gr;
 	for(std::size_t i=0; i<1000; i++){
-		if(i%2 == 0) bitVector.push_back(G_FALSE);
-		else bitVector.push_back(G_TRUE);
+		doubleVector.push_back(gr.evenRandom(-1.,1.));
 	}
-	testVector=bitVector;
 
-	gdga2->setAllowProbabilityMutation(false);
 	gdga2->setAlwaysInit(false);
-	gdga2->setMutationProbability(0.); // Vectors should always be the same
 	// Mutate a couple of times, see what happens
 	for(boost::uint32_t i=0; i<1000; i++){
-		gdga2->mutate(bitVector);
-		BOOST_CHECK(bitVector==testVector);
+		previousVector = doubleVector;
+		gdga2->mutate(doubleVector);
+		BOOST_CHECK(previousVector!=doubleVector);
 	}
 
-	gdga2->setAllowProbabilityMutation(true);
 	gdga2->setAlwaysInit(true);
-	gdga2->setMutationProbability(0.5); // Likelihood for vectors to be the same is very low - assume that they will never be the same
 	for(boost::uint32_t i=0; i<1000; i++){
-		gdga2->mutate(bitVector);
-		BOOST_CHECK(bitVector!=testVector);
+		previousVector = doubleVector;
+		gdga2->mutate(doubleVector);
+		BOOST_CHECK(previousVector!=doubleVector);
 	}
 }
 
 /***********************************************************************************/
 // Test functions for expected failures
-bool gdga_testProbabilityUnsuitable(const double& value){
+bool gdga_testUnsuitableMutationParameters(const double& sigma, const double& sigmaSigma, const double& minSigma){
 	try{
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(ADAPTORNAME));
 		if(!gdga) {
@@ -259,7 +263,7 @@ bool gdga_testProbabilityUnsuitable(const double& value){
 			return false;
 		}
 
-		gdga->setMutationProbability(value);
+		gdga->setAll(sigma, sigmaSigma, minSigma);
 	}
 	catch(geneva_error_condition& gec){
 		return true; // An exception of this type was expected here
@@ -278,8 +282,11 @@ bool gdga_testProbabilityUnsuitable(const double& value){
 // exceptions or failures
 BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_failures_expected )
 {
-	BOOST_CHECK(gdga_testProbabilityUnsuitable(1.001)); // Probability > 100%
-	BOOST_CHECK(gdga_testProbabilityUnsuitable(-0.001)); // Probability < 0%
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(0.,0.1,0.001)); // Invalid sigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(-1.,0.1,0.001)); // Invalid sigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,-1.,0.001)); // Invalid sigmaSigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0.)); // Invalid minSigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,-1)); // Invalid minSigma
 }
 
 /***********************************************************************************/

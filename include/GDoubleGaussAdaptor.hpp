@@ -79,14 +79,14 @@ class GDoubleGaussAdaptor:
 
 public:
 	/** @brief The standard constructor - every adaptor needs a name */
-	explicit GDoubleGaussAdaptor(std::string name);
+	explicit GDoubleGaussAdaptor(const std::string&);
 	/** @brief A standard constructor, including initialization of the sigma value */
-	GDoubleGaussAdaptor(double sigma, std::string name);
+	GDoubleGaussAdaptor(const double&, const std::string&);
 	/** @brief A standard constructor including initialization of the sigma, sigmaSigma and
 	 *  minSigma values */
-	GDoubleGaussAdaptor(double sigma, double sigmaSigma, double minSigma, std::string name);
+	GDoubleGaussAdaptor(const double&, const double&, const double&, const std::string&);
 	/** @brief The standard copy constructor */
-	GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp);
+	GDoubleGaussAdaptor(const GDoubleGaussAdaptor&);
 	/** @brief The standard destructor */
 	virtual ~GDoubleGaussAdaptor();
 
@@ -94,36 +94,36 @@ public:
 	const GDoubleGaussAdaptor& operator=(const GDoubleGaussAdaptor&);
 
 	/** @brief Loads the values of another GDoubleGaussAdaptor */
-	virtual void load(const GObject *gb);
+	virtual void load(const GObject *);
 	/** @brief Creates a deep copy of this object */
-	virtual GObject *clone(void);
+	virtual GObject *clone();
 
 	/** @brief Initializes a new mutation run */
-	virtual void initNewRun(void);
+	virtual void initNewRun();
 	/** @brief Specifies the mutations performed in this class */
-	virtual void customMutations(double &value);
+	virtual void customMutations(double &);
 
 	/** @brief Sets the width of the gaussian */
-	void setSigma(double sigma);
+	void setSigma(const double&);
 	/** @brief Retrieves the current width of the gaussian */
-	double getSigma(void) const;
+	double getSigma() const throw();
 
 	/** @brief Sets the width of the sigma adaption and the minimally
 	 * allowed  value for sigma */
-	void setSigmaSigma(double sigmaSigma, double minSigma);
-	/** @brief Sets a minimal value for sigma */
-	void setMinSigma(double minSigma);
+	void setSigmaSigma(const double&, const double&);
 	/** @brief Retrieves the current value of the sigma adaption */
-	double getSigmaSigma(void) const;
+	double getSigmaSigma() const throw();
+	/** @brief Sets a minimal value for sigma */
+	void setMinSigma(const double&);
 	/** @brief Retrieves the current minimal value allowed for sigma */
-	double getMinSigma(void) const;
+	double getMinSigma() const throw();
 
 	/** @brief Sets all values needed for the mutation in one go */
-	void setAll(double sigma, double sigmaSigma, double minSigma);
+	void setAll(const double&, const double&, const double&);
 
 private:
 	/** @brief The default constructor - not for public consumption */
-	GDoubleGaussAdaptor(void);
+	GDoubleGaussAdaptor();
 
 	double sigma_;
 	double sigmaSigma_;
