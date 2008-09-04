@@ -56,7 +56,7 @@ using namespace Gem::GenEvA;
 using namespace Gem::Util;
 using namespace Gem::GLogFramework;
 
-main(){
+int main(int argc, char **argv){
 	double sigma, sigmaSigma, minSigma, maxIter;
 
 	if(!parseCommandLine(argc, argv,
@@ -101,4 +101,6 @@ main(){
 		   << "  sigma0->Draw(\"AP\");" << std::endl
 		   << "  cc->cd();" << std::endl
 		   << "}" << std::endl;
+
+	return 0;
 }
