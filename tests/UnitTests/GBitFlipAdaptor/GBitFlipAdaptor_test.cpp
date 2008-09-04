@@ -86,8 +86,26 @@ BOOST_AUTO_TEST_CASE( gobject_test )
 	BOOST_CHECK((gbfa2->report()).size() != 0 && gbfa2->report() == gbfa3->report());
 
 	// Save to a string and load from the string in different modes
+	// First in XML mode
+	gbfa->setName("oneName");
+	gbfa2->setName("otherName");
+	BOOST_CHECK(gbfa->name() != gbfa2->name());
+	gbfa->fromString(gbfa2->toString(XMLSERIALIZATION),XMLSERIALIZATION);
+	BOOST_CHECK(gbfa->name() == gbfa2->name());
 
-	//std::string goString = gbfa2->toString();
+	// Then in text mode
+	gbfa->setName("oneName");
+	gbfa2->setName("otherName");
+	BOOST_CHECK(gbfa->name() != gbfa2->name());
+	gbfa->fromString(gbfa2->toString(TEXTSERIALIZATION),TEXTSERIALIZATION);
+	BOOST_CHECK(gbfa->name() == gbfa2->name());
+
+	// And finally in binary mode
+	gbfa->setName("oneName");
+	gbfa2->setName("otherName");
+	BOOST_CHECK(gbfa->name() != gbfa2->name());
+	gbfa->fromString(gbfa2->toString(BINARYSERIALIZATION),BINARYSERIALIZATION);
+	BOOST_CHECK(gbfa->name() == gbfa2->name());
 
 	delete gbfa;
 	delete gbfa2;
