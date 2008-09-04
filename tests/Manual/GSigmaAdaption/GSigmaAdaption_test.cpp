@@ -65,8 +65,8 @@ int main(int argc, char **argv) {
 	}
 
 	std::ostringstream result;
-	std::vector y_mutVal(maxIter);
-	std::vector y_sigma(maxIter);
+	std::vector<double> y_mutVal(maxIter);
+	std::vector<double> y_sigma(maxIter);
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga(
 			new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, "Adaptor"));
 
