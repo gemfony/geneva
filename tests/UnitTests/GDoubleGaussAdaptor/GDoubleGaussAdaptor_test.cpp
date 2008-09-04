@@ -48,6 +48,7 @@
 
 using namespace Gem;
 using namespace Gem::GenEvA;
+using namespace Gem::Util;
 using namespace Gem::GLogFramework;
 
 const std::string ADAPTORNAME="GDoubleGaussAdaptor";
