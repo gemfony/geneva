@@ -41,6 +41,8 @@
 #include "GObject.hpp"
 #include "GBitFlipAdaptor.hpp"
 #include "GenevaExceptions.hpp"
+#include "GLogger.hpp"
+#include "GLogTargets.hpp"
 
 using namespace Gem;
 using namespace Gem::GenEvA;
@@ -48,6 +50,9 @@ using namespace Gem::GenEvA;
 const std::string ADAPTORNAME="GBitFlipAdaptor";
 const std::string ADAPTORNAME2="GBitFlipAdaptor2";
 const std::string ADAPTORNAME3="GBitFlipAdaptor3";
+
+// Add log targets to the system
+LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBitFlipAdaptor_test.log")));
 
 /***********************************************************************************/
 // This test checks as much as possible of the functionality
