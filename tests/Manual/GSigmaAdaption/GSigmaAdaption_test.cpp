@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
 	result << "{" << std::endl << "  gROOT->Reset();" << std::endl
 		   << "  gStyle->SetOptTitle(0);" << std::endl
-		   << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,1200,1200);"
+		   << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);"
 		   << std::endl << "  cc->Divide(2,3);" << std::endl << std::endl
 		   << "  double x[" << maxIter << "];" << std::endl
 		   << "  double y_mutVal[" << maxIter << "];" << std::endl
