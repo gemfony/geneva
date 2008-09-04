@@ -7,4 +7,4 @@
   with a vanilla Boost installation (>= 1.36)
 - Ship the threadpool library with Geneva
 - Add many tests using the Boost.Test library
-
+- Allow to set a maximum sigma for gauss mutations
