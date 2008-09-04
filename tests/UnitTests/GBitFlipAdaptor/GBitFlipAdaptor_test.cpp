@@ -140,6 +140,6 @@ BOOST_AUTO_TEST_CASE( gobject_test_failures_expected )
 	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
 	gbfa->load(gbfa);
 }
-, 1) // One failure expected
+, 1); // One failure expected
 
 // EOF
