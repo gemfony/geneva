@@ -41,12 +41,7 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
-#include "GObject.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GenevaExceptions.hpp"
-#include "GLogger.hpp"
-#include "GLogTargets.hpp"
-#include "GRandom.hpp"
 
 // Parsing of the command line
 #include "GCommandLineParser.hpp"
