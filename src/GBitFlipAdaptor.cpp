@@ -53,7 +53,7 @@ namespace Gem
 		 *
 		 * @param name The name to be assigned to this adaptor
 		 */
-		GBitFlipAdaptor::GBitFlipAdaptor(std::string name)
+		GBitFlipAdaptor::GBitFlipAdaptor(const std::string& name)
 			:GAdaptorT<GenEvA::bit>(name),
 			 mutProb_(DEFAULTMUTPROB,0.,1.), // probability is in the range [0:1]
 			 allowProbabilityMutation_(false)
@@ -73,7 +73,7 @@ namespace Gem
 		 * @param prob The probability for a bit-flip
 		 * @param name The name to be assigned to this adaptor
 		 */
-		GBitFlipAdaptor::GBitFlipAdaptor(double prob, std::string name)
+		GBitFlipAdaptor::GBitFlipAdaptor(const double& prob, const std::string& name)
 			:GAdaptorT<GenEvA::bit>(name),
 			 mutProb_(prob,0.,1.), // probability is in the range [0:1]
 			 allowProbabilityMutation_(true)
@@ -163,7 +163,7 @@ namespace Gem
 		 *
 		 * @param val The new value of the probability for bit flips
 		 */
-		void GBitFlipAdaptor::setMutationProbability(double probability) {
+		void GBitFlipAdaptor::setMutationProbability(const double& probability) {
 			// Check the supplied probability value
 			if(probability < 0. || probability > 1.) {
 				std::ostringstream error;
@@ -191,7 +191,7 @@ namespace Gem
 		 * @param sgmSgm Parameter which determines the amount of evolutionary adaption of sigma
 		 * @param mSgm The minimal value sigma may assume
 		 */
-		void GBitFlipAdaptor::setMutationParameters(double sgm, double sgmSgm, double mSgm) {
+		void GBitFlipAdaptor::setMutationParameters(const double& sgm, const double& sgmSgm, const double& mSgm) {
 			boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor =
 				mutProb_.adaptor_cast<GDoubleGaussAdaptor>(DEFAULTGDGANAME);
 
@@ -206,7 +206,7 @@ namespace Gem
 		 *
 		 @param allowProbabilityMutation Determines whether bit flip probability may be mutated
 		 */
-		void GBitFlipAdaptor::setAllowProbabilityMutation(bool allowProbabilityMutation=true) {
+		void GBitFlipAdaptor::setAllowProbabilityMutation(const bool& allowProbabilityMutation=true) {
 			allowProbabilityMutation_ = allowProbabilityMutation;
 		}
 

@@ -175,5 +175,6 @@ BOOST_AUTO_TEST_CASE( gobject_test_failures_expected )
 }
 
 /***********************************************************************************/
+// Tests of the GAdaptor<T> functionality
 
 // EOF

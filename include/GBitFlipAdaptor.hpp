@@ -81,9 +81,9 @@ class GBitFlipAdaptor
 
 public:
 	/** @brief Standard constructor. Every adaptor needs a name */
-	explicit GBitFlipAdaptor(std::string);
+	explicit GBitFlipAdaptor(const std::string&);
 	/** @brief Constructor sets the mutation probability to a given value */
-	GBitFlipAdaptor(double, std::string);
+	GBitFlipAdaptor(const double&, const std::string&);
 	/** @brief Standard copy constructor */
 	GBitFlipAdaptor(const GBitFlipAdaptor&);
 	/** @brief Standard destructor */
@@ -100,13 +100,13 @@ public:
 	/** @brief Retrieves the current mutation probability */
 	double getMutationProbability();
 	/** @brief Sets the mutation probability to a given value */
-	void setMutationProbability(double);
+	void setMutationProbability(const double&);
 
 	/** @brief Sets the mutation parameters of the internal GDouble */
-	void setMutationParameters(double, double, double);
+	void setMutationParameters(const double&, const double&, const double&);
 
 	/** @brief Allow or disallow mutation of mutation probability */
-	void setAllowProbabilityMutation(bool);
+	void setAllowProbabilityMutation(const bool&);
 	/** @brief Retrieves value of allowProbabilityMutation */
 	bool getAllowProbabilityMutation() const throw();
 
