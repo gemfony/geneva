@@ -51,8 +51,15 @@ int main(int argc, char **argv) {
 	bool verbose;
 	double sigma, sigmaSigma, minSigma;
 	boost::uint32_t maxIter;
+	std::string resultFile;
 
-	if (!parseCommandLine(argc, argv, sigma, sigmaSigma, minSigma, maxIter,	verbose))
+	if (!parseCommandLine(argc, argv,
+		                  sigma,
+		                  sigmaSigma,
+		                  minSigma,
+		                  resultFile,
+		                  maxIter,
+		                  verbose))
 	{
 		exit(1);
 	}
@@ -92,6 +99,10 @@ int main(int argc, char **argv) {
 		   << "  cc->cd();" << std::endl
 		   << "}"
 		   << std::endl;
+
+	ofstream fstr(resultFile.c_str());
+	fstr << result.str();
+	fstr.close();
 
 	return 0;
 }

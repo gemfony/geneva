@@ -34,6 +34,7 @@ bool parseCommandLine(int argc, char **argv,
 		double& sigma,
 		double& sigmaSigma,
 		double& minSigma,
+		std::string& resultFile,
 		boost::uint32_t& maxIter,
 		bool& verbose)
 {
@@ -48,8 +49,12 @@ bool parseCommandLine(int argc, char **argv,
 				"Width of the gaussian used to adapt sigma")
 		("minSigma,m",po::value<double>(&minSigma)->default_value(CMD_DEFAULTMINSIGMA),
 				"Minimal allowed value of sigma")
+		("resultFile,F",po::value<std::string>(&resultFile),
+				"The file to write the result to")
 		("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),
 				"The maximum number of test cycles")
+		("verbose,v",po::value<boost::uint32_t>(&verbose)->default_value(CMD_DEFAULTVERBOSE),
+				"Whether to emit status information")
 		;
 
 		po::variables_map vm;
@@ -68,6 +73,7 @@ bool parseCommandLine(int argc, char **argv,
 			<< "sigma = " << sigma << std::endl
 			<< "sigmaSigma = " << sigmaSigma << std::endl
 			<< "minSigma = " << minSigma << std::endl
+			<< "resultFile = " << resultFile << std::endl
 			<< "maxIter = " << maxIter << std::endl
 			<< std::endl;
 		}
