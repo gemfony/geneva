@@ -53,7 +53,7 @@ const double CMD_DEFAULTSIGMASIGMA = 0.001;
 const double CMD_DEFAULTMINSIGMA = 0.002;
 const boost::uint32_t CMD_DEFAULTMAXITER = 100000;
 const std::string CMD_DEFAULTRESULTFILE = "result.C";
-const bool& CMD_DEFAULTVERBOSE = true;
+const bool CMD_DEFAULTVERBOSE = true;
 
 namespace po = boost::program_options;
 
