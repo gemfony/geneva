@@ -26,6 +26,7 @@
  */
 
 // Standard header files go here
+#include <iostream>
 
 // Boost header files go here
 
