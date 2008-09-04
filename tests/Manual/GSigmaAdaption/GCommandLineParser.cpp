@@ -49,7 +49,7 @@ bool parseCommandLine(int argc, char **argv,
 				"Width of the gaussian used to adapt sigma")
 		("minSigma,m",po::value<double>(&minSigma)->default_value(CMD_DEFAULTMINSIGMA),
 				"Minimal allowed value of sigma")
-		("resultFile,F",po::value<std::string>(&resultFile),
+		("resultFile,F",po::value<std::string>(&resultFile)->default_value(CMD_DEFAULTRESULTFILE),
 				"The file to write the result to")
 		("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),
 				"The maximum number of test cycles")
