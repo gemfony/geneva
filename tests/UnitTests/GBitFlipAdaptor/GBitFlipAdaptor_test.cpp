@@ -157,7 +157,8 @@ bool testGObjectSelfAssignment(){
 
 			if(error.str() == *err) return true;
 			else {
-				std::cerr << "Error: The exception contained an incorrect error description" << std::endl;
+				std::cerr << "Error: The exception contained an incorrect error description:" << std::endl
+					      << *err << std::endl;
 				return false;
 			}
 		}
