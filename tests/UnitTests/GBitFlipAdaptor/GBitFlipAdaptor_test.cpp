@@ -181,7 +181,8 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 {
 	boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(0.1, ADAPTORNAME));
 
-	BOOST_CHECK(gbfa); // Automatic conversion to bool. shared_ptr will be empty in case of a failure
+	// Automatic conversion to bool. shared_ptr will be empty in case of a failure and return false
+	BOOST_CHECK(gbfa);
 
 	// Check the mutation probability set by the constructor
 	BOOST_CHECK(gbfa->getMutationProbability() == 0.1);
@@ -281,8 +282,8 @@ bool gbfa_testProbabilityUnsuitable(const double& value){
 // exceptions or failures
 BOOST_AUTO_TEST_CASE( gbfa_gbitflipadaptor_failures_expected )
 {
-	BOOST_CHECK(testProbabilityUnsuitable(1.001)); // Probability > 100%
-	BOOST_CHECK(testProbabilityUnsuitable(-0.001)); // Probability < 0%
+	BOOST_CHECK(gbfa_testProbabilityUnsuitable(1.001)); // Probability > 100%
+	BOOST_CHECK(gbfa_testProbabilityUnsuitable(-0.001)); // Probability < 0%
 }
 
 /***********************************************************************************/
