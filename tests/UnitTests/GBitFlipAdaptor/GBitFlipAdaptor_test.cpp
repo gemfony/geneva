@@ -46,6 +46,7 @@
 
 using namespace Gem;
 using namespace Gem::GenEvA;
+using namespace Gem::GLogFramework;
 
 const std::string ADAPTORNAME="GBitFlipAdaptor";
 const std::string ADAPTORNAME2="GBitFlipAdaptor2";
