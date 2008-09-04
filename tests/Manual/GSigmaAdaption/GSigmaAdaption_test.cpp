@@ -49,7 +49,8 @@ using namespace Gem::GLogFramework;
 
 int main(int argc, char **argv) {
 	bool verbose;
-	double sigma, sigmaSigma, minSigma, maxIter;
+	double sigma, sigmaSigma, minSigma;
+	boost::uint32_t maxIter;
 
 	if (!parseCommandLine(argc, argv, sigma, sigmaSigma, minSigma, maxIter,	verbose))
 	{
