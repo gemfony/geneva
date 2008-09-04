@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 		result << "  y_mutVal[" << i << "] = " << mutVal << ";" << std::endl
 			   << "  y_sigma[" << i << "] = " << gdga->getSigma() << ";" << std::endl
 			   << "  h_mutVal->Fill(" << mutVal <<");" << std::endl
-			   << "  h_sigma->FIll(" << gdga->getSigma() << ");" << std::endl;
+			   << "  h_sigma->Fill(" << gdga->getSigma() << ");" << std::endl;
 	}
 
 	result << std::endl
