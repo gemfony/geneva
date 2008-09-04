@@ -52,9 +52,6 @@ const std::string ADAPTORNAME="GBitFlipAdaptor";
 const std::string ADAPTORNAME2="GBitFlipAdaptor2";
 const std::string ADAPTORNAME3="GBitFlipAdaptor3";
 
-// Add log targets to the system
-LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBitFlipAdaptor_test.log")));
-
 /***********************************************************************************/
 // This test checks as much as possible of the functionality
 // provided by the parent class GObject, plus some base functionality
@@ -62,6 +59,9 @@ LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBitFlipAdap
 // constructors.
 BOOST_AUTO_TEST_CASE( gobject_test_no_failure_expected )
 {
+	// Add log targets to the system
+	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBitFlipAdaptor_test.log")));
+
 	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME); // Construction by name
 	GBitFlipAdaptor *gbfa2=new GBitFlipAdaptor(*gbfa); // Copy construction
 
