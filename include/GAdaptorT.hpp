@@ -227,7 +227,6 @@ public:
 		alwaysInit_ = val;
 	}
 
-protected:
 	/***********************************************************************************/
 	/**
 	 *  This function is re-implemented by derived classes, if they wish to
@@ -241,6 +240,8 @@ protected:
 	 *  to collections, you need to call the function yourself.
 	 */
 	virtual void initNewRun() { /* nothing */ }
+
+protected:
 
 	/***********************************************************************************/
 	/** @brief Mutation of values as specified by the user */
