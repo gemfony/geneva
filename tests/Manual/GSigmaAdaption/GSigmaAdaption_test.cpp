@@ -71,10 +71,13 @@ int main(int argc, char **argv) {
 	result << "{" << std::endl << "  gROOT->Reset();" << std::endl
 		   << "  gStyle->SetOptTitle(0);" << std::endl
 		   << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);"
-		   << std::endl << "  cc->Divide(1,2);" << std::endl << std::endl
+		   << std::endl << "  cc->Divide(2,2);" << std::endl << std::endl
 		   << "  double x[" << maxIter << "];" << std::endl
 		   << "  double y_mutVal[" << maxIter << "];" << std::endl
 		   << "  double y_sigma[" << maxIter << "];" << std::endl
+		   << std::endl
+		   << "  TH1F *h_mutVal = new TH1F(\"h_mutVal\",\"h_mutVal\",2000,-500.,500.);" << std::endl
+		   << "  TH1F *h_sigma = new TH1F(\"h_sigma\",\"h_sigma\",100,0.,3.);" << std::endl
 		   << std::endl;
 
 	double mutVal = 0.;
@@ -86,8 +89,9 @@ int main(int argc, char **argv) {
 		gdga->mutate(mutVal);
 
 		result << "  y_mutVal[" << i << "] = " << mutVal << ";" << std::endl
-			   << "  y_sigma[" << i << "] = " << gdga->getSigma() << ";"
-			   << std::endl;
+			   << "  y_sigma[" << i << "] = " << gdga->getSigma() << ";" << std::endl
+			   << "  h_mutVal->Fill(" << mutVal <<");" << std::endl
+			   << "  h_sigma->FIll(" << gdga->getSigma() << ");" << std::endl;
 	}
 
 	result << std::endl
@@ -98,9 +102,12 @@ int main(int argc, char **argv) {
 		   << "  mutVal->Draw(\"AP\");" << std::endl
 		   << "  cc->cd(2);" << std::endl
 		   << "  sigma->Draw(\"AP\");"
+		   << "  cc->cd(3);" << std::endl
+		   << "  h_mutVal->Draw();" << std::endl
+		   << "  cc->cd(4);" << std::endl
+		   << "  h_sigma->Draw();" << std::endl
 		   << "  cc->cd();" << std::endl
-		   << "}"
-		   << std::endl;
+		   << "}" << std::endl;
 
 	std::ofstream fstr(resultFile.c_str());
 	fstr << result.str();
