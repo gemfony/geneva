@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 	}
 
 	// Start with a new adaptor, this time for a vector
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga2(new GDoubleGaussAdaptor(2.0, 0.2, 0.002, ADAPTORNAME));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga2(new GDoubleGaussAdaptor(2.0, 0.002, 0.002, ADAPTORNAME));
 	std::vector<double> doubleVector, previousVector;
 	GRandom gr;
 	for(std::size_t i=0; i<1000; i++){
