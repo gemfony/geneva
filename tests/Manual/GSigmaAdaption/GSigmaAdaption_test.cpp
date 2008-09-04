@@ -103,19 +103,19 @@ int main(int argc, char **argv) {
 	// Find min/max values of mutVal and Sigma
 	double minMutVal=0.;
 	double maxMutVal=1.;
-	double minSigma=0.;
-	double maxSigma=0.;
+	double minTstSigma=0.;
+	double maxTstSigma=0.;
 
 	for(boost::uint32_t i=0; i<maxIter; i++){
 		if(y_mutVal[i]<minMutVal) minMutVal = y_mutVal[i];
 		if(y_mutVal[i]>maxMutVal) maxMutVal = y_mutVal[i];
-		if(y_sigma[i]<minSigma) minSigma = y_sigma[i];
-		if(y_sigma[i]>maxSigma) maxSigma = y_sigma[i];
+		if(y_sigma[i]<minTstSigma) minTstSigma = y_sigma[i];
+		if(y_sigma[i]>maxTstSigma) maxTstSigma = y_sigma[i];
 	}
 
 	// Create suitable histogram objects and fill the results in
 	result   << "  TH1F *h_mutVal = new TH1F(\"h_mutVal\",\"h_mutVal\",1000, " << minMutVal << ", " << maxMutVal << ");" << std::endl
-		     << "  TH1F *h_sigma = new TH1F(\"h_sigma\",\"h_sigma\",1000, " << minSigma << ", " << maxSigma << ");" << std::endl
+		     << "  TH1F *h_sigma = new TH1F(\"h_sigma\",\"h_sigma\",1000, " << minTstSigma << ", " << maxTstSigma << ");" << std::endl
 		     << std::endl;
 
 	for(boost::uint32_t i=0; i<maxIter; i++){
