@@ -33,10 +33,6 @@
 #include <vector>
 
 // Boost header files go here
-
-#define BOOST_TEST_MODULE GDoubleGaussAdaptor_test
-#include <boost/test/unit_test.hpp>
-
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 
