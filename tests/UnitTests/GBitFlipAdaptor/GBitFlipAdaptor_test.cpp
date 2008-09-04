@@ -150,21 +150,7 @@ bool testGObjectSelfAssignment(){
 		return false;
 	}
 	catch(geneva_error_condition& gec){
-		if( boost::shared_ptr<std::string const> err=boost::get_error_info<error_string>(gec) ) {
-			std::ostringstream error;
-			error << "In GObject::checkConversion<T>() : Error!" << std::endl
-				  << "Tried to assign an object to itself." << std::endl;
-
-			if(error.str() == *err) return true;
-			else {
-				std::cerr << "Error: The exception contained an incorrect error description:" << std::endl
-					      << *err << std::endl;
-				return false;
-			}
-		}
-
-		std::cerr << "Error: Could not retrieve error info" << std::endl;
-		return false;
+		return true; // An exception of this type was expected here
 	}
 	catch(...){
 		std::cerr << "Error: Unknown exception caught" << std::endl;
