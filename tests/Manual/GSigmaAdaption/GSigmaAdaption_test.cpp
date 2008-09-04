@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 		   << "}"
 		   << std::endl;
 
-	ofstream fstr(resultFile.c_str());
+	std::ofstream fstr(resultFile.c_str());
 	fstr << result.str();
 	fstr.close();
 
