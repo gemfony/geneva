@@ -254,7 +254,7 @@ namespace Gem
 		 *
 		 * @param value The bit value to be flipped
 		 */
-		void GBitFlipAdaptor::flip(GenEvA::bit &value) const throw()
+		void GBitFlipAdaptor::flip(Gem::GenEvA::bit &value) const throw()
 		{
 			value==Gem::GenEvA::G_TRUE ? value = Gem::GenEvA::G_FALSE : value=Gem::GenEvA::G_TRUE;
 		}

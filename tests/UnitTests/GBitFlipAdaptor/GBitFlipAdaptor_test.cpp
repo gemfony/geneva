@@ -29,6 +29,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 // Boost header files go here
 
@@ -219,6 +220,24 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 	// see what happens.
 	for(boost::uint32_t i=0; i<1000000; i++){
 		gbfa->mutate(testBit);
+	}
+
+	// Start with a new adaptor, this time for a vector
+	boost::shared_ptr<GBitFlipAdaptor> gbfa2(new GBitFlipAdaptor(ADAPTORNAME));
+	std::vector<Gem::GenEvA::bit> bitVector, testVector;
+	for(std::size_t i=0; i<100; i++){
+		if(i%2 == 0) bitVector.push_back(G_FALSE);
+		else bitVector.push_back(G_TRUE);
+	}
+	testVector=bitVector;
+
+	gbfa2->setAllowProbabilityMutation(false);
+	gbfa2->setAlwaysInit(false);
+	gbfa->setMutationProbability(0.); // Vectors should always be the same
+	// Mutate a couple of times, see what happens
+	for(boost::uint32_t i=0; i<1000; i++){
+		gbfa->mutate(bitVector);
+		BOOST_CHECK(bitVector==testVector);
 	}
 }
 

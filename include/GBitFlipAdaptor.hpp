@@ -122,7 +122,7 @@ private:
 	GBitFlipAdaptor() throw();
 
 	/** @brief Simple flip of a bit value */
-	void flip(bit&) const throw();
+	void flip(Gem::GenEvA::bit&) const throw();
 
 	GBoundedDouble mutProb_; ///< internal representation of the mutation probability
 	bool allowProbabilityMutation_; ///< do we allow the probability to be adapted ?
