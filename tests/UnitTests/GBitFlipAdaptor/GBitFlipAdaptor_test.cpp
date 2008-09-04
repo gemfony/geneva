@@ -175,6 +175,51 @@ BOOST_AUTO_TEST_CASE( gobject_test_failures_expected )
 }
 
 /***********************************************************************************/
-// Tests of the GAdaptor<T> functionality
+// Tests of the GAdaptor<T> and GBitFlipAdaptor functionality
+BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
+{
+	boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(ADAPTORNAME));
+
+	BOOST_CHECK(gbfa); // Automatic conversion to bool. shared_ptr will be empty in case of a failure
+
+	// Set and get the mutation probability
+	gbfa->setMutationProbability(0.9);
+	BOOST_CHECK(gbfa->getMutationProbability() == 0.9);
+}
+
+/***********************************************************************************/
+// Test functions for expected failures
+bool testProbabilityUnsuitable(const double& value){
+	try{
+		boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(ADAPTORNAME));
+		if(!gbfa) {
+			std::cerr << "Error: Construction of smart pointer failed" << std::endl;
+			return false;
+		}
+
+		gbfa->setMutationProbability(value);
+	}
+	catch(geneva_error_condition& gec){
+		return true; // An exception of this type was expected here
+	}
+	catch(...){
+		std::cerr << "Error: Unknown exception caught" << std::endl;
+		return false;
+	}
+
+	std::cerr << "Error: This point should never have been reached" << std::endl;
+	return false;
+}
+
+/***********************************************************************************/
+// Tests of the GAdaptor<T> and GBitFlipAdaptor functionality that should trigger
+// exceptions or failures
+BOOST_AUTO_TEST_CASE( gbitflipadaptor_failures_expected )
+{
+	BOOST_CHECK(testProbabilityUnsuitable(1.001)); // Probability > 100%
+	BOOST_CHECK(testProbabilityUnsuitable(-0.001)); // Probability < 0%
+}
+
+/***********************************************************************************/
 
 // EOF
