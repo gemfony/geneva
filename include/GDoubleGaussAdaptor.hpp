@@ -55,7 +55,7 @@ const double DEFAULTMINSIGMA = 0.0000001; // minimum allowed value for sigma_
 
 /*************************************************************************/
 /**
- * The GDoubleGaussAdaptor reprensents an adaptor used for the mutation of
+ * The GDoubleGaussAdaptor represents an adaptor used for the mutation of
  * double values through the addition of gaussian-distributed random numbers.
  * See the documentation of GAdaptorT<T> for further information on adaptors
  * in the GenEvA context. This class is at the core of evolutionary strategies,

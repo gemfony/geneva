@@ -4,7 +4,7 @@
  * This test checks all public member functions of the GBitFlipAdaptor adaptor
  * class. In addition, it attempts to check parent classes, in particular the
  * GObject class. You should run this test both in DEBUG and in RELEASE mode,
- * as some functions work differently in this case.
+ * as some functions may work differently in this case.
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -33,7 +33,7 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GObject_test
+#define BOOST_TEST_MODULE GBitFlipAdaptor_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
@@ -58,7 +58,7 @@ const std::string ADAPTORNAME3="GBitFlipAdaptor3";
 // provided by the parent class GObject, plus some base functionality
 // of the GBitFlipAdaptor class, such as the "named" and the copy
 // constructors.
-BOOST_AUTO_TEST_CASE( gobject_test_no_failure_expected )
+BOOST_AUTO_TEST_CASE( gbfa_gobject_test_no_failure_expected )
 {
 	// Add log targets to the system
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBitFlipAdaptor_test.log")));
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( gobject_test_no_failure_expected )
 
 /***********************************************************************************/
 // Test functions for the following tests
-bool testGObjectSelfAssignment(){
+bool gbfa_testGObjectSelfAssignment(){
 	try{
 		GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
 		gbfa->load(gbfa); // This must fail!!!
@@ -170,18 +170,21 @@ bool testGObjectSelfAssignment(){
 
 /***********************************************************************************/
 // This test checks for things that are expected to fail in GObject
-BOOST_AUTO_TEST_CASE( gobject_test_failures_expected )
+BOOST_AUTO_TEST_CASE( gbfa_gobject_test_failures_expected )
 {
-	BOOST_CHECK(testGObjectSelfAssignment());
+	BOOST_CHECK(gbfa_testGObjectSelfAssignment());
 }
 
 /***********************************************************************************/
 // Tests of the GAdaptor<T> and GBitFlipAdaptor functionality
 BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 {
-	boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(ADAPTORNAME));
+	boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(0.1, ADAPTORNAME));
 
 	BOOST_CHECK(gbfa); // Automatic conversion to bool. shared_ptr will be empty in case of a failure
+
+	// Check the mutation probability set by the constructor
+	BOOST_CHECK(gbfa->getMutationProbability() == 0.1);
 
 	// Set and get the mutation probability
 	gbfa->setMutationProbability(0.9);
@@ -251,7 +254,7 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 
 /***********************************************************************************/
 // Test functions for expected failures
-bool testProbabilityUnsuitable(const double& value){
+bool gbfa_testProbabilityUnsuitable(const double& value){
 	try{
 		boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(ADAPTORNAME));
 		if(!gbfa) {
@@ -276,7 +279,7 @@ bool testProbabilityUnsuitable(const double& value){
 /***********************************************************************************/
 // Tests of the GAdaptor<T> and GBitFlipAdaptor functionality that should trigger
 // exceptions or failures
-BOOST_AUTO_TEST_CASE( gbitflipadaptor_failures_expected )
+BOOST_AUTO_TEST_CASE( gbfa_gbitflipadaptor_failures_expected )
 {
 	BOOST_CHECK(testProbabilityUnsuitable(1.001)); // Probability > 100%
 	BOOST_CHECK(testProbabilityUnsuitable(-0.001)); // Probability < 0%
