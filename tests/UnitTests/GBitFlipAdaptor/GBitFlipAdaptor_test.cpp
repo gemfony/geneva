@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 	// Start with a new adaptor, this time for a vector
 	boost::shared_ptr<GBitFlipAdaptor> gbfa2(new GBitFlipAdaptor(ADAPTORNAME));
 	std::vector<Gem::GenEvA::bit> bitVector, testVector;
-	for(std::size_t i=0; i<100; i++){
+	for(std::size_t i=0; i<1000; i++){
 		if(i%2 == 0) bitVector.push_back(G_FALSE);
 		else bitVector.push_back(G_TRUE);
 	}
@@ -240,7 +240,13 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 		BOOST_CHECK(bitVector==testVector);
 	}
 
-	throw;
+	gbfa2->setAllowProbabilityMutation(true);
+	gbfa2->setAlwaysInit(true);
+	gbfa2->setMutationProbability(0.5); // Likelihood for vectors to be the same is very low - assume that they will never be the same
+	for(boost::uint32_t i=0; i<1000; i++){
+		gbfa2->mutate(bitVector);
+		BOOST_CHECK(bitVector!=testVector);
+	}
 }
 
 /***********************************************************************************/
