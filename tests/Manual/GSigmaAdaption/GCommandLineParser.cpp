@@ -53,7 +53,7 @@ bool parseCommandLine(int argc, char **argv,
 				"The file to write the result to")
 		("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),
 				"The maximum number of test cycles")
-		("verbose,v",po::value<boost::uint32_t>(&verbose)->default_value(CMD_DEFAULTVERBOSE),
+		("verbose,v",po::value<bool>(&verbose)->default_value(CMD_DEFAULTVERBOSE),
 				"Whether to emit status information")
 		;
 
