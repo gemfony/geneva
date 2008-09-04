@@ -233,10 +233,10 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 
 	gbfa2->setAllowProbabilityMutation(false);
 	gbfa2->setAlwaysInit(false);
-	gbfa->setMutationProbability(0.); // Vectors should always be the same
+	gbfa2->setMutationProbability(0.); // Vectors should always be the same
 	// Mutate a couple of times, see what happens
 	for(boost::uint32_t i=0; i<1000; i++){
-		gbfa->mutate(bitVector);
+		gbfa2->mutate(bitVector);
 		BOOST_CHECK(bitVector==testVector);
 	}
 }
