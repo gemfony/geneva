@@ -48,6 +48,7 @@ using namespace Gem::Util;
 using namespace Gem::GLogFramework;
 
 int main(int argc, char **argv) {
+	bool verbose;
 	double sigma, sigmaSigma, minSigma, maxIter;
 
 	if (!parseCommandLine(argc, argv, sigma, sigmaSigma, minSigma, maxIter,	verbose))
@@ -56,36 +57,40 @@ int main(int argc, char **argv) {
 	}
 
 	std::ostringstream result;
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga0(
-			new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, "Adaptor0"));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga(
+			new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, "Adaptor"));
 
 	result << "{" << std::endl << "  gROOT->Reset();" << std::endl
-			<< "  gStyle->SetOptTitle(0);" << std::endl
-			<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);"
-			<< std::endl << "  cc->Divide(1,2);" << std::endl << std::endl
-			<< "  double x0[" << maxIter << "];" << std::endl
-			<< "  double y0_mutVal[" << maxIter << "];" << std::endl
-			<< "  double y0_sigma[" << maxIter << "];" << std::endl
-			<< std::endl;
+		   << "  gStyle->SetOptTitle(0);" << std::endl
+		   << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);"
+		   << std::endl << "  cc->Divide(1,2);" << std::endl << std::endl
+		   << "  double x[" << maxIter << "];" << std::endl
+		   << "  double y_mutVal[" << maxIter << "];" << std::endl
+		   << "  double y_sigma[" << maxIter << "];" << std::endl
+		   << std::endl;
 
-	double mutVal0 = 0.;
+	double mutVal = 0.;
 
 	for (boost::uint32_t i = 0; i < maxIter; i++) {
-		result << "  x0[" << i << "] = " << (double) i << ";" << std::endl;
+		result << "  x[" << i << "] = " << (double) i << ";" << std::endl;
 
-		gdga0->mutate(mutVal0);
-		result << "  y0_mutVal[" << i << "] = " << mutVal0 << ";" << std::endl
-				<< "  y0_sigma[" << i << "] = " << gdga0->getSigma() << ";"
-				<< std::endl;
+		gdga->mutate(mutVal);
+		result << "  y_mutVal[" << i << "] = " << mutVal << ";" << std::endl
+			   << "  y_sigma[" << i << "] = " << gdga->getSigma() << ";"
+			   << std::endl;
 	}
 
-	result << std::endl << "  TGraph *mutVal0 = new TGraph(" << maxIter
-			<< ", x0, y0_mutVal);" << std::endl
-			<< "  TGraph *sigma0 = new TGraph(" << maxIter
-			<< ", x0, y0_sigma);" << std::endl << std::endl << "  cc->cd(1);"
-			<< std::endl << "  mutVal0->Draw(\"AP\");" << std::endl
-			<< "  cc->cd(2);" << std::endl << "  sigma0->Draw(\"AP\");"
-			<< std::endl << "  cc->cd();" << std::endl << "}" << std::endl;
+	result << std::endl
+		   << "  TGraph *mutVal = new TGraph(" << maxIter << ", x, y_mutVal);" << std::endl
+		   << "  TGraph *sigma = new TGraph(" << maxIter << ", x, y_sigma);" << std::endl
+		   << std::endl
+		   << "  cc->cd(1);"
+		   << "  mutVal->Draw(\"AP\");" << std::endl
+		   << "  cc->cd(2);" << std::endl
+		   << "  sigma->Draw(\"AP\");"
+		   << "  cc->cd();" << std::endl
+		   << "}"
+		   << std::endl;
 
 	return 0;
 }
