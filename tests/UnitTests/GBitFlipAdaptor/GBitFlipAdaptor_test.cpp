@@ -45,6 +45,7 @@ const std::string ADAPTORNAME="GBitFlipAdaptor";
 const std::string ADAPTORNAME2="GBitFlipAdaptor2";
 const std::string ADAPTORNAME3="GBitFlipAdaptor3";
 
+/***********************************************************************************/
 // This test checks as much as possible of the functionality
 // provided by the parent class GObject, plus some base functionality
 // of the GBitFlipAdaptor class, such as the "named" and the copy
@@ -133,13 +134,15 @@ BOOST_AUTO_TEST_CASE( gobject_test_no_failure_expected )
 	// Note that gbfa5 will be deleted automatically by the boost::shared_ptr<>
 }
 
-// This test checks for things that are expected not to work
-boost::unit_test::framework::master_test_suite().add(
+/***********************************************************************************/
+// This test checks for things that are expected to fail in GObject
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES( gobject_test_failures_expected, 1 )
 BOOST_AUTO_TEST_CASE( gobject_test_failures_expected )
 {
 	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
 	gbfa->load(gbfa);
 }
-, 1); // One failure expected
+
+/***********************************************************************************/
 
 // EOF
