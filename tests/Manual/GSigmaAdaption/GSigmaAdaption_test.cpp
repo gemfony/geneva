@@ -65,6 +65,8 @@ int main(int argc, char **argv) {
 	}
 
 	std::ostringstream result;
+	double y_mutVal[maxIter];
+	double y_sigma[maxIter];
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga(
 			new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, "Adaptor"));
 
@@ -75,9 +77,6 @@ int main(int argc, char **argv) {
 		   << "  double x[" << maxIter << "];" << std::endl
 		   << "  double y_mutVal[" << maxIter << "];" << std::endl
 		   << "  double y_sigma[" << maxIter << "];" << std::endl
-		   << std::endl
-		   << "  TH1F *h_mutVal = new TH1F(\"h_mutVal\",\"h_mutVal\",2000,-500.,500.);" << std::endl
-		   << "  TH1F *h_sigma = new TH1F(\"h_sigma\",\"h_sigma\",100,0.,3.);" << std::endl
 		   << std::endl;
 
 	double mutVal = 0.;
@@ -88,26 +87,54 @@ int main(int argc, char **argv) {
 		if(sigmaSigma) gdga->initNewRun();
 		gdga->mutate(mutVal);
 
-		result << "  y_mutVal[" << i << "] = " << mutVal << ";" << std::endl
-			   << "  y_sigma[" << i << "] = " << gdga->getSigma() << ";" << std::endl
-			   << "  h_mutVal->Fill(" << mutVal <<");" << std::endl
-			   << "  h_sigma->Fill(" << gdga->getSigma() << ");" << std::endl;
+		// Store for later use
+		y_mutVal[i] = mutVal;
+		y_sigma[i] = gdga->getSigma();
+
+		result << "  y_mutVal[" << i << "] = " << y_mutVal[i] << ";" << std::endl
+			   << "  y_sigma[" << i << "] = " << y_sigma[i] << ";" << std::endl;
 	}
 
 	result << std::endl
 		   << "  TGraph *mutVal = new TGraph(" << maxIter << ", x, y_mutVal);" << std::endl
 		   << "  TGraph *sigma = new TGraph(" << maxIter << ", x, y_sigma);" << std::endl
-		   << std::endl
-		   << "  cc->cd(1);"
-		   << "  mutVal->Draw(\"AP\");" << std::endl
-		   << "  cc->cd(2);" << std::endl
-		   << "  sigma->Draw(\"AP\");"
-		   << "  cc->cd(3);" << std::endl
-		   << "  h_mutVal->Draw();" << std::endl
-		   << "  cc->cd(4);" << std::endl
-		   << "  h_sigma->Draw();" << std::endl
-		   << "  cc->cd();" << std::endl
-		   << "}" << std::endl;
+		   << std::endl;
+
+	// Find min/max values of mutVal and Sigma
+	double minMutVal=0.;
+	double maxMutVal=1.;
+	double minSigma=0.;
+	double maxSigma=0.;
+
+	for(boost::uint32_t i=0; i<maxIter; i++){
+		if(y_mutVal[i]<minMutVal) minMutVal = y_mutVal[i];
+		if(y_mutVal[i]>maxMutVal) maxMutVal = y_mutVal[i];
+		if(y_sigma[i]<minSigma) minSigma = y_sigma[i];
+		if(y_sigma[i]>maxSigma) maxSigma = y_sigma[i];
+	}
+
+	// Create suitable histogram objects and fill the results in
+	result   << "  TH1F *h_mutVal = new TH1F(\"h_mutVal\",\"h_mutVal\",1000, " << minMutVal << ", " << maxMutVal << ");" << std::endl
+		     << "  TH1F *h_sigma = new TH1F(\"h_sigma\",\"h_sigma\",1000, " << minSigma << ", " << maxSigma << ");" << std::endl
+		     << std::endl;
+
+	for(boost::uint32_t i=0; i<maxIter; i++){
+		result << "  h_mutVal->Fill(" << y_mutVal[i] <<");" << std::endl
+			   << "  h_sigma->Fill(" << y_sigma[i] << ");" << std::endl;
+	}
+
+
+   result << std::endl
+		  << "  cc->cd(1);"
+		  << "  mutVal->Draw(\"AP\");" << std::endl
+		  << "  cc->cd(2);" << std::endl
+		  << "  sigma->Draw(\"AP\");"
+		  << "  cc->cd(3);" << std::endl
+		  << "  h_mutVal->Draw();" << std::endl
+		  << "  cc->cd(4);" << std::endl
+		  << "  h_sigma->Draw();" << std::endl
+		  << "  cc->cd();" << std::endl
+		  << "}" << std::endl;
 
 	std::ofstream fstr(resultFile.c_str());
 	fstr << result.str();
