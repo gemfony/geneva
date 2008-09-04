@@ -206,7 +206,7 @@ namespace Gem
 		 *
 		 @param allowProbabilityMutation Determines whether bit flip probability may be mutated
 		 */
-		void GBitFlipAdaptor::setAllowProbabilityMutation(const bool& allowProbabilityMutation=true) throw() {
+		void GBitFlipAdaptor::setAllowProbabilityMutation(const bool& allowProbabilityMutation) throw() {
 			allowProbabilityMutation_ = allowProbabilityMutation;
 		}
 
