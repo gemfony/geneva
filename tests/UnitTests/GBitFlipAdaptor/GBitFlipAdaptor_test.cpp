@@ -126,6 +126,8 @@ BOOST_AUTO_TEST_CASE( gobject_test )
 		BOOST_CHECK(gbfa->name() == gbfa2->name());
 	}
 
+	// This test should fail, as it loads the object from itself
+
 	delete gbfa;
 	delete gbfa2;
 	delete gbfa3;
