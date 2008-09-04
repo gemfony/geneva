@@ -44,13 +44,13 @@ bool parseCommandLine(int argc, char **argv,
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
-			("sigma,S",po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
+			("sigma,S",po::value<double>(&sigma)->default_value(CMD_DEFAULTSIGMA),
 					"Width of the gaussian")
-			("sigmaSigma,s",po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
+			("sigmaSigma,s",po::value<double>(&sigmaSigma)->default_value(CMD_DEFAULTSIGMASIGMA),
 					"Width of the gaussian used to adapt sigma")
-			("minSigma,m",po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
+			("minSigma,m",po::value<double>(&minSigma)->default_value(CMD_DEFAULTMINSIGMA),
 					"Minimal allowed value of sigma")
-			("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(DEFAULTMAXITER),
+			("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),
 					"The maximum number of test cycles")
 		;
 

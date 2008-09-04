@@ -50,10 +50,10 @@ namespace GenEvA
 {
 
 // Default settings
-const double DEFAULTSIGMA=1.;
-const double DEFAULTSIGMASIGMA=0.001;
-const double DEFAULTMINSIGMA=0.002;
-const boost::uint32_t DEFAULTMAXITER=100000;
+const double CMD_DEFAULTSIGMA=1.;
+const double CMD_DEFAULTSIGMASIGMA=0.001;
+const double CMD_DEFAULTMINSIGMA=0.002;
+const boost::uint32_t CMD_DEFAULTMAXITER=100000;
 
 namespace po = boost::program_options;
 
