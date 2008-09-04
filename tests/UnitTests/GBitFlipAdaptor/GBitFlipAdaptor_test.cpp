@@ -202,6 +202,24 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 		gbfa->mutate(testBit);
 		BOOST_CHECK(testBit != previousBit);
 	}
+
+	// Set some mutation parameters (sigma, sigmaSigma, minSigma)
+	gbfa->setMutationParameters(1., 0.1, 0.01);
+
+	// Set the allowProbabilityMutation_ parameter
+	gbfa->setAllowProbabilityMutation(false);
+	BOOST_CHECK(gbfa->getAllowProbabilityMutation() == false);
+	gbfa->setAllowProbabilityMutation(true);
+	BOOST_CHECK(gbfa->getAllowProbabilityMutation() == true);
+	gbfa->setAllowProbabilityMutation(false);
+	gbfa->setAllowProbabilityMutation(); // default setting is "true"
+	BOOST_CHECK(gbfa->getAllowProbabilityMutation() == true);
+
+	// Mutate a couple of times with allowProbabilityMutation_ set to true,
+	// see what happens.
+	for(boost::uint32_t i=0; i<1000000; i++){
+		gbfa->mutate(testBit);
+	}
 }
 
 /***********************************************************************************/
