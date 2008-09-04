@@ -82,7 +82,9 @@ int main(int argc, char **argv) {
 	for (boost::uint32_t i = 0; i < maxIter; i++) {
 		result << "  x[" << i << "] = " << (double) i << ";" << std::endl;
 
+		if(sigmaSigma) gdga->initNewRun();
 		gdga->mutate(mutVal);
+
 		result << "  y_mutVal[" << i << "] = " << mutVal << ";" << std::endl
 			   << "  y_sigma[" << i << "] = " << gdga->getSigma() << ";"
 			   << std::endl;

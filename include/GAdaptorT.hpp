@@ -236,7 +236,9 @@ protected:
 	 *  to modify the sigma of the gaussian, if desired. The function will be
 	 *  called for each item of a sequence, if alwaysInit_ is set to true, otherwise
 	 *  it will be called only for the first item. It is not purely virtual, as
-	 *  we do not force derived classes to re-implement this function.
+	 *  we do not force derived classes to re-implement this function. Also note
+	 *  that, if you want the settings to be applied to single values, as opposed
+	 *  to collections, you need to call the function yourself.
 	 */
 	virtual void initNewRun() { /* nothing */ }
 
