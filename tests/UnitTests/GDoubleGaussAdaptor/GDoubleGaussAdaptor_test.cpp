@@ -250,6 +250,7 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 	for(boost::uint32_t i=0; i<1000; i++){
 		previousVector = doubleVector;
 		gdga2->mutate(doubleVector);
+		std::cout << gdga2->getSigma() << " " << gdga2->getSigmaSigma() << " " << gdga2->getMinSigma() << std::endl;
 		BOOST_CHECK(previousVector!=doubleVector);
 	}
 }

@@ -197,7 +197,10 @@ public:
 	inline virtual void mutate(std::vector<T>& collection) {
 		typename std::vector<T>::iterator it;
 		for (it = collection.begin(); it != collection.end(); ++it) {
-			if (alwaysInit_ || it == collection.begin()) initNewRun();
+			if (alwaysInit_ || it == collection.begin()) {
+				initNewRun();
+			}
+
 			this->mutate(*it);
 		}
 	}
