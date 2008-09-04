@@ -4,6 +4,7 @@ SET (EXECUTABLENAME GSigmaAdaption_test)
 
 SET (${EXECUTABLENAME}_SRCS 
  	GSigmaAdaption_test
+ 	GCommandLineParser
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
