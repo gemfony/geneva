@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( gobject_test_no_failure_expected )
 }
 
 // This test checks for things that are expected not to work
-framework::master_test_suite().add(
+boost::unit_testframework::master_test_suite().add(
 BOOST_AUTO_TEST_CASE( gobject_test_failures_expected )
 {
 	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
