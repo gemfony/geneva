@@ -152,8 +152,8 @@ bool testGObjectSelfAssignment(){
 	catch(geneva_error_condition& gec){
 		if( boost::shared_ptr<std::string const> err=boost::get_error_info<error_string>(gec) ) {
 			std::ostringstream error;
-			error << "In GObject::checkConversion<T>() : Error!" << std::endl
-				  << "Tried to assign an object to itself. " << std::endl;
+			error << "XIn GObject::checkConversion<T>() : Error!" << std::endl
+				  << "Tried to assign an object to itself." << std::endl;
 
 			if(error.str() == *err) return true;
 			else {
