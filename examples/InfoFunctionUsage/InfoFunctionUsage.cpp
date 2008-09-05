@@ -89,6 +89,8 @@ class optimizationMonitor{
 			ar & make_nvp("isParent", isParent);
 			ar & make_nvp("parentCounter",parentCounter);
 			ar & make_nvp("isDirty", isDirty);
+			ar & make_nvp("sigma", sigma);
+			ar & make_nvp("sigmaSigma", sigmaSigma);
 		}
 
 		std::vector<double> parameters;
@@ -96,6 +98,8 @@ class optimizationMonitor{
 		bool isParent;
 		boost::uint32_t parentCounter;
 		bool isDirty;
+		double sigma;
+		double sigmaSigma;
 	};
 
 	struct generationData {
@@ -162,6 +166,14 @@ public:
 					gdc_data.isParent = (*it)->isParent();
 					gdc_data.parentCounter = (*it)->getParentCounter();
 					gdc_data.isDirty = (*it)->isDirty();
+
+					// Extract the adaptor from gdc
+					boost::shared_ptr<GDoubleGaussAdaptor> gda =
+						gdc->adaptor_cast<GDoubleGaussAdaptor>("gauss_mutation");
+
+					// Retrieve mutation data
+					gdc_data.sigma = gda->getSigma();
+					gdc_data.sigmaSigma = gda->getSigmaSigma();
 
 					genDat.iD.push_back(gdc_data);
 				}
