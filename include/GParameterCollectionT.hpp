@@ -151,7 +151,7 @@ public:
 	/*******************************************************************************************/
 	/**
 	 * Allows to mutate the values stored in this class. If more than one adaptor was registered,
-	 * all will be applied to the value. applxFirstAdaptor and applyAllAdaptors expects a reference
+	 * all will be applied to the value. applyFirstAdaptor and applyAllAdaptors expects a reference
 	 * to a vector<T>. As we are derived from this class, we can just pass a reference to ourselves
 	 * to the functions.
 	 */
