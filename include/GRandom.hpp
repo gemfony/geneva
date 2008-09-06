@@ -47,7 +47,7 @@
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
-// #include <boost/pool/detail/singleton.hpp>
+#include <boost/pool/detail/singleton.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
@@ -66,8 +66,8 @@
 #error "Error: No support for Boost.threads available."
 #endif
 
-#ifndef GRANDOM_H
-#define GRANDOM_H
+#ifndef GRANDOM_HPP_
+#define GRANDOM_HPP_
 
 // GenEvA headers go here
 
@@ -328,9 +328,8 @@ private:
 /**
  * A single, global random number factory is created.
  */
-// typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
-// #define GRANDOMFACTORY grfactory::instance()
-GRandomFactory GRANDOMFACTORY;
+typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
+#define GRANDOMFACTORY grfactory::instance()
 
 /****************************************************************************/
 //////////////////////////////////////////////////////////////////////////////
@@ -575,4 +574,4 @@ private:
 } /* namespace Util */
 } /* namespace Gem */
 
-#endif /* GRANDOM_H */
+#endif /* GRANDOM_HPP_ */
