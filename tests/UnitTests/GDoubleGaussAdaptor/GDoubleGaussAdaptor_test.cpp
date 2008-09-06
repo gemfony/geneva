@@ -226,9 +226,21 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 
 	// Do it again with different functions
 	gdga->setSigma(2.0);
+
+	std::cout << "gdoublegaussadaptor_no_failure_expected (5.1)" << std::endl;
+
 	gdga->setSigmaAdaptionRate(0.2);
+
+	std::cout << "gdoublegaussadaptor_no_failure_expected (5.2)" << std::endl;
+
 	gdga->setSigmaRange(0.002, 2);
+
+	std::cout << "gdoublegaussadaptor_no_failure_expected (5.3)" << std::endl;
+
 	BOOST_CHECK(gdga->getSigma() == 2.0);
+
+	std::cout << "gdoublegaussadaptor_no_failure_expected (5.4)" << std::endl;
+
 	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.2);
 
 	std::cout << "gdoublegaussadaptor_no_failure_expected (6)" << std::endl;
