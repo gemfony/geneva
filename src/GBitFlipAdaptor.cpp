@@ -166,7 +166,8 @@ namespace Gem
 		 */
 		void GBitFlipAdaptor::setMutationParameters(const double& sgm, const double& sgmSgm,
 													const double& minSgm, const double& maxSgm) {
-			boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor = mutProb_.adaptor_cast<GDoubleGaussAdaptor>();
+			boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor
+				= mutProb_.adaptor_cast<GDoubleGaussAdaptor>(GDoubleGaussAdaptor::adaptorName());
 			// Then set the values as requested.
 			gaussAdaptor->setAll(sgm,sgmSgm,minSgm,maxSgm);
 		}
