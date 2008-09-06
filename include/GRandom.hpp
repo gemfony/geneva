@@ -47,7 +47,7 @@
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
-#include <boost/pool/detail/singleton.hpp>
+// #include <boost/pool/detail/singleton.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
@@ -328,8 +328,9 @@ private:
 /**
  * A single, global random number factory is created.
  */
-typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
-#define GRANDOMFACTORY grfactory::instance()
+// typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
+// #define GRANDOMFACTORY grfactory::instance()
+GRandomFactory GRANDOMFACTORY;
 
 /****************************************************************************/
 //////////////////////////////////////////////////////////////////////////////

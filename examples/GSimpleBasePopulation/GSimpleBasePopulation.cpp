@@ -26,17 +26,6 @@
 #include <sstream>
 
 // Boost header files go here
-#include <boost/shared_ptr.hpp>
-
-class test{
-public:
-	~test(){
-		std::cout << "Test is being destroyed" << std::endl;
-	}
-};
-
-boost::shared_ptr<test> myTest;
-test Test;
 
 // GenEvA header files go here
 #include "GRandom.hpp"
