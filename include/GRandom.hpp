@@ -256,6 +256,8 @@ private:
 			boost::lagged_fibonacci607 lf(seed);
 
 			while (true) {
+				std::cout << "Produced a package" << std::endl;
+
 				double *p_raw = new double[DEFAULTARRAYSIZE];
 
 				for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++) {
