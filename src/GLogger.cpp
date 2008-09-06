@@ -41,8 +41,6 @@ namespace Gem {
 		 * targets, so you do not need to delete them yourself.
 		 */
 		GLogger::~GLogger() {
-			std::cout << "Terminating GLogger" << std::endl;
-
 			logVector_.clear();
 			logLevel_.clear();
 
