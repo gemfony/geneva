@@ -146,6 +146,8 @@ BOOST_AUTO_TEST_CASE( gdga_gobject_test_no_failure_expected )
 	delete gdga3;
 	delete gdga4;
 	// Note that gdga5 will be deleted automatically by the boost::shared_ptr<>
+
+	std::cout << "Ran gdga_gobject_test_no_failure_expected test case" << std::endl;
 }
 
 /***********************************************************************************/
@@ -176,6 +178,8 @@ bool gdga_testGObjectSelfAssignment(){
 BOOST_AUTO_TEST_CASE( gdga_gobject_test_failures_expected )
 {
 	BOOST_CHECK(gdga_testGObjectSelfAssignment());
+
+	std::cout << "Ran gdga_gobject_test_failures_expected test case" << std::endl;
 }
 
 /***********************************************************************************/
@@ -240,6 +244,8 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 		gdga->mutate(testValue);
 		BOOST_CHECK(previousValue != testValue);
 	}
+
+	std::cout << "Ran gdoublegaussadaptor_no_failure_expected test case" << std::endl;
 }
 
 /***********************************************************************************/
@@ -281,6 +287,8 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_failures_expected )
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0.,0)); // Invalid maxSigma
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0,-0.1)); // Invalid maxSigma
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,1,0.9)); // Invalid maxSigma
+
+	std::cout << "Ran gdoublegaussadaptor_failures_expected test case" << std::endl;
 }
 
 /***********************************************************************************/
