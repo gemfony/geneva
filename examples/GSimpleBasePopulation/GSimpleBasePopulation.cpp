@@ -35,7 +35,6 @@
 #include "GDoubleGaussAdaptor.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
-#include "GBoostThreadPopulation.hpp"
 
 // The individual that should be optimized
 // This is a simple parabola
@@ -100,9 +99,7 @@ int main(int argc, char **argv){
 		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax, adaptionThreshold));
 
 	// Now we've got our first individual and can create a simple population with serial execution.
-	// GBasePopulation pop;
-	GBoostThreadPopulation pop;
-	pop.setNThreads(5);
+	GBasePopulation pop;
 
 	pop.append(parabolaIndividual);
 
