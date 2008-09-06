@@ -69,8 +69,8 @@ int main(int argc, char **argv){
 	GBit A(true), A_tmp;
 	GBitCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
 
-	boost::shared_ptr<GBitFlipAdaptor> A_adaptor(new GBitFlipAdaptor(0.1, "A_adaptor"));
-	boost::shared_ptr<GBitFlipAdaptor> B_adaptor(new GBitFlipAdaptor(0.2, "B_adaptor"));
+	boost::shared_ptr<GBitFlipAdaptor> A_adaptor(new GBitFlipAdaptor(0.1));
+	boost::shared_ptr<GBitFlipAdaptor> B_adaptor(new GBitFlipAdaptor(0.2));
 
 	A.addAdaptor(A_adaptor);
 	B.addAdaptor(B_adaptor);
