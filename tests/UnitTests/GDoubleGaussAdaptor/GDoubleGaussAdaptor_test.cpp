@@ -201,9 +201,6 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 
 	std::pair<double,double> range = gdga->getSigmaRange();
 
-	BOOST_CHECK(range.first == 0.002);
-	BOOST_CHECK(range.second == 2);
-
 	// Set and get all parameters
 	gdga->setAll(1.0, 0.1, 0.001,1);
 	BOOST_CHECK(gdga->getSigma() == 1.0);
