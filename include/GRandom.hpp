@@ -163,7 +163,9 @@ public:
 	 */
 	~GRandomFactory() throw() {
 		producer_threads_01_.interrupt_all(); // doesn't throw
+		producer_threads_01_.join_all();
 
+		/*
 		try {
 			producer_threads_01_.join_all();
 		} catch (boost::thread_interrupted&) {
@@ -179,6 +181,7 @@ public:
 			// Terminate the process - nothing else to do in a destructor
 			std::terminate();
 		}
+		*/
 
 		std::cout << "GrandomFactory has terminated" << std::endl;
 	}
@@ -192,9 +195,7 @@ public:
 	void setNProducerThreads(boost::uint16_t n01Threads)
 	{
 		if (n01Threads > n01Threads_) { // start new 01 threads
-			for (boost::uint16_t i = n01Threads_; i < n01Threads; i++)
-			{
-				std::cout << "producer thread is starting from startProducerThreads with seed " << seed_ + seedCounter_+ 1 << std::endl;
+			for (boost::uint16_t i = n01Threads_; i < n01Threads; i++) {
 				producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_	+ seedCounter_++));
 			}
 		} else if (n01Threads < n01Threads_) { // We need to remove threads
@@ -236,8 +237,6 @@ private:
 	 */
 	void startProducerThreads(void) throw() {
 		for (boost::uint16_t i = 0; i < n01Threads_; i++) {
-			std::cout << "producer thread is starting from startProducerThreads with seed " << seed_ + seedCounter_ + 1 << std::endl;
-
 			// thread() doesn't throw, and no exceptions are listed in the documentation
 			// for the create_thread() function, so we assume it doesn't throw.
 			producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_ + seedCounter_++));
@@ -254,8 +253,6 @@ private:
 	 * @param seed The seed for our local random number generator
 	 */
 	void producer01(const boost::uint32_t& seed) throw() {
-		std::cout << "Thread has started with seed " << seed << std::endl;
-
 		try {
 			boost::lagged_fibonacci607 lf(seed);
 
