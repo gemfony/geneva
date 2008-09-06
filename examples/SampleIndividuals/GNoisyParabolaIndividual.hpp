@@ -86,8 +86,9 @@ public:
 	 * @param sz The desired size of the double collection
 	 * @param min The minimum value of the random numbers to fill the collection
 	 * @param max The maximum value of the random numbers to fill the collection
+	 * @param adaptionThreshold The number of calls to GDoubleGaussAdaptor::mutate after which mutation should be adapted
 	 */
-	GNoisyParabolaIndividual(std::size_t sz, double min, double max){
+	GNoisyParabolaIndividual(std::size_t sz, double min, double max, boost::uint32_t adaptionThreshold){
 		// Set up a GDoubleCollection with sz values, each initialized
 		// with a random number in the range [min,max[
 		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(sz,min,max));
@@ -96,6 +97,7 @@ public:
 		// knows how to be mutated. We want a sigma dependent on the max value,
 		// sigma-adaption of 0.001 and a minimum sigma of 0.002.
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(fabs(max),0.001,0.002,fabs(max)));
+		gdga->setAdaptionThreshold(adaptionThreshold);
 		gdc->addAdaptor(gdga);
 
 		// Make the parameter collection known to this individual

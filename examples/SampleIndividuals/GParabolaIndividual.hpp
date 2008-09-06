@@ -84,6 +84,7 @@ public:
 	 * @param sz The desired size of the double collection
 	 * @param min The minimum value of the random numbers to fill the collection
 	 * @param max The maximum value of the random numbers to fill the collection
+	 * @param as The number of calls to GDoubleGaussAdaptor::mutate after which mutation should be adapted
 	 */
 	GParabolaIndividual(std::size_t sz, double min, double max, boost::uint32_t as){
 		// Set up a GDoubleCollection with sz values, each initialized
