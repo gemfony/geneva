@@ -169,7 +169,7 @@ public:
 
 					// Extract the adaptor from gdc
 					boost::shared_ptr<GDoubleGaussAdaptor> gda =
-						gdc->adaptor_cast<GDoubleGaussAdaptor>("gauss_mutation");
+						gdc->adaptor_cast<GDoubleGaussAdaptor>(GDoubleGaussAdaptor::adaptorName());
 
 					// Retrieve mutation data
 					gdc_data.sigma = gda->getSigma();
