@@ -5,8 +5,8 @@
 - Move from GLogger to one of the two Boost logging library candidates. Requires that at least one 
   of them heads for a review (we do not want to include further candidate libraries - Geneva should work 
   with a vanilla Boost installation (>= 1.36)
-- Ship the threadpool library with Geneva
-- Add many tests using the Boost.Test library
-- Allow to set a maximum sigma for gauss mutations when using adaption of that value!!!
-- Enforce a standard name of adaptors
+- Ship the threadpool library with Geneva or move to standar Boost threapool (once it has been reviewed)
+- Add many more tests using the Boost.Test library
 - Move away from Boost.Exception and just use std::exception
+- Separate the GRandom and GRandomFactory classes
+- Move away from Boost's (inofficial ??) singleton implementation

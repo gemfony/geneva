@@ -250,8 +250,6 @@ private:
 	 * @param seed The seed for our local random number generator
 	 */
 	void producer01(const boost::uint32_t& seed) throw() {
-		std::cout << "Called with seed " << seed << std::endl;
-
 		try {
 			boost::lagged_fibonacci607 lf(seed);
 
@@ -330,8 +328,7 @@ private:
 /**
  * A single, global random number factory is created.
  */
-typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory>
-		grfactory;
+typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
 #define GRANDOMFACTORY grfactory::instance()
 
 /****************************************************************************/
