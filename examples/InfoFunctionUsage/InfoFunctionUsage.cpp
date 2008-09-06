@@ -189,7 +189,7 @@ public:
 			}
 
 			// Emit a minimum of information to the audience
-			std::cout << "Fitness is " << data.at(0).fitness() << std::endl;
+			std::cout << "Fitness is " << gbp->data.at(0).fitness() << std::endl;
 
 			break;
 
