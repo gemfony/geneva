@@ -93,6 +93,7 @@ class optimizationMonitor{
 			ar & make_nvp("sigmaSigma", sigmaSigma);
 			ar & make_nvp("adaptionThreshold", adaptionThreshold);
 			ar & make_nvp("adaptionCounter", adaptionCounter);
+			ar & make_nvp("position", position)
 		}
 
 		std::vector<double> parameters;
@@ -104,6 +105,7 @@ class optimizationMonitor{
 		double sigmaSigma;
 		boost::uint32_t adaptionThreshold;
 		boost::uint32_t adaptionCounter;
+		std::size_t position;
 	};
 
 	struct generationData {
@@ -157,6 +159,7 @@ public:
 				genDat.generation = gbp->getGeneration();
 
 				std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+				std::size_t position = 0;
 				for(it=gbp->data.begin(); it!=gbp->data.end(); ++it){
 					// We extract the data. (*it) is a boost::shared_ptr<GIndividual>,
 					// so we need to convert it first.
@@ -170,6 +173,8 @@ public:
 					gdc_data.isParent = (*it)->isParent();
 					gdc_data.parentCounter = (*it)->getParentCounter();
 					gdc_data.isDirty = (*it)->isDirty();
+
+					gdc_data.position = position++;
 
 					// Extract the adaptor from gdc
 					boost::shared_ptr<GDoubleGaussAdaptor> gda =
