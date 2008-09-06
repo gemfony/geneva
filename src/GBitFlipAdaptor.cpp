@@ -38,7 +38,7 @@ namespace Gem
 		 * The default constructor
 		 */
 		GBitFlipAdaptor::GBitFlipAdaptor()
-			:GAdaptorT<Gem::GenEvA::bit>(GBFANAME),
+			:GAdaptorT<Gem::GenEvA::bit>(GBFASTANDARDNAME),
 			 mutProb_(DEFAULTMUTPROB, 0., 1.) // probability is in the range [0:1[
 		{
 			boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MINSGM, MAXSGM));
@@ -53,7 +53,7 @@ namespace Gem
 		 * @param prob The probability for a bit-flip
 		 */
 		GBitFlipAdaptor::GBitFlipAdaptor(const double& prob)
-			:GAdaptorT<GenEvA::bit>(GBFANAME),
+			:GAdaptorT<GenEvA::bit>(GBFASTANDARDNAME),
 			 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
 		{
 			boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MSGM));
