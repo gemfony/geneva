@@ -163,9 +163,7 @@ public:
 	 */
 	~GRandomFactory() throw() {
 		producer_threads_01_.interrupt_all(); // doesn't throw
-		producer_threads_01_.join_all();
 
-		/*
 		try {
 			producer_threads_01_.join_all();
 		} catch (boost::thread_interrupted&) {
@@ -181,7 +179,6 @@ public:
 			// Terminate the process - nothing else to do in a destructor
 			std::terminate();
 		}
-		*/
 
 		std::cout << "GrandomFactory has terminated" << std::endl;
 	}
@@ -196,7 +193,7 @@ public:
 	{
 		if (n01Threads > n01Threads_) { // start new 01 threads
 			for (boost::uint16_t i = n01Threads_; i < n01Threads; i++) {
-				producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_	+ seedCounter_++));
+				producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_++));
 			}
 		} else if (n01Threads < n01Threads_) { // We need to remove threads
 			if (n01Threads == 0)
@@ -239,7 +236,7 @@ private:
 		for (boost::uint16_t i = 0; i < n01Threads_; i++) {
 			// thread() doesn't throw, and no exceptions are listed in the documentation
 			// for the create_thread() function, so we assume it doesn't throw.
-			producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_ + seedCounter_++));
+			producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_++));
 		}
 	}
 
@@ -253,6 +250,8 @@ private:
 	 * @param seed The seed for our local random number generator
 	 */
 	void producer01(const boost::uint32_t& seed) throw() {
+		std::cout << "Called with seed " << seed << std::endl;
+
 		try {
 			boost::lagged_fibonacci607 lf(seed);
 
@@ -324,7 +323,6 @@ private:
 	Gem::Util::GBoundedBufferT<boost::shared_array<double> > g01_;
 
 	boost::uint32_t seed_; ///< The seed for the random number generators
-	boost::uint32_t seedCounter_; ///< Incremented and added to seed_ whenever a new thread is started
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 };
