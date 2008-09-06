@@ -208,8 +208,6 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 
 	range = gdga->getSigmaRange();
 	BOOST_CHECK(range.first == 0.001);
-	std::cout << "range.firs   = " << range.first << std::endl;
-	std::cout << "range.second = " << range.second << std::endl;
 	BOOST_CHECK(range.second == 1);
 
 	// Do it again with different functions
