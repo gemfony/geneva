@@ -68,7 +68,9 @@ public:
 	{ /* nothing */	}
 
 	~GIndividualBroker()
-	{ /* nothing */	}
+	{
+		LOGGER.log("GIndividualBroker has terminated", Gem::GLogFramework::INFORMATIONAL);
+	}
 };
 
 /**************************************************************************************/

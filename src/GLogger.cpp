@@ -43,6 +43,8 @@ namespace Gem {
 		GLogger::~GLogger() {
 			logVector_.clear();
 			logLevel_.clear();
+
+			std::cout << "GLogger has terminated" << std::endl;
 		}
 
 		/***********************************************************************************/

@@ -166,22 +166,23 @@ namespace Gem {
 
 		    try
 		    {
-			producer_threads_01_.join_all();
-
+		    	producer_threads_01_.join_all();
 		    }
 		    catch (boost::thread_interrupted&)
 		    {
-			// This should not happen - we should have caught all thread_interrupted
-			// signals in the threads themselves.
-			std::ostringstream error;
-			error << "In GRandomFactory::~GRandomFactory: Error!" << std::endl
-			      << "Caught boost::thread_interrupted exception." << std::endl;
+		    	// This should not happen - we should have caught all thread_interrupted
+		    	// signals in the threads themselves.
+		    	std::ostringstream error;
+		    	error << "In GRandomFactory::~GRandomFactory: Error!" << std::endl
+					  << "Caught boost::thread_interrupted exception." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		    	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
-			// Terminate the process - nothing else to do in a destructor
-			std::terminate();
+		    	// Terminate the process - nothing else to do in a destructor
+		    	std::terminate();
 		    }
+
+		    LOGGER.log("GrandomFactory has terminated", Gem::GLogFramework::INFORMATIONAL);
 		}
 
 	    /*************************************************************************/
