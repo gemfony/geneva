@@ -188,7 +188,7 @@ double GDoubleGaussAdaptor::getSigma() const throw() {
  * @param minSigma The minimum allowed value of sigma_
  * @param minSigma The maximum allowed value of sigma_
  */
-void setSigmaRange(const double& minSigma, const double& maxSigma){
+void GDoubleGaussAdaptor::setSigmaRange(const double& minSigma, const double& maxSigma){
 	// Do some error checks
 	if(minSigma<=0. || minSigma >= maxSigma){ // maxSigma will automatically be > 0. now
 		std::ostringstream error;
@@ -214,7 +214,7 @@ void setSigmaRange(const double& minSigma, const double& maxSigma){
  *
  * @return The allowed value range for sigma
  */
-std::pair<double,double> getSigmaRange() const throw() {
+std::pair<double,double> GDoubleGaussAdaptor::getSigmaRange() const throw() {
 	return std::make_pair(minSigma_, maxSigma_);
 }
 
