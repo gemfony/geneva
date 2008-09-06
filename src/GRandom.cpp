@@ -43,7 +43,7 @@ namespace Util {
    */
   uint32_t GSeed(void){
     boost::mutex::scoped_lock lk(randomseed_mutex);
-    boost::posix_time::ptime t1 = boost::posix_time::millisec_clock::local_time();
+    boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
     return (uint32_t)t1.time_of_day().total_milliseconds();
   }
 
