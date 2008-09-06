@@ -36,6 +36,7 @@ public:
 };
 
 boost::shared_ptr<test> myTest;
+test Test;
 
 // GenEvA header files go here
 #include "GRandom.hpp"
