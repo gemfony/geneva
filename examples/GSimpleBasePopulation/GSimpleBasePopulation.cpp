@@ -66,8 +66,6 @@ int main(int argc, char **argv){
 	 bool verbose;
 	 recoScheme rScheme;
 
-	 myTest = boost::shared_ptr<test>(new test());
-
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
 		  			     parabolaDimension,
