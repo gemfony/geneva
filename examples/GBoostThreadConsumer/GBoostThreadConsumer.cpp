@@ -65,7 +65,7 @@ int main(int argc, char **argv){
 	 double parabolaMin, parabolaMax;
 	 boost::uint16_t nProducerThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
-	 boost::uint32_t adaptionThreshold
+	 boost::uint32_t adaptionThreshold;
 	 long maxMinutes;
 	 bool verbose;
 	 recoScheme rScheme;
