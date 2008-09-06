@@ -26,7 +26,7 @@
 #include <sstream>
 
 // Boost header files go here
-#include <boost shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 class test{
 public:
