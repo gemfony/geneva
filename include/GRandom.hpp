@@ -182,7 +182,7 @@ namespace Gem {
 		    	std::terminate();
 		    }
 
-		    LOGGER.log("GrandomFactory has terminated", Gem::GLogFramework::INFORMATIONAL);
+		    std::cout << "GrandomFactory has terminated" << std::endl;
 		}
 
 	    /*************************************************************************/

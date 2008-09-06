@@ -62,7 +62,7 @@
 
 #include "GEnums.hpp"
 #include "GConsumer.hpp"
-// #include "GIndividualBroker.hpp"
+#include "GIndividualBroker.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GSerializationHelperFunctions.hpp"
 #include "GLogger.hpp"

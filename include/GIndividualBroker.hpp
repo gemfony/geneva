@@ -69,7 +69,7 @@ public:
 
 	~GIndividualBroker()
 	{
-		LOGGER.log("GIndividualBroker has terminated", Gem::GLogFramework::INFORMATIONAL);
+		std::cout << "GIndividualBroker has terminated" << std::endl;
 	}
 };
 
