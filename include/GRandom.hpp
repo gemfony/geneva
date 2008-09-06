@@ -133,8 +133,11 @@ public:
 	 * producer threads.
 	 */
 	GRandomFactory(void) throw() :
-		g01_(DEFAULTFACTORYBUFFERSIZE), seed_(GSeed()), n01Threads_(
-				DEFAULT01PRODUCERTHREADS) {
+		g01_(DEFAULTFACTORYBUFFERSIZE),
+		seed_(GSeed()),
+		seedCounter_(0),
+		n01Threads_(DEFAULT01PRODUCERTHREADS)
+	{
 		startProducerThreads();
 	}
 
@@ -147,6 +150,7 @@ public:
 	GRandomFactory(boost::uint16_t n01Threads) throw() :
 		g01_(DEFAULTFACTORYBUFFERSIZE),
 		seed_(GSeed()),
+		seedCounter_(0),
 		n01Threads_(n01Threads ? n01Threads : 1)
 	{
 		startProducerThreads();
@@ -190,8 +194,8 @@ public:
 		if (n01Threads > n01Threads_) { // start new 01 threads
 			for (boost::uint16_t i = n01Threads_; i < n01Threads; i++)
 			{
-				std::cout << "producer thread is starting from startProducerThreads with seed " << seed_ + boost::uint32_t(i) << std::endl;
-				producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_	+ boost::uint32_t(i)));
+				std::cout << "producer thread is starting from startProducerThreads with seed " << seed_ + seedCounter_+ 1 << std::endl;
+				producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_	+ seedCounter_++));
 			}
 		} else if (n01Threads < n01Threads_) { // We need to remove threads
 			if (n01Threads == 0)
@@ -232,11 +236,11 @@ private:
 	 */
 	void startProducerThreads(void) throw() {
 		for (boost::uint16_t i = 0; i < n01Threads_; i++) {
-			std::cout << "producer thread is starting from startProducerThreads with seed " << seed_ + boost::uint32_t(i) << std::endl;
+			std::cout << "producer thread is starting from startProducerThreads with seed " << seed_ + seedCounter_ + 1 << std::endl;
 
 			// thread() doesn't throw, and no exceptions are listed in the documentation
 			// for the create_thread() function, so we assume it doesn't throw.
-			producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_ + boost::uint32_t(i)));
+			producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_ + seedCounter_++));
 		}
 	}
 
@@ -256,8 +260,6 @@ private:
 			boost::lagged_fibonacci607 lf(seed);
 
 			while (true) {
-				std::cout << "Produced a package" << std::endl;
-
 				double *p_raw = new double[DEFAULTARRAYSIZE];
 
 				for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++) {
@@ -325,9 +327,8 @@ private:
 	Gem::Util::GBoundedBufferT<boost::shared_array<double> > g01_;
 
 	boost::uint32_t seed_; ///< The seed for the random number generators
-
+	boost::uint32_t seedCounter_; ///< Incremented and added to seed_ whenever a new thread is started
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
-
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 };
 
