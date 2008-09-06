@@ -49,7 +49,7 @@ using namespace Gem::GLogFramework;
 
 int main(int argc, char **argv) {
 	bool verbose;
-	double sigma, sigmaSigma, minSigma;
+	double sigma, sigmaSigma, minSigma, maxSigma;
 	boost::uint32_t maxIter;
 	std::string resultFile;
 
@@ -57,6 +57,7 @@ int main(int argc, char **argv) {
 		                  sigma,
 		                  sigmaSigma,
 		                  minSigma,
+		                  maxSigma,
 		                  resultFile,
 		                  maxIter,
 		                  verbose))
@@ -69,7 +70,7 @@ int main(int argc, char **argv) {
 	std::vector<double> y_mutValDiff(maxIter);
 	std::vector<double> y_sigma(maxIter);
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga(
-			new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, "Adaptor"));
+			new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
 
 	result << "{" << std::endl << "  gROOT->Reset();" << std::endl
 		   << "  gStyle->SetOptTitle(0);" << std::endl
