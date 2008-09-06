@@ -30,6 +30,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <utility>
 
 // Boost header files go here
 
@@ -65,7 +66,7 @@ BOOST_AUTO_TEST_CASE( gdga_gobject_test_no_failure_expected )
 	// Add log targets to the system
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GDoubleGaussAdaptor_test.log")));
 
-	GDoubleGaussAdaptor *gdga=new GDoubleGaussAdaptor(ADAPTORNAME); // Construction by name
+	GDoubleGaussAdaptor *gdga=new GDoubleGaussAdaptor(); // Default construction
 	GDoubleGaussAdaptor *gdga2=new GDoubleGaussAdaptor(*gdga); // Copy construction
 
 	// Getting and setting the name
@@ -151,7 +152,7 @@ BOOST_AUTO_TEST_CASE( gdga_gobject_test_no_failure_expected )
 // Test functions for the following tests
 bool gdga_testGObjectSelfAssignment(){
 	try{
-		GDoubleGaussAdaptor *gdga=new GDoubleGaussAdaptor(ADAPTORNAME);
+		GDoubleGaussAdaptor *gdga=new GDoubleGaussAdaptor();
 		gdga->load(gdga); // This must fail!!!
 		delete gdga;
 
@@ -183,88 +184,79 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 {
 	{
 		// Construction with a given sigma
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0, ADAPTORNAME));
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0));
 		BOOST_CHECK(gdga); // Automatic conversion to bool. shared_ptr will be empty in case of a failure
 		BOOST_CHECK(gdga->getSigma() == 2.0);
-		BOOST_CHECK(gdga->name() == ADAPTORNAME);
+		BOOST_CHECK(gdga->name() == GDoubleGaussAdaptor::adaptorName());
 	} // gdga will cease to exist here
 
 	// Construction with all parameters
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0, 0.2, 0.002, ADAPTORNAME));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0, 0.2, 0.002, 2.0));
 	BOOST_CHECK(gdga); // Automatic conversion to bool. shared_ptr will be empty in cas	e of a failure
 
 	// Check that the parameters have been set
-	BOOST_CHECK(gdga->name() == ADAPTORNAME);
+	BOOST_CHECK(gdga->name() == GDoubleGaussAdaptor::adaptorName());
 	BOOST_CHECK(gdga->getSigma() == 2.0);
-	BOOST_CHECK(gdga->getSigmaSigma() == 0.2);
-	BOOST_CHECK(gdga->getMinSigma() == 0.002);
+	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.2);
+
+	std::pair range = gdga->getSigmaRange();
+
+	BOOST_CHECK(range.first == 0.002);
+	BOOST_CHECK(range.second == 2);
 
 	// Set and get all parameters
-	gdga->setAll(1.0, 0.1, 0.001);
+	gdga->setAll(1.0, 0.1, 0.001,1);
 	BOOST_CHECK(gdga->getSigma() == 1.0);
-	BOOST_CHECK(gdga->getSigmaSigma() == 0.1);
-	BOOST_CHECK(gdga->getMinSigma() == 0.001);
+	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.1);
+
+	range = gdga->getSigmaRange();
+	BOOST_CHECK(range.first == 0.001);
+	BOOST_CHECK(range.second == 1);
 
 	// Do it again with different functions
 	gdga->setSigma(2.0);
-	gdga->setSigmaSigma(0.2, 0.002);
+	gdga->setSigmaAdaptionRate(0.2);
+	gdga->setSigmaRange(0.002, 2);
 	BOOST_CHECK(gdga->getSigma() == 2.0);
-	BOOST_CHECK(gdga->getSigmaSigma() == 0.2);
-	BOOST_CHECK(gdga->getMinSigma() == 0.002);
+	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.2);
+
+	range = gdga->getSigmaRange();
+	BOOST_CHECK(range.first == 0.002);
+	BOOST_CHECK(range.second == 2);
 
 	// The value of a double should change during each mutation
 	double testValue = 1.;
 	double previousValue = testValue;
 
-	gdga->setSigmaSigma(0.,0.); // Prevent changes of sigma
+	gdga->setAdaptionThreshold(0); // Prevent changes of sigma
 	for(boost::uint32_t i=0; i<100000; i++){
 		previousValue = testValue;
 		gdga->mutate(testValue);
 		BOOST_CHECK(previousValue != testValue);
 	}
 
-	gdga->setSigmaSigma(0.2,0.002); // Allow changes of sigma
+	gdga->setAdaptionThreshold(1); // Let sigma be adapted during each mutation
+	gdga->setSigmaAdaptionRate(0.01); // The sigmaSigma Parameter
+	gdga->setSigmaRange(0.000001,10);
 	for(boost::uint32_t i=0; i<100000; i++){
 		previousValue = testValue;
 		gdga->mutate(testValue);
 		BOOST_CHECK(previousValue != testValue);
-	}
-
-	// Start with a new adaptor, this time for a vector
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga2(new GDoubleGaussAdaptor(2.0, 0.002, 0.002, ADAPTORNAME));
-	std::vector<double> doubleVector, previousVector;
-	GRandom gr;
-	for(std::size_t i=0; i<1000; i++){
-		doubleVector.push_back(gr.evenRandom(-1.,1.));
-	}
-
-	gdga2->setAlwaysInit(false);
-	// Mutate a couple of times, see what happens
-	for(boost::uint32_t i=0; i<1000; i++){
-		previousVector = doubleVector;
-		gdga2->mutate(doubleVector);
-		BOOST_CHECK(previousVector!=doubleVector);
-	}
-
-	gdga2->setAlwaysInit(true);
-	for(boost::uint32_t i=0; i<1000; i++){
-		previousVector = doubleVector;
-		gdga2->mutate(doubleVector);
-		BOOST_CHECK(previousVector!=doubleVector);
 	}
 }
 
 /***********************************************************************************/
 // Test functions for expected failures
-bool gdga_testUnsuitableMutationParameters(const double& sigma, const double& sigmaSigma, const double& minSigma){
+bool gdga_testUnsuitableMutationParameters(const double& sigma, const double& sigmaSigma,
+										   const double& minSigma, const double& maxSigma){
 	try{
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(ADAPTORNAME));
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor());
 		if(!gdga) {
 			std::cerr << "Error: Construction of smart pointer failed" << std::endl;
 			return false;
 		}
 
-		gdga->setAll(sigma, sigmaSigma, minSigma);
+		gdga->setAll(sigma, sigmaSigma, minSigma, maxSigma);
 	}
 	catch(geneva_error_condition& gec){
 		return true; // An exception of this type was expected here
@@ -285,6 +277,7 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_failures_expected )
 {
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(0.,0.1,0.001)); // Invalid sigma
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(-1.,0.1,0.001)); // Invalid sigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1, 0,0.001)); // Invalid sigmaSigma
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,-1.,0.001)); // Invalid sigmaSigma
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0.)); // Invalid minSigma
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,-1)); // Invalid minSigma

@@ -32,30 +32,15 @@ namespace GenEvA {
 
 /*************************************************************************/
 /**
- * The default constructor. We do not want it to be publicly accessible.
- * Hence it is defined private. It still needs to be there due to the requirement
- * of this class being serializable (which implies default construction by
- * the friend class boost::serialization::access .
+ * The standard constructor. It passes the adaptor's standard name to the
+ * parent class and initializes the internal variables.
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor()
-	:GAdaptorT<double> ("GDoubleGaussAdaptor"),
+	:GAdaptorT<double> (GDGASTANDARDNAME),
 	 sigma_(DEFAULTSIGMA),
 	 sigmaSigma_(DEFAULTSIGMASIGMA),
-	 minSigma_(DEFAULTMINSIGMA)
-{ /* nothing */ }
-
-/*************************************************************************/
-/**
- * The standard constructor. It passes the adaptor's name to the parent class
- * and initialises the internal variables.
- *
- * @param name The name assigned to this adaptor
- */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(const std::string& name)
-	:GAdaptorT<double> (name),
-	 sigma_(DEFAULTSIGMA),
-	 sigmaSigma_(DEFAULTSIGMASIGMA),
-	 minSigma_(DEFAULTMINSIGMA)
+	 minSigma_(DEFAULTMINSIGMA),
+	 maxSigma_(DEFAULTMAXSIGMA)
 { /* nothing */ }
 
 /*************************************************************************/
@@ -65,12 +50,12 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const std::string& name)
  * this constructor.
  *
  * @param sigma The initial value for the sigma_ parameter
- * @param name The name assigned to this adaptor
  */
-GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const std::string& name)
-	:GAdaptorT<double> (name),
+GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma)
+	:GAdaptorT<double> (GDGASTANDARDNAME),
 	 sigmaSigma_(DEFAULTSIGMASIGMA),
-	 minSigma_(DEFAULTMINSIGMA)
+	 minSigma_(DEFAULTMINSIGMA),
+	 maxSigma_(DEFAULTMAXSIGMA)
 {
 	// This functions does an error check on sigma, so we do not assign
 	// the value directly to the private variable.
@@ -87,11 +72,13 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const std::string&
  * @param name The name assigned to this adaptor
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigmaSigma,
-										 const double& minSigma, const std::string& name)
-	:GAdaptorT<double> (name)
+										 const double& minSigma, const double& maxSigma)
+	:GAdaptorT<double> (GDGASTANDARDNAME)
 {
+	// These functions do error checks on their values
+	setSigmaAdaptionRate(sigmaSigma);
+	setSigmaRange(minSigma, maxSigma);
 	setSigma(sigma);
-	setSigmaSigma(sigmaSigma, minSigma);
 }
 
 /*************************************************************************/
@@ -103,8 +90,9 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigm
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
 	:GAdaptorT<double> (cp)
 {
+	setSigmaAdaptionRate(cp.sigmaSigma_);
+	setSigmaRange(cp.minSigma_, cp.maxSigma_);
 	setSigma(cp.sigma_);
-	setSigmaSigma(cp.sigmaSigma_, cp.minSigma_);
 }
 
 /*************************************************************************/
@@ -148,16 +136,15 @@ inline void GDoubleGaussAdaptor::customMutations(double &value)
 /**
  * This adaptor allows the evolutionary adaption of sigma_. This allows the
  * algorithm to adapt to changing geometries of the quality surface. The
- * function is declared inline, as it will be called very often.
+ * function is declared inline, as it might be called very often.
  */
-inline void GDoubleGaussAdaptor::initNewRun()
+inline void GDoubleGaussAdaptor::adaptMutation()
 {
-	// do we want to adapt sigma_ at all ?
-	if(sigmaSigma_) { // != 0 ?
-		sigma_ *= exp(gr.gaussRandom(0.,sigmaSigma_));
-		// make sure sigma_ doesn't get too small
-		if(fabs(sigma_) < minSigma_) sigma_ = minSigma_;
-	}
+	sigma_ *= exp(gr.gaussRandom(0.,sigmaSigma_));
+
+	// make sure sigma_ doesn't get out of range
+	if(fabs(sigma_) < minSigma_) sigma_ = minSigma_;
+	else if(fabs(sigma_) > maxSigma_) sigma_ = maxSigma_;
 }
 
 /*************************************************************************/
@@ -168,12 +155,13 @@ inline void GDoubleGaussAdaptor::initNewRun()
  */
 void GDoubleGaussAdaptor::setSigma(const double& sigma)
 {
-	// A value of sigma smaller or equal 0 is not useful. Adapt and log.
-	if(sigma <= 0.)
+	// Sigma must be in the allowed value range
+	if(sigma < minSigma_ || sigma > maxSigma_)
 	{
 		std::ostringstream error;
-		error << "In GDoubleGaussAdaptor::setSigma(double): Error!" << std::endl
-		  	  << "Bad value for sigma given: " << sigma << std::endl;
+		error << "In GDoubleGaussAdaptor::setSigma(const double&): Error!" << std::endl
+		  	  << "sigma is not in the allowed range: " << std::endl
+		  	  << sigma << " " << minSigma_ << " " << maxSigma_ << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
@@ -181,34 +169,6 @@ void GDoubleGaussAdaptor::setSigma(const double& sigma)
 	}
 
 	sigma_ = sigma;
-}
-
-/*************************************************************************/
-/**
- * This function sets the values of the sigmaSigma_ parameter and the
- * minimal value allowed for sigma_.
- *
- * @param sigmaSigma The new value of the sigmaSigma_ parameter
- * @param minSigma The minimum value allowed for sigma_
- */
-void GDoubleGaussAdaptor::setSigmaSigma(const double& sigmaSigma, const double& minSigma)
-{
-	// A value of sigmaSigma smaller than 0. is not useful.
-	// Note that a sigmaSigma of 0 indicates that no adaption of the
-	// stepwidth is intended.
-	if(sigmaSigma < 0.)
-	{
-		std::ostringstream error;
-		error << "In GDoubleGaussAdaptor::setSigmaSigma(double, double): Error!" << std::endl
-			  << "Bad value for sigmaSigma given: " << sigmaSigma << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-		throw geneva_error_condition() << error_string(error.str());
-	}
-
-	sigmaSigma_ = sigmaSigma;
-	if(sigmaSigma_) setMinSigma(minSigma); // Does its own error checking
 }
 
 /*************************************************************************/
@@ -223,62 +183,90 @@ double GDoubleGaussAdaptor::getSigma() const throw() {
 
 /*************************************************************************/
 /**
- * Retrieves the current value of sigmaSigma_ .
+ * Sets the allowed value range of sigma_
  *
- * @return The value of sigmaSigma_
+ * @param minSigma The minimum allowed value of sigma_
+ * @param minSigma The maximum allowed value of sigma_
  */
-double GDoubleGaussAdaptor::getSigmaSigma() const throw() {
-	return sigmaSigma_;
-}
-
-/*************************************************************************/
-/**
- * Allows to set a value for the minimally allowed sigma_. If minSigma does not
- * have a useful value, it will be reset to the default value and a log
- * message will be emitted.
- *
- * @param The minimally allowed value for sigma_
- */
-void GDoubleGaussAdaptor::setMinSigma(const double& minSigma)
-{
-	// A value of minSigma <= 0. is not useful
-	if(minSigma <= 0.)
-	{
+void setSigmaRange(const double& minSigma, const double& maxSigma){
+	// Do some error checks
+	if(minSigma<=0. || minSigma >= maxSigma){ // maxSigma will automatically be > 0. now
 		std::ostringstream error;
-		error << "In GDoubleGaussAdaptor::setMinSigma(double): Error!" << std::endl
-			  << "Bad value for minSigma given: " << minSigma << std::endl;
+		error << "In GDoubleGaussAdaptor::setSigmaRange(const double&, const double&): Error!" << std::endl
+			  << "Invalid values for minSigma and maxSigma given:" << minSigma << " " << maxSigma << std::endl;
 
 		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		throw geneva_error_condition() << error_string(error.str());
 	}
 
-	minSigma_=minSigma;
+	minSigma_ = minSigma;
+	maxSigma_ = maxSigma;
+
+	// Adapt sigma, if necessary
+	if(sigma_ < minSigma_) sigma_ = minSigma_;
+	else if(sigma_>maxSigma_) sigma_ = maxSigma_;
 }
 
 /*************************************************************************/
 /**
- * Retrieves the minimally allowed value of sigma_
+ * Retrieves the allowed value range for sigma.
  *
- * @return The minimally allowed value for sigma_
+ * @return The allowed value range for sigma
  */
-double GDoubleGaussAdaptor::getMinSigma() const throw()
+std::pair<double,double> getSigmaRange() const throw() {
+	return std::make_pair(minSigma_, maxSigma_);
+}
+
+/*************************************************************************/
+/**
+ * This function sets the values of the sigmaSigma_ parameter and the
+ * minimal value allowed for sigma_.
+ *
+ * @param sigmaSigma The new value of the sigmaSigma_ parameter
+ */
+void GDoubleGaussAdaptor::setSigmaAdaptionRate(const double& sigmaSigma)
 {
-	return minSigma_;
+	// A value of sigmaSigma <= 0. is not useful.
+	if(sigmaSigma <= 0.)
+	{
+		std::ostringstream error;
+		error << "In GDoubleGaussAdaptor::setSigmaSigma(double, double): Error!" << std::endl
+			  << "Bad value for sigmaSigma given: " << sigmaSigma << std::endl;
+
+		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		throw geneva_error_condition() << error_string(error.str());
+	}
+
+	sigmaSigma_ = sigmaSigma;
+}
+
+/*************************************************************************/
+/**
+ * Retrieves the value of sigmaSigma_ .
+ *
+ * @return The value of the sigmaSigma_ parameter
+ */
+double GDoubleGaussAdaptor::getSigmaAdaptionRate() const throw() {
+	return sigmaSigma_;
 }
 
 /*************************************************************************/
 /**
  * Convenience function that lets users set all relevant parameters of this class
  * at once.
+ *
  * @param sigma The initial value for the sigma_ parameter
  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
  * @param minSigma The minimal value allowed for sigma_
+ * @param minSigma The maximum value allowed for sigma_
  */
-void GDoubleGaussAdaptor::setAll(const double& sigma, const double& sigmaSigma, const double& minSigma)
+void GDoubleGaussAdaptor::setAll(const double& sigma, const double& sigmaSigma, const double& minSigma, const double& maxSigma)
 {
-	GDoubleGaussAdaptor::setSigma(sigma);
-	GDoubleGaussAdaptor::setSigmaSigma(sigmaSigma,minSigma);
+	setSigmaAdaptionRate(sigmaSigma);
+	setSigmaRange(minSigma, maxSigma);
+	setSigma(sigma);
 }
 
 /*************************************************************************/
@@ -311,6 +299,7 @@ void GDoubleGaussAdaptor::load(const GObject *cp)
 	sigma_ = gdga->sigma_;
 	sigmaSigma_ = gdga->sigmaSigma_;
 	minSigma_ = gdga->minSigma_;
+	maxSigma_ = gdga->maxSigma_;
 }
 
 /*************************************************************************/

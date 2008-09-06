@@ -61,20 +61,16 @@ namespace GenEvA {
  * wants. This allows great flexibility, but is not very practicable
  * for standard mutations.
  *
- * Classes derived from GMutable<T> can additionally store
+ * Classes derived from GParameterBaseWithAdaptorsT<T> can additionally store
  * "adaptors". These are templatized function objects that can act
  * on the items of a collection of user-defined types. Predefined
  * adaptors exist for standard types (with the most prominent
  * examples being bits and double values).
  *
  * The GAdaptorT class mostly acts as an interface for these
- * adaptors, but also implements some functionality of its own.
- *
- * Adaptors can be applied to single items T or collections of items
- * vector<T>. In collections, the initialization function
- * initNewRun() can be called either for each invocation of the
- * adaptor, or for sequences, indicated by the variable alwaysInit_,
- * as set by the caller.
+ * adaptors, but also implements some functionality of its own. E.g., it is possible
+ * to specify a function that shall be called every adaptionThreshold_ calls of the
+ * mutate() function.
  *
  * In order to use this class, the user must derive a class from
  * GAdaptorT<T> and specify the type of mutation he wishes to
@@ -98,7 +94,8 @@ class GAdaptorT:
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
-		ar & make_nvp("alwaysInit_", alwaysInit_);
+		ar & make_nvp("adaptionCounter_", adaptionCounter_);
+		ar & make_nvp("adaptionThreshold_", adaptionThreshold_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -116,7 +113,8 @@ public:
 	 */
 	explicit GAdaptorT(const std::string& name) throw() :
 		GObject(name),
-		alwaysInit_(true)
+		adaptionCounter_(0),
+		adaptionThreshold_(0)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -127,7 +125,8 @@ public:
 	 */
 	GAdaptorT(const GAdaptorT<T>& cp) throw() :
 		GObject(cp),
-		alwaysInit_(cp.alwaysInit_)
+		adaptionCounter_(cp.adaptionCounter_),
+		adaptionThreshold_(cp.adaptionThreshold_)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -167,7 +166,8 @@ public:
 		GObject::load(cp);
 
 		// Then our own data
-		alwaysInit_ = gat->alwaysInit_;
+		adaptionCounter_ = gat->adaptionCounter_;
+		adaptionThreshold_ = gat->adaptionThreshold_;
 	}
 
 	/***********************************************************************************/
@@ -183,65 +183,57 @@ public:
 	 * @param val The value that needs to be mutated
 	 */
 	inline void mutate(T& val) throw() {
+		if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
+			adaptionCounter_ = 0;
+			adaptMutation();
+		}
+
 		this->customMutations(val);
 	}
 
 	/***********************************************************************************/
 	/**
-	 * Mutation of sequences of values, stored in an STL vector. This function also calls an
-	 * initialization function for the mutation function, either for each value, or only once
-	 * per sequence (depending on the value of alwaysInit_).
+	 * Retrieves the current value of the adaptionCounter_ variable.
 	 *
-	 * @param collection A vector of values that need to be mutated
+	 * @return The value of the adaptionCounter_ variable
 	 */
-	inline virtual void mutate(std::vector<T>& collection) {
-		typename std::vector<T>::iterator it;
-		for (it = collection.begin(); it != collection.end(); ++it) {
-			if (alwaysInit_ || it == collection.begin()) {
-				initNewRun();
-			}
-
-			this->mutate(*it);
-		}
+	boost::uint32_t getAdaptionCounter() const throw() {
+		return adaptionCounter_;
 	}
 
 	/***********************************************************************************/
 	/**
-	 * Retrieves the value of the alwaysInit_ variable.
+	 * Sets the value of adaptionThreshold_. If set to 0, no adaption of the optimization
+	 * parameters will take place
 	 *
-	 * @return The value of the alwaysInit_ variable
+	 * @param adaptionCounter The value that should be assigned to the adaptionCounter_ variable
 	 */
-	bool alwaysInit() const throw() {
-		return alwaysInit_;
+	void setAdaptionThreshold(const boost::uint32_t& adaptionThreshold) throw() {
+		adaptionThreshold_ = adaptionThreshold;
 	}
 
 	/***********************************************************************************/
 	/**
-	 * Sets the value of alwaysInit_. If set to true, mutations will be
-	 * initialized for each item of a sequence. If set to false, initialization will only
-	 * happen for the first item.
+	 * Retrieves the value of the adaptionThreshold_ variable.
 	 *
-	 * @param val The value that should be assigned to the alwaysInit_ variable
+	 * @return The value of the adaptionThreshold_ variable
 	 */
-	void setAlwaysInit(bool val) throw() {
-		alwaysInit_ = val;
+	boost::uint32_t getAdaptionThreshold() const throw() {
+		return adaptionThreshold_;
 	}
 
+protected:
 	/***********************************************************************************/
 	/**
 	 *  This function is re-implemented by derived classes, if they wish to
 	 *  implement special behavior upon a new mutation run. E.g., an internal
 	 *  variable could be set to a new value. This is used in GDoubleGaussAdaptor
 	 *  to modify the sigma of the gaussian, if desired. The function will be
-	 *  called for each item of a sequence, if alwaysInit_ is set to true, otherwise
-	 *  it will be called only for the first item. It is not purely virtual, as
-	 *  we do not force derived classes to re-implement this function. Also note
-	 *  that, if you want the settings to be applied to single values, as opposed
-	 *  to collections, you need to call the function yourself.
+	 *  called every adaptionThreshold_ calls of the mutate function, unless the
+	 *  threshold is set to 0 . It is not purely virtual, as we do not force
+	 *  derived classes to re-implement this function.
 	 */
-	virtual void initNewRun() { /* nothing */ }
-
-protected:
+	virtual void adaptMutation() { /* nothing */ }
 
 	/***********************************************************************************/
 	/** @brief Mutation of values as specified by the user */
@@ -249,11 +241,11 @@ protected:
 
 private:
 	/***********************************************************************************/
-	/** @brief Default constructor. Private as we want every adaptor to have a name.
-	 Intentionally left undefined. */
-	GAdaptorT();
+	/** @brief Default constructor. Private as we want every adaptor to have a name. */
+	GAdaptorT(){}
 
-	bool alwaysInit_;
+	boost::uint32_t adaptionCounter_;
+	boost::uint32_t adaptionThreashold_;
 };
 
 /******************************************************************************************/
@@ -275,4 +267,4 @@ namespace boost {
 
 /********************************************************************************************/
 
-#endif /*GADAPTORT_HPP_*/
+#endif /* GADAPTORT_HPP_ */

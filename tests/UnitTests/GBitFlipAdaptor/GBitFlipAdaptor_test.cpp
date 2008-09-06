@@ -63,11 +63,11 @@ BOOST_AUTO_TEST_CASE( gbfa_gobject_test_no_failure_expected )
 	// Add log targets to the system
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBitFlipAdaptor_test.log")));
 
-	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME); // Construction by name
+	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(); // Default construction
 	GBitFlipAdaptor *gbfa2=new GBitFlipAdaptor(*gbfa); // Copy construction
 
 	// Getting and setting the name
-	BOOST_CHECK(gbfa->name() == ADAPTORNAME);
+	BOOST_CHECK(gbfa->name() == GBitFlipAdaptor::adaptorName());
 	BOOST_CHECK(gbfa->name() == gbfa2->name());
 
 	gbfa2->setName(ADAPTORNAME2);
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( gbfa_gobject_test_no_failure_expected )
 // Test functions for the following tests
 bool gbfa_testGObjectSelfAssignment(){
 	try{
-		GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(ADAPTORNAME);
+		GBitFlipAdaptor *gbfa=new GBitFlipAdaptor();
 		gbfa->load(gbfa); // This must fail!!!
 		delete gbfa;
 
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( gbfa_gobject_test_failures_expected )
 // Tests of the GAdaptor<T> and GBitFlipAdaptor functionality
 BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 {
-	boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(0.1, ADAPTORNAME));
+	boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(0.1));
 
 	// Automatic conversion to bool. shared_ptr will be empty in case of a failure and return false
 	BOOST_CHECK(gbfa);
@@ -208,48 +208,16 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 		BOOST_CHECK(testBit != previousBit);
 	}
 
-	// Set some mutation parameters (sigma, sigmaSigma, minSigma)
-	gbfa->setMutationParameters(1., 0.1, 0.01);
+	// Set some mutation parameters (sigma, sigmaSigma, minSigma, maxSigma)
+	gbfa->setMutationParameters(1., 0.1, 0.01, 1.);
 
-	// Set the allowProbabilityMutation_ parameter
-	gbfa->setAllowProbabilityMutation(false);
-	BOOST_CHECK(gbfa->getAllowProbabilityMutation() == false);
-	gbfa->setAllowProbabilityMutation(true);
-	BOOST_CHECK(gbfa->getAllowProbabilityMutation() == true);
-	gbfa->setAllowProbabilityMutation(false);
-	gbfa->setAllowProbabilityMutation(); // default setting is "true"
-	BOOST_CHECK(gbfa->getAllowProbabilityMutation() == true);
+	// Adaption of the mutation probability should happen after each 10 calls to mutate()
+	gbfa->setAdaptionThreshold(10);
 
 	// Mutate a couple of times with allowProbabilityMutation_ set to true,
 	// see what happens.
 	for(boost::uint32_t i=0; i<1000000; i++){
 		gbfa->mutate(testBit);
-	}
-
-	// Start with a new adaptor, this time for a vector
-	boost::shared_ptr<GBitFlipAdaptor> gbfa2(new GBitFlipAdaptor(ADAPTORNAME));
-	std::vector<Gem::GenEvA::bit> bitVector, testVector;
-	for(std::size_t i=0; i<1000; i++){
-		if(i%2 == 0) bitVector.push_back(G_FALSE);
-		else bitVector.push_back(G_TRUE);
-	}
-	testVector=bitVector;
-
-	gbfa2->setAllowProbabilityMutation(false);
-	gbfa2->setAlwaysInit(false);
-	gbfa2->setMutationProbability(0.); // Vectors should always be the same
-	// Mutate a couple of times, see what happens
-	for(boost::uint32_t i=0; i<1000; i++){
-		gbfa2->mutate(bitVector);
-		BOOST_CHECK(bitVector==testVector);
-	}
-
-	gbfa2->setAllowProbabilityMutation(true);
-	gbfa2->setAlwaysInit(true);
-	gbfa2->setMutationProbability(0.5); // Likelihood for vectors to be the same is very low - assume that they will never be the same
-	for(boost::uint32_t i=0; i<1000; i++){
-		gbfa2->mutate(bitVector);
-		BOOST_CHECK(bitVector!=testVector);
 	}
 }
 
@@ -257,7 +225,7 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 // Test functions for expected failures
 bool gbfa_testProbabilityUnsuitable(const double& value){
 	try{
-		boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(ADAPTORNAME));
+		boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor());
 		if(!gbfa) {
 			std::cerr << "Error: Construction of smart pointer failed" << std::endl;
 			return false;

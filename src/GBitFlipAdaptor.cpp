@@ -33,53 +33,30 @@ namespace Gem
 {
 	namespace GenEvA
 	{
-
 		/*************************************************************************/
 		/**
-		 * The default constructor. As we want to enforce a name for adaptors, this
-		 * constructor is empty and labeled private. It is needed for the serialization
-		 * of this object, though.
+		 * The default constructor
 		 */
-		GBitFlipAdaptor::GBitFlipAdaptor() throw()
-			:GAdaptorT<GenEvA::bit>("GBitFlipAdaptor"),
-			 mutProb_(DEFAULTMUTPROB,0.,1.),
-			 allowProbabilityMutation_(false)
-		{ /* nothing */ }
-
-		/*************************************************************************/
-		/**
-		 * Every adaptor is required to have a name. This is enforced by providing
-		 * only constructors that take a name argument.
-		 *
-		 * @param name The name to be assigned to this adaptor
-		 */
-		GBitFlipAdaptor::GBitFlipAdaptor(const std::string& name)
-			:GAdaptorT<GenEvA::bit>(name),
-			 mutProb_(DEFAULTMUTPROB,0.,1.), // probability is in the range [0:1]
-			 allowProbabilityMutation_(false)
+		GBitFlipAdaptor::GBitFlipAdaptor()
+			:GAdaptorT<Gem::GenEvA::bit>(GBFANAME),
+			 mutProb_(DEFAULTMUTPROB, 0., 1.) // probability is in the range [0:1[
 		{
-			boost::shared_ptr<GAdaptorT<double> >
-				gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MSGM, DEFAULTGDGANAME));
+			boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MINSGM, MAXSGM));
 			mutProb_.addAdaptor(gaussAdaptor);
 		}
 
 		/*************************************************************************/
 		/**
-		 * In addition to GBitFlipAdaptor::GBitFlipAdaptor(std::string name), this constructor
-		 * also takes an argument, that specifies the probability for the mutation of
-		 * a bit value. Note that, in order to use probability mutation, you will still
-		 * need to explicitly allow this feature.
+		 * This constructor takes an argument, that specifies the (initial) probability
+		 * for the mutation of a bit value.
 		 *
 		 * @param prob The probability for a bit-flip
-		 * @param name The name to be assigned to this adaptor
 		 */
-		GBitFlipAdaptor::GBitFlipAdaptor(const double& prob, const std::string& name)
-			:GAdaptorT<GenEvA::bit>(name),
-			 mutProb_(prob,0.,1.), // probability is in the range [0:1]
-			 allowProbabilityMutation_(true)
+		GBitFlipAdaptor::GBitFlipAdaptor(const double& prob)
+			:GAdaptorT<GenEvA::bit>(GBFANAME),
+			 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
 		{
-			boost::shared_ptr<GAdaptorT<double> >
-				gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MSGM, DEFAULTGDGANAME));
+			boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MSGM));
 			mutProb_.addAdaptor(gaussAdaptor);
 		}
 
@@ -91,8 +68,7 @@ namespace Gem
 		 */
 		GBitFlipAdaptor::GBitFlipAdaptor(const GBitFlipAdaptor& cp)
 			:GAdaptorT<GenEvA::bit>(cp),
-			 mutProb_(cp.mutProb_),
-			 allowProbabilityMutation_(cp.allowProbabilityMutation_)
+			 mutProb_(cp.mutProb_)
 		{ /* nothing */ }
 
 		/*************************************************************************/
@@ -130,7 +106,6 @@ namespace Gem
 
 			// ... and then our own
 			mutProb_ = gbfa->mutProb_;
-			allowProbabilityMutation_ = gbfa->allowProbabilityMutation_;
 		}
 
 		/*************************************************************************/
@@ -155,11 +130,8 @@ namespace Gem
 
 		/*************************************************************************/
 		/**
-		 * Sets the mutation probability to a given value. Note that, if the variable
-		 * allowProbabilityMutation_ is set to true, this value will change over time.
-		 * Use GBitFlipAdaptor::setAllowProbabilityMutation(false) to disallow adaptions
-		 * of the mutation probability (the default). This function will throw if the
-		 * probability is not in the allowed range.
+		 * Sets the mutation probability to a given value. This function will throw
+		 * if the probability is not in the allowed range.
 		 *
 		 * @param val The new value of the probability for bit flips
 		 */
@@ -189,46 +161,23 @@ namespace Gem
 		 *
 		 * @param sgm Sigma for gauss mutation
 		 * @param sgmSgm Parameter which determines the amount of evolutionary adaption of sigma
-		 * @param mSgm The minimal value sigma may assume
+		 * @param minSgm The minimal value sigma may assume
+		 * @param maxSgm The maximim value sigma may assume
 		 */
-		void GBitFlipAdaptor::setMutationParameters(const double& sgm, const double& sgmSgm, const double& mSgm) {
-			boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor =
-				mutProb_.adaptor_cast<GDoubleGaussAdaptor>(DEFAULTGDGANAME);
-
+		void GBitFlipAdaptor::setMutationParameters(const double& sgm, const double& sgmSgm,
+													const double& minSgm, const double& maxSgm) {
+			boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor = mutProb_.adaptor_cast<GDoubleGaussAdaptor>();
 			// Then set the values as requested.
-			gaussAdaptor->setAll(sgm,sgmSgm,mSgm);
-		}
-
-		/*************************************************************************/
-		/**
-		 * Allow the mutation of the probability mutation with parameter==true (the
-		 * default), disallow with allowProbabilityMutation=false.
-		 *
-		 @param allowProbabilityMutation Determines whether bit flip probability may be mutated
-		 */
-		void GBitFlipAdaptor::setAllowProbabilityMutation(const bool& allowProbabilityMutation) throw() {
-			allowProbabilityMutation_ = allowProbabilityMutation;
-		}
-
-		/*************************************************************************/
-		/**
-		 * Retrieve the value of the allowProbabilityMutation_ variable.
-		 *
-		 * @return The value of the allowProbabilityMutation_; variable
-		 */
-		bool GBitFlipAdaptor::getAllowProbabilityMutation() const throw()
-		{
-			return allowProbabilityMutation_;
+			gaussAdaptor->setAll(sgm,sgmSgm,minSgm,maxSgm);
 		}
 
 		/*************************************************************************/
 		/**
 		 * The mutation probability is implemented as a GDouble. It thus can take
-		 * care of its own mutation within its boundaries [0.,1.] . We only mutate
-		 * the mutation probability if allowProbabilityMutation_ is set to true.
+		 * care of its own mutation within its boundaries [0.,1.] .
 		 */
-		void GBitFlipAdaptor::initNewRun() {
-			if(allowProbabilityMutation_) mutProb_.mutate();
+		void GBitFlipAdaptor::adaptMutation() {
+			mutProb_.mutate();
 		}
 
 		/*************************************************************************/

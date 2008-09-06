@@ -216,9 +216,9 @@ public:
 				// Set up a GDoubleCollection
 				boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection());
 				// Set up and register an adaptor for the collection, so it
-				// knows how to be mutated. We want a sigma dependent on the value of max, sigma-adaption of 0.001 and
-				// a minimum sigma of 0.002.
-				boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(fabs(max), 0.001, 0.002,"gauss_mutation"));
+				// knows how to be mutated. We want a sigma dependent on the value of max, sigma-adaption of 0.001,
+				// a minimum sigma of 0.0001, and a maximum sigma dependent on the value of max
+				boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(fabs(max), 0.001, 0.002, fabs(max)));
 				gdc->addAdaptor(gdga);
 
 				// The input layer needs 2*nNodes double values
@@ -307,9 +307,9 @@ public:
 				// Set up a GDoubleCollection
 				boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection());
 				// Set up and register an adaptor for the collection, so it
-				// knows how to be mutated. We want a sigma dependent on the value of max, sigma-adaption of 0.04 and
-				// a minimum sigma of 0.004.
-				boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(fabs(max), 0.001, 0.002,"gauss_mutation"));
+				// knows how to be mutated. We want a sigma dependent on the value of max, sigma-adaption of 0.001,
+				// a minimum sigma of 0.0001, and a maximum sigma dependent on the value of max
+				boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(fabs(max), 0.001, 0.0001,fabs(max)));
 				gdc->addAdaptor(gdga);
 
 				// The input layer needs 2*nNodes double values

@@ -93,7 +93,7 @@ public:
 		// Set up and register an adaptor for the collection, so it
 		// knows how to be mutated. We want a sigma of 1., sigma-adaption of 0.001 and
 		// a minimum sigma of 0.002.
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0,0.001,0.002,"gauss_mutation"));
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0,0.001,0.002,2.0));
 		gdc->addAdaptor(gdga);
 
 		// Make the parameter collection known to this individual

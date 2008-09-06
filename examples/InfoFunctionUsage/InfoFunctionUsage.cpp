@@ -173,7 +173,7 @@ public:
 
 					// Retrieve mutation data
 					gdc_data.sigma = gda->getSigma();
-					gdc_data.sigmaSigma = gda->getSigmaSigma();
+					gdc_data.sigmaSigma = gda->getSigmaAdaptionRate();
 
 					genDat.iD.push_back(gdc_data);
 				}
