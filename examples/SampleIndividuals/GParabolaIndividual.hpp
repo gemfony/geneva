@@ -85,7 +85,7 @@ public:
 	 * @param min The minimum value of the random numbers to fill the collection
 	 * @param max The maximum value of the random numbers to fill the collection
 	 */
-	GParabolaIndividual(std::size_t sz, double min, double max){
+	GParabolaIndividual(std::size_t sz, double min, double max, boost::uint32_t as){
 		// Set up a GDoubleCollection with sz values, each initialized
 		// with a random number in the range [min,max[
 		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(sz,min,max));
@@ -94,6 +94,8 @@ public:
 		// knows how to be mutated. We want a sigma of 1., sigma-adaption of 0.001 and
 		// a minimum sigma of 0.002.
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0,0.001,0.002,2.0));
+		gdga->setAdaptionThreshold(as);
+
 		gdc->addAdaptor(gdga);
 
 		// Make the parameter collection known to this individual

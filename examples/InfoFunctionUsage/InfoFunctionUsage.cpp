@@ -214,6 +214,7 @@ int main(int argc, char **argv){
 	 double parabolaMin, parabolaMax;
 	 boost::uint16_t nProducerThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
+	 boost::uint32_t adaptionThreshold;
 	 long maxMinutes;
 	 bool verbose;
 	 recoScheme rScheme;
@@ -222,6 +223,7 @@ int main(int argc, char **argv){
 	if(!parseCommandLine(argc, argv,
 						 parabolaMin,
 						 parabolaMax,
+						 adaptionThreshold,
 						 nProducerThreads,
 						 nPopThreads,
 						 populationSize,
@@ -248,7 +250,7 @@ int main(int argc, char **argv){
 
 	// Set up a single parabola individual. Dimension is hardwired to 2, as we might
 	// want to visualize the results later.
-	boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(2, parabolaMin, parabolaMax));
+	boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(2, parabolaMin, parabolaMax, adaptionThreshold));
 
 	// Create the optimizationMonitor
 	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
