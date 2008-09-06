@@ -92,8 +92,6 @@ int main(int argc, char **argv){
 	A_adaptor->setAdaptionThreshold(0);
 	B_adaptor->setAdaptionThreshold(0);
 
-	B.setAlwaysInit(false);
-
 	double A_noprobadapt_notflipped=0., A_noprobadapt_flipped=0.;
 	double B_noprobadapt_notflipped=0., B_noprobadapt_flipped=0.;
 	for(std::size_t i=0; i<MAXFLIP; i++){
