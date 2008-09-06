@@ -26,6 +26,16 @@
 #include <sstream>
 
 // Boost header files go here
+#include <boost shared_ptr.hpp>
+
+class test{
+public:
+	~test(){
+		std::cout << "Test is being destroyed" << std::endl;
+	}
+};
+
+boost::shared_ptr<test> myTest;
 
 // GenEvA header files go here
 #include "GRandom.hpp"
@@ -54,6 +64,7 @@ using namespace Gem::GLogFramework;
  * a number of command line options are available. Call the executable with the "-h" switch
  * to get an overview.
  */
+
 int main(int argc, char **argv){
 	 std::size_t parabolaDimension;
 	 std::size_t populationSize, nParents;
@@ -64,6 +75,8 @@ int main(int argc, char **argv){
 	 long maxMinutes;
 	 bool verbose;
 	 recoScheme rScheme;
+
+	 myTest = boost::shared_ptr<test>(new test());
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
