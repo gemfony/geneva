@@ -275,12 +275,15 @@ bool gdga_testUnsuitableMutationParameters(const double& sigma, const double& si
 // exceptions or failures
 BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_failures_expected )
 {
-	BOOST_CHECK(gdga_testUnsuitableMutationParameters(0.,0.1,0.001)); // Invalid sigma
-	BOOST_CHECK(gdga_testUnsuitableMutationParameters(-1.,0.1,0.001)); // Invalid sigma
-	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1, 0,0.001)); // Invalid sigmaSigma
-	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,-1.,0.001)); // Invalid sigmaSigma
-	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0.)); // Invalid minSigma
-	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,-1)); // Invalid minSigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(0.,0.1,0.001,1)); // Invalid sigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(-1.,0.1,0.001,1)); // Invalid sigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1, 0,0.001,1)); // Invalid sigmaSigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,-1.,0.001,1)); // Invalid sigmaSigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0.,1)); // Invalid minSigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,-1,1)); // Invalid minSigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0.,0)); // Invalid maxSigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0,-0.1)); // Invalid maxSigma
+	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,1,0.9)); // Invalid maxSigma
 }
 
 /***********************************************************************************/
