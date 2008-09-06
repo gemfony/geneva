@@ -92,9 +92,9 @@ public:
 		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(sz,min,max));
 
 		// Set up and register an adaptor for the collection, so it
-		// knows how to be mutated. We want to start with a large sigma ("sweep"), a
-		// sigma-adaption of 0.001, a minimum sigma of 0.000001 and a maximum sigma of 5.
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(5.,0.001,0.000001,5));
+		// knows how to be mutated. We want a sigma of 1, a sigma-adaption of 0.001, a
+		// minimum sigma of 0.000001 and a maximum sigma of 5.
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(1.,0.001,0.000001,5));
 		gdga->setAdaptionThreshold(as);
 
 		gdc->addAdaptor(gdga);
