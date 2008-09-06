@@ -245,7 +245,7 @@ private:
 	GAdaptorT(){}
 
 	boost::uint32_t adaptionCounter_;
-	boost::uint32_t adaptionThreashold_;
+	boost::uint32_t adaptionThreshold_;
 };
 
 /******************************************************************************************/
