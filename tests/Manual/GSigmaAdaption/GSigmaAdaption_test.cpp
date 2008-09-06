@@ -50,7 +50,7 @@ using namespace Gem::GLogFramework;
 int main(int argc, char **argv) {
 	bool verbose;
 	double sigma, sigmaSigma, minSigma, maxSigma;
-	boost::uint32_t maxIter;
+	boost::uint32_t maxIter, adaptionThreshold;
 	std::string resultFile;
 
 	if (!parseCommandLine(argc, argv,
@@ -58,6 +58,7 @@ int main(int argc, char **argv) {
 		                  sigmaSigma,
 		                  minSigma,
 		                  maxSigma,
+		                  adaptionThreshold,
 		                  resultFile,
 		                  maxIter,
 		                  verbose))
@@ -89,7 +90,7 @@ int main(int argc, char **argv) {
 
 		mutValOld = mutVal;
 
-		if(sigmaSigma) gdga->initNewRun();
+		gdga->setAdaptionThreshold(adaptionThreshold);
 		gdga->mutate(mutVal);
 
 		// Store for later use

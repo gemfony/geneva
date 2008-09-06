@@ -35,6 +35,7 @@ bool parseCommandLine(int argc, char **argv,
 		double& sigmaSigma,
 		double& minSigma,
 		double& maxSigma,
+		boost::uint32_t& adaptionThreshold,
 		std::string& resultFile,
 		boost::uint32_t& maxIter,
 		bool& verbose)
@@ -52,6 +53,8 @@ bool parseCommandLine(int argc, char **argv,
 				"Minimal allowed value of sigma")
 		("maxSigma,M",po::value<double>(&maxSigma)->default_value(CMD_DEFAULTMAXSIGMA),
 				"Maximum allowed value of sigma")
+		("adaptionThreshold,a",po::value<boost::uint32_t>(&adaptionThreashold)->default_value(CMD_DEFAULTADAPTIONTHRESHOLD),
+				"Number of calls to mutate after which the mutation should be adapted")
 		("resultFile,F",po::value<std::string>(&resultFile)->default_value(CMD_DEFAULTRESULTFILE),
 				"The file to write the result to")
 		("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),
@@ -77,6 +80,7 @@ bool parseCommandLine(int argc, char **argv,
 			<< "sigmaSigma = " << sigmaSigma << std::endl
 			<< "minSigma = " << minSigma << std::endl
 			<< "maxSigma = " << maxSigma << std::endl
+			<< "adaptionThreshold = " << adaptionThreshold << std::endl
 			<< "resultFile = " << resultFile << std::endl
 			<< "maxIter = " << maxIter << std::endl
 			<< std::endl;

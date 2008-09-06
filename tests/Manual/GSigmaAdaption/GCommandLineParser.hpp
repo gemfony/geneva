@@ -55,6 +55,7 @@ const double CMD_DEFAULTMAXSIGMA = 4.;
 const boost::uint32_t CMD_DEFAULTMAXITER = 100000;
 const std::string CMD_DEFAULTRESULTFILE = "result.C";
 const bool CMD_DEFAULTVERBOSE = true;
+const boost::uint32_t CMS_DEFAULTADAPTIONTHRESHOLD=1;
 
 namespace po = boost::program_options;
 
@@ -63,6 +64,7 @@ bool parseCommandLine(int argc, char **argv,
 		double& sigmaSigma,
 		double& minSigma,
 		double& maxSigma,
+		boost::uint32_t& adaptionThreshold,
 		std::string& resultFile,
 		boost::uint32_t& maxIter,
 		bool& verbose);
