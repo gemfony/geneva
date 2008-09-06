@@ -56,7 +56,7 @@ namespace Gem
 			:GAdaptorT<GenEvA::bit>(GBFASTANDARDNAME),
 			 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
 		{
-			boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MINSGM, MAXSIGM));
+			boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MINSGM, MAXSGM));
 			mutProb_.addAdaptor(gaussAdaptor);
 		}
 
