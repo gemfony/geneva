@@ -102,7 +102,7 @@ int main(int argc, char **argv){
 	// Now we've got our first individual and can create a simple population with serial execution.
 	// GBasePopulation pop;
 	GBoostThreadPopulation pop;
-	pop.setNThreads(8);
+	pop.setNThreads(5);
 
 	pop.append(parabolaIndividual);
 
