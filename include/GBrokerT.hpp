@@ -103,10 +103,7 @@ public:
 	 */
 	virtual ~GBrokerT()
 	{
-		std::cout << "Terminating the base broker ..." << std::endl;
-		std::for_each(consumerCollection_.begin(), consumerCollection_.end(), boost::bind(&GConsumer::shutdown, _1));
 		consumerThreads_.join_all();
-		std::cout << "Terminated the base broker ..." << std::endl;
 	}
 
 	/**********************************************************************************/
