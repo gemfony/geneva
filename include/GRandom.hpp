@@ -160,6 +160,8 @@ public:
 	 * we wait for them to join us.
 	 */
 	~GRandomFactory() throw() {
+		std::cout "Terminating threads ..." << std::endl;
+
 		producer_threads_01_.interrupt_all(); // doesn't throw
 
 		try {
