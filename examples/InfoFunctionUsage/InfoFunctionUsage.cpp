@@ -52,8 +52,8 @@
 #include "GBoostThreadPopulation.hpp"
 
 // The individual that should be optimized
-// This is a simple parabola
-#include "GParabolaIndividual.hpp"
+// This is a "noisy" parabola
+#include "GNoisyParabolaIndividual.hpp"
 
 // Declares a function to parse the command line
 #include "GCommandLineParser.hpp"
@@ -91,6 +91,8 @@ class optimizationMonitor{
 			ar & make_nvp("isDirty", isDirty);
 			ar & make_nvp("sigma", sigma);
 			ar & make_nvp("sigmaSigma", sigmaSigma);
+			ar & make_nvp("adaptionThreshold", adaptionThreshold);
+			ar & make_nvp("adaptionCounter", adaptionCounter);
 		}
 
 		std::vector<double> parameters;
@@ -100,6 +102,8 @@ class optimizationMonitor{
 		bool isDirty;
 		double sigma;
 		double sigmaSigma;
+		boost::uint32_t adaptionThreshold;
+		boost::uint32_t adaptionCounter;
 	};
 
 	struct generationData {
@@ -174,12 +178,19 @@ public:
 					// Retrieve mutation data
 					gdc_data.sigma = gda->getSigma();
 					gdc_data.sigmaSigma = gda->getSigmaAdaptionRate();
+					gdc_data.adaptionThreshold = gda->getAdaptionThreshold();
+					gdc_data.adaptionCounter = gda->getAdaptionCounter();
+
 
 					genDat.iD.push_back(gdc_data);
 				}
 
 				oD_.gD.push_back(genDat);
 			}
+
+			// Emit a minimum of information to the audience
+			std::cout << "Fitness is " << data.at(0).fitness() << std::endl;
+
 			break;
 
 		case INFOEND: // You could easily write out the data in your own format here
@@ -250,7 +261,7 @@ int main(int argc, char **argv){
 
 	// Set up a single parabola individual. Dimension is hardwired to 2, as we might
 	// want to visualize the results later.
-	boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(2, parabolaMin, parabolaMax, adaptionThreshold));
+	boost::shared_ptr<GParabolaIndividual> noisyParabolaIndividual(new GNoisyParabolaIndividual(2, parabolaMin, parabolaMax, adaptionThreshold));
 
 	// Create the optimizationMonitor
 	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
@@ -262,7 +273,7 @@ int main(int argc, char **argv){
 	// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
 	pop.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
 
-	pop.append(parabolaIndividual);
+	pop.append(noisyParabolaIndividual);
 
 	// Specify some population settings
 	pop.setPopulationSize(populationSize,nParents);
