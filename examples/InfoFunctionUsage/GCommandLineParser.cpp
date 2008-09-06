@@ -56,7 +56,7 @@ bool parseCommandLine(int argc, char **argv,
 					"Lower boundary for random numbers")
 			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
 					"Upper boundary for random numbers")
-			("adaptionThreshold,a", po::value<double>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+			("adaptionThreshold,a", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
 					"Number of calls to mutate after which mutation parameters should be adapted")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
