@@ -146,8 +146,6 @@ BOOST_AUTO_TEST_CASE( gdga_gobject_test_no_failure_expected )
 	delete gdga3;
 	delete gdga4;
 	// Note that gdga5 will be deleted automatically by the boost::shared_ptr<>
-
-	std::cout << "Ran gdga_gobject_test_no_failure_expected test case" << std::endl;
 }
 
 /***********************************************************************************/
@@ -178,8 +176,6 @@ bool gdga_testGObjectSelfAssignment(){
 BOOST_AUTO_TEST_CASE( gdga_gobject_test_failures_expected )
 {
 	BOOST_CHECK(gdga_testGObjectSelfAssignment());
-
-	std::cout << "Ran gdga_gobject_test_failures_expected test case" << std::endl;
 }
 
 /***********************************************************************************/
@@ -194,20 +190,14 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 		BOOST_CHECK(gdga->name() == GDoubleGaussAdaptor::adaptorName());
 	} // gdga will cease to exist here
 
-	std::cout << "gdoublegaussadaptor_no_failure_expected (1)" << std::endl;
-
 	// Construction with all parameters
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0, 0.2, 0.002, 2.0));
-	BOOST_CHECK(gdga); // Automatic conversion to bool. shared_ptr will be empty in cas	e of a failure
-
-	std::cout << "gdoublegaussadaptor_no_failure_expected (2)" << std::endl;
+	BOOST_CHECK(gdga); // Automatic conversion to bool. shared_ptr will be empty in case of a failure
 
 	// Check that the parameters have been set
 	BOOST_CHECK(gdga->name() == GDoubleGaussAdaptor::adaptorName());
 	BOOST_CHECK(gdga->getSigma() == 2.0);
 	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.2);
-
-	std::cout << "gdoublegaussadaptor_no_failure_expected (3)" << std::endl;
 
 	std::pair<double,double> range = gdga->getSigmaRange();
 
@@ -216,40 +206,21 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 	BOOST_CHECK(gdga->getSigma() == 1.0);
 	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.1);
 
-	std::cout << "gdoublegaussadaptor_no_failure_expected (4)" << std::endl;
-
 	range = gdga->getSigmaRange();
 	BOOST_CHECK(range.first == 0.001);
-	BOOST_CHECK(range.second == 1);
-
-	std::cout << "gdoublegaussadaptor_no_failure_expected (5)" << std::endl;
+	BOOST_CHECK(range.second == 2);
 
 	// Do it again with different functions
 	gdga->setSigma(2.0);
-
-	std::cout << "gdoublegaussadaptor_no_failure_expected (5.1)" << std::endl;
-
 	gdga->setSigmaAdaptionRate(0.2);
-
-	std::cout << "gdoublegaussadaptor_no_failure_expected (5.2)" << std::endl;
-
 	gdga->setSigmaRange(0.002, 2);
 
-	std::cout << "gdoublegaussadaptor_no_failure_expected (5.3)" << std::endl;
-
 	BOOST_CHECK(gdga->getSigma() == 2.0);
-
-	std::cout << "gdoublegaussadaptor_no_failure_expected (5.4)" << std::endl;
-
 	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.2);
-
-	std::cout << "gdoublegaussadaptor_no_failure_expected (6)" << std::endl;
 
 	range = gdga->getSigmaRange();
 	BOOST_CHECK(range.first == 0.002);
 	BOOST_CHECK(range.second == 2);
-
-	std::cout << "gdoublegaussadaptor_no_failure_expected (7)" << std::endl;
 
 	// The value of a double should change during each mutation
 	double testValue = 1.;
@@ -262,8 +233,6 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 		BOOST_CHECK(previousValue != testValue);
 	}
 
-	std::cout << "gdoublegaussadaptor_no_failure_expected (8)" << std::endl;
-
 	gdga->setAdaptionThreshold(1); // Let sigma be adapted during each mutation
 	gdga->setSigmaAdaptionRate(0.01); // The sigmaSigma Parameter
 	gdga->setSigmaRange(0.000001,10);
@@ -272,8 +241,6 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 		gdga->mutate(testValue);
 		BOOST_CHECK(previousValue != testValue);
 	}
-
-	std::cout << "Ran gdoublegaussadaptor_no_failure_expected test case" << std::endl;
 }
 
 /***********************************************************************************/
@@ -315,8 +282,6 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_failures_expected )
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0.,0)); // Invalid maxSigma
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,0,-0.1)); // Invalid maxSigma
 	BOOST_CHECK(gdga_testUnsuitableMutationParameters(1.,0.1,1,0.9)); // Invalid maxSigma
-
-	std::cout << "Ran gdoublegaussadaptor_failures_expected test case" << std::endl;
 }
 
 /***********************************************************************************/
