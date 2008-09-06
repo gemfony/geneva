@@ -89,8 +89,8 @@ int main(int argc, char **argv){
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Tests without adaption of flip probability
-	A_adaptor->setAllowProbabilityMutation(false);
-	B_adaptor->setAllowProbabilityMutation(false);
+	A_adaptor->setAdaptionThreshold(0);
+	B_adaptor->setAdaptionThreshold(0);
 
 	B.setAlwaysInit(false);
 
@@ -129,13 +129,11 @@ int main(int argc, char **argv){
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Tests with adaption of flip probability
-	A_adaptor->setAllowProbabilityMutation(true);
-	B_adaptor->setAllowProbabilityMutation(true);
+	A_adaptor->setAdaptionThreshold(10);
+	B_adaptor->setAdaptionThreshold(1);
 
-	A_adaptor->setMutationParameters(0.1,0.01,0.00001); // This will result in a rather large adaption rate
-	B_adaptor->setMutationParameters(0.1,0.01,0.00001);
-
-	B.setAlwaysInit(true);
+	A_adaptor->setMutationParameters(0.1,0.01,0.00001,10); // This will result in a rather large adaption rate
+	B_adaptor->setMutationParameters(0.1,0.01,0.00001,10);
 
 	A_adaptor->setMutationProbability(0.25);
 	B_adaptor->setMutationProbability(0.5);
