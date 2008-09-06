@@ -161,7 +161,7 @@ public:
 					// We extract the data. (*it) is a boost::shared_ptr<GIndividual>,
 					// so we need to convert it first.
 					boost::shared_ptr<GDoubleCollection> gdc =
-						(boost::dynamic_pointer_cast<GParabolaIndividual>(*it))->parameterbase_cast<GDoubleCollection>(0);
+						(boost::dynamic_pointer_cast<GNoisyParabolaIndividual>(*it))->parameterbase_cast<GDoubleCollection>(0);
 
 					individualData gdc_data;
 					gdc_data.parameters = gdc->data; // data is itself a std::vector<double> in this case
@@ -261,7 +261,7 @@ int main(int argc, char **argv){
 
 	// Set up a single parabola individual. Dimension is hardwired to 2, as we might
 	// want to visualize the results later.
-	boost::shared_ptr<GParabolaIndividual> noisyParabolaIndividual(new GNoisyParabolaIndividual(2, parabolaMin, parabolaMax, adaptionThreshold));
+	boost::shared_ptr<GNoisyParabolaIndividual> noisyParabolaIndividual(new GNoisyParabolaIndividual(2, parabolaMin, parabolaMax, adaptionThreshold));
 
 	// Create the optimizationMonitor
 	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
