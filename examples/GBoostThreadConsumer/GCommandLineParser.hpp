@@ -62,6 +62,7 @@ const long DEFAULTMAXMINUTES=5;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
 const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
+const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
 
 namespace po = boost::program_options;
 
@@ -69,6 +70,7 @@ bool parseCommandLine(int, char **,
 					  std::size_t& parabolaDimension,
 					  double& parabolaMin,
 					  double& parabolaMax,
+					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& nConsumerThreads,
 					  std::size_t& populationSize,

@@ -71,6 +71,7 @@ int main(int argc, char **argv){
 	 boost::uint16_t nProducerThreads;
 	 boost::uint32_t superMaxGenerations, superReportGeneration;
 	 boost::uint32_t subMaxGenerations, subReportGeneration;
+	 boost::uint32_t adaptionThreshold;
 	 long superMaxMinutes, subMaxMinutes;
 	 bool verbose;
 	 recoScheme superRScheme, subRScheme;
@@ -80,6 +81,7 @@ int main(int argc, char **argv){
 	 					  parabolaDimension,
 	 					  parabolaMin,
 	 					  parabolaMax,
+	 					  adaptionThreshold,
 	 					  nProducerThreads,
 	 					  nConsumerThreads,
 	 					  nSuperThreads,
@@ -126,7 +128,7 @@ int main(int argc, char **argv){
 		// Set up a new parabola individual. Each new instance will be equipped with its
 		// own set of random numbers. Hence we start searching the parameter space from different areas.
 		boost::shared_ptr<GParabolaIndividual>
-			parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMin));
+			parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMin, adaptionThreshold));
 
 		// Add the individual to the sub-population
 		sub->append(parabolaIndividual);

@@ -35,6 +35,7 @@ bool parseCommandLine(int argc, char **argv,
 					  std::size_t& parabolaDimension,
 					  double& parabolaMin,
 					  double& parabolaMax,
+					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& nConsumerThreads,
 					  std::size_t& nSuperThreads,
@@ -65,6 +66,8 @@ bool parseCommandLine(int argc, char **argv,
 					"Lower boundary for random numbers")
 			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
 					"Upper boundary for random numbers")
+			("adaptionThreshold,a", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+					"Number of calls to mutate after which mutation parameters should be adapted")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
 			("nConsumerThreads,t",po::value<std::size_t>(&nConsumerThreads)->default_value(DEFAULTCONSUMERTHREADS),
@@ -166,6 +169,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "parabolaDimension = " << parabolaDimension << std::endl
 					  << "parabolaMin = " << parabolaMin << std::endl
 					  << "parabolaMax = " << parabolaMax << std::endl
+					  << "adaptionThreshold = " << adaptionThreshold << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "nConsumerThreads = " << nConsumerThreads << std::endl
 					  << "superPopulationSize = " << superPopulationSize << std::endl

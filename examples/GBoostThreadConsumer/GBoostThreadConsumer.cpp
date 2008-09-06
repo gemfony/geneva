@@ -65,6 +65,7 @@ int main(int argc, char **argv){
 	 double parabolaMin, parabolaMax;
 	 boost::uint16_t nProducerThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
+	 boost::uint32_t adaptionThreshold
 	 long maxMinutes;
 	 bool verbose;
 	 recoScheme rScheme;
@@ -74,6 +75,7 @@ int main(int argc, char **argv){
 						 parabolaDimension,
 						 parabolaMin,
 						 parabolaMax,
+						 adaptionThreshold,
 						 nProducerThreads,
 						 nConsumerThreads,
 						 populationSize,
@@ -100,7 +102,7 @@ int main(int argc, char **argv){
 
 	// Set up a single parabola individual
 	boost::shared_ptr<GParabolaIndividual>
-		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMin));
+		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMin, adaptionThreshold));
 
 	// Create a consumer and make it known to the global broker
 	boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
