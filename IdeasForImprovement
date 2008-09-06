@@ -9,3 +9,4 @@
 - Add many tests using the Boost.Test library
 - Allow to set a maximum sigma for gauss mutations when using adaption of that value!!!
 - Enforce a standard name of adaptors
+- Move away from Boost.Exception and just use std::exception
