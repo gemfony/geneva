@@ -53,7 +53,7 @@ bool parseCommandLine(int argc, char **argv,
 				"Minimal allowed value of sigma")
 		("maxSigma,M",po::value<double>(&maxSigma)->default_value(CMD_DEFAULTMAXSIGMA),
 				"Maximum allowed value of sigma")
-		("adaptionThreshold,a",po::value<boost::uint32_t>(&adaptionThreashold)->default_value(CMD_DEFAULTADAPTIONTHRESHOLD),
+		("adaptionThreshold,a",po::value<boost::uint32_t>(&adaptionThreshold)->default_value(CMD_DEFAULTADAPTIONTHRESHOLD),
 				"Number of calls to mutate after which the mutation should be adapted")
 		("resultFile,F",po::value<std::string>(&resultFile)->default_value(CMD_DEFAULTRESULTFILE),
 				"The file to write the result to")
