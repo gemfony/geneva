@@ -135,7 +135,6 @@ public:
 	GRandomFactory(void) throw() :
 		g01_(DEFAULTFACTORYBUFFERSIZE),
 		seed_(GSeed()),
-		seedCounter_(0),
 		n01Threads_(DEFAULT01PRODUCERTHREADS)
 	{
 		startProducerThreads();
@@ -150,7 +149,6 @@ public:
 	GRandomFactory(boost::uint16_t n01Threads) throw() :
 		g01_(DEFAULTFACTORYBUFFERSIZE),
 		seed_(GSeed()),
-		seedCounter_(0),
 		n01Threads_(n01Threads ? n01Threads : 1)
 	{
 		startProducerThreads();
