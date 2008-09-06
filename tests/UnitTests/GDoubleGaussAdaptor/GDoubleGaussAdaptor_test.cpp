@@ -194,14 +194,20 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 		BOOST_CHECK(gdga->name() == GDoubleGaussAdaptor::adaptorName());
 	} // gdga will cease to exist here
 
+	std::cout << "gdoublegaussadaptor_no_failure_expected (1)" << std::endl;
+
 	// Construction with all parameters
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(2.0, 0.2, 0.002, 2.0));
 	BOOST_CHECK(gdga); // Automatic conversion to bool. shared_ptr will be empty in cas	e of a failure
+
+	std::cout << "gdoublegaussadaptor_no_failure_expected (2)" << std::endl;
 
 	// Check that the parameters have been set
 	BOOST_CHECK(gdga->name() == GDoubleGaussAdaptor::adaptorName());
 	BOOST_CHECK(gdga->getSigma() == 2.0);
 	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.2);
+
+	std::cout << "gdoublegaussadaptor_no_failure_expected (3)" << std::endl;
 
 	std::pair<double,double> range = gdga->getSigmaRange();
 
@@ -210,9 +216,13 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 	BOOST_CHECK(gdga->getSigma() == 1.0);
 	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.1);
 
+	std::cout << "gdoublegaussadaptor_no_failure_expected (4)" << std::endl;
+
 	range = gdga->getSigmaRange();
 	BOOST_CHECK(range.first == 0.001);
 	BOOST_CHECK(range.second == 1);
+
+	std::cout << "gdoublegaussadaptor_no_failure_expected (5)" << std::endl;
 
 	// Do it again with different functions
 	gdga->setSigma(2.0);
@@ -221,9 +231,13 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 	BOOST_CHECK(gdga->getSigma() == 2.0);
 	BOOST_CHECK(gdga->getSigmaAdaptionRate() == 0.2);
 
+	std::cout << "gdoublegaussadaptor_no_failure_expected (6)" << std::endl;
+
 	range = gdga->getSigmaRange();
 	BOOST_CHECK(range.first == 0.002);
 	BOOST_CHECK(range.second == 2);
+
+	std::cout << "gdoublegaussadaptor_no_failure_expected (7)" << std::endl;
 
 	// The value of a double should change during each mutation
 	double testValue = 1.;
@@ -235,6 +249,8 @@ BOOST_AUTO_TEST_CASE( gdoublegaussadaptor_no_failure_expected )
 		gdga->mutate(testValue);
 		BOOST_CHECK(previousValue != testValue);
 	}
+
+	std::cout << "gdoublegaussadaptor_no_failure_expected (8)" << std::endl;
 
 	gdga->setAdaptionThreshold(1); // Let sigma be adapted during each mutation
 	gdga->setSigmaAdaptionRate(0.01); // The sigmaSigma Parameter
