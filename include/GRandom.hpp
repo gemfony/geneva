@@ -262,6 +262,8 @@ namespace Gem {
 	    void
 	    producer01(const boost::uint32_t& seed) throw()
 		{
+	    	std::cout << "producer thread is starting ..." << std::endl;
+
 		    try
 		    {
 			boost::lagged_fibonacci607 lf(seed);
@@ -334,6 +336,8 @@ namespace Gem {
 			// Terminate the process
 			std::terminate();
 		    }
+
+		    std::cout << "producer thread has ended ..." << std::endl;
 		}
 
 	    /*************************************************************************/
