@@ -93,7 +93,7 @@ class optimizationMonitor{
 			ar & make_nvp("sigmaSigma", sigmaSigma);
 			ar & make_nvp("adaptionThreshold", adaptionThreshold);
 			ar & make_nvp("adaptionCounter", adaptionCounter);
-			ar & make_nvp("position", position)
+			ar & make_nvp("position", position);
 		}
 
 		std::vector<double> parameters;
