@@ -91,7 +91,7 @@ int main(int argc, char **argv){
 	// knows how to be mutated. We want a sigma of 0.5, sigma-adaption of 0.05 and
 	// a minimum sigma of 0.02. The adaptor will be deleted automatically by the
 	// GBoundedDouble.
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.5,0.05,0.02,"gauss_mutation"));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.5,0.05,0.02,2.));
 	gbd13.addAdaptor(gdga);
 
 	gbd13 = 0.; // We can assign a value inside of the allowed value range
