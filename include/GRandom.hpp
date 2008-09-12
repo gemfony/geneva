@@ -70,6 +70,8 @@
 #include "GLogger.hpp"
 #include "GThreadGroup.hpp"
 
+#include "GSingleton.hpp"
+
 /****************************************************************************/
 
 namespace Gem {
