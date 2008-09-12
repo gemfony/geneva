@@ -57,7 +57,7 @@ class GRateableI {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
-	template<class Archive>
+	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int version){
 	  using boost::serialization::make_nvp;
 	  /* nothing - this is a base class */

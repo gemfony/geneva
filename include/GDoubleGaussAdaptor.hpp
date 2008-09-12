@@ -71,7 +71,7 @@ class GDoubleGaussAdaptor:
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
-	template<class Archive>
+	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GAdaptorT_double", boost::serialization::base_object<GAdaptorT<double> >(*this));

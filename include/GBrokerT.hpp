@@ -78,7 +78,7 @@ const PORTIDTYPE MAXPORTID = std::numeric_limits<PORTIDTYPE>::max()-1;
 /**
  * This class acts as the main interface between producers and consumers.
  */
-template<class carryer_type>
+template<typename carryer_type>
 class GBrokerT: boost::noncopyable {
 	typedef typename boost::shared_ptr<GBoundedBufferWithIdT<carryer_type> > GBoundedBufferWithIdT_Ptr;
 	typedef typename std::list<GBoundedBufferWithIdT_Ptr> BufferPtrList;

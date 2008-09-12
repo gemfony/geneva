@@ -61,14 +61,14 @@ namespace GenEvA {
  * templatized - it serves as a base class for the objects stored in the
  * GParameterSet collections.
  */
-template <class T>
+template <typename T>
 class GParameterBaseWithAdaptorsT:
 	public GParameterBase
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
-	template<class Archive>
+	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this));
@@ -202,7 +202,7 @@ public:
 	 * @param adName The name of an adaptor
 	 * @return The desired adaptor instance
 	 */
-	template <class adaptor_type>
+	template <typename adaptor_type>
 	inline boost::shared_ptr<adaptor_type> adaptor_cast(const std::string& adName) {
 		// Extract adaptor . Will throw if we have tried to access a position in the
 		// vector that does not exist.
@@ -510,9 +510,9 @@ private:
 
 namespace boost {
 	namespace serialization {
-		template<class T>
+		template<typename T>
 		struct is_abstract<Gem::GenEvA::GParameterBaseWithAdaptorsT<T> > : boost::true_type {};
-		template<class T>
+		template<typename T>
 		struct is_abstract< const Gem::GenEvA::GParameterBaseWithAdaptorsT<T> > : boost::true_type {};
 	}
 }

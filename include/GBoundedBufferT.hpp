@@ -126,7 +126,7 @@ const std::size_t DEFAULTBUFFERSIZE = 10000;
  * with condition variables.  Note that this class assumes that an
  * operator= is available for the items stored in the buffer.
  */
-template<class T>
+template<typename T>
 class GBoundedBufferT
 	: private boost::noncopyable
 {

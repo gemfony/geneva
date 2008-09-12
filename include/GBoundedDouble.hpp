@@ -66,7 +66,7 @@ namespace GenEvA
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<class Archive>
+    template<typename Archive>
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
       ar & make_nvp("GParameterT_dbl", boost::serialization::base_object<GParameterT<double> >(*this));

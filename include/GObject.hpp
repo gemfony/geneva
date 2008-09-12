@@ -81,7 +81,7 @@ class GObject :public GSerializableI
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<class Archive>
+    template<typename Archive>
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
       ar & make_nvp("GSerializableI", boost::serialization::base_object<GSerializableI>(*this));
@@ -128,7 +128,7 @@ public:
 	 *
 	 * @return A converted clone of this object
 	 */
-	template <class clone_type>
+	template <typename clone_type>
 	inline clone_type* clone_ptr_cast(){
 #ifdef DEBUG
 		clone_type *result = dynamic_cast<clone_type *> (this->clone());
@@ -159,7 +159,7 @@ public:
 	 *
 	 * @return A converted clone of this object, wrapped into a boost::shared_ptr
 	 */
-	template <class clone_type>
+	template <typename clone_type>
 	inline boost::shared_ptr<clone_type> clone_bptr_cast(){
 		// Get a clone of this object and wrap it in a boost::shared_ptr<GObject>
 		boost::shared_ptr<GObject> p_base(this->clone());
@@ -208,7 +208,7 @@ protected:
 	 *
 	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
 	 */
-	template <class load_type>
+	template <typename load_type>
 	inline const load_type* conversion_cast(const GObject *load_ptr, const load_type* This){
 #ifdef DEBUG
 		const load_type *result = dynamic_cast<const load_type *> (load_ptr);

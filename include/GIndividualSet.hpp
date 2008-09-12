@@ -51,7 +51,7 @@ class GIndividualSet
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
-	template<class Archive>
+	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int version){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GMutableSetT_GIndividual",
@@ -84,7 +84,7 @@ public:
 	 * @param pos The position in our data array that shall be converted
 	 * @return A converted version of the GIndividual object, as required by the user
 	 */
-	template <class parameter_type>
+	template <typename parameter_type>
 	inline boost::shared_ptr<parameter_type> individual_cast(std::size_t pos){
 #ifdef DEBUG
 		// Extract data. at() will throw if we have tried to access a position in the

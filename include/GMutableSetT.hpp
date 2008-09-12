@@ -54,14 +54,14 @@ namespace GenEvA {
  * a useful operator=(). It is also assumed that template arguments have the GObject and the
  * GMutableI interfaces, in particular the load(), clone() and mutate() functions.
  */
-template <class T>
+template <typename T>
 class GMutableSetT:
 	public GIndividual
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<class Archive>
+    template<typename Archive>
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
       ar & make_nvp("GIndividual",boost::serialization::base_object<GIndividual>(*this));
@@ -224,9 +224,9 @@ protected:
  */
 namespace boost {
   namespace serialization {
-    template<class T>
+    template<typename T>
     struct is_abstract<Gem::GenEvA::GMutableSetT<T> > : boost::true_type {};
-    template<class T>
+    template<typename T>
     struct is_abstract< const Gem::GenEvA::GMutableSetT<T> > : boost::true_type {};
   }
 }

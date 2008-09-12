@@ -56,7 +56,7 @@ typedef boost::uint32_t PORTIDTYPE;
  * A small helper class that adds a unique id to the GBoundedBufferT class. Note
  * that, once it has been set, it may not be modified anymore.
  */
-template<class T>
+template<typename T>
 class GBoundedBufferWithIdT
 	:public GBoundedBufferT<T>
 {
@@ -134,7 +134,7 @@ private:
  * create copies of this class, as one GBufferPortT is intended to serve one
  * single population.
  */
-template<class T>
+template<typename T>
 class GBufferPortT: boost::noncopyable {
 public:
 	/*****************************************************************************/
