@@ -27,6 +27,30 @@ namespace Util {
 
 /*************************************************************************/
 /**
+ * This mutex is used for seeding in GSeed. It is not clear whether
+ * boost::date_time is thread safe.
+ */
+boost::mutex randomseed_mutex;
+
+/*************************************************************************/
+/**
+ * This function returns a seed based on the current time.
+ *
+ * Comments on some boost mailing lists (late 2005) seem to indicate that
+ * the date_time library's functions are not re-entrant when using gcc and
+ * its libraries. It was not possible to determine whether this is still
+ * the case, hence we protect calls to date_time with a mutex.
+ *
+ * @return A seed based on the current time
+ */
+uint32_t GSeed(){
+	boost::mutex::scoped_lock lk(randomseed_mutex);
+	boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
+    return (uint32_t)t1.time_of_day().total_milliseconds();
+}
+
+/*************************************************************************/
+/**
  * The standard constructor, which seeds the random number generator and
  * creates a predefined number of threads.
  */

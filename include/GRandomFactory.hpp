@@ -75,6 +75,9 @@
 namespace Gem {
 namespace Util {
 
+/****************************************************************************/
+// Some constants needed for the random number generation
+
 const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
 const std::size_t DEFAULTFACTORYBUFFERSIZE = 1000; ///< Default size of the underlying buffer
 const boost::uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
@@ -85,6 +88,13 @@ const boost::uint16_t DEFAULTFACTORYGETWAIT = 10; ///< waiting time in milliseco
  */
 const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 
+/****************************************************************************/
+/**
+ * @brief Returns a seed based on the current time.
+ */
+boost::uint32_t GSeed();
+
+/****************************************************************************/
 /**
  * Past implementations of random numbers for the Geneva library showed a
  * particular bottle neck in the random number generation. Every GObject

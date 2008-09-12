@@ -78,12 +78,6 @@ namespace Util {
 
 /****************************************************************************/
 /**
- * \brief Returns a seed based on the current time.
- */
-boost::uint32_t GSeed();
-
-/****************************************************************************/
-/**
  * This class gives objects access to random numbers. It internally handles
  * retrieval of random numbers from the GRandomFactory class as needed. Random
  * distributions are calculated on the fly from these numbers. Usage is thus
