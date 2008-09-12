@@ -76,8 +76,6 @@
 namespace Gem {
 namespace Util {
 
-const std::size_t DEFAULTARRAYSIZE = 1000;
-const std::size_t DEFAULTFACTORYBUFFERSIZE = 1000;
 const boost::uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
 const boost::uint16_t DEFAULTFACTORYGETWAIT = 10; ///< waiting time in milliseconds
 
