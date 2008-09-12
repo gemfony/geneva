@@ -25,27 +25,243 @@
 namespace Gem {
 namespace Util {
 
-  /**
-   * This mutex is used for seeding in GSeed. It is not clear whether
-   * boost::date_time is thread safe.
-   */
-  boost::mutex randomseed_mutex;
+/*************************************************************************/
+/**
+ * This mutex is used for seeding in GSeed. It is not clear whether
+ * boost::date_time is thread safe.
+ */
+boost::mutex randomseed_mutex;
 
-  /**
-   * This function returns a seed based on the current time.
-   *
-   * Comments on some boost mailing lists (late 2005) seem to indicate that
-   * the date_time library's functions are not re-entrant when using gcc and
-   * its libraries. It was not possible to determine whether this is still
-   * the case, hence we protect calls to date_time with a mutex.
-   *
-   * @return A seed based on the current time
-   */
-  uint32_t GSeed(void){
-    boost::mutex::scoped_lock lk(randomseed_mutex);
-    boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
+/*************************************************************************/
+/**
+ * This function returns a seed based on the current time.
+ *
+ * Comments on some boost mailing lists (late 2005) seem to indicate that
+ * the date_time library's functions are not re-entrant when using gcc and
+ * its libraries. It was not possible to determine whether this is still
+ * the case, hence we protect calls to date_time with a mutex.
+ *
+ * @return A seed based on the current time
+ */
+uint32_t GSeed(){
+	boost::mutex::scoped_lock lk(randomseed_mutex);
+	boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
     return (uint32_t)t1.time_of_day().total_milliseconds();
-  }
+}
+
+/*************************************************************************/
+
+/**
+ * The standard constructor. It gets the initial random containers from the
+ * random factory.
+ */
+GRandom::GRandom() throw() :
+	current01_(0) { /* nothing */
+}
+
+/*************************************************************************/
+/**
+ * This function emits evenly distributed random numbers in the range [0,1[ .
+ * Random numbers are usually not produced locally, but are taken from an array
+ * provided by the the GRandomFactory class. Random numbers are only produced
+ * locally if no valid array could be retrieved.
+ *
+ * @return Random numbers evenly distributed in the range [0,1[ .
+ */
+double GRandom::evenRandom() {
+	// If the object has been newly created,
+	// p01_ will be empty
+	if (!p01_ || current01_ == DEFAULTARRAYSIZE) {
+		getNewP01();
+		current01_ = 0;
+	}
+
+	return p_raw[current01_++];
+}
+
+/*************************************************************************/
+/**
+ * This function emits evenly distributed random numbers in the range [0,max[ .
+ *
+ * @param max The maximum (excluded) value of the range
+ * @return Random numbers evenly distributed in the range [0,max[
+ */
+double GRandom::evenRandom(const double& max) {
+#ifdef DEBUG
+	// Check that min and max have appropriate values
+	assert(max>0.);
+#endif
+	return GRandom::evenRandom() * max;
+}
+
+/*************************************************************************/
+/**
+ * This function produces evenly distributed random numbers in the range [min,max[ .
+ *
+ * @param min The minimum value of the range
+ * @param max The maximum (excluded) value of the range
+ * @return Random numbers evenly distributed in the range [min,max[
+ */
+double GRandom::evenRandom(const double& min, const double& max) {
+#ifdef DEBUG
+	// Check that min and max have appropriate values
+	assert(min<=max);
+#endif
+	return GRandom::evenRandom() * (max - min) + min;
+}
+
+/*************************************************************************/
+/**
+ * Gaussian-distributed random numbers form the core of Evolutionary Strategies.
+ * This function provides an easy means of producing such random numbers with
+ * mean "mean" and sigma "sigma".
+ *
+ * @param mean The mean value of the Gaussian
+ * @param sigma The sigma of the Gaussian
+ * @return double random numbers with a gaussian distribution
+ */
+double GRandom::gaussRandom(const double& mean, const double& sigma) {
+	return sigma * sqrt(fabs(-2. * log(1. - evenRandom()))) * sin(2. * M_PI	* evenRandom()) + mean;
+}
+
+/*************************************************************************/
+/**
+ * This function adds two gaussians with sigma "sigma" and a distance
+ * "distance" from each other of distance, centered around mean.
+ *
+ * @param mean The mean value of the entire distribution
+ * @param sigma The sigma of both gaussians
+ * @param distance The distance between both peaks
+ * @return Random numbers with a double-gaussian shape
+ */
+double GRandom::doubleGaussRandom(const double& mean, const double& sigma, const double& distance) {
+	if (GRandom::bitRandom() == Gem::GenEvA::G_TRUE)
+		return GRandom::gaussRandom(mean - fabs(distance / 2.), sigma);
+	else
+		return GRandom::gaussRandom(mean + fabs(distance / 2.), sigma);
+}
+
+/*************************************************************************/
+/**
+ * This function produces integer random numbers in the range of [0, max[ .
+ *
+ * @param max The maximum (excluded) value of the range
+ * @return Discrete random numbers evenly distributed in the range [0,max[
+ */
+boost::uint16_t GRandom::discreteRandom(const boost::uint16_t& max) {
+	boost::uint16_t result =
+		static_cast<boost::uint16_t> (GRandom::evenRandom(static_cast<double> (max)));
+#ifdef DEBUG
+	assert(result<max);
+#endif
+	return result;
+}
+
+/*************************************************************************/
+/**
+ * This function produces integer random numbers in the range of [min, max[ .
+ * Note that max may also be < 0. .
+ *
+ * @param min The minimum value of the range
+ * @param max The maximum (excluded) value of the range
+ * @return Discrete random numbers evenly distributed in the range [min,max[
+ */
+boost::int16_t GRandom::discreteRandom(const boost::int16_t& min, const boost::int16_t& max) {
+#ifdef DEBUG
+	assert(min < max);
+#endif
+	boost::int16_t result = discreteRandom(static_cast<boost::int16_t> (max - min)) + min;
+
+#ifdef DEBUG
+	assert(result>=min && result<max);
+#endif
+	return result;
+}
+
+/*************************************************************************/
+/**
+ * This function produces boolean values with a 50% likelihood each for
+ * true and false.
+ *
+ * @return Boolean values with a 50% likelihood for true/false respectively
+ */
+GenEvA::bit GRandom::bitRandom() {
+	return bitRandom(0.5);
+}
+
+/*************************************************************************/
+/**
+ * This function returns true with a probability "probability", otherwise false.
+ *
+ * @param p The probability for the value "true" to be returned
+ * @return A boolean value, which will be true with a user-defined likelihood
+ */
+GenEvA::bit GRandom::bitRandom(const double& probability) {
+#ifdef DEBUG
+	assert(probability>=0 && probability<=1);
+#endif
+	return (GRandom::evenRandom() < probability ? Gem::GenEvA::G_TRUE : Gem::GenEvA::G_FALSE);
+}
+
+/*************************************************************************/
+/**
+ * This function produces random ASCII characters. Please note that that
+ * includes also non-printable characters, if "printable" is set to false
+ * (default is true).
+ *
+ * @param printable A boolean variable indicating whether only printable characters should be produced
+ * @return Random ASCII characters
+ */
+char GRandom::charRandom(const bool& printable) {
+	if (!printable) {
+		return (char) discreteRandom(0, 128);
+	} else {
+		return (char) discreteRandom(33, 127);
+	}
+}
+
+/*************************************************************************/
+/**
+ * In cases where GRandomFactory was not able to supply us with a suitable
+ * array of [0,1[ random numbers we need to produce our own.
+ */
+void GRandom::fillContainer01() {
+	boost::lagged_fibonacci607 lf(GSeed());
+	boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
+	double *local_p = p.get();
+
+	for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++) {
+#ifdef DEBUG
+		double value = lf();
+		assert(value>=0. && value<1.);
+		local_p[i]=value;
+#else
+		local_p[i] = lf();
+#endif /* DEBUG */
+	}
+
+	p_raw = local_p;
+	p01_ = p;
+}
+
+/*************************************************************************/
+/**
+ * (Re-)Initialization of p01_
+ */
+inline void GRandom::getNewP01() {
+	p01_ = GRANDOMFACTORY.new01Container();
+
+	if (!p01_) {
+		// Something went wrong with the retrieval of the
+		// random number container. We need to create
+		// our own instead.
+		GRandom::fillContainer01();
+	} else {
+		p_raw = p01_.get();
+	}
+}
+
+/*************************************************************************/
 
 } /* namespace Util */
 } /* namespace Gem */

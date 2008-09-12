@@ -36,6 +36,7 @@ SET ( GENEVAINCLUDES
 	GParameterSet.hpp
 	GParameterT.hpp
 	GRandom.hpp
+	GRandomFactory.hpp
 	GRateableI.hpp
 	GSerializableI.hpp
 	GSerializationHelperFunctions.hpp

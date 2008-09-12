@@ -23,6 +23,7 @@ SET ( GENEVASOURCES
 	GParameterBase
 	GParameterSet
 	GRandom
+	GRandomFactory
 	GSerializationHelperFunctions
 	GThreadGroup
 )
