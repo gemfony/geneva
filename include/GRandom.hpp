@@ -47,16 +47,10 @@
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
-#include <boost/pool/detail/singleton.hpp>
+// #include <boost/pool/detail/singleton.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
-
-// We require at least Boost version 1.36 because of the usage of system_time
-// in the boost::thread code below
-#if BOOST_VERSION < 103600
-#error "Error: Boost should at least have version 1.36 !"
-#endif /* BOOST_VERSION */
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -163,22 +157,7 @@ public:
 		std::cout << "Terminating threads ..." << std::endl;
 
 		producer_threads_01_.interrupt_all(); // doesn't throw
-
-		try {
-			producer_threads_01_.join_all();
-		} catch (boost::thread_interrupted&) {
-			// This should not happen - we should have caught all thread_interrupted
-			// signals in the threads themselves.
-			std::ostringstream error;
-			error << "In GRandomFactory::~GRandomFactory: Error!" << std::endl
-					<< "Caught boost::thread_interrupted exception."
-					<< std::endl;
-
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			// Terminate the process - nothing else to do in a destructor
-			std::terminate();
-		}
+		producer_threads_01_.join_all();
 
 		std::cout << "GrandomFactory has terminated" << std::endl;
 	}
@@ -328,8 +307,10 @@ private:
 /**
  * A single, global random number factory is created.
  */
-typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
-#define GRANDOMFACTORY grfactory::instance()
+// typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
+// #define GRANDOMFACTORY grfactory::instance()
+Gem::Util::GSingleton<Gem::Util::GRandomFactory> grfactory;
+#define GRANDOMFACTOTY grfactory.getInstance();
 
 /****************************************************************************/
 //////////////////////////////////////////////////////////////////////////////
@@ -549,7 +530,7 @@ private:
 	 * (Re-)Initialization of p01_
 	 */
 	inline void getNewP01(void) {
-		p01_ = GRANDOMFACTORY.new01Container();
+		p01_ = GRANDOMFACTORY->new01Container();
 
 		if (!p01_) {
 			// Something went wrong with the retrieval of the
