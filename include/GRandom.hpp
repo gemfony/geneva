@@ -312,7 +312,7 @@ private:
 // typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
 // #define GRANDOMFACTORY grfactory::instance()
 Gem::Util::GSingleton<Gem::Util::GRandomFactory> grfactory;
-#define GRANDOMFACTORY grfactory.getInstance();
+#define GRANDOMFACTORY (grfactory.getInstance());
 
 /****************************************************************************/
 //////////////////////////////////////////////////////////////////////////////
