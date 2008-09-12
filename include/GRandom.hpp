@@ -76,9 +76,6 @@
 namespace Gem {
 namespace Util {
 
-const boost::uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
-const boost::uint16_t DEFAULTFACTORYGETWAIT = 10; ///< waiting time in milliseconds
-
 /****************************************************************************/
 /**
  * \brief Returns a seed based on the current time.
