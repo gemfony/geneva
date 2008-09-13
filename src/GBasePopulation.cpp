@@ -161,7 +161,7 @@ void GBasePopulation::optimize() {
 	if(reportGeneration_) doInfo(INFOINIT);
 
 	// Initialize the start time with the current time. Uses Boost::date_time
-	startTime_ = boost::posix_time::second_clock::local_time();
+	startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
 
 	do {
 		this->markGeneration(); // Let all individuals know the current generation
