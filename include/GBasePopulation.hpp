@@ -312,7 +312,7 @@ private:
 			break;
 		}
 
-		LOGGER.log(information.str(), Gem::GLogFramework::PROGRESS);
+		LOGGER->log(information.str(), Gem::GLogFramework::PROGRESS);
 	}
 	/***********************************************************************************/
 

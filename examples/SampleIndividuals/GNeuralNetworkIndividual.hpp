@@ -200,7 +200,7 @@ public:
 			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
 				  << "Invalid number of layers supplied" << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 
@@ -237,7 +237,7 @@ public:
 				error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
 					  << "Found invalid number of nodes in layer: " << *layerIterator << std::endl;
 
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_error_condition() << error_string(error.str());
 			}
 		}
@@ -253,7 +253,7 @@ public:
 			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual(const std::string&) : Error!" << std::endl
 				  << "Data file " << trainingDataFile << " could not be opened for reading." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 
@@ -291,7 +291,7 @@ public:
 			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
 				  << "Invalid number of layers supplied" << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 
@@ -328,7 +328,7 @@ public:
 				error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual([...]) : Error!" << std::endl
 					  << "Found invalid number of nodes in layer: " << *layerIterator << std::endl;
 
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_error_condition() << error_string(error.str());
 			}
 		}
@@ -518,7 +518,7 @@ public:
 				error << "In GNeuralNetworkIndividual::createHyperCubeTrainingData([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_error_condition() << error_string(error.str());
 			}
 			else {
@@ -640,7 +640,7 @@ public:
 				error << "In GNeuralNetworkIndividual::createHyperSphereTrainingData([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_error_condition() << error_string(error.str());
 			}
 			else {
@@ -965,7 +965,7 @@ public:
 				error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
 				      << "Error writing output file!" << std::endl;
 
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_error_condition() << error_string(error.str());
 			}
 		}
@@ -983,7 +983,7 @@ public:
 					error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
 						  << "Error writing output file!" << std::endl;
 
-					LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+					LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 					throw geneva_error_condition() << error_string(error.str());
 				}
 			}

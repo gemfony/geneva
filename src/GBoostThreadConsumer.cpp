@@ -99,7 +99,7 @@ void GBoostThreadConsumer::processItems(){
 	    error << "In GBoostThreadConsumer::processItems(): Caught boost::exception with message" << std::endl
 	   		  << e.diagnostic_information() << std::endl;
 
-	    LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+	    LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
   	    std::terminate();
 	}
@@ -108,7 +108,7 @@ void GBoostThreadConsumer::processItems(){
 		error << "In GBoostThreadConsumer::processItems(): Caught std::exception with message" << std::endl
 	  	      << e.what() << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
@@ -116,7 +116,7 @@ void GBoostThreadConsumer::processItems(){
 		std::ostringstream error;
 		error << "In GBoostThreadConsumer::processItems(): Caught unknown exception." << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}

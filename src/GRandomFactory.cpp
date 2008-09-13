@@ -150,7 +150,8 @@ void GRandomFactory::startProducerThreads() throw() {
  * The production of [0,1[ random numbers takes place here. As this function
  * is called in a thread, it may not throw under any circumstance. Exceptions
  * could otherwise go unnoticed. Hence this function has a possibly confusing
- * setup.
+ * setup. Note that we do not use the global logger, as we do not want to risk
+ * accessing a singleton past its possible destruction.
  *
  * @param seed The seed for our local random number generator
  */
@@ -177,41 +178,29 @@ void GRandomFactory::producer01(const boost::uint32_t& seed) throw() {
 	} catch (boost::thread_interrupted&) { // Not an error
 		return; // We're done
 	} catch (std::bad_alloc& e) {
-		std::ostringstream error;
-		error << "In GRandomFactory::producer01(): Error!" << std::endl
-				<< "Caught std::bad_alloc exception with message"
-				<< std::endl << e.what() << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+				  << "Caught std::bad_alloc exception with message"
+				  << std::endl << e.what() << std::endl;
 
 		std::terminate();
 	} catch (std::invalid_argument& e) {
-		std::ostringstream error;
-		error << "In GRandomFactory::producer01(): Error!" << std::endl
-				<< "Caught std::invalid_argument exception with message"
-				<< std::endl << e.what() << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+				  << "Caught std::invalid_argument exception with message"
+				  << std::endl << e.what() << std::endl;
 
 		std::terminate();
 	} catch (boost::thread_resource_error&) {
-		std::ostringstream error;
-		error << "In GRandomFactory::producer01(): Error!" << std::endl
-				<< "Caught boost::thread_resource_error exception which"
-				<< std::endl
-				<< "likely indicates that a mutex could not be locked."
-				<< std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+				  << "Caught boost::thread_resource_error exception which"
+				  << std::endl
+				  << "likely indicates that a mutex could not be locked."
+				  << std::endl;
 
 		// Terminate the process
 		std::terminate();
 	} catch (...) {
-		std::ostringstream error;
-		error << "In GRandomFactory::producer01(): Error!" << std::endl
-				<< "Caught unkown exception." << std::endl;
-
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+				  << "Caught unkown exception." << std::endl;
 
 		// Terminate the process
 		std::terminate();

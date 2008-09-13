@@ -66,7 +66,6 @@
 
 #include "GBoundedBufferT.hpp"
 #include "GEnums.hpp"
-#include "GLogger.hpp"
 #include "GThreadGroup.hpp"
 #include "GSingleton.hpp"
 

@@ -179,7 +179,7 @@ public:
 				  << "nDimOrig = " << nDimOrig_ << std::endl
 				  << "nDimTarget = " << nDimTarget_ << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 
@@ -190,7 +190,7 @@ public:
 				  << "nData = " << nData_ << std::endl
 				  << "nDimOrig = " << nDimOrig_ << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
@@ -220,7 +220,7 @@ public:
 			error << "In GProjectionIndividual::GProjectionIndividual(const std::string&) : Error!" << std::endl
 				  << "Data file " << filename << " could not be opened for reading." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 
@@ -259,7 +259,7 @@ public:
 				  << "nDimOrig = " << nDimOrig_ << std::endl
 				  << "nDimTarget = " << nDimTarget_ << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 
@@ -270,7 +270,7 @@ public:
 				  << "nData = " << nData_ << std::endl
 				  << "nDimOrig = " << nDimOrig_ << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 	}
@@ -370,7 +370,7 @@ public:
 				  << "nDimOrig = " << nDimOrig << std::endl
 				  << "nDimTarget = " << nDimTarget << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 
@@ -395,7 +395,7 @@ public:
 				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_error_condition() << error_string(error.str());
 			}
 			else {
@@ -445,7 +445,7 @@ public:
 				  << "nDimOrig = " << nDimOrig << std::endl
 				  << "nDimTarget = " << nDimTarget << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 
@@ -528,7 +528,7 @@ public:
 				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_error_condition() << error_string(error.str());
 			}
 			else {

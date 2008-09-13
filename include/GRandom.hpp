@@ -67,7 +67,6 @@
 
 #include "GBoundedBufferT.hpp"
 #include "GEnums.hpp"
-#include "GLogger.hpp"
 #include "GThreadGroup.hpp"
 #include "GRandomFactory.hpp"
 
@@ -84,7 +83,8 @@ namespace Util {
  * transparent to the user.
  */
 class GRandom
-	:boost::noncopyable {
+	:boost::noncopyable
+{
 public:
 	/** @brief The standard constructor */
 	GRandom() throw();

@@ -168,7 +168,7 @@ void GBrokerPopulation::setLoopTime(const boost::posix_time::time_duration& loop
 		error << "In GBrokerPopulation::setLoopTime() : Error!" << std::endl
 			  << "loopTime is set to 0" << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 		throw geneva_error_condition()  << error_string(error.str());
 	}
 
@@ -298,7 +298,7 @@ void GBrokerPopulation::mutateChildren() {
 				error << "In GBrokerPopulation::mutateChildren() : Error!" << std::endl
 					  << "Timeout for first individual reached." << std::endl;
 
-				LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 				throw geneva_error_condition() << error_string(error.str());
 			}
 		}
@@ -365,7 +365,7 @@ void GBrokerPopulation::mutateChildren() {
 			error << "In GBrokerPopulation::mutateChildren() : Error!" << std::endl
 				  << "Population is empty when it shouldn't be." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 
@@ -413,7 +413,7 @@ void GBrokerPopulation::mutateChildren() {
 	}
 
 #ifdef DEBUG
-	LOGGER.log(information.str(), Gem::GLogFramework::INFORMATIONAL);
+	LOGGER->log(information.str(), Gem::GLogFramework::INFORMATIONAL);
 #endif /* DEBUG */
 
 	// We care for too many returned individuals in the select() function. Older

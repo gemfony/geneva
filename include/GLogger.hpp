@@ -47,7 +47,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
-#include <boost/pool/detail/singleton.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
@@ -57,6 +56,7 @@
 #define GLOGGER_HPP_
 
 #include "GLogTargets.hpp"
+#include "GSingleton.hpp"
 
 namespace Gem
 {
@@ -126,7 +126,7 @@ private:
 /**
  * We currently require the global GLogger object to be a singleton
  */
-typedef boost::details::pool::singleton_default<Gem::GLogFramework::GLogger>  logger;
-#define LOGGER logger::instance()
+typedef Gem::Util::GSingleton<Gem::GLogFramework::GLogger>  logger;
+#define LOGGER logger::getInstance()
 
-#endif /*GLOGGER_HPP_*/
+#endif /* GLOGGER_HPP_ */

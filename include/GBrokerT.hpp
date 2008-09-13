@@ -62,7 +62,6 @@
 #include "GBufferPortT.hpp"
 #include "GBoundedBufferT.hpp"
 #include "GThreadGroup.hpp"
-#include "GLogger.hpp"
 
 namespace Gem {
 namespace Util {
@@ -133,12 +132,11 @@ public:
 		// Complain if the lastId_ is getting too large. lastId_ should
 		// be replaced by a GUID/UUID, when it becomes available in Boost.
 		// Note that, if this machine has no 64 bit integer types, we can
-		// only count up to roughly 4 billion.
+		// only count up to roughly 4 billion. Note that we do not use
+		// the global logger, so we do not have too many cross-references
+		// between singletons.
 		if(lastId_ >= MAXPORTID){
-			std::ostringstream error;
-		    error << "In GBrokerT<T>::enrol(): lastId_ is getting too large: " << lastId_ << std::endl;
-   		    LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
-
+			std::cerr << "In GBrokerT<T>::enrol(): lastId_ is getting too large: " << lastId_ << std::endl;
   		    std::terminate();
 		}
 

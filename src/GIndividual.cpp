@@ -102,7 +102,7 @@ double GIndividual::fitnessCalculation(){
 	error << "In GIndividual::fitnessCalculation(): Error" << std::endl
 		  << "This function should never have been called directly!" << std::endl;
 
-	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+	LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 	throw geneva_error_condition() << error_string(error.str());
 
@@ -121,7 +121,7 @@ void GIndividual::customMutations(){
 	error << "In GIndividual::customMutations(): Error" << std::endl
 		  << "This function should never have been called directly!" << std::endl;
 
-	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+	LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 	throw geneva_error_condition() << error_string(error.str());
 }
@@ -162,7 +162,7 @@ double GIndividual::fitness() {
 					<< "The dirty flag is set while lazy evaluation is not allowed."
 					<< std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			throw geneva_error_condition() << error_string(error.str());
 		}
@@ -405,7 +405,7 @@ double GIndividual::checkedFitness(){
 		std::ostringstream error;
 		error << "In GIndividual::checkedFitness(): Caught std::exception with message" << std::endl
 		      << e.what() << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
@@ -413,14 +413,14 @@ double GIndividual::checkedFitness(){
 		std::ostringstream error;
 		error << "In GIndividual::checkedFitness(): Caught boost::exception with message" << std::endl
 		      << e.diagnostic_information() << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
 	catch(...){
 		std::ostringstream error;
 		error << "In GIndividual::checkedFitness(): Caught unknown exception" << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
@@ -440,7 +440,7 @@ void GIndividual::process(){
 		error << "In GIndividual::process(): Unknown command:\""
 			  << this->getAttribute("command") << "\"" << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		throw geneva_error_condition() << error_string(error.str());
 	}
@@ -460,7 +460,7 @@ void GIndividual::checkedProcess(){
 		std::ostringstream error;
 		error << "In GIndividual::checkedProcess(): Caught std::exception with message" << std::endl
 		      << e.what() << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
@@ -468,14 +468,14 @@ void GIndividual::checkedProcess(){
 		std::ostringstream error;
 		error << "In GIndividual::checkedProcess(): Caught boost::exception with message" << std::endl
 		      << e.diagnostic_information() << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
 	catch(...){
 		std::ostringstream error;
 		error << "In GIndividual::checkedProcess(): Caught unknown exception" << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}

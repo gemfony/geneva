@@ -73,8 +73,12 @@ public:
 	static boost::shared_ptr<T>& getInstance() {
 		static bool first=true;
 		static boost::shared_ptr<T> p;
+		static boost::mutex creation_mutex;
 
 		if(first) {
+			// Prevent concurrent "first access"
+			boost::mutex::scoped_lock lk(creation_mutex);
+
 			p = boost::shared_ptr<T>(new T());
 			first=false;
 		}

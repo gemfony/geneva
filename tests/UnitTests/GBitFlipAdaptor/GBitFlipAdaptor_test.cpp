@@ -61,7 +61,7 @@ const std::string ADAPTORNAME3="GBitFlipAdaptor3";
 BOOST_AUTO_TEST_CASE( gbfa_gobject_test_no_failure_expected )
 {
 	// Add log targets to the system
-	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBitFlipAdaptor_test.log")));
+	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBitFlipAdaptor_test.log")));
 
 	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(); // Default construction
 	GBitFlipAdaptor *gbfa2=new GBitFlipAdaptor(*gbfa); // Copy construction

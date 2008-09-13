@@ -55,7 +55,7 @@ GAsioServerSession::~GAsioServerSession(){
 		std::ostringstream error;
 		error << "In GAsioServerSession::~GAsioServerSession():" << std::endl
 			  << "Caught boost::system::system_error exception" << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
@@ -89,7 +89,7 @@ void GAsioServerSession::processRequest() {
 				information << "In GAsioServerSession::processRequest():" << std::endl
 							<< "Could not submit item to client!" << std::endl;
 
-				LOGGER.log(information.str(), Gem::GLogFramework::INFORMATIONAL);
+				LOGGER->log(information.str(), Gem::GLogFramework::INFORMATIONAL);
 			}
 		}
 		catch(Gem::Util::gem_util_condition_time_out &) {
@@ -119,14 +119,14 @@ void GAsioServerSession::processRequest() {
 			std::ostringstream information;
 			information << "GAsioServerSession::processRequest():" << std::endl
 						<< "Could not retrieve item from client." << std::endl;
-			LOGGER.log(information.str(), Gem::GLogFramework::INFORMATIONAL);
+			LOGGER->log(information.str(), Gem::GLogFramework::INFORMATIONAL);
 		}
 	}
 	else { // Also covers the "empty" return value of getSingleCommand()
 		std::ostringstream warning;
 		warning << "In GAsioServerSession::processRequest: Warning!" << std::endl
 				<< "Received command \"" << command << "\"" << std::endl;
-		LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
+		LOGGER->log(warning.str(), Gem::GLogFramework::WARNING);
 
 		this->sendSingleCommand("unknown");
 	}
@@ -161,7 +161,7 @@ std::string GAsioServerSession::getSingleCommand(){
 		error << "In GAsioServerSession::getSingleCommand(): Warning" << std::endl
 			  << "Caught boost::system::system_error exception. The function" << std::endl
 			  << "will return the \"empty\" value." << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::WARNING);
+		LOGGER->log(error.str(), Gem::GLogFramework::WARNING);
 
 		return std::string("empty");
 	}
@@ -187,7 +187,7 @@ void GAsioServerSession::sendSingleCommand(const std::string& command){
 		std::ostringstream error;
 		error << "In GAsioServerSession::sendSingleCommand(): Warning" << std::endl
 			  << "Caught boost::system::system_error exception" << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::WARNING);
+		LOGGER->log(error.str(), Gem::GLogFramework::WARNING);
 	}
 }
 

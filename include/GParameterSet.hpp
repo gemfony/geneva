@@ -113,7 +113,7 @@ public:
 			std::ostringstream error;
 			error << "In GParameterSet::parameterbase_case<parameter_type>() : Conversion error!" << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.

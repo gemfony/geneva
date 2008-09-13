@@ -20,6 +20,10 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Standard headers go here
+
+// Boost headers go here
+
 #include <boost/version.hpp>
 
 #if BOOST_VERSION < 103600
@@ -31,6 +35,8 @@
 #ifndef GENUMS_H_
 #define GENUMS_H_
 
+// GenEvA headers go here
+
 namespace Gem {
 namespace GenEvA {
   /**
@@ -39,11 +45,6 @@ namespace GenEvA {
    * which breaks GenEvA
    */
   enum bit {G_FALSE=0, G_TRUE=1}; // 0,1
-
-  /**
-   * Return values for member functions.
-   */
-  enum GExitCode {ExitOK = 0, ExitBad = 1};
 
   /**
    * The serialization modes that are currently allowed

@@ -86,7 +86,7 @@ public:
 			std::ostringstream error;
 			error << "In GMutableI::checkedMutate(): Caught std::exception with message" << std::endl
 				  << e.what() << std::endl;
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			std::terminate();
 		}
@@ -94,14 +94,14 @@ public:
 			std::ostringstream error;
 			error << "In GMutableI::checkedMutate(): Caught boost::exception with message" << std::endl
 				  << e.diagnostic_information() << std::endl;
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			std::terminate();
 		}
 		catch(...){
 			std::ostringstream error;
 			error << "In GMutableI::checkedMutate(): Caught unknown exception" << std::endl;
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			std::terminate();
 		}

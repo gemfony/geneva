@@ -176,7 +176,7 @@ namespace Gem {
 			<< "Bad value for sigma given: " << sigma << std::endl
 			<< "The value will be adapted to the default value " << DEFAULTDISTANCE << std::endl;
 
-		LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
+		LOGGER->log(warning.str(), Gem::GLogFramework::WARNING);
 
 		sigma_ = DEFAULTDISTANCE;
 		return;
@@ -211,7 +211,7 @@ namespace Gem {
 			<< "Bad value for sigmaSigma given: " << sigmaSigma << std::endl
 			<< "The value will be adapted to the default value " << DEFAULTDISTANCESIGMA << std::endl;
 
-		LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
+		LOGGER->log(warning.str(), Gem::GLogFramework::WARNING);
 
 		tmpSigmaSigma = DEFAULTDISTANCESIGMA;
 	    }
@@ -226,7 +226,7 @@ namespace Gem {
 			<< "Bad value for minSigma given: " << minSigma << std::endl
 			<< "The value will be adapted to the default value " << DEFAULTMINDISTANCE << std::endl;
 
-		LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
+		LOGGER->log(warning.str(), Gem::GLogFramework::WARNING);
 
 		tmpMinSigma = DEFAULTMINDISTANCE;
 	    }
@@ -275,7 +275,7 @@ namespace Gem {
 			<< "Bad value for minSigma given: " << minSigma << std::endl
 			<< "The value will be adapted to the default value " << DEFAULTMINDISTANCE << std::endl;
 
-		LOGGER.log(warning.str(), Gem::GLogFramework::WARNING);
+		LOGGER->log(warning.str(), Gem::GLogFramework::WARNING);
 
 		minSigma_ = DEFAULTMINDISTANCE;
 		return;

@@ -93,14 +93,14 @@ int main(int argc, char **argv){
 		{ std::terminate(); }
 
 	// Add some log levels to the logger
-	LOGGER.addLogLevel(Gem::GLogFramework::CRITICAL);
-	LOGGER.addLogLevel(Gem::GLogFramework::WARNING);
-	LOGGER.addLogLevel(Gem::GLogFramework::INFORMATIONAL);
-	LOGGER.addLogLevel(Gem::GLogFramework::PROGRESS);
+	LOGGER->addLogLevel(Gem::GLogFramework::CRITICAL);
+	LOGGER->addLogLevel(Gem::GLogFramework::WARNING);
+	LOGGER->addLogLevel(Gem::GLogFramework::INFORMATIONAL);
+	LOGGER->addLogLevel(Gem::GLogFramework::PROGRESS);
 
 	// Add log targets to the system
-	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBrokerPopulation.log")));
-	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
+	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBrokerPopulation.log")));
+	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);

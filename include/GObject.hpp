@@ -138,7 +138,7 @@ public:
 			std::ostringstream error;
 			error << "In GObject::clone_ptr_cast<T>() : Conversion error!" << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -174,7 +174,7 @@ public:
 			std::ostringstream error;
 			error << "In GObject::clone_bptr_cast<clone_type>() : Conversion error!" << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -218,7 +218,7 @@ protected:
 			std::ostringstream error;
 			error << "In GObject::checkConversion<T>() : Conversion error!" << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -231,7 +231,7 @@ protected:
 			error << "In GObject::checkConversion<T>() : Error!" << std::endl
 					<< "Tried to assign an object to itself." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			throw geneva_error_condition() << error_string(error.str());
 		}
 

@@ -60,7 +60,7 @@ void GBaseClient::run(){
 		std::ostringstream error;
 		error << "In GBaseClient::run(): Caught std::exception with message" << std::endl
 		      << e.what() << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
@@ -68,14 +68,14 @@ void GBaseClient::run(){
 		std::ostringstream error;
 		error << "In GBaseClient::run(): Caught boost::exception with message" << std::endl
 		      << e.diagnostic_information() << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
 	catch(...){
 		std::ostringstream error;
 		error << "In GBaseClient::run(): Caught unknown exception" << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
 	}
@@ -117,7 +117,7 @@ void GBaseClient::setMaxTime(boost::posix_time::time_duration maxDuration) {
 		error << "In GBaseClient::setMaxTime() : Error!" << std::endl
 			  << "Invalid maxDuration." << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 		throw geneva_error_condition()  << error_string(error.str());
 	}
 
@@ -201,7 +201,7 @@ bool GBaseClient::process(){
 		std::ostringstream error;
 		error << "In GBaseClient::process() : Error!" << std::endl
 			  << "Empty portid found" << std::endl;
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		return false;
 	}

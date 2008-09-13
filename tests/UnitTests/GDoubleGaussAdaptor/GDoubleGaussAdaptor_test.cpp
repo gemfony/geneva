@@ -64,7 +64,7 @@ const std::string ADAPTORNAME3="GDoubleGaussAdaptor3";
 BOOST_AUTO_TEST_CASE( gdga_gobject_test_no_failure_expected )
 {
 	// Add log targets to the system
-	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GDoubleGaussAdaptor_test.log")));
+	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GDoubleGaussAdaptor_test.log")));
 
 	GDoubleGaussAdaptor *gdga=new GDoubleGaussAdaptor(); // Default construction
 	GDoubleGaussAdaptor *gdga2=new GDoubleGaussAdaptor(*gdga); // Copy construction

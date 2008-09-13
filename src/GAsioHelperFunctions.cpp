@@ -58,7 +58,7 @@ std::size_t extractDataSize(const char* ds, std::size_t sz){
 	  std::ostringstream error;
 	  error << "In extractDataSize: Got invalid header!" << std::endl;
 
-	  LOGGER.log(error.str(), Gem::GLogFramework::WARNING);
+	  LOGGER->log(error.str(), Gem::GLogFramework::WARNING);
 	  throw geneva_error_condition()  << error_string(error.str());
   }
 

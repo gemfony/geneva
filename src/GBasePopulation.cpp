@@ -271,7 +271,7 @@ void GBasePopulation::adjustPopulation() {
 			  << "population size = " << popSize_ << std::endl
 			  << "number of parents = " << nParents_ << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
@@ -289,7 +289,7 @@ void GBasePopulation::adjustPopulation() {
 			  << "Requested size of population is too small :" << popSize_ << " " << nParents_ << std::endl
 		      << "Sorting scheme is " << (muplusnu_==MUCOMMANU?"MUCOMMANU":"MUPLUSNU") << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
@@ -304,7 +304,7 @@ void GBasePopulation::adjustPopulation() {
 			  << "size of population is 0. Did you add any individuals?" << std::endl
 			  << "We need at least one local individual" << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
@@ -319,7 +319,7 @@ void GBasePopulation::adjustPopulation() {
 			error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
 				  << "Found empty smart pointer." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -469,7 +469,7 @@ void GBasePopulation::setMaxTime(boost::posix_time::time_duration maxDuration) {
 		error << "In GBasePopulation::setMaxTime() : Error!" << std::endl
 			  << "Invalid maxDuration." << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 		throw geneva_error_condition()  << error_string(error.str());
 	}
 
@@ -634,7 +634,7 @@ void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p) {
 			error << "In GBasePopulation::valueRecombine(): Error!" << std::endl
 				  << "Could not recombine." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -662,7 +662,7 @@ void GBasePopulation::recombine()
 			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 			  << "but was expecting at least " << defaultNChildren_ << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
@@ -725,7 +725,7 @@ void GBasePopulation::select()
 			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 			  << "but was expecting at least " << defaultNChildren_ << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
@@ -792,7 +792,7 @@ double GBasePopulation::fitnessCalculation() {
 		error << "In GBasePopulation::fitnessCalculation(): Error!" << std::endl
 			  << "Came across dirty invididual" << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.

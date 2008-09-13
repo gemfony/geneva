@@ -111,7 +111,7 @@ bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
 			warning << "In GAsioTCPClient::retrieve(): Warning" << std::endl
 			        << "Could not connect to server. Shutting down now." << std::endl;
 
-			LOGGER.log(warning.str(),Gem::GLogFramework::WARNING);
+			LOGGER->log(warning.str(),Gem::GLogFramework::WARNING);
 
 			return shutdown(false);
 		}
@@ -180,7 +180,7 @@ bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
 				<< "Caught boost::system::system_error exception."
 				<< std::endl << "Leaving now." << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		try {
 			return shutdown(false);
@@ -190,7 +190,7 @@ bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
 				  << "Cannot shutdown gracefully as shutdown command" << std::endl
 				  << "threw inside of catch statement." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			std::terminate();
 		}
@@ -200,7 +200,7 @@ bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
 	std::ostringstream error;
 	error << "In GAsioTCPClient::retrieve() :" << std::endl
 		  << "In a part of the function that should never have been reached!" << std::endl;
-	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+	LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 	std::terminate();
 
 	return false; // Make the compiler happy
@@ -249,7 +249,7 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
 			warning << "In GAsioTCPClient::submit(): Warning" << std::endl
 					<< "Could not connect to server. Shutting down now." << std::endl;
 
-			LOGGER.log(warning.str(),Gem::GLogFramework::WARNING);
+			LOGGER->log(warning.str(),Gem::GLogFramework::WARNING);
 
 			return shutdown(false);
 		}
@@ -270,7 +270,7 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
 				<< "Caught boost::system::system_error exception."
 				<< std::endl << "Leaving now." << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		try {
 			return shutdown(false);
@@ -280,7 +280,7 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
 				  << "Cannot shutdown gracefully as shutdown command" << std::endl
 				  << "threw inside of catch statement." << std::endl;
 
-			LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 			std::terminate();
 		}
@@ -290,7 +290,7 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
 	std::ostringstream error;
 	error << "In GAsioTCPClient::submit() :" << std::endl
 		  << "In a part of the function that should never have been reached!" << std::endl;
-	LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+	LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 	std::terminate();
 
 	return false; // Make the compiler happy

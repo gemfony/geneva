@@ -198,7 +198,7 @@ void GObject::load(const GObject *cp) {
 		str << "In GObject::load: Error! Object was assigned to itself";
 
 		// write a log message
-		LOGGER.log(str.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(str.str(), Gem::GLogFramework::CRITICAL);
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost

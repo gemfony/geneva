@@ -163,7 +163,7 @@ void GDoubleGaussAdaptor::setSigma(const double& sigma)
 		  	  << "sigma is not in the allowed range: " << std::endl
 		  	  << sigma << " " << minSigma_ << " " << maxSigma_ << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		throw geneva_error_condition() << error_string(error.str());
 	}
@@ -195,7 +195,7 @@ void GDoubleGaussAdaptor::setSigmaRange(const double& minSigma, const double& ma
 		error << "In GDoubleGaussAdaptor::setSigmaRange(const double&, const double&): Error!" << std::endl
 			  << "Invalid values for minSigma and maxSigma given:" << minSigma << " " << maxSigma << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		throw geneva_error_condition() << error_string(error.str());
 	}
@@ -234,7 +234,7 @@ void GDoubleGaussAdaptor::setSigmaAdaptionRate(const double& sigmaSigma)
 		error << "In GDoubleGaussAdaptor::setSigmaSigma(double, double): Error!" << std::endl
 			  << "Bad value for sigmaSigma given: " << sigmaSigma << std::endl;
 
-		LOGGER.log(error.str(), Gem::GLogFramework::CRITICAL);
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		throw geneva_error_condition() << error_string(error.str());
 	}
