@@ -174,7 +174,7 @@ void GBoostThreadPopulation::mutateChildren() {
  *
  * @param nThreads The number of threads this class uses
  */
-void GBoostThreadPopulation::setNThreads(boost::uint8_t nThreads) {
+void GBoostThreadPopulation::setNThreads(const boost::uint8_t& nThreads) {
 	nThreads_ = nThreads;
 	tp_.size_controller().resize(nThreads_);
 }

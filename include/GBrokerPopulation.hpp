@@ -131,7 +131,7 @@ namespace GenEvA
     virtual void optimize();
 
     /** @brief Sets the wait factor */
-    void setWaitFactor(boost::uint32_t) throw();
+    void setWaitFactor(const boost::uint32_t&) throw();
     /** @brief Retrieves the wait factor */
     boost::uint32_t getWaitFactor() const throw();
 

@@ -95,12 +95,12 @@ public:
 	void run(void);
 
 	/** @brief Allows to set a maximum number of processing steps */
-	void setProcessMax(boost::uint32_t processMax);
+	void setProcessMax(const boost::uint32_t& processMax);
 	/** @brief Retrieves the value of the _processMax variable */
 	boost::uint32_t getProcessMax() const;
 
 	/** @brief Sets the maximum allowed processing time */
-	void setMaxTime(boost::posix_time::time_duration);
+	void setMaxTime(const boost::posix_time::time_duration&);
 	/** @brief Retrieves the maximum allowed processing time */
 	boost::posix_time::time_duration getMaxTime();
 

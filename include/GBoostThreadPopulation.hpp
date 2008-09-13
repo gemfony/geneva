@@ -96,7 +96,7 @@ public:
 	virtual void optimize();
 
 	/** @brief Sets the maximum number of threads */
-	void setNThreads(boost::uint8_t);
+	void setNThreads(const boost::uint8_t&);
 	/** @brief Retrieves the maximum number of threads */
 	uint8_t getNThreads() const throw();
 

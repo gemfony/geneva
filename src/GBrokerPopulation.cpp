@@ -117,7 +117,7 @@ GObject *GBrokerPopulation::clone() {
  *
  * @param waitFactor The desired new value for waitFactor_ .
  */
-void GBrokerPopulation::setWaitFactor(boost::uint32_t waitFactor) throw() {
+void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor) throw() {
 	waitFactor_ = waitFactor;
 }
 

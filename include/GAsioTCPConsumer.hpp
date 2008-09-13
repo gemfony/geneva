@@ -131,7 +131,7 @@ class GAsioTCPConsumer
 {
 public:
 	/** @brief The standard constructor */
-	GAsioTCPConsumer(unsigned short);
+	GAsioTCPConsumer(const unsigned short&);
 	/** @brief A standard destructor */
 	virtual ~GAsioTCPConsumer();
 
@@ -141,7 +141,7 @@ public:
 	virtual void shutdown();
 
 	/** @brief Retrieves the current serialization mode */
-	serializationMode getSerializationMode(void) const throw();
+	serializationMode getSerializationMode() const throw();
 	/** @brief Sets the serialization mode */
 	void setSerializationMode(const serializationMode&) throw();
 

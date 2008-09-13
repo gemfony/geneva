@@ -37,7 +37,7 @@ namespace Gem {
  * of this class being serializable (which implies default construction by
  * the friend class boost::serialization::access .
  */
-	GBiGaussAdaptor::GBiGaussAdaptor(void)
+	GBiGaussAdaptor::GBiGaussAdaptor()
 	    :GAdaptorT<double> ("GBiGaussAdaptor")
 	{
 	    setSigma(DEFAULTDISTANCE);
@@ -51,7 +51,7 @@ namespace Gem {
  *
  * @param name The name assigned to this adaptor
  */
-	GBiGaussAdaptor::GBiGaussAdaptor(std::string name)
+	GBiGaussAdaptor::GBiGaussAdaptor(const std::string& name)
 	    :GAdaptorT<double> (name)
 	{
 	    setSigma(DEFAULTDISTANCE);
@@ -67,7 +67,7 @@ namespace Gem {
  * @param sigma The initial value for the sigma_ parameter
  * @param name The name assigned to this adaptor
  */
-	GBiGaussAdaptor::GBiGaussAdaptor(double sigma, std::string name)
+	GBiGaussAdaptor::GBiGaussAdaptor(const double& sigma, const std::string& name)
 	    :GAdaptorT<double> (name)
 	{
 	    // These functions do error checks on sigma, so we do not assign
@@ -85,7 +85,8 @@ namespace Gem {
  * @param minSigma The minimal value allowed for sigma_
  * @param name The name assigned to this adaptor
  */
-	GBiGaussAdaptor::GBiGaussAdaptor(double sigma, double sigmaSigma, double minSigma, std::string name)
+	GBiGaussAdaptor::GBiGaussAdaptor(const double& sigma, const double& sigmaSigma,
+									 const double& minSigma, const std::string& name)
 	    :GAdaptorT<double> (name)
 	{
 	    setSigma(sigma);
@@ -148,7 +149,7 @@ namespace Gem {
  * algorithm to adapt to changing geometries of the quality surface. The
  * function is declared inline, as it will be called very often.
  */
-	inline void GBiGaussAdaptor::initNewRun(void)
+	inline void GBiGaussAdaptor::initNewRun()
 	{
 	    // do we want to adapt sigma_ at all ?
 	    if(sigmaSigma_) { // != 0 ?
@@ -166,7 +167,7 @@ namespace Gem {
  *
  * @param sigma The initial value for the sigma_ parameter
  */
-	void GBiGaussAdaptor::setSigma(double sigma)
+	void GBiGaussAdaptor::setSigma(const double& sigma)
 	{
 	    // A value of sigma smaller or equal 0 is not useful. Adapt and log.
 	    if(sigma <= 0.)
@@ -197,7 +198,7 @@ namespace Gem {
  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
  * @param minSigma The minimal value allowed for sigma_
  */
-	void GBiGaussAdaptor::setSigmaSigma(double sigmaSigma, double minSigma)
+	void GBiGaussAdaptor::setSigmaSigma(const double& sigmaSigma, const double& minSigma)
 	{
 	    double tmpSigmaSigma = sigmaSigma, tmpMinSigma = minSigma;
 
@@ -241,7 +242,7 @@ namespace Gem {
  *
  * @return The current value of sigma_
  */
-	double GBiGaussAdaptor::getSigma(void) const
+	double GBiGaussAdaptor::getSigma() const
 	{
 	    return sigma_;
 	}
@@ -252,7 +253,7 @@ namespace Gem {
  *
  * @return The value of sigmaSigma_
  */
-	double GBiGaussAdaptor::getSigmaSigma(void) const
+	double GBiGaussAdaptor::getSigmaSigma() const
 	{
 	    return sigmaSigma_;
 	}
@@ -265,7 +266,7 @@ namespace Gem {
  *
  * @param The minimally allowed value for sigma_
  */
-	void GBiGaussAdaptor::setMinSigma(double minSigma)
+	void GBiGaussAdaptor::setMinSigma(const double& minSigma)
 	{
 	    // A value of minSigma <= 0. is not useful
 	    if(minSigma <= 0.)
@@ -290,7 +291,7 @@ namespace Gem {
  *
  * @return The minimally allowed value for sigma_
  */
-	double GBiGaussAdaptor::getMinSigma(void) const
+	double GBiGaussAdaptor::getMinSigma() const
 	{
 	    return minSigma_;
 	}
@@ -303,7 +304,7 @@ namespace Gem {
  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
  * @param minSigma The minimal value allowed for sigma_
  */
-	void GBiGaussAdaptor::setAll(double sigma, double sigmaSigma, double minSigma)
+	void GBiGaussAdaptor::setAll(const double& sigma, const double& sigmaSigma, const double& minSigma)
 	{
 	    GBiGaussAdaptor::setSigma(sigma);
 	    GBiGaussAdaptor::setSigmaSigma(sigmaSigma,minSigma);
@@ -315,7 +316,7 @@ namespace Gem {
  *
  * @return A deep copy of this object
  */
-	GObject *GBiGaussAdaptor::clone(void)
+	GObject *GBiGaussAdaptor::clone()
 	{
 	    return new GBiGaussAdaptor(*this);
 	}

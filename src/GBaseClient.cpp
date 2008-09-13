@@ -88,7 +88,7 @@ void GBaseClient::run(){
  *
  * @param processMax Desired value for the processMax_ variable
  */
-void GBaseClient::setProcessMax(boost::uint32_t processMax){
+void GBaseClient::setProcessMax(const boost::uint32_t& processMax){
 	processMax_ = processMax;
 }
 
@@ -108,7 +108,7 @@ boost::uint32_t GBaseClient::getProcessMax() const{
  *
  * @param maxDuration The maximum allowed processing time
  */
-void GBaseClient::setMaxTime(boost::posix_time::time_duration maxDuration) {
+void GBaseClient::setMaxTime(const boost::posix_time::time_duration& maxDuration) {
 	using namespace boost::posix_time;
 
 	// Only allow "real" values

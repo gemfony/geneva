@@ -139,7 +139,7 @@ public:
 	/**
 	 * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
 	 */
-	GBoundedBufferT(void) throw()
+	GBoundedBufferT() throw()
 		:capacity_(DEFAULTBUFFERSIZE)
 	{ /* nothing */}
 
@@ -150,7 +150,7 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBufferT(std::size_t capacity) throw()
+	explicit GBoundedBufferT(const std::size_t& capacity) throw()
 		:capacity_(capacity?capacity:1)
 	{ /* nothing */}
 
@@ -266,7 +266,7 @@ public:
 	 *
 	 * @return The maximum allowed capacity
 	 */
-	std::size_t getCapacity(void) const throw()
+	std::size_t getCapacity() const throw()
 	{
 		return capacity_;
 	}
@@ -280,7 +280,7 @@ public:
 	 *
 	 * @return The currently remaining space in the buffer
 	 */
-	std::size_t remainingSpace(void)
+	std::size_t remainingSpace()
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		return container_.size() - capacity_;

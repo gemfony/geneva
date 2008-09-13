@@ -82,12 +82,12 @@ namespace Gem {
 
 	public:
 	    /** @brief The standard constructor - every adaptor needs a name */
-	    explicit GBiGaussAdaptor(std::string name);
+	    explicit GBiGaussAdaptor(const std::string&);
 	    /** @brief A standard constructor, including initialization of the sigma value */
-	    GBiGaussAdaptor(double sigma, std::string name);
+	    GBiGaussAdaptor(const double&, const std::string&);
 	    /** @brief A standard constructor including initialization of the sigma, sigmaSigma and
 	     *  minSigma values */
-	    GBiGaussAdaptor(double sigma, double sigmaSigma, double minSigma, std::string name);
+	    GBiGaussAdaptor(const double&, const double&, const double& , const std::string&);
 	    /** @brief The standard copy constructor */
 	    GBiGaussAdaptor(const GBiGaussAdaptor& cp);
 	    /** @brief The standard destructor */
@@ -99,34 +99,34 @@ namespace Gem {
 	    /** @brief Loads the values of another GBiGaussAdaptor */
 	    virtual void load(const GObject *gb);
 	    /** @brief Creates a deep copy of this object */
-	    virtual GObject *clone(void);
+	    virtual GObject *clone();
 
 	    /** @brief Initializes a new mutation run */
-	    virtual void initNewRun(void);
+	    virtual void initNewRun();
 	    /** @brief Specifies the mutations performed in this class */
 	    virtual void customMutations(double &value);
 
 	    /** @brief Sets the width of the gaussian */
-	    void setSigma(double sigma);
+	    void setSigma(const double& sigma);
 	    /** @brief Retrieves the current width of the gaussian */
-	    double getSigma(void) const;
+	    double getSigma() const;
 
 	    /** @brief Sets the width of the sigma adaption and the minimally
 	     * allowed  value for sigma */
-	    void setSigmaSigma(double sigmaSigma, double minSigma);
+	    void setSigmaSigma(const double&, const double&);
 	    /** @brief Sets a minimal value for sigma */
-	    void setMinSigma(double minSigma);
+	    void setMinSigma(const double&);
 	    /** @brief Retrieves the current value of the sigma adaption */
-	    double getSigmaSigma(void) const;
+	    double getSigmaSigma() const;
 	    /** @brief Retrieves the current minimal value allowed for sigma */
-	    double getMinSigma(void) const;
+	    double getMinSigma() const;
 
 	    /** @brief Sets all values needed for the mutation in one go */
-	    void setAll(double sigma, double sigmaSigma, double minSigma);
+	    void setAll(const double&, const double&, const double&);
 
 	private:
 	    /** @brief The default constructor - not for public consumption */
-	    GBiGaussAdaptor(void);
+	    GBiGaussAdaptor();
 
 	    double sigma_;
 	    double sigmaSigma_;

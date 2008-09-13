@@ -56,7 +56,7 @@ namespace Gem
 	     * @param lowerBoundary The lower boundary of the value range
 	     * @param upperBoundary The upper boundary of the value range
 	     */
-		GBoundedDouble::GBoundedDouble(double lowerBoundary, double upperBoundary)
+		GBoundedDouble::GBoundedDouble(const double& lowerBoundary, const double& upperBoundary)
 			:GParameterT<double>(0.),
 			 lowerBoundary_(lowerBoundary),
 			 upperBoundary_(upperBoundary),
@@ -74,7 +74,7 @@ namespace Gem
   	     * @param lowerBoundary The lower boundary of the value range
 	     * @param upperBoundary The upper boundary of the value range
 		 */
-		GBoundedDouble::GBoundedDouble(double val, double lowerBoundary, double upperBoundary)
+		GBoundedDouble::GBoundedDouble(const double& val, const double& lowerBoundary, const double& upperBoundary)
 			:GParameterT<double>(0.),
 			 lowerBoundary_(lowerBoundary),
 			 upperBoundary_(upperBoundary),
@@ -126,7 +126,7 @@ namespace Gem
 		 * @param The desired new external value
 		 * @return The new external value of this object
 		 */
-		double GBoundedDouble::operator=(double val) {
+		double GBoundedDouble::operator=(const double& val) {
 			this->setExternalValue(val);
 			return this->value();
 		}
@@ -222,7 +222,7 @@ namespace Gem
 		 * @param val The desired new external value
 		 * @return The original value
 		 */
-		double GBoundedDouble::setExternalValue(double val) {
+		double GBoundedDouble::setExternalValue(const double& val) {
 			double previous = this->value();
 
 			// Check the lower an upper boundaries

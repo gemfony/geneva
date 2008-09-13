@@ -52,7 +52,7 @@ namespace Gem
 		 *
 		 * @param val The value to assign (in converted form) to this object
 		 */
-		GBit::GBit(bool val)
+		GBit::GBit(const bool& val)
 			:GParameterT<Gem::GenEvA::bit>(val?Gem::GenEvA::G_TRUE:Gem::GenEvA::G_FALSE)
 		{ /* nothing */ }
 

@@ -82,7 +82,7 @@ public:
 	virtual ~GBoostThreadConsumer();
 
 	/** @brief Sets the maximum number of threads */
-	void setMaxThreads(std::size_t);
+	void setMaxThreads(const std::size_t&);
 	/** @brief Retrieves the maximum number of threads */
 	std::size_t getMaxThreads() const throw();
 

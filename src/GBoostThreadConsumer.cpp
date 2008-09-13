@@ -139,7 +139,7 @@ void GBoostThreadConsumer::shutdown() {
  *
  * @param maxThreads The maximum number of allowed threads
  */
-void GBoostThreadConsumer::setMaxThreads(std::size_t maxThreads) {
+void GBoostThreadConsumer::setMaxThreads(const std::size_t& maxThreads) {
 	maxThreads_ = maxThreads;
 }
 

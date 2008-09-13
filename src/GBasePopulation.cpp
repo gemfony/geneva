@@ -460,7 +460,7 @@ boost::uint32_t GBasePopulation::getGeneration() const {
  *
  * @param maxDuration The maximum allowed processing time
  */
-void GBasePopulation::setMaxTime(boost::posix_time::time_duration maxDuration) {
+void GBasePopulation::setMaxTime(const boost::posix_time::time_duration& maxDuration) {
 	using namespace boost::posix_time;
 
 	// Only allow "real" values

@@ -202,7 +202,7 @@ public:
 	boost::uint32_t getGeneration() const;
 
 	/** @brief Sets the maximum allowed processing time */
-	void setMaxTime(boost::posix_time::time_duration);
+	void setMaxTime(const boost::posix_time::time_duration&);
 	/** @brief Retrieves the maximum allowed processing time */
 	boost::posix_time::time_duration getMaxTime();
 

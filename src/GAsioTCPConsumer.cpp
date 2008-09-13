@@ -284,7 +284,7 @@ bool GAsioServerSession::submit(const std::string& item, const std::string& comm
  *
  * @param port The port through which clients can access the server
  */
-GAsioTCPConsumer::GAsioTCPConsumer(unsigned short port)
+GAsioTCPConsumer::GAsioTCPConsumer(const unsigned short& port)
 	:GConsumer(),
 	 work_(new boost::asio::io_service::work(io_service_)),
 	 acceptor_(work_->get_io_service(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
@@ -353,7 +353,7 @@ void GAsioTCPConsumer::shutdown()
  *
  * @return The current serialization mode
  */
-serializationMode GAsioTCPConsumer::getSerializationMode(void) const throw() {
+serializationMode GAsioTCPConsumer::getSerializationMode() const throw() {
 	return serializationMode_;
 }
 

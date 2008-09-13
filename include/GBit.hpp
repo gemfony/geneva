@@ -73,7 +73,7 @@ public:
 	/** @brief The standard constructor */
 	GBit(void);
 	/** @brief Initialization with a boolean */
-	explicit GBit(bool);
+	explicit GBit(const bool&);
 	/** @brief Initialization with a value */
 	explicit GBit(const Gem::GenEvA::bit&);
 	/** @brief The standard copy constructor */

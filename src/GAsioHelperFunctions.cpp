@@ -36,7 +36,7 @@ namespace GenEvA
  * \param sz Resulting size of the query string
  * \return The query string
  */
-std::string assembleQueryString(const std::string& query, std::size_t sz){
+std::string assembleQueryString(const std::string& query, const std::size_t& sz){
   std::ostringstream query_stream;
   query_stream << std::setw(sz) << query;
   return query_stream.str();
@@ -51,7 +51,7 @@ std::string assembleQueryString(const std::string& query, std::size_t sz){
  * \param sz The size of the data string
  * \return The size if the data
  */
-std::size_t extractDataSize(const char* ds, std::size_t sz){
+std::size_t extractDataSize(const char* ds, const std::size_t& sz){
   std::istringstream is(std::string(ds, sz));
   std::size_t inboundDataSize = 0;
   if (!(is >> std::hex >> inboundDataSize)) {

@@ -51,10 +51,10 @@ namespace GenEvA
 const std::size_t COMMANDLENGTH=64;
 
 /** @brief Assembles a query string from a given command */
-std::string assembleQueryString(const std::string&, std::size_t);
+std::string assembleQueryString(const std::string&, const std::size_t&);
 
 /** @brief Extracts the size of ASIO's data section from a C string. */
-std::size_t extractDataSize(const char*, std::size_t);
+std::size_t extractDataSize(const char*, const std::size_t&);
 
 /**********************************************************************************/
 

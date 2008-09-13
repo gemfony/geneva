@@ -78,9 +78,9 @@ namespace GenEvA
 
   public:
 	/** @brief Initialization with the boundaries */
-	GBoundedDouble(double, double);
+	GBoundedDouble(const double&, const double&);
     /** @brief Initialization with a double and the boundaries */
-    GBoundedDouble(double, double, double);
+    GBoundedDouble(const double&, const double&, const double&);
     /** @brief Standard copy constructor */
     GBoundedDouble(const GBoundedDouble&);
     /** @brief Standard destructor */
@@ -89,7 +89,7 @@ namespace GenEvA
     /** @brief A standard assignment operator */
     const GBoundedDouble& operator=(const GBoundedDouble&);
     /** @brief An assignment operator for double values */
-    virtual double operator=(double);
+    virtual double operator=(const double&);
 
     /** @brief Loads the data of another GBoundedDouble */
     virtual void load(const GObject *);
@@ -118,7 +118,7 @@ namespace GenEvA
 	GBoundedDouble();
 
     /** @brief Sets the external value */
-	double setExternalValue(double);
+	double setExternalValue(const double&);
 
     double lowerBoundary_, upperBoundary_;
     double internalValue_; ///< The internal representation of this classes value
