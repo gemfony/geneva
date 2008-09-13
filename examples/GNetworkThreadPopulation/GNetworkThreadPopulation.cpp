@@ -101,7 +101,7 @@ int main(int argc, char **argv){
 
 	// Random numbers are our most valuable good. Set the number of threads
 	// that simultaneously produce random numbers.
-	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	// Create training data for the individual
 	boost::shared_ptr<trainingData> p = GNeuralNetworkIndividual::createHyperSphereTrainingData("", nData, nDim, radius);

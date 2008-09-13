@@ -122,6 +122,8 @@ private:
 	boost::shared_array<double> p01_; ///< Holds the container of [0,1[ random numbers
 	std::size_t current01_; ///< The current position in p01_
 	double *p_raw; ///< A pointer to the content of p01_ for faster access
+
+	boost::shared_ptr<Gem::Util::GRandomFactory> grf_; ///< A local copy of the global GRandomFactory
 };
 
 /****************************************************************************/

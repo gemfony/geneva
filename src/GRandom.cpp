@@ -27,11 +27,16 @@ namespace Util {
 
 /*************************************************************************/
 /**
- * The standard constructor. It gets the initial random containers from the
- * random factory.
+ * The standard constructor. It stores the GRANDOMFACTORY
+ * boost::shared_ptr<GRandomFactory> locally and in this way
+ * makes sure that the factory doesn't get destroyed while it
+ * is still needed.
  */
 GRandom::GRandom() throw() :
-	current01_(0) { /* nothing */
+	current01_(0)
+{
+	// Store a local copy of the global boost::shared_ptr<GRandomFactory>
+	grf_ = GRANDOMFACTORY;
 }
 
 /*************************************************************************/
@@ -221,17 +226,19 @@ void GRandom::fillContainer01() {
 
 /*************************************************************************/
 /**
- * (Re-)Initialization of p01_
+ * (Re-)Initialization of p01_. Checks that a valid GRandomFactory still
+ * exists, then retrieves a new container.
  */
 inline void GRandom::getNewP01() {
-	p01_ = GRANDOMFACTORY->new01Container();
+	if(grf_) p01_ = grf_->new01Container();
 
-	if (!p01_) {
+	if (!grf_ || !p01_) {
 		// Something went wrong with the retrieval of the
 		// random number container. We need to create
 		// our own instead.
 		GRandom::fillContainer01();
-	} else {
+	}
+	else {
 		p_raw = p01_.get();
 	}
 }

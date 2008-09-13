@@ -111,7 +111,7 @@ int main(int argc, char **argv){
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
-	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	GBoostThreadPopulation super;
 	super.setNThreads(nSuperThreads);

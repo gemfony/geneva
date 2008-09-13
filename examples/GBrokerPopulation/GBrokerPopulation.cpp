@@ -103,7 +103,7 @@ int main(int argc, char **argv){
 	LOGGER.addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
-	GRANDOMFACTORY.setNProducerThreads(nProducerThreads);
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	if(mode == "server"){
 		// Create a consumer and enrol it with the broker
