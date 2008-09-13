@@ -33,7 +33,6 @@
 #endif /* BOOST_VERSION */
 
 #include <boost/cstdint.hpp>
-#include <boost/pool/detail/singleton.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>
@@ -51,6 +50,7 @@
 // GenEvA headers go here
 #include "GBrokerT.hpp"
 #include "GIndividual.hpp"
+#include "GSingleton.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -79,7 +79,7 @@ public:
  * ensures that one and only one Broker object exists that is constructed
  * before main begins. All external communication should refer to GINDIVIDUALBROKER.
  */
-typedef boost::details::pool::singleton_default<GIndividualBroker> gindividualbroker;
+typedef Gem::Util::GSingleton<GIndividualBroker> gindividualbroker;
 #define GINDIVIDUALBROKER gindividualbroker::instance()
 
 /**************************************************************************************/
