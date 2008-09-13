@@ -79,7 +79,7 @@ void GAsioServerSession::processRequest() {
 			Gem::Util::PORTIDTYPE id;
 
 			// Retrieve an item
-			id = GINDIVIDUALBROKER.get(p, timeout);
+			id = GINDIVIDUALBROKER->get(p, timeout);
 
 			// Store the id in the individual
 			p->setAttribute("id", boost::lexical_cast<std::string>(id));
@@ -111,7 +111,7 @@ void GAsioServerSession::processRequest() {
 
 			Gem::Util::PORTIDTYPE id = boost::lexical_cast<Gem::Util::PORTIDTYPE>(portid);
 			try {
-				GINDIVIDUALBROKER.put(id, p, timeout);
+				GINDIVIDUALBROKER->put(id, p, timeout);
 			}
 			catch(Gem::Util::gem_util_condition_time_out &){ /* nothing we can do */ }
 		}

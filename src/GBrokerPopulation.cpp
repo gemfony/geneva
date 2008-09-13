@@ -194,7 +194,7 @@ boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
  */
 void GBrokerPopulation::optimize() {
 	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Util::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
-	GINDIVIDUALBROKER.enrol(CurrentBufferPort_);
+	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
 
 	// The main optimization cycle
 	GBasePopulation::optimize();
