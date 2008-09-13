@@ -153,8 +153,10 @@ private:
 /**
  * A single, global random number factory is created as a singleton.
  */
-typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
-#define GRANDOMFACTORY grfactory::instance() ///< Define that makes the singleton more easily accessible
+// typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
+// #define GRANDOMFACTORY grfactory::instance() ///< Define that makes the singleton more easily accessible
+typedef Gem::Util::GSingleton<Gem::Util::GRandomFactory> grfactory;
+#define GRANDOMFACTORY grfactory::getInstance()
 
 #endif /* GRANDOM_HPP_ */
 

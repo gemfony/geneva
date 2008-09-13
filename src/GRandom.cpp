@@ -224,7 +224,7 @@ void GRandom::fillContainer01() {
  * (Re-)Initialization of p01_
  */
 inline void GRandom::getNewP01() {
-	p01_ = GRANDOMFACTORY.new01Container();
+	p01_ = GRANDOMFACTORY->new01Container();
 
 	if (!p01_) {
 		// Something went wrong with the retrieval of the
