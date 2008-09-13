@@ -104,7 +104,7 @@ int main(int argc, char **argv){
 	// GBasePopulation pop;
 
 	GBoostThreadPopulation pop;
-	pop.setNThreads(4);
+	pop.setNThreads(10);
 
 	pop.append(parabolaIndividual);
 
