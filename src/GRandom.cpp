@@ -201,7 +201,7 @@ char GRandom::charRandom(const bool& printable) {
  * array of [0,1[ random numbers we need to produce our own.
  */
 void GRandom::fillContainer01() {
-	boost::lagged_fibonacci607 lf(GSeed());
+	boost::lagged_fibonacci607 lf(GRandomFactory::GSeed());
 	boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
 	double *local_p = p.get();
 
