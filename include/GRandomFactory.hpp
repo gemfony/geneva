@@ -91,6 +91,12 @@ const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 
 /****************************************************************************/
 /**
+ * Synchronization of access to boost::date_time functions.
+ */
+boost::mutex randomseed_mutex;
+
+/****************************************************************************/
+/**
  * Past implementations of random numbers for the Geneva library showed a
  * particular bottle neck in the random number generation. Every GObject
  * had its own random number generator, and seeding was very expensive.
@@ -158,12 +164,6 @@ private:
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 };
-
-/****************************************************************************/
-/**
- * Synchronization of access to boost::date_time functions.
- */
-boost::mutex randomseed_mutex;
 
 } /* namespace Util */
 } /* namespace Gem */
