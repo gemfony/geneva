@@ -91,12 +91,6 @@ const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 
 /****************************************************************************/
 /**
- * Synchronization of access to boost::date_time functions.
- */
-boost::mutex randomseed_mutex;
-
-/****************************************************************************/
-/**
  * Past implementations of random numbers for the Geneva library showed a
  * particular bottle neck in the random number generation. Every GObject
  * had its own random number generator, and seeding was very expensive.
@@ -132,22 +126,8 @@ public:
 	/** @brief Delivers a new [0,1[ random number container to clients */
 	boost::shared_array<double> new01Container();
 
-	/*************************************************************************/
-	/**
-	 * This static function returns a seed based on the current time.
-	 *
-	 * Comments on some boost mailing lists (late 2005) seem to indicate that
-	 * the date_time library's functions are not re-entrant when using gcc and
-	 * its libraries. It was not possible to determine whether this is still
-	 * the case, hence we protect calls to date_time with a mutex.
-	 *
-	 * @return A seed based on the current time
-	 */
-	static boost::uint32_t GSeed(){
-		boost::mutex::scoped_lock lk(randomseed_mutex);
-		boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
-	    return (uint32_t)t1.time_of_day().total_milliseconds();
-	}
+	/** @brief Calculation of a seed for the random numbers */
+	static boost::uint32_t GSeed();
 
 	/*************************************************************************/
 
