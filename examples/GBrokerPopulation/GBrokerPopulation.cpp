@@ -109,7 +109,7 @@ int main(int argc, char **argv){
 		// Create a consumer and enrol it with the broker
 		boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
 		// gatc->setSerializationMode(BINARYSERIALIZATION);
-		GINDIVIDUALBROKER.enrol(gatc);
+		GINDIVIDUALBROKER->enrol(gatc);
 
 		// Set up a single parabola individual
 		boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin,parabolaMax,adaptionThreshold));
