@@ -80,7 +80,7 @@ public:
  * before main begins. All external communication should refer to GINDIVIDUALBROKER.
  */
 typedef Gem::Util::GSingleton<GIndividualBroker> gindividualbroker;
-#define GINDIVIDUALBROKER gindividualbroker::instance()
+#define GINDIVIDUALBROKER gindividualbroker::getInstance()
 
 /**************************************************************************************/
 
