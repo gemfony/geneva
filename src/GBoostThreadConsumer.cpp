@@ -75,7 +75,7 @@ void GBoostThreadConsumer::processItems(){
 			}
 
 			try{
-				id = GINDIVIDUALBROKER.get(p, timeout);
+				id = GINDIVIDUALBROKER->get(p, timeout);
 			}
 			catch(Gem::Util::gem_util_condition_time_out &) { continue; }
 
@@ -83,7 +83,7 @@ void GBoostThreadConsumer::processItems(){
 				p->process();
 
 				try{
-					GINDIVIDUALBROKER.put(id, p, timeout);
+					GINDIVIDUALBROKER->put(id, p, timeout);
 				}
 				catch(Gem::Util::gem_util_condition_time_out &) { continue; }
 			}
