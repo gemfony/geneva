@@ -83,17 +83,11 @@ const std::size_t DEFAULTFACTORYBUFFERSIZE = 1000; ///< Default size of the unde
 const boost::uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
 const boost::uint16_t DEFAULTFACTORYGETWAIT = 10; ///< waiting time in milliseconds
 
+/****************************************************************************/
 /**
  * The number of threads that simultaneously produce [0,1[ random numbers
  */
 const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
-
-/*************************************************************************/
-/**
- * This mutex is used for seeding in GRandomFactory::GSeed. It is not clear whether
- * boost::date_time is thread safe.
- */
-boost::mutex randomseed_mutex;
 
 /****************************************************************************/
 /**
@@ -163,6 +157,8 @@ private:
 	boost::uint32_t seed_; ///< The seed for the random number generators
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
+
+	static boost::mutex randomseed_mutex; ///< Synchronization of access to boost::date_time functions
 };
 
 } /* namespace Util */
