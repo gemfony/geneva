@@ -143,6 +143,8 @@ public:
 	    return (uint32_t)t1.time_of_day().total_milliseconds();
 	}
 
+	static boost::mutex randomseed_mutex; ///< Controls access to boost::date_time functionality
+
 	/*************************************************************************/
 
 private:
@@ -157,8 +159,6 @@ private:
 	boost::uint32_t seed_; ///< The seed for the random number generators
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
-
-	static boost::mutex randomseed_mutex; ///< Controls access to boost::date_time functionality
 };
 
 /****************************************************************************/
