@@ -69,6 +69,7 @@
 #include "GEnums.hpp"
 #include "GLogger.hpp"
 #include "GThreadGroup.hpp"
+#include "GSingleton.hpp"
 
 /****************************************************************************/
 
@@ -148,10 +149,12 @@ private:
 } /* namespace Util */
 } /* namespace Gem */
 
-#endif /* GRANDOM_HPP_ */
-
+/****************************************************************************/
 /**
  * A single, global random number factory is created as a singleton.
  */
 typedef boost::details::pool::singleton_default<Gem::Util::GRandomFactory> grfactory;
 #define GRANDOMFACTORY grfactory::instance() ///< Define that makes the singleton more easily accessible
+
+#endif /* GRANDOM_HPP_ */
+
