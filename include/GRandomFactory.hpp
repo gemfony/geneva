@@ -91,15 +91,6 @@ const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 
 /****************************************************************************/
 /**
- * Synchronization of access to boost::date_time functions. See here
- * http://publib.boulder.ibm.com/infocenter/lnxpcomp/v8v101/index.jsp?topic=/com.ibm.xlcpp8l.doc/language/ref/cplr038.htm
- * for an explanation of why randomseed_mutex appears both here and inside
- * of the GRandomFactory class.
- */
-boost::mutex GRandomFactory::randomseed_mutex;
-
-/****************************************************************************/
-/**
  * Past implementations of random numbers for the Geneva library showed a
  * particular bottle neck in the random number generation. Every GObject
  * had its own random number generator, and seeding was very expensive.
@@ -169,6 +160,15 @@ private:
 
 	static boost::mutex randomseed_mutex; ///< Controls access to boost::date_time functionality
 };
+
+/****************************************************************************/
+/**
+ * Synchronization of access to boost::date_time functions. See here
+ * http://publib.boulder.ibm.com/infocenter/lnxpcomp/v8v101/index.jsp?topic=/com.ibm.xlcpp8l.doc/language/ref/cplr038.htm
+ * for an explanation of why randomseed_mutex appears both here and inside
+ * of the GRandomFactory class.
+ */
+boost::mutex GRandomFactory::randomseed_mutex;
 
 } /* namespace Util */
 } /* namespace Gem */
