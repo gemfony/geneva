@@ -35,8 +35,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GBIGAUSSADAPTOR_H_
-#define GBIGAUSSADAPTOR_H_
+#ifndef GBIGAUSSADAPTOR_HPP_
+#define GBIGAUSSADAPTOR_HPP_
 
 // GenEvA headers go here
 
@@ -141,4 +141,4 @@ namespace Gem {
     } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /*GBIGAUSSADAPTOR_H_*/
+#endif /* GBIGAUSSADAPTOR_HPP_ */

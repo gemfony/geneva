@@ -91,9 +91,12 @@ const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 
 /****************************************************************************/
 /**
- * Synchronization of access to boost::date_time functions
+ * Synchronization of access to boost::date_time functions. See here
+ * http://publib.boulder.ibm.com/infocenter/lnxpcomp/v8v101/index.jsp?topic=/com.ibm.xlcpp8l.doc/language/ref/cplr038.htm
+ * for an explanation of why randomseed_mutex appears both here and inside
+ * of the GRandomFactory class.
  */
-boost::mutex randomseed_mutex;
+boost::mutex GRandomFactory::randomseed_mutex;
 
 /****************************************************************************/
 /**
@@ -163,6 +166,8 @@ private:
 	boost::uint32_t seed_; ///< The seed for the random number generators
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
+
+	static boost::mutex randomseed_mutex; ///< Controls access to boost::date_time functionality
 };
 
 } /* namespace Util */
