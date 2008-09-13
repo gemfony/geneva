@@ -40,86 +40,10 @@
 
 // GenEvA header files go here
 
-#include "GBoundedBufferT.hpp"
+#include "GBoundedBufferWithIdT.hpp"
 
 namespace Gem {
 namespace Util {
-
-#ifdef BOOST_HAS_LONG_LONG
-typedef boost::uint64_t PORTIDTYPE;
-#else
-typedef boost::uint32_t PORTIDTYPE;
-#endif
-
-/*****************************************************************************/
-/**
- * A small helper class that adds a unique id to the GBoundedBufferT class. Note
- * that, once it has been set, it may not be modified anymore.
- */
-template<typename T>
-class GBoundedBufferWithIdT
-	:public GBoundedBufferT<T>
-{
-public:
-	/***************************************************************/
-	/**
-	 * The default constructor.
-	 */
-	GBoundedBufferWithIdT(void) throw()
-		:GBoundedBufferT<T>(),
-		 id_(0),
-		 idSet_(false)
-	{ /* nothing */}
-
-	/***************************************************************/
-	/**
-	 * A constructor that creates a buffer with custom size "capacity".
-	 * It enforces a minimum buffer size of 1.
-	 *
-	 * @param capacity The desired size of the buffer
-	 */
-	explicit GBoundedBufferWithIdT(std::size_t capacity) throw()
-		:GBoundedBufferT<T>(capacity),
-		 id_(0),
-		 idSet_(false)
-	{ /* nothing */}
-
-	/***************************************************************/
-	/**
-	 * A standard destructor.
-	 */
-	virtual ~GBoundedBufferWithIdT()
-	{ /* nothing */ }
-
-	/***************************************************************/
-	/*
-	 * Retrieves the id_ variable.
-	 *
-	 * @return The value of the id_ variable
-	 */
-	PORTIDTYPE getId() const throw(){
-		return id_;
-	}
-
-	/***************************************************************/
-	/*
-	 * Allows to set the id_ once. Any subsequent calls to this
-	 * function will have no effect.
-	 *
-	 * @param id The desired value of the id_ variable
-	 */
-	void setId(PORTIDTYPE id) throw(){
-		if(!idSet_){
-			id_ = id;
-			idSet_ = true;
-		}
-	}
-
-private:
-	/***************************************************************/
-	volatile PORTIDTYPE id_; ///< An id that allows to identify this class
-	volatile bool idSet_;
-};
 
 /*****************************************************************************/
 /**
@@ -142,7 +66,7 @@ public:
 	 * The default constructor. Note that, when using this constructor, the GBoundedBufferWithIdT
 	 * objects will assume the default sizes.
 	 */
-	GBufferPortT(void) :
+	GBufferPortT() :
 		original_(new Gem::Util::GBoundedBufferWithIdT<T>()),
 		processed_(new Gem::Util::GBoundedBufferWithIdT<T>())
 	{ /* nothing */	}

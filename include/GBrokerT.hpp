@@ -88,7 +88,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GBrokerT(void)
+	GBrokerT()
 		:lastId_(0),
 		 currentGetPosition_(RawBuffers_.begin()),
 		 buffersPresentRaw_(false),
@@ -187,7 +187,7 @@ public:
 	 *
 	 * @param gc A pointer to a GConsumer object
 	 */
-	void enrol(boost::shared_ptr<GConsumer> gc) {
+	void enrol(const boost::shared_ptr<GConsumer>& gc) {
 		consumerCollection_.push_back(gc);
 		consumerThreads_.create_thread(boost::bind(&GConsumer::process, gc));
 	}

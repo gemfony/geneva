@@ -13,6 +13,7 @@ SET ( GENEVAINCLUDES
 	GBoostThreadConsumer.hpp
 	GBoostThreadPopulation.hpp
 	GBoundedBufferT.hpp
+	GBoundedBufferWithIdT.hpp
 	GBoundedDouble.hpp
 	GBrokerT.hpp
 	GBrokerPopulation.hpp
