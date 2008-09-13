@@ -119,7 +119,7 @@ int main(int argc, char **argv){
 	// Create a consumer and make it known to the global broker
 	boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
 	gbtc->setMaxThreads(nConsumerThreads);
-	GINDIVIDUALBROKER.enrol(gbtc);
+	GINDIVIDUALBROKER->enrol(gbtc);
 
 	// Add superNParents parents
 	for(std::size_t np=0; np<superNParents; np++){
