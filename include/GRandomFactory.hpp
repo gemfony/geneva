@@ -143,8 +143,6 @@ public:
 	    return (uint32_t)t1.time_of_day().total_milliseconds();
 	}
 
-	static boost::mutex randomseed_mutex; ///< Controls access to boost::date_time functionality
-
 	/*************************************************************************/
 
 private:
@@ -163,12 +161,9 @@ private:
 
 /****************************************************************************/
 /**
- * Synchronization of access to boost::date_time functions. See here
- * http://publib.boulder.ibm.com/infocenter/lnxpcomp/v8v101/index.jsp?topic=/com.ibm.xlcpp8l.doc/language/ref/cplr038.htm
- * for an explanation of why randomseed_mutex appears both here and inside
- * of the GRandomFactory class.
+ * Synchronization of access to boost::date_time functions.
  */
-boost::mutex GRandomFactory::randomseed_mutex;
+boost::mutex randomseed_mutex;
 
 } /* namespace Util */
 } /* namespace Gem */
