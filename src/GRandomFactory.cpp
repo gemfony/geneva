@@ -130,10 +130,12 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 boost::uint32_t GRandomFactory::GSeed(){
 	boost::mutex::scoped_lock lk(randomseed_mutex);
 
-	std::cout << "Called GSeed" << std::endl;
+	boost::posix_time::ptime t1; // = boost::posix_time::microsec_clock::local_time();
+    boost::uint32_t result = (uint32_t)t1.time_of_day().total_milliseconds();
 
-	boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
-    return (uint32_t)t1.time_of_day().total_milliseconds();
+    std::cout << "Called GSeed, got " << result << std::endl;
+
+    return result;
 }
 
 /*************************************************************************/
