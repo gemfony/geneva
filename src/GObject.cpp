@@ -75,7 +75,7 @@ GObject::~GObject()
 
 /**************************************************************************************************/
 /**
- * An assignment operator that is also suitable for derived classes
+ * A standard assignment operator
  *
  * @param cp A copy of another GObject(-derivative)
  * @return A constant reference to this object
