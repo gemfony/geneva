@@ -156,6 +156,8 @@ void GRandomFactory::startProducerThreads() throw() {
  * @param seed The seed for our local random number generator
  */
 void GRandomFactory::producer01(const boost::uint32_t& seed) throw() {
+	std::cout << "Producer thread has started with seed " << seed << std::endl;
+
 	try {
 		boost::lagged_fibonacci607 lf(seed);
 

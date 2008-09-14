@@ -7,5 +7,4 @@
   with a vanilla Boost installation (>= 1.36)
 - Ship the threadpool library with Geneva or move to standard Boost threapool (once it has been reviewed)
 - Add many more tests using the Boost.Test library
-- Move away from Boost.Exception and just use std::exception
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
