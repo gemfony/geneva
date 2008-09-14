@@ -118,7 +118,7 @@ public:
 	/** @brief A constructor that creates a user-specified number of producer threads*/
 	GRandomFactory(const boost::uint16_t&) throw();
 	/** @brief The destructor */
-	~GRandomFactory() throw();
+	~GRandomFactory();
 
 	/** @brief Sets the number of producer threads for this factory. */
 	void setNProducerThreads(const boost::uint16_t&);

@@ -105,8 +105,11 @@ void GThreadGroup::remove_thread(boost::thread* thrd) {
 void GThreadGroup::join_all() {
 	boost::lock_guard<boost::mutex> guard(m_);
 
-	for (thread_vector::iterator it = threads_.begin(); it!= threads_.end(); ++it)
+	boost::uint32_t counter = 0;
+	for (thread_vector::iterator it = threads_.begin(); it!= threads_.end(); ++it){
+		std::cout << "Waiting for thread " << counter++ << " to join" << std::endl;
 		(*it)->join();
+	}
 }
 
 /********************************************************************/

@@ -63,7 +63,7 @@ GRandomFactory::GRandomFactory(const boost::uint16_t& n01Threads) throw() :
  * The destructor. All threads are given the interrupt signal. Then
  * we wait for them to join us.
  */
-GRandomFactory::~GRandomFactory() throw() {
+GRandomFactory::~GRandomFactory() {
 	std::cout << "Terminating threads ..." << std::endl;
 
 	producer_threads_01_.interrupt_all(); // doesn't throw
