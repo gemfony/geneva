@@ -23,6 +23,7 @@
 // Standard header files go here
 
 #include <string>
+#include <exception>
 
 // Boost header files go here
 
@@ -31,8 +32,6 @@
 #if BOOST_VERSION < 103600
 #error "Error: Boost should at least have version 1.36 !"
 #endif /* BOOST_VERSION */
-
-#include <boost/exception.hpp>
 
 #ifndef GENEVAEXCEPTIONS_HPP_
 #define GENEVAEXCEPTIONS_HPP_
@@ -45,14 +44,14 @@ namespace GenEvA {
 /**************************************************************************************************/
 // Exceptions and related definitions
 
-/** @brief String container for error messages */
-typedef boost::error_info<struct tag_errno, std::string> error_string;
-
 /** @brief General error class to be thrown in the case of severe errors */
-class geneva_error_condition : public boost::exception, public std::exception {};
+class geneva_error_condition : public std::exception {
+	geneva_error_condition(const std::string& description) :exception(description) {;}
+};
 
 /**************************************************************************************************/
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 #endif /* GENEVAEXCEPTIONS_HPP_ */

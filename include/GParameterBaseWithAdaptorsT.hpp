@@ -144,9 +144,7 @@ public:
 			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor():" << std::endl
 				  << "Error: Empty adaptor provided." << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 		typename GATvec::iterator pos;
@@ -157,9 +155,7 @@ public:
 			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor():" << std::endl
 				  << "Error: duplicate adaptors: " << gat->name() << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 		boost::shared_ptr<GAdaptorT<T> > p(gat);
@@ -212,11 +208,9 @@ public:
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type> : No adaptor found!" << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 #ifdef DEBUG
@@ -229,11 +223,9 @@ public:
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Conversion error!" << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 		return p_adaptor;
@@ -310,9 +302,7 @@ protected:
 			error << "In GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(T& value):" << std::endl
 				  << "Error: No adaptors were found." << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 	}
 
@@ -334,9 +324,7 @@ protected:
 			error << "In GParameterBaseWithAdaptorsT<T>::applyAllAdaptors(T& value):" << std::endl
 				  << "Error: No adaptors were found." << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 	}
 
@@ -358,9 +346,7 @@ protected:
 			error << "In GParameterBaseWithAdaptorsT<T>::applyNamedAdaptor(string adName, T& value):" << std::endl
 				  << "Error: Named adaptor " << adName << " was not found." << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 	}
 
@@ -412,9 +398,7 @@ protected:
 			error << "In GParameterBaseWithAdaptorsT<T>::applyNamedAdaptor(string adName, std::vector<T>& value):" << std::endl
 				  << "Error: Named adaptor " << adName << " was not found." << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 	}
 

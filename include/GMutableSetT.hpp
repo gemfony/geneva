@@ -180,9 +180,7 @@ public:
 			error << "In GMutableSetT::append():" << std::endl
 			      << "Tried to add empty item" << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 	}
 

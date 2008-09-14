@@ -271,11 +271,9 @@ void GBasePopulation::adjustPopulation() {
 			  << "population size = " << popSize_ << std::endl
 			  << "number of parents = " << nParents_ << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition() << error_string(error.str());
+		throw geneva_error_condition(error.str());
 	}
 
 	// In MUCOMMANU mode we want to have at least as many children as parents,
@@ -289,11 +287,9 @@ void GBasePopulation::adjustPopulation() {
 			  << "Requested size of population is too small :" << popSize_ << " " << nParents_ << std::endl
 		      << "Sorting scheme is " << (muplusnu_==MUCOMMANU?"MUCOMMANU":"MUPLUSNU") << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition() << error_string(error.str());
+		throw geneva_error_condition(error.str());
 	}
 
 	// Check how many individuals have been added already. At least one is required.
@@ -304,11 +300,9 @@ void GBasePopulation::adjustPopulation() {
 			  << "size of population is 0. Did you add any individuals?" << std::endl
 			  << "We need at least one local individual" << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition() << error_string(error.str());
+		throw geneva_error_condition(error.str());
 	}
 
 	// Do the smart pointers actually point to any objects ?
@@ -319,11 +313,9 @@ void GBasePopulation::adjustPopulation() {
 			error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
 				  << "Found empty smart pointer." << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 	}
 
@@ -469,8 +461,7 @@ void GBasePopulation::setMaxTime(const boost::posix_time::time_duration& maxDura
 		error << "In GBasePopulation::setMaxTime() : Error!" << std::endl
 			  << "Invalid maxDuration." << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-		throw geneva_error_condition()  << error_string(error.str());
+		throw geneva_error_condition(error.str());
 	}
 
 	maxDuration_ = maxDuration;
@@ -634,11 +625,9 @@ void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p) {
 			error << "In GBasePopulation::valueRecombine(): Error!" << std::endl
 				  << "Could not recombine." << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 	}
 }
@@ -662,11 +651,9 @@ void GBasePopulation::recombine()
 			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 			  << "but was expecting at least " << defaultNChildren_ << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition() << error_string(error.str());
+		throw geneva_error_condition(error.str());
 	}
 
 	// Do the actual recombination
@@ -725,11 +712,9 @@ void GBasePopulation::select()
 			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 			  << "but was expecting at least " << defaultNChildren_ << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition() << error_string(error.str());
+		throw geneva_error_condition(error.str());
 	}
 
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it_begin;
@@ -792,11 +777,9 @@ double GBasePopulation::fitnessCalculation() {
 		error << "In GBasePopulation::fitnessCalculation(): Error!" << std::endl
 			  << "Came across dirty invididual" << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition() << error_string(error.str());
+		throw geneva_error_condition(error.str());
 	}
 	return val;
 }

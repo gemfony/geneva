@@ -148,9 +148,9 @@ public:
 
 protected:
 	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation() = 0;
 	/** @brief The actual mutation operations */
-	virtual void customMutations();
+	virtual void customMutations() = 0;
 
 	/** @brief Sets the dirtyFlag_ */
 	void setDirtyFlag() throw();

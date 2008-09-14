@@ -109,9 +109,7 @@ namespace Gem
 				error << "In GParameterSet::registerEvaluator(): Error" << std::endl
 					  << "Received empty function" << std::endl;
 
-				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				throw geneva_error_condition() << error_string(error.str());
+				throw geneva_error_condition(error.str());
 			}
 
 			eval_ = eval;
@@ -131,9 +129,7 @@ namespace Gem
 				error << "In GParameterSet::fitnessCalculation(): Error" << std::endl
 					  << "No evaluation function present" << std::endl;
 
-				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-				throw geneva_error_condition() << error_string(error.str());
+				throw geneva_error_condition(error.str());
 			}
 
 			// Trigger the actual calculation

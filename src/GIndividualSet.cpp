@@ -71,8 +71,7 @@ namespace Gem
 				error << "In GIndividualSet::load(): Error!" << std::endl
 					  << "Tried to assign an object to itself." << std::endl;
 
-				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_error_condition() << error_string(error.str());
+				throw geneva_error_condition(error.str());
 			}
 
 			// Load the parent class'es data

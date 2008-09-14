@@ -142,11 +142,9 @@ namespace Gem
 				error << "In GBitFlipAdaptor::setMutationProbability(double) : Error!" << std::endl
 					  << "Bad probability value given: " << probability << std::endl;
 
-				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 				// throw an exception. Add some information so that if the exception
 				// is caught through a base object, no information is lost.
-				throw geneva_error_condition() << error_string(error.str());
+				throw geneva_error_condition(error.str());
 			}
 
 			mutProb_ = probability;

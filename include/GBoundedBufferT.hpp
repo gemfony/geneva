@@ -67,6 +67,7 @@
 #include <string>
 #include <iostream>
 #include <deque>
+#include <stdexcept>
 
 // Boost headers go here
 
@@ -83,9 +84,9 @@
 #include <boost/progress.hpp>
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
-#include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
+#include <boost/exception.hpp>
 
 #ifndef GBOUNDEDBUFFERT_HPP_
 #define GBOUNDEDBUFFERT_HPP_
@@ -97,7 +98,7 @@ namespace Util {
 
 /***********************************************************************************/
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
-class gem_util_condition_time_out: public boost::exception {};
+class gem_util_condition_time_out: public std::exception {};
 
 /***********************************************************************************/
 /**
@@ -171,7 +172,6 @@ public:
 		}
 		// This is a standard error raised by the lock/mutex
 		catch(boost::thread_resource_error&) {
-
 			std::cerr << "Caught thread_resource_error in GBoundedBufferT::~GBoundedBufferT(). Terminating ..." << std::endl;
 			std::terminate();
 		}

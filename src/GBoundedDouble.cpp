@@ -233,11 +233,9 @@ namespace Gem
 					  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
 					  << "upperBoundary_ = " << upperBoundary_ << std::endl;
 
-				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 				// throw an exception. Add some information so that if the exception
 				// is caught through a base object, no information is lost.
-				throw geneva_error_condition() << error_string(error.str());
+				throw geneva_error_condition(error.str());
 			}
 
 			// Check that the value is inside the allowed range
@@ -247,11 +245,9 @@ namespace Gem
 					  << "Attempt to set external value " << val << std::endl
 					  << "outside of allowed range " << "[" << lowerBoundary_ << ":" << upperBoundary_ << "]" << std::endl;
 
-				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 				// throw an exception. Add some information so that if the exception
 				// is caught through a base object, no information is lost.
-				throw geneva_error_condition() << error_string(error.str());
+				throw geneva_error_condition(error.str());
 			}
 
 			// The transfer function in this area is just f(x)=x, so we can just
@@ -278,11 +274,9 @@ namespace Gem
 					  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
 					  << "upperBoundary_ = " << upperBoundary_ << std::endl;
 
-				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
 				// throw an exception. Add some information so that if the exception
 				// is caught through a base object, no information is lost.
-				throw geneva_error_condition() << error_string(error.str());
+				throw geneva_error_condition(error.str());
 			}
 
 			// b) find out which region the value is in (compare figure transferFunction.pdf

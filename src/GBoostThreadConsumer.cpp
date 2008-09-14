@@ -90,7 +90,6 @@ void GBoostThreadConsumer::processItems(){
 		}
 	}
 	catch(boost::thread_interrupted&){
-		std::cout << "Received interrupt signal (2)!" << std::endl;
 		// Terminate
 		return;
 	}

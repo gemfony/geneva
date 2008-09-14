@@ -179,8 +179,7 @@ public:
 				  << "nDimOrig = " << nDimOrig_ << std::endl
 				  << "nDimTarget = " << nDimTarget_ << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 		if(source_.size() != nDimOrig_*nData_){
@@ -190,8 +189,7 @@ public:
 				  << "nData = " << nData_ << std::endl
 				  << "nDimOrig = " << nDimOrig_ << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 	}
 
@@ -220,8 +218,7 @@ public:
 			error << "In GProjectionIndividual::GProjectionIndividual(const std::string&) : Error!" << std::endl
 				  << "Data file " << filename << " could not be opened for reading." << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 		// Load the data, using the Boost.Serialization library
@@ -259,8 +256,7 @@ public:
 				  << "nDimOrig = " << nDimOrig_ << std::endl
 				  << "nDimTarget = " << nDimTarget_ << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 		if(source_.size() != nDimOrig_*nData_){
@@ -270,8 +266,7 @@ public:
 				  << "nData = " << nData_ << std::endl
 				  << "nDimOrig = " << nDimOrig_ << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 	}
 
@@ -370,8 +365,7 @@ public:
 				  << "nDimOrig = " << nDimOrig << std::endl
 				  << "nDimTarget = " << nDimTarget << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 		// Create a local random number generator. We cannot access the
@@ -395,8 +389,7 @@ public:
 				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
-				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_error_condition() << error_string(error.str());
+				throw geneva_error_condition(error.str());
 			}
 			else {
 				boost::archive::xml_oarchive oa(fileStream);
@@ -445,8 +438,7 @@ public:
 				  << "nDimOrig = " << nDimOrig << std::endl
 				  << "nDimTarget = " << nDimTarget << std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 		// Create a local random number generator. We cannot access the
@@ -528,8 +520,7 @@ public:
 				error << "In GProjectionIndividual::createDataFile([...]) : Error!" << std::endl
 					  << "Data file " << fileName << " could not be opened for writing." << std::endl;
 
-				LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-				throw geneva_error_condition() << error_string(error.str());
+				throw geneva_error_condition(error.str());
 			}
 			else {
 				boost::archive::xml_oarchive oa(fileStream);

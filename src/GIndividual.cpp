@@ -90,44 +90,6 @@ void GIndividual::load(const GObject* cp) {
 
 /**********************************************************************************/
 /**
- * The actual fitness calculation is triggered by this function in derived
- * classes. The function is not intended to be called directly on a GIndividual.
- * However, in order to allow (de-)serialization, GIndividual must be instantiable.
- * Hence we cannot make the class abstract.
- *
- * @return A 0 value - this function is not intended to be called
- */
-double GIndividual::fitnessCalculation(){
-	std::ostringstream error;
-	error << "In GIndividual::fitnessCalculation(): Error" << std::endl
-		  << "This function should never have been called directly!" << std::endl;
-
-	LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-	throw geneva_error_condition() << error_string(error.str());
-
-	return 0; // Make the compiler happy
-}
-
-/**********************************************************************************/
-/**
- * The actual mutation operation takes place in derived classes. The function is
- * not intended to be called directly on a GIndividual. However, in order to allow
- * (de-)serialization, GIndividual must be instantiable. Hence we cannot make the
- * class abstract.
- */
-void GIndividual::customMutations(){
-	std::ostringstream error;
-	error << "In GIndividual::customMutations(): Error" << std::endl
-		  << "This function should never have been called directly!" << std::endl;
-
-	LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-	throw geneva_error_condition() << error_string(error.str());
-}
-
-/**********************************************************************************/
-/**
  * The mutation interface. If lazy evaluation is not allowed (the default), this
  * function also triggers the re-calculation of the fitness.
  */
@@ -162,9 +124,7 @@ double GIndividual::fitness() {
 					<< "The dirty flag is set while lazy evaluation is not allowed."
 					<< std::endl;
 
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			throw geneva_error_condition() << error_string(error.str());
+			throw geneva_error_condition(error.str());
 		}
 
 		currentFitness_ = fitnessCalculation();
@@ -440,9 +400,7 @@ void GIndividual::process(){
 		error << "In GIndividual::process(): Unknown command:\""
 			  << this->getAttribute("command") << "\"" << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-		throw geneva_error_condition() << error_string(error.str());
+		throw geneva_error_condition(error.str());
 	}
 	this->setAllowLazyEvaluation(previous);
 }
