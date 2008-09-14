@@ -143,7 +143,7 @@ void GThreadGroup::remove_last() {
  *
  * @param nThreads The number of threads at the end of the group that shall be removed
  */
-void GThreadGroup::remove_last(std::size_t nThreads) {
+void GThreadGroup::remove_last(const std::size_t& nThreads) {
 	for (std::size_t i = 0; i < nThreads; i++) remove_last();
 }
 

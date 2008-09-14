@@ -102,7 +102,7 @@ public:
 	void remove_last();
 
 	/** @brief Interrupts, joins and finally removes the last nThreads threads in the group */
-	void remove_last(std::size_t);
+	void remove_last(const std::size_t&);
 
 	/** @brief Returns the size of the current thread group */
 	std::size_t size() const;
@@ -132,7 +132,7 @@ public:
 	 * @return A pointer to the newly created thread
 	 */
 	template<typename F>
-	void create_threads(F threadfunc, std::size_t nThreads)	{
+	void create_threads(F threadfunc, const std::size_t& nThreads)	{
 		for(std::size_t i=0; i<nThreads; i++) create_thread(threadfunc);
 	}
 

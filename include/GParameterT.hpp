@@ -124,7 +124,7 @@ public:
 	 * @param val The new value for val_
 	 * @return The new value of val_
 	 */
-	virtual T operator=(T val){
+	virtual T operator=(const T& val){
 		val_ = val;
 		return val_;
 	}
@@ -179,7 +179,7 @@ public:
 	 * Allows to mutate the value stored in this class. If more than one adaptor was registered,
 	 * all will be applied to the value.
 	 */
-	virtual void mutate(void){
+	virtual void mutate(){
 		if(this->numberOfAdaptors() == 1){
 			GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(val_);
 		}
@@ -196,7 +196,7 @@ protected:
 	 *
 	 * @param val The new T value stored in this class
 	 */
-	void setValue(T val) throw() {
+	void setValue(const T& val) throw() {
 		val_ = val;
 	}
 

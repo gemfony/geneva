@@ -155,7 +155,7 @@ public:
 	 * to a vector<T>. As we are derived from this class, we can just pass a reference to ourselves
 	 * to the functions.
 	 */
-	virtual void mutate(void) {
+	virtual void mutate() {
 		if (GParameterBaseWithAdaptorsT<T>::numberOfAdaptors() == 1) {
 			GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(data);
 		} else {
