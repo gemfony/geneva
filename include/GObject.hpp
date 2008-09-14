@@ -101,8 +101,8 @@ public:
 	/** @brief The destructor */
 	virtual ~GObject();
 
-	/** @brief An assignment operator that is also suitable for derived classes */
-	virtual const GObject& operator=(const GObject&);
+	/** @brief A standard assignment operator */
+	const GObject& operator=(const GObject&);
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);
