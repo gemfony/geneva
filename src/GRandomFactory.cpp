@@ -156,13 +156,14 @@ void GRandomFactory::startProducerThreads() throw() {
  * @param seed The seed for our local random number generator
  */
 void GRandomFactory::producer01(const boost::uint32_t& seed) throw() {
-	std::cout << "Producer thread has started with seed " << seed << std::endl;
-
 	try {
 		boost::lagged_fibonacci607 lf(seed);
 
 		while (true) {
-			double *p_raw = new double[DEFAULTARRAYSIZE];
+			if(boost::this_thread::interrupted()) break;
+
+			boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
+			double *p_raw = p.get(); // Faster access during the fill procedure
 
 			for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++) {
 #ifdef DEBUG
@@ -174,11 +175,9 @@ void GRandomFactory::producer01(const boost::uint32_t& seed) throw() {
 #endif /* DEBUG */
 			}
 
-			boost::shared_array<double> p(p_raw);
 			g01_.push_front(p);
 		}
 	} catch (boost::thread_interrupted&) { // Not an error
-		std::cout << "producer is ending ..." << std::endl;
 		return; // We're done
 	} catch (std::bad_alloc& e) {
 		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl

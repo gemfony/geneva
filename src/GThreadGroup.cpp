@@ -107,7 +107,6 @@ void GThreadGroup::join_all() {
 
 	boost::uint32_t counter = 0;
 	for (thread_vector::iterator it = threads_.begin(); it!= threads_.end(); ++it){
-		std::cout << "Waiting for thread " << counter++ << " to join" << std::endl;
 		(*it)->join();
 	}
 }
