@@ -145,9 +145,9 @@ int main(int argc, char **argv){
 	catch(geneva_error_condition& error){
 		std::cout << "In GBoundedDouble test: Caught geneva_error_condition" << std::endl
 				  << "exception with message " << std::endl
-				  << error.diagnostic_information() << std::endl
+				  << error.what() << std::endl
 				  << std::endl
-				  << "Don't worry - this is expected!" << std::endl
+				  << "Don't worry - this was expected!" << std::endl
 			      << std::endl;
 	}
 
