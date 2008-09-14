@@ -10,7 +10,7 @@ ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 	# Enforce proper C++. Use this for debug builds.
-	ADD_DEFINITIONS ("-DDEBUG -g -Wall -std=c++98 -pedantic -pthread")
+	ADD_DEFINITIONS ("-DDEBUG -g -Wall -ansi -std=c++98 -pedantic -pthread")
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 	# Use this for release builds.
 	ADD_DEFINITIONS ("-O3 -pthread")
