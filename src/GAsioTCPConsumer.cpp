@@ -227,9 +227,10 @@ bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid, 
 		std::size_t dataSize = boost::lexical_cast<std::size_t>(boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH)));
 
 		// Read item data and transfer into itemString
-		char data_section[dataSize];
+		char *data_section = new char[dataSize];
 		boost::asio::read(socket_, boost::asio::buffer(data_section, dataSize));
 		itemString = boost::algorithm::trim_copy(std::string(data_section, dataSize));
+		delete [] data_section;
 	}
 	catch(boost::system::system_error&){ // Retrieval didn't work
 		return false;
