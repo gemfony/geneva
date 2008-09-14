@@ -178,6 +178,7 @@ void GRandomFactory::producer01(const boost::uint32_t& seed) throw() {
 			g01_.push_front(p);
 		}
 	} catch (boost::thread_interrupted&) { // Not an error
+		std::cout << "producer is ending ..." << std::endl;
 		return; // We're done
 	} catch (std::bad_alloc& e) {
 		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
@@ -207,8 +208,6 @@ void GRandomFactory::producer01(const boost::uint32_t& seed) throw() {
 		// Terminate the process
 		std::terminate();
 	}
-
-	std::cout << "producer thread has ended ..." << std::endl;
 }
 
 /*************************************************************************/
