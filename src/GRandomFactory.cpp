@@ -160,7 +160,7 @@ void GRandomFactory::producer01(const boost::uint32_t& seed) throw() {
 		boost::lagged_fibonacci607 lf(seed);
 
 		while (true) {
-			if(boost::this_thread::interrupted()) break;
+			if(boost::this_thread::interruption_requested()) break;
 
 			boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
 			double *p_raw = p.get(); // Faster access during the fill procedure
