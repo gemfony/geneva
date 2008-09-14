@@ -54,7 +54,7 @@ GBaseClient::~GBaseClient()
  */
 void GBaseClient::run(){
 	try{
-		while(!this->halt() && this->process());
+		while(!this->halt() && this->process()){;}
 	}
 	catch(std::exception& e){
 		std::ostringstream error;
