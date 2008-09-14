@@ -136,13 +136,15 @@ bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
 			serMode = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
 
 			// Create appropriately sized buffer
-			char inboundData[dataSize];
+			char *inboundData = new char[dataSize];
 
 			// Read the real data section from the stream
 			boost::asio::read(socket_, boost::asio::buffer(inboundData, dataSize));
 
 			// And make the data known to the outside world
 			item = std::string(inboundData,dataSize);
+
+			delete [] inboundData;
 
 			// We have successfully retrieved an item, so we need
 			// to reset the stall-counter
