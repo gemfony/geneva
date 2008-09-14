@@ -83,7 +83,7 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBufferWithIdT(std::size_t capacity) throw()
+	explicit GBoundedBufferWithIdT(const std::size_t& capacity) throw()
 		:GBoundedBufferT<T>(capacity),
 		 id_(0),
 		 idSet_(false)
@@ -113,7 +113,7 @@ public:
 	 *
 	 * @param id The desired value of the id_ variable
 	 */
-	void setId(PORTIDTYPE id) throw(){
+	void setId(const PORTIDTYPE& id) throw(){
 		if(!idSet_){
 			id_ = id;
 			idSet_ = true;
@@ -123,7 +123,7 @@ public:
 private:
 	/***************************************************************/
 	volatile PORTIDTYPE id_; ///< An id that allows to identify this class
-	volatile bool idSet_;
+	volatile bool idSet_; ///< Allows control over whether the id has been set before
 };
 
 

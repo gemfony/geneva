@@ -137,7 +137,7 @@ public:
 	 *
 	 * @param gat A boost::shared_ptr to an adaptor
 	 */
-	void addAdaptor(boost::shared_ptr<GAdaptorT<T> > gat) {
+	void addAdaptor(const boost::shared_ptr<GAdaptorT<T> >& gat) {
 		// Check that we have indeed been given an adaptor
 		if(!gat){
 			std::ostringstream error;
@@ -272,7 +272,7 @@ public:
 	 *
 	 * \param val Specifies whether the init function should be called for all members of a sequence
 	 */
-	void setAlwaysInit(bool val) {
+	void setAlwaysInit(const bool& val) {
 		typename GATvec::iterator it;
 
 		for (it = adaptors_.begin(); it != adaptors_.end(); ++it) {
@@ -348,7 +348,7 @@ protected:
 	 * @param adName The name of the adaptor to apply to the value
 	 * @param value The parameter to be mutated
 	 */
-	void applyNamedAdaptor(std::string adName, T &value) {
+	void applyNamedAdaptor(const std::string& adName, T &value) {
 		typename GATvec::iterator pos;
 
 		if (findAdaptor(adName, pos)) {
@@ -397,7 +397,7 @@ protected:
 	 * @param adName The name of the adaptor to apply to the collection
 	 * @param collection The vector of values that shall be mutated
 	 */
-	void applyNamedAdaptor(std::string adName, std::vector<T> &collection) {
+	void applyNamedAdaptor(const std::string& adName, std::vector<T> &collection) {
 		typename GATvec::iterator pos;
 		typename std::vector<T>::iterator it;
 
@@ -427,7 +427,7 @@ protected:
 	 * @param pos Its position in the list, if found
 	 * @return A boolean indicating whether or not the adaptor was found
 	 */
-	bool findAdaptor(std::string adName, typename GATvec::iterator& pos) {
+	bool findAdaptor(const std::string& adName, typename GATvec::iterator& pos) {
 		typename GATvec::iterator ad;
 
 		for (ad = adaptors_.begin(); ad != adaptors_.end(); ad++) {

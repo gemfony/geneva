@@ -70,7 +70,7 @@ public:
 	virtual ~GMutableI(){ /* nothing */ }
 
 	/** @brief Allows derivatives to be mutated */
-	virtual void mutate(void) = 0;
+	virtual void mutate() = 0;
 
 	/*********************************************************************************************/
 	/**
@@ -78,7 +78,7 @@ public:
 	 * exceptions. To be used when mutate() is to become the main
 	 * function to be called by a thread.
 	 */
-	void checkedMutate(void){
+	void checkedMutate(){
 		try{
 			this->mutate();
 		}

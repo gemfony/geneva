@@ -46,7 +46,7 @@ GDoubleCollection::GDoubleCollection() :
  *
  * @param nval Number of values to put into the vector
  */
-GDoubleCollection::GDoubleCollection(std::size_t nval) :
+GDoubleCollection::GDoubleCollection(const std::size_t& nval) :
 	GParameterCollectionT<double> () {
 	for (std::size_t i = 0; i < nval; i++) {
 		data.push_back(gr.evenRandom(-DEFINIT, DEFINIT));
@@ -61,7 +61,7 @@ GDoubleCollection::GDoubleCollection(std::size_t nval) :
  * @param min The lower boundary for random entries
  * @param max The upper boundary for random entries
  */
-GDoubleCollection::GDoubleCollection(std::size_t nval, double min, double max) :
+GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max) :
 	GParameterCollectionT<double> () {
 	for (std::size_t i = 0; i < nval; i++) {
 		data.push_back(gr.evenRandom(min, max));
@@ -143,7 +143,7 @@ void GDoubleCollection::load(const GObject * cp) {
  * @param min The lower boundary for random entries
  * @param max The upper boundary for random entries
  */
-void GDoubleCollection::addRandomData(std::size_t nval, double min, double max) {
+void GDoubleCollection::addRandomData(const std::size_t& nval, const double& min, const double& max) {
 	for(std::size_t i= 0; i<nval; i++) {
 		data.push_back(gr.evenRandom(min,max));
 	}

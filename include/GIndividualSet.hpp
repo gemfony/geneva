@@ -85,7 +85,7 @@ public:
 	 * @return A converted version of the GIndividual object, as required by the user
 	 */
 	template <typename parameter_type>
-	inline boost::shared_ptr<parameter_type> individual_cast(std::size_t pos){
+	inline boost::shared_ptr<parameter_type> individual_cast(const std::size_t& pos){
 #ifdef DEBUG
 		// Extract data. at() will throw if we have tried to access a position in the
 		// vector that does not exist.
@@ -119,7 +119,8 @@ protected:
 	virtual double fitnessCalculation() = 0;
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 /**************************************************************************************************/
 /**

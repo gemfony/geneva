@@ -32,8 +32,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GENUMS_H_
-#define GENUMS_H_
+#ifndef GENUMS_HPP_
+#define GENUMS_HPP_
 
 // GenEvA headers go here
 
@@ -49,7 +49,7 @@ namespace GenEvA {
   /**
    * The serialization modes that are currently allowed
    */
-  enum serializationMode {TEXTSERIALIZATION=0,XMLSERIALIZATION=1,BINARYSERIALIZATION=2};
+  enum serializationMode {TEXTSERIALIZATION=0, XMLSERIALIZATION=1, BINARYSERIALIZATION=2};
 
   /**
    * Currently three types of recombination schemes are supported:
@@ -62,9 +62,9 @@ namespace GenEvA {
   /**
    * The info function can be called in these three modes
    */
-  enum infoMode {INFOINIT=0,INFOPROCESSING=1,INFOEND=2};
+  enum infoMode {INFOINIT=0, INFOPROCESSING=1, INFOEND=2};
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /*GENUMS_H_*/
+#endif /* GENUMS_HPP_ */

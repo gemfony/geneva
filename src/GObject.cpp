@@ -35,7 +35,7 @@ namespace GenEvA {
  * The default constructor initializes the internal values of this class.
  * In particular, it sets the name of the Geneva object to "GObject"
  */
-GObject::GObject(void) throw() :
+GObject::GObject() throw() :
 	name_("GObject")
 { /* nothing */ }
 
@@ -215,7 +215,7 @@ void GObject::load(const GObject *cp) {
  *
  * @return The name of this class
  */
-std::string GObject::name(void) const throw() {
+std::string GObject::name() const throw() {
 	return name_;
 }
 

@@ -74,10 +74,10 @@ public:
 	/** @brief The default constructor */
 	GDoubleCollection();
 	/** @brief Initialize with a number of random numbers */
-	explicit GDoubleCollection(std::size_t);
+	explicit GDoubleCollection(const std::size_t&);
 	/** @brief Initialize with a number of random values
 	 * within given boundaries */
-	GDoubleCollection(std::size_t, double, double);
+	GDoubleCollection(const std::size_t&, const double&, const double&);
 	/** @brief The standard copy constructor */
 	GDoubleCollection(const GDoubleCollection&);
 	/** @brief The standard destructor */
@@ -92,7 +92,7 @@ public:
 	virtual void load(const GObject *);
 
 	/** @brief Appends double values in a given range */
-	void addRandomData(std::size_t, double, double);
+	void addRandomData(const std::size_t&, const double&, const double&);
 };
 
 /**********************************************************************/

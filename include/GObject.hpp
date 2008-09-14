@@ -73,11 +73,12 @@ namespace GenEvA {
 /**
  * GObject is the parent class for the majority of GenEvA classes. Essentially, GObject gives a
  * GenEvA class the ability to carry a name and defines a number of interface functions.
- * The GObject::load(const GObject *) and  GObject::clone(void) member functions should be
+ * The GObject::load(const GObject *) and  GObject::clone() member functions should be
  * re-implemented for each derived class. Unfortunately, there is no way to enforce this in C++.
  * Further common functionality of many GenEvA classes will be implemented here over time.
  */
-class GObject :public GSerializableI
+class GObject
+	:public GSerializableI
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -117,7 +118,7 @@ public:
 	std::string report();
 
 	/** @brief Retrieve the name of this class */
-	std::string name(void) const throw();
+	std::string name() const throw();
 	/** @brief Give the class a name */
 	void setName(const std::string&) throw();
 

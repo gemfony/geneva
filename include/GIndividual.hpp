@@ -116,7 +116,7 @@ public:
 	/** @brief Indicate whether lazy evaluation is allowed */
 	bool setAllowLazyEvaluation(const bool&) throw();
 	/** @brief Retrieve the allowLazyEvaluation_ parameter */
-	bool getAllowLazyEvaluation(void) const throw();
+	bool getAllowLazyEvaluation() const throw();
 
 	/** @brief Check whether the dirty flag is set */
 	bool isDirty() const throw();
@@ -130,9 +130,9 @@ public:
 	bool isParent() const throw();
 
 	/** @brief Marks an individual as a parent*/
-	bool setIsParent(void);
+	bool setIsParent();
 	/** @brief Marks an individual as a child */
-	bool setIsChild(void);
+	bool setIsChild();
 
 	/** @brief Retrieves the current value of the parentCounter_ variable */
 	boost::uint32_t getParentCounter() const throw();

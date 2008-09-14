@@ -217,7 +217,7 @@ bool GIndividual::setAllowLazyEvaluation(const bool& allowLazyEvaluation) throw(
  *
  * @return The value of the allowLazyEvaluation_ parameter
  */
-bool GIndividual::getAllowLazyEvaluation(void) const throw() {
+bool GIndividual::getAllowLazyEvaluation() const throw() {
 	return allowLazyEvaluation_;
 }
 
@@ -266,7 +266,7 @@ bool GIndividual::setIsParent(const bool& isParent) throw() {
  *
  * @return A boolean indicating the previous situation before calling this function
  */
-bool GIndividual::setIsParent(void){
+bool GIndividual::setIsParent(){
 	return setIsParent(true);
 }
 
@@ -276,7 +276,7 @@ bool GIndividual::setIsParent(void){
  *
  * @return A boolean indicating the previous situation before calling this function
  */
-bool GIndividual::setIsChild(void){
+bool GIndividual::setIsChild(){
 	return setIsParent(false);
 }
 

@@ -59,7 +59,9 @@ namespace Util {
  * single population.
  */
 template<typename T>
-class GBufferPortT: boost::noncopyable {
+class GBufferPortT
+	:boost::noncopyable
+{
 public:
 	/*****************************************************************************/
 	/**
@@ -77,7 +79,7 @@ public:
 	 *
 	 * @param size The desired capacity of the GBoundedBufferWithIdT objects
 	 */
-	explicit GBufferPortT(std::size_t size) :
+	explicit GBufferPortT(const std::size_t& size) :
 		original_(new Gem::Util::GBoundedBufferWithIdT<T>(size)),
 		processed_(new Gem::Util::GBoundedBufferWithIdT<T>(size))
 	{ /* nothing */ }

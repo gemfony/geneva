@@ -97,7 +97,7 @@ public:
 	virtual void load(const GObject*);
 
 	/** @brief The mutate interface */
-	virtual void mutate(void) = 0;
+	virtual void mutate() = 0;
 };
 
 } /* namespace GenEvA */
