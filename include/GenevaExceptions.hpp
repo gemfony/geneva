@@ -47,7 +47,8 @@ namespace GenEvA {
 /** @brief General error class to be thrown in the case of severe errors */
 class geneva_error_condition : public std::exception {
 public:
-	geneva_error_condition(const std::string& description){ description_ = description; }
+	geneva_error_condition(const std::string& description) throw() { description_ = description; }
+	virtual ~geneva_error_condition() throw();
 
 	virtual const char* what() const throw() {
 		return description_.c_str();
