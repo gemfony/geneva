@@ -88,6 +88,8 @@ class GRandom
 public:
 	/** @brief The standard constructor */
 	GRandom() throw();
+	/** @brief A standard destructor */
+	~GRandom();
 
 	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
 	double evenRandom();

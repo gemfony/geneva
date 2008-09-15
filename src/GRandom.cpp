@@ -41,6 +41,16 @@ GRandom::GRandom() throw() :
 
 /*************************************************************************/
 /**
+ * A standard destructor
+ */
+GRandom::~GRandom() {
+	p_raw = (double)NULL;
+	p01_.reset();
+	grf_.reset();
+}
+
+/*************************************************************************/
+/**
  * This function emits evenly distributed random numbers in the range [0,1[ .
  * Random numbers are usually not produced locally, but are taken from an array
  * provided by the the GRandomFactory class. Random numbers are only produced

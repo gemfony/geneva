@@ -100,14 +100,11 @@ public:
 
 	/**********************************************************************************/
 	/**
-	 * The destructor. As we use smart pointers, the std::vector will take care of
-	 * clearing the vector.
+	 * The destructor. As we use smart pointers, we do not need to take care of the
+	 * data in the vector ourselves.
 	 */
-	virtual ~GMutableSetT()
-	{
-		std::cout << "In ~GMutableSetT(), before data.clear()" << std::endl;
+	virtual ~GMutableSetT() {
 		data.clear();
-		std::cout << "In ~GMutableSetT(), after data.clear()" << std::endl;
 	}
 
 	/**********************************************************************************/
