@@ -54,7 +54,8 @@ using namespace Gem::GLogFramework;
  */
 
 int main(int argc, char **argv){
-	 // Variables for the command line parsing
+	 /*
+	// Variables for the command line parsing
 	 std::size_t parabolaDimension;
 	 std::size_t populationSize, nParents;
 	 double parabolaMin, parabolaMax;
@@ -65,7 +66,6 @@ int main(int argc, char **argv){
 	 bool verbose;
 	 recoScheme rScheme;
 
-	 /*
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
 		  			     parabolaDimension,
@@ -82,14 +82,14 @@ int main(int argc, char **argv){
 						 verbose))
 	{ std::terminate(); }
 */
-
+	/*
 	// Add some log levels to the logger
 	LOGGER->addLogLevel(Gem::GLogFramework::CRITICAL);
 	LOGGER->addLogLevel(Gem::GLogFramework::WARNING);
 	LOGGER->addLogLevel(Gem::GLogFramework::INFORMATIONAL);
 	LOGGER->addLogLevel(Gem::GLogFramework::PROGRESS);
 
-	/*
+
 	// Add log targets to the system
 	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GSimpleBasePopulation.log")));
 	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
