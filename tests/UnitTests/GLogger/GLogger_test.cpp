@@ -32,13 +32,21 @@
 #include <boost/shared_ptr.hpp>
 
 // GenEvA header files go here
+#include "GRandom.hpp"
 #include "GLogger.hpp"
+#include "GLogTargets.hpp"
 
 // The individual that should be optimized
 // This is a simple parabola
-#include "GParabolaIndividual.hpp"
+// #include "GParabolaIndividual.hpp"
 
 using namespace Gem::GLogFramework;
 
 BOOST_AUTO_TEST_CASE( glogger_simple_invocation_no_failure_expected )
-{ /* nothing */ }
+{
+	GRandom gr;
+	double d = gr.evenRandom();
+
+	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
+	LOGGER->log("Hello World", CRITICAL);
+}
