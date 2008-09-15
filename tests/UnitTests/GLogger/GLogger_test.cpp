@@ -23,9 +23,6 @@
  */
 
 // Standard header files go here
-#include <iostream>
-#include <cmath>
-#include <sstream>
 
 // Boost header files go here
 
