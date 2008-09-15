@@ -38,10 +38,6 @@
 #include "GLogTargets.hpp"
 #include "GBoostThreadPopulation.hpp"
 
-// The individual that should be optimized
-// This is a simple parabola
-#include "GParabolaIndividual.hpp"
-
 using namespace Gem::GLogFramework;
 
 BOOST_AUTO_TEST_CASE( glogger_simple_invocation_no_failure_expected )
