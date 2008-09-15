@@ -91,10 +91,10 @@ int main(int argc, char **argv){
 	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GSimpleBasePopulation.log")));
 	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
+	/*
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
-	/*
 	// Set up a single parabola individual
 	boost::shared_ptr<GParabolaIndividual>
 		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax, adaptionThreshold));
