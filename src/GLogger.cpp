@@ -42,7 +42,7 @@ namespace Gem {
 		 */
 		GLogger::~GLogger() {
 			// lets protect ourself, so we do not clear the log vector while
-			// logging os still taking place.
+			// logging is still taking place.
 			boost::mutex::scoped_lock slock(mutex_logger_);
 
 			logVector_.clear();
