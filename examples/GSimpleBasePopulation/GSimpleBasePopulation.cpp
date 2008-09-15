@@ -94,11 +94,11 @@ int main(int argc, char **argv){
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
+	/*
 	// Set up a single parabola individual
 	boost::shared_ptr<GParabolaIndividual>
 		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax, adaptionThreshold));
 
-	/*
 	// Now we've got our first individual and can create a simple population with serial execution.
 	GBasePopulation pop;
 	// GBoostThreadPopulation pop;
