@@ -54,7 +54,6 @@ using namespace Gem::GLogFramework;
  */
 
 int main(int argc, char **argv){
-	 /*
 	// Variables for the command line parsing
 	 std::size_t parabolaDimension;
 	 std::size_t populationSize, nParents;
@@ -81,8 +80,7 @@ int main(int argc, char **argv){
 						 rScheme,
 						 verbose))
 	{ std::terminate(); }
-*/
-	/*
+
 	// Add some log levels to the logger
 	LOGGER->addLogLevel(Gem::GLogFramework::CRITICAL);
 	LOGGER->addLogLevel(Gem::GLogFramework::WARNING);
@@ -117,7 +115,6 @@ int main(int argc, char **argv){
 
 	// Do the actual optimization
 	pop.optimize();
-*/
 
 	std::cout << "Done ..." << std::endl;
 

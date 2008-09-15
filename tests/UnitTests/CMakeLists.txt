@@ -7,3 +7,7 @@ ADD_SUBDIRECTORY (
 ADD_SUBDIRECTORY (
 	GDoubleGaussAdaptor
 )
+
+ADD_SUBDIRECTORY (
+	GLogger
+)
