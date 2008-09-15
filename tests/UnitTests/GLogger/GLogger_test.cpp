@@ -35,6 +35,8 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 
+#include "GRandom.hpp"
+
 using namespace Gem::GLogFramework;
 
 BOOST_AUTO_TEST_CASE( glogger_simple_invocation_no_failure_expected )
