@@ -39,7 +39,6 @@
 #include "GDoubleGaussAdaptor.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
-#include "GBoostThreadPopulation.hpp"
 
 namespace Gem
 {

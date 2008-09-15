@@ -36,7 +36,10 @@
 
 // The individual that should be optimized
 // This is a simple parabola
-#include "GParabolaIndividual.hpp"
+#include "GDoubleCollection.hpp"
+#include "GParameterSet.hpp"
+#include "GDoubleGaussAdaptor.hpp"
+#include "GBoostThreadPopulation.hpp"
 
 using namespace Gem::GLogFramework;
 
