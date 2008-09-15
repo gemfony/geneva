@@ -33,10 +33,12 @@
 
 // GenEvA header files go here
 #include "GRandom.hpp"
-#include "GBasePopulation.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
-#include "GBoostThreadPopulation.hpp"
+
+// The individual that should be optimized
+// This is a simple parabola
+#include "GParabolaIndividual.hpp"
 
 using namespace Gem::GLogFramework;
 
