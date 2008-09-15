@@ -98,6 +98,7 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GParabolaIndividual>
 		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax, adaptionThreshold));
 
+	/*
 	// Now we've got our first individual and can create a simple population with serial execution.
 	GBasePopulation pop;
 	// GBoostThreadPopulation pop;
@@ -114,12 +115,7 @@ int main(int argc, char **argv){
 
 	// Do the actual optimization
 	pop.optimize();
-
-	std::cout << "Shutting down GRandomFactory ..." << std::endl;
-	GRANDOMFACTORY->~GRandomFactory();
-
-	std::cout << "Shutting down Logger ..." << std::endl;
-	LOGGER->~GLogger();
+*/
 
 	std::cout << "Done ..." << std::endl;
 
