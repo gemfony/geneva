@@ -104,7 +104,11 @@ public:
 	 * clearing the vector.
 	 */
 	virtual ~GMutableSetT()
-	{ /* nothing */ }
+	{
+		std::cout << "In ~GMutableSetT(), before data.clear()" << std::endl;
+		data.clear();
+		std::cout << "In ~GMutableSetT(), after data.clear()" << std::endl;
+	}
 
 	/**********************************************************************************/
 	/** @brief Creates a deep clone of this object */
