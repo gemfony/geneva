@@ -33,11 +33,9 @@ namespace Util {
  * is still needed.
  */
 GRandom::GRandom() throw() :
-	current01_(0)
-{
-	// Store a local copy of the global boost::shared_ptr<GRandomFactory>
-	grf_ = GRANDOMFACTORY;
-}
+	current01_(0),
+	grf_(GRANDOMFACTORY)
+{ /* nothing */ }
 
 /*************************************************************************/
 /**
