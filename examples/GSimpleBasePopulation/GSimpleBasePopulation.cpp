@@ -42,8 +42,8 @@
 #include "GCommandLineParser.hpp"
 
 using namespace Gem::GenEvA;
-// using namespace Gem::Util;
-// using namespace Gem::GLogFramework;
+using namespace Gem::Util;
+using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
