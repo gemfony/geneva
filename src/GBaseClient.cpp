@@ -171,14 +171,23 @@ bool GBaseClient::process(){
 	std::string serModeStr;
 	if(!this->retrieve(istr, serModeStr)) return false;
 
-	// Check the serialization mode we need to use
-	serMode = boost::lexical_cast<serializationMode>(serModeStr);
-
 	// There is a possibility that we have received an unknown command
 	// or a timeout command. In this case we want to try again until retrieve
 	// returns "false". If we return true here, the next "process" command will
 	// be executed.
 	if(istr == "empty") return true;
+
+	// Check the serialization mode we need to use
+	if(serModeStr == ""){
+		std::ostringstream error;
+		error << "In GBaseClient::process() : Error!" << std::endl
+			  << "Found empty serModeStr" << std::endl;
+		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
+
+		return false;
+	}
+
+	serMode = boost::lexical_cast<serializationMode>(serModeStr);
 
 	// unpack the data and create a new GIndividual. Note that de-serialization should
 	// generally happen through the same type that was used for serialization.
