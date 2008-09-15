@@ -41,6 +41,7 @@
 // #include "GParabolaIndividual.hpp"
 
 using namespace Gem::GLogFramework;
+using namespace Gem::Util;
 
 BOOST_AUTO_TEST_CASE( glogger_simple_invocation_no_failure_expected )
 {
