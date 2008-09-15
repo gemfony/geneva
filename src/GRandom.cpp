@@ -44,7 +44,7 @@ GRandom::GRandom() throw() :
  * A standard destructor
  */
 GRandom::~GRandom() {
-	p_raw = (double)NULL;
+	p_raw = (double *)NULL;
 	p01_.reset();
 	grf_.reset();
 }
@@ -230,7 +230,6 @@ void GRandom::fillContainer01() {
 #endif /* DEBUG */
 	}
 
-	p_raw = local_p;
 	p01_ = p;
 }
 
@@ -248,9 +247,9 @@ inline void GRandom::getNewP01() {
 		// our own instead.
 		GRandom::fillContainer01();
 	}
-	else {
-		p_raw = p01_.get();
-	}
+
+	// We should now have a valid p01_ in any case
+	p_raw = p01_.get();
 }
 
 /*************************************************************************/
