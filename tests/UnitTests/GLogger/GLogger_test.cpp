@@ -32,7 +32,6 @@
 #include <boost/shared_ptr.hpp>
 
 // GenEvA header files go here
-#include "GRandom.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 
