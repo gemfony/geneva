@@ -115,7 +115,7 @@ private:
 	std::vector<boost::shared_ptr<GBaseLogTarget> > logVector_; ///< Contains the log targets
 	std::vector<logLevels> logLevel_; ///< Contains the log levels to be observed
 
-	boost::mutex mutex_logger_; ///< Needed for concurrent access
+	volatile boost::mutex mutex_logger_; ///< Needed for concurrent access
 };
 
 /***********************************************************************************/
