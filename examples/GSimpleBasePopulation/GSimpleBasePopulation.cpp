@@ -115,6 +115,12 @@ int main(int argc, char **argv){
 	// Do the actual optimization
 	pop.optimize();
 
+	std::cout << "Shutting down GRandomFactory ..." << std::endl;
+	GRANDOMFACTORY->~GRandomFactory();
+
+	std::cout << "Shutting down Logger ..." << std::endl;
+	LOGGER->~GLogger();
+
 	std::cout << "Done ..." << std::endl;
 
 	return 0;

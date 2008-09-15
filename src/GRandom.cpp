@@ -42,7 +42,7 @@ GRandom::GRandom() throw() :
  * A standard destructor
  */
 GRandom::~GRandom() {
-	p_raw = (double *)NULL;
+	p_raw_ = (double *)NULL;
 	p01_.reset();
 	grf_.reset();
 }
@@ -64,7 +64,7 @@ double GRandom::evenRandom() {
 		current01_ = 0;
 	}
 
-	return p_raw[current01_++];
+	return p_raw_[current01_++];
 }
 
 /*************************************************************************/
@@ -247,7 +247,7 @@ inline void GRandom::getNewP01() {
 	}
 
 	// We should now have a valid p01_ in any case
-	p_raw = p01_.get();
+	p_raw_ = p01_.get();
 }
 
 /*************************************************************************/
