@@ -23,6 +23,9 @@
  */
 
 // Standard header files go here
+#include <iostream>
+#include <cmath>
+#include <sstream>
 
 // Boost header files go here
 
@@ -32,10 +35,15 @@
 #include <boost/shared_ptr.hpp>
 
 // GenEvA header files go here
+#include "GRandom.hpp"
+#include "GBasePopulation.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
+#include "GBoostThreadPopulation.hpp"
 
-#include "GRandom.hpp"
+// The individual that should be optimized
+// This is a simple parabola
+#include "GParabolaIndividual.hpp"
 
 using namespace Gem::GLogFramework;
 
