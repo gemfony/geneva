@@ -1,10 +1,7 @@
 /**
  * @file GLogger_test.cpp
  *
- * This test checks all public member functions of the GDoubleGaussAdaptor adaptor
- * class. In addition, it attempts to check parent classes, in particular the
- * GObject class. You should run this test both in DEBUG and in RELEASE mode,
- * as some functions may work differently in this case.
+ * This test checks performs simple tests of the GLogger class
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -38,7 +35,7 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 
-using Gem::GLogFramework;
+using namespace Gem::GLogFramework;
 
 BOOST_AUTO_TEST_CASE( glogger_simple_invocation_no_failure_expected )
 {
