@@ -42,8 +42,8 @@
 #include "GCommandLineParser.hpp"
 
 using namespace Gem::GenEvA;
-using namespace Gem::Util;
-using namespace Gem::GLogFramework;
+// using namespace Gem::Util;
+// using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
@@ -54,6 +54,7 @@ using namespace Gem::GLogFramework;
  */
 
 int main(int argc, char **argv){
+	 // Variables for the command line parsing
 	 std::size_t parabolaDimension;
 	 std::size_t populationSize, nParents;
 	 double parabolaMin, parabolaMax;
