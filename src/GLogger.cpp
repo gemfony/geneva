@@ -41,6 +41,10 @@ namespace Gem {
 		 * targets, so you do not need to delete them yourself.
 		 */
 		GLogger::~GLogger() {
+			// lets protect ourself, so we do not clear the log vector while
+			// logging os still taking place.
+			boost::mutex::scoped_lock slock(mutex_logger_);
+
 			logVector_.clear();
 			logLevel_.clear();
 
