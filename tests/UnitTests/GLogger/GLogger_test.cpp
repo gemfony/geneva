@@ -43,5 +43,5 @@ using Gem::GLogFramework;
 BOOST_AUTO_TEST_CASE( glogger_simple_invocation_no_failure_expected )
 {
 	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
-	LOGGER.log("Hello World", CRITICAL);
+	LOGGER->log("Hello World", CRITICAL);
 }
