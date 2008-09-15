@@ -65,6 +65,7 @@ int main(int argc, char **argv){
 	 bool verbose;
 	 recoScheme rScheme;
 
+	 /*
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
 		  			     parabolaDimension,
@@ -80,6 +81,7 @@ int main(int argc, char **argv){
 						 rScheme,
 						 verbose))
 	{ std::terminate(); }
+*/
 
 	// Add some log levels to the logger
 	LOGGER->addLogLevel(Gem::GLogFramework::CRITICAL);
