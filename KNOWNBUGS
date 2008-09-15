@@ -12,3 +12,5 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GParabolaIndividual)
 
 at the end of GParabolaIndividual.hpp makes the segfault go away. Not
 including these lines can result in problems when using serialization functionality, though.
+
+--
