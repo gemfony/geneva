@@ -17,6 +17,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	SampleInfoFunctions
+)
+
+ADD_SUBDIRECTORY (
 	GBrokerPopulation
 )
 

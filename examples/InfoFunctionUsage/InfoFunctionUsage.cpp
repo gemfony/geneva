@@ -55,6 +55,9 @@
 // This is a "noisy" parabola
 #include "GNoisyParabolaIndividual.hpp"
 
+// Holds the function object used for the information retrieval
+#include "GOptimizationMonitor.hpp"
+
 // Declares a function to parse the command line
 #include "GCommandLineParser.hpp"
 
@@ -62,167 +65,11 @@ using namespace Gem::GenEvA;
 using namespace Gem::Util;
 using namespace Gem::GLogFramework;
 
-/************************************************************************************************/
-/**
- * GBasePopulation, as the base class of all population classes in GenEvA, allows to store functions
- * and function objects with the signature
- *
- * void infoFunction(const infoMode&, GBasePopulation * const);
- *
- * The function is called once before and after the optimization run, and in regular intervals
- * (as determined by the user) during the optimization.
- *
- * This example demonstrates how to use a function object to collect extensive information about the progress of
- * the optimization for later analysis. We search for the minimum of a simple function, such as provided by
- * the "parabola" or "noisy parabola" individuals.
- *
- * The output of this example is simply the XML representation of the optimizationData struct, as
- * provided by the Boost.Serialization library.
- */
-class optimizationMonitor{
-	struct individualData {
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version) {
-			using boost::serialization::make_nvp;
-			ar & make_nvp("parameters", parameters);
-			ar & make_nvp("fitness", fitness);
-			ar & make_nvp("isParent", isParent);
-			ar & make_nvp("parentCounter",parentCounter);
-			ar & make_nvp("isDirty", isDirty);
-			ar & make_nvp("sigma", sigma);
-			ar & make_nvp("sigmaSigma", sigmaSigma);
-			ar & make_nvp("adaptionThreshold", adaptionThreshold);
-			ar & make_nvp("adaptionCounter", adaptionCounter);
-			ar & make_nvp("position", position);
-		}
-
-		std::vector<double> parameters;
-		double fitness;
-		bool isParent;
-		boost::uint32_t parentCounter;
-		bool isDirty;
-		double sigma;
-		double sigmaSigma;
-		boost::uint32_t adaptionThreshold;
-		boost::uint32_t adaptionCounter;
-		std::size_t position;
-	};
-
-	struct generationData {
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version) {
-			using boost::serialization::make_nvp;
-			ar & make_nvp("iD", iD);
-			ar & make_nvp("generation", generation);
-		}
-
-		std::vector<individualData> iD;
-		boost::uint32_t generation;
-	};
-
-	struct optimizationData {
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version) {
-			using boost::serialization::make_nvp;
-			ar & make_nvp("gD", gD);
-			ar & make_nvp("populationSize", populationSize);
-			ar & make_nvp("nParents", nParents);
-			ar & make_nvp("maxGenerations", maxGenerations);
-			ar & make_nvp("reportGeneration", reportGeneration);
-		}
-
-		std::size_t populationSize;
-		std::size_t nParents;
-		boost::uint32_t maxGenerations;
-		boost::uint32_t reportGeneration;
-
-		std::vector<generationData> gD;
-	};
-
-public:
-	optimizationMonitor(const std::string& outputFile)
-		 :outputFile_(outputFile)
-	{ /* nothing */ }
-
-	void informationFunction(const infoMode& im, GBasePopulation * const gbp){
-		switch(im){
-		case INFOINIT: // extract the population constraints
-			oD_.populationSize = gbp->getDefaultPopulationSize();
-			oD_.nParents = gbp->getNParents();
-			oD_.maxGenerations = gbp->getMaxGeneration();
-			oD_.reportGeneration = gbp->getReportGeneration();
-			break;
-
-		case INFOPROCESSING: // Collect information about the current population
-			{ // Scope needed, as we have local data
-				generationData genDat;
-				genDat.generation = gbp->getGeneration();
-
-				std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-				std::size_t position = 0;
-				for(it=gbp->data.begin(); it!=gbp->data.end(); ++it){
-					// We extract the data. (*it) is a boost::shared_ptr<GIndividual>,
-					// so we need to convert it first.
-					boost::shared_ptr<GDoubleCollection> gdc =
-						(boost::dynamic_pointer_cast<GNoisyParabolaIndividual>(*it))->parameterbase_cast<GDoubleCollection>(0);
-
-					individualData gdc_data;
-					gdc_data.parameters = gdc->data; // data is itself a std::vector<double> in this case
-
-					gdc_data.fitness = (*it)->fitness();
-					gdc_data.isParent = (*it)->isParent();
-					gdc_data.parentCounter = (*it)->getParentCounter();
-					gdc_data.isDirty = (*it)->isDirty();
-
-					gdc_data.position = position++;
-
-					// Extract the adaptor from gdc
-					boost::shared_ptr<GDoubleGaussAdaptor> gda =
-						gdc->adaptor_cast<GDoubleGaussAdaptor>(GDoubleGaussAdaptor::adaptorName());
-
-					// Retrieve mutation data
-					gdc_data.sigma = gda->getSigma();
-					gdc_data.sigmaSigma = gda->getSigmaAdaptionRate();
-					gdc_data.adaptionThreshold = gda->getAdaptionThreshold();
-					gdc_data.adaptionCounter = gda->getAdaptionCounter();
-
-
-					genDat.iD.push_back(gdc_data);
-				}
-
-				oD_.gD.push_back(genDat);
-			}
-
-			// Emit a minimum of information to the audience
-			std::cout << "Fitness is " << gbp->data.at(0)->fitness() << std::endl;
-
-			break;
-
-		case INFOEND: // You could easily write out the data in your own format here
-			{
-				std::ofstream fstr(outputFile_.c_str());
-				boost::archive::xml_oarchive oa(fstr);
-				oa << boost::serialization::make_nvp("optimizationData" , oD_);
-				fstr.close();
-			}
-			break;
-		}
-	}
-
-private:
-	optimizationMonitor(){} ///< Intentionally private
-
-	std::size_t populationSize;
-	std::size_t nParents;
-	boost::uint32_t maxGenerations;
-	boost::uint32_t reportGeneration;
-	std::string outputFile_;
-	optimizationData oD_;
-};
 
 /************************************************************************************************/
 /**
- * The main function - similar to the GBasePopulation example.
+ * The main function - similar to the GBasePopulation example. We search for the minimum of a
+ * simple function, such as provided by the "parabola" or "noisy parabola" individuals.
  */
 int main(int argc, char **argv){
 	 std::size_t nPopThreads;
