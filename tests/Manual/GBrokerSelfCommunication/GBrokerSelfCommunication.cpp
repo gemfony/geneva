@@ -143,7 +143,7 @@ int main(int argc, char **argv){
 		projectionIndividual(new GProjectionIndividual("sphere.xml",-radius, radius));
 
 	// Create the optimizationMonitor
-	boost::shared_ptr<optimizationMonitor<GProjectionIndividual> > om(new optimizationMonitor<GProjectionIndividual>("optimization.xml"));
+	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
 
 	// Create the actual population
 	boost::shared_ptr<GBrokerPopulation> pop(new GBrokerPopulation());
@@ -152,7 +152,7 @@ int main(int argc, char **argv){
 	pop->append(projectionIndividual);
 
 	// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
-	pop.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
+	pop.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction<GProjectionIndividual>, om, _1, _2));
 
 	// Specify some population settings
 	pop->setPopulationSize(populationSize,nParents);

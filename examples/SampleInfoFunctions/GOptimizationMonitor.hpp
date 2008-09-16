@@ -82,7 +82,6 @@ namespace GenEvA
  * The output of this example is simply the XML representation of the optimizationData struct, as
  * provided by the Boost.Serialization library.
  */
-template <typename individualType>
 class optimizationMonitor{
 	/**
 	 * A private struct that holds data specific to each individual
@@ -173,6 +172,7 @@ public:
 	 * @param im The current mode in which the function is called
 	 * @param gbp A pointer to a GBasePopulation object for which information should be collected
 	 */
+	template <typename individualType>
 	void informationFunction(const infoMode& im, GBasePopulation * const gbp){
 		switch(im){
 		case INFOINIT: // extract the population constraints

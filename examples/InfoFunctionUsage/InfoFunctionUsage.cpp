@@ -116,14 +116,14 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GNoisyParabolaIndividual> noisyParabolaIndividual(new GNoisyParabolaIndividual(2, parabolaMin, parabolaMax, adaptionThreshold));
 
 	// Create the optimizationMonitor
-	boost::shared_ptr<optimizationMonitor<GNoisyParabolaIndividual> > om(new optimizationMonitor<GNoisyParabolaIndividual>("optimization.xml"));
+	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
 
 	// Create the population
 	GBoostThreadPopulation pop;
 	pop.setNThreads(nPopThreads);
 
 	// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
-	pop.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
+	pop.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction<GNoisyParabolaIndividual>, om, _1, _2));
 
 	pop.append(noisyParabolaIndividual);
 
