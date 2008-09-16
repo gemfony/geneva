@@ -116,7 +116,7 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GNoisyParabolaIndividual> noisyParabolaIndividual(new GNoisyParabolaIndividual(2, parabolaMin, parabolaMax, adaptionThreshold));
 
 	// Create the optimizationMonitor
-	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
+	boost::shared_ptr<optimizationMonitor<GNoisyParabolaIndividual> > om(new optimizationMonitor<GNoisyParabolaIndividual>("optimization.xml"));
 
 	// Create the population
 	GBoostThreadPopulation pop;

@@ -143,7 +143,7 @@ int main(int argc, char **argv){
 		projectionIndividual(new GProjectionIndividual("sphere.xml",-radius, radius));
 
 	// Create the optimizationMonitor
-	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
+	boost::shared_ptr<optimizationMonitor<GProjectionIndividual> > om(new optimizationMonitor<GProjectionIndividual>("optimization.xml"));
 
 	// Create the actual population
 	boost::shared_ptr<GBrokerPopulation> pop(new GBrokerPopulation());

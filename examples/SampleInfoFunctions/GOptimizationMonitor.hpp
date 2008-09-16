@@ -82,6 +82,7 @@ namespace GenEvA
  * The output of this example is simply the XML representation of the optimizationData struct, as
  * provided by the Boost.Serialization library.
  */
+template <typename individualType>
 class optimizationMonitor{
 	/**
 	 * A private struct that holds data specific to each individual
@@ -192,7 +193,7 @@ public:
 					// We extract the data. (*it) is a boost::shared_ptr<GIndividual>,
 					// so we need to convert it first.
 					boost::shared_ptr<GDoubleCollection> gdc =
-						(boost::dynamic_pointer_cast<GNoisyParabolaIndividual>(*it))->parameterbase_cast<GDoubleCollection>(0);
+						(boost::dynamic_pointer_cast<individualType>(*it))->parameterbase_cast<GDoubleCollection>(0);
 
 					individualData gdc_data;
 					gdc_data.parameters = gdc->data; // data is itself a std::vector<double> in this case
