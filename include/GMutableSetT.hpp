@@ -186,18 +186,67 @@ public:
 	}
 
 	/**********************************************************************************/
+	/////////////////// std::vector<T> interface (incomplete) //////////////////////////
+	/**********************************************************************************/
+	// Typedefs
+	typedef std::vector<T>::value_type value_type;
+	typedef std::vector<T>::reference reference;
+	typedef std::vector<T>::const_reference const_reference;
+
+	typedef std::vector<T>::iterator iterator;
+	typedef std::vector<T>::const_iterator const_iterator;
+	typedef std::vector<T>::reverse_iterator reverse_iterator;
+	typedef std::vector<T>::const_reverse_iterator const_reverse_iterator;
+
+	typedef std::vector<T>::size_type size_type;
+	typedef std::vector<T>::difference_type difference_type;
+
+	typedef std::vector<T>::key_type key_type;
+	typedef std::vector<T>::key_compare key_compare;
+	typedef std::vector<T>::value_compare value_compare;
+
+	// Non modifying access
+	inline size_type size() const { return data.size(); }
+	inline bool empty() const { return data.empty(); }
+	inline size_type max_size() const { return data.max_size(); }
+
+	inline size_type capacity() const { return data.capacity(); }
+	inline void reserve(size_type amount) { data.reserve(amount); }
+
+	inline size_type count(const T& value) { return data.count(value); }
+	inline iterator find(const T& value) { return data.find(value); }
+
+	// Iterators
+	inline iterator begin() { return data.begin(); }
+	inline const_iterator begin() const { return data.begin(); }
+	inline iterator end() { return data.end(); }
+	inline const_iterator end() const { return data.end(); }
+
+	// Access to elements (protected / unprotected)
+	inline reference operator[](std::size_t pos) { return data[pos]; }
+	inline const reference operator[](std::size_t pos) const { return data[pos]; }
+	inline reference at(std::size_t pos) { return data.at(pos); }
+	inline const reference at(std::size_t pos) const { return dataat(pos); }
+
+
+	/**********************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////
+	/**********************************************************************************/
+
+	/**********************************************************************************/
 	/**
 	 * The main data set stored in this class. This class was derived from std::vector<boost::shared_ptr<T> >
 	 * in older versions of the GenEvA library. However, we want to avoid multiple inheritance in order to
 	 * to allow an easier implementation of this library in other languages, such as C# or Java. And
 	 * std::vector has a non-virtual destructor. Hence deriving from it is a) bad style and b) dangerous.
 	 * Just like in the older setting, however, access to the data shall not be obstructed in any way.
-	 * Providing the same interface without derivation or containment with this class would be
-	 * error-prone and can be considered "syntactic sugar". Hence we do not follow this path.
+	 * Hence we provide a (so far still incomplete) set of access functions with the std::vector API. Derived
+	 * classes get free access.
 	 */
 	std::vector<tobj_ptr> data;
 
 protected:
+
 	/**********************************************************************************/
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;
@@ -215,7 +264,8 @@ protected:
 	/**********************************************************************************/
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 /**************************************************************************************************/
 /**
