@@ -52,7 +52,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-// #include <boost/serialization/is_abstract.hpp>
 
 #ifndef GOBJECT_HPP_
 #define GOBJECT_HPP_
