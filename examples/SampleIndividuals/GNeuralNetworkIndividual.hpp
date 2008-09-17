@@ -885,12 +885,12 @@ public:
 				<< "      const double weights[nWeights] = {" << std::endl;
 
 		for(std::size_t i=0; i<architecture_.size(); i++) {
-			const std::vector<double>& currentLayer = parameterbase_cast<GDoubleCollection>(i)->data;
+			boost::shared_ptr<GDoubleCollection> currentLayer = parameterbase_cast<GDoubleCollection>(i);
 
-			for(std::size_t j=0; j<currentLayer.size(); j++) {
-				header << "        " << currentLayer[j];
+			for(std::size_t j=0; j<currentLayer->size(); j++) {
+				header << "        " << currentLayer->at(j);
 
-				if(i==(architecture_.size()-1) && j==(currentLayer.size()-1)) header << std::endl;
+				if(i==(architecture_.size()-1) && j==(currentLayer->size()-1)) header << std::endl;
 				else header << "," << std::endl;
 			}
 		}
