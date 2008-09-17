@@ -169,23 +169,6 @@ public:
 	}
 
 	/**********************************************************************************/
-	/**
-	 *	Adds a boost::shared_ptr<T> to the set and checks its content.
-	 *
-	 *	@param item An item to be added to the set
-	 */
-	void append(const boost::shared_ptr<T>& item){
-		if(item) data.push_back(item);
-		else {
-			std::ostringstream error;
-			error << "In GMutableSetT::append():" << std::endl
-			      << "Tried to add empty item" << std::endl;
-
-			throw geneva_error_condition(error.str());
-		}
-	}
-
-	/**********************************************************************************/
 	/////////////////// std::vector<tobj_ptr> interface (incomplete) ///////////////////
 	/**********************************************************************************/
 	// Typedefs
@@ -232,7 +215,17 @@ public:
 	inline const_iterator rend() const { return data.rend(); }
 
 	// Adding to the  back of the vector
-	inline void push_back(const tobj_ptr& item){ data.push_back(item); }
+	inline void push_back(const tobj_ptr& item){
+		if(!item){
+			std::ostringstream error;
+			error << "In GMutableSetT::push_back(const tobj_ptr&):" << std::endl
+			      << "Tried to add empty item" << std::endl;
+
+			throw geneva_error_condition(error.str());
+		}
+
+		data.push_back(item);
+	}
 
 	// Removing an element from the end of the vector
 	inline void pop_back(){ data.pop_back(); }
@@ -246,6 +239,14 @@ public:
 		if(amount <= data.size())
 			data.resize(amount);
 		else {
+			if(!item){
+				std::ostringstream error;
+				error << "In GMutableSetT::resize(size_type, tobj_ptr):" << std::endl
+				      << "Tried to add empty item" << std::endl;
+
+				throw geneva_error_condition(error.str());
+			}
+
 			for(size_type i=0; i<(amount - data.size()); i++) data.push_back(boost::shared_ptr<T>(new T(*(item.get()))));
 		}
 	}
