@@ -206,9 +206,6 @@ public:
 	inline size_type capacity() const { return data.capacity(); }
 	inline void reserve(size_type amount) { data.reserve(amount); }
 
-	// Modifying functions
-	inline void swap(std::vector<tobj_ptr>& cont) { data.swap(cont); }
-
 	// Access to elements (unchecked / checked)
 	inline reference operator[](std::size_t pos) { return data[pos]; }
 	inline const reference operator[](std::size_t pos) const { return data[pos]; }
@@ -234,39 +231,17 @@ public:
 	inline iterator rend() { return data.rend(); }
 	inline const_iterator rend() const { return data.rend(); }
 
-	// Insertion and removal
-	inline iterator insert(iterator pos) { return data.insert(pos, boost::shared_ptr<T>(new T())); }
-	inline iterator insert(iterator pos, const tobj_ptr& item) {
-		if(item)
-			return data.insert(pos,item);
-		else
-			return data.insert(pos,boost::shared_ptr<T>(new T()));
-	}
-
-	inline void insert(iterator pos, size_type amount, const tobj_ptr& item) {
-		for(size_type i=0; i<(amount - data.size()); i++){
-			data.insert(pos,boost::shared_ptr<T>(new T(*(item.get()))));
-		}
-	}
-
 	// Adding to the  back of the vector
 	inline void push_back(const tobj_ptr& item){ data.push_back(item); }
+
+	// Removing an element from the end of the vector
+	inline void pop_back(){ data.pop_back(); }
 
 	// Removal at a given position or in a range
 	inline iterator erase(iterator pos) { return data.erase(pos); }
 	inline iterator erase(iterator from, iterator to) { return data.erase(from,to); }
 
-	// Removing an element from the end of the vector
-	inline void pop_back(){ data.pop_back(); }
-
-	// Resizing the vector
-	inline void resize(size_type amount) {
-		if(amount <= data.size())
-			data.resize(amount);
-		else {
-			for(size_type i=0; i<(amount - data.size()); i++) data.push_back(boost::shared_ptr<T>(new T()));
-		}
-	}
+	// Resizing the vector, adding copies of item if necessary
 	inline void resize(size_type amount, tobj_ptr item) {
 		if(amount <= data.size())
 			data.resize(amount);
@@ -282,6 +257,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	/**********************************************************************************/
 
+protected:
 	/**********************************************************************************/
 	/**
 	 * The main data set stored in this class. This class was derived from std::vector<boost::shared_ptr<T> >
@@ -293,8 +269,6 @@ public:
 	 * classes get free access.
 	 */
 	std::vector<tobj_ptr> data;
-
-protected:
 
 	/**********************************************************************************/
 	/** @brief The actual fitness calculation takes place here */
