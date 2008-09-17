@@ -160,7 +160,7 @@ protected:
 		boost::shared_ptr<GDoubleCollection> gdc_load = parameterbase_cast<GDoubleCollection>(0);
 
 		// Great - now we can do the actual calculations. We do this the fancy way ...
-		for(cit=gdc_load->data.begin(); cit!=gdc_load->data.end(); ++cit)
+		for(cit=gdc_load->begin(); cit!=gdc_load->end(); ++cit)
 			result += std::pow(*cit, 2);
 
 		return result;

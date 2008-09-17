@@ -108,7 +108,9 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object.
+	 * Creates a deep clone of this object. Note that the existence of this function means that
+	 * this class can be instantiated as, in other contexts, this class is purely virtual (see e.g.
+	 * the GObject class.
 	 *
 	 * @return A copy of this object, camouflaged as a GObject
 	 */
