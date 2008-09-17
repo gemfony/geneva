@@ -149,7 +149,7 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GBrokerPopulation> pop(new GBrokerPopulation());
 
 	// Make the individual known to the population
-	pop->append(projectionIndividual);
+	pop->push_back(projectionIndividual);
 
 	// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
 	pop->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));

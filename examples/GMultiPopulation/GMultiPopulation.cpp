@@ -131,7 +131,7 @@ int main(int argc, char **argv){
 			parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMin, adaptionThreshold));
 
 		// Add the individual to the sub-population
-		sub->append(parabolaIndividual);
+		sub->push_back(parabolaIndividual);
 
 		// Specify some population settings
 		sub->setPopulationSize(subPopulationSize,subNParents);
@@ -144,7 +144,7 @@ int main(int argc, char **argv){
 		sub->setWaitFactor(0);
 
 		// Add the sub-population to the super-population
-		super.append(sub);
+		super.push_back(sub);
 	}
 
 	// Specify some population settings

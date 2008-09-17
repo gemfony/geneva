@@ -125,7 +125,7 @@ int main(int argc, char **argv){
 	// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
 	pop->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
 
-	pop->append(noisyParabolaIndividual);
+	pop->push_back(noisyParabolaIndividual);
 
 	// Specify some population settings
 	pop->setPopulationSize(populationSize,nParents);

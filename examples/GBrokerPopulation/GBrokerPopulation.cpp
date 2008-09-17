@@ -118,7 +118,7 @@ int main(int argc, char **argv){
 		GBrokerPopulation pop;
 
 		// Make the individual known to the population
-		pop.append(parabolaIndividual);
+		pop.push_back(parabolaIndividual);
 
 		// Specify some population settings
 		pop.setPopulationSize(populationSize,nParents);

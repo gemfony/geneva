@@ -110,7 +110,7 @@ int main(int argc, char **argv){
 	GINDIVIDUALBROKER->enrol(gbtc);
 
 	GBrokerPopulation pop;
-	pop.append(parabolaIndividual);
+	pop.push_back(parabolaIndividual);
 
 	// Specify some population settings
 	pop.setPopulationSize(populationSize,nParents);
