@@ -168,6 +168,7 @@ public:
 
 		case INFOEND: // You could easily write out the data in your own format here
 			{
+				std::cout << "Writing result to disk ..." << std::endl;
 				std::ofstream fstr(outputFile_.c_str());
 
 				switch(serMode_)
