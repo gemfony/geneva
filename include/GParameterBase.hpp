@@ -46,7 +46,7 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/serialization/is_abstract.hpp>
+// #include <boost/serialization/is_abstract.hpp>
 
 #ifndef GPARAMETERBASE_HPP_
 #define GPARAMETERBASE_HPP_
