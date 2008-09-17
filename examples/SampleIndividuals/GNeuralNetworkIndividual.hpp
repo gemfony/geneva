@@ -1023,9 +1023,9 @@ protected:
 			std::vector<double> prevResults;
 			std::size_t nLayerNodes = architecture_.at(0);
 			double nodeResult=0;
-			const std::vector<double>& inputLayer = parameterbase_cast<GDoubleCollection>(0)->data;
+			boost::shared_ptr<GDoubleCollection> inputLayer = parameterbase_cast<GDoubleCollection>(0);
 			for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
-				nodeResult=tS->Input.at(nodeCounter) * inputLayer.at(2*nodeCounter) - inputLayer.at(2*nodeCounter+1);
+				nodeResult=tS->Input.at(nodeCounter) * inputLayer->at(2*nodeCounter) - inputLayer->at(2*nodeCounter+1);
 				nodeResult=transfer_(nodeResult);
 				prevResults.push_back(nodeResult);
 			}
