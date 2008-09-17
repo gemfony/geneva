@@ -119,23 +119,23 @@ int main(int argc, char **argv){
 	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
 
 	// Create the population
-	GBoostThreadPopulation pop;
-	pop.setNThreads(nPopThreads);
+	boost::shared_ptr<GBoostThreadPopulation> pop(new GBoostThreadPopulation());
+	pop->setNThreads(nPopThreads);
 
 	// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
-	pop.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
+	pop->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
 
-	pop.append(noisyParabolaIndividual);
+	pop->append(noisyParabolaIndividual);
 
 	// Specify some population settings
-	pop.setPopulationSize(populationSize,nParents);
-	pop.setMaxGeneration(maxGenerations);
-	pop.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-	pop.setReportGeneration(reportGeneration); // Emit information during every generation
-	pop.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+	pop->setPopulationSize(populationSize,nParents);
+	pop->setMaxGeneration(maxGenerations);
+	pop->setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
+	pop->setReportGeneration(reportGeneration); // Emit information during every generation
+	pop->setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
 	// Do the actual optimization
-	pop.optimize();
+	pop->optimize();
 
 	// At this point we should have a file named "optimization.xml" in the same directory as this executable.
 
