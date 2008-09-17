@@ -154,7 +154,7 @@ public:
 				generationData genDat;
 				genDat.generation = gbp->getGeneration();
 
-				shared_ptr<GBasePopulation> pop(new GBasePopulation());
+				boost::shared_ptr<GBasePopulation> pop(new GBasePopulation());
 				pop->load(gbp);
 				genDat.pop = pop;
 
