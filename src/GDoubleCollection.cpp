@@ -49,7 +49,7 @@ GDoubleCollection::GDoubleCollection() :
 GDoubleCollection::GDoubleCollection(const std::size_t& nval) :
 	GParameterCollectionT<double> () {
 	for (std::size_t i = 0; i < nval; i++) {
-		data.push_back(gr.evenRandom(-DEFINIT, DEFINIT));
+		this->push_back(gr.evenRandom(-DEFINIT, DEFINIT));
 	}
 }
 
@@ -64,7 +64,7 @@ GDoubleCollection::GDoubleCollection(const std::size_t& nval) :
 GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max) :
 	GParameterCollectionT<double> () {
 	for (std::size_t i = 0; i < nval; i++) {
-		data.push_back(gr.evenRandom(min, max));
+		this->push_back(gr.evenRandom(min, max));
 	}
 }
 
@@ -144,7 +144,7 @@ void GDoubleCollection::load(const GObject * cp) {
  */
 void GDoubleCollection::addRandomData(const std::size_t& nval, const double& min, const double& max) {
 	for(std::size_t i= 0; i<nval; i++) {
-		data.push_back(gr.evenRandom(min,max));
+		this->push_back(gr.evenRandom(min,max));
 	}
 }
 

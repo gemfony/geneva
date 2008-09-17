@@ -49,7 +49,7 @@ namespace GenEvA
   GBitCollection::GBitCollection(const std::size_t& nval)
     :GParameterCollectionT<Gem::GenEvA::bit>()
   {
-    for(std::size_t i= 0; i<nval; i++) data.push_back(gr.bitRandom());
+    for(std::size_t i= 0; i<nval; i++) this->push_back(gr.bitRandom());
   }
 
   /**********************************************************************/
@@ -63,7 +63,7 @@ namespace GenEvA
   GBitCollection::GBitCollection(const std::size_t& nval, const double& probability)
 	:GParameterCollectionT<Gem::GenEvA::bit>()
   {
-	for(std::size_t i= 0; i<nval; i++) data.push_back(gr.bitRandom(probability));
+	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.bitRandom(probability));
   }
 
   /**********************************************************************/
