@@ -39,7 +39,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/serialization/is_abstract.hpp>
 
 #ifndef GMUTABLEI_HPP_
 #define GMUTABLEI_HPP_
