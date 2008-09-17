@@ -190,7 +190,7 @@ public:
 	/**********************************************************************************/
 	// Typedefs
 	typedef typename std::vector<T>::value_type value_type;
-	typedef std::vector<T>::reference reference;
+	typedef data::reference reference;
 	typedef std::vector<T>::const_reference const_reference;
 
 	typedef std::vector<T>::iterator iterator;
