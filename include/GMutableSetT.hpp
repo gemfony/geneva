@@ -189,7 +189,7 @@ public:
 	/////////////////// std::vector<T> interface (incomplete) //////////////////////////
 	/**********************************************************************************/
 	// Typedefs
-	typedef std::vector<T>::value_type value_type;
+	typedef typename std::vector<T>::value_type value_type;
 	typedef std::vector<T>::reference reference;
 	typedef std::vector<T>::const_reference const_reference;
 
