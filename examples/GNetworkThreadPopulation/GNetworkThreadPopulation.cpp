@@ -124,7 +124,7 @@ int main(int argc, char **argv){
 	GBoostThreadPopulation pop;
 	pop.setNThreads(nPopThreads);
 
-	pop.append(networkIndividual);
+	pop.push_back(networkIndividual);
 
 	// Specify some population settings
 	pop.setPopulationSize(populationSize,nParents);
