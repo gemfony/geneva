@@ -186,26 +186,17 @@ public:
 	}
 
 	/**********************************************************************************/
-	/////////////////// std::vector<T> interface (incomplete) //////////////////////////
+	/////////////////// std::vector<tobj_ptr> interface (incomplete) ///////////////////
 	/**********************************************************************************/
 	// Typedefs
-	std::vector<tobj_ptr>::value_type value_type;
-
-	/*
-	std::vector<tobj_ptr>::reference reference;
-	typedef std::vector<T>::const_reference const_reference;
-
-	typedef std::vector<T>::iterator iterator;
-	typedef std::vector<T>::const_iterator const_iterator;
-	typedef std::vector<T>::reverse_iterator reverse_iterator;
-	typedef std::vector<T>::const_reverse_iterator const_reverse_iterator;
-
-	typedef std::vector<T>::size_type size_type;
-	typedef std::vector<T>::difference_type difference_type;
-
-	typedef std::vector<T>::key_type key_type;
-	typedef std::vector<T>::key_compare key_compare;
-	typedef std::vector<T>::value_compare value_compare;
+	typedef typename std::vector<tobj_ptr>::value_type value_type;
+	typedef typename std::vector<tobj_ptr>::reference reference;
+	typedef typename std::vector<tobj_ptr>::const_reference const_reference;
+	typedef typename std::vector<tobj_ptr>::iterator iterator;
+	typedef typename std::vector<tobj_ptr>::const_iterator const_iterator;
+	typedef typename std::vector<tobj_ptr>::reverse_iterator reverse_iterator;
+	typedef typename std::vector<tobj_ptr>::const_reverse_iterator const_reverse_iterator;
+	typedef typename std::vector<tobj_ptr>::size_type size_type;
 
 	// Non modifying access
 	inline size_type size() const { return data.size(); }
@@ -215,21 +206,77 @@ public:
 	inline size_type capacity() const { return data.capacity(); }
 	inline void reserve(size_type amount) { data.reserve(amount); }
 
-	inline size_type count(const T& value) { return data.count(value); }
-	inline iterator find(const T& value) { return data.find(value); }
+	// Modifying functions
+	inline void swap(std::vector<tobj_ptr>& cont) { data.swap(cont); }
+
+	// Access to elements (unchecked / checked)
+	inline reference operator[](std::size_t pos) { return data[pos]; }
+	inline const reference operator[](std::size_t pos) const { return data[pos]; }
+	inline reference at(std::size_t pos) { return data.at(pos); }
+	inline const reference at(std::size_t pos) const { return data.at(pos); }
+
+	inline reference front() { return data.front(); }
+	inline const_reference front() const { return data.front(); }
+
+	inline reference back() { return data.back(); }
+	inline const_reference back() const { return data.back(); }
 
 	// Iterators
 	inline iterator begin() { return data.begin(); }
 	inline const_iterator begin() const { return data.begin(); }
+
 	inline iterator end() { return data.end(); }
 	inline const_iterator end() const { return data.end(); }
 
-	// Access to elements (protected / unprotected)
-	inline reference operator[](std::size_t pos) { return data[pos]; }
-	inline const reference operator[](std::size_t pos) const { return data[pos]; }
-	inline reference at(std::size_t pos) { return data.at(pos); }
-	inline const reference at(std::size_t pos) const { return dataat(pos); }
-*/
+	inline iterator rbegin() { return data.rbegin(); }
+	inline const_iterator rbegin() const { return data.rbegin(); }
+
+	inline iterator rend() { return data.rend(); }
+	inline const_iterator rend() const { return data.rend(); }
+
+	// Insertion and removal
+	inline iterator insert(iterator pos) { return data.insert(pos, boost::shared_ptr<T>(new T())); }
+	inline iterator insert(iterator pos, const tobj_ptr& item) {
+		if(item)
+			return data.insert(pos,item);
+		else
+			return data.insert(pos,boost::shared_ptr<T>(new T()));
+	}
+
+	inline void insert(iterator pos, size_type amount, const tobj_ptr& item) {
+		for(size_type i=0; i<(amount - data.size()); i++){
+			data.insert(pos,boost::shared_ptr<T>(new T(*(item.get()))));
+		}
+	}
+
+	// Adding to the  back of the vector
+	inline void push_back(const tobj_ptr& item){ data.push_back(item); }
+
+	// Removal at a given position or in a range
+	inline iterator erase(iterator pos) { return data.erase(pos); }
+	inline iterator erase(iterator from, iterator to) { return data.erase(from,to); }
+
+	// Removing an element from the end of the vector
+	inline void pop_back(){ data.pop_back(); }
+
+	// Resizing the vector
+	inline void resize(size_type amount) {
+		if(amount <= data.size())
+			data.resize(amount);
+		else {
+			for(size_type i=0; i<(amount - data.size()); i++) data.push_back(boost::shared_ptr<T>(new T()));
+		}
+	}
+	inline void resize(size_type amount, tobj_ptr item) {
+		if(amount <= data.size())
+			data.resize(amount);
+		else {
+			for(size_type i=0; i<(amount - data.size()); i++) data.push_back(boost::shared_ptr<T>(new T(*(item.get()))));
+		}
+	}
+
+	// Resizing to size 0
+	inline void clear() { data.clear(); }
 
 	/**********************************************************************************/
 	////////////////////////////////////////////////////////////////////////////////////

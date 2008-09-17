@@ -118,7 +118,7 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Loads the data of another GObject
+	 * Loads the data of another GParameterCollectionT<T> object, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
 	 */
@@ -174,6 +174,90 @@ public:
 		data.push_back(value);
 	}
 
+	/**********************************************************************************/
+	/////////////////// std::vector<T> interface (incomplete) //////////////////////////
+	/**********************************************************************************/
+	// Typedefs
+	typedef typename std::vector<T>::value_type value_type;
+	typedef typename std::vector<T>::reference reference;
+	typedef typename std::vector<T>::const_reference const_reference;
+
+	typedef typename std::vector<T>::iterator iterator;
+	typedef typename std::vector<T>::const_iterator const_iterator;
+	typedef typename std::vector<T>::reverse_iterator reverse_iterator;
+	typedef typename std::vector<T>::const_reverse_iterator const_reverse_iterator;
+
+	typedef typename std::vector<T>::size_type size_type;
+	typedef typename std::vector<T>::difference_type difference_type;
+
+	// Non modifying access
+	inline size_type size() const { return data.size(); }
+	inline bool empty() const { return data.empty(); }
+	inline size_type max_size() const { return data.max_size(); }
+
+	inline size_type capacity() const { return data.capacity(); }
+	inline void reserve(size_type amount) { data.reserve(amount); }
+
+	inline size_type count(const T& item) const { return data.count(item); }
+
+	inline iterator find(const T& item) { return data.find(item); }
+	inline const_iterator find(const T& item) const { return data.find(item); }
+
+	// Modifying functions
+	inline void swap(std::vector<T>& cont) { data.swap(cont); }
+
+	// Access to elements (unchecked / checked)
+	inline reference operator[](std::size_t pos) { return data[pos]; }
+	inline const reference operator[](std::size_t pos) const { return data[pos]; }
+	inline reference at(std::size_t pos) { return data.at(pos); }
+	inline const reference at(std::size_t pos) const { return data.at(pos); }
+
+	inline reference front() { return data.front(); }
+	inline const_reference front() const { return data.front(); }
+
+	inline reference back() { return data.back(); }
+	inline const_reference back() const { return data.back(); }
+
+	// Iterators
+	inline iterator begin() { return data.begin(); }
+	inline const_iterator begin() const { return data.begin(); }
+
+	inline iterator end() { return data.end(); }
+	inline const_iterator end() const { return data.end(); }
+
+	inline iterator rbegin() { return data.rbegin(); }
+	inline const_iterator rbegin() const { return data.rbegin(); }
+
+	inline iterator rend() { return data.rend(); }
+	inline const_iterator rend() const { return data.rend(); }
+
+	// Insertion and removal
+	inline iterator insert(iterator pos) { return data.insert(pos); }
+	inline iterator insert(iterator pos, const T& item) { return data.insert(pos,item); }
+	inline void insert(iterator pos, size_type amount, const T& item) { data.insert(pos,amount,item); }
+
+	// Adding to the  back of the vector
+	inline void push_back(const T& item){ data.push_back(item); }
+
+	// Removal at a given position or in a range
+	inline iterator erase(iterator pos) { return data.erase(pos); }
+	inline iterator erase(iterator from, iterator to) { return data.erase(from,to); }
+
+	// Removing an element from the end of the vector
+	inline void pop_back(){ data.pop_back(); }
+
+	// Resizing the vector
+	inline void resize(size_type amount) { data.resize(amount); }
+	inline void resize(size_type amount, T item) { data.resize(amount, item); }
+
+	// Resizing to size 0
+	inline void clear() { data.clear(); }
+
+	/**********************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////
+	/**********************************************************************************/
+
+protected:
 	/*******************************************************************************************/
 	/**
 	 * The main data set stored in this class. This class was derived from std::vector<T> in older
@@ -181,9 +265,10 @@ public:
 	 * to allow an easier implementation of this library in other languages, such as C# or Java. And
 	 * std::vector has a non-virtual destructor. Hence deriving from it is a) bad style and b) dangerous.
 	 * Just like in the older setting, however, access to the data shall not be obstructed in any way.
-	 * As a consequence, all standard algorithms of a std::vector can be used out of the box.
-	 * Providing the same interface without derivation or containment with this class would be
-	 * error-prone and can be considered "syntactic sugar". Hence we do not follow this path.
+	 * As a consequence, most standard algorithms and member functions of a std::vector can be used
+	 * out of the box with this class, which also acts as a wrapper around the std::vector<T>. Note
+	 * that it is assumed here that T is a basic type or behaves like one. E.g., making T a
+	 * boost::shared_ptr<> of something would be a bad idea.
 	 */
 	std::vector<T> data;
 	/*******************************************************************************************/
