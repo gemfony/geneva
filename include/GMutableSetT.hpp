@@ -189,8 +189,8 @@ public:
 	/////////////////// std::vector<T> interface (incomplete) //////////////////////////
 	/**********************************************************************************/
 	// Typedefs
-	typedef std::vector<tobj_ptr>::value_type value_type;
-	typedef std::vector<tobj_ptr>::reference reference;
+	std::vector<tobj_ptr>::value_type value_type;
+	std::vector<tobj_ptr>::reference reference;
 	typedef std::vector<T>::const_reference const_reference;
 
 	typedef std::vector<T>::iterator iterator;
