@@ -111,7 +111,7 @@ int main(int argc, char **argv){
 		B_tmp = B;
 		B.mutate();
 		for(std::size_t i=0; i<NBIT; i++){
-			if(B.data[i] == B_tmp.data[i]){
+			if(B[i] == B_tmp[i]){
 				ofs << "  collectionFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
 				B_noprobadapt_notflipped += 1.;
 			}
@@ -155,7 +155,7 @@ int main(int argc, char **argv){
 		B_tmp = B;
 		B.mutate();
 		for(std::size_t i=0; i<NBIT; i++){
-			if(B.data[i] == B_tmp.data[i]){
+			if(B[i] == B_tmp[i]){
 				ofs << "  collectionFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
 				B_probadapt_notflipped += 1.;
 			}

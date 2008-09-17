@@ -549,7 +549,7 @@ protected:
 
 		// Retrieve the double vector. We have a single GParameterBase object in the individual,
 		// of which we know that its "real" type is "GDoubleCollection".
-		std::vector<double>& data = parameterbase_cast<GDoubleCollection>(0)->data;
+		boost::shared_ptr<GDoubleCollection> data_ptr = parameterbase_cast<GDoubleCollection>(0);
 
 		for (i = 0; i < nData_; i++) {
 			for (j = i + 1; j < nData_; j++) {
@@ -557,7 +557,7 @@ protected:
 				double origVal = 0;
 
 				for (k = 0; k < nDimTarget_; k++)
-					targetVal += pow(data[i*nDimTarget_ + k] - data[j*nDimTarget_ + k], 2);
+					targetVal += pow(data_ptr->at(i*nDimTarget_ + k) - data_ptr->at(j*nDimTarget_ + k), 2);
 
 				for (k = 0; k < nDimOrig_; k++)
 					origVal += pow(source_[i * nDimOrig_ + k] - source_[j * nDimOrig_ + k], 2);
