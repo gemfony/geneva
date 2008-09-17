@@ -190,6 +190,8 @@ public:
 	/**********************************************************************************/
 	// Typedefs
 	std::vector<tobj_ptr>::value_type value_type;
+
+	/*
 	std::vector<tobj_ptr>::reference reference;
 	typedef std::vector<T>::const_reference const_reference;
 
@@ -227,7 +229,7 @@ public:
 	inline const reference operator[](std::size_t pos) const { return data[pos]; }
 	inline reference at(std::size_t pos) { return data.at(pos); }
 	inline const reference at(std::size_t pos) const { return dataat(pos); }
-
+*/
 
 	/**********************************************************************************/
 	////////////////////////////////////////////////////////////////////////////////////
