@@ -172,9 +172,9 @@ public:
 	 *
 	 * @param value A value to be appended to the data vector.
 	 */
-	void append(const T& value){
+	/*void append(const T& value){
 		data.push_back(value);
-	}
+	}*/
 
 	/**********************************************************************************/
 	/////////////////// std::vector<T> interface (incomplete) //////////////////////////
@@ -259,7 +259,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	/**********************************************************************************/
 
-private:
+protected:
 	/*******************************************************************************************/
 	/**
 	 * The main data set stored in this class. This class was derived from std::vector<T> in older
