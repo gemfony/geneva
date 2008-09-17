@@ -52,14 +52,8 @@
 #define GOPTIMIZATIONMONITOR_HPP_
 
 // GenEvA header files go here
-#include "GRandom.hpp"
 #include "GBasePopulation.hpp"
-#include "GIndividual.hpp"
-#include "GDoubleCollection.hpp"
-#include "GParameterSet.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GLogger.hpp"
-#include "GLogTargets.hpp"
+#include "GEnums.hpp"
 
 namespace Gem
 {
@@ -80,57 +74,30 @@ namespace GenEvA
  * the optimization for later analysis.
  *
  * The output of this example is simply the XML representation of the optimizationData struct, as
- * provided by the Boost.Serialization library.
+ * provided by the Boost.Serialization library. The object simply takes a snapshot of the population during each
+ * invocation. This makes it possible to follow the path of the optimization later-on.
+ *
+ * Note that the collected data can get very large in size. It is thus recommended not to use this facilty
+ * for long optimization runs.
  */
 class optimizationMonitor{
 	/**
-	 * A private struct that holds data specific to each individual
-	 */
-	struct individualData {
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version) {
-			using boost::serialization::make_nvp;
-			ar & make_nvp("parameters", parameters);
-			ar & make_nvp("fitness", fitness);
-			ar & make_nvp("isParent", isParent);
-			ar & make_nvp("parentCounter",parentCounter);
-			ar & make_nvp("isDirty", isDirty);
-			ar & make_nvp("sigma", sigma);
-			ar & make_nvp("sigmaSigma", sigmaSigma);
-			ar & make_nvp("adaptionThreshold", adaptionThreshold);
-			ar & make_nvp("adaptionCounter", adaptionCounter);
-			ar & make_nvp("position", position);
-		}
-
-		std::vector<double> parameters;
-		double fitness;
-		bool isParent;
-		boost::uint32_t parentCounter;
-		bool isDirty;
-		double sigma;
-		double sigmaSigma;
-		boost::uint32_t adaptionThreshold;
-		boost::uint32_t adaptionCounter;
-		std::size_t position;
-	};
-
-	/**
-	 * A private struct that holds data specific to all individuals of a given generation
+	 * A private struct that holds a snapshot of the monitored population at the time of a given generation
 	 */
 	struct generationData {
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version) {
 			using boost::serialization::make_nvp;
-			ar & make_nvp("iD", iD);
+			ar & make_nvp("pop", pop);
 			ar & make_nvp("generation", generation);
 		}
 
-		std::vector<individualData> iD;
+		boost::shared_ptr<GBasePopulation> pop;
 		boost::uint32_t generation;
 	};
 
 	/**
-	 * A private struct that holds all collected data for the entire optimization run
+	 * A private struct that holds all collected snapshots for the entire optimization run
 	 */
 	struct optimizationData {
 		template<class Archive>
@@ -157,8 +124,9 @@ public:
 	 *
 	 * @param outputFile The name of the file to which the data should be written
 	 */
-	optimizationMonitor(const std::string& outputFile)
-		 :outputFile_(outputFile)
+	optimizationMonitor(const std::string& outputFile, serializationMode serMode = XMLSERIALIZATION)
+		 :outputFile_(outputFile),
+		  serMode_(serMode)
 	{ /* nothing */ }
 
 	/**
@@ -172,7 +140,6 @@ public:
 	 * @param im The current mode in which the function is called
 	 * @param gbp A pointer to a GBasePopulation object for which information should be collected
 	 */
-	template <typename individualType>
 	void informationFunction(const infoMode& im, GBasePopulation * const gbp){
 		switch(im){
 		case INFOINIT: // extract the population constraints
@@ -187,51 +154,46 @@ public:
 				generationData genDat;
 				genDat.generation = gbp->getGeneration();
 
-				std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-				std::size_t position = 0;
-				for(it=gbp->data.begin(); it!=gbp->data.end(); ++it){
-					// We extract the data. (*it) is a boost::shared_ptr<GIndividual>,
-					// so we need to convert it first.
-					boost::shared_ptr<GDoubleCollection> gdc =
-						(boost::dynamic_pointer_cast<individualType>(*it))->parameterbase_cast<GDoubleCollection>(0);
-
-					individualData gdc_data;
-					gdc_data.parameters = gdc->data; // data is itself a std::vector<double> in this case
-
-					gdc_data.fitness = (*it)->fitness();
-					gdc_data.isParent = (*it)->isParent();
-					gdc_data.parentCounter = (*it)->getParentCounter();
-					gdc_data.isDirty = (*it)->isDirty();
-
-					gdc_data.position = position++;
-
-					// Extract the adaptor from gdc
-					boost::shared_ptr<GDoubleGaussAdaptor> gda =
-						gdc->adaptor_cast<GDoubleGaussAdaptor>(GDoubleGaussAdaptor::adaptorName());
-
-					// Retrieve mutation data
-					gdc_data.sigma = gda->getSigma();
-					gdc_data.sigmaSigma = gda->getSigmaAdaptionRate();
-					gdc_data.adaptionThreshold = gda->getAdaptionThreshold();
-					gdc_data.adaptionCounter = gda->getAdaptionCounter();
-
-
-					genDat.iD.push_back(gdc_data);
-				}
+				shared_ptr<GBasePopulation> pop(new GBasePopulation());
+				pop->load(gbp);
+				genDat.pop = pop;
 
 				oD_.gD.push_back(genDat);
 			}
 
 			// Emit a minimum of information to the audience
-			std::cout << "Fitness is " << gbp->data.at(0)->fitness() << std::endl;
+			std::cout << "Current fitness is " << gbp->data.at(0)->fitness() << std::endl;
 
 			break;
 
 		case INFOEND: // You could easily write out the data in your own format here
 			{
 				std::ofstream fstr(outputFile_.c_str());
-				boost::archive::xml_oarchive oa(fstr);
-				oa << boost::serialization::make_nvp("optimizationData" , oD_);
+
+				switch(serMode_)
+				{
+				case TEXTSERIALIZATION:
+					{
+						boost::archive::text_oarchive oa(fstr);
+						oa << boost::serialization::make_nvp("optimizationData" , oD_);
+					}
+					break;
+
+				case XMLSERIALIZATION:
+					{
+						boost::archive::xml_oarchive oa(fstr);
+						oa << boost::serialization::make_nvp("optimizationData" , oD_);
+					}
+					break;
+
+				case BINARYSERIALIZATION:
+					{
+						boost::archive::binary_oarchive oa(fstr);
+						oa << boost::serialization::make_nvp("optimizationData" , oD_);
+					}
+					break;
+				}
+
 				fstr.close();
 			}
 			break;
@@ -241,12 +203,9 @@ public:
 private:
 	optimizationMonitor(){} ///< Intentionally private
 
-	std::size_t populationSize;
-	std::size_t nParents;
-	boost::uint32_t maxGenerations;
-	boost::uint32_t reportGeneration;
 	std::string outputFile_;
 	optimizationData oD_;
+	serializationMode serMode_;
 };
 
 } /* namespace GenEvA */
