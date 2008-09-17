@@ -1035,15 +1035,15 @@ protected:
 				std::vector<double> currentResults;
 				nLayerNodes=architecture_.at(layerCounter);
 				std::size_t nPrevLayerNodes=architecture_.at(layerCounter-1);
-				const std::vector<double>& currentLayer = parameterbase_cast<GDoubleCollection>(layerCounter)->data;
+				boost::shared_ptr<GDoubleCollection> currentLayer = parameterbase_cast<GDoubleCollection>(layerCounter);
 
 				for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
 					// Loop over all nodes of the previous layer
 					nodeResult=0.;
 					for(std::size_t prevNodeCounter=0; prevNodeCounter<nPrevLayerNodes; prevNodeCounter++){
-						nodeResult += prevResults.at(prevNodeCounter) * currentLayer.at(nodeCounter*(nPrevLayerNodes+1)+prevNodeCounter);
+						nodeResult += prevResults.at(prevNodeCounter) * currentLayer->at(nodeCounter*(nPrevLayerNodes+1)+prevNodeCounter);
 					}
-					nodeResult -= currentLayer.at(nodeCounter*(nPrevLayerNodes+1)+nPrevLayerNodes);
+					nodeResult -= currentLayer->at(nodeCounter*(nPrevLayerNodes+1)+nPrevLayerNodes);
 					nodeResult=transfer_(nodeResult);
 					currentResults.push_back(nodeResult);
 				}
