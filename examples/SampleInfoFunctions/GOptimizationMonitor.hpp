@@ -162,7 +162,7 @@ public:
 			}
 
 			// Emit a minimum of information to the audience
-			std::cout << "Current fitness is " << gbp->data.at(0)->fitness() << std::endl;
+			std::cout << "Current fitness is " << gbp->at(0)->fitness() << std::endl;
 
 			break;
 
