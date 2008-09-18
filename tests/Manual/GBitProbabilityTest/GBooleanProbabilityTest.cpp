@@ -1,5 +1,5 @@
 /**
- * @file GBitProbabilityTest.cpp
+ * @file GBooleanProbabilityTest.cpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -39,9 +39,9 @@
 #include <boost/shared_ptr.hpp>
 
 // GenEvA header files go here
-#include "GBit.hpp"
-#include "GBitCollection.hpp"
-#include "GBitFlipAdaptor.hpp"
+#include "GBoolean.hpp"
+#include "GBooleanCollection.hpp"
+#include "GBooleanAdaptor.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
@@ -51,8 +51,8 @@ using namespace Gem;
 using namespace Gem::GenEvA;
 
 /**
- * This test checks the flip probability of GBit and a GBitCollection. Likewise this is a test
- * for the GBitFlipAdaptor class and the class's operator=; Tests include constant flip probability
+ * This test checks the flip probability of GBoolean and a GBooleanCollection. Likewise this is a test
+ * for the GBooleanAdaptor class and the class's operator=; Tests include constant flip probability
  * as well as mutative adaption of the flip probability. Results can be viewed using the ROOT
  * analysis toolkit (see http://root.cern.ch).
  */
@@ -66,11 +66,11 @@ const std::size_t NBIT=10;
  */
 int main(int argc, char **argv){
 	// Create test candidates
-	GBit A(true), A_tmp;
-	GBitCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
+	GBoolean A(true), A_tmp;
+	GBooleanCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
 
-	boost::shared_ptr<GBitFlipAdaptor> A_adaptor(new GBitFlipAdaptor(0.1));
-	boost::shared_ptr<GBitFlipAdaptor> B_adaptor(new GBitFlipAdaptor(0.2));
+	boost::shared_ptr<GBooleanAdaptor> A_adaptor(new GBooleanAdaptor(0.1));
+	boost::shared_ptr<GBooleanAdaptor> B_adaptor(new GBooleanAdaptor(0.2));
 
 	A.addAdaptor(A_adaptor);
 	B.addAdaptor(B_adaptor);
@@ -95,7 +95,7 @@ int main(int argc, char **argv){
 	double A_noprobadapt_notflipped=0., A_noprobadapt_flipped=0.;
 	double B_noprobadapt_notflipped=0., B_noprobadapt_flipped=0.;
 	for(std::size_t i=0; i<MAXFLIP; i++){
-		// GBit
+		// GBoolean
 		A_tmp = A;
 		A.mutate(); // mutate
 		if(A.value() == A_tmp.value()){
@@ -107,7 +107,7 @@ int main(int argc, char **argv){
 			A_noprobadapt_flipped += 1.;
 		}
 
-		// GBitCollection
+		// GBooleanCollection
 		B_tmp = B;
 		B.mutate();
 		for(std::size_t i=0; i<NBIT; i++){
@@ -139,7 +139,7 @@ int main(int argc, char **argv){
 	double A_probadapt_notflipped=0., A_probadapt_flipped=0.;
 	double B_probadapt_notflipped=0., B_probadapt_flipped=0.;
 	for(std::size_t i=0; i<MAXFLIP; i++){
-		// GBit
+		// GBoolean
 		A_tmp = A;
 		A.mutate(); // mutate
 		if(A.value() == A_tmp.value()){
@@ -151,7 +151,7 @@ int main(int argc, char **argv){
 			A_probadapt_flipped += 1.;
 		}
 
-		// GBitCollection
+		// GBooleanCollection
 		B_tmp = B;
 		B.mutate();
 		for(std::size_t i=0; i<NBIT; i++){
