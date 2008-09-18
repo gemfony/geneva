@@ -122,11 +122,11 @@ protected:
 	virtual void adaptMutation();
 
 	/** @brief The actual mutation of the bit value */
-	virtual void customMutations(Gem::GenEvA::bit &);
+	virtual void customMutations(bool&);
 
 private:
 	/** @brief Simple flip of a bit value */
-	void flip(Gem::GenEvA::bit&) const throw();
+	void flip(bool&) const throw();
 
 	GBoundedDouble mutProb_; ///< internal representation of the mutation probability
 };
