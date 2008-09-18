@@ -38,7 +38,7 @@ namespace Gem
 		 * The default constructor
 		 */
 		GBooleanAdaptor::GBooleanAdaptor()
-			:GAdaptorT<bool>(GBOOLEANSTANDARDNAME),
+			:GAdaptorT<bool>(GBOOLEANADAPTORSTANDARDNAME),
 			 mutProb_(DEFAULTMUTPROB, 0., 1.) // probability is in the range [0:1[
 		{
 			boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MINSGM, MAXSGM));
@@ -53,7 +53,7 @@ namespace Gem
 		 * @param prob The probability for a bit-flip
 		 */
 		GBooleanAdaptor::GBooleanAdaptor(const double& prob)
-			:GAdaptorT<bool>(GBOOLEANSTANDARDNAME),
+			:GAdaptorT<bool>(GBOOLEANADAPTORSTANDARDNAME),
 			 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
 		{
 			boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MINSGM, MAXSGM));
