@@ -9,7 +9,7 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GBitProbabilityTest
+	GBooleanProbabilityTest
 )
 
 ADD_SUBDIRECTORY (
