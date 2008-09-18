@@ -83,7 +83,7 @@ class GDoubleGaussAdaptor:
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The standard constructor - every adaptor needs a name */
+	/** @brief The standard constructor */
 	GDoubleGaussAdaptor();
 	/** @brief A standard constructor, including initialization of the sigma value */
 	explicit GDoubleGaussAdaptor(const double&);
