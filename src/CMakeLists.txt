@@ -24,6 +24,7 @@ SET ( GENEVASOURCES
 	GLogTargets
 	GObject
 	GParameterBase
+	GParameterBaseWithAdaptorsT
 	GParameterSet
 	GRandom
 	GRandomFactory
