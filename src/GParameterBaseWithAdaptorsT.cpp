@@ -22,6 +22,9 @@
 
 #include "GParameterBaseWithAdaptorsT.hpp"
 
+namespace Gem {
+namespace GenEvA {
+
 /***********************************************************************************************/
 /////////////////// Specialization for std::vector<bool> ////////////////////////////////////////
 /***********************************************************************************************/
@@ -91,3 +94,6 @@ void GParameterBaseWithAdaptorsT<bool>::applyNamedAdaptor(const std::string& adN
 }
 
 /***********************************************************************************************/
+
+} /* namespace GenEvA  */
+} /* namespace Gem */
