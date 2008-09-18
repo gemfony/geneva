@@ -123,7 +123,7 @@ double GRandom::gaussRandom(const double& mean, const double& sigma) {
  * @return Random numbers with a double-gaussian shape
  */
 double GRandom::doubleGaussRandom(const double& mean, const double& sigma, const double& distance) {
-	if (GRandom::bitRandom() == Gem::GenEvA::G_TRUE)
+	if (GRandom::boolRandom())
 		return GRandom::gaussRandom(mean - fabs(distance / 2.), sigma);
 	else
 		return GRandom::gaussRandom(mean + fabs(distance / 2.), sigma);
@@ -175,6 +175,31 @@ boost::int16_t GRandom::discreteRandom(const boost::int16_t& min, const boost::i
  */
 GenEvA::bit GRandom::bitRandom() {
 	return bitRandom(0.5);
+}
+
+/*************************************************************************/
+/**
+ * This function returns true with a probability "probability", otherwise false.
+ *
+ * @param p The probability for the value "true" to be returned
+ * @return A boolean value, which will be true with a user-defined likelihood
+ */
+bool GRandom::boolRandom(const double& probability) {
+#ifdef DEBUG
+	assert(probability>=0 && probability<=1);
+#endif
+	return (GRandom::evenRandom()<probability?true:false);
+}
+
+/*************************************************************************/
+/**
+ * This function produces boolean values with a 50% likelihood each for
+ * true and false.
+ *
+ * @return Boolean values with a 50% likelihood for true/false respectively
+ */
+bool GRandom::boolRandom() {
+	return boolRandom(0.5);
 }
 
 /*************************************************************************/

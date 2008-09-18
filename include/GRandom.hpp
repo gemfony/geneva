@@ -106,9 +106,13 @@ public:
 	/** @brief Produces integer random numbers in the range of [min, max[ */
 	boost::int16_t discreteRandom(const boost::int16_t&, const boost::int16_t&);
 	/** @brief Produces boolean values with a 50% likelihood each for true and false. */
-	GenEvA::bit bitRandom();
+	Gem::GenEvA::bit bitRandom();
 	/** @brief Returns true with a given probability, otherwise false. */
-	GenEvA::bit bitRandom(const double&);
+	Gem::GenEvA::bit bitRandom(const double&);
+	/** @brief Produces bool values with a 50% likelihood each for true and false. */
+	bool boolRandom();
+	/** @brief Returns true with a given probability, otherwise false. */
+	bool boolRandom(const double&);
 	/** @brief Produces random ASCII characters */
 	char charRandom(const bool& printable = true);
 

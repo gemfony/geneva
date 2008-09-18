@@ -1,5 +1,5 @@
 /**
- * @file GBitCollection.hpp
+ * @file GBooleanCollection.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -33,8 +33,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GBITCOLLECTION_HPP_
-#define GBITCOLLECTION_HPP_
+#ifndef GBOOLEANCOLLECTION_HPP_
+#define GBOOLEANCOLLECTION_HPP_
 
 // GenEvA headers go here
 
@@ -51,12 +51,12 @@ namespace GenEvA
   /**********************************************************************/
   /**
    * This class represents collections of bits. They are usually mutated by
-   * the GBitFlipAdaptor, which has a mutable flip probability. One adaptor
+   * the GBooleanAdaptor, which has a mutable flip probability. One adaptor
    * is applied to all bits. If you want individual flip probabilities for
-   * all bits, use GBit objects instead.
+   * all bits, use GBool objects instead.
    */
-  class GBitCollection
-    :public GParameterCollectionT<Gem::GenEvA::bit>
+  class GBooleanCollection
+    :public GParameterCollectionT<bool>
   {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -64,30 +64,30 @@ namespace GenEvA
     template<typename Archive>
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
-      ar & make_nvp("GParameterCollectionT_bit",
-    		  boost::serialization::base_object<GParameterCollectionT<Gem::GenEvA::bit> >(*this));
+      ar & make_nvp("GParameterCollectionT_bool",
+    		  boost::serialization::base_object<GParameterCollectionT<bool> >(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
   public:
     /** @brief The default constructor */
-    GBitCollection();
+    GBooleanCollection();
     /** @brief Random initialization with a given number of values */
-    explicit GBitCollection(const std::size_t&);
+    explicit GBooleanCollection(const std::size_t&);
     /** @brief Random initialization with a given number of values of
      * a certain probability structure */
-    GBitCollection(const std::size_t&, const double&);
+    GBooleanCollection(const std::size_t&, const double&);
     /** @brief A standard copy constructor */
-    GBitCollection(const GBitCollection&);
+    GBooleanCollection(const GBooleanCollection&);
     /** @brief The standard destructor */
-    virtual ~GBitCollection();
+    virtual ~GBooleanCollection();
 
     /** @brief A standard assignment operator */
-    const GBitCollection& operator=(const GBitCollection&);
+    const GBooleanCollection& operator=(const GBooleanCollection&);
 
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone();
-    /** @brief Loads the data of another GBitCollection class */
+    /** @brief Loads the data of another GBooleanCollection class */
     virtual void load(const GObject *);
   };
 
@@ -96,4 +96,4 @@ namespace GenEvA
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GBITCOLLECTION_HPP_ */
+#endif /* GBOOLEANCOLLECTION_HPP_ */

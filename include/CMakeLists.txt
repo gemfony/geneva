@@ -10,6 +10,9 @@ SET ( GENEVAINCLUDES
 	GBitCollection.hpp
 	GBitFlipAdaptor.hpp
 	GBit.hpp
+	GBoolean.hpp
+	GBooleanAdaptor.hpp
+	GBooleanCollection.hpp
 	GBoostThreadConsumer.hpp
 	GBoostThreadPopulation.hpp
 	GBoundedBufferT.hpp

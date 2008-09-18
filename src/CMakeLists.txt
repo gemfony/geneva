@@ -9,6 +9,9 @@ SET ( GENEVASOURCES
 	GBit
 	GBitCollection
 	GBitFlipAdaptor
+	GBoolean
+	GBooleanAdaptor
+	GBooleanCollection
 	GBoostThreadConsumer
 	GBoostThreadPopulation
 	GBoundedDouble
