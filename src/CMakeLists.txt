@@ -6,9 +6,6 @@ SET ( GENEVASOURCES
 	GAsioTCPConsumer
 	GBaseClient
 	GBasePopulation
-	GBit
-	GBitCollection
-	GBitFlipAdaptor
 	GBoolean
 	GBooleanAdaptor
 	GBooleanCollection

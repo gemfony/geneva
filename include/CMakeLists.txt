@@ -7,9 +7,6 @@ SET ( GENEVAINCLUDES
 	GAdaptorT.hpp
 	GBasePopulation.hpp
 	GBaseClient.hpp
-	GBitCollection.hpp
-	GBitFlipAdaptor.hpp
-	GBit.hpp
 	GBoolean.hpp
 	GBooleanAdaptor.hpp
 	GBooleanCollection.hpp

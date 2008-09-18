@@ -40,13 +40,6 @@
 namespace Gem {
 namespace GenEvA {
   /**
-   * This enumeration is needed because
-   * vector<bool>[i] returns a helper class,
-   * which breaks GenEvA
-   */
-  enum bit {G_FALSE=0, G_TRUE=1}; // 0,1
-
-  /**
    * The serialization modes that are currently allowed
    */
   enum serializationMode {TEXTSERIALIZATION=0, XMLSERIALIZATION=1, BINARYSERIALIZATION=2};
