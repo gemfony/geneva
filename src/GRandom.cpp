@@ -168,17 +168,6 @@ boost::int16_t GRandom::discreteRandom(const boost::int16_t& min, const boost::i
 
 /*************************************************************************/
 /**
- * This function produces boolean values with a 50% likelihood each for
- * true and false.
- *
- * @return Boolean values with a 50% likelihood for true/false respectively
- */
-GenEvA::bit GRandom::bitRandom() {
-	return bitRandom(0.5);
-}
-
-/*************************************************************************/
-/**
  * This function returns true with a probability "probability", otherwise false.
  *
  * @param p The probability for the value "true" to be returned
@@ -200,20 +189,6 @@ bool GRandom::boolRandom(const double& probability) {
  */
 bool GRandom::boolRandom() {
 	return boolRandom(0.5);
-}
-
-/*************************************************************************/
-/**
- * This function returns true with a probability "probability", otherwise false.
- *
- * @param p The probability for the value "true" to be returned
- * @return A boolean value, which will be true with a user-defined likelihood
- */
-GenEvA::bit GRandom::bitRandom(const double& probability) {
-#ifdef DEBUG
-	assert(probability>=0 && probability<=1);
-#endif
-	return (GRandom::evenRandom() < probability ? Gem::GenEvA::G_TRUE : Gem::GenEvA::G_FALSE);
 }
 
 /*************************************************************************/

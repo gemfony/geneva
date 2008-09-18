@@ -92,7 +92,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 		break;
 	case BITPROB:
 		for(i=0; i<nEntries; i++){
-			if(gr.bitRandom(0.7) == Gem::GenEvA::G_TRUE)
+			if(gr.boolRandom(0.7))
 				vec_t.push_back(1);
 			else
 				vec_t.push_back(0);

@@ -105,10 +105,6 @@ public:
 	boost::uint16_t discreteRandom(const boost::uint16_t&);
 	/** @brief Produces integer random numbers in the range of [min, max[ */
 	boost::int16_t discreteRandom(const boost::int16_t&, const boost::int16_t&);
-	/** @brief Produces boolean values with a 50% likelihood each for true and false. */
-	Gem::GenEvA::bit bitRandom();
-	/** @brief Returns true with a given probability, otherwise false. */
-	Gem::GenEvA::bit bitRandom(const double&);
 	/** @brief Produces bool values with a 50% likelihood each for true and false. */
 	bool boolRandom();
 	/** @brief Returns true with a given probability, otherwise false. */

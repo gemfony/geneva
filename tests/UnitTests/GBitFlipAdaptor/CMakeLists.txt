@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GBitFlipAdaptor_test)
+SET (EXECUTABLENAME GBooleanAdaptor_test)
 
 SET (${EXECUTABLENAME}_SRCS 
-	GBitFlipAdaptor_test
+	GBooleanAdaptor_test
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

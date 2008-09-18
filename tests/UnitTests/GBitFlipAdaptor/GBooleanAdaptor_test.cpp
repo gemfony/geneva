@@ -1,7 +1,7 @@
 /**
- * @file GBitFlipAdaptor_test.cpp
+ * @file GBooleanAdaptor_test.cpp
  *
- * This test checks all public member functions of the GBitFlipAdaptor adaptor
+ * This test checks all public member functions of the GBooleanAdaptor adaptor
  * class. In addition, it attempts to check parent classes, in particular the
  * GObject class. You should run this test both in DEBUG and in RELEASE mode,
  * as some functions may work differently in this case.
@@ -33,14 +33,14 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GBitFlipAdaptor_test
+#define BOOST_TEST_MODULE GBooleanAdaptor_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
 #include "GObject.hpp"
-#include "GBitFlipAdaptor.hpp"
+#include "GBooleanAdaptor.hpp"
 #include "GenevaExceptions.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
@@ -49,25 +49,25 @@ using namespace Gem;
 using namespace Gem::GenEvA;
 using namespace Gem::GLogFramework;
 
-const std::string ADAPTORNAME="GBitFlipAdaptor";
-const std::string ADAPTORNAME2="GBitFlipAdaptor2";
-const std::string ADAPTORNAME3="GBitFlipAdaptor3";
+const std::string ADAPTORNAME="GBooleanAdaptor";
+const std::string ADAPTORNAME2="GBooleanAdaptor2";
+const std::string ADAPTORNAME3="GBooleanAdaptor3";
 
 /***********************************************************************************/
 // This test checks as much as possible of the functionality
 // provided by the parent class GObject, plus some base functionality
-// of the GBitFlipAdaptor class, such as the "named" and the copy
+// of the GBooleanAdaptor class, such as the "named" and the copy
 // constructors.
 BOOST_AUTO_TEST_CASE( gbfa_gobject_test_no_failure_expected )
 {
 	// Add log targets to the system
-	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBitFlipAdaptor_test.log")));
+	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBooleanAdaptor_test.log")));
 
-	GBitFlipAdaptor *gbfa=new GBitFlipAdaptor(); // Default construction
-	GBitFlipAdaptor *gbfa2=new GBitFlipAdaptor(*gbfa); // Copy construction
+	GBooleanAdaptor *gbfa=new GBooleanAdaptor(); // Default construction
+	GBooleanAdaptor *gbfa2=new GBooleanAdaptor(*gbfa); // Copy construction
 
 	// Getting and setting the name
-	BOOST_CHECK(gbfa->name() == GBitFlipAdaptor::adaptorName());
+	BOOST_CHECK(gbfa->name() == GBooleanAdaptor::adaptorName());
 	BOOST_CHECK(gbfa->name() == gbfa2->name());
 
 	gbfa2->setName(ADAPTORNAME2);
@@ -86,15 +86,15 @@ BOOST_AUTO_TEST_CASE( gbfa_gobject_test_no_failure_expected )
 
 	// Cloning should create an independent object
 	gbfa2->setName(ADAPTORNAME);
-	GBitFlipAdaptor *gbfa3 = dynamic_cast<GBitFlipAdaptor *>(gbfa2->clone());
+	GBooleanAdaptor *gbfa3 = dynamic_cast<GBooleanAdaptor *>(gbfa2->clone());
 	if(!gbfa3) throw;
 	BOOST_CHECK(gbfa3->name() == gbfa2->name());
 
 	// We should be able to directly create an instance of the target type
-	GBitFlipAdaptor *gbfa4 = gbfa2->clone_ptr_cast<GBitFlipAdaptor>();
+	GBooleanAdaptor *gbfa4 = gbfa2->clone_ptr_cast<GBooleanAdaptor>();
 
 	// And we should be able to create that target type wrapped into a boost::shared_ptr<> .
-	boost::shared_ptr<GBitFlipAdaptor> gbfa5 = gbfa2->clone_bptr_cast<GBitFlipAdaptor>();
+	boost::shared_ptr<GBooleanAdaptor> gbfa5 = gbfa2->clone_bptr_cast<GBooleanAdaptor>();
 
 	// All should now have the same name
 	BOOST_CHECK(gbfa3->name() == gbfa2->name());
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( gbfa_gobject_test_no_failure_expected )
 // Test functions for the following tests
 bool gbfa_testGObjectSelfAssignment(){
 	try{
-		GBitFlipAdaptor *gbfa=new GBitFlipAdaptor();
+		GBooleanAdaptor *gbfa=new GBooleanAdaptor();
 		gbfa->load(gbfa); // This must fail!!!
 		delete gbfa;
 
@@ -176,10 +176,10 @@ BOOST_AUTO_TEST_CASE( gbfa_gobject_test_failures_expected )
 }
 
 /***********************************************************************************/
-// Tests of the GAdaptor<T> and GBitFlipAdaptor functionality
+// Tests of the GAdaptor<T> and GBooleanAdaptor functionality
 BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 {
-	boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor(0.1));
+	boost::shared_ptr<GBooleanAdaptor> gbfa(new GBooleanAdaptor(0.1));
 
 	// Automatic conversion to bool. shared_ptr will be empty in case of a failure and return false
 	BOOST_CHECK(gbfa);
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( gbitflipadaptor_no_failure_expected )
 // Test functions for expected failures
 bool gbfa_testProbabilityUnsuitable(const double& value){
 	try{
-		boost::shared_ptr<GBitFlipAdaptor> gbfa(new GBitFlipAdaptor());
+		boost::shared_ptr<GBooleanAdaptor> gbfa(new GBooleanAdaptor());
 		if(!gbfa) {
 			std::cerr << "Error: Construction of smart pointer failed" << std::endl;
 			return false;
@@ -246,7 +246,7 @@ bool gbfa_testProbabilityUnsuitable(const double& value){
 }
 
 /***********************************************************************************/
-// Tests of the GAdaptor<T> and GBitFlipAdaptor functionality that should trigger
+// Tests of the GAdaptor<T> and GBooleanAdaptor functionality that should trigger
 // exceptions or failures
 BOOST_AUTO_TEST_CASE( gbfa_gbitflipadaptor_failures_expected )
 {
