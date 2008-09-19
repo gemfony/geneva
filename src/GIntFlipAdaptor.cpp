@@ -49,7 +49,7 @@ void GIntFlipAdaptorT<bool>::customMutations(bool& value) {
  * @param value The value to be mutated
  */
 template<>
-void GIntFlipAdaptor<short>::customMutations(short& value) {
+void GIntFlipAdaptorT<short>::customMutations(short& value) {
 	double probe = this->gr.evenRandom(0.,1.);
 	if(probe < mutProb_.value()) {
 		bool up = this->gr.boolRandom();
@@ -72,7 +72,7 @@ void GIntFlipAdaptor<short>::customMutations(short& value) {
  * @param value The value to be mutated
  */
 template<>
-void GIntFlipAdaptor<unsigned short>::customMutations(unsigned short& value) {
+void GIntFlipAdaptorT<unsigned short>::customMutations(unsigned short& value) {
 	double probe = this->gr.evenRandom(0.,1.);
 	if(probe < mutProb_.value()) {
 		bool up = this->gr.boolRandom();
@@ -95,7 +95,7 @@ void GIntFlipAdaptor<unsigned short>::customMutations(unsigned short& value) {
  * @param value The value to be mutated
  */
 template<>
-void GIntFlipAdaptor<boost::uint8_t>::customMutations(boost::uint8_t& value) {
+void GIntFlipAdaptorT<boost::uint8_t>::customMutations(boost::uint8_t& value) {
 	double probe = this->gr.evenRandom(0.,1.);
 	if(probe < mutProb_.value()) {
 		bool up = this->gr.boolRandom();
@@ -118,7 +118,7 @@ void GIntFlipAdaptor<boost::uint8_t>::customMutations(boost::uint8_t& value) {
  * @param value The value to be mutated
  */
 template<>
-void GIntFlipAdaptor<boost::int8_t>::customMutations(boost::int8_t& value) {
+void GIntFlipAdaptorT<boost::int8_t>::customMutations(boost::int8_t& value) {
 	double probe = this->gr.evenRandom(0.,1.);
 	if(probe < mutProb_.value()) {
 		bool up = this->gr.boolRandom();

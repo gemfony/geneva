@@ -286,10 +286,10 @@ private:
 
 // Declaration of some specializations
 template<> void GIntFlipAdaptorT<bool>::customMutations(bool&);
-template<> void GIntFlipAdaptor<short>::customMutations(short&);
-template<> void GIntFlipAdaptor<unsigned short>::customMutations(unsigned short&);
-template<> void GIntFlipAdaptor<boost::uint8_t>::customMutations(boost::uint8_t&);
-template<> void GIntFlipAdaptor<boost::int8_t>::customMutations(boost::int8_t&);
+template<> void GIntFlipAdaptorT<short>::customMutations(short&);
+template<> void GIntFlipAdaptorT<unsigned short>::customMutations(unsigned short&);
+template<> void GIntFlipAdaptorT<boost::uint8_t>::customMutations(boost::uint8_t&);
+template<> void GIntFlipAdaptorT<boost::int8_t>::customMutations(boost::int8_t&);
 
 } /* namespace GenEvA */
 } /* namespace Gem */
