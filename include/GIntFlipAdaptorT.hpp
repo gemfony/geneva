@@ -90,7 +90,8 @@ public:
 		:GAdaptorT<int_type> (GINTFLIPADAPTORSTANDARDNAME),
 		 mutProb_(DEFAULTMUTPROB, 0., 1.) // probability is in the range [0:1[
 	{
-		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MINSGM, MAXSGM));
+		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA,
+				                                                                   DEFAULTMINSIGMA, DEFAULTMAXSIGMA));
 		mutProb_.addAdaptor(gaussAdaptor);
 	}
 
@@ -105,7 +106,8 @@ public:
 		:GAdaptorT<int_type>(GINTFLIPADAPTORSTANDARDNAME),
 		 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
 	{
-		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(SGM, SGMSGM, MINSGM, MAXSGM));
+		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA,
+																				   DEFAULTMINSIGMA, DEFAULTMAXSIGMA));
 		mutProb_.addAdaptor(gaussAdaptor);
 	}
 
