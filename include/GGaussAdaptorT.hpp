@@ -1,5 +1,5 @@
-/**ty
- * @file GGaussAdaptor.hpp
+/**
+ * @file GGaussAdaptorT.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -35,9 +35,11 @@
 #endif /* BOOST_VERSION */
 
 #include <boost/cstdint.hpp>
+#include <boost/limits.hpp>
+#include <boost/cast.hpp>
 
-#ifndef GINTADAPTOR_HPP_
-#define GINTADAPTOR_HPP_
+#ifndef GGAUSSADAPTORT_HPP_
+#define GGAUSSADAPTORT_HPP_
 
 // GenEvA headers go here
 
@@ -55,17 +57,17 @@ const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used 
 const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for sigma_
 const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
 
-const std::string GGAUSSADAPTORSTANDARDNAME = "GGaussAdaptor";
+const std::string GGAUSSADAPTORSTANDARDNAME = "GGaussAdaptorT";
 
 /************************************************************************************************/
 /**
- * GGaussAdaptor represents an adaptor used for the mutation of numeric
+ * GGaussAdaptorT represents an adaptor used for the mutation of numeric
  * types, by the addition of gaussian-distributed random numbers. Different numeric
  * types may be used, including Boost's integer representations.
  * The type used needs to be specified as a template parameter.
  */
 template<typename num_type>
-class GGaussAdaptor:
+class GGaussAdaptorT:
 	public GAdaptorT<num_type>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -88,7 +90,7 @@ public:
 	 * The standard constructor. It passes the adaptor's standard name to the
 	 * parent class and initializes the internal variables.
 	 */
-	GGaussAdaptor()
+	GGaussAdaptorT()
 		:GAdaptorT<num_type> (GGAUSSADAPTORSTANDARDNAME),
 		 sigma_(DEFAULTSIGMA),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
@@ -104,7 +106,7 @@ public:
 	 *
 	 * @param sigma The initial value for the sigma_ parameter
 	 */
-	explicit GGaussAdaptor(const double& sigma)
+	explicit GGaussAdaptorT(const double& sigma)
 		:GAdaptorT<num_type> (GDGASTANDARDNAME),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
 		 minSigma_(DEFAULTMINSIGMA),
@@ -124,7 +126,7 @@ public:
 	 * @param minSigma The minimal value allowed for sigma_
 	 * @param name The name assigned to this adaptor
 	 */
-	GGaussAdaptor(const double& sigma, const double& sigmaSigma,
+	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
 		:GAdaptorT<num_type> (GDGASTANDARDNAME)
 	{
@@ -138,9 +140,9 @@ public:
 	/**
 	 * A standard copy constructor.
 	 *
-	 * @param cp Another GGaussAdaptor object
+	 * @param cp Another GGaussAdaptorT object
 	 */
-	GGaussAdaptor(const GGaussAdaptor<num_type>& cp)
+	GGaussAdaptorT(const GGaussAdaptorT<num_type>& cp)
 		:GAdaptorT<num_type> (cp)
 	{
 		setSigmaAdaptionRate(cp.sigmaSigma_);
@@ -153,31 +155,31 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	~GGaussAdaptor()
+	~GGaussAdaptorT()
 	{ /* nothing */ }
 
 	/********************************************************************************************/
 	/**
-	 * A standard assignment operator for GGaussAdaptor objects,
+	 * A standard assignment operator for GGaussAdaptorT objects,
 	 *
-	 * @param cp A copy of another GGaussAdaptor object
+	 * @param cp A copy of another GGaussAdaptorT object
 	 */
-	const GGaussAdaptor<num_type>& operator=(const GGaussAdaptor<num_type>& cp)
+	const GGaussAdaptorT<num_type>& operator=(const GGaussAdaptorT<num_type>& cp)
 	{
-		GGaussAdaptor<num_type>::load(&cp);
+		GGaussAdaptorT<num_type>::load(&cp);
 		return *this;
 	}
 
 	/********************************************************************************************/
 	/**
-	 * This function loads the data of another GGaussAdaptor, camouflaged as a GObject.
+	 * This function loads the data of another GGaussAdaptorT, camouflaged as a GObject.
 	 *
-	 * @param A copy of another GGaussAdaptor, camouflaged as a GObject
+	 * @param A copy of another GGaussAdaptorT, camouflaged as a GObject
 	 */
 	void load(const GObject *cp)
 	{
 		// Convert GObject pointer to local format
-		const GGaussAdaptor<num_type> *gdga = this->conversion_cast(cp, this);
+		const GGaussAdaptorT<num_type> *gdga = this->conversion_cast(cp, this);
 
 		// Load the data of our parent class ...
 		GAdaptorT<num_type>::load(cp);
@@ -198,7 +200,7 @@ public:
 	 */
 	GObject *clone()
 	{
-		return new GGaussAdaptor<num_type>(*this);
+		return new GGaussAdaptorT<num_type>(*this);
 	}
 
 	/********************************************************************************************/
@@ -213,7 +215,7 @@ public:
 		if(sigma < minSigma_ || sigma > maxSigma_)
 		{
 			std::ostringstream error;
-			error << "In GGaussAdaptor::setSigma(const double&): Error!" << std::endl
+			error << "In GGaussAdaptorT::setSigma(const double&): Error!" << std::endl
 			  	  << "sigma is not in the allowed range: " << std::endl
 			  	  << sigma << " " << minSigma_ << " " << maxSigma_ << std::endl;
 
@@ -244,7 +246,7 @@ public:
 		// Do some error checks
 		if(minSigma<=0. || minSigma >= maxSigma){ // maxSigma will automatically be > 0. now
 			std::ostringstream error;
-			error << "In GGaussAdaptor::setSigmaRange(const double&, const double&): Error!" << std::endl
+			error << "In GGaussAdaptorT::setSigmaRange(const double&, const double&): Error!" << std::endl
 				  << "Invalid values for minSigma and maxSigma given:" << minSigma << " " << maxSigma << std::endl;
 
 			throw geneva_error_condition(error.str());
@@ -281,7 +283,7 @@ public:
 		if(sigmaSigma <= 0.)
 		{
 			std::ostringstream error;
-			error << "In GGaussAdaptor::setSigmaSigma(double, double): Error!" << std::endl
+			error << "In GGaussAdaptorT::setSigmaSigma(double, double): Error!" << std::endl
 				  << "Bad value for sigmaSigma given: " << sigmaSigma << std::endl;
 
 			throw geneva_error_condition(error.str());
@@ -319,7 +321,7 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Returns the standard name of a GGaussAdaptor
+	 * Returns the standard name of a GGaussAdaptorT
 	 *
 	 * @return The name assigned to adaptors of this type
 	 */
@@ -345,19 +347,31 @@ protected:
 
 	/********************************************************************************************/
 	/**
-	 * This is where the actual mutation of the supplied value takes place.
-	 * The sigma_ retrieved with GDoubleGaussAdaptor::getSigma() might get
-	 * mutated itself, if the sigmaSigma_ parameter is not 0. The function is
-	 * declared inline as it will be called very frequently. The gr obkject is
-	 * a protected member of GObject, one of our parents.
+	 * The actual mutation of the supplied value takes place here.
 	 *
-	 * @param value The value that is going to be mutated
+	 * @param value The value that is going to be mutated in situ
 	 */
 	inline void customMutations(num_type &value)
 	{
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
-		value += gr.gaussRandom(0.,sigma_);
+#if defined (CHECKOVERFLOWS) || defined (DEBUG)
+		// Prevent over- and underflows. Note that we currently do not check the
+		// size of "addition" in comparison to "value".
+		num_type addition = boost::numeric_cast<num_type>(gr.gaussRandom(0.,sigma_));
+
+		if(value >= 0){
+			if(addition >= 0 && (boost::numeric_limits<num_type>::max()-value < addition)) addition *= -1;
+		}
+		else { // < 0
+			if(addition < 0 && (boost::numeric_limits<num_type>::min()-value > addition)) addition *= -1;
+		}
+
+		value += addition;
+#else
+		// We do not check for over- or underflows for performance reasons.
+		value += static_cast<num_type>(gr.gaussRandom(0.,sigma_));
+#endif /* CHECKOVERFLOWS || DEBUG */
 	}
 
 private:
@@ -373,4 +387,4 @@ private:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GINTADAPTOR_HPP_ */
+#endif /* GGAUSSADAPTORT_HPP_ */

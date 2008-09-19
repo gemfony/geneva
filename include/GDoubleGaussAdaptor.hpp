@@ -41,21 +41,10 @@
 
 // GenEvA headers go here
 
-#include "GAdaptorT.hpp"
-#include "GObject.hpp"
-#include "GRandom.hpp"
-#include "GLogger.hpp"
-#include "GenevaExceptions.hpp"
+#include "GGaussAdaptorT.hpp"
 
 namespace Gem {
 namespace GenEvA {
-
-const double DEFAULTSIGMA = 0.1; ///< Default start value for sigma_
-const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption
-const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for sigma_
-const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
-
-const std::string GDGASTANDARDNAME = "GDoubleGaussAdaptor";
 
 /*************************************************************************/
 /**
@@ -63,90 +52,10 @@ const std::string GDGASTANDARDNAME = "GDoubleGaussAdaptor";
  * double values through the addition of gaussian-distributed random numbers.
  * See the documentation of GAdaptorT<T> for further information on adaptors
  * in the GenEvA context. This class is at the core of evolutionary strategies,
- * as implemented by this library.
+ * as implemented by this library. It is now implemented through a generic
+ * base class that can also be used to mutate other numeric types.
  */
-class GDoubleGaussAdaptor:
-	public GAdaptorT<double>
-{
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
-
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		using boost::serialization::make_nvp;
-		ar & make_nvp("GAdaptorT_double", boost::serialization::base_object<GAdaptorT<double> >(*this));
-		ar & make_nvp("sigma_", sigma_);
-		ar & make_nvp("sigmaSigma_", sigmaSigma_);
-		ar & make_nvp("minSigma_", minSigma_);
-		ar & make_nvp("maxSigma_", maxSigma_);
-	}
-	///////////////////////////////////////////////////////////////////////
-
-public:
-	/** @brief The standard constructor */
-	GDoubleGaussAdaptor();
-	/** @brief A standard constructor, including initialization of the sigma value */
-	explicit GDoubleGaussAdaptor(const double&);
-	/** @brief A standard constructor including initialization of the sigma_, sigmaSigma_,
-	 *  minSigma_ and maxSigma_ values */
-	GDoubleGaussAdaptor(const double&, const double&, const double&, const double&);
-	/** @brief The standard copy constructor */
-	GDoubleGaussAdaptor(const GDoubleGaussAdaptor&);
-	/** @brief The standard destructor */
-	virtual ~GDoubleGaussAdaptor();
-
-	/** @brief A standard assignment operator */
-	const GDoubleGaussAdaptor& operator=(const GDoubleGaussAdaptor&);
-
-	/** @brief Loads the values of another GDoubleGaussAdaptor */
-	virtual void load(const GObject *);
-	/** @brief Creates a deep copy of this object */
-	virtual GObject *clone();
-
-	/** @brief Sets the width of the gaussian used to adapt values */
-	void setSigma(const double&);
-	/** @brief Retrieves the current width of the gaussian */
-	double getSigma() const throw();
-
-	/** @brief Sets the allowed range of the sigma_ value */
-	void setSigmaRange(const double&, const double&);
-	/** @brief Retrieves the allowed range of the sigma_ value */
-	std::pair<double,double> getSigmaRange() const throw();
-	/** @brief Sets a new value for sigmaSigma_ */
-	void setSigmaAdaptionRate(const double&);
-	/** @brief Retrieves the current value of sigmaSigma_ */
-	double getSigmaAdaptionRate() const throw();
-
-	/** @brief Sets all values needed for the mutation in one go */
-	void setAll(const double&, const double&, const double&, const double&);
-
-	/**********************************************************************/
-	/**
-	 * Returns the standard name of a GDoubleGaussAdaptor
-	 *
-	 * @return The name assigned to adaptors of this type
-	 */
-	static std::string adaptorName() throw() {
-		return GDGASTANDARDNAME;
-	}
-
-	/**********************************************************************/
-
-protected:
-	/** @brief Adapts the mutation parameters */
-	virtual void adaptMutation();
-
-	/** @brief Specifies the mutations performed in this class */
-	virtual void customMutations(double &);
-
-private:
-	double sigma_; ///< The width of the gaussian used to adapt values
-	double sigmaSigma_; ///< affects sigma_ adaption
-	double minSigma_; ///< minimum allowed value for sigma_
-	double maxSigma_; ///< maximum allowed value for sigma_
-};
-
-/*************************************************************************/
+typedef GGaussAdaptorT<double> GDoubleGaussAdaptor;
 
 } /* namespace GenEvA */
 } /* namespace Gem */

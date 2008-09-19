@@ -15,6 +15,7 @@ SET ( GENEVASOURCES
 	GBrokerPopulation
 	GDoubleCollection 
 	GDoubleGaussAdaptor
+	GGaussAdaptorT
 	GIndividual
 	GIndividualSet
 	GLogger
