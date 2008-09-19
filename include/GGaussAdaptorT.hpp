@@ -231,7 +231,7 @@ public:
 	 *
 	 * @return The current value of sigma_
 	 */
-	double GDoubleGaussAdaptor::getSigma() const throw() {
+	double getSigma() const throw() {
 		return sigma_;
 	}
 
@@ -266,7 +266,7 @@ public:
 	 *
 	 * @return The allowed value range for sigma
 	 */
-	std::pair<double,double> GDoubleGaussAdaptor::getSigmaRange() const throw() {
+	std::pair<double,double> getSigmaRange() const throw() {
 		return std::make_pair(minSigma_, maxSigma_);
 	}
 
