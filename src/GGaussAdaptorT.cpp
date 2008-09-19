@@ -44,10 +44,10 @@ void GGaussAdaptorT<double>::customMutations(double& value) {
 	double addition = this->gr.gaussRandom(0.,sigma_);
 
 	if(value >= 0.){
-		if(addition >= 0. && (boost::numeric_limits<double>::max()-value < addition)) addition *= -1.;
+		if(addition >= 0. && (std::numeric_limits<double>::max()-value < addition)) addition *= -1.;
 	}
 	else { // < 0
-		if(addition < 0. && (boost::numeric_limits<double>::min()-value > addition)) addition *= -1.;
+		if(addition < 0. && (std::numeric_limits<double>::min()-value > addition)) addition *= -1.;
 	}
 
 	value += addition;

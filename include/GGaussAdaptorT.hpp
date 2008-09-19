@@ -361,10 +361,10 @@ protected:
 		num_type addition = boost::numeric_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
 
 		if(value >= 0){
-			if(addition >= 0 && (boost::numeric_limits<num_type>::max()-value < addition)) addition *= -1;
+			if(addition >= 0 && (std::numeric_limits<num_type>::max()-value < addition)) addition *= -1;
 		}
 		else { // < 0
-			if(addition < 0 && (boost::numeric_limits<num_type>::min()-value > addition)) addition *= -1;
+			if(addition < 0 && (std::numeric_limits<num_type>::min()-value > addition)) addition *= -1;
 		}
 
 		value += addition;
