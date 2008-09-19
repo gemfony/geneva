@@ -67,7 +67,7 @@ const std::string GINTFLIPADAPTORSTANDARDNAME = "GIntFlipAdaptorT"; ///< The des
  */
 template<typename int_type>
 class GIntFlipAdaptorT:
-	public GAdaptorT<num_type>
+	public GAdaptorT<int_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -259,7 +259,7 @@ protected:
 			bool up = this->gr.boolRandom();
 			if(up){
 #if defined (CHECKOVERFLOWS) || defined (DEBUG)
-				if(std::numeric_limits<num_type>::max() == value) value -= 1;
+				if(std::numeric_limits<int_type>::max() == value) value -= 1;
 				else value += 1;
 #else
 				value += 1;
@@ -267,7 +267,7 @@ protected:
 			}
 			else {
 #if defined (CHECKOVERFLOWS) || defined (DEBUG)
-				if(std::numeric_limits<num_type>::min() == value) value += 1;
+				if(std::numeric_limits<int_type>::min() == value) value += 1;
 				else value -= 1;
 #else
 				value -= 1;
