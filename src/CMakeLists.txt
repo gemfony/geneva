@@ -19,7 +19,7 @@ SET ( GENEVASOURCES
 	GIndividual
 	GIndividualSet
 	GInt32GaussAdaptor
-	GIntFlipAdaptorT.cpp
+	GIntFlipAdaptorT
 	GLogger
 	GLogTargets
 	GObject
