@@ -253,8 +253,27 @@ protected:
 	 *
 	 * @param value The bit value to be mutated
 	 */
-	virtual void customMutations(int_type& value){
-
+	virtual void customMutations(int_type& value) {
+		double probe = this->gr.evenRandom(0.,1.);
+		if(probe < mutProb_.value()) {
+			bool up = this->gr.boolRandom();
+			if(up){
+#if defined (CHECKOVERFLOWS) || defined (DEBUG)
+				if(std::numeric_limits<num_type>::max() == value) value -= 1;
+				else value += 1;
+#else
+				value += 1;
+#endif
+			}
+			else {
+#if defined (CHECKOVERFLOWS) || defined (DEBUG)
+				if(std::numeric_limits<num_type>::min() == value) value += 1;
+				else value -= 1;
+#else
+				value -= 1;
+#endif
+			}
+		}
 	}
 
 private:

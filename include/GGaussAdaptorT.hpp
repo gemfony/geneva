@@ -379,6 +379,10 @@ private:
 };
 
 /************************************************************************************************/
+// Declaration of some specializations
+template<> void GGaussAdaptorT<double>::customMutations(double&);
+template<> void GGaussAdaptorT<char>::customMutations(char&);
+template<> void GGaussAdaptorT<short>::customMutations(short&);
 
 } /* namespace GenEvA */
 } /* namespace Gem */

@@ -44,86 +44,19 @@
 #include "GEnums.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
+#include "GIntFlipAdaptorT.hpp"
 
 namespace Gem {
 namespace GenEvA {
 
-const std::string GBOOLEANADAPTORSTANDARDNAME="GBooleanAdaptor";
-
-/***********************************************************************************/
+/*************************************************************************/
 /**
- * This class is designed to allow mutations of bit values (represented as booleans).
- * Bits can be flipped with a probability that can be mutated along with the bit value.
- * Hence the adaptor can adapt itself to varying conditions, if desired. Note that
- * this makes the allegedly simple application of flipping a bit a rather complicated
- * procedure. Hence it is recommended to limit usage of this adaptor to bit collections
- * rather than single bits.
+ * The GBooleanAdaptor represents an adaptor used for the mutation of
+ * bool values by flipping its value. See the documentation of GAdaptorT<T> for
+ * further information on adaptors in the GenEvA context. All functionality is
+ * currently implemented in the GIntFlipAdaptorT class.
  */
-class GBooleanAdaptor
-	: public GAdaptorT<bool>
-{
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
-
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		using boost::serialization::make_nvp;
-		ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<bool> >(*this));
-		ar & make_nvp("mutProb_", mutProb_);
-	}
-	///////////////////////////////////////////////////////////////////////
-
-public:
-	/** @brief Standard constructor. Every adaptor needs a name */
-	GBooleanAdaptor();
-	/** @brief Constructor sets the mutation probability to a given value */
-	explicit GBooleanAdaptor(const double&);
-	/** @brief Standard copy constructor */
-	GBooleanAdaptor(const GBooleanAdaptor&);
-	/** @brief Standard destructor */
-	virtual ~GBooleanAdaptor();
-
-	/** @brief A standard assignment operator */
-	const GBooleanAdaptor& operator=(const GBooleanAdaptor&);
-
-	/** @brief Loads the content of another GBooleanAdaptor */
-	virtual void load(const GObject *);
-	/** @brief Creates a deep copy of this object */
-	virtual GObject *clone();
-
-	/** @brief Retrieves the current mutation probability */
-	double getMutationProbability();
-	/** @brief Sets the mutation probability to a given value */
-	void setMutationProbability(const double&);
-
-	/** @brief Sets the mutation parameters of the internal GDouble */
-	void setMutationParameters(const double&, const double&, const double&, const double&);
-
-	/**********************************************************************/
-	/**
-	 * Returns the standard name of a GBooleanAdaptor
-	 *
-	 * @return The name assigned to adaptors of this type
-	 */
-	static std::string adaptorName() throw() {
-		return GBOOLEANADAPTORSTANDARDNAME;
-	}
-
-	/**********************************************************************/
-
-protected:
-	/** @brief Initializes a new mutation run */
-	virtual void adaptMutation();
-
-	/** @brief The actual mutation of the bit value */
-	virtual void customMutations(bool&);
-
-private:
-	/** @brief Simple flip of a bit value */
-	void flip(bool&) const throw();
-
-	GBoundedDouble mutProb_; ///< internal representation of the mutation probability
-};
+typedef GIntFlipAdaptorT<bool> GBooleanAdaptor;
 
 /***********************************************************************************/
 
