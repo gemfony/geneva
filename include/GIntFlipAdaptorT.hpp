@@ -101,7 +101,7 @@ public:
 	 *
 	 * @param prob The probability for a bit-flip
 	 */
-	explicit GIntFlipAdaptor(const double& prob)
+	explicit GIntFlipAdaptorT(const double& prob)
 		:GAdaptorT<int_type>(GINTFLIPADAPTORSTANDARDNAME),
 		 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
 	{
