@@ -48,12 +48,6 @@
 namespace Gem {
 namespace GenEvA {
 
-const double SGM = 0.01;
-const double SGMSGM = 0.001;
-const double MINSGM = 0.00001;
-const double MAXSGM = 0.01;
-
-const double DEFAULTMUTPROB = 0.05; // 5 percent mutation probability
 const std::string GBOOLEANADAPTORSTANDARDNAME="GBooleanAdaptor";
 
 /***********************************************************************************/

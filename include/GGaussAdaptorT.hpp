@@ -48,16 +48,12 @@
 #include "GRandom.hpp"
 #include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
+#include "GEnum.hpp"
 
 namespace Gem {
 namespace GenEvA {
 
-const double DEFAULTSIGMA = 0.1; ///< Default start value for sigma_
-const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption
-const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for sigma_
-const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
-
-const std::string GGAUSSADAPTORSTANDARDNAME = "GGaussAdaptorT";
+const std::string GGAUSSADAPTORSTANDARDNAME = "GGaussAdaptorT"; ///< The designated name of this adaptor
 
 /************************************************************************************************/
 /**

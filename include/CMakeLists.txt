@@ -28,6 +28,7 @@ SET ( GENEVAINCLUDES
 	GIndividual.hpp
 	GIndividualSet.hpp
 	GInt32GaussAdaptor.hpp
+	GIntFlipAdaptorT.hpp
 	GLogger.hpp
 	GLogTargets.hpp
 	GMutableI.hpp

@@ -154,8 +154,7 @@ namespace Gem
 		/**
 		 * The mutation of a GDouble object has a number of parameters that can
 		 * be set with this function. See the documentation of the GDouble class
-		 * for further information. Note that shared_ptr<> implements operator bool,
-		 * so we can test whether it contains a valid pointer in a simple way.
+		 * for further information.
 		 *
 		 * @param sgm Sigma for gauss mutation
 		 * @param sgmSgm Parameter which determines the amount of evolutionary adaption of sigma
