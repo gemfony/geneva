@@ -338,7 +338,7 @@ protected:
 	 */
 	inline void adaptMutation()
 	{
-		sigma_ *= exp(gr.gaussRandom(0.,sigmaSigma_));
+		sigma_ *= exp(this->gr.gaussRandom(0.,sigmaSigma_));
 
 		// make sure sigma_ doesn't get out of range
 		if(fabs(sigma_) < minSigma_) sigma_ = minSigma_;
@@ -358,7 +358,7 @@ protected:
 #if defined (CHECKOVERFLOWS) || defined (DEBUG)
 		// Prevent over- and underflows. Note that we currently do not check the
 		// size of "addition" in comparison to "value".
-		num_type addition = boost::numeric_cast<num_type>(gr.gaussRandom(0.,sigma_));
+		num_type addition = boost::numeric_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
 
 		if(value >= 0){
 			if(addition >= 0 && (boost::numeric_limits<num_type>::max()-value < addition)) addition *= -1;
@@ -370,7 +370,7 @@ protected:
 		value += addition;
 #else
 		// We do not check for over- or underflows for performance reasons.
-		value += static_cast<num_type>(gr.gaussRandom(0.,sigma_));
+		value += static_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
 #endif /* CHECKOVERFLOWS || DEBUG */
 	}
 

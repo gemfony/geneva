@@ -41,7 +41,7 @@ void GGaussAdaptorT<double>::customMutations(double& value) {
 
 #ifdef CHECKOVERFLOWS
 	// Prevent over- and underflows
-	double addition = gr.gaussRandom(0.,sigma_);
+	double addition = this->gr.gaussRandom(0.,sigma_);
 
 	if(value >= 0.){
 		if(addition >= 0. && (boost::numeric_limits<double>::max()-value < addition)) addition *= -1.;
@@ -53,7 +53,7 @@ void GGaussAdaptorT<double>::customMutations(double& value) {
 	value += addition;
 #elif
 	// We do not check for over- or underflows for performance reasons.
-	value += gr.gaussRandom(0.,sigma_);
+	value += this->gr.gaussRandom(0.,sigma_);
 #endif /* CHECKOVERFLOWS */
 }
 
