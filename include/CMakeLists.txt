@@ -27,6 +27,7 @@ SET ( GENEVAINCLUDES
 	GIndividualBroker.hpp
 	GIndividual.hpp
 	GIndividualSet.hpp
+	GInt32GaussAdaptor.hpp
 	GLogger.hpp
 	GLogTargets.hpp
 	GMutableI.hpp

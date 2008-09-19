@@ -18,6 +18,7 @@ SET ( GENEVASOURCES
 	GGaussAdaptorT
 	GIndividual
 	GIndividualSet
+	GInt32GaussAdaptor
 	GLogger
 	GLogTargets
 	GObject
