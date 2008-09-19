@@ -107,7 +107,7 @@ public:
 	 * @param sigma The initial value for the sigma_ parameter
 	 */
 	explicit GGaussAdaptorT(const double& sigma)
-		:GAdaptorT<num_type> (GDGASTANDARDNAME),
+		:GAdaptorT<num_type> (GGAUSSADAPTORSTANDARDNAME),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
 		 minSigma_(DEFAULTMINSIGMA),
 		 maxSigma_(DEFAULTMAXSIGMA)
@@ -128,7 +128,7 @@ public:
 	 */
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
-		:GAdaptorT<num_type> (GDGASTANDARDNAME)
+		:GAdaptorT<num_type> (GGAUSSADAPTORSTANDARDNAME)
 	{
 		// These functions do error checks on their values
 		setSigmaAdaptionRate(sigmaSigma);
