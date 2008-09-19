@@ -36,27 +36,26 @@ namespace GenEvA {
  */
 template<>
 void GGaussAdaptorT<double>::customMutations(double& value) {
-	// adapt the value in situ. Note that this changes
-	// the argument of this function
+		// adapt the value in situ. Note that this changes
+		// the argument of this function
+#if defined (CHECKOVERFLOWS) || defined (DEBUG)
+		// Prevent over- and underflows. Note that we currently do not check the
+		// size of "addition" in comparison to "value".
+		double addition = this->gr.gaussRandom(0.,sigma_);
 
-#ifdef CHECKOVERFLOWS
-	// Prevent over- and underflows
-	double addition = this->gr.gaussRandom(0.,sigma_);
+		if(value >= 0){
+			if(addition >= 0. && (std::numeric_limits<double>::max()-value < addition)) addition *= -1.;
+		}
+		else { // < 0
+			if(addition < 0. && (std::numeric_limits<double>::min()-value > addition)) addition *= -1.;
+		}
 
-	if(value >= 0.){
-		if(addition >= 0. && (std::numeric_limits<double>::max()-value < addition)) addition *= -1.;
-	}
-	else { // < 0
-		if(addition < 0. && (std::numeric_limits<double>::min()-value > addition)) addition *= -1.;
-	}
-
-	value += addition;
-#elif
-	// We do not check for over- or underflows for performance reasons.
-	value += this->gr.gaussRandom(0.,sigma_);
-#endif /* CHECKOVERFLOWS */
+		value += addition;
+#else
+		// We do not check for over- or underflows for performance reasons.
+		value += this->gr.gaussRandom(0.,sigma_);
+#endif /* CHECKOVERFLOWS || DEBUG */
 }
-
 
 /***********************************************************************************************/
 /**
