@@ -70,14 +70,15 @@ BOOST_AUTO_TEST_CASE( gbfa_gobject_test_no_failure_expected )
 	BOOST_CHECK(gbfa->name() == GBooleanAdaptor::adaptorName());
 	BOOST_CHECK(gbfa->name() == gbfa2->name());
 
+	// Check that the two objects are indeed independent
 	gbfa2->setName(ADAPTORNAME2);
-	BOOST_CHECK(gbfa->name() == ADAPTORNAME);
-	BOOST_CHECK(gbfa->name() != gbfa2->name());
-	BOOST_CHECK(gbfa2->name() == ADAPTORNAME2);
+	BOOST_CHECK(gbfa->name() == GBooleanAdaptor::adaptorName()); // must still be the same
+	BOOST_CHECK(gbfa->name() != gbfa2->name()); // May not be the same
+	BOOST_CHECK(gbfa2->name() == ADAPTORNAME2); // Must have the assigned name
 
 	// Assigning the object
 	*gbfa2 = *gbfa;
-	BOOST_CHECK(gbfa->name() == ADAPTORNAME);
+	BOOST_CHECK(gbfa2->name() == GBooleanAdaptor::adaptorName());
 	BOOST_CHECK(gbfa->name() == gbfa2->name());
 
 	// Changing the aspects again

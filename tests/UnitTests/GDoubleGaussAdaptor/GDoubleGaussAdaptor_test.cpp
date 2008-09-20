@@ -70,17 +70,17 @@ BOOST_AUTO_TEST_CASE( gdga_gobject_test_no_failure_expected )
 	GDoubleGaussAdaptor *gdga2=new GDoubleGaussAdaptor(*gdga); // Copy construction
 
 	// Getting and setting the name
-	BOOST_CHECK(gdga->name() == ADAPTORNAME);
+	BOOST_CHECK(gdga->name() == GDoubleGaussAdaptor::adaptorName());
 	BOOST_CHECK(gdga->name() == gdga2->name());
 
 	gdga2->setName(ADAPTORNAME2);
-	BOOST_CHECK(gdga->name() == ADAPTORNAME);
+	BOOST_CHECK(gdga->name() == GDoubleGaussAdaptor::adaptorName()); // should remain unchanged
 	BOOST_CHECK(gdga->name() != gdga2->name());
 	BOOST_CHECK(gdga2->name() == ADAPTORNAME2);
 
 	// Assigning the object
 	*gdga2 = *gdga;
-	BOOST_CHECK(gdga->name() == ADAPTORNAME);
+	BOOST_CHECK(gdga2->name() == GDoubleGaussAdaptor::adaptorName());
 	BOOST_CHECK(gdga->name() == gdga2->name());
 
 	// Changing the aspects again
