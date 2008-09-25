@@ -61,6 +61,7 @@ const boost::uint32_t DEFAULTREPORTGENERATION=1;
 const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
+const bool DEFAULTPARALLEL=true;
 
 namespace po = boost::program_options;
 
@@ -76,6 +77,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
+		                          bool& parallel,
 					  bool& verbose);
 
 } /* namespace GenEvA */

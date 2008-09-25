@@ -62,6 +62,7 @@ int main(int argc, char **argv){
 	 boost::uint32_t maxGenerations, reportGeneration;
 	 boost::uint32_t adaptionThreshold;
 	 long maxMinutes;
+	 bool parallel;
 	 bool verbose;
 	 recoScheme rScheme;
 
@@ -78,6 +79,7 @@ int main(int argc, char **argv){
 						 maxMinutes,
 						 reportGeneration,
 						 rScheme,
+			                         parallel,
 						 verbose))
 	{ std::terminate(); }
 
@@ -99,22 +101,39 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GParabolaIndividual>
 		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax, adaptionThreshold));
 
-	// Now we've got our first individual and can create a simple population with serial execution.
-	GBasePopulation pop;
-	// GBoostThreadPopulation pop;
-	// pop.setNThreads(10);
+	if(parallel) {
+	  // Now we've got our first individual and can create a simple population with serial execution.
+	  GBoostThreadPopulation pop_par;
+	  pop_par.setNThreads(10);
 
-	pop.push_back(parabolaIndividual);
+	  pop_par.push_back(parabolaIndividual);
 
-	// Specify some population settings
-	pop.setPopulationSize(populationSize,nParents);
-	pop.setMaxGeneration(maxGenerations);
-	pop.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-	pop.setReportGeneration(reportGeneration); // Emit information during every generation
-	pop.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+	  // Specify some population settings
+	  pop_par.setPopulationSize(populationSize,nParents);
+	  pop_par.setMaxGeneration(maxGenerations);
+	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
+	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
+	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+	  
+	  // Do the actual optimization
+	  pop_par.optimize();
+	}
+	else {
+	  // Now we've got our first individual and can create a simple population with serial execution.
+	  GBasePopulation pop_ser;
 
-	// Do the actual optimization
-	pop.optimize();
+	  pop_ser.push_back(parabolaIndividual);
+	  
+	  // Specify some population settings
+	  pop_ser.setPopulationSize(populationSize,nParents);
+	  pop_ser.setMaxGeneration(maxGenerations);
+	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
+	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
+	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+	  
+	  // Do the actual optimization
+	  pop_ser.optimize();
+	}
 
 	std::cout << "Done ..." << std::endl;
 
