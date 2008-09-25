@@ -63,7 +63,7 @@ bool parseCommandLine(int argc, char **argv,
 			("nDim,D", po::value<std::size_t>(&nDim)->default_value(DEFAULTNDIM),
 					"The dimension of the hypersphere used for the training of the network")
 			("radius,r", po::value<double>(&radius)->default_value(DEFAULTRADIUS),
-					"The radius of the hypersphere used for the training of the network")
+					"The radius or edgelength of the hypersphere or hypercube used for the training of the network")
 			("randMin,m", po::value<double>(&randMin)->default_value(DEFAULTRANDMIN),
 					"The minimum allowed value for random numbers used for thr network initialization")
 			("randMax,M", po::value<double>(&randMax)->default_value(DEFAULTRANDMAX),
@@ -130,7 +130,7 @@ bool parseCommandLine(int argc, char **argv,
 				      << "Running with the following options:" << std::endl
 				      << "nData = " << nData << std::endl
 					  << "nDim = " << nDim << std::endl
-					  << "radius = " << radius << std::endl
+					  << "radius/edgelength = " << radius << std::endl
 					  << "randMin = " << randMin << std::endl
 					  << "randMax = " << randMax << std::endl
 					  << "nHiddenLayer1Nodes = " << nHiddenLayer1Nodes << std::endl

@@ -104,7 +104,8 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	// Create training data for the individual
-	boost::shared_ptr<trainingData> p = GNeuralNetworkIndividual::createHyperSphereTrainingData("", nData, nDim, radius);
+	// boost::shared_ptr<trainingData> p = GNeuralNetworkIndividual::createHyperSphereTrainingData("", nData, nDim, radius);
+	boost::shared_ptr<trainingData> p = GNeuralNetworkIndividual::createHyperCubeTrainingData("", nData, nDim, radius);
 
 	// The neural network architecture is currently hard-wired to two hidden layers
 	// Note that this is a restriction of this main function only and not of the network individual.
