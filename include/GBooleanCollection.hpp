@@ -89,6 +89,11 @@ namespace GenEvA
     virtual GObject *clone();
     /** @brief Loads the data of another GBooleanCollection class */
     virtual void load(const GObject *);
+
+    /** @brief Adds random bits to the collection */
+    void addRandomData(const std::size_t&);
+    /** @brief Adds random bits to the collection with a given probability structure */
+    void addRandomData(const std::size_t&, const double&);
   };
 
   /**********************************************************************/

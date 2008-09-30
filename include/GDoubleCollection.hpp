@@ -40,64 +40,16 @@
 
 // GenEvA header files go here
 
-#include "GObject.hpp"
-#include "GParameterCollectionT.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GLogger.hpp"
-#include "GenevaExceptions.hpp"
+#include "GNumCollectionT.hpp"
+
 
 namespace Gem {
 namespace GenEvA {
 
-const double DEFINIT = 100.;
-
-/**********************************************************************/
-/**
- * This class represents a collection of double values, all modified
- * using the same algorithm. Using the framework provided by GTemplateValueCollection
- * and GDoubleGaussAdaptor, this class becomes rather simple.
- */
-class GDoubleCollection
-	: public GParameterCollectionT<double>
-{
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
-
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<double> >(*this));
-	}
-	///////////////////////////////////////////////////////////////////////
-
-public:
-	/** @brief The default constructor */
-	GDoubleCollection();
-	/** @brief Initialize with a number of random numbers */
-	explicit GDoubleCollection(const std::size_t&);
-	/** @brief Initialize with a number of random values
-	 * within given boundaries */
-	GDoubleCollection(const std::size_t&, const double&, const double&);
-	/** @brief The standard copy constructor */
-	GDoubleCollection(const GDoubleCollection&);
-	/** @brief The standard destructor */
-	virtual ~GDoubleCollection();
-
-	/** @brief The standard assignment operator */
-	const GDoubleCollection& operator=(const GDoubleCollection&);
-
-	/** @brief Creates a deep copy of this object. */
-	virtual GObject *clone();
-	/** @brief Loads the data fron another GDoubleCollection object */
-	virtual void load(const GObject *);
-
-	/** @brief Appends double values in a given range */
-	void addRandomData(const std::size_t&, const double&, const double&);
-};
-
-/**********************************************************************/
+/** All "real" functionality is implemented in GNumCollectionT and its parent classes */
+typedef GNumCollectionT<double> GDoubleCollection;
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /*GDOUBLECOLLECTION_HPP_*/
+#endif /* GDOUBLECOLLECTION_HPP_ */

@@ -131,43 +131,6 @@ double GRandom::doubleGaussRandom(const double& mean, const double& sigma, const
 
 /*************************************************************************/
 /**
- * This function produces integer random numbers in the range of [0, max[ .
- *
- * @param max The maximum (excluded) value of the range
- * @return Discrete random numbers evenly distributed in the range [0,max[
- */
-boost::uint16_t GRandom::discreteRandom(const boost::uint16_t& max) {
-	boost::uint16_t result =
-		static_cast<boost::uint16_t> (GRandom::evenRandom(static_cast<double> (max)));
-#ifdef DEBUG
-	assert(result<max);
-#endif
-	return result;
-}
-
-/*************************************************************************/
-/**
- * This function produces integer random numbers in the range of [min, max[ .
- * Note that max may also be < 0. .
- *
- * @param min The minimum value of the range
- * @param max The maximum (excluded) value of the range
- * @return Discrete random numbers evenly distributed in the range [min,max[
- */
-boost::int16_t GRandom::discreteRandom(const boost::int16_t& min, const boost::int16_t& max) {
-#ifdef DEBUG
-	assert(min < max);
-#endif
-	boost::int16_t result = discreteRandom(static_cast<boost::int16_t> (max - min)) + min;
-
-#ifdef DEBUG
-	assert(result>=min && result<max);
-#endif
-	return result;
-}
-
-/*************************************************************************/
-/**
  * This function returns true with a probability "probability", otherwise false.
  *
  * @param p The probability for the value "true" to be returned
@@ -202,9 +165,9 @@ bool GRandom::boolRandom() {
  */
 char GRandom::charRandom(const bool& printable) {
 	if (!printable) {
-		return (char) discreteRandom(0, 128);
+		return (char) discreteRandom<boost::uint8_t>(0, 128);
 	} else {
-		return (char) discreteRandom(33, 127);
+		return (char) discreteRandom<boost::uint8_t>(33, 127);
 	}
 }
 
@@ -248,6 +211,96 @@ inline void GRandom::getNewP01() {
 
 	// We should now have a valid p01_ in any case
 	p_raw_ = p01_.get();
+}
+
+/*************************************************************************/
+/**
+ * Specialization of the function for double to trap incorrect usage of
+ * the function. Will throw immediately.
+ */
+template <>
+double GRandom::discreteRandom(const double& max){
+	std::ostringstream error;
+
+	error << "In GRandom::discreteRandom<double>(const double&): Error!" << std::endl
+		  << "This function should not be used with double as a template type" << std::endl;
+
+	throw Gem::GenEvA::geneva_error_condition(error.str());
+}
+
+/*************************************************************************/
+/**
+ * Specialization of the function for double to trap incorrect usage of
+ * the function. Will throw immediately.
+ */
+template <>
+double GRandom::discreteRandom(const double& min, const double& max){
+	std::ostringstream error;
+
+	error << "In GRandom::discreteRandom<double>(const double&, const double&): Error!" << std::endl
+		  << "This function should not be used with double as a template type" << std::endl;
+
+	throw Gem::GenEvA::geneva_error_condition(error.str());
+}
+
+/*************************************************************************/
+/**
+ * Specialization of the function for float to trap incorrect usage of
+ * the function. Will throw immediately.
+ */
+template <>
+float GRandom::discreteRandom(const float& max){
+	std::ostringstream error;
+
+	error << "In GRandom::discreteRandom<float>(const float&): Error!" << std::endl
+		  << "This function should not be used with float as a template type" << std::endl;
+
+	throw Gem::GenEvA::geneva_error_condition(error.str());
+}
+
+/*************************************************************************/
+/**
+ * Specialization of the function for float to trap incorrect usage of
+ * the function. Will throw immediately.
+ */
+template <>
+float GRandom::discreteRandom(const float& min, const float& max){
+	std::ostringstream error;
+
+	error << "In GRandom::discreteRandom<float>(const float&, const float&): Error!" << std::endl
+		  << "This function should not be used with float as a template type" << std::endl;
+
+	throw Gem::GenEvA::geneva_error_condition(error.str());
+}
+
+/*************************************************************************/
+/**
+ * Specialization of the function for bool to trap incorrect usage of
+ * the function. Will throw immediately.
+ */
+template <>
+bool GRandom::discreteRandom(const bool& max){
+	std::ostringstream error;
+
+	error << "In GRandom::discreteRandom<bool>(const bool&): Error!" << std::endl
+		  << "This function should not be used with bool as a template type" << std::endl;
+
+	throw Gem::GenEvA::geneva_error_condition(error.str());
+}
+
+/*************************************************************************/
+/**
+ * Specialization of the function for bool to trap incorrect usage of
+ * the function. Will throw immediately.
+ */
+template <>
+bool GRandom::discreteRandom(const bool& min, const bool& max){
+	std::ostringstream error;
+
+	error << "In GRandom::discreteRandom<bool>(const bool&, const bool&): Error!" << std::endl
+		  << "This function should not be used with bool as a template type" << std::endl;
+
+	throw Gem::GenEvA::geneva_error_condition(error.str());
 }
 
 /*************************************************************************/

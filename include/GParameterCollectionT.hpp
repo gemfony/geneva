@@ -47,8 +47,7 @@ namespace GenEvA {
 /***********************************************************************************************/
 /**
  * A class holding a collection of mutable parameters - usually just an atomic value (double,
- * long, GenEvA::bit, ...). The class is non-virtual, so that it is possible to store simple
- * values in this class without too much fuss.
+ * long, bool, ...).
  */
 template<typename T>
 class GParameterCollectionT
@@ -90,8 +89,8 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GParameterCollectionT() { /* nothing */
-	}
+	virtual ~GParameterCollectionT()
+	{ /* nothing */ }
 
 	/*******************************************************************************************/
 	/**
@@ -108,15 +107,9 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Note that the existence of this function means that
-	 * this class can be instantiated as, in other contexts, this class is purely virtual (see e.g.
-	 * the GObject class.
-	 *
-	 * @return A copy of this object, camouflaged as a GObject
+	 * Creates a deep clone of this object. Purely virtual.
 	 */
-	virtual GObject* clone() {
-		return new GParameterCollectionT<T> (*this);
-	}
+	virtual GObject* clone() = 0;
 
 	/*******************************************************************************************/
 	/**
@@ -267,5 +260,20 @@ protected:
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+/**************************************************************************************************/
+/**
+ * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
+ */
+namespace boost {
+  namespace serialization {
+    template<typename T>
+    struct is_abstract<Gem::GenEvA::GParameterCollectionT<T> > : boost::true_type {};
+    template<typename T>
+    struct is_abstract< const Gem::GenEvA::GParameterCollectionT<T> > : boost::true_type {};
+  }
+}
+
+/**************************************************************************************************/
 
 #endif /* GPARAMETERCOLLECTIONT_HPP_ */

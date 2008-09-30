@@ -1,5 +1,5 @@
 /**
- * @file GDoubleCollection.cpp
+ * @file GInt32Collection.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -20,11 +20,36 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GDoubleCollection.hpp"
+// Standard header files go here
+#include <string>
+#include <sstream>
+#include <vector>
 
-/**
- * Included here so no conflicts occur. See explanation at
- * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
- */
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GDoubleCollection)
+// Boost header files go here
+
+#include <boost/version.hpp>
+
+#if BOOST_VERSION < 103600
+#error "Error: Boost should at least have version 1.36 !"
+#endif /* BOOST_VERSION */
+
+#include <boost/cstdint.hpp>
+
+#ifndef GINT32COLLECTION_HPP_
+#define GINT32COLLECTION_HPP_
+
+// GenEvA header files go here
+
+#include "GNumCollectionT.hpp"
+
+
+namespace Gem {
+namespace GenEvA {
+
+/** All "real" functionality is implemented in GNumCollectionT and its parent classes */
+typedef GNumCollectionT<boost::uint32_t> GInt32Collection;
+
+} /* namespace GenEvA */
+} /* namespace Gem */
+
+#endif /* GINT32COLLECTION_HPP_ */

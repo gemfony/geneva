@@ -27,12 +27,14 @@ SET ( GENEVAINCLUDES
 	GIndividualBroker.hpp
 	GIndividual.hpp
 	GIndividualSet.hpp
+	GInt32Collection.hpp
 	GInt32GaussAdaptor.hpp
 	GIntFlipAdaptorT.hpp
 	GLogger.hpp
 	GLogTargets.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
+	GNumCollectionT.hpp
 	GObject.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp

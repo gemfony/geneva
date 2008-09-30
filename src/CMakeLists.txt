@@ -18,10 +18,12 @@ SET ( GENEVASOURCES
 	GGaussAdaptorT
 	GIndividual
 	GIndividualSet
+	GInt32Collection
 	GInt32GaussAdaptor
 	GIntFlipAdaptorT
 	GLogger
 	GLogTargets
+	GNumCollectionT
 	GObject
 	GParameterBase
 	GParameterBaseWithAdaptorsT

@@ -49,21 +49,21 @@ namespace GenEvA
   GBooleanCollection::GBooleanCollection(const std::size_t& nval)
     :GParameterCollectionT<bool>()
   {
-    for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom());
+    this->addRandomData(nval);
   }
 
   /**********************************************************************/
   /**
    * Initializes the class with nval random bits, of which probability percent
-   * have the value Gem::GenEvA::G_TRUE
+   * have the value true
    *
    * @param nval The size of the collection
-   * @param probability The probability for G_TRUE values in the collection
+   * @param probability The probability for true values in the collection
    */
   GBooleanCollection::GBooleanCollection(const std::size_t& nval, const double& probability)
 	:GParameterCollectionT<bool>()
   {
-	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom(probability));
+	this->addRandomData(nval, probability);
   }
 
   /**********************************************************************/
@@ -124,6 +124,27 @@ namespace GenEvA
     }
 
     GParameterCollectionT<bool>::load(cp);
+  }
+
+  /**********************************************************************/
+  /**
+   * Adds random bits to the collection, 50% of which have the value false.
+   *
+   * @param nval The number of boolean values to add to the collection
+   */
+  void GBooleanCollection::addRandomData(const std::size_t& nval){
+	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom());
+  }
+
+  /**********************************************************************/
+  /**
+   * Adds random bits to the collection with a given probability structure.
+   *
+   * @param nval The number of boolean values to add to the collection
+   * @param probability The probability for true values in the collection
+   */
+  void GBooleanCollection::addRandomData(const std::size_t& nval, const double& probability){
+	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom(probability));
   }
 
   /**********************************************************************/
