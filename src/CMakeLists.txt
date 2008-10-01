@@ -13,6 +13,7 @@ SET ( GENEVASOURCES
 	GBoostThreadPopulation
 	GBoundedDouble
 	GBrokerPopulation
+	GCharFlipAdaptor
 	GDoubleCollection 
 	GDoubleGaussAdaptor
 	GGaussAdaptorT

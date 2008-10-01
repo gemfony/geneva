@@ -18,6 +18,7 @@ SET ( GENEVAINCLUDES
 	GBrokerT.hpp
 	GBrokerPopulation.hpp
 	GBufferPortT.hpp
+	GCharFlipAdaptor.hpp
 	GConsumer.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp

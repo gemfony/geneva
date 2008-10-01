@@ -134,6 +134,29 @@ void GIntFlipAdaptorT<boost::int8_t>::customMutations(boost::int8_t& value) {
 }
 
 /***********************************************************************************************/
+/**
+ * Specialization for typeof(int_type) == typeof(char). The main difference to the generic
+ * version is that the boundary check is mandatory.
+ *
+ * @param value The value to be mutated
+ */
+template<>
+void GIntFlipAdaptorT<char>::customMutations(char& value) {
+	double probe = this->gr.evenRandom(0.,1.);
+	if(probe < mutProb_.value()) {
+		bool up = this->gr.boolRandom();
+		if(up){
+			if(std::numeric_limits<char>::max() == value) value -= 1;
+			else value += 1;
+		}
+		else {
+			if(std::numeric_limits<char>::min() == value) value += 1;
+			else value -= 1;
+		}
+	}
+}
+
+/***********************************************************************************************/
 
 } /* namespace GenEvA  */
 } /* namespace Gem */

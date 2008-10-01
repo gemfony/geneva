@@ -290,6 +290,7 @@ template<> void GIntFlipAdaptorT<short>::customMutations(short&);
 template<> void GIntFlipAdaptorT<unsigned short>::customMutations(unsigned short&);
 template<> void GIntFlipAdaptorT<boost::uint8_t>::customMutations(boost::uint8_t&);
 template<> void GIntFlipAdaptorT<boost::int8_t>::customMutations(boost::int8_t&);
+template<> void GIntFlipAdaptorT<char>::customMutations(char&);
 
 } /* namespace GenEvA */
 } /* namespace Gem */
