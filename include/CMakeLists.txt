@@ -28,6 +28,7 @@ SET ( GENEVAINCLUDES
 	GIndividual.hpp
 	GIndividualSet.hpp
 	GInt32Collection.hpp
+	GInt32FlipAdaptor.hpp
 	GInt32GaussAdaptor.hpp
 	GIntFlipAdaptorT.hpp
 	GLogger.hpp

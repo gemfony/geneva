@@ -19,6 +19,7 @@ SET ( GENEVASOURCES
 	GIndividual
 	GIndividualSet
 	GInt32Collection
+	GInt32FlipAdaptor
 	GInt32GaussAdaptor
 	GIntFlipAdaptorT
 	GLogger

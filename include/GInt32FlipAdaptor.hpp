@@ -1,5 +1,5 @@
 /**
- * @file GInt32Collection.hpp
+ * @file GInt32FlipAdaptor.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -35,21 +35,21 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GINT32COLLECTION_HPP_
-#define GINT32COLLECTION_HPP_
+#ifndef GINT32FLIPADAPTOR_HPP_
+#define GINT32FLIPADAPTOR_HPP_
 
 // GenEvA header files go here
 
-#include "GNumCollectionT.hpp"
+#include "GIntFlipAdaptorT.hpp"
 
 
 namespace Gem {
 namespace GenEvA {
 
-/** All "real" functionality is implemented in GNumCollectionT and its parent classes */
-typedef GNumCollectionT<boost::int32_t> GInt32Collection;
+/** All "real" functionality is implemented in GIntFlipAdaptorT and its parent classes */
+typedef GIntFlipAdaptorT<boost::int32_t> GInt32FlipAdaptor;
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GINT32COLLECTION_HPP_ */
+#endif /* GINT32FLIPADAPTOR_HPP_ */

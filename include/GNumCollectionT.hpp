@@ -178,7 +178,7 @@ public:
 /**********************************************************************/
 // Declaration of some specializations
 template<> void GNumCollectionT<double>::addRandomData(const std::size_t&, const double&, const double&);
-template<> void GNumCollectionT<boost::uint32_t>::addRandomData(const std::size_t&, const boost::uint32_t&, const boost::uint32_t&);
+template<> void GNumCollectionT<boost::int32_t>::addRandomData(const std::size_t&, const boost::int32_t&, const boost::int32_t&);
 
 /**********************************************************************/
 

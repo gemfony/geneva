@@ -45,16 +45,16 @@ void GNumCollectionT<double>::addRandomData(const std::size_t& nval,
 
 /***********************************************************************************************/
 /**
- * Specialization for typeof(num_type) == typeof(boost::uint32_t).
+ * Specialization for typeof(num_type) == typeof(boost::int32_t).
  *
  * @param nval Number of values to put into the vector
  * @param min The lower boundary for random entries
  * @param max The upper boundary for random entries
  */
 template<>
-void GNumCollectionT<boost::uint32_t>::addRandomData(const std::size_t& nval,
-		                                            const boost::uint32_t& min,
-		                                            const boost::uint32_t& max)
+void GNumCollectionT<boost::int32_t>::addRandomData(const std::size_t& nval,
+		                                            const boost::int32_t& min,
+		                                            const boost::int32_t& max)
 {
 	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.discreteRandom(min,max));
 }
