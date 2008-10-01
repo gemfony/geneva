@@ -1,5 +1,5 @@
 /**
- * @file GBoolean.cpp
+ * @file GChar.cpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -20,12 +20,12 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GBoolean.hpp"
+#include "GChar.hpp"
 
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GBoolean)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GChar)
 
 namespace Gem
 {
@@ -35,20 +35,20 @@ namespace Gem
 		/************************************************************************/
 		/**
 		 * The standard constructor. No local data, hence all work is done
-		 * by the parent class. We initialize with a random bit value.
+		 * by the parent class. We initialize with a random character.
 		 */
-		GBoolean::GBoolean(void)
-			:GParameterT<bool>(gr.boolRandom())
+		GChar::GChar(void)
+			:GParameterT<char>(gr.charRandom())
 		{ /* nothing */ }
 
 		/************************************************************************/
 		/**
-		 * Initialization with a boolean value
+		 * Initialization with a char value
 		 *
 		 * @param val The value to assign (in converted form) to this object
 		 */
-		GBoolean::GBoolean(const bool& val)
-			:GParameterT<bool>(val)
+		GChar::GChar(const char& val)
+			:GParameterT<char>(val)
 		{ /* nothing */ }
 
 		/************************************************************************/
@@ -56,44 +56,44 @@ namespace Gem
 		 * A standard copy constructor. We have no local data. Hence all work is
 		 * done by the parent class.
 		 *
-		 * @param cp A copy of another GBoolean object
+		 * @param cp A copy of another GChar object
 		 */
-		GBoolean::GBoolean(const GBoolean& cp)
-			:GParameterT<bool>(cp)
+		GChar::GChar(const GChar& cp)
+			:GParameterT<char>(cp)
 		{ /* nothing */ }
 
 		/************************************************************************/
 		/**
 		 * The standard destructor. No local data, hence nothing to do.
 		 */
-		GBoolean::~GBoolean()
+		GChar::~GChar()
 		{ /* nothing */ }
 
 		/************************************************************************/
 		/**
-		 * A standard assignment operator for GBoolean object.
+		 * A standard assignment operator for GChar object.
 		 *
-		 * @param cp A copy of another GBoolean object
+		 * @param cp A copy of another GChar object
 		 * @return A copy of this object
 		 */
-		const GBoolean& GBoolean::operator=(const GBoolean& cp) {
-			GBoolean::load(&cp);
+		const GChar& GChar::operator=(const GChar& cp) {
+			GChar::load(&cp);
 			return *this;
 		}
 
 		/************************************************************************/
 		/**
-		 * Loads the data of another GBoolean Object.
+		 * Loads the data of another GChar Object.
 		 *
-		 * @param gb A pointer to another GBoolean object, camouflaged as a GObject
+		 * @param gb A pointer to another GChar object, camouflaged as a GObject
 		 */
-		void GBoolean::load(const GObject * cp) {
+		void GChar::load(const GObject * cp) {
 			// Check that this object is not accidently assigned to itself.
 			// As we do not actually do any calls with this pointer, we
 			// can use the faster static_cast<>
-			if(static_cast<const GBoolean *>(cp) == this) {
+			if(static_cast<const GChar *>(cp) == this) {
 				std::ostringstream error;
-				error << "In GBoolean::load() : Error!" << std::endl
+				error << "In GChar::load() : Error!" << std::endl
 					  << "Tried to assign an object to itself." << std::endl;
 
 				throw geneva_error_condition(error.str());
@@ -101,7 +101,7 @@ namespace Gem
 
 			// We can rely on the parent class, as we
 			// have no local data ourselves.
-			GParameterT<bool>::load(cp);
+			GParameterT<char>::load(cp);
 		}
 
 		/************************************************************************/
@@ -110,8 +110,8 @@ namespace Gem
 		 *
 		 * @return A deep copy of this object
 		 */
-		GObject *GBoolean::clone(void) {
-			return new GBoolean(*this);
+		GObject *GChar::clone(void) {
+			return new GChar(*this);
 		}
 
 		/************************************************************************/

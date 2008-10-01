@@ -1,5 +1,5 @@
 /**
- * @file GBoolean.hpp
+ * @file GChar.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -32,8 +32,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GBOOLEAN_HPP_
-#define GBOOLEAN_HPP_
+#ifndef GCHAR_HPP_
+#define GCHAR_HPP_
 
 // GenEvA headers go here
 
@@ -47,43 +47,37 @@ namespace GenEvA {
 
 /************************************************************************/
 /**
- * This class encapsulates a single bit, represented as a bool. This might appear heavy weight,
+ * This class encapsulates a char type. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
- * use the GBooleanCollection instead.
- *
- * Bits are mutated by the GBooleanAdaptor in GenEvA. It incorporates a mutable bit-flip probability.
- * The reason for this class is that there might be applications where one might want different flip
- * probabilities for different bits. Where this is the case, separate GBooleanAdaptors must be
- * assigned to each bit value, which cannot be done with the GBooleanCollection. Plus, having
- * a separate bit class adds some consistency to GenEvA, as other values (most
- * notably doubles) have their own class as well (GDouble).
+ * use the GString class instead. char types are mutated by the GCharAdaptor
+ * in GenEvA.
  */
-class GBoolean
-	:public GParameterT<bool> {
+class GChar
+	:public GParameterT<char> {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<bool> >(*this));
+		ar & make_nvp("GParameterT", boost::serialization::base_object<GParameterT<char> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The standard constructor */
-	GBoolean(void);
-	/** @brief Initialization with a boolean */
-	explicit GBoolean(const bool&);
+	GChar(void);
+	/** @brief Initialization with a char */
+	explicit GChar(const char&);
 	/** @brief The standard copy constructor */
-	GBoolean(const GBoolean&);
+	GChar(const GChar&);
 	/** @brief The standard destructor */
-	virtual ~GBoolean();
+	virtual ~GChar();
 
 	/** @brief The standard assignment operator */
-	const GBoolean& operator=(const GBoolean&);
+	const GChar& operator=(const GChar&);
 
-	/** @brief Loads another GBoolean object, camouflaged as a GObject */
+	/** @brief Loads another GChar object, camouflaged as a GObject */
 	virtual void load(const GObject * gb);
 	/** @brief Creates a deep copy of this object */
 	virtual GObject *clone(void);
@@ -94,4 +88,4 @@ public:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GBOOLEAN_HPP_ */
+#endif /* GCHAR_HPP_ */

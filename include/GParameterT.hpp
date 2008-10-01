@@ -206,6 +206,7 @@ private:
 	T val_; ///< The internal representation of our value. It is protected as it needs to accessible to derived classes.
 };
 
-}} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
 #endif /* GPARAMETERT_HPP_ */
