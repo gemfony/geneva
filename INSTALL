@@ -94,10 +94,12 @@ above, with BOOST_ROOT="/opt/boost136".
 Appendix: Known bugs and (possibly) fixes on some platforms
 ===========================================================
 
-* g++ 4.3.1 (and possibly other 4.3.x version). Tested on OpenSUSE 11/64 bit and Debian Lenny:
+* GCC 4.3.1 and Boost 1.36.0 (tested on OpenSUSE 11/64 bit and Debian Lenny)
 
-The Boost.date_time library in version 1.36 has a problem in the file 
-<BOOST-ROOT>/include/boost-1_36/boost/date_time/tz_db_base.hpp . Line 161 should look like this:
+The Boost.data_time library in version 1.36, in conjunction with g++ 4.3.1
+(as found for instance in OpenSUSE 11/64 bit and in Debian Lenny) has a
+problem in the file <BOOST-ROOT>/include/boost-1_36/boost/date_time/tz_db_base.hpp .
+Line 161 should look like this:
 [...]
 typedef boost::date_time::dst_adjustment_offsets<time_duration_type> dst_adjustment_offsets;
 [...]
