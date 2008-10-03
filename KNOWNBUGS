@@ -1,10 +1,13 @@
-On OpenSUSE 11 / 64 bit / g++ 4.3.1, Geneva programs currently suffer 
-from a segmentation fault at the end of their execution. All functions 
-started from main have terminated at this time. The problem seems to be 
-caused by a bug in the Boost 1.36 serialization library. A post on the
-Boost mailing list on September 15, 2008 yielded the following answer:
+On OpenSUSE 11 / 64 bit / g++ 4.3.1, as well as Ubuntu 8.04 and Debian Lenny, Geneva 
+programs currently suffer from a segmentation fault at the end of their execution. All 
+functions started from main have terminated at this time, and the crash does to the best
+of our knowledge not affect the program result. The problem seems to be caused by a 
+bug in the Boost 1.36 serialization library. A post on the Boost mailing list on 
+September 15, 2008 yielded the following answer:
+
 "This has been previously reported and fixed in the trunk. I hope to merge
 this into the release branch before the end of the month."
+
 Removing the two lines 
 
 #include <boost/serialization/export.hpp>

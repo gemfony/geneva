@@ -3,10 +3,10 @@ Target systems
 
 The Geneva library has been developed on OpenSUSE systems (version 11 at the time
 of writing of this text). While it is likely that the same code will compile on 
-other Linux and possibly Unix platforms (particularly if gcc versions newer than 
-4.3 are used), no attempt has been made so far to do this. The author would very
-much appreciate your feedback, if you manage to compile the library on other systems
-than OpenSUSE 11. 
+any other Linux and possibly Unix platforms (particularly if gcc versions newer than 
+4.3 are used), only Ubuntu and Debian systems have being tested in addition to OpenSUSE
+up to date. The authors would very much appreciate your feedback, if you manage to 
+compile the library on other systems than those mentioned here. 
 
 Building and Installing
 =======================
@@ -19,6 +19,7 @@ You will need a copy of Boost (see http://www.boost.org), in version
 at http://threadpool.sf.net). It is assumed that the threadpool library
 is installed in the same location as Boost 1.36 (i.e., you have copied
 the files and directories recursively to /where/boost/resides/boost .
+See the Appendix "Compiling Boost" below for more details.
 
 In order to compile this project and the examples:
 Create a build directory anywhere in the file system and change into it. 
@@ -69,7 +70,7 @@ ROOT in your system, as also some of the examples emit information in the ROOT f
 (they are essentially writing ROOT programs).
 
 
-Appendix - Compiling Boost
+Appendix: Compiling Boost
 ==========================
 
 Download Boost from http://www.boost.org and extract the compressed file. This will create a 
@@ -78,6 +79,7 @@ installed in /opt/boost136 (which should be writable), execute
 
 ./configure --with-libraries=date_time,system,thread,serialization,program_options,test \
             --prefix=/opt/boost136
+make install
 
 After compilation finishes, download the threadpool library from http://threadpool.sf.net
 and unzip that file. This will create a folder "threadpool-0_2_4-src", for instance.
@@ -86,22 +88,28 @@ Then you should copy the threadpool files to the Boost location:
 cp -a threadpool-0_2_4-src/threadpool/include/* /opt/boost136/include/boost-1_36/boost/
 
 Once at this stage you can use the Boost include path as explained 
-above, BOOST_ROOT="/opt/boost136".
+above, with BOOST_ROOT="/opt/boost136".
 
 
 Appendix: Known bugs and (possibly) fixes on some platforms
 ===========================================================
 
-The Boost.data_time library in version 1.36, in conjunction with g++ 4.3.1 in OpenSUSE 11/64 bit 
-has a problem in the file <BOOST-ROOT>/include/boost-1_36/boost/date_time/tz_db_base.hpp .
-Line 161 should look like this:
+* g++ 4.3.1 (and possibly other 4.3.x version). Tested on OpenSUSE 11/64 bit and Debian Lenny:
+
+The Boost.date_time library in version 1.36 has a problem in the file 
+<BOOST-ROOT>/include/boost-1_36/boost/date_time/tz_db_base.hpp . Line 161 should look like this:
 [...]
 typedef boost::date_time::dst_adjustment_offsets<time_duration_type> dst_adjustment_offsets;
 [...]
 In the vanilla sources, the scope boost::date_time:: is missing. This doesn't seem to affect older 
 compiler versions, though.
 
-Current DEBIAN (Oktober 2, 2008) workaround: you need to apply the following patch to
+* Debian Lenny
+
+The gcc compiler in Debian returns a version number string which is not handled 
+correctly by CMake (as of cmake 2.6.0-5, Oktober 2, 2008; see 
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=501024).
+A workaround is available: you need to apply the following patch to
 /usr/share/cmake-2.6/Modules/FindBoost.cmake before calling cmake for Geneva
 
 ================================================================================
