@@ -4,7 +4,7 @@ Target systems
 The Geneva library has been developed on OpenSUSE systems (version 11 at the time
 of writing of this text). While it is likely that the same code will compile on 
 any other Linux and possibly Unix platforms (particularly if gcc versions newer than 
-4.3 are used), only Ubuntu and Debian systems have being tested in addition to OpenSUSE
+4.3 are used), only Ubuntu and Debian systems have been tested in addition to OpenSUSE
 up to date. The authors would very much appreciate your feedback, if you manage to 
 compile the library on other systems than those mentioned here. 
 
