@@ -79,9 +79,9 @@ int main(int argc, char **argv){
 						 maxMinutes,
 						 reportGeneration,
 						 rScheme,
-			                         parallel,
+						 parallel,
 						 verbose))
-	{ std::terminate(); }
+	{ exit(1); }
 
 	// Add some log levels to the logger
 	LOGGER->addLogLevel(Gem::GLogFramework::CRITICAL);
@@ -114,7 +114,7 @@ int main(int argc, char **argv){
 	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-	  
+
 	  // Do the actual optimization
 	  pop_par.optimize();
 	}
@@ -123,14 +123,14 @@ int main(int argc, char **argv){
 	  GBasePopulation pop_ser;
 
 	  pop_ser.push_back(parabolaIndividual);
-	  
+
 	  // Specify some population settings
 	  pop_ser.setPopulationSize(populationSize,nParents);
 	  pop_ser.setMaxGeneration(maxGenerations);
 	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
 	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-	  
+
 	  // Do the actual optimization
 	  pop_ser.optimize();
 	}

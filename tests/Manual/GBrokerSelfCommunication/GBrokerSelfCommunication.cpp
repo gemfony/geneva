@@ -96,7 +96,7 @@ int main(int argc, char **argv){
 				         reportGeneration,
 				         rScheme,
 				         verbose))
-		{ std::terminate(); }
+		{ exit(1); }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Creation of an input file for this example

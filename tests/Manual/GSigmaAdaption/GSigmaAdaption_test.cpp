@@ -62,9 +62,7 @@ int main(int argc, char **argv) {
 		                  resultFile,
 		                  maxIter,
 		                  verbose))
-	{
-		exit(1);
-	}
+	{ exit(1); }
 
 	std::ostringstream result;
 	std::vector<double> y_mutVal(maxIter);
