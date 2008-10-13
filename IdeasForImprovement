@@ -8,3 +8,4 @@
 - Ship the threadpool library with Geneva or move to standard Boost threapool (once it has been reviewed)
 - Add many more tests using the Boost.Test library
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
+- Add a CMake macro "FindGeneva.cmake"
