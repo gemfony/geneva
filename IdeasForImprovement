@@ -9,3 +9,4 @@
 - Add many more tests using the Boost.Test library
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
 - Add a CMake macro "FindGeneva.cmake"
+- An operator=(const std::vector<num_type> for GNumCollectionT and similar std::vector look-alikes
