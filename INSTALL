@@ -110,7 +110,8 @@ compiler versions, though.
 
 The gcc compiler in Debian returns a version number string which is not handled 
 correctly by CMake (as of cmake 2.6.0-5, Oktober 2, 2008; see 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=501024).
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=501024). This
+issue has been fixed upstream in CMake 2.6.2.
 A workaround is available: you need to apply the following patch to
 /usr/share/cmake-2.6/Modules/FindBoost.cmake before calling cmake for Geneva
 
