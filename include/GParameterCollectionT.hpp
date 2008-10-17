@@ -159,6 +159,18 @@ public:
 	}
 
 	/*******************************************************************************************/
+	/**
+	 * Creates a copy of the data vector. Note that this function assumes that the parameters
+	 * stored in this class are basic values, such as doubles. If T is a class type, then a suitable
+	 * operator= needs to be defined.
+	 *
+	 * @param cp A reference to a vector that will hold a copy of our local data vector
+	 */
+	void getDataCopy(std::vector<T>& cp){
+		cp = data;
+	}
+
+	/*******************************************************************************************/
 	//////////////////////// std::vector<T> interface (incomplete) //////////////////////////////
 	/*******************************************************************************************/
 	// Typedefs
@@ -238,7 +250,7 @@ public:
 	inline void clear() { data.clear(); }
 
 	// Assignment of a std::vector<T>
-	const std::vector<T>& operator=(const std::vector<T>& cp) { data = cp; return cp;}
+	inline const std::vector<T>& operator=(const std::vector<T>& cp) { data = cp; return cp;}
 
 	/*******************************************************************************************/
 	/////////////////////////////////////////////////////////////////////////////////////////////

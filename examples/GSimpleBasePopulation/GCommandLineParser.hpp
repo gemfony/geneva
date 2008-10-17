@@ -77,7 +77,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-		                          bool& parallel,
+					  bool& parallel,
 					  bool& verbose);
 
 } /* namespace GenEvA */

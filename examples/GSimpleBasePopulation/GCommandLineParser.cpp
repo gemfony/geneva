@@ -43,7 +43,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-		                          bool& parallel,
+					  bool& parallel,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -75,7 +75,7 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of generations after which information should be emitted in the super-population")
 			("rScheme,E",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme for the super-population")
-		        ("parralel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
+			("parralel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
 			                "Whether or not to run this optimization in multi-threaded mode")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")

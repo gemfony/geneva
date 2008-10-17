@@ -10,3 +10,6 @@
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
 - Add a CMake macro "FindGeneva.cmake"
 - An operator=(const std::vector<num_type> for GNumCollectionT and similar std::vector look-alikes
+- Stop criterium "quality is below or above a given threshold"
+- Allow clients in network mode to pull over a series of individuals
+- Allow clients to themselves create a series of copies from the master individual and return the best one
