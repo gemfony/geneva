@@ -102,7 +102,7 @@ int main(int argc, char **argv){
 		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax, adaptionThreshold));
 
 	if(parallel) {
-	  // Now we've got our first individual and can create a simple population with serial execution.
+	  // Now we've got our first individual and can create a simple population with parallel execution.
 	  GBoostThreadPopulation pop_par;
 	  pop_par.setNThreads(10);
 
