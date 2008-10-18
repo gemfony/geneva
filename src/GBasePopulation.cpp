@@ -164,9 +164,13 @@ void GBasePopulation::optimize() {
 	startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
 
 	do {
+		std::cout << "One" << std::endl;
 		this->markGeneration(); // Let all individuals know the current generation
+		std::cout << "Two" << std::endl;
 		this->recombine(); // create new children from parents
+		std::cout << "Three" << std::endl;
 		this->mutateChildren(); // mutate children and calculate their value
+		std::cout << "Four" << std::endl;
 		this->select(); // sort children according to their fitness
 
 		// We want to provide feedback to the user in regular intervals.
@@ -542,16 +546,40 @@ void GBasePopulation::customRecombine() {
 		break;
 
 	case VALUERECOMBINE:
-		// A recombination taking into account the value does not make
-		// sense in generation 0, as parents might not have a suitable
-		// value. Instead, this function might accidently trigger value
-		// calculation in this case. Hence we fall back to random
-		// recombination in generation 0. No value calculation takes
-		// place there.
-		for(it=data.begin()+nParents_; it!= data.end(); ++it) {
-			if(generation_ == 0) randomRecombine(*it);
-			else valueRecombine(*it);
+		// Recombination according to the parents' fitness only makes sense if
+		// we have at least 2 parents. We do the recombination manually otherwise
+		if(nParents_==1) {
+			(*it)->load((data.begin())->get());
 		}
+		else {
+			// Calculate a vector of recombination likelihoods for all parents
+			std::size_t i;
+			std::vector<double> threshold(nParents_);
+			double thresholdSum=0.;
+			for(i=0; i<nParents_; i++) {
+				thresholdSum += 1./(static_cast<double>(i)+2.);
+			}
+			for(i=0; i<nParents_-1; i++) {
+				// norming the sum to 1
+				threshold[i] = (1./(static_cast<double>(i)+2.)) / thresholdSum;
+				// Make sure the subsequent range is in the right position
+				if(i>0) threshold[i] += threshold[i-1];
+			}
+			threshold[nParents_-1] = 1.; // Necessary due to rounding errors
+
+			// Do the actual recombination
+			for(it=data.begin()+nParents_; it!= data.end(); ++it) {
+				// A recombination taking into account the value does not make
+				// sense in generation 0, as parents might not have a suitable
+				// value. Instead, this function might accidently trigger value
+				// calculation in this case. Hence we fall back to random
+				// recombination in generation 0. No value calculation takes
+				// place there.
+				if(generation_ == 0) randomRecombine(*it);
+				else valueRecombine(*it, threshold);
+			}
+		}
+
 		break;
 	}
 }
@@ -576,59 +604,37 @@ void GBasePopulation::randomRecombine(boost::shared_ptr<GIndividual>& p) {
 
 /***********************************************************************************/
 /**
- * This function implements the VALUERECOMBINE scheme. We divide the range [0.,1.[
+ * This function implements the VALUERECOMBINE scheme. The range [0.,1.[ is divided
  * into nParents_ sub-areas with different size (the largest for the first parent,
  * the smallest for the last). Parents are chosen for recombination according to a
  * random number evenly distributed between 0 and 1. This way parents with higher
- * fitness are more likely to be chosen for recombination. We need to make sure that
- * the sum of all nParents_ areas is 1.
+ * fitness are more likely to be chosen for recombination.
  *
  * @param pos The child individual for which a parent should be chosen
+ * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
  */
-void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p) {
+void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vector<double>& threshold) {
 	bool done=false;
+	std::size_t i;
+	double randTest = gr.evenRandom(); // get the test value
 
-	// This function only makes sense if we have at least 2 parents
-	// We do the recombination manually if we only have one parent.
-	if(nParents_==1) {
-		p->load((data.begin())->get());
-		return;
+	for(i=0; i<nParents_; i++) {
+		if(randTest<threshold[i]) {
+			p->load((data.begin() + i)->get());
+			done = true;
+
+			break;
+		}
 	}
-	else { // We have more than one parent - calculate the individual thresholds
-		std::size_t i;
-		std::vector<double> threshold(nParents_);
-		double thresholdSum=0.;
-		for(i=0; i<nParents_; i++) {
-			thresholdSum += 1./(static_cast<double>(i)+2.);
-		}
-		for(i=0; i<nParents_-1; i++) {
-			// norming the sum to 1
-			threshold[i] = (1./(static_cast<double>(i)+2.)) / thresholdSum;
-			// Make sure the subsequent range is in the right position
-			if(i>0) threshold[i] += threshold[i-1];
-		}
-		threshold[nParents_-1] = 1.; // Necessary due to rounding errors
 
-		// get the test value
-		double randTest = gr.evenRandom();
+	if(!done) {
+		std::ostringstream error;
+		error << "In GBasePopulation::valueRecombine(): Error!" << std::endl
+			  << "Could not recombine." << std::endl;
 
-		for(i=0; i<nParents_; i++) {
-			if(randTest<threshold[i]) {
-				p->load((data.begin() + i)->get());
-				done = true;
-				break;
-			}
-		}
-
-		if(!done) {
-			std::ostringstream error;
-			error << "In GBasePopulation::valueRecombine(): Error!" << std::endl
-				  << "Could not recombine." << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
-		}
+		// throw an exception. Add some information so that if the exception
+		// is caught through a base object, no information is lost.
+		throw geneva_error_condition(error.str());
 	}
 }
 

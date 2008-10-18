@@ -265,7 +265,7 @@ private:
 	/** @brief Implements the RANDOMRECOMBINE recombination scheme */
 	void randomRecombine(boost::shared_ptr<GIndividual>&);
 	/** @brief Implements the VALUERECOMBINE recombination scheme */
-	void valueRecombine(boost::shared_ptr<GIndividual>&);
+	void valueRecombine(boost::shared_ptr<GIndividual>&, const std::vector<double>&);
 
 	/***********************************************************************************/
 	/**
