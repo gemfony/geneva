@@ -164,13 +164,9 @@ void GBasePopulation::optimize() {
 	startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
 
 	do {
-		std::cout << "One" << std::endl;
 		this->markGeneration(); // Let all individuals know the current generation
-		std::cout << "Two" << std::endl;
 		this->recombine(); // create new children from parents
-		std::cout << "Three" << std::endl;
 		this->mutateChildren(); // mutate children and calculate their value
-		std::cout << "Four" << std::endl;
 		this->select(); // sort children according to their fitness
 
 		// We want to provide feedback to the user in regular intervals.
@@ -687,17 +683,12 @@ void GBasePopulation::mutateChildren()
 	// triggered for all parents. Note that it may well be that at
 	// this stage we have several identical parents in the population,
 	// due to the actions of the adjustPopulation function.
-	if(generation_ == 0) {
-		for(it=data.begin(); it!=data.begin()+nParents_; ++it) {
-			(*it)->fitness();
-		}
-	}
+	if(generation_ == 0)
+		for(it=data.begin(); it!=data.begin()+nParents_; ++it) (*it)->fitness();
 
 	// Next we perform the mutation of each child individual in
 	// sequence. Note that this could also trigger fitness calculation.
-	for(it=data.begin()+nParents_; it!=data.end(); ++it) {
-		(*it)->mutate();
-	}
+	for(it=data.begin()+nParents_; it!=data.end(); ++it) (*it)->mutate();
 }
 
 /***********************************************************************************/
