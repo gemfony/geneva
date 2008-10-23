@@ -66,8 +66,8 @@ void GBaseClient::run(){
 	}
 	catch(boost::exception& e){
 		std::ostringstream error;
-		error << "In GBaseClient::run(): Caught boost::exception with message" << std::endl
-		      << e.diagnostic_information() << std::endl;
+		error << "In GBaseClient::run(): Caught boost::exception" << std::endl;
+
 		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();

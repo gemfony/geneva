@@ -106,6 +106,12 @@ typedef boost::date_time::dst_adjustment_offsets<time_duration_type> dst_adjustm
 In the vanilla sources, the scope boost::date_time:: is missing. This doesn't seem to affect older 
 compiler versions, though.
 
+The sample applications tend to end with a segfault **after main() has ended**. It should not 
+have an impact on the program results, but is of course nevertheless annoying. Comments 
+on the Boost mailing list seem to indicate that this is related to a known problem in the 
+Boost.Serialization library. At the time of writing, early Betas of Boost 1.37 didn't have
+this problem anymore.
+
 * Debian Lenny
 
 The gcc compiler in Debian returns a version number string which is not handled 

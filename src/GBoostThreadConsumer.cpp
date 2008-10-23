@@ -93,15 +93,6 @@ void GBoostThreadConsumer::processItems(){
 		// Terminate
 		return;
 	}
-	catch(boost::exception& e){
-		std::ostringstream error;
-	    error << "In GBoostThreadConsumer::processItems(): Caught boost::exception with message" << std::endl
-	   		  << e.diagnostic_information() << std::endl;
-
-	    LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-  	    std::terminate();
-	}
     catch(std::exception& e) {
 		std::ostringstream error;
 		error << "In GBoostThreadConsumer::processItems(): Caught std::exception with message" << std::endl
@@ -110,6 +101,14 @@ void GBoostThreadConsumer::processItems(){
 		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
+	}
+	catch(boost::exception& e){
+		std::ostringstream error;
+	    error << "In GBoostThreadConsumer::processItems(): Caught boost::exception with message" << std::endl;
+
+	    LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
+
+  	    std::terminate();
 	}
 	catch(...) {
 		std::ostringstream error;

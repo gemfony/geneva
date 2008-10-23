@@ -371,8 +371,7 @@ double GIndividual::checkedFitness(){
 	}
 	catch(boost::exception& e){
 		std::ostringstream error;
-		error << "In GIndividual::checkedFitness(): Caught boost::exception with message" << std::endl
-		      << e.diagnostic_information() << std::endl;
+		error << "In GIndividual::checkedFitness(): Caught boost::exception with message" << std::endl;
 		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();
@@ -424,8 +423,8 @@ void GIndividual::checkedProcess(){
 	}
 	catch(boost::exception& e){
 		std::ostringstream error;
-		error << "In GIndividual::checkedProcess(): Caught boost::exception with message" << std::endl
-		      << e.diagnostic_information() << std::endl;
+		error << "In GIndividual::checkedProcess(): Caught boost::exception" << std::endl;
+
 		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
 		std::terminate();

@@ -39,6 +39,7 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/exception.hpp>
 
 #ifndef GMUTABLEI_HPP_
 #define GMUTABLEI_HPP_
@@ -81,15 +82,6 @@ public:
 		try{
 			this->mutate();
 		}
-		catch(boost::exception& e){
-			std::ostringstream error;
-			error << "In GMutableI::checkedMutate(): Caught boost::exception with message" << std::endl
-				  << e.diagnostic_information() << std::endl;
-
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
-			std::terminate();
-		}
 		catch(std::exception& e){
 			std::ostringstream error;
 			error << "In GMutableI::checkedMutate(): Caught std::exception with message" << std::endl
@@ -97,6 +89,13 @@ public:
 
 			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 
+			std::terminate();
+		}
+		catch(boost::exception& e){
+			std::ostringstream error;
+			error << "In GMutableI::checkedMutate(): Caught boost::exception" << std::endl;
+
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
 			std::terminate();
 		}
 		catch(...){
