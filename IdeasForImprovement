@@ -13,3 +13,5 @@
 - Stop criterium "quality is below or above a given threshold"
 - Allow clients in network mode to pull over a series of individuals
 - Allow clients to themselves create a series of copies from the master individual and return the best one
+- It appears to be inefficient to sort the entire array of individuals, if only the nParent best individuals are sought.
+  Are there algorithms that allow us to bypass sorting of the other nChildren individuals ?
