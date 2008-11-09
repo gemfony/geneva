@@ -107,19 +107,19 @@ const std::string DEFAULTDURATION = EMPTYDURATION;
 /**
  * The GBasePopulation class adds the notion of parents and children to
  * the GIndividualSet class. The evolutionary adaptation is realized
- * through the cycle of mutation, evaluation and sorting, as defined in this
+ * through the cycle of mutation, evaluation, and sorting, as defined in this
  * class.
  *
- * Populations are collections of individuals, which themselves are classes
- * exhibiting the GIndividual class'es API, most notably the GIndividual::fitness() and
- * GIndividual::mutate() functions. Individuals thus can themselves be populations,
+ * Populations are collections of individuals, which themselves are objects
+ * exhibiting the GIndividual class' API, most notably the GIndividual::fitness() and
+ * GIndividual::mutate() functions. Individuals can thus themselves be populations,
  * which can again contain populations, and so on.
  *
- * In order to add parents to this class, use the default constructor, then add
- * at least one GIndividual to the class and call setPopulationSize(). The population
- * will then "filled up" with missing individuals as required, before the optimization
+ * In order to add parents to an instance of this class use the default constructor,
+ * then add at least one GIndividual to it, and call setPopulationSize(). The population
+ * will then be "filled up" with missing individuals as required, before the optimization
  * starts. Note that this class will enforce a minimum, default number of children,
- * as implied by the population size and the number of parents set in the beginning.
+ * as implied by the population size and the number of parents set at the beginning.
  */
 class GBasePopulation
 	:public GIndividualSet

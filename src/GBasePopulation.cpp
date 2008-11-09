@@ -266,7 +266,7 @@ void GBasePopulation::adjustPopulation() {
 	if(popSize_ == 0 || nParents_ == 0) {
 		std::ostringstream error;
 		error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
-			  << "The population size and/or the number of parents have invalid sizes:" << std::endl
+			  << "The population size and/or the number of parents have invalid values:" << std::endl
 			  << "Did you call GBasePopulation::setPopulationSize() ?" << std::endl
 			  << "population size = " << popSize_ << std::endl
 			  << "number of parents = " << nParents_ << std::endl;
@@ -479,7 +479,7 @@ boost::posix_time::time_duration GBasePopulation::getMaxTime() {
 
 /***********************************************************************************/
 /**
- * This function emits a boolean once a given time, set with GBasePopulation::setMaxTime()
+ * This function returns true once a given time (set with GBasePopulation::setMaxTime())
  * has passed. It is used in the GBasePopulation::halt() function.
  *
  * @return A boolean indicating whether a given amount of time has passed
@@ -638,9 +638,11 @@ void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p, const st
 /**
  * This function is called from GBasePopulation::optimize() and performs the
  * actual recombination, based on the recombination schemes defined by the user.
+ *
  * Note that this implementation will enforce a minimum number of children,
  * as implied by the initial sizes of the population and the number of parents
- * present.
+ * present. If individuals can get lost in your setting, you must add mechanisms
+ * to "repair" the population.
  */
 void GBasePopulation::recombine()
 {
