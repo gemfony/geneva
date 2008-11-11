@@ -32,6 +32,7 @@ namespace GenEvA
  * A function that parses the command line for all required parameters
  */
 bool parseCommandLine(int argc, char **argv,
+					  std::string& fileName,
 					  std::size_t& parabolaDimension,
 					  double& parabolaMin,
 					  double& parabolaMax,
@@ -53,6 +54,8 @@ bool parseCommandLine(int argc, char **argv,
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
+			("fileName,f",po::value<std::string>(&fileName)->default_value(DEFAULTFILENAME),
+					"the name of a file holding the evaluation executable")
 			("parabolaDimension,d", po::value<std::size_t>(&parabolaDimension)->default_value(DEFAULTPARABOLADIMENSION),
 					"number of dimensions in the parabola")
 			("parabolaMin,m", po::value<double>(&parabolaMin)->default_value(DEFAULTPARABOLAMIN),

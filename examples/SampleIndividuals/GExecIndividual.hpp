@@ -27,6 +27,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <vector>
+#include <iostream>
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
@@ -99,7 +100,7 @@ public:
 	 */
 	GExecIndividual(const GExecIndividual& cp)
 		:GParameterSet(cp),
-		 fileName(cp.fileName_)
+		 fileName_(cp.fileName_)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -161,7 +162,7 @@ protected:
 		// Make the parameters known externally
 		std::ostringstream parFile;
 		parFile << "parFile_" << this->getPopulationPosition();
-		std::ofstream parameters(parFile.str().c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
+		std::ofstream parameters(parFile.str().c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
 
 		// First emit information about the number of double values
 		std::size_t nDParm = gdc_load->size();
@@ -184,7 +185,7 @@ protected:
 		if(fileName_ == "empty" || fileName_ == "") {
 			std::ostringstream error;
 			error << "In GExecIndividual::fitnessCalculation(): Error!" << std::endl
-				  << "Invalid file name " << fileName_ << std::endl;
+				  << "Invalid file name \"" << fileName_ << "\"" << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
@@ -192,7 +193,7 @@ protected:
 		system(commandLine.c_str());
 
 	    // then retrieve the output.
-	    std::ifstream resultFile(parFile.str().c_str(), ios_base::in | ios_base::binary);
+	    std::ifstream resultFile(parFile.str().c_str(), std::ios_base::in | std::ios_base::binary);
 	    resultFile.read((char *)&result, sizeof(double));
 
 	    // Finally close the file
@@ -208,7 +209,7 @@ private:
 	 * The default constructor. Only needed for serialization purposes
 	 */
 	GExecIndividual()
-		:fileName("empty")
+		:fileName_("empty")
 	{ /* nothing */ }
 
 	/********************************************************************************************/

@@ -49,6 +49,7 @@ namespace GenEvA
 {
 
 // Default settings
+const std::string DEFAULTFILENAME="./evaluator";
 const std::size_t DEFAULTPARABOLADIMENSION=1000;
 const double DEFAULTPARABOLAMIN=-100.;
 const double DEFAULTPARABOLAMAX=100.;
@@ -66,6 +67,7 @@ const bool DEFAULTPARALLEL=true;
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
+					  std::string& fileName,
 					  std::size_t& parabolaDimension,
 					  double& parabolaMin,
 					  double& parabolaMax,
