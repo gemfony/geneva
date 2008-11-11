@@ -1,4 +1,4 @@
-/* creareHeaders.cpp
+/* createHeaders.cpp
  *
  * Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
@@ -21,7 +21,7 @@
 /*
   The following was an attempt to replace the supposedly "expensive"
   sin() and log() operations in the gauss calculation with a
-  lookuptable. The test program in file testLookup.cpp shows, however, 
+  lookuptable. The test program in file testLookup.cpp shows, however,
   that there is no gain.
  */
 
@@ -44,7 +44,7 @@ main(){
   ofgsin << "#ifndef GSIN_HPP_" << endl
          << "#define GSIN_HPP_" << endl
          << endl
-	 << "const std::size_t GSINSIZE=" << GSINSIZE << ";" << endl 
+	 << "const std::size_t GSINSIZE=" << GSINSIZE << ";" << endl
          << setprecision(15) << "const double GSin[GSINSIZE] = {" << endl;
   for(long i=0; i<GSINSIZE-1; i++)
     ofgsin << sin(2.*M_PI*double(i)/double(GSINSIZE)) << ", // " << i << endl;
@@ -67,7 +67,7 @@ main(){
   ofglog << fabs(-2. * log(1. - double(GLOGSIZE-1)/double(GLOGSIZE))) << "}; // " << GLOGSIZE-1 << endl
 	 << endl
 	 << "#endif /* GLOG_HPP_ */" << endl;
-  ofglog.close();  
+  ofglog.close();
 
   cout << "Creating file GRand.hpp" << endl;
   ofstream ofgrand("GRand.hpp");
@@ -83,5 +83,5 @@ main(){
   ofgrand << double(random())/double(RAND_MAX) << "}; // " << endl
 	 << endl
 	 << "#endif /* GRAND_HPP_ */" << endl;
-  ofgrand.close();    
+  ofgrand.close();
 }
