@@ -1,5 +1,8 @@
-/* progName.cpp
- *
+/**
+ * \file evaluator.cpp
+ */
+
+/*
  * Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
@@ -19,11 +22,8 @@
  */
 
 /*
- * This file complements systest.cpp. See there for an explanation of
- * its purpose.
- *
- * Compilation can be done similar to
- * g++ -o progName progName.cpp
+ * This file complements the GExternalProgram example. It represents the
+ * fitness calculation triggered by the corresponding function.
  */
 
 #include <iostream>

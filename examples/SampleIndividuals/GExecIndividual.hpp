@@ -20,6 +20,11 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * NOTE: It is not at present clear whether this individual can be used in
+ * a multi-threaded environment. Use with care.
+ */
+
 // Standard header files go here
 #include <iostream>
 #include <cmath>
