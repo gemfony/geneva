@@ -166,6 +166,7 @@ void GBasePopulation::optimize() {
 	do {
 		this->markGeneration(); // Let all individuals know the current generation
 		this->recombine(); // create new children from parents
+		this->markIndividualPositions();
 		this->mutateChildren(); // mutate children and calculate their value
 		this->select(); // sort children according to their fitness
 
@@ -807,6 +808,17 @@ void GBasePopulation::markGeneration() {
 	for(it=data.begin(); it!=data.end(); ++it){
 		(*it)->setParentPopGeneration(generation_);
 	}
+}
+
+/***********************************************************************************/
+/**
+ * This helper function lets all individuals know about their position in the
+ * population.
+ */
+void GBasePopulation::markIndividualPositions() {
+	std::size_t pos = 0;
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	for(it=data.begin(); it!=data.end(); ++it) (*it)->setPopulationPosition(pos++);
 }
 
 /***********************************************************************************/

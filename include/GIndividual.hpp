@@ -80,6 +80,7 @@ class GIndividual
 	  ar & make_nvp("allowLazyEvaluation_",allowLazyEvaluation_);
 	  ar & make_nvp("parentPopGeneration_",parentPopGeneration_);
 	  ar & make_nvp("parentCounter_",parentCounter_);
+	  ar & make_nvp("popPos_",popPos_);
 	  ar & make_nvp("attributeTable_",attributeTable_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -125,6 +126,11 @@ public:
 	void setParentPopGeneration(const boost::uint32_t&) throw();
 	/** @brief Retrieve the parentPopGeneration_ parameter */
 	boost::uint32_t getParentPopGeneration() const throw();
+
+	/** @brief Sets the position of the individual in the population */
+	void setPopulationPosition(std::size_t) throw();
+	/** @brief Retrieves the position of the individual in the population */
+	std::size_t getPopulationPosition(void) const throw();
 
 	/** @brief Checks whether this is a parent individual */
 	bool isParent() const throw();
@@ -172,6 +178,8 @@ private:
     boost::uint32_t parentPopGeneration_;
     /** @brief Allows populations to mark members as parents or children */
     boost::uint32_t parentCounter_;
+    /** @brief Stores the current position in the population */
+    std::size_t popPos_;
     /** @brief Holds string attributes assigned to this class */
     std::map<std::string, std::string> attributeTable_;
 };

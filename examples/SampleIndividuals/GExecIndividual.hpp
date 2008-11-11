@@ -24,6 +24,8 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <fstream>
+#include <cstdlib>
 #include <vector>
 
 // Boost header files go here
@@ -44,8 +46,7 @@ namespace GenEvA
 
 /************************************************************************************************/
 /**
- * This individual searches for the minimum of a simple parabola in n dimensions. It is meant
- * as an example of how to set up custom individuals.
+ * This individual calls an external program to evaluate a given set of double values.
  */
 class GExecIndividual
 	:public GParameterSet
@@ -57,22 +58,12 @@ class GExecIndividual
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("ParameterSet",
-				boost::serialization::base_object<GParameterSet>(*this));
-		// add all local variables here, if you want them to be serialized. E.g.:
-		// ar & make_nvp("myLocalVar_",myLocalVar_);
-		// This also works with objects, if they have a corresponding serialize() function.
+		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
+		ar & make_nvp("fileName_", fileName_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/********************************************************************************************/
-	/**
-	 * The default constructor.
-	 */
-	GExecIndividual()
-	{ /* nothing */ }
-
 	/********************************************************************************************/
 	/**
 	 * A constructor which initializes the individual with a suitable set of random double values.
@@ -81,8 +72,11 @@ public:
 	 * @param min The minimum value of the random numbers to fill the collection
 	 * @param max The maximum value of the random numbers to fill the collection
 	 * @param as The number of calls to GDoubleGaussAdaptor::mutate after which mutation should be adapted
+	 * @param fileName The filename (including path) of the external program that should be executed
 	 */
-	GExecIndividual(std::size_t sz, double min, double max, boost::uint32_t as){
+	GExecIndividual(std::size_t sz, double min, double max, boost::uint32_t as, std::string fileName)
+		:fileName_(fileName)
+	{
 		// Set up a GDoubleCollection with sz values, each initialized
 		// with a random number in the range [min,max[
 		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(sz,min,max));
@@ -104,7 +98,8 @@ public:
 	 * A standard copy constructor
 	 */
 	GExecIndividual(const GExecIndividual& cp)
-		:GParameterSet(cp)
+		:GParameterSet(cp),
+		 fileName(cp.fileName_)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -140,9 +135,13 @@ public:
 	 * @param cp A copy of another GExecIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		// We have no local data. Hence we can just pass the pointer to our parent class.
-		// Note that we'd have to use the GObject::conversion_cast() function otherwise.
+		const GExecIndividual *gei_load = conversion_cast(cp, this);
+
+		// First load the data of our parent class ...
 		GParameterSet::load(cp);
+
+		// ... and then our own
+		fileName_ = gei_load->fileName_;
 	}
 
 protected:
@@ -154,19 +153,67 @@ protected:
 	 */
 	virtual double fitnessCalculation(){
 		double result = 0;
-		std::vector<double>::const_iterator cit;
+		std::string commandLine;
 
-		// Compile in DEBUG mode in order to check this conversion
+		// Retrieve a pointer to the double vector. Compile in DEBUG mode in order to check this conversion
 		boost::shared_ptr<GDoubleCollection> gdc_load = parameterbase_cast<GDoubleCollection>(0);
 
-		// Great - now we can do the actual calculations. We do this the fancy way ...
-		for(cit=gdc_load->begin(); cit!=gdc_load->end(); ++cit)
-			result += std::pow(*cit, 2);
+		// Make the parameters known externally
+		std::ostringstream parFile;
+		parFile << "parFile_" << this->getPopulationPosition();
+		std::ofstream parameters(parFile.str().c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
 
+		// First emit information about the number of double values
+		std::size_t nDParm = gdc_load->size();
+		parameters.write((char *)&nDParm, sizeof(std::size_t));
+
+		// Then write out the actual parameter value
+		GDoubleCollection::iterator it;
+		for(it=gdc_load->begin(); it!=gdc_load->end(); ++it) {
+			double current = *it;
+			parameters.write((char *)&current, sizeof(double));
+		}
+
+		// Finally close the file
+		parameters.close();
+
+		// Assemble command line and run the external program
+		commandLine = fileName_ + " " + parFile.str();
+
+		// Check that we have a valid fileName_
+		if(fileName_ == "empty" || fileName_ == "") {
+			std::ostringstream error;
+			error << "In GExecIndividual::fitnessCalculation(): Error!" << std::endl
+				  << "Invalid file name " << fileName_ << std::endl;
+
+			throw geneva_error_condition(error.str());
+		}
+
+		system(commandLine.c_str());
+
+	    // then retrieve the output.
+	    std::ifstream resultFile(parFile.str().c_str(), ios_base::in | ios_base::binary);
+	    resultFile.read((char *)&result, sizeof(double));
+
+	    // Finally close the file
+	    resultFile.close();
+
+	    // Let the audience know
 		return result;
 	}
 
+private:
 	/********************************************************************************************/
+	/**
+	 * The default constructor. Only needed for serialization purposes
+	 */
+	GExecIndividual()
+		:fileName("empty")
+	{ /* nothing */ }
+
+	/********************************************************************************************/
+
+	std::string fileName_;
 };
 
 } /* namespace GenEvA */

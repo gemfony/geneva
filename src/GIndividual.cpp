@@ -42,7 +42,8 @@ GIndividual::GIndividual() :
 	dirtyFlag_(true),
 	allowLazyEvaluation_(false),
 	parentPopGeneration_(0),
-	parentCounter_(0)
+	parentCounter_(0),
+	popPos_(0)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -59,7 +60,9 @@ GIndividual::GIndividual(const GIndividual& cp) :
 	dirtyFlag_(cp.dirtyFlag_),
 	allowLazyEvaluation_(cp.allowLazyEvaluation_),
 	parentPopGeneration_(cp.parentPopGeneration_),
-	parentCounter_(cp.parentCounter_)
+	parentCounter_(cp.parentCounter_),
+	popPos_(cp.popPos_),
+	attributeTable_(cp.attributeTable_)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -86,6 +89,8 @@ void GIndividual::load(const GObject* cp) {
 	allowLazyEvaluation_ = gi_load->allowLazyEvaluation_;
 	parentPopGeneration_ = gi_load->parentPopGeneration_;
 	parentCounter_ = gi_load->parentCounter_;
+	popPos_ = gi_load->popPos_;
+	attributeTable_ = gi_load->attributeTable_;
 }
 
 /**********************************************************************************/
@@ -258,6 +263,26 @@ bool GIndividual::isParent() const throw() {
  */
 bool GIndividual::isDirty() const throw() {
 	return dirtyFlag_;
+}
+
+/**********************************************************************************/
+/**
+ * Sets the position of the individual in the population
+ *
+ * @param popPos The new position of this individual in the population
+ */
+void GIndividual::setPopulationPosition(std::size_t popPos) throw() {
+	popPos_ = popPos;
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the position of the individual in the population
+ *
+ * @return The current position of this individual in the population
+ */
+std::size_t GIndividual::getPopulationPosition(void) const throw() {
+	return popPos_;
 }
 
 /**********************************************************************************/

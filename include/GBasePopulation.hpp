@@ -253,6 +253,9 @@ protected:
 	/** @brief Lets individuals know about the current generation */
 	void markGeneration();
 
+	/** @brief Lets individuals know about their position in the population */
+	void markIndividualPositions();
+
 private:
 	/** @brief Emits true once a given time has passed */
 	bool timedHalt();
