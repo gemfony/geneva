@@ -25,6 +25,9 @@
  * Note that there is a second file called progName.cpp which belongs to
  * this test program.
  *
+ * Note: It is currently not clear whether "system()" is thread safe. The
+ * code below seems to work o.k. on an OpenSUSE 11 box.
+ *
  * Compilation can be done similar to
  * g++ -o systest -lboost_thread-mt systest.cpp
  */
