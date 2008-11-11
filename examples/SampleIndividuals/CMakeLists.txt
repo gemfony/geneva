@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( SAMPLEINDIVIDUALSINCLUDES
+    GExecIndividual.hpp
 	GNeuralNetworkIndividual.hpp
 	GNoisyParabolaIndividual.hpp
 	GParabolaIndividual.hpp
