@@ -2,11 +2,11 @@ Target systems
 ==============
 
 The Geneva library has been developed on OpenSUSE systems (version 11 at the time
-of writing of this text). While it is likely that the same code will compile on 
-any other Linux and possibly Unix platforms (particularly if gcc versions newer than 
+of writing of this text). While it is likely that the same code will compile on
+any other Linux and possibly Unix platforms (particularly if gcc versions newer than
 4.3 are used), only Ubuntu and Debian systems have been tested in addition to OpenSUSE
-up to date. The authors would very much appreciate your feedback, if you manage to 
-compile the library on other systems than those mentioned here. 
+up to date. The authors would very much appreciate your feedback, if you manage to
+compile the library on other systems than those mentioned here.
 
 Building and Installing
 =======================
@@ -15,26 +15,26 @@ The build system now uses CMake in version 2.6, which is required due
 to the availability of the FindBoost macro.
 
 You will need a copy of Boost (see http://www.boost.org), in version
-1.36.  You will also need to add the threadpool library (have a look
+1.36 or newer. You will also need to add the threadpool library (have a look
 at http://threadpool.sf.net). It is assumed that the threadpool library
 is installed in the same location as Boost 1.36 (i.e., you have copied
 the files and directories recursively to /where/boost/resides/boost .
 See the Appendix "Compiling Boost" below for more details.
 
 In order to compile this project and the examples:
-Create a build directory anywhere in the file system and change into it. 
-Then call 
+Create a build directory anywhere in the file system and change into it.
+Then call
 
 cmake /path/to/geneva-top-dir
 
 followed by a simple "make".
 
-In order to choose a custom installation directory (instead of the default 
+In order to choose a custom installation directory (instead of the default
 /usr/local), call
 
 cmake /path/to/geneva-top-dir -DCMAKE_INSTALL_PREFIX="/where/the/library/goes"
- 
-Note that under Linux, you will have to make the installation directory 
+
+Note that under Linux, you will have to make the installation directory
 known to the linker, so henceforth you can link to the library. Under OpenSUSE 11,
 this can be done by creating a file /etc/ld.so.conf.d/geneva.conf with the content
 
@@ -42,15 +42,15 @@ this can be done by creating a file /etc/ld.so.conf.d/geneva.conf with the conte
 
 You then need to execute "ldconfig -v".
 
-Most Linux distributions are still delivered with Boost 1.34 . You might thus have 
-compiled your own version of Boost, and have installed it in a non-standard location. 
+Most Linux distributions are still delivered with Boost 1.34 . You might thus have
+compiled your own version of Boost, and have installed it in a non-standard location.
 In order for CMake to find this directory, you can either edit the top-level
 CMakeLists.txt file and hard-code the paths (uncomment the appropriate entries there),
-or provide the necessary variables at the command line when calling cmake. This can 
+or provide the necessary variables at the command line when calling cmake. This can
 be done in the following way (assuming that Boost is installed in /opt/boost136):
 
 cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost136"\
-                              -DBOOST_INCLUDEDIR="/opt/boost136/include/boost-1_36/"\ 
+                              -DBOOST_INCLUDEDIR="/opt/boost136/include/boost-1_36/"\
                               -DBOOST_LIBRARYDIR="/opt/boost136/lib"
 
 Adding another define -DCMAKE_BUILD_TYPE="Release" or -DCMAKE_BUILD_TYPE="Debug"
@@ -63,7 +63,7 @@ The commands shown here were tested on an OpenSUSE 11 system.
 Recommended Software
 ====================
 
-By default a GenEvA population emits information suitable for the ROOT framework 
+By default a GenEvA population emits information suitable for the ROOT framework
 (see http://root.cern.ch). ROOT is a C++ analysis framework wideley used in particle
 physics. It is built around the C++ interpreter cint. It is recommended to install
 ROOT in your system, as also some of the examples emit information in the ROOT format
@@ -73,8 +73,8 @@ ROOT in your system, as also some of the examples emit information in the ROOT f
 Appendix: Compiling Boost
 ==========================
 
-Download Boost from http://www.boost.org and extract the compressed file. This will create a 
-folder "boost_1_36_0", for instance. Change to that folder and, assuming Boost should be 
+Download Boost from http://www.boost.org and extract the compressed file. This will create a
+folder "boost_1_36_0", for instance. Change to that folder and, assuming Boost should be
 installed in /opt/boost136 (which should be writable), execute
 
 ./configure --with-libraries=date_time,system,thread,serialization,program_options,test \
@@ -87,7 +87,7 @@ Then you should copy the threadpool files to the Boost location:
 
 cp -a threadpool-0_2_4-src/threadpool/include/* /opt/boost136/include/boost-1_36/boost/
 
-Once at this stage you can use the Boost include path as explained 
+Once at this stage you can use the Boost include path as explained
 above, with BOOST_ROOT="/opt/boost136".
 
 
@@ -103,19 +103,19 @@ Line 161 should look like this:
 [...]
 typedef boost::date_time::dst_adjustment_offsets<time_duration_type> dst_adjustment_offsets;
 [...]
-In the vanilla sources, the scope boost::date_time:: is missing. This doesn't seem to affect older 
+In the vanilla sources, the scope boost::date_time:: is missing. This doesn't seem to affect older
 compiler versions, though.
 
-The sample applications tend to end with a segfault **after main() has ended**. It should not 
-have an impact on the program results, but is of course nevertheless annoying. Comments 
-on the Boost mailing list seem to indicate that this is related to a known problem in the 
+The sample applications tend to end with a segfault **after main() has ended**. It should not
+have an impact on the program results, but is of course nevertheless annoying. Comments
+on the Boost mailing list seem to indicate that this is related to a known problem in the
 Boost.Serialization library. At the time of writing, early Betas of Boost 1.37 didn't have
 this problem anymore.
 
 * Debian Lenny
 
-The gcc compiler in Debian returns a version number string which is not handled 
-correctly by CMake (as of cmake 2.6.0-5, Oktober 2, 2008; see 
+The gcc compiler in Debian returns a version number string which is not handled
+correctly by CMake (as of cmake 2.6.0-5, Oktober 2, 2008; see
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=501024). This
 issue has been fixed upstream in CMake 2.6.2.
 A workaround is available: you need to apply the following patch to
