@@ -3,6 +3,16 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
+# You can hard-code the Boost paths here, if you compiled Boost yourself and
+#   it was not deployed in one of the stadard system locations
+#SET (BOOST_ROOT "/opt/boost136")
+#SET (BOOST_INCLUDEDIR "/opt/boost136/include/boost-1_36")
+#SET (BOOST_LIBRARYDIR "/opt/boost136/lib")
+
+# Set once for Eclipse to find the boost libraries, you can then comment
+#   it out again
+#SET(CMAKE_VERBOSE_MAKEFILE ON)
+
 # Set the build type to Release by default
 IF(NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Release)
@@ -16,11 +26,6 @@ ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
     # Use this for release builds.
     ADD_DEFINITIONS ("-O3 -pthread")
 ENDIF()
-
-# You can hard-code the paths here, if desired
-#SET (BOOST_ROOT "/opt/boost136")
-#SET (BOOST_INCLUDEDIR /opt/boost136/include/boost-1_36/)
-#SET (BOOST_LIBRARYDIR /opt/boost136/lib)
 
 SET (Boost_USE_STATIC_LIBS OFF)
 SET (Boost_USE_MULTITHREAD ON)
