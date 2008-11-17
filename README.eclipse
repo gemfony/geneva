@@ -9,6 +9,12 @@ development:
     (be careful not to introduce spurious newlines or spaces in this URL when
     cut-and-pasting it!).
 
+      1.1 -- NOTE: Yoxos does not yet provide 64bit packages, sadly. The recommended
+             alternative is to install and run a 32bit Java version and Yoxos Package.
+             Otherwise you can of course download a standard EPP C/C++ Eclipse package
+             but you will loose the Workspace Provisioning functionality provided by
+             the Geneva Yoxos packages.
+
 2 - click on "Start Download" on the "Schedule" window.
 
 3 - save the file and unpack it in your desired location of your disk, say $DIR. This
