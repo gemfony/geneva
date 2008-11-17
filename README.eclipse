@@ -4,60 +4,80 @@ Eclipse setup for GenEvA development
 Follow these steps to download and setup a customized Eclipse package for GenEvA 
 development:
 
-- go to the "Geneva C++ development" package page on the Yoxos On Demand site:
-    http://ondemand.yoxos.com/geteclipse/start?profiles=868129468_1226699040856962892
+1 - go to the "Geneva C++ development" package page on the Yoxos On Demand site:
+      http://ondemand.yoxos.com/geteclipse/start?profiles=868129468_1226699040856962892
+    (be careful not to introduce spurious newlines or spaces in this URL when
+    cut-and-pasting it!).
 
-- click on "Start Download" on the "Schedule" window
+2 - click on "Start Download" on the "Schedule" window.
 
-- save the file and unpack in your desired location on your disk, say $DIR. This will
-  create a folder $DIR/eclipse containing the full Eclipse installation.
+3 - save the file and unpack it in your desired location of your disk, say $DIR. This
+    will create a folder $DIR/eclipse containing the full Eclipse installation customized
+    for GenEvA development.
 
-- run the newly installed eclipse,
-    $DIR/eclipse/eclipse (eclipse.exe on Windows)
+4 - run the newly installed eclipse,
+      $DIR/eclipse/eclipse (eclipse.exe on Windows)
 
-- choose a WorkSpace location. The workspace is the place where Eclipse will keep all
-  your projects and associated data, in particular the GenEvA source code.
+5 - choose a WorkSpace location. The workspace is the place where Eclipse will keep all
+    your projects and associated data, in particular the GenEvA source code.
 
-- if you are behind a proxy, go to
-    Window / Preferences / General / Network Connections
-  and set your proxy server
+6 - if you are behind a proxy, go to
+      Window / Preferences / General / Network Connections
+    and set your proxy server
 
-- restart eclipse
+      6.1 -- restart eclipse
 
-- if the Yoxos Workspace Provisioning dialog does not pop-up (seems to be a bug), go to
-    Help / Workspace Provisioning with Yoxos / Manage Provisionings...
+7 - if everything works as expected, a notification dialog will pop-up showing a message
+      "Workspace Provisioning pending"
+    Click on it. See below in case this dialog does not show a pending WS Provisioning.
 
-- if the Yoxos Workspace Provisioning dialog shows a "Geneva C++ development" profile
-  then select it and click "Apply Selected"
+8 - now the Yoxos Workspace Provisioning dialog should pop-up, showing a 
+      "Geneva C++ development" profile. Select it and click "Apply Selected".
 
-- if the Yoxos Workspace Provisioning dialog informs that there is no WS Provisioning
-  profile associated with the current setup, then click "Cancel" and go to
-    Help / Software Updates with Yoxos...
+9 - your Eclipse installation should be now ready to use, with a "GenEvA" project on
+    your Workspace containing the corresponding source code, and several preconfigured
+    settings.
 
-    -- go to the "Plug-In Explorer" view, open the "Public Profiles" tree, browse to
-       the "Development" folder, select the "Geneva C++ development" profile, and run
-       "Add to schedule" from the context menu (or click the green arrow in the
-       "Schedule" view).
+10 - See the section "CMake installation" below for further info.
 
-    -- click on "Start Installation"
 
-- if no GenEvA project was created automatically by Workspace Provisioning, then you
-  need to check it out by hand
+If something goes wrong...
+==========================
 
-    -- go to
-         Window / Open Perspective / SVN Repository Exploring
+7 - if the Yoxos notification dialog does not announce a pending WS Provisioning
+    in step 7 above (seems to be a bug), go to
+      Help / Workspace Provisioning with Yoxos / Manage Provisionings...
+    and continue with 8 above.
 
-    -- in the "SVN Repositories" view, click the "Add SVN Repository" button on the
-       upper right corner
+8 - if the Yoxos Workspace Provisioning dialog informs that there is no WS Provisioning
+    profile associated with the current setup, then click "Cancel" and go to
+      Help / Software Updates with Yoxos...
 
-    -- enter
-         https://genevaopt.svn.sf.net/svnroot/genevaopt
-       in the Location URL
+      8.1 -- go to the "Plug-In Explorer" view, open the "Public Profiles" tree, browse
+             to the "Development" folder, select the "Geneva C++ development" profile,
+             and run "Add to schedule" from the context menu (or click the green arrow
+             in the "Schedule" view).
 
-    -- expand the SVN tree, select the "trunk" folder, and run "Checkout..." from
-       its context menu
+      8.2 -- click on "Start Installation"
 
-    -- select "Check out as a project in the workspace", name "GenEvA", and click "Finish"
+9 - if no GenEvA project was created automatically by Workspace Provisioning, then you
+    need to check it out by hand
+
+      9.1 -- go to
+               Window / Open Perspective / SVN Repository Exploring
+
+      9.2 -- in the "SVN Repositories" view, click the "Add SVN Repository" button on
+             the upper right corner
+
+      9.3 -- enter
+               https://genevaopt.svn.sf.net/svnroot/genevaopt
+             in the Location URL
+
+      9.4 -- expand the SVN tree, select the "trunk" folder, and run "Checkout..." from
+             its context menu
+
+      9.5 -- select "Check out as a project in the workspace", name "GenEvA", and
+             click "Finish"
 
 
 CMake integration
@@ -66,22 +86,26 @@ CMake integration
 The Eclipse package and the GenEvA source tree are preconfigured to ease the development
 of GenEvA in Eclipse, and in particular of CMake.
 
-- After having checked out the source code on the WorkSpace, go to the main
-  CMake file, namely CMakeLists.txt, and edit the following lines:
+11 - After having checked out the source code on the WorkSpace, go to the main
+     CMake file, namely CMakeLists.txt, and edit the following lines:
 
-    # You can hard-code the Boost paths here, if you compiled Boost yourself and
-    #   it was not deployed in one of the stadard system locations
-    #SET (BOOST_ROOT "/opt/boost136")
-    #SET (BOOST_INCLUDEDIR "/opt/boost136/include/boost-1_36")
-    #SET (BOOST_LIBRARYDIR "/opt/boost136/lib")
+       # You can hard-code the Boost paths here, if you compiled Boost yourself and
+       #   it was not deployed in one of the standard system locations
+       #SET (BOOST_ROOT "/opt/boost136")
+       #SET (BOOST_INCLUDEDIR "/opt/boost136/include/boost-1_36")
+       #SET (BOOST_LIBRARYDIR "/opt/boost136/lib")
 
-    # Set once for Eclipse to find the boost libraries, you can then comment
-    #   it out again
-    #SET(CMAKE_VERBOSE_MAKEFILE ON)
+       # Set once for Eclipse to find the boost libraries, you can then comment
+       #   it out again
+       #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
-- Then run CMake, by either
-    Run / External Tools / CMake  (also in the "External Tools" drop down toolbar button)
-  or open the "Make Targets" view, and double click the "Run CMake" target in the GenEvA
-  project.
+12 - Run CMake, by opening the "Make Targets" view, and double clicking the
+     "Run CMake" target in the GenEvA project. Anothe not yet available alternative: run
+       Run / External Tools / CMake
+     (also in the "External Tools" drop down toolbar button).
 
-- Then build the project by clicking on the small Hammer toolbar icon
+13 - Finally build the project by selecting it and clicking on the small "hammer"
+     toolbar icon, or using
+       Project / Build Project
+
+14 - You are done :-)
