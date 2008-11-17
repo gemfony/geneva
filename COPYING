@@ -1,19 +1,22 @@
-This file belongs to the Geneva library. The use of the library, in source-code or in 
-compiled / machine-readable form is governed by a number of licenses, as listed below.
+This file belongs to the Geneva library. The use of the library and the associated probrams 
+governed by a number of licenses, as described below.
 
-The majority of files of the Geneva library are covered by the Affero GPL version 3. You 
-should have received a copy of the GNU Affero General Public License v3 along with the 
-Geneva library (see the file licenses/AfferoGPLv3). If not, see <http://www.gnu.org/licenses/>.
+The majority of files of the Geneva library are covered by version 3 of the GNU Affero General Public 
+License. You should have received a copy of that license along with the Geneva library (see the file 
+licenses/AfferoGPLv3). If not, see <http://www.gnu.org/licenses/>.
 
 A small number of files of the Geneva library is covered by the Boost Software License v1.
 You should have received a copy of the Boost Software License v1 along with the Geneva 
 library (see the file licenses/BoostSoftwareLicenseV1). 
 
-Some stand-alone programs may be covered by version 2 of the GNU General Public license.
+Some stand-alone programs may be covered by version 2 of the GNU General Public License.
 Again you should have received a copy of the GNU General Public License version 2
 along with the Geneva library (see the file licenses/GPLv2).  If not, 
 see <http://www.gnu.org/licenses/>.
 
+A few files / or programs are dual-licensed under both the GNU General Public version 2 and 
+version 3 of the GNU Affero General Public License.
+
 Each code file of the Geneva library contains licensing information. So if in doubt, please 
-have a look at each file individually. If doubts remain, please contact the authors 
-(ruediger.berlich@iwr.fzk.de).
+have a look at each file individually. If doubts still remain, please contact the authors prior
+to using this library (ruediger.berlich@iwr.fzk.de).
