@@ -23,9 +23,9 @@ SET ( GENEVAINCLUDES
 	GConsumer.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp
-	GGaussAdaptorT.hpp
 	GenevaExceptions.hpp
 	GEnums.hpp
+	GGaussAdaptorT.hpp
 	GIndividualBroker.hpp
 	GIndividual.hpp
 	GIndividualSet.hpp

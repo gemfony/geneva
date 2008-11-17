@@ -41,10 +41,10 @@
 #ifndef COMMANDLINEPARSER_HPP_
 #define COMMANDLINEPARSER_HPP_
 
-
 // Default settings
 const std::string DEFAULTPARAMFILE="unknown";
 const bool DEFAULTWRITETEMPLATE=false;
+const bool DEFAULTWRITERESULT=false;
 const bool DEFAULTVERBOSE=true;
 
 
@@ -53,6 +53,7 @@ namespace po = boost::program_options;
 bool parseCommandLine(int argc, char **argv,
 		      std::string& paramfile,
 		      bool& writeTemplate,
+		      bool& writeResult,
 		      bool& verbose);
 
 #endif /* COMMANDLINEPARSER_HPP_ */

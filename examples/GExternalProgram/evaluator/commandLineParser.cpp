@@ -38,8 +38,10 @@ bool parseCommandLine(int argc, char **argv,
       ("help,h", "emit help message")
       ("paramfile,p",po::value<std::string>(&paramfile)->default_value(DEFAULTPARAMFILE),
        "Name of a file with the parameters")
-      ("writeTemplate,w",po::value<bool>(&writeTemplate)->default_value(DEFAULTWRITETEMPLATE),
-       "Writes out a template parameter file. Requires option \"-f\"")
+      ("writeTemplate,t",po::value<bool>(&writeTemplate)->default_value(DEFAULTWRITETEMPLATE),
+       "Writes out a template parameter file. Requires option \"-p\"")
+      ("writeResult,r",po::value<bool>(&writeResult)->default_value(DEFAULTWRITERESULT),
+       "Writes out the current parameter set in a user-defined way. Requires option \"-p\"")
       ("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
        "Whether to emit the command line options")
       ;
@@ -55,14 +57,15 @@ bool parseCommandLine(int argc, char **argv,
     }
 
     // We can only write a template if we have received a pdbfile
-    if(paramfile == DEFAULTPARAMFILE ) {
-      std::cout << "Error: You need to specifiy the name of the parameter file (option \"-p\")" << std::endl;
+    if(paramfile == DEFAULTPARAMFILE) {
+      std::cout << "Error: You need to specify the name of the parameter file (option \"-p\")" << std::endl;
       return false;
     }
 
     if(verbose) {
       std::cout << "paramfile = " << paramfile << std::endl
-	            << "writeTemplate = " << writeTemplate << std::endl;
+	            << "writeTemplate = " << writeTemplate << std::endl
+	            << "writeResult = " << writeResult << std::endl;
     }
   }
   catch(...){

@@ -23,7 +23,10 @@
 
 /*
  * This file complements the GExternalProgram example. It represents the
- * fitness calculation triggered by the corresponding function.
+ * fitness calculation triggered by the corresponding function. If you follow
+ * the same pattern as in this file, you should be able to use the GExternalProgram
+ * example without modification in order to run optimizations with an external
+ * program.
  */
 
 #include <iostream>
@@ -38,25 +41,72 @@
 
 using namespace std;
 
+const std::size_t PARABOLADIM=1000;
+
+void writeTemplateFile(const std::string& fileName,
+		               const std::vector<std::vector<double> >& dParm,
+		               const std::vector<std::vector<long> >& lParm,
+		               const std::vector<std::vector<bool> >& bParm)
+{
+
+}
+
 int main(int argc, char **argv)
 {
-  std::vector<double> dParm;
-  std::size_t nDParm;
-  double current;
+	std::vector<double> dParm;
+	std::size_t nDArrays, nBArrays, nLArrays;
+	double current;
 
-  if(argc != 2) {
-    std::cerr << "Error" << std::endl;
-    exit(1);
-  }
+	std::string paramfile;
+	bool writeTemplate, writeResult, verbose;
 
-  std::string fname = argv[1];
-  std::ifstream parameters(fname.c_str(), ios_base::in | ios_base::binary);
+	// Parse the command line
+	if(!parseCommandLine(argc, argv,
+						 paramfile,
+						 writeTemplate,
+						 writeResult,
+						 verbose))
+    { exit(1); }
 
-  parameters.read((char *)&nDParm, sizeof(std::size_t));
-  for(std::size_t i=0; i<nDParm; i++){
-    parameters.read((char *)&current, sizeof(double));
-    dParm.push_back(current);
-  }
+	std::string fname = argv[1];
+	std::ifstream parameters(fname.c_str(), ios_base::in | ios_base::binary);
+
+	// Check whether we've been asked to emit the parameter structure
+	if(writeTemplate) {
+		nDArrays = 1; // The number of double parameters
+		nLArrays = 0; // The number of long arrays
+		nBArrays = 0; // The number of boolean arrays
+
+		// Open the parameter file
+		std::ofstream templateFile(fname.c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
+		if(!templateFile) { // Have we successfully opened the file ?
+			std::cerr << "Error: Could not emit the parameter structure" << std::endl;
+			exit(1);
+		}
+
+		// First emit the number of double arrays
+		templateFile.write((char *)&nDArrays, sizeof(std::size_t));
+
+		// Then emit the size of each double array in sequence
+
+
+		// Emit the number of boolean arrays
+		// Then emit the size of each boolean array in sequence
+		// Emit the number of long arrays
+		// Then emit the size of each long array in sequence
+
+		// Close the parameter file
+		templateFile.close();
+
+		// Leave - nothing else to do
+		exit(0);
+	}
+
+	parameters.read((char *)&nDParm, sizeof(std::size_t));
+	for(std::size_t i=0; i<nDParm; i++){
+		parameters.read((char *)&current, sizeof(double));
+		dParm.push_back(current);
+	}
 
   parameters.close();
 
