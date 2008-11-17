@@ -34,6 +34,8 @@
 #include <vector>
 #include <cmath>
 
+#include "commandLineParser.hpp"
+
 using namespace std;
 
 int main(int argc, char **argv)

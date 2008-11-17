@@ -4,7 +4,7 @@ SET (EXECUTABLENAME evaluator)
 
 SET (${EXECUTABLENAME}_SRCS 
 	evaluator
-	GCommandLineParser
+	commandLineParser
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
