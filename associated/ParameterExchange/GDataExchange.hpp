@@ -28,6 +28,9 @@
 // Standard headers go here
 #include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 // Boost headers go here
 #include <boost/version.hpp>
@@ -64,7 +67,7 @@
  * the Geneva library. It allows to store settings particular to a given
  * individual.
  */
-class GIndividualExchange {
+class GIndividualData {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -78,9 +81,160 @@ class GIndividualExchange {
     ///////////////////////////////////////////////////////////////////////
 
 public:
-	bool saveToFile(const std::string&);
+	/**************************************************************************/
+	/**
+	 * The default constructor.
+	 */
+	GIndividualData() { /* nothing */ }
+
+    /**************************************************************************/
+	/**
+	 * Saves the data associated with this object to a file. Serialization
+	 * always happens in binary mode, as it is assumed that this happens on
+	 * the same machine as de-serialization..
+	 *
+	 * @param fileName The name of the file the information should be saved to
+	 * @return true if the operation was successful, false otherwise
+	 */
+	bool saveToFile(const std::string& fileName) {
+		std::ofstream paramStream(fileName.c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
+		if(!paramStream) {
+			std::cerr << "In GIndividualData::saveToFile(): Error!" << std::endl
+				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
+			exit(1);
+		}
+
+		{ // note: explicit scope here is essential so the oa-destructor gets called
+			boost::archive::binary_oarchive oa(paramStream);
+			oa << boost::serialization::make_nvp("GIndividualData", this);
+		}
+
+		paramStream.close();
+	}
+
+	/**************************************************************************/
+	/**
+	 * Loads the data associated with this object from a file. De-serialization
+	 * always happens in binary mode, as it is assumed that this happens on the
+	 * same machine as serialization.
+	 *
+	 * @param fileName The name of the file the information should be loaded from
+	 * @return true if the operation was successful, false otherwise
+	 */
+	bool loadFromFile(const std::string& fileName) {
+		std::ifstream paramStream(fname.c_str(), ios_base::in | ios_base::binary);
+		if(!paramStream) {
+			std::cerr << "In GIndividualData::loadFromFile(): Error!" << std::endl
+				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
+			exit(1);
+		}
+
+ 		{ // note: explicit scope here is essential so the ia-destructor gets called
+		    boost::archive::binary_iarchive ia(paramStream);
+		    ia >> boost::serialization::make_nvp("GIndividualData", this);
+ 		}
+
+		paramStream.close();
+	}
+
+	/**************************************************************************/
+	/**
+	 * Adds a double vector to the list
+	 *
+	 * @param dArray An array of double values
+	 */
+	void appendArray(const std::vector<double>& dArray) {
+		dArrays_.push_back(dArray);
+	}
+
+	/**************************************************************************/
+	/**
+	 * Adds a long vector to the list
+	 *
+	 * @param lArray An array of long values
+	 */
+	void appendArray(const std::vector<long>& lArray) {
+		lArrays_.push_back(lArray);
+	}
+
+	/**************************************************************************/
+	/**
+	 * Adds a boolean vector to the list
+	 *
+	 * @param bArray An array of boolean values
+	 */
+	void appendArray(const std::vector<bool>& bArray) {
+		bArrays_.push_back(bArray);
+	}
+
+	/**************************************************************************/
+	/**
+	 * Gives access to the number of double arrays
+	 *
+	 * @return The number of double arrays
+	 */
+	std::size_t numberOfDoubleArrays() {
+		return dArrays_.size();
+	}
+
+	/**************************************************************************/
+	/**
+	 * Gives access to the number of long arrays
+	 *
+	 * @return The number of long arrays
+	 */
+	std::size_t numberOfLongArrays() {
+		return lArrays_.size();
+	}
+
+	/**************************************************************************/
+	/**
+	 * Gives access to the number of boolean arrays
+	 *
+	 * @return The number of boolean arrays
+	 */
+	std::size_t numberOfBooleanArrays() {
+		return bArrays_.size();
+	}
+
+	/**************************************************************************/
+	/**
+	 * Gives access to a given array of double values. Note that this function
+	 * will throw if an incorrect position was asked for.
+	 *
+	 * @param pos The position in the array of vectors
+	 * @return The vector at position pos
+	 */
+	const std::vector<double>& d_at(std::size_t pos) {
+		return dArrays_.at(pos);
+	}
+
+	/**************************************************************************/
+	/**
+	 * Gives access to a given array of long values. Note that this function
+	 * will throw if an incorrect position was asked for.
+	 *
+	 * @param pos The position in the array of vectors
+	 * @return The vector at position pos
+	 */
+	const std::vector<long>& l_at(std::size_t pos) {
+		return lArrays_.at(pos);
+	}
+
+	/**************************************************************************/
+	/**
+	 * Gives access to a given array of boolean values. Note that this function
+	 * will throw if an incorrect position was asked for.
+	 *
+	 * @param pos The position in the array of vectors
+	 * @return The vector at position pos
+	 */
+	const std::vector<bool>& b_at(std::size_t pos) {
+		return bArrays_.at(pos);
+	}
 
 private:
+	/**************************************************************************/
 	std::vector<std::vector<double> > dArrays_; ///< Arrays holding double values
 	std::vector<std::vector<long> > lArrays_; ///< Arrays holding long values
 	std::vector<std::vector<bool> > bArrays_; ///< Arrays holding boolean values

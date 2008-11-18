@@ -175,7 +175,7 @@ void GObject::fromString(const std::string& descr, const serializationMode& serM
  		{
 		    boost::archive::binary_iarchive ia(istr);
 		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
- 		}
+ 		} // note: explicit scope here is essential so the ia-destructor gets called
 
  		break;
      }
