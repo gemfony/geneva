@@ -21,6 +21,7 @@ SET ( GENEVAINCLUDES
 	GChar.hpp
 	GCharFlipAdaptor.hpp
 	GConsumer.hpp
+	GDataExchange.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp
 	GenevaExceptions.hpp
