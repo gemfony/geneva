@@ -269,6 +269,57 @@ public:
 	GPopulationData() throw() :nParents_(0), popSize_(0)
 	{ /* nothing */ }
 
+    /**************************************************************************/
+	/**
+	 * Saves the data associated with this object to a file. Serialization
+	 * always happens in binary mode, as it is assumed that this happens on
+	 * the same machine as de-serialization..
+	 *
+	 * @param fileName The name of the file the information should be saved to
+	 * @return true if the operation was successful, false otherwise
+	 */
+	bool saveToFile(const std::string& fileName) {
+		std::ofstream paramStream(fileName.c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
+		if(!paramStream) {
+			std::cerr << "In GPopulationData::saveToFile(): Error!" << std::endl
+				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
+			exit(1);
+		}
+
+		{ // note: explicit scope here is essential so the oa-destructor gets called
+			boost::archive::binary_oarchive oa(paramStream);
+			oa << boost::serialization::make_nvp("GPopulationData", this);
+		}
+
+		paramStream.close();
+	}
+
+	/**************************************************************************/
+	/**
+	 * Loads the data associated with this object from a file. De-serialization
+	 * always happens in binary mode, as it is assumed that this happens on the
+	 * same machine as serialization.
+	 *
+	 * @param fileName The name of the file the information should be loaded from
+	 * @return true if the operation was successful, false otherwise
+	 */
+	bool loadFromFile(const std::string& fileName) {
+		std::ifstream paramStream(fname.c_str(), ios_base::in | ios_base::binary);
+		if(!paramStream) {
+			std::cerr << "In GPopulationData::loadFromFile(): Error!" << std::endl
+				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
+			exit(1);
+		}
+
+ 		{ // note: explicit scope here is essential so the ia-destructor gets called
+		    boost::archive::binary_iarchive ia(paramStream);
+		    ia >> boost::serialization::make_nvp("GPopulationData", this);
+ 		}
+
+		paramStream.close();
+	}
+
+
 	/**************************************************************************/
 	/**
 	 * Sets the desired number of parents and the size of the population.
