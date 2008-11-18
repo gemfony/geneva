@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( INCLUDEFILES
-    GExchangeFormat.hpp
+    GDataExchange.hpp
 )
 
 INSTALL ( FILES ${INCLUDEFILES} DESTINATION include
