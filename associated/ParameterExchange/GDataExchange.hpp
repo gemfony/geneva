@@ -74,6 +74,7 @@ class GIndividualData {
     template<typename Archive>
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
+
       ar & make_nvp("dArrays_",dArrays_);
       ar & make_nvp("lArrays_",lArrays_);
       ar & make_nvp("bArrays_",bArrays_);
@@ -85,7 +86,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GIndividualData() { /* nothing */ }
+	GIndividualData() throw() { /* nothing */ }
 
     /**************************************************************************/
 	/**
@@ -173,7 +174,7 @@ public:
 	 *
 	 * @return The number of double arrays
 	 */
-	std::size_t numberOfDoubleArrays() {
+	std::size_t numberOfDoubleArrays() const throw() {
 		return dArrays_.size();
 	}
 
@@ -183,7 +184,7 @@ public:
 	 *
 	 * @return The number of long arrays
 	 */
-	std::size_t numberOfLongArrays() {
+	std::size_t numberOfLongArrays() const throw() {
 		return lArrays_.size();
 	}
 
@@ -193,7 +194,7 @@ public:
 	 *
 	 * @return The number of boolean arrays
 	 */
-	std::size_t numberOfBooleanArrays() {
+	std::size_t numberOfBooleanArrays() const throw() {
 		return bArrays_.size();
 	}
 
@@ -205,7 +206,7 @@ public:
 	 * @param pos The position in the array of vectors
 	 * @return The vector at position pos
 	 */
-	const std::vector<double>& d_at(std::size_t pos) {
+	const std::vector<double>& d_at(std::size_t pos) const {
 		return dArrays_.at(pos);
 	}
 
@@ -217,7 +218,7 @@ public:
 	 * @param pos The position in the array of vectors
 	 * @return The vector at position pos
 	 */
-	const std::vector<long>& l_at(std::size_t pos) {
+	const std::vector<long>& l_at(std::size_t pos) const {
 		return lArrays_.at(pos);
 	}
 
@@ -229,7 +230,7 @@ public:
 	 * @param pos The position in the array of vectors
 	 * @return The vector at position pos
 	 */
-	const std::vector<bool>& b_at(std::size_t pos) {
+	const std::vector<bool>& b_at(std::size_t pos) const {
 		return bArrays_.at(pos);
 	}
 
@@ -238,6 +239,119 @@ private:
 	std::vector<std::vector<double> > dArrays_; ///< Arrays holding double values
 	std::vector<std::vector<long> > lArrays_; ///< Arrays holding long values
 	std::vector<std::vector<bool> > bArrays_; ///< Arrays holding boolean values
+};
+
+/*******************************************************************************/
+/**
+ * This class serves as an exchange vehicle between external programs and
+ * the Geneva library. It allows to store settings particular to a given
+ * population.
+ */
+class GPopulationData {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    template<typename Archive>
+    void serialize(Archive & ar, const unsigned int version){
+      using boost::serialization::make_nvp;
+
+      ar & make_nvp("individuals_",individuals_);
+      ar & make_nvp("popSize_",popSize_);
+      ar & make_nvp("nParents_",nParents_);
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+	/**************************************************************************/
+	/**
+	 * The standard constructor
+	 */
+	GPopulationData() throw() :nParents_(0), popSize_(0)
+	{ /* nothing */ }
+
+	/**************************************************************************/
+	/**
+	 * Sets the desired number of parents and the size of the population.
+	 *
+	 * @param popSize The desired size of the population
+	 * @param nParents The desired number of parents
+	 */
+	void setPopulationSize(const std::size_t& popSize, const std::size_t& nParents) throw() {
+		if(popSize == 0 || nParents == 0 || nParents >= (std::size_t)(double(popSize)/2.)) {
+			std::cerr << "In GPopulationData::setPopulationSize(): Error!" << std::endl
+			          << "Invalid population sizes: " << nParents << " " << popSize << std::endl;
+
+			exit(1);
+		}
+
+		popSize_ = popSize;
+		nParents_ = nParents;
+	}
+
+	/**************************************************************************/
+	/**
+	 * Retrieves the desired population size
+	 *
+	 * @return The desired population size
+	 */
+	std::size_t getPopulationSize() const throw() {
+		return popSize_;
+	}
+
+	/**************************************************************************/
+	/**
+	 * Retrieves the desired number of parents
+	 *
+	 * @return The desired number of parents
+	 */
+	std::size_t getNumberOfParents() const throw() {
+		return nParents_;
+	}
+
+	/**************************************************************************/
+	/**
+	 * Retrieves the number of individuals stored in the object
+	 *
+	 * @return The number of individuals stored in this object
+	 */
+	std::size_t numberOfIndividuals() const throw() {
+		return individuals_.size();
+	}
+
+	/**************************************************************************/
+	/**
+	 * Adds the data for an individual to the object
+	 *
+	 * @param individual A boost::shared_ptr to an individual
+	 */
+	void appendIndividual(const boost::shared_ptr<GIndividualData>& individual) {
+		if(!individual) {// does it point somewhere ?
+			std::cerr << "In  GPopulationData::appendIndividual(): Error!" << std::endl
+				      << "Received empty individual" << std::endl;
+
+			exit(1);
+		}
+
+		individuals_.push_back(individual);
+	}
+
+	/**************************************************************************/
+	/**
+	 * Retrieves an individual at a given position. Note that this function will
+	 * throw if an invalid position is given.
+	 *
+	 * @param pos The position of the individual in the object
+	 * @return A boost::shared_ptr to the desired GIndividualData object
+	 */
+	boost::shared_ptr<GIndividualData> at(const std::size_t& pos) {
+		return individuals_.at(pos);
+	}
+
+private:
+	/**************************************************************************/
+	std::vector<boost::shared_ptr<GIndividualData> > individuals_; ///< An array holding a number of individuals
+	std::size_t nParents_; ///< The number of parents in a population
+	std::size_t popSize_; ///< The envisaged size of the population
 };
 
 /*******************************************************************************/
