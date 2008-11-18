@@ -49,13 +49,8 @@ namespace GenEvA
 {
 
 // Default settings
-const std::string DEFAULTFILENAME="./evaluator";
-const std::size_t DEFAULTPARABOLADIMENSION=1000;
-const double DEFAULTPARABOLAMIN=-100.;
-const double DEFAULTPARABOLAMAX=100.;
+const std::string DEFAULTFILENAME="./evaluator/evaluator";
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
-const std::size_t DEFAULTPOPULATIONSIZE=100;
-const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
 const long DEFAULTMAXMINUTES=10;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
@@ -63,23 +58,26 @@ const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
 const bool DEFAULTPARALLEL=true;
+const double DEFAULTSIGMA=1.;
+const double DEFAULTSIGMASIGMA=0.001;
+const double DEFAULTMINSIGMA=0.000001;
+const double DEFAULTMAXSIGMA=5.;
 
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
 					  std::string& fileName,
-					  std::size_t& parabolaDimension,
-					  double& parabolaMin,
-					  double& parabolaMax,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
-					  std::size_t& populationSize,
-					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
 					  bool& parallel,
+					  double& sigma,
+					  double& sigmaSigma,
+					  double& minSigma,
+					  double& maxSigma,
 					  bool& verbose);
 
 } /* namespace GenEvA */

@@ -45,7 +45,6 @@
 #include "GDataExchange.hpp"
 
 using namespace std;
-using namespace Gem;
 using namespace Gem::Util;
 
 const std::size_t PARABOLADIM=1000;

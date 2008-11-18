@@ -159,7 +159,7 @@ public:
 	 *
 	 * @param lArray An array of long values
 	 */
-	void appendArray(const std::vector<long>& lArray) {
+	void appendArray(const std::vector<boost::uint32_t>& lArray) {
 		lArrays_.push_back(lArray);
 	}
 
@@ -223,7 +223,7 @@ public:
 	 * @param pos The position in the array of vectors
 	 * @return The vector at position pos
 	 */
-	const std::vector<long>& l_at(std::size_t pos) const {
+	const std::vector<boost::uint32_t>& l_at(std::size_t pos) const {
 		return lArrays_.at(pos);
 	}
 
@@ -242,7 +242,7 @@ public:
 private:
 	/**************************************************************************/
 	std::vector<std::vector<double> > dArrays_; ///< Arrays holding double values
-	std::vector<std::vector<long> > lArrays_; ///< Arrays holding long values
+	std::vector<std::vector<boost::uint32_t> > lArrays_; ///< Arrays holding long values
 	std::vector<std::vector<bool> > bArrays_; ///< Arrays holding boolean values
 };
 
@@ -399,7 +399,7 @@ public:
 	 * @param pos The position of the individual in the object
 	 * @return A boost::shared_ptr to the desired GIndividualData object
 	 */
-	const boost::shared_ptr<GIndividualData>& at(const std::size_t& pos) {
+	boost::shared_ptr<GIndividualData> at(const std::size_t& pos) {
 		return individuals_.at(pos);
 	}
 

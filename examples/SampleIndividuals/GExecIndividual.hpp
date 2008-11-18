@@ -72,6 +72,16 @@ class GExecIndividual
 public:
 	/********************************************************************************************/
 	/**
+	 * A constructor which initializes the individual with the name of the parameter exchange file
+	 *
+	 * @param fileName The name of the file used for the exchange of parameter data
+	 */
+	GExecIndividual(const std::string& fileName)
+		:fileName_(fileName)
+	{ /* nothing */ }
+
+	/********************************************************************************************/
+	/**
 	 * A constructor which initializes the individual with a suitable set of random double values.
 	 *
 	 * @param sz The desired size of the double collection

@@ -33,18 +33,17 @@ namespace GenEvA
  */
 bool parseCommandLine(int argc, char **argv,
 					  std::string& fileName,
-					  std::size_t& parabolaDimension,
-					  double& parabolaMin,
-					  double& parabolaMax,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
-					  std::size_t& populationSize,
-					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
 					  bool& parallel,
+					  double& sigma,
+					  double& sigmaSigma,
+					  double& minSigma,
+					  double& maxSigma,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -56,20 +55,10 @@ bool parseCommandLine(int argc, char **argv,
 			("help,h", "emit help message")
 			("fileName,f",po::value<std::string>(&fileName)->default_value(DEFAULTFILENAME),
 					"the name of a file holding the evaluation executable")
-			("parabolaDimension,d", po::value<std::size_t>(&parabolaDimension)->default_value(DEFAULTPARABOLADIMENSION),
-					"number of dimensions in the parabola")
-			("parabolaMin,m", po::value<double>(&parabolaMin)->default_value(DEFAULTPARABOLAMIN),
-					"Lower boundary for random numbers")
 			("adaptionThreshold,a", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
 					"Number of calls to mutate after which mutation parameters should be adapted")
-			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
-					"Upper boundary for random numbers")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
-			("populationSize,S",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
-					"The size of the super-population")
-			("nParents,P",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
-					"The number of parents in the population") // Needs to be treated separately
 			("maxGenerations,G", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
 					"maximum number of generations in the population")
 			("maxMinutes,X", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
@@ -79,7 +68,15 @@ bool parseCommandLine(int argc, char **argv,
 			("rScheme,E",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme for the super-population")
 			("parralel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
-			                "Whether or not to run this optimization in multi-threaded mode")
+					"Whether or not to run this optimization in multi-threaded mode")
+			("sigma,s", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
+					"The width of the gaussian used for the adaption of double values")
+			("sigmaSigma,S", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
+					"The adaption rate of sigma")
+			("minSigma,m", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
+					"The minimum allowed value for sigma")
+			("maxSigma,M", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
+					"The maximum allowed value for sigma")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -92,24 +89,6 @@ bool parseCommandLine(int argc, char **argv,
 		if (vm.count("help")) {
 			 std::cout << desc << std::endl;
 			 return false;
-		}
-
-		// Check the number of parents in the super-population
-		if(2*nParents > populationSize){
-			std::cout << "Error: Invalid number of parents inpopulation" << std::endl
-				      << "nParents       = " << nParents << std::endl
-				      << "populationSize = " << populationSize << std::endl;
-
-			return false;
-		}
-
-		// Check the parabolaMin/Max parameters
-		if(parabolaMin >= parabolaMax){
-			std::cout << "Error: Invalid parabolaMin/Max parameters" << std::endl
-				      << "parabolaMin = " << parabolaMin << std::endl
-				      << "parabolaMax = " << parabolaMax << std::endl;
-
-			return false;;
 		}
 
 		// Workaround for assigment problem with rScheme
@@ -127,13 +106,8 @@ bool parseCommandLine(int argc, char **argv,
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
-					  << "parabolaDimension = " << parabolaDimension << std::endl
-					  << "parabolaMin = " << parabolaMin << std::endl
-					  << "parabolaMax = " << parabolaMax << std::endl
 					  << "adaptionThreshold = " << adaptionThreshold << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
-					  << "populationSize = " << populationSize << std::endl
-					  << "nParents = " << nParents << std::endl
 					  << "maxGenerations = " << maxGenerations << std::endl
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl
