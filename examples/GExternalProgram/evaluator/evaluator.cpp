@@ -29,6 +29,7 @@
  * program.
  */
 
+// standard headers go here
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
@@ -37,19 +38,19 @@
 #include <vector>
 #include <cmath>
 
+// Boost headers go here
+
+// Geneva headers go here
 #include "commandLineParser.hpp"
+#include "GDataExchange.hpp"
 
 using namespace std;
+using namespace Gem;
+using namespace Gem::Util;
 
 const std::size_t PARABOLADIM=1000;
-
-void writeTemplateFile(const std::string& fileName,
-		               const std::vector<std::vector<double> >& dParm,
-		               const std::vector<std::vector<long> >& lParm,
-		               const std::vector<std::vector<bool> >& bParm)
-{
-
-}
+const std::size_t POPSIZE=100;
+const std::size_T NPARENTS=5;
 
 int main(int argc, char **argv)
 {
@@ -68,56 +69,65 @@ int main(int argc, char **argv)
 						 verbose))
     { exit(1); }
 
-	std::string fname = argv[1];
-	std::ifstream parameters(fname.c_str(), ios_base::in | ios_base::binary);
-
 	// Check whether we've been asked to emit the parameter structure
 	if(writeTemplate) {
-		nDArrays = 1; // The number of double parameters
-		nLArrays = 0; // The number of long arrays
-		nBArrays = 0; // The number of boolean arrays
+		// Create a vector of double values. This will serve as the
+		// starting point for the optimization
+		std::vector<double> dParm;
+		for(std::size_t i=0; i<PARABOLADIM; i++) dParm.push_back(100.);
 
-		// Open the parameter file
-		std::ofstream templateFile(fname.c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
-		if(!templateFile) { // Have we successfully opened the file ?
-			std::cerr << "Error: Could not emit the parameter structure" << std::endl;
-			exit(1);
-		}
+		// Create a GPopulationData object
+		GPopulationData popData;
+		popData.setPopulationSize(POPSITE, NPARENTS);
 
-		// First emit the number of double arrays
-		templateFile.write((char *)&nDArrays, sizeof(std::size_t));
+		// Create a single GIndividualData object
+		boost::shared_ptr<GIndividualData> indDataPtr(new GIndividualData());
+		// Add the parabola data
+		indDataPtr->appendArray(dParm);
+		// Add the object to the population data
+		popData.appendIndividual(indDataPtr);
 
-		// Then emit the size of each double array in sequence
+		// Write the data to file and leave
+		if(!popData.saveToFile(paramFile)) exit(1);
+		else exit(0);
+	}
 
+	// O.k., at this point we are sure we need to load an individual's
+	// data from a parameter file.
+	GIndividualData indData;
+	if(!indData.loadFromFile(paramFile)) exit(1);
 
-		// Emit the number of boolean arrays
-		// Then emit the size of each boolean array in sequence
-		// Emit the number of long arrays
-		// Then emit the size of each long array in sequence
+	// Check that we have the correct number of double arrays (1 in this case)
+	std::size_t nArrays=indData.numberOfDoubleArrays();
+	if(nArrays != 1) {
+		std::cerr << "Error: Retrieved invalid number of double arrays: " << nArrays << std::endl;
+		exit(1);
+	}
 
-		// Close the parameter file
-		templateFile.close();
+	// Load the double array
+	const std::vector<double>& dParmRef = indData.d_at(0);
+	std::vector<double>::const_iterator cit;
 
-		// Leave - nothing else to do
+	// If our mission is to write out the result, do so and leave
+	if(writeResult) {
+		// Say what we're doing
+		std::cout << "And the result is " << std::endl << std::endl;
+
+		// Loop over all parameters in the array
+		for(cit=dParmRef.begin(); cit!=dParmRef.end(); ++cit) std::cout << *cit << std::endl;
+
+		// Leave
 		exit(0);
 	}
 
-	parameters.read((char *)&nDParm, sizeof(std::size_t));
-	for(std::size_t i=0; i<nDParm; i++){
-		parameters.read((char *)&current, sizeof(double));
-		dParm.push_back(current);
-	}
+	// At this point the only thing left to do is to calculate the result
+	double result = 0.;
+	for(cit=dParmRef.begin(); cit!=dParmRef.end(); ++cit) result += pow(dParm[i], 2);
 
-  parameters.close();
+	// Create a suitable GResultData object
+	GResultData resultData(result);
+	if(!resultData.saveToFile(paramFile)) exit(1);
+	else exit(0);
 
-  double result;
-  for(unsigned int i=0; i<dParm.size(); i++){
-    result += pow(dParm[i], 2);
-  }
-
-  std::ofstream resultFile(fname.c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
-  resultFile.write((char *)&result, sizeof(double));
-  resultFile.close();
-
-  return 0;
+	return 0;
 }

@@ -61,6 +61,11 @@
 #ifndef GDATAEXCHANGE_HPP_
 #define GDATAEXCHANGE_HPP_
 
+namespace Gem
+{
+namespace Util
+{
+
 /*******************************************************************************/
 /**
  * This class serves as an exchange vehicle between external programs and
@@ -102,7 +107,7 @@ public:
 		if(!paramStream) {
 			std::cerr << "In GIndividualData::saveToFile(): Error!" << std::endl
 				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
-			exit(1);
+			return false;
 		}
 
 		{ // note: explicit scope here is essential so the oa-destructor gets called
@@ -127,7 +132,7 @@ public:
 		if(!paramStream) {
 			std::cerr << "In GIndividualData::loadFromFile(): Error!" << std::endl
 				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
-			exit(1);
+			return false;
 		}
 
  		{ // note: explicit scope here is essential so the ia-destructor gets called
@@ -283,7 +288,7 @@ public:
 		if(!paramStream) {
 			std::cerr << "In GPopulationData::saveToFile(): Error!" << std::endl
 				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
-			exit(1);
+			return false;
 		}
 
 		{ // note: explicit scope here is essential so the oa-destructor gets called
@@ -308,7 +313,7 @@ public:
 		if(!paramStream) {
 			std::cerr << "In GPopulationData::loadFromFile(): Error!" << std::endl
 				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
-			exit(1);
+			return false;
 		}
 
  		{ // note: explicit scope here is essential so the ia-destructor gets called
@@ -394,7 +399,7 @@ public:
 	 * @param pos The position of the individual in the object
 	 * @return A boost::shared_ptr to the desired GIndividualData object
 	 */
-	boost::shared_ptr<GIndividualData> at(const std::size_t& pos) {
+	const boost::shared_ptr<GIndividualData>& at(const std::size_t& pos) {
 		return individuals_.at(pos);
 	}
 
@@ -406,5 +411,115 @@ private:
 };
 
 /*******************************************************************************/
+/**
+ * This class serves as an exchange vehicle between external programs and
+ * the Geneva library. It allows to retrieve the result of a evaluation.
+ */
+class GResultData {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    template<typename Archive>
+    void serialize(Archive & ar, const unsigned int version){
+      using boost::serialization::make_nvp;
+
+      ar & make_nvp("result_",result_);
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+	/**************************************************************************/
+	/**
+	 * The default constructor.
+	 */
+	GResultData() throw() :result_(0.) { /* nothing */ }
+
+	/**************************************************************************/
+	/**
+	 * A constructor that allows to set the result parameter.
+	 *
+	 * @param result The parameter to be stored in this class
+	 */
+	GResultData(double result) throw() :result_(result) { /* nothing */ }
+
+    /**************************************************************************/
+	/**
+	 * Saves the data associated with this object to a file. Serialization
+	 * always happens in binary mode, as it is assumed that this happens on
+	 * the same machine as de-serialization..
+	 *
+	 * @param fileName The name of the file the information should be saved to
+	 * @return true if the operation was successful, false otherwise
+	 */
+	bool saveToFile(const std::string& fileName) {
+		std::ofstream paramStream(fileName.c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
+		if(!paramStream) {
+			std::cerr << "In GResultData::saveToFile(): Error!" << std::endl
+				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
+			return false;
+		}
+
+		{ // note: explicit scope here is essential so the oa-destructor gets called
+			boost::archive::binary_oarchive oa(paramStream);
+			oa << boost::serialization::make_nvp("GResultData", this);
+		}
+
+		paramStream.close();
+	}
+
+	/**************************************************************************/
+	/**
+	 * Loads the data associated with this object from a file. De-serialization
+	 * always happens in binary mode, as it is assumed that this happens on the
+	 * same machine as serialization.
+	 *
+	 * @param fileName The name of the file the information should be loaded from
+	 * @return true if the operation was successful, false otherwise
+	 */
+	bool loadFromFile(const std::string& fileName) {
+		std::ifstream paramStream(fname.c_str(), ios_base::in | ios_base::binary);
+		if(!paramStream) {
+			std::cerr << "In GResultData::loadFromFile(): Error!" << std::endl
+				      << "Could not open file " << fileName << ". Leaving ..." << std::endl;
+			return false;
+		}
+
+ 		{ // note: explicit scope here is essential so the ia-destructor gets called
+		    boost::archive::binary_iarchive ia(paramStream);
+		    ia >> boost::serialization::make_nvp("GResultData", this);
+ 		}
+
+		paramStream.close();
+	}
+
+	/**************************************************************************/
+	/**
+	 * Sets the result parameter.
+	 *
+	 * @param result The new value to be assigned to the result_ variable
+	 */
+	void setResult(const double& result) throw() {
+		result_ = result;
+	}
+
+	/**************************************************************************/
+	/**
+	 * Retrieves the value of the result_ variable.
+	 *
+	 * @return The value of the result_ variable
+	 */
+	double getResult() {
+		return result_;
+	}
+
+private:
+	/**************************************************************************/
+	double result_; ///< The result of the calculation
+};
+
+/*******************************************************************************/
+
+} /* namespace Util */
+} /* namespace Gem */
 
 #endif /* GDATAEXCHANGE_HPP_ */
