@@ -725,13 +725,15 @@ void GBasePopulation::select()
 
 	// Sort the arrays. Note that we are using boost::function
 	// objects here, that have been "loaded" with function objects
-	// in the default constructor
+	// in the default constructor. We use partial_sort so that we
+        // do not have to sort the entire vector. All we need is a sorted
+	// list of the nParent_ best individuals.
 	if(maximize_){
-		std::sort(it_begin, data.end(),
+	        std::partial_sort(it_begin, it_begin + nParents_, data.end(),
 				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 	}
 	else{
-		std::sort(it_begin, data.end(),
+	        std::partial_sort(it_begin, it_begin + nParents_, data.end(),
 				  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
 	}
 
