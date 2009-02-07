@@ -67,7 +67,7 @@ Recommended Software
 ====================
 
 By default a GenEvA population emits information suitable for the ROOT framework
-(see http://root.cern.ch). ROOT is a C++ analysis framework wideley used in particle
+(see http://root.cern.ch). ROOT is a C++ analysis framework widely used in particle
 physics. It is built around the C++ interpreter cint. It is recommended to install
 ROOT in your system, as also some of the examples emit information in the ROOT format
 (they are essentially writing ROOT programs).
