@@ -56,6 +56,9 @@ cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost136"\
 Adding another define -DCMAKE_BUILD_TYPE="Release" or -DCMAKE_BUILD_TYPE="Debug"
 switches between Release (default) and Debug builds.
 
+Adding a -DCMAKE_VERBOSE_MAKEFILE="1" will allow you to see the command line that was
+used to call the compiler.
+
 This command needs to be called on a single line.
 
 The commands shown here were tested on an OpenSUSE 11 system.
