@@ -113,6 +113,8 @@ bool parseCommandLine(int argc, char **argv,
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
 				      << "fileName = " << fileName << std::endl
+					  << "popSize = " << popSize << std::endl
+					  << "nParents = " << nParents << std::endl
 					  << "adaptionThreshold = " << adaptionThreshold << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "maxGenerations = " << maxGenerations << std::endl

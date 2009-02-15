@@ -46,7 +46,7 @@ const std::size_t PARABOLADIM=1000;
 int main(int argc, char **argv)
 {
 	std::string paramfile;
-	bool init, finalize, templ, result, eval;
+	bool init, finalize, templ, result;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 			ofstr << PARABOLADIM << std::endl;
 
 			for(std::size_t i = 0; i<PARABOLADIM; i++) {
-				ofstr << 1.25 << std::endl;
+				ofstr << 100. << std::endl;
 			}
 
 			// Make sure the output file is closed.

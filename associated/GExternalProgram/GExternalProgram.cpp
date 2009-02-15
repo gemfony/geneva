@@ -65,9 +65,7 @@ const std::string PARAMETERDATA = "./parameterData";
 int main(int argc, char **argv){
 	// Variables for the command line parsing
 	 std::string fileName;
-	 std::size_t parabolaDimension;
 	 std::size_t populationSize, nParents;
-	 double parabolaMin, parabolaMax;
 	 boost::uint16_t nProducerThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
 	 boost::uint32_t adaptionThreshold;
@@ -131,6 +129,9 @@ int main(int argc, char **argv){
 		gdc->push_back(tmp);
 	}
 
+	// Close the stream
+	paramStream.close();
+
 	// Set up and register an adaptor for the collection, so it
 	// knows how to be mutated. We use the values given to us on the command line
 	// (or as default values).
@@ -139,7 +140,8 @@ int main(int argc, char **argv){
 	gdc->addAdaptor(gdga);
 
 	// Set up a single "master individual"
-	boost::shared_ptr<GExecIndividual> execIndPtr(new GExecIndividual(PARAMETERDATA));
+	boost::shared_ptr<GExecIndividual> execIndPtr(new GExecIndividual(fileName));
+	execIndPtr->push_back(gdc);
 
 	// Set up the populations, as requested
 	if(parallel) {

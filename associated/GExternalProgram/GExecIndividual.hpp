@@ -196,7 +196,7 @@ protected:
 		parameters.close();
 
 		// Assemble command line and run the external program
-		commandLine = fileName_ + " " + parFile.str();
+		commandLine = fileName_ + " -p " + parFile.str();
 
 		// Check that we have a valid fileName_ ...
 		if(fileName_ == "unknown" || fileName_.empty()) {
