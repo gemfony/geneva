@@ -41,10 +41,7 @@
 // Geneva headers go here
 #include "commandLineParser.hpp"
 
-const long MAXGEN=2000;
 const std::size_t PARABOLADIM=1000;
-const std::size_t POPSIZE=100;
-const std::size_t NPARENTS=5;
 
 int main(int argc, char **argv)
 {
@@ -75,12 +72,12 @@ int main(int argc, char **argv)
 	if(paramfile != "unknown" && !paramfile.empty()) {
 		/*
 		 * We have been asked to write out a template file. It has the following format:
-		 * Number of generations (int)
-		 * Desired population size (int)
-		 * Number of parents (int)
 		 * Structure of parent:
 		 *   Number n of double values (int)
 		 *   n initial values (double)
+		 *
+		 * All specifics of the population (size, number of parents, etc.) need
+		 * to be specified for the optimizer itself.
 		 */
 		if(templ) {
 			// Open the parameter file
@@ -93,10 +90,7 @@ int main(int argc, char **argv)
 			}
 
 			// Write out the required information
-			ofstr << MAXGEN << std::endl
-				  << POPSIZE << std::endl
-				  << NPARENTS << std::endl
-				  << PARABOLADIM << std::endl;
+			ofstr << PARABOLADIM << std::endl;
 
 			for(std::size_t i = 0; i<PARABOLADIM; i++) {
 				ofstr << 1.25 << std::endl;
@@ -116,7 +110,7 @@ int main(int argc, char **argv)
 		// Its structure is as follows:
 		// Number n of double values (int)
 		// n double values
-		std::ifstream paramStream(paramfile.c_str(), std::ios_base::in);
+		std::ifstream paramStream(paramfile.c_str());
 		if(!paramStream) {
 			std::cerr << "Error: Could not open file " << paramfile << ". Leaving ..." << std::endl;
 			return 1;

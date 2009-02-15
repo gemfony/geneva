@@ -33,6 +33,8 @@ namespace GenEvA
  */
 bool parseCommandLine(int argc, char **argv,
 					  std::string& fileName,
+					  std::size_t& popSize,
+					  std::size_t& nParents,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
 					  boost::uint32_t& maxGenerations,
@@ -55,6 +57,10 @@ bool parseCommandLine(int argc, char **argv,
 			("help,h", "emit help message")
 			("fileName,f",po::value<std::string>(&fileName)->default_value(DEFAULTFILENAME),
 					"the name of a file holding the evaluation executable")
+			("popSize,z",po::value<std::size_t>(&popSize)->default_value(DEFAULTPOPSIZE),
+					"The envisaged size of the population")
+			("nParents,Z",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
+					"The envisaged number of parents")
 			("adaptionThreshold,a", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
 					"Number of calls to mutate after which mutation parameters should be adapted")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
@@ -67,7 +73,7 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of generations after which information should be emitted in the super-population")
 			("rScheme,E",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme for the super-population")
-			("parralel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
+			("parallel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
 					"Whether or not to run this optimization in multi-threaded mode")
 			("sigma,s", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
 					"The width of the gaussian used for the adaption of double values")
@@ -106,12 +112,18 @@ bool parseCommandLine(int argc, char **argv,
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
+				      << "fileName = " << fileName << std::endl
 					  << "adaptionThreshold = " << adaptionThreshold << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "maxGenerations = " << maxGenerations << std::endl
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
+					  << "parallel = " << parallel << std::endl
+					  << "sigma = " << sigma << std::endl
+					  << "sigmaSigma = " << sigmaSigma << std::endl
+					  << "minSigma = " << minSigma << std::endl
+					  << "maxSigma = " << maxSigma << std::endl
 					  << std::endl;
 		}
 	}

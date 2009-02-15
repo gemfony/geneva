@@ -83,6 +83,8 @@ public:
 	/********************************************************************************************/
 	/**
 	 * A constructor which initializes the individual with a suitable set of random double values.
+	 * This constructor is meant as a quick and dirty start point. Usually one would rather add
+	 * GDoubleCollection objects to the individual as required, using the first constructor.
 	 *
 	 * @param sz The desired size of the double collection
 	 * @param min The minimum value of the random numbers to fill the collection
@@ -171,23 +173,23 @@ protected:
 		double result = 0;
 		std::string commandLine;
 
-		// Retrieve a pointer to the double vector. Compile in DEBUG mode in order to check this conversion
+		// Retrieve a pointer to the GDoubleCollection. Compile in DEBUG mode in order to check this conversion
 		boost::shared_ptr<GDoubleCollection> gdc_load = parameterbase_cast<GDoubleCollection>(0);
 
 		// Make the parameters known externally
 		std::ostringstream parFile;
 		parFile << "parFile_" << this->getPopulationPosition();
-		std::ofstream parameters(parFile.str().c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+		std::ofstream parameters(parFile.str().c_str());
 
 		// First emit information about the number of double values
 		std::size_t nDParm = gdc_load->size();
-		parameters.write((char *)&nDParm, sizeof(std::size_t));
+		parameters << nDParm << std::endl;
 
 		// Then write out the actual parameter value
 		GDoubleCollection::iterator it;
 		for(it=gdc_load->begin(); it!=gdc_load->end(); ++it) {
 			double current = *it;
-			parameters.write((char *)&current, sizeof(double));
+			parameters << current << std::endl;
 		}
 
 		// Finally close the file
@@ -196,8 +198,8 @@ protected:
 		// Assemble command line and run the external program
 		commandLine = fileName_ + " " + parFile.str();
 
-		// Check that we have a valid fileName_
-		if(fileName_ == "empty" || fileName_ == "") {
+		// Check that we have a valid fileName_ ...
+		if(fileName_ == "unknown" || fileName_.empty()) {
 			std::ostringstream error;
 			error << "In GExecIndividual::fitnessCalculation(): Error!" << std::endl
 				  << "Invalid file name \"" << fileName_ << "\"" << std::endl;
@@ -207,12 +209,12 @@ protected:
 
 		system(commandLine.c_str()); // It is not clear whether this is thread-safe
 
-	    // then retrieve the output.
-	    std::ifstream resultFile(parFile.str().c_str(), std::ios_base::in | std::ios_base::binary);
-	    resultFile.read((char *)&result, sizeof(double));
+	    // ... then retrieve the output.
+	    std::ifstream resultStream(parFile.str().c_str());
+	    resultStream >> result;
 
 	    // Finally close the file
-	    resultFile.close();
+	    resultStream.close();
 
 	    // Let the audience know
 		return result;
@@ -224,7 +226,7 @@ private:
 	 * The default constructor. Only needed for serialization purposes
 	 */
 	GExecIndividual()
-		:fileName_("empty")
+		:fileName_("unknown")
 	{ /* nothing */ }
 
 	/********************************************************************************************/

@@ -49,8 +49,10 @@ namespace GenEvA
 {
 
 // Default settings
+const std::size_t DEFAULTPOPSIZE=100;
+const std::size_t DEFAULTNPARENTS=5;
 const std::string DEFAULTFILENAME="./evaluator/evaluator";
-const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
+const boost::uint16_t DEFAULTNPRODUCERTHREADS=5;
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
 const long DEFAULTMAXMINUTES=10;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
@@ -58,15 +60,13 @@ const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
 const bool DEFAULTPARALLEL=true;
-const double DEFAULTSIGMA=1.;
-const double DEFAULTSIGMASIGMA=0.001;
-const double DEFAULTMINSIGMA=0.000001;
-const double DEFAULTMAXSIGMA=5.;
 
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
 					  std::string& fileName,
+					  std::size_t& popSize,
+					  std::size_t& nParents,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
 					  boost::uint32_t& maxGenerations,

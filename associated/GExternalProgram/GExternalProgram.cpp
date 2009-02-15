@@ -2,8 +2,8 @@
  * @file GExternalProgram.cpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2009 Dr. Ruediger Berlich
+ * Copyright (C) 2009 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *
@@ -42,7 +42,6 @@
 #include "GBooleanCollection.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
-#include "GDataExchange.hpp"
 
 // The individual calls an external program for the evaluation step
 #include "GExecIndividual.hpp"
@@ -54,7 +53,6 @@ using namespace Gem::GenEvA;
 using namespace Gem::Util;
 using namespace Gem::GLogFramework;
 
-const std::string POPULATIONDATA = "./populationData";
 const std::string PARAMETERDATA = "./parameterData";
 
 /************************************************************************************************/
@@ -82,6 +80,8 @@ int main(int argc, char **argv){
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
 				         fileName,
+				         populationSize,
+				         nParents,
 						 adaptionThreshold,
 						 nProducerThreads,
 						 maxGenerations,
@@ -109,108 +109,37 @@ int main(int argc, char **argv){
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
-	// Ask the evaluation program to emit information about the population and individuals
-	std::string commandLine = fileName + " -t -p " + POPULATIONDATA;
+	// Ask the evaluation program to emit information about the individuals
+	std::string commandLine = fileName + " -t -p " + PARAMETERDATA;
 	system(commandLine.c_str());
 
-	// Read in the population data
-	GPopulationData populationData;
-	populationData.loadFromFile(POPULATIONDATA);
+	// Read in the population data and set up a GDoubleCollection
+	boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection());
 
-	// Retrieve the population partcularities
-	populationSize = populationData.getPopulationSize();
-	nParents = populationData.getNumberOfParents();
-
-	// Retrieve all individual templates stored in the file and
-	// transfer them into an individual
-	std::vector<boost::shared_ptr<GExecIndividual> > execIndPtrArray;
-	std::size_t i, j, k, nIndividuals = populationData.numberOfIndividuals();
-	for(i=0; i<nIndividuals; i++) {
-		boost::shared_ptr<GIndividualData> indDatPtr = populationData.at(i);
-		boost::shared_ptr<GExecIndividual> execIndPtr(new GExecIndividual(PARAMETERDATA));
-
-		// Find out about the number of arrays of different type in the GIndividualData object
-		std::size_t nDoubleArrays = indDatPtr->numberOfDoubleArrays();
-		std::size_t nLongArrays = indDatPtr->numberOfLongArrays();
-		std::size_t nBooleanArrays = indDatPtr->numberOfBooleanArrays();
-
-		// Create a suitable number of GDoubleCollection objects
-		for(j=0; j<nDoubleArrays; j++) {
-			// Retrieve a reference to the first double array
-			const std::vector<double>& doubleArrayRef = indDatPtr.d_at(j);
-			// Get the size of the array
-			std::size_t sz = doubleArrayRef.size();
-
-			// Set up an empty GDoubleCollection
-			boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection());
-
-			// Attach the values of the double array to the collection
-			for(k=0; k<sz; k++) gdc->push_back(doubleArrayRef.at(k));
-
-			// Set up an adaptor for the collection, so it knows how to be mutated. sigma,
-			// sigmaSigma, minSigma and maxSigma are supplied on the command line (alternatively
-			// default values are used)
-			boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
-			gdga->setAdaptionThreshold(adaptionThreshold);
-
-			// Register the adaptor
-			gdc->addAdaptor(gdga);
-
-			// Finally add the GDoubleCollection to the individual
-			execIndPtr->push_back(gdc);
-		}
-
-		// Create a suitable number of GInt32Collection objects
-		for(j=0; j<nLongArrays; j++) {
-			// Retrieve a reference to the first double array
-			const std::vector<boost::uint32_t>& longArrayRef = indDatPtr.l_at(j);
-			// Get the size of the array
-			std::size_t sz = longArrayRef.size();
-
-			// Set up an empty GInt32Collection
-			boost::shared_ptr<GInt32Collection> glc(new GInt32Collection());
-
-			// Attach the values of the double array to the collection
-			for(k=0; k<sz; k++) glc->push_back(longArrayRef.at(k));
-
-			// Set up an adaptor for the collection, so it knows how to be mutated.
-			boost::shared_ptr<GInt32FlipAdaptor> gifa(new GInt32FlipAdaptor());
-			gifa->setAdaptionThreshold(adaptionThreshold);
-
-			// Register the adaptor
-			glc->addAdaptor(gifa);
-
-			// Finally add the GInt32Collection to the individual
-			execIndPtr->push_back(glc);
-		}
-
-		// Create a suitable number of GBooleanCollection objects
-		for(j=0; j<nBooleanArrays; j++) {
-			// Retrieve a reference to the first double array
-			const std::vector<bool>& boolArrayRef = indDatPtr.b_at(j);
-			// Get the size of the array
-			std::size_t sz = boolArrayRef.size();
-
-			// Set up an empty GInt32Collection
-			boost::shared_ptr<GBooleanCollection> gbc(new GBooleanCollection());
-
-			// Attach the values of the double array to the collection
-			for(k=0; k<sz; k++) glc->push_back(boolArrayRef.at(k));
-
-			// Set up an adaptor for the collection, so it knows how to be mutated.
-			boost::shared_ptr<GBooleanAdaptor> gba(new GBooleanAdaptor());
-			gba->setAdaptionThreshold(adaptionThreshold);
-
-			// Register the adaptor
-			gbc->addAdaptor(gba);
-
-			// Finally add the GBooleanCollection to the individual
-			execIndPtr->push_back(gbc);
-		}
-
-		// The individual has been set up. Store it for later use.
-		execIndPtrArray.push_back(execIndPtr);
+	std::ifstream paramStream(PARAMETERDATA.c_str());
+	if(!paramStream) {
+		std::cerr << "Error: Could not open file " << PARAMETERDATA << ". Leaving ..." << std::endl;
+		return 1;
 	}
+
+	std::size_t pDim = 0;
+	paramStream >> pDim;
+
+	for(std::size_t i=0; i<pDim; i++) {
+		double tmp;
+		paramStream >> tmp;
+		gdc->push_back(tmp);
+	}
+
+	// Set up and register an adaptor for the collection, so it
+	// knows how to be mutated. We use the values given to us on the command line
+	// (or as default values).
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
+	gdga->setAdaptionThreshold(adaptionThreshold);
+	gdc->addAdaptor(gdga);
+
+	// Set up a single "master individual"
+	boost::shared_ptr<GExecIndividual> execIndPtr(new GExecIndividual(PARAMETERDATA));
 
 	// Set up the populations, as requested
 	if(parallel) {
@@ -218,14 +147,13 @@ int main(int argc, char **argv){
 	  GBoostThreadPopulation pop_par;
 	  pop_par.setNThreads(4);
 
-	  // Attach all individuals to the population
-	  std::vector<boost::shared_ptr<GExecIndividual> >::iterator it;
-	  for(it=execIndPtrArray.begin(); it!=execIndPtrArray.end(); ++it)  pop_par.push_back(*it);
+	  // Attach the individual to the population
+	  pop_par.push_back(execIndPtr);
 
 	  // Specify some population settings
 	  pop_par.setPopulationSize(populationSize,nParents);
 	  pop_par.setMaxGeneration(maxGenerations);
-	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
+	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
@@ -237,13 +165,12 @@ int main(int argc, char **argv){
 	  GBasePopulation pop_ser;
 
 	  // Attach all individuals to the population
-	  std::vector<boost::shared_ptr<GExecIndividual> >::iterator it;
-	  for(it=execIndPtrArray.begin(); it!=execIndPtrArray.end(); ++it)  pop_par.push_back(*it);
+	  pop_ser.push_back(execIndPtr);
 
 	  // Specify some population settings
 	  pop_ser.setPopulationSize(populationSize,nParents);
 	  pop_ser.setMaxGeneration(maxGenerations);
-	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
+	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
 	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
