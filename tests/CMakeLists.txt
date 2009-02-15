@@ -4,6 +4,6 @@ ADD_SUBDIRECTORY (
 	Manual
 )
 
-#ADD_SUBDIRECTORY (
-#	UnitTests
-#)
+ADD_SUBDIRECTORY (
+	UnitTests
+)
