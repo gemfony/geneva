@@ -30,14 +30,6 @@
 // Boost headers go here
 #include <boost/program_options.hpp>
 
-// OpenBabel headers go here
-#include <openbabel/babelconfig.h>
-#include <openbabel/base.h>
-#include <openbabel/mol.h>
-#include <openbabel/obconversion.h>
-#include <openbabel/forcefield.h>
-#include <openbabel/internalcoord.h>
-
 #ifndef COMMANDLINEPARSER_HPP_
 #define COMMANDLINEPARSER_HPP_
 

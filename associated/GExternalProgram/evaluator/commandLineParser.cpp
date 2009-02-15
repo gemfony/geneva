@@ -42,8 +42,8 @@ bool parseCommandLine(int argc, char **argv,
       ("finalize,f", "Perform any final actions. Other options will be ignored.")
       ("paramfile,p",po::value<std::string>(&paramfile)->default_value(DEFAULTPARAMFILE),
     		  "Name of a file with the parameters")
-      ("template,t", "Write out a template for this population. Requires option \"p\"")
-      ("result,r", "Write out a result file for a given parameter set. Requires option \"p\"")
+      ("template,t", "Write out a template for this population. Requires option \"-p\"")
+      ("result,r", "Write out a result file for a given parameter set. Requires option \"-p\"")
       ;
 
     po::variables_map vm;
@@ -51,7 +51,6 @@ bool parseCommandLine(int argc, char **argv,
     po::notify(vm);
 
     // Initialize the reference arguments
-	paramfile="unknown";
 	init = false;
 	finalize = false;
 	templ = false;

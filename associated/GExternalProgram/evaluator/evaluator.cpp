@@ -44,7 +44,7 @@
 const long MAXGEN=2000;
 const std::size_t PARABOLADIM=1000;
 const std::size_t POPSIZE=100;
-const std::size_T NPARENTS=5;
+const std::size_t NPARENTS=5;
 
 int main(int argc, char **argv)
 {
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 				  << PARABOLADIM << std::endl;
 
 			for(std::size_t i = 0; i<PARABOLADIM; i++) {
-				ofstr << 100. << std::endl;
+				ofstr << 1.25 << std::endl;
 			}
 
 			// Make sure the output file is closed.
@@ -116,9 +116,9 @@ int main(int argc, char **argv)
 		// Its structure is as follows:
 		// Number n of double values (int)
 		// n double values
-		std::ifstream paramStream(paramfile.c_str(), ios_base::in);
+		std::ifstream paramStream(paramfile.c_str(), std::ios_base::in);
 		if(!paramStream) {
-			std::cerr << "Error: Could not open file " << paramFile << ". Leaving ..." << std::endl;
+			std::cerr << "Error: Could not open file " << paramfile << ". Leaving ..." << std::endl;
 			return 1;
 		}
 
@@ -144,6 +144,20 @@ int main(int argc, char **argv)
 		// Make sure the stream is closed
 		paramStream.close();
 
+		// Finally we write the result to the targer file
+		// Open the parameter file
+		std::ofstream resfile(paramfile.c_str()); // will automatically truncate the file
+
+		if(!resfile.good()){
+			std::cerr << "Error: output stream is in a bad state" << std::endl;
+			resfile.close();
+			return 1;
+		}
+
+		// Write out the required information and close the file
+		resfile << result << std::endl;
+		resfile.close();
+
 		return 0;
 	}
 	else {
@@ -153,3 +167,4 @@ int main(int argc, char **argv)
 
 	return 0; // make the compiler happy
 }
+
