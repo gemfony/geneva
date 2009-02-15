@@ -31,7 +31,3 @@ ADD_SUBDIRECTORY (
 ADD_SUBDIRECTORY (
 	InfoFunctionUsage
 )
-
-# ADD_SUBDIRECTORY (
-#	GExternalProgram
-# )
