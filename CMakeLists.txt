@@ -30,13 +30,15 @@ ENDIF()
 SET (Boost_USE_STATIC_LIBS OFF)
 SET (Boost_USE_MULTITHREAD ON)
 
-FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
-    date_time
-    system
-    thread
-    serialization
-    program_options
-    test_exec_monitor
+SET (Boost_ADDITIONAL_VERSIONS "1.38.0" "1.38" "1.37.0" "1.37")
+
+FIND_PACKAGE( Boost 1.38 REQUIRED COMPONENTS 
+	date_time 
+	system 
+	thread 
+	serialization 
+	program_options 
+	test_exec_monitor 
 )
 
 INCLUDE_DIRECTORIES (
