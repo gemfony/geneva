@@ -65,6 +65,7 @@ const std::string PARAMETERDATA = "./parameterData";
 int main(int argc, char **argv){
 	// Variables for the command line parsing
 	 std::string fileName;
+	 std::string externalArguments;
 	 std::size_t populationSize, nParents;
 	 boost::uint16_t nProducerThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
@@ -78,6 +79,7 @@ int main(int argc, char **argv){
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
 				         fileName,
+				         externalArguments,
 				         populationSize,
 				         nParents,
 						 adaptionThreshold,
@@ -108,7 +110,12 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	// Ask the evaluation program to emit information about the individuals
-	std::string commandLine = fileName + " -t -p " + PARAMETERDATA;
+	std::string commandLine;
+	if(externalArguments == "empty")
+		commandLine = fileName + " -t -p " + PARAMETERDATA;
+	else
+		commandLine = fileName + " " + externalArguments + " -t -p " + PARAMETERDATA;
+
 	system(commandLine.c_str());
 
 	// Read in the population data and set up a GDoubleCollection
@@ -140,7 +147,7 @@ int main(int argc, char **argv){
 	gdc->addAdaptor(gdga);
 
 	// Set up a single "master individual"
-	boost::shared_ptr<GExecIndividual> execIndPtr(new GExecIndividual(fileName));
+	boost::shared_ptr<GExecIndividual> execIndPtr(new GExecIndividual(fileName, externalArguments));
 	execIndPtr->push_back(gdc);
 
 	// Set up the populations, as requested

@@ -66,18 +66,22 @@ class GExecIndividual
 
 		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
 		ar & make_nvp("fileName_", fileName_);
+		ar & make_nvp("arguments_", arguments_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/********************************************************************************************/
 	/**
-	 * A constructor which initializes the individual with the name of the parameter exchange file
+	 * A constructor which initializes the individual with the name of the external program
+	 * that should be executed.
 	 *
-	 * @param fileName The name of the file used for the exchange of parameter data
+	 * @param fileName The filename (including path) of the external program that should be executed
+	 * @param arguments Additional user-defined arguments to be handed to the external program
 	 */
-	GExecIndividual(const std::string& fileName)
-		:fileName_(fileName)
+	GExecIndividual(const std::string& fileName, const std::string& arguments)
+		:fileName_(fileName),
+		 arguments_(arguments)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -91,9 +95,16 @@ public:
 	 * @param max The maximum value of the random numbers to fill the collection
 	 * @param as The number of calls to GDoubleGaussAdaptor::mutate after which mutation should be adapted
 	 * @param fileName The filename (including path) of the external program that should be executed
+	 * @param arguments Additional user-defined arguments to be handed to the external program
 	 */
-	GExecIndividual(std::size_t sz, double min, double max, boost::uint32_t as, const std::string& fileName)
-		:fileName_(fileName)
+	GExecIndividual(std::size_t sz,
+				       double min,
+				       double max,
+				       boost::uint32_t as,
+				       const std::string& fileName,
+				       const std::string& arguments)
+		:fileName_(fileName),
+		 arguments_(arguments)
 	{
 		// Set up a GDoubleCollection with sz values, each initialized
 		// with a random number in the range [min,max[
@@ -117,7 +128,8 @@ public:
 	 */
 	GExecIndividual(const GExecIndividual& cp)
 		:GParameterSet(cp),
-		 fileName_(cp.fileName_)
+		 fileName_(cp.fileName_),
+		 arguments_(cp.arguments_)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -160,6 +172,7 @@ public:
 
 		// ... and then our own
 		fileName_ = gei_load->fileName_;
+		arguments_ = gei_load->arguments_;
 	}
 
 protected:
@@ -195,9 +208,6 @@ protected:
 		// Finally close the file
 		parameters.close();
 
-		// Assemble command line and run the external program
-		commandLine = fileName_ + " -p " + parFile.str();
-
 		// Check that we have a valid fileName_ ...
 		if(fileName_ == "unknown" || fileName_.empty()) {
 			std::ostringstream error;
@@ -206,6 +216,12 @@ protected:
 
 			throw geneva_error_condition(error.str());
 		}
+
+		// Assemble command line and run the external program
+		if(arguments_ == "empty")
+			commandLine = fileName_ + " -p " + parFile.str();
+		else
+			commandLine = fileName_ + " " + arguments_ + " -p " + parFile.str();
 
 		system(commandLine.c_str()); // It is not clear whether this is thread-safe
 
@@ -226,12 +242,14 @@ private:
 	 * The default constructor. Only needed for serialization purposes
 	 */
 	GExecIndividual()
-		:fileName_("unknown")
+		:fileName_("unknown"),
+		 arguments_("empty")
 	{ /* nothing */ }
 
 	/********************************************************************************************/
 
 	std::string fileName_;
+	std::string arguments_;
 };
 
 } /* namespace GenEvA */

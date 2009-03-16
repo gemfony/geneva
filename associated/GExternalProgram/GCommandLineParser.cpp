@@ -33,6 +33,7 @@ namespace GenEvA
  */
 bool parseCommandLine(int argc, char **argv,
 					  std::string& fileName,
+					  std::string& externalArguments,
 					  std::size_t& popSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& adaptionThreshold,
@@ -57,6 +58,8 @@ bool parseCommandLine(int argc, char **argv,
 			("help,h", "emit help message")
 			("fileName,f",po::value<std::string>(&fileName)->default_value(DEFAULTFILENAME),
 					"the name of a file holding the evaluation executable")
+			("externalArguments,e",po::value<std::string>(&externalArguments)->default_value(DEFAULTEXTERNALARGUMENTS),
+					"Arguments to be handed to programs called through the \"system()\" call")
 			("popSize,z",po::value<std::size_t>(&popSize)->default_value(DEFAULTPOPSIZE),
 					"The envisaged size of the population")
 			("nParents,Z",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
@@ -113,6 +116,7 @@ bool parseCommandLine(int argc, char **argv,
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
 				      << "fileName = " << fileName << std::endl
+					  << "externalArguments = " << externalArguments << std::endl
 					  << "popSize = " << popSize << std::endl
 					  << "nParents = " << nParents << std::endl
 					  << "adaptionThreshold = " << adaptionThreshold << std::endl

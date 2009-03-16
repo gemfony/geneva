@@ -60,11 +60,13 @@ const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
 const bool DEFAULTPARALLEL=true;
+const std::string DEFAULTEXTERNALARGUMENTS="empty";
 
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
 					  std::string& fileName,
+					  std::string& externalArguments,
 					  std::size_t& popSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& adaptionThreshold,
