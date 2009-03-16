@@ -168,6 +168,10 @@ int main(int argc, char **argv){
 
 	  // Do the actual optimization
 	  pop_par.optimize();
+
+	  // Retrieve best individual and make it output a result file
+	  boost::shared_ptr<GExecIndividual> bestIndividual = pop_par.getBestIndividual<GExecIndividual>();
+	  bestIndividual->printResult();
 	}
 	else {
 	  // Now we've got our first individual and can create a simple population with serial execution.
@@ -185,6 +189,10 @@ int main(int argc, char **argv){
 
 	  // Do the actual optimization
 	  pop_ser.optimize();
+
+	  // Retrieve best individual and make it output a result file
+	  boost::shared_ptr<GExecIndividual> bestIndividual = pop_ser.getBestIndividual<GExecIndividual>();
+	  bestIndividual->printResult();
 	}
 
 	std::cout << "Done ..." << std::endl;

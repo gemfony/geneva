@@ -894,16 +894,6 @@ recoScheme GBasePopulation::getRecombinationMethod() const {
 }
 
 /***********************************************************************************/
-/**
- * Retrieves the best individual of this population
- *
- * @return The best (i.e. first) individual of the population
- */
-boost::shared_ptr<GIndividual> GBasePopulation::getBestIndividual(){
-	return this->data.at(0);
-}
-
-/***********************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

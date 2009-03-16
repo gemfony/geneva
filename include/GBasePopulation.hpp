@@ -226,8 +226,39 @@ public:
 	/** @brief Retrieve the id of this class */
 	std::string getId();
 
-	/** @brief Retrieves the best individual of this population */
-	boost::shared_ptr<GIndividual> getBestIndividual();
+	/**************************************************************************************************/
+	/**
+	 * Retrieves the best individual of the population and casts it to the desired type.
+	 *
+	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
+	 */
+	template <typename individual_type>
+	inline boost::shared_ptr<individual_type> getBestIndividual(){
+		// Get a copy of the best individual
+		boost::shared_ptr<GIndividual> p_base = this->data.at(0);
+
+#ifdef DEBUG
+		// Convert to the desired target type
+		boost::shared_ptr<individual_type> p_load = boost::dynamic_pointer_cast<individual_type>(p_base);
+
+		// Check that the conversion worked. dynamic_cast emits an empty pointer,
+		// if this was not the case.
+		if(!p_load){
+			std::ostringstream error;
+			error << "In GBasePopulation::getBestIndividual<individual_type>() : Conversion error!" << std::endl;
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_error_condition(error.str());
+		}
+
+		return p_load;
+#else
+		return boost::static_pointer_cast<individual_type>(p_base);
+#endif
+	}
+
+	/**************************************************************************************************/
 
 protected:
 	/** @brief user-defined halt-criterium for the optimization */
@@ -338,7 +369,7 @@ private:
 
 /*********************************************************************************/
 
-}
-} /* namespace Gem::GenEvA */
+} /* namespace GenEvA */
+} /* namespace Gem */
 
-#endif /*GBASEPOPULATION_HPP_*/
+#endif /* GBASEPOPULATION_HPP_ */
