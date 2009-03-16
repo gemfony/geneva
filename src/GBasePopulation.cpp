@@ -546,7 +546,8 @@ void GBasePopulation::customRecombine() {
 		// Recombination according to the parents' fitness only makes sense if
 		// we have at least 2 parents. We do the recombination manually otherwise
 		if(nParents_==1) {
-			(*it)->load((data.begin())->get());
+			for(it=data.begin()+1; it!= data.end(); ++it)
+				(*it)->load((data.begin())->get());
 		}
 		else {
 			// Calculate a vector of recombination likelihoods for all parents
