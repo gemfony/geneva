@@ -214,9 +214,9 @@ public:
 
 		// Assemble command line and run the external program
 		if(arguments_ == "empty")
-			commandLine = fileName_ + " -r -p " + resultFile.str();
+			commandLine = fileName_ + " -r -p " + resultFile;
 		else
-			commandLine = fileName_ + " " + arguments_ + " -r -p " + resultFile.str();
+			commandLine = fileName_ + " " + arguments_ + " -r -p " + resultFile;
 
 		// Initiate the result calculation
 		system(commandLine.c_str()); // It is not clear whether this is thread-safe
