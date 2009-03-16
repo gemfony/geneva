@@ -175,6 +175,53 @@ public:
 		arguments_ = gei_load->arguments_;
 	}
 
+	/********************************************************************************************/
+	/**
+	 * Initiates the printing of the best individual
+	 */
+	void printResult() {
+		std::string commandLine;
+
+		// Retrieve a pointer to the GDoubleCollection
+		boost::shared_ptr<GDoubleCollection> gdc_load = parameterbase_cast<GDoubleCollection>(0);
+
+		// Make the parameters known externally
+		std::string resultFile = "bestParameterSet";
+		std::ofstream parameters(resultFile.c_str());
+
+		// First emit information about the number of double values
+		std::size_t nDParm = gdc_load->size();
+		parameters << nDParm << std::endl;
+
+		// Then write out the actual parameter value
+		GDoubleCollection::iterator it;
+		for(it=gdc_load->begin(); it!=gdc_load->end(); ++it) {
+			double current = *it;
+			parameters << current << std::endl;
+		}
+
+		// Finally close the file
+		parameters.close();
+
+		// Check that we have a valid fileName_ ...
+		if(fileName_ == "unknown" || fileName_.empty()) {
+			std::ostringstream error;
+			error << "In GExecIndividual::printResult(): Error!" << std::endl
+				  << "Invalid file name \"" << fileName_ << "\"" << std::endl;
+
+			throw geneva_error_condition(error.str());
+		}
+
+		// Assemble command line and run the external program
+		if(arguments_ == "empty")
+			commandLine = fileName_ + " -r -p " + parFile.str();
+		else
+			commandLine = fileName_ + " " + arguments_ + " -r -p " + parFile.str();
+
+		// Initiate the result calculation
+		system(commandLine.c_str()); // It is not clear whether this is thread-safe
+	}
+
 protected:
 	/********************************************************************************************/
 	/**
