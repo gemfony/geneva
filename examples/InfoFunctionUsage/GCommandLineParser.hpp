@@ -50,8 +50,9 @@ namespace GenEvA
 {
 
 // Default settings
-const double DEFAULTPARABOLAMIN=-100.;
-const double DEFAULTPARABOLAMAX=100.;
+const double DEFAULTPARABOLAMIN=-10.;
+const double DEFAULTPARABOLAMAX=10.;
+const std::size_t DEFAULTPARABOLADIM=2;
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
 const std::size_t DEFAULTNPOPTHREADS=4;
 const std::size_t DEFAULTPOPULATIONSIZE=100;
@@ -68,6 +69,7 @@ namespace po = boost::program_options;
 bool parseCommandLine(int argc, char **argv,
 					  double& parabolaMin,
 					  double& parabolaMax,
+					  std::size_t& parabolaDim,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& nPopThreads,

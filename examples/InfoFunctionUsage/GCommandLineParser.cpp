@@ -34,6 +34,7 @@ namespace GenEvA
 bool parseCommandLine(int argc, char **argv,
 					  double& parabolaMin,
 					  double& parabolaMax,
+					  std::size_t& parabolaDim,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& nPopThreads,
@@ -56,6 +57,8 @@ bool parseCommandLine(int argc, char **argv,
 					"Lower boundary for random numbers")
 			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
 					"Upper boundary for random numbers")
+			("parabolaDim,d", po::value<std::size_t>(&parabolaDim)->default_value(DEFAULTPARABOLADIM),
+					"The dimension of the \"noisy\" parabola")
 			("adaptionThreshold,a", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
 					"Number of calls to mutate after which mutation parameters should be adapted")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
@@ -123,6 +126,7 @@ bool parseCommandLine(int argc, char **argv,
 				      << "Running with the following options:" << std::endl
 					  << "parabolaMin = " << parabolaMin << std::endl
 					  << "parabolaMax = " << parabolaMax << std::endl
+					  << "parabolaDim = " << parabolaDim << std::endl
 					  << "adaptionThreshold = " << adaptionThreshold << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "nPopThreads = " << nPopThreads << std::endl
