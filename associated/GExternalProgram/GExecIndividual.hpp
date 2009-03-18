@@ -295,8 +295,8 @@ private:
 
 	/********************************************************************************************/
 
-	std::string fileName_;
-	std::string arguments_;
+	std::string fileName_; ///< The name of the external program to be executed
+	std::string arguments_; ///< Any additional arguments to be handed to the external program
 };
 
 } /* namespace GenEvA */
