@@ -1,1 +1,10 @@
-This directory contains tools and programs that can help to taylor Geneva to a particular purpose.
+This directory contains tools and programs that can help to taylor Geneva to a particular purpose. 
+They are not all included in the build process, as they might require external libraries.
+
+ExternalOpenBabel: 
+Uses the GExternalProgram example to perform optimization of protein structures, making use of the
+OpenBabel library. Note that this particular program is covered by the GPL2 (in contrast to most
+other parts of Geneva) in order to comply with OpenBabel's license requirements. For further
+information on OpenBabel see http://www.openbabel.org . Note that this program is not currently included
+in the build process, as the OpenBabel libraries would be needed (available from the above URL).
+ 
