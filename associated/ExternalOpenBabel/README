@@ -6,3 +6,12 @@ requirements. For further information on OpenBabel see
 http://www.openbabel.org . Note that this program is not currently
 included in the build process of the Geneva library, as the OpenBabel
 libraries would be needed (available from the above URL).
+
+In order to use this program, you will need a PDB description of a molecule.
+
+Optimization can be done with a command like the following:
+
+/some/path/GExternalProgram -f ./eminim2 -e "-n ./some/file.pdb" -X 0 -a 1 -G 4000 -z 100 -Z 1
+
+This would use the eminim2 program to evaluate different molecular
+configurations.
