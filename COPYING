@@ -1,4 +1,4 @@
-This file belongs to the Geneva library. The use of the library and the associated probrams 
+This file belongs to the Geneva library. The use of the library and the associated programs 
 governed by a number of licenses, as described below.
 
 The majority of files of the Geneva library are covered by version 3 of the GNU Affero General Public 
@@ -14,9 +14,18 @@ Again you should have received a copy of the GNU General Public License version 
 along with the Geneva library (see the file licenses/GPLv2).  If not, 
 see <http://www.gnu.org/licenses/>.
 
-A few files / or programs are dual-licensed under both the GNU General Public version 2 and 
+A few files / or programs may be dual-licensed under both the GNU General Public version 2 and 
 version 3 of the GNU Affero General Public License.
 
 Each code file of the Geneva library contains licensing information. So if in doubt, please 
-have a look at each file individually. If doubts still remain, please contact the authors prior
-to using this library (ruediger.berlich@iwr.fzk.de).
+have a look at each file individually. If doubts still remain, please contact the authors PRIOR
+TO USING THIS LIBRARY (ruediger.berlich@iwr.fzk.de). If doubts still remain, we recommend to not 
+use the library at all.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
