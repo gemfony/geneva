@@ -16,4 +16,8 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GParabolaIndividual)
 at the end of GParabolaIndividual.hpp makes the segfault go away. Not
 including these lines can result in problems when using serialization functionality, though.
 
+Update: The problem seems to be gone with Boost 1.38 . In order to make finding that library 
+easier, we recommend to also upgrade to CMake 2.6.3 (or use that version's FindBoost.cmake
+macro). 
+
 --
