@@ -38,6 +38,7 @@
 #include <cmath>
 
 // Boost headers go here
+#include <boost/random.hpp>
 
 // OpenBabel headers go here
 #include <openbabel/babelconfig.h>
@@ -253,7 +254,18 @@ int main(int argc, char **argv)
 			// of double parameters
 			ofstr << vod.size() << std::endl;
 
+			// Not very clean - we just overwrite the existing data.
 			std::vector<double>::iterator it;
+			if(randInit) {
+				boost::posix_time::ptime t1;
+			    boost::uint32_t seed = (uint32_t)t1.time_of_day().total_milliseconds();
+				boost::lagged_fibonacci607 lf(seed);
+
+				for(it= vod.begin(); it!=vod.end(); ++it)
+					*it = lf() * 180.; // spread range to [0,180.[
+			}
+
+			// Write out the parameters to file
 			for(it= vod.begin(); it!=vod.end(); ++it) ofstr << *it << std::endl;
 
 			// Clean up
