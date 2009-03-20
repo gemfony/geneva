@@ -52,17 +52,16 @@ bool parseCommandLine(int argc, char **argv,
 		("singleEvaluation,s", "Perform just a single evaluation of the molecule data")
 		("paramfile,p",po::value<std::string>(&paramfile)->default_value(DEFAULTPARAMFILE),
 				"Name of a file with the parameters")
-				("template,t", "Write out a template for this population. Requires option \"-p\"")
-				("randInit,R","Randomly initialize template variables. Only useful in conjunction with option \"-t\"")
-				("result,r", "Write out a result file for a given parameter set. Requires option \"-p\"")
-				("loglevel,l",po::value<unsigned short>(&loglevel)->default_value(DEFAULTLOGLEVEL),
-						"The dedired log level")
-						("addhydrogens,a",po::value<bool>(&addhydrogens)->default_value(DEFAULTADDHYDROGENS),
-								"Whether hydrogens should be added before the energy is calculated")
-								("forcefield,F",po::value<std::string>(&forcefield)->default_value(DEFAULTFORCEFIELD), ffinfo.c_str())
-								("filename,n",po::value<std::string>(&filename)->default_value(DEFAULTFILENAME),
-										"Name of a file with the available molecule configurations")
-										;
+		("template,t", "Write out a template for this population. Requires option \"-p\"")
+		("randInit,R","Randomly initialize template variables. Only useful in conjunction with option \"-t\"")
+		("result,r", "Write out a result file for a given parameter set. Requires option \"-p\"")
+		("loglevel,l",po::value<unsigned short>(&loglevel)->default_value(DEFAULTLOGLEVEL),
+				"The dedired log level")
+		("addhydrogens,a",po::value<bool>(&addhydrogens)->default_value(DEFAULTADDHYDROGENS),
+				"Whether hydrogens should be added before the energy is calculated")
+		("forcefield,F",po::value<std::string>(&forcefield)->default_value(DEFAULTFORCEFIELD), ffinfo.c_str())
+		("filename,n",po::value<std::string>(&filename)->default_value(DEFAULTFILENAME),
+				"Name of a file with the available molecule configurations")								;
 
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, desc), vm);
