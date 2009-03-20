@@ -72,7 +72,7 @@ bool parseCommandLine(int argc, char **argv,
 		init = false;
 		finalize = false;
 		templ = false;
-		randInt = false;
+		randInit = false;
 		result = false;
 
 		// Emit a help message, if necessary
