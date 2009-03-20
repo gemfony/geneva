@@ -263,7 +263,7 @@ int main(int argc, char **argv)
 				boost::lagged_fibonacci607 lf(seed);
 
 				for(it= vod.begin(); it!=vod.end(); ++it)
-					*it = lf() * 180.; // spread range to [0,180.[
+					*it = -180. + lf() * 360.; // spread range to [-180.,180.[
 			}
 
 			// Write out the parameters to file
