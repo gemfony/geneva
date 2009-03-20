@@ -49,16 +49,17 @@ const std::string DEFAULTFILENAME="unknown";
 
 namespace po = boost::program_options;
 
-bool parseCommandLine(int argc, char **argv,			  
-		      bool& init,
-		      bool& finalize,
-		      bool& singleEvaluation,
-		      std::string& paramfile,
-		      bool& templ,
-		      bool& result,
-		      unsigned short& loglevel,
-		      bool& addhydrogens,
-		      std::string& forcefield,
-		      std::string& filename);
+bool parseCommandLine(int argc, char **argv,
+		bool& init,
+		bool& finalize,
+		bool& singleEvaluation,
+		std::string& paramfile,
+		bool& templ,
+		bool& randInit,
+		bool& result,
+		unsigned short& loglevel,
+		bool& addhydrogens,
+		std::string& forcefield,
+		std::string& filename);
 
 #endif /* GCOMMANDLINEPARSER_HPP_ */
