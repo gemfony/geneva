@@ -69,6 +69,7 @@ bool parseCommandLine(int argc, char **argv,
 
 		// Initialize some reference arguments
 		init = false;
+		singleEvaluation=false;
 		finalize = false;
 		templ = false;
 		randInit = false;
