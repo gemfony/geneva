@@ -39,6 +39,7 @@
 
 // Boost headers go here
 #include <boost/random.hpp>
+#include <boost/date_time.hpp>
 
 // OpenBabel headers go here
 #include <openbabel/babelconfig.h>
