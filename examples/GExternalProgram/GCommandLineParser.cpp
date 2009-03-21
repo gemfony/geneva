@@ -42,7 +42,10 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  bool& parallel,
+					  boost::uint16_t& parallel,
+					  bool& serverMode,
+					  std::string& ip,
+					  unsigned short& port,
 					  double& sigma,
 					  double& sigmaSigma,
 					  double& minSigma,
@@ -76,8 +79,11 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of generations after which information should be emitted in the super-population")
 			("rScheme,E",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme for the super-population")
-			("parallel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
-					"Whether or not to run this optimization in multi-threaded mode")
+			("parallel,p", po::value<boost::uint16_t>(&parallel)->default_value(DEFAULTPARALLEL),
+					"Whether or not to run this optimization in serial (0), multi-threaded (1) or networked (2) mode")
+			("serverMode,d","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallel=2\"")
+			("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
+			("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
 			("sigma,s", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
 					"The width of the gaussian used for the adaption of double values")
 			("sigmaSigma,S", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
@@ -112,6 +118,20 @@ bool parseCommandLine(int argc, char **argv,
 			return false;
 		}
 
+		serverMode==false;
+		if (vm.count("parallel")) {
+			if(parallel > 2) {
+				std::cout << "Error: the \"-p\" or \"--parallel\" option may only assume the"<< std::endl
+						  << "values 0 (seriel), 1 (multi-threaded) or 2 (networked). Leaving ..." << std::endl;
+				return false;
+			}
+
+			if(parallel == 2) {
+				if(vm.count("serverMode")) serverMode = true;
+
+			}
+		}
+
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
@@ -126,6 +146,9 @@ bool parseCommandLine(int argc, char **argv,
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
 					  << "parallel = " << parallel << std::endl
+					  << "serverMode = " << serverMode?("true"):("false") << std::endl
+					  << "ip = " << ip << std::endl
+					  << "port = " << port << std::endl
 					  << "sigma = " << sigma << std::endl
 					  << "sigmaSigma = " << sigmaSigma << std::endl
 					  << "minSigma = " << minSigma << std::endl

@@ -42,6 +42,10 @@
 #include "GBooleanCollection.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
+#include "GBrokerPopulation.hpp"
+#include "GIndividualBroker.hpp"
+#include "GAsioTCPConsumer.hpp"
+#include "GAsioTCPClient.hpp"
 
 // The individual calls an external program for the evaluation step
 #include "GExecIndividual.hpp"
@@ -71,7 +75,10 @@ int main(int argc, char **argv){
 	 boost::uint32_t maxGenerations, reportGeneration;
 	 boost::uint32_t adaptionThreshold;
 	 long maxMinutes;
-	 bool parallel;
+	 boost::uint16_t parallel;
+	 bool serverMode;
+	 std::string ip;
+	 unsigned short port=10000;
 	 bool verbose;
 	 recoScheme rScheme;
 	 double sigma,sigmaSigma,minSigma,maxSigma;
@@ -89,6 +96,9 @@ int main(int argc, char **argv){
 						 reportGeneration,
 						 rScheme,
 						 parallel,
+						 serverMode,
+						 ip,
+						 port,
 						 sigma,
 						 sigmaSigma,
 						 minSigma,
@@ -151,8 +161,29 @@ int main(int argc, char **argv){
 	execIndPtr->push_back(gdc);
 
 	// Set up the populations, as requested
-	if(parallel) {
-	  // Now we can create a simple population with parallel execution.
+	if(parallel==0) { // serial execution
+	  // Now we've got our first individual and can create a simple population with serial execution.
+	  GBasePopulation pop_ser;
+
+	  // Attach all individuals to the population
+	  pop_ser.push_back(execIndPtr);
+
+	  // Specify some population settings
+	  pop_ser.setPopulationSize(populationSize,nParents);
+	  pop_ser.setMaxGeneration(maxGenerations);
+	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
+	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
+	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+
+	  // Do the actual optimization
+	  pop_ser.optimize();
+
+	  // Retrieve best individual and make it output a result file
+	  boost::shared_ptr<GExecIndividual> bestIndividual = pop_ser.getBestIndividual<GExecIndividual>();
+	  bestIndividual->printResult();
+	}
+	else if(parallel==1) { // multi-threaded execution
+		// Now we can create a simple population with parallel execution.
 	  GBoostThreadPopulation pop_par;
 	  pop_par.setNThreads(4);
 
@@ -173,26 +204,38 @@ int main(int argc, char **argv){
 	  boost::shared_ptr<GExecIndividual> bestIndividual = pop_par.getBestIndividual<GExecIndividual>();
 	  bestIndividual->printResult();
 	}
-	else {
-	  // Now we've got our first individual and can create a simple population with serial execution.
-	  GBasePopulation pop_ser;
+	else if(parallel==2) { // execution in networked mode
+		if(serverMode) {
+			// Create a consumer and enrol it with the broker
+			boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+			// gatc->setSerializationMode(BINARYSERIALIZATION);
+			GINDIVIDUALBROKER->enrol(gatc);
 
-	  // Attach all individuals to the population
-	  pop_ser.push_back(execIndPtr);
+			// Create the actual population
+			GBrokerPopulation pop_broker;
 
-	  // Specify some population settings
-	  pop_ser.setPopulationSize(populationSize,nParents);
-	  pop_ser.setMaxGeneration(maxGenerations);
-	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
-	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
-	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+			// Make the individual known to the population
+			pop_broker.push_back(execIndPtr);
 
-	  // Do the actual optimization
-	  pop_ser.optimize();
+			// Specify some population settings
+			pop_broker.setPopulationSize(populationSize,nParents);
+			pop_broker.setMaxGeneration(maxGenerations);
+			pop_broker.setMaxTime(boost::posix_time::minutes(maxMinutes));
+			pop_broker.setReportGeneration(reportGeneration);
+			pop_broker.setRecombinationMethod(rScheme);
 
-	  // Retrieve best individual and make it output a result file
-	  boost::shared_ptr<GExecIndividual> bestIndividual = pop_ser.getBestIndividual<GExecIndividual>();
-	  bestIndividual->printResult();
+			// Do the actual optimization
+			pop_broker.optimize();
+
+		    // Retrieve best individual and make it output a result file
+		    boost::shared_ptr<GExecIndividual> bestIndividual = pop_broker.getBestIndividual<GExecIndividual>();
+		    bestIndividual->printResult();
+		}
+		else { // Client mode
+			// Just start the client with the required parameters
+		    GAsioTCPClient gasiotcpclient(ip,boost::lexical_cast<std::string>(port));
+		    gasiotcpclient.run();
+		}
 	}
 
 	std::cout << "Done ..." << std::endl;
