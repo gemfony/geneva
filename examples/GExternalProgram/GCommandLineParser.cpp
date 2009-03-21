@@ -126,10 +126,7 @@ bool parseCommandLine(int argc, char **argv,
 				return false;
 			}
 
-			if(parallel == 2) {
-				if(vm.count("serverMode")) serverMode = true;
-
-			}
+			if(parallel == 2) if(vm.count("serverMode")) serverMode = true;
 		}
 
 		if(verbose){
