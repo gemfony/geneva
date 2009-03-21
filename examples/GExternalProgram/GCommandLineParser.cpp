@@ -146,7 +146,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
 					  << "parallel = " << parallel << std::endl
-					  << "serverMode = " << serverMode?("true"):("false") << std::endl
+					  << "serverMode = " << (serverMode?"true":"false") << std::endl
 					  << "ip = " << ip << std::endl
 					  << "port = " << port << std::endl
 					  << "sigma = " << sigma << std::endl
