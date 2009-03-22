@@ -59,6 +59,11 @@
 #ifndef GDATAEXCHANGE_HPP_
 #define GDATAEXCHANGE_HPP_
 
+#include "GBoolParameter.hpp"
+#include "GCharParameter.hpp"
+#include "GDoubleParameter.hpp"
+#include "GLongParameter.hpp"
+
 namespace Gem
 {
 namespace Util
