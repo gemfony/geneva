@@ -27,6 +27,7 @@ SET ( GENEVASOURCES
 	GLogger
 	GLogTargets
 	GNumCollectionT
+	GNumericParameterT.cpp
 	GObject
 	GParameterBase
 	GParameterBaseWithAdaptorsT

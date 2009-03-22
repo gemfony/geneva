@@ -39,6 +39,7 @@ SET ( GENEVAINCLUDES
 	GMutableI.hpp
 	GMutableSetT.hpp
 	GNumCollectionT.hpp
+	GNumericParameterT.hpp
 	GObject.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp
