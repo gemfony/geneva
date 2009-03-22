@@ -24,6 +24,39 @@
  * library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Standard headers go here
+#include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
+// Boost headers go here
+#include <boost/version.hpp>
+
+#if BOOST_VERSION < 103600
+#error "Error: Boost should at least have version 1.36 !"
+#endif /* BOOST_VERSION */
+
+#include <boost/cstdint.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/shared_ptr.hpp>
+
+
 #ifndef GNUMERICPARAMETERT_HPP_
 #define GNUMERICPARAMETERT_HPP_
 
@@ -90,12 +123,13 @@ public:
 		 upperBoundary_(upper)
 	{
 		// Check the validity of the boundaries
-		if(lowerBoundary_ != upperBoundary_ && (param_ < lower || param_ > upper_ || lower_ >= upper_)) {
-			std::cout << "In GNumericParameterT::GNumericParameterT(param, lower, upper): Error!" << std::endl
+		if(lowerBoundary_ != upperBoundary_ &&
+		   (param_ < lowerBoundary_ || param_ > upperBoundary_ || lowerBoundary_ >= upperBoundary_)) {
+			std::cout << "In GNumericParameterT<T>::GNumericParameterT(param, lower, upper): Error!" << std::endl
 				      << "Invalid boundary and/or parameter values:" << std:: endl
 				      << "param_ = " << param_ << std::endl
-				      << "lower_ = " << lower_ << std::endl
-				      << "upper_ = " << upper_ << std::endl
+				      << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+				      << "upperBoundary_ = " << upperBoundary_ << std::endl
 				      << "Leaving ... " << std::endl;
 			exit(1);
 		}
@@ -145,12 +179,13 @@ public:
 	 */
 	void setParameter(T param, T lower = T(NULL), T upper = T(NULL)){
 		// Check the validity of the boundaries
-		if(lowerBoundary_ != upperBoundary_ && (param_ < lower || param_ > upper_ || lower_ >= upper_)) {
-			std::cout << "In GNumericParameterT::setParameter(param, lower, upper): Error!" << std::endl
+		if(lowerBoundary_ != upperBoundary_ &&
+		   (param_ < lowerBoundary_ || param_ > upperBoundary_ || lowerBoundary_ >= upperBoundary_)) {
+			std::cout << "In GNumericParameterT<T>::setParameter(param, lower, upper): Error!" << std::endl
 				      << "Invalid boundary and/or parameter values:" << std:: endl
 				      << "param_ = " << param_ << std::endl
-				      << "lower_ = " << lower_ << std::endl
-				      << "upper_ = " << upper_ << std::endl
+				      << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+				      << "upperBoundary_ = " << upperBoundary_ << std::endl
 				      << "Leaving ... " << std::endl;
 			exit(1);
 		}

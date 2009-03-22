@@ -16,7 +16,7 @@ SET ( GENEVASOURCES
 	GBrokerPopulation
 	GChar
 	GCharFlipAdaptor
-	GCharParemeter
+	GCharParameter
 	GDoubleCollection 
 	GDoubleGaussAdaptor
 	GDoubleParameter

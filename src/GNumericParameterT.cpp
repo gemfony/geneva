@@ -41,7 +41,7 @@ namespace Util
  */
 template<>
 double GNumericParameterT<double>::unknownParameterTypeTrap(double unknown) {
-	return unknwon; // Make the compiler happy
+	return unknown; // Make the compiler happy
 }
 
 /***********************************************************************************************/
@@ -54,7 +54,7 @@ double GNumericParameterT<double>::unknownParameterTypeTrap(double unknown) {
  */
 template<>
 boost::int32_t GNumericParameterT<boost::int32_t>::unknownParameterTypeTrap(boost::int32_t unknown) {
-	return unknwon; // Make the compiler happy
+	return unknown; // Make the compiler happy
 }
 
 /***********************************************************************************************/
@@ -67,7 +67,7 @@ boost::int32_t GNumericParameterT<boost::int32_t>::unknownParameterTypeTrap(boos
  */
 template<>
 char GNumericParameterT<char>::unknownParameterTypeTrap(char unknown) {
-	return unknwon; // Make the compiler happy
+	return unknown; // Make the compiler happy
 }
 
 /***********************************************************************************************/
@@ -80,7 +80,7 @@ char GNumericParameterT<char>::unknownParameterTypeTrap(char unknown) {
  */
 template<>
 bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool unknown) {
-	return unknwon; // Make the compiler happy
+	return unknown; // Make the compiler happy
 }
 
 /***********************************************************************************************/
