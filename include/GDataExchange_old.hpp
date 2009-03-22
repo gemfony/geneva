@@ -2,8 +2,8 @@
  * @file GDataExchange.hpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2008-2009 Dr. Ruediger Berlich
+ * Copyright (C) 2008-2009 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *
@@ -80,9 +80,10 @@ class GIndividualData {
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
 
-      ar & make_nvp("dArrays_",dArrays_);
-      ar & make_nvp("lArrays_",lArrays_);
-      ar & make_nvp("bArrays_",bArrays_);
+      ar & make_nvp("dArrays_", dArrays_);
+      ar & make_nvp("lArrays_", lArrays_);
+      ar & make_nvp("bArrays_", bArrays_);
+      ar & make_nvp("cArrays_", cArrays_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -244,6 +245,7 @@ private:
 	std::vector<std::vector<double> > dArrays_; ///< Arrays holding double values
 	std::vector<std::vector<boost::uint32_t> > lArrays_; ///< Arrays holding long values
 	std::vector<std::vector<bool> > bArrays_; ///< Arrays holding boolean values
+	std::vector<std::vector<char> > cArrays_; ///< Arrays holding character values
 };
 
 /*******************************************************************************/
@@ -256,7 +258,7 @@ class GPopulationData {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    template<typename Archive>
+    template<typename Archive>,
     void serialize(Archive & ar, const unsigned int version){
       using boost::serialization::make_nvp;
 
