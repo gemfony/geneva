@@ -17,6 +17,7 @@ SET ( GENEVASOURCES
 	GChar
 	GCharFlipAdaptor
 	GCharParameter
+	GDataExchange
 	GDoubleCollection 
 	GDoubleGaussAdaptor
 	GDoubleParameter

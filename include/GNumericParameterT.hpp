@@ -122,7 +122,8 @@ public:
 		 lowerBoundary_(lower),
 		 upperBoundary_(upper)
 	{
-		// Check the validity of the boundaries
+		// Check the validity of the boundaries.
+		// ATTENTION: Is false<true standard compliant ? Works with g++ 4.2.3 and switch -Wall
 		if(lowerBoundary_ != upperBoundary_ &&
 		   (param_ < lowerBoundary_ || param_ > upperBoundary_ || lowerBoundary_ >= upperBoundary_)) {
 			std::cout << "In GNumericParameterT<T>::GNumericParameterT(param, lower, upper): Error!" << std::endl
@@ -166,6 +167,39 @@ public:
 		upperBoundary_ = cp.upperBoundary_;
 
 		return *this;
+	}
+
+	/***************************************************************************/
+	/**
+	 * An assignment operator for the parameter type
+	 *
+	 * @param A const reference to a variable of template type T
+	 */
+	const T& operator=(const T& x) {
+		param_ = x;
+
+		// Check the validity of the new variable
+		if(lowerBoundary_ != upperBoundary_ && (param_ < lowerBoundary_ || param_ > upperBoundary_)) {
+			std::cout << "In GNumericParameterT<T>::operator=(const T&): Error" << std::endl
+				      << "Invalid value received:" << std::endl
+				      << "param_ = " << param_ << std::endl
+				      << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+				      << "upperBoundary_ = " << upperBoundary_ << std::endl
+				      << "Leaving ..." << std::endl;
+			exit(1);
+		}
+
+		return param_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Allow implicit conversion from this type to the target type
+	 *
+	 * @return The current value of the param_ parameter
+	 */
+	operator T() {
+		return param_;
 	}
 
 	/***************************************************************************/
@@ -241,9 +275,17 @@ protected:
 	/***************************************************************************/
 	/**
 	 * A trap designed to catch attempts to use this class with types it was
-	 * not designed for. If not implemented, compilation will fail.
+	 * not designed for. If not implemented, an error message will be generated
+	 * during execution.
+	 *
+	 * @param unknown A dummy parameter
 	 */
-	virtual T unknownParameterTypeTrap(T) = 0;
+	virtual T unknownParameterTypeTrap(T unknown){
+		std::cerr << "In GNumericParameterT<T>::unknownParameterTypeTrap(): Error" << std::endl
+			      << "You seem to have instantiated this class with a type it was" << std::endl
+			      << "not designed for. Leaving ..." << std::endl;
+		exit(1);
+	}
 
 private:
 	/***************************************************************************/

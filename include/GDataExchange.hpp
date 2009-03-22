@@ -94,16 +94,92 @@ class GDataExchange {
     ///////////////////////////////////////////////////////////////////////
 
 public:
+	/** @brief The default constructor */
+	GDataExchange();
+	/** @brief A standard copy constructor */
+	GDataExchange(const GDataExchange&);
+	/** @brief The destructor */
+	virtual ~GDataExchange();
+
+	/** @brief A standard assignment operator */
+	const GDataExchange& operator=(const GDataExchange&);
+
+	/** @brief Save the data of this class to a file */
+	virtual bool saveToFile(const std::string&);
+	/** @brief Loads the data of this class from a file */
+	virtual bool loadFromFile(const std::string& fileName);
+
+	/**************************************************************************/
+	/**
+	 * Gives access to the data of a particular type.
+	 * This is a trap. The specializations should be used instead.
+	 *
+	 * @param pos The position of the data access is sought for
+	 * @return The data access was sought for
+	 */
+	template <typename T>
+	T& at<T>(std::size_t pos) {
+		std::cout << "In GDataExchange::at<T>(std::size_t): Error!" << std::endl
+			      << "The function seems to have been called with a type" << std::endl
+			      << "it was not designed for. Leaving ..." << std::endl;
+		exit(1);
+	}
+
+	/* Specializations of at<T>() function for different types */
+	template <> double& at<double>(std::size_t);
+	template <> boost::int32_t& at<boost::int32_t>(std::size_t);
+	template <> bool& at<bool>(std::size_t);
+	template <> char& at<char>(std::size_t);
+
+	/**************************************************************************/
+	/**
+	 * Gives access to the size of a vector of a particular type.
+	 * This is a trap. The specializations should be used instead.
+	 *
+	 * @return The size of the vector of a particular type
+	 */
+	template <typename T>
+	std::size_t size<T>() {
+		std::cout << "In GDataExchange::size<T>(): Error!" << std::endl
+			      << "The function seems to have been called with a type" << std::endl
+			      << "it was not designed for. Leaving ..." << std::endl;
+		exit(1);
+	}
+
+	/* Specializations of the size<T>() function for different types */
+	template <> std::size_t size<double>();
+	template <> std::size_t size<boost::int32_t>();
+	template <> std::size_t size<bool>();
+	template <> std::size_t size<char>();
+
+	/**************************************************************************/
+	/**
+	 * Allows to append data of a given type to the corresponding vector.
+	 * This is a trap. The specializations should be used instead.
+	 */
+	template <typename T>
+	void append<T>(const T&) {
+		std::cout << "In GDataExchange::append<T>(): Error!" << std::endl
+			      << "The function seems to have been called with a type" << std::endl
+			      << "it was not designed for. Leaving ..." << std::endl;
+		exit(1);
+	}
+
+	/* Specializations of the append<T>() function for different types */
+	template <> void append<double>(const double&);
+	template <> void append<boost::int32_t>(const boost::int32_t);
+	template <> void append<bool>(const bool&);
+	template <> void append<char>(const char&);
+
+	/**************************************************************************/
 
 private:
 	/**************************************************************************/
-	std::vector<double> dArray_; ///< Array holding double values
-	std::vector<boost::int32_t> lArray_; ///< Array holding long values
-	std::vector<bool> bArray_; ///< Array holding boolean values
-	std::vector<char> cArray_; ///< Array holding character values
+	std::vector<boost::shared_ptr<GDoubleParameter> > dArray_; ///< Array holding double values
+	std::vector<boost::shared_ptr<GLongParameter> > lArray_; ///< Array holding long values
+	std::vector<boost::shared_ptr<GBoolParameter> > bArray_; ///< Array holding boolean values
+	std::vector<boost::shared_ptr<GCharParameter> > cArray_; ///< Array holding character values
 };
-
-/*******************************************************************************/
 
 } /* namespace Util */
 } /* namespace Gem */
