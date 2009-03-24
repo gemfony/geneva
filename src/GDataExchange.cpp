@@ -190,7 +190,7 @@ GDataExchange::at<bool>(std::size_t pos) {
  */
 template <> char&
 GDataExchange::at<char>(std::size_t pos) {
-
+	return cArray_.at(pos);
 }
 
 /**************************************************************************/
@@ -201,7 +201,7 @@ GDataExchange::at<char>(std::size_t pos) {
  */
 template <> std::size_t
 GDataExchange::size<double>() {
-
+	return dArray_.size();
 }
 
 /**************************************************************************/
@@ -212,7 +212,7 @@ GDataExchange::size<double>() {
  */
 template <> std::size_t
 GDataExchange::size<boost::int32_t>() {
-
+	return lArray_.size();
 }
 
 /**************************************************************************/
@@ -223,7 +223,7 @@ GDataExchange::size<boost::int32_t>() {
  */
 template <> std::size_t
 GDataExchange::size<bool>() {
-
+	return bArray_.size();
 }
 
 /**************************************************************************/
@@ -234,7 +234,7 @@ GDataExchange::size<bool>() {
  */
 template <> std::size_t
 GDataExchange::size<char>() {
-
+	return cArray_.size();
 }
 
 /**************************************************************************/
@@ -245,7 +245,7 @@ GDataExchange::size<char>() {
  */
 template <> void
 GDataExchange::append<double>(const double& x) {
-
+	dArray_.push_back(x);
 }
 
 /**************************************************************************/
@@ -256,7 +256,7 @@ GDataExchange::append<double>(const double& x) {
  */
 template <> void
 GDataExchange::append<boost::int32_t>(const boost::int32_t x) {
-
+	lArray_.push_back(x);
 }
 
 /**************************************************************************/
@@ -267,7 +267,7 @@ GDataExchange::append<boost::int32_t>(const boost::int32_t x) {
  */
 template <> void
 GDataExchange::append<bool>(const bool& x) {
-
+	bArray_.push_back(x);
 }
 
 /**************************************************************************/
@@ -278,7 +278,7 @@ GDataExchange::append<bool>(const bool& x) {
  */
 template <> void
 GDataExchange::append<char>(const char& x) {
-
+	cArray_.push_back(x);
 }
 
 /**************************************************************************/
