@@ -51,6 +51,13 @@ namespace Util {
  */
 typedef GNumericParameterT<bool> GBoolParameter;
 
+/** @brief Helper function to aid IO  of this parameter type */
+std::ostream& operator<<(std::ostream&, const GBoolParameter&);
+/** @brief Helper function to aid IO  of this parameter type */
+std::istream& operator>>(std::istream&, GBoolParameter&);
+
+/*************************************************************************/
+
 } /* namespace Util */
 } /* namespace Gem */
 

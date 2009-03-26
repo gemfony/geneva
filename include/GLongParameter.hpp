@@ -52,6 +52,13 @@ namespace Util {
  */
 typedef GNumericParameterT<boost::int32_t> GLongParameter;
 
+/** @brief Helper function to aid IO  of this parameter type */
+std::ostream& operator<<(std::ostream&, const GLongParameter&);
+/** @brief Helper function to aid IO  of this parameter type */
+std::istream& operator>>(std::istream&, GLongParameter&);
+
+/*************************************************************************/
+
 } /* namespace Util */
 } /* namespace Gem */
 

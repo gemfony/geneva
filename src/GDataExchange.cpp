@@ -131,157 +131,159 @@ const GDataExchange& GDataExchange::operator=(const GDataExchange& cp) {
 
 /**************************************************************************/
 /**
- * Saves the data of this class to a file
- */
-bool GDataExchange::saveToFile(const std::string& fileName) {
-
-}
-
-/**************************************************************************/
-/**
- * Loads the data of this class from a file
- */
-bool GDataExchange::loadFromFile(const std::string& fileName) {
-
-}
-
-/**************************************************************************/
-/**
- * Gives access to the data of type double
+ * Adds a boost::shared_ptr to a GDoubleParameter to the corresponding vector
  *
- * @param pos The position of the data access is sought for
- * @return The data access was sought for
+ * @param gdp The boost::shared_ptr to the GDoubleParameter to be added to the vector
  */
-template <> double&
-GDataExchange::at<double>(std::size_t pos) {
-
+void GDataExchange::append(const boost::shared_ptr<GDoubleParameter>& gdp) {
+	dArray_.push_back(gdp);
 }
 
 /**************************************************************************/
 /**
- * Gives access to the data of type boost::int32_t
+ * Adds a boost::shared_ptr to a GLongParameter to the corresponding vector
  *
- * @param pos The position of the data access is sought for
- * @return The data access was sought for
+ * @param glp The boost::shared_ptr to the GLongParameter to be added to the vector
  */
-template <> boost::int32_t&
-GDataExchange::at<boost::int32_t>(std::size_t pos) {
-
+void GDataExchange::append(const boost::shared_ptr<GLongParameter>& glp) {
+	lArray_.push_back(ldp);
 }
 
 /**************************************************************************/
 /**
- * Gives access to the data of type bool
+ * Adds a boost::shared_ptr to a GBoolParameter to the corresponding vector
  *
- * @param pos The position of the data access is sought for
- * @return The data access was sought for
+ * @param gbp The boost::shared_ptr to the GBoolParameter to be added to the vector
  */
-template <> bool&
-GDataExchange::at<bool>(std::size_t pos) {
-
+void GDataExchange::append(const boost::shared_ptr<GBoolParameter>& gbp) {
+	bArray_.push_back(gbp);
 }
 
 /**************************************************************************/
 /**
- * Gives access to the data of type char
+ * Adds a boost::shared_ptr to a GCharParameter to the corresponding vector
  *
- * @param pos The position of the data access is sought for
- * @return The data access was sought for
+ * @param gcp The boost::shared_ptr to the GCharParameter to be added to the vector
  */
-template <> char&
-GDataExchange::at<char>(std::size_t pos) {
-	return cArray_.at(pos);
+void GDataExchange::append(const boost::shared_ptr<GCharParameter>& gcp) {
+	cArray_.push_back(gcp);
 }
 
 /**************************************************************************/
 /**
- * Gives access to the size of a vector of type double
+ * Writes the class'es data to a stream
  *
- * @return The size of the vector of type double
+ * @param stream The external output stream to write to
  */
-template <> std::size_t
-GDataExchange::size<double>() {
-	return dArray_.size();
+void GDataExchange::writeToStream(std::ostream& stream) const {
+	std::size_t dArraySize = dArray_.size();
+	stream << dArraySize;
+	if(dArraySize) {
+		std::vector<boost::shared_ptr<GDoubleParameter> >::iterator dit;
+		for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) stream << **dit;
+	}
+
+	std::size_t lArraySize = lArray_.size();
+	stream << lArraySize;
+	if(lArraySize) {
+		std::vector<boost::shared_ptr<GLongParameter> >::iterator lit;
+		for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) stream << **lit;
+	}
+
+	std::size_t bArraySize = bArray_.size();
+	stream << bArraySize;
+	if(bArraySize) {
+		std::vector<boost::shared_ptr<GBoolParameter> >::iterator bit;
+		for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) stream << **bit;
+	}
+
+	std::size_t cArraySize = cArray_.size();
+	stream << cArraySize;
+	if(cArraySize) {
+		std::vector<boost::shared_ptr<GCharParameter> >::iterator cit;
+		for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) stream << **cit;
+	}
 }
 
 /**************************************************************************/
 /**
- * Gives access to the size of a vector of type boost::int32_t
+ * Reads the class'es data from a stream
  *
- * @return The size of the vector of type boost::int32_t
+ * @param stream The external input stream to read from
  */
-template <> std::size_t
-GDataExchange::size<boost::int32_t>() {
-	return lArray_.size();
+void GDataExchange::readFromStream(std::istream& stream) {
+	std::size_t dArraySize;
+	stream >> dArraySize;
+	dArray_.clear();
+	if(dArraySize) {
+		for(std::size_t i=0; i<dArraySize; i++){
+			boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter());
+			stream >> *p;
+			dArray_.push_back(p);
+		}
+	}
+
+	std::size_t lArraySize;
+	stream >> lArraySize;
+	lArray_.clear();
+	if(lArraySize) {
+		for(std::size_t i=0; i<lArraySize; i++){
+			boost::shared_ptr<GLongParameter> p(new GLongParameter());
+			stream >> *p;
+			lArray_.push_back(p);
+		}
+	}
+
+	std::size_t bArraySize;
+	stream >> bArraySize;
+	bArray_.clear();
+	if(bArraySize) {
+		for(std::size_t i=0; i<bArraySize; i++){
+			boost::shared_ptr<GBoolParameter> p(new GBoolParameter());
+			stream >> *p;
+			bArray_.push_back(p);
+		}
+	}
+
+	std::size_t cArraySize;
+	stream >> cArraySize;
+	cArray_.clear();
+	if(cArraySize) {
+		for(std::size_t i=0; i<cArraySize; i++){
+			boost::shared_ptr<GCharParameter> p(new GCharParameter());
+			stream >> *p;
+			cArray_.push_back(p);
+		}
+	}
 }
 
 /**************************************************************************/
 /**
- * Gives access to the size of a vector of type bool
+ * Helper function to aid IO  of this data set
  *
- * @return The size of the vector of type bool
+ * @param stream A reference to the output stream
+ * @param A const reference to the data set
+ * @return A copy of the stream
  */
-template <> std::size_t
-GDataExchange::size<bool>() {
-	return bArray_.size();
+std::ostream& operator<<(std::ostream& stream, const GDataExchange& object) {
+	object.writeToStream(stream);
+	return stream;
 }
 
-/**************************************************************************/
+/*************************************************************************/
 /**
- * Gives access to the size of a vector of type char
+ * Helper function to aid IO  of this data set
  *
- * @return The size of the vector of type char
+ * @param stream A reference to the input stream
+ * @param A reference to the data set
+ * @return A copy of the stream
  */
-template <> std::size_t
-GDataExchange::size<char>() {
-	return cArray_.size();
+std::istream& operator>>(std::istream& stream, GDataExchange& object) {
+	object.readFromStream(stream);
+	return stream;
 }
 
-/**************************************************************************/
-/**
- * Allows to append data of type double to the corresponding vector.
- *
- * @param x The data to be appended to the corresponding vector
- */
-template <> void
-GDataExchange::append<double>(const double& x) {
-	dArray_.push_back(x);
-}
-
-/**************************************************************************/
-/**
- * Allows to append data of type boost::int32_t to the corresponding vector.
- *
- * @param x The data to be appended to the corresponding vector
- */
-template <> void
-GDataExchange::append<boost::int32_t>(const boost::int32_t x) {
-	lArray_.push_back(x);
-}
-
-/**************************************************************************/
-/**
- * Allows to append data of type bool to the corresponding vector.
- *
- * @param x The data to be appended to the corresponding vector
- */
-template <> void
-GDataExchange::append<bool>(const bool& x) {
-	bArray_.push_back(x);
-}
-
-/**************************************************************************/
-/**
- * Allows to append data of type char to the corresponding vector.
- *
- * @param x The data to be appended to the corresponding vector
- */
-template <> void
-GDataExchange::append<char>(const char& x) {
-	cArray_.push_back(x);
-}
-
-/**************************************************************************/
+/*************************************************************************/
 
 } /* namespace Util */
 } /* namespace Gem */

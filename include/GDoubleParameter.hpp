@@ -51,6 +51,13 @@ namespace Util {
  */
 typedef GNumericParameterT<double> GDoubleParameter;
 
+/** @brief Helper function to aid IO  of this parameter type */
+std::ostream& operator<<(std::ostream&, const GDoubleParameter&);
+/** @brief Helper function to aid IO  of this parameter type */
+std::istream& operator>>(std::istream&, GDoubleParameter&);
+
+/*************************************************************************/
+
 } /* namespace Util */
 } /* namespace Gem */
 

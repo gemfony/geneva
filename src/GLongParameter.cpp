@@ -30,3 +30,31 @@
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Util::GLongParameter)
+
+namespace Gem
+{
+namespace Util
+{
+
+/*************************************************************************/
+/**
+ * Helper function to aid IO  of this parameter type
+ */
+std::ostream& operator<<(std::ostream& stream, const GLongParameter& object) {
+	object.writeToStream(stream);
+	return stream;
+}
+
+/*************************************************************************/
+/**
+ * Helper function to aid IO  of this parameter type
+ */
+std::istream& operator>>(std::istream& stream, GLongParameter& object) {
+	object.readFromStream(stream);
+	return stream;
+}
+
+/*************************************************************************/
+
+} /* namespace Util */
+} /* namespace Gem */

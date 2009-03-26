@@ -236,7 +236,7 @@ public:
 	 *
 	 * @return The current value of the param_ variable
 	 */
-	T getParameter() {
+	T& getParameter() {
 		return param_;
 	}
 
@@ -246,7 +246,7 @@ public:
 	 *
 	 * @return The current value of the lower boundary
 	 */
-	T getLower() {
+	T& getLowerBoundary() {
 		return lowerBoundary_;
 	}
 
@@ -256,7 +256,7 @@ public:
 	 *
 	 * @return The current value of the upper boundary
 	 */
-	T getUpper() {
+	T& getUpperBoundary() {
 		return upperBoundary_;
 	}
 
@@ -269,6 +269,26 @@ public:
 	bool hasBoundaries() {
 		if(lowerBoundary_ == upperBoundary_) return false;
 		return true;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Writes the class'es data to a stream
+	 *
+	 * @param stream The external output stream to write to
+	 */
+	void writeToStream(std::ostream& stream) const {
+		stream << param_ << lowerBoundary_ << upperBoundary_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Reads the class'es data from a stream
+	 *
+	 * @param stream The external input stream to read from
+	 */
+	void readFromStream(std::istream& stream) {
+		stream >> param_ >> lowerBoundary_ >> upperBoundary_;
 	}
 
 protected:

@@ -51,6 +51,13 @@ namespace Util {
  */
 typedef GNumericParameterT<char> GCharParameter;
 
+/** @brief Helper function to aid IO  of this parameter type */
+std::ostream& operator<<(std::ostream&, const GCharParameter&);
+/** @brief Helper function to aid IO  of this parameter type */
+std::istream& operator>>(std::istream&, GCharParameter&);
+
+/*************************************************************************/
+
 } /* namespace Util */
 } /* namespace Gem */
 
