@@ -28,7 +28,6 @@ SET ( GENEVAINCLUDES
 	GDoubleGaussAdaptor.hpp
 	GDoubleParameter.hpp
 	GenevaExceptions.hpp
-	GenevaVersion.hpp
 	GEnums.hpp
 	GGaussAdaptorT.hpp
 	GGlobalDefines.hpp
