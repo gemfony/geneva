@@ -40,114 +40,79 @@ namespace Util
 
 /**************************************************************************/
 /**
- * The default constructor
+ * The default constructor. Adds a single, empty data set to the collection.
  */
 GDataExchange::GDataExchange()
-	:value_(0.),
-	 hasValue_(false)
-{ /* nothing */ }
+	:currentValueSet_(0)
+{
+	boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
+	parameterValueSet_.push_back(p);
+	currentValueSet_ = 0;
+}
 
 /**************************************************************************/
 /**
  * A standard copy constructor. We need to take care to copy the contents of
- * the vectors one by one, so that not only the pointers are copied.
+ * the vector one by one, so that not only the pointers are copied.
  *
  * @param cp A constant reference to another GDataExchange object
  */
 GDataExchange::GDataExchange(const GDataExchange& cp) {
-	// Copy the double vector's content
-	std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit;
-	for(dcit=cp.dArray_.begin(); dcit!=cp.dArray_.end(); ++dcit) {
-		boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter(*(dcit->get())));
-		dArray_.push_back(p);
+	std::vector<parameterValuePair>::const_iterator cit;
+	for(cit=cp.parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) {
+		boost::shared_ptr<parameterValuePair> p(new parameterValuePair(**cit));
+		parameterValueSet_.push_back(p);
 	}
 
-	// Copy the long vector's content
-	std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lcit;
-	for(lcit=cp.lArray_.begin(); lcit!=cp.lArray_.end(); ++lcit) {
-		boost::shared_ptr<GLongParameter> p(new GLongParameter(*(lcit->get())));
-		lArray_.push_back(p);
-	}
-
-	// Copy the bool vector's content
-	std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit;
-	for(bcit=cp.bArray_.begin(); bcit!=cp.bArray_.end(); ++bcit) {
-		boost::shared_ptr<GBoolParameter> p(new GBoolParameter(*(bcit->get())));
-		bArray_.push_back(p);
-	}
-
-	// Copy the char vector's content
-	std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit;
-	for(ccit=cp.cArray_.begin(); ccit!=cp.cArray_.end(); ++ccit) {
-		boost::shared_ptr<GCharParameter> p(new GCharParameter(*(ccit->get())));
-		cArray_.push_back(p);
-	}
-
-	value_ = cp.value_;
-	hasValue_ = cp.hasValue_;
+	currentParameterSet_ = cp.currentParameterSet_;
 }
 
 /**************************************************************************/
 /**
- * The destructor.
+ * The destructor. As we use smart pointers, all we need to do is reset the
+ * vector.
  */
 GDataExchange::~GDataExchange() {
-	dArray_.clear();
-	lArray_.clear();
-	bArray_.clear();
-	cArray_.clear();
+	parameterValueSet_.clear();
 }
 
 /**************************************************************************/
 /**
- * A standard assignment operator. Works like the copy constructor.
+ * A standard assignment operator. As it needs to take care of differing
+ * vector sizes, it is far more complicated than the copy constructor. We
+ * thus use an external helper function.
  *
  * @param cp A constant reference to another GDataExchange object
  */
 const GDataExchange& GDataExchange::operator=(const GDataExchange& cp) {
-	// Copy the double vector's content
-	std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit;
-	for(dcit=cp.dArray_.begin(); dcit!=cp.dArray_.end(); ++dcit) {
-		boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter(*(dcit->get())));
-		dArray_.push_back(p);
-	}
-
-	// Copy the long vector's content
-	std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lcit;
-	for(lcit=cp.lArray_.begin(); lcit!=cp.lArray_.end(); ++lcit) {
-		boost::shared_ptr<GLongParameter> p(new GLongParameter(*(lcit->get())));
-		lArray_.push_back(p);
-	}
-
-	// Copy the bool vector's content
-	std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit;
-	for(bcit=cp.bArray_.begin(); bcit!=cp.bArray_.end(); ++bcit) {
-		boost::shared_ptr<GBoolParameter> p(new GBoolParameter(*(bcit->get())));
-		bArray_.push_back(p);
-	}
-
-	// Copy the char vector's content
-	std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit;
-	for(ccit=cp.cArray_.begin(); ccit!=cp.cArray_.end(); ++ccit) {
-		boost::shared_ptr<GCharParameter> p(new GCharParameter(*(ccit->get())));
-		cArray_.push_back(p);
-	}
-
-	value_ = cp.value_;
-	hasValue_ = cp.hasValue_;
+	copySmartPointerVector<parameterValuePair>(cp.parameterValueSet_, parameterValueSet_);
+	currentParameterSet_ = cp.currentParameterSet_;
 }
 
 /**************************************************************************/
 /**
- * Resets all data structures of the object
+ * Gets the id of the current value set.
+ */
+
+std::size_t GDataExchange::getCurrentParameterSet(){
+	return currentParameterSet_;
+}
+
+/**************************************************************************/
+/**
+ * Resets the current data structure.
  */
 void GDataExchange::reset() {
-	dArray_.clear();
-	lArray_.clear();
-	bArray_.clear();
-	cArray_.clear();
-	value_ = 0.;
-	hasValue_ = false;
+	(parameterValueSet_.at(currentParameterSet_))->reset();
+}
+
+/**************************************************************************/
+/**
+ * Resets all data structures in sequence.
+ */
+void GDataExchange::resetAll() {
+	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	for(it=parameterValueSet_.begin(); it!=parameterValueSet_.end(); ++it)	(*it)->reset();
 }
 
 /**************************************************************************/
@@ -159,15 +124,15 @@ void GDataExchange::reset() {
  */
 void GDataExchange::setValue(double value){
 	// Prevent setting of a value of one has already been assigned
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::setValue(): Error!" << std::endl
-		          << "Trying to assign a value when one has" << std::endl
-		          << "already been assigned. Leaving ..." << std::endl;
+		          << "Trying to assign a value to the current" << std::endl
+		          << "when one has already been assigned. Leaving ..." << std::endl;
 		exit(1);
 	}
 
-	hasValue_ = true;
-	value_ = value;
+	(parameterValueSet_.at(currentParameterSet_))->hasValue_ = true;
+	(parameterValueSet_.at(currentParameterSet_))->value_ = value;
 }
 
 /**************************************************************************/
@@ -177,13 +142,13 @@ void GDataExchange::setValue(double value){
  * @return The value of the current data set
  */
 double GDataExchange::value(){
-	if(!hasValue_) {
+	if(!(parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::value(): Warning" << std::endl
-			      << "Retrieving value of data set when" << std::endl
+			      << "Retrieving value of a data set when" << std::endl
 			      << "no value has been set yet." << std::endl;
 	}
 
-	return value_;
+	return (parameterValueSet_.at(currentParameterSet_))->value_;
 }
 
 /**************************************************************************/
@@ -193,7 +158,31 @@ double GDataExchange::value(){
  * @return The value of the hasValue_ variable
  */
 bool GDataExchange::hasValue() {
-	return hasValue_;
+	return (parameterValueSet_.at(currentParameterSet_))->hasValue_;
+}
+
+/**************************************************************************/
+/**
+ * Goes to to the start of the list
+ */
+void GDataExchange::gotoStart() {
+
+}
+
+/**************************************************************************/
+/**
+ * Switches to the next available data set
+ */
+bool GDataExchange::nextDataSet() {
+
+}
+
+/**************************************************************************/
+/**
+ * Adds a new, empty data set and adjusts the counter
+ */
+void GDataExchange::newDataSet() {
+
 }
 
 /**************************************************************************/
@@ -204,7 +193,7 @@ bool GDataExchange::hasValue() {
  * @return The data access was sought for
  */
 template <> boost::shared_ptr<GDoubleParameter> GDataExchange::parameterSet_at<double>(std::size_t pos) {
-	boost::shared_ptr<GDoubleParameter> p = dArray_.at(pos);
+	boost::shared_ptr<GDoubleParameter> p = (parameterValueSet_.at(currentParameterSet_))->dArray_.at(pos);
 
 	// If a value has already been assigned, we return a copy of the original data set,
 	// so no changes of the already evaluated data can occur
@@ -224,7 +213,7 @@ template <> boost::shared_ptr<GDoubleParameter> GDataExchange::parameterSet_at<d
  * @return The data access was sought for
  */
 template <> boost::shared_ptr<GLongParameter> GDataExchange::parameterSet_at<boost::int32_t>(std::size_t pos) {
-	boost::shared_ptr<GLongParameter> p = lArray_.at(pos);
+	boost::shared_ptr<GLongParameter> p = (parameterValueSet_.at(currentParameterSet_))->lArray_.at(pos);
 
 	// If a value has already been assigned, we return a copy of the original data set,
 	// so no changes of the already evaluated data can occur
@@ -244,7 +233,7 @@ template <> boost::shared_ptr<GLongParameter> GDataExchange::parameterSet_at<boo
  * @return The data access was sought for
  */
 template <> boost::shared_ptr<GBoolParameter> GDataExchange::parameterSet_at<bool>(std::size_t pos) {
-	boost::shared_ptr<GBoolParameter> p = bArray_.at(pos);
+	boost::shared_ptr<GBoolParameter> p = (parameterValueSet_.at(currentParameterSet_))->bArray_.at(pos);
 
 	// If a value has already been assigned, we return a copy of the original data set,
 	// so no changes of the already evaluated data can occur
@@ -264,7 +253,7 @@ template <> boost::shared_ptr<GBoolParameter> GDataExchange::parameterSet_at<boo
  * @return The data access was sought for
  */
 template <> boost::shared_ptr<GCharParameter> GDataExchange::parameterSet_at<char>(std::size_t pos) {
-	boost::shared_ptr<GCharParameter> p = cArray_.at(pos);
+	boost::shared_ptr<GCharParameter> p = (parameterValueSet_.at(currentParameterSet_))->cArray_.at(pos);
 
 	// If a value has already been assigned, we return a copy of the original data set,
 	// so no changes of the already evaluated data can occur
@@ -285,7 +274,7 @@ template <> boost::shared_ptr<GCharParameter> GDataExchange::parameterSet_at<cha
  * @return The data access was sought for
  */
 template <> double GDataExchange::at<double>(std::size_t pos) {
-	return dArray_.at(pos)->getParameter();
+	return (parameterValueSet_.at(currentParameterSet_))->dArray_.at(pos)->getParameter();
 }
 
 /**************************************************************************/
@@ -296,7 +285,7 @@ template <> double GDataExchange::at<double>(std::size_t pos) {
  * @return The data access was sought for
  */
 template <> boost::int32_t GDataExchange::at<boost::int32_t>(std::size_t pos) {
-	return lArray_.at(pos)->getParameter();
+	return (parameterValueSet_.at(currentParameterSet_))->lArray_.at(pos)->getParameter();
 }
 
 /**************************************************************************/
@@ -307,7 +296,7 @@ template <> boost::int32_t GDataExchange::at<boost::int32_t>(std::size_t pos) {
  * @return The data access was sought for
  */
 template <> bool GDataExchange::at<bool>(std::size_t pos) {
-	return bArray_.at(pos)->getParameter();
+	return (parameterValueSet_.at(currentParameterSet_))->bArray_.at(pos)->getParameter();
 }
 
 /**************************************************************************/
@@ -318,7 +307,7 @@ template <> bool GDataExchange::at<bool>(std::size_t pos) {
  * @return The data access was sought for
  */
 template <> char GDataExchange::at<char>(std::size_t pos) {
-	return cArray_.at(pos)->getParameter();
+	return (parameterValueSet_.at(currentParameterSet_))->cArray_.at(pos)->getParameter();
 }
 
 /**************************************************************************/
@@ -328,7 +317,7 @@ template <> char GDataExchange::at<char>(std::size_t pos) {
  * @return The size of the dArray_ vector
  */
 template <> std::size_t GDataExchange::size<double>() {
-	return dArray_.size();
+	return (parameterValueSet_.at(currentParameterSet_))->dArray_.size();
 }
 
 /**************************************************************************/
@@ -338,7 +327,7 @@ template <> std::size_t GDataExchange::size<double>() {
  * @return The size of the lArray_ vector
  */
 template <> std::size_t GDataExchange::size<boost::int32_t>() {
-	return lArray_.size();
+	return (parameterValueSet_.at(currentParameterSet_))->lArray_.size();
 }
 
 /**************************************************************************/
@@ -348,7 +337,7 @@ template <> std::size_t GDataExchange::size<boost::int32_t>() {
  * @return The size of the bArray_ vector
  */
 template <> std::size_t GDataExchange::size<bool>() {
-	return bArray_.size();
+	return (parameterValueSet_.at(currentParameterSet_))->bArray_.size();
 }
 
 /**************************************************************************/
@@ -358,7 +347,7 @@ template <> std::size_t GDataExchange::size<bool>() {
  * @return The size of the cArray_ vector
  */
 template <> std::size_t GDataExchange::size<char>() {
-	return cArray_.size();
+	return (parameterValueSet_.at(currentParameterSet_))->cArray_.size();
 }
 
 /**************************************************************************/
@@ -369,14 +358,14 @@ template <> std::size_t GDataExchange::size<char>() {
  */
 void GDataExchange::append(const boost::shared_ptr<GDoubleParameter>& gdp) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
 		exit(1);
 	}
 
-	dArray_.push_back(gdp);
+	(parameterValueSet_.at(currentParameterSet_))->dArray_.push_back(gdp);
 }
 
 /**************************************************************************/
@@ -387,14 +376,14 @@ void GDataExchange::append(const boost::shared_ptr<GDoubleParameter>& gdp) {
  */
 void GDataExchange::append(const boost::shared_ptr<GLongParameter>& glp) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
 		exit(1);
 	}
 
-	lArray_.push_back(glp);
+	(parameterValueSet_.at(currentParameterSet_))->lArray_.push_back(glp);
 }
 
 /**************************************************************************/
@@ -405,14 +394,14 @@ void GDataExchange::append(const boost::shared_ptr<GLongParameter>& glp) {
  */
 void GDataExchange::append(const boost::shared_ptr<GBoolParameter>& gbp) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
 		exit(1);
 	}
 
-	bArray_.push_back(gbp);
+	(parameterValueSet_.at(currentParameterSet_))->bArray_.push_back(gbp);
 }
 
 /**************************************************************************/
@@ -423,14 +412,14 @@ void GDataExchange::append(const boost::shared_ptr<GBoolParameter>& gbp) {
  */
 void GDataExchange::append(const boost::shared_ptr<GCharParameter>& gcp) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
 		exit(1);
 	}
 
-	cArray_.push_back(gcp);
+	(parameterValueSet_.at(currentParameterSet_))->cArray_.push_back(gcp);
 }
 
 /**************************************************************************/
@@ -442,7 +431,7 @@ void GDataExchange::append(const boost::shared_ptr<GCharParameter>& gcp) {
  */
 template <> void GDataExchange::append<double>(const double& x) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
@@ -450,7 +439,7 @@ template <> void GDataExchange::append<double>(const double& x) {
 	}
 
 	boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter(x));
-	dArray_.push_back(p);
+	(parameterValueSet_.at(currentParameterSet_))->dArray_.push_back(p);
 }
 
 /**************************************************************************/
@@ -462,7 +451,7 @@ template <> void GDataExchange::append<double>(const double& x) {
  */
 template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
@@ -470,7 +459,7 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x) 
 	}
 
 	boost::shared_ptr<GLongParameter> p(new GLongParameter(x));
-	lArray_.push_back(p);
+	(parameterValueSet_.at(currentParameterSet_))->lArray_.push_back(p);
 }
 
 /**************************************************************************/
@@ -482,7 +471,7 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x) 
  */
 template <> void GDataExchange::append<bool>(const bool& x) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
@@ -490,7 +479,7 @@ template <> void GDataExchange::append<bool>(const bool& x) {
 	}
 
 	boost::shared_ptr<GBoolParameter> p(new GBoolParameter(x));
-	bArray_.push_back(p);
+	(parameterValueSet_.at(currentParameterSet_))->bArray_.push_back(p);
 }
 
 /**************************************************************************/
@@ -502,7 +491,7 @@ template <> void GDataExchange::append<bool>(const bool& x) {
  */
 template <> void GDataExchange::append<char>(const char& x) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
@@ -510,7 +499,7 @@ template <> void GDataExchange::append<char>(const char& x) {
 	}
 
 	boost::shared_ptr<GCharParameter> p(new GCharParameter(x));
-	cArray_.push_back(p);
+	(parameterValueSet_.at(currentParameterSet_))->cArray_.push_back(p);
 }
 
 /**************************************************************************/
@@ -523,7 +512,7 @@ template <> void GDataExchange::append<char>(const char& x) {
  */
 template <> void GDataExchange::append<double>(const double& x, const double& x_l, const double& x_u) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
@@ -531,7 +520,7 @@ template <> void GDataExchange::append<double>(const double& x, const double& x_
 	}
 
 	boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter(x,x_l,x_u));
-	dArray_.push_back(p);
+	(parameterValueSet_.at(currentParameterSet_))->dArray_.push_back(p);
 }
 
 /**************************************************************************/
@@ -544,7 +533,7 @@ template <> void GDataExchange::append<double>(const double& x, const double& x_
  */
 template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x, const boost::int32_t& x_l, const boost::int32_t& x_u) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
@@ -552,7 +541,7 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x, 
 	}
 
 	boost::shared_ptr<GLongParameter> p(new GLongParameter(x,x_l,x_u));
-	lArray_.push_back(p);
+	(parameterValueSet_.at(currentParameterSet_))->lArray_.push_back(p);
 }
 
 /**************************************************************************/
@@ -565,7 +554,7 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x, 
  */
 template <> void GDataExchange::append<char>(const char& x, const char& x_l, const char& x_u) {
 	// Prevent any changes if a value has already been calculated
-	if(hasValue_) {
+	if((parameterValueSet_.at(currentParameterSet_))->hasValue_) {
 		std::cerr << "In GDataExchange::append(): Error!" << std::endl
 			      << "Tried to assign new data when a value has already" << std::endl
 				  << "been calculated. Leaving ..." << std::endl;
@@ -573,7 +562,33 @@ template <> void GDataExchange::append<char>(const char& x, const char& x_l, con
 	}
 
 	boost::shared_ptr<GCharParameter> p(new GCharParameter(x,x_l,x_u));
-	cArray_.push_back(p);
+	(parameterValueSet_.at(currentParameterSet_))->cArray_.push_back(p);
+}
+
+/**************************************************************************/
+/**
+ * Helper function to aid IO  of parameterValuePair objects
+ *
+ * @param stream A reference to the output stream
+ * @param A const reference to a parameterValuePair object
+ * @return A copy of the stream
+ */
+std::ostream& GDataExchange::operator<<(std::ostream& stream, const parameterValuePair& object) {
+	object.writeToStream(stream);
+	return stream;
+}
+
+/*************************************************************************/
+/**
+ * Helper function to aid IO of parameterValuePair objects
+ *
+ * @param stream A reference to the input stream
+ * @param A reference to a parameterValuePair object
+ * @return A copy of the stream
+ */
+std::istream& GDataExchange::operator>>(std::istream& stream, parameterValuePair& object) {
+	object.readFromStream(stream);
+	return stream;
 }
 
 /**************************************************************************/
@@ -583,33 +598,7 @@ template <> void GDataExchange::append<char>(const char& x, const char& x_l, con
  * @param stream The external output stream to write to
  */
 void GDataExchange::writeToStream(std::ostream& stream) const {
-	std::size_t dArraySize = dArray_.size();
-	stream << dArraySize;
-	if(dArraySize) {
-		std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dit;
-		for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) stream << **dit;
-	}
 
-	std::size_t lArraySize = lArray_.size();
-	stream << lArraySize;
-	if(lArraySize) {
-		std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lit;
-		for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) stream << **lit;
-	}
-
-	std::size_t bArraySize = bArray_.size();
-	stream << bArraySize;
-	if(bArraySize) {
-		std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bit;
-		for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) stream << **bit;
-	}
-
-	std::size_t cArraySize = cArray_.size();
-	stream << cArraySize;
-	if(cArraySize) {
-		std::vector<boost::shared_ptr<GCharParameter> >::const_iterator cit;
-		for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) stream << **cit;
-	}
 }
 
 /**************************************************************************/
@@ -619,49 +608,7 @@ void GDataExchange::writeToStream(std::ostream& stream) const {
  * @param stream The external input stream to read from
  */
 void GDataExchange::readFromStream(std::istream& stream) {
-	std::size_t dArraySize;
-	stream >> dArraySize;
-	dArray_.clear();
-	if(dArraySize) {
-		for(std::size_t i=0; i<dArraySize; i++){
-			boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter());
-			stream >> *p;
-			dArray_.push_back(p);
-		}
-	}
 
-	std::size_t lArraySize;
-	stream >> lArraySize;
-	lArray_.clear();
-	if(lArraySize) {
-		for(std::size_t i=0; i<lArraySize; i++){
-			boost::shared_ptr<GLongParameter> p(new GLongParameter());
-			stream >> *p;
-			lArray_.push_back(p);
-		}
-	}
-
-	std::size_t bArraySize;
-	stream >> bArraySize;
-	bArray_.clear();
-	if(bArraySize) {
-		for(std::size_t i=0; i<bArraySize; i++){
-			boost::shared_ptr<GBoolParameter> p(new GBoolParameter());
-			stream >> *p;
-			bArray_.push_back(p);
-		}
-	}
-
-	std::size_t cArraySize;
-	stream >> cArraySize;
-	cArray_.clear();
-	if(cArraySize) {
-		for(std::size_t i=0; i<cArraySize; i++){
-			boost::shared_ptr<GCharParameter> p(new GCharParameter());
-			stream >> *p;
-			cArray_.push_back(p);
-		}
-	}
 }
 
 /**************************************************************************/
