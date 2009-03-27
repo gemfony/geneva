@@ -86,11 +86,25 @@ class GDataExchange {
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive & ar, const unsigned int version){
-      using boost::serialization::make_nvp;
-      ar & make_nvp("parameterValueSet_", parameterValueSet_);
-      ar & make_nvp("currentParameterSet_", currentParameterSet_);
+	void save(Archive & ar, const unsigned int version) const {
+        using boost::serialization::make_nvp;
+        ar & make_nvp("parameterValueSet_", parameterValueSet_);
+
+        std::size_t currentPosition = current_ - parameterValueSet_.begin();
+        ar & make_nvp("currentPosition_", currentPosition);
     }
+
+    template<typename Archive>
+    void load(Archive & ar, const unsigned int version){
+    	using boost::serialization::make_nvp;
+    	ar & make_nvp("parameterValueSet_", parameterValueSet_);
+
+    	std::size_t currentPosition;
+    	ar & make_nvp("currentPosition_", currentPosition);
+    	current_ = parameterValueSet_.begin() + currentPosition;
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
     ///////////////////////////////////////////////////////////////////////
 
 public:
@@ -104,10 +118,10 @@ public:
 	/** @brief A standard assignment operator */
 	const GDataExchange& operator=(const GDataExchange&);
 
-	std::size_t getCurrentParameterSet();
-
-	/** @brief Resets all data structures of the object */
+	/** @brief Resets the current parameter set */
 	void reset();
+	/** @brief Resets all parameter sets in sequence */
+	void resetAll();
 
 	/** @brief Assign a value to the current data set */
 	void setValue(double);
@@ -443,14 +457,10 @@ private:
 	////////////////////////////////////////////////////////////////////////////////////
 	/**********************************************************************************/
 
-	/** @brief Helper function to aid IO  of parameterValuePair objects */
-	std::ostream& operator<<(std::ostream&, const parameterValuePair&);
-	/** @brief Helper function to aid IO  of parameterValuePair objects */
-	std::istream& operator>>(std::istream&, parameterValuePair&);
-
 	/** @brief This vector holds the actual data */
 	std::vector<boost::shared_ptr<parameterValuePair> > parameterValueSet_;
-	std::size_t currentParameterSet_; ///< The currently active value set
+	/** @brief An iterator indicating the current position in the vector */
+	std::vector<boost::shared_ptr<parameterValuePair> >::iterator current_;
 };
 
 /**************************************************************************/

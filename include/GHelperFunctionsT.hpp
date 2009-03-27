@@ -60,8 +60,8 @@ namespace Util
 template <typename T>
 void copySmartPointerVector(const std::vector<boost::shared_ptr<T> >& from,
 		                            std::vector<boost::shared_ptr<T> >& to) {
-	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator it_from;
-	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it_to;
+	typename std::vector<boost::shared_ptr<T> >::const_iterator it_from;
+	typename std::vector<boost::shared_ptr<T> >::iterator it_to;
 
 	std::size_t size_from = from.size();
 	std::size_t size_to = to.size();
