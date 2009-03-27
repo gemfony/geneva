@@ -59,6 +59,8 @@
 #ifndef GDATAEXCHANGE_HPP_
 #define GDATAEXCHANGE_HPP_
 
+#include "GNumericParameterT.hpp"
+
 #include "GBoolParameter.hpp"
 #include "GCharParameter.hpp"
 #include "GDoubleParameter.hpp"
@@ -113,55 +115,14 @@ public:
 	 * @return The data access was sought for
 	 */
 	template <typename T>
-	boost::shared_ptr<GNumericParameterT<T> > parameterSet_at<T>(std::size_t pos) {
+	boost::shared_ptr<GNumericParameterT<T> > parameterSet_at(std::size_t pos) {
 		std::cout << "In GDataExchange::parameterSet_at<T>(std::size_t): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
-	}
 
-	/**************************************************************************/
-	/**
-	 * Gives access to a parameter set of type double, including its boundaries.
-	 *
-	 * @param pos The position of the data access is sought for
-	 * @return The data access was sought for
-	 */
-	template <> boost::shared_ptr<GDoubleParameter> parameterSet_at<double>(std::size_t pos) {
-		return dArray_.at(pos);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to a parameter set of type boost::int32_t, including its boundaries.
-	 *
-	 * @param pos The position of the data access is sought for
-	 * @return The data access was sought for
-	 */
-	template <> boost::shared_ptr<GLongParameter> parameterSet_at<boost::int32_t>(std::size_t pos) {
-		return lArray_.at(pos);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to a parameter set of type bool, including its boundaries.
-	 *
-	 * @param pos The position of the data access is sought for
-	 * @return The data access was sought for
-	 */
-	template <> boost::shared_ptr<GBoolParameter> parameterSet_at<bool>(std::size_t pos) {
-		return bArray_.at(pos);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to a parameter set of type char, including its boundaries.
-	 *
-	 * @param pos The position of the data access is sought for
-	 * @return The data access was sought for
-	 */
-	template <> boost::shared_ptr<GCharParameter> parameterSet_at<char>(std::size_t pos) {
-		return cArray_.at(pos);
+		// Make the compiler happy
+		return boost::shared_ptr<GNumericParameterT<T> >(new GNumericParameterT<T>());
 	}
 
 	/**************************************************************************/
@@ -173,55 +134,11 @@ public:
 	 * @return The data access was sought for
 	 */
 	template <typename T>
-	T& at<T>(std::size_t pos) {
+	T& at(std::size_t pos) {
 		std::cout << "In GDataExchange::at<T>(std::size_t): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to a parameter of type double
-	 *
-	 * @param pos The position of the data access is sought for
-	 * @return The data access was sought for
-	 */
-	template <> double& at<double>(std::size_t pos) {
-		return dArray_.at(pos)->getParameter();
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to a parameter of type boost::int32_t
-	 *
-	 * @param pos The position of the data access is sought for
-	 * @return The data access was sought for
-	 */
-	template <> boost::int32_t& at<boost::int32_t>(std::size_t pos) {
-		return lArray_.at(pos)->getParameter();
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to a parameter of type bool
-	 *
-	 * @param pos The position of the data access is sought for
-	 * @return The data access was sought for
-	 */
-	template <> bool& at<bool>(std::size_t pos) {
-		return bArray_.at(pos)->getParameter();
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to a parameter of type char
-	 *
-	 * @param pos The position of the data access is sought for
-	 * @return The data access was sought for
-	 */
-	template <> char& at<char>(std::size_t pos) {
-		return cArray_.at(pos)->getParameter();
 	}
 
 	/**************************************************************************/
@@ -232,51 +149,14 @@ public:
 	 * @return The size of the vector of a particular type
 	 */
 	template <typename T>
-	std::size_t size<T>() {
+	std::size_t size() {
 		std::cout << "In GDataExchange::size<T>(): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
-	}
 
-	/**************************************************************************/
-	/**
-	 * Gives access to the size of the dArray_ vector
-	 *
-	 * @return The size of the dArray_ vector
-	 */
-	template <> std::size_t size<double>() {
-		return dArray_.size();
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to the size of the lArray_ vector
-	 *
-	 * @return The size of the lArray_ vector
-	 */
-	template <> std::size_t size<boost::int32_t>() {
-		return lArray_.size();
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to the size of the bArray_ vector
-	 *
-	 * @return The size of the bArray_ vector
-	 */
-	template <> std::size_t size<bool>() {
-		return bArray_.size();
-	}
-
-	/**************************************************************************/
-	/**
-	 * Gives access to the size of the cArray_ vector
-	 *
-	 * @return The size of the cArray_ vector
-	 */
-	template <> std::size_t size<char>() {
-		return cArray_.size();
+		// Make the compiler happy
+		return (std::size_t)NULL;
 	}
 
 	/**************************************************************************/
@@ -285,59 +165,11 @@ public:
 	 * This is a trap. The specializations should be used instead.
 	 */
 	template <typename T>
-	void append<T>(const T&) {
+	void append(const T&) {
 		std::cout << "In GDataExchange::append<T>(): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Creates a boost::shared_ptr<GDoubleParameter> object without boundaries
-	 * and appends it to the corresponding vector.
-	 *
-	 * @param x The initial parameter value
-	 */
-	template <> void append<double>(const double& x) {
-		boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter(x));
-		dArray_.push_back(p);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Creates a boost::shared_ptr<GLongParameter> object without boundaries
-	 * and appends it to the corresponding vector.
-	 *
-	 * @param x The initial parameter value
-	 */
-	template <> void append<boost::int32_t>(const boost::int32_t x) {
-		boost::shared_ptr<GLongParameter> p(new GLongParameter(x));
-		lArray_.push_back(p);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Creates a boost::shared_ptr<GBoolParameter> object without boundaries
-	 * and appends it to the corresponding vector.
-	 *
-	 * @param x The initial parameter value
-	 */
-	template <> void append<bool>(const bool& x) {
-		boost::shared_ptr<GBoolParameter> p(new GBoolParameter(x));
-		bArray_.push_back(p);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Creates a boost::shared_ptr<GCharParameter> object without boundaries
-	 * and appends it to the corresponding vector.
-	 *
-	 * @param x The initial parameter value
-	 */
-	template <> void append<char>(const char& x) {
-		boost::shared_ptr<GCharParameter> p(new GCharParameter(x));
-		cArray_.push_back(p);
 	}
 
 	/**************************************************************************/
@@ -346,50 +178,11 @@ public:
 	 * This is a trap. The specializations should be used instead.
 	 */
 	template <typename T>
-	void append<T>(const T&, const T&, const T&) {
+	void append(const T&, const T&, const T&) {
 		std::cout << "In GDataExchange::append<T>(): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Adds a boost::shared_ptr<GDoubleParameter> object to the corresponding array
-	 *
-	 * @param x The initial value of the double parameter
-	 * @param x_l The lower boundary of the double parameter
-	 * @param x_u The upper boundary of the double parameter
-	 */
-	template <> void append<double>(const double& x, const double& x_l, const double& x_u) {
-		boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter(x,x_l,x_u));
-		dArray_.push_back(p);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Adds a boost::shared_ptr<GLongParameter> object to the corresponding array
-	 *
-	 * @param x The initial value of the boost::in32_t parameter
-	 * @param x_l The lower boundary of the boost::in32_t parameter
-	 * @param x_u The upper boundary of the boost::in32_t parameter
-	 */
-	template <> void append<boost::int32_t>(const boost::int32_t x, const boost::int32_t x_l, const boost::int32_t x_u) {
-		boost::shared_ptr<GLongParameter> p(new GLongParameter(x,x_l,x_u));
-		lArray_.push_back(p);
-	}
-
-	/**************************************************************************/
-	/**
-	 * Adds a boost::shared_ptr<GCharParameter> object to the corresponding array
-	 *
-	 * @param x The initial value of the char parameter
-	 * @param x_l The lower boundary of the char parameter
-	 * @param x_u The upper boundary of the char parameter
-	 */
-	template <> void append<char>(const char& x, const char& x_l, const char& x_u) {
-		boost::shared_ptr<GCharParameter> p(new GCharParameter(x,x_l,x_u));
-		cArray_.push_back(p);
 	}
 
 	/**************************************************************************/
@@ -417,7 +210,54 @@ private:
 	std::vector<boost::shared_ptr<GCharParameter> > cArray_; ///< vector holding character parameter sets
 };
 
+/**************************************************************************/
+// Specializations for the usual cases
+
+/** @brief Gives access to a full data set containing doubles */
+template <> boost::shared_ptr<GDoubleParameter> GDataExchange::parameterSet_at<double>(std::size_t);
+/** @brief Gives access to a full data set containing boost::int32_ts */
+template <> boost::shared_ptr<GLongParameter> GDataExchange::parameterSet_at<boost::int32_t>(std::size_t);
+/** @brief Gives access to a full data set containing bools */
+template <> boost::shared_ptr<GBoolParameter> GDataExchange::parameterSet_at<bool>(std::size_t);
+/** @brief Gives access to a full data set containing chars */
+template <> boost::shared_ptr<GCharParameter> GDataExchange::parameterSet_at<char>(std::size_t);
+
+/** @brief Gives access to a parameter of type double */
+template <> double& GDataExchange::at<double>(std::size_t);
+/** @brief Gives access to a parameter of type boost::int32_t */
+template <> boost::int32_t& GDataExchange::at<boost::int32_t>(std::size_t);
+/** @brief Gives access to a parameter of type bool */
+template <> bool& GDataExchange::at<bool>(std::size_t);
+/** @brief Gives access to a parameter of type char */
+template <> char& GDataExchange::at<char>(std::size_t);
+
+/** @brief Gives access to the size of the dArray_ vector */
+template <> std::size_t GDataExchange::size<double>();
+/** @brief Gives access to the size of the lArray_ vector */
+template <> std::size_t GDataExchange::size<boost::int32_t>();
+/** @brief Gives access to the size of the bArray_ vector */
+template <> std::size_t GDataExchange::size<bool>();
+/** @brief Gives access to the size of the cArray_ vector */
+template <> std::size_t GDataExchange::size<char>();
+
+/** @brief Appends a boost::shared_ptr<GDoubleParameter> object without boundaries to the corresponding vector. */
+template <> void GDataExchange::append<double>(const double&);
+/** @brief Appends a boost::shared_ptr<GLongParameter> object without boundaries to the corresponding vector. */
+template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t&);
+/** @brief Appends a boost::shared_ptr<GBoolParameter> object without boundaries to the corresponding vector. */
+template <> void GDataExchange::append<bool>(const bool&);
+/** @brief Appends a boost::shared_ptr<GCharParameter> object without boundaries to the corresponding vector. */
+template <> void GDataExchange::append<char>(const char&);
+
+/** @brief  Adds a boost::shared_ptr<GDoubleParameter> object with boundaries to the corresponding array */
+template <> void GDataExchange::append<double>(const double&, const double&, const double&);
+/** @brief  Adds a boost::shared_ptr<GDoubleParameter> object with boundaries to the corresponding array */
+template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t&, const boost::int32_t&, const boost::int32_t&);
+/** @brief  Adds a boost::shared_ptr<GDoubleParameter> object with boundaries to the corresponding array */
+template <> void GDataExchange::append<char>(const char&, const char&, const char&);
+
 /*************************************************************************/
+// IO helper functions
 
 /** @brief Helper function to aid IO  of this data set */
 std::ostream& operator<<(std::ostream&, const GDataExchange&);
