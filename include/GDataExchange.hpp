@@ -92,6 +92,8 @@ class GDataExchange {
       ar & make_nvp("lArray_", lArray_);
       ar & make_nvp("bArray_", bArray_);
       ar & make_nvp("cArray_", cArray_);
+      ar & make_nvp("value_", value_);
+      ar & make_nvp("hasValue_", hasValue_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -105,6 +107,16 @@ public:
 
 	/** @brief A standard assignment operator */
 	const GDataExchange& operator=(const GDataExchange&);
+
+	/** @brief Resets all data structures of the object */
+	void reset();
+
+	/** @brief Assign a value to the current data set */
+	void setValue(double);
+	/** @brief Retrieve the current value */
+	double value();
+	/** @brief Check whether the current data set has a value */
+	bool hasValue();
 
 	/**************************************************************************/
 	/**
@@ -134,11 +146,14 @@ public:
 	 * @return The data access was sought for
 	 */
 	template <typename T>
-	T& at(std::size_t pos) {
+	T at(std::size_t pos) {
 		std::cout << "In GDataExchange::at<T>(std::size_t): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
+
+		// Make the compiler happy
+		return 0.;
 	}
 
 	/**************************************************************************/
@@ -208,6 +223,9 @@ private:
 	std::vector<boost::shared_ptr<GLongParameter> > lArray_; ///< vector holding long parameter sets
 	std::vector<boost::shared_ptr<GBoolParameter> > bArray_; ///< vector holding boolean parameter sets
 	std::vector<boost::shared_ptr<GCharParameter> > cArray_; ///< vector holding character parameter sets
+
+	double value_; ///< The value of this particular data set
+	bool hasValue_; ///< Indicates whether a value has been assigned to the data set
 };
 
 /**************************************************************************/
@@ -223,13 +241,13 @@ template <> boost::shared_ptr<GBoolParameter> GDataExchange::parameterSet_at<boo
 template <> boost::shared_ptr<GCharParameter> GDataExchange::parameterSet_at<char>(std::size_t);
 
 /** @brief Gives access to a parameter of type double */
-template <> double& GDataExchange::at<double>(std::size_t);
+template <> double GDataExchange::at<double>(std::size_t);
 /** @brief Gives access to a parameter of type boost::int32_t */
-template <> boost::int32_t& GDataExchange::at<boost::int32_t>(std::size_t);
+template <> boost::int32_t GDataExchange::at<boost::int32_t>(std::size_t);
 /** @brief Gives access to a parameter of type bool */
-template <> bool& GDataExchange::at<bool>(std::size_t);
+template <> bool GDataExchange::at<bool>(std::size_t);
 /** @brief Gives access to a parameter of type char */
-template <> char& GDataExchange::at<char>(std::size_t);
+template <> char GDataExchange::at<char>(std::size_t);
 
 /** @brief Gives access to the size of the dArray_ vector */
 template <> std::size_t GDataExchange::size<double>();
