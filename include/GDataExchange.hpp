@@ -33,7 +33,7 @@
 
 // Boost headers go here
 #include <boost/version.hpp>
-#include "GDefines.hpp"
+#include "GGlobalDefines.hpp"
 #if BOOST_VERSION < ALLOWED_BOOST_VERSION
 #error "Error: Boost has incorrect version !"
 #endif /* BOOST_VERSION */

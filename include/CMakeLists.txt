@@ -31,6 +31,7 @@ SET ( GENEVAINCLUDES
 	GenevaVersion.hpp
 	GEnums.hpp
 	GGaussAdaptorT.hpp
+	GGlobalDefines.hpp
 	GHelperFunctionsT.hpp
 	GIndividualBroker.hpp
 	GIndividual.hpp

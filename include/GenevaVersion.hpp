@@ -27,6 +27,5 @@
 #ifndef GENEVA_VERSION_HPP_
 #define GENEVA_VERSION_HPP_
 
-#define GENEVAVERSION 0051
 
 #endif /* GENEVA_VERSION_HPP_ */

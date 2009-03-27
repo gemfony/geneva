@@ -25,11 +25,9 @@
 // Boost headers go here
 
 #include <boost/version.hpp>
-
-// We require at least Boost version 1.36 because of the usage of system_time
-// in the boost::thread code below
-#if BOOST_VERSION < 103600
-#error "Error: Boost should at least have version 1.36 !"
+#include "GGlobalDefines.hpp"
+#if BOOST_VERSION < ALLOWED_BOOST_VERSION
+#error "Error: Boost has incorrect version !"
 #endif /* BOOST_VERSION */
 
 #include <boost/shared_ptr.hpp>

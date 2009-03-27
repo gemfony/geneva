@@ -24,9 +24,13 @@
  * library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GDEFINES_HPP_
-#define GDEFINES_HPP_
+#ifndef GGLOBALDEFINES_HPP_
+#define GGLOBALDEFINES_HPP_
 
+/** The minimum allowed version of the Boost library */
 #define ALLOWED_BOOST_VERSION 103600
 
-#endif /* GDEFINES_HPP_ */
+/** The current version of the Geneva library */
+#define GENEVAVERSION 0051
+
+#endif /* GGLOBALDEFINES_HPP_ */

@@ -55,6 +55,12 @@
 
 #include <vector>
 
+#include <boost/version.hpp>
+#include "GGlobalDefines.hpp"
+#if BOOST_VERSION < ALLOWED_BOOST_VERSION
+#error "Error: Boost has incorrect version !"
+#endif /* BOOST_VERSION */
+
 #include <boost/cstdint.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
