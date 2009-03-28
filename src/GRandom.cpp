@@ -138,9 +138,9 @@ double GRandom::doubleGaussRandom(const double& mean, const double& sigma, const
  */
 bool GRandom::boolRandom(const double& probability) {
 #ifdef DEBUG
-	assert(probability>=0 && probability<=1);
+	assert(probability>=0. && probability<=1.);
 #endif
-	return (GRandom::evenRandom()<probability?true:false);
+	return ((GRandom::evenRandom()<probability)?true:false);
 }
 
 /*************************************************************************/

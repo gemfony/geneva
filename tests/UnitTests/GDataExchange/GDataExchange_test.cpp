@@ -26,6 +26,7 @@
 // Standard header files go here
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <utility>
@@ -49,9 +50,22 @@ using namespace Gem::Util;
 /**
  * Some explanation
  */
-BOOST_AUTO_TEST_CASE( gdga_gobject_test_no_failure_expected )
+BOOST_AUTO_TEST_CASE( gdataexchange_datafill_and_reset_no_failure_expected )
 {
+	GRandom gr;
+	boost::shared_ptr<GDataExchange> gde(new GDataExchange());
 
+	for(std::size_t gde_counter=0; gde_counter < 10; gde_counter++) {
+		for(std::size_t i=0; i<100; i++) gde->append(gr.evenRandom(-10.,10.));
+		for(std::size_t i=0; i<100; i++) gde->append(gr.discreteRandom(-10,10));
+		for(std::size_t i=0; i<100; i++) gde->append(gr.boolRandom());
+		for(std::size_t i=0; i<100; i++) gde->append(gr.charRandom());
+
+		gde->newDataSet();
+	}
+
+	gde->gotoStart();
+	gde->resetAll();
 }
 
 /***********************************************************************************/
