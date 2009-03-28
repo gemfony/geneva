@@ -193,6 +193,27 @@ BOOST_AUTO_TEST_CASE( gdataexchange_datafill_and_reset_no_failure_expected )
 	BOOST_REQUIRE(gde->nDataSets() == 1);
 
 	// Fill directly with GParameter objects
+	for(std::size_t gde_counter=0; gde_counter < 10; gde_counter++) {
+		boost::shared_ptr<GDoubleParameter> d(new GDoubleParameter(gr.evenRandom(-10.,10.)));
+		boost::shared_ptr<GLongParameter> l(new GLongParameter(gr.discreteRandom(-10,10)));
+		boost::shared_ptr<GBoolParameter> b(new GBoolParameter(gr.boolRandom()));
+		boost::shared_ptr<GCharParameter> c(new GCharParameter(gr.charRandom(false)));
+
+		for(std::size_t i=0; i<100; i++) gde->append(d);
+		for(std::size_t i=0; i<100; i++) gde->append(l);
+		for(std::size_t i=0; i<100; i++) gde->append(b);
+		for(std::size_t i=0; i<100; i++) gde->append(c);
+
+		gde->newDataSet();
+	}
+	BOOST_REQUIRE(gde->nDataSets() == 11);
+
+	gde->gotoStart();
+	gde->resetAll(); // There should now only be one data set remaining
+	BOOST_REQUIRE(gde->nDataSets() == 1);
+
+	// Need test about file creation and scanning. In this context:
+	// Improve fp accuracy of serialized numbers.
 }
 
 /***********************************************************************************/

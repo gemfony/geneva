@@ -55,6 +55,7 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
 
 #ifndef GDATAEXCHANGE_HPP_
 #define GDATAEXCHANGE_HPP_
@@ -122,6 +123,9 @@ public:
 	void reset();
 	/** @brief Resets all parameter sets in sequence */
 	void resetAll();
+
+	/** @brief Sorts the data sets according to their values */
+	void sort();
 
 	/** @brief Assign a value to the current data set */
 	void setValue(double);

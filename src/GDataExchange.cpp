@@ -111,6 +111,14 @@ void GDataExchange::resetAll() {
 
 /**************************************************************************/
 /**
+ * Sorts the data sets according to their assigned values
+ */
+void GDataExchange::sort() {
+
+}
+
+/**************************************************************************/
+/**
  * Assigns a value to the current data set. Doing so is allowed only once,
  * unless the object is reset.
  *
