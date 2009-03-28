@@ -137,6 +137,9 @@ public:
 	/** @brief Adds a new, empty data set and adjusts the counter */
 	void newDataSet();
 
+	/** @brief Retrieves the number of data sets in the collection */
+	std::size_t nDataSets();
+
 	/**************************************************************************/
 	/**
 	 * Gives access to a full data set of a particular type, including its
@@ -504,9 +507,11 @@ template <> void GDataExchange::append<char>(const char&);
 
 /** @brief  Adds a boost::shared_ptr<GDoubleParameter> object with boundaries to the corresponding array */
 template <> void GDataExchange::append<double>(const double&, const double&, const double&);
-/** @brief  Adds a boost::shared_ptr<GDoubleParameter> object with boundaries to the corresponding array */
+/** @brief  Adds a boost::shared_ptr<GLongParameter> object with boundaries to the corresponding array */
 template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t&, const boost::int32_t&, const boost::int32_t&);
-/** @brief  Adds a boost::shared_ptr<GDoubleParameter> object with boundaries to the corresponding array */
+/** @brief  Adds a boost::shared_ptr<GCharParameter> object with boundaries to the corresponding array */
+template <> void GDataExchange::append<bool>(const bool&, const bool&, const bool&);
+/** @brief  Adds a boost::shared_ptr<GCharParameter> object with boundaries to the corresponding array */
 template <> void GDataExchange::append<char>(const char&, const char&, const char&);
 
 /*************************************************************************/

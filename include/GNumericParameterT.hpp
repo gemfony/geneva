@@ -278,7 +278,9 @@ public:
 	 * @param stream The external output stream to write to
 	 */
 	void writeToStream(std::ostream& stream) const {
-		stream << param_ << lowerBoundary_ << upperBoundary_;
+		stream << param_ << std::endl
+		            << lowerBoundary_ << std::endl
+		            << upperBoundary_ << std::endl;
 	}
 
 	/***************************************************************************/
@@ -288,7 +290,9 @@ public:
 	 * @param stream The external input stream to read from
 	 */
 	void readFromStream(std::istream& stream) {
-		stream >> param_ >> lowerBoundary_ >> upperBoundary_;
+		stream >> param_;
+		stream >> lowerBoundary_;
+		stream >>  upperBoundary_;
 	}
 
 protected:

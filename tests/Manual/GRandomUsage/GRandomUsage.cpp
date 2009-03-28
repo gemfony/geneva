@@ -61,6 +61,7 @@ enum distType {
 	DISCRETE,
 	DISCRETEBOUND,
 	BITPROB,
+	BITSIMPLE,
 	CHARRND
 };
 
@@ -75,21 +76,27 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 	case GAUSSIAN: // standard distribution
 		for(i=0; i<nEntries; i++) vec_t.push_back(gr.gaussRandom(-3.,1.));
 		break;
+
 	case DOUBLEGAUSSIAN:
 		for(i=0; i<nEntries; i++) vec_t.push_back(gr.doubleGaussRandom(-3.,0.5,3.));
 		break;
+
 	case EVEN: // double in the range [0,1[
 		for(i=0; i<nEntries; i++) vec_t.push_back(gr.evenRandom());
 		break;
+
 	case EVENWITHBOUNDARIES: // double in the range [-3,2[
 		for(i=0; i<nEntries; i++) vec_t.push_back(gr.evenRandom(-3.,2.));
 		break;
+
 	case DISCRETE:
 		for(i=0; i<nEntries; i++) vec_t.push_back(gr.discreteRandom(10));
 		break;
+
 	case DISCRETEBOUND:
 		for(i=0; i<nEntries; i++) vec_t.push_back(gr.discreteRandom(-3,10));
 		break;
+
 	case BITPROB:
 		for(i=0; i<nEntries; i++){
 			if(gr.boolRandom(0.7))
@@ -98,6 +105,16 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 				vec_t.push_back(0);
 		}
 		break;
+
+	case BITSIMPLE:
+		for(i=0; i<nEntries; i++){
+			if(gr.boolRandom())
+				vec_t.push_back(1);
+			else
+				vec_t.push_back(0);
+		}
+		break;
+
 	case CHARRND:
 		for(i=0; i<nEntries; i++){
 			char tmp = gr.charRandom(false); // also non-printable ASCII characters
@@ -120,10 +137,8 @@ int main(int argc, char **argv){
 
 	std::size_t i;
 	std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
-	std::vector<boost::int16_t> discrete, discretebound, bitprob, charrnd;
+	std::vector<boost::int16_t> discrete, discretebound, bitprob, bitsimple, charrnd;
 
-	// 5 threads produce even [0,1[ random numbers,
-	// 3 threads produce random numbers with a gaussian distribution
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	boost::thread g_thread(boost::bind(createRandomVector<double>, boost::ref(gaussian), GAUSSIAN, nEntries));
@@ -133,6 +148,7 @@ int main(int argc, char **argv){
 	boost::thread dc_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discrete), DISCRETE, nEntries));
 	boost::thread dcb_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discretebound), DISCRETEBOUND, nEntries));
 	boost::thread bp_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(bitprob), BITPROB, nEntries));
+	boost::thread bs_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(bitsimple), BITSIMPLE, nEntries));
 	boost::thread cr_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(charrnd), CHARRND, nEntries));
 
 	g_thread.join();
@@ -142,6 +158,7 @@ int main(int argc, char **argv){
 	dc_thread.join();
 	dcb_thread.join();
 	bp_thread.join();
+	bs_thread.join();
 	cr_thread.join();
 
 	if(gaussian.size() != nEntries ||
@@ -151,6 +168,7 @@ int main(int argc, char **argv){
 	   discrete.size() != nEntries ||
 	   discretebound.size() != nEntries ||
 	   bitprob.size() != nEntries ||
+	   bitsimple.size() != nEntries ||
 	   charrnd.size() != nEntries){
 		std::cout << "Error: received invalid sizes for at least one vector" << std::endl;
 		return 1;
@@ -162,7 +180,7 @@ int main(int argc, char **argv){
 		// The header of the root file
 		ofs << "{" << std::endl;
 		ofs << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);" << std::endl
-			<< "  cc->Divide(2,4);" << std::endl
+			<< "  cc->Divide(2,5);" << std::endl
 			<< std::endl;
 		ofs << "  TH1F *gauss = new TH1F(\"gauss\",\"gauss\",200,-8.,2.);" << std::endl;
 		ofs << "  TH1F *dgauss = new TH1F(\"dgauss\",\"dgauss\",200,-8.,2.);" << std::endl;
@@ -171,6 +189,7 @@ int main(int argc, char **argv){
 		ofs << "  TH1I *discrete = new TH1I(\"discrete\",\"discrete\",12,-1,10);" << std::endl;
 		ofs << "  TH1I *discretewb = new TH1I(\"discretewb\",\"discretewb\",16,-4,11);" << std::endl;
 		ofs << "  TH1I *bitprob = new TH1I(\"bitprob\",\"bitprob\",4,-1,2);" << std::endl;
+		ofs << "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << std::endl;
 		ofs << "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl
 			<< std::endl;
 
@@ -210,6 +229,11 @@ int main(int argc, char **argv){
 		ofs << std::endl;
 
 		for(i=0; i<nEntries; i++){
+			ofs << "  bitsimple->Fill(" << bitsimple.at(i) << ");" << std::endl;
+		}
+		ofs << std::endl;
+
+		for(i=0; i<nEntries; i++){
 			ofs << "  charrnd->Fill(" << charrnd.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
@@ -229,6 +253,8 @@ int main(int argc, char **argv){
 			<< "  cc->cd(7);" << std::endl
 			<< "  bitprob->Draw();" << std::endl
 			<< "  cc->cd(8);" << std::endl
+			<< "  bitsimple->Draw();" << std::endl
+			<< "  cc->cd(9);" << std::endl
 			<< "  charrnd->Draw();" << std::endl
 			<< "  cc->cd();" << std::endl;
 		ofs	<< "}" << std::endl;

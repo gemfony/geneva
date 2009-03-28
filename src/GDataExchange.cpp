@@ -99,13 +99,14 @@ void GDataExchange::reset() {
 
 /**************************************************************************/
 /**
- * Resets all data structures in sequence and sets the iterator to
- * the beginning of the sequence.
+ * Resets all data structures in sequence, resizes the collection to
+ * one entry and sets the iterator to the beginning of the sequence.
  */
 void GDataExchange::resetAll() {
 	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
 	for(it=parameterValueSet_.begin(); it!=parameterValueSet_.end(); ++it)	(*it)->reset();
 	current_ = parameterValueSet_.begin();
+	parameterValueSet_.resize(1);
 }
 
 /**************************************************************************/
@@ -185,6 +186,16 @@ void GDataExchange::newDataSet() {
 	boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
 	parameterValueSet_.push_back(p);
 	current_ = parameterValueSet_.end() - 1;
+}
+
+/**************************************************************************/
+/**
+ * Retrieves the number of data sets in the collection.
+ *
+ * @return The number of data sets in the collection
+ */
+std::size_t GDataExchange::nDataSets() {
+	return parameterValueSet_.size();
 }
 
 /**************************************************************************/
@@ -521,6 +532,7 @@ template <> void GDataExchange::append<double>(const double& x, const double& x_
 		exit(1);
 	}
 
+	// The GDoubleParameter constructor will do error checks
 	boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter(x,x_l,x_u));
 	(*current_)->dArray_.push_back(p);
 }
@@ -542,8 +554,32 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x, 
 		exit(1);
 	}
 
+	// The GLongParameter constructor will do error checks
 	boost::shared_ptr<GLongParameter> p(new GLongParameter(x,x_l,x_u));
 	(*current_)->lArray_.push_back(p);
+}
+
+/**************************************************************************/
+/**
+ * Adds a boost::shared_ptr<GBoolParameter> object to the corresponding array.
+ * Note that this function is provided for completeness only. The upper and lower
+ * boundaries will always be fixed to true and false respectively.
+ *
+ * @param x The initial value of the bool parameter
+ * @param x_l The lower boundary of the bool parameter (always set to false)
+ * @param x_u The upper boundary of the char parameter (always set to true)
+ */
+template <> void GDataExchange::append<bool>(const bool& x, const bool& x_l, const bool& x_u) {
+	// Prevent any changes if a value has already been calculated
+	if((*current_)->hasValue_) {
+		std::cerr << "In GDataExchange::append(): Error!" << std::endl
+			      << "Tried to assign new data when a value has already" << std::endl
+				  << "been calculated. Leaving ..." << std::endl;
+		exit(1);
+	}
+
+	boost::shared_ptr<GBoolParameter> p(new GBoolParameter(x,false,true));
+	(*current_)->bArray_.push_back(p);
 }
 
 /**************************************************************************/
@@ -563,6 +599,7 @@ template <> void GDataExchange::append<char>(const char& x, const char& x_l, con
 		exit(1);
 	}
 
+	// The GCharParameter constructor will do error checks
 	boost::shared_ptr<GCharParameter> p(new GCharParameter(x,x_l,x_u));
 	(*current_)->cArray_.push_back(p);
 }
