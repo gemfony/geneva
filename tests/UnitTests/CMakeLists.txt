@@ -5,6 +5,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GDataExchange
+)
+
+ADD_SUBDIRECTORY (
 	GDoubleGaussAdaptor
 )
 
