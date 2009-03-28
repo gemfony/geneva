@@ -574,7 +574,13 @@ template <> void GDataExchange::append<char>(const char& x, const char& x_l, con
  * @param stream The external output stream to write to
  */
 void GDataExchange::writeToStream(std::ostream& stream) const {
+	// Let the audience know about the number of data sets
+	stream <<  parameterValueSet_.size() << std::endl;
 
+	// Then write all data sets to the stream
+	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit;
+	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit)
+		(*cit)->writeToStream(stream);
 }
 
 /**************************************************************************/
@@ -584,7 +590,38 @@ void GDataExchange::writeToStream(std::ostream& stream) const {
  * @param stream The external input stream to read from
  */
 void GDataExchange::readFromStream(std::istream& stream) {
+	// Find out about the number of data sets in the stream
+	std::size_t nDataSets = 0;
+	stream >> nDataSets;
 
+	std::size_t localSize = parameterValueSet_.size();
+
+	// Check whether we have the same number of items or whether we
+	// need to make any adjustments. Then read in the correct number
+	// of data sets
+	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	if(nDataSets == localSize) {
+		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
+			(*it)->readFromStream(stream);
+	}
+	else if(nDataSets > localSize) {
+		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
+			(*it)->readFromStream(stream);
+
+		for(std::size_t i=localSize; i<(nDataSets-localSize); i++) {
+			boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
+			p->readFromStream(stream);
+			parameterValueSet_.push_back(p);
+		}
+	}
+	else if(nDataSets < parameterValueSet_.size()) {
+		parameterValueSet_.resize(nDataSets);
+		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
+			(*it)->readFromStream(stream);
+	}
+
+	// Set the current_ iterator to the start of the stream
+	current_ = parameterValueSet_.begin();
 }
 
 /**************************************************************************/
