@@ -84,6 +84,36 @@ bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool unknown) {
 }
 
 /***********************************************************************************************/
+/**
+ * Writes a double parameter to a stream, including its boundaries. This specialization
+ * is needed as the precision of the output of floating point variables might be set to
+ * an undesirable value.
+ */
+template<> void GNumericParameterT<double>::writeToStream(std::ostream& stream) const {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT::writeToStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		// Retrieve the current precision
+		std::streamsize precisionStore = stream.precision();
+
+		// Now set the output precision to the desired value
+		stream.precision(precision_);
+
+		stream << param_ << std::endl
+		            << lowerBoundary_ << std::endl
+		            << upperBoundary_ << std::endl;
+
+		// Restore the original value
+		stream.precision(precisionStore);
+}
+
+/***********************************************************************************************/
 
 } /* namespace Util */
 } /* namespace Gem */

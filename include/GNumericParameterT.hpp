@@ -65,6 +65,8 @@ namespace Gem
 namespace Util
 {
 
+const std::streamsize DEFAULTPRECISION=10;
+
 /*******************************************************************************/
 /**
  * This class allows to store a numeric parameter plus possible boundaries (both
@@ -83,6 +85,7 @@ class GNumericParameterT {
       ar & make_nvp("param_", param_);
       ar & make_nvp("lowerBoundary_", lowerBoundary_);
       ar & make_nvp("upperBoundary_", upperBoundary_);
+      ar & make_nvp("precision_", precision_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -94,7 +97,8 @@ public:
 	GNumericParameterT()
 		:param_(T(NULL)),
 		 lowerBoundary_(T(NULL)),
-		 upperBoundary_(T(NULL))
+		 upperBoundary_(T(NULL)),
+		 precision_(DEFAULTPRECISION)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -106,7 +110,8 @@ public:
 	GNumericParameterT(T param)
 		:param_(param),
 		 lowerBoundary_(T(NULL)),
-		 upperBoundary_(T(NULL))
+		 upperBoundary_(T(NULL)),
+		 precision_(DEFAULTPRECISION)
 	{ /* nothing */	}
 
 	/***************************************************************************/
@@ -120,7 +125,8 @@ public:
 	GNumericParameterT(T param, T lower, T upper)
 		:param_(param),
 		 lowerBoundary_(lower),
-		 upperBoundary_(upper)
+		 upperBoundary_(upper),
+		 precision_(DEFAULTPRECISION)
 	{
 		// Check the validity of the boundaries.
 		// ATTENTION: Is false<true standard compliant ? Works with g++ 4.2.3 and switch -Wall
@@ -145,7 +151,8 @@ public:
 	GNumericParameterT(const GNumericParameterT& cp)
 		:param_(cp.param_),
 		 lowerBoundary_(cp.lowerBoundary_),
-		 upperBoundary_(cp.upperBoundary_)
+		 upperBoundary_(cp.upperBoundary_),
+		 precision_(cp.precision_)
 	{ /* nothing */	}
 
 	/***************************************************************************/
@@ -165,6 +172,7 @@ public:
 		param_ = cp.param_;
 		lowerBoundary_ = cp.lowerBoundary_;
 		upperBoundary_ = cp.upperBoundary_;
+		precision_ = cp.precision_;
 
 		return *this;
 	}
@@ -273,11 +281,42 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Writes the class'es data to a stream
+	 * Sets the precision of floating point IO to a new value.
+	 *
+	 * @param The new value of the precision_ variable
+	 */
+	void setFPPrecision(const std::streamsize& precision) {
+		precision_ = precision;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieves the current precision of floating point IO.
+	 *
+	 * @return The current value of the precision_ variable
+	 */
+	std::streamsize getFPPrecision() {
+		return precision_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Writes the class'es data to a stream in ASCII format. Note that
+	 * there is a specialization for typeof(T) == double, as the precision
+	 * matters in this case.
 	 *
 	 * @param stream The external output stream to write to
 	 */
 	void writeToStream(std::ostream& stream) const {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT::writeToStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
 		stream << param_ << std::endl
 		            << lowerBoundary_ << std::endl
 		            << upperBoundary_ << std::endl;
@@ -285,14 +324,67 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Reads the class'es data from a stream
+	 * Reads the class'es data from a stream in ASCII format.
 	 *
 	 * @param stream The external input stream to read from
 	 */
 	void readFromStream(std::istream& stream) {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT::readFromStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
 		stream >> param_;
 		stream >> lowerBoundary_;
 		stream >>  upperBoundary_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Writes the class'es data to a stream in binary format.
+	 *
+	 * @param stream The external output stream to write to
+	 */
+	void binaryWriteToStream(std::ostream& stream) const {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT::binaryWriteToStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		// Write the data out in binary mode
+		stream.write(reinterpret_cast<char *>(&param_), sizeof(param_));
+		stream.write(reinterpret_cast<char *>(&lowerBoundary_), sizeof(lowerBoundary_));
+		stream.write(reinterpret_cast<char *>(&upperBoundary_), sizeof(upperBoundary_));
+	}
+
+	/***************************************************************************/
+	/**
+	 * Reads the class'es data from a stream in binary format.
+	 *
+	 * @param stream The external input stream to read from
+	 */
+	void binaryReadFromStream(std::istream& stream) {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT::binaryReadFromStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		// Read data from the stream in binary mode
+		stream.read(reinterpret_cast<char *>(&param_), sizeof(param_));
+		stream.read(reinterpret_cast<char *>(&lowerBoundary_), sizeof(lowerBoundary_));
+		stream.read(reinterpret_cast<char *>(&upperBoundary_), sizeof(upperBoundary_));
 	}
 
 protected:
@@ -316,6 +408,8 @@ private:
 	T param_; ///< The actual parameter value
 	T lowerBoundary_; ///< The lower boundary allowed for param_
 	T upperBoundary_; ///< The upper boundary allowed for param_
+
+	std::streamsize precision_; ///< The precision used for floating point i/o
 };
 
 // Declaration of specializations for various "allowed types
@@ -324,7 +418,13 @@ template<> boost::int32_t GNumericParameterT<boost::int32_t>::unknownParameterTy
 template<> char GNumericParameterT<char>::unknownParameterTypeTrap(char);
 template<> bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool);
 
+template<> void GNumericParameterT<double>::writeToStream(std::ostream&) const;
+
 } /* namespace Util */
 } /* namespace Gem */
 
 #endif /* GNUMERICPARAMETERT_HPP_ */
+
+// TODO: Es muss moeglich sein, die precision_ von GDataExchange aus "herunterzureichen" zu allen Datensätzen.
+// binary i/o weiter
+// Tests für ASCII und Text I/O
