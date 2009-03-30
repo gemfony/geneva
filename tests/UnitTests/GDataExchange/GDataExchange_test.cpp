@@ -361,11 +361,13 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 
 	// Test whether data can be written to file and read back in again.
 	// In text mode
-	// gde->writeToFile("testFile.txt",false);
+	gde->writeToFile("testFile.txt",false);
 	boost::shared_ptr<GDataExchange> gde2(new GDataExchange()); // Create second, empty object
 	// gde2->readFromFile("testFile.txt",false);
 	// BOOST_REQUIRE(*gde == *gde2);
 
+	 // Put gde2 in pristine condition so we can start over with the binary mode
+	gde2->resetAll();
 
 	// In binary mode
 	gde->writeToFile("testFile.bin",true);

@@ -88,12 +88,14 @@ bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool unknown) {
  * Writes a double parameter to a stream, including its boundaries. This specialization
  * is needed as the precision of the output of floating point variables might be set to
  * an undesirable value.
+ *
+ * @param stream The output stream the double values should be written to
  */
 template<> void GNumericParameterT<double>::writeToStream(std::ostream& stream) const {
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT::writeToStream(): Error!" << std::endl
+			std::cerr << "In GNumericParameterT<double>::writeToStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
 			exit(1);
 		}
@@ -114,6 +116,53 @@ template<> void GNumericParameterT<double>::writeToStream(std::ostream& stream) 
 }
 
 /***********************************************************************************************/
+/**
+ * Writes char parameters to a stream, including their boundaries. This specialization
+ * is needed so we can store characters as numbers.
+ *
+  * @param stream The output stream the char values should be written to
+ */
+template<> void GNumericParameterT<char>::writeToStream(std::ostream& stream) const {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT<char>::writeToStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		// Store all characters as numbers, so they are more easily recognizable in the output file
+		std::cout << param_ << " " << lowerBoundary_ << " " << upperBoundary_ << std::endl;
+		stream << boost::lexical_cast<short>(param_) << std::endl
+		            << boost::lexical_cast<short>(lowerBoundary_) << std::endl
+		            << boost::lexical_cast<short>(upperBoundary_) << std::endl;
+}
+
+/***********************************************************************************************/
+
+template<> void GNumericParameterT<char>::readFromStream(std::istream& stream) {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT<char>::readFromStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		unsigned short int_param_;
+		unsigned short int_lowerBoundary_;
+		unsigned short int_upperBoundary_;
+
+		stream >> int_param_;
+		stream >> int_lowerBoundary_;
+		stream >> int_upperBoundary_;
+
+		param_ = boost::lexical_cast<char>(int_param_);
+		lowerBoundary_ = boost::lexical_cast<char>(int_lowerBoundary_);
+		upperBoundary_ = boost::lexical_cast<char>(int_upperBoundary_);
+}
 
 } /* namespace Util */
 } /* namespace Gem */

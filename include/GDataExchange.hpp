@@ -389,6 +389,7 @@ private:
 		 * @param cp A constant reference to another parameterValuePair object
 		 */
 		bool operator==(const parameterValuePair& cp) const {
+			// Check the "easy" values
 			if(hasValue_ != cp.hasValue_) return false;
 			if(value_ != cp.value_) return false;
 
@@ -491,10 +492,9 @@ private:
 
 			std::size_t dArraySize = dArray_.size();
 			stream << dArraySize << std::endl;
-			std::cout << "Writing dArraySize = " << dArraySize << std::endl;
 			if(dArraySize) {
 				std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit;
-				for(dcit=dArray_.begin(); dcit!=dArray_.end(); ++dcit) stream << **dcit;
+				for(dcit=dArray_.begin(); dcit!=dArray_.end(); ++dcit) stream << **dcit; // std::endl provided by GDoubleParameter
 			}
 
 			std::size_t lArraySize = lArray_.size();

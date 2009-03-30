@@ -30,6 +30,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <limits>
 
 // Boost headers go here
 #include <boost/version.hpp>
@@ -65,7 +66,8 @@ namespace Gem
 namespace Util
 {
 
-const std::streamsize DEFAULTPRECISION=20;
+// Set to the average number of digits of a double number
+const std::streamsize DEFAULTPRECISION=std::numeric_limits< double >::digits10;
 
 /*******************************************************************************/
 /**
@@ -455,7 +457,9 @@ template<> char GNumericParameterT<char>::unknownParameterTypeTrap(char);
 template<> bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool);
 
 template<> void GNumericParameterT<double>::writeToStream(std::ostream&) const;
+template<> void GNumericParameterT<char>::writeToStream(std::ostream&) const;
 
+template<> void GNumericParameterT<char>::readFromStream(std::istream&);
 } /* namespace Util */
 } /* namespace Gem */
 

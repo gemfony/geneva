@@ -742,9 +742,14 @@ void GDataExchange::writeToStream(std::ostream& stream) const {
 	// Let the audience know about the number of data sets
 	stream <<  parameterValueSet_.size() << std::endl;
 
-	// Then write all data sets to the stream
+	// Then write all data sets to the stream. We assume that each of them terminates with an std::endl itself
 	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit;
-	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) (*cit)->writeToStream(stream);
+	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit)
+		(*cit)->writeToStream(stream);
+
+	// Store the offset of the current_ iterator
+	std::size_t offset = current_ - parameterValueSet_.begin();
+	stream << offset << std::endl;
 }
 
 /**************************************************************************/
@@ -772,8 +777,7 @@ void GDataExchange::readFromStream(std::istream& stream) {
 		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
 			(*it)->readFromStream(stream);
 
-		for(std::size_t i=localSize; i<(nDataSets-localSize); i++) {
-			std::cout << "i = " << i << " localSize = "  << localSize << " nDataSets = " << nDataSets << std::endl;
+		for(std::size_t i=localSize; i<nDataSets; i++) {
 			boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
 			p->readFromStream(stream);
 			parameterValueSet_.push_back(p);
@@ -785,8 +789,10 @@ void GDataExchange::readFromStream(std::istream& stream) {
 			(*it)->readFromStream(stream);
 	}
 
-	// Set the current_ iterator to the start of the stream
-	current_ = parameterValueSet_.begin();
+	// Make the original offset known to the current_ iterator
+	std::size_t offset = 0;
+	stream >> offset;
+	current_ = parameterValueSet_.begin() + offset;
 }
 
 /**************************************************************************/
@@ -803,6 +809,10 @@ void GDataExchange::binaryWriteToStream(std::ostream& stream) const {
 	// Then write all data sets to the stream
 	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit;
 	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) (*cit)->binaryWriteToStream(stream);
+
+	// Store the offset of the current_ iterator
+	std::size_t offset = current_ - parameterValueSet_.begin();
+	stream.write(reinterpret_cast<const char *>(&offset), sizeof(offset));
 }
 
 /**************************************************************************/
@@ -830,7 +840,7 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
 		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
 			(*it)->binaryReadFromStream(stream);
 
-		for(std::size_t i=localSize; i<(nDataSets-localSize); i++) {
+		for(std::size_t i=localSize; i<nDataSets; i++) {
 			boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
 			p->binaryReadFromStream(stream);
 			parameterValueSet_.push_back(p);
@@ -842,8 +852,10 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
 			(*it)->binaryReadFromStream(stream);
 	}
 
-	// Set the current_ iterator to the start of the stream
-	current_ = parameterValueSet_.begin();
+	// Make the original offset known to the current_ iterator
+	std::size_t offset = 0;
+	stream.read(reinterpret_cast<char *>(&offset), sizeof(offset));
+	current_ = parameterValueSet_.begin() + offset;
 }
 
 /**************************************************************************/
