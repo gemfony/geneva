@@ -37,6 +37,7 @@ SET ( GENEVASOURCES
 	GParameterBase
 	GParameterBaseWithAdaptorsT
 	GParameterSet
+	GParameterValuePair
 	GRandom
 	GRandomFactory
 	GSerializationHelperFunctions

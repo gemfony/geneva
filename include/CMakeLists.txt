@@ -52,6 +52,7 @@ SET ( GENEVAINCLUDES
 	GParameterCollectionT.hpp
 	GParameterSet.hpp
 	GParameterT.hpp
+	GParameterValuePair.hpp
 	GRandom.hpp
 	GRandomFactory.hpp
 	GRateableI.hpp

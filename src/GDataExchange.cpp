@@ -44,7 +44,7 @@ namespace Util
  */
 GDataExchange::GDataExchange()
 {
-	boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
+	boost::shared_ptr<GParameterValuePair> p(new GParameterValuePair());
 	parameterValueSet_.push_back(p);
 	current_ = parameterValueSet_.begin();
 }
@@ -57,9 +57,9 @@ GDataExchange::GDataExchange()
  * @param cp A constant reference to another GDataExchange object
  */
 GDataExchange::GDataExchange(const GDataExchange& cp) {
-	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit;
+	std::vector<boost::shared_ptr<GParameterValuePair> >::const_iterator cit;
 	for(cit=cp.parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) {
-		boost::shared_ptr<parameterValuePair> p(new parameterValuePair(**cit));
+		boost::shared_ptr<GParameterValuePair> p(new GParameterValuePair(**cit));
 		parameterValueSet_.push_back(p);
 	}
 
@@ -84,7 +84,7 @@ GDataExchange::~GDataExchange() {
  * @param cp A constant reference to another GDataExchange object
  */
 const GDataExchange& GDataExchange::operator=(const GDataExchange& cp) {
-	copySmartPointerVector<parameterValuePair>(cp.parameterValueSet_, parameterValueSet_);
+	copySmartPointerVector<GParameterValuePair>(cp.parameterValueSet_, parameterValueSet_);
 	current_ = parameterValueSet_.begin() + (cp.current_ - cp.parameterValueSet_.begin());
 }
 
@@ -100,7 +100,7 @@ bool GDataExchange::operator==(const GDataExchange& cp) const {
 	if(parameterValueSet_.size() != cp.parameterValueSet_.size()) return false;
 
 	// Check all parameter sets
-	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit, cp_cit;
+	std::vector<boost::shared_ptr<GParameterValuePair> >::const_iterator cit, cp_cit;
 	for(cit=parameterValueSet_.begin(), cp_cit=cp.parameterValueSet_.begin();
 		cit!=parameterValueSet_.end(), cp_cit!=cp.parameterValueSet_.end();
 		++cit, ++cp_cit) {
@@ -140,7 +140,7 @@ void GDataExchange::reset() {
  * one entry and sets the iterator to the beginning of the sequence.
  */
 void GDataExchange::resetAll() {
-	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator it;
 	for(it=parameterValueSet_.begin(); it!=parameterValueSet_.end(); ++it)	(*it)->reset();
 	current_ = parameterValueSet_.begin();
 	parameterValueSet_.resize(1);
@@ -154,7 +154,7 @@ void GDataExchange::resetAll() {
  */
 void GDataExchange::sort(const bool& ascending) {
 	// Check that all data sets have their value set
-	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator it;
 	for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it) {
 		if(!(*it)->hasValue_) {
 			std::cerr << "In GDataExchange::sort() : Error!" << std::endl
@@ -165,10 +165,10 @@ void GDataExchange::sort(const bool& ascending) {
 
 	// Now sort the entries according to their value.
 	if(ascending) { // lowest value needs to be in the front position
-		std::sort(parameterValueSet_.begin(), parameterValueSet_.end(), boost::bind(&parameterValuePair::value,_1) < boost::bind(&parameterValuePair::value,_2));
+		std::sort(parameterValueSet_.begin(), parameterValueSet_.end(), boost::bind(&GParameterValuePair::value,_1) < boost::bind(&GParameterValuePair::value,_2));
 	}
 	else {
-		std::sort(parameterValueSet_.begin(), parameterValueSet_.end(), boost::bind(&parameterValuePair::value,_1) > boost::bind(&parameterValuePair::value,_2));
+		std::sort(parameterValueSet_.begin(), parameterValueSet_.end(), boost::bind(&GParameterValuePair::value,_1) > boost::bind(&GParameterValuePair::value,_2));
 	}
 
 	// Set the iterator to the start of the sequence
@@ -194,7 +194,7 @@ void GDataExchange::switchToBestDataSet(const bool& ascending) {
  * @param precision The desired precision of FP IO in ASCII mode
  */
 void GDataExchange::setPrecision(const std::streamsize& precision) {
-	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator it;
 	for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
 		(*it)->setPrecision(precision);
 }
@@ -273,7 +273,7 @@ bool GDataExchange::nextDataSet() {
  * Appends a new, empty data set and sets the iterator to its position.
  */
 void GDataExchange::newDataSet() {
-	boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
+	boost::shared_ptr<GParameterValuePair> p(new GParameterValuePair());
 	parameterValueSet_.push_back(p);
 	current_ = parameterValueSet_.end() - 1;
 }
@@ -743,7 +743,7 @@ void GDataExchange::writeToStream(std::ostream& stream) const {
 	stream <<  parameterValueSet_.size() << std::endl;
 
 	// Then write all data sets to the stream. We assume that each of them terminates with an std::endl itself
-	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit;
+	std::vector<boost::shared_ptr<GParameterValuePair> >::const_iterator cit;
 	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit)
 		(*cit)->writeToStream(stream);
 
@@ -768,7 +768,7 @@ void GDataExchange::readFromStream(std::istream& stream) {
 	// Check whether we have the same number of items or whether we
 	// need to make any adjustments. Then read in the correct number
 	// of data sets
-	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator it;
 	if(nDataSets == localSize) {
 		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
 			(*it)->readFromStream(stream);
@@ -778,7 +778,7 @@ void GDataExchange::readFromStream(std::istream& stream) {
 			(*it)->readFromStream(stream);
 
 		for(std::size_t i=localSize; i<nDataSets; i++) {
-			boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
+			boost::shared_ptr<GParameterValuePair> p(new GParameterValuePair());
 			p->readFromStream(stream);
 			parameterValueSet_.push_back(p);
 		}
@@ -807,7 +807,7 @@ void GDataExchange::binaryWriteToStream(std::ostream& stream) const {
 	stream.write(reinterpret_cast<const char *>(&nDataSets), sizeof(nDataSets));
 
 	// Then write all data sets to the stream
-	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit;
+	std::vector<boost::shared_ptr<GParameterValuePair> >::const_iterator cit;
 	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) (*cit)->binaryWriteToStream(stream);
 
 	// Store the offset of the current_ iterator
@@ -831,7 +831,7 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
 	// Check whether we have the same number of items or whether we
 	// need to make any adjustments. Then read in the correct number
 	// of data sets
-	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator it;
 	if(nDataSets == localSize) {
 		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
 			(*it)->binaryReadFromStream(stream);
@@ -841,7 +841,7 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
 			(*it)->binaryReadFromStream(stream);
 
 		for(std::size_t i=localSize; i<nDataSets; i++) {
-			boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
+			boost::shared_ptr<GParameterValuePair> p(new GParameterValuePair());
 			p->binaryReadFromStream(stream);
 			parameterValueSet_.push_back(p);
 		}
