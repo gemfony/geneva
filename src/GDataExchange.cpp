@@ -90,6 +90,43 @@ const GDataExchange& GDataExchange::operator=(const GDataExchange& cp) {
 
 /**************************************************************************/
 /**
+ * Check equality with another GDataExchange object. Equality means that the
+ * values of all parameters are equal.
+ *
+ * @param cp A constant reference to another GDataExchange object
+ */
+bool GDataExchange::operator==(const GDataExchange& cp) const {
+	// Check sizes of the vectors
+	if(parameterValueSet_.size() != cp.parameterValueSet_.size()) return false;
+
+	// Check all parameter sets
+	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit, cp_cit;
+	for(cit=parameterValueSet_.begin(), cp_cit=cp.parameterValueSet_.begin();
+		cit!=parameterValueSet_.end(), cp_cit!=cp.parameterValueSet_.end();
+		++cit, ++cp_cit) {
+		if(**cit != **cp_cit) return false;
+	}
+
+	std::size_t localOffset = current_ - parameterValueSet_.begin();
+	std::size_t cpOffset = cp.current_ - cp.parameterValueSet_.begin();
+	if(localOffset != cpOffset) return false;
+
+	// Now we are sure that all components are equal
+	return true;
+}
+
+/**************************************************************************/
+/**
+ * Check inequality with another GDataExchange object.
+ *
+ * @param cp A constant reference to another GDataExchange object
+ */
+bool GDataExchange::operator!=(const GDataExchange& cp) const {
+	return !operator==(cp);
+}
+
+/**************************************************************************/
+/**
  * Resets the current data structure. The iterator stays at the same
  * position.
  */
@@ -249,6 +286,44 @@ void GDataExchange::newDataSet() {
  */
 std::size_t GDataExchange::nDataSets() {
 	return parameterValueSet_.size();
+}
+
+/**************************************************************************/
+/**
+ * Gives access to the number of double parameters in the current parameter set.
+ *
+
+ */
+template <> std::size_t GDataExchange::numberOfParameterSets<double>() const {
+	return (*current_)->dArray_.size();
+}
+
+/**************************************************************************/
+/**
+ * Gives access to the number of long parameters in the current parameter set
+ *
+ * @return The number of long parameters in the current parameter set
+ */
+template <> std::size_t GDataExchange::numberOfParameterSets<boost::int32_t>() const {
+	return (*current_)->lArray_.size();
+}
+/**************************************************************************/
+/**
+ * Gives access to the number of bool parameters in the current parameter set
+ *
+ * @return The number of bool parameters in the current parameter set
+ */
+template <> std::size_t GDataExchange::numberOfParameterSets<bool>() const {
+	return (*current_)->bArray_.size();
+}
+/**************************************************************************/
+/**
+ * Gives access to the number of char parameters in the current parameter set
+ *
+ * @return The number of char parameters in the current parameter set
+ */
+template <> std::size_t GDataExchange::numberOfParameterSets<char>() const {
+	return (*current_)->cArray_.size();
 }
 
 /**************************************************************************/
@@ -698,6 +773,7 @@ void GDataExchange::readFromStream(std::istream& stream) {
 			(*it)->readFromStream(stream);
 
 		for(std::size_t i=localSize; i<(nDataSets-localSize); i++) {
+			std::cout << "i = " << i << " localSize = "  << localSize << " nDataSets = " << nDataSets << std::endl;
 			boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
 			p->readFromStream(stream);
 			parameterValueSet_.push_back(p);

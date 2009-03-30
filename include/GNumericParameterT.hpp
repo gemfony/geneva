@@ -65,7 +65,7 @@ namespace Gem
 namespace Util
 {
 
-const std::streamsize DEFAULTPRECISION=10;
+const std::streamsize DEFAULTPRECISION=20;
 
 /*******************************************************************************/
 /**
@@ -202,12 +202,48 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Checks whether this object is equal to a second object. Equality
+	 * means that all parameters, boundaries and FP IO precision  are equal.
+	 *
+	 * @param cp A constant reference to another GNumericParameter<T> object
+	 */
+	bool operator==(const GNumericParameterT<T>& cp) const {
+		if(param_ != cp.param_ ||
+		   lowerBoundary_ != cp.lowerBoundary_ ||
+		   upperBoundary_ != cp.upperBoundary_ ||
+		   precision_ != cp.precision_) return false;
+		return true;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Checks whether this object is unequal to a second object.
+	 *
+	 * @param cp A constant reference to another GNumericParameter<T> object
+	 */
+	bool operator!=(const GNumericParameterT<T>& cp) const {
+		return !operator==(cp);
+	}
+
+	/***************************************************************************/
+	/**
 	 * Allow implicit conversion from this type to the target type
 	 *
 	 * @return The current value of the param_ parameter
 	 */
 	operator T() {
 		return param_;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Erases all previous values
+	 */
+	void reset() {
+		param_ = T(NULL);
+		lowerBoundary_ = T(NULL);
+		upperBoundary_ = T(NULL);
+		precision_ = DEFAULTPRECISION;
 	}
 
 	/***************************************************************************/
@@ -398,8 +434,8 @@ protected:
 	 */
 	virtual T unknownParameterTypeTrap(T unknown){
 		std::cerr << "In GNumericParameterT<T>::unknownParameterTypeTrap(): Error" << std::endl
-			      << "You seem to have instantiated this class with a type it was" << std::endl
-			      << "not designed for. Leaving ..." << std::endl;
+					  << "You seem to have instantiated this class with a type it was" << std::endl
+					  << "not designed for. Leaving ..." << std::endl;
 		exit(1);
 	}
 
@@ -426,7 +462,6 @@ template<> void GNumericParameterT<double>::writeToStream(std::ostream&) const;
 #endif /* GNUMERICPARAMETERT_HPP_ */
 
 // TODO:
-// binary i/o weiter
-// Tests für ASCII und Text I/O
+// Tests für ASCII und binary I/O
 // Serialisierungstest
 // Switch to exceptions for errors

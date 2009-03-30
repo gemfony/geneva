@@ -120,6 +120,12 @@ public:
 	/** @brief A standard assignment operator */
 	const GDataExchange& operator=(const GDataExchange&);
 
+	/** @brief Checks equality with another GDataExchange object */
+	bool operator==(const GDataExchange&) const;
+
+	/** @brief Checks inequality with another GDataExchange object */
+	bool operator!=(const GDataExchange&) const;
+
 	/** @brief Resets the current parameter set */
 	void reset();
 	/** @brief Resets all parameter sets in sequence */
@@ -153,6 +159,22 @@ public:
 
 	/**************************************************************************/
 	/**
+	 * Retrieves the number of parameters of particular type.
+	 * This is a trap. The specializations should be used instead.
+	 */
+	template <typename T>
+	std::size_t numberOfParameterSets() const {
+		std::cerr << "In GDataExchange::numberOfParameterSets<T>: Error!" << std::endl
+			      << "The function seems to have been called with a type" << std::endl
+			      << "it was not designed for. Leaving ..." << std::endl;
+		exit(1);
+
+		// Make the compiler happy
+		return 0;
+	}
+
+	/**************************************************************************/
+	/**
 	 * Gives access to a full data set of a particular type, including its
 	 * boundaries. This is a trap. The specializations should be used instead.
 	 *
@@ -161,7 +183,7 @@ public:
 	 */
 	template <typename T>
 	boost::shared_ptr<GNumericParameterT<T> > parameterSet_at(std::size_t pos) {
-		std::cout << "In GDataExchange::parameterSet_at<T>(std::size_t): Error!" << std::endl
+		std::cerr << "In GDataExchange::parameterSet_at<T>(std::size_t): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
@@ -180,7 +202,7 @@ public:
 	 */
 	template <typename T>
 	T at(std::size_t pos) {
-		std::cout << "In GDataExchange::at<T>(std::size_t): Error!" << std::endl
+		std::cerr << "In GDataExchange::at<T>(std::size_t): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
@@ -198,7 +220,7 @@ public:
 	 */
 	template <typename T>
 	std::size_t size() {
-		std::cout << "In GDataExchange::size<T>(): Error!" << std::endl
+		std::cerr << "In GDataExchange::size<T>(): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
@@ -214,7 +236,7 @@ public:
 	 */
 	template <typename T>
 	void append(const T&) {
-		std::cout << "In GDataExchange::append<T>(): Error!" << std::endl
+		std::cerr << "In GDataExchange::append<T>(): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
@@ -227,7 +249,7 @@ public:
 	 */
 	template <typename T>
 	void append(const T&, const T&, const T&) {
-		std::cout << "In GDataExchange::append<T>(): Error!" << std::endl
+		std::cerr << "In GDataExchange::append<T>(): Error!" << std::endl
 			      << "The function seems to have been called with a type" << std::endl
 			      << "it was not designed for. Leaving ..." << std::endl;
 		exit(1);
@@ -360,6 +382,64 @@ private:
 
 		/******************************************************************************/
 		/**
+		 * Checks equality of this object with another object of the same type.
+		 * Equality means in this context that the values all parameters and arrays
+		 * are equal.
+		 *
+		 * @param cp A constant reference to another parameterValuePair object
+		 */
+		bool operator==(const parameterValuePair& cp) const {
+			if(hasValue_ != cp.hasValue_) return false;
+			if(value_ != cp.value_) return false;
+
+			// Check the equality of the double vector
+			if(dArray_.size() != cp.dArray_.size()) return false;
+			std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit, cp_dcit;
+			for(dcit=dArray_.begin(), cp_dcit=cp.dArray_.begin();
+			      dcit!=dArray_.end(), cp_dcit!=cp.dArray_.end(); ++dcit, ++cp_dcit) {
+				if(**dcit != **cp_dcit) return false;
+			}
+
+			// Check the equality of the long vector
+			if(lArray_.size() != cp.lArray_.size()) return false;
+			std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lcit, cp_lcit;
+			for(lcit=lArray_.begin(), cp_lcit=cp.lArray_.begin();
+			      lcit!=lArray_.end(), cp_lcit!=cp.lArray_.end(); ++lcit, ++cp_lcit) {
+				if(**lcit != **cp_lcit) return false;
+			}
+
+			// Check the equality of the bool vector
+			if(bArray_.size() != cp.bArray_.size()) return false;
+			std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit, cp_bcit;
+			for(bcit=bArray_.begin(), cp_bcit=cp.bArray_.begin();
+			      bcit!=bArray_.end(), cp_bcit!=cp.bArray_.end(); ++bcit, ++cp_bcit) {
+				if(**bcit != **cp_bcit) return false;
+			}
+
+			// Check the equality of the char vector
+			if(cArray_.size() != cp.cArray_.size()) return false;
+			std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit, cp_ccit;
+			for(ccit=cArray_.begin(), cp_ccit=cp.cArray_.begin();
+			      ccit!=cArray_.end(), cp_ccit!=cp.cArray_.end(); ++ccit, ++cp_ccit) {
+				if(**ccit != **cp_ccit) return false;
+			}
+
+			// Now we are sure that all parameters are equal
+			return true;
+		}
+
+		/******************************************************************************/
+		/**
+		 * Checks unequality of this object with another object of the same type.
+		 *
+		 * @param cp A constant reference to another parameterValuePair object
+		 */
+		bool operator!=(const parameterValuePair& cp) const {
+			return !operator==(cp);
+		}
+
+		/******************************************************************************/
+		/**
 		 * Resets the structure to its initial state
 		 */
 		void reset() {
@@ -410,32 +490,36 @@ private:
 #endif /* DEBUG*/
 
 			std::size_t dArraySize = dArray_.size();
-			stream << dArraySize;
+			stream << dArraySize << std::endl;
+			std::cout << "Writing dArraySize = " << dArraySize << std::endl;
 			if(dArraySize) {
 				std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit;
 				for(dcit=dArray_.begin(); dcit!=dArray_.end(); ++dcit) stream << **dcit;
 			}
 
 			std::size_t lArraySize = lArray_.size();
-			stream << lArraySize;
+			stream << lArraySize << std::endl;
 			if(lArraySize) {
 				std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lcit;
 				for(lcit=lArray_.begin(); lcit!=lArray_.end(); ++lcit) stream << **lcit;
 			}
 
 			std::size_t bArraySize = bArray_.size();
-			stream << bArraySize;
+			stream << bArraySize << std::endl;
 			if(bArraySize) {
 				std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit;
 				for(bcit=bArray_.begin(); bcit!=bArray_.end(); ++bcit) stream << **bcit;
 			}
 
 			std::size_t cArraySize = cArray_.size();
-			stream << cArraySize;
+			stream << cArraySize << std::endl;
 			if(cArraySize) {
 				std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit;
 				for(ccit=cArray_.begin(); ccit!=cArray_.end(); ++ccit) stream << **ccit;
 			}
+
+			stream << value_ << std::endl;
+			stream << hasValue_ << std::endl;
 		}
 
 		/**************************************************************************/
@@ -457,10 +541,15 @@ private:
 			}
 #endif /* DEBUG*/
 
+			std::cout << "one" << std::endl;
+
 			// Read in double data
 			std::size_t file_dArraySize;
 			stream >> file_dArraySize;
 			std::size_t dArraySize = dArray_.size();
+
+			std::cout << "dArraySize = " << dArraySize << " file_dArraySize = " << file_dArraySize << std::endl;
+
 			std::vector<boost::shared_ptr<GDoubleParameter> >::iterator dit;
 			if(file_dArraySize == dArraySize) { // The most likely case
 				for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) (*dit)->readFromStream(stream);
@@ -478,6 +567,8 @@ private:
 				dArray_.resize(file_dArraySize); // Get rid of surplus items
 				for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) (*dit)->readFromStream(stream);
 			}
+
+			std::cout << "two" << std::endl;
 
 			// Read in long data
 			std::size_t file_lArraySize;
@@ -501,6 +592,8 @@ private:
 				for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) (*lit)->readFromStream(stream);
 			}
 
+			std::cout << "three" << std::endl;
+
 			// Read in bool data
 			std::size_t file_bArraySize;
 			stream >> file_bArraySize;
@@ -523,6 +616,8 @@ private:
 				for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->readFromStream(stream);
 			}
 
+			std::cout << "four" << std::endl;
+
 			// Read in char data
 			std::size_t file_cArraySize;
 			stream >> file_cArraySize;
@@ -544,6 +639,14 @@ private:
 				cArray_.resize(file_cArraySize); // Get rid of surplus items
 				for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->readFromStream(stream);
 			}
+
+			std::cout << "five" << std::endl;
+
+			// Finally read the object's value and the flag which indicates, whether the value is valid
+			stream >> value_;
+			stream >> hasValue_;
+
+			std::cout << "six" << std::endl;
 		}
 
 		/**************************************************************************/
@@ -593,6 +696,9 @@ private:
 				std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit;
 				for(ccit=cArray_.begin(); ccit!=cArray_.end(); ++ccit) (*ccit)->binaryWriteToStream(stream);
 			}
+
+			stream.write(reinterpret_cast<const char *>(&value_), sizeof(&value_));
+			stream.write(reinterpret_cast<const char *>(&hasValue_), sizeof(&hasValue_));
 		}
 
 		/**************************************************************************/
@@ -701,6 +807,10 @@ private:
 				cArray_.resize(file_cArraySize); // Get rid of surplus items
 				for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->binaryReadFromStream(stream);
 			}
+
+			// Finally read the value and the flag indicating whether it is valid
+			stream.read(reinterpret_cast<char *>(&value_), sizeof(&value_));
+			stream.read(reinterpret_cast<char *>(&hasValue_), sizeof(&hasValue_));
 		}
 
 		/******************************************************************************/
@@ -725,6 +835,15 @@ private:
 
 /**************************************************************************/
 // Specializations for the usual cases
+
+/** @brief Gives access to the number of double parameters in the current parameter set */
+template <> std::size_t GDataExchange::numberOfParameterSets<double>() const;
+/** @brief Gives access to the number of long parameters in the current parameter set */
+template <> std::size_t GDataExchange::numberOfParameterSets<boost::int32_t>() const;
+/** @brief Gives access to the number of bool parameters in the current parameter set */
+template <> std::size_t GDataExchange::numberOfParameterSets<bool>() const;
+/** @brief Gives access to the number of char parameters in the current parameter set */
+template <> std::size_t GDataExchange::numberOfParameterSets<char>() const;
 
 /** @brief Gives access to a full data set containing doubles */
 template <> boost::shared_ptr<GDoubleParameter> GDataExchange::parameterSet_at<double>(std::size_t);

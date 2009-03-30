@@ -46,12 +46,15 @@ using namespace Gem;
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
 
+const std::size_t NPARAMETERSETS=100;
+const std::size_t NDATASETS=10;
+
 /***********************************************************************************/
 /**
  * Tests the various GNumericParameterT-class derivatives as a means
  * of storing individual parameters including boundaries.
  */
-BOOST_AUTO_TEST_CASE(gnumericparametert_basicfunctionality_no_failure_expected)
+BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 {
 	{
 		// Test basic construction
@@ -147,6 +150,92 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_basicfunctionality_no_failure_expected)
 	BOOST_REQUIRE(l3->getUpperBoundary() == 5);
 	BOOST_REQUIRE(b3->getUpperBoundary() == true);
 	BOOST_REQUIRE(c3->getUpperBoundary() == 127);
+
+	// Write objects to file in binary and text mode, read them back in and check equality
+
+	// double objects:
+	boost::shared_ptr<GDoubleParameter> d4(new GDoubleParameter());
+
+	std::ofstream doutputbin("ddata.bin");
+	d3->binaryWriteToStream(doutputbin);
+	doutputbin.close();
+	std::ifstream dinputbin("ddata.bin");
+	d4->binaryReadFromStream(dinputbin);
+	dinputbin.close();
+	BOOST_REQUIRE(*d3==*d4);
+	d4->reset();
+
+	std::ofstream doutputtxt("ddata.txt");
+	d3->writeToStream(doutputtxt);
+	doutputtxt.close();
+	std::ifstream dinputtxt("ddata.txt");
+	d4->readFromStream(dinputtxt);
+	dinputtxt.close();
+	BOOST_REQUIRE(*d3==*d4);
+	d4->reset();
+
+	// long objects
+	boost::shared_ptr<GLongParameter> l4(new GLongParameter());
+
+	std::ofstream loutputbin("ldata.bin");
+	l3->binaryWriteToStream(loutputbin);
+	loutputbin.close();
+	std::ifstream linputbin("ldata.bin");
+	l4->binaryReadFromStream(linputbin);
+	linputbin.close();
+	BOOST_REQUIRE(*l3==*l4);
+	l4->reset();
+
+	std::ofstream loutputtxt("ldata.txt");
+	l3->writeToStream(loutputtxt);
+	loutputtxt.close();
+	std::ifstream linputtxt("ldata.txt");
+	l4->readFromStream(linputtxt);
+	linputtxt.close();
+	BOOST_REQUIRE(*l3==*l4);
+	l4->reset();
+
+	// bool objects
+	boost::shared_ptr<GBoolParameter> b4(new GBoolParameter());
+
+	std::ofstream boutputbin("bdata.bin");
+	b3->binaryWriteToStream(boutputbin);
+	boutputbin.close();
+	std::ifstream binputbin("bdata.bin");
+	b4->binaryReadFromStream(binputbin);
+	binputbin.close();
+	BOOST_REQUIRE(*b3==*b4);
+	b4->reset();
+
+	std::ofstream boutputtxt("bdata.txt");
+	b3->writeToStream(boutputtxt);
+	boutputtxt.close();
+	std::ifstream binputtxt("bdata.txt");
+	b4->readFromStream(binputtxt);
+	binputtxt.close();
+	BOOST_REQUIRE(*b3==*b4);
+	b4->reset();
+
+	// char objects
+	boost::shared_ptr<GCharParameter> c4(new GCharParameter());
+
+	std::ofstream coutputbin("cdata.bin");
+	c3->binaryWriteToStream(coutputbin);
+	coutputbin.close();
+	std::ifstream cinputbin("cdata.bin");
+	c4->binaryReadFromStream(cinputbin);
+	cinputbin.close();
+	BOOST_REQUIRE(*c3==*c4);
+	c4->reset();
+
+	std::ofstream coutputtxt("cdata.txt");
+	c3->writeToStream(coutputtxt);
+	coutputtxt.close();
+	std::ifstream cinputtxt("cdata.txt");
+	c4->readFromStream(cinputtxt);
+	cinputtxt.close();
+	BOOST_REQUIRE(*c3==*c4);
+	c4->reset();
 }
 
 /***********************************************************************************/
@@ -159,18 +248,23 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	boost::shared_ptr<GDataExchange> gde(new GDataExchange());
 
 	// Fill with individual value items
-	for(std::size_t gde_counter=0; gde_counter < 10; gde_counter++) {
-		for(std::size_t i=0; i<100; i++) gde->append<double>(gr.evenRandom(-10.,10.));
-		for(std::size_t i=0; i<100; i++) gde->append<boost::int32_t>(gr.discreteRandom(-10,10));
-		for(std::size_t i=0; i<100; i++) gde->append<bool>(gr.boolRandom());
-		for(std::size_t i=0; i<100; i++) gde->append<char>(gr.charRandom());
+	for(std::size_t gde_counter=0; gde_counter < NDATASETS; gde_counter++) {
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<double>(gr.evenRandom(-10.,10.));
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<boost::int32_t>(gr.discreteRandom(-10,10));
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.boolRandom());
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<char>(gr.charRandom());
 
-		gde->newDataSet();
+		BOOST_REQUIRE(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
+		BOOST_REQUIRE(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
+		BOOST_REQUIRE(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
+		BOOST_REQUIRE(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
+
+		if(gde_counter < NDATASETS-1) gde->newDataSet(); // Prevent an empty data set at the end
 	}
 
 	// GDataExchange fills itself with a single data set upon creation. Since we
 	// added another 10 data sets, there should now be 11 of them.
-	BOOST_REQUIRE(gde->nDataSets() == 11);
+	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
 
 	gde->gotoStart();
 	gde->resetAll(); // There should now only be one data set remaining
@@ -178,38 +272,55 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 
 	// Fill with values including boundaries
 	for(std::size_t gde_counter=0; gde_counter < 10; gde_counter++) {
-		for(std::size_t i=0; i<100; i++) gde->append<double>(gr.evenRandom(-10.,10.),-11.,11.);
-		for(std::size_t i=0; i<100; i++) gde->append<boost::int32_t>(gr.discreteRandom(-10,10),-11,11);
-		for(std::size_t i=0; i<100; i++) gde->append<bool>(gr.boolRandom(), false, true);
-		for(std::size_t i=0; i<100; i++) gde->append<char>(gr.charRandom(false), 0, 127);
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<double>(gr.evenRandom(-10.,10.),-11.,11.);
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<boost::int32_t>(gr.discreteRandom(-10,10),-11,11);
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.boolRandom(), false, true);
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<char>(gr.charRandom(false), 0, 127);
 
-		gde->newDataSet();
+		BOOST_REQUIRE(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
+		BOOST_REQUIRE(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
+		BOOST_REQUIRE(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
+		BOOST_REQUIRE(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
+
+		if(gde_counter < NDATASETS-1) gde->newDataSet(); // Prevent an empty data set at the end
 	}
-	BOOST_REQUIRE(gde->nDataSets() == 11);
+	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
 
 	gde->gotoStart();
 	gde->resetAll(); // There should now only be one data set remaining
 	BOOST_REQUIRE(gde->nDataSets() == 1);
 
 	// Fill directly with GParameter objects
-	for(std::size_t gde_counter=0; gde_counter < 10; gde_counter++) {
-		boost::shared_ptr<GDoubleParameter> d(new GDoubleParameter(gr.evenRandom(-10.,10.)));
-		boost::shared_ptr<GLongParameter> l(new GLongParameter(gr.discreteRandom(-10,10)));
-		boost::shared_ptr<GBoolParameter> b(new GBoolParameter(gr.boolRandom()));
-		boost::shared_ptr<GCharParameter> c(new GCharParameter(gr.charRandom(false)));
+	for(std::size_t gde_counter=0; gde_counter < NDATASETS; gde_counter++) {
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) {
+			boost::shared_ptr<GDoubleParameter> d(new GDoubleParameter(gr.evenRandom(-10.,10.)));
+			gde->append(d);
+		}
 
-		for(std::size_t i=0; i<100; i++) gde->append(d);
-		for(std::size_t i=0; i<100; i++) gde->append(l);
-		for(std::size_t i=0; i<100; i++) gde->append(b);
-		for(std::size_t i=0; i<100; i++) gde->append(c);
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) {
+			boost::shared_ptr<GLongParameter> l(new GLongParameter(gr.discreteRandom(-10,10)));
+			gde->append(l);
+		}
 
-		gde->newDataSet();
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) {
+			boost::shared_ptr<GBoolParameter> b(new GBoolParameter(gr.boolRandom()));
+			gde->append(b);
+		}
+		for(std::size_t i=0; i<NPARAMETERSETS; i++) {
+			boost::shared_ptr<GCharParameter> c(new GCharParameter(gr.charRandom(false)));
+			gde->append(c);
+		}
+
+		BOOST_REQUIRE(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
+		BOOST_REQUIRE(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
+		BOOST_REQUIRE(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
+		BOOST_REQUIRE(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
+
+		if(gde_counter < NDATASETS-1) gde->newDataSet(); // Otherwise we will have an empty data set at the end
 	}
-	BOOST_REQUIRE(gde->nDataSets() == 11);
+	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
 
-	gde->gotoStart();
-
-	// Check that we can assign values to the data sets and iterate through the data sets
+	// Check that we can assign values to the data sets and iterate through them
 	gde->gotoStart();
 	do {
 		BOOST_REQUIRE(!gde->hasValue()); // No value has been assigned so far
@@ -217,16 +328,12 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 		gde->setValue(value);
 		BOOST_REQUIRE(gde->hasValue()); // Value should have been set at this point
 		BOOST_REQUIRE(value == gde->value());
-		gde->reset();
-		BOOST_REQUIRE(!gde->hasValue()); // There should again be no value
-		gde->setValue(value); // Set the value again
-		BOOST_REQUIRE(gde->hasValue()); // Value should have been set at this point
-		BOOST_REQUIRE(value == gde->value());
 	}
 	while(gde->nextDataSet());
 
 	// Switch to the best data set, with the lowest value being "best"
 	gde->switchToBestDataSet(true);
+	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
 
 	// Check that the container is indeed sorted in ascending order
 	double bestValue=-1.; // Note that we have initialized the values with random numbers in the range [0.,10.[
@@ -240,6 +347,7 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 
 	// Switch to the best data set, with the highest value being "best"
 	gde->switchToBestDataSet(false);
+	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
 
 	// Check that the container is indeed sorted in descending order
 	bestValue=11.; // Note that we have initialized the values with random numbers in the range [0.,10.[
@@ -249,9 +357,24 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 		bestValue = tmpBestValue;
 	}
 	while(gde->nextDataSet());
+	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
+
+	// Test whether data can be written to file and read back in again.
+	// In text mode
+	// gde->writeToFile("testFile.txt",false);
+	boost::shared_ptr<GDataExchange> gde2(new GDataExchange()); // Create second, empty object
+	// gde2->readFromFile("testFile.txt",false);
+	// BOOST_REQUIRE(*gde == *gde2);
+
+
+	// In binary mode
+	gde->writeToFile("testFile.bin",true);
+	gde2->readFromFile("testFile.bin",true);
+	BOOST_REQUIRE(*gde == *gde2);
 
 	gde->resetAll(); // There should now only be one data set remaining
 	BOOST_REQUIRE(gde->nDataSets() == 1);
+
 
 	// Need test about file creation and scanning. In this context:
 	// Improve fp accuracy of serialized numbers.
