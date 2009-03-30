@@ -772,6 +772,52 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
 
 /**************************************************************************/
 /**
+ * Writes the class'es data to a file in binary or text mode.
+ *
+ * @param fileName The name of the output file
+ * @param binary Indicates whether output should be done in binary- or text-mode
+ */
+void GDataExchange::writeToFile(const std::string& fileName, bool binary) {
+	std::ofstream output(fileName.c_str());
+	if(!output.good()) {
+		std::cerr << "In GDataExchange::writeToFile(): Error!" << std::endl
+			          << "Output stream is in a bad state. Leaving ..." << std::endl;
+		exit(1);
+	}
+
+	if(binary)
+		this->binaryWriteToStream(output);
+	else
+		this->writeToStream(output);
+
+	output.close();
+}
+
+/**************************************************************************/
+/**
+ * Reads the class'es data to a file in binary or text mode
+ *
+ * @param fileName The name of the input file
+ * @param binary Indicates whether data reading should be done in binary- or text-mode
+ */
+void GDataExchange::readFromFile(const std::string& fileName, bool binary) {
+	std::ifstream input(fileName.c_str());
+	if(!input.good()) {
+		std::cerr << "In GDataExchange::readFromFile(): Error!" << std::endl
+			          << "Input stream is in a bad state. Leaving ..." << std::endl;
+		exit(1);
+	}
+
+	if(binary)
+		this->binaryReadFromStream(input);
+	else
+		this->readFromStream(input);
+
+	input.close();
+}
+
+/**************************************************************************/
+/**
  * Helper function to aid IO  of this data set
  *
  * @param stream A reference to the output stream

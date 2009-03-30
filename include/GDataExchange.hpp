@@ -255,6 +255,11 @@ public:
 	/** @brief Reads the class'es data from a stream in binary mode */
 	void binaryReadFromStream(std::istream&);
 
+	/** @brief Writes the class'es data to a file in binary or text mode */
+	void writeToFile(const std::string&, bool binary=true);
+	/** @brief Reads the class'es data to a file in binary or text mode */
+	void readFromFile(const std::string&, bool binary=true);
+
 private:
 	/**********************************************************************************/
 	////////////////////////////////////////////////////////////////////////////////////
