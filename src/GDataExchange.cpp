@@ -112,6 +112,8 @@ void GDataExchange::resetAll() {
 /**************************************************************************/
 /**
  * Sorts the data sets according to their assigned values
+ *
+ * @param ascending Determines whether items should be sorted in ascending or descending order
  */
 void GDataExchange::sort(const bool& ascending) {
 	// Check that all data sets have their value set
@@ -134,6 +136,18 @@ void GDataExchange::sort(const bool& ascending) {
 
 	// Set the iterator to the start of the sequence
     current_ = parameterValueSet_.begin();
+}
+
+/**************************************************************************/
+/**
+ * Switches the iterator to the best available data set. This
+ * implies that the collection of data sets gets sorted.
+ *
+ * @param ascending Determines whether items with lowest or highest value are considered to be best
+ */
+void GDataExchange::switchToBestDataSet(const bool& ascending) {
+	this->sort(ascending);
+	current_= parameterValueSet_.begin();
 }
 
 /**************************************************************************/

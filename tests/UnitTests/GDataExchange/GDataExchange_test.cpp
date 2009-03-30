@@ -151,10 +151,9 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_basicfunctionality_no_failure_expected)
 
 /***********************************************************************************/
 /**
- * Tests whether GDataExchange objects can be filled with different data types
- * and independent data sets repeatedly.
+ * Tests the GDataExchange functionality
  */
-BOOST_AUTO_TEST_CASE( gdataexchange_datafill_and_reset_no_failure_expected )
+BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 {
 	GRandom gr;
 	boost::shared_ptr<GDataExchange> gde(new GDataExchange());
@@ -209,11 +208,55 @@ BOOST_AUTO_TEST_CASE( gdataexchange_datafill_and_reset_no_failure_expected )
 	BOOST_REQUIRE(gde->nDataSets() == 11);
 
 	gde->gotoStart();
+
+	// Check that we can assign values to the data sets and iterate through the data sets
+	gde->gotoStart();
+	do {
+		BOOST_REQUIRE(!gde->hasValue()); // No value has been assigned so far
+		double value = gr.evenRandom(0.,10.);
+		gde->setValue(value);
+		BOOST_REQUIRE(gde->hasValue()); // Value should have been set at this point
+		BOOST_REQUIRE(value == gde->value());
+		gde->reset();
+		BOOST_REQUIRE(!gde->hasValue()); // There should again be no value
+		gde->setValue(value); // Set the value again
+		BOOST_REQUIRE(gde->hasValue()); // Value should have been set at this point
+		BOOST_REQUIRE(value == gde->value());
+	}
+	while(gde->nextDataSet());
+
+	// Switch to the best data set, with the lowest value being "best"
+	gde->switchToBestDataSet(true);
+
+	// Check that the container is indeed sorted in ascending order
+	double bestValue=-1.; // Note that we have initialized the values with random numbers in the range [0.,10.[
+	double tmpBestValue = -1.;
+	do {
+		tmpBestValue = gde->value();
+		BOOST_REQUIRE(bestValue <= tmpBestValue);
+		bestValue = tmpBestValue;
+	}
+	while(gde->nextDataSet());
+
+	// Switch to the best data set, with the highest value being "best"
+	gde->switchToBestDataSet(false);
+
+	// Check that the container is indeed sorted in descending order
+	bestValue=11.; // Note that we have initialized the values with random numbers in the range [0.,10.[
+	do {
+		tmpBestValue = gde->value();
+		BOOST_REQUIRE(bestValue >= tmpBestValue);
+		bestValue = tmpBestValue;
+	}
+	while(gde->nextDataSet());
+
 	gde->resetAll(); // There should now only be one data set remaining
 	BOOST_REQUIRE(gde->nDataSets() == 1);
 
 	// Need test about file creation and scanning. In this context:
 	// Improve fp accuracy of serialized numbers.
+
+	// Test precision setting
 }
 
 /***********************************************************************************/

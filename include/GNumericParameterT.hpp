@@ -429,6 +429,4 @@ template<> void GNumericParameterT<double>::writeToStream(std::ostream&) const;
 // binary i/o weiter
 // Tests für ASCII und Text I/O
 // Serialisierungstest
-// sort-Funktion in GDataExchange
 // Switch to exceptions for errors
-// Check that sorting really results in the lowest value in the front position by default (ascending = true)

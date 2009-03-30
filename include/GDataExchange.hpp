@@ -128,6 +128,9 @@ public:
 	/** @brief Sorts the data sets according to their values */
 	void sort(const bool& ascending=true);
 
+	/** @brief Switches the iterator to the best data set */
+	void switchToBestDataSet(const bool& ascending=true);
+
 	/** @brief Set the precision of ASCII IO of FP numbers */
 	void setPrecision(const std::streamsize&);
 
@@ -336,17 +339,10 @@ private:
 		 * thus use an external helper function to carry out the procedure.
 		 */
 		const parameterValuePair& operator=(const parameterValuePair& cp) {
-			// Copy the double vector's content
-			copySmartPointerVector<GDoubleParameter>(cp.dArray_, dArray_);
-
-			// Copy the long vector's content
-			copySmartPointerVector<GLongParameter>(cp.lArray_, lArray_);
-
-			// Copy the bool vector's content
-			copySmartPointerVector<GBoolParameter>(cp.bArray_, bArray_);
-
-			// Copy the char vector's content
-			copySmartPointerVector<GCharParameter>(cp.cArray_, cArray_);
+			copySmartPointerVector<GDoubleParameter>(cp.dArray_, dArray_); 		// Copy the double vector's content
+			copySmartPointerVector<GLongParameter>(cp.lArray_, lArray_); 			// Copy the long vector's content
+			copySmartPointerVector<GBoolParameter>(cp.bArray_, bArray_); 			// Copy the bool vector's content
+			copySmartPointerVector<GCharParameter>(cp.cArray_, cArray_);			// Copy the char vector's content
 
 			value_ = cp.value_;
 			hasValue_ = cp.hasValue_;
@@ -557,4 +553,3 @@ std::istream& operator>>(std::istream&, GDataExchange&);
 } /* namespace Gem */
 
 #endif /* GDATAEXCHANGE_HPP_ */
-
