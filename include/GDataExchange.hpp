@@ -431,7 +431,7 @@ private:
 
 		/******************************************************************************/
 		/**
-		 * Checks unequality of this object with another object of the same type.
+		 * Checks inequality of this object with another object of the same type.
 		 *
 		 * @param cp A constant reference to another parameterValuePair object
 		 */
