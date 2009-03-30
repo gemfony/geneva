@@ -250,6 +250,11 @@ public:
 	/** @brief Reads the class'es data from a stream */
 	void readFromStream(std::istream&);
 
+	/** @brief Writes the class'es data to a stream in binary mode */
+	void binaryWriteToStream(std::ostream&) const;
+	/** @brief Reads the class'es data from a stream in binary mode */
+	void binaryReadFromStream(std::istream&);
+
 private:
 	/**********************************************************************************/
 	////////////////////////////////////////////////////////////////////////////////////
@@ -390,84 +395,306 @@ private:
 		 * @param stream The external output stream to write to
 		 */
 		void writeToStream(std::ostream& stream) const {
+#ifdef DEBUG
+			// Check that the stream is in a valid condition
+			if(!stream.good()) {
+				std::cerr << "In parameterValuePair::writeToStream(): Error!" << std::endl
+					          << "Stream is in a bad condition. Leaving ..." << std::endl;
+				exit(1);
+			}
+#endif /* DEBUG*/
+
 			std::size_t dArraySize = dArray_.size();
 			stream << dArraySize;
 			if(dArraySize) {
-				std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dit;
-				for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) stream << **dit;
+				std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit;
+				for(dcit=dArray_.begin(); dcit!=dArray_.end(); ++dcit) stream << **dcit;
 			}
 
 			std::size_t lArraySize = lArray_.size();
 			stream << lArraySize;
 			if(lArraySize) {
-				std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lit;
-				for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) stream << **lit;
+				std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lcit;
+				for(lcit=lArray_.begin(); lcit!=lArray_.end(); ++lcit) stream << **lcit;
 			}
 
 			std::size_t bArraySize = bArray_.size();
 			stream << bArraySize;
 			if(bArraySize) {
-				std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bit;
-				for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) stream << **bit;
+				std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit;
+				for(bcit=bArray_.begin(); bcit!=bArray_.end(); ++bcit) stream << **bcit;
 			}
 
 			std::size_t cArraySize = cArray_.size();
 			stream << cArraySize;
 			if(cArraySize) {
-				std::vector<boost::shared_ptr<GCharParameter> >::const_iterator cit;
-				for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) stream << **cit;
+				std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit;
+				for(ccit=cArray_.begin(); ccit!=cArray_.end(); ++ccit) stream << **ccit;
 			}
 		}
 
 		/**************************************************************************/
 		/**
-		 * Reads the class'es data from a stream
+		 * Reads the class'es data from a stream.
+		 *
+		 * Possible improvement: Do not clear the arrays but load the date into the
+		 * existing objects, wherever possible.
 		 *
 		 * @param stream The external input stream to read from
 		 */
 		void readFromStream(std::istream& stream) {
-			std::size_t dArraySize;
-			stream >> dArraySize;
-			dArray_.clear();
-			if(dArraySize) {
-				for(std::size_t i=0; i<dArraySize; i++){
+#ifdef DEBUG
+			// Check that the stream is in a valid condition
+			if(!stream.good()) {
+				std::cerr << "In parameterValuePair::readFromStream(): Error!" << std::endl
+					          << "Stream is in a bad condition. Leaving ..." << std::endl;
+				exit(1);
+			}
+#endif /* DEBUG*/
+
+			// Read in double data
+			std::size_t file_dArraySize;
+			stream >> file_dArraySize;
+			std::size_t dArraySize = dArray_.size();
+			std::vector<boost::shared_ptr<GDoubleParameter> >::iterator dit;
+			if(file_dArraySize == dArraySize) { // The most likely case
+				for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) (*dit)->readFromStream(stream);
+			}
+			else if(file_dArraySize > dArraySize) {
+				for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) (*dit)->readFromStream(stream);
+
+				for(std::size_t i=dArraySize; i<file_dArraySize; i++){
 					boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter());
-					stream >> *p;
+					p->readFromStream(stream);
 					dArray_.push_back(p);
 				}
 			}
+			else if(file_dArraySize < dArraySize) {
+				dArray_.resize(file_dArraySize); // Get rid of surplus items
+				for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) (*dit)->readFromStream(stream);
+			}
 
-			std::size_t lArraySize;
-			stream >> lArraySize;
-			lArray_.clear();
-			if(lArraySize) {
-				for(std::size_t i=0; i<lArraySize; i++){
+			// Read in long data
+			std::size_t file_lArraySize;
+			stream >> file_lArraySize;
+			std::size_t lArraySize = lArray_.size();
+			std::vector<boost::shared_ptr<GLongParameter> >::iterator lit;
+			if(file_lArraySize == lArraySize) { // The most likely case
+				for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) (*lit)->readFromStream(stream);
+			}
+			else if(file_lArraySize > lArraySize) {
+				for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) (*lit)->readFromStream(stream);
+
+				for(std::size_t i=lArraySize; i<file_lArraySize; i++){
 					boost::shared_ptr<GLongParameter> p(new GLongParameter());
-					stream >> *p;
+					p->readFromStream(stream);
 					lArray_.push_back(p);
 				}
 			}
+			else if(file_lArraySize < lArraySize) {
+				lArray_.resize(file_lArraySize); // Get rid of surplus items
+				for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) (*lit)->readFromStream(stream);
+			}
 
-			std::size_t bArraySize;
-			stream >> bArraySize;
-			bArray_.clear();
-			if(bArraySize) {
-				for(std::size_t i=0; i<bArraySize; i++){
+			// Read in bool data
+			std::size_t file_bArraySize;
+			stream >> file_bArraySize;
+			std::size_t bArraySize = bArray_.size();
+			std::vector<boost::shared_ptr<GBoolParameter> >::iterator bit;
+			if(file_bArraySize == bArraySize) { // The most likely case
+				for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->readFromStream(stream);
+			}
+			else if(file_bArraySize > bArraySize) {
+				for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->readFromStream(stream);
+
+				for(std::size_t i=bArraySize; i<file_bArraySize; i++){
 					boost::shared_ptr<GBoolParameter> p(new GBoolParameter());
-					stream >> *p;
+					p->readFromStream(stream);
 					bArray_.push_back(p);
 				}
 			}
+			else if(file_bArraySize < bArraySize) {
+				bArray_.resize(file_bArraySize); // Get rid of surplus items
+				for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->readFromStream(stream);
+			}
 
-			std::size_t cArraySize;
-			stream >> cArraySize;
-			cArray_.clear();
-			if(cArraySize) {
-				for(std::size_t i=0; i<cArraySize; i++){
+			// Read in char data
+			std::size_t file_cArraySize;
+			stream >> file_cArraySize;
+			std::size_t cArraySize = cArray_.size();
+			std::vector<boost::shared_ptr<GCharParameter> >::iterator cit;
+			if(file_cArraySize == cArraySize) { // The most likely case
+				for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->readFromStream(stream);
+			}
+			else if(file_cArraySize > cArraySize) {
+				for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->readFromStream(stream);
+
+				for(std::size_t i=cArraySize; i<file_cArraySize; i++){
 					boost::shared_ptr<GCharParameter> p(new GCharParameter());
-					stream >> *p;
+					p->readFromStream(stream);
 					cArray_.push_back(p);
 				}
+			}
+			else if(file_cArraySize < cArraySize) {
+				cArray_.resize(file_cArraySize); // Get rid of surplus items
+				for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->readFromStream(stream);
+			}
+		}
+
+		/**************************************************************************/
+		/**
+		 * Writes the object's data to a stream in binary mode.
+		 *
+		 * @param stream The external output stream to write to
+		 */
+		void binaryWriteToStream(std::ostream& stream) const {
+#ifdef DEBUG
+			// Check that the stream is in a valid condition
+			if(!stream.good()) {
+				std::cerr << "In parameterValuePair::binaryWriteToStream(): Error!" << std::endl
+					          << "Stream is in a bad condition. Leaving ..." << std::endl;
+				exit(1);
+			}
+#endif /* DEBUG*/
+
+			// Write the double data out in binary mode
+			std::size_t dArraySize = dArray_.size();
+			stream.write(reinterpret_cast<const char *>(&dArraySize), sizeof(dArraySize));
+			if(dArraySize) {
+				std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit;
+				for(dcit=dArray_.begin(); dcit!=dArray_.end(); ++dcit) (*dcit)->binaryWriteToStream(stream);
+			}
+
+			// Write the long data out in binary mode
+			std::size_t lArraySize = lArray_.size();
+			stream.write(reinterpret_cast<const char *>(&lArraySize), sizeof(lArraySize));
+			if(lArraySize) {
+				std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lcit;
+				for(lcit=lArray_.begin(); lcit!=lArray_.end(); ++lcit) (*lcit)->binaryWriteToStream(stream);
+			}
+
+			// Write the bool data out in binary mode
+			std::size_t bArraySize = bArray_.size();
+			stream.write(reinterpret_cast<const char *>(&bArraySize), sizeof(bArraySize));
+			if(bArraySize) {
+				std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit;
+				for(bcit=bArray_.begin(); bcit!=bArray_.end(); ++bcit) (*bcit)->binaryWriteToStream(stream);
+			}
+
+			// Write the char data out in binary mode
+			std::size_t cArraySize = cArray_.size();
+			stream.write(reinterpret_cast<const char *>(&cArraySize), sizeof(cArraySize));
+			if(cArraySize) {
+				std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit;
+				for(ccit=cArray_.begin(); ccit!=cArray_.end(); ++ccit) (*ccit)->binaryWriteToStream(stream);
+			}
+		}
+
+		/**************************************************************************/
+		/**
+		 * Reads the class'es data from a stream in binary mode.
+		 *
+		 * Possible improvement: Do not clear the arrays but load the date into the
+		 * existing objects, wherever possible.
+		 *
+		 * @param stream The external input stream to read the binary data from
+		 */
+		void binaryReadFromStream(std::istream& stream) {
+#ifdef DEBUG
+			// Check that the stream is in a valid condition
+			if(!stream.good()) {
+				std::cerr << "In parameterValuePair::binaryReadFromStream(): Error!" << std::endl
+					          << "Stream is in a bad condition. Leaving ..." << std::endl;
+				exit(1);
+			}
+#endif /* DEBUG*/
+
+			// Read in double data
+			std::size_t file_dArraySize;
+			stream.read(reinterpret_cast<char *>(&file_dArraySize), sizeof(file_dArraySize));
+			std::size_t dArraySize = dArray_.size();
+			std::vector<boost::shared_ptr<GDoubleParameter> >::iterator dit;
+			if(file_dArraySize == dArraySize) { // The most likely case
+				for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) (*dit)->binaryReadFromStream(stream);
+			}
+			else if(file_dArraySize > dArraySize) {
+				for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) (*dit)->binaryReadFromStream(stream);
+
+				for(std::size_t i=dArraySize; i<file_dArraySize; i++){
+					boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter());
+					p->binaryReadFromStream(stream);
+					dArray_.push_back(p);
+				}
+			}
+			else if(file_dArraySize < dArraySize) {
+				dArray_.resize(file_dArraySize); // Get rid of surplus items
+				for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) (*dit)->binaryReadFromStream(stream);
+			}
+
+			// Read in long data
+			std::size_t file_lArraySize;
+			stream.read(reinterpret_cast<char *>(&file_lArraySize), sizeof(file_lArraySize));
+			std::size_t lArraySize = lArray_.size();
+			std::vector<boost::shared_ptr<GLongParameter> >::iterator lit;
+			if(file_lArraySize == lArraySize) { // The most likely case
+				for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) (*lit)->binaryReadFromStream(stream);
+			}
+			else if(file_lArraySize > lArraySize) {
+				for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) (*lit)->binaryReadFromStream(stream);
+
+				for(std::size_t i=lArraySize; i<file_lArraySize; i++){
+					boost::shared_ptr<GLongParameter> p(new GLongParameter());
+					p->binaryReadFromStream(stream);
+					lArray_.push_back(p);
+				}
+			}
+			else if(file_lArraySize < lArraySize) {
+				lArray_.resize(file_lArraySize); // Get rid of surplus items
+				for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) (*lit)->binaryReadFromStream(stream);
+			}
+
+			// Read in bool data
+			std::size_t file_bArraySize;
+			stream.read(reinterpret_cast<char *>(&file_bArraySize), sizeof(file_bArraySize));
+			std::size_t bArraySize = bArray_.size();
+			std::vector<boost::shared_ptr<GBoolParameter> >::iterator bit;
+			if(file_bArraySize == bArraySize) { // The most likely case
+				for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->binaryReadFromStream(stream);
+			}
+			else if(file_bArraySize > bArraySize) {
+				for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->binaryReadFromStream(stream);
+
+				for(std::size_t i=bArraySize; i<file_bArraySize; i++){
+					boost::shared_ptr<GBoolParameter> p(new GBoolParameter());
+					p->binaryReadFromStream(stream);
+					bArray_.push_back(p);
+				}
+			}
+			else if(file_bArraySize < bArraySize) {
+				bArray_.resize(file_bArraySize); // Get rid of surplus items
+				for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->binaryReadFromStream(stream);
+			}
+
+			// Read in char data
+			std::size_t file_cArraySize;
+			stream.read(reinterpret_cast<char *>(&file_cArraySize), sizeof(file_cArraySize));
+			std::size_t cArraySize = cArray_.size();
+			std::vector<boost::shared_ptr<GCharParameter> >::iterator cit;
+			if(file_cArraySize == cArraySize) { // The most likely case
+				for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->binaryReadFromStream(stream);
+			}
+			else if(file_cArraySize > cArraySize) {
+				for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->binaryReadFromStream(stream);
+
+				for(std::size_t i=cArraySize; i<file_cArraySize; i++){
+					boost::shared_ptr<GCharParameter> p(new GCharParameter());
+					p->binaryReadFromStream(stream);
+					cArray_.push_back(p);
+				}
+			}
+			else if(file_cArraySize < cArraySize) {
+				cArray_.resize(file_cArraySize); // Get rid of surplus items
+				for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->binaryReadFromStream(stream);
 			}
 		}
 

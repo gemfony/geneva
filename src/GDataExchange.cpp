@@ -659,7 +659,7 @@ template <> void GDataExchange::append<char>(const char& x, const char& x_l, con
 
 /**************************************************************************/
 /**
- * Writes the class'es data to a stream. The format is as follows:
+ * Writes the class'es data to a stream.
  *
  * @param stream The external output stream to write to
  */
@@ -669,8 +669,7 @@ void GDataExchange::writeToStream(std::ostream& stream) const {
 
 	// Then write all data sets to the stream
 	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit;
-	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit)
-		(*cit)->writeToStream(stream);
+	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) (*cit)->writeToStream(stream);
 }
 
 /**************************************************************************/
@@ -708,6 +707,63 @@ void GDataExchange::readFromStream(std::istream& stream) {
 		parameterValueSet_.resize(nDataSets);
 		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
 			(*it)->readFromStream(stream);
+	}
+
+	// Set the current_ iterator to the start of the stream
+	current_ = parameterValueSet_.begin();
+}
+
+/**************************************************************************/
+/**
+ * Writes the class'es data to a stream in binary mode
+ *
+ * @param stream The external output stream to write to
+ */
+void GDataExchange::binaryWriteToStream(std::ostream& stream) const {
+	// Let the audience know about the number of data sets
+	std::size_t nDataSets = parameterValueSet_.size();
+	stream.write(reinterpret_cast<const char *>(&nDataSets), sizeof(nDataSets));
+
+	// Then write all data sets to the stream
+	std::vector<boost::shared_ptr<parameterValuePair> >::const_iterator cit;
+	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) (*cit)->binaryWriteToStream(stream);
+}
+
+/**************************************************************************/
+/**
+ * Reads the class'es data from a stream in binary mode
+ *
+ * @param stream The external input stream to read from
+ */
+void GDataExchange::binaryReadFromStream(std::istream& stream) {
+	// Find out about the number of data sets in the stream
+	std::size_t nDataSets = 0;
+	stream.read(reinterpret_cast<char *>(&nDataSets), sizeof(nDataSets));
+
+	std::size_t localSize = parameterValueSet_.size();
+
+	// Check whether we have the same number of items or whether we
+	// need to make any adjustments. Then read in the correct number
+	// of data sets
+	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	if(nDataSets == localSize) {
+		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
+			(*it)->binaryReadFromStream(stream);
+	}
+	else if(nDataSets > localSize) {
+		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
+			(*it)->binaryReadFromStream(stream);
+
+		for(std::size_t i=localSize; i<(nDataSets-localSize); i++) {
+			boost::shared_ptr<parameterValuePair> p(new parameterValuePair());
+			p->binaryReadFromStream(stream);
+			parameterValueSet_.push_back(p);
+		}
+	}
+	else if(nDataSets < parameterValueSet_.size()) {
+		parameterValueSet_.resize(nDataSets);
+		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
+			(*it)->binaryReadFromStream(stream);
 	}
 
 	// Set the current_ iterator to the start of the stream

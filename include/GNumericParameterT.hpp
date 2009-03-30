@@ -360,9 +360,9 @@ public:
 #endif /* DEBUG*/
 
 		// Write the data out in binary mode
-		stream.write(reinterpret_cast<char *>(&param_), sizeof(param_));
-		stream.write(reinterpret_cast<char *>(&lowerBoundary_), sizeof(lowerBoundary_));
-		stream.write(reinterpret_cast<char *>(&upperBoundary_), sizeof(upperBoundary_));
+		stream.write(reinterpret_cast<const char *>(&param_), sizeof(param_));
+		stream.write(reinterpret_cast<const char *>(&lowerBoundary_), sizeof(lowerBoundary_));
+		stream.write(reinterpret_cast<const char *>(&upperBoundary_), sizeof(upperBoundary_));
 	}
 
 	/***************************************************************************/
