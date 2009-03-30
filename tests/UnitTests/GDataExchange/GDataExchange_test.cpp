@@ -240,6 +240,15 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 
 /***********************************************************************************/
 /**
+ * Tests the various functions of the GParameterValuePair class
+ */
+BOOST_AUTO_TEST_CASE(gparametervaluepair_no_failure_expected)
+{
+	GRandom gr;
+}
+
+/***********************************************************************************/
+/**
  * Tests the GDataExchange functionality
  */
 BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
