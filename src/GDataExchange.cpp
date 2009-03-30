@@ -113,8 +113,39 @@ void GDataExchange::resetAll() {
 /**
  * Sorts the data sets according to their assigned values
  */
-void GDataExchange::sort() {
+void GDataExchange::sort(const bool& ascending) {
+	// Check that all data sets have their value set
+	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it) {
+		if(!(*it)->hasValue_) {
+			std::cerr << "In GDataExchange::sort() : Error!" << std::endl
+			               << "A data set without proper value was found. Leaving ..." << std::endl;
+			exit(1);
+		}
+	}
 
+	// Now sort the entries according to their value.
+	if(ascending) { // lowest value needs to be in the front position
+		std::sort(parameterValueSet_.begin(), parameterValueSet_.end(), boost::bind(&parameterValuePair::value,_1) < boost::bind(&parameterValuePair::value,_2));
+	}
+	else {
+		std::sort(parameterValueSet_.begin(), parameterValueSet_.end(), boost::bind(&parameterValuePair::value,_1) > boost::bind(&parameterValuePair::value,_2));
+	}
+
+	// Set the iterator to the start of the sequence
+    current_ = parameterValueSet_.begin();
+}
+
+/**************************************************************************/
+/**
+ * Sets the precision of FP IO in ASCII mode
+ *
+ * @param precision The desired precision of FP IO in ASCII mode
+ */
+void GDataExchange::setPrecision(const std::streamsize& precision) {
+	std::vector<boost::shared_ptr<parameterValuePair> >::iterator it;
+	for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
+		(*it)->setPrecision(precision);
 }
 
 /**************************************************************************/

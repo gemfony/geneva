@@ -285,7 +285,7 @@ public:
 	 *
 	 * @param The new value of the precision_ variable
 	 */
-	void setFPPrecision(const std::streamsize& precision) {
+	void setPrecision(const std::streamsize& precision) {
 		precision_ = precision;
 	}
 
@@ -295,7 +295,7 @@ public:
 	 *
 	 * @return The current value of the precision_ variable
 	 */
-	std::streamsize getFPPrecision() {
+	std::streamsize getPrecision() {
 		return precision_;
 	}
 
@@ -425,6 +425,10 @@ template<> void GNumericParameterT<double>::writeToStream(std::ostream&) const;
 
 #endif /* GNUMERICPARAMETERT_HPP_ */
 
-// TODO: Es muss moeglich sein, die precision_ von GDataExchange aus "herunterzureichen" zu allen Datensätzen.
+// TODO:
 // binary i/o weiter
 // Tests für ASCII und Text I/O
+// Serialisierungstest
+// sort-Funktion in GDataExchange
+// Switch to exceptions for errors
+// Check that sorting really results in the lowest value in the front position by default (ascending = true)

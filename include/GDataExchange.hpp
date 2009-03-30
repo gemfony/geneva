@@ -26,6 +26,7 @@
 
 // Standard headers go here
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -125,7 +126,10 @@ public:
 	void resetAll();
 
 	/** @brief Sorts the data sets according to their values */
-	void sort();
+	void sort(const bool& ascending=true);
+
+	/** @brief Set the precision of ASCII IO of FP numbers */
+	void setPrecision(const std::streamsize&);
 
 	/** @brief Assign a value to the current data set */
 	void setValue(double);
@@ -360,6 +364,27 @@ private:
 
 			value_ = 0.;
 			hasValue_ = false;
+		}
+
+		/**************************************************************************/
+		/**
+		 * Gives access to the object's value
+		 *
+		 * @return The value of the object
+		 */
+		double value() {
+			return value_;
+		}
+
+		/**************************************************************************/
+		/**
+		 * Sets the precision of FP IO in ASCII mode
+		 *
+		 * @param The desired precision for FP IO
+		 */
+		void setPrecision(const std::streamsize& precision) {
+			std::vector<boost::shared_ptr<GDoubleParameter> >::iterator it;
+			for(it=dArray_.begin(); it!=dArray_.end(); ++it) (*it)->setPrecision(precision);
 		}
 
 		/**************************************************************************/
