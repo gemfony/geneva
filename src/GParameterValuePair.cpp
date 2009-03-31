@@ -43,8 +43,8 @@ namespace Gem
 	 * The standard constructor
 	 */
 	GParameterValuePair::GParameterValuePair()
-	:value_(0.),
-	hasValue_(false)
+		:value_(0.),
+		hasValue_(false)
 	{ /* nothing */ }
 
 	/******************************************************************************/
@@ -118,8 +118,122 @@ namespace Gem
 	 * are equal.
 	 *
 	 * @param cp A constant reference to another GParameterValuePair object
+	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool GParameterValuePair::operator==(const GParameterValuePair& cp) const {
+		// Check the "easy" values
+		if(hasValue_ != cp.hasValue_) {
+#ifdef GENEVATESTING
+			std::cout << "hasValue_ != cp.hasValue_" << std::endl;
+#endif
+			return false;
+		}
+
+		if(value_ != cp.value_) {
+#ifdef GENEVATESTING
+			std::cout << "value_ != cp.value_: " << value_ << " " << cp.value_ << std::endl;
+#endif
+			return false;
+		}
+
+		// Check the equality of the double vector
+		if(dArray_.size() != cp.dArray_.size()) {
+#ifdef GENEVATESTING
+			std::cout << "dArray_.size() != cp.dArray_.size(): " << dArray_.size() << " " << cp.dArray_.size() << std::endl;
+#endif
+			return false;
+		}
+		std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit, cp_dcit;
+		for(dcit=dArray_.begin(), cp_dcit=cp.dArray_.begin();
+		dcit!=dArray_.end(), cp_dcit!=cp.dArray_.end(); ++dcit, ++cp_dcit) {
+			if(**dcit != **cp_dcit) {
+#ifdef GENEVATESTING
+			std::cout << "**dcit != **cp_dcit : " << **dcit << " " << **cp_dcit << std::endl;
+#endif
+				return false;
+			}
+		}
+
+		// Check the equality of the long vector
+		if(lArray_.size() != cp.lArray_.size()) {
+#ifdef GENEVATESTING
+			std::cout << "lArray_.size() != cp.lArray_.size(): " << lArray_.size() << " " << cp.lArray_.size() << std::endl;
+#endif
+			return false;
+		}
+		std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lcit, cp_lcit;
+		for(lcit=lArray_.begin(), cp_lcit=cp.lArray_.begin();
+		lcit!=lArray_.end(), cp_lcit!=cp.lArray_.end(); ++lcit, ++cp_lcit) {
+			if(**lcit != **cp_lcit) {
+#ifdef GENEVATESTING
+				std::cout << "**lcit != **cp_lcit : " << **lcit << " " << **cp_lcit << std::endl;
+#endif
+				return false;
+			}
+		}
+
+		// Check the equality of the bool vector
+		if(bArray_.size() != cp.bArray_.size()) {
+#ifdef GENEVATESTING
+			std::cout << "bArray_.size() != cp.bArray_.size(): " << bArray_.size() << " " << cp.bArray_.size() << std::endl;
+#endif
+			return false;
+		}
+		std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit, cp_bcit;
+		for(bcit=bArray_.begin(), cp_bcit=cp.bArray_.begin();
+		bcit!=bArray_.end(), cp_bcit!=cp.bArray_.end(); ++bcit, ++cp_bcit) {
+			if(**bcit != **cp_bcit) {
+#ifdef GENEVATESTING
+				std::cout << "**bcit != **cp_bcit : " << **bcit << " " << **cp_bcit << std::endl;
+#endif
+				return false;
+			}
+		}
+
+		// Check the equality of the char vector
+		if(cArray_.size() != cp.cArray_.size()) {
+#ifdef GENEVATESTING
+			std::cout << "cArray_.size() != cp.cArray_.size(): " << cArray_.size() << " " << cp.cArray_.size() << std::endl;
+#endif
+			return false;
+		}
+		std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit, cp_ccit;
+		for(ccit=cArray_.begin(), cp_ccit=cp.cArray_.begin();
+		ccit!=cArray_.end(), cp_ccit!=cp.cArray_.end(); ++ccit, ++cp_ccit) {
+			if(**ccit != **cp_ccit) {
+#ifdef GENEVATESTING
+				std::cout << "**ccit != **cp_ccit : " << **ccit << " " << **cp_ccit << std::endl;
+#endif
+				return false;
+			}
+		}
+
+		// Now we are sure that all parameters are equal
+		return true;
+	}
+
+	/******************************************************************************/
+	/**
+	 * Checks inequality of this object with another object of the same type.
+	 *
+	 * @param cp A constant reference to another GParameterValuePair object
+	 * @param A boolean indicating whether both objects are not equal
+	 */
+	bool GParameterValuePair::operator!=(const GParameterValuePair& cp) const {
+		return !operator==(cp);
+	}
+
+	/******************************************************************************/
+	/**
+	 * Checks whether this object is similar to another. For most parameters in this
+	 * object this means equality. However, double values may differ by a certain
+	 * amount indicated by the "limit" parameter.
+	 *
+	 * @param cp A constant reference to another GParameterValuePair object
+	 * @param limit Acceptable differences between double values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool GParameterValuePair::isSimilarTo(const GParameterValuePair& cp, const double& limit) const {
 		// Check the "easy" values
 		if(hasValue_ != cp.hasValue_) return false;
 		if(value_ != cp.value_) return false;
@@ -127,10 +241,14 @@ namespace Gem
 		// Check the equality of the double vector
 		if(dArray_.size() != cp.dArray_.size()) return false;
 		std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit, cp_dcit;
+
+		//-----------------------------------------------------------------------------------------------------
+		// Here we use the GDoubleParameter value's own function to determine similarity
 		for(dcit=dArray_.begin(), cp_dcit=cp.dArray_.begin();
-		dcit!=dArray_.end(), cp_dcit!=cp.dArray_.end(); ++dcit, ++cp_dcit) {
-			if(**dcit != **cp_dcit) return false;
+			  dcit!=dArray_.end(), cp_dcit!=cp.dArray_.end(); ++dcit, ++cp_dcit) {
+			if(!(*dcit)->isSimilarTo(**cp_dcit, limit)) return false;
 		}
+		//-----------------------------------------------------------------------------------------------------
 
 		// Check the equality of the long vector
 		if(lArray_.size() != cp.lArray_.size()) return false;
@@ -162,16 +280,6 @@ namespace Gem
 
 	/******************************************************************************/
 	/**
-	 * Checks inequality of this object with another object of the same type.
-	 *
-	 * @param cp A constant reference to another GParameterValuePair object
-	 */
-	bool GParameterValuePair::operator!=(const GParameterValuePair& cp) const {
-		return !operator==(cp);
-	}
-
-	/******************************************************************************/
-	/**
 	 * Resets the structure to its initial state
 	 */
 	void GParameterValuePair::reset() {
@@ -192,6 +300,16 @@ namespace Gem
 	 */
 	double GParameterValuePair::value() {
 		return value_;
+	}
+
+	/**************************************************************************/
+	/**
+	 * Indicates whether value has been set.
+	 *
+	 * @return A boolean indicating whether a value has been set
+	 */
+	bool GParameterValuePair::hasValue() {
+		return hasValue_;
 	}
 
 	/**************************************************************************/
@@ -272,14 +390,10 @@ namespace Gem
 		}
 #endif /* DEBUG*/
 
-		std::cout << "one" << std::endl;
-
 		// Read in double data
 		std::size_t file_dArraySize;
 		stream >> file_dArraySize;
 		std::size_t dArraySize = dArray_.size();
-
-		std::cout << "dArraySize = " << dArraySize << " file_dArraySize = " << file_dArraySize << std::endl;
 
 		std::vector<boost::shared_ptr<GDoubleParameter> >::iterator dit;
 		if(file_dArraySize == dArraySize) { // The most likely case
@@ -298,8 +412,6 @@ namespace Gem
 			dArray_.resize(file_dArraySize); // Get rid of surplus items
 			for(dit=dArray_.begin(); dit!=dArray_.end(); ++dit) (*dit)->readFromStream(stream);
 		}
-
-		std::cout << "two" << std::endl;
 
 		// Read in long data
 		std::size_t file_lArraySize;
@@ -323,8 +435,6 @@ namespace Gem
 			for(lit=lArray_.begin(); lit!=lArray_.end(); ++lit) (*lit)->readFromStream(stream);
 		}
 
-		std::cout << "three" << std::endl;
-
 		// Read in bool data
 		std::size_t file_bArraySize;
 		stream >> file_bArraySize;
@@ -346,8 +456,6 @@ namespace Gem
 			bArray_.resize(file_bArraySize); // Get rid of surplus items
 			for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->readFromStream(stream);
 		}
-
-		std::cout << "four" << std::endl;
 
 		// Read in char data
 		std::size_t file_cArraySize;
@@ -371,13 +479,9 @@ namespace Gem
 			for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->readFromStream(stream);
 		}
 
-		std::cout << "five" << std::endl;
-
 		// Finally read the object's value and the flag which indicates, whether the value is valid
 		stream >> value_;
 		stream >> hasValue_;
-
-		std::cout << "six" << std::endl;
 	}
 
 	/**************************************************************************/

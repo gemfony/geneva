@@ -126,6 +126,9 @@ public:
 	/** @brief Checks inequality with another GDataExchange object */
 	bool operator!=(const GDataExchange&) const;
 
+	/** @brief Checks whether this object is similar to another */
+	bool isSimilarTo(const GDataExchange&, const double&);
+
 	/** @brief Resets the current parameter set */
 	void reset();
 	/** @brief Resets all parameter sets in sequence */

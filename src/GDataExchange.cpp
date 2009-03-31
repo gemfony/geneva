@@ -127,6 +127,36 @@ bool GDataExchange::operator!=(const GDataExchange& cp) const {
 
 /**************************************************************************/
 /**
+ * Checks whether this object is similar to another. Similarity means that
+ * double values only differ from other double values by an amout smaller
+ * than the limit parameter.
+ *
+ * @param  A constant reference to another GDataExchange object
+ * @param limit Indicates the acceptable level of differences between both objects
+ * @return A boolean indicating whether both objects share similarities
+ */
+bool GDataExchange::isSimilarTo(const GDataExchange& cp, const double& limit) {
+	// Check sizes of the vectors
+	if(parameterValueSet_.size() != cp.parameterValueSet_.size()) return false;
+
+	// Check all parameter sets
+	std::vector<boost::shared_ptr<GParameterValuePair> >::const_iterator cit, cp_cit;
+	for(cit=parameterValueSet_.begin(), cp_cit=cp.parameterValueSet_.begin();
+		cit!=parameterValueSet_.end(), cp_cit!=cp.parameterValueSet_.end();
+		++cit, ++cp_cit) {
+		if(!(*cit)->isSimilarTo(**cp_cit, limit)) return false;
+	}
+
+	std::size_t localOffset = current_ - parameterValueSet_.begin();
+	std::size_t cpOffset = cp.current_ - cp.parameterValueSet_.begin();
+	if(localOffset != cpOffset) return false;
+
+	// Now we are sure that all components are equal
+	return true;
+}
+
+/**************************************************************************/
+/**
  * Resets the current data structure. The iterator stays at the same
  * position.
  */

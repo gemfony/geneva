@@ -278,6 +278,8 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 		c4->reset();
 		//***********************************************************
 	}
+
+	// Still need to test serialization
 }
 
 /***********************************************************************************/
@@ -288,7 +290,94 @@ BOOST_AUTO_TEST_CASE(gparametervaluepair_no_failure_expected)
 {
 	GRandom gr;
 
+	// Test default construction
+	boost::shared_ptr<GParameterValuePair> p0(new GParameterValuePair());
+	boost::shared_ptr<GParameterValuePair> p1(new GParameterValuePair());
 
+	BOOST_REQUIRE(p0->value_ == 0.);
+	BOOST_REQUIRE(!p0->hasValue_);
+	BOOST_REQUIRE(p0->dArray_.empty());
+	BOOST_REQUIRE(p0->lArray_.empty());
+	BOOST_REQUIRE(p0->bArray_.empty());
+	BOOST_REQUIRE(p0->cArray_.empty());
+
+	// Attach data to the vectors
+	for(std::size_t i=0; i<NPARAMETERSETS; i++) {
+		// Deal with p0
+		boost::shared_ptr<GDoubleParameter> d0(new GDoubleParameter(gr.evenRandom(0.,10.)));
+		p0->dArray_.push_back(d0);
+
+		boost::shared_ptr<GLongParameter> l0(new GLongParameter(gr.discreteRandom(0,10)));
+		p0->lArray_.push_back(l0);
+
+		boost::shared_ptr<GBoolParameter> b0(new GBoolParameter(gr.boolRandom()));
+		p0->bArray_.push_back(b0);
+
+		boost::shared_ptr<GCharParameter> c0(new GCharParameter(gr.charRandom()));
+		p0->cArray_.push_back(c0);
+
+		// And now p1
+		boost::shared_ptr<GDoubleParameter> d1(new GDoubleParameter(gr.evenRandom(0.,10.)));
+		p1->dArray_.push_back(d1);
+
+		boost::shared_ptr<GLongParameter> l1(new GLongParameter(gr.discreteRandom(0,10)));
+		p1->lArray_.push_back(l1);
+
+		boost::shared_ptr<GBoolParameter> b1(new GBoolParameter(gr.boolRandom()));
+		p1->bArray_.push_back(b1);
+
+		boost::shared_ptr<GCharParameter> c1(new GCharParameter(gr.charRandom()));
+		p1->cArray_.push_back(c1);
+	}
+
+	// Assign A value and check for its existence
+	p0->value_ = 1.234;
+	p0->hasValue_ = true;
+	BOOST_REQUIRE(p0->value_ == p0->value());
+	BOOST_REQUIRE(p0->hasValue_ == p0->hasValue());
+
+	// Check copy construction and the correct copying of data. Also checks the operator==
+	boost::shared_ptr<GParameterValuePair> p2(new GParameterValuePair(*p0));
+	BOOST_REQUIRE(*p2 == *p0);
+
+	// Check that two very different objects are indeed not similar to each other
+	BOOST_REQUIRE(!p2->isSimilarTo(*p1));
+
+	// Reset p2 and check that it is no different from p0 and empty
+	p2->reset();
+	BOOST_REQUIRE(*p2 != *p0);
+	BOOST_REQUIRE(p2->value_ == 0.);
+	BOOST_REQUIRE(!p2->hasValue_);
+	BOOST_REQUIRE(p2->dArray_.empty());
+	BOOST_REQUIRE(p2->lArray_.empty());
+	BOOST_REQUIRE(p2->bArray_.empty());
+	BOOST_REQUIRE(p2->cArray_.empty());
+
+	// Check the assignment operator and check again equality
+	*p2 = *p0;
+	BOOST_REQUIRE(*p2 == *p0);
+
+	// Write the object out in binary mode and load it back in. Then check equality.
+	std::ofstream binaryOutput("pvp.bin");
+	p0->binaryWriteToStream(binaryOutput);
+	binaryOutput.close();
+	p2->reset();
+	BOOST_REQUIRE(*p2 != *p0);
+	std::ifstream binaryInput("pvp.bin");
+	p2->binaryReadFromStream(binaryInput);
+	binaryInput.close();
+	BOOST_REQUIRE(*p2 == *p0);
+
+	// Write the object out in text mode and load it back in. Then check similarity
+	std::ofstream textOutput("pvp.txt");
+	p0->writeToStream(textOutput);
+	textOutput.close();
+	p2->reset();
+	BOOST_REQUIRE(*p2 != *p0);
+	std::ifstream textInput("pvp.txt");
+	p2->readFromStream(textInput);
+	textInput.close();
+	BOOST_REQUIRE(p2->isSimilarTo(*p0, exp(-10)));
 }
 
 /***********************************************************************************/
@@ -412,13 +501,12 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	while(gde->nextDataSet());
 	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
 
-	/*
 	// Test whether data can be written to file and read back in again.
 	// In text mode
-	// gde->writeToFile("testFile.txt",false);
+	gde->writeToFile("testFile.txt",false);
 	boost::shared_ptr<GDataExchange> gde2(new GDataExchange()); // Create second, empty object
-	// gde2->readFromFile("testFile.txt",false);
-	// BOOST_REQUIRE(*gde == *gde2);
+	gde2->readFromFile("testFile.txt",false);
+	BOOST_REQUIRE(gde->isSimilarTo(*gde2,exp(-10)));
 
 	 // Put gde2 in pristine condition so we can start over with the binary mode
 	gde2->resetAll();
@@ -436,8 +524,6 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	// Improve fp accuracy of serialized numbers.
 
 	// Test precision setting
-	 *
-	 */
 }
 
 /***********************************************************************************/

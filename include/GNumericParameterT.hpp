@@ -109,7 +109,7 @@ public:
 	 *
 	 * @param param The value of the parameter
 	 */
-	GNumericParameterT(T param)
+	GNumericParameterT(const T& param)
 		:param_(param),
 		 lowerBoundary_(T(NULL)),
 		 upperBoundary_(T(NULL)),
@@ -124,7 +124,7 @@ public:
 	 * @param lower The value of the lower boundary
 	 * @param upper The value of the upper boundary
 	 */
-	GNumericParameterT(T param, T lower, T upper)
+	GNumericParameterT(const T& param, const T& lower, const T& upper)
 		:param_(param),
 		 lowerBoundary_(lower),
 		 upperBoundary_(upper),
@@ -254,16 +254,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Allow implicit conversion from this type to the target type
-	 *
-	 * @return The current value of the param_ parameter
-	 */
-	operator T() {
-		return param_;
-	}
-
-	/***************************************************************************/
-	/**
 	 * Checks for similarity between two objects. For most types
 	 * the same as equality, but different for doubles (particularly
 	 * in the case of text io. This function is mainly needed for
@@ -296,7 +286,7 @@ public:
 	 *
 	 * @param param The value of the parameter
 	 */
-	void setParameter(T param){
+	void setParameter(const T& param){
 		// Check the validity of the boundaries
 		if(lowerBoundary_ != upperBoundary_ &&
 		   (param_ < lowerBoundary_ || param_ > upperBoundary_)) {
@@ -321,7 +311,7 @@ public:
 	 * @param lower The value of the lower boundary
 	 * @param upper The value of the upper boundary
 	 */
-	void setParameter(T param, T lower, T upper){
+	void setParameter(const T& param, const T& lower, const T& upper){
 		// Check the validity of the boundaries
 		if(lowerBoundary_ != upperBoundary_ &&
 		   (param_ < lowerBoundary_ || param_ > upperBoundary_ || lowerBoundary_ >= upperBoundary_)) {
@@ -346,7 +336,7 @@ public:
 	 *
 	 * @return The current value of the param_ variable
 	 */
-	T& getParameter() {
+	T getParameter() {
 		return param_;
 	}
 
@@ -356,7 +346,7 @@ public:
 	 *
 	 * @return The current value of the lower boundary
 	 */
-	T& getLowerBoundary() {
+	T getLowerBoundary() {
 		return lowerBoundary_;
 	}
 
@@ -366,7 +356,7 @@ public:
 	 *
 	 * @return The current value of the upper boundary
 	 */
-	T& getUpperBoundary() {
+	T getUpperBoundary() {
 		return upperBoundary_;
 	}
 
@@ -545,6 +535,12 @@ template<> void GNumericParameterT<bool>::binaryWriteToStream(std::ostream&) con
 template<> void GNumericParameterT<bool>::binaryReadFromStream(std::istream&);
 
 template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameterT<double>& cp, const double& limit) const;
+
+template <> GNumericParameterT<bool>::GNumericParameterT();
+template <> GNumericParameterT<bool>::GNumericParameterT(const bool&);
+template <> GNumericParameterT<bool>::GNumericParameterT(const bool&, const bool&, const bool&);
+template <> GNumericParameterT<bool>::GNumericParameterT(const GNumericParameterT<bool>&);
+template <> void GNumericParameterT<bool>::setParameter(const bool&, const bool&, const bool&);
 
 } /* namespace Util */
 } /* namespace Gem */

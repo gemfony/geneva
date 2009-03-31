@@ -31,6 +31,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <cmath>
 
 // Boost headers go here
 #include <boost/version.hpp>
@@ -110,11 +111,16 @@ public:
 	/** @brief Checks inequality of this object with another object of the same type.*/
 	bool operator!=(const GParameterValuePair&) const;
 
+	/** @brief Checks whether this object is similar to another */
+	bool isSimilarTo(const GParameterValuePair& cp, const double& limit = 0.) const;
+
 	/** @brief Resets the structure to its initial state */
 	void reset();
 
 	/** @brief Gives access to the object's value */
 	double value();
+	/** @brief Determines whether a value has been set */
+	bool hasValue();
 
 	/** @brief Sets the precision of FP IO in ASCII mode */
 	void setPrecision(const std::streamsize&);

@@ -314,6 +314,62 @@ template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameter
 }
 
 /***********************************************************************************************/
+/**
+ * Specialization of the default constructor for typeof(T)==bool. It is needed
+ * as boolean values always have a lower and upper boundary.
+ */
+template <> GNumericParameterT<bool>::GNumericParameterT()
+	:param_(false),
+	 lowerBoundary_(false),
+	 upperBoundary_(true),
+	 precision_(DEFAULTPRECISION)
+{ /* nothing */ }
+
+/***********************************************************************************************/
+/**
+ * Specialization of the default constructor for typeof(T)==bool. It is needed
+ * as boolean values always have a lower and upper boundary.
+ */
+template <> GNumericParameterT<bool>::GNumericParameterT(const bool& param)
+	:param_(param),
+	 lowerBoundary_(false),
+	 upperBoundary_(true),
+	 precision_(DEFAULTPRECISION)
+{ /* nothing */ }
+
+/***********************************************************************************************/
+/**
+ * Specialization of the default constructor for typeof(T)==bool. It is needed
+ * as boolean values always have a lower and upper boundary.
+ */
+template <> GNumericParameterT<bool>::GNumericParameterT(const bool& param, const bool& lower, const bool& upper)
+	:param_(param),
+	 lowerBoundary_(false),
+	 upperBoundary_(true),
+	 precision_(DEFAULTPRECISION)
+{ /* nothing */ }
+
+/***********************************************************************************************/
+/**
+ * Specialization of the default constructor for typeof(T)==bool. It is needed
+ * as boolean values always have a lower and upper boundary.
+ */
+template <> GNumericParameterT<bool>::GNumericParameterT(const GNumericParameterT<bool>& cp)
+	:param_(cp.param_),
+	 lowerBoundary_(false),
+	 upperBoundary_(true),
+     precision_(cp.precision_)
+{ /* nothing */ }
+
+/***********************************************************************************************/
+
+template <> void GNumericParameterT<bool>::setParameter(const bool& param, const bool& lower, const bool& upper) {
+	param_ = param;
+	lowerBoundary_ = false;
+	upperBoundary_ = true;
+}
+
+/***********************************************************************************************/
 
 } /* namespace Util */
 } /* namespace Gem */
