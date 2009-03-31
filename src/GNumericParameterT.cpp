@@ -87,7 +87,7 @@ bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool unknown) {
 /**
  * Writes a double parameter to a stream, including its boundaries. This specialization
  * is needed as the precision of the output of floating point variables might be set to
- * an undesirable value.
+ * an undesirable value. The precision is part of the output format.
  *
  * @param stream The output stream the double values should be written to
  */
@@ -101,8 +101,11 @@ template<> void GNumericParameterT<double>::writeToStream(std::ostream& stream) 
 		}
 #endif /* DEBUG*/
 
-		// Retrieve the current precision
+		// Back up the current precision
 		std::streamsize precisionStore = stream.precision();
+
+		// We need to be able to restore the required precision later on
+		stream << precision_ << std::endl;
 
 		// Now set the output precision to the desired value
 		stream.precision(precision_);
@@ -111,58 +114,206 @@ template<> void GNumericParameterT<double>::writeToStream(std::ostream& stream) 
 		            << lowerBoundary_ << std::endl
 		            << upperBoundary_ << std::endl;
 
-		// Restore the original value
+		// Restore the original precision
 		stream.precision(precisionStore);
 }
 
 /***********************************************************************************************/
 /**
- * Writes char parameters to a stream, including their boundaries. This specialization
- * is needed so we can store characters as numbers.
+ * Reads a double parameter from a stream, including its boundaries. This specialization
+ * is needed as the precision of the output of floating point variables might be set to
+ * an undesirable value. The precision is part of the data format.
  *
-  * @param stream The output stream the char values should be written to
+ * @param stream The input stream the double values should be read from
  */
-template<> void GNumericParameterT<char>::writeToStream(std::ostream& stream) const {
+template<> void GNumericParameterT<double>::readFromStream(std::istream& stream) {
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<char>::writeToStream(): Error!" << std::endl
+			std::cerr << "In GNumericParameterT<double>::readFromStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
 			exit(1);
 		}
 #endif /* DEBUG*/
 
-		// Store all characters as numbers, so they are more easily recognizable in the output file
-		std::cout << param_ << " " << lowerBoundary_ << " " << upperBoundary_ << std::endl;
-		stream << boost::lexical_cast<short>(param_) << std::endl
-		            << boost::lexical_cast<short>(lowerBoundary_) << std::endl
-		            << boost::lexical_cast<short>(upperBoundary_) << std::endl;
+		// Back up the current precision
+		std::streamsize precisionStore = stream.precision();
+
+		// Retrieve the stored precision and set our own precision accordingly for the time being
+		stream >> precision_;
+		stream.precision(precision_);
+
+		// Retrieve the parameter and its boundaries
+		stream >> param_;
+		stream >> lowerBoundary_;
+		stream >> upperBoundary_;
+
+		// Restore the original precision
+		stream.precision(precisionStore);
 }
 
 /***********************************************************************************************/
-
-template<> void GNumericParameterT<char>::readFromStream(std::istream& stream) {
+/**
+ * Writes a double parameter to a stream in binary mode, including its boundaries.
+ * This specialization is needed so the precision of FP IO gets stored.
+ *
+ * @param stream The output stream the double values should be written to
+ */
+template<> void GNumericParameterT<double>::binaryWriteToStream(std::ostream& stream) const {
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<char>::readFromStream(): Error!" << std::endl
+			std::cerr << "In GNumericParameterT<double>::binaryWriteToStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
 			exit(1);
 		}
 #endif /* DEBUG*/
 
-		unsigned short int_param_;
-		unsigned short int_lowerBoundary_;
-		unsigned short int_upperBoundary_;
-
-		stream >> int_param_;
-		stream >> int_lowerBoundary_;
-		stream >> int_upperBoundary_;
-
-		param_ = boost::lexical_cast<char>(int_param_);
-		lowerBoundary_ = boost::lexical_cast<char>(int_lowerBoundary_);
-		upperBoundary_ = boost::lexical_cast<char>(int_upperBoundary_);
+		// Write the data out in binary mode, including the precision_ variable.
+		stream.write(reinterpret_cast<const char *>(&precision_), sizeof(precision_));
+		stream.write(reinterpret_cast<const char *>(&param_), sizeof(param_));
+		stream.write(reinterpret_cast<const char *>(&lowerBoundary_), sizeof(lowerBoundary_));
+		stream.write(reinterpret_cast<const char *>(&upperBoundary_), sizeof(upperBoundary_));
 }
+
+/***********************************************************************************************/
+/**
+ * Reads a double parameter from a stream in binary mode, including its boundaries.
+ * This specialization so the precision_ variable gets restored.
+ *
+ * @param stream The input stream the double values should be read from
+ */
+template<> void GNumericParameterT<double>::binaryReadFromStream(std::istream& stream) {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT<double>::binaryReadFromStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		// Read data from the stream in binary mode
+		stream.read(reinterpret_cast<char *>(&precision_), sizeof(precision_));
+		stream.read(reinterpret_cast<char *>(&param_), sizeof(param_));
+		stream.read(reinterpret_cast<char *>(&lowerBoundary_), sizeof(lowerBoundary_));
+		stream.read(reinterpret_cast<char *>(&upperBoundary_), sizeof(upperBoundary_));
+}
+
+/***********************************************************************************************/
+/**
+ * Writes a bool parameter to a stream. This specialization is needed as
+ * boundaries do not have to be written out for bool parameters.
+ *
+ * @param stream The output stream the bool value should be written to
+ */
+template<> void GNumericParameterT<bool>::writeToStream(std::ostream& stream) const {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT<bool>::writeToStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		stream << param_ << std::endl;
+}
+
+/***********************************************************************************************/
+/**
+ * Reads a bool parameter from a stream. This specialization is needed as
+ * boundaries do not get stored for bool parameters.
+ *
+ * @param stream The input stream the bool value should be read from
+ */
+template<> void GNumericParameterT<bool>::readFromStream(std::istream& stream) {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT<bool>::readFromStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		// Retrieve the parameter
+		stream >> param_;
+
+		// Make sure the boundaries are in a sane state
+		lowerBoundary_ = false;
+		upperBoundary_ = true;
+}
+
+/***********************************************************************************************/
+/**
+ * Writes a bool parameter to a stream in binary mode. This specialization is
+ * needed as no boundaries need to get stored for boolean parameters.
+ *
+ * @param stream The output stream the bool value should be written to
+ */
+template<> void GNumericParameterT<bool>::binaryWriteToStream(std::ostream& stream) const {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT<bool>::binaryWriteToStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		// Write the data out in binary mode
+		stream.write(reinterpret_cast<const char *>(&param_), sizeof(param_));
+}
+
+/***********************************************************************************************/
+/**
+ * Reads a bool parameter from a stream in binary mode. This specialization is
+ * needed as no boundaries need to get stored for boolean parameters.
+ *
+ * @param stream The input stream the bool value should be read from
+ */
+template<> void GNumericParameterT<bool>::binaryReadFromStream(std::istream& stream) {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT<bool>::binaryReadFromStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		// Read data from the stream in binary mode
+		stream.read(reinterpret_cast<char *>(&param_), sizeof(param_));
+
+		// Make sure the boundaries are in a sane state
+		lowerBoundary_ = false;
+		upperBoundary_ = true;
+}
+
+/***********************************************************************************************/
+/**
+ * Checks for similarity between the two objects. If the limit is set to 0, then
+ * "similarity" means "equality".
+ *
+ * @param cp A constant reference to another GNumericParameterT<double> object
+ * @param limit The maximum acceptable level of difference between two double
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameterT<double>& cp, const double& limit) const {
+	if(limit == 0.) return this->operator==(cp);
+
+	bool result = true;
+
+	if(fabs(param_ - cp.param_) > fabs(limit)) result = false;
+	else if(fabs(lowerBoundary_ - cp.lowerBoundary_) > fabs(limit)) result = false;
+	else if(fabs(upperBoundary_ - cp.upperBoundary_) > fabs(limit)) result = false;
+	else if(precision_ != cp.precision_) result=false;
+
+	return result;
+}
+
+/***********************************************************************************************/
 
 } /* namespace Util */
 } /* namespace Gem */

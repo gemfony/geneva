@@ -210,11 +210,36 @@ public:
 	 * @param cp A constant reference to another GNumericParameter<T> object
 	 */
 	bool operator==(const GNumericParameterT<T>& cp) const {
-		if(param_ != cp.param_ ||
-		   lowerBoundary_ != cp.lowerBoundary_ ||
-		   upperBoundary_ != cp.upperBoundary_ ||
-		   precision_ != cp.precision_) return false;
-		return true;
+		bool result = true; // Everything o.k. by default
+
+#ifdef GENEVATESTING
+		if(param_ != cp.param_) {
+			std::cerr << "param_ != cp.param_ : " << param_ << " " << cp.param_ << std::endl;
+			result = false;
+		}
+
+		if(lowerBoundary_ != cp.lowerBoundary_) {
+			std::cerr << "lowerBoundary_ != cp.lowerBoundary_ : " << lowerBoundary_ << " " << cp.lowerBoundary_ << std::endl;
+			result = false;
+		}
+
+		if(upperBoundary_ != cp.upperBoundary_) {
+			std::cerr << "upperBoundary_ != cp.upperBoundary_ : " << upperBoundary_ << " " << cp.upperBoundary_ << std::endl;
+			result = false;
+		}
+
+		if(precision_ != cp.precision_) {
+			std::cerr << "precision_ != cp.precision_ : " << precision_ << " " << cp.precision_ << std::endl;
+			result = false;
+		}
+#else
+		if(param_ != cp.param_ || lowerBoundary_ != cp.lowerBoundary_ ||
+		   upperBoundary_ != cp.upperBoundary_ || precision_ != cp.precision_) {
+			result = false;
+		}
+#endif /* GENEVATESTING */
+
+		return result;
 	}
 
 	/***************************************************************************/
@@ -239,6 +264,21 @@ public:
 
 	/***************************************************************************/
 	/**
+	 * Checks for similarity between two objects. For most types
+	 * the same as equality, but different for doubles (particularly
+	 * in the case of text io. This function is mainly needed for
+	 * testing purposes. There is a speecialization for double.
+	 *
+	 * @param cp A constant reference to another GNumericParameterT<T> object
+	 * @param limit The maximum acceptable level of difference between both objects
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GNumericParameterT<T>& cp, const T& limit=(T)NULL) const {
+		return operator==(cp);
+	}
+
+	/***************************************************************************/
+	/**
 	 * Erases all previous values
 	 */
 	void reset() {
@@ -250,14 +290,38 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Sets the parameter (and optionally also the boundaries) to a
-	 * user-defined value
+	 * Sets the parameter to a user-defined value. This function requires that
+	 * either the new value is inside existing boundaries or that boundaries
+	 * have not been set.
 	 *
 	 * @param param The value of the parameter
-	 * @param lower The value of the lower boundary (optional)
-	 * @param upper The value of the upper boundary (optional)
 	 */
-	void setParameter(T param, T lower = T(NULL), T upper = T(NULL)){
+	void setParameter(T param){
+		// Check the validity of the boundaries
+		if(lowerBoundary_ != upperBoundary_ &&
+		   (param_ < lowerBoundary_ || param_ > upperBoundary_)) {
+			std::cout << "In GNumericParameterT<T>::setParameter(param): Error!" << std::endl
+				      << "Invalid boundary and/or parameter values:" << std:: endl
+				      << "param_ = " << param_ << std::endl
+				      << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+				      << "upperBoundary_ = " << upperBoundary_ << std::endl
+				      << "Leaving ... " << std::endl;
+			exit(1);
+		}
+
+		// Set the parameter- and boundary values;
+		param_ = param;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Sets the parameter and boundaries to a user-defined value
+	 *
+	 * @param param The value of the parameter
+	 * @param lower The value of the lower boundary
+	 * @param upper The value of the upper boundary
+	 */
+	void setParameter(T param, T lower, T upper){
 		// Check the validity of the boundaries
 		if(lowerBoundary_ != upperBoundary_ &&
 		   (param_ < lowerBoundary_ || param_ > upperBoundary_ || lowerBoundary_ >= upperBoundary_)) {
@@ -341,7 +405,9 @@ public:
 	/**
 	 * Writes the class'es data to a stream in ASCII format. Note that
 	 * there is a specialization for typeof(T) == double, as the precision
-	 * matters in this case.
+	 * matters in this case. It will be written out and read back in in that
+	 * mode only. Another specialization exists for typeof(T)==bool, as
+	 * boundaries do not matter for this type.
 	 *
 	 * @param stream The external output stream to write to
 	 */
@@ -349,7 +415,7 @@ public:
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT::writeToStream(): Error!" << std::endl
+			std::cerr << "In GNumericParameterT<T>::writeToStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
 			exit(1);
 		}
@@ -362,7 +428,11 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Reads the class'es data from a stream in ASCII format.
+	 * Reads the class'es data from a stream in ASCII format. Note that
+	 * there is a specialization for typeof(T) == double, as the precision
+	 * matters in this case. It will be written out and read back in in that
+	 * mode only. Another specialization exists for typeof(T)==bool, as
+	 * boundaries do not matter for this type.
 	 *
 	 * @param stream The external input stream to read from
 	 */
@@ -370,7 +440,7 @@ public:
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT::readFromStream(): Error!" << std::endl
+			std::cerr << "In GNumericParameterT<T>::readFromStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
 			exit(1);
 		}
@@ -383,7 +453,11 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Writes the class'es data to a stream in binary format.
+	 * Writes the class'es data to a stream in binary format. Note that
+	 * there is a specialization for typeof(T) == double, as the precision
+	 * matters in this case. It will be written out and read back in in that
+	 * mode only. Another specialization exists for typeof(T)==bool, as
+	 * boundaries do not matter for this type.
 	 *
 	 * @param stream The external output stream to write to
 	 */
@@ -391,7 +465,7 @@ public:
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT::binaryWriteToStream(): Error!" << std::endl
+			std::cerr << "In GNumericParameterT<T>::binaryWriteToStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
 			exit(1);
 		}
@@ -405,7 +479,11 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Reads the class'es data from a stream in binary format.
+	 * Reads the class'es data from a stream in binary format. Note that
+	 * there is a specialization for typeof(T) == double, as the precision
+	 * matters in this case. It will be written out and read back in in that
+	 * mode only. Another specialization exists for typeof(T)==bool, as
+	 * boundaries do not matter for this type.
 	 *
 	 * @param stream The external input stream to read from
 	 */
@@ -413,7 +491,7 @@ public:
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT::binaryReadFromStream(): Error!" << std::endl
+			std::cerr << "In GNumericParameterT<T>::binaryReadFromStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
 			exit(1);
 		}
@@ -457,9 +535,17 @@ template<> char GNumericParameterT<char>::unknownParameterTypeTrap(char);
 template<> bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool);
 
 template<> void GNumericParameterT<double>::writeToStream(std::ostream&) const;
-template<> void GNumericParameterT<char>::writeToStream(std::ostream&) const;
+template<> void GNumericParameterT<double>::readFromStream(std::istream&);
+template<> void GNumericParameterT<double>::binaryWriteToStream(std::ostream&) const;
+template<> void GNumericParameterT<double>::binaryReadFromStream(std::istream&);
 
-template<> void GNumericParameterT<char>::readFromStream(std::istream&);
+template<> void GNumericParameterT<bool>::writeToStream(std::ostream&) const;
+template<> void GNumericParameterT<bool>::readFromStream(std::istream&);
+template<> void GNumericParameterT<bool>::binaryWriteToStream(std::ostream&) const;
+template<> void GNumericParameterT<bool>::binaryReadFromStream(std::istream&);
+
+template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameterT<double>& cp, const double& limit) const;
+
 } /* namespace Util */
 } /* namespace Gem */
 
@@ -469,3 +555,4 @@ template<> void GNumericParameterT<char>::readFromStream(std::istream&);
 // Tests für ASCII und binary I/O
 // Serialisierungstest
 // Switch to exceptions for errors
+// Check why GRandom emits so few "true" values

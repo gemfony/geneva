@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <cmath>
 
 // Boost header files go here
 
@@ -56,27 +57,37 @@ const std::size_t NDATASETS=10;
  */
 BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 {
-	{
-		// Test basic construction
-		boost::shared_ptr<GDoubleParameter> d0(new GDoubleParameter());
-		boost::shared_ptr<GLongParameter> l0(new GLongParameter());
-		boost::shared_ptr<GBoolParameter> b0(new GBoolParameter());
-		boost::shared_ptr<GCharParameter> c0(new GCharParameter());
+	// Get access to a random number generator
+	GRandom gr;
 
-		// objects will be destroyed at this point, allowing for a test of the destructor
-	}
+	// Test basic construction
+	boost::shared_ptr<GDoubleParameter> d0(new GDoubleParameter());
+	boost::shared_ptr<GLongParameter> l0(new GLongParameter());
+	boost::shared_ptr<GBoolParameter> b0(new GBoolParameter());
+	boost::shared_ptr<GCharParameter> c0(new GCharParameter());
+
+	// Reset the object and fill with values
+	d0->reset();
+	l0->reset();
+	b0->reset();
+	c0->reset();
+
+	d0->setParameter(1);
+	l0->setParameter(2);
+	b0->setParameter(false);
+	c0->setParameter('x');
 
 	// Test construction with value assignment
-	boost::shared_ptr<GDoubleParameter> d1(new GDoubleParameter(1.));
-	boost::shared_ptr<GLongParameter> l1(new GLongParameter(2));
-	boost::shared_ptr<GBoolParameter> b1(new GBoolParameter(false));
-	boost::shared_ptr<GCharParameter> c1(new GCharParameter('x'));
+	boost::shared_ptr<GDoubleParameter> d1(new GDoubleParameter(gr.evenRandom(0., 10.)));
+	boost::shared_ptr<GLongParameter> l1(new GLongParameter(gr.discreteRandom(0,10)));
+	boost::shared_ptr<GBoolParameter> b1(new GBoolParameter(gr.boolRandom()));
+	boost::shared_ptr<GCharParameter> c1(new GCharParameter(gr.charRandom()));
 
 	// Test construction with value assignment and boundaries
-	boost::shared_ptr<GDoubleParameter> d2(new GDoubleParameter(2.,0.,2.));
-	boost::shared_ptr<GLongParameter> l2(new GLongParameter(3,1,3));
-	boost::shared_ptr<GBoolParameter> b2(new GBoolParameter(true,false,true));
-	boost::shared_ptr<GCharParameter> c2(new GCharParameter('y',0,127));
+	boost::shared_ptr<GDoubleParameter> d2(new GDoubleParameter(gr.evenRandom(0.,2.),0.,2.));
+	boost::shared_ptr<GLongParameter> l2(new GLongParameter(gr.discreteRandom(0,10),0,10));
+	boost::shared_ptr<GBoolParameter> b2(new GBoolParameter(gr.boolRandom(),false,true));
+	boost::shared_ptr<GCharParameter> c2(new GCharParameter(gr.charRandom(),0,127));
 
 	// Test copy construction
 	boost::shared_ptr<GDoubleParameter> d3(new GDoubleParameter(*d2));
@@ -85,10 +96,16 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 	boost::shared_ptr<GCharParameter> c3(new GCharParameter(*c2));
 
 	// Test assignment operators
-	*d3 = *d1;
-	*l3 = *l1;
-	*b3 = *b1;
-	*c3 = *c1;
+	*d3 = *d0;
+	*l3 = *l0;
+	*b3 = *b0;
+	*c3 = *c0;
+
+	// Check that the objects are now identical
+	BOOST_REQUIRE(*d3==*d0);
+	BOOST_REQUIRE(*l3==*l0);
+	BOOST_REQUIRE(*b3==*b0);
+	BOOST_REQUIRE(*c3==*c0);
 
 	// Check that d3 etc. have the correct values. Note that they
 	// had different values before the assignment.
@@ -151,91 +168,116 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 	BOOST_REQUIRE(b3->getUpperBoundary() == true);
 	BOOST_REQUIRE(c3->getUpperBoundary() == 127);
 
-	// Write objects to file in binary and text mode, read them back in and check equality
+	// Write objects to file in binary and text mode repeatedly (so we can write
+	// out different, random numbers), read them back in and check equality
 
-	// double objects:
-	boost::shared_ptr<GDoubleParameter> d4(new GDoubleParameter());
+	for(std::size_t i=0; i<100; i++) {
+		//***********************************************************
+		// double objects:
+		boost::shared_ptr<GDoubleParameter> d4(new GDoubleParameter());
+		d3->setParameter(gr.evenRandom(0.,4.));
 
-	std::ofstream doutputbin("ddata.bin");
-	d3->binaryWriteToStream(doutputbin);
-	doutputbin.close();
-	std::ifstream dinputbin("ddata.bin");
-	d4->binaryReadFromStream(dinputbin);
-	dinputbin.close();
-	BOOST_REQUIRE(*d3==*d4);
-	d4->reset();
+		std::ofstream doutputbin("ddata.bin");
+		d3->binaryWriteToStream(doutputbin);
+		doutputbin.close();
+		std::ifstream dinputbin("ddata.bin");
+		d4->binaryReadFromStream(dinputbin);
+		dinputbin.close();
 
-	std::ofstream doutputtxt("ddata.txt");
-	d3->writeToStream(doutputtxt);
-	doutputtxt.close();
-	std::ifstream dinputtxt("ddata.txt");
-	d4->readFromStream(dinputtxt);
-	dinputtxt.close();
-	BOOST_REQUIRE(*d3==*d4);
-	d4->reset();
+		BOOST_REQUIRE(*d3==*d4);
+		d4->reset();
 
-	// long objects
-	boost::shared_ptr<GLongParameter> l4(new GLongParameter());
+		d3->setPrecision(11);
 
-	std::ofstream loutputbin("ldata.bin");
-	l3->binaryWriteToStream(loutputbin);
-	loutputbin.close();
-	std::ifstream linputbin("ldata.bin");
-	l4->binaryReadFromStream(linputbin);
-	linputbin.close();
-	BOOST_REQUIRE(*l3==*l4);
-	l4->reset();
+		std::ofstream doutputtxt("ddata.txt");
+		d3->writeToStream(doutputtxt);
+		doutputtxt.close();
+		std::ifstream dinputtxt("ddata.txt");
+		d4->readFromStream(dinputtxt);
+		dinputtxt.close();
 
-	std::ofstream loutputtxt("ldata.txt");
-	l3->writeToStream(loutputtxt);
-	loutputtxt.close();
-	std::ifstream linputtxt("ldata.txt");
-	l4->readFromStream(linputtxt);
-	linputtxt.close();
-	BOOST_REQUIRE(*l3==*l4);
-	l4->reset();
+		// We cannot simply check for equality of d3 and d4 in the case of data exchange
+		// in text format, as this exchange format implies a loss in precision.
+		BOOST_CHECK(d3->isSimilarTo(*d4, exp(-10)));
 
-	// bool objects
-	boost::shared_ptr<GBoolParameter> b4(new GBoolParameter());
+		d4->reset();
 
-	std::ofstream boutputbin("bdata.bin");
-	b3->binaryWriteToStream(boutputbin);
-	boutputbin.close();
-	std::ifstream binputbin("bdata.bin");
-	b4->binaryReadFromStream(binputbin);
-	binputbin.close();
-	BOOST_REQUIRE(*b3==*b4);
-	b4->reset();
+		//***********************************************************
+		// long objects
+		boost::shared_ptr<GLongParameter> l4(new GLongParameter());
+		l3->setParameter(gr.discreteRandom(0,5));
 
-	std::ofstream boutputtxt("bdata.txt");
-	b3->writeToStream(boutputtxt);
-	boutputtxt.close();
-	std::ifstream binputtxt("bdata.txt");
-	b4->readFromStream(binputtxt);
-	binputtxt.close();
-	BOOST_REQUIRE(*b3==*b4);
-	b4->reset();
+		std::ofstream loutputbin("ldata.bin");
+		l3->binaryWriteToStream(loutputbin);
+		loutputbin.close();
+		std::ifstream linputbin("ldata.bin");
+		l4->binaryReadFromStream(linputbin);
+		linputbin.close();
 
-	// char objects
-	boost::shared_ptr<GCharParameter> c4(new GCharParameter());
+		BOOST_REQUIRE(*l3==*l4);
+		l4->reset();
 
-	std::ofstream coutputbin("cdata.bin");
-	c3->binaryWriteToStream(coutputbin);
-	coutputbin.close();
-	std::ifstream cinputbin("cdata.bin");
-	c4->binaryReadFromStream(cinputbin);
-	cinputbin.close();
-	BOOST_REQUIRE(*c3==*c4);
-	c4->reset();
+		std::ofstream loutputtxt("ldata.txt");
+		l3->writeToStream(loutputtxt);
+		loutputtxt.close();
+		std::ifstream linputtxt("ldata.txt");
+		l4->readFromStream(linputtxt);
+		linputtxt.close();
 
-	std::ofstream coutputtxt("cdata.txt");
-	c3->writeToStream(coutputtxt);
-	coutputtxt.close();
-	std::ifstream cinputtxt("cdata.txt");
-	c4->readFromStream(cinputtxt);
-	cinputtxt.close();
-	BOOST_REQUIRE(*c3==*c4);
-	c4->reset();
+		BOOST_REQUIRE(*l3==*l4);
+		l4->reset();
+
+		//***********************************************************
+		// bool objects
+		boost::shared_ptr<GBoolParameter> b4(new GBoolParameter());
+		b3->setParameter(gr.boolRandom());
+
+		std::ofstream boutputbin("bdata.bin");
+		b3->binaryWriteToStream(boutputbin);
+		boutputbin.close();
+		std::ifstream binputbin("bdata.bin");
+		b4->binaryReadFromStream(binputbin);
+		binputbin.close();
+
+		BOOST_REQUIRE(*b3==*b4);
+		b4->reset();
+
+		std::ofstream boutputtxt("bdata.txt");
+		b3->writeToStream(boutputtxt);
+		boutputtxt.close();
+		std::ifstream binputtxt("bdata.txt");
+		b4->readFromStream(binputtxt);
+		binputtxt.close();
+
+		BOOST_REQUIRE(*b3==*b4);
+		b4->reset();
+
+		//***********************************************************
+		// char objects
+		boost::shared_ptr<GCharParameter> c4(new GCharParameter());
+		b3->setParameter(gr.charRandom());
+
+		std::ofstream coutputbin("cdata.bin");
+		c3->binaryWriteToStream(coutputbin);
+		coutputbin.close();
+		std::ifstream cinputbin("cdata.bin");
+		c4->binaryReadFromStream(cinputbin);
+		cinputbin.close();
+
+		BOOST_REQUIRE(*c3==*c4);
+		c4->reset();
+
+		std::ofstream coutputtxt("cdata.txt");
+		c3->writeToStream(coutputtxt);
+		coutputtxt.close();
+		std::ifstream cinputtxt("cdata.txt");
+		c4->readFromStream(cinputtxt);
+		cinputtxt.close();
+
+		BOOST_REQUIRE(*c3==*c4);
+		c4->reset();
+		//***********************************************************
+	}
 }
 
 /***********************************************************************************/
@@ -245,6 +287,8 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 BOOST_AUTO_TEST_CASE(gparametervaluepair_no_failure_expected)
 {
 	GRandom gr;
+
+
 }
 
 /***********************************************************************************/
@@ -368,9 +412,10 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	while(gde->nextDataSet());
 	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
 
+	/*
 	// Test whether data can be written to file and read back in again.
 	// In text mode
-	gde->writeToFile("testFile.txt",false);
+	// gde->writeToFile("testFile.txt",false);
 	boost::shared_ptr<GDataExchange> gde2(new GDataExchange()); // Create second, empty object
 	// gde2->readFromFile("testFile.txt",false);
 	// BOOST_REQUIRE(*gde == *gde2);
@@ -391,6 +436,8 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	// Improve fp accuracy of serialized numbers.
 
 	// Test precision setting
+	 *
+	 */
 }
 
 /***********************************************************************************/
