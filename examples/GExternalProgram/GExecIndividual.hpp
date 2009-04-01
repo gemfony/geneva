@@ -64,7 +64,7 @@ class GExecIndividual
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
+		ar & make_nvp("GParameterSet", boost::serialization::base_object<GParameterSet>(*this));
 		ar & make_nvp("fileName_", fileName_);
 		ar & make_nvp("arguments_", arguments_);
 	}
