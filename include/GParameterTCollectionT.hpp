@@ -146,7 +146,7 @@ public:
 	 * store own adaptors.
 	 */
 	virtual void mutate() {
-		std::vector<boost::shared_ptr<T> >::iterator it;
+		typename std::vector<boost::shared_ptr<T> >::iterator it;
 		for(it=data.begin(); it!=data.end(); ++it) (*it)->mutate();
 	}
 
@@ -194,7 +194,7 @@ public:
 	 */
 	inline size_type count(const T& item) const {
 		size_type num;
-		std::count_if(data.begin(), data.end(), boost::bind(std::equal_to(), *_1, *item), num);
+		std::count_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(), _1, item), num);
 		return num;
 	}
 
@@ -205,7 +205,7 @@ public:
 	 * and we do not want to compare the pointers themselves.
 	 */
 	inline iterator find(const boost::shared_ptr<T>& item) {
-		return std::find_if(data.begin(), data.end(), boost::bind(std::equal_to(),*_1,*item));
+		return std::find_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(),_1,item));
 	}
 
 	/*******************************************************************************************/
@@ -215,7 +215,7 @@ public:
 	 * and we do not want to compare the pointers themselves.
 	 */
 	inline const_iterator find(const boost::shared_ptr<T>& item) const {
-		return std::find_if(data.begin(), data.end(), boost::bind(std::equal_to(),*_1,*item));
+		return std::find_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(),_1,item));
 	}
 
 	/*******************************************************************************************/
@@ -345,8 +345,8 @@ public:
 	 * @return The argument of this function (a std::vector<boost::shared_ptr<T> >)
 	 */
 	inline const std::vector<boost::shared_ptr<T> >& operator=(const std::vector<boost::shared_ptr<T> >& cp) {
-		std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
-		std::vector<boost::shared_ptr<T> >::iterator it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		typename std::vector<boost::shared_ptr<T> >::iterator it;
 
 		std::size_t localSize = data.size();
 		std::size_t cpSize = cp.data.size();
