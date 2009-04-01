@@ -518,8 +518,6 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 
 	gde->resetAll(); // There should now only be one data set remaining
 	BOOST_REQUIRE(gde->nDataSets() == 1);
-
-	// Test precision setting
 }
 
 /***********************************************************************************/
