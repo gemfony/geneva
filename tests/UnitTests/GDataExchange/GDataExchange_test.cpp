@@ -520,6 +520,7 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	BOOST_REQUIRE(gde->nDataSets() == 1);
 }
 
+
 /***********************************************************************************/
 
 // EOF

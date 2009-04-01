@@ -31,6 +31,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <exception>
 
 // Boost headers go here
 #include <boost/version.hpp>
@@ -68,6 +69,7 @@
 #include "GLongParameter.hpp"
 #include "GParameterValuePair.hpp"
 #include "GHelperFunctionsT.hpp"
+#include "GDataExchangeException.hpp"
 
 namespace Gem
 {
@@ -167,10 +169,12 @@ public:
 	 */
 	template <typename T>
 	std::size_t numberOfParameterSets() const {
-		std::cerr << "In GDataExchange::numberOfParameterSets<T>: Error!" << std::endl
-			      << "The function seems to have been called with a type" << std::endl
-			      << "it was not designed for. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::numberOfParameterSets<T>: Error!" << std::endl
+			    << "The function seems to have been called with a type" << std::endl
+			    << "it was not designed for. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 
 		// Make the compiler happy
 		return 0;
@@ -186,10 +190,12 @@ public:
 	 */
 	template <typename T>
 	boost::shared_ptr<GNumericParameterT<T> > parameterSet_at(std::size_t pos) {
-		std::cerr << "In GDataExchange::parameterSet_at<T>(std::size_t): Error!" << std::endl
-			      << "The function seems to have been called with a type" << std::endl
-			      << "it was not designed for. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::parameterSet_at<T>(std::size_t): Error!" << std::endl
+		         << "The function seems to have been called with a type" << std::endl
+		         << "it was not designed for. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 
 		// Make the compiler happy
 		return boost::shared_ptr<GNumericParameterT<T> >(new GNumericParameterT<T>());
@@ -205,10 +211,12 @@ public:
 	 */
 	template <typename T>
 	T at(std::size_t pos) {
-		std::cerr << "In GDataExchange::at<T>(std::size_t): Error!" << std::endl
-			      << "The function seems to have been called with a type" << std::endl
-			      << "it was not designed for. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::at<T>(std::size_t): Error!" << std::endl
+			    << "The function seems to have been called with a type" << std::endl
+			    << "it was not designed for. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 
 		// Make the compiler happy
 		return 0.;
@@ -223,10 +231,12 @@ public:
 	 */
 	template <typename T>
 	std::size_t size() {
-		std::cerr << "In GDataExchange::size<T>(): Error!" << std::endl
-			      << "The function seems to have been called with a type" << std::endl
-			      << "it was not designed for. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::size<T>(): Error!" << std::endl
+			     << "The function seems to have been called with a type" << std::endl
+			     << "it was not designed for. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 
 		// Make the compiler happy
 		return (std::size_t)NULL;
@@ -239,10 +249,12 @@ public:
 	 */
 	template <typename T>
 	void append(const T&) {
-		std::cerr << "In GDataExchange::append<T>(): Error!" << std::endl
-			      << "The function seems to have been called with a type" << std::endl
-			      << "it was not designed for. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append<T>(): Error!" << std::endl
+		        << "The function seems to have been called with a type" << std::endl
+			    << "it was not designed for. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	/**************************************************************************/
@@ -252,10 +264,12 @@ public:
 	 */
 	template <typename T>
 	void append(const T&, const T&, const T&) {
-		std::cerr << "In GDataExchange::append<T>(): Error!" << std::endl
-			      << "The function seems to have been called with a type" << std::endl
-			      << "it was not designed for. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append<T>(): Error!" << std::endl
+			    << "The function seems to have been called with a type" << std::endl
+			    << "it was not designed for. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	/**************************************************************************/

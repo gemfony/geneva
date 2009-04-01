@@ -205,9 +205,11 @@ void GDataExchange::sort(const bool& ascending) {
 	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator it;
 	for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it) {
 		if(!(*it)->hasValue_) {
-			std::cerr << "In GDataExchange::sort() : Error!" << std::endl
-			               << "A data set without proper value was found. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GDataExchange::sort() : Error!" << std::endl
+			         << "A data set without proper value was found. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 	}
 
@@ -257,10 +259,12 @@ void GDataExchange::setPrecision(const std::streamsize& precision) {
 void GDataExchange::setValue(double value){
 	// Prevent setting of a value of one has already been assigned
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::setValue(): Error!" << std::endl
-		          << "Trying to assign a value to the current" << std::endl
-		          << "when one has already been assigned. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::setValue(): Error!" << std::endl
+		        << "Trying to assign a value to the current" << std::endl
+		        << "when one has already been assigned. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	(*current_)->hasValue_ = true;
@@ -275,9 +279,12 @@ void GDataExchange::setValue(double value){
  */
 double GDataExchange::value(){
 	if(!(*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::value(): Warning" << std::endl
-			      << "Retrieving value of a data set when" << std::endl
-			      << "no value has been set yet." << std::endl;
+		std::ostringstream error;
+		error << "In GDataExchange::value(): Warning" << std::endl
+			    << "Retrieving value of a data set when" << std::endl
+			    << "no value has been set yet." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	return (*current_)->value_;
@@ -549,10 +556,12 @@ template <> std::size_t GDataExchange::size<char>() {
 void GDataExchange::append(const boost::shared_ptr<GDoubleParameter>& gdp) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			     << "Tried to assign new data when a value has already" << std::endl
+				 << "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	(*current_)->dArray_.push_back(gdp);
@@ -567,10 +576,12 @@ void GDataExchange::append(const boost::shared_ptr<GDoubleParameter>& gdp) {
 void GDataExchange::append(const boost::shared_ptr<GLongParameter>& glp) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			    << "Tried to assign new data when a value has already" << std::endl
+				<< "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	(*current_)->lArray_.push_back(glp);
@@ -585,10 +596,12 @@ void GDataExchange::append(const boost::shared_ptr<GLongParameter>& glp) {
 void GDataExchange::append(const boost::shared_ptr<GBoolParameter>& gbp) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			    << "Tried to assign new data when a value has already" << std::endl
+				<< "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	(*current_)->bArray_.push_back(gbp);
@@ -603,10 +616,12 @@ void GDataExchange::append(const boost::shared_ptr<GBoolParameter>& gbp) {
 void GDataExchange::append(const boost::shared_ptr<GCharParameter>& gcp) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			     << "Tried to assign new data when a value has already" << std::endl
+				 << "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	(*current_)->cArray_.push_back(gcp);
@@ -622,10 +637,12 @@ void GDataExchange::append(const boost::shared_ptr<GCharParameter>& gcp) {
 template <> void GDataExchange::append<double>(const double& x) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			     << "Tried to assign new data when a value has already" << std::endl
+				 << "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter(x));
@@ -642,10 +659,12 @@ template <> void GDataExchange::append<double>(const double& x) {
 template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			     << "Tried to assign new data when a value has already" << std::endl
+				 << "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	boost::shared_ptr<GLongParameter> p(new GLongParameter(x));
@@ -662,10 +681,12 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x) 
 template <> void GDataExchange::append<bool>(const bool& x) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			    << "Tried to assign new data when a value has already" << std::endl
+				<< "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	boost::shared_ptr<GBoolParameter> p(new GBoolParameter(x));
@@ -682,10 +703,12 @@ template <> void GDataExchange::append<bool>(const bool& x) {
 template <> void GDataExchange::append<char>(const char& x) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			     << "Tried to assign new data when a value has already" << std::endl
+				 << "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	boost::shared_ptr<GCharParameter> p(new GCharParameter(x));
@@ -703,10 +726,12 @@ template <> void GDataExchange::append<char>(const char& x) {
 template <> void GDataExchange::append<double>(const double& x, const double& x_l, const double& x_u) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			     << "Tried to assign new data when a value has already" << std::endl
+				 << "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	// The GDoubleParameter constructor will do error checks
@@ -725,10 +750,12 @@ template <> void GDataExchange::append<double>(const double& x, const double& x_
 template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x, const boost::int32_t& x_l, const boost::int32_t& x_u) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			     << "Tried to assign new data when a value has already" << std::endl
+				 << "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	// The GLongParameter constructor will do error checks
@@ -749,10 +776,12 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x, 
 template <> void GDataExchange::append<bool>(const bool& x, const bool& x_l, const bool& x_u) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			    << "Tried to assign new data when a value has already" << std::endl
+				<< "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	boost::shared_ptr<GBoolParameter> p(new GBoolParameter(x,false,true));
@@ -770,10 +799,12 @@ template <> void GDataExchange::append<bool>(const bool& x, const bool& x_l, con
 template <> void GDataExchange::append<char>(const char& x, const char& x_l, const char& x_u) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
-		std::cerr << "In GDataExchange::append(): Error!" << std::endl
-			      << "Tried to assign new data when a value has already" << std::endl
-				  << "been calculated. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::append(): Error!" << std::endl
+			     << "Tried to assign new data when a value has already" << std::endl
+				 << "been calculated. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	// The GCharParameter constructor will do error checks
@@ -917,9 +948,11 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
 void GDataExchange::writeToFile(const std::string& fileName, bool binary) {
 	std::ofstream output(fileName.c_str());
 	if(!output.good()) {
-		std::cerr << "In GDataExchange::writeToFile(): Error!" << std::endl
+		std::ostringstream error;
+		error << "In GDataExchange::writeToFile(): Error!" << std::endl
 			          << "Output stream is in a bad state. Leaving ..." << std::endl;
-		exit(1);
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	if(binary)
@@ -940,9 +973,11 @@ void GDataExchange::writeToFile(const std::string& fileName, bool binary) {
 void GDataExchange::readFromFile(const std::string& fileName, bool binary) {
 	std::ifstream input(fileName.c_str());
 	if(!input.good()) {
-		std::cerr << "In GDataExchange::readFromFile(): Error!" << std::endl
-			          << "Input stream is in a bad state. Leaving ..." << std::endl;
-		exit(1);
+		std::ostringstream error;
+		error << "In GDataExchange::readFromFile(): Error!" << std::endl
+ 			     << "Input stream is in a bad state. Leaving ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 	if(binary)

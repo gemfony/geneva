@@ -95,9 +95,11 @@ template<> void GNumericParameterT<double>::writeToStream(std::ostream& stream) 
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<double>::writeToStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<double>::writeToStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -130,9 +132,11 @@ template<> void GNumericParameterT<double>::readFromStream(std::istream& stream)
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<double>::readFromStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<double>::readFromStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -163,9 +167,11 @@ template<> void GNumericParameterT<double>::binaryWriteToStream(std::ostream& st
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
+			std::ostringstream error;
 			std::cerr << "In GNumericParameterT<double>::binaryWriteToStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -187,9 +193,11 @@ template<> void GNumericParameterT<double>::binaryReadFromStream(std::istream& s
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
+			std::ostringstream error;
 			std::cerr << "In GNumericParameterT<double>::binaryReadFromStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -211,9 +219,11 @@ template<> void GNumericParameterT<bool>::writeToStream(std::ostream& stream) co
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<bool>::writeToStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<bool>::writeToStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -231,9 +241,11 @@ template<> void GNumericParameterT<bool>::readFromStream(std::istream& stream) {
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<bool>::readFromStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<bool>::readFromStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -256,9 +268,11 @@ template<> void GNumericParameterT<bool>::binaryWriteToStream(std::ostream& stre
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<bool>::binaryWriteToStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<bool>::binaryWriteToStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -277,9 +291,11 @@ template<> void GNumericParameterT<bool>::binaryReadFromStream(std::istream& str
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<bool>::binaryReadFromStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<bool>::binaryReadFromStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -302,9 +318,11 @@ template<> void GNumericParameterT<char>::writeToStream(std::ostream& stream) co
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<char>::writeToStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<char>::writeToStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -324,9 +342,11 @@ template<> void GNumericParameterT<char>::readFromStream(std::istream& stream) {
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<char>::readFromStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<char>::readFromStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 

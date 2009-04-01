@@ -64,12 +64,8 @@ GRandomFactory::GRandomFactory(const boost::uint16_t& n01Threads) throw() :
  * we wait for them to join us.
  */
 GRandomFactory::~GRandomFactory() {
-	std::cout << "Terminating threads ..." << std::endl;
-
 	producer_threads_01_.interrupt_all(); // doesn't throw
 	producer_threads_01_.join_all();
-
-	std::cout << "GrandomFactory has terminated" << std::endl;
 }
 
 /*************************************************************************/

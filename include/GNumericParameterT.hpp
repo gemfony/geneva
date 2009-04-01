@@ -61,12 +61,15 @@
 #ifndef GNUMERICPARAMETERT_HPP_
 #define GNUMERICPARAMETERT_HPP_
 
+// Geneva headers go here
+#include "GDataExchangeException.hpp"
+
 namespace Gem
 {
 namespace Util
 {
 
-// Set to the average number of digits of a double number
+// Set to the average number of decimal digits of a double number. This will likely be 15.
 const std::streamsize DEFAULTPRECISION=std::numeric_limits< double >::digits10;
 
 /*******************************************************************************/
@@ -131,16 +134,17 @@ public:
 		 precision_(DEFAULTPRECISION)
 	{
 		// Check the validity of the boundaries.
-		// ATTENTION: Is false<true standard compliant ? Works with g++ 4.2.3 and switch -Wall
 		if(lowerBoundary_ != upperBoundary_ &&
 		   (param_ < lowerBoundary_ || param_ > upperBoundary_ || lowerBoundary_ >= upperBoundary_)) {
-			std::cout << "In GNumericParameterT<T>::GNumericParameterT(param, lower, upper): Error!" << std::endl
-				      << "Invalid boundary and/or parameter values:" << std:: endl
-				      << "param_ = " << param_ << std::endl
-				      << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-				      << "upperBoundary_ = " << upperBoundary_ << std::endl
-				      << "Leaving ... " << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<T>::GNumericParameterT(param, lower, upper): Error!" << std::endl
+			        << "Invalid boundary and/or parameter values:" << std:: endl
+			        << "param_ = " << param_ << std::endl
+			        << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+			        << "upperBoundary_ = " << upperBoundary_ << std::endl
+			        << "Leaving ... " << std::endl;
+
+			throw GDataExchangeException(error.str());
 		}
 	}
 
@@ -190,13 +194,15 @@ public:
 
 		// Check the validity of the new variable
 		if(lowerBoundary_ != upperBoundary_ && (param_ < lowerBoundary_ || param_ > upperBoundary_)) {
-			std::cout << "In GNumericParameterT<T>::operator=(const T&): Error" << std::endl
-				      << "Invalid value received:" << std::endl
-				      << "param_ = " << param_ << std::endl
-				      << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-				      << "upperBoundary_ = " << upperBoundary_ << std::endl
-				      << "Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<T>::operator=(const T&): Error" << std::endl
+					 << "Invalid value received:" << std::endl
+					 << "param_ = " << param_ << std::endl
+					 << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					 << "upperBoundary_ = " << upperBoundary_ << std::endl
+					 << "Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 
 		return param_;
@@ -290,13 +296,15 @@ public:
 		// Check the validity of the boundaries
 		if(lowerBoundary_ != upperBoundary_ &&
 		   (param_ < lowerBoundary_ || param_ > upperBoundary_)) {
-			std::cout << "In GNumericParameterT<T>::setParameter(param): Error!" << std::endl
-				      << "Invalid boundary and/or parameter values:" << std:: endl
-				      << "param_ = " << param_ << std::endl
-				      << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-				      << "upperBoundary_ = " << upperBoundary_ << std::endl
-				      << "Leaving ... " << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<T>::setParameter(param): Error!" << std::endl
+					<< "Invalid boundary and/or parameter values:" << std:: endl
+					<< "param_ = " << param_ << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					<< "upperBoundary_ = " << upperBoundary_ << std::endl
+					<< "Leaving ... " << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 
 		// Set the parameter- and boundary values;
@@ -315,13 +323,15 @@ public:
 		// Check the validity of the boundaries
 		if(lowerBoundary_ != upperBoundary_ &&
 		   (param_ < lowerBoundary_ || param_ > upperBoundary_ || lowerBoundary_ >= upperBoundary_)) {
-			std::cout << "In GNumericParameterT<T>::setParameter(param, lower, upper): Error!" << std::endl
-				      << "Invalid boundary and/or parameter values:" << std:: endl
-				      << "param_ = " << param_ << std::endl
-				      << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-				      << "upperBoundary_ = " << upperBoundary_ << std::endl
-				      << "Leaving ... " << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<T>::setParameter(param, lower, upper): Error!" << std::endl
+				    << "Invalid boundary and/or parameter values:" << std:: endl
+				    << "param_ = " << param_ << std::endl
+				    << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+				    << "upperBoundary_ = " << upperBoundary_ << std::endl
+				    << "Leaving ... " << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 
 		// Set the parameter- and boundary values;
@@ -405,9 +415,11 @@ public:
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<T>::writeToStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<T>::writeToStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -430,9 +442,11 @@ public:
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<T>::readFromStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<T>::readFromStream(): Error!" << std::endl
+			         << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -455,9 +469,11 @@ public:
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<T>::binaryWriteToStream(): Error!" << std::endl
-				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GNumericParameterT<T>::binaryWriteToStream(): Error!" << std::endl
+				    << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -481,9 +497,11 @@ public:
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GNumericParameterT<T>::binaryReadFromStream(): Error!" << std::endl
+			std::ostringstream error;
+			error << "In GNumericParameterT<T>::binaryReadFromStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -503,10 +521,12 @@ protected:
 	 * @param unknown A dummy parameter
 	 */
 	virtual T unknownParameterTypeTrap(T unknown){
-		std::cerr << "In GNumericParameterT<T>::unknownParameterTypeTrap(): Error" << std::endl
+		std::ostringstream error;
+		error << "In GNumericParameterT<T>::unknownParameterTypeTrap(): Error" << std::endl
 					  << "You seem to have instantiated this class with a type it was" << std::endl
 					  << "not designed for. Leaving ..." << std::endl;
-		exit(1);
+
+		throw(GDataExchangeException(error.str()));
 	}
 
 private:
@@ -549,9 +569,3 @@ template <> void GNumericParameterT<bool>::setParameter(const bool&, const bool&
 } /* namespace Gem */
 
 #endif /* GNUMERICPARAMETERT_HPP_ */
-
-// TODO:
-// Tests für ASCII und binary I/O
-// Serialisierungstest
-// Switch to exceptions for errors
-// Check why GRandom emits so few "true" values

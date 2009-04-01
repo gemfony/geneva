@@ -396,9 +396,11 @@ namespace Gem
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GParameterValuePair::writeToStream(): Error!" << std::endl
-			<< "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GParameterValuePair::writeToStream(): Error!" << std::endl
+				     << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -447,9 +449,11 @@ namespace Gem
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GParameterValuePair::readFromStream(): Error!" << std::endl
-			<< "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GParameterValuePair::readFromStream(): Error!" << std::endl
+				     << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -557,9 +561,11 @@ namespace Gem
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GParameterValuePair::binaryWriteToStream(): Error!" << std::endl
-			<< "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GParameterValuePair::binaryWriteToStream(): Error!" << std::endl
+				     << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -612,9 +618,11 @@ namespace Gem
 #ifdef DEBUG
 		// Check that the stream is in a valid condition
 		if(!stream.good()) {
-			std::cerr << "In GParameterValuePair::binaryReadFromStream(): Error!" << std::endl
-			<< "Stream is in a bad condition. Leaving ..." << std::endl;
-			exit(1);
+			std::ostringstream error;
+			error << "In GParameterValuePair::binaryReadFromStream(): Error!" << std::endl
+				     << "Stream is in a bad condition. Leaving ..." << std::endl;
+
+			throw(GDataExchangeException(error.str()));
 		}
 #endif /* DEBUG*/
 

@@ -32,6 +32,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <exception>
 
 // Boost headers go here
 #include <boost/version.hpp>
@@ -68,6 +69,7 @@
 #include "GDoubleParameter.hpp"
 #include "GLongParameter.hpp"
 #include "GHelperFunctionsT.hpp"
+#include "GDataExchangeException.hpp"
 
 namespace Gem
 {
