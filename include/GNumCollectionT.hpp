@@ -95,7 +95,7 @@ public:
 	/**
 	 * The standard copy constructor
 	 */
-	GNumCollectionT(const GNumCollectionT& cp)
+	GNumCollectionT(const GNumCollectionT<num_type>& cp)
 		:GParameterCollectionT<num_type> (cp)
 	{ /* nothing */ }
 
@@ -113,7 +113,7 @@ public:
 	 * @param cp A copy of another GDoubleCollection object
 	 * @return A constant reference to this object
 	 */
-	const GNumCollectionT& operator=(const GNumCollectionT& cp){
+	const GNumCollectionT& operator=(const GNumCollectionT<num_type>& cp){
 		GNumCollectionT<num_type>::load(&cp);
 		return *this;
 	}

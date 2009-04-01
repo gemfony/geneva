@@ -70,8 +70,8 @@ public:
 	 * The default constructor
 	 */
 	GParameterCollectionT() :
-		GParameterBaseWithAdaptorsT<T> () { /* nothing */
-	}
+		GParameterBaseWithAdaptorsT<T> ()
+	{ /* nothing */ }
 
 	/*******************************************************************************************/
 	/**
