@@ -534,6 +534,9 @@ template<> void GNumericParameterT<bool>::readFromStream(std::istream&);
 template<> void GNumericParameterT<bool>::binaryWriteToStream(std::ostream&) const;
 template<> void GNumericParameterT<bool>::binaryReadFromStream(std::istream&);
 
+template<> void GNumericParameterT<char>::writeToStream(std::ostream&) const;
+template<> void GNumericParameterT<char>::readFromStream(std::istream&);
+
 template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameterT<double>& cp, const double& limit) const;
 
 template <> GNumericParameterT<bool>::GNumericParameterT();

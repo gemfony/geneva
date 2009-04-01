@@ -505,8 +505,8 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	// In text mode
 	gde->writeToFile("testFile.txt",false);
 	boost::shared_ptr<GDataExchange> gde2(new GDataExchange()); // Create second, empty object
-	// gde2->readFromFile("testFile.txt",false);
-	// BOOST_REQUIRE(gde->isSimilarTo(*gde2,exp(-10)));
+	gde2->readFromFile("testFile.txt",false);
+	BOOST_REQUIRE(gde2->isSimilarTo(*gde,exp(-10)));
 
 	 // Put gde2 in pristine condition so we can start over with the binary mode
 	gde2->resetAll();
@@ -518,10 +518,6 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 
 	gde->resetAll(); // There should now only be one data set remaining
 	BOOST_REQUIRE(gde->nDataSets() == 1);
-
-
-	// Need test about file creation and scanning. In this context:
-	// Improve fp accuracy of serialized numbers.
 
 	// Test precision setting
 }

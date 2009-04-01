@@ -235,43 +235,106 @@ namespace Gem
 	 */
 	bool GParameterValuePair::isSimilarTo(const GParameterValuePair& cp, const double& limit) const {
 		// Check the "easy" values
-		if(hasValue_ != cp.hasValue_) return false;
-		if(value_ != cp.value_) return false;
+		if(hasValue_ != cp.hasValue_) {
+#ifdef GENEVATESTING
+			std::cerr << "hasValue_ != cp.hasValue_ : " << hasValue_ << " " << cp.hasValue_ << std::endl;
+#endif /* GENEVATESTING */
+
+			return false;
+		}
+
+		// This is a double value. Hence we cannot test equality, but need
+		// to test for similarity, using the same limit as for all other double values
+		if(fabs(value_ - cp.value_) > fabs(limit)) {
+#ifdef GENEVATESTING
+			std::cerr << "value_ != cp.value_ : " << value_ << " " << cp.value_ << std::endl;
+#endif /* GENEVATESTING */
+
+			return false;
+		}
 
 		// Check the equality of the double vector
-		if(dArray_.size() != cp.dArray_.size()) return false;
+		if(dArray_.size() != cp.dArray_.size()) {
+#ifdef GENEVATESTING
+			std::cerr << "dArray_.size() != cp.dArray_.size() : " << dArray_.size() << " " << cp.dArray_.size() << std::endl;
+#endif /* GENEVATESTING */
+
+			return false;
+		}
 		std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit, cp_dcit;
 
 		//-----------------------------------------------------------------------------------------------------
 		// Here we use the GDoubleParameter value's own function to determine similarity
 		for(dcit=dArray_.begin(), cp_dcit=cp.dArray_.begin();
 			  dcit!=dArray_.end(), cp_dcit!=cp.dArray_.end(); ++dcit, ++cp_dcit) {
-			if(!(*dcit)->isSimilarTo(**cp_dcit, limit)) return false;
+			if(!(*dcit)->isSimilarTo(**cp_dcit, limit)) {
+#ifdef GENEVATESTING
+			std::cerr << "**dcit is not similar to **cp_dcit" << std::endl;
+#endif /* GENEVATESTING */
+
+				return false;
+			}
 		}
 		//-----------------------------------------------------------------------------------------------------
 
 		// Check the equality of the long vector
-		if(lArray_.size() != cp.lArray_.size()) return false;
+		if(lArray_.size() != cp.lArray_.size()) {
+#ifdef GENEVATESTING
+			std::cerr << "lArray_.size() != cp.lArray_.size() : " << lArray_.size() << " " << cp.lArray_.size() << std::endl;
+#endif /* GENEVATESTING */
+
+			return false;
+		}
 		std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lcit, cp_lcit;
 		for(lcit=lArray_.begin(), cp_lcit=cp.lArray_.begin();
 		lcit!=lArray_.end(), cp_lcit!=cp.lArray_.end(); ++lcit, ++cp_lcit) {
-			if(**lcit != **cp_lcit) return false;
+			if(**lcit != **cp_lcit) {
+#ifdef GENEVATESTING
+			std::cerr << "**lcit != **cp_lcit" << std::endl;
+#endif /* GENEVATESTING */
+
+				return false;
+			}
 		}
 
 		// Check the equality of the bool vector
-		if(bArray_.size() != cp.bArray_.size()) return false;
+		if(bArray_.size() != cp.bArray_.size()) {
+#ifdef GENEVATESTING
+			std::cerr << "bArray_.size() != cp.bArray_.size() : " << bArray_.size() << " " << cp.bArray_.size() << std::endl;
+#endif /* GENEVATESTING */
+
+			return false;
+		}
 		std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit, cp_bcit;
 		for(bcit=bArray_.begin(), cp_bcit=cp.bArray_.begin();
 		bcit!=bArray_.end(), cp_bcit!=cp.bArray_.end(); ++bcit, ++cp_bcit) {
-			if(**bcit != **cp_bcit) return false;
+			if(**bcit != **cp_bcit) {
+#ifdef GENEVATESTING
+			std::cerr << "**bcit != **cp_bcit" << std::endl;
+#endif /* GENEVATESTING */
+
+				return false;
+			}
 		}
 
 		// Check the equality of the char vector
-		if(cArray_.size() != cp.cArray_.size()) return false;
+		if(cArray_.size() != cp.cArray_.size()) {
+#ifdef GENEVATESTING
+			std::cerr << "cArray_.size() != cp.cArray_.size() : " << cArray_.size() << " " << cp.cArray_.size() << std::endl;
+#endif /* GENEVATESTING */
+
+			return false;
+		}
 		std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit, cp_ccit;
 		for(ccit=cArray_.begin(), cp_ccit=cp.cArray_.begin();
 		ccit!=cArray_.end(), cp_ccit!=cp.cArray_.end(); ++ccit, ++cp_ccit) {
-			if(**ccit != **cp_ccit) return false;
+			if(**ccit != **cp_ccit) {
+#ifdef GENEVATESTING
+			std::cerr << "**ccit != **cp_ccit" << std::endl;
+#endif /* GENEVATESTING */
+
+				return false;
+			}
 		}
 
 		// Now we are sure that all parameters are equal

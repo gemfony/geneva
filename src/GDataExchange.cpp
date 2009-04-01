@@ -137,19 +137,37 @@ bool GDataExchange::operator!=(const GDataExchange& cp) const {
  */
 bool GDataExchange::isSimilarTo(const GDataExchange& cp, const double& limit) {
 	// Check sizes of the vectors
-	if(parameterValueSet_.size() != cp.parameterValueSet_.size()) return false;
+	if(parameterValueSet_.size() != cp.parameterValueSet_.size()) {
+#ifdef GENEVATESTING
+		std::cerr << "parameterValueSet_.size() != cp.parameterValueSet_.size() : " << parameterValueSet_.size() << " " <<  cp.parameterValueSet_.size() << std::endl;
+#endif /* GENEVATESTING */
+
+		return false;
+	}
 
 	// Check all parameter sets
 	std::vector<boost::shared_ptr<GParameterValuePair> >::const_iterator cit, cp_cit;
 	for(cit=parameterValueSet_.begin(), cp_cit=cp.parameterValueSet_.begin();
 		cit!=parameterValueSet_.end(), cp_cit!=cp.parameterValueSet_.end();
 		++cit, ++cp_cit) {
-		if(!(*cit)->isSimilarTo(**cp_cit, limit)) return false;
+		if(!(*cit)->isSimilarTo(**cp_cit, limit)) {
+#ifdef GENEVATESTING
+		std::cerr << "**cit differs from **cp_dcit" << std::endl;
+#endif /* GENEVATESTING */
+
+			return false;
+		}
 	}
 
 	std::size_t localOffset = current_ - parameterValueSet_.begin();
 	std::size_t cpOffset = cp.current_ - cp.parameterValueSet_.begin();
-	if(localOffset != cpOffset) return false;
+	if(localOffset != cpOffset) {
+#ifdef GENEVATESTING
+		std::cerr << "localOffset != cpOffset : " << localOffset << " " <<  cpOffset << std::endl;
+#endif /* GENEVATESTING */
+
+		return false;
+	}
 
 	// Now we are sure that all components are equal
 	return true;
@@ -286,10 +304,11 @@ void GDataExchange::gotoStart() {
 /**************************************************************************/
 /**
  * Switches to the next available data set, if possible. If the end of
- * the list is reached, false is returned, else true. The iterator is retunrd to the start
+ * the list is reached, false is returned, else true. The iterator is returned to the start
  * position, if the end of the list was reached.
  *
  * @return A bool indicating whether the end of the list was reached.
+ *
  */
 bool GDataExchange::nextDataSet() {
 	if(++current_ != parameterValueSet_.end()) return true;
@@ -772,7 +791,7 @@ void GDataExchange::writeToStream(std::ostream& stream) const {
 	// Let the audience know about the number of data sets
 	stream <<  parameterValueSet_.size() << std::endl;
 
-	// Then write all data sets to the stream. We assume that each of them terminates with an std::endl itself
+	// Then write all data sets to the stream. We assume that each of them terminates with a std::endl itself
 	std::vector<boost::shared_ptr<GParameterValuePair> >::const_iterator cit;
 	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit)
 		(*cit)->writeToStream(stream);

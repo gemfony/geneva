@@ -293,6 +293,58 @@ template<> void GNumericParameterT<bool>::binaryReadFromStream(std::istream& str
 
 /***********************************************************************************************/
 /**
+ * Writes a char parameter to a stream. This specialization is needed as
+ * we want to write out characters as numbers in ASCII format.
+ *
+ * @param stream The output stream the char value should be written to
+ */
+template<> void GNumericParameterT<char>::writeToStream(std::ostream& stream) const {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT<char>::writeToStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		stream << static_cast<boost::uint16_t>(param_) << std::endl
+		            << static_cast<boost::uint16_t>(lowerBoundary_) << std::endl
+		            << static_cast<boost::uint16_t>(upperBoundary_) << std::endl;
+}
+
+/***********************************************************************************************/
+/**
+ * Reads in char parameters from a stream. This specialization is needed as
+ * characters are stored as numbers..
+ *
+ * @param stream The output stream the char value should be read from
+ */
+template<> void GNumericParameterT<char>::readFromStream(std::istream& stream) {
+#ifdef DEBUG
+		// Check that the stream is in a valid condition
+		if(!stream.good()) {
+			std::cerr << "In GNumericParameterT<char>::readFromStream(): Error!" << std::endl
+				          << "Stream is in a bad condition. Leaving ..." << std::endl;
+			exit(1);
+		}
+#endif /* DEBUG*/
+
+		boost::uint16_t uint_param, uint_lowerBoundary, uint_upperBoundary;
+
+		// Read parameters into integers
+		stream >> uint_param;
+		stream >> uint_lowerBoundary;
+		stream >>  uint_upperBoundary;
+
+		// And convert the integers to characters
+		param_ = static_cast<char>(uint_param);
+		lowerBoundary_ = static_cast<char>(uint_lowerBoundary);
+		upperBoundary_ = static_cast<char>(uint_upperBoundary);
+}
+
+/***********************************************************************************************/
+/**
  * Checks for similarity between the two objects. If the limit is set to 0, then
  * "similarity" means "equality".
  *
