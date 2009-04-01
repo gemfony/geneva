@@ -4,6 +4,10 @@ ADD_SUBDIRECTORY (
 	GBooleanAdaptor
 )
 
+#ADD_SUBDIRECTORY (
+#	GBoundedDoubleCollection
+#)
+
 ADD_SUBDIRECTORY (
 	GDataExchange
 )
