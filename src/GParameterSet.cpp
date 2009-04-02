@@ -72,6 +72,55 @@ namespace Gem
 
 		/**********************************************************************************/
 		/**
+		 * Checks for equality with another GParameterSet object
+		 *
+		 * @param  cp A constant reference to another GParameterSet object
+		 * @return A boolean indicating whether both objects are equal
+		 */
+		bool GParameterSet::operator==(const GParameterSet& cp) const {
+			return GParameterSet::isEqualTo(cp);
+		}
+
+		/**********************************************************************************/
+		/**
+		 * Checks for inequality with another GParameterSet object
+		 *
+		 * @param  cp A constant reference to another GParameterSet object
+		 * @return A boolean indicating whether both objects are inequal
+		 */
+		bool GParameterSet::operator!=(const GParameterSet& cp) const {
+			return !GParameterSet::isEqualTo(cp);
+		}
+
+		/**********************************************************************************/
+		/**
+		 * Checks for equality with another GParameterSet object. As we have no
+		 * local data, we just check for equality of the parent class-
+		 *
+		 * @param  cp A constant reference to another GParameterSet object
+		 * @return A boolean indicating whether both objects are equal
+		 */
+		bool GParameterSet::isEqualTo(const GParameterSet& cp) const {
+			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isEqualTo(cp)) return  false;
+			return true;
+		}
+
+		/**********************************************************************************/
+		/**
+		 * Checks for similarity with another GParameterSet object. As we have
+		 * no local data, we just check for similarity of the parent class.
+		 *
+		 * @param  cp A constant reference to another GParameterSet object
+		 * @param limit A double value specifying the acceptable level of differences of floating point values
+		 * @return A boolean indicating whether both objects are similar to each other
+		 */
+		bool GParameterSet::isSimilarTo(const GParameterSet& cp, const double& limit) const {
+			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isEqualTo(cp, limit)) return  false;
+			return true;
+		}
+
+		/**********************************************************************************/
+		/**
 		 * Creates a deep clone of this object.
 		 *
 		 * @return A deep clone of this object
