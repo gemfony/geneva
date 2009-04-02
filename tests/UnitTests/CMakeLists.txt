@@ -29,6 +29,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GBrokerPopulation_test
+)
+
+ADD_SUBDIRECTORY (
 	GChar_test
 )
 
