@@ -17,6 +17,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GBoostThreadPopulation_test
+)
+
+ADD_SUBDIRECTORY (
 	GBoundedDouble_test
 )
 
