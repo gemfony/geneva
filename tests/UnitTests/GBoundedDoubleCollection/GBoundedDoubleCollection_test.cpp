@@ -34,7 +34,7 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GDataExchange_test
+#define BOOST_TEST_MODULE GBoundedDoubleCollection_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
@@ -42,10 +42,27 @@
 // Geneva header files go here
 #include "GRandom.hpp"
 #include "GBoundedDoubleCollection.hpp"
+#include "GDoubleGaussAdaptor.hpp"
 
 using namespace Gem;
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
+
+/***********************************************************************************/
+/**
+ * Tests the various member functions of the GBoundedDouble class and
+ * parent classes.
+ */
+BOOST_AUTO_TEST_CASE(gboundeddouble_no_failure_expected) {
+	// Get access to a random number generator
+	GRandom gr;
+
+	// Construction with two boundaries
+	boost::shared_ptr<GBoundedDouble> gbd0(new GBoundedDouble(-10.,10.));
+
+	// Construction with a value and two boundaries two boundaries
+	boost::shared_ptr<GBoundedDouble> gbd0(new GBoundedDouble(5.,-10.,10.));
+}
 
 /***********************************************************************************/
 /**
@@ -59,6 +76,8 @@ BOOST_AUTO_TEST_CASE(gboundeddoublecollection_no_failure_expected)
 
 	// Default construction
 	boost::shared_ptr<GBoundedDoubleCollection> gbdc(new GBoundedDoubleCollection);
+
+	// Add GBoundedDouble objects to the object
 }
 
 /***********************************************************************************/
