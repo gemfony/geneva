@@ -9,11 +9,23 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GCharFlipAdaptor
+)
+
+ADD_SUBDIRECTORY (
 	GDataExchange
 )
 
 ADD_SUBDIRECTORY (
 	GDoubleGaussAdaptor
+)
+
+ADD_SUBDIRECTORY (
+	GInt32FlipAdaptor
+)
+
+ADD_SUBDIRECTORY (
+	GInt32GaussAdaptor
 )
 
 ADD_SUBDIRECTORY (
