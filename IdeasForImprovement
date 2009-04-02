@@ -1,17 +1,17 @@
 - Add cross-over function to GParameterCollectionT
 - Shifting in multi-populations
 - Prevent GBrokerPopulation from being used inside itself (doesn't make sense, will likely not work)
-- Make individuals output their information in ROOT-tree format (see http://root.cern.ch)
+- Make individuals output their information in ROOT-tree format (see http://root.cern.ch). Can
+  be done with the info function framework ??
 - Move from GLogger to one of the two Boost logging library candidates. Requires that at least one 
-  of them heads for a review (we do not want to include further candidate libraries - Geneva should work 
-  with a vanilla Boost installation (>= 1.36)
+  of them heads for a review (we do not want to include further candidate libraries. Geneva should work with a 
+  vanilla Boost installation (>= 1.36)
 - Ship the threadpool library with Geneva or move to standard Boost threapool (once it has been reviewed)
 - Add many more tests using the Boost.Test library
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
 - Add a CMake macro "FindGeneva.cmake"
 - An operator=(const std::vector<num_type> for GNumCollectionT and similar std::vector look-alikes
+- Complete GMutatableT std::vector wrapper (see GParameterTCollectionT class)
 - Stop criterium "quality is below or above a given threshold"
 - Allow clients in network mode to pull over a series of individuals
-- Allow clients to themselves create a series of copies from the master individual and return the best one
-- It appears to be inefficient to sort the entire array of individuals, if only the nParent best individuals are sought.
-  Are there algorithms that allow us to bypass sorting of the other nChildren individuals ?
+- Allow clients to create a series of copies from the master individual by themself and return the best one
