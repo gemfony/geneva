@@ -72,12 +72,6 @@ class GMutableSetT:
 public:
 	/**********************************************************************************/
 	/**
-	 * Syntactic sugar.
-	 */
-	typedef boost::shared_ptr<T> tobj_ptr;
-
-	/**********************************************************************************/
-	/**
 	 * The default constructor. No local data, hence nothing to do.
 	 */
 	GMutableSetT() :GIndividual()
@@ -93,7 +87,7 @@ public:
 	GMutableSetT(const GMutableSetT<T>& cp):
 		GIndividual(cp)
 	{
-		typename std::vector<tobj_ptr>::const_iterator itc;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator itc;
 		for(itc=cp.data.begin(); itc!=cp.data.end(); ++itc)
 			data.push_back((*itc)->clone_bptr_cast<T>());
 	}
@@ -105,6 +99,79 @@ public:
 	 */
 	virtual ~GMutableSetT() {
 		data.clear();
+	}
+
+	/**********************************************************************************/
+	/**
+	 * Checks for equality with another GNumCollectionT<T> object
+	 *
+	 * @param  cp A constant reference to another GMutableSetT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GMutableSetT<T>& cp) const {
+		return GMutableSetT<T>::isEqualTo(cp);
+	}
+
+	/**********************************************************************************/
+	/**
+	 * Checks for inequality with another GMutableSetT<T> object
+	 *
+	 * @param  cp A constant reference to another GMutableSetT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GMutableSetT<T>& cp) const {
+		return !GMutableSetT<T>::isEqualTo(cp);
+	}
+
+	/**********************************************************************************/
+	/**
+	 * Checks for equality with another GMutableSetT<T> object. This function assumes
+	 * that each T has its own isEqualTo function, i.e. follows the Geneva rules.
+	 *
+	 * @param  cp A constant reference to another GMutableSetT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool isEqualTo(const GMutableSetT<T>& cp) const {
+		// Check equality of the parent class
+		if(!GIndividual::isEqualTo(cp)) return false;
+
+		// Check sizes
+		if(data.size() != cp.data.size()) return false;
+
+		// Check individual items
+		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
+			if(!(*it)->isEqualTo(**cp_it)) return false;
+		}
+
+		return true;
+	}
+
+	/**********************************************************************************/
+	/**
+	 * Checks for similarity with another GMutableSetT<T> object.
+	 * As we have no local data, we just check for equality of the parent class.
+	 *
+	 * @param  cp A constant reference to another GMutableSetT<T> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GMutableSetT<T>& cp, const double& limit=0) const {
+		// Check similarity of the parent class
+		if(!GIndividual::isSimilarTo(cp, limit)) return false;
+
+		// Check sizes
+		if(data.size() != cp.data.size()) return false;
+
+		// Check individual items
+		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
+			if(!(*it)->isSimilarTo(**cp_it, limit)) return false;
+		}
+
+		return true;
 	}
 
 	/**********************************************************************************/
@@ -128,8 +195,8 @@ public:
 	    // we do not want to assume anything for the GParameterBase objects
 
 		// Copy all objects with identical type, then check how many objects were copied
-		typename std::vector<tobj_ptr>::iterator it_this;
-		typename std::vector<tobj_ptr>::const_iterator it_gms;
+		typename std::vector<boost::shared_ptr<T> >::iterator it_this;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator it_gms;
 
 		// Check that the types are the same and if so, copy the data over. In the majority of
 		// cases the rest of the code of this function should not get touched.
@@ -169,17 +236,17 @@ public:
 	}
 
 	/**********************************************************************************/
-	/////////////////// std::vector<tobj_ptr> interface (incomplete) ///////////////////
+	/////////////////// std::vector<boost::shared_ptr<T>> interface (incomplete) ///////////////////
 	/**********************************************************************************/
 	// Typedefs
-	typedef typename std::vector<tobj_ptr>::value_type value_type;
-	typedef typename std::vector<tobj_ptr>::reference reference;
-	typedef typename std::vector<tobj_ptr>::const_reference const_reference;
-	typedef typename std::vector<tobj_ptr>::iterator iterator;
-	typedef typename std::vector<tobj_ptr>::const_iterator const_iterator;
-	typedef typename std::vector<tobj_ptr>::reverse_iterator reverse_iterator;
-	typedef typename std::vector<tobj_ptr>::const_reverse_iterator const_reverse_iterator;
-	typedef typename std::vector<tobj_ptr>::size_type size_type;
+	typedef typename std::vector<boost::shared_ptr<T> >::value_type value_type;
+	typedef typename std::vector<boost::shared_ptr<T> >::reference reference;
+	typedef typename std::vector<boost::shared_ptr<T> >::const_reference const_reference;
+	typedef typename std::vector<boost::shared_ptr<T> >::iterator iterator;
+	typedef typename std::vector<boost::shared_ptr<T> >::const_iterator const_iterator;
+	typedef typename std::vector<boost::shared_ptr<T> >::reverse_iterator reverse_iterator;
+	typedef typename std::vector<boost::shared_ptr<T> >::const_reverse_iterator const_reverse_iterator;
+	typedef typename std::vector<boost::shared_ptr<T> >::size_type size_type;
 
 	// Non modifying access
 	inline size_type size() const { return data.size(); }
@@ -215,10 +282,10 @@ public:
 	inline const_iterator rend() const { return data.rend(); }
 
 	// Adding to the  back of the vector
-	inline void push_back(const tobj_ptr& item){
+	inline void push_back(const boost::shared_ptr<T>& item){
 		if(!item){
 			std::ostringstream error;
-			error << "In GMutableSetT::push_back(const tobj_ptr&):" << std::endl
+			error << "In GMutableSetT::push_back(const boost::shared_ptr<T>&):" << std::endl
 			      << "Tried to add empty item" << std::endl;
 
 			throw geneva_error_condition(error.str());
@@ -235,13 +302,13 @@ public:
 	inline iterator erase(iterator from, iterator to) { return data.erase(from,to); }
 
 	// Resizing the vector, adding copies of item if necessary
-	inline void resize(size_type amount, tobj_ptr item) {
+	inline void resize(size_type amount, boost::shared_ptr<T> item) {
 		if(amount <= data.size())
 			data.resize(amount);
 		else {
 			if(!item){
 				std::ostringstream error;
-				error << "In GMutableSetT::resize(size_type, tobj_ptr):" << std::endl
+				error << "In GMutableSetT::resize(size_type, boost::shared_ptr<T>):" << std::endl
 				      << "Tried to add empty item" << std::endl;
 
 				throw geneva_error_condition(error.str());
@@ -269,7 +336,7 @@ protected:
 	 * Hence we provide a (so far still incomplete) set of access functions with the std::vector API. Derived
 	 * classes get free access.
 	 */
-	std::vector<tobj_ptr> data;
+	std::vector<boost::shared_ptr<T> > data;
 
 	/**********************************************************************************/
 	/** @brief The actual fitness calculation takes place here */
@@ -281,7 +348,7 @@ protected:
 	 * in this object must implement the mutate() function.
 	 */
 	virtual void customMutations(){
-		typename std::vector<tobj_ptr>::iterator it;
+		typename std::vector<boost::shared_ptr<T> >::iterator it;
 		for(it=data.begin(); it!=data.end(); ++it) (*it)->mutate();
 	}
 
