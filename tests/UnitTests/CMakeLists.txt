@@ -55,3 +55,7 @@ ADD_SUBDIRECTORY (
 ADD_SUBDIRECTORY (
 	GObject_test
 )
+
+ADD_SUBDIRECTORY (
+	GParameterSet_test
+)
