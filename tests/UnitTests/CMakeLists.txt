@@ -9,6 +9,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GBooleanCollection_test
+)
+
+ADD_SUBDIRECTORY (
 	GBoundedDouble_test
 )
 
