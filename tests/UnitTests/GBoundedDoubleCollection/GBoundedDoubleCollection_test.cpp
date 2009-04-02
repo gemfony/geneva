@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(gboundeddouble_no_failure_expected) {
 	boost::shared_ptr<GBoundedDouble> gbd0(new GBoundedDouble(-10.,10.));
 
 	// Construction with a value and two boundaries two boundaries
-	boost::shared_ptr<GBoundedDouble> gbd0(new GBoundedDouble(5.,-10.,10.));
+	boost::shared_ptr<GBoundedDouble> gbd1(new GBoundedDouble(5.,-10.,10.));
 }
 
 /***********************************************************************************/
