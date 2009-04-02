@@ -60,8 +60,18 @@ BOOST_AUTO_TEST_CASE(gboundeddouble_no_failure_expected) {
 	// Construction with two boundaries
 	boost::shared_ptr<GBoundedDouble> gbd0(new GBoundedDouble(-10.,10.));
 
+	BOOST_REQUIRE(gbd0->getLowerBoundary() == -10.);
+	BOOST_REQUIRE(gbd0->getUpperBoundary() == 10.);
+
 	// Construction with a value and two boundaries two boundaries
-	boost::shared_ptr<GBoundedDouble> gbd1(new GBoundedDouble(5.,-10.,10.));
+	boost::shared_ptr<GBoundedDouble> gbd1(new GBoundedDouble(5.,-11.,11.));
+
+	BOOST_REQUIRE(gbd1->value() == 5.);
+	BOOST_REQUIRE(gbd1->getLowerBoundary() == -11.);
+	BOOST_REQUIRE(gbd1->getUpperBoundary() == 11.);
+
+	// Construction via copy constructor, as a copy of gbd1
+	boost::shared_ptr<GBoundedDouble> gbd2(new GBoundedDouble(*gbd1));
 }
 
 /***********************************************************************************/
