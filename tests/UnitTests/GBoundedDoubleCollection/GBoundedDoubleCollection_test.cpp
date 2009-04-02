@@ -72,6 +72,12 @@ BOOST_AUTO_TEST_CASE(gboundeddouble_no_failure_expected) {
 
 	// Construction via copy constructor, as a copy of gbd1
 	boost::shared_ptr<GBoundedDouble> gbd2(new GBoundedDouble(*gbd1));
+
+	BOOST_REQUIRE(*gbd2 == *gbd1);
+	BOOST_REQUIRE(*gbd2 != *gbd0);
+
+	BOOST_REQUIRE(gbd2->isSimilarTo(*gbd1));
+	BOOST_REQUIRE(!gbd2->isSimilarTo(*gbd0));
 }
 
 /***********************************************************************************/
