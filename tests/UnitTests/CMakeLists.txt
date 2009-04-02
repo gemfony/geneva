@@ -1,53 +1,53 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 ADD_SUBDIRECTORY (
-	GBoolean
+	GBoolean_test
 )
 
 ADD_SUBDIRECTORY (
-	GBooleanAdaptor
+	GBooleanAdaptor_test
 )
 
 ADD_SUBDIRECTORY (
-	GBoundedDouble
+	GBoundedDouble_test
 )
 
 ADD_SUBDIRECTORY (
-	GBoundedDoubleCollection
+	GBoundedDoubleCollection_test
 )
 
 ADD_SUBDIRECTORY (
-	GChar
+	GChar_test
 )
 
 ADD_SUBDIRECTORY (
-	GCharFlipAdaptor
+	GCharFlipAdaptor_test
 )
 
 ADD_SUBDIRECTORY (
-	GDataExchange
+	GDataExchange_test
 )
 
 ADD_SUBDIRECTORY (
-	GDoubleGaussAdaptor
+	GDoubleGaussAdaptor_test
 )
 
 ADD_SUBDIRECTORY (
-	GInt32Collection
+	GInt32Collection_test
 )
 
 ADD_SUBDIRECTORY (
-	GInt32FlipAdaptor
+	GInt32FlipAdaptor_test
 )
 
 ADD_SUBDIRECTORY (
-	GInt32GaussAdaptor
+	GInt32GaussAdaptor_test
 )
 
 ADD_SUBDIRECTORY (
-	GLogger
+	GLogger_test
 )
 
 ADD_SUBDIRECTORY (
-	GObject
+	GObject_test
 )
