@@ -142,6 +142,88 @@ GObject *GBasePopulation::clone() {
 
 /***********************************************************************************/
 /**
+ * Checks for equality with another GBasePopulation object
+ *
+ * @param  cp A constant reference to another GBasePopulation object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBasePopulation::operator==(const GBasePopulation& cp) const {
+	return GBasePopulation::isEqualTo(cp);
+}
+
+/***********************************************************************************/
+/**
+ * Checks for inequality with another GBasePopulation object
+ *
+ * @param  cp A constant reference to another GBasePopulation object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GBasePopulation::operator!=(const GBasePopulation& cp) const {
+	return !GBasePopulation::isEqualTo(cp);
+}
+
+/***********************************************************************************/
+/**
+ * Checks for equality with another GBasePopulation object.
+ *
+ * @param  cp A constant reference to another GBasePopulation object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBasePopulation::isEqualTo(const GBasePopulation& cp) const {
+	// First take care of our parent class
+	if(!GIndividualSet::isEqualTo(cp)) return  false;
+
+	// Then we take care of the local data
+	if(nParents_ != cp.nParents_) return false;
+	if(popSize_ != cp.popSize_) return false;
+	if(generation_ != cp.generation_) return false;
+	if(maxGeneration_ != cp.maxGeneration_) return false;
+	if(reportGeneration_ != cp.reportGeneration_) return false;
+	if(recombinationMethod_ != cp.recombinationMethod_) return false;
+	if(muplusnu_ != cp.muplusnu_) return false;
+	if(maximize_ != cp.maximize_) return false;
+	if(id_ != cp.id_) return false;
+	if(firstId_ != cp.firstId_) return false;
+	if(maxDuration_ != cp.maxDuration_) return false;
+	// if(startTime_ != cp.startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
+	if(defaultNChildren_ != cp.defaultNChildren_) return false;
+
+	return true;
+}
+
+/***********************************************************************************/
+/**
+ * Checks for similarity with another GBasePopulation object.
+ *
+ * @param  cp A constant reference to another GBasePopulation object
+ * @param limit A double value specifying the acceptable level of differences of floating point values
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+bool GBasePopulation::isSimilarTo(const GBasePopulation& cp, const double& limit) const {
+	// First take care of our parent class
+	if(!GIndividualSet::isSimilarTo(cp, limit)) return  false;
+
+	// Then we take care of the local data. As there are no double values,
+	// we just ask for equality.
+	if(nParents_ != cp.nParents_) return false;
+	if(popSize_ != cp.popSize_) return false;
+	if(generation_ != cp.generation_) return false;
+	if(maxGeneration_ != cp.maxGeneration_) return false;
+	if(reportGeneration_ != cp.reportGeneration_) return false;
+	if(recombinationMethod_ != cp.recombinationMethod_) return false;
+	if(muplusnu_ != cp.muplusnu_) return false;
+	if(maximize_ != cp.maximize_) return false;
+	if(id_ != cp.id_) return false;
+	if(firstId_ != cp.firstId_) return false;
+	if(maxDuration_ != cp.maxDuration_) return false;
+	// if(startTime_ != cp.startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
+	if(defaultNChildren_ != cp.defaultNChildren_) return false;
+
+	return true;
+}
+
+/***********************************************************************************/
+/**
  * This is the main optimization function and the heart of the GenEvA library.
  * Every time it is called, the number of generations is reseted. The recombination
  * scheme, type of child mutations and the selection scheme are determined in

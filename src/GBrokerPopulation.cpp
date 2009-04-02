@@ -109,6 +109,68 @@ GObject *GBrokerPopulation::clone() {
 
 /******************************************************************************/
 /**
+ * Checks for equality with another GBrokerPopulation object
+ *
+ * @param  cp A constant reference to another GBrokerPopulation object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBrokerPopulation::operator==(const GBrokerPopulation& cp) const {
+	return GBrokerPopulation::isEqualTo(cp);
+}
+
+/******************************************************************************/
+/**
+ * Checks for inequality with another GBrokerPopulation object
+ *
+ * @param  cp A constant reference to another GBrokerPopulation object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GBrokerPopulation::operator!=(const GBrokerPopulation& cp) const {
+	return !GBrokerPopulation::isEqualTo(cp);
+}
+
+/******************************************************************************/
+/**
+ * Checks for equality with another GBrokerPopulation object.
+ *
+ * @param  cp A constant reference to another GBrokerPopulation object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBrokerPopulation::isEqualTo(const GBrokerPopulation& cp) const {
+	// First take care of our parent class
+	if(!GBasePopulation::isEqualTo(cp)) return  false;
+
+	// Then we take care of the local data
+	if(waitFactor_ != cp.waitFactor_) return false;
+    if(firstTimeOut_ != cp.firstTimeOut_) return false;
+    if(loopTime_ != cp.loopTime_) return false;
+
+	return true;
+}
+
+/******************************************************************************/
+/**
+ * Checks for similarity with another GBrokerPopulation object.
+ *
+ * @param  cp A constant reference to another GBrokerPopulation object
+ * @param limit A double value specifying the acceptable level of differences of floating point values
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+bool GBrokerPopulation::isSimilarTo(const GBrokerPopulation& cp, const double& limit) const {
+	// First take care of our parent class
+	if(!GBasePopulation::isSimilarTo(cp, limit)) return  false;
+
+	// Then we take care of the local data. As there are no double values,
+	// we just ask for equality.
+	if(waitFactor_ != cp.waitFactor_) return false;
+    if(firstTimeOut_ != cp.firstTimeOut_) return false;
+    if(loopTime_ != cp.loopTime_) return false;
+
+	return true;
+}
+
+/******************************************************************************/
+/**
  * Sets the waitFactor_ variable. This population measures the time until the
  * first individual has returned. This time times the waitFactor_ variable is
  * then used to check whether a timeout was reached for other individuals.

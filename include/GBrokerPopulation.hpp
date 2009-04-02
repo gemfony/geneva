@@ -127,6 +127,15 @@ namespace GenEvA
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone();
 
+	/** @brief Checks for equality with another GBrokerPopulation object */
+	bool operator==(const GBrokerPopulation&) const;
+	/** @brief Checks for inequality with another GBrokerPopulation object */
+	bool operator!=(const GBrokerPopulation&) const;
+	/** @brief Checks for equality with another GBrokerPopulation object */
+	bool isEqualTo(const GBrokerPopulation&) const;
+	/** @brief Checks for similarity with another GBrokerPopulation object */
+	bool isSimilarTo(const GBrokerPopulation&, const double& limit = 0.) const;
+
     /** @brief Starts the optimization cycle */
     virtual void optimize();
 

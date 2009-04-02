@@ -92,6 +92,15 @@ public:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone();
 
+	/** @brief Checks for equality with another GBoostThreadPopulation object */
+	bool operator==(const GBoostThreadPopulation&) const;
+	/** @brief Checks for inequality with another GBoostThreadPopulation object */
+	bool operator!=(const GBoostThreadPopulation&) const;
+	/** @brief Checks for equality with another GBoostThreadPopulation object */
+	bool isEqualTo(const GBoostThreadPopulation&) const;
+	/** @brief Checks for similarity with another GBoostThreadPopulation object */
+	bool isSimilarTo(const GBoostThreadPopulation&, const double& limit = 0.) const;
+
 	/** @brief Overloaded from GBasePopulation::optimize() */
 	virtual void optimize();
 

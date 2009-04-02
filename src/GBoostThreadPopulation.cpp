@@ -109,6 +109,64 @@ GObject *GBoostThreadPopulation::clone() {
 
 /********************************************************************/
 /**
+ * Checks for equality with another GBoostThreadPopulation object
+ *
+ * @param  cp A constant reference to another GBoostThreadPopulation object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBoostThreadPopulation::operator==(const GBoostThreadPopulation& cp) const {
+	return GBoostThreadPopulation::isEqualTo(cp);
+}
+
+/********************************************************************/
+/**
+ * Checks for inequality with another GBoostThreadPopulation object
+ *
+ * @param  cp A constant reference to another GBoostThreadPopulation object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GBoostThreadPopulation::operator!=(const GBoostThreadPopulation& cp) const {
+	return !GBoostThreadPopulation::isEqualTo(cp);
+}
+
+/********************************************************************/
+/**
+ * Checks for equality with another GBoostThreadPopulation object.
+ *
+ * @param  cp A constant reference to another GBoostThreadPopulation object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GBoostThreadPopulation::isEqualTo(const GBoostThreadPopulation& cp) const {
+	// First take care of our parent class
+	if(!GBasePopulation::isEqualTo(cp)) return  false;
+
+	// Then we take care of the local data
+	if(nThreads_ != cp.nThreads_) return false;
+
+	return true;
+}
+
+/********************************************************************/
+/**
+ * Checks for similarity with another GBoostThreadPopulation object.
+ *
+ * @param  cp A constant reference to another GBoostThreadPopulation object
+ * @param limit A double value specifying the acceptable level of differences of floating point values
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+bool GBoostThreadPopulation::isSimilarTo(const GBoostThreadPopulation& cp, const double& limit) const {
+	// First take care of our parent class
+	if(!GBasePopulation::isSimilarTo(cp, limit)) return  false;
+
+	// Then we take care of the local data. As there are no double values,
+	// we just ask for equality.
+	if(nThreads_ != cp.nThreads_) return false;
+
+	return true;
+}
+
+/********************************************************************/
+/**
  * We want to do all fitness calculation in the threads. Hence lazy
  * evaluation is not allowed.
  */
