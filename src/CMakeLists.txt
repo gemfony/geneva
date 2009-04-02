@@ -34,10 +34,11 @@ SET ( GENEVASOURCES
 	GLogTargets
 	GLongParameter
 	GNumCollectionT
-	GNumericParameterT.cpp
+	GNumericParameterT
 	GObject
 	GParameterBase
 	GParameterBaseWithAdaptorsT
+	GParameterCollectionT
 	GParameterSet
 	GParameterT
 	GParameterValuePair

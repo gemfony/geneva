@@ -23,6 +23,7 @@
 // Standard header files go here
 #include <sstream>
 #include <vector>
+#include <cmath>
 
 // Boost header files go here
 
@@ -107,7 +108,72 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Purely virtual.
+	 * Checks for equality with another GParameterCollectionT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterCollectionT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GParameterCollectionT<T>& cp) const {
+		return GParameterCollectionT<T>::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for inequality with another GParameterCollectionT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterCollectionT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GParameterCollectionT<T>& cp) const {
+		return !GParameterCollectionT<T>::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for equality with another GParameterCollectionT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterCollectionT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool isEqualTo(const GParameterCollectionT<T>& cp) const {
+		// Check equality of the parent class
+		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(cp)) return false;
+
+		typename std::vector<T>::const_iterator it;
+		typename std::vector<T>::const_iterator cp_it;
+		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
+			if(*it != *cp_it) return false;
+		}
+
+		return true;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for similarity with another GParameterCollectionT<T> object. We need to
+	 * create a specialization for typeof(T) == typof(double), as we need to check for
+	 * similarity in this case. For all other types we currently just check for equality.
+	 *
+	 * @param  cp A constant reference to another GParameterCollectionT<T> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GParameterCollectionT<T>& cp, const double& limit=0) const {
+		// Check similarity of the parent class
+		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(cp, limit)) return false;
+
+		typename std::vector<T>::const_iterator it;
+		typename std::vector<T>::const_iterator cp_it;
+		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
+			if(*it != *cp_it) return false;
+		}
+
+		return true;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
 	 */
 	virtual GObject* clone() = 0;
 
@@ -272,6 +338,12 @@ protected:
 	std::vector<T> data;
 	/*******************************************************************************************/
 };
+
+/*********************************************************************************************/
+/** @brief A specialization for typeof(T) == typeof(double) */
+template <> bool GParameterCollectionT<double>::isSimilarTo(const GParameterCollectionT<double>&, const double&) const;
+
+/*********************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

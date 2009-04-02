@@ -120,6 +120,57 @@ public:
 
 	/******************************************************************/
 	/**
+	 * Checks for equality with another GNumCollectionT<T> object
+	 *
+	 * @param  cp A constant reference to another GNumCollectionT<num_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GNumCollectionT<num_type>& cp) const {
+		return GNumCollectionT<num_type>::isEqualTo(cp);
+	}
+
+	/******************************************************************/
+	/**
+	 * Checks for inequality with another GNumCollectionT<num_type> object
+	 *
+	 * @param  cp A constant reference to another GNumCollectionT<num_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GNumCollectionT<num_type>& cp) const {
+		return !GNumCollectionT<num_type>::isEqualTo(cp);
+	}
+
+	/******************************************************************/
+	/**
+	 * Checks for equality with another GNumCollectionT<num_type> object.
+	 * As we have no local data, we just check for equality of the parent class.
+	 *
+	 * @param  cp A constant reference to another GNumCollectionT<num_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool isEqualTo(const GNumCollectionT<num_type>& cp) const {
+		// Check equality of the parent class
+		if(!GParameterCollectionT<num_type>::isEqualTo(cp)) return false;
+		return true;
+	}
+
+	/******************************************************************/
+	/**
+	 * Checks for similarity with another GNumCollectionT<num_type> object.
+	 * As we have no local data, we just check for equality of the parent class.
+	 *
+	 * @param  cp A constant reference to another GNumCollectionT<num_type> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GNumCollectionT<num_type>& cp, const double& limit=0) const {
+		// Check similarity of the parent class
+		if(!GParameterCollectionT<num_type>::isSimilarTo(cp, limit)) return false;
+		return true;
+	}
+
+	/******************************************************************/
+	/**
 	 * Creates a deep copy of this object.
 	 *
 	 * @return A pointer to a deep clone of this object

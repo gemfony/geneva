@@ -148,6 +148,55 @@ namespace GenEvA
   }
 
   /**********************************************************************/
+  /**
+   * Checks for equality with another GBooleanCollection object
+   *
+   * @param  cp A constant reference to another GBooleanCollection object
+   * @return A boolean indicating whether both objects are equal
+   */
+  bool GBooleanCollection::operator==(const GBooleanCollection& cp) const {
+	  return GBooleanCollection::isEqualTo(cp);
+  }
+
+  /**********************************************************************/
+  /**
+   * Checks for inequality with another GBooleanCollection object
+   *
+   * @param  cp A constant reference to another GBooleanCollection object
+   * @return A boolean indicating whether both objects are inequal
+   */
+  bool GBooleanCollection::operator!=(const GBooleanCollection& cp) const {
+	  return !GBooleanCollection::isEqualTo(cp);
+  }
+
+  /**********************************************************************/
+  /**
+   * Checks for equality with another GBooleanCollection object. As we have
+   * no local data, we just check for equality of the parent class'es object.
+   *
+   * @param  cp A constant reference to another GBooleanCollection object
+   * @return A boolean indicating whether both objects are equal
+   */
+  bool GBooleanCollection::isEqualTo(const GBooleanCollection& cp) const {
+	  if(!GParameterCollectionT<bool>::isEqualTo(cp)) return false;
+	  return true;
+  }
+
+  /**********************************************************************/
+  /**
+   * Checks for similarity with another GBooleanCollection object.  As we have
+   * no local data, we just check for similarity of the parent class'es object.
+   *
+   * @param  cp A constant reference to another GBooleanCollection object
+   * @param limit A double value specifying the acceptable level of differences of floating point values
+   * @return A boolean indicating whether both objects are similar to each other
+   */
+  bool GBooleanCollection::isSimilarTo(const GBooleanCollection& cp, const double& limit) const {
+	  if(!GParameterCollectionT<bool>::isSimilarTo(cp, limit)) return false;
+	  return true;
+  }
+
+  /**********************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
