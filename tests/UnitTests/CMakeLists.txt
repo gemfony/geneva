@@ -5,6 +5,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GBoundedDouble
+)
+
+ADD_SUBDIRECTORY (
 	GBoundedDoubleCollection
 )
 
