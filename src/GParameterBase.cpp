@@ -89,6 +89,17 @@ bool GParameterBase::operator==(const GParameterBase& cp) const {
 
 /**********************************************************************************/
 /**
+ * Checks for inequality with another GParameterBase object
+ *
+ * @param  cp A constant reference to another GParameterBase object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GParameterBase::operator!=(const GParameterBase& cp) const {
+	return !GParameterBase::isEqualTo(cp);
+}
+
+/**********************************************************************************/
+/**
  * Checks for equality with another GParameterBase object
  *
  * @param  cp A constant reference to another GParameterBase object

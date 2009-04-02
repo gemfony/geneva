@@ -99,6 +99,8 @@ public:
 
 	/** @brief Checks for equality with another GParameterBase object */
 	bool operator==(const GParameterBase&) const;
+	/** @brief Checks for inequality with another GParameterBase object */
+	bool operator!=(const GParameterBase&) const;
 	/** @brief Checks for equality with another GParameterBase object */
 	bool isEqualTo(const GParameterBase&) const;
 	/** @brief Checks for similarity with another GParameterBase object */

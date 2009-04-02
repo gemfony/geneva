@@ -132,6 +132,67 @@ namespace Gem
 		}
 
 		/******************************************************************************/
+	    /**
+	     * Checks equality of this object with another.
+	     *
+	     * @param cp A constant reference to another GBoundedDouble object
+	     * @return A boolean indicating whether both objects are equal
+	     */
+	    bool GBoundedDouble::operator==(const GBoundedDouble& cp) const {
+	    	return GBoundedDouble::isEqualTo(cp);
+	    }
+
+		/******************************************************************************/
+	    /**
+	     * Checks inequality of this object with another.
+	     *
+	     * @param cp A constant reference to another GBoundedDouble object
+	     * @return A boolean indicating whether both objects are inequal
+	     */
+	    bool GBoundedDouble::operator!=(const GBoundedDouble& cp) const {
+	    	return !GBoundedDouble::isEqualTo(cp);
+	    }
+
+		/******************************************************************************/
+	    /**
+	     * Checks equality of this object with another.
+	     *
+	     * @param cp A constant reference to another GBoundedDouble object
+	     * @return A boolean indicating whether both objects are equal
+	     */
+	    bool GBoundedDouble::isEqualTo(const GBoundedDouble& cp) const {
+	    	// Check the parent class'es equality
+	    	if(!GParameterT<double>::isEqualTo(cp)) return false;
+
+	    	// Check our local data
+	    	if(lowerBoundary_ != cp.lowerBoundary_) return false;
+	    	if(upperBoundary_ != cp.upperBoundary_) return false;
+			if(internalValue_ != cp.internalValue_) return false;
+
+	    	return true;
+	    }
+
+		/******************************************************************************/
+	    /**
+	     * Checks similarity of this object with another.
+	     *
+	     * @param cp A constant reference to another GBoundedDouble object
+	     * @param limit The acceptable different between two doubles
+	     * @return A boolean indicating whether both objects are similar to each other
+	     */
+	    bool GBoundedDouble::isSimilarTo(const GBoundedDouble& cp, const double& limit) const {
+	    	// Check the parent class'es similarity
+	    	if(!GParameterT<double>::isSimilarTo(cp, limit)) return false;
+
+	    	// Check our local data
+	    	if(fabs(lowerBoundary_  - cp.lowerBoundary_) > fabs(limit)) return false;
+	    	if(fabs(upperBoundary_ - cp.upperBoundary_) > fabs(limit)) return false;
+			if(fabs(internalValue_ - cp.internalValue_) > fabs(limit)) return false;
+
+			return true;
+	    }
+
+		/******************************************************************************/
 		/**
 		 * Loads the data of another GBoundedDouble, camouflaged as a GObject
 		 * into this object.

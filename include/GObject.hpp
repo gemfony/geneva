@@ -104,6 +104,8 @@ public:
 
 	/** @brief Checks for equality with another GObject object */
 	bool operator==(const GObject&) const;
+	/** @brief Checks inquality with another GObject object */
+	bool operator!=(const GObject&) const;
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);

@@ -37,6 +37,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
 
 #ifndef GPARAMETERBASEWITHADAPTORST_HPP_
 #define GPARAMETERBASEWITHADAPTORST_HPP_
@@ -125,14 +126,39 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Checks for inequality with another GParameterBaseWithAdaptorsT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
+		return !GParameterBaseWithAdaptorsT<T>::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
 	 *
 	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool isEqualTo(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		bool result = true;
-		return result;
+		// Check equality of the parent class
+		if(!GParameterBase::isEqualTo(cp)) return false;
+
+		// Check sizes of the local containers
+		if(adaptors_.size() != cp.adaptors_.size()) return false;
+
+		// Then check individual items
+		typename GATvec::const_iterator it;
+		typename GATvec::const_iterator cp_it;
+		for(it=adaptors_.begin(), cp_it=cp.adaptors_.begin();
+			  it!=adaptors_.end(), cp_it!=cp.adaptors_.end(); ++it, ++cp_it)
+		{
+			if(!(*it)->isEqualTo(**cp_it)) return false;
+		}
+
+		return true;
 	}
 
 	/*******************************************************************************************/
@@ -144,8 +170,22 @@ public:
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
 	bool isSimilarTo(const GParameterBaseWithAdaptorsT<T>& cp, const double& limit=0) const {
-		bool result = true;
-		return result;
+		// Check similarity of the parent class
+		if(!GParameterBase::isSimilarTo(cp, limit)) return false;
+
+		// Check sizes of local containers
+		if(adaptors_.size() != cp.adaptors_.size()) return false;
+
+		// Then check individual items
+		typename GATvec::const_iterator it;
+		typename GATvec::const_iterator cp_it;
+		for(it=adaptors_.begin(), cp_it=cp.adaptors_.begin();
+			  it!=adaptors_.end(), cp_it!=cp.adaptors_.end(); ++it, ++cp_it)
+		{
+			if(!(*it)->isSimilarTo(**cp_it,limit)) return false;
+		}
+
+		return true;
 	}
 
 	/*******************************************************************************************/

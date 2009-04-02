@@ -93,7 +93,18 @@ const GObject& GObject::operator=(const GObject& cp){
  * @return A boolean indicating whether both objects are equal
  */
 bool  GObject::operator==(const GObject& cp) const {
-	return isEqualTo(cp);
+	return GObject::isEqualTo(cp);
+}
+
+/**************************************************************************************************/
+/**
+ * Checks inequality with another GObject object
+ *
+ * @param  cp A constant reference to another GObject object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool  GObject::operator!=(const GObject& cp) const {
+	return !GObject::isEqualTo(cp);
 }
 
 /**************************************************************************************************/

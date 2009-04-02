@@ -82,6 +82,56 @@ namespace Gem
 		}
 
 		/************************************************************************/
+	    /**
+	     * Checks equality of this object with another.
+	     *
+	     * @param cp A constant reference to another GBoolean object
+	     * @return A boolean indicating whether both objects are equal
+	     */
+	    bool GBoolean::operator==(const GBoolean& cp) const {
+	    	return GBoolean::isEqualTo(cp);
+	    }
+
+		/******************************************************************************/
+	    /**
+	     * Checks inequality of this object with another.
+	     *
+	     * @param cp A constant reference to another GBoolean object
+	     * @return A boolean indicating whether both objects are inequal
+	     */
+	    bool GBoolean::operator!=(const GBoolean& cp) const {
+	    	return !GBoolean::isEqualTo(cp);
+	    }
+
+		/******************************************************************************/
+	    /**
+	     * Checks equality of this object with another.
+	     *
+	     * @param cp A constant reference to another GBoolean object
+	     * @return A boolean indicating whether both objects are equal
+	     */
+	    bool GBoolean::isEqualTo(const GBoolean& cp) const {
+	    	// Check the parent class'es equality
+	    	if(!GParameterT<bool>::isEqualTo(cp)) return false;
+	    	return true;
+	    }
+
+		/******************************************************************************/
+	    /**
+	     * Checks similarity of this object with another.
+	     *
+	     * @param cp A constant reference to another GBoolean object
+	     * @param limit The acceptable different between two doubles
+	     * @return A boolean indicating whether both objects are similar to each other
+	     */
+	    bool GBoolean::isSimilarTo(const GBoolean& cp, const double& limit) const {
+	    	// Check the parent class'es similarity
+	    	if(!GParameterT<bool>::isSimilarTo(cp, limit)) return false;
+			return true;
+	    }
+
+		/******************************************************************************/
+
 		/**
 		 * Loads the data of another GBoolean Object.
 		 *

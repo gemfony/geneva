@@ -77,6 +77,15 @@ public:
 	/** @brief The standard assignment operator */
 	const GChar& operator=(const GChar&);
 
+    /** @brief Checks equality */
+    bool operator==(const GChar&) const;
+    /** @brief Checks inequality */
+    bool operator!=(const GChar&) const;
+    /** @brief Checks equality */
+    bool isEqualTo(const GChar&) const;
+    /** @brief Checks similarity */
+    bool isSimilarTo(const GChar&, const double& limit = 0.) const;
+
 	/** @brief Loads another GChar object, camouflaged as a GObject */
 	virtual void load(const GObject * gb);
 	/** @brief Creates a deep copy of this object */

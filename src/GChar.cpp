@@ -83,6 +83,56 @@ namespace Gem
 
 		/************************************************************************/
 		/**
+		 * Checks equality of this object with another.
+		 *
+		 * @param cp A constant reference to another GChar object
+		 * @return A boolean indicating whether both objects are equal
+		 */
+		bool GChar::operator==(const GChar& cp) const {
+			return GChar::isEqualTo(cp);
+		}
+
+		/******************************************************************************/
+		/**
+		 * Checks inequality of this object with another.
+		 *
+		 * @param cp A constant reference to another GChar object
+		 * @return A boolean indicating whether both objects are inequal
+		 */
+		bool GChar::operator!=(const GChar& cp) const {
+			return !GChar::isEqualTo(cp);
+		}
+
+		/******************************************************************************/
+		/**
+		 * Checks equality of this object with another.
+		 *
+		 * @param cp A constant reference to another GChar object
+		 * @return A boolean indicating whether both objects are equal
+		 */
+		bool GChar::isEqualTo(const GChar& cp) const {
+			// Check the parent class'es equality
+			if(!GParameterT<char>::isEqualTo(cp)) return false;
+			return true;
+		}
+
+		/******************************************************************************/
+		/**
+		 * Checks similarity of this object with another.
+		 *
+		 * @param cp A constant reference to another GChar object
+		 * @param limit The acceptable different between two doubles
+		 * @return A boolean indicating whether both objects are similar to each other
+		 */
+		bool GChar::isSimilarTo(const GChar& cp, const double& limit) const {
+			// Check the parent class'es similarity
+			if(!GParameterT<char>::isSimilarTo(cp, limit)) return false;
+			return true;
+		}
+
+
+		/************************************************************************/
+		/**
 		 * Loads the data of another GChar Object.
 		 *
 		 * @param gb A pointer to another GChar object, camouflaged as a GObject

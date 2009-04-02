@@ -187,6 +187,17 @@ public:
 
 	/***********************************************************************************/
 	/**
+	 * Checks for inequality with another GAdaptorT<T> object
+	 *
+	 * @param  cp A constant reference to another GAdaptorT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GAdaptorT<T>& cp) const {
+		return !GAdaptorT<T>::isEqualTo(cp);
+	}
+
+	/***********************************************************************************/
+	/**
 	 * Checks for equality with another GAdaptorT<T> object
 	 *
 	 * @param  cp A constant reference to another GAdaptorT<T> object
@@ -194,7 +205,7 @@ public:
 	 */
 	bool isEqualTo(const GAdaptorT<T>& cp) const {
 		if(!GObject::isEqualTo(cp)) return false;
-		if(adaptionCounter_ != cp.adaptionCount_) return false;
+		if(adaptionCounter_ != cp.adaptionCounter_) return false;
 		if(adaptionThreshold_ != cp.adaptionThreshold_) return false;
 
 		return true;

@@ -91,6 +91,15 @@ namespace GenEvA
     /** @brief An assignment operator for double values */
     virtual double operator=(const double&);
 
+    /** @brief Checks equality */
+    bool operator==(const GBoundedDouble&) const;
+    /** @brief Checks inequality */
+    bool operator!=(const GBoundedDouble&) const;
+    /** @brief Checks equality */
+    bool isEqualTo(const GBoundedDouble&) const;
+    /** @brief Checks similarity */
+    bool isSimilarTo(const GBoundedDouble&, const double& limit = 0.) const;
+
     /** @brief Loads the data of another GBoundedDouble */
     virtual void load(const GObject *);
     /** @brief Creates a deep copy of this class */
@@ -120,7 +129,7 @@ namespace GenEvA
     /** @brief Sets the external value */
 	double setExternalValue(const double&);
 
-    double lowerBoundary_, upperBoundary_;
+    double lowerBoundary_, upperBoundary_; ///< The upper and lower allowed boundaries for our external value
     double internalValue_; ///< The internal representation of this classes value
   };
 

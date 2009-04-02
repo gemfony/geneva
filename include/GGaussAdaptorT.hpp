@@ -212,6 +212,17 @@ public:
 
 	/********************************************************************************************/
 	/**
+	 * Checks for inequality with another GGaussAdaptorT<num_type> object
+	 *
+	 * @param  cp A constant reference to another GGaussAdaptorT<num_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GGaussAdaptorT<num_type>& cp) const {
+		return !GGaussAdaptorT<num_type>::isEqualTo(cp);
+	}
+
+	/********************************************************************************************/
+	/**
 	 * Checks for equality with another GGaussAdaptorT<num_type> object Equality means
 	 * that all individual sub-values are equal and that the parent class is equal.
 	 *

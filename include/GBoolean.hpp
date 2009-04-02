@@ -83,6 +83,15 @@ public:
 	/** @brief The standard assignment operator */
 	const GBoolean& operator=(const GBoolean&);
 
+    /** @brief Checks equality */
+    bool operator==(const GBoolean&) const;
+    /** @brief Checks inequality */
+    bool operator!=(const GBoolean&) const;
+    /** @brief Checks equality */
+    bool isEqualTo(const GBoolean&) const;
+    /** @brief Checks similarity */
+    bool isSimilarTo(const GBoolean&, const double& limit = 0.) const;
+
 	/** @brief Loads another GBoolean object, camouflaged as a GObject */
 	virtual void load(const GObject * gb);
 	/** @brief Creates a deep copy of this object */

@@ -22,6 +22,7 @@
 
 // Standard header files go here
 #include <sstream>
+#include <cmath>
 
 // Boost header files go here
 
@@ -159,6 +160,65 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Checks for equality with another GParameterT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GParameterT<T>& cp) const {
+		return GParameterT<T>::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for inequality with another GParameterT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GParameterT<T>& cp) const {
+		return !GParameterT<T>::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for equality with another GParameterT<T> object.  If T is an object type,
+	 * then it must implement operator!= .
+	 *
+	 * @param  cp A constant reference to another GParameterT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool isEqualTo(const GParameterT<T>& cp) const {
+		// Check equality of the parent class
+		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(cp)) return false;
+
+		// Check the local data
+		if(val_ != cp.val_) return false;
+
+		return true;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for similarity with another GParameterT<T> object.  As we do not know the
+	 * type of T, we need to create a specialization of this function for typeof(T)==double
+	 *
+	 * @param  cp A constant reference to another GParameterT<T> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GParameterT<T>& cp, const double& limit=0) const {
+		// Check similarity of the parent class
+		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(cp, limit)) return false;
+
+		// Check the local data
+		if(val_ != cp.val_) return false;
+
+		return true;
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Loads the data of another GObject
 	 *
 	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
@@ -205,6 +265,14 @@ private:
 
 	T val_; ///< The internal representation of our value. It is protected as it needs to accessible to derived classes.
 };
+
+
+/*********************************************************************************************/
+// Declaration of specializations for various types
+/** @brief Checks similarity of this object, if typeof(T) == typeof(double) */
+template<> bool GParameterT<double>::isSimilarTo(const GParameterT<double>& cp, const double& limit) const;
+
+/*********************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

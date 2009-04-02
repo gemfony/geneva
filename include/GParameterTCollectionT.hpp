@@ -125,6 +125,73 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Checks for equality with another GParameterTCollectionT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterTCollectionT object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GParameterTCollectionT<T>& cp) const {
+		return GParameterTCollectionT<T>::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for inequality with another GParameterTCollectionT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterTCollectionT object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GParameterTCollectionT<T>& cp) const {
+		return !GParameterTCollectionT<T>::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for equality with another GParameterTCollectionT<T> object. This function
+	 * assumes that T has an isEqualTo function itself.
+	 *
+	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool isEqualTo(const GParameterTCollectionT<T>& cp) const {
+		// Check equality of the parent class
+		if(!GParameterBase::isEqualTo(cp)) return false;
+
+		// Then check our own, local data
+		typename std::vector<boost::shared_ptr<T> >::iterator it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
+			if(!(*it)->isEqualTo(**cp_it)) return false;
+		}
+
+		return true;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for similarity with another GParameterTCollectionT<T> object.  This function
+	 * assumes that T has an isSimilarTo function itself.
+	 *
+	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GParameterTCollectionT<T>& cp, const double& limit=0) const {
+		// Check similarity of the parent class
+		if(!GParameterBase::isSimilarTo(cp, limit)) return false;
+
+		// Then check our own, local data
+		typename std::vector<boost::shared_ptr<T> >::iterator it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
+			if(!(*it)->isSimilarTo(**cp_it, limit)) return false;
+		}
+
+		return true;
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GObject

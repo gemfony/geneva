@@ -172,6 +172,57 @@ public:
 		return new GIntFlipAdaptorT<int_type>(*this);
 	}
 
+	/********************************************************************************************/
+	/**
+	 * Checks for equality with another GIntFlipAdaptorT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GIntFlipAdaptorT<int_type>& cp) const {
+		return GIntFlipAdaptorT<int_type>::isEqualTo(cp);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Checks for inequality with another GIntFlipAdaptorT<int_type> object
+	 *
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GIntFlipAdaptorT<int_type>& cp) const {
+		return !GIntFlipAdaptorT<int_type>::isEqualTo(cp);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Checks for equality with another GIntFlipAdaptorT<int_type> object Equality means
+	 * that all individual sub-values are equal and that the parent class is equal.
+	 *
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool isEqualTo(const GIntFlipAdaptorT<int_type>& cp) const {
+		if(!GAdaptorT<int_type>::isEqualTo(cp)) return false;
+		if(!mutProb_.isEqualTo(cp.mutProb)) return false;
+		return true;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Checks for similarity with another GIntFlipAdaptorT<int_type> object. Similarity means
+	 * that all double values are similar to each other within a given limit and that all other
+	 * values are equal. Also, parent classes must be similar to each other.
+	 *
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GIntFlipAdaptorT<int_type>& cp, const double& limit=0.) const {
+		if(!GAdaptorT<int_type>::isSimilarTo(cp, limit)) return false;
+		if(!mutProb_.isSimilarTo(cp.mutProb)) return false;
+		return true;
+	}
 
 	/********************************************************************************************/
 	/**
