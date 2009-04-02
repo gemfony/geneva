@@ -1,3 +1,4 @@
 This directory contains tests for instantiable classes. 
-Many parent classes in Geneva are purely virtual. Their
-functionality is tested through the instantiable classes.
+Many parent classes in Geneva are purely virtual. So unless you
+will find a sub-directory for them here, their functionality 
+is tested through the instantiable classes.

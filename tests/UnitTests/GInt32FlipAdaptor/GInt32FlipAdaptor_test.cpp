@@ -1,7 +1,7 @@
 /**
- * @file GCharFlipAdaptor_test.cpp
+ * @file GInt32FlipAdaptor_test.cpp
  *
- * This test checks most public member functions of the GCharFlipAdaptor adaptor
+ * This test checks most public member functions of the GInt32FlipAdaptor adaptor
  * class.
  */
 
@@ -30,14 +30,14 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GCharFlipAdaptor_test
+#define BOOST_TEST_MODULE GInt32FlipAdaptor_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
 #include "GObject.hpp"
-#include "GCharFlipAdaptor.hpp"
+#include "GInt32FlipAdaptor.hpp"
 #include "GenevaExceptions.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
@@ -50,7 +50,7 @@ using namespace Gem::GLogFramework;
 /***********************************************************************************/
 // This test checks as much as possible of the functionality
 // provided by the GCharFlipAdaptor class.
-BOOST_AUTO_TEST_CASE( gcharflipadaptor_test_no_failure_expected )
+BOOST_AUTO_TEST_CASE( gint32flipadaptor_test_no_failure_expected )
 {
 	GRandom gr;
 
