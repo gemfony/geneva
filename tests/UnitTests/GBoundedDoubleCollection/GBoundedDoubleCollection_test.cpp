@@ -31,6 +31,7 @@
 #include <vector>
 #include <utility>
 #include <cmath>
+#include <exception>
 
 // Boost header files go here
 
@@ -62,6 +63,7 @@ BOOST_AUTO_TEST_CASE(gboundeddouble_no_failure_expected) {
 
 	BOOST_REQUIRE(gbd0->getLowerBoundary() == -10.);
 	BOOST_REQUIRE(gbd0->getUpperBoundary() == 10.);
+	BOOST_CHECK_THROW(gbd0->mutate(), Gem::GenEvA::geneva_error_condition); // No adaptor attached yet
 
 	// Construction with a value and two boundaries two boundaries
 	boost::shared_ptr<GBoundedDouble> gbd1(new GBoundedDouble(5.,-11.,11.));
@@ -75,9 +77,22 @@ BOOST_AUTO_TEST_CASE(gboundeddouble_no_failure_expected) {
 
 	BOOST_REQUIRE(*gbd2 == *gbd1);
 	BOOST_REQUIRE(*gbd2 != *gbd0);
-
 	BOOST_REQUIRE(gbd2->isSimilarTo(*gbd1));
 	BOOST_REQUIRE(!gbd2->isSimilarTo(*gbd0));
+
+	boost::shared_ptr<GBoundedDouble> gbd3(new GBoundedDouble(*gbd1));
+	BOOST_REQUIRE(*gbd3 == *gbd1);
+	BOOST_REQUIRE(*gbd3 != *gbd0);
+	BOOST_REQUIRE(gbd3->isSimilarTo(*gbd1));
+	BOOST_REQUIRE(!gbd3->isSimilarTo(*gbd0));
+
+	*gbd3 = 6.;
+	BOOST_REQUIRE(gbd3->value() == 6);
+	BOOST_REQUIRE(gbd3->getLowerBoundary() == -11);
+	BOOST_REQUIRE(gbd3->getUpperBoundary() == 11.);
+
+	gbd3->load(gbd0.get());
+
 }
 
 /***********************************************************************************/
