@@ -1,7 +1,7 @@
 /**
- * @file GBoundedDouble_test.cpp
+ * @file GChar_test.cpp
  *
- * This test checks most public member functions of the GBoundedDouble class.
+ * This test checks most public member functions of the GChar class.
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -29,7 +29,7 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GBoundedDouble_test
+#define BOOST_TEST_MODULE GChar_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
@@ -49,7 +49,7 @@ using namespace Gem::GLogFramework;
 /***********************************************************************************/
 // This test checks as much as possible of the functionality
 // provided by the GObject class.
-BOOST_AUTO_TEST_CASE( gboundeddouble_test_no_failure_expected )
+BOOST_AUTO_TEST_CASE( gchar_test_no_failure_expected )
 {
 	GRandom gr;
 

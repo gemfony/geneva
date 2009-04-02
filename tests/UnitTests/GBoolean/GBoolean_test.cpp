@@ -1,7 +1,7 @@
 /**
- * @file GBoundedDouble_test.cpp
+ * @file GBoolean_test.cpp
  *
- * This test checks most public member functions of the GBoundedDouble class.
+ * This test checks most public member functions of the GBoolean class.
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -29,7 +29,7 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GBoundedDouble_test
+#define BOOST_TEST_MODULE GBoolean_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
@@ -39,7 +39,7 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
-#include "GBoundedDouble.hpp"
+#include "GBoolean.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -49,7 +49,7 @@ using namespace Gem::GLogFramework;
 /***********************************************************************************/
 // This test checks as much as possible of the functionality
 // provided by the GObject class.
-BOOST_AUTO_TEST_CASE( gboundeddouble_test_no_failure_expected )
+BOOST_AUTO_TEST_CASE( gboolean_test_no_failure_expected )
 {
 	GRandom gr;
 
