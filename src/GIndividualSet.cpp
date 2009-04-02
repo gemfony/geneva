@@ -57,6 +57,55 @@ namespace Gem
 
 		/******************************************************************/
 		/**
+		 * Checks for equality with another GIndividualSet object
+		 *
+		 * @param  cp A constant reference to another GIndividualSet object
+		 * @return A boolean indicating whether both objects are equal
+		 */
+		bool GIndividualSet::operator==(const GIndividualSet& cp) const {
+			return GIndividualSet::isEqualTo(cp);
+		}
+
+		/******************************************************************/
+		/**
+		 * Checks for inequality with another GIndividualSet object
+		 *
+		 * @param  cp A constant reference to another GIndividualSet object
+		 * @return A boolean indicating whether both objects are inequal
+		 */
+		bool GIndividualSet::operator!=(const GIndividualSet& cp) const {
+			return !GIndividualSet::isEqualTo(cp);
+		}
+
+		/******************************************************************/
+		/**
+		 * Checks for equality with another GIndividualSet object. As we have no
+		 * local data, we just check for equality of the parent class-
+		 *
+		 * @param  cp A constant reference to another GIndividualSet object
+		 * @return A boolean indicating whether both objects are equal
+		 */
+		bool GIndividualSet::isEqualTo(const GIndividualSet& cp) const {
+			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isEqualTo(cp)) return  false;
+			return true;
+		}
+
+		/******************************************************************/
+		/**
+		 * Checks for similarity with another GIndividualSet object. As we have
+		 * no local data, we just check for similarity of the parent class.
+		 *
+		 * @param  cp A constant reference to another GIndividualSet object
+		 * @param limit A double value specifying the acceptable level of differences of floating point values
+		 * @return A boolean indicating whether both objects are similar to each other
+		 */
+		bool GIndividualSet::isSimilarTo(const GIndividualSet& cp, const double& limit) const {
+			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isSimilarTo(cp, limit)) return  false;
+			return true;
+		}
+
+		/******************************************************************/
+		/**
 		 * Loads the data of another GObject
 		 *
 		 * @param cp Another GIndividualSet object, camouflaged as a GObject

@@ -67,6 +67,15 @@ public:
 	/** @brief The destructor */
 	virtual ~GIndividualSet();
 
+	/** @brief Checks for equality with another GIndividualSet object */
+	bool operator==(const GIndividualSet&) const;
+	/** @brief Checks for inequality with another GIndividualSet object */
+	bool operator!=(const GIndividualSet&) const;
+	/** @brief Checks for equality with another GIndividualSet object */
+	bool isEqualTo(const GIndividualSet&) const;
+	/** @brief Checks for similarity with another GIndividualSet object */
+	bool isSimilarTo(const GIndividualSet&, const double& limit = 0.) const;
+
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() = 0;
 	/** @brief Loads the data of another GObject */

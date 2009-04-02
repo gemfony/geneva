@@ -115,7 +115,7 @@ namespace Gem
 		 * @return A boolean indicating whether both objects are similar to each other
 		 */
 		bool GParameterSet::isSimilarTo(const GParameterSet& cp, const double& limit) const {
-			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isEqualTo(cp, limit)) return  false;
+			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isSimilarTo(cp, limit)) return  false;
 			return true;
 		}
 
