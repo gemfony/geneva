@@ -1,6 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 ADD_SUBDIRECTORY (
+	GBasePopulation_test
+)
+
+ADD_SUBDIRECTORY (
 	GBoolean_test
 )
 
