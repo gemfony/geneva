@@ -102,6 +102,9 @@ public:
 	/** @brief A standard assignment operator */
 	const GObject& operator=(const GObject&);
 
+	/** @brief Checks for equality with another GObject object */
+	bool operator==(const GObject&) const;
+
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);
 	/** @brief Convert class to a serial representation, using a specific serialization mode */
@@ -182,6 +185,11 @@ public:
 		return boost::static_pointer_cast<clone_type>(p_base);
 #endif
 	}
+
+	/** @brief Checks for equality with another GObject object */
+	bool isEqualTo(const GObject&) const;
+	/** @brief Checks for similarity with another GObject object */
+	bool isSimilarTo(const GObject&, const double& limit = 0.) const;
 
 	/**************************************************************************************************/
 

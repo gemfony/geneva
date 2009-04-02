@@ -77,7 +77,42 @@ void GParameterBase::load(const GObject* cp){
 }
 
 /**********************************************************************************/
+/**
+ * Checks for equality with another GParameterBase object
+ *
+ * @param  cp A constant reference to another GParameterBase object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GParameterBase::operator==(const GParameterBase& cp) const {
+	return GParameterBase::isEqualTo(cp);
+}
+
+/**********************************************************************************/
+/**
+ * Checks for equality with another GParameterBase object
+ *
+ * @param  cp A constant reference to another GParameterBase object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GParameterBase::isEqualTo(const GParameterBase& cp) const {
+	bool result = true;
+	if(!GObject::isEqualTo(cp)) result = false;
+	return result;
+}
+
+/**********************************************************************************/
+/**
+ * Checks for similarity with another GParameterBase object
+ *
+ * @param  cp A constant reference to another GParameterBase object
+ * @param limit A double value specifying the acceptable level of differences of floating point values
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+bool GParameterBase::isSimilarTo(const GParameterBase& cp, const double& limit) const {
+	return GParameterBase::isEqualTo(cp);
+}
+
+/**********************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
-

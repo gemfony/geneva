@@ -176,6 +176,44 @@ public:
 
 	/***********************************************************************************/
 	/**
+	 * Checks for equality with another GAdaptorT<T> object
+	 *
+	 * @param  cp A constant reference to another GAdaptorT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GAdaptorT<T>& cp) const {
+		return GAdaptorT<T>::isEqualTo(cp);
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Checks for equality with another GAdaptorT<T> object
+	 *
+	 * @param  cp A constant reference to another GAdaptorT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool isEqualTo(const GAdaptorT<T>& cp) const {
+		if(!GObject::isEqualTo(cp)) return false;
+		if(adaptionCounter_ != cp.adaptionCount_) return false;
+		if(adaptionThreshold_ != cp.adaptionThreshold_) return false;
+
+		return true;
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Checks for similarity with another GAdaptorT<T> object
+	 *
+	 * @param  cp A constant reference to another GAdaptorT<T> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GAdaptorT<T>& cp, const double& limit=0) const {
+		return  GAdaptorT<T>::isEqualTo(cp);
+	}
+
+	/***********************************************************************************/
+	/**
 	 * Common interface for all adaptors to the mutation
 	 * functionality. The user specifies this functionality in the
 	 * customMutations() function.

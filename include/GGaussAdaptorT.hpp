@@ -201,6 +201,57 @@ public:
 
 	/********************************************************************************************/
 	/**
+	 * Checks for equality with another GGaussAdaptorT<num_type> object
+	 *
+	 * @param  cp A constant reference to another GGaussAdaptorT<num_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GGaussAdaptorT<num_type>& cp) const {
+		return GGaussAdaptorT<num_type>::isEqualTo(cp);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Checks for equality with another GGaussAdaptorT<num_type> object Equality means
+	 * that all individual sub-values are equal and that the parent class is equal.
+	 *
+	 * @param  cp A constant reference to another GGaussAdaptorT<num_type> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool isEqualTo(const GGaussAdaptorT<num_type>& cp) const {
+		if(!GAdaptorT<num_type>::isEqualTo(cp)) return false;
+
+		if(sigma_ != cp.sigma_) return false;
+		if(sigmaSigma_ != cp.sigmaSigma_) return false;
+		if(minSigma_ != cp.minSigma_) return false;
+		if(maxSigma_ != cp.maxSigma_) return false;
+
+		return true;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Checks for similarity with another GGaussAdaptorT<num_type> object. Similarity means
+	 * that all double values are similar to each other within a given limit and that all other
+	 * values are equal. Also, parent classes must be similar to each other.
+	 *
+	 * @param  cp A constant reference to another GGaussAdaptorT<num_type> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GGaussAdaptorT<num_type>& cp, const double& limit=0.) const {
+		if(!GAdaptorT<num_type>::isSimilarTo(cp, limit)) return false;
+
+		if(fabs(sigma_ - cp.sigma_) > fabs(limit)) return false;
+		if(fabs(sigmaSigma_ - cp.sigmaSigma_) > fabs(limit)) return false;
+		if(fabs(minSigma_ - cp.minSigma_) > fabs(limit)) return false;
+		if(fabs(maxSigma_ - cp.maxSigma_) > fabs(limit)) return false;
+
+		return true;
+	}
+
+	/********************************************************************************************/
+	/**
 	 * This function sets the value of the sigma_ parameter.
 	 *
 	 * @param sigma The new value of the sigma_ parameter

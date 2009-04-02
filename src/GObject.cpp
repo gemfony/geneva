@@ -87,6 +87,44 @@ const GObject& GObject::operator=(const GObject& cp){
 
 /**************************************************************************************************/
 /**
+ * Checks for equality with another GObject object
+ *
+ * @param  cp A constant reference to another GObject object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool  GObject::operator==(const GObject& cp) const {
+	return isEqualTo(cp);
+}
+
+/**************************************************************************************************/
+/**
+ * Checks for equality with another GObject object. Equality means equality of all local data
+ * plus the parent class'es data.
+ *
+ * @param  cp A constant reference to another GObject object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool  GObject::isEqualTo(const GObject& cp) const {
+	if(name_ == cp.name_) return true;
+	else return false;
+}
+
+/**************************************************************************************************/
+/**
+ * Checks for similarity  with another GObject object. This only plays a role for objects that
+ * also contain double values. This feature is mainly used for testing purposes, particularly
+ * when text i/o is done. Text i/o usually implies a loss in precision for floating point numbers.
+ *
+ * @param  cp A constant reference to another GObject object
+ * @param limit A double indicating the level of acceptable deviation of two double values
+ * @return A boolean indicating whether both objects are similar or not
+ */
+bool  GObject::isSimilarTo(const GObject& cp, const double& limit) const {
+	return isEqualTo(cp);
+}
+
+/**************************************************************************************************/
+/**
  * Returns an XML description of the derivative it is called for
  *
  * @return An XML description of the GObject-derivative the function is called for

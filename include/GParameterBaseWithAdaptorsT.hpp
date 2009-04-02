@@ -114,6 +114,42 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
+		return GParameterBaseWithAdaptorsT<T>::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool isEqualTo(const GParameterBaseWithAdaptorsT<T>& cp) const {
+		bool result = true;
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for similarity with another GParameterBaseWithAdaptorsT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	bool isSimilarTo(const GParameterBaseWithAdaptorsT<T>& cp, const double& limit=0) const {
+		bool result = true;
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Loads the data of another GParameterBaseWithAdaptorsT object, which
 	 * is camouflaged as a GObject.
 	 *
