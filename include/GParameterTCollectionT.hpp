@@ -117,10 +117,11 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Purely virtual, so this class cannot be
-	 * be instantiated directly.
+	 * Creates a deep clone of this object.
 	 */
-	virtual GObject* clone() = 0;
+	virtual GObject* clone() {
+		return new GParameterTCollectionT<T>(*this);
+	}
 
 	/*******************************************************************************************/
 	/**
