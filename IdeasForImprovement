@@ -15,3 +15,7 @@
 - Stop criterium "quality is below or above a given threshold"
 - Allow clients in network mode to pull over a series of individuals
 - Allow clients to create a series of copies from the master individual by themself and return the best one
+- De-central sorting (by letting clients communicate)
+- Additional network implementations (MPI, PVM, ...)
+- Further optimization algorithms: gradient descents, swarm, ...
+- Split tests into "failures expected" and "no failures expected"

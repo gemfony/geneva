@@ -33,6 +33,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GInt32Collection
+)
+
+ADD_SUBDIRECTORY (
 	GInt32FlipAdaptor
 )
 
