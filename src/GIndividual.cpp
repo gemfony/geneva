@@ -73,6 +73,75 @@ GIndividual::~GIndividual() { /* nothing */ }
 
 /**********************************************************************************/
 /**
+ * Checks for equality with another GIndividual object
+ *
+ * @param  cp A constant reference to another GIndividual object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GIndividual::operator==(const GIndividual& cp) const {
+	return GIndividual::isEqualTo(cp);
+}
+
+/**********************************************************************************/
+/**
+ * Checks for inequality with another GIndividual object
+ *
+ * @param  cp A constant reference to another GIndividual object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GIndividual::operator!=(const GIndividual& cp) const {
+	return !GIndividual::isEqualTo(cp);
+}
+
+/**********************************************************************************/
+/**
+ * Checks for equality with another GIndividual object.
+ *
+ * @param  cp A constant reference to another GIndividual object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GIndividual::isEqualTo(const GIndividual& cp) const {
+	// Check for equality of our parent class
+	if(!GObject::isEqualTo(cp)) return  false;
+
+	// Check our local data
+    if(currentFitness_ != cp.currentFitness_) return false;
+    if(dirtyFlag_ != cp.dirtyFlag_) return false;
+    if(allowLazyEvaluation_ != cp.allowLazyEvaluation_) return false;
+    if(parentPopGeneration_ != cp.parentPopGeneration_) return false;
+    if(parentCounter_ != cp.parentCounter_) return false;
+    if(popPos_ != cp.popPos_) return false;
+    if(attributeTable_ != cp.attributeTable_) return false;
+
+	return true;
+}
+
+/**********************************************************************************/
+/**
+ * Checks for similarity with another GIndividual object.
+ *
+ * @param  cp A constant reference to another GIndividual object
+ * @param limit A double value specifying the acceptable level of differences of floating point values
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+bool GIndividual::isSimilarTo(const GIndividual& cp, const double& limit) const {
+	// Check for equality of our parent class
+	if(!GObject::isSimilarTo(cp, limit)) return false;
+
+	// Check our local data
+    if(fabs(currentFitness_ - cp.currentFitness_) > fabs(limit)) return false; // The sole similarity check of local data
+    if(dirtyFlag_ != cp.dirtyFlag_) return false;
+    if(allowLazyEvaluation_ != cp.allowLazyEvaluation_) return false;
+    if(parentPopGeneration_ != cp.parentPopGeneration_) return false;
+    if(parentCounter_ != cp.parentCounter_) return false;
+    if(popPos_ != cp.popPos_) return false;
+    if(attributeTable_ != cp.attributeTable_) return false;
+
+	return true;
+}
+
+/**********************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GIndividual object, camouflaged as a GObject

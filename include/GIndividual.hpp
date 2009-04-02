@@ -24,6 +24,7 @@
 #include <sstream>
 #include <string>
 #include <map>
+#include <cmath>
 
 // Boost header files go here
 
@@ -92,6 +93,15 @@ public:
 	GIndividual(const GIndividual&);
 	/** @brief The destructor */
 	virtual ~GIndividual();
+
+	/** @brief Checks for equality with another GIndividual object */
+	bool operator==(const GIndividual&) const;
+	/** @brief Checks for inequality with another GIndividual object */
+	bool operator!=(const GIndividual&) const;
+	/** @brief Checks for equality with another GIndividual object */
+	bool isEqualTo(const GIndividual&) const;
+	/** @brief Checks for similarity with another GIndividual object */
+	bool isSimilarTo(const GIndividual&, const double& limit = 0.) const;
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() = 0;
