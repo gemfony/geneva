@@ -4,24 +4,25 @@ SET (EXECUTABLENAME GUnitTests)
 
 SET (${EXECUTABLENAME}_SRCS 
 	GUnitTests
-	GBasePopulation_test/GBasePopulation_test
-	GBoolean_test/GBoolean_test
-	GBooleanAdaptor_test/GBooleanAdaptor_test
-	GBooleanCollection_test/GBooleanCollection_test
-	GBoostThreadPopulation_test/GBoostThreadPopulation_test
-	GBoundedDouble_test/GBoundedDouble_test
-	GBoundedDoubleCollection_test/GBoundedDoubleCollection_test
-	GBrokerPopulation_test/GBrokerPopulation_test
-	GChar_test/GChar_test
-	GCharFlipAdaptor_test/GCharFlipAdaptor_test
-	GDataExchange_test/GDataExchange_test
-	GDoubleGaussAdaptor_test/GDoubleGaussAdaptor_test
-	GInt32Collection_test/GInt32Collection_test
-	GInt32FlipAdaptor_test/GInt32FlipAdaptor_test
-	GInt32GaussAdaptor_test/GInt32GaussAdaptor_test
-	GLogger_test/GLogger_test
-	GObject_test/GObject_test
-	GParameterSet_test/GParameterSet_test
+	GBasePopulation_test
+	GBoolean_test
+	GBooleanAdaptor_test
+	GBooleanCollection_test
+	GBoostThreadPopulation_test
+	GBoundedDouble_test
+	GBoundedDoubleCollection_test
+	GBrokerPopulation_test
+	GChar_test
+	GCharFlipAdaptor_test
+	GDataExchange_test
+	GDoubleCollection_test
+	GDoubleGaussAdaptor_test
+	GInt32Collection_test
+	GInt32FlipAdaptor_test
+	GInt32GaussAdaptor_test
+	GLogger_test
+	GObject_test
+	GParameterSet_test
 )
 	
 ADD_EXECUTABLE(${EXECUTABLENAME}
