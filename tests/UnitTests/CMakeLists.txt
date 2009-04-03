@@ -14,12 +14,10 @@ SET (${EXECUTABLENAME}_SRCS
 	GBoundedDoubleCollection_test
 	GBrokerPopulation_test
 	GChar_test
-	GCharFlipAdaptor_test
 	GDataExchange_test
 	GDoubleCollection_test
 	GDoubleGaussAdaptor_test
 	GInt32Collection_test
-	GInt32FlipAdaptor_test
 	GInt32GaussAdaptor_test
 	GIntFlipAdaptorT_test
 	GLogger_test
