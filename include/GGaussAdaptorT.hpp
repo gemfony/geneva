@@ -275,7 +275,9 @@ public:
 			std::ostringstream error;
 			error << "In GGaussAdaptorT::setSigma(const double&): Error!" << std::endl
 			  	  << "sigma is not in the allowed range: " << std::endl
-			  	  << sigma << " " << minSigma_ << " " << maxSigma_ << std::endl;
+			  	  << sigma << " " << minSigma_ << " " << maxSigma_ << std::endl
+			  	  << "If you want to use these values you need to" << std::endl
+			  	  << "adapt the allowed range first." << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
@@ -297,8 +299,9 @@ public:
 	/**
 	 * Sets the allowed value range of sigma_. A minimum sigma of 0 will silently be adapted
 	 * to a very small value (DEFAULTMINSIGMA), as otherwise mutations would stop entirely,
-	 * which does not make sense.  Note that this function will also adapt sigma itself, if it falls
-	 * outside of the allowed range.
+	 * which does not make sense.  Using 0. as lower boundary is however allowed for practical
+	 * reasons. Note that this function will also adapt sigma itself, if it falls outside of the allowed
+	 * range.
 	 *
 	 * @param minSigma The minimum allowed value of sigma_
 	 * @param minSigma The maximum allowed value of sigma_
@@ -327,7 +330,8 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Retrieves the allowed value range for sigma.
+	 * Retrieves the allowed value range for sigma. You can retrieve the values
+	 * like this: getSigmaRange().first , getSigmaRange().second .
 	 *
 	 * @return The allowed value range for sigma
 	 */
@@ -338,7 +342,10 @@ public:
 	/********************************************************************************************/
 	/**
 	 * This function sets the values of the sigmaSigma_ parameter and the
-	 * minimal value allowed for sigma_.
+	 * minimal value allowed for sigma_. 0 is not allowed. If you do want to
+	 * prevent adaption of sigma, you can use the GAdaptorT<T>::setAdaptionThreshold()
+	 * function. It determines, after how many mutations the internal parameters
+	 * of the mutation should be adapted. If set to 0, no adaption takes place.
 	 *
 	 * @param sigmaSigma The new value of the sigmaSigma_ parameter
 	 */
@@ -371,6 +378,9 @@ public:
 	/**
 	 * Convenience function that lets users set all relevant parameters of this class
 	 * at once.
+	 *
+	 * TODO: Needs to be rewritten to take care of e.g. sigma == 0 and have
+	 * consistent throw behaviour
 	 *
 	 * @param sigma The initial value for the sigma_ parameter
 	 * @param sigmaSigma The initial value for the sigmaSigma_ parameter

@@ -91,6 +91,7 @@ BOOST_AUTO_TEST_CASE( GAdaptorT_failures_expected )
 {
 	GRandom gr;
 
+	/* nothing */
 }
 /***********************************************************************************/
 

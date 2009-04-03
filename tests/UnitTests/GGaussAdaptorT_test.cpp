@@ -70,21 +70,71 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, T, test_types
 	BOOST_CHECK(ggat0.adaptorName() == GGAUSSADAPTORSTANDARDNAME);
 
 	// Instantiation with a suitable sigma value
-	GGaussAdaptorT<T> ggat1(0.1);
+	GGaussAdaptorT<T> ggat1(0.202030405060708); // intentionally long
 
 	// Instantiation with sigma, sigmaSigma, minSigma and maxSigma
 	GGaussAdaptorT<T> ggat2(0.1, 0.001, 0., 1.);
+	BOOST_CHECK(ggat2 != ggat1);
 
 	// Copy construction
 	GGaussAdaptorT<T> ggat3(ggat2);
+	BOOST_CHECK(ggat3 == ggat2);
 
 	// Assignment
-	boost::shared_ptr<GGaussAdaptorT<T> > ggat4_ptr(new GGaussAdaptorT<T>());
+	boost::shared_ptr<GGaussAdaptorT<T> > ggat4_ptr(ggat1.GObject::clone_ptr_cast<GGaussAdaptorT<T> >());
 	*ggat4_ptr = ggat3;
+	BOOST_CHECK(*ggat4_ptr == ggat3 && *ggat4_ptr == ggat2);
 
 	// ... and loading
 	GGaussAdaptorT<T> ggat5;
 	ggat5.load(ggat4_ptr.get());
+	BOOST_CHECK(ggat5 == ggat3 && *ggat4_ptr == ggat2);
+
+	// Check (de-)serialization in different modes
+	ggat5.fromString(ggat1.toString(TEXTSERIALIZATION),TEXTSERIALIZATION);
+	BOOST_CHECK(ggat5.isSimilarTo(ggat1, exp(-10)));
+	ggat5 = ggat3; // reset
+	BOOST_CHECK(!ggat5.isEqualTo(ggat1));
+	ggat5.fromString(ggat1.toString(XMLSERIALIZATION),XMLSERIALIZATION);
+	BOOST_CHECK(ggat5.isSimilarTo(ggat1, exp(-10)));
+	ggat5 = ggat3; // reset
+	ggat5.fromString(ggat1.toString(BINARYSERIALIZATION),BINARYSERIALIZATION);
+	BOOST_CHECK(ggat5.isEqualTo(ggat1)); // no longer just similar in binary mode!
+
+	// Check that we can set and retrieve sigma
+	BOOST_CHECK_NO_THROW(ggat5.setSigma(0.5));
+	BOOST_CHECK(ggat5.getSigma() == 0.5);
+
+	// Check that we can set and retrieve the sigma range
+	BOOST_CHECK_NO_THROW(ggat5.setSigmaRange(0.,2.));
+	BOOST_CHECK(ggat5.getSigma() == 0.5);
+
+	// Check that sigma actually gets adapted, if we move the lower boundary
+	BOOST_CHECK_NO_THROW(ggat5.setSigmaRange(0.6,2.));
+	BOOST_CHECK(ggat5.getSigma() == 0.6);
+
+	// Check the range
+	BOOST_CHECK(ggat5.getSigmaRange().first == 0.6 && ggat5.getSigmaRange().second == 2.);
+
+	// Set and retrieve the adaption rate
+	BOOST_CHECK_NO_THROW(ggat5.setSigmaAdaptionRate(0.001));
+	BOOST_CHECK(ggat5.getSigmaAdaptionRate() == 0.001);
+
+	// Finally set all parameters in one go
+	BOOST_CHECK_NO_THROW(ggat5.setAll(0.1,0.001,0.,2.));
+	BOOST_CHECK(ggat5.getSigma() == 0.1);
+	BOOST_CHECK(ggat5.getSigmaAdaptionRate() == 0.001);
+	BOOST_CHECK(ggat5.getSigmaRange().first == DEFAULTMINSIGMA && ggat5.getSigmaRange().second == 2.);
+
+	// Perform mutations with varying mutation parameters
+	T mutationTarget = T(NULL);
+	std::size_t NMUTATIONS=10000;
+	ggat5.setAdaptionThreshold(1);
+	for(std::size_t p=0; p<20; p++) {
+		BOOST_CHECK_NO_THROW(ggat5.setAll(gr.evenRandom(DEFAULTMINSIGMA,2.), 0.001, 0., 2.));
+		for(std::size_t m=0; m<NMUTATIONS; m++)
+			BOOST_CHECK_NO_THROW(ggat5.mutate(mutationTarget));
+	}
 }
 
 /***********************************************************************************/
@@ -93,6 +143,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, T, test_types )
 {
 	GRandom gr;
 
+	{
+		GGaussAdaptorT<T> ggat0(0.1, 0.001, 0., 1.);
+		BOOST_CHECK_THROW(ggat0.setSigma(1.1), Gem::GenEvA::geneva_error_condition); // outside of the allowed range
+	}
+
+	{ // not sure what state ggat0 is in after it has thrown. Hence we recreate it for the next test
+		GGaussAdaptorT<T> ggat0;
+		BOOST_CHECK_THROW(ggat0.setSigmaRange(-1.,1.), Gem::GenEvA::geneva_error_condition); // outside of the allowed range
+	}
+
+	{ // not sure what state ggat0 is in after it has thrown. Hence we recreate it for the next test
+		GGaussAdaptorT<T> ggat0;
+		BOOST_CHECK_THROW(ggat0.setSigmaAdaptionRate(0.), Gem::GenEvA::geneva_error_condition); // 0. is not an allowed value
+	}
 }
 /***********************************************************************************/
 
