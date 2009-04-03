@@ -56,7 +56,7 @@ using namespace Gem::GLogFramework;
 // test GObject and GAdaotorT.
 BOOST_AUTO_TEST_SUITE(GGaussAdaptorTSuite)
 
-typedef boost::mpl::list<boost::int32_t, bool,  char> test_types;
+typedef boost::mpl::list<boost::int32_t, double> test_types;
 
 /***********************************************************************************/
 // Test features that are expected to work
@@ -64,6 +64,27 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, T, test_types
 {
 	GRandom gr;
 
+	// Test simple instantiation
+	GGaussAdaptorT<T> ggat0;
+	// A name should have been set automatically
+	BOOST_CHECK(ggat0.adaptorName() == GGAUSSADAPTORSTANDARDNAME);
+
+	// Instantiation with a suitable sigma value
+	GGaussAdaptorT<T> ggat1(0.1);
+
+	// Instantiation with sigma, sigmaSigma, minSigma and maxSigma
+	GGaussAdaptorT<T> ggat2(0.1, 0.001, 0., 1.);
+
+	// Copy construction
+	GGaussAdaptorT<T> ggat3(ggat2);
+
+	// Assignment
+	boost::shared_ptr<GGaussAdaptorT<T> > ggat4_ptr(new GGaussAdaptorT<T>());
+	*ggat4_ptr = ggat3;
+
+	// ... and loading
+	GGaussAdaptorT<T> ggat5;
+	ggat5.load(ggat4_ptr.get());
 }
 
 /***********************************************************************************/
