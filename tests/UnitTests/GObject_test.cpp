@@ -70,13 +70,13 @@ BOOST_AUTO_TEST_CASE( GObject_no_failure_expected )
 	// Note that text-io may result in a lost of precision, so that double
 	// values might differ slightly.
 	// text mode:
-	{
+	{ // Explicit scope results in the destruction of the contained objects
 		std::ostringstream stream;
 		stream << gba0.toString(TEXTSERIALIZATION);
 		GBooleanAdaptor gba1; // Create a new, pristine object
 		gba1.fromString(stream.str(),TEXTSERIALIZATION);
 		BOOST_CHECK(gba1.isSimilarTo(gba0,exp(-10)));
-	}
+	} // Explicit scope results in the destruction of the contained objects
 
 	{
 		std::ostringstream stream;
@@ -94,6 +94,8 @@ BOOST_AUTO_TEST_CASE( GObject_no_failure_expected )
 		BOOST_CHECK(gba1.isEqualTo(gba0));
 	}
 
+	std::string report =  gba0.report();
+	BOOST_CHECK(report.size() != 0);
 }
 
 /***********************************************************************************/
