@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 // Boost header files go here
 
@@ -50,7 +51,9 @@ using namespace Gem::GLogFramework;
 /***********************************************************************************/
 // This test suite checks as much as possible of the functionality provided
 // by the GIntFlipAdaptorT class. The template is instantiated for all types
-// defined in the above mpl::list .
+// defined in the above mpl::list . Note that a lot of functionality of this class has
+// already been covered as GBooleanAdaptor has been used as a vehicle to
+// test GObject and GAdaotorT.
 BOOST_AUTO_TEST_SUITE(GIntFlipAdaptorTSuite)
 
 typedef boost::mpl::list<boost::int32_t, bool,  char> test_types;
@@ -63,6 +66,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 
 	// Test simple instantiation
 	GIntFlipAdaptorT<T> gifat0;
+
+	// A name should have been set automatically
+	BOOST_CHECK(gifat0.adaptorName() == GINTFLIPADAPTORSTANDARDNAME);
+
 	// Test instantiation with a probability mutation
 	GIntFlipAdaptorT<T> gifat1(0.2);
 
@@ -89,12 +96,50 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 	BOOST_CHECK(!gifat3.isEqualTo(gifat1)); // Should have the same result
 	BOOST_CHECK(gifat3.isSimilarTo( gifat1, exp(-9)));
 
-	// Repeated mutation, before and after setting the mutation parameters
+	// Check mutations
+	const std::size_t NMUTATIONS = 10000;
+	T mutationTarget=T(NULL);
+	gifat3.setAdaptionThreshold(10);
+	gifat3.setMutationProbability(0.1);
+	std::vector<T> mutatedValues(NMUTATIONS+1);
+	mutatedValues[0] = mutationTarget;
+	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
+		gifat3.mutate(mutationTarget);
+		mutatedValues[m+1] = mutationTarget;
+	}
 
 	// Check that values do not stay the same for a larger number of mutations
+	std::size_t nOriginalValues = std::count(mutatedValues.begin()+1, mutatedValues.end(), mutatedValues[0]);
+	BOOST_CHECK(nOriginalValues < NMUTATIONS);
 
-	// Check that no mutations occur if mutProb == 0 and that mutations always occur
-	// if mutProb == 1
+	// Check that no mutations occur if mutProb == 0
+	mutationTarget=T(NULL);
+	gifat3.setAdaptionThreshold(0);
+	gifat3.setMutationProbability(0.);
+	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
+		gifat3.mutate(mutationTarget);
+		BOOST_CHECK(mutationTarget == T(NULL));
+	}
+
+	// Check that mutations always occur  if mutProb == 1
+	mutationTarget=T(NULL);
+	gifat3.setAdaptionThreshold(0);
+	gifat3.setMutationProbability(1.);
+	T oldMutationTarget = T(NULL);
+	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
+		oldMutationTarget = mutationTarget;
+		gifat3.mutate(mutationTarget);
+		BOOST_CHECK(mutationTarget != oldMutationTarget);
+	}
+
+	// Do some more mutation with varying mutation parameters, just for kicks
+	gifat3.setMutationProbability(1.);
+	gifat3.setAdaptionThreshold(2);
+	for(std::size_t p=0; p<10; p++) {
+		BOOST_CHECK_NO_THROW(gifat3.setMutationParameters(gr.evenRandom(0.,0.01),0.00001,0.,0.01));
+		for(std::size_t m=0; m<NMUTATIONS; m++)
+			BOOST_CHECK_NO_THROW(gifat3.mutate(mutationTarget));
+	}
 }
 
 /***********************************************************************************/

@@ -295,22 +295,29 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Sets the allowed value range of sigma_
+	 * Sets the allowed value range of sigma_. A minimum sigma of 0 will silently be adapted
+	 * to a very small value (DEFAULTMINSIGMA), as otherwise mutations would stop entirely,
+	 * which does not make sense.  Note that this function will also adapt sigma itself, if it falls
+	 * outside of the allowed range.
 	 *
 	 * @param minSigma The minimum allowed value of sigma_
 	 * @param minSigma The maximum allowed value of sigma_
 	 */
 	void setSigmaRange(const double& minSigma, const double& maxSigma){
+		double tmpMinSigma = minSigma;
+		// Silently adapt minSigma, if necessary. A value of 0. does not make sense.
+		if(minSigma == 0.) tmpMinSigma = DEFAULTMINSIGMA;
+
 		// Do some error checks
-		if(minSigma<=0. || minSigma >= maxSigma){ // maxSigma will automatically be > 0. now
+		if(tmpMinSigma<=0. || minSigma >= maxSigma){ // maxSigma will automatically be > 0. now
 			std::ostringstream error;
 			error << "In GGaussAdaptorT::setSigmaRange(const double&, const double&): Error!" << std::endl
-				  << "Invalid values for minSigma and maxSigma given:" << minSigma << " " << maxSigma << std::endl;
+				  << "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
 
-		minSigma_ = minSigma;
+		minSigma_ = tmpMinSigma;
 		maxSigma_ = maxSigma;
 
 		// Adapt sigma, if necessary
