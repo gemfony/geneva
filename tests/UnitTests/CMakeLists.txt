@@ -4,6 +4,7 @@ SET (EXECUTABLENAME GUnitTests)
 
 SET (${EXECUTABLENAME}_SRCS 
 	GUnitTests
+	GAdaptorT_test
 	GBasePopulation_test
 	GBoolean_test
 	GBooleanAdaptor_test
