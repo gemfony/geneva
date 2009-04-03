@@ -17,6 +17,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GDataExchange_test
 	GDoubleCollection_test
 	GDoubleGaussAdaptor_test
+	GGaussAdaptorT_test
 	GInt32Collection_test
 	GInt32GaussAdaptor_test
 	GIntFlipAdaptorT_test

@@ -49,12 +49,12 @@ namespace GenEvA {
 /*************************************************************************/
 /**
  * The GInt32GaussAdaptor represents an adaptor used for the mutation of
- * boost::uint32_t values through the addition of gaussian-distributed random numbers.
+ * boost::int32_t values through the addition of gaussian-distributed random numbers.
  * See the documentation of GAdaptorT<T> for further information on adaptors
  * in the GenEvA context. All functionality is currently implemented in the
  * GGaussAdaptorT class.
  */
-typedef GGaussAdaptorT<boost::uint32_t> GInt32GaussAdaptor;
+typedef GGaussAdaptorT<boost::int32_t> GInt32GaussAdaptor;
 
 } /* namespace GenEvA */
 } /* namespace Gem */
