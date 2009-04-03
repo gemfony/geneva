@@ -19,3 +19,5 @@
 - Additional network implementations (MPI, PVM, ...)
 - Further optimization algorithms: gradient descents, swarm, ...
 - Split tests into "failures expected" and "no failures expected"
+- Test for self-assignment can be eliminated in all classes derived from GObject, as GObject will
+  be first to check. One check is sufficient.

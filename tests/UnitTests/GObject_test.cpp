@@ -94,6 +94,14 @@ BOOST_AUTO_TEST_CASE( GObject_no_failure_expected )
 		BOOST_CHECK(gba1.isEqualTo(gba0));
 	}
 
+	// Clone the object using two methods, also a clone  load into another GBooleanAdaptor.
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_clone1(gba0.clone_ptr_cast<GBooleanAdaptor>()));
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_clone2 = gba0.clone_bptr_cast<GBooleanAdaptor>());
+	GBooleanAdaptor gba2;
+	GObject *gba0_clone3 = gba0.clone();
+	BOOST_CHECK_NO_THROW(gba2.load(gba0_clone3));
+	delete gba0_clone3;
+
 	std::string report =  gba0.report();
 	BOOST_CHECK(report.size() != 0);
 }
@@ -104,6 +112,8 @@ BOOST_AUTO_TEST_CASE( GObject_failures_expected )
 {
 	GRandom gr;
 
+	GBooleanAdaptor gba0;
+	BOOST_CHECK_THROW(gba0.load(&gba0), Gem::GenEvA::geneva_error_condition);
 }
 /***********************************************************************************/
 

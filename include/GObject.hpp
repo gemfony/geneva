@@ -197,11 +197,9 @@ public:
 protected:
     /**
      * A random number generator. Each GenEvA object has
-     * its own instance with a separate seed. Note that the actual
-     * calculation is done in a random number server. Note that the
-     * GRandom object will not be serialized. This means that objects
-     * created from serialization data will re-initialize the random
-     * number generator.
+     * its own instance. Note that the actual calculation is done in
+     * a random number server. Also note that the GRandom
+     * object will not be serialized.
      */
 	Gem::Util::GRandom gr;
 
