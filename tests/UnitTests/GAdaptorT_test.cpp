@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( GAdaptorT_no_failure_expected )
 	BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_clone1(gba0.clone_ptr_cast<GBooleanAdaptor>()));
 	BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_clone2 = gba0.clone_bptr_cast<GBooleanAdaptor>());
 	GBooleanAdaptor gba2;
-	GAdaptorT *gba0_clone3 = gba0.clone();
+	GObject *gba0_clone3 = gba0.clone();
 	BOOST_CHECK_NO_THROW(gba2.load(gba0_clone3));
 	delete gba0_clone3;
 
