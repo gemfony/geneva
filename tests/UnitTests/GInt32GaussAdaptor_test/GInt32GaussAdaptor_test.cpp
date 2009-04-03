@@ -1,8 +1,5 @@
 /**
  * @file GInt32GaussAdaptor_test.cpp
- *
- * This test checks most public member functions of the GInt32GaussAdaptor adaptor
- * class.
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -30,18 +27,16 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GInt32GaussAdaptor_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
-#include "GObject.hpp"
-#include "GInt32GaussAdaptor.hpp"
 #include "GenevaExceptions.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
+#include "GInt32GaussAdaptor.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -49,14 +44,25 @@ using namespace Gem::GenEvA;
 using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
-// This test checks as much as possible of the functionality
-// provided by the GCharFlipAdaptor class.
-BOOST_AUTO_TEST_CASE( gint32gaussadaptor_test_no_failure_expected )
+// This test suite checks as much as possible of the functionality provided
+// by the GInt32GaussAdaptor class.
+BOOST_AUTO_TEST_SUITE(GInt32GaussAdaptor)
+
+/***********************************************************************************/
+// Test features that are expected to work
+BOOST_AUTO_TEST_CASE( GInt32GaussAdaptor_no_failure_expected )
 {
 	GRandom gr;
 
 }
 
 /***********************************************************************************/
+// Test features that are expected to fail
+BOOST_AUTO_TEST_CASE( GInt32GaussAdaptor_failures_expected )
+{
+	GRandom gr;
 
-// EOF
+}
+/***********************************************************************************/
+
+BOOST_AUTO_TEST_SUITE_END()

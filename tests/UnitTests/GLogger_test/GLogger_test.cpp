@@ -1,11 +1,8 @@
 /**
  * @file GLogger_test.cpp
- *
- * This test checks performs simple tests of the GLogger class
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2009 Dr. Ruediger Berlich
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *
@@ -23,20 +20,49 @@
  */
 
 // Standard header files go here
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GLogger_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
 
-// GenEvA header files go here
+// Geneva header files go here
+#include "GenevaExceptions.hpp"
+#include "GLogger.hpp"
+#include "GLogTargets.hpp"
+#include "GRandom.hpp"
 #include "GLogger.hpp"
 
-#include "GParabolaIndividual.hpp"
-
+using namespace Gem;
+using namespace Gem::Util;
+using namespace Gem::GenEvA;
 using namespace Gem::GLogFramework;
 
-BOOST_AUTO_TEST_CASE( glogger_simple_invocation_no_failure_expected )
-{ /* nothing */ }
+/***********************************************************************************/
+// This test suite checks as much as possible of the functionality provided
+// by the GLogger class.
+BOOST_AUTO_TEST_SUITE(GLogger)
+
+/***********************************************************************************/
+// Test features that are expected to work
+BOOST_AUTO_TEST_CASE( GLogger_no_failure_expected )
+{
+	GRandom gr;
+
+}
+
+/***********************************************************************************/
+// Test features that are expected to fail
+BOOST_AUTO_TEST_CASE( GLogger_failures_expected )
+{
+	GRandom gr;
+
+}
+/***********************************************************************************/
+
+BOOST_AUTO_TEST_SUITE_END()

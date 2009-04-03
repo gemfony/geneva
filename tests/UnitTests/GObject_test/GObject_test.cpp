@@ -1,9 +1,5 @@
 /**
  * @file GObject_test.cpp
- *
- * This test checks most public member functions of the GObject class. As this class
- * is purely virtual, it cannot be instantiated and therefore needs to be checked through
- * other, instantiable classes.
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -31,18 +27,16 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GObject_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
-#include "GObject.hpp"
-#include "GInt32GaussAdaptor.hpp"
 #include "GenevaExceptions.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
+#include "GObject.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -50,14 +44,25 @@ using namespace Gem::GenEvA;
 using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
-// This test checks as much as possible of the functionality
-// provided by the GObject class.
-BOOST_AUTO_TEST_CASE( gobject_test_no_failure_expected )
+// This test suite checks as much as possible of the functionality provided
+// by the GObject class.
+BOOST_AUTO_TEST_SUITE(GObject)
+
+/***********************************************************************************/
+// Test features that are expected to work
+BOOST_AUTO_TEST_CASE( GObject_no_failure_expected )
 {
 	GRandom gr;
 
 }
 
 /***********************************************************************************/
+// Test features that are expected to fail
+BOOST_AUTO_TEST_CASE( GObject_failures_expected )
+{
+	GRandom gr;
 
-// EOF
+}
+/***********************************************************************************/
+
+BOOST_AUTO_TEST_SUITE_END()

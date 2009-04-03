@@ -1,7 +1,5 @@
 /**
  * @file GBooleanCollection_test.cpp
- *
- * This test checks most public member functions of the GBooleanCollection class.
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -29,7 +27,6 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GBooleanCollection_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
@@ -47,14 +44,25 @@ using namespace Gem::GenEvA;
 using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
-// This test checks as much as possible of the functionality
-// provided by the GObject class.
-BOOST_AUTO_TEST_CASE( gbooleancollection_test_no_failure_expected )
+// This test suite checks as much as possible of the functionality provided
+// by the GBooleanCollection class.
+BOOST_AUTO_TEST_SUITE(GBooleanCollection)
+
+/***********************************************************************************/
+// Test features that are expected to work
+BOOST_AUTO_TEST_CASE(GBooleanCollection_no_failure_expected )
 {
 	GRandom gr;
 
 }
 
 /***********************************************************************************/
+// Test features that are expected to fail
+BOOST_AUTO_TEST_CASE( GBooleanCollection_failures_expected )
+{
+	GRandom gr;
 
-// EOF
+}
+/***********************************************************************************/
+
+BOOST_AUTO_TEST_SUITE_END()

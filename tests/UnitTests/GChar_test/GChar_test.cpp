@@ -1,7 +1,5 @@
 /**
  * @file GChar_test.cpp
- *
- * This test checks most public member functions of the GChar class.
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -29,7 +27,6 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GChar_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
@@ -39,7 +36,7 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
-#include "GBoundedDouble.hpp"
+#include "GChar.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -47,14 +44,25 @@ using namespace Gem::GenEvA;
 using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
-// This test checks as much as possible of the functionality
-// provided by the GObject class.
-BOOST_AUTO_TEST_CASE( gchar_test_no_failure_expected )
+// This test suite checks as much as possible of the functionality provided
+// by the GChar class.
+BOOST_AUTO_TEST_SUITE(GChar)
+
+/***********************************************************************************/
+// Test features that are expected to work
+BOOST_AUTO_TEST_CASE( GChar_no_failure_expected )
 {
 	GRandom gr;
 
 }
 
 /***********************************************************************************/
+// Test features that are expected to fail
+BOOST_AUTO_TEST_CASE( GChar_failures_expected )
+{
+	GRandom gr;
 
-// EOF
+}
+/***********************************************************************************/
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -1,73 +1,45 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-ADD_SUBDIRECTORY (
-	GBasePopulation_test
+SET (EXECUTABLENAME GUnitTests)
+
+SET (${EXECUTABLENAME}_SRCS 
+	GUnitTests
+	GBasePopulation_test/GBasePopulation_test
+	GBoolean_test/GBoolean_test
+	GBooleanAdaptor_test/GBooleanAdaptor_test
+	GBooleanCollection_test/GBooleanCollection_test
+	GBoostThreadPopulation_test/GBoostThreadPopulation_test
+	GBoundedDouble_test/GBoundedDouble_test
+	GBoundedDoubleCollection_test/GBoundedDoubleCollection_test
+	GBrokerPopulation_test/GBrokerPopulation_test
+	GChar_test/GChar_test
+	GCharFlipAdaptor_test/GCharFlipAdaptor_test
+	GDataExchange_test/GDataExchange_test
+	GDoubleGaussAdaptor_test/GDoubleGaussAdaptor_test
+	GInt32Collection_test/GInt32Collection_test
+	GInt32FlipAdaptor_test/GInt32FlipAdaptor_test
+	GInt32GaussAdaptor_test/GInt32GaussAdaptor_test
+	GLogger_test/GLogger_test
+	GObject_test/GObject_test
+	GParameterSet_test/GParameterSet_test
+)
+	
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
 )
 
-ADD_SUBDIRECTORY (
-	GBoolean_test
+INCLUDE_DIRECTORIES (AFTER
+	${PROJECT_SOURCE_DIR}/examples/SampleIndividuals
 )
 
-ADD_SUBDIRECTORY (
-	GBooleanAdaptor_test
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+	${PROJECT_NAME}
+	${Boost_LIBRARIES}
 )
 
-ADD_SUBDIRECTORY (
-	GBooleanCollection_test
-)
-
-ADD_SUBDIRECTORY (
-	GBoostThreadPopulation_test
-)
-
-ADD_SUBDIRECTORY (
-	GBoundedDouble_test
-)
-
-ADD_SUBDIRECTORY (
-	GBoundedDoubleCollection_test
-)
-
-ADD_SUBDIRECTORY (
-	GBrokerPopulation_test
-)
-
-ADD_SUBDIRECTORY (
-	GChar_test
-)
-
-ADD_SUBDIRECTORY (
-	GCharFlipAdaptor_test
-)
-
-ADD_SUBDIRECTORY (
-	GDataExchange_test
-)
-
-ADD_SUBDIRECTORY (
-	GDoubleGaussAdaptor_test
-)
-
-ADD_SUBDIRECTORY (
-	GInt32Collection_test
-)
-
-ADD_SUBDIRECTORY (
-	GInt32FlipAdaptor_test
-)
-
-ADD_SUBDIRECTORY (
-	GInt32GaussAdaptor_test
-)
-
-ADD_SUBDIRECTORY (
-	GLogger_test
-)
-
-ADD_SUBDIRECTORY (
-	GObject_test
-)
-
-ADD_SUBDIRECTORY (
-	GParameterSet_test
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION tests/unittests
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE OWNER_EXECUTE
+	GROUP_READ GROUP_EXECUTE
+	WORLD_READ WORLD_EXECUTE
 )

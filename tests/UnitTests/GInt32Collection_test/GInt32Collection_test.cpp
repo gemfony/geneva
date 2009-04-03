@@ -1,7 +1,5 @@
 /**
  * @file GInt32Collection_test.cpp
- *
- * This test checks most public member functions of the GInt32Collection class.
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -29,7 +27,6 @@
 
 // Boost header files go here
 
-#define BOOST_TEST_MODULE GInt32Collection_test
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
@@ -39,7 +36,7 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
-#include "GBoundedDouble.hpp"
+#include "GInt32Collection.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -47,14 +44,25 @@ using namespace Gem::GenEvA;
 using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
-// This test checks as much as possible of the functionality
-// provided by the GObject class.
-BOOST_AUTO_TEST_CASE( gint32collection_test_no_failure_expected )
+// This test suite checks as much as possible of the functionality provided
+// by the GInt32Collection class.
+BOOST_AUTO_TEST_SUITE(GInt32Collection)
+
+/***********************************************************************************/
+// Test features that are expected to work
+BOOST_AUTO_TEST_CASE( GInt32Collection_no_failure_expected )
 {
 	GRandom gr;
 
 }
 
 /***********************************************************************************/
+// Test features that are expected to fail
+BOOST_AUTO_TEST_CASE( GInt32Collection_failures_expected )
+{
+	GRandom gr;
 
-// EOF
+}
+/***********************************************************************************/
+
+BOOST_AUTO_TEST_SUITE_END()
