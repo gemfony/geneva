@@ -65,9 +65,9 @@ const std::string GINTFLIPADAPTORSTANDARDNAME = "GIntFlipAdaptorT"; ///< The des
  * in GIntFlipAdaptorT.cpp, allows to deal with booleans instead of "standard"
  * integer types.
  */
-template<typename int_type>
+template<typename T>
 class GIntFlipAdaptorT:
-	public GAdaptorT<int_type>
+	public GAdaptorT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -75,7 +75,7 @@ class GIntFlipAdaptorT:
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<int_type> >(*this));
+		ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<T> >(*this));
 		ar & make_nvp("mutProb_", mutProb_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ public:
 	 * parent class and initializes the internal variables.
 	 */
 	GIntFlipAdaptorT()
-		:GAdaptorT<int_type> (GINTFLIPADAPTORSTANDARDNAME),
+		:GAdaptorT<T> (GINTFLIPADAPTORSTANDARDNAME),
 		 mutProb_(DEFAULTMUTPROB, 0., 1.) // probability is in the range [0:1[
 	{
 		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA,
@@ -103,7 +103,7 @@ public:
 	 * @param prob The probability for a bit-flip
 	 */
 	explicit GIntFlipAdaptorT(const double& prob)
-		:GAdaptorT<int_type>(GINTFLIPADAPTORSTANDARDNAME),
+		:GAdaptorT<T>(GINTFLIPADAPTORSTANDARDNAME),
 		 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
 	{
 		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA,
@@ -117,8 +117,8 @@ public:
 	 *
 	 * @param cp Another GIntFlipAdaptorT object
 	 */
-	GIntFlipAdaptorT(const GIntFlipAdaptorT<int_type>& cp)
-		:GAdaptorT<int_type>(cp),
+	GIntFlipAdaptorT(const GIntFlipAdaptorT<T>& cp)
+		:GAdaptorT<T>(cp),
 		 mutProb_(cp.mutProb_)
 	{ /* nothing */	}
 
@@ -136,9 +136,9 @@ public:
 	 *
 	 * @param cp A copy of another GIntFlipAdaptorT object
 	 */
-	const GIntFlipAdaptorT<int_type>& operator=(const GIntFlipAdaptorT<int_type>& cp)
+	const GIntFlipAdaptorT<T>& operator=(const GIntFlipAdaptorT<T>& cp)
 	{
-		GIntFlipAdaptorT<int_type>::load(&cp);
+		GIntFlipAdaptorT<T>::load(&cp);
 		return *this;
 	}
 
@@ -151,10 +151,10 @@ public:
 	void load(const GObject *cp)
 	{
 		// Convert GObject pointer to local format
-		const GIntFlipAdaptorT<int_type> *gifa = this->conversion_cast(cp, this);
+		const GIntFlipAdaptorT<T> *gifa = this->conversion_cast(cp, this);
 
 		// Load the data of our parent class ...
-		GAdaptorT<int_type>::load(cp);
+		GAdaptorT<T>::load(cp);
 
 		// ... and then our own
 		mutProb_ = gifa->mutProb_;
@@ -169,57 +169,57 @@ public:
 	 */
 	GObject *clone()
 	{
-		return new GIntFlipAdaptorT<int_type>(*this);
+		return new GIntFlipAdaptorT<T>(*this);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GIntFlipAdaptorT<int_type> object
+	 * Checks for equality with another GIntFlipAdaptorT<T> object
 	 *
-	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GIntFlipAdaptorT<int_type>& cp) const {
-		return GIntFlipAdaptorT<int_type>::isEqualTo(cp);
+	bool operator==(const GIntFlipAdaptorT<T>& cp) const {
+		return GIntFlipAdaptorT<T>::isEqualTo(cp);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for inequality with another GIntFlipAdaptorT<int_type> object
+	 * Checks for inequality with another GIntFlipAdaptorT<T> object
 	 *
-	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GIntFlipAdaptorT<int_type>& cp) const {
-		return !GIntFlipAdaptorT<int_type>::isEqualTo(cp);
+	bool operator!=(const GIntFlipAdaptorT<T>& cp) const {
+		return !GIntFlipAdaptorT<T>::isEqualTo(cp);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GIntFlipAdaptorT<int_type> object Equality means
+	 * Checks for equality with another GIntFlipAdaptorT<T> object Equality means
 	 * that all individual sub-values are equal and that the parent class is equal.
 	 *
-	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool isEqualTo(const GIntFlipAdaptorT<int_type>& cp) const {
-		if(!GAdaptorT<int_type>::isEqualTo(cp)) return false;
+	bool isEqualTo(const GIntFlipAdaptorT<T>& cp) const {
+		if(!GAdaptorT<T>::isEqualTo(cp)) return false;
 		if(!mutProb_.isEqualTo(cp.mutProb)) return false;
 		return true;
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for similarity with another GIntFlipAdaptorT<int_type> object. Similarity means
+	 * Checks for similarity with another GIntFlipAdaptorT<T> object. Similarity means
 	 * that all double values are similar to each other within a given limit and that all other
 	 * values are equal. Also, parent classes must be similar to each other.
 	 *
-	 * @param  cp A constant reference to another GIntFlipAdaptorT<int_type> object
+	 * @param  cp A constant reference to another GIntFlipAdaptorT<T> object
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	bool isSimilarTo(const GIntFlipAdaptorT<int_type>& cp, const double& limit=0.) const {
-		if(!GAdaptorT<int_type>::isSimilarTo(cp, limit)) return false;
+	bool isSimilarTo(const GIntFlipAdaptorT<T>& cp, const double& limit=0.) const {
+		if(!GAdaptorT<T>::isSimilarTo(cp, limit)) return false;
 		if(!mutProb_.isSimilarTo(cp.mutProb)) return false;
 		return true;
 	}
@@ -306,13 +306,13 @@ protected:
 	 *
 	 * @param value The bit value to be mutated
 	 */
-	virtual void customMutations(int_type& value) {
+	virtual void customMutations(T& value) {
 		double probe = this->gr.evenRandom(0.,1.);
 		if(probe < mutProb_.value()) {
 			bool up = this->gr.boolRandom();
 			if(up){
 #if defined (CHECKOVERFLOWS) || defined (DEBUG)
-				if(std::numeric_limits<int_type>::max() == value) value -= 1;
+				if(std::numeric_limits<T>::max() == value) value -= 1;
 				else value += 1;
 #else
 				value += 1;
@@ -320,7 +320,7 @@ protected:
 			}
 			else {
 #if defined (CHECKOVERFLOWS) || defined (DEBUG)
-				if(std::numeric_limits<int_type>::min() == value) value += 1;
+				if(std::numeric_limits<T>::min() == value) value += 1;
 				else value -= 1;
 #else
 				value -= 1;

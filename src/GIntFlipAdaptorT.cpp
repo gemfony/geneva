@@ -29,7 +29,7 @@ namespace GenEvA {
 //////////////////////// Specialization for some integer and/or bool types///////////////////////
 /***********************************************************************************************/
 /**
- * Specialization for typeof(int_type) == typeof(bool).
+ * Specialization for typeof(T) == typeof(bool).
  *
  * @param value The value to be mutated
  */
@@ -43,7 +43,7 @@ void GIntFlipAdaptorT<bool>::customMutations(bool& value) {
 
 /***********************************************************************************************/
 /**
- * Specialization for typeof(int_type) == typeof(short). The main difference to the generic
+ * Specialization for typeof(T) == typeof(short). The main difference to the generic
  * version is that the boundary check is mandatory.
  *
  * @param value The value to be mutated
@@ -66,7 +66,7 @@ void GIntFlipAdaptorT<short>::customMutations(short& value) {
 
 /***********************************************************************************************/
 /**
- * Specialization for typeof(int_type) == typeof(unsigned short). The main difference to the generic
+ * Specialization for typeof(T) == typeof(unsigned short). The main difference to the generic
  * version is that the boundary check is mandatory.
  *
  * @param value The value to be mutated
@@ -89,7 +89,7 @@ void GIntFlipAdaptorT<unsigned short>::customMutations(unsigned short& value) {
 
 /***********************************************************************************************/
 /**
- * Specialization for typeof(int_type) == typeof(boost::uint8_t). The main difference to the generic
+ * Specialization for typeof(T) == typeof(boost::uint8_t). The main difference to the generic
  * version is that the boundary check is mandatory.
  *
  * @param value The value to be mutated
@@ -112,7 +112,7 @@ void GIntFlipAdaptorT<boost::uint8_t>::customMutations(boost::uint8_t& value) {
 
 /***********************************************************************************************/
 /**
- * Specialization for typeof(int_type) == typeof(boost::int8_t). The main difference to the generic
+ * Specialization for typeof(T) == typeof(boost::int8_t). The main difference to the generic
  * version is that the boundary check is mandatory.
  *
  * @param value The value to be mutated
@@ -135,7 +135,7 @@ void GIntFlipAdaptorT<boost::int8_t>::customMutations(boost::int8_t& value) {
 
 /***********************************************************************************************/
 /**
- * Specialization for typeof(int_type) == typeof(char). The main difference to the generic
+ * Specialization for typeof(T) == typeof(char). The main difference to the generic
  * version is that the boundary check is mandatory.
  *
  * @param value The value to be mutated

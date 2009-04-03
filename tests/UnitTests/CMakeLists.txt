@@ -20,6 +20,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GInt32Collection_test
 	GInt32FlipAdaptor_test
 	GInt32GaussAdaptor_test
+	GIntFlipAdaptorT_test
 	GLogger_test
 	GObject_test
 	GParameterSet_test
