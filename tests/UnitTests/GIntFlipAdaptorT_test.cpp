@@ -90,6 +90,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 	BOOST_CHECK(gifat3.isSimilarTo( gifat1, exp(-9)));
 
 	// Repeated mutation, before and after setting the mutation parameters
+
+	// Check that values do not stay the same for a larger number of mutations
+
+	// Check that no mutations occur if mutProb == 0 and that mutations always occur
+	// if mutProb == 1
 }
 
 /***********************************************************************************/

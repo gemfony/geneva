@@ -31,6 +31,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/cstdint.hpp>
 
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
@@ -62,10 +63,26 @@ BOOST_AUTO_TEST_CASE( GAdaptorT_no_failure_expected )
 	GBooleanAdaptor gba0;
 
 	// Perform tests with various settings of the adaptionThreshold.
+	BOOST_CHECK(gba0.getAdaptionThreshold() == 0); // Should have been initialized with this value
+	BOOST_CHECK(gba0.getAdaptionCounter() == 0);
+	gba0.setAdaptionThreshold(1);
+	BOOST_CHECK(gba0.getAdaptionThreshold() == 1);
 
 	// Test mutation, including a test of the incrementation of the
-	// adaption counter after each mutation.
-
+	// adaption counter after each mutation. This is also a good test
+	// of some of GBooleanAdaptor's functionality
+	bool mutationTarget=false;
+	for(boost::uint32_t aT=0; aT<100; aT++) {
+		gba0.setAdaptionThreshold(aT);
+		boost::uint32_t oldAdaptionCounter=gba0.getAdaptionCounter();
+		for(boost::uint32_t m=0; m<1000; m++) { // mutation counter
+			gba0.mutate(mutationTarget);
+			boost::uint32_t currentAdaptionCounter=gba0.getAdaptionCounter();
+			BOOST_CHECK(currentAdaptionCounter >= 0 && currentAdaptionCounter<=aT);
+			if(aT != 0) BOOST_CHECK(currentAdaptionCounter != oldAdaptionCounter);
+			oldAdaptionCounter = currentAdaptionCounter;
+		}
+	}
 }
 
 /***********************************************************************************/
