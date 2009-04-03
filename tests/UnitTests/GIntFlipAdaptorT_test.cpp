@@ -24,6 +24,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 // Boost header files go here
 
@@ -32,7 +33,7 @@
 #include <boost/mpl/list.hpp>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/cstadint.hpp>
+#include <boost/cstdint.hpp>
 
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
@@ -46,12 +47,13 @@ using namespace Gem::Util;
 using namespace Gem::GenEvA;
 using namespace Gem::GLogFramework;
 
-typedef boost::mpl::list<boost::int32_t, bool,  char> test_types;
-
 /***********************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GIntFlipAdaptorT class.
-BOOST_AUTO_TEST_SUITE(GIntFlipAdaptorT)
+// by the GIntFlipAdaptorT class. The template is instantiated for all types
+// defined in the above mpl::list .
+BOOST_AUTO_TEST_SUITE(GIntFlipAdaptorTSuite)
+
+typedef boost::mpl::list<boost::int32_t, bool,  char> test_types;
 
 /***********************************************************************************/
 // Test features that are expected to work
@@ -59,6 +61,35 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 {
 	GRandom gr;
 
+	// Test simple instantiation
+	boost::shared_ptr<GIntFlipAdaptorT<T> > gifat0(new GIntFlipAdaptorT<T>());
+	// Test instantiation with a probability mutation
+	boost::shared_ptr<GIntFlipAdaptorT<T> > gifat1(new GIntFlipAdaptorT<T>(0.2));
+
+	BOOST_CHECK(*gifat1 != *gifat0);
+
+	// Test copy construction
+	boost::shared_ptr<GIntFlipAdaptorT<T> > gifat2(new GIntFlipAdaptorT<T>(*gifat1));
+
+	BOOST_CHECK(*gifat2 == *gifat1);
+	BOOST_CHECK(*gifat2 != *gifat0);
+
+	// Test assignment
+	boost::shared_ptr<GIntFlipAdaptorT<T> > gifat3(new GIntFlipAdaptorT<T>());
+	*gifat3 = *gifat1;
+
+	BOOST_CHECK(*gifat3 == *gifat1);
+	BOOST_CHECK(*gifat3 != *gifat0);
+
+	// Retrieve the mutation probablilty and modify it slightly. Then check similariy and equality.
+	double mutProb = gifat3->getMutationProbability();
+	mutProb -= exp(-10);
+	gifat3->setMutationProbability(mutProb);
+	BOOST_CHECK(*gifat3 != *gifat1); // May no longer be equal
+	BOOST_CHECK(!gifat3->isEqualTo(*gifat1)); // Should have the same result
+	BOOST_CHECK(gifat3->isSimilarTo( *gifat1, exp(-9)));
+
+	// Repeated mutation, before and after setting the mutation parameters
 }
 
 /***********************************************************************************/
@@ -67,6 +98,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_failures_expected, T, test_types
 {
 	GRandom gr;
 
+	// Simple instantiation
+	boost::shared_ptr<GIntFlipAdaptorT<T> > gifat0(new GIntFlipAdaptorT<T>());
+	// Assignment of an invalid mutation probability
+	BOOST_CHECK_THROW(gifat0->setMutationProbability(-0.1), Gem::GenEvA::geneva_error_condition);
+	BOOST_CHECK_THROW(gifat0->setMutationProbability(1.1), Gem::GenEvA::geneva_error_condition);
 }
 /***********************************************************************************/
 

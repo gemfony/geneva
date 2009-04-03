@@ -204,7 +204,7 @@ public:
 	 */
 	bool isEqualTo(const GIntFlipAdaptorT<T>& cp) const {
 		if(!GAdaptorT<T>::isEqualTo(cp)) return false;
-		if(!mutProb_.isEqualTo(cp.mutProb)) return false;
+		if(!mutProb_.isEqualTo(cp.mutProb_)) return false;
 		return true;
 	}
 
@@ -220,7 +220,7 @@ public:
 	 */
 	bool isSimilarTo(const GIntFlipAdaptorT<T>& cp, const double& limit=0.) const {
 		if(!GAdaptorT<T>::isSimilarTo(cp, limit)) return false;
-		if(!mutProb_.isSimilarTo(cp.mutProb)) return false;
+		if(!mutProb_.isSimilarTo(cp.mutProb_, limit)) return false;
 		return true;
 	}
 
