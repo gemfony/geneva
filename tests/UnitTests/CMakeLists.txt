@@ -6,14 +6,12 @@ SET (${EXECUTABLENAME}_SRCS
 	GUnitTests
 	GAdaptorT_test
 	GBasePopulation_test
-	GBoolean_test
 	GBooleanAdaptor_test
 	GBooleanCollection_test
 	GBoostThreadPopulation_test
 	GBoundedDouble_test
 	GBoundedDoubleCollection_test
 	GBrokerPopulation_test
-	GChar_test
 	GDataExchange_test
 	GDoubleCollection_test
 	GGaussAdaptorT_test

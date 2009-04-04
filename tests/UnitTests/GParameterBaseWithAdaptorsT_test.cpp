@@ -115,7 +115,6 @@ BOOST_AUTO_TEST_CASE( GParameterBaseWithAdaptorsT_no_failure_expected)
 	   BOOST_CHECK(gb4 == gb1);
 	}
 
-	// Test mutation
 
 }
 

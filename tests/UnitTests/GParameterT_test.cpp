@@ -60,7 +60,7 @@ typedef boost::mpl::list<bool, char, boost::int32_t, double> test_types;
 
 /***********************************************************************************/
 // Test features that are expected to work
-BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, T, test_types )
+BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, T, test_types )
 {
 	GRandom gr;
 
@@ -120,8 +120,17 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, T, test_types
 }
 
 /***********************************************************************************/
+// Test features that are expected to work - boolean case
+BOOST_AUTO_TEST_CASE( GParameterT_bool_no_failure_expected)
+{
+	GRandom gr;
+
+
+}
+
+/***********************************************************************************/
 // Test features that are expected to fail
-BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, T, test_types )
+BOOST_AUTO_TEST_CASE_TEMPLATE( GParmeterT_failures_expected, T, test_types )
 {
 	GRandom gr;
 
