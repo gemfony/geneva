@@ -1,5 +1,5 @@
 /**
- * @file GParameterBaseWithAdaptorsT_test.cpp
+ * @file GGaussAdaptorT_test.cpp
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -26,11 +26,12 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include <cmath>
 
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
+#include <boost/test/test_case_template.hpp>
+#include <boost/mpl/list.hpp>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
@@ -40,8 +41,7 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
-#include "GParameterBaseWithAdaptorsT.hpp"
-#include "GBoolean.hpp"
+#include "GParameterT.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -50,82 +50,81 @@ using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GParameterBaseWithAdaptorsT class. As this class can not be instantiated
-// directly, the (indirect) derivative class GBoolean is used instead. Note that GBoolean
-// is itself just a typedef of GParameterT<bool>, so we are also testing that class
-// here to some extent.
-BOOST_AUTO_TEST_SUITE(GParameterBaseWithAdaptorsTSuite)
+// by the GGaussAdaptorT class. The template is instantiated for all types
+// defined in the above mpl::list . Note that a lot of functionality of this class has
+// already been covered as GBooleanAdaptor has been used as a vehicle to
+// test GObject and GAdaotorT.
+BOOST_AUTO_TEST_SUITE(GParameterTSuite)
+
+typedef boost::mpl::list<bool, char, boost::int32_t, double> test_types;
 
 /***********************************************************************************/
 // Test features that are expected to work
-BOOST_AUTO_TEST_CASE( GParameterBaseWithAdaptorsT_no_failure_expected)
+BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, T, test_types )
 {
 	GRandom gr;
 
 	// Test default construction
-	BOOST_CHECK_NO_THROW(GBoolean gb);
+	BOOST_CHECK_NO_THROW(GParameterT<T> gpt);
 
 	// Test construction with a value
-	GBoolean gb0(false), gb1(true);
-	BOOST_CHECK(gb0 != gb1);
+	GParameterT<T> gpt0(T(NULL)), gpt1(T(1));
+	BOOST_CHECK(gpt0 != gpt1);
 
 	// Test copy construction
-	GBoolean gb2(gb1);
-	BOOST_CHECK(gb2 == gb1);
-	BOOST_CHECK(gb2 != gb0);
+	GParameterT<T> gpt2(gpt1);
+	BOOST_CHECK(gpt2 == gpt1);
+	BOOST_CHECK(gpt2 != gpt0);
 
 	// Test assignment
-	GBoolean gb3;
-	gb3 = gb1;
-	BOOST_CHECK(gb3 == gb1);
-	BOOST_CHECK(gb3 != gb0);
+	GParameterT<T> gpt3;
+	gpt3 = gpt1;
+	BOOST_CHECK(gpt3 == gpt1);
+	BOOST_CHECK(gpt3 != gpt0);
 
 	// Test cloning
-	GObject *gb3_clone = gb3.clone();
+	GObject *gpt3_clone = gpt3.clone();
 
 	// Test loading
-	BOOST_CHECK_NO_THROW(gb0.load(gb3_clone));
-	BOOST_CHECK_NO_THROW(delete gb3_clone);
-	BOOST_CHECK(gb0 == gb3);
+	BOOST_CHECK_NO_THROW(gpt0.load(gpt3_clone));
+	BOOST_CHECK_NO_THROW(delete gpt3_clone);
+	BOOST_CHECK(gpt0 == gpt3);
 
 	// Re-assign the original value
-	gb0 = false;
-	BOOST_CHECK(gb0 != gb3);
+	gpt0 = T(NULL);
+	BOOST_CHECK(gpt0 != gpt3);
 
 	// Test (de-)serialization in differnet modes
 	{ // plain text format
-	   GBoolean gb4(gb0);
-	   BOOST_CHECK(gb4.isEqualTo(gb0));
-	   gb4.fromString(gb1.toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
-	   BOOST_CHECK(!gb4.isEqualTo(gb0));
-	   BOOST_CHECK(gb4.isSimilarTo(gb1, exp(-10)));
+	   GParameterT<T> gpt4(gpt0);
+	   BOOST_CHECK(gpt4.isEqualTo(gpt0));
+	   gpt4.fromString(gpt1.toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
+	   BOOST_CHECK(!gpt4.isEqualTo(gpt0));
+	   BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
 	}
 	{ // XML format
-	   GBoolean gb4(gb0);
-	   BOOST_CHECK(gb4.isEqualTo(gb0));
-	   gb4.fromString(gb1.toString(XMLSERIALIZATION), XMLSERIALIZATION);
-	   BOOST_CHECK(!gb4.isEqualTo(gb0));
-	   BOOST_CHECK(gb4.isSimilarTo(gb1, exp(-10)));
+	   GParameterT<T> gpt4(gpt0);
+	   BOOST_CHECK(gpt4.isEqualTo(gpt0));
+	   gpt4.fromString(gpt1.toString(XMLSERIALIZATION), XMLSERIALIZATION);
+	   BOOST_CHECK(!gpt4.isEqualTo(gpt0));
+	   BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
 	}
 	{ // binary test format
-	   GBoolean gb4(gb0);
-	   BOOST_CHECK(gb4 == gb0);
-	   gb4.fromString(gb1.toString(BINARYSERIALIZATION), BINARYSERIALIZATION);
-	   BOOST_CHECK(gb4 != gb0);
-	   BOOST_CHECK(gb4 == gb1);
+	   GParameterT<T> gpt4(gpt0);
+	   BOOST_CHECK(gpt4 == gpt0);
+	   gpt4.fromString(gpt1.toString(BINARYSERIALIZATION), BINARYSERIALIZATION);
+	   BOOST_CHECK(gpt4 != gpt0);
+	   BOOST_CHECK(gpt4 == gpt1);
 	}
-
-	// Test mutation
 
 }
 
 /***********************************************************************************/
 // Test features that are expected to fail
-BOOST_AUTO_TEST_CASE( GParameterBaseWithAdaptorsT_failures_expected )
+BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, T, test_types )
 {
 	GRandom gr;
 
-	// Check that self-assignment throws
 }
 /***********************************************************************************/
 

@@ -23,6 +23,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GObject_test
 	GParameterBaseWithAdaptorsT_test
 	GParameterSet_test
+	GParameterT_test
 )
 	
 ADD_EXECUTABLE(${EXECUTABLENAME}
