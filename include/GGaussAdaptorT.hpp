@@ -263,26 +263,39 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * This function sets the value of the sigma_ parameter.
+	 * This function sets the value of the sigma_ parameter. Note that this function
+	 * will silently set a 0 sigma to a very small value.
 	 *
 	 * @param sigma The new value of the sigma_ parameter
 	 */
 	void setSigma(const double& sigma)
 	{
+		if(sigma < 0.) {
+			std::ostringstream error;
+			error << "In GGaussAdaptorT::setSigma(const double&): Error!" << std::endl
+			  	  << "sigma is negative: " << sigma << std::endl;
+
+			throw geneva_error_condition(error.str());
+		}
+
+		double tmpSigma;
+		if(sigma == 0.) tmpSigma = DEFAULTMINSIGMA;
+		else tmpSigma = sigma;
+
 		// Sigma must be in the allowed value range
-		if(sigma < minSigma_ || sigma > maxSigma_)
+		if(tmpSigma < minSigma_ || tmpSigma > maxSigma_)
 		{
 			std::ostringstream error;
 			error << "In GGaussAdaptorT::setSigma(const double&): Error!" << std::endl
 			  	  << "sigma is not in the allowed range: " << std::endl
-			  	  << sigma << " " << minSigma_ << " " << maxSigma_ << std::endl
+			  	  << tmpSigma << " " << minSigma_ << " " << maxSigma_ << std::endl
 			  	  << "If you want to use these values you need to" << std::endl
 			  	  << "adapt the allowed range first." << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
 
-		sigma_ = sigma;
+		sigma_ = tmpSigma;
 	}
 
 	/********************************************************************************************/
@@ -378,9 +391,6 @@ public:
 	/**
 	 * Convenience function that lets users set all relevant parameters of this class
 	 * at once.
-	 *
-	 * TODO: Needs to be rewritten to take care of e.g. sigma == 0 and have
-	 * consistent throw behaviour
 	 *
 	 * @param sigma The initial value for the sigma_ parameter
 	 * @param sigmaSigma The initial value for the sigmaSigma_ parameter
