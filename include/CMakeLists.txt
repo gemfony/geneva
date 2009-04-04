@@ -26,6 +26,7 @@ SET ( GENEVAINCLUDES
 	GConsumer.hpp
 	GDataExchange.hpp
 	GDataExchangeException.hpp
+	GDouble.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp
 	GDoubleParameter.hpp

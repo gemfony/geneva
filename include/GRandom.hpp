@@ -104,6 +104,7 @@ public:
 	/** @brief Produces two gaussians with defined distance */
 	double doubleGaussRandom(const double&, const double&, const double&);
 
+
 	/*************************************************************************/
 	/**
 	 * This function produces integer random numbers in the range of [0, max[ .

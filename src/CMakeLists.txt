@@ -20,6 +20,7 @@ SET ( GENEVASOURCES
 	GCharParameter
 	GDataExchange
 	GDataExchangeException
+	GDouble
 	GDoubleCollection 
 	GDoubleGaussAdaptor
 	GDoubleParameter

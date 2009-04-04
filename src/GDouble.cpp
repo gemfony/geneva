@@ -1,5 +1,5 @@
 /**
- * @file GInt32.cpp
+ * @file GDouble.cpp
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -19,11 +19,11 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GInt32.hpp"
+#include "GDouble.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GInt32)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GDouble)

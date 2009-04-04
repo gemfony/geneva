@@ -1,5 +1,5 @@
 /**
- * @file GInt32.hpp
+ * @file GDouble.hpp
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -31,8 +31,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GINT32_HPP_
-#define GINT32_HPP_
+#ifndef GDOUBLE_HPP_
+#define GDOUBLE_HPP_
 
 // GenEvA headers go here
 
@@ -43,24 +43,22 @@ namespace GenEvA {
 
 /************************************************************************/
 /**
- * This class encapsulates a single integer value. This might appear heavy weight,
+ * This class encapsulates a single doublel. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
- * use the GInt32Collection instead.
+ * use the GDoubleCollection or GBoundedDoubleCollection instead.
  *
- * Bits are mutated by the GInt32FlipAdaptor or the GInt32GaussAdaptor in GenEvA.
- * The reason for this class is that there might be applications where one might want different
- * adaptor characteristics for different values. This cannot be done with a GInt32Collection.
- * Plus, having a separate integer class adds some consistency to GenEvA, as other values
- * (most notably doubles) have their own class as well (GBoundedDouble, GDouble).
+ * Bits are mutated by the GDoubleGaussAdaptor in GenEvA. If you want to
+ * have individual adaptors (with individual settings) for each double, you need
+ * to use this class instead.
  *
  * For reasons of simplicity this class is implemented as a simple typdef of the GParameterT
- * template class, which implements a specialization of the constructor.
+ * template class.
  */
-typedef GParameterT<boost::int32_t> GInt32;
+typedef GParameterT<double> GDouble;
 
 /************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GINT32_HPP_ */
+#endif /* GDOUBLE_HPP_ */
