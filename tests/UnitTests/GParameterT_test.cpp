@@ -42,6 +42,15 @@
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
 #include "GParameterT.hpp"
+#include "GBoolean.hpp"
+#include "GBooleanAdaptor.hpp"
+#include "GChar.hpp"
+#include "GCharFlipAdaptor.hpp"
+#include "GInt32.hpp"
+#include "GInt32FlipAdaptor.hpp"
+#include "GInt32GaussAdaptor.hpp"
+#include "GDouble.hpp"
+#include "GDoubleGaussAdaptor.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -50,10 +59,8 @@ using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GGaussAdaptorT class. The template is instantiated for all types
-// defined in the above mpl::list . Note that a lot of functionality of this class has
-// already been covered as GBooleanAdaptor has been used as a vehicle to
-// test GObject and GAdaotorT.
+// by the GParameterT class. Tests include features of the parent class
+// GParameterBaseWithAdaptorsT, as it cannot be instantiated itself.
 BOOST_AUTO_TEST_SUITE(GParameterTSuite)
 
 typedef boost::mpl::list<bool, char, boost::int32_t, double> test_types;
@@ -120,12 +127,49 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, T, test_types )
 }
 
 /***********************************************************************************/
-// Test features that are expected to work - boolean case
+// Test features that are expected to work - bool case
 BOOST_AUTO_TEST_CASE( GParameterT_bool_no_failure_expected)
 {
 	GRandom gr;
 
+	// Default construction
+	GBoolean gpt0;
 
+	// Adding a single adaptor
+	BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor())));
+
+	// Retrieve the adaptor again, as a GAdaptorT
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<bool> > gadb0_ptr = gpt0.getAdaptor(GBooleanAdaptor::adaptorName()));
+
+	// Retrieve the adaptor in its original form
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_ptr = gpt0.adaptor_cast<GBooleanAdaptor>(GBooleanAdaptor::adaptorName()));
+}
+
+/***********************************************************************************/
+// Test features that are expected to work - char case
+BOOST_AUTO_TEST_CASE( GParameterT_char_no_failure_expected)
+{
+	GRandom gr;
+
+	GChar gpt0;
+}
+
+/***********************************************************************************/
+// Test features that are expected to work - boost::int32 case
+BOOST_AUTO_TEST_CASE( GParameterT_int_no_failure_expected)
+{
+	GRandom gr;
+
+	GInt32 gpt0;
+}
+
+/***********************************************************************************/
+// Test features that are expected to work - double case
+BOOST_AUTO_TEST_CASE( GParameterT_double_no_failure_expected)
+{
+	GRandom gr;
+
+	GDouble gpt0;
 }
 
 /***********************************************************************************/
