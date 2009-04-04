@@ -9,6 +9,7 @@ SET ( GENEVASOURCES
 	GBoolean
 	GBooleanAdaptor
 	GBooleanCollection
+	GBooleanObjectCollection
 	GBoolParameter
 	GBoostThreadConsumer
 	GBoostThreadPopulation
@@ -17,12 +18,14 @@ SET ( GENEVASOURCES
 	GBrokerPopulation
 	GChar
 	GCharFlipAdaptor
+	GCharObjectCollection
 	GCharParameter
 	GDataExchange
 	GDataExchangeException
 	GDouble
 	GDoubleCollection 
 	GDoubleGaussAdaptor
+	GDoubleObjectCollection
 	GDoubleParameter
 	GGaussAdaptorT
 	GIndividual
@@ -31,6 +34,7 @@ SET ( GENEVASOURCES
 	GInt32Collection
 	GInt32FlipAdaptor
 	GInt32GaussAdaptor
+	GInt32ObjectCollection
 	GIntFlipAdaptorT
 	GLogger
 	GLogTargets
@@ -52,7 +56,7 @@ SET ( GENEVASOURCES
 
 ADD_LIBRARY ( ${PROJECT_NAME} SHARED ${GENEVASOURCES})
 SET_TARGET_PROPERTIES(${PROJECT_NAME}
-	PROPERTIES VERSION 0.5.1
+	PROPERTIES VERSION 0.5.2
 )
 
 INSTALL ( TARGETS ${PROJECT_NAME} DESTINATION lib

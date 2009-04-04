@@ -1,5 +1,5 @@
 /**
- * @file GBoundedDoubleCollection.hpp
+ * @file GInt32ObjectCollection.hpp
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -20,9 +20,6 @@
  */
 
 // Standard header files go here
-#include <sstream>
-#include <vector>
-#include <algorithm>
 
 // Boost header files go here
 
@@ -32,14 +29,12 @@
 #error "Error: Boost has incorrect version !"
 #endif /* BOOST_VERSION */
 
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
-#ifndef GBOUNDEDDOUBLECOLLECTION_HPP_
-#define GBOUNDEDDOUBLECOLLECTION_HPP_
+#ifndef GINT32OBJECTCOLLECTION_HPP_
+#define GINT32OBJECTCOLLECTION_HPP_
 
 // GenEvA header files go here
-#include "GBoundedDouble.hpp"
+#include "GInt32.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
@@ -47,14 +42,13 @@ namespace GenEvA {
 
 /*************************************************************************/
 /**
- * A collection of GBoundedDouble objects, ready for use in a
- * GIndividual derivative.
+ * A collection of GInt32 objects, ready for use in a GIndividual derivative.
  */
-typedef GParameterTCollectionT<GBoundedDouble> GBoundedDoubleCollection;
+typedef GParameterTCollectionT<GInt32> GInt32ObjectCollection;
 
 /*************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GBOUNDEDDOUBLECOLLECTION_HPP_ */
+#endif /* GINT32OBJECTCOLLECTION_HPP_ */

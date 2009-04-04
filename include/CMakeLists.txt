@@ -10,6 +10,7 @@ SET ( GENEVAINCLUDES
 	GBoolean.hpp
 	GBooleanAdaptor.hpp
 	GBooleanCollection.hpp
+	GBooleanObjectCollection.hpp
 	GBoolParameter.hpp
 	GBoostThreadConsumer.hpp
 	GBoostThreadPopulation.hpp
@@ -22,6 +23,7 @@ SET ( GENEVAINCLUDES
 	GBufferPortT.hpp
 	GChar.hpp
 	GCharFlipAdaptor.hpp
+	GCharObjectCollection.hpp
 	GCharParameter.hpp
 	GConsumer.hpp
 	GDataExchange.hpp
@@ -29,6 +31,7 @@ SET ( GENEVAINCLUDES
 	GDouble.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp
+	GDoubleObjectCollection.hpp
 	GDoubleParameter.hpp
 	GenevaExceptions.hpp
 	GEnums.hpp
@@ -42,6 +45,7 @@ SET ( GENEVAINCLUDES
 	GInt32Collection.hpp
 	GInt32FlipAdaptor.hpp
 	GInt32GaussAdaptor.hpp
+	GInt32ObjectCollection.hpp
 	GIntFlipAdaptorT.hpp
 	GLogger.hpp
 	GLogTargets.hpp
