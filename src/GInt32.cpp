@@ -1,9 +1,8 @@
 /**
- * @file GChar.cpp
+ * @file GInt32.cpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2009 Dr. Ruediger Berlich
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *
@@ -20,11 +19,11 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GChar.hpp"
+#include "GBoolean.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GChar)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GBoolean)

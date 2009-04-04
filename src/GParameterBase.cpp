@@ -43,7 +43,9 @@ GParameterBase::GParameterBase() throw() :GMutableI(), GObject()
  *
  * @param cp A copy of another GParameterBase object
  */
-GParameterBase::GParameterBase(const GParameterBase& cp) :GMutableI(cp), GObject(cp)
+GParameterBase::GParameterBase(const GParameterBase& cp)
+	:GMutableI(cp),
+	 GObject(cp)
 { /* nothing */ }
 
 /**********************************************************************************/

@@ -21,6 +21,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GIntFlipAdaptorT_test
 	GLogger_test
 	GObject_test
+	GParameterBaseWithAdaptorsT_test
 	GParameterSet_test
 )
 	

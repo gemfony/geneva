@@ -1,9 +1,8 @@
 /**
- * @file GBoolean.hpp
+ * @file GInt32.hpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2009 Dr. Ruediger Berlich
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *
@@ -32,8 +31,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GBOOLEAN_HPP_
-#define GBOOLEAN_HPP_
+#ifndef GINT32_HPP_
+#define GINT32_HPP_
 
 // GenEvA headers go here
 
@@ -44,25 +43,24 @@ namespace GenEvA {
 
 /************************************************************************/
 /**
- * This class encapsulates a single bit, represented as a bool. This might appear heavy weight,
+ * This class encapsulates a single integer value. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
- * use the GBooleanCollection instead.
+ * use the GInt32Collection instead.
  *
- * Bits are mutated by the GBooleanAdaptor in GenEvA. It incorporates a mutable bit-flip probability.
- * The reason for this class is that there might be applications where one might want different flip
- * probabilities for different bits. Where this is the case, separate GBooleanAdaptors must be
- * assigned to each bit value, which cannot be done with the GBooleanCollection. Plus, having
- * a separate bit class adds some consistency to GenEvA, as other values (most
- * notably doubles) have their own class as well (GDouble).
+ * Bits are mutated by the GInt32FlipAdaptor or the GInt32GaussAdaptor in GenEvA.
+ * The reason for this class is that there might be applications where one might want different
+ * adaptor characteristics for different values. This cannot be done with a GInt32Collection.
+ * Plus, having a separate integer class adds some consistency to GenEvA, as other values
+ * (most notably doubles) have their own class as well (GBoundedDouble, GDouble).
  *
  * For reasons of simplicity this class is implemented as a simple typdef of the GParameterT
  * template class, which implements a specialization of the constructor.
  */
-typedef GParameterT<bool> GBoolean;
+typedef GParameterT<bool> GInt32;
 
 /************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GBOOLEAN_HPP_ */
+#endif /* GINT32_HPP_ */

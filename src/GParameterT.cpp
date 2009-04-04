@@ -44,6 +44,36 @@ template<> bool GParameterT<double>::isSimilarTo(const GParameterT<double>& cp, 
 }
 
 /***********************************************************************************************/
+/**
+ * A default constructor for typeof(T)==typeof(bool), needed due to call to GRandom::boolRandom()
+ * in the initialization code.
+ */
+template <> GParameterT<bool>::GParameterT()
+	:GParameterBaseWithAdaptorsT<bool>(),
+	  val_(gr.boolRandom())
+{ /* nothing */ }
+
+/***********************************************************************************************/
+/**
+  * A default constructor for typeof(T)==typeof(bool), needed due to call to GRandom::boolRandom()
+  * in the initialization code.
+  */
+template <> GParameterT<char>::GParameterT()
+   :GParameterBaseWithAdaptorsT<char>(),
+     val_(gr.charRandom())
+{ /* nothing */ }
+
+/***********************************************************************************************/
+/**
+ * A default constructor for typeof(T)==typeof(boost::int32_t), needed due to call to GRandom::discreteRandom()
+ * in the initialization code.
+ */
+template <> GParameterT<boost::int32_t>::GParameterT()
+	:GParameterBaseWithAdaptorsT<boost::int32_t>(),
+	 val_(gr.discreteRandom<boost::int32_t>())
+{ /* nothing */ }
+
+/***********************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

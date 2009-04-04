@@ -114,7 +114,7 @@ public:
 	 * @return A constant reference to this object
 	 */
 	const GParameterT<T>& operator=(const GParameterT<T>& cp){
-		GParameterT<T>::load(cp);
+		GParameterT<T>::load(&cp);
 		return *this;
 	}
 
@@ -271,6 +271,12 @@ private:
 // Declaration of specializations for various types
 /** @brief Checks similarity of this object, if typeof(T) == typeof(double) */
 template<> bool GParameterT<double>::isSimilarTo(const GParameterT<double>& cp, const double& limit) const;
+/** @brief A default constructor for bool, needed due to call to GRandom::boolRandom() during construction */
+template <> GParameterT<bool>::GParameterT();
+/** @brief A default constructor for bool, needed due to call to GRandom::charRandom() during construction */
+template <> GParameterT<char>::GParameterT();
+/** @brief A default constructor for boost::int32_t, needed due to call to GRandom::discreteRandom() during construction */
+template <> GParameterT<boost::int32_t>::GParameterT();
 
 /*********************************************************************************************/
 

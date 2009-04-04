@@ -38,9 +38,6 @@
 // GenEvA headers go here
 
 #include "GParameterT.hpp"
-#include "GEnums.hpp"
-#include "GLogger.hpp"
-#include "GenevaExceptions.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -51,46 +48,11 @@ namespace GenEvA {
  * and indeed for most applications this is not the recommended solution -
  * use the GString class instead. char types are mutated by the GCharAdaptor
  * in GenEvA.
+ *
+ * As the GParameterT template class holds a suitable specialization for char,
+ * this class can be implemented as a simple typedef.
  */
-class GChar
-	:public GParameterT<char> {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
-
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterT", boost::serialization::base_object<GParameterT<char> >(*this));
-	}
-	///////////////////////////////////////////////////////////////////////
-
-public:
-	/** @brief The standard constructor */
-	GChar(void);
-	/** @brief Initialization with a char */
-	explicit GChar(const char&);
-	/** @brief The standard copy constructor */
-	GChar(const GChar&);
-	/** @brief The standard destructor */
-	virtual ~GChar();
-
-	/** @brief The standard assignment operator */
-	const GChar& operator=(const GChar&);
-
-    /** @brief Checks equality */
-    bool operator==(const GChar&) const;
-    /** @brief Checks inequality */
-    bool operator!=(const GChar&) const;
-    /** @brief Checks equality */
-    bool isEqualTo(const GChar&) const;
-    /** @brief Checks similarity */
-    bool isSimilarTo(const GChar&, const double& limit = 0.) const;
-
-	/** @brief Loads another GChar object, camouflaged as a GObject */
-	virtual void load(const GObject * gb);
-	/** @brief Creates a deep copy of this object */
-	virtual GObject *clone(void);
-};
+typedef GParameterT<char> GChar;
 
 /************************************************************************/
 

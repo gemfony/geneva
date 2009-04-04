@@ -37,6 +37,7 @@ SET ( GENEVAINCLUDES
 	GIndividualBroker.hpp
 	GIndividual.hpp
 	GIndividualSet.hpp
+	GInt32.hpp
 	GInt32Collection.hpp
 	GInt32FlipAdaptor.hpp
 	GInt32GaussAdaptor.hpp

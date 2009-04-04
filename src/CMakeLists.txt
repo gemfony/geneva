@@ -26,6 +26,7 @@ SET ( GENEVASOURCES
 	GGaussAdaptorT
 	GIndividual
 	GIndividualSet
+	GInt32
 	GInt32Collection
 	GInt32FlipAdaptor
 	GInt32GaussAdaptor
