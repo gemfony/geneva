@@ -256,34 +256,54 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Counts the elements whose content is equal to the content of item.
+	 * Counts the elements whose content is equal to item.
 	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
-	 * and we do not want to compare the pointers themselves.
+	 * and we do not want to compare the pointers themselves. Note that boost::bind will
+	 * not accept the expression *_1, hence we need to employ a small helper function, which
+	 * does the de-referencing for us. Also note that we assume that item has an operator== .
+	 *
+	 * @param item The item to be counted in the collection
 	 */
 	inline size_type count(const T& item) const {
-		size_type num;
-		std::count_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(), _1, item), num);
-		return num;
+		return std::count_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(), item, boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
 	/*******************************************************************************************/
 	/**
-	 * Searches for the content of item in the entire range. Needs to be
+	 * Counts the elements whose content is equal to the content of item.
+	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
+	 * and we do not want to compare the pointers themselves. Note that boost::bind will
+	 * not accept the expression *_1, hence we need to employ a small helper function, which
+	 * does the de-referencing for us. Also note that we assume that item has an operator== .
+	 *
+	 * @param item The item to be counted in the collection
+	 */
+	inline size_type count(const boost::shared_ptr<T>& item) const {
+		return std::count_if(data.begin(), data.end(),
+				                          boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
+				                        		                                                boost::bind(Gem::Util::dereference<T>, _1)));
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Searches for item in the entire range of the vector. Needs to be
 	 * re-implemented here, as we are dealing with a collection of smart pointers
 	 * and we do not want to compare the pointers themselves.
 	 */
-	inline iterator find(const boost::shared_ptr<T>& item) {
-		return std::find_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(),_1,item));
+	inline const_iterator find(const T& item) const {
+		return std::find_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(),item, boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
 	/*******************************************************************************************/
 	/**
-	 * Searches for the content of item in the entire range. Needs to be
+	 * Searches for the content of item in the entire range of the vector. Needs to be
 	 * re-implemented here, as we are dealing with a collection of smart pointers
 	 * and we do not want to compare the pointers themselves.
 	 */
 	inline const_iterator find(const boost::shared_ptr<T>& item) const {
-		return std::find_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(),_1,item));
+		return std::find_if(data.begin(), data.end(),
+				                       boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
+                                                                                             boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
 	/*******************************************************************************************/
