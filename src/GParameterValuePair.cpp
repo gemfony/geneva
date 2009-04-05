@@ -109,6 +109,8 @@ namespace Gem
 
 		value_ = cp.value_;
 		hasValue_ = cp.hasValue_;
+
+		return cp;
 	}
 
 	/******************************************************************************/

@@ -1,3 +1,8 @@
+GInt32GaussAdaptor seems to result in an awfully low number of actual mutations in
+version 0.5.2. Something is clearly wrong.
+
+--
+
 On OpenSUSE 11 / 64 bit / g++ 4.3.1, as well as Ubuntu 8.04 and Debian Lenny, Geneva 
 programs currently suffer from a segmentation fault at the end of their execution. All 
 functions started from main have terminated at this time, and the crash does to the best

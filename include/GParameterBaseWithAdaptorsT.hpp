@@ -334,21 +334,6 @@ public:
 	}
 
 	/*******************************************************************************************/
-	/**
-	 * Informs all adaptors whether their init function should be called for all members of a sequence.
-	 * This is only important for value collections
-	 *
-	 * \param val Specifies whether the init function should be called for all members of a sequence
-	 */
-	void setAlwaysInit(const bool& val) {
-		typename GATvec::iterator it;
-
-		for (it = adaptors_.begin(); it != adaptors_.end(); ++it) {
-			(*it)->setAlwaysInit(val);
-		}
-	}
-
-	/*******************************************************************************************/
 	/** @brief The mutate interface */
 	virtual void mutate(void) = 0;
 

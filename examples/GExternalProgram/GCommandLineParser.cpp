@@ -1,6 +1,6 @@
 /**
- * @file GCommandLineParser.cpp
- */
+  * @file GCommandLineParser.cpp
+  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
  * Copyright (C) 2008 Forschungszentrum Karlsruhe GmbH
@@ -118,7 +118,7 @@ bool parseCommandLine(int argc, char **argv,
 			return false;
 		}
 
-		serverMode==false;
+		serverMode=false;
 		if (vm.count("parallel")) {
 			if(parallel > 2) {
 				std::cout << "Error: the \"-p\" or \"--parallel\" option may only assume the"<< std::endl

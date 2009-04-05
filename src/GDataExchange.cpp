@@ -86,6 +86,8 @@ GDataExchange::~GDataExchange() {
 const GDataExchange& GDataExchange::operator=(const GDataExchange& cp) {
 	copySmartPointerVector<GParameterValuePair>(cp.parameterValueSet_, parameterValueSet_);
 	current_ = parameterValueSet_.begin() + (cp.current_ - cp.parameterValueSet_.begin());
+
+	return cp;
 }
 
 /**************************************************************************/
