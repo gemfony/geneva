@@ -105,16 +105,14 @@ public:
 	 * Every adaptor is required to have a name. It is set in this
 	 * constructor and the name is passed to the underlying GObject
 	 * class.  No default constructor exists, as we want to enforce
-	 * names for adaptors. By default we want to call the
-	 * initialization function of the adaptor for every item of a
-	 * collection.
+	 * names for adaptors.
 	 *
 	 * @param name The name assigned to the adaptor
 	 */
 	explicit GAdaptorT(const std::string& name) throw() :
 		GObject(name),
 		adaptionCounter_(0),
-		adaptionThreshold_(0)
+		adaptionThreshold_(0) // No automatic adaption of the adaptor by default
 	{ /* nothing */ }
 
 	/***********************************************************************************/

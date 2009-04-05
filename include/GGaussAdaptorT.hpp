@@ -440,10 +440,13 @@ protected:
 	{
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
-#if defined (CHECKOVERFLOWS) || defined (DEBUG)
-		// Prevent over- and underflows. Note that we currently do not check the
-		// size of "addition" in comparison to "value".
+#if defined (CHECKOVERFLOWS)
+		// Prevent over- and underflows.
+#if defined (DEBUG)
 		num_type addition = boost::numeric_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
+#else
+		num_type addition = static_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
+#endif /* DEBUG */
 
 		if(value >= 0){
 			if(addition >= 0 && (std::numeric_limits<num_type>::max()-value < addition)) addition *= -1;
@@ -455,8 +458,12 @@ protected:
 		value += addition;
 #else
 		// We do not check for over- or underflows for performance reasons.
+#if defined (DEBUG)
+		value += boost::numeric_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
+#else
 		value += static_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
-#endif /* CHECKOVERFLOWS || DEBUG */
+#endif /* DEBUG */
+#endif /* CHECKOVERFLOWS  */
 	}
 
 private:

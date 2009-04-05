@@ -261,8 +261,7 @@ BOOST_AUTO_TEST_CASE( GParameterT_int32_no_failure_expected)
 		BOOST_CHECK(gpt0.numberOfAdaptors() == 1);
 
 		// again perform mutations. Make sure the adaptor has useful values so that
-		// mutations actually have an effect ... . Hmmm - is there an error in GInt32GaussAdaptor ????
-		// The number of mutated values is quite low ???
+		// mutations actually have an effect ...
 		gpt1_ptr->setAll(10., 1., 0., 100);
 		originalValue = gpt0.value();
 		for(std::size_t i=0; i<NMUTATIONS; i++) {

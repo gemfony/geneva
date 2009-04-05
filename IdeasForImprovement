@@ -22,4 +22,4 @@
 - Test for self-assignment can be eliminated in all classes derived from GObject, as GObject will
   be first to check. One check is sufficient.
 - Implement *1.5 vs. /0.5 rule for sigma adaption
-- GInt32GaussAdaptor does not seem to really do its job. Cross-check more thoroughly with further tests
+- Add a GBiDoubleGaussAdaptor
