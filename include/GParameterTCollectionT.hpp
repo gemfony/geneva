@@ -111,7 +111,7 @@ public:
 	 */
 	const GParameterTCollectionT<T>& operator=(const GParameterTCollectionT<T>& cp)
 	{
-		GParameterTCollectionT<T>::load(cp);
+		GParameterTCollectionT<T>::load(&cp);
 		return *this;
 	}
 
@@ -158,7 +158,7 @@ public:
 		if(!GParameterBase::isEqualTo(cp)) return false;
 
 		// Then check our own, local data
-		typename std::vector<boost::shared_ptr<T> >::iterator it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
 			if(!(*it)->isEqualTo(**cp_it)) return false;
@@ -181,7 +181,7 @@ public:
 		if(!GParameterBase::isSimilarTo(cp, limit)) return false;
 
 		// Then check our own, local data
-		typename std::vector<boost::shared_ptr<T> >::iterator it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
 			if(!(*it)->isSimilarTo(**cp_it, limit)) return false;
@@ -265,7 +265,8 @@ public:
 	 * @param item The item to be counted in the collection
 	 */
 	inline size_type count(const T& item) const {
-		return std::count_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(), item, boost::bind(Gem::Util::dereference<T>, _1)));
+		return std::count_if(data.begin(), data.end(),
+				                          boost::bind(std::equal_to<T>(), item, boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
 	/*******************************************************************************************/
@@ -279,6 +280,14 @@ public:
 	 * @param item The item to be counted in the collection
 	 */
 	inline size_type count(const boost::shared_ptr<T>& item) const {
+		if(!item) { // Check that item actually contains something useful
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::count(item): Error!"
+				     << "Tried to count an empty smart pointer." << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
 		return std::count_if(data.begin(), data.end(),
 				                          boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
 				                        		                                                boost::bind(Gem::Util::dereference<T>, _1)));
@@ -291,7 +300,8 @@ public:
 	 * and we do not want to compare the pointers themselves.
 	 */
 	inline const_iterator find(const T& item) const {
-		return std::find_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(),item, boost::bind(Gem::Util::dereference<T>, _1)));
+		return std::find_if(data.begin(), data.end(),
+				                       boost::bind(std::equal_to<T>(),item, boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
 	/*******************************************************************************************/
@@ -301,15 +311,53 @@ public:
 	 * and we do not want to compare the pointers themselves.
 	 */
 	inline const_iterator find(const boost::shared_ptr<T>& item) const {
+		if(!item) { // Check that item actually contains something useful
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::find(item): Error!"
+				     << "Tried to find an empty smart pointer." << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
 		return std::find_if(data.begin(), data.end(),
 				                       boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
                                                                                              boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
 	/*******************************************************************************************/
+	// Comparison
+
+	/**
+	 * operator==, modified to check the content of the smart pointers
+	 */
+	bool operator==(const std::vector<boost::shared_ptr<T> >& cp_data) {
+		// Check sizes
+		if(data.size() != cp_data.size()) return false;
+
+		// Check the content
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		typename std::vector<boost::shared_ptr<T> >::iterator it;
+		for(cp_it=cp_data.begin(), it=data.begin(); cp_it != cp_data.end(), it!=data.end(); ++cp_it, ++it) {
+			if(!(*it)->isEqualTo(**cp_it)) return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * operator!=, modified to check the content of the smart pointers
+	 */
+	bool operator!=(const std::vector<boost::shared_ptr<T> >& cp_data) {
+		return !operator==(cp_data);
+	}
+
+	/*******************************************************************************************/
 
 	// Modifying functions
 	inline void swap(std::vector<boost::shared_ptr<T> >& cont) { data.swap(cont); }
+
+	// Modifying functions
+	inline void swap(GParameterTCollectionT<T>& cp) { data.swap(cp.data); }
 
 	// Access to elements (unchecked / checked)
 	inline reference operator[](std::size_t pos) { return data[pos]; }
@@ -330,15 +378,40 @@ public:
 	inline iterator end() { return data.end(); }
 	inline const_iterator end() const { return data.end(); }
 
-	inline iterator rbegin() { return data.rbegin(); }
-	inline const_iterator rbegin() const { return data.rbegin(); }
+	inline reverse_iterator rbegin() { return data.rbegin(); }
+	inline const_reverse_iterator rbegin() const { return data.rbegin(); }
 
-	inline iterator rend() { return data.rend(); }
-	inline const_iterator rend() const { return data.rend(); }
+	inline reverse_iterator rend() { return data.rend(); }
+	inline const_reverse_iterator rend() const { return data.rend(); }
 
 	// Insertion and removal
 
-	inline iterator insert(iterator pos, const boost::shared_ptr<T>& item) { return data.insert(pos, item); }
+	/*******************************************************************************************/
+	/**
+	 * Inserts a given item at position pos. Checks whether the item actually points
+	 * somewhere.
+	 */
+	inline iterator insert(iterator pos, const T& item) {
+		boost::shared_ptr<T> item_ptr(new T(item));
+		return data.insert(pos, item_ptr);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Inserts a given item at position pos. Checks whether the item actually points
+	 * somewhere.
+	 */
+	inline iterator insert(iterator pos, const boost::shared_ptr<T>& item) {
+		if(!item) { // Check that item actually contains something useful
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::insert(pos, item): Error!"
+				     << "Tried to insert an empty smart pointer." << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		return data.insert(pos, item);
+	}
 
 	/*******************************************************************************************/
 	/**
@@ -351,20 +424,59 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Inserts a given amount of item after position pos.
+	 * Inserts a given amount of items after position pos.
 	 */
 	inline void insert(iterator pos, size_type amount, const T& item) {
+		std::size_t iterator_pos = pos - data.begin();
 		for(std::size_t i=0; i<amount; i++) {
-			boost::shared_ptr<T> p(new T(*item));
+			boost::shared_ptr<T> p(new T(item));
 			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin()+pos, p);
+			data.insert(data.begin() + iterator_pos, p);
 		}
 	}
 
 	/*******************************************************************************************/
+	/**
+	 * Inserts a given amount of items after position pos.
+	 */
+	inline void insert(iterator pos, size_type amount, const boost::shared_ptr<T>& item_ptr) {
+		if(!item_ptr) { // Check that item actually contains something useful
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::insert(pos, amount, item): Error!"
+				     << "Tried to insert an empty smart pointer." << std::endl;
 
-	// Adding to the  back of the vector
-	inline void push_back(const boost::shared_ptr<T>& item){ data.push_back(item); }
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		std::size_t iterator_pos = pos - data.begin();
+		for(std::size_t i=0; i<amount; i++) {
+			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
+			data.insert(data.begin() + iterator_pos,  item_ptr);
+		}
+	}
+
+	/*******************************************************************************************/
+	// Adding shared_ptr objects to the  back of the vector
+	inline void push_back(const boost::shared_ptr<T>& item){
+		if(!item) { // Check that item actually contains something useful
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::push_back(item): Error!"
+				     << "Tried to insert an empty smart pointer." << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		data.push_back(item);
+	}
+
+	/*******************************************************************************************/
+	// Adding simple items to the  back of the vector
+	inline void push_back(const T& item){
+		boost::shared_ptr<T> item_ptr(new T(item));
+		data.push_back(item_ptr);
+	}
+
+	/*******************************************************************************************/
 
 	// Removal at a given position or in a range
 	inline iterator erase(iterator pos) { return data.erase(pos); }
@@ -404,14 +516,44 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	inline void resize(size_type amount, boost::shared_ptr<T> item) {
+	inline void resize(size_type amount, const boost::shared_ptr<T>& item) {
+		std::size_t dataSize = data.size();
+
+		if(amount < dataSize)
+			data.resize(amount);
+		else if(amount > dataSize) {
+			// Check that item is not empty
+			if(!item) { // Check that item actually contains something useful
+				std::ostringstream error;
+				error << "In GParameterTCollectionT<T>::resize(amount, item): Error!"
+					     << "Tried to insert an empty smart pointer." << std::endl;
+
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+
+			for(std::size_t i=dataSize; i<amount; i++) {
+				data.push_back(item);
+			}
+		}
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Resizing the vector, initialization with item. This function does nothing
+	 * if amount is the same as data.size(). We assume in this function that
+	 * T is copy-constructible.
+	 *
+	 * @param amount The new desired size of the vector
+	 * @param item An item that should be used for initialization of new items, if any
+	 */
+	inline void resize(size_type amount, const T& item) {
 		std::size_t dataSize = data.size();
 
 		if(amount < dataSize)
 			data.resize(amount);
 		else if(amount > dataSize) {
 			for(std::size_t i=dataSize; i<amount; i++) {
-				boost::shared_ptr<T> p(new T(*item));
+				boost::shared_ptr<T> p(new T(item));
 				data.push_back(p);
 			}
 		}
@@ -437,19 +579,17 @@ public:
 		typename std::vector<boost::shared_ptr<T> >::iterator it;
 
 		std::size_t localSize = data.size();
-		std::size_t cpSize = cp.data.size();
+		std::size_t cpSize = cp.size();
 
 		if(cpSize == localSize) { // The most likely case
-			for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it)
-				(*it)->load(*cp_it);
+			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(), cp_it!=cp.end(); ++it, ++cp_it) **it = **cp_it;
 		}
 		else if(cpSize > localSize) {
 			// First copy the initial elements
-			for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(); ++it, ++cp_it)
-				(*it)->load(*cp_it);
+			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) **it = **cp_it;
 
 			// Then attach the remaining objects from cp
-			for(cp_it=cp.data.begin()+localSize; cp_it != cp.data.end(); ++cp_it) {
+			for(cp_it=cp.begin()+localSize; cp_it != cp.end(); ++cp_it) {
 				boost::shared_ptr<T> p(new T(**cp_it)); // **cp_it is of type T
 				data.push_back(p);
 			}
@@ -459,8 +599,7 @@ public:
 			data.resize(cpSize);
 
 			// Then copy the elements
-			for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it)
-				(*it)->load(*cp_it);
+			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(), cp_it!=cp.end(); ++it, ++cp_it) **it = **cp_it;
 		}
 
 		return cp;

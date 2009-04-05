@@ -85,6 +85,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, T, te
 
 	// Default construction
 	GParameterTCollectionT<T> gptct;
+
 }
 
 /***********************************************************************************/
@@ -108,6 +109,13 @@ BOOST_AUTO_TEST_CASE( GParameterTCollectionT_GBoundedDouble_no_failure_expected)
 {
 	GRandom gr;
 
+	// Default construction
+	GParameterTCollectionT<GBoundedDouble> gptct;
+
+	// Check the vector interface
+	GBoundedDouble templItem(0.,0.,1.);
+	GBoundedDouble findItem(1,0.,1.);
+	stdvectorinterfacetestSP(gptct, templItem, findItem);
 }
 
 /***********************************************************************************/
