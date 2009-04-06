@@ -37,16 +37,17 @@ namespace Gem
 		/**
 		 * The default constructor. As this class uses the adaptor scheme
 		 * (see GTemplateAdaptor<T>), you will need to add your own adaptors,
-		 * such as the GDoubleGaussAdaptor. This constructor is private and thus
-		 * cannot be used. It is here as it is needed by the serialization
-		 * framework.
+		 * such as the GDoubleGaussAdaptor.
 		 */
 		GBoundedDouble::GBoundedDouble()
 			:GParameterT<double>(0.),
 			 lowerBoundary_(0.),
-			 upperBoundary_(0.),
+			 upperBoundary_(1.),
 			 internalValue_(0.)
-		{ /* nothing */ }
+		{
+			// This function also sets the internalValue_ variable.
+			setExternalValue(gr.evenRandom(lowerBoundary_,upperBoundary_));
+		}
 
 		/******************************************************************************/
 	    /**

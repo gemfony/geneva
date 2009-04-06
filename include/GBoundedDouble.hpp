@@ -77,6 +77,8 @@ namespace GenEvA
     ///////////////////////////////////////////////////////////////////////
 
   public:
+	/** @brief Standard constructor */
+	GBoundedDouble();
 	/** @brief Initialization with the boundaries */
 	GBoundedDouble(const double&, const double&);
     /** @brief Initialization with a double and the boundaries */
@@ -123,9 +125,6 @@ namespace GenEvA
 	double getInternalValue() const throw();
 
   private:
-	/** @brief Standard constructor, intentionally private */
-	GBoundedDouble();
-
     /** @brief Sets the external value */
 	double setExternalValue(const double&);
 

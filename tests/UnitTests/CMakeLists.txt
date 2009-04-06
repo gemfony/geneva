@@ -6,7 +6,6 @@ SET (${EXECUTABLENAME}_SRCS
 	GUnitTests
 	GAdaptorT_test
 	GBasePopulation_test
-	GBooleanAdaptor_test
 	GBooleanCollection_test
 	GBoostThreadPopulation_test
 	GBoundedDouble_test
