@@ -1,9 +1,8 @@
 /**
- * @file GParameterTCollectionT.hpp
+ * @file GStdPtrVectorInterfaceT.hpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2009 Dr. Ruediger Berlich
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *
@@ -23,7 +22,6 @@
 // Standard header files go here
 #include <sstream>
 #include <vector>
-#include <algorithm>
 
 // Boost header files go here
 
@@ -35,192 +33,92 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
 
-#ifndef GPARAMETERTCOLLECTIONT_HPP_
-#define GPARAMETERTCOLLECTIONT_HPP_
-
-// GenEvA header files go here
-#include "GParameterBase.hpp"
-#include "GParameterT.hpp"
-#include "GHelperFunctionsT.hpp"
+#ifndef GSTDPTRVECTORINTERFACET_HPP_
+#define GSTDPTRVECTORINTERFACET_HPP_
 
 namespace Gem {
 namespace GenEvA {
 
-/***********************************************************************************************/
+/********************************************************************************/
 /**
- * This class shares many similarities with the GParameterCollectionT class. Instead
- * of individual values that can be modified with adaptors, however, it assumes that
- * the objects stored in it have their own mutate() function. Consequently it is not
- * necessary to store adaptors locally. This class has been designed as a collection
- * of GParameterT objects, hence the name.  As an example, one can create a collection
- * of GBoundedDouble objects with this class rather than a simple GDoubleCollection.
- * In order to facilitate memory management, the GParameterT objects are stored
- * in boost::shared_ptr objects.
+ * This class implements most important functions of the std::vector
+ * class. It is intended to hold boost::shared_ptr smart pointers. Hence
+ * special implementations of some functions are needed. Furthermore,
+ * using this class prevents us from having to derive directly from a
+ * std::vector, which has a non-virtual destructor. Note that we assume here
+ * that T holds a complex type, such as a class. It must be default-constructible,
+ * copy-constructible, assignable and comparable.
  */
-template<typename T>
-class GParameterTCollectionT
-	:public GParameterBase
+template <typename T>
+class GStdPtrVectorInterfaceT
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this));
-		ar & make_nvp("data_T", data);
-	}
-	///////////////////////////////////////////////////////////////////////
+    template<typename Archive>
+    void serialize(Archive & ar, const unsigned int version){
+      using boost::serialization::make_nvp;
+      ar & make_nvp("data_T",data);
+    }
+    ///////////////////////////////////////////////////////////////////////
 
 public:
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * The default constructor
 	 */
-	GParameterTCollectionT()
-		:GParameterBase()
-	{ /* nothing */ }
+	GStdPtrVectorInterfaceT() { /* nothing */ }
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
-	 * The copy constructor
+	 * Initialization with a number of default-constructed items
 	 *
-	 * @param cp A copy of another GParameterTCollectionT<T> object
+	 * @param nItems The amount of default-constructed items to be added to the data vector
 	 */
-	GParameterTCollectionT(const GParameterTCollectionT<T>& cp)
-		:GParameterBase (cp)
-	{
-		// All data is stored in the data vector
-		Gem::Util::copySmartPointerVector(cp.data, data);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * The standard destructor
-	 */
-	virtual ~GParameterTCollectionT()
-	{ /* nothing */ }
-
-	/*******************************************************************************************/
-	/**
-	 * A standard assignment operator.
-	 *
-	 * @param cp A copy of another GParameterTCollectionT<T> object
-	 * @return A constant reference to this object
-	 */
-	const GParameterTCollectionT<T>& operator=(const GParameterTCollectionT<T>& cp)
-	{
-		GParameterTCollectionT<T>::load(&cp);
-		return *this;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Creates a deep clone of this object.
-	 */
-	virtual GObject* clone() {
-		return new GParameterTCollectionT<T>(*this);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for equality with another GParameterTCollectionT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterTCollectionT object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GParameterTCollectionT<T>& cp) const {
-		return GParameterTCollectionT<T>::isEqualTo(cp);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for inequality with another GParameterTCollectionT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterTCollectionT object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GParameterTCollectionT<T>& cp) const {
-		return !GParameterTCollectionT<T>::isEqualTo(cp);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for equality with another GParameterTCollectionT<T> object. This function
-	 * assumes that T has an isEqualTo function itself.
-	 *
-	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool isEqualTo(const GParameterTCollectionT<T>& cp) const {
-		// Check equality of the parent class
-		if(!GParameterBase::isEqualTo(cp)) return false;
-
-		// Then check our own, local data
-		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
-		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
-		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
-			if(!(*it)->isEqualTo(**cp_it)) return false;
+	GStdPtrVectorInterfaceT(const std::size_t& nItems) {
+		for(std::size_t i=0; i<nItems; i++) {
+			data.push_back(boost::shared_ptr<T>(new T()));
 		}
-
-		return true;
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
-	 * Checks for similarity with another GParameterTCollectionT<T> object.  This function
-	 * assumes that T has an isSimilarTo function itself.
+	 * Copy construction
 	 *
-	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
+	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
-	bool isSimilarTo(const GParameterTCollectionT<T>& cp, const double& limit=0) const {
-		// Check similarity of the parent class
-		if(!GParameterBase::isSimilarTo(cp, limit)) return false;
-
-		// Then check our own, local data
-		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
-		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
-		for(it=data.begin(), cp_it=cp.data.begin(); it!=data.end(), cp_it!=cp.data.end(); ++it, ++cp_it) {
-			if(!(*it)->isSimilarTo(**cp_it, limit)) return false;
-		}
-
-		return true;
+	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT& cp) {
+		std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it)
+			data.push_back(boost::shared_ptr<T>(new T(**cp_it)));
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
-	 * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GObject
+	 * The destructor. Destruction of the objects pointed to by the smart
+	 * pointers will be taken care of by boost::shared_ptr<T>.
 	 */
-	virtual void load(const GObject* cp) {
-		// Convert cp into local format
-		const GParameterTCollectionT<T> *gptct = this->conversion_cast(cp, this);
-
-		// Load our parent class'es data ...
-		GParameterBase::load(cp);
-
-		// ... then copy the vector. (Implemented in file GHelperFunctionsT.hpp)
-		Gem::Util::copySmartPointerVector(gptct->data, data);
+	~GStdPtrVectorInterfaceT() {
+		data.clear();
 	}
 
-	/*******************************************************************************************/
-	/**
-	 * Allows to mutate the values stored in this class. We assume here that
-	 * each item has its own mutate function. Hence we do not need to use or
-	 * store own adaptors.
-	 */
-	virtual void mutate() {
-		typename std::vector<boost::shared_ptr<T> >::iterator it;
-		for(it=data.begin(); it!=data.end(); ++it) (*it)->mutate();
-	}
-
-	/*******************************************************************************************/
-	//////////////////////// std::vector interface (incomplete) //////////////////////////////
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	// Typedefs
 	typedef typename std::vector<boost::shared_ptr<T> >::value_type value_type;
 	typedef typename std::vector<boost::shared_ptr<T> >::reference reference;
@@ -234,6 +132,7 @@ public:
 	typedef typename std::vector<boost::shared_ptr<T> >::size_type size_type;
 	typedef typename std::vector<boost::shared_ptr<T> >::difference_type difference_type;
 
+	/*****************************************************************************/
 	// Non modifying access
 	inline size_type size() const { return data.size(); }
 	inline bool empty() const { return data.empty(); }
@@ -242,7 +141,7 @@ public:
 	inline size_type capacity() const { return data.capacity(); }
 	inline void reserve(size_type amount) { data.reserve(amount); }
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Counts the elements whose content is equal to item.
 	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
@@ -257,7 +156,7 @@ public:
 				                          boost::bind(std::equal_to<T>(), item, boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Counts the elements whose content is equal to the content of item.
 	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
@@ -281,7 +180,7 @@ public:
 				                        		                                                boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Searches for item in the entire range of the vector. Needs to be
 	 * re-implemented here, as we are dealing with a collection of smart pointers
@@ -292,7 +191,7 @@ public:
 				                       boost::bind(std::equal_to<T>(),item, boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Searches for the content of item in the entire range of the vector. Needs to be
 	 * re-implemented here, as we are dealing with a collection of smart pointers
@@ -312,7 +211,7 @@ public:
                                                                                              boost::bind(Gem::Util::dereference<T>, _1)));
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	// Comparison
 
 	/**
@@ -332,7 +231,7 @@ public:
 		return true;
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * operator!=, modified to check the content of the smart pointers
 	 */
@@ -340,7 +239,7 @@ public:
 		return !operator==(cp_data);
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 
 	// Modifying functions
 	inline void swap(std::vector<boost::shared_ptr<T> >& cont) { data.swap(cont); }
@@ -373,9 +272,9 @@ public:
 	inline reverse_iterator rend() { return data.rend(); }
 	inline const_reverse_iterator rend() const { return data.rend(); }
 
+	/*****************************************************************************/
 	// Insertion and removal
 
-	/*******************************************************************************************/
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere.
@@ -385,7 +284,7 @@ public:
 		return data.insert(pos, item_ptr);
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere.
@@ -402,7 +301,7 @@ public:
 		return data.insert(pos, item);
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Inserts a default-constructed item at position pos
 	 */
@@ -411,7 +310,7 @@ public:
 		return data.insert(pos, p);
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Inserts a given amount of items after position pos.
 	 */
@@ -424,7 +323,7 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Inserts a given amount of items after position pos.
 	 */
@@ -444,7 +343,7 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	// Adding shared_ptr objects to the  back of the vector
 	inline void push_back(const boost::shared_ptr<T>& item){
 		if(!item) { // Check that item actually contains something useful
@@ -458,14 +357,14 @@ public:
 		data.push_back(item);
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	// Adding simple items to the  back of the vector
 	inline void push_back(const T& item){
 		boost::shared_ptr<T> item_ptr(new T(item));
 		data.push_back(item_ptr);
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 
 	// Removal at a given position or in a range
 	inline iterator erase(iterator pos) { return data.erase(pos); }
@@ -474,7 +373,7 @@ public:
 	// Removing an element from the end of the vector
 	inline void pop_back(){ data.pop_back(); }
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Resizing the vector. We initialize the smart pointers content with
 	 * default-constructed Ts. This obviously assumes that T is
@@ -496,7 +395,7 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). We assume in this function that
@@ -526,7 +425,7 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). We assume in this function that
@@ -548,11 +447,11 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/** @brief Clearing the data vector */
 	inline void clear() { data.clear(); }
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Assignment of a std::vector<boost::shared_ptr<T> > . As the vector contains smart
 	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
@@ -593,7 +492,7 @@ public:
 		return cp;
 	}
 
-	/*******************************************************************************************/
+	/*****************************************************************************/
 	/**
 	 * Creates a copy of the data vector. It is assumed that cp is empty or that
 	 * all data in it can be deleted.
@@ -607,20 +506,15 @@ public:
 			cp.push_back(boost::shared_ptr<T>(new T(**it)));
 	}
 
-	/*******************************************************************************************/
-	/////////////////////////////////////////////////////////////////////////////////////////////
-	/*******************************************************************************************/
+	/*****************************************************************************/
 
 protected:
-	std::vector<boost::shared_ptr<T> > data; ///< The main data set stored in this class.
+	std::vector<boost::shared_ptr<T> > data;
 };
 
-
-/***********************************************************************************************/
+/********************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-/**************************************************************************************************/
-
-#endif /* GPARAMETERTCOLLECTIONT_HPP_ */
+#endif /* GSTDPTRVECTORINTERFACET_HPP_ */

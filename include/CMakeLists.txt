@@ -68,6 +68,7 @@ SET ( GENEVAINCLUDES
 	GSerializableI.hpp
 	GSerializationHelperFunctions.hpp
 	GSingleton.hpp
+	GStdPtrVectorInterfaceT.hpp
 	GThreadGroup.hpp
 )
 
