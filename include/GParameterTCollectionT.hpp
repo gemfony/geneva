@@ -620,18 +620,5 @@ protected:
 } /* namespace Gem */
 
 /**************************************************************************************************/
-/**
- * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
- */
-namespace boost {
-  namespace serialization {
-    template<typename T>
-    struct is_abstract<Gem::GenEvA::GParameterTCollectionT<T> > : boost::true_type {};
-    template<typename T>
-    struct is_abstract< const Gem::GenEvA::GParameterTCollectionT<T> > : boost::true_type {};
-  }
-}
-
-/**************************************************************************************************/
 
 #endif /* GPARAMETERTCOLLECTIONT_HPP_ */

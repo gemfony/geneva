@@ -154,7 +154,7 @@ std::string GObject::report() {
  * @return A text-representation of this class (or its derivative)
  */
 std::string GObject::toString(const serializationMode& serMod) {
-    std::ostringstream oarchive_stream;
+	std::ostringstream oarchive_stream;
     GObject *local = this; // Serialization should happen through a base pointer
 
     switch(serMod)
