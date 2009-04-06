@@ -220,18 +220,20 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a copy of the data vector. Note that this function assumes that the parameters
-	 * stored in this class are basic values, such as doubles. If T is a class type, then a suitable
-	 * operator= needs to be defined for these types.
+	 * Creates a copy of the data vector. It is assumed that cp is empty or that
+	 * all data in it can be deleted.
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<T>& cp){
-		cp = data;
+	void getDataCopy(std::vector<boost::shared_ptr<T> >& cp){
+		cp.clear();
+		typename std::vector<boost::shared_ptr<T> >::iterator it;
+		for(it=data.begin(); it!= data.end(); ++it)
+			cp.push_back(boost::shared_ptr<T>(new T(**it)));
 	}
 
 	/*******************************************************************************************/
-	//////////////////////// std::vector<T> interface (incomplete) //////////////////////////////
+	//////////////////////// std::vector interface (incomplete) //////////////////////////////
 	/*******************************************************************************************/
 	// Typedefs
 	typedef typename std::vector<boost::shared_ptr<T> >::value_type value_type;
@@ -344,6 +346,7 @@ public:
 		return true;
 	}
 
+	/*******************************************************************************************/
 	/**
 	 * operator!=, modified to check the content of the smart pointers
 	 */
@@ -560,7 +563,6 @@ public:
 	}
 
 	/*******************************************************************************************/
-
 	/** @brief Clearing the data vector */
 	inline void clear() { data.clear(); }
 

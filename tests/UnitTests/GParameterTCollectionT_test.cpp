@@ -283,12 +283,15 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, T, te
 
 /***********************************************************************************/
 // Test features that are expected to fail. Test with one derived class only.
-BOOST_AUTO_TEST_CASE( GParmeterTCollectionT_failures_expected)
+BOOST_AUTO_TEST_CASE_TEMPLATE( GParmeterTCollectionT_failures_expected, T, test_types)
 {
 	GRandom gr;
 
+	// Default construction
+	GParameterTCollectionT<T> gptct;
 
 	// Self assignment should throw
+	BOOST_CHECK_THROW(gptct.load(&gptct), Gem::GenEvA::geneva_error_condition);
 }
 /***********************************************************************************/
 
