@@ -125,7 +125,7 @@ namespace Gem
 		 *
 		 * @return A deep clone of this object
 		 */
-		GObject * GParameterSet::clone(){
+		GObject * GParameterSet::clone() const {
 			return new GParameterSet(*this);
 		}
 

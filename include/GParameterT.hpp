@@ -154,7 +154,7 @@ public:
 	 *
 	 * @return A copy of this object, camouflaged as a GObject
 	 */
-	virtual GObject* clone(){
+	virtual GObject* clone() const {
 		return new GParameterT<T>(*this);
 	}
 

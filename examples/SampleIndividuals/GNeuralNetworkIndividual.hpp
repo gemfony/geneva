@@ -382,7 +382,7 @@ public:
 	 *
 	 * @return A deep clone of this object, camouflaged as a GObject
 	 */
-	virtual GObject* clone(){
+	virtual GObject* clone() const{
 		return new GNeuralNetworkIndividual(*this);
 	}
 

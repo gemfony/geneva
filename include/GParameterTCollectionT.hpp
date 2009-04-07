@@ -117,14 +117,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object.
-	 */
-	virtual GObject* clone() {
-		return new GParameterTCollectionT<T>(*this);
-	}
-
-	/*******************************************************************************************/
-	/**
 	 * Checks for equality with another GParameterTCollectionT<T> object
 	 *
 	 * @param  cp A constant reference to another GParameterTCollectionT object
@@ -191,6 +183,14 @@ public:
 		// Load our parent class'es data ...
 		GParameterBase::load(cp);
 		GStdPtrVectorInterfaceT<T>::operator=(*gptct);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Creates a deep clone of this object.
+	 */
+	virtual GObject* clone() const{
+		return new GParameterTCollectionT<T>(*this);
 	}
 
 	/*******************************************************************************************/

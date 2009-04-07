@@ -103,7 +103,7 @@ void GBrokerPopulation::load(const GObject * cp) {
  *
  * @return A deep copy of this object
  */
-GObject *GBrokerPopulation::clone() {
+GObject *GBrokerPopulation::clone() const {
 	return new GBrokerPopulation(*this);
 }
 

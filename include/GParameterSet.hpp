@@ -87,7 +87,7 @@ public:
 	bool isSimilarTo(const GParameterSet&, const double& limit = 0.) const;
 
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone();
+	virtual GObject* clone() const;
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 

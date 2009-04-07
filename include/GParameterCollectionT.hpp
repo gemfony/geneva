@@ -175,7 +175,7 @@ public:
 	/**
 	 * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
 	 */
-	virtual GObject* clone() = 0;
+	virtual GObject* clone() const = 0;
 
 	/*******************************************************************************************/
 	/**

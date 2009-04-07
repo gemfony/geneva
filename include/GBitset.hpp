@@ -108,7 +108,7 @@ public:
 	/**
 	 * Creates a deep clone of this object. Purely virtual.
 	 */
-	virtual GObject* clone() = 0;
+	virtual GObject* clone() const = 0;
 
 	/*******************************************************************************************/
 	/**

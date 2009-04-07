@@ -219,7 +219,7 @@ namespace Gem
 		 *
 		 * @return A newly generated GBoundedDouble
 		 */
-		GObject *GBoundedDouble::clone(void) {
+		GObject *GBoundedDouble::clone(void) const {
 			return new GBoundedDouble(*this);
 		}
 

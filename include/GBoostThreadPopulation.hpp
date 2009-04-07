@@ -90,7 +90,7 @@ public:
 	/** @brief Loads data from another object */
 	virtual void load(const GObject *);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone();
+	virtual GObject *clone() const;
 
 	/** @brief Checks for equality with another GBoostThreadPopulation object */
 	bool operator==(const GBoostThreadPopulation&) const;

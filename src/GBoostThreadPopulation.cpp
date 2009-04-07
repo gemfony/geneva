@@ -103,7 +103,7 @@ void GBoostThreadPopulation::load(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GBoostThreadPopulation::clone() {
+GObject *GBoostThreadPopulation::clone() const  {
 	return new GBoostThreadPopulation(*this);
 }
 

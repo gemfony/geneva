@@ -163,7 +163,7 @@ public:
 	/** @brief Loads the data of another population */
 	virtual void load(const GObject *);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone();
+	virtual GObject *clone() const;
 
 	/** @brief Checks for equality with another GBasePopulation object */
 	bool operator==(const GBasePopulation&) const;

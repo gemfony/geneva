@@ -52,6 +52,8 @@
 #ifndef GSTDPTRVECTORINTERFACET_HPP_
 #define GSTDPTRVECTORINTERFACET_HPP_
 
+#include "GObject.hpp"
+
 namespace Gem {
 namespace GenEvA {
 
@@ -87,18 +89,6 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Initialization with a number of default-constructed items
-	 *
-	 * @param nItems The amount of default-constructed items to be added to the data vector
-	 */
-	GStdPtrVectorInterfaceT(const std::size_t& nItems) {
-		for(std::size_t i=0; i<nItems; i++) {
-			data.push_back(boost::shared_ptr<T>(new T()));
-		}
-	}
-
-	/*****************************************************************************/
-	/**
 	 * Copy construction
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
@@ -106,7 +96,7 @@ public:
 	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT& cp) {
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it)
-			data.push_back(boost::shared_ptr<T>(new T(**cp_it)));
+			data.push_back(boost::shared_ptr<T>((*cp_it)->GObject::clone_ptr_cast<T>()));
 	}
 
 	/*****************************************************************************/
@@ -335,7 +325,7 @@ public:
 	 * somewhere.
 	 */
 	inline iterator insert(iterator pos, const T& item) {
-		boost::shared_ptr<T> item_ptr(new T(item));
+		boost::shared_ptr<T> item_ptr(item.GObject::clone_ptr_cast<T>());
 		return data.insert(pos, item_ptr);
 	}
 
@@ -357,13 +347,15 @@ public:
 	}
 
 	/*****************************************************************************/
-	/**
-	 * Inserts a default-constructed item at position pos
+	/*
+	 * Inserts a default-constructed item at position pos. Will not work,
+	 * as we are also dealing with purely virtual base pointers. Hence
+	 * default construction is impossible.
 	 */
-	inline iterator insert(iterator pos) {
-		boost::shared_ptr<T> p(new T());
-		return data.insert(pos, p);
-	}
+	// inline iterator insert(iterator pos) {
+	// 	boost::shared_ptr<T> p(new T());
+	// 	return data.insert(pos, p);
+	// }
 
 	/*****************************************************************************/
 	/**
@@ -372,7 +364,7 @@ public:
 	inline void insert(iterator pos, size_type amount, const T& item) {
 		std::size_t iterator_pos = pos - data.begin();
 		for(std::size_t i=0; i<amount; i++) {
-			boost::shared_ptr<T> p(new T(item));
+			boost::shared_ptr<T> p(item.GObject::clone_ptr_cast<T>());
 			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
 			data.insert(data.begin() + iterator_pos, p);
 		}
@@ -415,7 +407,7 @@ public:
 	/*****************************************************************************/
 	// Adding simple items to the  back of the vector
 	inline void push_back(const T& item){
-		boost::shared_ptr<T> item_ptr(new T(item));
+		boost::shared_ptr<T> item_ptr(item.GObject::clone_ptr_cast<T>());
 		data.push_back(item_ptr);
 	}
 
@@ -429,14 +421,15 @@ public:
 	inline void pop_back(){ data.pop_back(); }
 
 	/*****************************************************************************/
-	/**
+	/*
 	 * Resizing the vector. We initialize the smart pointers content with
 	 * default-constructed Ts. This obviously assumes that T is
-	 * default-constructible. This function does nothing
-	 * if amount is the same as data.size().
+	 * default-constructible. Will not work in our case, as we are also
+	 * dealing with purely virtual base pointers.
 	 *
 	 * @param amount The new desired size of the vector
 	 */
+	/*
 	inline void resize(size_type amount) {
 		std::size_t dataSize = data.size();
 
@@ -449,6 +442,7 @@ public:
 			}
 		}
 	}
+    */
 
 	/*****************************************************************************/
 	/**
@@ -496,7 +490,7 @@ public:
 			data.resize(amount);
 		else if(amount > dataSize) {
 			for(std::size_t i=dataSize; i<amount; i++) {
-				boost::shared_ptr<T> p(new T(item));
+				boost::shared_ptr<T> p(item.GObject::clone_ptr_cast<T>());
 				data.push_back(p);
 			}
 		}
@@ -532,7 +526,7 @@ public:
 
 			// Then attach the remaining objects from cp
 			for(cp_it=cp.begin()+localSize; cp_it != cp.end(); ++cp_it) {
-				boost::shared_ptr<T> p(new T(**cp_it)); // **cp_it is of type T
+				boost::shared_ptr<T> p((*cp_it)->GObject::clone_ptr_cast<T>());
 				data.push_back(p);
 			}
 		}
@@ -558,7 +552,7 @@ public:
 		cp.clear();
 		typename std::vector<boost::shared_ptr<T> >::iterator it;
 		for(it=data.begin(); it!= data.end(); ++it)
-			cp.push_back(boost::shared_ptr<T>(new T(**it)));
+			cp.push_back(boost::shared_ptr<T>((*it)->GObject::clone_ptr_cast<T>()));
 	}
 
 	/*****************************************************************************/

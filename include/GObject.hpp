@@ -117,7 +117,7 @@ public:
 	void fromString(const std::string&, const serializationMode& serMod);
 
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() = 0;
+	virtual GObject* clone() const = 0;
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 
@@ -138,7 +138,7 @@ public:
 	 * @return A converted clone of this object
 	 */
 	template <typename clone_type>
-	inline clone_type* clone_ptr_cast(){
+	inline clone_type* clone_ptr_cast() const {
 #ifdef DEBUG
 		clone_type *result = dynamic_cast<clone_type *> (this->clone());
 
@@ -167,7 +167,7 @@ public:
 	 * @return A converted clone of this object, wrapped into a boost::shared_ptr
 	 */
 	template <typename clone_type>
-	inline boost::shared_ptr<clone_type> clone_bptr_cast(){
+	inline boost::shared_ptr<clone_type> clone_bptr_cast() const {
 		// Get a clone of this object and wrap it in a boost::shared_ptr<GObject>
 		boost::shared_ptr<GObject> p_base(this->clone());
 
@@ -212,7 +212,7 @@ protected:
 	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
 	 */
 	template <typename load_type>
-	inline const load_type* conversion_cast(const GObject *load_ptr, const load_type* This){
+	inline const load_type* conversion_cast(const GObject *load_ptr, const load_type* This) const {
 #ifdef DEBUG
 		const load_type *result = dynamic_cast<const load_type *> (load_ptr);
 

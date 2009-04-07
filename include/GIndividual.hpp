@@ -104,7 +104,7 @@ public:
 	bool isSimilarTo(const GIndividual&, const double& limit = 0.) const;
 
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() = 0;
+	virtual GObject* clone() const = 0;
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 

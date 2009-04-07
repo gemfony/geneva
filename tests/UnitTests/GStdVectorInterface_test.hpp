@@ -185,13 +185,13 @@ void stdvectorinterfacetestSP(vi& vectorObject, const item& templItem, const ite
 	BOOST_CHECK(vectorObject.size() == currentSize -10);
 
 	// Resize
-	vectorObject.resize(NITEMS);
-	BOOST_CHECK(vectorObject.size() == NITEMS);
+	// vectorObject.resize(NITEMS);
+	// BOOST_CHECK(vectorObject.size() == NITEMS);
 
-	// Clear, then resize again to NITEMS
+	// Clear, then resize again to NITEMS, filling up with templItem
 	vectorObject.clear();
 	BOOST_CHECK(vectorObject.size() == 0);
-	vectorObject.resize(NITEMS);
+	vectorObject.resize(NITEMS, templItem);
 	BOOST_CHECK(vectorObject.size() == NITEMS);
 
 	// Add another NITEMS copies of findItem, then count their number

@@ -95,7 +95,7 @@ namespace GenEvA
 	bool isSimilarTo(const GBooleanCollection&, const double& limit = 0.) const;
 
     /** @brief Creates a deep copy of this object */
-    virtual GObject *clone();
+    virtual GObject *clone() const;
     /** @brief Loads the data of another GBooleanCollection class */
     virtual void load(const GObject *);
 

@@ -175,7 +175,7 @@ public:
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual GObject *clone(){
+	virtual GObject *clone() const {
 		return new GNumCollectionT<num_type>(*this);
 	}
 

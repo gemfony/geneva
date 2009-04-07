@@ -136,7 +136,7 @@ void GBasePopulation::load(const GObject * cp)
  *
  * @return A deep copy of this object, camouflaged as a pointer to a GObject
  */
-GObject *GBasePopulation::clone() {
+GObject *GBasePopulation::clone() const  {
 	return new GBasePopulation(*this);
 }
 

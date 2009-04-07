@@ -125,7 +125,7 @@ namespace GenEvA
     /** @brief Loads the data of another GTransfer Population */
     virtual void load(const GObject *);
     /** @brief Creates a deep copy of this object */
-    virtual GObject *clone();
+    virtual GObject *clone() const;
 
 	/** @brief Checks for equality with another GBrokerPopulation object */
 	bool operator==(const GBrokerPopulation&) const;

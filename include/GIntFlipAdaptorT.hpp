@@ -167,7 +167,7 @@ public:
 	 *
 	 * @return A deep copy of this object
 	 */
-	GObject *clone()
+	GObject *clone() const
 	{
 		return new GIntFlipAdaptorT<T>(*this);
 	}

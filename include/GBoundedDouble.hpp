@@ -105,7 +105,7 @@ namespace GenEvA
     /** @brief Loads the data of another GBoundedDouble */
     virtual void load(const GObject *);
     /** @brief Creates a deep copy of this class */
-    virtual GObject *clone();
+    virtual GObject *clone() const;
 
     /** @brief Retrieves the lower boundary */
     double getLowerBoundary() const throw();
