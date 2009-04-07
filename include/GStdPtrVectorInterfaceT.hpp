@@ -104,7 +104,7 @@ public:
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
 	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT& cp) {
-		std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it)
 			data.push_back(boost::shared_ptr<T>(new T(**cp_it)));
 	}
@@ -114,8 +114,94 @@ public:
 	 * The destructor. Destruction of the objects pointed to by the smart
 	 * pointers will be taken care of by boost::shared_ptr<T>.
 	 */
-	~GStdPtrVectorInterfaceT() {
+	virtual ~GStdPtrVectorInterfaceT() {
 		data.clear();
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Assginment operator
+	 */
+	const GStdPtrVectorInterfaceT& operator=(const GStdPtrVectorInterfaceT& cp) {
+		this->operator=(cp.data);
+		return cp;
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
+	 */
+	bool operator==(const GStdPtrVectorInterfaceT<T>& cp) const {
+		return this->isEqualTo(cp);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks inquality with another GStdPtrVectorInterfaceT<T> object
+	 */
+	bool operator!=(const GStdPtrVectorInterfaceT<T>& cp) const {
+		return ! this->isEqualTo(cp);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
+	 */
+	bool isEqualTo(const GStdPtrVectorInterfaceT<T>& cp) const {
+		return this->operator==(cp.data);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for similarity with another GStdPtrVectorInterfaceT<T> object.
+	 */
+	bool isSimilarTo(const GStdPtrVectorInterfaceT<T>& cp, const double& limit = 0.) const {
+		return this->isSimilarTo(cp.data, limit);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for similarity with another std::vector<boost::shared_ptr<T> > object.
+	 * Note that we assume here that T actually implements a isSimilarTo function.
+	 */
+	bool isSimilarTo(const std::vector<boost::shared_ptr<T> >& cp_data, const double& limit = 0.) const {
+		// Check sizes
+		if(data.size() != cp_data.size()) return false;
+
+		// Check the content
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
+		for(cp_it=cp_data.begin(), it=data.begin(); cp_it != cp_data.end(), it!=data.end(); ++cp_it, ++it) {
+			if(!(*it)->isSimilarTo(**cp_it, limit)) return false;
+		}
+
+		return true;
+	}
+
+	/*****************************************************************************/
+	/**
+	 * operator==, modified to check the content of the smart pointers
+	 */
+	bool operator==(const std::vector<boost::shared_ptr<T> >& cp_data) const {
+		// Check sizes
+		if(data.size() != cp_data.size()) return false;
+
+		// Check the content
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
+		for(cp_it=cp_data.begin(), it=data.begin(); cp_it != cp_data.end(), it!=data.end(); ++cp_it, ++it) {
+			if(!(*it)->isEqualTo(**cp_it)) return false;
+		}
+
+		return true;
+	}
+
+	/*****************************************************************************/
+	/**
+	 * operator!=, modified to check the content of the smart pointers
+	 */
+	bool operator!=(const std::vector<boost::shared_ptr<T> >& cp_data) {
+		return !operator==(cp_data);
 	}
 
 	/*****************************************************************************/
@@ -212,40 +298,9 @@ public:
 	}
 
 	/*****************************************************************************/
-	// Comparison
-
-	/**
-	 * operator==, modified to check the content of the smart pointers
-	 */
-	bool operator==(const std::vector<boost::shared_ptr<T> >& cp_data) {
-		// Check sizes
-		if(data.size() != cp_data.size()) return false;
-
-		// Check the content
-		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
-		typename std::vector<boost::shared_ptr<T> >::iterator it;
-		for(cp_it=cp_data.begin(), it=data.begin(); cp_it != cp_data.end(), it!=data.end(); ++cp_it, ++it) {
-			if(!(*it)->isEqualTo(**cp_it)) return false;
-		}
-
-		return true;
-	}
-
-	/*****************************************************************************/
-	/**
-	 * operator!=, modified to check the content of the smart pointers
-	 */
-	bool operator!=(const std::vector<boost::shared_ptr<T> >& cp_data) {
-		return !operator==(cp_data);
-	}
-
-	/*****************************************************************************/
 
 	// Modifying functions
 	inline void swap(std::vector<boost::shared_ptr<T> >& cont) { data.swap(cont); }
-
-	// Modifying functions
-	inline void swap(GParameterTCollectionT<T>& cp) { data.swap(cp.data); }
 
 	// Access to elements (unchecked / checked)
 	inline reference operator[](std::size_t pos) { return data[pos]; }
@@ -510,11 +565,29 @@ public:
 
 protected:
 	std::vector<boost::shared_ptr<T> > data;
+
+	/** @brief Intentionally make this object purely virtual, for performance reasons */
+	virtual void dummyFunction() = 0;
 };
 
 /********************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+/**************************************************************************************************/
+/**
+ * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
+ */
+namespace boost {
+  namespace serialization {
+    template<typename T>
+    struct is_abstract<Gem::GenEvA::GStdPtrVectorInterfaceT<T> > : boost::true_type {};
+    template<typename T>
+    struct is_abstract< const Gem::GenEvA::GStdPtrVectorInterfaceT<T> > : boost::true_type {};
+  }
+}
+
+/**************************************************************************************************/
 
 #endif /* GSTDPTRVECTORINTERFACET_HPP_ */
