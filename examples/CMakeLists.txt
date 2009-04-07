@@ -1,15 +1,31 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 ADD_SUBDIRECTORY (
-	GNetworkThreadPopulation
-)
-
-ADD_SUBDIRECTORY (
-	GSimpleBasePopulation
-)
-
-ADD_SUBDIRECTORY (
 	GBoostThreadConsumer
+)
+
+ADD_SUBDIRECTORY (
+	GBoundedParabola
+)
+
+ADD_SUBDIRECTORY (
+	GBrokerPopulation
+)
+
+ADD_SUBDIRECTORY (
+	GExternalProgram
+)
+
+ADD_SUBDIRECTORY (
+	InfoFunctionUsage
+)
+
+ADD_SUBDIRECTORY (
+	GMultiPopulation
+)
+
+ADD_SUBDIRECTORY (
+	GNetworkThreadPopulation
 )
 
 ADD_SUBDIRECTORY (
@@ -21,17 +37,5 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GBrokerPopulation
-)
-
-ADD_SUBDIRECTORY (
-	GMultiPopulation
-)
-
-ADD_SUBDIRECTORY (
-	InfoFunctionUsage
-)
-
-ADD_SUBDIRECTORY (
-	GExternalProgram
+	GSimpleBasePopulation
 )
