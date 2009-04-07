@@ -202,7 +202,7 @@ public:
 	 * @param  cp A constant reference to another GIntFlipAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool isEqualTo(const GIntFlipAdaptorT<T>& cp) const {
+	virtual bool isEqualTo(const GIntFlipAdaptorT<T>& cp) const {
 		if(!GAdaptorT<T>::isEqualTo(cp)) return false;
 		if(!mutProb_.isEqualTo(cp.mutProb_)) return false;
 		return true;
@@ -218,7 +218,7 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	bool isSimilarTo(const GIntFlipAdaptorT<T>& cp, const double& limit=0.) const {
+	virtual bool isSimilarTo(const GIntFlipAdaptorT<T>& cp, const double& limit=0.) const {
 		if(!GAdaptorT<T>::isSimilarTo(cp, limit)) return false;
 		if(!mutProb_.isSimilarTo(cp.mutProb_, limit)) return false;
 		return true;

@@ -201,7 +201,7 @@ public:
 	 * @param  cp A constant reference to another GAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool isEqualTo(const GAdaptorT<T>& cp) const {
+	virtual bool isEqualTo(const GAdaptorT<T>& cp) const {
 		if(!GObject::isEqualTo(cp)) return false;
 		if(adaptionCounter_ != cp.adaptionCounter_) return false;
 		if(adaptionThreshold_ != cp.adaptionThreshold_) return false;
@@ -217,7 +217,7 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	bool isSimilarTo(const GAdaptorT<T>& cp, const double& limit=0) const {
+	virtual bool isSimilarTo(const GAdaptorT<T>& cp, const double& limit=0) const {
 		return  GAdaptorT<T>::isEqualTo(cp);
 	}
 

@@ -102,9 +102,9 @@ public:
 	/** @brief Checks for inequality with another GParameterBase object */
 	bool operator!=(const GParameterBase&) const;
 	/** @brief Checks for equality with another GParameterBase object */
-	bool isEqualTo(const GParameterBase&) const;
+	virtual bool isEqualTo(const GParameterBase&) const;
 	/** @brief Checks for similarity with another GParameterBase object */
-	bool isSimilarTo(const GParameterBase&, const double& limit = 0.) const;
+	virtual bool isSimilarTo(const GParameterBase&, const double& limit = 0.) const;
 };
 
 } /* namespace GenEvA */

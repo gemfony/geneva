@@ -64,8 +64,12 @@ namespace GenEvA {
  * special implementations of some functions are needed. Furthermore,
  * using this class prevents us from having to derive directly from a
  * std::vector, which has a non-virtual destructor. Note that we assume here
- * that T holds a complex type, such as a class. It must be default-constructible,
- * copy-constructible, assignable and comparable.
+ * that T holds a complex type, such as a class.  T must implement
+ * the Geneva-style isEqualTo and isSimilarTo functions.
+ *
+ * Some std::vector functions can not be implemented, as they require
+ * the data in this class to be default-constructible. As this class can hold
+ * smart pointers with purely virtual base pointers, this cannot be done.
  */
 template <typename T>
 class GStdPtrVectorInterfaceT
@@ -137,7 +141,7 @@ public:
 	/**
 	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
 	 */
-	bool isEqualTo(const GStdPtrVectorInterfaceT<T>& cp) const {
+	virtual bool isEqualTo(const GStdPtrVectorInterfaceT<T>& cp) const {
 		return this->operator==(cp.data);
 	}
 
@@ -145,7 +149,7 @@ public:
 	/**
 	 * Checks for similarity with another GStdPtrVectorInterfaceT<T> object.
 	 */
-	bool isSimilarTo(const GStdPtrVectorInterfaceT<T>& cp, const double& limit = 0.) const {
+	virtual bool isSimilarTo(const GStdPtrVectorInterfaceT<T>& cp, const double& limit = 0.) const {
 		return this->isSimilarTo(cp.data, limit);
 	}
 
@@ -347,17 +351,6 @@ public:
 	}
 
 	/*****************************************************************************/
-	/*
-	 * Inserts a default-constructed item at position pos. Will not work,
-	 * as we are also dealing with purely virtual base pointers. Hence
-	 * default construction is impossible.
-	 */
-	// inline iterator insert(iterator pos) {
-	// 	boost::shared_ptr<T> p(new T());
-	// 	return data.insert(pos, p);
-	// }
-
-	/*****************************************************************************/
 	/**
 	 * Inserts a given amount of items after position pos.
 	 */
@@ -419,30 +412,6 @@ public:
 
 	// Removing an element from the end of the vector
 	inline void pop_back(){ data.pop_back(); }
-
-	/*****************************************************************************/
-	/*
-	 * Resizing the vector. We initialize the smart pointers content with
-	 * default-constructed Ts. This obviously assumes that T is
-	 * default-constructible. Will not work in our case, as we are also
-	 * dealing with purely virtual base pointers.
-	 *
-	 * @param amount The new desired size of the vector
-	 */
-	/*
-	inline void resize(size_type amount) {
-		std::size_t dataSize = data.size();
-
-		if(amount < dataSize)
-			data.resize(amount);
-		else {
-			for(std::size_t i=dataSize; i<amount; i++) {
-				boost::shared_ptr<T> p(new T());
-				data.push_back(p);
-			}
-		}
-	}
-    */
 
 	/*****************************************************************************/
 	/**

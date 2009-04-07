@@ -98,9 +98,9 @@ namespace GenEvA
     /** @brief Checks inequality */
     bool operator!=(const GBoundedDouble&) const;
     /** @brief Checks equality */
-    bool isEqualTo(const GBoundedDouble&) const;
+    virtual bool isEqualTo(const GBoundedDouble&) const;
     /** @brief Checks similarity */
-    bool isSimilarTo(const GBoundedDouble&, const double& limit = 0.) const;
+    virtual bool isSimilarTo(const GBoundedDouble&, const double& limit = 0.) const;
 
     /** @brief Loads the data of another GBoundedDouble */
     virtual void load(const GObject *);

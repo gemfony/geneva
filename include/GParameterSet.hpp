@@ -82,9 +82,9 @@ public:
 	/** @brief Checks for inequality with another GParameterSet object */
 	bool operator!=(const GParameterSet&) const;
 	/** @brief Checks for equality with another GParameterSet object */
-	bool isEqualTo(const GParameterSet&) const;
+	virtual bool isEqualTo(const GParameterSet&) const;
 	/** @brief Checks for similarity with another GParameterSet object */
-	bool isSimilarTo(const GParameterSet&, const double& limit = 0.) const;
+	virtual bool isSimilarTo(const GParameterSet&, const double& limit = 0.) const;
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const;

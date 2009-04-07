@@ -72,9 +72,9 @@ public:
 	/** @brief Checks for inequality with another GIndividualSet object */
 	bool operator!=(const GIndividualSet&) const;
 	/** @brief Checks for equality with another GIndividualSet object */
-	bool isEqualTo(const GIndividualSet&) const;
+	virtual bool isEqualTo(const GIndividualSet&) const;
 	/** @brief Checks for similarity with another GIndividualSet object */
-	bool isSimilarTo(const GIndividualSet&, const double& limit = 0.) const;
+	virtual bool isSimilarTo(const GIndividualSet&, const double& limit = 0.) const;
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const = 0;

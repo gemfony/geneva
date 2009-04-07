@@ -229,7 +229,7 @@ public:
 	 * @param  cp A constant reference to another GGaussAdaptorT<num_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool isEqualTo(const GGaussAdaptorT<num_type>& cp) const {
+	virtual bool isEqualTo(const GGaussAdaptorT<num_type>& cp) const {
 		if(!GAdaptorT<num_type>::isEqualTo(cp)) return false;
 
 		if(sigma_ != cp.sigma_) return false;
@@ -250,7 +250,7 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	bool isSimilarTo(const GGaussAdaptorT<num_type>& cp, const double& limit=0.) const {
+	virtual bool isSimilarTo(const GGaussAdaptorT<num_type>& cp, const double& limit=0.) const {
 		if(!GAdaptorT<num_type>::isSimilarTo(cp, limit)) return false;
 
 		if(fabs(sigma_ - cp.sigma_) > fabs(limit)) return false;

@@ -107,9 +107,9 @@ public:
 	/** @brief Checks inquality with another GObject object */
 	bool operator!=(const GObject&) const;
 	/** @brief Checks for equality with another GObject object */
-	bool isEqualTo(const GObject&) const;
+	virtual bool isEqualTo(const GObject&) const;
 	/** @brief Checks for similarity with another GObject object */
-	bool isSimilarTo(const GObject&, const double& limit = 0.) const;
+	virtual bool isSimilarTo(const GObject&, const double& limit = 0.) const;
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);

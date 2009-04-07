@@ -148,7 +148,7 @@ public:
 	 * @param  cp A constant reference to another GNumCollectionT<num_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool isEqualTo(const GNumCollectionT<num_type>& cp) const {
+	virtual bool isEqualTo(const GNumCollectionT<num_type>& cp) const {
 		// Check equality of the parent class
 		if(!GParameterCollectionT<num_type>::isEqualTo(cp)) return false;
 		return true;
@@ -163,7 +163,7 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	bool isSimilarTo(const GNumCollectionT<num_type>& cp, const double& limit=0) const {
+	virtual bool isSimilarTo(const GNumCollectionT<num_type>& cp, const double& limit=0) const {
 		// Check similarity of the parent class
 		if(!GParameterCollectionT<num_type>::isSimilarTo(cp, limit)) return false;
 		return true;
