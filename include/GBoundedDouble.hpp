@@ -58,7 +58,12 @@ namespace GenEvA
    * limit. The range has to be set during the initial creation. Once set, it cannot
    * be changed anymore. Mutated values will only appear inside the given range.
    * Note that appropriate adaptors (see e.g the GDoubleGaussAdaptor class) need
-   * to be loaded in order to benefit from the mutation capabilities.
+   * to be loaded in order to benefit from the mutation capabilities. Note that this
+   * class intentionally does not provide an ability to reset the upper and lower
+   * boundaries, due to the intended usage of this class in the GBoundedDoubleWithGaps
+   * class. An ability to reset the boundaries would make implementation really
+   * difficult. Just recreate a new GBoundedDouble object with different values
+   * instead.
    */
   class GBoundedDouble
      :public GParameterT<double>
@@ -125,7 +130,7 @@ namespace GenEvA
 	double getInternalValue() const throw();
 
   private:
-    /** @brief Sets the external value */
+    /** @brief Sets the external value. Use operator=(double) instead. */
 	double setExternalValue(const double&);
 
     double lowerBoundary_, upperBoundary_; ///< The upper and lower allowed boundaries for our external value

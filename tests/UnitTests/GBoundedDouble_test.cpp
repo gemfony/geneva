@@ -37,6 +37,7 @@
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
 #include "GBoundedDouble.hpp"
+#include "GDoubleGaussAdaptor.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -45,8 +46,9 @@ using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GBoundedDouble class.
-BOOST_AUTO_TEST_SUITE(GBoundedDouble)
+// by the GBoundedDouble class. Please also have a look at the manual test,
+// as it gives a graphical representation of the mapping.
+BOOST_AUTO_TEST_SUITE(GBoundedDoubleSuite)
 
 /***********************************************************************************/
 // Test features that are expected to work
@@ -54,6 +56,110 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_no_failure_expected )
 {
 	GRandom gr;
 
+	// Test instantiation in different modes
+	GBoundedDouble gbd0;
+	GBoundedDouble gbd1(-10,10);
+	GBoundedDouble gbd2(1.,-10,10);
+	GBoundedDouble gbd3(gbd2);
+
+	BOOST_CHECK(gbd3 == gbd2);
+	BOOST_CHECK(gbd2 != gbd1);
+	BOOST_CHECK(gbd2 != gbd0);
+	BOOST_CHECK(gbd1 != gbd0);
+
+	// (Repeated) assignment
+	GBoundedDouble gbd3_2;
+	gbd3_2 = gbd3 = gbd0;
+	BOOST_CHECK(gbd3 != gbd2);
+	BOOST_CHECK(gbd3 == gbd0);
+	BOOST_CHECK(gbd3_2 != gbd2);
+	BOOST_CHECK(gbd3_2 == gbd0);
+
+	// Cloning and loading
+	GObject * gbd4;
+	BOOST_CHECK_NO_THROW(gbd4 = gbd3.clone());
+	GBoundedDouble gbd5;
+	BOOST_CHECK_NO_THROW(gbd5.load(gbd4));
+	BOOST_CHECK(gbd5 == gbd3);
+	delete gbd4;
+
+	// Value assignment
+	gbd5=gbd1;
+	BOOST_CHECK(gbd5 == gbd1);
+	gbd5 = 2.;
+	BOOST_CHECK(gbd5.value() == 2.);
+	BOOST_CHECK(!gbd5.isEqualTo(gbd3));
+	BOOST_CHECK(gbd5.getLowerBoundary() ==  -10.);
+	BOOST_CHECK(gbd5.getUpperBoundary() ==  10.);
+
+	// Test automatic conversion to double
+	double val=0.;
+	val = gbd5;
+	BOOST_CHECK(val == 2);
+
+	// Mutate a couple of times and check that the value indeed changes
+	const std::size_t NMUTATIONS=10000;
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.1,0.001,0.,1.));
+	gbd5.addAdaptor(gdga);
+	double oldValue = gbd5.value();
+	for(std::size_t i=0; i<NMUTATIONS; i++) {
+		gbd5.mutate();
+		BOOST_CHECK(gbd5.value() != oldValue);
+		oldValue = gbd5.value();
+	}
+
+	// Test of serialization in different modes
+	// Test serialization and loading in different serialization modes
+	{ // plain text format
+		// Copy construction of a new object
+		GBoundedDouble gbd6(0.,-10.,10.);
+		GBoundedDouble gbd6_cp(gbd6);
+
+		// Check equalities and inequalities
+		BOOST_CHECK(gbd6_cp == gbd6);
+		// Re-assign a new value to gbd6_cp
+		gbd6_cp = 1.;
+		BOOST_CHECK(gbd6_cp.value() == 1.);
+		BOOST_CHECK(gbd6_cp != gbd6);
+
+		// Serialize gbd6 and load into gbd6_co, check equalities and similarities
+		BOOST_REQUIRE_NO_THROW(gbd6_cp.fromString(gbd6.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+		BOOST_CHECK(gbd6_cp.isSimilarTo(gbd6, exp(-10)));
+	}
+
+	{ // XML format
+		// Copy construction of a new object
+		GBoundedDouble gbd6(0.,-10.,10.);
+		GBoundedDouble gbd6_cp(gbd6);
+
+		// Check equalities and inequalities
+		BOOST_CHECK(gbd6_cp == gbd6);
+		// Re-assign a new value to gbd6_cp
+		gbd6_cp = 1.;
+		BOOST_CHECK(gbd6_cp.value() == 1.);
+		BOOST_CHECK(gbd6_cp != gbd6);
+
+		// Serialize gbd6 and load into gbd6_co, check equalities and similarities
+		BOOST_REQUIRE_NO_THROW(gbd6_cp.fromString(gbd6.toString(XMLSERIALIZATION), XMLSERIALIZATION));
+		BOOST_CHECK(gbd6_cp.isSimilarTo(gbd6, exp(-10)));
+	}
+
+	{ // binary test format
+		// Copy construction of a new object
+		GBoundedDouble gbd6(0.,-10.,10.);
+		GBoundedDouble gbd6_cp(gbd6);
+
+		// Check equalities and inequalities
+		BOOST_CHECK(gbd6_cp == gbd6);
+		// Re-assign a new value to gbd6_cp
+		gbd6_cp = 1.;
+		BOOST_CHECK(gbd6_cp.value() == 1.);
+		BOOST_CHECK(gbd6_cp != gbd6);
+
+		// Serialize gbd6 and load into gbd6_co, check equalities and similarities
+		BOOST_REQUIRE_NO_THROW(gbd6_cp.fromString(gbd6.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+		BOOST_CHECK(gbd6_cp.isEqualTo(gbd6));
+	}
 }
 
 /***********************************************************************************/
@@ -62,6 +168,12 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_failures_expected )
 {
 	GRandom gr;
 
+	// Assignment of value outside of the allowed range
+	GBoundedDouble gbd(-10,10.);
+	BOOST_CHECK_THROW(gbd=11., Gem::GenEvA::geneva_error_condition);
+
+	// Self assignment should throw
+	BOOST_CHECK_THROW(gbd.load(&gbd), Gem::GenEvA::geneva_error_condition);
 }
 /***********************************************************************************/
 
