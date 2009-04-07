@@ -44,13 +44,13 @@ SET ( GENEVASOURCES
 	GObject
 	GParameterBase
 	GParameterBaseWithAdaptorsT
-	GParameterCollectionT
 	GParameterSet
 	GParameterT
 	GParameterValuePair
 	GRandom
 	GRandomFactory
 	GSerializationHelperFunctions
+	GStdSimpleVectorInterfaceT
 	GThreadGroup
 )
 

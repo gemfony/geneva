@@ -97,7 +97,7 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
-	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT& cp) {
+	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T>& cp) {
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it)
 			data.push_back(boost::shared_ptr<T>((*cp_it)->GObject::clone_ptr_cast<T>()));
@@ -116,7 +116,7 @@ public:
 	/**
 	 * Assginment operator
 	 */
-	const GStdPtrVectorInterfaceT& operator=(const GStdPtrVectorInterfaceT& cp) {
+	const GStdPtrVectorInterfaceT& operator=(const GStdPtrVectorInterfaceT<T>& cp) {
 		this->operator=(cp.data);
 		return cp;
 	}
