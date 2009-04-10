@@ -166,7 +166,7 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are inequal
    */
   bool GBooleanCollection::operator!=(const GBooleanCollection& cp) const {
-	  return !GBooleanCollection::isEqualTo(cp);
+	  return !this->isEqualTo(cp);
   }
 
   /**********************************************************************/
@@ -178,7 +178,7 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are equal
    */
   bool GBooleanCollection::isEqualTo(const GBooleanCollection& cp) const {
-	  if(!GParameterCollectionT<bool>::isEqualTo(cp)) return false;
+	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isEqualTo(cp)) return false;
 	  return true;
   }
 
@@ -192,7 +192,7 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are similar to each other
    */
   bool GBooleanCollection::isSimilarTo(const GBooleanCollection& cp, const double& limit) const {
-	  if(!GParameterCollectionT<bool>::isSimilarTo(cp, limit)) return false;
+	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isSimilarTo(cp, limit)) return false;
 	  return true;
   }
 

@@ -127,7 +127,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParameterCollectionT<T>& cp) const {
-		return !GParameterCollectionT<T>::isEqualTo(cp);
+		return !Gem::GenEvA::GParameterCollectionT<T>::isEqualTo(cp);
 	}
 
 	/*******************************************************************************************/
@@ -137,10 +137,10 @@ public:
 	 * @param  cp A constant reference to another GParameterCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GParameterCollectionT<T>& cp) const {
+	bool isEqualTo(const GParameterCollectionT<T>& cp) const {
 		// Check equality of the parent class
-		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(cp)) return false;
-		if(!GStdSimpleVectorInterfaceT<T>::isEqualTo(cp)) return false;
+		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isEqualTo(cp)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::isEqualTo(cp)) return false;
 
 		return true;
 	}
@@ -155,10 +155,10 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GParameterCollectionT<T>& cp, const double& limit=0) const {
+	bool isSimilarTo(const GParameterCollectionT<T>& cp, const double& limit=0) const {
 		// Check similarity of the parent class
-		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(cp, limit)) return false;
-		if(!GStdSimpleVectorInterfaceT<T>::isSimilarTo(cp, limit)) return false;
+		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isSimilarTo(cp, limit)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::isSimilarTo(cp, limit)) return false;
 
 		return true;
 	}
@@ -198,6 +198,19 @@ public:
 			GParameterBaseWithAdaptorsT<T>::applyAllAdaptors(GStdSimpleVectorInterfaceT<T>::data);
 		}
 	}
+
+	/*******************************************************************************************/
+	/**
+	 * Swap another object's vector with ours
+	 */
+	inline void swap(GParameterCollectionT<T>& cp) { GStdSimpleVectorInterfaceT<T>::swap(cp.data); }
+
+	/*******************************************************************************************/
+	/**
+	 * Swap another vector with ours
+	 */
+	virtual inline void swap(std::vector<T>& cp_data) { GStdSimpleVectorInterfaceT<T>::swap(cp_data); }
+
 
 protected:
 	/*******************************************************************************************/

@@ -28,6 +28,8 @@
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
+#include <boost/test/test_case_template.hpp>
+#include <boost/mpl/list.hpp>
 
 #include <boost/shared_ptr.hpp>
 
@@ -38,6 +40,8 @@
 #include "GRandom.hpp"
 #include "GBooleanCollection.hpp"
 #include "GBooleanAdaptor.hpp"
+#include "GStdSimpleVectorInterfaceT.hpp"
+#include "GStdVectorInterface_test.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -51,6 +55,43 @@ using namespace Gem::GLogFramework;
 BOOST_AUTO_TEST_SUITE(GBooleanCollectionSuite)
 
 /***********************************************************************************/
+/**
+ * A simple class that allows a self-test of GStdSimpleVectorInterface
+ */
+namespace Gem {
+namespace GenEvA {
+
+template <typename T>
+class viTestT
+	:public GStdSimpleVectorInterfaceT<T>
+{
+public:
+	inline void swap(viTestT<T>& cp) { GStdSimpleVectorInterfaceT<T>::swap(cp.data); }
+
+protected:
+	virtual void dummyFunction() { /* nothing */ }
+};
+
+} /* namespace GenEvA */
+} /* namespace Gem */
+
+/***********************************************************************************/
+/**
+ * Test that GStdSimpleVectorInterface<T> does its job
+ */
+
+typedef boost::mpl::list<boost::int32_t, double, char> test_types;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( GStdSimpleVectorInterfaceT_no_failure_expected, T, test_types )
+{
+	Gem::GenEvA::viTestT<T> vt;
+	T templItem = T(0);
+	T findItem = T(1);
+	// Make sure both items are indeed different
+	stdvectorinterfacetest(vt, templItem, findItem);
+}
+
+/***********************************************************************************/
 // Test features that are expected to work
 BOOST_AUTO_TEST_CASE(GBooleanCollection_no_failure_expected )
 {
@@ -59,6 +100,12 @@ BOOST_AUTO_TEST_CASE(GBooleanCollection_no_failure_expected )
 	// Construction in different modes
 	GBooleanCollection gbc0; // default construction, should be empty
 	BOOST_CHECK(gbc0.empty());
+
+	// Check the vector interface
+	bool templItem = false;
+	bool findItem = true;
+	// Test the functionality of the underlying vector implementation
+	stdvectorinterfacetest<GBooleanCollection, bool>(gbc0, templItem, findItem);
 
 	GBooleanCollection gbc1(100);  // 100 items
 	GBooleanCollection gbc1_2(100);  // 100 items
@@ -169,7 +216,7 @@ BOOST_AUTO_TEST_CASE( GBooleanCollection_failures_expected )
 
 	// Self-assignment should throw
 	GBooleanCollection gbc(100);
-	BOOST_CHECK_THROW(gbc.load(&gbc), Gem::GenEvA::geneva_error_condition);
+	BOOST_CHECK_THROW(gbc.load(&gbc), geneva_error_condition);
 }
 /***********************************************************************************/
 

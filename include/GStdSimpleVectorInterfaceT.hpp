@@ -23,6 +23,7 @@
 #include <sstream>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 // Boost header files go here
 
@@ -111,7 +112,7 @@ public:
 	/**
 	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
 	 */
-	bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const {
+	inline bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const {
 		return this->isEqualTo(cp);
 	}
 
@@ -119,7 +120,7 @@ public:
 	/**
 	 * Checks inquality with another GStdSimpleVectorInterfaceT<T> object
 	 */
-	bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const {
+	inline bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const {
 		return ! this->isEqualTo(cp);
 	}
 
@@ -127,15 +128,15 @@ public:
 	/**
 	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
 	 */
-	virtual bool isEqualTo(const GStdSimpleVectorInterfaceT<T>& cp) const {
+	inline bool isEqualTo(const GStdSimpleVectorInterfaceT<T>& cp) const {
 		return data==cp.data;
 	}
 
 	/*****************************************************************************/
 	/**
-	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
+	 * Checks for equality with a std::vector<T> object
 	 */
-	virtual bool isEqualTo(const std::vector<T>& cp_data) const {
+	inline bool isEqualTo(const std::vector<T>& cp_data) const{
 		return data == cp_data;
 	}
 
@@ -143,7 +144,7 @@ public:
 	/**
 	 * Checks for similarity with another GStdSimpleVectorInterfaceT<T> object.
 	 */
-	virtual bool isSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit = 0.) const {
+	inline bool isSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit = 0.) const {
 		return this->isSimilarTo(cp.data, limit);
 	}
 
@@ -152,7 +153,7 @@ public:
 	 * Checks for similarity with another std::vector<T>  object. A specialized
 	 * version of this function exists for typeof(T) == typeof(double)
 	 */
-	bool isSimilarTo(const std::vector<T>& cp_data, const double& limit = 0.) const {
+	inline bool isSimilarTo(const std::vector<T>& cp_data, const double& limit = 0.) const {
 		if(!this->isEqualTo(cp_data)) return false;
 		return true;
 	}
@@ -161,7 +162,7 @@ public:
 	/**
 	 * operator==
 	 */
-	bool operator==(const std::vector<T>& cp_data) const {
+	inline bool operator==(const std::vector<T>& cp_data) const {
 		return cp_data == data;
 	}
 
@@ -169,7 +170,7 @@ public:
 	/**
 	 * operator!=
 	 */
-	bool operator!=(const std::vector<T>& cp_data) {
+	inline bool operator!=(const std::vector<T>& cp_data)  const {
 		return !operator==(cp_data);
 	}
 
@@ -201,8 +202,9 @@ public:
 	 * Counts the elements whose content is equal to item.
 	*
 	 * @param item The item to be counted in the collection
+	 * @return The number of items found
 	 */
-	inline size_type count(const T& item) const { return data.count(item); }
+	inline size_type count(const T& item) const { return std::count(data.begin(), data.end(), item); }
 
 	/*****************************************************************************/
 	/**
@@ -211,13 +213,13 @@ public:
 	 * and we do not want to compare the pointers themselves.
 	 */
 	inline const_iterator find(const T& item) const {
-		return data.find(item);
+		return std::find(data.begin(), data.end(), item);
 	}
 
 	/*****************************************************************************/
 
 	// Modifying functions
-	inline void swap(std::vector<T>& cont) { data.swap(cont); }
+	inline void swap(std::vector<T>& cont) { std::swap(data, cont); }
 
 	// Access to elements (unchecked / checked)
 	inline reference operator[](std::size_t pos) { return data[pos]; }
@@ -309,7 +311,7 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<T>& cp){	cp=data; 	}
+	inline void getDataCopy(std::vector<T>& cp){	cp=data; 	}
 
 	/*****************************************************************************/
 
