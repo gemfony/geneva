@@ -80,7 +80,7 @@ protected:
  * Test that GStdSimpleVectorInterface<T> does its job
  */
 
-typedef boost::mpl::list<boost::int32_t, double, char> test_types;
+typedef boost::mpl::list<bool, boost::int32_t, double, char> test_types;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( GStdSimpleVectorInterfaceT_no_failure_expected, T, test_types )
 {

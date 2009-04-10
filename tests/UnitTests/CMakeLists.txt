@@ -16,6 +16,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GInt32Collection_test
 	GIntFlipAdaptorT_test
 	GLogger_test
+	GNumCollectionT_test
 	GObject_test
 	GParameterSet_test
 	GParameterT_test
