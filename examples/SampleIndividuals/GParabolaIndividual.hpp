@@ -145,6 +145,59 @@ public:
 		GParameterSet::load(cp);
 	}
 
+	/*******************************************************************************************/
+	/**
+	 * Checks for equality with another GParabolaIndividual object
+	 *
+	 * @param  cp A constant reference to another GParabolaIndividual object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GParabolaIndividual& cp) const {
+		return GParabolaIndividual::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for inequality with another GParabolaIndividual object
+	 *
+	 * @param  cp A constant reference to another GParabolaIndividual object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GParabolaIndividual& cp) const {
+		return !GParabolaIndividual::isEqualTo(cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for equality with another GParabolaIndividual object.  If T is an object type,
+	 * then it must implement operator!= .
+	 *
+	 * @param  cp A constant reference to another GParabolaIndividual object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool isEqualTo(const GParabolaIndividual& cp) const {
+		// Check equality of the parent class
+		if(!GParameterSet::isEqualTo(cp)) return false;
+
+		return true;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for similarity with another GParabolaIndividual object.  As we do not know the
+	 * type of T, we need to create a specialization of this function for typeof(T)==double
+	 *
+	 * @param  cp A constant reference to another GParabolaIndividual object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	virtual bool isSimilarTo(const GParabolaIndividual& cp, const double& limit=0) const {
+		// Check equality of the parent class
+		if(!GParameterSet::isSimilarTo(cp, limit)) return false;
+
+		return true;
+	}
+
 protected:
 	/********************************************************************************************/
 	/**
@@ -160,8 +213,7 @@ protected:
 		boost::shared_ptr<GDoubleCollection> gdc_load = parameterbase_cast<GDoubleCollection>(0);
 
 		// Great - now we can do the actual calculations. We do this the fancy way ...
-		for(cit=gdc_load->begin(); cit!=gdc_load->end(); ++cit)
-			result += std::pow(*cit, 2);
+		for(cit=gdc_load->begin(); cit!=gdc_load->end(); ++cit) 	result += std::pow(*cit, 2);
 
 		return result;
 	}

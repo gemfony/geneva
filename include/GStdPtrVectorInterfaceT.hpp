@@ -22,6 +22,7 @@
 // Standard header files go here
 #include <sstream>
 #include <vector>
+#include <typeinfo>
 
 // Boost header files go here
 
@@ -194,7 +195,7 @@ public:
 	/**
 	 * operator!=, modified to check the content of the smart pointers
 	 */
-	bool operator!=(const std::vector<boost::shared_ptr<T> >& cp_data) {
+	bool operator!=(const std::vector<boost::shared_ptr<T> >& cp_data) const {
 		return !operator==(cp_data);
 	}
 
@@ -223,30 +224,60 @@ public:
 
 	/*****************************************************************************/
 	/**
+	 * A small helper class that compares two items and checks for
+	 * equality, depending on the current mode
+	 */
+	template <typename item_type>
+	class vi_equal_to {
+	public:
+		typedef bool result_type;
+
+		bool operator() (const item_type& item, const boost::shared_ptr<T>& cont_item) {
+			bool result = false;
+#ifdef DEBUG
+			try {
+				result = (item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
+			}
+			catch(...) {
+				std::ostringstream error;
+				error << "Unknown error in bool vi_equal_to::operator()" << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+#else
+			result = (item == *(boost::static_pointer_cast<item_type>(cont_item)));
+#endif
+			return result;
+		}
+	};
+
+	/*****************************************************************************/
+	/**
 	 * Counts the elements whose content is equal to item.
 	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
-	 * and we do not want to compare the pointers themselves. Note that boost::bind will
-	 * not accept the expression *_1, hence we need to employ a small helper function, which
-	 * does the de-referencing for us. Also note that we assume that item has an operator== .
+	 * and we do not want to compare the pointers themselves.
 	 *
 	 * @param item The item to be counted in the collection
 	 */
-	inline size_type count(const T& item) const {
-		return std::count_if(data.begin(), data.end(),
-				                          boost::bind(std::equal_to<T>(), item, boost::bind(Gem::Util::dereference<T>, _1)));
+	template <typename item_type>
+	inline size_type count(const item_type& item) const {
+		if(typeid(item_type) == typeid(T)) {
+			return std::count_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(), item, boost::bind(Gem::Util::dereference<T>, _1)));
+		}
+		else {
+			return std::count_if(data.begin(), data.end(), boost::bind(vi_equal_to<item_type>(), item, _1));
+		}
 	}
 
 	/*****************************************************************************/
 	/**
 	 * Counts the elements whose content is equal to the content of item.
 	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
-	 * and we do not want to compare the pointers themselves. Note that boost::bind will
-	 * not accept the expression *_1, hence we need to employ a small helper function, which
-	 * does the de-referencing for us. Also note that we assume that item has an operator== .
+	 * and we do not want to compare the pointers themselves.
 	 *
 	 * @param item The item to be counted in the collection
 	 */
-	inline size_type count(const boost::shared_ptr<T>& item) const {
+	template <typename item_type>
+	inline size_type count(const boost::shared_ptr<item_type>& item) const {
 		if(!item) { // Check that item actually contains something useful
 			std::ostringstream error;
 			error << "In GParameterTCollectionT<T>::count(item): Error!"
@@ -255,9 +286,15 @@ public:
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 
-		return std::count_if(data.begin(), data.end(),
-				                          boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
-				                        		                                                boost::bind(Gem::Util::dereference<T>, _1)));
+		if(typeid(item_type) == typeid(T)) {
+			return std::count_if(data.begin(), data.end(),
+					boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
+							boost::bind(Gem::Util::dereference<T>, _1)));
+		}
+		else {
+			return std::count_if(data.begin(), data.end(),
+					boost::bind(vi_equal_to<item_type>(), boost::bind(Gem::Util::dereference<item_type>, item), _1));
+		}
 	}
 
 	/*****************************************************************************/
@@ -266,9 +303,15 @@ public:
 	 * re-implemented here, as we are dealing with a collection of smart pointers
 	 * and we do not want to compare the pointers themselves.
 	 */
-	inline const_iterator find(const T& item) const {
-		return std::find_if(data.begin(), data.end(),
-				                       boost::bind(std::equal_to<T>(),item, boost::bind(Gem::Util::dereference<T>, _1)));
+	template <typename item_type>
+	inline const_iterator find(const item_type& item) const {
+		if(typeid(item_type) == typeid(T)) {
+			return std::find_if(data.begin(), data.end(),
+					boost::bind(std::equal_to<T>(),item, boost::bind(Gem::Util::dereference<T>, _1)));
+		}
+		else {
+			return std::find_if(data.begin(), data.end(), boost::bind(vi_equal_to<item_type>(), item, _1));
+		}
 	}
 
 	/*****************************************************************************/
@@ -277,7 +320,8 @@ public:
 	 * re-implemented here, as we are dealing with a collection of smart pointers
 	 * and we do not want to compare the pointers themselves.
 	 */
-	inline const_iterator find(const boost::shared_ptr<T>& item) const {
+	template <typename item_type>
+	inline const_iterator find(const boost::shared_ptr<item_type>& item) const {
 		if(!item) { // Check that item actually contains something useful
 			std::ostringstream error;
 			error << "In GParameterTCollectionT<T>::find(item): Error!"
@@ -286,9 +330,15 @@ public:
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 
-		return std::find_if(data.begin(), data.end(),
-				                       boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
-                                                                                             boost::bind(Gem::Util::dereference<T>, _1)));
+		if(typeid(item_type) == typeid(T)) {
+			return std::find_if(data.begin(), data.end(),
+					boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
+							boost::bind(Gem::Util::dereference<T>, _1)));
+		}
+		else {
+			return std::find_if(data.begin(), data.end(),
+					boost::bind(vi_equal_to<item_type>(), boost::bind(Gem::Util::dereference<item_type>, item), _1));
+		}
 	}
 
 	/*****************************************************************************/
