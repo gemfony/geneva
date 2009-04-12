@@ -136,14 +136,17 @@ bool GBrokerPopulation::operator!=(const GBrokerPopulation& cp) const {
  * @param  cp A constant reference to another GBrokerPopulation object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBrokerPopulation::isEqualTo(const GBrokerPopulation& cp) const {
+bool GBrokerPopulation::isEqualTo(const GObject& cp) const {
+	// Check that we are indeed dealing with a GIndividual reference
+	const GBrokerPopulation *gbp_load = GObject::conversion_cast(&cp,  this);
+
 	// First take care of our parent class
-	if(!GBasePopulation::isEqualTo(cp)) return  false;
+	if(!GBasePopulation::isEqualTo(*gbp_load)) return  false;
 
 	// Then we take care of the local data
-	if(waitFactor_ != cp.waitFactor_) return false;
-    if(firstTimeOut_ != cp.firstTimeOut_) return false;
-    if(loopTime_ != cp.loopTime_) return false;
+	if(waitFactor_ != gbp_load->waitFactor_) return false;
+    if(firstTimeOut_ != gbp_load->firstTimeOut_) return false;
+    if(loopTime_ != gbp_load->loopTime_) return false;
 
 	return true;
 }
@@ -156,15 +159,18 @@ bool GBrokerPopulation::isEqualTo(const GBrokerPopulation& cp) const {
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GBrokerPopulation::isSimilarTo(const GBrokerPopulation& cp, const double& limit) const {
+bool GBrokerPopulation::isSimilarTo(const GObject& cp, const double& limit) const {
+	// Check that we are indeed dealing with a GIndividual reference
+	const GBrokerPopulation *gbp_load = GObject::conversion_cast(&cp,  this);
+
 	// First take care of our parent class
-	if(!GBasePopulation::isSimilarTo(cp, limit)) return  false;
+	if(!GBasePopulation::isSimilarTo(*gbp_load, limit)) return  false;
 
 	// Then we take care of the local data. As there are no double values,
 	// we just ask for equality.
-	if(waitFactor_ != cp.waitFactor_) return false;
-    if(firstTimeOut_ != cp.firstTimeOut_) return false;
-    if(loopTime_ != cp.loopTime_) return false;
+	if(waitFactor_ != gbp_load->waitFactor_) return false;
+    if(firstTimeOut_ != gbp_load->firstTimeOut_) return false;
+    if(loopTime_ != gbp_load->loopTime_) return false;
 
 	return true;
 }

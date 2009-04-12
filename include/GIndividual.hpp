@@ -99,9 +99,9 @@ public:
 	/** @brief Checks for inequality with another GIndividual object */
 	bool operator!=(const GIndividual&) const;
 	/** @brief Checks for equality with another GIndividual object */
-	virtual bool isEqualTo(const GIndividual&) const;
+	virtual bool isEqualTo(const GObject&) const;
 	/** @brief Checks for similarity with another GIndividual object */
-	virtual bool isSimilarTo(const GIndividual&, const double& limit = 0.) const;
+	virtual bool isSimilarTo(const GObject&, const double& limit) const;
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const = 0;

@@ -103,13 +103,16 @@ bool GParameterBase::operator!=(const GParameterBase& cp) const {
 /**********************************************************************************/
 /**
  * Checks for equality with another GParameterBase object. As we have no
- * local data, we just check for equality of the parent class-
+ * local data, we just check for equality of the parent class.
  *
  * @param  cp A constant reference to another GParameterBase object
  * @return A boolean indicating whether both objects are equal
  */
-bool GParameterBase::isEqualTo(const GParameterBase& cp) const {
-	if(!GObject::isEqualTo(cp)) return  false;
+bool GParameterBase::isEqualTo(const GObject& cp) const {
+	// Check that we are indeed dealing with a GParamterBase reference
+	const GParameterBase *gpb_load = GObject::conversion_cast(&cp,  this);
+
+	if(!GObject::isEqualTo(*gpb_load)) return  false;
 	return true;
 }
 
@@ -122,8 +125,11 @@ bool GParameterBase::isEqualTo(const GParameterBase& cp) const {
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GParameterBase::isSimilarTo(const GParameterBase& cp, const double& limit) const {
-	if(!GObject::isSimilarTo(cp, limit)) return false;
+bool GParameterBase::isSimilarTo(const GObject& cp, const double& limit) const {
+	// Check that we are indeed dealing with a GParamterBase reference
+	const GParameterBase *gpb_load = GObject::conversion_cast(&cp,  this);
+
+	if(!GObject::isSimilarTo(*gpb_load, limit)) return false;
 	return true;
 }
 

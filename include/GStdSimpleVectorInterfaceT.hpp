@@ -144,7 +144,7 @@ public:
 	/**
 	 * Checks for similarity with another GStdSimpleVectorInterfaceT<T> object.
 	 */
-	inline bool isSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit = 0.) const {
+	inline bool isSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit) const {
 		return this->isSimilarTo(cp.data, limit);
 	}
 
@@ -153,7 +153,7 @@ public:
 	 * Checks for similarity with another std::vector<T>  object. A specialized
 	 * version of this function exists for typeof(T) == typeof(double)
 	 */
-	inline bool isSimilarTo(const std::vector<T>& cp_data, const double& limit = 0.) const {
+	inline bool isSimilarTo(const std::vector<T>& cp_data, const double& limit) const {
 		if(!this->isEqualTo(cp_data)) return false;
 		return true;
 	}

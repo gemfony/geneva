@@ -169,24 +169,27 @@ bool GBasePopulation::operator!=(const GBasePopulation& cp) const {
  * @param  cp A constant reference to another GBasePopulation object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBasePopulation::isEqualTo(const GBasePopulation& cp) const {
+bool GBasePopulation::isEqualTo(const GObject& cp) const {
+	// Check that we are indeed dealing with a GIndividual reference
+	const GBasePopulation *gbp_load = GObject::conversion_cast(&cp,  this);
+
 	// First take care of our parent class
-	if(!GIndividualSet::isEqualTo(cp)) return  false;
+	if(!GIndividualSet::isEqualTo( *gbp_load)) return  false;
 
 	// Then we take care of the local data
-	if(nParents_ != cp.nParents_) return false;
-	if(popSize_ != cp.popSize_) return false;
-	if(generation_ != cp.generation_) return false;
-	if(maxGeneration_ != cp.maxGeneration_) return false;
-	if(reportGeneration_ != cp.reportGeneration_) return false;
-	if(recombinationMethod_ != cp.recombinationMethod_) return false;
-	if(muplusnu_ != cp.muplusnu_) return false;
-	if(maximize_ != cp.maximize_) return false;
-	if(id_ != cp.id_) return false;
-	if(firstId_ != cp.firstId_) return false;
-	if(maxDuration_ != cp.maxDuration_) return false;
-	// if(startTime_ != cp.startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
-	if(defaultNChildren_ != cp.defaultNChildren_) return false;
+	if(nParents_ !=  gbp_load->nParents_) return false;
+	if(popSize_ != gbp_load->popSize_) return false;
+	if(generation_ != gbp_load->generation_) return false;
+	if(maxGeneration_ != gbp_load->maxGeneration_) return false;
+	if(reportGeneration_ != gbp_load->reportGeneration_) return false;
+	if(recombinationMethod_ != gbp_load->recombinationMethod_) return false;
+	if(muplusnu_ != gbp_load->muplusnu_) return false;
+	if(maximize_ != gbp_load->maximize_) return false;
+	if(id_ != gbp_load->id_) return false;
+	if(firstId_ != gbp_load->firstId_) return false;
+	if(maxDuration_ != gbp_load->maxDuration_) return false;
+	// if(startTime_ != gbp_load->startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
+	if(defaultNChildren_ != gbp_load->defaultNChildren_) return false;
 
 	return true;
 }
@@ -199,25 +202,28 @@ bool GBasePopulation::isEqualTo(const GBasePopulation& cp) const {
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GBasePopulation::isSimilarTo(const GBasePopulation& cp, const double& limit) const {
+bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit) const {
+	// Check that we are indeed dealing with a GIndividual reference
+	const GBasePopulation *gbp_load = GObject::conversion_cast(&cp,  this);
+
 	// First take care of our parent class
-	if(!GIndividualSet::isSimilarTo(cp, limit)) return  false;
+	if(!GIndividualSet::isSimilarTo(*gbp_load, limit)) return  false;
 
 	// Then we take care of the local data. As there are no double values,
 	// we just ask for equality.
-	if(nParents_ != cp.nParents_) return false;
-	if(popSize_ != cp.popSize_) return false;
-	if(generation_ != cp.generation_) return false;
-	if(maxGeneration_ != cp.maxGeneration_) return false;
-	if(reportGeneration_ != cp.reportGeneration_) return false;
-	if(recombinationMethod_ != cp.recombinationMethod_) return false;
-	if(muplusnu_ != cp.muplusnu_) return false;
-	if(maximize_ != cp.maximize_) return false;
-	if(id_ != cp.id_) return false;
-	if(firstId_ != cp.firstId_) return false;
-	if(maxDuration_ != cp.maxDuration_) return false;
-	// if(startTime_ != cp.startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
-	if(defaultNChildren_ != cp.defaultNChildren_) return false;
+	if(nParents_ != gbp_load->nParents_) return false;
+	if(popSize_ != gbp_load->popSize_) return false;
+	if(generation_ != gbp_load->generation_) return false;
+	if(maxGeneration_ != gbp_load->maxGeneration_) return false;
+	if(reportGeneration_ != gbp_load->reportGeneration_) return false;
+	if(recombinationMethod_ != gbp_load->recombinationMethod_) return false;
+	if(muplusnu_ != gbp_load->muplusnu_) return false;
+	if(maximize_ != gbp_load->maximize_) return false;
+	if(id_ != gbp_load->id_) return false;
+	if(firstId_ != gbp_load->firstId_) return false;
+	if(maxDuration_ != gbp_load->maxDuration_) return false;
+	// if(startTime_ != gbp_load->startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
+	if(defaultNChildren_ != gbp_load->defaultNChildren_) return false;
 
 	return true;
 }

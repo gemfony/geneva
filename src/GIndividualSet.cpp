@@ -85,8 +85,12 @@ namespace Gem
 		 * @param  cp A constant reference to another GIndividualSet object
 		 * @return A boolean indicating whether both objects are equal
 		 */
-		bool GIndividualSet::isEqualTo(const GIndividualSet& cp) const {
-			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isEqualTo(cp)) return  false;
+		bool GIndividualSet::isEqualTo(const GObject& cp) const {
+			// Check that we are indeed dealing with a GIndividual reference
+			const GIndividualSet *gis_load = GObject::conversion_cast(&cp,  this);
+
+			// Check our parent class
+			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isEqualTo(*gis_load)) return  false;
 			return true;
 		}
 
@@ -99,8 +103,12 @@ namespace Gem
 		 * @param limit A double value specifying the acceptable level of differences of floating point values
 		 * @return A boolean indicating whether both objects are similar to each other
 		 */
-		bool GIndividualSet::isSimilarTo(const GIndividualSet& cp, const double& limit) const {
-			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isSimilarTo(cp, limit)) return  false;
+		bool GIndividualSet::isSimilarTo(const GObject& cp, const double& limit) const {
+			// Check that we are indeed dealing with a GIndividual reference
+			const GIndividualSet *gis_load = GObject::conversion_cast(&cp,  this);
+
+			// Check our parent class
+			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isSimilarTo(*gis_load, limit)) return  false;
 			return true;
 		}
 

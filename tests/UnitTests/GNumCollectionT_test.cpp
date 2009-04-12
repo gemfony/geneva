@@ -100,6 +100,16 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GNumCollectionT_no_failure_expected, T, test_type
 	BOOST_CHECK(gnct6 != gnct2);
 	BOOST_CHECK(gnct6.size() == 2000);
 
+	// Loading through the GParameterBase base pointer
+	GParameterBase *gpb = new GNumCollectionT<T>();
+	BOOST_CHECK(!gpb->isEqualTo(gnct6));
+	gpb->load(&gnct6);
+	BOOST_CHECK(gpb->isEqualTo(gnct6));
+	GNumCollectionT<T> *gnct6_2 = static_cast<GNumCollectionT<T> *>(gpb);
+	gnct6_2->addRandomData(1900, T(-100), T(100));
+	BOOST_CHECK(!gpb->isEqualTo(gnct6));
+	delete gpb;
+
 	// Adding an adaptor with rather large gauss
 	boost::shared_ptr<GGaussAdaptorT<T> > gba(new GGaussAdaptorT<T>(10,0.1,2,100));
 	gnct6.addAdaptor(gba);

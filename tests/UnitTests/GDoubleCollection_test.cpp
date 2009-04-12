@@ -46,7 +46,7 @@ using namespace Gem::GLogFramework;
 /***********************************************************************************/
 // This test suite checks as much as possible of the functionality provided
 // by the GDoubleCollection class.
-BOOST_AUTO_TEST_SUITE(GDoubleCollection)
+BOOST_AUTO_TEST_SUITE(GDoubleCollectionSuite)
 
 /***********************************************************************************/
 // Test features that are expected to work

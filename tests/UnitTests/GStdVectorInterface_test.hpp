@@ -264,7 +264,7 @@ void stdvectorinterfacetestSP(vi& vectorObject, const item& templItem, const ite
 	BOOST_CHECK(vectorObject_cp2== vectorObject);
 
 	// Assign a different value to the first position of the first copy to create different data sets
-	*(vectorObject_cp1[0]) = findItem;
+	vectorObject_cp1[0]->load(&findItem);
 
 	// Check that now cp1 is different from the others
 	BOOST_CHECK(!vectorObject_cp1.isEqualTo(vectorObject));

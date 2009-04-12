@@ -142,18 +142,22 @@ public:
 	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GParameterBaseWithAdaptorsT<T>& cp) const {
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GParameterBaseWithAdaptorsT reference
+		// and convert accordingly
+		const GParameterBaseWithAdaptorsT<T> *gpbwa_load = GObject::conversion_cast(&cp,  this);
+
 		// Check equality of the parent class
-		if(!GParameterBase::isEqualTo(cp)) return false;
+		if(!GParameterBase::isEqualTo(*gpbwa_load)) return false;
 
 		// Check sizes of the local containers
-		if(adaptors_.size() != cp.adaptors_.size()) return false;
+		if(adaptors_.size() != gpbwa_load->adaptors_.size()) return false;
 
 		// Then check individual items
 		typename GATvec::const_iterator it;
 		typename GATvec::const_iterator cp_it;
-		for(it=adaptors_.begin(), cp_it=cp.adaptors_.begin();
-			  it!=adaptors_.end(), cp_it!=cp.adaptors_.end(); ++it, ++cp_it)
+		for(it=adaptors_.begin(), cp_it=gpbwa_load->adaptors_.begin();
+			  it!=adaptors_.end(), cp_it!=gpbwa_load->adaptors_.end(); ++it, ++cp_it)
 		{
 			if(!(*it)->isEqualTo(**cp_it)) return false;
 		}
@@ -169,18 +173,22 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GParameterBaseWithAdaptorsT<T>& cp, const double& limit=0) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GParameterBaseWithAdaptorsT reference
+		// and convert accordingly
+		const GParameterBaseWithAdaptorsT<T> *gpbwa_load = GObject::conversion_cast(&cp,  this);
+
 		// Check similarity of the parent class
-		if(!GParameterBase::isSimilarTo(cp, limit)) return false;
+		if(!GParameterBase::isSimilarTo(*gpbwa_load, limit)) return false;
 
 		// Check sizes of local containers
-		if(adaptors_.size() != cp.adaptors_.size()) return false;
+		if(adaptors_.size() != gpbwa_load->adaptors_.size()) return false;
 
 		// Then check individual items
 		typename GATvec::const_iterator it;
 		typename GATvec::const_iterator cp_it;
-		for(it=adaptors_.begin(), cp_it=cp.adaptors_.begin();
-			  it!=adaptors_.end(), cp_it!=cp.adaptors_.end(); ++it, ++cp_it)
+		for(it=adaptors_.begin(), cp_it=gpbwa_load->adaptors_.begin();
+			  it!=adaptors_.end(), cp_it!=gpbwa_load->adaptors_.end(); ++it, ++cp_it)
 		{
 			if(!(*it)->isSimilarTo(**cp_it,limit)) return false;
 		}
@@ -197,13 +205,13 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
-		const  GParameterBaseWithAdaptorsT<T> *gpbwa = this->conversion_cast(cp, this);
+		const  GParameterBaseWithAdaptorsT<T> *gpbwa_load = this->conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBase::load(cp);
 
 		// ... and then our own data
-		copyAdaptors(gpbwa->adaptors_, adaptors_);
+		copyAdaptors(gpbwa_load->adaptors_, adaptors_);
 	}
 
 	/*******************************************************************************************/

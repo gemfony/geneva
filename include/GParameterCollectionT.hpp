@@ -137,10 +137,13 @@ public:
 	 * @param  cp A constant reference to another GParameterCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool isEqualTo(const GParameterCollectionT<T>& cp) const {
+	bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GParamterCollectionT reference
+		const GParameterCollectionT<T> *gpct_load = GObject::conversion_cast(&cp,  this);
+
 		// Check equality of the parent class
-		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isEqualTo(cp)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::isEqualTo(cp)) return false;
+		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpct_load)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::isEqualTo(*gpct_load)) return false;
 
 		return true;
 	}
@@ -155,10 +158,13 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	bool isSimilarTo(const GParameterCollectionT<T>& cp, const double& limit=0) const {
+	bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GParamterCollectionT reference
+		const GParameterCollectionT<T> *gpct_load = GObject::conversion_cast(&cp,  this);
+
 		// Check similarity of the parent class
-		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isSimilarTo(cp, limit)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::isSimilarTo(cp, limit)) return false;
+		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpct_load, limit)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::isSimilarTo(*gpct_load, limit)) return false;
 
 		return true;
 	}

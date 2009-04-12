@@ -151,10 +151,13 @@ public:
 	 * @param  cp A constant reference to another GMutableSetT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GMutableSetT<T>& cp) const {
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GIndividual reference
+		const GMutableSetT<T> *gmst_load = GObject::conversion_cast(&cp,  this);
+
 		// Check equality of the parent class
-		if(!GIndividual::isEqualTo(cp)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::isEqualTo(cp)) return false;
+		if(!GIndividual::isEqualTo(*gmst_load)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::isEqualTo(*gmst_load)) return false;
 
 		return true;
 	}
@@ -168,10 +171,13 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GMutableSetT<T>& cp, const double& limit=0) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GIndividual reference
+		const GMutableSetT<T> *gmst_load = GObject::conversion_cast(&cp,  this);
+
 		// Check similarity of the parent class
-		if(!GIndividual::isSimilarTo(cp, limit)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::isSimilarTo(cp, limit)) return false;
+		if(!GIndividual::isSimilarTo(*gmst_load, limit)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::isSimilarTo(*gmst_load, limit)) return false;
 
 		return true;
 	}

@@ -33,12 +33,15 @@ namespace GenEvA
  * @param cp A constant reference to another GParameterT<double> object
  * @param limit The acceptable difference between two double values
  */
-template<> bool GParameterT<double>::isSimilarTo(const GParameterT<double>& cp, const double& limit) const {
+template<> bool GParameterT<double>::isSimilarTo(const GObject& cp, const double& limit) const {
+	// Check that we are indeed dealing with a GBooleanCollection reference
+	const GParameterT<double> *gpct_load = GObject::conversion_cast(&cp,  this);
+
 	// Check similarity of the parent class
-	if(!GParameterBaseWithAdaptorsT<double>::isSimilarTo(cp)) return false;
+	if(!GParameterBaseWithAdaptorsT<double>::isSimilarTo(*gpct_load, limit)) return false;
 
 	// Check the local data
-	if(fabs(val_  - cp.val_) > fabs(limit)) return false;
+	if(fabs(val_  - gpct_load->val_) > fabs(limit)) return false;
 
 	return true;
 }

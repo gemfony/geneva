@@ -56,9 +56,9 @@ namespace GenEvA {
  * class are double and boost::uint32_t . By using the framework provided
  * by GParameterCollectionT, this class becomes rather simple.
  */
-template <typename num_type>
+template <typename T>
 class GNumCollectionT
-	: public GParameterCollectionT<num_type>
+	: public GParameterCollectionT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -66,7 +66,7 @@ class GNumCollectionT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<num_type> >(*this));
+		ar & make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<T> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -76,7 +76,7 @@ public:
 	 * The default constructor.
 	 */
 	GNumCollectionT():
-		GParameterCollectionT<num_type> ()
+		GParameterCollectionT<T> ()
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -87,7 +87,7 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumCollectionT(const std::size_t& nval, const num_type& min, const num_type& max){
+	GNumCollectionT(const std::size_t& nval, const T& min, const T& max){
 		this->addRandomData(nval, min, max);
 	}
 
@@ -95,8 +95,8 @@ public:
 	/**
 	 * The standard copy constructor
 	 */
-	GNumCollectionT(const GNumCollectionT<num_type>& cp)
-		:GParameterCollectionT<num_type> (cp)
+	GNumCollectionT(const GNumCollectionT<T>& cp)
+		:GParameterCollectionT<T> (cp)
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -113,8 +113,8 @@ public:
 	 * @param cp A copy of another GDoubleCollection object
 	 * @return A constant reference to this object
 	 */
-	const GNumCollectionT& operator=(const GNumCollectionT<num_type>& cp){
-		GNumCollectionT<num_type>::load(&cp);
+	const GNumCollectionT& operator=(const GNumCollectionT<T>& cp){
+		GNumCollectionT<T>::load(&cp);
 		return *this;
 	}
 
@@ -122,50 +122,56 @@ public:
 	/**
 	 * Checks for equality with another GNumCollectionT<T> object
 	 *
-	 * @param  cp A constant reference to another GNumCollectionT<num_type> object
+	 * @param  cp A constant reference to another GNumCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GNumCollectionT<num_type>& cp) const {
-		return GNumCollectionT<num_type>::isEqualTo(cp);
+	bool operator==(const GNumCollectionT<T>& cp) const {
+		return GNumCollectionT<T>::isEqualTo(cp);
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for inequality with another GNumCollectionT<num_type> object
+	 * Checks for inequality with another GNumCollectionT<T> object
 	 *
-	 * @param  cp A constant reference to another GNumCollectionT<num_type> object
+	 * @param  cp A constant reference to another GNumCollectionT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GNumCollectionT<num_type>& cp) const {
-		return !GNumCollectionT<num_type>::isEqualTo(cp);
+	bool operator!=(const GNumCollectionT<T>& cp) const {
+		return !GNumCollectionT<T>::isEqualTo(cp);
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for equality with another GNumCollectionT<num_type> object.
+	 * Checks for equality with another GNumCollectionT<T> object.
 	 * As we have no local data, we just check for equality of the parent class.
 	 *
-	 * @param  cp A constant reference to another GNumCollectionT<num_type> object
+	 * @param  cp A constant reference to another GNumCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GNumCollectionT<num_type>& cp) const {
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GNumCollectionT reference
+		const GNumCollectionT<T> *gnct_load = GObject::conversion_cast(&cp,  this);
+
 		// Check equality of the parent class
-		if(!GParameterCollectionT<num_type>::isEqualTo(cp)) return false;
+		if(!GParameterCollectionT<T>::isEqualTo(*gnct_load)) return false;
 		return true;
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for similarity with another GNumCollectionT<num_type> object.
+	 * Checks for similarity with another GNumCollectionT<T> object.
 	 * As we have no local data, we just check for equality of the parent class.
 	 *
-	 * @param  cp A constant reference to another GNumCollectionT<num_type> object
+	 * @param  cp A constant reference to another GNumCollectionT<T> object
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GNumCollectionT<num_type>& cp, const double& limit=0) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GNumCollectionT reference
+		const GNumCollectionT<T> *gnct_load = GObject::conversion_cast(&cp,  this);
+
 		// Check similarity of the parent class
-		if(!GParameterCollectionT<num_type>::isSimilarTo(cp, limit)) return false;
+		if(!GParameterCollectionT<T>::isSimilarTo(*gnct_load, limit)) return false;
 		return true;
 	}
 
@@ -176,32 +182,32 @@ public:
 	 * @return A pointer to a deep clone of this object
 	 */
 	virtual GObject *clone() const {
-		return new GNumCollectionT<num_type>(*this);
+		return new GNumCollectionT<T>(*this);
 	}
 
 	/******************************************************************/
 	/**
-	 * Loads the data of another GNumCollectionT<num_type> object,
+	 * Loads the data of another GNumCollectionT<T> object,
 	 * camouflaged as a GObject. We have no local data, so
 	 * all we need to do is to the standard identity check,
 	 * preventing that an object is assigned to itself.
 	 *
-	 * @param cp A copy of another GNumCollectionT<num_type> object, camouflaged as a GObject
+	 * @param cp A copy of another GNumCollectionT<T> object, camouflaged as a GObject
 	 */
 	virtual void load(const GObject *cp){
 		// Check that this object is not accidently assigned to itself.
 		// As we do not actually do any calls with this pointer, we
 		// can use the faster static_cast<>
-		if(static_cast<const GNumCollectionT<num_type> *>(cp) == this) {
+		if(static_cast<const GNumCollectionT<T> *>(cp) == this) {
 			std::ostringstream error;
 
-			error << "In GNumCollectionT<num_type>::load(): Error!" << std::endl
+			error << "In GNumCollectionT<T>::load(): Error!" << std::endl
 				  << "Tried to assign an object to itself." << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
 
-		GParameterCollectionT<num_type>::load(cp);
+		GParameterCollectionT<T>::load(cp);
 	}
 
 	/******************************************************************/
@@ -214,10 +220,10 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	void addRandomData(const std::size_t& nval, const num_type& min, const num_type& max){
+	void addRandomData(const std::size_t& nval, const T& min, const T& max){
 		std::ostringstream error;
 
-		error << "In GNumCollectionT<num_type>::addRandomData(): Error!" << std::endl
+		error << "In GNumCollectionT<T>::addRandomData(): Error!" << std::endl
 			  << "This function should never have been called direclty." << std::endl;
 
 		throw geneva_error_condition(error.str());

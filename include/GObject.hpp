@@ -109,7 +109,7 @@ public:
 	/** @brief Checks for equality with another GObject object */
 	virtual bool isEqualTo(const GObject&) const;
 	/** @brief Checks for similarity with another GObject object */
-	virtual bool isSimilarTo(const GObject&, const double& limit = 0.) const;
+	virtual bool isSimilarTo(const GObject&, const double& limit) const;
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);
@@ -219,7 +219,7 @@ protected:
 		// dynamic_cast will emit a NULL pointer, if the conversion failed
 		if (!result) {
 			std::ostringstream error;
-			error << "In GObject::checkConversion<T>() : Conversion error!" << std::endl;
+			error << "In GObject::conversion_cast<T>() : Conversion error!" << std::endl;
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -229,7 +229,7 @@ protected:
 		// Check that this object is not accidentally assigned to itself.
 		if (load_ptr == This) {
 			std::ostringstream error;
-			error << "In GObject::checkConversion<T>() : Error!" << std::endl
+			error << "In GObject::conversion_cast<T>() : Error!" << std::endl
 					<< "Tried to assign an object to itself." << std::endl;
 
 			throw geneva_error_condition(error.str());

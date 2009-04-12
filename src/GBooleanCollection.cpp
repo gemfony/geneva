@@ -177,8 +177,11 @@ namespace GenEvA
    * @param  cp A constant reference to another GBooleanCollection object
    * @return A boolean indicating whether both objects are equal
    */
-  bool GBooleanCollection::isEqualTo(const GBooleanCollection& cp) const {
-	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isEqualTo(cp)) return false;
+  bool GBooleanCollection::isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GBooleanCollection reference
+		const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
+
+	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isEqualTo(*gbc_load)) return false;
 	  return true;
   }
 
@@ -191,8 +194,11 @@ namespace GenEvA
    * @param limit A double value specifying the acceptable level of differences of floating point values
    * @return A boolean indicating whether both objects are similar to each other
    */
-  bool GBooleanCollection::isSimilarTo(const GBooleanCollection& cp, const double& limit) const {
-	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isSimilarTo(cp, limit)) return false;
+  bool GBooleanCollection::isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GBooleanCollection reference
+		const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
+
+	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isSimilarTo(*gbc_load, limit)) return false;
 	  return true;
   }
 

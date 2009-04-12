@@ -136,12 +136,15 @@ bool GBoostThreadPopulation::operator!=(const GBoostThreadPopulation& cp) const 
  * @param  cp A constant reference to another GBoostThreadPopulation object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBoostThreadPopulation::isEqualTo(const GBoostThreadPopulation& cp) const {
+bool GBoostThreadPopulation::isEqualTo(const GObject& cp) const {
+	// Check that we are indeed dealing with a GIndividual reference
+	const GBoostThreadPopulation *gbtp_load = GObject::conversion_cast(&cp,  this);
+
 	// First take care of our parent class
-	if(!GBasePopulation::isEqualTo(cp)) return  false;
+	if(!GBasePopulation::isEqualTo(*gbtp_load)) return  false;
 
 	// Then we take care of the local data
-	if(nThreads_ != cp.nThreads_) return false;
+	if(nThreads_ != gbtp_load->nThreads_) return false;
 
 	return true;
 }
@@ -154,13 +157,16 @@ bool GBoostThreadPopulation::isEqualTo(const GBoostThreadPopulation& cp) const {
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GBoostThreadPopulation::isSimilarTo(const GBoostThreadPopulation& cp, const double& limit) const {
+bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit) const {
+	// Check that we are indeed dealing with a GIndividual reference
+	const GBoostThreadPopulation *gbtp_load = GObject::conversion_cast(&cp,  this);
+
 	// First take care of our parent class
-	if(!GBasePopulation::isSimilarTo(cp, limit)) return  false;
+	if(!GBasePopulation::isSimilarTo(*gbtp_load, limit)) return  false;
 
 	// Then we take care of the local data. As there are no double values,
 	// we just ask for equality.
-	if(nThreads_ != cp.nThreads_) return false;
+	if(nThreads_ != gbtp_load->nThreads_) return false;
 
 	return true;
 }

@@ -201,10 +201,13 @@ public:
 	 * @param  cp A constant reference to another GAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GAdaptorT<T>& cp) const {
-		if(!GObject::isEqualTo(cp)) return false;
-		if(adaptionCounter_ != cp.adaptionCounter_) return false;
-		if(adaptionThreshold_ != cp.adaptionThreshold_) return false;
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
+
+		if(!GObject::isEqualTo(*gat_load)) return false;
+		if(adaptionCounter_ != gat_load->adaptionCounter_) return false;
+		if(adaptionThreshold_ != gat_load->adaptionThreshold_) return false;
 
 		return true;
 	}
@@ -217,8 +220,11 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GAdaptorT<T>& cp, const double& limit=0) const {
-		return  GAdaptorT<T>::isEqualTo(cp);
+	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GAdaptorT reference
+		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
+
+		return  GAdaptorT<T>::isEqualTo(*gat_load);
 	}
 
 	/***********************************************************************************/

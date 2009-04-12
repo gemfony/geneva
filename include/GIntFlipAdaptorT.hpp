@@ -202,9 +202,12 @@ public:
 	 * @param  cp A constant reference to another GIntFlipAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GIntFlipAdaptorT<T>& cp) const {
-		if(!GAdaptorT<T>::isEqualTo(cp)) return false;
-		if(!mutProb_.isEqualTo(cp.mutProb_)) return false;
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
+		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
+
+		if(!GAdaptorT<T>::isEqualTo(*gifat_load)) return false;
+		if(!mutProb_.isEqualTo(gifat_load->mutProb_)) return false;
 		return true;
 	}
 
@@ -218,9 +221,12 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GIntFlipAdaptorT<T>& cp, const double& limit=0.) const {
-		if(!GAdaptorT<T>::isSimilarTo(cp, limit)) return false;
-		if(!mutProb_.isSimilarTo(cp.mutProb_, limit)) return false;
+	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
+		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
+
+		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit)) return false;
+		if(!mutProb_.isSimilarTo(gifat_load->mutProb_, limit)) return false;
 		return true;
 	}
 

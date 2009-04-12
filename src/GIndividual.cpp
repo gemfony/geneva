@@ -100,18 +100,21 @@ bool GIndividual::operator!=(const GIndividual& cp) const {
  * @param  cp A constant reference to another GIndividual object
  * @return A boolean indicating whether both objects are equal
  */
-bool GIndividual::isEqualTo(const GIndividual& cp) const {
+bool GIndividual::isEqualTo(const GObject& cp) const {
+	// Check that we are indeed dealing with a GIndividual reference
+	const GIndividual *gi_load = GObject::conversion_cast(&cp,  this);
+
 	// Check for equality of our parent class
-	if(!GObject::isEqualTo(cp)) return  false;
+	if(!GObject::isEqualTo(*gi_load)) return  false;
 
 	// Check our local data
-    if(currentFitness_ != cp.currentFitness_) return false;
-    if(dirtyFlag_ != cp.dirtyFlag_) return false;
-    if(allowLazyEvaluation_ != cp.allowLazyEvaluation_) return false;
-    if(parentPopGeneration_ != cp.parentPopGeneration_) return false;
-    if(parentCounter_ != cp.parentCounter_) return false;
-    if(popPos_ != cp.popPos_) return false;
-    if(attributeTable_ != cp.attributeTable_) return false;
+    if(currentFitness_ !=  gi_load->currentFitness_) return false;
+    if(dirtyFlag_ != gi_load->dirtyFlag_) return false;
+    if(allowLazyEvaluation_ != gi_load->allowLazyEvaluation_) return false;
+    if(parentPopGeneration_ != gi_load->parentPopGeneration_) return false;
+    if(parentCounter_ != gi_load->parentCounter_) return false;
+    if(popPos_ != gi_load->popPos_) return false;
+    if(attributeTable_ != gi_load->attributeTable_) return false;
 
 	return true;
 }
@@ -124,18 +127,21 @@ bool GIndividual::isEqualTo(const GIndividual& cp) const {
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GIndividual::isSimilarTo(const GIndividual& cp, const double& limit) const {
+bool GIndividual::isSimilarTo(const GObject& cp, const double& limit) const {
+	// Check that we are indeed dealing with a GIndividual reference
+	const GIndividual *gi_load = GObject::conversion_cast(&cp,  this);
+
 	// Check for equality of our parent class
-	if(!GObject::isSimilarTo(cp, limit)) return false;
+	if(!GObject::isSimilarTo(*gi_load, limit)) return false;
 
 	// Check our local data
-    if(fabs(currentFitness_ - cp.currentFitness_) > fabs(limit)) return false; // The sole similarity check of local data
-    if(dirtyFlag_ != cp.dirtyFlag_) return false;
-    if(allowLazyEvaluation_ != cp.allowLazyEvaluation_) return false;
-    if(parentPopGeneration_ != cp.parentPopGeneration_) return false;
-    if(parentCounter_ != cp.parentCounter_) return false;
-    if(popPos_ != cp.popPos_) return false;
-    if(attributeTable_ != cp.attributeTable_) return false;
+    if(fabs(currentFitness_ - gi_load->currentFitness_) > fabs(limit)) return false; // The sole similarity check of local data
+    if(dirtyFlag_ != gi_load->dirtyFlag_) return false;
+    if(allowLazyEvaluation_ != gi_load->allowLazyEvaluation_) return false;
+    if(parentPopGeneration_ != gi_load->parentPopGeneration_) return false;
+    if(parentCounter_ != gi_load->parentCounter_) return false;
+    if(popPos_ != gi_load->popPos_) return false;
+    if(attributeTable_ != gi_load->attributeTable_) return false;
 
 	return true;
 }

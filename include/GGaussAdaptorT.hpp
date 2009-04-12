@@ -62,9 +62,9 @@ const std::string GGAUSSADAPTORSTANDARDNAME = "GGaussAdaptorT"; ///< The designa
  * types may be used, including Boost's integer representations.
  * The type used needs to be specified as a template parameter.
  */
-template<typename num_type>
+template<typename T>
 class GGaussAdaptorT:
-	public GAdaptorT<num_type>
+	public GAdaptorT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -72,7 +72,7 @@ class GGaussAdaptorT:
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<num_type> >(*this));
+		ar & make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<T> >(*this));
 		ar & make_nvp("sigma_", sigma_);
 		ar & make_nvp("sigmaSigma_", sigmaSigma_);
 		ar & make_nvp("minSigma_", minSigma_);
@@ -87,7 +87,7 @@ public:
 	 * parent class and initializes the internal variables.
 	 */
 	GGaussAdaptorT()
-		:GAdaptorT<num_type> (GGAUSSADAPTORSTANDARDNAME),
+		:GAdaptorT<T> (GGAUSSADAPTORSTANDARDNAME),
 		 sigma_(DEFAULTSIGMA),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
 		 minSigma_(DEFAULTMINSIGMA),
@@ -103,7 +103,7 @@ public:
 	 * @param sigma The initial value for the sigma_ parameter
 	 */
 	explicit GGaussAdaptorT(const double& sigma)
-		:GAdaptorT<num_type> (GGAUSSADAPTORSTANDARDNAME),
+		:GAdaptorT<T> (GGAUSSADAPTORSTANDARDNAME),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
 		 minSigma_(DEFAULTMINSIGMA),
 		 maxSigma_(DEFAULTMAXSIGMA)
@@ -124,7 +124,7 @@ public:
 	 */
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
-		:GAdaptorT<num_type> (GGAUSSADAPTORSTANDARDNAME)
+		:GAdaptorT<T> (GGAUSSADAPTORSTANDARDNAME)
 	{
 		// These functions do error checks on their values
 		setSigmaAdaptionRate(sigmaSigma);
@@ -138,8 +138,8 @@ public:
 	 *
 	 * @param cp Another GGaussAdaptorT object
 	 */
-	GGaussAdaptorT(const GGaussAdaptorT<num_type>& cp)
-		:GAdaptorT<num_type> (cp)
+	GGaussAdaptorT(const GGaussAdaptorT<T>& cp)
+		:GAdaptorT<T> (cp)
 	{
 		setSigmaAdaptionRate(cp.sigmaSigma_);
 		setSigmaRange(cp.minSigma_, cp.maxSigma_);
@@ -160,9 +160,9 @@ public:
 	 *
 	 * @param cp A copy of another GGaussAdaptorT object
 	 */
-	const GGaussAdaptorT<num_type>& operator=(const GGaussAdaptorT<num_type>& cp)
+	const GGaussAdaptorT<T>& operator=(const GGaussAdaptorT<T>& cp)
 	{
-		GGaussAdaptorT<num_type>::load(&cp);
+		GGaussAdaptorT<T>::load(&cp);
 		return *this;
 	}
 
@@ -175,10 +175,10 @@ public:
 	void load(const GObject *cp)
 	{
 		// Convert GObject pointer to local format
-		const GGaussAdaptorT<num_type> *gdga = this->conversion_cast(cp, this);
+		const GGaussAdaptorT<T> *gdga = this->conversion_cast(cp, this);
 
 		// Load the data of our parent class ...
-		GAdaptorT<num_type>::load(cp);
+		GAdaptorT<T>::load(cp);
 
 		// ... and then our own data
 		sigma_ = gdga->sigma_;
@@ -196,67 +196,73 @@ public:
 	 */
 	GObject *clone() const
 	{
-		return new GGaussAdaptorT<num_type>(*this);
+		return new GGaussAdaptorT<T>(*this);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GGaussAdaptorT<num_type> object
+	 * Checks for equality with another GGaussAdaptorT<T> object
 	 *
-	 * @param  cp A constant reference to another GGaussAdaptorT<num_type> object
+	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GGaussAdaptorT<num_type>& cp) const {
-		return GGaussAdaptorT<num_type>::isEqualTo(cp);
+	bool operator==(const GGaussAdaptorT<T>& cp) const {
+		return GGaussAdaptorT<T>::isEqualTo(cp);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for inequality with another GGaussAdaptorT<num_type> object
+	 * Checks for inequality with another GGaussAdaptorT<T> object
 	 *
-	 * @param  cp A constant reference to another GGaussAdaptorT<num_type> object
+	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GGaussAdaptorT<num_type>& cp) const {
-		return !GGaussAdaptorT<num_type>::isEqualTo(cp);
+	bool operator!=(const GGaussAdaptorT<T>& cp) const {
+		return !GGaussAdaptorT<T>::isEqualTo(cp);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GGaussAdaptorT<num_type> object Equality means
+	 * Checks for equality with another GGaussAdaptorT<T> object Equality means
 	 * that all individual sub-values are equal and that the parent class is equal.
 	 *
-	 * @param  cp A constant reference to another GGaussAdaptorT<num_type> object
+	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GGaussAdaptorT<num_type>& cp) const {
-		if(!GAdaptorT<num_type>::isEqualTo(cp)) return false;
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GGaussAdaptorT reference
+		const GGaussAdaptorT<T> *ggat_load = GObject::conversion_cast(&cp,  this);
 
-		if(sigma_ != cp.sigma_) return false;
-		if(sigmaSigma_ != cp.sigmaSigma_) return false;
-		if(minSigma_ != cp.minSigma_) return false;
-		if(maxSigma_ != cp.maxSigma_) return false;
+		if(!GAdaptorT<T>::isEqualTo(*ggat_load)) return false;
+
+		if(sigma_ != ggat_load->sigma_) return false;
+		if(sigmaSigma_ != ggat_load->sigmaSigma_) return false;
+		if(minSigma_ != ggat_load->minSigma_) return false;
+		if(maxSigma_ != ggat_load->maxSigma_) return false;
 
 		return true;
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for similarity with another GGaussAdaptorT<num_type> object. Similarity means
+	 * Checks for similarity with another GGaussAdaptorT<T> object. Similarity means
 	 * that all double values are similar to each other within a given limit and that all other
 	 * values are equal. Also, parent classes must be similar to each other.
 	 *
-	 * @param  cp A constant reference to another GGaussAdaptorT<num_type> object
+	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GGaussAdaptorT<num_type>& cp, const double& limit=0.) const {
-		if(!GAdaptorT<num_type>::isSimilarTo(cp, limit)) return false;
+	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GGaussAdaptorT reference
+		const GGaussAdaptorT<T> *ggat_load = GObject::conversion_cast(&cp,  this);
 
-		if(fabs(sigma_ - cp.sigma_) > fabs(limit)) return false;
-		if(fabs(sigmaSigma_ - cp.sigmaSigma_) > fabs(limit)) return false;
-		if(fabs(minSigma_ - cp.minSigma_) > fabs(limit)) return false;
-		if(fabs(maxSigma_ - cp.maxSigma_) > fabs(limit)) return false;
+		if(!GAdaptorT<T>::isSimilarTo(*ggat_load, limit)) return false;
+
+		if(fabs(sigma_ - ggat_load->sigma_) > fabs(limit)) return false;
+		if(fabs(sigmaSigma_ - ggat_load->sigmaSigma_) > fabs(limit)) return false;
+		if(fabs(minSigma_ - ggat_load->minSigma_) > fabs(limit)) return false;
+		if(fabs(maxSigma_ - ggat_load->maxSigma_) > fabs(limit)) return false;
 
 		return true;
 	}
@@ -436,32 +442,32 @@ protected:
 	 *
 	 * @param value The value that is going to be mutated in situ
 	 */
-	inline void customMutations(num_type &value)
+	inline void customMutations(T &value)
 	{
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
 #if defined (CHECKOVERFLOWS)
 		// Prevent over- and underflows.
 #if defined (DEBUG)
-		num_type addition = boost::numeric_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
+		T addition = boost::numeric_cast<T>(this->gr.gaussRandom(0.,sigma_));
 #else
-		num_type addition = static_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
+		T addition = static_cast<T>(this->gr.gaussRandom(0.,sigma_));
 #endif /* DEBUG */
 
 		if(value >= 0){
-			if(addition >= 0 && (std::numeric_limits<num_type>::max()-value < addition)) addition *= -1;
+			if(addition >= 0 && (std::numeric_limits<T>::max()-value < addition)) addition *= -1;
 		}
 		else { // < 0
-			if(addition < 0 && (std::numeric_limits<num_type>::min()-value > addition)) addition *= -1;
+			if(addition < 0 && (std::numeric_limits<T>::min()-value > addition)) addition *= -1;
 		}
 
 		value += addition;
 #else
 		// We do not check for over- or underflows for performance reasons.
 #if defined (DEBUG)
-		value += boost::numeric_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
+		value += boost::numeric_cast<T>(this->gr.gaussRandom(0.,sigma_));
 #else
-		value += static_cast<num_type>(this->gr.gaussRandom(0.,sigma_));
+		value += static_cast<T>(this->gr.gaussRandom(0.,sigma_));
 #endif /* DEBUG */
 #endif /* CHECKOVERFLOWS  */
 	}

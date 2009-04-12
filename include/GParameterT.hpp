@@ -188,12 +188,15 @@ public:
 	 * @param  cp A constant reference to another GParameterT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GParameterT<T>& cp) const {
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GParamterT reference
+		const GParameterT<T> *gpt_load = GObject::conversion_cast(&cp,  this);
+
 		// Check equality of the parent class
-		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(cp)) return false;
+		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpt_load)) return false;
 
 		// Check the local data
-		if(val_ != cp.val_) return false;
+		if(val_ != gpt_load->val_) return false;
 
 		return true;
 	}
@@ -207,12 +210,15 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GParameterT<T>& cp, const double& limit=0) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GParamterT reference
+		const GParameterT<T> *gpt_load = GObject::conversion_cast(&cp,  this);
+
 		// Check similarity of the parent class
-		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(cp, limit)) return false;
+		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpt_load, limit)) return false;
 
 		// Check the local data
-		if(val_ != cp.val_) return false;
+		if(val_ != gpt_load->val_) return false;
 
 		return true;
 	}
@@ -270,7 +276,7 @@ private:
 /*********************************************************************************************/
 // Declaration of specializations for various types
 /** @brief Checks similarity of this object, if typeof(T) == typeof(double) */
-template<> bool GParameterT<double>::isSimilarTo(const GParameterT<double>& cp, const double& limit) const;
+template<> bool GParameterT<double>::isSimilarTo(const GObject& cp, const double& limit) const;
 /** @brief A default constructor for bool, needed as it appears useful to initialize the value with a printable character */
 template <> GParameterT<char>::GParameterT();
 
