@@ -108,8 +108,12 @@ public:
 	bool operator!=(const GObject&) const;
 	/** @brief Checks for equality with another GObject object */
 	virtual bool isEqualTo(const GObject&) const;
+	/** @brief Checks for inequality with another GObject object (or a derivative) */
+	virtual bool isNotEqualTo(const GObject&) const;
 	/** @brief Checks for similarity with another GObject object */
-	virtual bool isSimilarTo(const GObject&, const double& limit) const;
+	virtual bool isSimilarTo(const GObject&, const double&) const;
+	/** @brief Checks for disimilarity with another GObject object (or a derivative) */
+	virtual bool isNotSimilarTo(const GObject&, const double&) const;
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);

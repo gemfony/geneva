@@ -73,28 +73,27 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 	// Test instantiation with a probability mutation
 	GIntFlipAdaptorT<T> gifat1(0.2);
 
-	BOOST_CHECK(gifat1 != gifat0);
+	BOOST_CHECK(gifat1.isNotEqualTo(gifat0));
 
 	// Test copy construction
 	GIntFlipAdaptorT<T> gifat2(gifat1);
 
-	BOOST_CHECK(gifat2 == gifat1);
-	BOOST_CHECK(gifat2 != gifat0);
+	BOOST_CHECK(gifat2.isEqualTo(gifat1));
+	BOOST_CHECK(gifat2.isNotEqualTo(gifat0));
 
 	// Test assignment
 	GIntFlipAdaptorT<T> gifat3;
 	gifat3 = gifat1;
 
-	BOOST_CHECK(gifat3 == gifat1);
-	BOOST_CHECK(gifat3 != gifat0);
+	BOOST_CHECK(gifat3.isEqualTo(gifat1));
+	BOOST_CHECK(gifat3.isNotEqualTo(gifat0));
 
 	// Retrieve the mutation probablilty and modify it slightly. Then check similariy and equality.
 	double mutProb = gifat3.getMutationProbability();
 	mutProb -= exp(-10);
 	gifat3.setMutationProbability(mutProb);
-	BOOST_CHECK(gifat3 != gifat1); // May no longer be equal
-	BOOST_CHECK(!gifat3.isEqualTo(gifat1)); // Should have the same result
-	BOOST_CHECK(gifat3.isSimilarTo( gifat1, exp(-9)));
+	BOOST_CHECK(gifat3.isNotEqualTo(gifat1)); // May no longer be equal
+	BOOST_CHECK(gifat3.isSimilarTo(gifat1, exp(-9))); // but should be "close"
 
 	// Check mutations
 	const std::size_t NMUTATIONS = 10000;

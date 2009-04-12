@@ -206,8 +206,20 @@ public:
 		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
 		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
 
-		if(!GAdaptorT<T>::isEqualTo(*gifat_load)) return false;
-		if(!mutProb_.isEqualTo(gifat_load->mutProb_)) return false;
+		if(!GAdaptorT<T>::isEqualTo(*gifat_load)) { // [1]
+#ifdef GENEVATESTING
+			std::cout << "Inequality in GIntFlipAdaptorT::[1]" << std::endl;
+#endif /* GENEVATESTING */
+			return false;
+		}
+
+		if(!mutProb_.isEqualTo(gifat_load->mutProb_)) { // [2]
+#ifdef GENEVATESTING
+			std::cout << "Inequality in GIntFlipAdaptorT::[2]" << std::endl;
+#endif /* GENEVATESTING */
+			return false;
+		}
+
 		return true;
 	}
 
@@ -225,10 +237,23 @@ public:
 		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
 		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
 
-		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit)) return false;
-		if(!mutProb_.isSimilarTo(gifat_load->mutProb_, limit)) return false;
+		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit)) { // [1]
+#ifdef GENEVATESTING
+			std::cout << " Dissimilarity GIntFlipAdaptorT::[1]" << std::endl;
+#endif /* GENEVATESTING */
+			return false;
+		}
+
+		if(!mutProb_.isSimilarTo(gifat_load->mutProb_, limit)) { // [2]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GIntFlipAdaptorT::[2]" << std::endl;
+#endif /* GENEVATESTING */
+			return false;
+		}
+
 		return true;
 	}
+
 
 	/********************************************************************************************/
 	/**

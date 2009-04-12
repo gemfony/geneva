@@ -116,8 +116,22 @@ bool  GObject::operator!=(const GObject& cp) const {
  * @return A boolean indicating whether both objects are equal
  */
 bool  GObject::isEqualTo(const GObject& cp) const {
-	if(name_ == cp.name_) return true;
-	else return false;
+	if(name_ != cp.name_) return false;
+	return true;
+}
+
+/**************************************************************************************************/
+/**
+ * Checks for inequality with another GObject object (or a derivative thereof).
+ * Equality means equality of all local data plus the parent class'es data. While this
+ * function may appear as syntactic sugar, the statement !isSimilarTo is very easy
+ * to read wrong.
+ *
+ * @param  cp A constant reference to another GObject object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool  GObject::isNotEqualTo(const GObject& cp) const {
+	return !this->isEqualTo(cp);
 }
 
 /**************************************************************************************************/
@@ -131,7 +145,23 @@ bool  GObject::isEqualTo(const GObject& cp) const {
  * @return A boolean indicating whether both objects are similar or not
  */
 bool  GObject::isSimilarTo(const GObject& cp, const double& limit) const {
-	return isEqualTo(cp);
+	return GObject::isEqualTo(cp);
+}
+
+/**************************************************************************************************/
+/**
+ * Checks for dissimilarity  with another GObject object. This only plays a role for objects that
+ * also contain double values. This feature is mainly used for testing purposes, particularly
+ * when text i/o is done. Text i/o usually implies a loss in precision for floating point numbers.
+ * While this function may appear as syntactic sugar, the statement !isSimilarTo is very easy
+ * to read wrong.
+ *
+ * @param  cp A constant reference to another GObject object
+ * @param limit A double indicating the level of acceptable deviation of two double values
+ * @return A boolean indicating whether both objects are similar or not
+ */
+bool  GObject::isNotSimilarTo(const GObject& cp, const double& limit) const {
+	return !this->isSimilarTo(cp, limit);
 }
 
 /**************************************************************************************************/

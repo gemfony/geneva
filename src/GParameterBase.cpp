@@ -112,7 +112,12 @@ bool GParameterBase::isEqualTo(const GObject& cp) const {
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GParameterBase *gpb_load = GObject::conversion_cast(&cp,  this);
 
-	if(!GObject::isEqualTo(*gpb_load)) return  false;
+	if(!GObject::isEqualTo(*gpb_load)) { // [1]
+#ifdef GENEVATESTING
+			std::cout << "Inequality in GParameterT::[1]" << std::endl;
+#endif /* GENEVATESTING */
+		return  false;
+	}
 	return true;
 }
 
@@ -129,7 +134,12 @@ bool GParameterBase::isSimilarTo(const GObject& cp, const double& limit) const {
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GParameterBase *gpb_load = GObject::conversion_cast(&cp,  this);
 
-	if(!GObject::isSimilarTo(*gpb_load, limit)) return false;
+	if(!GObject::isSimilarTo(*gpb_load, limit)) { // [2]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GParameterT::[1]" << std::endl;
+#endif /* GENEVATESTING */
+		return false;
+	}
 	return true;
 }
 

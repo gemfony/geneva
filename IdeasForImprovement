@@ -25,3 +25,4 @@
   of individuals.
 - Add a GBiDoubleGaussAdaptor
 - parameterbase_cast<> could return a constant value ? After all, all we want to do is read the values, not modify them.
+- Add a isNotSimilarTo() function in GObject for more clarity in tests. The "!" in !isSimilarTo() is easy to miss.

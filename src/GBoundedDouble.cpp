@@ -166,12 +166,32 @@ namespace Gem
 			const GBoundedDouble *gbd_load = GObject::conversion_cast(&cp,  this);
 
 	    	// Check the parent class'es equality
-	    	if(!GParameterT<double>::isEqualTo(*gbd_load)) return false;
+	    	if(!GParameterT<double>::isEqualTo(*gbd_load)) { // [1]
+#ifdef GENEVATESTING
+			std::cout << "Inequality in GBoundedDouble::[1]" << std::endl;
+#endif /* GENEVATESTING */
+	    		return false;
+	    	}
 
 	    	// Check our local data
-	    	if(lowerBoundary_ != gbd_load->lowerBoundary_) return false;
-	    	if(upperBoundary_ != gbd_load->upperBoundary_) return false;
-			if(internalValue_ != gbd_load->internalValue_) return false;
+	    	if(lowerBoundary_ != gbd_load->lowerBoundary_) { // [2]
+#ifdef GENEVATESTING
+			std::cout << "Inequality in GBoundedDouble::[2]" << std::endl;
+#endif /* GENEVATESTING */
+	    		return false;
+	    	}
+	    	if(upperBoundary_ != gbd_load->upperBoundary_) { // [3]
+#ifdef GENEVATESTING
+			std::cout << "Inequality in GBoundedDouble::[3]" << std::endl;
+#endif /* GENEVATESTING */
+	    		return false;
+	    	}
+			if(internalValue_ != gbd_load->internalValue_) { // [4]
+#ifdef GENEVATESTING
+			std::cout << "Inequality in GBoundedDouble::[4]" << std::endl;
+#endif /* GENEVATESTING */
+				return false;
+			}
 
 	    	return true;
 	    }
@@ -189,12 +209,32 @@ namespace Gem
 			const GBoundedDouble *gbd_load = GObject::conversion_cast(&cp,  this);
 
 	    	// Check the parent class'es similarity
-	    	if(!GParameterT<double>::isSimilarTo(*gbd_load, limit)) return false;
+	    	if(!GParameterT<double>::isSimilarTo(*gbd_load, limit)) { // [1]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GBoundedDouble::[1]" << std::endl;
+#endif /* GENEVATESTING */
+	    		return false;
+	    	}
 
 	    	// Check our local data
-	    	if(fabs(lowerBoundary_  - gbd_load->lowerBoundary_) > fabs(limit)) return false;
-	    	if(fabs(upperBoundary_ - gbd_load->upperBoundary_) > fabs(limit)) return false;
-			if(fabs(internalValue_ - gbd_load->internalValue_) > fabs(limit)) return false;
+	    	if(fabs(lowerBoundary_  - gbd_load->lowerBoundary_) > fabs(limit)) { // [2]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GBoundedDouble::[2]" << std::endl;
+#endif /* GENEVATESTING */
+	    		return false;
+	    	}
+	    	if(fabs(upperBoundary_ - gbd_load->upperBoundary_) > fabs(limit)) { // [3]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GBoundedDouble::[3]" << std::endl;
+#endif /* GENEVATESTING */
+	    		return false;
+	    	}
+			if(fabs(internalValue_ - gbd_load->internalValue_) > fabs(limit)) { // [4]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GBoundedDouble::[4]" << std::endl;
+#endif /* GENEVATESTING */
+				return false;
+			}
 
 			return true;
 	    }

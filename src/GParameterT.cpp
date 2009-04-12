@@ -38,10 +38,20 @@ template<> bool GParameterT<double>::isSimilarTo(const GObject& cp, const double
 	const GParameterT<double> *gpct_load = GObject::conversion_cast(&cp,  this);
 
 	// Check similarity of the parent class
-	if(!GParameterBaseWithAdaptorsT<double>::isSimilarTo(*gpct_load, limit)) return false;
+	if(!GParameterBaseWithAdaptorsT<double>::isSimilarTo(*gpct_load, limit)) { // [1]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GParameterT::[1]" << std::endl;
+#endif /* GENEVATESTING */
+		return false;
+	}
 
 	// Check the local data
-	if(fabs(val_  - gpct_load->val_) > fabs(limit)) return false;
+	if(fabs(val_  - gpct_load->val_) > fabs(limit)) { // [2]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GParameterT::[2]" << std::endl;
+#endif /* GENEVATESTING */
+		return false;
+	}
 
 	return true;
 }
