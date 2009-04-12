@@ -183,7 +183,7 @@ public:
 		std::string commandLine;
 
 		// Retrieve a pointer to the GDoubleCollection
-		boost::shared_ptr<GDoubleCollection> gdc_load = parameterbase_cast<GDoubleCollection>(0);
+		boost::shared_ptr<GDoubleCollection> gdc_load = pc_at<GDoubleCollection>(0);
 
 		// Make the parameters known externally
 		std::string resultFile = "bestParameterSet";
@@ -234,7 +234,7 @@ protected:
 		std::string commandLine;
 
 		// Retrieve a pointer to the GDoubleCollection. Compile in DEBUG mode in order to check this conversion
-		boost::shared_ptr<GDoubleCollection> gdc_load = parameterbase_cast<GDoubleCollection>(0);
+		boost::shared_ptr<GDoubleCollection> gdc_load = pc_at<GDoubleCollection>(0);
 
 		// Make the parameters known externally
 		std::ostringstream parFile;

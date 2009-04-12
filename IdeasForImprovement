@@ -24,5 +24,5 @@
 - Implement *1.5 vs. /0.5 rule for sigma adaption. Can be based on the parentCounter_ variable
   of individuals.
 - Add a GBiDoubleGaussAdaptor
-- parameterbase_cast<> could return a constant value ? After all, all we want to do is read the values, not modify them.
-- Add a isNotSimilarTo() function in GObject for more clarity in tests. The "!" in !isSimilarTo() is easy to miss.
+- GSelectedChar should allow a selection of the characters to be mutated. Very similar:
+  An integer class that allows mutation between several selected integers only.

@@ -218,7 +218,7 @@ protected:
 	virtual double fitnessCalculation(){
 		// Compile in DEBUG mode in order to check this conversion
 		// The desired collection is in the first position, hence we pass a 0 to the function.
-		boost::shared_ptr<GBoundedDoubleCollection> gbdc_load = parameterbase_cast<GBoundedDoubleCollection>(0);
+		boost::shared_ptr<GBoundedDoubleCollection> gbdc_load = pc_at<GBoundedDoubleCollection>(0);
 
 		// Great - now we can do the actual calculations. We do this the fancy way ...
 		// Note that (*it) will be of type boost::shared_ptr<GBoundedDouble> .

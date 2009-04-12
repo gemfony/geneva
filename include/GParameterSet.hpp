@@ -97,17 +97,17 @@ public:
 	/**********************************************************************/
 	/**
 	 * If compiled in debug mode, this function performs all necessary error
-	 * checks on the conversion from GParameterBase to the desired parameter type.
-	 * Note that, if compiled in debug mode, this function will throw. Otherwise
-	 * a segfault may be the result if a faulty conversion was attempted. Hence
-	 * it is suggested to test your programs in debug mode before using it in a
-	 * production environment.
+	 * checks on the conversion from a GParameterBase base pointer  to the desired
+	 * parameter type (usually a collection). Note that, if compiled in debug mode, this
+	 * function will throw. Otherwise a segfault may be the result if a faulty conversion was attempted.
+	 * Hence it is suggested to test your programs in debug mode before using it in a
+	 * production environment. "pc" stands for "parameter collection".
 	 *
 	 * @param pos The position in our data array that shall be converted
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename parameter_type>
-	inline boost::shared_ptr<parameter_type> parameterbase_cast(const std::size_t& pos)  {
+	inline const boost::shared_ptr<parameter_type> pc_at(const std::size_t& pos)  const {
 #ifdef DEBUG
 		// Extract data. at() will throw if we have tried to access a position in the
 		// vector that does not exist.
@@ -120,7 +120,7 @@ public:
 		// if this was not the case.
 		if(!p_load){
 			std::ostringstream error;
-			error << "In GParameterSet::parameterbase_case<parameter_type>() : Conversion error!" << std::endl;
+			error << "In GParameterSet::at<parameter_type>(pos) : Conversion error!" << std::endl;
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -134,6 +134,7 @@ public:
 	}
 
 	/**********************************************************************/
+
 
 protected:
 	/** @brief The actual fitness calculation takes place here */
