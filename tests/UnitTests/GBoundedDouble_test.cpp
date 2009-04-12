@@ -108,7 +108,6 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_no_failure_expected )
 		oldValue = gbd5.value();
 	}
 
-	// Test of serialization in different modes
 	// Test serialization and loading in different serialization modes
 	{ // plain text format
 		// Copy construction of a new object
