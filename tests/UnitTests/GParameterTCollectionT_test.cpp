@@ -53,11 +53,13 @@
 #include "GDouble.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GBoundedDouble.hpp"
+#include "GBoundedInt32.hpp"
 #include "GDouble.hpp"
 #include "GChar.hpp"
 #include "GInt32.hpp"
 #include "GBoolean.hpp"
 #include "GBoundedDoubleCollection.hpp"
+#include "GBoundedInt32Collection.hpp"
 #include "GDoubleObjectCollection.hpp"
 #include "GBooleanObjectCollection.hpp"
 #include "GCharObjectCollection.hpp"
@@ -88,6 +90,11 @@ template <> GBoundedDouble getTemplateItemNoAdaptor<GBoundedDouble>() {
 	return GBoundedDouble(0.,0.,1.);
 }
 
+// Specialization for GBoundedInt32
+template <> GBoundedInt32 getTemplateItemNoAdaptor<GBoundedInt32>() {
+	return GBoundedInt32(0,0.,100);
+}
+
 // This template allows to create items different of the default item.
 // Note that these will not have an adaptor assigned to them and
 // can thus not be mutated.
@@ -98,6 +105,11 @@ template <typename T> T getFindItemNoAdaptor() {
 // Specialization for GBoundedDouble
 template <> GBoundedDouble getFindItemNoAdaptor<GBoundedDouble>() {
 	return GBoundedDouble(1.,0.,1.);
+}
+
+// Specialization for GBoundedInt32
+template <> GBoundedInt32 getFindItemNoAdaptor<GBoundedInt32>() {
+	return GBoundedInt32(1,0,100);
 }
 
 /***********************************************************************************/
@@ -118,6 +130,13 @@ template <> GBoundedDouble getTemplateItem<GBoundedDouble>() {
 	GBoundedDouble gbd(0.,0.,1.);
 	gbd.addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
 	return gbd;
+}
+
+// Specialization for GBoundedInt32
+template <> GBoundedInt32 getTemplateItem<GBoundedInt32>() {
+	GBoundedInt32 gbi(0,0,100);
+	gbi.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
+	return gbi;
 }
 
 // Specialization for GDouble
@@ -166,6 +185,13 @@ template <> GBoundedDouble getFindItem<GBoundedDouble>() {
 	return gbd;
 }
 
+// Specialization for GBoundedInt32
+template <> GBoundedInt32 getFindItem<GBoundedInt32>() {
+	GBoundedInt32 gbi(1,0,100);
+	gbi.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
+	return gbi;
+}
+
 // Specialization for GDouble
 template <> GDouble getFindItem<GDouble>() {
 	GDouble gbd(1.);
@@ -198,7 +224,7 @@ template <> GChar getFindItem<GChar>() {
 // Test features that are expected to work
 
 // typedef boost::mpl::list<GDouble, GBoundedDouble, GChar, GInt32, GBoolean> test_types;
-typedef boost::mpl::list<GDouble, GChar, GInt32, GBoolean, GBoundedDouble> test_types;
+typedef boost::mpl::list<GDouble, GChar, GInt32, GBoolean, GBoundedDouble, GBoundedInt32> test_types;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, T, test_types )
 {
