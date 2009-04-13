@@ -1,9 +1,8 @@
 /**
- * @file GBoundedDouble.hpp
+ * @file GBoundedInt32.hpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2009 Dr. Ruediger Berlich
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *
@@ -37,8 +36,8 @@
 #include <boost/bind.hpp>
 #include <boost/cast.hpp> // For boost::numeric_cast<>
 
-#ifndef GBOUNDEDDOUBLE_HPP_
-#define GBOUNDEDDOUBLE_HPP_
+#ifndef GBOUNDEDINT32_HPP_
+#define GBOUNDEDINT32_HPP_
 
 // GenEvA headers go here
 #include "GBoundedNumT.hpp"
@@ -53,11 +52,12 @@ namespace GenEvA
    * This class has now become a simple typedef of the GBoundedNumT<T> class.
    * See there for further explanations.
    */
-typedef GBoundedNumT<double> GBoundedDouble;
+
+typedef GBoundedNumT<boost::int32_t> GBoundedInt32;
 
   /******************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GBOUNDEDDOUBLE_HPP_ */
+#endif /* GBOUNDEDINT32_HPP_ */
