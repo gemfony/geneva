@@ -16,6 +16,7 @@ SET ( GENEVASOURCES
 	GBoundedDouble
 	GBoundedDoubleCollection
 	GBoundedInt32
+	GBoundedInt32Collection
 	GBoundedNumT
 	GBrokerPopulation
 	GChar

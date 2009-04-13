@@ -19,6 +19,7 @@ SET ( GENEVAINCLUDES
 	GBoundedDouble.hpp
 	GBoundedDoubleCollection.hpp
 	GBoundedInt32.hpp
+	GBoundedInt32Collection.hpp
 	GBoundedNumT,hpp
 	GBrokerT.hpp
 	GBrokerPopulation.hpp
