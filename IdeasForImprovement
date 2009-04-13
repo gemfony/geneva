@@ -26,3 +26,8 @@
 - Add a GBiDoubleGaussAdaptor
 - GSelectedChar should allow a selection of the characters to be mutated. Very similar:
   An integer class that allows mutation between several selected integers only.
+- Clean up comments and run doxygen
+- Implement a "trap" in GRandom and provide specializations for "allowed" types rather than 
+  specializations for "forbidden" types
+- Check GRandom in unit tests (e.g.: discreteRandom never returns the upper boundary. Also needed
+  for GBoundedInt32 aka GBoundedNumT<boost::int32_t> .

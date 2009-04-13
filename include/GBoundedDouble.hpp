@@ -41,11 +41,7 @@
 #define GBOUNDEDDOUBLE_HPP_
 
 // GenEvA headers go here
-#include "GDoubleGaussAdaptor.hpp"
-#include "GParameterT.hpp"
-#include "GObject.hpp"
-#include "GLogger.hpp"
-#include "GenevaExceptions.hpp"
+#include "GBoundedNumT.hpp"
 
 namespace Gem
 {
@@ -64,78 +60,11 @@ namespace GenEvA
    * class. An ability to reset the boundaries would make implementation really
    * difficult. Just recreate a new GBoundedDouble object with different values
    * instead.
+   *
+   * This class has now become a simple typedef of the GBoundedNumT<T> class.
    */
-  class GBoundedDouble
-     :public GParameterT<double>
-  {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
 
-    template<typename Archive>
-    void serialize(Archive & ar, const unsigned int version){
-      using boost::serialization::make_nvp;
-      ar & make_nvp("GParameterT_dbl", boost::serialization::base_object<GParameterT<double> >(*this));
-      ar & make_nvp("internalValue_", internalValue_);
-      ar & make_nvp("lowerBoundary_", lowerBoundary_);
-      ar & make_nvp("upperBoundary_", upperBoundary_);
-    }
-    ///////////////////////////////////////////////////////////////////////
-
-  public:
-	/** @brief Standard constructor */
-	GBoundedDouble();
-	/** @brief Initialization with the boundaries */
-	GBoundedDouble(const double&, const double&);
-    /** @brief Initialization with a double and the boundaries */
-    GBoundedDouble(const double&, const double&, const double&);
-    /** @brief Standard copy constructor */
-    GBoundedDouble(const GBoundedDouble&);
-    /** @brief Standard destructor */
-    virtual ~GBoundedDouble();
-
-    /** @brief A standard assignment operator */
-    const GBoundedDouble& operator=(const GBoundedDouble&);
-    /** @brief An assignment operator for double values */
-    virtual double operator=(const double&);
-
-    /** @brief Checks equality */
-    bool operator==(const GBoundedDouble&) const;
-    /** @brief Checks inequality */
-    bool operator!=(const GBoundedDouble&) const;
-    /** @brief Checks equality */
-    virtual bool isEqualTo(const GObject&) const;
-    /** @brief Checks similarity */
-    virtual bool isSimilarTo(const GObject&, const double&) const;
-
-    /** @brief Loads the data of another GBoundedDouble */
-    virtual void load(const GObject *);
-    /** @brief Creates a deep copy of this class */
-    virtual GObject *clone() const;
-
-    /** @brief Retrieves the lower boundary */
-    double getLowerBoundary() const throw();
-    /** @brief Retrieves the upper boundary */
-    double getUpperBoundary() const throw();
-
-    /** @brief Automatic conversion to a double */
-    operator double ();
-
-    /** @brief Mutates this object */
-    virtual void mutate();
-
-	/** @brief The actual transfer from internal to external value */
-	double calculateExternalValue(const double&);
-
-	/** @brief Retrieves the internal representation of our value */
-	double getInternalValue() const throw();
-
-  private:
-    /** @brief Sets the external value. Use operator=(double) instead. */
-	double setExternalValue(const double&);
-
-    double lowerBoundary_, upperBoundary_; ///< The upper and lower allowed boundaries for our external value
-    double internalValue_; ///< The internal representation of this classes value
-  };
+typedef GBoundedNumT<double> GBoundedDouble;
 
   /******************************************************************************/
 

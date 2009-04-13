@@ -1,0 +1,513 @@
+/**
+ * @file GBoundedNumT.hpp
+ */
+
+/* Copyright (C) 2004-2009 Dr. Ruediger Berlich
+ * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+ *
+ * This file is part of Geneva, Gemfony scientific's optimization library.
+ *
+ * Geneva is free software: you can redistribute it and/or modify
+ * it under the terms of version 3 of the GNU Affero General Public License
+ * as published by the Free Software Foundation.
+ *
+ * Geneva is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// Standard headers go here
+#include <vector>
+#include <sstream>
+#include <cmath>
+#include <typeinfo>
+
+// Boost headers go here
+#include <boost/version.hpp>
+#include "GGlobalDefines.hpp"
+#if BOOST_VERSION < ALLOWED_BOOST_VERSION
+#error "Error: Boost has incorrect version !"
+#endif /* BOOST_VERSION */
+
+#include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
+#include <boost/cast.hpp> // For boost::numeric_cast<>
+
+#ifndef GBOUNDEDNUMT_HPP_
+#define GBOUNDEDNUMT_HPP_
+
+// GenEvA headers go here
+#include "GParameterBaseWithAdaptorsT.hpp"
+#include "GParameterT.hpp"
+#include "GObject.hpp"
+#include "GLogger.hpp"
+#include "GenevaExceptions.hpp"
+
+namespace Gem
+{
+namespace GenEvA
+{
+
+/******************************************************************************/
+/* The GBoundedNumT class represents a numeric value, such as an int or a double,
+ * equipped with the ability to mutate itself. The value range can have an upper and a lower
+ * limit. The range has to be set during the initial creation. Once set, it cannot
+ * be changed anymore. Mutated values will only appear inside the given range to
+ * the user, while they are internally representated as a continuous range of values.
+ * Note that appropriate adaptors (see e.g the GDoubleGaussAdaptor class) need
+ * to be loaded in order to benefit from the mutation capabilities. Note that this
+ * class intentionally does not provide an ability to reset the upper and lower
+ * boundaries, due to the intended usage of this class in the GBoundedNumWithGapsT
+ * class. An ability to reset the boundaries would make implementation really
+ * difficult. Just recreate a new GBoundedNumT object with different values
+ * instead.
+ */
+template <typename T>
+class GBoundedNumT
+:public GParameterT<T>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int version){
+		using boost::serialization::make_nvp;
+		ar & make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T> >(*this));
+		ar & make_nvp("internalValue_", internalValue_);
+		ar & make_nvp("lowerBoundary_", lowerBoundary_);
+		ar & make_nvp("upperBoundary_", upperBoundary_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/****************************************************************************/
+	/**
+	 * The default constructor. As this class uses the adaptor scheme
+	 * (see GTemplateAdaptor<T>), you will need to add your own adaptors,
+	 * such as the GDoubleGaussAdaptor. This function is a trap. Use one of the
+     * provided specializations instead.
+	 */
+	GBoundedNumT()
+		:GParameterT<T>(T(0)),
+		 lowerBoundary_(T(0)),
+		 upperBoundary_(T(1)),
+		 internalValue_(T(0))
+	{
+		std::ostringstream error;
+		error << "In GBoundedNumT<T>::GBoundedNumT(): Error!" << std::endl
+				 << "This class seems to have been instantiated with types" << std::endl
+				 << "it was not designed for:" << std::endl
+				 << "typeid(T).name() = " << typeid(T).name() << std::endl;
+
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
+	/****************************************************************************/
+    /**
+     * Initializes the boundaries and sets the external value to a random number
+     * inside the allowed value range. This function is a trap. Use one of the
+     * provided specializations instead.
+     *
+     * @param lowerBoundary The lower boundary of the value range
+     * @param upperBoundary The upper boundary of the value range
+     */
+	GBoundedNumT(const T& lowerBoundary, const T& upperBoundary)
+		:GParameterT<T>(T(0)),
+		 lowerBoundary_(lowerBoundary),
+		 upperBoundary_(upperBoundary),
+		 internalValue_(T(0))
+	{
+		std::ostringstream error;
+		error << "In GBoundedNumT<T>::GBoundedNumT(const T&, const T&): Error!" << std::endl
+		<< "This class seems to have been instantiated with types" << std::endl
+		<< "it was not designed for:" << std::endl
+		<< "typeid(T).name() = " << typeid(T).name() << std::endl;
+
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
+	/****************************************************************************/
+	/**
+	 * Initialize with a given value and the allowed value range.
+	 *
+	 * @param val Initialisation value
+	 * @param lowerBoundary The lower boundary of the value range
+     * @param upperBoundary The upper boundary of the value range
+	 */
+	GBoundedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary)
+		:GParameterT<T>(T(0)),
+		 lowerBoundary_(lowerBoundary),
+		 upperBoundary_(upperBoundary),
+		 internalValue_(T(0))
+	{
+		setExternalValue(val);
+	}
+
+	/****************************************************************************/
+	/**
+	 * A standard copy constructor. Most work is done by the parent
+	 * classes, we only need to copy the internal value and the allowed
+	 * value range.
+	 *
+	 * @param cp Another GBoundedNumT<T> object
+	 */
+	GBoundedNumT(const GBoundedNumT<T>& cp)
+		:GParameterT<T>(cp),
+		 lowerBoundary_(cp.lowerBoundary_),
+		 upperBoundary_(cp.upperBoundary_),
+		 internalValue_(cp.internalValue_)
+	{ /* nothing */ }
+
+	/****************************************************************************/
+	/**
+	 * A standard destructor. No local, dynamically allocated data,
+	 * hence nothing to do.
+	 */
+	virtual ~GBoundedNumT()
+	{ /* nothing */ }
+
+	/****************************************************************************/
+	/**
+	 * A standard assignment operator for GBoundedNumT<T> objects
+	 *
+	 * @param cp A constant reference to another GBoundedNumT<T> object
+	 * @return A constant reference to this object
+	 */
+	const GBoundedNumT<T>& operator=(const GBoundedNumT<T>& cp) {
+		GBoundedNumT<T>::load(&cp);
+		return *this;
+	}
+
+	/****************************************************************************/
+	/**
+	 * A standard assignment operator for T values. Note that this function
+	 * will throw an exception if the new value is not in the allowed value range.
+	 *
+	 * @param The desired new external value
+	 * @return The new external value of this object
+	 */
+	virtual T operator=(const T& val) {
+		this->setExternalValue(val);
+		return this->value();
+	}
+
+	/****************************************************************************/
+    /**
+     * Checks equality of this object with another.
+     *
+     * @param cp A constant reference to another GBoundedNumT<T> object
+     * @return A boolean indicating whether both objects are equal
+     */
+	bool operator==(const GBoundedNumT<T>& cp) const {
+    	return GBoundedNumT<T>::isEqualTo(cp);
+	}
+
+	/****************************************************************************/
+    /**
+     * Checks inequality of this object with another.
+     *
+     * @param cp A constant reference to another GBoundedNumT<T> object
+     * @return A boolean indicating whether both objects are inequal
+     */
+	bool operator!=(const GBoundedNumT<T>& cp) const {
+    	return !GBoundedNumT<T>::isEqualTo(cp);
+	}
+
+	/****************************************************************************/
+    /**
+     * Checks equality of this object with another.
+     *
+     * @param cp A constant reference to another GBoundedNumT<T> object
+     * @return A boolean indicating whether both objects are equal
+     */
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GBoundedNumT<T> reference
+		const GBoundedNumT<T> *gbnt_load = GObject::conversion_cast(&cp,  this);
+
+    	// Check the parent class'es equality
+    	if(!GParameterT<T>::isEqualTo(*gbnt_load)) { // [1]
+#ifdef GENEVATESTING
+		std::cout << "Inequality in GBoundedNumT<T>::[1]" << std::endl
+						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
+#endif /* GENEVATESTING */
+    		return false;
+    	}
+
+    	// Check our local data
+    	if(lowerBoundary_ != gbnt_load->lowerBoundary_) { // [2]
+#ifdef GENEVATESTING
+		std::cout << "Inequality in GBoundedNumT<T>::[2]" << std::endl
+		                << "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
+#endif /* GENEVATESTING */
+    		return false;
+    	}
+    	if(upperBoundary_ != gbnt_load->upperBoundary_) { // [3]
+#ifdef GENEVATESTING
+		std::cout << "Inequality in GBoundedNumT<T>::[3]" << std::endl
+					    << "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
+#endif /* GENEVATESTING */
+    		return false;
+    	}
+		if(internalValue_ != gbnt_load->internalValue_) { // [4]
+#ifdef GENEVATESTING
+		std::cout << "Inequality in GBoundedNumT<T>::[4]" << std::endl
+					    << "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
+#endif /* GENEVATESTING */
+			return false;
+		}
+
+    	return true;
+	}
+
+	/****************************************************************************/
+    /**
+     * Checks similarity of this object with another. This function has a
+     * specialization for typeof(T) == typeof(double).
+     *
+     * @param cp A constant reference to another GBoundedNumT<T> object
+     * @param limit The acceptable different between two doubles
+     * @return A boolean indicating whether both objects are similar to each other
+     */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GBoundedNumT<T> reference
+		const GBoundedNumT<T> *gbnt_load = GObject::conversion_cast(&cp,  this);
+
+    	// Check the parent class'es similarity
+    	if(!GParameterT<T>::isSimilarTo(*gbnt_load, limit)) { // [1]
+#ifdef GENEVATESTING
+		std::cout << "Dissimilarity in GBoundedNumT<T>::[1]" << std::endl
+						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
+#endif /* GENEVATESTING */
+    		return false;
+    	}
+
+    	// Check our local data
+    	if(lowerBoundary_  != gbnt_load->lowerBoundary_) { // [2]
+#ifdef GENEVATESTING
+		std::cout << "Dissimilarity in GBoundedNumT<T>::[2]" << std::endl
+						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
+#endif /* GENEVATESTING */
+    		return false;
+    	}
+    	if(upperBoundary_ != gbnt_load->upperBoundary_) { // [3]
+#ifdef GENEVATESTING
+		std::cout << "Dissimilarity in GBoundedNumT<T>::[3]" << std::endl
+						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
+#endif /* GENEVATESTING */
+    		return false;
+    	}
+		if(internalValue_ != gbnt_load->internalValue_) { // [4]
+#ifdef GENEVATESTING
+		std::cout << "Dissimilarity in GBoundedNumT<T>::[4]" << std::endl
+						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
+#endif /* GENEVATESTING */
+			return false;
+		}
+
+		return true;
+	}
+
+	/****************************************************************************/
+	/**
+	 * Loads the data of another GBoundedNumT<T>, camouflaged as a GObject.
+	 *
+	 * @param cp Another GBoundedNumT<T> object, camouflaged as a GObject
+	 */
+	virtual void load(const GObject *cp) {
+		// Convert GObject pointer to local format
+		const GBoundedNumT<T> *gbnt_load	= this->conversion_cast(cp, this);
+
+		// Load our parent class'es data ...
+		GParameterT<T>::load(cp);
+
+		// ... and then our own
+		lowerBoundary_ = gbnt_load->lowerBoundary_;
+		upperBoundary_ = gbnt_load->upperBoundary_;
+		internalValue_ = gbnt_load->internalValue_;
+	}
+
+	/****************************************************************************/
+	/**
+	 * Create a deep copy of this object. Basically this is a fabric function.
+	 *
+	 * @return A newly generated GBoundedNumT<T> copy of this object
+	 */
+	virtual GObject *clone() const {
+		return new GBoundedNumT<T>(*this);
+	}
+
+	/****************************************************************************/
+    /**
+     * Retrieves the lower boundary
+     *
+     * @return The value of the lower boundary
+     */
+	T getLowerBoundary() const throw() {
+    	return lowerBoundary_;
+	}
+
+	/****************************************************************************/
+    /**
+     * Retrieves the upper boundary
+     *
+     * @return The value of the upper boundary
+     */
+	T getUpperBoundary() const throw() {
+    	return upperBoundary_;
+	}
+
+	/****************************************************************************/
+	/**
+	 * This function allows automatic conversion from GBoundedNumT<T> to T..
+	 * This allows us to define only few operators, as the bulk of the work will be
+	 * done by automatic conversions done by the C++ compiler.
+	 */
+	operator T () {
+		return this->value();
+	}
+
+	/****************************************************************************/
+	/**
+	 * Mutates this object. It is the internal representation of the class'es value
+	 * that gets mutated. This value is then "translated" into the external value (stored
+	 * in GParameterT<T>, which is set accordingly.
+	 */
+	virtual void mutate() {
+		// First apply the mutation to the internal representation of our value
+		if(this->numberOfAdaptors() == 1){
+			this->applyFirstAdaptor(internalValue_);
+		}
+		else {
+			this->applyAllAdaptors(internalValue_);
+		}
+
+		// Then calculate the corresponding external value and set it accordingly
+		double externalValue = calculateExternalValue(internalValue_);
+
+		// Set the external value accordingly.
+		setExternalValue(externalValue);
+	}
+
+	/****************************************************************************/
+	/**
+	 * Does the actual mapping from internal to external value
+	 *
+	 * @param in The internal value that is to be converted to an external value
+	 * @return The externally visible representation of in
+	 */
+	T calculateExternalValue(const T& in) {
+		// Check the boundaries we've been given
+		if(upperBoundary_ <= lowerBoundary_){
+			std::ostringstream error;
+			error << "In GBoundedNumT<T>::calculateExternalValue()" << std::endl
+			<< "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
+			<< "Got invalid upper and/or lower boundaries" << std::endl
+			<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
+			<< "upperBoundary_ = " << upperBoundary_ << std::endl;
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_error_condition(error.str());
+		}
+
+		// Find out which region the value is in (compare figure transferFunction.pdf
+		// that should have been delivered with this software . Note that numeric_cast
+		// may throw - exceptions must be caught in surrounding functions.
+		boost::int32_t region =
+			boost::numeric_cast<boost::int32_t>(std::floor((double(in) - double(lowerBoundary_)) / (double(upperBoundary_) - double(lowerBoundary_))));
+
+			// Check whether we are in an odd or an even range and calculate the
+			// external value accordingly
+			double externalValue = 0.;
+			if(region%2 == 0){ // can it be divided by 2 ? Region 0,2,... or a negative even range
+				externalValue = in - region * (upperBoundary_ - lowerBoundary_);
+			}
+			else{ // Range 1,3,... or a negative odd range
+				externalValue = -in + ((region-1)*(upperBoundary_ - lowerBoundary_) + 2*upperBoundary_);
+			}
+
+			return T(externalValue);
+	}
+
+	/****************************************************************************/
+	/**
+	 * Retrieves the internal representation of our value
+	 *
+	 * @return The current value of internalValue_
+	 */
+	T getInternalValue() const throw() {
+		return internalValue_;
+	}
+
+private:
+	/****************************************************************************/
+	/**
+	 * Sets the internal value in such a way that the user-visible
+	 * value is set to "val". GBoundedNumT<T> performs a linear transformation
+	 * from inner to outer value inside of the value range.
+	 *
+	 * @param val The desired new external value
+	 * @return The former value
+	 */
+	T setExternalValue(const T& val) {
+		T previous = this->value();
+
+		// Check the lower an upper boundaries
+		if(upperBoundary_ <= lowerBoundary_){
+			std::ostringstream error;
+			error << "In GBoundedNumT<T>::setExternalValue() : Error!" << std::endl
+			<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+			<< "Got invalid upper and/or lower boundaries" << std::endl
+			<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
+			<< "upperBoundary_ = " << upperBoundary_ << std::endl;
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_error_condition(error.str());
+		}
+
+		// Check that the value is inside the allowed range
+		if(val < lowerBoundary_ || val > upperBoundary_){
+			std::ostringstream error;
+			error << "In GBoundedNumT<T>::setExternalValue() : Error!" << std::endl
+			<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+			<< "Attempt to set external value " << val << std::endl
+			<< "outside of allowed range " << "[" << lowerBoundary_ << ":" << upperBoundary_ << "]" << std::endl;
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_error_condition(error.str());
+		}
+
+		// The transfer function in this area is just f(x)=x, so we can just
+		// assign the external to the internal value.
+		internalValue_ = val;
+		this->setValue(val);
+
+		return previous;
+	}
+
+	/****************************************************************************/
+	T lowerBoundary_, upperBoundary_; ///< The upper and lower allowed boundaries for our external value
+	T internalValue_; ///< The internal representation of this class'es value
+};
+
+/******************************************************************************/
+// Specializations for some "allowed" types
+template <>  GBoundedNumT<double>::GBoundedNumT();
+template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT();
+template <> GBoundedNumT<double>::GBoundedNumT(const double&, const double&);
+template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&);
+template <> bool GBoundedNumT<double>::isSimilarTo(const GObject&, const double&) const;
+
+/******************************************************************************/
+
+} /* namespace GenEvA */
+} /* namespace Gem */
+
+#endif /* GBOUNDEDNUMT_HPP_ */
