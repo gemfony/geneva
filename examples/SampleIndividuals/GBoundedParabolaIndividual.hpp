@@ -86,27 +86,28 @@ public:
 	GBoundedParabolaIndividual(const std::size_t& sz, const double& min, const double& max, const boost::uint32_t& as){
 		// Set up a GBoundedDoubleCollection with sz values, each initialized
 		// with a random number in the range [min,max[
-		boost::shared_ptr<GBoundedDoubleCollection> gbdc(new GBoundedDoubleCollection());
+		boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
+
+		// Set up an adaptor so the GBoundedDouble objects know how to be mutated.
+		// If you want a separate adaptor for each double (and consequently separate "mutation adaption",
+		// then just put the following two lines into the for loop.
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.001, 0.1, 1));
+		gdga_ptr->setAdaptionThreshold(as);
 
 		// Set up and register GBoundedDouble objects in the desired value range
 		for(std::size_t i=0; i<sz; i++) {
-			// GBoundedDouble will iteself assign a random value in the desired value range
-			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(min, max));
+			// GBoundedDouble will start with value "max"
+			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(max, min, max));
 
-			// Set up and register an adaptor for the object, so it knows how to be mutated.
-			// We want a sigma of 1, a sigma-adaption of 0.001, a minimum sigma of 0.000001
-			// and a maximum sigma of 5.
-			boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(1.,0.001,0.000001,5));
-			gdga->setAdaptionThreshold(as);
-
-			gbd_ptr->addAdaptor(gdga);
+			// Register the adaptor
+			gbd_ptr->addAdaptor(gdga_ptr);
 
 			// Make the GBoundedDouble known to the collection
-			gbdc->push_back(gbd_ptr);
+			gbdc_ptr->push_back(gbd_ptr);
 		}
 
 		// Make the GBoundedDouble collection known to this individual
-		this->data.push_back(gbdc);
+		this->data.push_back(gbdc_ptr);
 	}
 
 	/********************************************************************************************/

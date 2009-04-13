@@ -65,8 +65,6 @@ enum distType {
 	CHARRND
 };
 
-const std::size_t NENTRIES=20000;
-
 template <class T>
 void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries){
 	Gem::Util::GRandom gr; // create our own local consumer
@@ -125,6 +123,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 }
 
 int main(int argc, char **argv){
+	Gem::Util::GRandom gr; // create our own local consumer
 	bool verbose;
 	std::size_t nEntries;
 	boost::uint16_t nProducerThreads;
@@ -190,7 +189,8 @@ int main(int argc, char **argv){
 		ofs << "  TH1I *discretewb = new TH1I(\"discretewb\",\"discretewb\",16,-4,11);" << std::endl;
 		ofs << "  TH1I *bitprob = new TH1I(\"bitprob\",\"bitprob\",4,-1,2);" << std::endl;
 		ofs << "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << std::endl;
-		ofs << "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl
+		ofs << "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl;
+		ofs << "  TH2F *evenCorrelation = new TH2F(\"evenCorrelation\",\"evenCorrelation\",100,-1.,1.,100,-1.,1.);" << std::endl
 			<< std::endl;
 
 		for(i=0; i<nEntries; i++){
@@ -238,6 +238,11 @@ int main(int argc, char **argv){
 		}
 		ofs << std::endl;
 
+		for(i=0; i<nEntries; i++){
+			ofs << "  evenCorrelation->Fill(" << gr.evenRandom(-1.,1.) << ", " << gr.evenRandom(-1.,1.)  << ");" << std::endl;
+		}
+		ofs << std::endl;
+
 		ofs << "  cc->cd(1);" << std::endl
 			<< "  gauss->Draw();" << std::endl
 			<< "  cc->cd(2);" << std::endl
@@ -256,6 +261,8 @@ int main(int argc, char **argv){
 			<< "  bitsimple->Draw();" << std::endl
 			<< "  cc->cd(9);" << std::endl
 			<< "  charrnd->Draw();" << std::endl
+			<< "  cc->cd(10);" << std::endl
+			<< "  evenCorrelation->Draw(\"contour\");" << std::endl
 			<< "  cc->cd();" << std::endl;
 		ofs	<< "}" << std::endl;
 

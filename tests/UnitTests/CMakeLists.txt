@@ -9,6 +9,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GBooleanCollection_test
 	GBoostThreadPopulation_test
 	GBoundedDouble_test
+	GBoundedInt32_test
 	GBrokerPopulation_test
 	GDataExchange_test
 	GDoubleCollection_test
@@ -21,6 +22,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GParameterSet_test
 	GParameterT_test
 	GParameterTCollectionT_test
+	GRandom_test
 )
 	
 ADD_EXECUTABLE(${EXECUTABLENAME}

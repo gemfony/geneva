@@ -31,3 +31,6 @@
   specializations for "forbidden" types
 - Check GRandom in unit tests (e.g.: discreteRandom never returns the upper boundary. Also needed
   for GBoundedInt32 aka GBoundedNumT<boost::int32_t> .
+- Check how often the GRandomFactory queue is empty or full. Automatic adaption of number of threads ?
+- Implement a chi-square test for the randomness of our generator, as a basic means of ensuring that 
+  our random number generator does the right thing.
