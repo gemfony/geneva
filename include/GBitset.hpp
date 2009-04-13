@@ -2,7 +2,7 @@
  * @file GBitset.hpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
+/* Copyright (C) 2004-2009 Dr. Ruediger Berlich
  * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
@@ -46,7 +46,7 @@ namespace GenEvA {
 
 /***********************************************************************************************/
 /**
- * A wrapper for a std::bitset
+ * A wrapper for a std::bitset. The size of the bitset is set via the template parameter "N"
  */
 template <class N>
 class GBitset
@@ -58,8 +58,8 @@ class GBitset
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterBaseWithAdaptorsT_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<bool> >(*this));
-		ar & make_nvp("data_T", data);
+		ar & make_nvp("GParameterBaseWithAdaptorsT_bool", boost::serialization::base_object<GParameterBaseWithAdaptorsT<bool> >(*this));
+		ar & make_nvp("data", data);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -69,8 +69,8 @@ public:
 	 * The default constructor
 	 */
 	GBitset() :
-		GParameterBaseWithAdaptorsT<bool> () { /* nothing */
-	}
+		GParameterBaseWithAdaptorsT<bool> ()
+	{ /* nothing */ }
 
 	/*******************************************************************************************/
 	/**
@@ -79,7 +79,8 @@ public:
 	 * @param cp A copy of another GBitset<N> object
 	 */
 	GBitset(const GBitset<N>& cp) :
-		GParameterBaseWithAdaptorsT<bool> (cp) {
+		GParameterBaseWithAdaptorsT<bool> (cp)
+	{
 		typename std::vector<T>::const_iterator cit;
 		for (cit = cp.data.begin(); cit != cp.data.end(); ++cit) data.push_back(*cit);
 	}
@@ -102,6 +103,65 @@ public:
 	{
 		GBitset<N>::load(cp);
 		return *this;
+	}
+
+	/******************************************************************/
+	/**
+	 * Checks for equality with another GBitSet<N> object
+	 *
+	 * @param  cp A constant reference to another GBitSet<N> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GBitSet<N>& cp) const {
+		return GBitSet<N>::isEqualTo(cp);
+	}
+
+	/******************************************************************/
+	/**
+	 * Checks for inequality with another GBitSet<N> object
+	 *
+	 * @param  cp A constant reference to another GBitSet<N> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GBitSet<N>& cp) const {
+		return !GBitSet<N>::isEqualTo(cp);
+	}
+
+	/******************************************************************/
+	/**
+	 * Checks for equality with another GBitSet<N> object..
+	 *
+	 * @param  cp A constant reference to another GBitSet<N> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GNumCollectionT reference
+		const GBitSet<N> *gbs_load = GObject::conversion_cast(&cp,  this);
+
+		// Check equality of the parent class
+		if(!GParameterCollectionT<T>::isEqualTo(*gbs_load)) return false;
+
+
+
+		return true;
+	}
+
+	/******************************************************************/
+	/**
+	 * Checks for similarity with another GBitSet<N> object.
+	 * As we have no local data, we just check for equality of the parent class.
+	 *
+	 * @param  cp A constant reference to another GBitSet<N> object
+	 * @param limit A double value specifying the acceptable level of differences of floating point values
+	 * @return A boolean indicating whether both objects are similar to each other
+	 */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+		// Check that we are indeed dealing with a GNumCollectionT reference
+		const GBitSet<N> *gnct_load = GObject::conversion_cast(&cp,  this);
+
+		// Check similarity of the parent class
+		if(!GParameterCollectionT<T>::isSimilarTo(*gnct_load, limit)) return false;
+		return true;
 	}
 
 	/*******************************************************************************************/
