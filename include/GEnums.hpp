@@ -39,7 +39,12 @@
 
 namespace Gem {
 namespace GenEvA {
-  /**
+/**
+ * The allowed modes during data exchange with external programs
+ */
+	enum dataExchangeMode {BINARYEXCHANGE=0, TEXTEXCHANGE=1};
+
+/**
    * The serialization modes that are currently allowed
    */
   enum serializationMode {TEXTSERIALIZATION=0, XMLSERIALIZATION=1, BINARYSERIALIZATION=2};

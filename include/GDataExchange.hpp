@@ -82,8 +82,9 @@ namespace Util
  * the Geneva library. It allows to store and load parameters particular to a given
  * individual. Particular storage formats can be re-defined in derived classes
  * in order to accommodate "foreign" exchange formats. The class itself only
- * implements a very simple format, where all data is stored as ASCII data
- * consecutively in a file.
+ * implements a very simple format, where all data is stored in ASCII or binary
+ * format consecutively in a file. For most purposes, however, the binary format
+ * should suffice.
  */
 class GDataExchange {
     ///////////////////////////////////////////////////////////////////////

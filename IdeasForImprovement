@@ -34,3 +34,5 @@
 - Check how often the GRandomFactory queue is empty or full. Automatic adaption of number of threads ?
 - Implement a chi-square test for the randomness of our generator, as a basic means of ensuring that 
   our random number generator does the right thing.
+- Create plots for Gauss mutation (the result of the adaptor) for unbounded and bounded doubles and ints.
+  Need to check possible distortions of the gaussian at the "edges" of a variable's allowed data range.

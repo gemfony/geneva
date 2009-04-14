@@ -60,6 +60,40 @@ template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT()
 }
 
 /***********************************************************************************************/
+	/**
+	 * A constructor that initializes the external value only. The boundaries will
+	 * be set to the maximum and minimum values of the double type.
+	 *
+	 * @param val The desired external value of this object
+	 */
+template <> GBoundedNumT<double>::GBoundedNumT(const double& val)
+	:GParameterT<double>(0.),
+	 lowerBoundary_(-std::numeric_limits<double>::max()),
+	 upperBoundary_(std::numeric_limits<double>::max()),
+	 internalValue_(0.)
+{
+		// This function also sets the internalValue_ variable.
+		setExternalValue(val);
+}
+
+/***********************************************************************************************/
+/**
+ * A constructor that initializes the external value only. The boundaries will
+ * be set to the maximum and minimum values of the boost::int32_t type.
+ *
+ * @param val The desired external value of this object
+ */
+template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& val)
+	:GParameterT<boost::int32_t>(0),
+	 lowerBoundary_(std::numeric_limits<boost::int32_t>::min()),
+	 upperBoundary_(std::numeric_limits<boost::int32_t>::max()),
+	 internalValue_(0)
+{
+		// This function also sets the internalValue_ variable.
+		setExternalValue(val);
+}
+
+/***********************************************************************************************/
 /**
  * Initializes the boundaries and sets the external value to a random number
  * inside the allowed value range.  Specialization for typeof(T) == typeof(double)

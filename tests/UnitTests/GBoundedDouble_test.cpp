@@ -60,12 +60,27 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_no_failure_expected )
 	GBoundedDouble gbd0;
 	GBoundedDouble gbd1(-10,10);
 	GBoundedDouble gbd2(1.,-10,10);
+	GBoundedDouble gbd7(3); // has boundaries MAX_DBL, -MAX_DBL
 	GBoundedDouble gbd3(gbd2);
 
 	BOOST_CHECK(gbd3 == gbd2);
 	BOOST_CHECK(gbd2 != gbd1);
 	BOOST_CHECK(gbd2 != gbd0);
 	BOOST_CHECK(gbd1 != gbd0);
+	BOOST_CHECK(gbd7 != gbd0);
+
+	// Check that value calculation works repeatedly. Internal value should be == external value for gbd7
+	GBoundedDouble gbd8(-10000.,10000.);
+	const std::size_t NCHECKS=10000;
+	for(std::size_t i=0; i<NCHECKS; i++) {
+		double in=-5000.+10000.*double(i)/double(NCHECKS), out = 0.;
+		BOOST_CHECK_NO_THROW(out = gbd8.calculateExternalValue(in)); // PROBLEM: DBL_MAX - DBL_MIN in calculateExternalValue(in)
+		BOOST_CHECK(in==out);
+	}
+	// Try resetting the boundaries to a finite value (which includes the current external value)
+	BOOST_CHECK_NO_THROW(gbd7.setBoundaries(-6000.,6000));
+	BOOST_CHECK_NO_THROW(gbd7 = 10);
+	BOOST_CHECK_NO_THROW(gbd7.setBoundaries(-10.,10.));
 
 	// (Repeated) assignment
 	GBoundedDouble gbd3_2;
@@ -91,6 +106,17 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_no_failure_expected )
 	BOOST_CHECK(!gbd5.isEqualTo(gbd3));
 	BOOST_CHECK(gbd5.getLowerBoundary() ==  -10.);
 	BOOST_CHECK(gbd5.getUpperBoundary() ==  10.);
+
+	// Check resetting of boundaries
+	BOOST_CHECK_NO_THROW(gbd5.setBoundaries(-8.,8.));
+	BOOST_CHECK(gbd5.getLowerBoundary() ==  -8.);
+	BOOST_CHECK(gbd5.getUpperBoundary() ==  8.);
+	BOOST_CHECK(gbd5.value() == 2); // Should have stayed the same
+	// Set back to the old value
+	BOOST_CHECK_NO_THROW(gbd5.setBoundaries(-10.,10.));
+	BOOST_CHECK(gbd5.getLowerBoundary() ==  -10.);
+	BOOST_CHECK(gbd5.getUpperBoundary() ==  10.);
+	BOOST_CHECK(gbd5.value() == 2); // Should have stayed the same
 
 	// Test automatic conversion to double
 	double val=0.;
@@ -168,11 +194,22 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_failures_expected )
 	GRandom gr;
 
 	// Assignment of value outside of the allowed range
-	GBoundedDouble gbd(-10,10.);
-	BOOST_CHECK_THROW(gbd=11., Gem::GenEvA::geneva_error_condition);
+	{
+		GBoundedDouble gbd(-10,10.);
+		BOOST_CHECK_THROW(gbd=11., Gem::GenEvA::geneva_error_condition);
+	}
+
+	// Setting boundaries so that the value lies outside of the new boundaries should throw
+	{
+		GBoundedDouble gbd(10); // Has boundaries -DBL_MAX, DBL_MAX
+		BOOST_CHECK_THROW(gbd.setBoundaries(-7, 7), Gem::GenEvA::geneva_error_condition);
+	}
 
 	// Self assignment should throw
-	BOOST_CHECK_THROW(gbd.load(&gbd), Gem::GenEvA::geneva_error_condition);
+	{
+		GBoundedDouble gbd(-10,10.);
+		BOOST_CHECK_THROW(gbd.load(&gbd), Gem::GenEvA::geneva_error_condition);
+	}
 }
 /***********************************************************************************/
 

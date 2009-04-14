@@ -192,8 +192,8 @@ void GDataExchange::reset() {
 void GDataExchange::resetAll() {
 	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator it;
 	for(it=parameterValueSet_.begin(); it!=parameterValueSet_.end(); ++it)	(*it)->reset();
-	current_ = parameterValueSet_.begin();
 	parameterValueSet_.resize(1);
+	current_ = parameterValueSet_.begin();
 }
 
 /**************************************************************************/

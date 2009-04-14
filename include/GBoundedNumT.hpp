@@ -25,6 +25,7 @@
 #include <sstream>
 #include <cmath>
 #include <typeinfo>
+#include <limits>
 
 // Boost headers go here
 #include <boost/version.hpp>
@@ -37,6 +38,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/cast.hpp> // For boost::numeric_cast<>
+#include <boost/limits.hpp>
 
 #ifndef GBOUNDEDNUMT_HPP_
 #define GBOUNDEDNUMT_HPP_
@@ -56,16 +58,10 @@ namespace GenEvA
 /******************************************************************************/
 /* The GBoundedNumT class represents a numeric value, such as an int or a double,
  * equipped with the ability to mutate itself. The value range can have an upper and a lower
- * limit. The range has to be set during the initial creation. Once set, it cannot
- * be changed anymore. Mutated values will only appear inside the given range to
- * the user, while they are internally representated as a continuous range of values.
- * Note that appropriate adaptors (see e.g the GDoubleGaussAdaptor class) need
- * to be loaded in order to benefit from the mutation capabilities. Note that this
- * class intentionally does not provide an ability to reset the upper and lower
- * boundaries, due to the intended usage of this class in the GBoundedNumWithGapsT
- * class. An ability to reset the boundaries would make implementation really
- * difficult. Just recreate a new GBoundedNumT object with different values
- * instead.
+ * limit.  Mutated values will only appear inside the given range to the user, while they are
+ * internally represented as a continuous range of values. Note that appropriate adaptors
+ * (see e.g the GDoubleGaussAdaptor class) need to be loaded in order to benefit from the
+ * mutation capabilities.
  */
 template <typename T>
 class GBoundedNumT
@@ -100,6 +96,29 @@ public:
 	{
 		std::ostringstream error;
 		error << "In GBoundedNumT<T>::GBoundedNumT(): Error!" << std::endl
+				 << "This class seems to have been instantiated with types" << std::endl
+				 << "it was not designed for:" << std::endl
+				 << "typeid(T).name() = " << typeid(T).name() << std::endl;
+
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
+	/****************************************************************************/
+	/**
+	 * A constructor that initializes the external value only. The boundaries will
+	 * be set to the maximum and minimum values of the corresponding type.
+	 * This function is a trap. Use one of the provided specializations instead.
+	 *
+	 * @param val The desired external value of this object
+	 */
+	explicit GBoundedNumT(const T& val)
+		:GParameterT<T>(T(0)),
+		 lowerBoundary_(T(0)),
+		 upperBoundary_(T(1)),
+		 internalValue_(T(0))
+	{
+		std::ostringstream error;
+		error << "In GBoundedNumT<T>::GBoundedNumT(const T&): Error!" << std::endl
 				 << "This class seems to have been instantiated with types" << std::endl
 				 << "it was not designed for:" << std::endl
 				 << "typeid(T).name() = " << typeid(T).name() << std::endl;
@@ -193,7 +212,7 @@ public:
 	 */
 	virtual T operator=(const T& val) {
 		this->setExternalValue(val);
-		return this->value();
+		return val;
 	}
 
 	/****************************************************************************/
@@ -363,6 +382,50 @@ public:
 
 	/****************************************************************************/
 	/**
+	 * Sets the boundaries of this object and does corresponding
+	 * error checks. If the current value is below or above the new
+	 * boundaries, this function will throw. Set the external value to
+	 * a new value between the new boundaries before calling this
+	 * function.
+	 *
+	 * @param lower The new lower boundary for this object
+	 * @param upper The new upper boundary for this object
+	 */
+	void setBoundaries(const T& lower, const T& upper) {
+		T currentValue = this->value();
+
+		// Check that the boundaries make sense
+		if(lower >= upper) {
+			std::ostringstream error;
+			error << "In GBoundedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
+				     << "with typeid(T).name() = " << typeid(T).name() << " : Error" << std::endl
+				     << "Lower and/or upper boundary has invalid value : " << lower << " " << upper << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		// Check that the value is inside the allowed range
+		if(currentValue < lowerBoundary_ || currentValue > upperBoundary_){
+			std::ostringstream error;
+			error << "In GBoundedNumT<T>::setBoundaries(const T&, const T&) : Error!" << std::endl
+				      << "with typeid(T).name() = " << typeid(T).name() << std::endl
+				      << "Attempt to set new boundaries [" << lowerBoundary_ << ":" << upperBoundary_ << "]" << std::endl
+				      << "with existing value  " << currentValue << " outside of this range." << std::endl;
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_error_condition(error.str());
+		}
+
+		lowerBoundary_ = lower;
+		upperBoundary_ = upper;
+
+		// Restore the original external value
+		this->setExternalValue(currentValue);
+	}
+
+	/****************************************************************************/
+	/**
 	 * This function allows automatic conversion from GBoundedNumT<T> to T..
 	 * This allows us to define only few operators, as the bulk of the work will be
 	 * done by automatic conversions done by the C++ compiler.
@@ -414,6 +477,8 @@ public:
 			// is caught through a base object, no information is lost.
 			throw geneva_error_condition(error.str());
 		}
+
+
 
 		// Find out which region the value is in (compare figure transferFunction.pdf
 		// that should have been delivered with this software . Note that numeric_cast
@@ -501,6 +566,8 @@ private:
 // Specializations for some "allowed" types
 template <>  GBoundedNumT<double>::GBoundedNumT();
 template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT();
+template <> GBoundedNumT<double>::GBoundedNumT(const double&);
+template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t&);
 template <> GBoundedNumT<double>::GBoundedNumT(const double&, const double&);
 template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&);
 template <> bool GBoundedNumT<double>::isSimilarTo(const GObject&, const double&) const;

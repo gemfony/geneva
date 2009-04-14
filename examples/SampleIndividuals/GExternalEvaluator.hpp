@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <vector>
 #include <iostream>
+#include <string>
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
@@ -52,6 +53,7 @@
 #include "GInt32FlipAdaptor.hpp"
 #include "GCharFlipAdaptor.hpp"
 #include "GDataExchange.hpp"
+#include "GEnums.hpp"
 
 namespace Gem
 {
@@ -65,11 +67,11 @@ namespace GenEvA
  * structure of the individual is determined from information given by the external
  * program. Currently double-, bool-, boost::int32_t- and char-values are allowed.
  *
- * External programs should understand the following arguments:
+ * External programs should understand the following command line arguments
  * -i / --initialize : gives the external program the opportunity to do any needed
  *                          preliminary work (e.g. downloading files, setting up directories, ...)
  * -f / -- finilize :   Allows the external program to clean up after work. Compare the -i switch.
- * -p / --paramfile : The name of the file through which data is exchanged
+ * -p / --paramfile <filename>: The name of the file through which data is exchanged
  *     This switch is needed for the following options:
  *     -t / --template: asks the external program to write a description of the individual
  *                               into paramfile (e.g. program -t -p <filename> ).
@@ -78,9 +80,14 @@ namespace GenEvA
  *                         It will not be read in by this individual, but allows the user to examine
  *                         the results. The input data needed to create the result file is contained
  *                         in the parameter file. Calls will be done like this: "program -r -p <filename>"
- * If the "-p <filename>" switch is used without any further arguments, the external program
- * is expected to perform a value calculation, based on the data in the parameterfile and
+ * If the "-p <filename>" switch is used without any additional switches, the external program
+ * is expected to perform a value calculation, based on the data in the parameter file and
  * to emit the result into the same file.
+ * The following switch affects the desired transfer mode between external program
+ * and this individual.
+ * -m / --transferMode=<number>
+ *     0 means binary mode (the default, if --transferMode is not used)
+ *     1 means text mode
  */
 class GExternalEvaluator
 	:public GParameterSet
@@ -96,6 +103,9 @@ class GExternalEvaluator
 		ar & make_nvp("fileName_", fileName_);
 		ar & make_nvp("arguments_", arguments_);
 		ar & make_nvp("nEvaluations_", nEvaluations_);
+		ar & make_nvp("exchangeMode_", exchangeMode_);
+		ar & make_nvp("maximize_", maximize_);
+		ar & make_nvp("parameterFile_", parameterFile_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -111,12 +121,20 @@ public:
 	 * @param fileName The filename (including path) of the external program that should be executed
 	 * @param arguments Additional user-defined arguments to be handed to the external program
 	 */
-	GExternalEvaluator(const std::string& fileName, const std::string& arguments)
+	GExternalEvaluator(const std::string& fileName, const std::string& arguments, bool random=false)
 		:fileName_(fileName),
 		 arguments_(arguments),
-		 nEvaluations_(1)
+		 nEvaluations_(1),
+		 exchangeMode_(Gem::GenEvA::BINARYEXCHANGE),
+		 maximize_(false),
+		 parameterFile_("./parameterData")
 	{
-		// todo: get data from external program.
+		// Tell the external program to send us a template with the structure of the individual
+		std::string commandLine = fileName + "-t " +(random?std::string("-R"):std::string("")) + " -p " + parameterFile;
+		if(!arguments.empty() && arguments != "empty") commandLine += arguments;
+
+
+		// todo: get template from external program.
 	}
 
 	/********************************************************************************************/
@@ -127,7 +145,10 @@ public:
 		:GParameterSet(cp),
 		 fileName_(cp.fileName_),
 		 arguments_(cp.arguments_),
-		 nEvaluations_(cp.nEvaluations_)
+		 nEvaluations_(cp.nEvaluations_),
+		 exchangeMode_(cp.exchangeMode_),
+		 maximize_(cp.maximize_),
+		 parameterFile_(cp.parameterFile_)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -136,6 +157,49 @@ public:
 	 */
 	~GExternalEvaluator()
 	{ /* nothing */	}
+
+	/********************************************************************************************/
+	/**
+	 * Asks the external program to perform any necessary initialization work. To be called
+	 * from outside this class. It has been made a static member in order to centralize all
+	 * external communication in this class.
+	 *
+	 * 	@param fileName The filename (including path) of the external program that should be executed
+	 * @param arguments Additional user-defined arguments to be handed to the external program
+	 */
+	static void initialize(const std::string& fileName, const std::string& arguments) {
+		if(fileName.empty() || fileName == "empty") {
+			std::ostringstream error;
+			error << "In GExternalEvaluator::initialize : received bad filename" << std::endl;
+			throw (Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		std::string commandLine = fileName + "-i ";
+		if(!arguments.empty() && arguments != "empty") commandLine += arguments;
+
+		system(commandLine.c_str());
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Asks the external program to perform any necessary finalization work. It has been
+	 * made a static member in order to centralize all external communication in this class.
+	 *
+	 * 	@param fileName The filename (including path) of the external program that should be executed
+	 * @param arguments Additional user-defined arguments to be handed to the external program
+	 */
+	static void finalize(const std::string& fileName, const std::string& arguments) {
+		if(fileName.empty() || fileName == "empty") {
+			std::ostringstream error;
+			error << "In GExternalEvaluator::initialize : received bad filename" << std::endl;
+			throw (Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		std::string commandLine = fileName + "-f ";
+		if(!arguments.empty() && arguments != "empty") commandLine += arguments;
+
+		system(commandLine.c_str());
+	}
 
 	/********************************************************************************************/
 	/**
@@ -172,6 +236,9 @@ public:
 		fileName_ = gei_load->fileName_;
 		arguments_ = gei_load->arguments_;
 		nEvaluations_ = gei_load->nEvaluations_;
+		exchangeMode_ = gei_load->exchangeMode_;
+		maximize_ = gei_load->maximize_;
+		parameterFile_ = gei_load->parameterFile_;
 	}
 
 	/********************************************************************************************/
@@ -214,6 +281,9 @@ public:
 		if(fileName_ != gev_load->fileName_) return false;
 		if(arguments_ != gev_load->arguments_) return false;
 		if(nEvaluations_ != gev_load->nEvaluations_) return false;
+		if(exchangeMode_ != gev_load->exchangeMode_) return false;
+		if(maximize_ != gev_load->maximize_) return false;
+		if(parameterFile_ != gev_load->parameterFile_) return false;
 
 		return true;
 	}
@@ -238,6 +308,9 @@ public:
 		if(fileName_ != gev_load->fileName_) return false;
 		if(arguments_ != gev_load->arguments_) return false;
 		if(nEvaluations_ != gev_load->nEvaluations_) return false;
+		if(exchangeMode_ != gev_load->exchangeMode_) return false;
+		if(maximize_ != gev_load->maximize_) return false;
+		if(parameterFile_ != gev_load->parameterFile_) return false;
 
 		return true;
 	}
@@ -260,6 +333,81 @@ public:
 	 */
 	boost::uint32_t getNEvaluations() {
 		return nEvaluations_;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Sets the exchange mode between this individual and the external program. Allowed
+	 * values are defined in the dataExchangeMode enum. As this allows a comile-time check
+	 * of supplied arguments, no further error checks are needed.
+	 *
+	 * @param The current exchange mode for data
+	 * @return The previous exchange mode
+	 */
+	dataExchangeMode setDataExchangeMode(const dataExchangeMode& exchangeMode) {
+		dataExchangeMode current = exchangeMode_;
+		exchangeMode_ = exchangeMode;
+		return current;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Retrieves the current value of the exchangeMode_ variable.
+	 *
+	 * @return The current exchange mode
+	 */
+	dataExchangeMode getDataExchangeMode() {
+		return exchangeMode_;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Allows to specify whether smaller or larger values of this individual count as
+	 * better. Affects the sorting of multiple data sets handed to external programs.
+	 *
+	 * @param A boolean indicating whether we do maximization (true) or minimization (false)
+	 */
+	void setMaximize(const bool& maximize=true)	{
+		maximize_ = maximize;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Allows to determine whether smaller or larger values of this individual count as
+	 * better.
+	 *
+	 * @return A boolean indicating whether we do maximization (true) or minimization (false)
+	 */
+	bool getMaximize() {
+		return maximize_;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Sets the base name of the data exchange file. Note that the individual might add additional
+	 * characters in order to distinguish between the exchange files of different individuals.
+	 *
+	 * @param parameterFile The desired new base name of the exchange file
+	 */
+	void setExchangeFileName(const std::string& parameterFile) {
+		if(parameterFile.empty() || parameterFile == "empty") {
+			std::ostringstream error;
+			error << "In GExternalEvaluator::setExchangeFileName(): Error!" << std::endl
+				  << "Invalid file name \"" << parameterFile << "\"" << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+
+		parameterFile_ = parameterFile;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Retrieves the current value of the parameterFile_ variable.
+	 *
+	 * @return The current base name of the exchange file
+	 */
+	std::string getExchangeFileName() {
+		return parameterFile_;
 	}
 
 	/********************************************************************************************/
@@ -308,6 +456,8 @@ public:
 		// Initiate the result calculation
 		system(commandLine.c_str()); // It is not clear whether this is thread-safe
 	}
+
+	/********************************************************************************************/
 
 protected:
 	/********************************************************************************************/
@@ -378,20 +528,179 @@ private:
 	GExternalEvaluator()
 		:fileName_("unknown"),
 		 arguments_("empty"),
-		 nEvaluations_(1)
+		 nEvaluations_(1),
+		 exchangeMode_(Gem::GenEvA::BINARYEXCHANGE),
+		 maximize_(true)
 	{ /* nothing */ }
+
+	/********************************************************************************************/
+	/**
+	 * Writes the class'es data to a file. Note that, if the nEvaluations_ variable is set to a
+	 * value higher than 1, this function will create multiple, mutated copies of this
+	 * individual and add them to the output file. The goal is to allow external programs
+	 * to perform more than one evaluation in sequence, so the overhead incurred through
+	 * the frequent disc i/o is reduced.
+	 *
+	 * The structure of this individual is:
+	 * GBoundedDoubleCollection
+	 * GBoundedInt32Collection
+	 * GBooleanCollection
+	 * GCharObjectCollection
+	 *
+	 * @param fileName The name of the file to write to
+	 */
+	void writeToFile(const std::string& fileName) {
+		// Make sure we are dealing with a clean exchange module
+		gde.resetAll();
+
+		// Create nEvaluations_ data sets from this object
+		for(boost::uint32_t i=0; i<nEvaluations_; i++) {
+			boost::shared_ptr<GExternalEvaluator> p; // the additional object will vanish at the end of the loop
+
+			// More than one data set requested for evaluation ?
+			if(i>0) {
+				// Switch to a new page in the GDataExchange module
+				gde.newDataSet();
+
+				// Create a copy of this object and mutate it
+				p = boost::shared_ptr<GExternalEvaluation>(this->clone());
+				p->setAllowLazyEvaluation(true); // Prevent evaluation upon mutation
+				p->mutate(); // Make sure we do not evaluate the same parameter set
+			}
+
+			// Retrieve pointers to the four containers and add their data to the GDataExchange module
+
+			 // A GBoundedDoubleCollection can mostly be treated like a std::vector<boost::shared_ptr<GBoundedDouble> >
+			boost::shared_ptr<GBoundedDoubleCollection> gbdc;
+			if(i==0) {
+				gbdc = pc_at<GBoundedDoubleCollection>(0);
+			}
+			else {
+				gbdc = p->pc_at<GBoundedDoubleCollection>(0);
+			}
+			GBoundedDoubleCollection::iterator gbdc_it;
+			for(gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++gbdc_it) {
+				boost::shared_ptr<GDoubleParameter> dpar(new GDoubleParameter((*gbdc_it)->value(), (*gbdc_it)->getLowerBoundary(), (*gbdc_it)->getUpperBoundary()));
+				gde.append(dpar);
+			}
+
+
+			boost::shared_ptr<GBoundedInt32Collection> gbic;
+			if(i==0) {
+				gbic = pc_at<GBoundedInt32Collection>(1);
+			}
+			else {
+				gbdc = p->pc_at<GBoundedInt32Collection>(1);
+			}
+			GBoundedInt32Collection::iterator gbic_it;
+			for(gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++gbic_it) {
+				boost::shared_ptr<GLongParameter> ipar(new GLongParameter((*gbic_it)->value(), (*gbic_it)->getLowerBoundary(), (*gbic_it)->getUpperBoundary()));
+				gde.append(ipar);
+			}
+
+
+			boost::shared_ptr<GBooleanCollection> gbc;
+			if(i==0) {
+				gbc = pc_at<GBooleanCollection>(2);
+			}
+			else {
+				gbc = p->pc_at<GBooleanCollection>(2);
+			}
+			GBooleanCollection::iterator gbc_it;
+			for(gbc_it=gbc->begin(); gbc_it!=gbc->end(); ++gbc_it) {
+				boost::shared_ptr<GBoolParameter> bpar(new GBoolParameter(*gbc_it)); // no boundaries for booleans
+				gde.append(bpar);
+			}
+
+
+			boost::shared_ptr<GCharObjectCollection> gcoc;
+			if(i==0) {
+				gcoc = pc_at<GCharObjectCollection>(3);
+			}
+			else {
+				gcoc = p->pc_at<GCharObjectCollection>(3);
+			}
+			GCharObjectCollection::iterator gcoc_it;
+			for(gcoc_it=gcoc->begin(); gcoc_it!=gcoc->end(); ++gcoc_it) {
+				boost::shared_ptr<GCharParameter> cpar(new GCharParameter((*gcoc_it)->value())); // no boundaries for characters for now
+				gde.append(cpar);
+			}
+		}
+
+		// At this point all necessary data should have been stored in the GDataExchange module. We can now write it to file.
+		if(exchangeMode_ == BINARYEXCHANGE)	gde.writeToFile(fileName, true);
+		else gde.writeToFile(fileName, false); // TEXTEXCHANGE
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Reads the class'es data from a file and loads the best data set into the local
+	 * structures.
+	 *
+	 * @param fileName The name of the file to read from
+	 */
+	void readFromFile(const std::string& fileName) {
+		// Read in the data
+		if(exchangeMode_ == BINARYEXCHANGE)	gde.readFromFile(fileName,  true);
+		else gde.readFromFile(fileName, false); // TEXTEXCHANGE
+
+		// Switch to the best data set in the collection
+		if(maximize_) gde.switchToBestDataSet(false); // descending order
+		else gde.switchToBestDataSet(true); // ascending order
+
+		// Retrieve our current collection items, so we can load the exchange data back
+		boost::shared_ptr<GBoundedDoubleCollection> gbdc = pc_at<GBoundedDoubleCollection>(0);
+		// Get the sizes of both containers
+		std::size_t exchangeSize = gde.size<double>();
+		std::size_t collectionSize = gbdc->size();
+
+		// Copy the data over. As we can not rely on the fact that
+		// local and exchange-container have similar sizes, we need
+		// to do some more work
+		GBoundedDoubleCollection::iterator gbdc_it;
+		if(exchangeSize == collectionSize) { // The most frequent case, likely
+			// No need to check the upper bound of pos, as we already know that exchangeSize == collectionSize
+			for(std::size_t pos=0, gbdc_it=gbdc->begin(); gbdc_it!=gbdc.end(); ++pos, ++gbdc_it) {
+				boost::shared_ptr<GDoubleParameter> gdp_ptr = gdi.parameterSet_at<double>(pos);
+				boost::shared_ptr<GBoundedDouble> p;
+				if(gdp_ptr->hasBoundaries()) {
+					p = boost::shared_ptr<GBoundedDouble>(new GBoundedDouble(gdp_ptr->value(), gdp_ptr->getLowerBoundary(), gdp_ptr->getUpperBoundary()));
+				}
+				else {
+
+				}
+			}
+		}
+		else if(exchangeSize > collectionSize) {
+
+		}
+		else if(exchangeSize < collectionSize) {
+
+		}
+
+		boost::shared_ptr<GBoundedInt32Collection> gbic = pc_at<GBoundedInt32Collection>(1);
+		boost::shared_ptr<GBooleanCollection> gbc = pc_at<GBooleanCollection>(2);
+		boost::shared_ptr<GCharObjectCollection> gcoc = pc_at<GCharObjectCollection>(3);
+
+		// Finally assign the new value to this object and make sure it no longer appears to be "dirty"
+	}
 
 	/********************************************************************************************/
 
 	std::string fileName_; ///< The name of the external program to be executed
 	std::string arguments_; ///< Any additional arguments to be handed to the external program
 	boost::uint32_t nEvaluations_; ///< The number of data sets to be handed to the external program in one go
+	dataExchangeMode exchangeMode_; ///< The desired method of data exchange
+	bool maximize_; ///< indicates whether small values of this individual are better than large values
+	std::string parameterFile_;
+
+	Gem::Util::GDataExchange gde; ///< takes care of the data exchange with external programs
 };
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GExecternalEvaluator)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GExternalEvaluator)
 
 #endif /* GEXTERNALEVALUATOR_HPP_ */

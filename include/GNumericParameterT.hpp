@@ -342,11 +342,21 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Retrieve the parameter value
+	 * Retrieve the parameter value. Deprecated. Use value() instead.
 	 *
 	 * @return The current value of the param_ variable
 	 */
 	T getParameter() {
+		return this->value();
+	}
+
+	/***************************************************************************/
+	/**
+	 * Retrieve the parameter value
+	 *
+	 * @return The current value of the param_ variable
+	 */
+	T value() {
 		return param_;
 	}
 
