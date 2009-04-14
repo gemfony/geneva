@@ -6,7 +6,7 @@
 - Move from GLogger to one of the two Boost logging library candidates. Requires that at least one 
   of them heads for a review (we do not want to include further candidate libraries. Geneva should work with a 
   vanilla Boost installation (>= 1.36)
-- Ship the threadpool library with Geneva or move to standard Boost threapool (once it has been reviewed)
+- Ship the threadpool library with Geneva or move to standard Boost threadpool (once it has been reviewed)
 - Add many more tests using the Boost.Test library
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
 - Add a CMake macro "FindGeneva.cmake"
@@ -36,3 +36,6 @@
   our random number generator does the right thing.
 - Create plots for Gauss mutation (the result of the adaptor) for unbounded and bounded doubles and ints.
   Need to check possible distortions of the gaussian at the "edges" of a variable's allowed data range.
+- When boundaries are at the maximum in GBoundedNumT<>, simply return the "in" value after the transformation
+- Allow to supply template items to the GExternalEvaluator in an easy way (particularly the adaptors are important!)
+- Make the external evaluation program read a configuration file rather than the command line

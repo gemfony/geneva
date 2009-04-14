@@ -135,6 +135,8 @@ public:
 
 
 		// todo: get template from external program.
+
+		// Fill the class with the required (empty) collections
 	}
 
 	/********************************************************************************************/
@@ -648,6 +650,7 @@ private:
 		if(maximize_) gde.switchToBestDataSet(false); // descending order
 		else gde.switchToBestDataSet(true); // ascending order
 
+		//--------------------------------------------------------------------------------------------------------------------------------------
 		// Retrieve our current collection items, so we can load the exchange data back
 		boost::shared_ptr<GBoundedDoubleCollection> gbdc = pc_at<GBoundedDoubleCollection>(0);
 		// Get the sizes of both containers
@@ -658,29 +661,176 @@ private:
 		// local and exchange-container have similar sizes, we need
 		// to do some more work
 		GBoundedDoubleCollection::iterator gbdc_it;
-		if(exchangeSize == collectionSize) { // The most frequent case, likely
+		if(exchangeSize == collectionSize) { // Likely the most frequent case
 			// No need to check the upper bound of pos, as we already know that exchangeSize == collectionSize
-			for(std::size_t pos=0, gbdc_it=gbdc->begin(); gbdc_it!=gbdc.end(); ++pos, ++gbdc_it) {
-				boost::shared_ptr<GDoubleParameter> gdp_ptr = gdi.parameterSet_at<double>(pos);
-				boost::shared_ptr<GBoundedDouble> p;
+			for(std::size_t pos=0, gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++pos, ++gbdc_it) {
+				boost::shared_ptr<GDoubleParameter> gdp_ptr = gde.parameterSet_at<double>(pos);
 				if(gdp_ptr->hasBoundaries()) {
-					p = boost::shared_ptr<GBoundedDouble>(new GBoundedDouble(gdp_ptr->value(), gdp_ptr->getLowerBoundary(), gdp_ptr->getUpperBoundary()));
+					(*gbdc_it)->setExternalValue(gdp_ptr->value());
+					(*gbdc_it)->setBoundaries( gdp_ptr->getLowerBoundary(), gdp_ptr->getUpperBoundary());
 				}
 				else {
-
+					(*gbdc_it)->setExternalValue(gdp_ptr->value());
+					(*gbdc_it)->resetBoundaries();
 				}
 			}
 		}
 		else if(exchangeSize > collectionSize) {
+			// Are there any items at all in the local collection ? Add one, if necessary, using default settings
+			if(collectionSize == 0) {
+				boost::shared_ptr<GBoundedDouble> gbd_templ(new GBoundedDouble());
+				boost::shared_ptr<GDoubleGaussAdaptor> gdga_templ(new GDoubleGaussAdaptor());
+				gbd_templ->addAdaptor(gdga_templ);
+				gbdc->push_back(gbd_templ);
+			}
 
+			// Resize the local collection, supplying the first item as a template. As a result, there
+			// will be exchangeSize identical, but disjunct items.
+			gbdc->resize(exchangeSize, gbdc->at(0));
 		}
 		else if(exchangeSize < collectionSize) {
+			// First resize the collection so that it has size exchangeSize
+			// Surplus items will be automatically deleted
+			gbdc.resize(exchangeSize);
 
+			// Then copy the items over
+			// No need to check the upper bound of pos, as we already know that exchangeSize == collectionSize
+			// at this point
+			for(std::size_t pos=0, gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++pos, ++gbdc_it) {
+				boost::shared_ptr<GDoubleParameter> gdp_ptr = gde.parameterSet_at<double>(pos);
+				if(gdp_ptr->hasBoundaries()) {
+					(*gbdc_it)->setExternalValue(gdp_ptr->value());
+					(*gbdc_it)->setBoundaries( gdp_ptr->getLowerBoundary(), gdp_ptr->getUpperBoundary());
+				}
+				else {
+					(*gbdc_it)->setExternalValue(gdp_ptr->value());
+					(*gbdc_it)->resetBoundaries();
+				}
+			}
 		}
 
+		//--------------------------------------------------------------------------------------------------------------------------------------
 		boost::shared_ptr<GBoundedInt32Collection> gbic = pc_at<GBoundedInt32Collection>(1);
+		// Get the sizes of both containers
+		exchangeSize = gde.size<boost::int32_t>();
+		collectionSize = gbic->size();
+
+		// Copy the data over. As we can not rely on the fact that
+		// local and exchange-container have similar sizes, we need
+		// to do some more work
+		GBoundedInt32Collection::iterator gbic_it;
+		if(exchangeSize == collectionSize) { // Likely the most frequent case
+			// No need to check the upper bound of pos, as we already know that exchangeSize == collectionSize
+			for(std::size_t pos=0, gbic_it=gbdc->begin(); gbic_it!=gbic->end(); ++pos, ++gbic_it) {
+				boost::shared_ptr<GLongParameter> glp_ptr = gde.parameterSet_at<boost::int32_t>(pos);
+				if(glp_ptr->hasBoundaries()) {
+					(*gbic_it)->setExternalValue(glp_ptr->value());
+					(*gbic_it)->setBoundaries( glp_ptr->getLowerBoundary(), glp_ptr->getUpperBoundary());
+				}
+				else {
+					(*gbic_it)->setExternalValue(glp_ptr->value());
+					(*gbic_it)->resetBoundaries();
+				}
+			}
+		}
+		else if(exchangeSize > collectionSize) {
+			// Are there any items at all in the local collection ? Add one, if necessary, using default settings
+			if(collectionSize == 0) {
+				boost::shared_ptr<GBoundedInt32> gbi_templ(new GBoundedInt32());
+				boost::shared_ptr<GInt32FlipAdaptor> gifa_templ(new GInt32FlipAdaptor());
+				gbi_templ->addAdaptor(gifa_templ);
+				gbic->push_back(gbi_templ);
+			}
+
+			// Resize the local collection, supplying the first item as a template. As a result, there
+			// will be exchangeSize identical, but disjunct items.
+			gbdc->resize(exchangeSize, gbdc->at(0));
+		}
+		else if(exchangeSize < collectionSize) {
+			// First resize the collection so that it has size exchangeSize
+			// Surplus items will be automatically deleted
+			gbdc.resize(exchangeSize);
+
+			// Then copy the items over
+			// No need to check the upper bound of pos, as we already know that exchangeSize == collectionSize
+			// at this point
+			for(std::size_t pos=0, gbic_it=gbdc->begin(); gbic_it!=gbdc->end(); ++pos, ++gbic_it) {
+				boost::shared_ptr<GLongParameter> glp_ptr = gde.parameterSet_at<boost::int32_t>(pos);
+				if(glp_ptr->hasBoundaries()) {
+					(*gbic_it)->setExternalValue(glp_ptr->value());
+					(*gbic_it)->setBoundaries( glp_ptr->getLowerBoundary(), glp_ptr->getUpperBoundary());
+				}
+				else {
+					(*gbic_it)->setExternalValue(glp_ptr->value());
+					(*gbic_it)->resetBoundaries();
+				}
+			}
+		}
+
+		//--------------------------------------------------------------------------------------------------------------------------------------
+
 		boost::shared_ptr<GBooleanCollection> gbc = pc_at<GBooleanCollection>(2);
+		// Get the sizes of both containers
+		exchangeSize = gde.size<bool>();
+		collectionSize = gbc->size();
+
+		// Copy the data over. As we can not rely on the fact that
+		// local and exchange-container have similar sizes, we need
+		// to do some more work
+		GBoundedInt32Collection::iterator gbc_it;
+		if(exchangeSize == collectionSize) { // Likely the most frequent case
+			// No need to check the upper bound of pos, as we already know that exchangeSize == collectionSize
+			for(std::size_t pos=0, gbc_it=gbdc->begin(); gbc_it!=gbc->end(); ++pos, ++gbc_it) {
+				boost::shared_ptr<GLongParameter> glp_ptr = gde.parameterSet_at<boost::int32_t>(pos);
+				if(glp_ptr->hasBoundaries()) {
+					(*gbc_it)->setExternalValue(glp_ptr->value());
+					(*gbc_it)->setBoundaries( glp_ptr->getLowerBoundary(), glp_ptr->getUpperBoundary());
+				}
+				else {
+					(*gbc_it)->setExternalValue(glp_ptr->value());
+					(*gbc_it)->resetBoundaries();
+				}
+			}
+		}
+		else if(exchangeSize > collectionSize) {
+			// Are there any items at all in the local collection ? Add one, if necessary, using default settings
+			if(collectionSize == 0) {
+				boost::shared_ptr<GBoundedInt32> gbi_templ(new GBoundedInt32());
+				boost::shared_ptr<GInt32FlipAdaptor> gifa_templ(new GInt32FlipAdaptor());
+				gbi_templ->addAdaptor(gifa_templ);
+				gbc->push_back(gbi_templ);
+			}
+
+			// Resize the local collection, supplying the first item as a template. As a result, there
+			// will be exchangeSize identical, but disjunct items.
+			gbdc->resize(exchangeSize, gbdc->at(0));
+		}
+		else if(exchangeSize < collectionSize) {
+			// First resize the collection so that it has size exchangeSize
+			// Surplus items will be automatically deleted
+			gbdc.resize(exchangeSize);
+
+			// Then copy the items over
+			// No need to check the upper bound of pos, as we already know that exchangeSize == collectionSize
+			// at this point
+			for(std::size_t pos=0, gbc_it=gbdc->begin(); gbc_it!=gbdc->end(); ++pos, ++gbc_it) {
+				boost::shared_ptr<GLongParameter> glp_ptr = gde.parameterSet_at<boost::int32_t>(pos);
+				if(glp_ptr->hasBoundaries()) {
+					(*gbc_it)->setExternalValue(glp_ptr->value());
+					(*gbc_it)->setBoundaries( glp_ptr->getLowerBoundary(), glp_ptr->getUpperBoundary());
+				}
+				else {
+					(*gbc_it)->setExternalValue(glp_ptr->value());
+					(*gbc_it)->resetBoundaries();
+				}
+			}
+		}
+
+		//--------------------------------------------------------------------------------------------------------------------------------------
+
 		boost::shared_ptr<GCharObjectCollection> gcoc = pc_at<GCharObjectCollection>(3);
+
+		//--------------------------------------------------------------------------------------------------------------------------------------
 
 		// Finally assign the new value to this object and make sure it no longer appears to be "dirty"
 	}

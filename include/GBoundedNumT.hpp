@@ -382,11 +382,27 @@ public:
 
 	/****************************************************************************/
 	/**
+	 * Resets the boundaries to the maximum allowed value. This is a
+	 * trap. Use the specializations instead.
+	 */
+	void resetBoundaries() {
+		std::ostringstream error;
+		error << "In GBoundedNumT<T>::resetBoundaries(): Error!" << std::endl
+		<< "This class seems to have been instantiated with types" << std::endl
+		<< "it was not designed for:" << std::endl
+		<< "typeid(T).name() = " << typeid(T).name() << std::endl;
+
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
+	/****************************************************************************/
+	/**
 	 * Sets the boundaries of this object and does corresponding
 	 * error checks. If the current value is below or above the new
 	 * boundaries, this function will throw. Set the external value to
 	 * a new value between the new boundaries before calling this
-	 * function.
+	 * function. Note that this class does not accept boundaries that
+	 * exceed half of the maximum value of a double.
 	 *
 	 * @param lower The new lower boundary for this object
 	 * @param upper The new upper boundary for this object
@@ -400,6 +416,16 @@ public:
 			error << "In GBoundedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
 				     << "with typeid(T).name() = " << typeid(T).name() << " : Error" << std::endl
 				     << "Lower and/or upper boundary has invalid value : " << lower << " " << upper << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		// Check size of the boundaries
+		if(double(lower) <= -0.5*std::numeric_limits<double>::max() || double(upper) >= 0.5*std::numeric_limits<double>::max()) {
+			std::ostringstream error;
+			error << "In GBoundedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
+				     << "with typeid(T).name() = " << typeid(T).name() << " : Error" << std::endl
+				     << "Lower and/or upper boundaries have too high values: " << lower << " " << upper << std::endl;
 
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
@@ -458,28 +484,14 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * Does the actual mapping from internal to external value
+	 * Does the actual mapping from internal to external value. No error
+	 * checks are done, as it is assumed that all values of boundaries have been
+	 * checked when they were set.
 	 *
 	 * @param in The internal value that is to be converted to an external value
 	 * @return The externally visible representation of in
 	 */
 	T calculateExternalValue(const T& in) {
-		// Check the boundaries we've been given
-		if(upperBoundary_ <= lowerBoundary_){
-			std::ostringstream error;
-			error << "In GBoundedNumT<T>::calculateExternalValue()" << std::endl
-			<< "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
-			<< "Got invalid upper and/or lower boundaries" << std::endl
-			<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
-			<< "upperBoundary_ = " << upperBoundary_ << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
-		}
-
-
-
 		// Find out which region the value is in (compare figure transferFunction.pdf
 		// that should have been delivered with this software . Note that numeric_cast
 		// may throw - exceptions must be caught in surrounding functions.
@@ -571,6 +583,8 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t&);
 template <> GBoundedNumT<double>::GBoundedNumT(const double&, const double&);
 template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&);
 template <> bool GBoundedNumT<double>::isSimilarTo(const GObject&, const double&) const;
+template <> void GBoundedNumT<double>::resetBoundaries();
+template <> void GBoundedNumT<boost::int32_t>::resetBoundaries();
 
 /******************************************************************************/
 

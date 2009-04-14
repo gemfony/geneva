@@ -62,12 +62,26 @@ BOOST_AUTO_TEST_CASE( GBoundedInt32_no_failure_expected )
 	GBoundedInt32 gbi0;
 	GBoundedInt32 gbi1(-10,10);
 	GBoundedInt32 gbi2(1,-10,10);
+	GBoundedInt32 gbi7(3); // has maximum boundaries
 	GBoundedInt32 gbi3(gbi2);
 
 	BOOST_CHECK(gbi3 == gbi2);
 	BOOST_CHECK(gbi2 != gbi1);
 	BOOST_CHECK(gbi2 != gbi0);
 	BOOST_CHECK(gbi1 != gbi0);
+	BOOST_CHECK(gbi7 != gbi0);
+
+	// Check that value calculation works repeatedly. Internal value should be == external value for gbi7
+	const std::size_t NCHECKS=10000;
+	for(std::size_t i=0; i<NCHECKS; i++) {
+		boost::int32_t in=boost::int32_t(-5000.+10000.*double(i)/double(NCHECKS)), out = 0;
+		BOOST_CHECK_NO_THROW(out = gbi7.calculateExternalValue(in));
+		BOOST_CHECK(in==out);
+	}
+	// Try resetting the boundaries to a finite value (which includes the current external value)
+	BOOST_CHECK_NO_THROW(gbi7.setBoundaries(-6000,6000));
+	BOOST_CHECK_NO_THROW(gbi7 = 10);
+	BOOST_CHECK_NO_THROW(gbi7.setBoundaries(-10,10));
 
 	// (Repeated) assignment
 	GBoundedInt32 gbi3_2;

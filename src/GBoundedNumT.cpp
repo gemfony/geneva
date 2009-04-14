@@ -68,8 +68,8 @@ template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT()
 	 */
 template <> GBoundedNumT<double>::GBoundedNumT(const double& val)
 	:GParameterT<double>(0.),
-	 lowerBoundary_(-std::numeric_limits<double>::max()),
-	 upperBoundary_(std::numeric_limits<double>::max()),
+	 lowerBoundary_(-0.999*0.5*std::numeric_limits<double>::max()),
+	 upperBoundary_(0.999*0.5*std::numeric_limits<double>::max()),
 	 internalValue_(0.)
 {
 		// This function also sets the internalValue_ variable.
@@ -103,10 +103,31 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& val
  */
 template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, const double& upperBoundary)
 	:GParameterT<double>(0.),
-	 lowerBoundary_(lowerBoundary),
-	 upperBoundary_(upperBoundary),
+	 lowerBoundary_(0.),
+	 upperBoundary_(1.),
 	 internalValue_(0.)
 {
+		// Check that the boundaries make sense
+		if(lowerBoundary >= upperBoundary) {
+			std::ostringstream error;
+			error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
+				     << "Error: Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		// Check size of the boundaries
+		if(lowerBoundary <= -0.5*std::numeric_limits<double>::max() || upperBoundary >= 0.5*std::numeric_limits<double>::max()) {
+			std::ostringstream error;
+			error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
+				     << "Error: Lower and/or upper boundaries have too high values: " << lowerBoundary << " " << upperBoundary << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		lowerBoundary_ = lowerBoundary;
+		upperBoundary_ = upperBoundary;
+
 		// This function also sets the internalValue_ variable.
 		setExternalValue(gr.evenRandom(lowerBoundary_,upperBoundary_));
 }
@@ -125,6 +146,8 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& low
 	 upperBoundary_(upperBoundary),
 	 internalValue_(0)
 {
+		// do an error check here ...
+
 		// This function also sets the internalValue_ variable.
 		// discreteRandom returns values in the range [lower,upper[ , i.e., the upper boundary
 		// is not included. Needs to be checked in the testing code!!!
@@ -172,6 +195,34 @@ template <> bool GBoundedNumT<double>::isSimilarTo(const GObject& cp, const doub
 	}
 
 	return true;
+}
+
+/***********************************************************************************************/
+/**
+ * Resets the boundaries to the maximum allowed value. Specialization for
+ * typeof(T) == typeof(double).
+ */
+template <> void GBoundedNumT<double>::resetBoundaries() {
+	double currentValue = this->value();
+
+	lowerBoundary_ = -0.999*0.5*std::numeric_limits<double>::max();
+	upperBoundary_ = 0.999*0.5*std::numeric_limits<double>::max();
+
+	this->setExternalValue(currentValue);
+}
+
+/***********************************************************************************************/
+/**
+ * Resets the boundaries to the maximum allowed value. Specialization for
+ * typeof(T) == typeof(boost::int32_t).
+ */
+template <> void GBoundedNumT<boost::int32_t>::resetBoundaries() {
+	boost::int32_t currentValue = this->value();
+
+	lowerBoundary_ = std::numeric_limits<boost::int32_t>::min();
+	upperBoundary_ =std::numeric_limits<boost::int32_t>::max();
+
+	this->setExternalValue(currentValue);
 }
 
 /***********************************************************************************************/

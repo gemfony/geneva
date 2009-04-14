@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_no_failure_expected )
 	GBoundedDouble gbd0;
 	GBoundedDouble gbd1(-10,10);
 	GBoundedDouble gbd2(1.,-10,10);
-	GBoundedDouble gbd7(3); // has boundaries MAX_DBL, -MAX_DBL
+	GBoundedDouble gbd7(3); // has maximum boundaries
 	GBoundedDouble gbd3(gbd2);
 
 	BOOST_CHECK(gbd3 == gbd2);
@@ -70,11 +70,10 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_no_failure_expected )
 	BOOST_CHECK(gbd7 != gbd0);
 
 	// Check that value calculation works repeatedly. Internal value should be == external value for gbd7
-	GBoundedDouble gbd8(-10000.,10000.);
 	const std::size_t NCHECKS=10000;
 	for(std::size_t i=0; i<NCHECKS; i++) {
 		double in=-5000.+10000.*double(i)/double(NCHECKS), out = 0.;
-		BOOST_CHECK_NO_THROW(out = gbd8.calculateExternalValue(in)); // PROBLEM: DBL_MAX - DBL_MIN in calculateExternalValue(in)
+		BOOST_CHECK_NO_THROW(out = gbd7.calculateExternalValue(in));
 		BOOST_CHECK(in==out);
 	}
 	// Try resetting the boundaries to a finite value (which includes the current external value)
