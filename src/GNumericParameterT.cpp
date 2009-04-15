@@ -414,7 +414,7 @@ template <> GNumericParameterT<bool>::GNumericParameterT(const bool& param)
  * Specialization of the default constructor for typeof(T)==bool. It is needed
  * as boolean values always have a lower and upper boundary.
  */
-template <> GNumericParameterT<bool>::GNumericParameterT(const bool& param, const bool& lower, const bool& upper)
+template <> GNumericParameterT<bool>::GNumericParameterT(const bool& param, const bool&, const bool&)
 	:param_(param),
 	 lowerBoundary_(false),
 	 upperBoundary_(true),
@@ -435,7 +435,7 @@ template <> GNumericParameterT<bool>::GNumericParameterT(const GNumericParameter
 
 /***********************************************************************************************/
 
-template <> void GNumericParameterT<bool>::setParameter(const bool& param, const bool& lower, const bool& upper) {
+template <> void GNumericParameterT<bool>::setParameter(const bool& param, const bool&, const bool&) {
 	param_ = param;
 	lowerBoundary_ = false;
 	upperBoundary_ = true;

@@ -49,6 +49,5 @@
 - It should be possible to ask individuals to take charge of the external evaluation of other individuals as well, avoiding generation of local, random copies
 - SSE optimization ?
 - RNR in float faster ?
-- Rename GBasePopulation, e.g. to GEAPopulation ?
+- Rename GBasePopulation, e.g. to GenevaPopulation ?
 - Add GSwarm, GSteepestDescent ?
-- Remove the unused "version" in serialize functions 
