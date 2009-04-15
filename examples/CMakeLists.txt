@@ -13,7 +13,7 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GExternalProgram
+	GExternalEvaluator
 )
 
 ADD_SUBDIRECTORY (
