@@ -32,7 +32,7 @@ namespace GenEvA
  * A function that parses the command line for all required parameters
  */
 bool parseCommandLine(int argc, char **argv,
-					  std::string& fileName,
+					  std::string& program,
 					  std::string& externalArguments,
 					  std::size_t& popSize,
 					  std::size_t& nParents,
@@ -59,7 +59,7 @@ bool parseCommandLine(int argc, char **argv,
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
-			("fileName,f",po::value<std::string>(&fileName)->default_value(DEFAULTFILENAME),
+			("program,P",po::value<std::string>(&program)->default_value(DEFAULTPROGRAM),
 					"the name of a file holding the evaluation executable")
 			("externalArguments,e",po::value<std::string>(&externalArguments)->default_value(DEFAULTEXTERNALARGUMENTS),
 					"Arguments to be handed to programs called through the \"system()\" call")
@@ -132,7 +132,7 @@ bool parseCommandLine(int argc, char **argv,
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
-				      << "fileName = " << fileName << std::endl
+				      << "program = " << program << std::endl
 					  << "externalArguments = " << externalArguments << std::endl
 					  << "popSize = " << popSize << std::endl
 					  << "nParents = " << nParents << std::endl

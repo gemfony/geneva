@@ -37,8 +37,10 @@
 #include "GBasePopulation.hpp"
 #include "GBoostThreadPopulation.hpp"
 #include "GDoubleCollection.hpp"
+#include "GDoubleGaussAdaptor.hpp"
 #include "GInt32Collection.hpp"
 #include "GInt32FlipAdaptor.hpp"
+#include "GCharFlipAdaptor.hpp"
 #include "GBooleanCollection.hpp"
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
@@ -49,6 +51,7 @@
 
 // The individual calls an external program for the evaluation step
 #include "GExecIndividual.hpp"
+#include "GExternalEvaluator.hpp"
 
 // Declares a function to parse the command line
 #include "GCommandLineParser.hpp"
@@ -57,18 +60,14 @@ using namespace Gem::GenEvA;
 using namespace Gem::Util;
 using namespace Gem::GLogFramework;
 
-const std::string PARAMETERDATA = "./parameterData";
-
 /************************************************************************************************/
 /**
- * The main function. We search for the minimum of a parabola. The actual calculation is handled by
- * an external program. This example demonstrates the use of the GExecIndividual class. Note that
- * a number of command line options are available. Call the executable with the "-h" switch
- * to get an overview.
+ * The main function.  The actual calculation is handled by an external program, hence we
+ * do not know what the purpose of this optimization is.
  */
 int main(int argc, char **argv){
 	// Variables for the command line parsing
-	 std::string fileName;
+	 std::string program;
 	 std::string externalArguments;
 	 std::size_t populationSize, nParents;
 	 boost::uint16_t nProducerThreads;
@@ -85,7 +84,7 @@ int main(int argc, char **argv){
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
-				         fileName,
+				         program,
 				         externalArguments,
 				         populationSize,
 				         nParents,
@@ -113,52 +112,39 @@ int main(int argc, char **argv){
 	LOGGER->addLogLevel(Gem::GLogFramework::PROGRESS);
 
 	// Add log targets to the system
-	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GExternalProgram.log")));
+	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GExternalEvaluator.log")));
 	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
-	// Ask the evaluation program to emit information about the individuals
-	std::string commandLine;
-	if(externalArguments == "empty")
-		commandLine = fileName + " -t -p " + PARAMETERDATA;
-	else
-		commandLine = fileName + " " + externalArguments + " -t -p " + PARAMETERDATA;
 
-	system(commandLine.c_str());
+	// Tell the evaluation program to do any initial work
+	GExternalEvaluator::initialize(program, externalArguments);
 
-	// Read in the population data and set up a GDoubleCollection
-	boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection());
+	// Create a number of adaptors to be used in the individual
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor());
+	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+	boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+	gifa_ptr->setAdaptionThreshold(adaptionThreshold);
+	boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor());
+	gba_ptr->setAdaptionThreshold(adaptionThreshold);
+	boost::shared_ptr<GCharFlipAdaptor> gcfa_ptr(new GCharFlipAdaptor());
+	gcfa_ptr->setAdaptionThreshold(adaptionThreshold);
 
-	std::ifstream paramStream(PARAMETERDATA.c_str());
-	if(!paramStream) {
-		std::cerr << "Error: Could not open file " << PARAMETERDATA << ". Leaving ..." << std::endl;
-		return 1;
-	}
-
-	std::size_t pDim = 0;
-	paramStream >> pDim;
-
-	for(std::size_t i=0; i<pDim; i++) {
-		double tmp;
-		paramStream >> tmp;
-		gdc->push_back(tmp);
-	}
-
-	// Close the stream
-	paramStream.close();
-
-	// Set up and register an adaptor for the collection, so it
-	// knows how to be mutated. We use the values given to us on the command line
-	// (or as default values).
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
-	gdga->setAdaptionThreshold(adaptionThreshold);
-	gdc->addAdaptor(gdga);
-
-	// Set up a single "master individual"
-	boost::shared_ptr<GExecIndividual> execIndPtr(new GExecIndividual(fileName, externalArguments));
-	execIndPtr->push_back(gdc);
+	// Create an initial individual (it will get the necessary information
+	// from the external executable)
+	boost::shared_ptr<GExternalEvaluator> gev_ptr(
+			new GExternalEvaluator(
+					program,
+					externalArguments,
+					false,  // random initialization of template data
+					gdga_ptr,
+					gifa_ptr,
+					gba_ptr,
+					gcfa_ptr
+			)
+	);
 
 	// Set up the populations, as requested
 	if(parallel==0) { // serial execution
@@ -166,7 +152,7 @@ int main(int argc, char **argv){
 	  GBasePopulation pop_ser;
 
 	  // Attach all individuals to the population
-	  pop_ser.push_back(execIndPtr);
+	  pop_ser.push_back(gev_ptr);
 
 	  // Specify some population settings
 	  pop_ser.setPopulationSize(populationSize,nParents);
@@ -179,7 +165,7 @@ int main(int argc, char **argv){
 	  pop_ser.optimize();
 
 	  // Retrieve best individual and make it output a result file
-	  boost::shared_ptr<GExecIndividual> bestIndividual = pop_ser.getBestIndividual<GExecIndividual>();
+	  boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_ser.getBestIndividual<GExternalEvaluator>();
 	  bestIndividual->printResult();
 	}
 	else if(parallel==1) { // multi-threaded execution
@@ -188,7 +174,7 @@ int main(int argc, char **argv){
 	  pop_par.setNThreads(4);
 
 	  // Attach the individual to the population
-	  pop_par.push_back(execIndPtr);
+	  pop_par.push_back(gev_ptr);
 
 	  // Specify some population settings
 	  pop_par.setPopulationSize(populationSize,nParents);
@@ -201,7 +187,7 @@ int main(int argc, char **argv){
 	  pop_par.optimize();
 
 	  // Retrieve best individual and make it output a result file
-	  boost::shared_ptr<GExecIndividual> bestIndividual = pop_par.getBestIndividual<GExecIndividual>();
+	  boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_par.getBestIndividual<GExternalEvaluator>();
 	  bestIndividual->printResult();
 	}
 	else if(parallel==2) { // execution in networked mode
@@ -215,7 +201,7 @@ int main(int argc, char **argv){
 			GBrokerPopulation pop_broker;
 
 			// Make the individual known to the population
-			pop_broker.push_back(execIndPtr);
+			pop_broker.push_back(gev_ptr);
 
 			// Specify some population settings
 			pop_broker.setPopulationSize(populationSize,nParents);
@@ -228,7 +214,7 @@ int main(int argc, char **argv){
 			pop_broker.optimize();
 
 		    // Retrieve best individual and make it output a result file
-		    boost::shared_ptr<GExecIndividual> bestIndividual = pop_broker.getBestIndividual<GExecIndividual>();
+		    boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_broker.getBestIndividual<GExternalEvaluator>();
 		    bestIndividual->printResult();
 		}
 		else { // Client mode
@@ -237,6 +223,9 @@ int main(int argc, char **argv){
 		    gasiotcpclient.run();
 		}
 	}
+
+	// Tell the evaluation program to perform any final work
+	GExternalEvaluator::finalize(program, externalArguments);
 
 	std::cout << "Done ..." << std::endl;
 

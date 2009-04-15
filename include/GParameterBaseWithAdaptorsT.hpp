@@ -392,7 +392,7 @@ public:
 	 * @return A boolean indicating whether adaptors are present
 	 */
 	bool hasAdaptors() const {
-		return (apdapors_.size()>0?true:false);
+		return (adaptors_.size()>0?true:false);
 	}
 
 protected:

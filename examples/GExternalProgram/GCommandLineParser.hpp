@@ -51,7 +51,7 @@ namespace GenEvA
 // Default settings
 const std::size_t DEFAULTPOPSIZE=100;
 const std::size_t DEFAULTNPARENTS=5;
-const std::string DEFAULTFILENAME="./evaluator/evaluator";
+const std::string DEFAULTPROGRAM="./evaluator/evaluator";
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=5;
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
 const long DEFAULTMAXMINUTES=10;
@@ -67,7 +67,7 @@ const std::string DEFAULTIP="localhost";
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
-					  std::string& fileName,
+					  std::string& program,
 					  std::string& externalArguments,
 					  std::size_t& popSize,
 					  std::size_t& nParents,
