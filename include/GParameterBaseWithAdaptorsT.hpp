@@ -381,8 +381,18 @@ public:
 	 *
 	 * @return The number of adaptors stored in this class
 	 */
-	std::size_t numberOfAdaptors(){
+	std::size_t numberOfAdaptors() const{
 		return adaptors_.size();
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Indicates whether any adaptors are present
+	 *
+	 * @return A boolean indicating whether adaptors are present
+	 */
+	bool hasAdaptors() const {
+		return (apdapors_.size()>0?true:false);
 	}
 
 protected:

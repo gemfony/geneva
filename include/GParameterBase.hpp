@@ -105,6 +105,11 @@ public:
 	virtual bool isEqualTo(const GObject&) const;
 	/** @brief Checks for similarity with another GParameterBase object */
 	virtual bool isSimilarTo(const GObject&, const double&) const;
+
+	/** @brief Convenience function so we do not need to always cast derived classes */
+	virtual std::size_t numberOfAdaptors() const;
+	/** @brief Convenience function so we do not need to always cast derived classes */
+	virtual bool hasAdaptors() const;
 };
 
 } /* namespace GenEvA */

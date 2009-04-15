@@ -145,6 +145,26 @@ bool GParameterBase::isSimilarTo(const GObject& cp, const double& limit) const {
 }
 
 /**********************************************************************************/
+/**
+ * Convenience function so we do not need to always cast  derived classes.
+ * See GParameterBaseWithAdaptors::numberOfAdaptors() for the "real"
+ * function.
+ */
+std::size_t GParameterBase::numberOfAdaptors() const {
+	return 0;
+}
+
+/**********************************************************************************/
+/**
+ * Convenience function so we do not need to always cast  derived classes.
+ * See GParameterBaseWithAdaptors::hasAdaptors() for the "real"
+ * function.
+ */
+bool GParameterBase::hasAdaptors() const {
+	return false;
+}
+
+/**********************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

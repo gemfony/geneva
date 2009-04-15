@@ -135,8 +135,10 @@ BOOST_AUTO_TEST_CASE( GParameterT_bool_no_failure_expected)
 	GBoolean gpt0;
 
 	// Adding a single adaptor
+	BOOST_CHECK(!gpt0.hasAdaptors());
 	BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor())));
 	BOOST_CHECK(gpt0.numberOfAdaptors() == 1);
+	BOOST_CHECK(gpt0.hasAdaptors());
 
 	// Retrieve the adaptor again, as a GAdaptorT
 	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<bool> > gadb0_ptr = gpt0.getAdaptor(GBooleanAdaptor::adaptorName()));
@@ -233,6 +235,7 @@ BOOST_AUTO_TEST_CASE( GParameterT_int32_no_failure_expected)
 		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
 		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor())));
 		BOOST_CHECK(gpt0.numberOfAdaptors() == 2);
+		BOOST_CHECK(gpt0.hasAdaptors());
 
 		// Retrieve the adaptors again, camouflaged as a GAdaptorT
 		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<boost::int32_t> > gadb0_ptr = gpt0.getAdaptor(GInt32FlipAdaptor::adaptorName()));
