@@ -28,7 +28,7 @@ namespace GenEvA {
 /**
  * Specialization fo typeof(T) == typof(double).
  */
-template <> bool GStdSimpleVectorInterfaceT<double>::isSimilarTo(const std::vector<double>& cp_data, const double& limit) const {
+template <> bool GStdSimpleVectorInterfaceT<double>::checkIsSimilarTo(const std::vector<double>& cp_data, const double& limit) const {
 	// Check sizes
 	if(data.size() != cp_data.size()) return false;
 

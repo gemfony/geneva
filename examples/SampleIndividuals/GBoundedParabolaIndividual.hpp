@@ -186,9 +186,12 @@ public:
 	 * @param  cp A constant reference to another GBoundedParabolaIndividual object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GBoundedParabolaIndividual& cp) const {
+	virtual bool isEqualTo(const GObject& cp) const {
+		// Check that we are indeed dealing with a GBoundedNumT<T> reference
+		const GBoundedParabolaIndividual *gbpi_load = GObject::conversion_cast(&cp,  this);
+
 		// Check equality of the parent class
-		if(!GParameterSet::isEqualTo(cp)) return false;
+		if(!GParameterSet::isEqualTo(*gbpi_load)) return false;
 
 		return true;
 	}
@@ -202,9 +205,12 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GBoundedParabolaIndividual& cp, const double& limit=0) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit=0) const {
+		// Check that we are indeed dealing with a GBoundedNumT<T> reference
+		const GBoundedParabolaIndividual *gbpi_load = GObject::conversion_cast(&cp,  this);
+
 		// Check equality of the parent class
-		if(!GParameterSet::isSimilarTo(cp, limit)) return false;
+		if(!GParameterSet::isSimilarTo(*gbpi_load, limit)) return false;
 
 		return true;
 	}

@@ -113,25 +113,25 @@ void stdvectorinterfacetest(vi& vectorObject, const item& templItem, const item&
 		vec_cp2.push_back(*obj_cit);
 	}
 
-	BOOST_CHECK(vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::isEqualTo(vec_cp1));
-	BOOST_CHECK(vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::isEqualTo(vec_cp2));
+	BOOST_CHECK(vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp1));
+	BOOST_CHECK(vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp2));
 
 	// Assign a different value to one position
 	vectorObject.at(vectorObject.size()-1) = findItem;
-	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::isEqualTo(vec_cp1));
-	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::isEqualTo(vec_cp2));
+	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp1));
+	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp2));
 
 	// Swap the data with a cp1
 	vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::swap(vec_cp1);
 
 	// Now vectorObject should be in the old state again
-	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::isEqualTo(vec_cp1));
-	BOOST_CHECK(vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::isEqualTo(vec_cp2));
+	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp1));
+	BOOST_CHECK(vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp2));
 
 	// Swap back again
 	vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::swap(vec_cp1);
-	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::isEqualTo(vec_cp1));
-	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::isEqualTo(vec_cp2));
+	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp1));
+	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp2));
 
 	// Check that the front and back elements can be accessed
 	BOOST_CHECK(vectorObject[0] ==  vectorObject.front());

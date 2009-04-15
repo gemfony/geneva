@@ -156,6 +156,9 @@ bool  GObject::isSimilarTo(const GObject& cp, const double&) const {
  * While this function may appear as syntactic sugar, the statement !isSimilarTo is very easy
  * to read wrong.
  *
+ * NOTE: Something is fishy with this function. Changing the !GObject::isSimilarTo() to
+ * GObject::isNotSimilarTo in GAdaptorT leads to a memory access violation. Infinite recursion ???
+ *
  * @param  cp A constant reference to another GObject object
  * @param limit A double indicating the level of acceptable deviation of two double values
  * @return A boolean indicating whether both objects are similar or not

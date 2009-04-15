@@ -113,7 +113,7 @@ public:
 	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
 	 */
 	inline bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const {
-		return this->isEqualTo(cp);
+		return this->checkIsEqualTo(cp);
 	}
 
 	/*****************************************************************************/
@@ -121,14 +121,14 @@ public:
 	 * Checks inquality with another GStdSimpleVectorInterfaceT<T> object
 	 */
 	inline bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const {
-		return ! this->isEqualTo(cp);
+		return ! this->checkIsEqualTo(cp);
 	}
 
 	/*****************************************************************************/
 	/**
 	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
 	 */
-	inline bool isEqualTo(const GStdSimpleVectorInterfaceT<T>& cp) const {
+	inline bool checkIsEqualTo(const GStdSimpleVectorInterfaceT<T>& cp) const {
 		return data==cp.data;
 	}
 
@@ -136,7 +136,7 @@ public:
 	/**
 	 * Checks for equality with a std::vector<T> object
 	 */
-	inline bool isEqualTo(const std::vector<T>& cp_data) const{
+	inline bool checkIsEqualTo(const std::vector<T>& cp_data) const{
 		return data == cp_data;
 	}
 
@@ -144,8 +144,8 @@ public:
 	/**
 	 * Checks for similarity with another GStdSimpleVectorInterfaceT<T> object.
 	 */
-	inline bool isSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit) const {
-		return this->isSimilarTo(cp.data, limit);
+	inline bool checkIsSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit) const {
+		return this->checkIsSimilarTo(cp.data, limit);
 	}
 
 	/*****************************************************************************/
@@ -153,7 +153,7 @@ public:
 	 * Checks for similarity with another std::vector<T>  object. A specialized
 	 * version of this function exists for typeof(T) == typeof(double)
 	 */
-	inline bool isSimilarTo(const std::vector<T>& cp_data, const double&) const {
+	inline bool checkIsSimilarTo(const std::vector<T>& cp_data, const double&) const {
 		if(	data != cp_data) return false;
 		return true;
 	}
@@ -324,7 +324,7 @@ protected:
 
 /********************************************************************************/
 /** @brief Specialization for typeof(T) == typof(double) */
-template <> bool GStdSimpleVectorInterfaceT<double>::isSimilarTo(const std::vector<double>& cp_data, const double& limit) const;
+template <> bool GStdSimpleVectorInterfaceT<double>::checkIsSimilarTo(const std::vector<double>& cp_data, const double& limit) const;
 
 } /* namespace GenEvA */
 } /* namespace Gem */

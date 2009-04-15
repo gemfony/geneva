@@ -104,7 +104,7 @@ public:
 	/** @brief Checks for equality with another GParameterBase object */
 	virtual bool isEqualTo(const GObject&) const;
 	/** @brief Checks for similarity with another GParameterBase object */
-	virtual bool isSimilarTo(const GObject&, const double& limit) const;
+	virtual bool isSimilarTo(const GObject&, const double&) const;
 };
 
 } /* namespace GenEvA */

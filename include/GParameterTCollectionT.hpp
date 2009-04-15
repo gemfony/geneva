@@ -151,7 +151,7 @@ public:
 
 		// Check equality of the parent classes
 		if(!GParameterBase::isEqualTo(*gptct_load)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::isEqualTo(*gptct_load)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gptct_load)) return false;
 
 		return true;
 	}
@@ -170,8 +170,18 @@ public:
 		const GParameterTCollectionT<T> *gptct_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent classes
-		if(!GParameterBase::isSimilarTo(*gptct_load, limit)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::isSimilarTo(*gptct_load, limit)) return false;
+		if(!GParameterBase::isSimilarTo(*gptct_load, limit)) { // [1]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GParameterTCollectionT<T>::isSimilarTo() ::[1]" << std::endl;
+#endif
+			return false;
+		}
+		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gptct_load, limit)) { // [2]
+#ifdef GENEVATESTING
+			std::cout << "Dissimilarity in GParameterTCollectionT<T>::isSimilarTo() ::[2]" << std::endl;
+#endif
+			return false;
+		}
 
 		return true;
 	}

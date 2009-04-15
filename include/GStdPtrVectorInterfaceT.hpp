@@ -127,7 +127,7 @@ public:
 	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
 	 */
 	bool operator==(const GStdPtrVectorInterfaceT<T>& cp) const {
-		return this->isEqualTo(cp);
+		return this->checkIsEqualTo(cp);
 	}
 
 	/*****************************************************************************/
@@ -135,14 +135,14 @@ public:
 	 * Checks inquality with another GStdPtrVectorInterfaceT<T> object
 	 */
 	bool operator!=(const GStdPtrVectorInterfaceT<T>& cp) const {
-		return ! this->isEqualTo(cp);
+		return ! this->checkIsEqualTo(cp);
 	}
 
 	/*****************************************************************************/
 	/**
 	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
 	 */
-	virtual bool isEqualTo(const GStdPtrVectorInterfaceT<T>& cp) const {
+	bool checkIsEqualTo(const GStdPtrVectorInterfaceT<T>& cp) const {
 		return this->operator==(cp.data);
 	}
 
@@ -150,8 +150,8 @@ public:
 	/**
 	 * Checks for similarity with another GStdPtrVectorInterfaceT<T> object.
 	 */
-	virtual bool isSimilarTo(const GStdPtrVectorInterfaceT<T>& cp, const double& limit) const {
-		return this->isSimilarTo(cp.data, limit);
+	bool checkIsSimilarTo(const GStdPtrVectorInterfaceT<T>& cp, const double& limit) const {
+		return this->checkIsSimilarTo(cp.data, limit);
 	}
 
 	/*****************************************************************************/
@@ -159,7 +159,7 @@ public:
 	 * Checks for similarity with another std::vector<boost::shared_ptr<T> > object.
 	 * Note that we assume here that T actually implements a isSimilarTo function.
 	 */
-	bool isSimilarTo(const std::vector<boost::shared_ptr<T> >& cp_data, const double& limit) const {
+	bool checkIsSimilarTo(const std::vector<boost::shared_ptr<T> >& cp_data, const double& limit) const {
 		// Check sizes
 		if(data.size() != cp_data.size()) return false;
 

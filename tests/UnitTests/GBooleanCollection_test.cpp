@@ -55,43 +55,6 @@ using namespace Gem::GLogFramework;
 BOOST_AUTO_TEST_SUITE(GBooleanCollectionSuite)
 
 /***********************************************************************************/
-/**
- * A simple class that allows a self-test of GStdSimpleVectorInterface
- */
-namespace Gem {
-namespace GenEvA {
-
-template <typename T>
-class viTestT
-	:public GStdSimpleVectorInterfaceT<T>
-{
-public:
-	inline void swap(viTestT<T>& cp) { GStdSimpleVectorInterfaceT<T>::swap(cp.data); }
-
-protected:
-	virtual void dummyFunction() { /* nothing */ }
-};
-
-} /* namespace GenEvA */
-} /* namespace Gem */
-
-/***********************************************************************************/
-/**
- * Test that GStdSimpleVectorInterface<T> does its job
- */
-
-typedef boost::mpl::list<bool, boost::int32_t, double, char> test_types;
-
-BOOST_AUTO_TEST_CASE_TEMPLATE( GStdSimpleVectorInterfaceT_no_failure_expected, T, test_types )
-{
-	Gem::GenEvA::viTestT<T> vt;
-	T templItem = T(0);
-	T findItem = T(1);
-	// Make sure both items are indeed different
-	stdvectorinterfacetest(vt, templItem, findItem);
-}
-
-/***********************************************************************************/
 // Test features that are expected to work
 BOOST_AUTO_TEST_CASE(GBooleanCollection_no_failure_expected )
 {

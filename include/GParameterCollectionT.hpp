@@ -143,7 +143,7 @@ public:
 
 		// Check equality of the parent class
 		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpct_load)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::isEqualTo(*gpct_load)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsEqualTo(*gpct_load)) return false;
 
 		return true;
 	}
@@ -164,7 +164,7 @@ public:
 
 		// Check similarity of the parent class
 		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpct_load, limit)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::isSimilarTo(*gpct_load, limit)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsSimilarTo(*gpct_load, limit)) return false;
 
 		return true;
 	}

@@ -224,7 +224,7 @@ public:
 		// Check that we are indeed dealing with a GAdaptorT reference
 		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
 
-		if(GObject::isNotSimilarTo(*gat_load, limit)) return false;
+		if(!GObject::isSimilarTo(*gat_load, limit)) return false;
 		if(adaptionCounter_ != gat_load->adaptionCounter_) return false;
 		if(adaptionThreshold_ != gat_load->adaptionThreshold_) return false;
 

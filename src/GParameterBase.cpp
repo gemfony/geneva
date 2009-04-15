@@ -134,12 +134,13 @@ bool GParameterBase::isSimilarTo(const GObject& cp, const double& limit) const {
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GParameterBase *gpb_load = GObject::conversion_cast(&cp,  this);
 
-	if(!GObject::isSimilarTo(*gpb_load, limit)) { // [2]
+	if(!GObject::isSimilarTo(*gpb_load, limit)) { // [1]
 #ifdef GENEVATESTING
 			std::cout << "Dissimilarity in GParameterT::[1]" << std::endl;
 #endif /* GENEVATESTING */
 		return false;
 	}
+
 	return true;
 }
 

@@ -157,7 +157,7 @@ public:
 
 		// Check equality of the parent class
 		if(!GIndividual::isEqualTo(*gmst_load)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::isEqualTo(*gmst_load)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gmst_load)) return false;
 
 		return true;
 	}
@@ -177,7 +177,7 @@ public:
 
 		// Check similarity of the parent class
 		if(!GIndividual::isSimilarTo(*gmst_load, limit)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::isSimilarTo(*gmst_load, limit)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gmst_load, limit)) return false;
 
 		return true;
 	}

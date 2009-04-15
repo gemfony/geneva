@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( GAdaptorT_no_failure_expected )
 		for(boost::uint32_t m=0; m<1000; m++) { // mutation counter
 			gba0.mutate(mutationTarget);
 			boost::uint32_t currentAdaptionCounter=gba0.getAdaptionCounter();
-			BOOST_CHECK(currentAdaptionCounter >= 0 && currentAdaptionCounter<=aT);
+			BOOST_CHECK(currentAdaptionCounter<=aT);
 			if(aT != 0) BOOST_CHECK(currentAdaptionCounter != oldAdaptionCounter);
 			oldAdaptionCounter = currentAdaptionCounter;
 		}
