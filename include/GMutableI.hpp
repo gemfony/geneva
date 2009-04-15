@@ -59,10 +59,7 @@ class GMutableI {
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version){
-	  using boost::serialization::make_nvp;
-	  /* nothing - this is a base class */
-	}
+	void serialize(Archive &, const unsigned int){  /* nothing - this is a base class */ }
 	///////////////////////////////////////////////////////////////////////
 
 public:

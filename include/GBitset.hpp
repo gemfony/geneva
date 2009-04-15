@@ -56,7 +56,7 @@ class GBitset
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GParameterBaseWithAdaptorsT_bool", boost::serialization::base_object<GParameterBaseWithAdaptorsT<bool> >(*this));
 		ar & make_nvp("data", data);

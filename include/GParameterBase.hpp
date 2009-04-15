@@ -75,7 +75,7 @@ class GParameterBase:
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive & ar, const unsigned int version){
+    void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
       ar & make_nvp("GObject",boost::serialization::base_object<GObject>(*this));
       ar & make_nvp("GMutableI", boost::serialization::base_object<GMutableI>(*this));

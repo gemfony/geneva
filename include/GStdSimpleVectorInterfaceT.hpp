@@ -72,7 +72,7 @@ class GStdSimpleVectorInterfaceT
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive & ar, const unsigned int version){
+    void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
       ar & make_nvp("data_T",data);
     }
@@ -153,8 +153,8 @@ public:
 	 * Checks for similarity with another std::vector<T>  object. A specialized
 	 * version of this function exists for typeof(T) == typeof(double)
 	 */
-	inline bool isSimilarTo(const std::vector<T>& cp_data, const double& limit) const {
-		if(!this->isEqualTo(cp_data)) return false;
+	inline bool isSimilarTo(const std::vector<T>& cp_data, const double&) const {
+		if(	data != cp_data) return false;
 		return true;
 	}
 

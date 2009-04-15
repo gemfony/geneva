@@ -91,7 +91,7 @@ class GDataExchange {
     friend class boost::serialization::access;
 
     template<typename Archive>
-	void save(Archive & ar, const unsigned int version) const {
+	void save(Archive & ar, const unsigned int) const {
         using boost::serialization::make_nvp;
         ar & make_nvp("parameterValueSet_", parameterValueSet_);
 
@@ -100,7 +100,7 @@ class GDataExchange {
     }
 
     template<typename Archive>
-    void load(Archive & ar, const unsigned int version){
+    void load(Archive & ar, const unsigned int){
     	using boost::serialization::make_nvp;
     	ar & make_nvp("parameterValueSet_", parameterValueSet_);
 

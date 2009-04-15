@@ -219,7 +219,7 @@ inline void GRandom::getNewP01() {
  * the function. Will throw immediately.
  */
 template <>
-double GRandom::discreteRandom(const double& max){
+double GRandom::discreteRandom(const double&){
 	std::ostringstream error;
 
 	error << "In GRandom::discreteRandom<double>(const double&): Error!" << std::endl
@@ -234,7 +234,7 @@ double GRandom::discreteRandom(const double& max){
  * the function. Will throw immediately.
  */
 template <>
-double GRandom::discreteRandom(const double& min, const double& max){
+double GRandom::discreteRandom(const double&, const double&){
 	std::ostringstream error;
 
 	error << "In GRandom::discreteRandom<double>(const double&, const double&): Error!" << std::endl
@@ -249,7 +249,7 @@ double GRandom::discreteRandom(const double& min, const double& max){
  * the function. Will throw immediately.
  */
 template <>
-float GRandom::discreteRandom(const float& max){
+float GRandom::discreteRandom(const float&){
 	std::ostringstream error;
 
 	error << "In GRandom::discreteRandom<float>(const float&): Error!" << std::endl
@@ -264,7 +264,7 @@ float GRandom::discreteRandom(const float& max){
  * the function. Will throw immediately.
  */
 template <>
-float GRandom::discreteRandom(const float& min, const float& max){
+float GRandom::discreteRandom(const float&, const float&){
 	std::ostringstream error;
 
 	error << "In GRandom::discreteRandom<float>(const float&, const float&): Error!" << std::endl
@@ -279,7 +279,7 @@ float GRandom::discreteRandom(const float& min, const float& max){
  * the function. Will throw immediately.
  */
 template <>
-bool GRandom::discreteRandom(const bool& max){
+bool GRandom::discreteRandom(const bool&){
 	std::ostringstream error;
 
 	error << "In GRandom::discreteRandom<bool>(const bool&): Error!" << std::endl
@@ -294,7 +294,7 @@ bool GRandom::discreteRandom(const bool& max){
  * the function. Will throw immediately.
  */
 template <>
-bool GRandom::discreteRandom(const bool& min, const bool& max){
+bool GRandom::discreteRandom(const bool&, const bool&){
 	std::ostringstream error;
 
 	error << "In GRandom::discreteRandom<bool>(const bool&, const bool&): Error!" << std::endl

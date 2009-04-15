@@ -144,7 +144,7 @@ bool  GObject::isNotEqualTo(const GObject& cp) const {
  * @param limit A double indicating the level of acceptable deviation of two double values
  * @return A boolean indicating whether both objects are similar or not
  */
-bool  GObject::isSimilarTo(const GObject& cp, const double& limit) const {
+bool  GObject::isSimilarTo(const GObject& cp, const double&) const {
 	return GObject::isEqualTo(cp);
 }
 

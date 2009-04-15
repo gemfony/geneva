@@ -91,7 +91,7 @@ class GAdaptorT:
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
 		ar & make_nvp("adaptionCounter_", adaptionCounter_);
@@ -224,7 +224,11 @@ public:
 		// Check that we are indeed dealing with a GAdaptorT reference
 		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
 
-		return  GAdaptorT<T>::isEqualTo(*gat_load);
+		if(GObject::isNotSimilarTo(*gat_load, limit)) return false;
+		if(adaptionCounter_ != gat_load->adaptionCounter_) return false;
+		if(adaptionThreshold_ != gat_load->adaptionThreshold_) return false;
+
+		return true;
 	}
 
 	/***********************************************************************************/

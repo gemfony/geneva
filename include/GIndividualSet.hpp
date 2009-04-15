@@ -52,7 +52,7 @@ class GIndividualSet
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version){
+	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GMutableSetT_GIndividual",
 			  boost::serialization::base_object<GMutableSetT<Gem::GenEvA::GIndividual> >(*this));

@@ -54,7 +54,7 @@ class GParabolaIndividual
 	friend class boost::serialization::access;
 
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("ParameterSet",

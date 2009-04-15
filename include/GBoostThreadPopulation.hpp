@@ -68,7 +68,7 @@ class GBoostThreadPopulation
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int version) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GBTGBasePopulation",
 				boost::serialization::base_object<GBasePopulation>(*this));

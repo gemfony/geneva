@@ -46,3 +46,9 @@
 - Network transfers initiated by clients in separate thread, in parallel to the calculation, thereby eliminating 
   part of the network overhead
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR in assembler ? (Would be fun ...)
+- It should be possible to ask individuals to take charge of the external evaluation of other individuals as well, avoiding generation of local, random copies
+- SSE optimization ?
+- RNR in float faster ?
+- Rename GBasePopulation, e.g. to GEAPopulation ?
+- Add GSwarm, GSteepestDescent ?
+- Remove the unused "version" in serialize functions 
