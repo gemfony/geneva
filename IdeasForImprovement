@@ -39,3 +39,10 @@
 - When boundaries are at the maximum in GBoundedNumT<>, simply return the "in" value after the transformation
 - Allow to supply template items to the GExternalEvaluator in an easy way (particularly the adaptors are important!)
 - Make the external evaluation program read a configuration file rather than the command line
+- Network transfer of the parent rather than the child to avoid transfer of multiple, identical child items
+  Local duplication AND mutation
+- Clients may ask to be sent m>n items, sending back only the n best items. Needs new command duplicate.
+  Order DUPLICATE(M) -> MUTATE -> EVALUATE. Earlier orders imply the latter
+- Network transfers initiated by clients in separate thread, in parallel to the calculation, thereby eliminating 
+  part of the network overhead
+- Coding central routines (particularly even RNR generation and transformation to gaussian RNR in assembler ? (Would be fun ...)
