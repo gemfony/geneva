@@ -508,6 +508,7 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	}
 	while(gde->nextDataSet());
 	BOOST_CHECK(gde->nDataSets() == NDATASETS);
+	BOOST_CHECK(gde->dataIsAvailable());
 
 	// Test whether data can be written to file and read back in again.
 	// In text mode
