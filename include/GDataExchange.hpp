@@ -97,6 +97,8 @@ class GDataExchange {
 
         std::size_t currentPosition = current_ - parameterValueSet_.begin();
         ar & make_nvp("currentPosition_", currentPosition);
+
+        ar & make_nvp("dataIsAvailable_", dataIsAvailable_);
     }
 
     template<typename Archive>
@@ -107,6 +109,8 @@ class GDataExchange {
     	std::size_t currentPosition;
     	ar & make_nvp("currentPosition_", currentPosition);
     	current_ = parameterValueSet_.begin() + currentPosition;
+
+        ar & make_nvp("dataIsAvailable_", dataIsAvailable_);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -162,6 +166,8 @@ public:
 
 	/** @brief Retrieves the number of data sets in the collection */
 	std::size_t nDataSets();
+	/** @brief Checks whether any data sets are present */
+	bool dataIsAvailable();
 
 	/**************************************************************************/
 	/**
@@ -305,6 +311,8 @@ private:
 	std::vector<boost::shared_ptr<GParameterValuePair> > parameterValueSet_;
 	/** @brief An iterator indicating the current position in the vector */
 	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator current_;
+
+	bool dataIsAvailable_; ///< Indicates whether data has been added to the object
 };
 
 /**************************************************************************/

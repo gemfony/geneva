@@ -29,20 +29,20 @@
 
 // Boost headers go here
 #include <boost/program_options.hpp>
+#include <boost/cstdint.hpp>
 
 #ifndef COMMANDLINEPARSER_HPP_
 #define COMMANDLINEPARSER_HPP_
 
 // Default settings
-const std::string DEFAULTPARAMFILE="unknown";
+const std::string DEFAULTPARAMFILE="empty";
+const boost::uint16_t DEFAULTTRANSFERMODE=0; // binary mode
 
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
-			  bool& init,
-			  bool& finalize,
+			  boost::uint16_t& executionMode,
 			  std::string& paramfile,
-		      bool& templ,
-		      bool& result);
+			  boost::uint16_t& transferMode);
 
 #endif /* COMMANDLINEPARSER_HPP_ */

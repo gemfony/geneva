@@ -37,127 +37,118 @@
 #include <cmath>
 
 // Boost headers go here
+#include <boost/random.hpp>
+#include <boost/date_time.hpp>
 
 // Geneva headers go here
 #include "commandLineParser.hpp"
+#include "GDataExchange.hpp"
 
 const std::size_t PARABOLADIM=1000;
+const double PARABOLAMIN=-100.;
+const double PARABOLAMAX=100.;
 
 int main(int argc, char **argv)
 {
+	Gem::Util::GDataExchange ge;
+	boost::uint16_t executionMode, transferMode;
+	bool binary=true;
 	std::string paramfile;
-	bool init, finalize, templ, result;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
-			  init,
-			  finalize,
-			  paramfile,
-		      templ,
-		      result))
-    { exit(1); }
+												executionMode,
+												paramfile,
+												transferMode))
+	{exit(1);}
 
-	if(init) {
-		// Perform initialization code
+	switch(transferMode) {
+	case 0:
+		binary=true;
+		break;
+	case 1:
+		binary=false;
+		break;
+	default:
+		{
+			std::cerr << "Error: Invalid transfer mode" << transferMode << std::endl;
+			exit(1);
+		}
+	}
+
+	// See the file commandLineParser.cpp for the available modes
+	switch(executionMode) {
+	case 1:	// Perform initialization code
 		std::cout << "Initializing ..." << std::endl;
 		return 0;
-	}
+		break;
 
-	if(finalize) {
-		// Perform finalization code
+	case 2:	// Perform finalization code
 		std::cout << "Finalizing ..." << std::endl;
 		return 0;
-	}
+		break;
 
-	if(paramfile != "unknown" && !paramfile.empty()) {
-		/*
-		 * We have been asked to write out a template file. It has the following format:
-		 * Structure of parent:
-		 *   Number n of double values (int)
-		 *   n initial values (double)
-		 *
-		 * All specifics of the population (size, number of parents, etc.) need
-		 * to be specified for the optimizer itself.
-		 */
-		if(templ) {
-			// Open the parameter file
-			std::ofstream ofstr(paramfile.c_str()); // will automatically truncate the file
+	case 3: // Evaluate
+		{
+			// Read in the parameter data
+			ge.readFromFile(paramfile, binary);
 
-			if(!ofstr.good()){
-				std::cerr << "Error: output stream is in a bad state" << std::endl;
-				ofstr.close();
-				return 1;
+			// Loop over all parameter sets and do the actual calculation
+			do {
+				double result = 0.;
+				// Loop over all double values and calculate summed squares ("a parabola")
+				std::size_t nDoubles = ge.size<double>(); // The amount of doubles in the current data set
+				for(std::size_t pos = 0; pos<nDoubles; pos++) result += pow(ge.at<double>(pos), 2);
+				ge.setValue(result);
+			}
+			while(ge.nextDataSet());
+
+			// Write out the results
+			ge.writeToFile(paramfile, binary);
+		}
+		break;
+
+	case 4: // Write out template
+		{
+			// Here we simply want PARABOLADIM double values with boundaries [PARABOLAMIN:PARABOLAMAX]
+			for(std::size_t i=0; i<PARABOLADIM; i++) {
+				ge.append(boost::shared_ptr<Gem::Util::GDoubleParameter>(new Gem::Util::GDoubleParameter(100., PARABOLAMIN, PARABOLAMAX)));
 			}
 
-			// Write out the required information
-			ofstr << PARABOLADIM << std::endl;
+			ge.writeToFile(paramfile, binary);
+		}
+		break;
 
-			for(std::size_t i = 0; i<PARABOLADIM; i++) {
-				ofstr << 100. << std::endl;
+	case 5: // Write out template, initializing with random variables
+		{
+			boost::posix_time::ptime t1;
+		    boost::uint32_t seed = (uint32_t)t1.time_of_day().total_milliseconds();
+			boost::lagged_fibonacci607 lf(seed);
+
+			for(std::size_t i=0; i<PARABOLADIM; i++) {
+				ge.append(boost::shared_ptr<Gem::Util::GDoubleParameter>(new Gem::Util::GDoubleParameter(PARABOLAMIN+lf()*(PARABOLAMAX-PARABOLAMIN), PARABOLAMIN, PARABOLAMAX)));
 			}
 
-			// Make sure the output file is closed.
-			ofstr.close();
-			return 0;
+			ge.writeToFile(paramfile, binary);
 		}
+		break;
 
-		if(result) { // We have been asked to write out a result file for the parameter file
-			std::cout << "Writing out result file" << std::endl;
-			return 0;
+	case 6: // Write out the result for a given parameter set
+		{
+			// Read in the parameter data
+			ge.readFromFile(paramfile, binary);
+
+			// Output the data on the console
+			std::size_t nDoubles = ge.size<double>(); // The amount of doubles in the current data set
+			for(std::size_t pos = 0; pos<nDoubles; pos++) std::cout << ge.at<double>(pos) << std::endl;
 		}
+		break;
 
-		// O.k. so we are supposed to evaluate the content of the parameter file.
-		// Its structure is as follows:
-		// Number n of double values (int)
-		// n double values
-		std::ifstream paramStream(paramfile.c_str());
-		if(!paramStream) {
-			std::cerr << "Error: Could not open file " << paramfile << ". Leaving ..." << std::endl;
-			return 1;
-		}
+	default:
+		std::cerr << "Error: Found invalid execution mode" << std::endl;
+		exit(1);
+	};
 
-		std::size_t pDim = 0;
-		paramStream >> pDim;
-		if(pDim != PARABOLADIM) {
-			std::cerr << "Error: Invalid dimensions: " << pDim << " " << PARABOLADIM << std::endl;
-			return 1;
-		}
-
-		std::vector<double> parabola;
-		for(std::size_t i=0; i<PARABOLADIM; i++) {
-			double tmp;
-			paramStream >> tmp;
-			parabola.push_back(tmp);
-		}
-
-		// Now we can do the actual calculation
-		std::vector<double>::iterator it;
-		double result = 0.;
-		for(it=parabola.begin(); it!=parabola.end(); ++it) result += std::pow(*it,2);
-
-		// Make sure the stream is closed
-		paramStream.close();
-
-		// Finally we write the result to the targer file
-		// Open the parameter file
-		std::ofstream resfile(paramfile.c_str()); // will automatically truncate the file
-
-		if(!resfile.good()){
-			std::cerr << "Error: output stream is in a bad state" << std::endl;
-			resfile.close();
-			return 1;
-		}
-
-		// Write out the required information and close the file
-		resfile << result << std::endl;
-		resfile.close();
-
-		return 0;
-	}
-	else {
-		std::cerr << "Error: you did not specify a valid parameter file" << std::endl;
-		return 1;
-	}
 
 	return 0; // make the compiler happy
 }

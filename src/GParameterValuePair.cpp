@@ -369,12 +369,28 @@ namespace Gem
 
 	/**************************************************************************/
 	/**
-	 * Indicates whether value has been set.
+	 * Indicates whether a value has been set.
 	 *
 	 * @return A boolean indicating whether a value has been set
 	 */
 	bool GParameterValuePair::hasValue() {
 		return hasValue_;
+	}
+
+	/**************************************************************************/
+	/**
+	 * Checks whether any data is available locally
+	 *
+	 * @return A boolean indicating whether any data is available locally
+	 */
+	bool GParameterValuePair::hasData() {
+		if(!dArray_.empty()) return true;
+		if(!lArray_.empty()) return true;
+		if(!bArray_.empty()) return true;
+		if(!cArray_.empty()) return true;
+
+		// Nothing found ...
+		return false;
 	}
 
 	/**************************************************************************/

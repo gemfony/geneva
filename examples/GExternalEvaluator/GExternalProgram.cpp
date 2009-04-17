@@ -50,7 +50,6 @@
 #include "GAsioTCPClient.hpp"
 
 // The individual calls an external program for the evaluation step
-#include "GExecIndividual.hpp"
 #include "GExternalEvaluator.hpp"
 
 // Declares a function to parse the command line

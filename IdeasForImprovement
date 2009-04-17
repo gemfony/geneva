@@ -51,3 +51,4 @@
 - RNR in float faster ?
 - Rename GBasePopulation, e.g. to GenevaPopulation ?
 - Add GSwarm, GSteepestDescent ?
+- Catch signals in the network clients, so that we are sure that we complete network transfers before stopping

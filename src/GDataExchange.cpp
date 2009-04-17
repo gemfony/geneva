@@ -43,6 +43,7 @@ namespace Util
  * The default constructor. Adds a single, empty data set to the collection.
  */
 GDataExchange::GDataExchange()
+	:dataIsAvailable_(false)
 {
 	boost::shared_ptr<GParameterValuePair> p(new GParameterValuePair());
 	parameterValueSet_.push_back(p);
@@ -64,6 +65,7 @@ GDataExchange::GDataExchange(const GDataExchange& cp) {
 	}
 
 	current_ = parameterValueSet_.begin() + (cp.current_ - cp.parameterValueSet_.begin());
+	dataIsAvailable_ = cp.dataIsAvailable_;
 }
 
 /**************************************************************************/
@@ -86,6 +88,7 @@ GDataExchange::~GDataExchange() {
 const GDataExchange& GDataExchange::operator=(const GDataExchange& cp) {
 	copySmartPointerVector<GParameterValuePair>(cp.parameterValueSet_, parameterValueSet_);
 	current_ = parameterValueSet_.begin() + (cp.current_ - cp.parameterValueSet_.begin());
+	dataIsAvailable_ = cp.dataIsAvailable_;
 
 	return cp;
 }
@@ -112,6 +115,8 @@ bool GDataExchange::operator==(const GDataExchange& cp) const {
 	std::size_t localOffset = current_ - parameterValueSet_.begin();
 	std::size_t cpOffset = cp.current_ - cp.parameterValueSet_.begin();
 	if(localOffset != cpOffset) return false;
+
+	if(dataIsAvailable_ != cp.dataIsAvailable_) return false;
 
 	// Now we are sure that all components are equal
 	return true;
@@ -171,6 +176,15 @@ bool GDataExchange::isSimilarTo(const GDataExchange& cp, const double& limit) {
 		return false;
 	}
 
+	if(dataIsAvailable_ != cp.dataIsAvailable_) {
+#ifdef GENEVATESTING
+		std::cerr << "dataIsAvailable_ != cp.dataIsAvailable_ : " << dataIsAvailable_ << " " <<  cpdataIsAvailable_ << std::endl;
+#endif /* GENEVATESTING */
+
+		return false;
+	}
+
+
 	// Now we are sure that all components are equal
 	return true;
 }
@@ -182,6 +196,7 @@ bool GDataExchange::isSimilarTo(const GDataExchange& cp, const double& limit) {
  */
 void GDataExchange::reset() {
 	(*current_)->reset();
+	if(this->nDataSets() == 1) dataIsAvailable_ = false;
 }
 
 /**************************************************************************/
@@ -194,6 +209,7 @@ void GDataExchange::resetAll() {
 	for(it=parameterValueSet_.begin(); it!=parameterValueSet_.end(); ++it)	(*it)->reset();
 	parameterValueSet_.resize(1);
 	current_ = parameterValueSet_.begin();
+	dataIsAvailable_ = false;
 }
 
 /**************************************************************************/
@@ -321,7 +337,6 @@ void GDataExchange::gotoStart() {
  */
 bool GDataExchange::nextDataSet() {
 	if(++current_ != parameterValueSet_.end()) return true;
-
 	current_ = parameterValueSet_.begin();
 	return false;
 }
@@ -344,6 +359,44 @@ void GDataExchange::newDataSet() {
  */
 std::size_t GDataExchange::nDataSets() {
 	return parameterValueSet_.size();
+}
+
+/**************************************************************************/
+/**
+ * Checks whether any data sets are present
+ *
+ * @return A boolean indicating whether data sets are present
+ */
+bool GDataExchange::dataIsAvailable() {
+	if(dataIsAvailable_) return dataIsAvailable_; // We have checked before in this case
+	else { // Need to check locally in our data GParameterValuePairs
+		if(this->nDataSets() == 1) {
+			if ((parameterValueSet_.front())->hasData()) {
+				dataIsAvailable_ = true;
+				return dataIsAvailable_;
+			}
+			else {
+				return false;
+			}
+		}
+		else { // Check all data sets, complain if one without data was found
+			std::vector<boost::shared_ptr<GParameterValuePair> >::iterator it;
+			for(it=parameterValueSet_.begin(); it!=parameterValueSet_.end(); ++it) {
+				if(!(*it)->hasData()) {
+					std::ostringstream error;
+					error << "In GDataExchange::dataIsAvailable(): Error!" << std::endl
+						      << "Multiple data sets, but no data." << std::endl;
+					throw(GDataExchangeException(error.str()));
+				}
+			}
+
+			dataIsAvailable_ = true;
+			return dataIsAvailable_;
+		}
+	}
+
+	// Make the compiler happy
+	return false;
 }
 
 /**************************************************************************/
@@ -832,6 +885,9 @@ void GDataExchange::writeToStream(std::ostream& stream) const {
 	// Store the offset of the current_ iterator
 	std::size_t offset = current_ - parameterValueSet_.begin();
 	stream << offset << std::endl;
+
+	// Store information whether data is available locally
+	stream << (dataIsAvailable_?1:0) << std::endl;
 }
 
 /**************************************************************************/
@@ -875,6 +931,29 @@ void GDataExchange::readFromStream(std::istream& stream) {
 	std::size_t offset = 0;
 	stream >> offset;
 	current_ = parameterValueSet_.begin() + offset;
+
+	// Retrieve the flag indicating whether data is available
+	boost::uint16_t dataIsAvailableInt;
+	stream >> dataIsAvailableInt;
+	switch(dataIsAvailableInt) {
+	case 0:
+		dataIsAvailable_ = false;
+		break;
+
+	case 1:
+		dataIsAvailable_ = true;
+		break;
+
+	default:
+		{
+			std::ostringstream error;
+			error << "In GDataExchange::readFromStream(): Error!" << std::endl
+				     << "Found invalid data availability flag : " << dataIsAvailableInt << std::endl;
+
+			throw(GDataExchangeException(error.str()));
+		}
+		break;
+	}
 }
 
 /**************************************************************************/
@@ -895,6 +974,9 @@ void GDataExchange::binaryWriteToStream(std::ostream& stream) const {
 	// Store the offset of the current_ iterator
 	std::size_t offset = current_ - parameterValueSet_.begin();
 	stream.write(reinterpret_cast<const char *>(&offset), sizeof(offset));
+
+	// Store the data-availability check
+	stream.write(reinterpret_cast<const char *>(&dataIsAvailable_), sizeof(dataIsAvailable_));
 }
 
 /**************************************************************************/
@@ -938,6 +1020,9 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
 	std::size_t offset = 0;
 	stream.read(reinterpret_cast<char *>(&offset), sizeof(offset));
 	current_ = parameterValueSet_.begin() + offset;
+
+	// Restore the data-availability check
+	stream.read(reinterpret_cast<char *>(&dataIsAvailable_), sizeof(dataIsAvailable_));
 }
 
 /**************************************************************************/
@@ -973,6 +1058,10 @@ void GDataExchange::writeToFile(const std::string& fileName, bool binary) {
  * @param binary Indicates whether data reading should be done in binary- or text-mode
  */
 void GDataExchange::readFromFile(const std::string& fileName, bool binary) {
+	// First reset all local data structures, so we are sure to start with
+	// a "clean" object
+	this->resetAll();
+
 	std::ifstream input(fileName.c_str());
 	if(!input.good()) {
 		std::ostringstream error;
@@ -988,6 +1077,15 @@ void GDataExchange::readFromFile(const std::string& fileName, bool binary) {
 		this->readFromStream(input);
 
 	input.close();
+
+	// Check that data is available
+	if(!this->dataIsAvailable()) {
+		std::ostringstream error;
+		error << "In GDataExchange::readFromFile(): Error!" << std::endl
+ 			     << "Read data from file, but no data is available ..." << std::endl;
+
+		throw(GDataExchangeException(error.str()));
+	}
 }
 
 /**************************************************************************/

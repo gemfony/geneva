@@ -123,6 +123,8 @@ public:
 	double value();
 	/** @brief Determines whether a value has been set */
 	bool hasValue();
+	/** @brief Checks whether any data is available locally */
+	bool hasData();
 
 	/** @brief Sets the precision of FP IO in ASCII mode */
 	void setPrecision(const std::streamsize&);

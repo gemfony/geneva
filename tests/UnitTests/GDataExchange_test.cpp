@@ -106,23 +106,23 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 	*c3 = *c0;
 
 	// Check that the objects are now identical
-	BOOST_REQUIRE(*d3==*d0);
-	BOOST_REQUIRE(*l3==*l0);
-	BOOST_REQUIRE(*b3==*b0);
-	BOOST_REQUIRE(*c3==*c0);
+	BOOST_CHECK(*d3==*d0);
+	BOOST_CHECK(*l3==*l0);
+	BOOST_CHECK(*b3==*b0);
+	BOOST_CHECK(*c3==*c0);
 
 	// Check that d3 etc. have the correct values. Note that they
 	// had different values before the assignment.
-	BOOST_REQUIRE(d3->getParameter() == 1.);
-	BOOST_REQUIRE(l3->getParameter() == 2);
-	BOOST_REQUIRE(b3->getParameter() == false);
-	BOOST_REQUIRE(c3->getParameter() == 'x');
+	BOOST_CHECK(d3->getParameter() == 1.);
+	BOOST_CHECK(l3->getParameter() == 2);
+	BOOST_CHECK(b3->getParameter() == false);
+	BOOST_CHECK(c3->getParameter() == 'x');
 
 	// Check that no boundaries have been assigned
-	BOOST_REQUIRE(!d3->hasBoundaries());
-	BOOST_REQUIRE(!l3->hasBoundaries());
-	BOOST_REQUIRE(!b3->hasBoundaries());
-	BOOST_REQUIRE(!c3->hasBoundaries());
+	BOOST_CHECK(!d3->hasBoundaries());
+	BOOST_CHECK(!l3->hasBoundaries());
+	BOOST_CHECK(!b3->hasBoundaries());
+	BOOST_CHECK(!c3->hasBoundaries());
 
 	// Assign new values
 	d3->setParameter(3.);
@@ -131,16 +131,16 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 	c3->setParameter('z');
 
 	// Check again values and boundaries
-	BOOST_REQUIRE(d3->getParameter() == 3.);
-	BOOST_REQUIRE(l3->getParameter() == 4);
-	BOOST_REQUIRE(b3->getParameter() == true);
-	BOOST_REQUIRE(c3->getParameter() == 'z');
+	BOOST_CHECK(d3->getParameter() == 3.);
+	BOOST_CHECK(l3->getParameter() == 4);
+	BOOST_CHECK(b3->getParameter() == true);
+	BOOST_CHECK(c3->getParameter() == 'z');
 
 	// Check that no boundaries have been assigned
-	BOOST_REQUIRE(!d3->hasBoundaries());
-	BOOST_REQUIRE(!l3->hasBoundaries());
-	BOOST_REQUIRE(!b3->hasBoundaries());
-	BOOST_REQUIRE(!c3->hasBoundaries());
+	BOOST_CHECK(!d3->hasBoundaries());
+	BOOST_CHECK(!l3->hasBoundaries());
+	BOOST_CHECK(!b3->hasBoundaries());
+	BOOST_CHECK(!c3->hasBoundaries());
 
 	// Assign new values, this time with boundaries
 	d3->setParameter(4.,0.,4.);
@@ -149,28 +149,28 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 	c3->setParameter('a',0,127);
 
 	// Check again values and boundaries
-	BOOST_REQUIRE(d3->getParameter() == 4.);
-	BOOST_REQUIRE(l3->getParameter() == 5);
-	BOOST_REQUIRE(b3->getParameter() == false);
-	BOOST_REQUIRE(c3->getParameter() == 'a');
+	BOOST_CHECK(d3->getParameter() == 4.);
+	BOOST_CHECK(l3->getParameter() == 5);
+	BOOST_CHECK(b3->getParameter() == false);
+	BOOST_CHECK(c3->getParameter() == 'a');
 
 	// Check that boundaries have been assigned this time
-	BOOST_REQUIRE(d3->hasBoundaries());
-	BOOST_REQUIRE(l3->hasBoundaries());
-	BOOST_REQUIRE(b3->hasBoundaries());
-	BOOST_REQUIRE(c3->hasBoundaries());
+	BOOST_CHECK(d3->hasBoundaries());
+	BOOST_CHECK(l3->hasBoundaries());
+	BOOST_CHECK(b3->hasBoundaries());
+	BOOST_CHECK(c3->hasBoundaries());
 
 	// Check the value of the lower boundaries ...
-	BOOST_REQUIRE(d3->getLowerBoundary() == 0.);
-	BOOST_REQUIRE(l3->getLowerBoundary() == 0);
-	BOOST_REQUIRE(b3->getLowerBoundary() == false);
-	BOOST_REQUIRE(c3->getLowerBoundary() == 0);
+	BOOST_CHECK(d3->getLowerBoundary() == 0.);
+	BOOST_CHECK(l3->getLowerBoundary() == 0);
+	BOOST_CHECK(b3->getLowerBoundary() == false);
+	BOOST_CHECK(c3->getLowerBoundary() == 0);
 
 	// and the value of the upper boundaries
-	BOOST_REQUIRE(d3->getUpperBoundary() == 4.);
-	BOOST_REQUIRE(l3->getUpperBoundary() == 5);
-	BOOST_REQUIRE(b3->getUpperBoundary() == true);
-	BOOST_REQUIRE(c3->getUpperBoundary() == 127);
+	BOOST_CHECK(d3->getUpperBoundary() == 4.);
+	BOOST_CHECK(l3->getUpperBoundary() == 5);
+	BOOST_CHECK(b3->getUpperBoundary() == true);
+	BOOST_CHECK(c3->getUpperBoundary() == 127);
 
 	// Write objects to file in binary and text mode repeatedly (so we can write
 	// out different, random numbers), read them back in and check equality
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 		d4->binaryReadFromStream(dinputbin);
 		dinputbin.close();
 
-		BOOST_REQUIRE(*d3==*d4);
+		BOOST_CHECK(*d3==*d4);
 		d4->reset();
 
 		d3->setPrecision(11);
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 		l4->binaryReadFromStream(linputbin);
 		linputbin.close();
 
-		BOOST_REQUIRE(*l3==*l4);
+		BOOST_CHECK(*l3==*l4);
 		l4->reset();
 
 		std::ofstream loutputtxt("ldata.txt");
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 		l4->readFromStream(linputtxt);
 		linputtxt.close();
 
-		BOOST_REQUIRE(*l3==*l4);
+		BOOST_CHECK(*l3==*l4);
 		l4->reset();
 
 		//***********************************************************
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 		b4->binaryReadFromStream(binputbin);
 		binputbin.close();
 
-		BOOST_REQUIRE(*b3==*b4);
+		BOOST_CHECK(*b3==*b4);
 		b4->reset();
 
 		std::ofstream boutputtxt("bdata.txt");
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 		b4->readFromStream(binputtxt);
 		binputtxt.close();
 
-		BOOST_REQUIRE(*b3==*b4);
+		BOOST_CHECK(*b3==*b4);
 		b4->reset();
 
 		//***********************************************************
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 		c4->binaryReadFromStream(cinputbin);
 		cinputbin.close();
 
-		BOOST_REQUIRE(*c3==*c4);
+		BOOST_CHECK(*c3==*c4);
 		c4->reset();
 
 		std::ofstream coutputtxt("cdata.txt");
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE(gnumericparametert_no_failure_expected)
 		c4->readFromStream(cinputtxt);
 		cinputtxt.close();
 
-		BOOST_REQUIRE(*c3==*c4);
+		BOOST_CHECK(*c3==*c4);
 		c4->reset();
 		//***********************************************************
 	}
@@ -298,12 +298,12 @@ BOOST_AUTO_TEST_CASE(gparametervaluepair_no_failure_expected)
 	boost::shared_ptr<GParameterValuePair> p0(new GParameterValuePair());
 	boost::shared_ptr<GParameterValuePair> p1(new GParameterValuePair());
 
-	BOOST_REQUIRE(p0->value_ == 0.);
-	BOOST_REQUIRE(!p0->hasValue_);
-	BOOST_REQUIRE(p0->dArray_.empty());
-	BOOST_REQUIRE(p0->lArray_.empty());
-	BOOST_REQUIRE(p0->bArray_.empty());
-	BOOST_REQUIRE(p0->cArray_.empty());
+	BOOST_CHECK(p0->value_ == 0.);
+	BOOST_CHECK(!p0->hasValue_);
+	BOOST_CHECK(p0->dArray_.empty());
+	BOOST_CHECK(p0->lArray_.empty());
+	BOOST_CHECK(p0->bArray_.empty());
+	BOOST_CHECK(p0->cArray_.empty());
 
 	// Attach data to the vectors
 	for(std::size_t i=0; i<NPARAMETERSETS; i++) {
@@ -337,51 +337,51 @@ BOOST_AUTO_TEST_CASE(gparametervaluepair_no_failure_expected)
 	// Assign A value and check for its existence
 	p0->value_ = 1.234;
 	p0->hasValue_ = true;
-	BOOST_REQUIRE(p0->value_ == p0->value());
-	BOOST_REQUIRE(p0->hasValue_ == p0->hasValue());
+	BOOST_CHECK(p0->value_ == p0->value());
+	BOOST_CHECK(p0->hasValue_ == p0->hasValue());
 
 	// Check copy construction and the correct copying of data. Also checks the operator==
 	boost::shared_ptr<GParameterValuePair> p2(new GParameterValuePair(*p0));
-	BOOST_REQUIRE(*p2 == *p0);
+	BOOST_CHECK(*p2 == *p0);
 
 	// Check that two very different objects are indeed not similar to each other
-	BOOST_REQUIRE(!p2->isSimilarTo(*p1));
+	BOOST_CHECK(!p2->isSimilarTo(*p1));
 
 	// Reset p2 and check that it is no different from p0 and empty
 	p2->reset();
-	BOOST_REQUIRE(*p2 != *p0);
-	BOOST_REQUIRE(p2->value_ == 0.);
-	BOOST_REQUIRE(!p2->hasValue_);
-	BOOST_REQUIRE(p2->dArray_.empty());
-	BOOST_REQUIRE(p2->lArray_.empty());
-	BOOST_REQUIRE(p2->bArray_.empty());
-	BOOST_REQUIRE(p2->cArray_.empty());
+	BOOST_CHECK(*p2 != *p0);
+	BOOST_CHECK(p2->value_ == 0.);
+	BOOST_CHECK(!p2->hasValue_);
+	BOOST_CHECK(p2->dArray_.empty());
+	BOOST_CHECK(p2->lArray_.empty());
+	BOOST_CHECK(p2->bArray_.empty());
+	BOOST_CHECK(p2->cArray_.empty());
 
 	// Check the assignment operator and check again equality
 	*p2 = *p0;
-	BOOST_REQUIRE(*p2 == *p0);
+	BOOST_CHECK(*p2 == *p0);
 
 	// Write the object out in binary mode and load it back in. Then check equality.
 	std::ofstream binaryOutput("pvp.bin");
 	p0->binaryWriteToStream(binaryOutput);
 	binaryOutput.close();
 	p2->reset();
-	BOOST_REQUIRE(*p2 != *p0);
+	BOOST_CHECK(*p2 != *p0);
 	std::ifstream binaryInput("pvp.bin");
 	p2->binaryReadFromStream(binaryInput);
 	binaryInput.close();
-	BOOST_REQUIRE(*p2 == *p0);
+	BOOST_CHECK(*p2 == *p0);
 
 	// Write the object out in text mode and load it back in. Then check similarity
 	std::ofstream textOutput("pvp.txt");
 	p0->writeToStream(textOutput);
 	textOutput.close();
 	p2->reset();
-	BOOST_REQUIRE(*p2 != *p0);
+	BOOST_CHECK(*p2 != *p0);
 	std::ifstream textInput("pvp.txt");
 	p2->readFromStream(textInput);
 	textInput.close();
-	BOOST_REQUIRE(p2->isSimilarTo(*p0, exp(-10)));
+	BOOST_CHECK(p2->isSimilarTo(*p0, exp(-10)));
 }
 
 /***********************************************************************************/
@@ -392,6 +392,8 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 {
 	GRandom gr;
 	boost::shared_ptr<GDataExchange> gde(new GDataExchange());
+	BOOST_CHECK(!gde->dataIsAvailable());
+	BOOST_CHECK(gde->nDataSets() == 1);
 
 	// Fill with individual value items
 	for(std::size_t gde_counter=0; gde_counter < NDATASETS; gde_counter++) {
@@ -400,21 +402,23 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.boolRandom());
 		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<char>(gr.charRandom());
 
-		BOOST_REQUIRE(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
-		BOOST_REQUIRE(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
-		BOOST_REQUIRE(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
-		BOOST_REQUIRE(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
 
 		if(gde_counter < NDATASETS-1) gde->newDataSet(); // Prevent an empty data set at the end
 	}
 
 	// GDataExchange fills itself with a single data set upon creation. Since we
 	// added another 10 data sets, there should now be 11 of them.
-	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
+	BOOST_CHECK(gde->nDataSets() == NDATASETS);
+	BOOST_CHECK(gde->dataIsAvailable());
 
 	gde->gotoStart();
 	gde->resetAll(); // There should now only be one data set remaining
-	BOOST_REQUIRE(gde->nDataSets() == 1);
+	BOOST_CHECK(gde->nDataSets() == 1);
+	BOOST_CHECK(!gde->dataIsAvailable());
 
 	// Fill with values including boundaries
 	for(std::size_t gde_counter=0; gde_counter < 10; gde_counter++) {
@@ -423,18 +427,18 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.boolRandom(), false, true);
 		for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<char>(gr.charRandom(false), 0, 127);
 
-		BOOST_REQUIRE(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
-		BOOST_REQUIRE(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
-		BOOST_REQUIRE(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
-		BOOST_REQUIRE(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
 
 		if(gde_counter < NDATASETS-1) gde->newDataSet(); // Prevent an empty data set at the end
 	}
-	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
+	BOOST_CHECK(gde->nDataSets() == NDATASETS);
 
 	gde->gotoStart();
 	gde->resetAll(); // There should now only be one data set remaining
-	BOOST_REQUIRE(gde->nDataSets() == 1);
+	BOOST_CHECK(gde->nDataSets() == 1);
 
 	// Fill directly with GParameter objects
 	for(std::size_t gde_counter=0; gde_counter < NDATASETS; gde_counter++) {
@@ -457,60 +461,60 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 			gde->append(c);
 		}
 
-		BOOST_REQUIRE(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
-		BOOST_REQUIRE(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
-		BOOST_REQUIRE(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
-		BOOST_REQUIRE(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
+		BOOST_CHECK(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
 
 		if(gde_counter < NDATASETS-1) gde->newDataSet(); // Otherwise we will have an empty data set at the end
 	}
-	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
+	BOOST_CHECK(gde->nDataSets() == NDATASETS);
 
 	// Check that we can assign values to the data sets and iterate through them
 	gde->gotoStart();
 	do {
-		BOOST_REQUIRE(!gde->hasValue()); // No value has been assigned so far
+		BOOST_CHECK(!gde->hasValue()); // No value has been assigned so far
 		double value = gr.evenRandom(0.,10.);
 		gde->setValue(value);
-		BOOST_REQUIRE(gde->hasValue()); // Value should have been set at this point
-		BOOST_REQUIRE(value == gde->value());
+		BOOST_CHECK(gde->hasValue()); // Value should have been set at this point
+		BOOST_CHECK(value == gde->value());
 	}
 	while(gde->nextDataSet());
 
 	// Switch to the best data set, with the lowest value being "best"
 	gde->switchToBestDataSet(true);
-	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
+	BOOST_CHECK(gde->nDataSets() == NDATASETS);
 
 	// Check that the container is indeed sorted in ascending order
 	double bestValue=-1.; // Note that we have initialized the values with random numbers in the range [0.,10.[
 	double tmpBestValue = -1.;
 	do {
 		tmpBestValue = gde->value();
-		BOOST_REQUIRE(bestValue <= tmpBestValue);
+		BOOST_CHECK(bestValue <= tmpBestValue);
 		bestValue = tmpBestValue;
 	}
 	while(gde->nextDataSet());
 
 	// Switch to the best data set, with the highest value being "best"
 	gde->switchToBestDataSet(false);
-	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
+	BOOST_CHECK(gde->nDataSets() == NDATASETS);
 
 	// Check that the container is indeed sorted in descending order
 	bestValue=11.; // Note that we have initialized the values with random numbers in the range [0.,10.[
 	do {
 		tmpBestValue = gde->value();
-		BOOST_REQUIRE(bestValue >= tmpBestValue);
+		BOOST_CHECK(bestValue >= tmpBestValue);
 		bestValue = tmpBestValue;
 	}
 	while(gde->nextDataSet());
-	BOOST_REQUIRE(gde->nDataSets() == NDATASETS);
+	BOOST_CHECK(gde->nDataSets() == NDATASETS);
 
 	// Test whether data can be written to file and read back in again.
 	// In text mode
 	gde->writeToFile("testFile.txt",false);
 	boost::shared_ptr<GDataExchange> gde2(new GDataExchange()); // Create second, empty object
 	gde2->readFromFile("testFile.txt",false);
-	BOOST_REQUIRE(gde2->isSimilarTo(*gde,exp(-10)));
+	BOOST_CHECK(gde2->isSimilarTo(*gde,exp(-10)));
 
 	 // Put gde2 in pristine condition so we can start over with the binary mode
 	gde2->resetAll();
@@ -518,10 +522,10 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	// In binary mode
 	gde->writeToFile("testFile.bin",true);
 	gde2->readFromFile("testFile.bin",true);
-	BOOST_REQUIRE(*gde == *gde2);
+	BOOST_CHECK(*gde == *gde2);
 
 	gde->resetAll(); // There should now only be one data set remaining
-	BOOST_REQUIRE(gde->nDataSets() == 1);
+	BOOST_CHECK(gde->nDataSets() == 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
