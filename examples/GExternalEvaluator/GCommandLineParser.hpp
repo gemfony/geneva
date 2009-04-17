@@ -54,15 +54,16 @@ const std::size_t DEFAULTNPARENTS=5;
 const std::string DEFAULTPROGRAM="./evaluator/evaluator";
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=5;
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
-const long DEFAULTMAXMINUTES=10;
+const long DEFAULTMAXMINUTES=0;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
 const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
-const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
+const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
 const boost::uint16_t DEFAULTPARALLEL=1;
 const std::string DEFAULTEXTERNALARGUMENTS="empty";
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
+const boost::uint32_t DEFAULTNEVALUATIONS=100;
 
 namespace po = boost::program_options;
 
@@ -85,6 +86,7 @@ bool parseCommandLine(int argc, char **argv,
 					  double& sigmaSigma,
 					  double& minSigma,
 					  double& maxSigma,
+					  boost::uint32_t& nEvaluations,
 					  bool& verbose);
 
 } /* namespace GenEvA */

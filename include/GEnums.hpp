@@ -62,7 +62,7 @@ namespace GenEvA {
    */
   enum infoMode {INFOINIT=0, INFOPROCESSING=1, INFOEND=2};
 
-  const double DEFAULTSIGMA = 0.1; ///< Default start value for sigma_
+  const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
   const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption
   const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for sigma_
   const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_

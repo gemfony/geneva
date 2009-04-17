@@ -50,6 +50,7 @@ bool parseCommandLine(int argc, char **argv,
 					  double& sigmaSigma,
 					  double& minSigma,
 					  double& maxSigma,
+					  boost::uint32_t& nEvaluations,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -92,6 +93,8 @@ bool parseCommandLine(int argc, char **argv,
 					"The minimum allowed value for sigma")
 			("maxSigma,M", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
 					"The maximum allowed value for sigma")
+			("nEvaluations,V", po::value<boost::uint32_t>(&nEvaluations)->default_value(DEFAULTNEVALUATIONS),
+					"The amount of evaluations each external program shall perform")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;

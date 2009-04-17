@@ -80,6 +80,7 @@ int main(int argc, char **argv){
 	 bool verbose;
 	 recoScheme rScheme;
 	 double sigma,sigmaSigma,minSigma,maxSigma;
+	 boost::uint32_t nEvaluations;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -101,6 +102,7 @@ int main(int argc, char **argv){
 						 sigmaSigma,
 						 minSigma,
 						 maxSigma,
+						 nEvaluations,
 						 verbose))
 	{ exit(1); }
 
@@ -122,7 +124,7 @@ int main(int argc, char **argv){
 	GExternalEvaluator::initialize(program, externalArguments);
 
 	// Create a number of adaptors to be used in the individual
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor());
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
 	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
 	gifa_ptr->setAdaptionThreshold(adaptionThreshold);
@@ -144,6 +146,9 @@ int main(int argc, char **argv){
 					gcfa_ptr
 			)
 	);
+
+	// Make each external program evaluate a number of data sets, if nEvaluations > 1
+	gev_ptr->setNEvaluations(nEvaluations);
 
 	// Set up the populations, as requested
 	if(parallel==0) { // serial execution
