@@ -251,7 +251,7 @@ public:
 	 *
 	 * @param gat A boost::shared_ptr to an adaptor
 	 */
-	void addAdaptor(const boost::shared_ptr<GAdaptorT<T> >& gat) {
+	void addAdaptor(boost::shared_ptr<GAdaptorT<T> > gat) {
 		// Check that we have indeed been given an adaptor
 		if(!gat){
 			std::ostringstream error;
@@ -548,7 +548,7 @@ private:
 	 * @param from The original vector that should be copied
 	 * @param to The target vector
 	 */
-	void copyAdaptors(const GATvec& from, GATvec& to) {
+	void copyAdaptors(GATvec from, GATvec& to) {
 		// Copy all adaptors with identical name, then check how many adaptors were copied
 		typename GATvec::iterator itTo;
 		typename GATvec::const_iterator itFrom;

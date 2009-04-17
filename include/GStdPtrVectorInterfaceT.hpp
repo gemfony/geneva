@@ -101,7 +101,7 @@ public:
 	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T>& cp) {
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
 		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it)
-			data.push_back(boost::shared_ptr<T>((*cp_it)->GObject::clone_ptr_cast<T>()));
+			data.push_back((*cp_it)->GObject::clone_bptr_cast<T>());
 	}
 
 	/*****************************************************************************/
@@ -379,8 +379,7 @@ public:
 	 * somewhere.
 	 */
 	inline iterator insert(iterator pos, const T& item) {
-		boost::shared_ptr<T> item_ptr(item.GObject::clone_ptr_cast<T>());
-		return data.insert(pos, item_ptr);
+		return data.insert(pos, item.GObject::clone_bptr_cast<T>());
 	}
 
 	/*****************************************************************************/
@@ -388,7 +387,7 @@ public:
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere.
 	 */
-	inline iterator insert(iterator pos, const boost::shared_ptr<T>& item) {
+	inline iterator insert(iterator pos, boost::shared_ptr<T> item) {
 		if(!item) { // Check that item actually contains something useful
 			std::ostringstream error;
 			error << "In GParameterTCollectionT<T>::insert(pos, item): Error!"
@@ -397,7 +396,7 @@ public:
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 
-		return data.insert(pos, item);
+		return data.insert(pos, item->GObject::clone_bptr_cast<T>());
 	}
 
 	/*****************************************************************************/
@@ -407,9 +406,8 @@ public:
 	inline void insert(iterator pos, size_type amount, const T& item) {
 		std::size_t iterator_pos = pos - data.begin();
 		for(std::size_t i=0; i<amount; i++) {
-			boost::shared_ptr<T> p(item.GObject::clone_ptr_cast<T>());
 			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin() + iterator_pos, p);
+			data.insert(data.begin() + iterator_pos, item.GObject::clone_bptr_cast<T>());
 		}
 	}
 
@@ -417,7 +415,7 @@ public:
 	/**
 	 * Inserts a given amount of items after position pos.
 	 */
-	inline void insert(iterator pos, size_type amount, const boost::shared_ptr<T>& item_ptr) {
+	inline void insert(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 			std::ostringstream error;
 			error << "In GParameterTCollectionT<T>::insert(pos, amount, item): Error!"
@@ -429,14 +427,14 @@ public:
 		std::size_t iterator_pos = pos - data.begin();
 		for(std::size_t i=0; i<amount; i++) {
 			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin() + iterator_pos,  item_ptr);
+			data.insert(data.begin() + iterator_pos,  item_ptr->GObject::clone_bptr_cast<T>());
 		}
 	}
 
 	/*****************************************************************************/
-	// Adding shared_ptr objects to the  back of the vector
-	inline void push_back(const boost::shared_ptr<T>& item){
-		if(!item) { // Check that item actually contains something useful
+	// Adding shared_ptr objects to the  back of the vector.
+	inline void push_back(boost::shared_ptr<T> item_ptr){
+		if(!item_ptr) { // Check that item actually contains something useful
 			std::ostringstream error;
 			error << "In GParameterTCollectionT<T>::push_back(item): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
@@ -444,14 +442,14 @@ public:
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 
-		data.push_back(item);
+		data.push_back(item_ptr->GObject::clone_bptr_cast<T>());
 	}
 
 	/*****************************************************************************/
-	// Adding simple items to the  back of the vector
+	// Adding simple items to the  back of the vector. Note
+	// that this function does not clone the object.
 	inline void push_back(const T& item){
-		boost::shared_ptr<T> item_ptr(item.GObject::clone_ptr_cast<T>());
-		data.push_back(item_ptr);
+		data.push_back(item.GObject::clone_bptr_cast<T>());
 	}
 
 	/*****************************************************************************/
@@ -472,14 +470,14 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	inline void resize(size_type amount, const boost::shared_ptr<T>& item) {
+	inline void resize(size_type amount, boost::shared_ptr<T> item_ptr) {
 		std::size_t dataSize = data.size();
 
 		if(amount < dataSize)
 			data.resize(amount);
 		else if(amount > dataSize) {
 			// Check that item is not empty
-			if(!item) { // Check that item actually contains something useful
+			if(!item_ptr) { // Check that item actually contains something useful
 				std::ostringstream error;
 				error << "In GParameterTCollectionT<T>::resize(amount, item): Error!"
 					     << "Tried to insert an empty smart pointer." << std::endl;
@@ -488,7 +486,7 @@ public:
 			}
 
 			for(std::size_t i=dataSize; i<amount; i++) {
-				data.push_back(item);
+				data.push_back(item_ptr->GObject::clone_bptr_cast<T>());
 			}
 		}
 	}
@@ -509,8 +507,7 @@ public:
 			data.resize(amount);
 		else if(amount > dataSize) {
 			for(std::size_t i=dataSize; i<amount; i++) {
-				boost::shared_ptr<T> p(item.GObject::clone_ptr_cast<T>());
-				data.push_back(p);
+				data.push_back(item.GObject::clone_bptr_cast<T>());
 			}
 		}
 	}
@@ -545,8 +542,7 @@ public:
 
 			// Then attach the remaining objects from cp
 			for(cp_it=cp.begin()+localSize; cp_it != cp.end(); ++cp_it) {
-				boost::shared_ptr<T> p((*cp_it)->GObject::clone_ptr_cast<T>());
-				data.push_back(p);
+				data.push_back((*cp_it)->GObject::clone_bptr_cast<T>());
 			}
 		}
 		else if(cpSize < localSize) {

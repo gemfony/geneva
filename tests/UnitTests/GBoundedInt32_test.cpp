@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( GBoundedInt32_no_failure_expected )
 	GBoundedInt32 gbi3(gbi2);
 
 	BOOST_CHECK(gbi3 == gbi2);
-	BOOST_CHECK(gbi2 != gbi1);
+	if(gbi1.value() != 1) BOOST_CHECK(gbi2 != gbi1); // gbi1 may randomly be assigned the value, which would result in an error being erroneously reported
 	BOOST_CHECK(gbi2 != gbi0);
 	BOOST_CHECK(gbi1 != gbi0);
 	BOOST_CHECK(gbi7 != gbi0);

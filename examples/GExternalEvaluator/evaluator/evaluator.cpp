@@ -79,12 +79,16 @@ int main(int argc, char **argv)
 	// See the file commandLineParser.cpp for the available modes
 	switch(executionMode) {
 	case 1:	// Perform initialization code
-		std::cout << "Initializing ..." << std::endl;
+		std::cout << "Initializing ...";
+		// put your code here
+		std::cout << "... done." << std::endl;
 		return 0;
 		break;
 
 	case 2:	// Perform finalization code
-		std::cout << "Finalizing ..." << std::endl;
+		std::cout << "Finalizing ...";
+		// put your code here
+		std::cout << " ... done." << std::endl;
 		return 0;
 		break;
 

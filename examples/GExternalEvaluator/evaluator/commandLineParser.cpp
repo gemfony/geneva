@@ -86,8 +86,6 @@ bool parseCommandLine(int argc, char **argv,
 
 		// Initialize the reference arguments
 		executionMode = 0; // no effect
-		paramfile = "empty";
-		transferMode = 0; // binary transfer
 
 		// Emit a help message, if necessary
 		if (vm.count("help")) {
@@ -113,6 +111,7 @@ bool parseCommandLine(int argc, char **argv,
 		if(vm.count("paramfile") == 0 || paramfile == DEFAULTPARAMFILE || paramfile.empty()) {
 			std::cerr << "Error: You need to specify the name of the parameter file (option \"-p\")." << std::endl
 			<< "Make sure it is not \"empty\"" << std::endl;
+			if(vm.count("paramfile")==0) std::cout << "Current name is \"" << paramfile << "\"" << std::endl;
 			return false;
 		}
 

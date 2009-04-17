@@ -111,6 +111,9 @@ class GExternalEvaluator
 		ar & make_nvp("exchangeMode_", exchangeMode_);
 		ar & make_nvp("maximize_", maximize_);
 		ar & make_nvp("parameterFile_", parameterFile_);
+		ar & make_nvp("gdbl_ptr_", gdbl_ptr_);
+		ar & make_nvp("glong_ptr_", glong_ptr_);
+		ar & make_nvp("gchar_ptr_", gchar_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -134,10 +137,10 @@ public:
 	GExternalEvaluator(const std::string& program,
 			                             const std::string& arguments="empty",
 			                             const bool& random=false,
-			                             const boost::shared_ptr<GAdaptorT<double> >& gdbl_ad_ptr = boost::shared_ptr<GAdaptorT<double> >((GAdaptorT<double> *)NULL),
-			                             const boost::shared_ptr<GAdaptorT<boost::int32_t> >& glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL),
-			                             const boost::shared_ptr<GAdaptorT<bool> >& gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL),
-			                             const boost::shared_ptr<GAdaptorT<char> >& gchar_ad_ptr = boost::shared_ptr<GAdaptorT<char> >((GAdaptorT<char> *)NULL)
+			                             boost::shared_ptr<GAdaptorT<double> > gdbl_ad_ptr = boost::shared_ptr<GAdaptorT<double> >((GAdaptorT<double> *)NULL),
+			                             boost::shared_ptr<GAdaptorT<boost::int32_t> > glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL),
+			                             boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL),
+			                             boost::shared_ptr<GAdaptorT<char> > gchar_ad_ptr = boost::shared_ptr<GAdaptorT<char> >((GAdaptorT<char> *)NULL)
 		)
 		:program_(program),
 		 arguments_(arguments),
@@ -146,45 +149,72 @@ public:
 		 maximize_(false),
 		 parameterFile_("./parameterData")
 	{
-		//-----------------------------------------------------------------------------------------------------------------------------
-		// Fill the class with the required collections. The need to contain at least one item, to be used
-		// as a template for the others.
-		boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
-		boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble());
-		if(gdbl_ad_ptr) gbd_ptr->addAdaptor(gdbl_ad_ptr);
-		else gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor())); // uses default values
-		gbdc_ptr->push_back(gbd_ptr);
+		// Set up the local adaptor templates and collection items
+		//-----------------------------------------------------------------------------------------------
+		gdbl_ptr_=boost::shared_ptr<GBoundedDouble>(new GBoundedDouble());
+        if(gdbl_ad_ptr) {
+        	gdbl_ptr_->addAdaptor(gdbl_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<double> >());
+        }
+        else {
+        	gdbl_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<double> >(new GDoubleGaussAdaptor())); // uses default values
+        }
+
+		//-----------------------------------------------------------------------------------------------
+        glong_ptr_=boost::shared_ptr<GBoundedInt32>(new GBoundedInt32());
+        if(glong_ad_ptr) {
+        	glong_ptr_->addAdaptor(glong_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<boost::int32_t> >());
+        }
+        else {
+        	glong_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<boost::int32_t> >(new GInt32FlipAdaptor())); // uses default values
+        }
+
+		//-----------------------------------------------------------------------------------------------
+        gchar_ptr_=boost::shared_ptr<GChar>(new GChar());
+        if(gchar_ad_ptr) {
+        	gchar_ptr_->addAdaptor(gchar_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<char> >());
+        }
+        else {
+        	gchar_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<char> >(new GCharFlipAdaptor())); // uses default values
+        }
+
+		//-----------------------------------------------------------------------------------------------
+		// Fill the class with the required, empty collections.
+        boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
 		this->push_back(gbdc_ptr);
 
 		boost::shared_ptr<GBoundedInt32Collection> gbic_ptr(new GBoundedInt32Collection());
-		boost::shared_ptr<GBoundedInt32> gbi_ptr(new GBoundedInt32());
-		if(glong_ad_ptr) gbi_ptr->addAdaptor(glong_ad_ptr);
-		else gbi_ptr->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())); // uses default values
-		gbic_ptr->push_back(gbi_ptr);
 		this->push_back(gbic_ptr);
 
+		// GBooleanCollection in special in that it directly contains adaptors
 		boost::shared_ptr<GBooleanCollection> gbc_ptr(new GBooleanCollection());
-		if(gbool_ad_ptr) gbc_ptr->addAdaptor(gbool_ad_ptr);
-		else gbc_ptr->addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor())); // uses default values
+        if(gbool_ad_ptr) {
+        	gbc_ptr->addAdaptor(gbool_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<bool> >());
+        }
+        else {
+        	gbc_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<bool> >(new GBooleanAdaptor())); // uses default values
+        }
 		this->push_back(gbc_ptr);
 
 		boost::shared_ptr<GCharObjectCollection> gcoc_ptr(new GCharObjectCollection());
-		boost::shared_ptr<GChar> gc_ptr(new GChar());
-		if(gchar_ad_ptr) gc_ptr->addAdaptor(gchar_ad_ptr);
-		else gc_ptr->addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor())); // uses default values
-		gcoc_ptr->push_back(gc_ptr);
 		this->push_back(gcoc_ptr);
 
 		//-----------------------------------------------------------------------------------------------------------------------------
 		// Tell the external program to send us a template with the structure of the individual
 		std::string commandLine = program_ + " -t " +(random?std::string(" -R"):std::string("")) + " -p " + parameterFile_;
 		if(!arguments.empty() && arguments != "empty") commandLine += (" " + arguments_);
+#ifdef PRINTCOMMANDLINE
+		std::cout << "Requesting template with commandLine = \"" << commandLine << "\" ...";
+#endif /* PRINTCOMMANDLINE */
 		system(commandLine.c_str());
+#ifdef PRINTCOMMANDLINE
+		std::cout << "... done." << std::endl;
+#endif /* PRINTCOMMANDLINE */
+
 
 		//-----------------------------------------------------------------------------------------------------------------------------
-		// Finally fill this class up with the external template data
+		// Finally fill this class up with the external template data. Make sure the data doesn't get sorted
 		bool hasValue;
-		this->readFromFile(parameterFile_, hasValue);
+		this->readParametersFromFile(parameterFile_, hasValue, false);
 	}
 
 	/********************************************************************************************/
@@ -199,7 +229,11 @@ public:
 		 exchangeMode_(cp.exchangeMode_),
 		 maximize_(cp.maximize_),
 		 parameterFile_(cp.parameterFile_)
-	{ /* nothing */	}
+	{
+		 gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone_bptr_cast<GBoundedDouble>();
+		 glong_ptr_ = cp.glong_ptr_->GObject::clone_bptr_cast<GBoundedInt32>();
+		 gchar_ptr_ = cp.gchar_ptr_->GObject::clone_bptr_cast<GChar>();
+	}
 
 	/********************************************************************************************/
 	/**
@@ -227,7 +261,13 @@ public:
 		std::string commandLine = program + " -i ";
 		if(!arguments.empty() && arguments != "empty") commandLine += (" " + arguments);
 
+#ifdef PRINTCOMMANDLINE
+		std::cout << "Initializing with command line = \"" << commandLine << "\" ...";
+#endif /* PRINTCOMMANDLINE */
 		system(commandLine.c_str());
+#ifdef PRINTCOMMANDLINE
+		std::cout << " ... done." << std::endl;
+#endif /* PRINTCOMMANDLINE */
 	}
 
 	/********************************************************************************************/
@@ -248,7 +288,13 @@ public:
 		std::string commandLine = program + " -f ";
 		if(!arguments.empty() && arguments != "empty") commandLine += (" " + arguments);
 
+#ifdef PRINTCOMMANDLINE
+		std::cout << "Finalizing with command line = \"" << commandLine << "\" ...";
+#endif /* PRINTCOMMANDLINE */
 		system(commandLine.c_str());
+#ifdef PRINTCOMMANDLINE
+		std::cout << " ... done." << std::endl;
+#endif /* PRINTCOMMANDLINE */
 	}
 
 	/********************************************************************************************/
@@ -277,18 +323,22 @@ public:
 	 * @param cp A copy of another GExternalEvaluator, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		const GExternalEvaluator *gei_load = conversion_cast(cp, this);
+		const GExternalEvaluator *gev_load = conversion_cast(cp, this);
 
 		// First load the data of our parent class ...
 		GParameterSet::load(cp);
 
 		// ... and then our own
-		program_ = gei_load->program_;
-		arguments_ = gei_load->arguments_;
-		nEvaluations_ = gei_load->nEvaluations_;
-		exchangeMode_ = gei_load->exchangeMode_;
-		maximize_ = gei_load->maximize_;
-		parameterFile_ = gei_load->parameterFile_;
+		program_ = gev_load->program_;
+		arguments_ = gev_load->arguments_;
+		nEvaluations_ = gev_load->nEvaluations_;
+		exchangeMode_ = gev_load->exchangeMode_;
+		maximize_ = gev_load->maximize_;
+		parameterFile_ = gev_load->parameterFile_;
+
+		gdbl_ptr_ = gev_load->gdbl_ptr_->GObject::clone_bptr_cast<GBoundedDouble>();
+		glong_ptr_ = gev_load->glong_ptr_->GObject::clone_bptr_cast<GBoundedInt32>();
+		gchar_ptr_ = gev_load->gchar_ptr_->GObject::clone_bptr_cast<GChar>();
 	}
 
 	/********************************************************************************************/
@@ -334,6 +384,9 @@ public:
 		if(exchangeMode_ != gev_load->exchangeMode_) return false;
 		if(maximize_ != gev_load->maximize_) return false;
 		if(parameterFile_ != gev_load->parameterFile_) return false;
+		if(gdbl_ptr_->isNotEqualTo(*(gev_load->gdbl_ptr_))) return false;
+		if(glong_ptr_->isNotEqualTo(*(gev_load->glong_ptr_))) return false;
+		if(gchar_ptr_->isNotEqualTo(*(gev_load->gchar_ptr_))) return false;
 
 		return true;
 	}
@@ -355,12 +408,18 @@ public:
 		if(GParameterSet::isNotSimilarTo(*gev_load, limit)) return false;
 
 		// Then check our local data
+		// Equality checks:
 		if(program_ != gev_load->program_) return false;
 		if(arguments_ != gev_load->arguments_) return false;
 		if(nEvaluations_ != gev_load->nEvaluations_) return false;
 		if(exchangeMode_ != gev_load->exchangeMode_) return false;
 		if(maximize_ != gev_load->maximize_) return false;
 		if(parameterFile_ != gev_load->parameterFile_) return false;
+
+		// True similarity checks:
+		if(gdbl_ptr_->isNotSimilarTo(*(gev_load->gdbl_ptr_), limit)) return false;
+		if(glong_ptr_->isNotSimilarTo(*(gev_load->glong_ptr_), limit)) return false;
+		if(gchar_ptr_->isNotSimilarTo(*(gev_load->gchar_ptr_), limit)) return false;
 
 		return true;
 	}
@@ -471,7 +530,7 @@ public:
 		std::string resultFile = "bestParameterSet";
 
 		// Emit our data
-		this->writeToFile(resultFile);
+		this->writeParametersToFile(resultFile);
 
 		// Check that we have a valid program_ ...
 		if(program_ == "empty" || program_.empty()) {
@@ -488,8 +547,14 @@ public:
 		else
 			commandLine = program_ + " -r -p " + resultFile + " " + arguments_;
 
+#ifdef PRINTCOMMANDLINE
+		std::cout << "Printing result with command line = \"" << commandLine << "\" ...";
+#endif /* PRINTCOMMANDLINE */
 		// Initiate the result calculation
 		system(commandLine.c_str());
+#ifdef PRINTCOMMANDLINE
+		std::cout << " ... done." << std::endl;
+#endif /* PRINTCOMMANDLINE */
 
 		// Clean up - remove the result file
 		system(("rm -f " + resultFile).c_str());
@@ -508,7 +573,7 @@ protected:
 		std::string parFile = parameterFile_ + boost::lexical_cast<std::string>( this->getPopulationPosition());
 
 		// Write out the required data
-		this->writeToFile(parFile);
+		this->writeParametersToFile(parFile);
 
 		// Check that we have a valid program_ name ...
 		if(program_ == "empty" || program_.empty()) {
@@ -526,10 +591,16 @@ protected:
 		else
 			commandLine = program_ + " " + arguments_ + " -p " + parFile;
 
+#ifdef PRINTCOMMANDLINE
+		std::cout << "Calculating result with command line = \"" << commandLine << "\" ...";
+#endif /* PRINTCOMMANDLINE */
 		system(commandLine.c_str()); // It is not clear whether this is thread-safe
+#ifdef PRINTCOMMANDLINE
+		std::cout << " ... done." << std::endl;
+#endif /* PRINTCOMMANDLINE */
 
 		bool hasValue = false;
-		double result = this->readFromFile(parFile, hasValue);
+		double result = this->readParametersFromFile(parFile, hasValue);
 
 		// Check whether a result value was received
 		if(!hasValue) {
@@ -557,7 +628,11 @@ private:
 		 arguments_("empty"),
 		 nEvaluations_(1),
 		 exchangeMode_(Gem::GenEvA::BINARYEXCHANGE),
-		 maximize_(true)
+		 maximize_(false),
+		 parameterFile_("empty"),
+         gdbl_ptr_(boost::shared_ptr<GBoundedDouble>((GBoundedDouble *)NULL)),
+         glong_ptr_(boost::shared_ptr<GBoundedInt32>((GBoundedInt32 *)NULL)),
+         gchar_ptr_(boost::shared_ptr<GChar>((GChar *)NULL))
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -576,9 +651,9 @@ private:
 	 *
 	 * @param fileName The name of the file to write to
 	 */
-	void writeToFile(const std::string& fileName) {
+	void writeParametersToFile(const std::string& fileName) {
 		// Make sure we are dealing with a clean exchange module
-		gde.resetAll();
+		gde_.resetAll();
 
 		// Create nEvaluations_ data sets from this object
 		for(boost::uint32_t i=0; i<nEvaluations_; i++) {
@@ -587,10 +662,10 @@ private:
 			// More than one data set requested for evaluation ?
 			if(i>0) {
 				// Switch to a new page in the GDataExchange module
-				gde.newDataSet();
+				gde_.newDataSet();
 
 				// Create a copy of this object and mutate it
-				boost::shared_ptr<GExternalEvaluator> p = this->clone_bptr_cast<GExternalEvaluator>();
+				p = this->clone_bptr_cast<GExternalEvaluator>();
 				p->setAllowLazyEvaluation(true); // Prevent evaluation upon mutation
 				p->mutate(); // Make sure we do not evaluate the same parameter set
 			}
@@ -608,7 +683,7 @@ private:
 			GBoundedDoubleCollection::iterator gbdc_it;
 			for(gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++gbdc_it) {
 				boost::shared_ptr<Gem::Util::GDoubleParameter> dpar(new Gem::Util::GDoubleParameter((*gbdc_it)->value(), (*gbdc_it)->getLowerBoundary(), (*gbdc_it)->getUpperBoundary()));
-				gde.append(dpar);
+				gde_.append(dpar);
 			}
 
 
@@ -622,7 +697,7 @@ private:
 			GBoundedInt32Collection::iterator gbic_it;
 			for(gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++gbic_it) {
 				boost::shared_ptr<Gem::Util::GLongParameter> ipar(new Gem::Util::GLongParameter((*gbic_it)->value(), (*gbic_it)->getLowerBoundary(), (*gbic_it)->getUpperBoundary()));
-				gde.append(ipar);
+				gde_.append(ipar);
 			}
 
 
@@ -636,7 +711,7 @@ private:
 			GBooleanCollection::iterator gbc_it;
 			for(gbc_it=gbc->begin(); gbc_it!=gbc->end(); ++gbc_it) {
 				boost::shared_ptr<Gem::Util::GBoolParameter> bpar(new Gem::Util::GBoolParameter(*gbc_it)); // no boundaries for booleans
-				gde.append(bpar);
+				gde_.append(bpar);
 			}
 
 
@@ -650,13 +725,13 @@ private:
 			GCharObjectCollection::iterator gcoc_it;
 			for(gcoc_it=gcoc->begin(); gcoc_it!=gcoc->end(); ++gcoc_it) {
 				boost::shared_ptr<Gem::Util::GCharParameter> cpar(new Gem::Util::GCharParameter((*gcoc_it)->value())); // no boundaries for characters for now
-				gde.append(cpar);
+				gde_.append(cpar);
 			}
 		}
 
 		// At this point all necessary data should have been stored in the GDataExchange module. We can now write it to file.
-		if(exchangeMode_ == BINARYEXCHANGE)	gde.writeToFile(fileName, true);
-		else gde.writeToFile(fileName, false); // TEXTEXCHANGE
+		if(exchangeMode_ == BINARYEXCHANGE)	gde_.writeToFile(fileName, true);
+		else gde_.writeToFile(fileName, false); // TEXTEXCHANGE
 	}
 
 	/********************************************************************************************/
@@ -667,40 +742,32 @@ private:
 	 * @param fileName The name of the file to read from
 	 * @return The value of the data set in the file (if available), or 0.
 	 */
-	double readFromFile(const std::string& fileName, bool& hasValue) {
+	double readParametersFromFile(const std::string& fileName, bool& hasValue, const bool& sort=true) {
 		hasValue = false;
 
-		// Make sure gde is empty
-		gde.resetAll();
+		// Make sure gde_ is empty
+		gde_.resetAll();
 
 		// Read in the data
-		if(exchangeMode_ == BINARYEXCHANGE)	gde.readFromFile(fileName,  true);
-		else gde.readFromFile(fileName, false); // TEXTEXCHANGE
+		if(exchangeMode_ == BINARYEXCHANGE)	gde_.readFromFile(fileName,  true);
+		else gde_.readFromFile(fileName, false); // TEXTEXCHANGE
 
-		// Switch to the best data set in the collection
-		if(maximize_) gde.switchToBestDataSet(false); // descending order
-		else gde.switchToBestDataSet(true); // ascending order
+		if(sort) {
+			// Switch to the best data set in the collection
+			if(maximize_) gde_.switchToBestDataSet(false); // descending order
+			else gde_.switchToBestDataSet(true); // ascending order
+		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------------
 		// Retrieve our "double" collection items
 		boost::shared_ptr<GBoundedDoubleCollection> gbdc = pc_at<GBoundedDoubleCollection>(0);
 
-		// Make sure we have (template-)items in the local collection. This should have been
-		// taken care of in the main constructor
-		if(gbdc->empty()) {
-			std::ostringstream error;
-			error << "In GExternalEvaluator::readFromFile(): Error!" << std::endl
-					 << "GBoundedDoubleCollection is empty," << std::endl;
-
-			throw geneva_error_condition(error.str());
-		}
-
 		// Get the size of the  "foreign" container ...
-		std::size_t exchangeSize = gde.size<double>();
+		std::size_t exchangeSize = gde_.size<double>();
 
 		// ... and adjust the population size, as needed . This will erase items
 		// or add copies of the second argument, as needed.
-		gbdc->resize(exchangeSize, gbdc->at(0));
+		gbdc->resize(exchangeSize, gdbl_ptr_);
 
 		// Now copy the items over
 		GBoundedDoubleCollection::iterator gbdc_it;
@@ -708,36 +775,26 @@ private:
 		for(pos=0, gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++pos, ++gbdc_it) {
 			if(!(*gbdc_it)->hasAdaptors()) {
 				std::ostringstream error;
-				error << "In GExternalEvaluator::readFromFile(): Error!" << std::endl
+				error << "In GExternalEvaluator::readParametersFromFile(): Error!" << std::endl
 						 << "GBoundedDouble item " << pos << " has no adaptor" << std::endl;
 
 				throw geneva_error_condition(error.str());
 			}
 
-			boost::shared_ptr<Gem::Util::GDoubleParameter> gdp_ptr = gde.parameterSet_at<double>(pos);
+			boost::shared_ptr<Gem::Util::GDoubleParameter> gdp_ptr = gde_.parameterSet_at<double>(pos);
 			if(gdp_ptr->hasBoundaries()) {
-				**gbdc_it = gdp_ptr->value();
 				(*gbdc_it)->setBoundaries(gdp_ptr->getLowerBoundary(), gdp_ptr->getUpperBoundary());
+				**gbdc_it = gdp_ptr->value();
 			}
 			else {
-				**gbdc_it = gdp_ptr->value();
 				(*gbdc_it)->resetBoundaries();
+				**gbdc_it = gdp_ptr->value();
 			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------------
 		// Retrieve our "long" collection items
 		boost::shared_ptr<GBoundedInt32Collection> gbic = pc_at<GBoundedInt32Collection>(1);
-
-		// Make sure we have (template-)items in the local collection. This should have been
-		// taken care of in the main constructor
-		if(gbic->empty()) {
-			std::ostringstream error;
-			error << "In GExternalEvaluator::readFromFile(): Error!" << std::endl
-					 << "GBoundedInt32Collection is empty," << std::endl;
-
-			throw geneva_error_condition(error.str());
-		}
 
 		// Make sure we have (template-)items in the local collection
 		if(gbic->empty()) {
@@ -748,31 +805,31 @@ private:
 		}
 
 		// Get the size of the "foreign" container ...
-		exchangeSize = gde.size<boost::int32_t>();
+		exchangeSize = gde_.size<boost::int32_t>();
 
 		// ... and adjust the population size, as needed . This will erase items
 		// or add copies of the second argument, as needed.
-		gbic->resize(exchangeSize, gbic->at(0));
+		gbic->resize(exchangeSize, glong_ptr_);
 
 		// Now copy the items over
 		GBoundedInt32Collection::iterator gbic_it;
 		for(pos=0, gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++pos, ++gbic_it) {
 			if(!(*gbic_it)->hasAdaptors()) {
 				std::ostringstream error;
-				error << "In GExternalEvaluator::readFromFile(): Error!" << std::endl
+				error << "In GExternalEvaluator::readParametersFromFile(): Error!" << std::endl
 						 << "GBoundedInt32 item " << pos << " has no adaptor" << std::endl;
 
 				throw geneva_error_condition(error.str());
 			}
 
-			boost::shared_ptr<Gem::Util::GLongParameter> glp_ptr = gde.parameterSet_at<boost::int32_t>(pos);
+			boost::shared_ptr<Gem::Util::GLongParameter> glp_ptr = gde_.parameterSet_at<boost::int32_t>(pos);
 			if(glp_ptr->hasBoundaries()) {
-				**gbic_it = glp_ptr->value();
 				(*gbic_it)->setBoundaries(glp_ptr->getLowerBoundary(), glp_ptr->getUpperBoundary());
+				**gbic_it = glp_ptr->value();
 			}
 			else {
-				**gbic_it = glp_ptr->value();
 				(*gbic_it)->resetBoundaries();
+				**gbic_it = glp_ptr->value();
 			}
 		}
 
@@ -780,17 +837,8 @@ private:
 		// Retrieve our "bool" collection items
 		boost::shared_ptr<GBooleanCollection> gbc = pc_at<GBooleanCollection>(2);
 
-		if(gbc->empty() || !gbc->hasAdaptors()) {
-			std::ostringstream error;
-			error << "In GExternalEvaluator::readFromFile(): Error!" << std::endl
-					  << "GBooleanCollection is empty or has no adaptor" << std::endl
-					  << gbc->size() << " " << gbc->numberOfAdaptors() << std::endl;
-
-			throw geneva_error_condition(error.str());
-		}
-
 		// Get the size of the "foreign" container ...
-		exchangeSize = gde.size<bool>();
+		exchangeSize = gde_.size<bool>();
 
 		// ... and adjust the population size, as needed . This will erase items
 		// or add copies of the second argument, as needed.
@@ -799,7 +847,7 @@ private:
 		// Now copy the items over
 		GBooleanCollection::iterator gbc_it;
 		for(pos=0, gbc_it=gbc->begin(); gbc_it!=gbc->end(); ++pos, ++gbc_it) {
-			boost::shared_ptr<Gem::Util::GBoolParameter> gbp_ptr = gde.parameterSet_at<bool>(pos);
+			boost::shared_ptr<Gem::Util::GBoolParameter> gbp_ptr = gde_.parameterSet_at<bool>(pos);
 			*gbc_it = gbp_ptr->value();
 		}
 
@@ -807,44 +855,34 @@ private:
 		// Retrieve our "char" collection items
 		boost::shared_ptr<GCharObjectCollection> gcoc = pc_at<GCharObjectCollection>(3);
 
-		// Make sure we have (template-)items in the local collection. This should have been
-		// taken care of in the main constructor
-		if(gcoc->empty()) {
-			std::ostringstream error;
-			error << "In GExternalEvaluator::readFromFile(): Error!" << std::endl
-					  << "GCharObjectCollection is empty," << std::endl;
-
-			throw geneva_error_condition(error.str());
-		}
-
 		// Get the size of the "foreign" container ...
-		exchangeSize = gde.size<char>();
+		exchangeSize = gde_.size<char>();
 
 		// ... and adjust the population size, as needed . This will erase items
 		// or add copies of the second argument, as needed.
-		gcoc->resize(exchangeSize, gcoc->at(0));
+		gcoc->resize(exchangeSize, gchar_ptr_);
 
 		// Now copy the items over
 		GCharObjectCollection::iterator gcoc_it;
 		for(pos=0, gcoc_it=gcoc->begin(); gcoc_it!=gcoc->end(); ++pos, ++gcoc_it) {
 			if(!(*gcoc_it)->hasAdaptors()) {
 				std::ostringstream error;
-				error << "In GExternalEvaluator::readFromFile(): Error!" << std::endl
+				error << "In GExternalEvaluator::readParametersFromFile(): Error!" << std::endl
 						 << "GCharObject" << pos << " has no adaptor" << std::endl;
 
 				throw geneva_error_condition(error.str());
 			}
 
-			boost::shared_ptr<Gem::Util::GCharParameter> gcp_ptr = gde.parameterSet_at<char>(pos);
+			boost::shared_ptr<Gem::Util::GCharParameter> gcp_ptr = gde_.parameterSet_at<char>(pos);
 			**gcoc_it = gcp_ptr->value();
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------------
 
 		// Finally return the value of this data set (if any), or 0.
-		if(gde.hasValue()) {
+		if(gde_.hasValue()) {
 			hasValue = true;
-			return gde.value();
+			return gde_.value();
 		}
 		return 0.;
 	}
@@ -858,7 +896,11 @@ private:
 	bool maximize_; ///< indicates whether small values of this individual are better than large values
 	std::string parameterFile_;
 
-	Gem::Util::GDataExchange gde; ///< takes care of the data exchange with external programs
+    boost::shared_ptr<GBoundedDouble> gdbl_ptr_; ///< A template for GBoundedDouble objects
+    boost::shared_ptr<GBoundedInt32> glong_ptr_; ///< A template for GBoundedInt32 objects
+    boost::shared_ptr<GChar> gchar_ptr_; ///< A template for collections of GChar objects
+
+	Gem::Util::GDataExchange gde_; ///< takes care of the data exchange with external programs
 };
 
 } /* namespace GenEvA */
