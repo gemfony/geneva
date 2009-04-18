@@ -1,5 +1,5 @@
 /**
- * @file GCommandLineParser.hpp
+ * @file GParser.hpp
  */
 
 /*
@@ -36,30 +36,35 @@
 #include <openbabel/forcefield.h>
 #include <openbabel/internalcoord.h>
 
-#ifndef GCOMMANDLINEPARSER_HPP_
-#define GCOMMANDLINEPARSER_HPP_
+#ifndef GPARSER_HPP_
+#define GPARSER_HPP_
 
 
 // Default settings
-const std::string DEFAULTPARAMFILE="unknown";
 const unsigned short DEFAULTLOGLEVEL=0;
 const bool DEFAULTADDHYDROGENS=false;
 const std::string DEFAULTFORCEFIELD="MMFF94s"; //"MMFF94";
-const std::string DEFAULTFILENAME="unknown";
+const std::string DEFAULTPROTEINDESCRIPTION="unknown";
+
+const std::string DEFAULTPARAMFILE="empty";
+const boost::uint16_t DEFAULTTRANSFERMODE=0; // binary mode
+const std::string DEFAULTCONFIGFILE="./eminim2.cfg"
 
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
-		bool& init,
-		bool& finalize,
-		bool& singleEvaluation,
-		std::string& paramfile,
-		bool& templ,
-		bool& randInit,
-		bool& result,
+			  boost::uint16_t& executionMode,
+			  std::string& paramfile,
+			  boost::uint16_t& transferMode,
+			  bool& singleEvaluation,
+			  std::string& configFile
+);
+
+bool parseConfigFile(const std::string& configFile,
 		unsigned short& loglevel,
 		bool& addhydrogens,
 		std::string& forcefield,
-		std::string& filename);
+		std::string& proteinDescription
+);
 
-#endif /* GCOMMANDLINEPARSER_HPP_ */
+#endif /* GPARSER_HPP_ */

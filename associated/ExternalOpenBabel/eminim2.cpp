@@ -51,41 +51,252 @@
 
 // Our own headers go here
 #include "intcoord.hpp"
-#include "GCommandLineParser.hpp"
+#include "GParser.hpp"
+#include "GDataExchange.hpp"
 
 using namespace OpenBabel;
 
 int main(int argc, char **argv)
 {
-	std::string program_name = argv[0];
-	unsigned short loglevel;
-	bool add_hydrogens = false;
-	std::string filename, ff;
-	OBConversion conv;
+	/***********************************************************************************
+	 * Variable declarations
+	 */
+	Gem::Util::GDataExchange ge;
 
+	boost::uint16_t executionMode, transferMode;
+	bool binary=true;
 	std::string paramfile;
-	bool init, finalize, singleEvaluation, templ, randInit, result;
+	std::string configFile;
+	bool singleEvaluation;
 
+	std::string program_name = argv[0];
 
-	bool readOnce = false;
-	std::vector<double> vod;
+	unsigned short loglevel;
+	bool add_hydrogens;
+	std::string forcefield;
+	std::string proteinDescription;
 
-	double energy;
+	/***********************************************************************************
+	 * Parsing
+	 */
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
-			init,
-			finalize,
-			singleEvaluation,
-			paramfile,
-			templ,
-			randInit,
-			result,
-			loglevel,
-			add_hydrogens,
-			ff,
-			filename))
+				  executionMode,
+				  paramfile,
+				  transferMode,
+				  singleEvaluation,
+				  configFile	))
 	{ exit(1); }
+
+	// Parse the configuration file
+	if(!parseConfigFile(configFile,
+				loglevel,
+				addhydrogens,
+				forcefield,
+				proteinDescription))
+	{ exit(1); }
+
+	/***********************************************************************************
+	 * Find out whether data transfers happen in binary- or text-mode
+	 */
+	switch(transferMode) {
+	case 0:
+		binary=true;
+		break;
+	case 1:
+		binary=false;
+		break;
+	default:
+		{
+			std::cerr << "Error: Invalid transfer mode" << transferMode << std::endl;
+			exit(1);
+		}
+	}
+
+	/***********************************************************************************
+	 * Preparatory work for other program options
+	 */
+
+	OBConversion conv;
+
+	// Find Input filetype, define output filetype
+	OBFormat *format_in = conv.FormatFromExt(proteinDescription.c_str());
+	OBFormat *format_out = conv.FormatFromExt(proteinDescription.c_str());
+
+	// Check input/output format
+	if (!format_in || !format_out || !conv.SetInAndOutFormats(format_in, format_out)) {
+			std::cerr << "Error in " << program_name << ": cannot read input/output format!" << std::endl;
+			exit (1);
+	}
+
+	// initialize selected forcefield
+	OBForceField* pFF = OBForceField::FindForceField(forcefield);
+	if (!pFF) {
+		std::cerr <<  "Error in " << program_name << ": could not find forcefield \"" << forcefield << "\"." <<std::endl;
+		exit (1);
+	}
+
+	// Set the logfile ...
+	pFF->SetLogFile(&std::cerr);
+
+	// And the loglevel
+	switch(loglevel){
+		case 0:
+			pFF->SetLogLevel(OBFF_LOGLVL_NONE);
+			break;
+		case 1:
+			pFF->SetLogLevel(OBFF_LOGLVL_LOW);
+			break;
+		case 2:
+			pFF->SetLogLevel(OBFF_LOGLVL_MEDIUM);
+			break;
+		case 3:
+			pFF->SetLogLevel(OBFF_LOGLVL_HIGH);
+			break;
+		default:
+			std::cerr << "Error in " << program_name << ": Found invalid log level " << loglevel << std::endl;
+			exit(1);
+	}
+
+	// construct a molecule object and make sure it is empty
+	OBMol mol;  mol.Clear();
+
+	/***********************************************************************************
+	 * If a single evaluation was requested, act on the request and leave
+	 */
+	if(singleEvaluation) {
+		bool readOnce;
+
+		// declare I/O stream handles
+		std::ifstream ifs;
+		std::ofstream ofs;
+
+		// Read the file
+		ifs.open(proteinDescription.c_str());
+		if (!ifs) {
+			std::cerr <<  "Error in " << program_name << ": cannot read input file!" << std::endl;
+			exit (1);
+		}
+
+		readOnce = false;
+		while(conv.Read(&mol, &ifs) && !mol.Empty()) {
+			// There should just be a single molecular conf
+			if(readOnce) {
+				std::cout << "Error: Trying to read second molecular configuration." << std::endl
+								<< "This program assumes that there is only one. Leaving ..." << std::endl;
+				break;
+			}
+			else readOnce=true;
+
+			if (addhydrogens) mol.AddHydrogens();
+
+			if (!pFF->Setup(mol)) {
+				std::cerr <<  "Error in " << program_name << ": could not setup force field." << std::endl;
+				exit (1);
+			}
+
+			// Update the coordinates in the force field and calculate the energy
+			double energy=0.;
+			pFF->SetCoordinates(mol);
+			energy = pFF->Energy(false);
+
+			// Let the audience know
+			std::cout << "Energy of molecule in file " << proteinDescription << " is " << energy << " kcal/mol" << std::endl;
+
+			// Clean up
+			mol.Clear();
+		}
+
+		ifs.close();
+		return 0;
+	}
+
+	/***********************************************************************************
+	 * Act on the execeution mode
+	 */
+
+	// See the file GParser.cpp for the available modes
+	switch(executionMode) {
+	case 1:	// Perform initialization code
+		std::cout << "Initializing ...";
+		// put your code here
+		std::cout << "... done." << std::endl;
+		return 0;
+		break;
+
+	case 2:	// Perform finalization code
+		std::cout << "Finalizing ...";
+		// put your code here
+		std::cout << " ... done." << std::endl;
+		return 0;
+		break;
+
+	case 3: // Evaluate
+		{
+			// Read in the parameter data
+			ge.readFromFile(paramfile, binary);
+
+			// Loop over all parameter sets and do the actual calculation
+			int i=0;
+			do {
+				double result = 0.;
+				// Loop over all double values and calculate summed squares ("a parabola")
+				std::size_t nDoubles = ge.size<double>(); // The amount of doubles in the current data set
+				for(std::size_t pos = 0; pos<nDoubles; pos++) result += pow(ge.at<double>(pos), 2);
+				ge.setValue(result);
+			}
+			while(ge.nextDataSet());
+
+			// Write out the results
+			ge.writeToFile(paramfile, binary);
+		}
+		break;
+
+	case 4: // Write out template
+		{
+			// Here we simply want PARABOLADIM double values with boundaries [PARABOLAMIN:PARABOLAMAX]
+			for(std::size_t i=0; i<PARABOLADIM; i++) {
+				ge.append(boost::shared_ptr<Gem::Util::GDoubleParameter>(new Gem::Util::GDoubleParameter(100., PARABOLAMIN, PARABOLAMAX)));
+			}
+
+			ge.writeToFile(paramfile, binary);
+		}
+		break;
+
+	case 5: // Write out template, initializing with random variables
+		{
+			boost::posix_time::ptime t1;
+		    boost::uint32_t seed = (uint32_t)t1.time_of_day().total_milliseconds();
+			boost::lagged_fibonacci607 lf(seed);
+
+			for(std::size_t i=0; i<PARABOLADIM; i++) {
+				ge.append(boost::shared_ptr<Gem::Util::GDoubleParameter>(new Gem::Util::GDoubleParameter(PARABOLAMIN+lf()*(PARABOLAMAX-PARABOLAMIN), PARABOLAMIN, PARABOLAMAX)));
+			}
+
+			ge.writeToFile(paramfile, binary);
+		}
+		break;
+
+	case 6: // Write out the result for a given parameter set
+		{
+			// Read in the parameter data
+			ge.readFromFile(paramfile, binary);
+
+			// Output the data on the console
+			std::size_t nDoubles = ge.size<double>(); // The amount of doubles in the current data set
+			for(std::size_t pos = 0; pos<nDoubles; pos++) std::cout << ge.at<double>(pos) << std::endl;
+		}
+		break;
+
+	default:
+		std::cerr << "Error: Found invalid execution mode" << std::endl;
+		exit(1);
+	};
+
+
+	return 0; // make the compiler happy
+
 
 	/***********************************************************************************
 	 * Perform initialization code.
