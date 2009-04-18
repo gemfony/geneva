@@ -64,7 +64,7 @@ const boost::uint16_t DEFAULTPARALLEL=1;
 const std::string DEFAULTEXTERNALARGUMENTS="empty";
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
-const boost::uint32_t DEFAULTNEVALUATIONS=100;
+const boost::uint32_t DEFAULTNEVALUATIONS=5;
 const Gem::GenEvA::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::GenEvA::BINARYEXCHANGE;
 
 namespace po = boost::program_options;

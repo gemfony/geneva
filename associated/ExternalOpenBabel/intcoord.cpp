@@ -15,7 +15,7 @@
  * eminim2 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
@@ -56,6 +56,6 @@ bool SetVectorOfDihedrals (OpenBabel::OBMol *mol, const std::vector<double>& vod
   for (unsigned i = 4, k=0; i < vic.size(); i++, k++) {
     vic[i]->_tor=vod[k];
   }
-  InternalToCartesian(vic, *mol); 
+  InternalToCartesian(vic, *mol);
   return true;
 }

@@ -5,15 +5,15 @@
 /*
  * Copyright (C) 2009 Dr. Ruediger Berlich
  *
- * This file is part of the eminim program. eminim is free software:
+ * This file is part of the eminim2 program. eminim2 is free software:
  * you can redistribute and/or modify this file under the terms of
  * version 2 of the GNU General Public License as published by the
  * Free Software Foundation.
  *
- * eminim is distributed in the hope that it will be useful,
+ * eminim2 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.

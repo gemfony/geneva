@@ -157,7 +157,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "minSigma = " << minSigma << std::endl
 					  << "maxSigma = " << maxSigma << std::endl
 					  << "nEvaluations = " << nEvaluations << std::endl
-					  << "exchangeMode = " << exchangeMode << std::endl
+					  << "exchangeMode = " << (exchangeMode==0?"binary mode":"text mode") << std::endl
 					  << std::endl;
 		}
 	}
