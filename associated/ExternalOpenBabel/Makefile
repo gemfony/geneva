@@ -9,7 +9,7 @@ CPPFLAGS=-I. -I$(BABEL_INCDIR) -I$(BOOSTINC)
 
 all:    eminim2
 
-eminim2: eminim2.o intcoord.o GCommandLineParser.o 
+eminim2: eminim2.o intcoord.o GParser.o 
 
 
 clean:
