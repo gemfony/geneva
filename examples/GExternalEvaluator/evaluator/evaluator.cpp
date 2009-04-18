@@ -98,6 +98,7 @@ int main(int argc, char **argv)
 			ge.readFromFile(paramfile, binary);
 
 			// Loop over all parameter sets and do the actual calculation
+			int i=0;
 			do {
 				double result = 0.;
 				// Loop over all double values and calculate summed squares ("a parabola")

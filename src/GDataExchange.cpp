@@ -932,7 +932,9 @@ void GDataExchange::binaryWriteToStream(std::ostream& stream) const {
 
 	// Then write all data sets to the stream
 	std::vector<boost::shared_ptr<GParameterValuePair> >::const_iterator cit;
-	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) (*cit)->binaryWriteToStream(stream);
+	for(cit=parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) {
+		(*cit)->binaryWriteToStream(stream);
+	}
 
 	// Store the offset of the current_ iterator
 	std::size_t offset = current_ - parameterValueSet_.begin();
@@ -949,7 +951,6 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
 	// Find out about the number of data sets in the stream
 	std::size_t nDataSets = 0;
 	stream.read(reinterpret_cast<char *>(&nDataSets), sizeof(nDataSets));
-
 	std::size_t localSize = parameterValueSet_.size();
 
 	// Check whether we have the same number of items or whether we
@@ -961,8 +962,9 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
 			(*it)->binaryReadFromStream(stream);
 	}
 	else if(nDataSets > localSize) {
-		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
+		for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it) {
 			(*it)->binaryReadFromStream(stream);
+		}
 
 		for(std::size_t i=localSize; i<nDataSets; i++) {
 			boost::shared_ptr<GParameterValuePair> p(new GParameterValuePair());
@@ -1039,6 +1041,9 @@ void GDataExchange::readFromFile(const std::string& fileName, bool binary) {
 
 		throw(GDataExchangeException(error.str()));
 	}
+
+	// Make sure the iterator is at the start position
+	this->gotoStart();
 }
 
 /**************************************************************************/

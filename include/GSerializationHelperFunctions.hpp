@@ -74,11 +74,17 @@ std::string indptrToString(const boost::shared_ptr<GIndividual>&, const serializ
 /** @brief Load a shared_ptr<GIndividual> from its string representation */
 boost::shared_ptr<GIndividual> indptrFromString(const std::string&, const serializationMode&);
 
-/** @brief Puts a Gem::GenEvA::serializationMode into a stream */
+/** @brief Puts a Gem::GenEvA::serializationMode into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::GenEvA::serializationMode&);
 
-/** @brief Reads a Gem::GenEvA::serializationMode item from a stream */
+/** @brief Reads a Gem::GenEvA::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::GenEvA::serializationMode&);
+
+/** @brief Puts a Gem::GenEvA::dataExchangeMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::GenEvA::dataExchangeMode&);
+
+/** @brief Reads a Gem::GenEvA::dataExchangeMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::GenEvA::dataExchangeMode&);
 
 /***************************************************************************************************/
 

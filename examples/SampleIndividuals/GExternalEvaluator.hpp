@@ -137,15 +137,15 @@ public:
 	GExternalEvaluator(const std::string& program,
 			                             const std::string& arguments="empty",
 			                             const bool& random=false,
+			                             const dataExchangeMode& exchangeMode = Gem::GenEvA::BINARYEXCHANGE,
 			                             boost::shared_ptr<GAdaptorT<double> > gdbl_ad_ptr = boost::shared_ptr<GAdaptorT<double> >((GAdaptorT<double> *)NULL),
 			                             boost::shared_ptr<GAdaptorT<boost::int32_t> > glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL),
 			                             boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL),
-			                             boost::shared_ptr<GAdaptorT<char> > gchar_ad_ptr = boost::shared_ptr<GAdaptorT<char> >((GAdaptorT<char> *)NULL)
-		)
+			                             boost::shared_ptr<GAdaptorT<char> > gchar_ad_ptr = boost::shared_ptr<GAdaptorT<char> >((GAdaptorT<char> *)NULL)	)
 		:program_(program),
 		 arguments_(arguments),
 		 nEvaluations_(1),
-		 exchangeMode_(Gem::GenEvA::BINARYEXCHANGE),
+		 exchangeMode_(exchangeMode),
 		 maximize_(false),
 		 parameterFile_("./parameterData")
 	{
@@ -200,8 +200,23 @@ public:
 
 		//-----------------------------------------------------------------------------------------------------------------------------
 		// Tell the external program to send us a template with the structure of the individual
-		std::string commandLine = program_ + " -t " +(random?std::string(" -R"):std::string("")) + " -p " + parameterFile_;
+
+		if(program_.empty() || program_ == "empty" || program_ == "unknown") {
+			std::ostringstream error;
+			error << "In GExternalEvaluator::GExternalEvaluator(...) : received bad program name \"" << program_ << "\"." << std::endl;
+			throw (Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		std::string commandLine;
+		if(exchangeMode_ == Gem::GenEvA::BINARYEXCHANGE) {
+			commandLine = program_ + " -m 0 -t " +(random?std::string(" -R"):std::string("")) + " -p " + parameterFile_;
+		}
+		else {
+			commandLine = program_ + " -m 1 -t " +(random?std::string(" -R"):std::string("")) + " -p " + parameterFile_;
+		}
+
 		if(!arguments.empty() && arguments != "empty") commandLine += (" " + arguments_);
+
 #ifdef PRINTCOMMANDLINE
 		std::cout << "Requesting template with commandLine = \"" << commandLine << "\" ...";
 #endif /* PRINTCOMMANDLINE */
@@ -215,6 +230,10 @@ public:
 		// Finally fill this class up with the external template data. Make sure the data doesn't get sorted
 		bool hasValue;
 		this->readParametersFromFile(parameterFile_, hasValue, false);
+
+		// Erase the parameter file - not needed anymore. Hmmm - this is not portable to Windows
+		// See here for a way to do this portably: http://www.boost.org/doc/libs/1_38_0/libs/filesystem/doc/index.htm
+		system(("rm -f  " + parameterFile_).c_str());
 	}
 
 	/********************************************************************************************/
@@ -252,7 +271,7 @@ public:
 	 * @param arguments Additional user-defined arguments to be handed to the external program
 	 */
 	static void initialize(const std::string& program, const std::string& arguments) {
-		if(program.empty() || program == "empty") {
+		if(program.empty() || program == "empty" || program == "unknown") {
 			std::ostringstream error;
 			error << "In GExternalEvaluator::initialize : received bad program name \"" << program << "\"." << std::endl;
 			throw (Gem::GenEvA::geneva_error_condition(error.str()));
@@ -279,7 +298,7 @@ public:
 	 * @param arguments Additional user-defined arguments to be handed to the external program
 	 */
 	static void finalize(const std::string& program, const std::string& arguments) {
-		if(program.empty() || program == "empty") {
+		if(program.empty() || program == "empty" || program == "unknown") {
 			std::ostringstream error;
 			error << "In GExternalEvaluator::initialize : received bad program name \"" << program << "\"." << std::endl;
 			throw (Gem::GenEvA::geneva_error_condition(error.str()));
@@ -533,7 +552,7 @@ public:
 		this->writeParametersToFile(resultFile);
 
 		// Check that we have a valid program_ ...
-		if(program_ == "empty" || program_.empty()) {
+		if(program_.empty() || program_ == "empty" || program_=="unknown") {
 			std::ostringstream error;
 			error << "In GExternalEvaluator::printResult(): Error!" << std::endl
 				      << "Invalid program name \"" << program_ << "\"" << std::endl;
@@ -542,10 +561,12 @@ public:
 		}
 
 		// Assemble command line and run the external program
-		if(arguments_ == "empty" || arguments_.empty())
-			commandLine = program_ + " -r -p " + resultFile;
+		if(exchangeMode_ == Gem::GenEvA::BINARYEXCHANGE)
+			commandLine = program_ + " -m 0  -r -p " + resultFile;
 		else
-			commandLine = program_ + " -r -p " + resultFile + " " + arguments_;
+			commandLine = program_ + " -m 1  -r -p " + resultFile;;
+
+		if(arguments_ != "empty" && !arguments_.empty()) commandLine +=  (" " + arguments_);
 
 #ifdef PRINTCOMMANDLINE
 		std::cout << "Printing result with command line = \"" << commandLine << "\" ...";
@@ -569,14 +590,8 @@ protected:
 	 * @return The value of this object
 	 */
 	virtual double fitnessCalculation() {
-		// Make the parameters known externally
-		std::string parFile = parameterFile_ + boost::lexical_cast<std::string>( this->getPopulationPosition());
-
-		// Write out the required data
-		this->writeParametersToFile(parFile);
-
 		// Check that we have a valid program_ name ...
-		if(program_ == "empty" || program_.empty()) {
+		if(program_.empty() || program_ == "empty" || program_ == "unknown") {
 			std::ostringstream error;
 			error << "In GExternalEvaluator::fitnessCalculation(): Error!" << std::endl
 				     << "Invalid program name \"" << program_ << "\"" << std::endl;
@@ -584,12 +599,23 @@ protected:
 			throw geneva_error_condition(error.str());
 		}
 
+		// Make the parameters known externally
+		std::string parFile = parameterFile_ + boost::lexical_cast<std::string>( this->getPopulationPosition());
+
+		// Write out the required data
+		this->writeParametersToFile(parFile);
+
 		// Assemble command line and run the external program
 		std::string commandLine;
-		if(arguments_ == "empty" || arguments_.empty())
-			commandLine = program_ + " -p " + parFile;
+
+		if(exchangeMode_ == Gem::GenEvA::BINARYEXCHANGE)
+			commandLine = program_ + " -m 0  -p " + parFile;
 		else
-			commandLine = program_ + " " + arguments_ + " -p " + parFile;
+			commandLine = program_ + " -m 1  -p " + parFile;;
+
+
+		if(arguments_ != "empty" && !arguments_.empty())
+			commandLine += (" " + arguments_);
 
 #ifdef PRINTCOMMANDLINE
 		std::cout << "Calculating result with command line = \"" << commandLine << "\" ...";
@@ -600,7 +626,7 @@ protected:
 #endif /* PRINTCOMMANDLINE */
 
 		bool hasValue = false;
-		double result = this->readParametersFromFile(parFile, hasValue);
+		double result = this->readParametersFromFile(parFile, hasValue, true);
 
 		// Check whether a result value was received
 		if(!hasValue) {
@@ -730,7 +756,7 @@ private:
 		}
 
 		// At this point all necessary data should have been stored in the GDataExchange module. We can now write it to file.
-		if(exchangeMode_ == BINARYEXCHANGE)	gde_.writeToFile(fileName, true);
+		if(exchangeMode_ == Gem::GenEvA::BINARYEXCHANGE)	gde_.writeToFile(fileName, true);
 		else gde_.writeToFile(fileName, false); // TEXTEXCHANGE
 	}
 

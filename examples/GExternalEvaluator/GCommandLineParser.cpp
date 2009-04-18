@@ -51,6 +51,7 @@ bool parseCommandLine(int argc, char **argv,
 					  double& minSigma,
 					  double& maxSigma,
 					  boost::uint32_t& nEvaluations,
+					  Gem::GenEvA::dataExchangeMode& exchangeMode,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -95,6 +96,8 @@ bool parseCommandLine(int argc, char **argv,
 					"The maximum allowed value for sigma")
 			("nEvaluations,V", po::value<boost::uint32_t>(&nEvaluations)->default_value(DEFAULTNEVALUATIONS),
 					"The amount of evaluations each external program shall perform")
+			("exchangeMode,x", po::value<Gem::GenEvA::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
+					"Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -153,6 +156,8 @@ bool parseCommandLine(int argc, char **argv,
 					  << "sigmaSigma = " << sigmaSigma << std::endl
 					  << "minSigma = " << minSigma << std::endl
 					  << "maxSigma = " << maxSigma << std::endl
+					  << "nEvaluations = " << nEvaluations << std::endl
+					  << "exchangeMode = " << exchangeMode << std::endl
 					  << std::endl;
 		}
 	}

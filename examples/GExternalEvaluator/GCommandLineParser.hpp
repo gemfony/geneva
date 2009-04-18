@@ -42,6 +42,7 @@
 
 // GenEvA headers go here
 #include "GEnums.hpp"
+#include "GSerializationHelperFunctions.hpp"
 
 namespace Gem
 {
@@ -64,6 +65,7 @@ const std::string DEFAULTEXTERNALARGUMENTS="empty";
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
 const boost::uint32_t DEFAULTNEVALUATIONS=100;
+const Gem::GenEvA::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::GenEvA::BINARYEXCHANGE;
 
 namespace po = boost::program_options;
 
@@ -87,6 +89,7 @@ bool parseCommandLine(int argc, char **argv,
 					  double& minSigma,
 					  double& maxSigma,
 					  boost::uint32_t& nEvaluations,
+					  Gem::GenEvA::dataExchangeMode& exchangeMode,
 					  bool& verbose);
 
 } /* namespace GenEvA */

@@ -81,6 +81,7 @@ int main(int argc, char **argv){
 	 recoScheme rScheme;
 	 double sigma,sigmaSigma,minSigma,maxSigma;
 	 boost::uint32_t nEvaluations;
+	 Gem::GenEvA::dataExchangeMode exchangeMode;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -103,6 +104,7 @@ int main(int argc, char **argv){
 						 minSigma,
 						 maxSigma,
 						 nEvaluations,
+						 exchangeMode,
 						 verbose))
 	{ exit(1); }
 
@@ -118,7 +120,6 @@ int main(int argc, char **argv){
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
-
 
 	// Tell the evaluation program to do any initial work
 	GExternalEvaluator::initialize(program, externalArguments);
@@ -140,6 +141,7 @@ int main(int argc, char **argv){
 					program,
 					externalArguments,
 					false,  // random initialization of template data
+					exchangeMode,
 					gdga_ptr,
 					gifa_ptr,
 					gba_ptr,
