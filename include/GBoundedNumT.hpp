@@ -81,61 +81,17 @@ class GBoundedNumT
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/****************************************************************************/
-	/**
-	 * The default constructor. As this class uses the adaptor scheme
-	 * (see GTemplateAdaptor<T>), you will need to add your own adaptors,
-	 * such as the GDoubleGaussAdaptor. This function is a trap. Use one of the
-     * provided specializations instead.
-	 */
+	/** @brief The default constructor */
 	GBoundedNumT();
-
-	/****************************************************************************/
-	/**
-	 * A constructor that initializes the external value only. The boundaries will
-	 * be set to the maximum and minimum values of the corresponding type.
-	 * This function is a trap. Use one of the provided specializations instead.
-	 *
-	 * @param val The desired external value of this object
-	 */
+	/** @brief Initialization with value only */
 	explicit GBoundedNumT(const T& val);
-
-	/****************************************************************************/
-    /**
-     * Initializes the boundaries and sets the external value to a random number
-     * inside the allowed value range. This function is a trap. Use one of the
-     * provided specializations instead.
-     *
-     * @param lowerBoundary The lower boundary of the value range
-     * @param upperBoundary The upper boundary of the value range
-     */
+	/** @brief Initialization with boundaries only */
 	GBoundedNumT(const T& lowerBoundary, const T& upperBoundary);
-
-	/****************************************************************************/
-	/**
-	 * Initialize with a given value and the allowed value range.
-	 *
-	 * @param val Initialisation value
-	 * @param lowerBoundary The lower boundary of the value range
-     * @param upperBoundary The upper boundary of the value range
-	 */
+	/** @brief Initialization with value and boundaries */
 	GBoundedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary);
-
-	/****************************************************************************/
-	/**
-	 * A standard copy constructor. Most work is done by the parent
-	 * classes, we only need to copy the internal value and the allowed
-	 * value range.
-	 *
-	 * @param cp Another GBoundedNumT<T> object
-	 */
+	/** @brief A standard copy constructor */
 	GBoundedNumT(const GBoundedNumT<T>& cp);
-
-	/****************************************************************************/
-	/**
-	 * A standard destructor. No local, dynamically allocated data,
-	 * hence nothing to do.
-	 */
+	/** @brief The standard destructor */
 	virtual ~GBoundedNumT();
 
 	/****************************************************************************/
@@ -536,7 +492,11 @@ template <> void GBoundedNumT<boost::int32_t>::resetBoundaries();
 
 /******************************************************************************/
 /**
- * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ * The default constructor. As this class uses the adaptor scheme
+ * (see GTemplateAdaptor<T>), you will need to add your own adaptors,
+ * such as the GDoubleGaussAdaptor. This function is a trap. Use one of the
+ * provided specializations instead. Non-inline definition in order to circumvent
+ * deficiencies of g++ 3.4.6
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT()
@@ -556,7 +516,12 @@ GBoundedNumT<T>::GBoundedNumT()
 
 /******************************************************************************/
 /**
+ * A constructor that initializes the external value only. The boundaries will
+ * be set to the maximum and minimum values of the corresponding type.
+ * This function is a trap. Use one of the provided specializations instead.
  * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ *
+ * @param val The desired external value of this object
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT(const T& val)
@@ -576,7 +541,13 @@ GBoundedNumT<T>::GBoundedNumT(const T& val)
 
 /******************************************************************************/
 /**
- * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ * Initializes the boundaries and sets the external value to a random number
+ * inside the allowed value range. This function is a trap. Use one of the
+ * provided specializations instead. Non-inline definition in order to circumvent
+ * deficiencies of g++ 3.4.6
+ *
+ * @param lowerBoundary The lower boundary of the value range
+ * @param upperBoundary The upper boundary of the value range
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT(const T& lowerBoundary, const T& upperBoundary)
@@ -595,7 +566,12 @@ GBoundedNumT<T>::GBoundedNumT(const T& lowerBoundary, const T& upperBoundary)
 }
 /******************************************************************************/
 /**
- * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ * Initialize with a given value and the allowed value range. Non-inline definition
+ * in order to circumvent deficiencies of g++ 3.4.6
+ *
+ * @param val Initialisation value
+ * @param lowerBoundary The lower boundary of the value range
+ * @param upperBoundary The upper boundary of the value range
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary)
@@ -609,7 +585,12 @@ GBoundedNumT<T>::GBoundedNumT(const T& val, const T& lowerBoundary, const T& upp
 
 /******************************************************************************/
 /**
- * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ * A standard copy constructor. Most work is done by the parent
+ * classes, we only need to copy the internal value and the allowed
+ * value range. Non-inline definition in order to circumvent deficiencies
+ * of g++ 3.4.6
+ *
+ * @param cp Another GBoundedNumT<T> object
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT(const GBoundedNumT<T>& cp)
@@ -621,7 +602,9 @@ GBoundedNumT<T>::GBoundedNumT(const GBoundedNumT<T>& cp)
 
 /******************************************************************************/
 /**
- * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ * A standard destructor. No local, dynamically allocated data,
+ * hence nothing to do.  Non-inline definition in order to circumvent
+ * deficiencies of g++ 3.4.6
  */
 template <typename T>
 GBoundedNumT<T>::~GBoundedNumT()

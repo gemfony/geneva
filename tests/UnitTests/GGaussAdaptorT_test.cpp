@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, T, test_types
 	BOOST_CHECK(ggat5.getSigmaRange().first == DEFAULTMINSIGMA && ggat5.getSigmaRange().second == 2.);
 
 	// Perform mutations with varying mutation parameters
-	T mutationTarget = T(NULL);
+	T mutationTarget = T(0);
 	std::size_t NMUTATIONS=10000;
 	ggat5.setAdaptionThreshold(1);
 	for(std::size_t p=0; p<20; p++) {

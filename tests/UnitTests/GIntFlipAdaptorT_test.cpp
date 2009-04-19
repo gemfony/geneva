@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 
 	// Check mutations
 	const std::size_t NMUTATIONS = 10000;
-	T mutationTarget=T(NULL);
+	T mutationTarget=T(0);
 	gifat3.setAdaptionThreshold(10);
 	gifat3.setMutationProbability(0.1);
 	std::vector<T> mutatedValues(NMUTATIONS+1);
@@ -112,19 +112,19 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 	BOOST_CHECK(nOriginalValues < NMUTATIONS);
 
 	// Check that no mutations occur if mutProb == 0
-	mutationTarget=T(NULL);
+	mutationTarget=T(0);
 	gifat3.setAdaptionThreshold(0);
 	gifat3.setMutationProbability(0.);
 	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
 		gifat3.mutate(mutationTarget);
-		BOOST_CHECK(mutationTarget == T(NULL));
+		BOOST_CHECK(mutationTarget == T(0));
 	}
 
 	// Check that mutations always occur  if mutProb == 1
-	mutationTarget=T(NULL);
+	mutationTarget=T(0);
 	gifat3.setAdaptionThreshold(0);
 	gifat3.setMutationProbability(1.);
-	T oldMutationTarget = T(NULL);
+	T oldMutationTarget = T(0);
 	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
 		oldMutationTarget = mutationTarget;
 		gifat3.mutate(mutationTarget);

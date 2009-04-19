@@ -68,32 +68,13 @@ class GParameterT
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/*******************************************************************************************/
-	/**
-	 * The default constructor
-	 */
+	/** @brief The default constructor */
 	GParameterT();
-
-	/*******************************************************************************************/
-	/**
-	 * The copy constructor
-	 *
-	 * @param cp A copy of another GParameterT<T> object
-	 */
+	/** @brief The copy constructor */
 	GParameterT(const GParameterT<T>& cp);
-
-	/*******************************************************************************************/
-	/**
-	 * Initialization by contained value
-	 *
-	 * @param val The new value of val_
-	 */
+	/** @brief Initialization by contained value */
 	explicit GParameterT(const T& val);
-
-	/*******************************************************************************************/
-	/**
-	 * The standard destructor
-	 */
+	/** @brief The destructor */
 	virtual ~GParameterT();
 
 	/*******************************************************************************************/
@@ -272,7 +253,7 @@ template <> GParameterT<char>::GParameterT();
 
 /*********************************************************************************************/
 /**
- * Non-inline definition in order to circumvent a g++ 3.4.6 deficiency
+ * The default constructor. Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
  */
 template <typename T>
 GParameterT<T>::GParameterT()
@@ -282,7 +263,9 @@ GParameterT<T>::GParameterT()
 
 /*********************************************************************************************/
 /**
- * Non-inline definition in order to circumvent a g++ 3.4.6 deficiency
+ * The copy constructor.  Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
+ *
+ * @param cp A copy of another GParameterT<T> object
  */
 template <typename T>
 GParameterT<T>::GParameterT(const GParameterT<T>& cp)
@@ -292,7 +275,9 @@ GParameterT<T>::GParameterT(const GParameterT<T>& cp)
 
 /*********************************************************************************************/
 /**
- * Non-inline definition in order to circumvent a g++ 3.4.6 deficiency
+ * Initialization by contained value.Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
+ *
+ * @param val The new value of val_
  */
 template <typename T>
 GParameterT<T>::GParameterT(const T& val)
@@ -302,7 +287,7 @@ GParameterT<T>::GParameterT(const T& val)
 
 /*********************************************************************************************/
 /**
- * Non-inline definition in order to circumvent a g++ 3.4.6 deficiency
+ * The standard destructor.Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
  */
 template <typename T>
 GParameterT<T>:: ~GParameterT()

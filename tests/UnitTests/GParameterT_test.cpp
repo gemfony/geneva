@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, T, test_types )
 	BOOST_CHECK_NO_THROW(GParameterT<T> gpt);
 
 	// Test construction with a value
-	GParameterT<T> gpt0(T(NULL)), gpt1(T(1));
+	GParameterT<T> gpt0(T(0)), gpt1(T(1));
 	BOOST_CHECK(gpt0 != gpt1);
 
 	// Test copy construction
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, T, test_types )
 	BOOST_CHECK(gpt0 == gpt3);
 
 	// Re-assign the original value
-	gpt0 = T(NULL);
+	gpt0 = T(0);
 	BOOST_CHECK(gpt0 != gpt3);
 
 	// Test (de-)serialization in differnet modes

@@ -75,7 +75,7 @@ int main(int argc, char **argv){
 	for(boost::uint32_t i=0; i<NTESTS; i++){
 		internalValue=-10.+20.*double(i)/double(NTESTS);
 
-		externalValue = gint13.calculateExternalValue(internalValue);
+		externalValue = double(gint13.calculateExternalValue(boost::int32_t(internalValue)));
 		mapping << "  x13[" << i << "] = " << internalValue << ";" << std::endl
 		        << "  y13[" << i << "] = " << externalValue << ";" << std::endl;
 	}
@@ -83,7 +83,7 @@ int main(int argc, char **argv){
 	for(boost::uint32_t i=0; i<NTESTS; i++){
 		internalValue=-10.+20.*double(i)/double(NTESTS);
 
-		externalValue = gint02.calculateExternalValue(internalValue);
+		externalValue = double(gint02.calculateExternalValue(boost::int32_t(internalValue)));
 		mapping << "  x02[" << i << "] = " << internalValue << ";" << std::endl
 		        << "  y02[" << i << "] = " << externalValue << ";" << std::endl;
 	}
@@ -95,7 +95,7 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GInt32GaussAdaptor> gdga(new GInt32GaussAdaptor(0.5,0.05,0.02,2.));
 	gint13.addAdaptor(gdga);
 
-	gint13 = 0.; // We can assign a value inside of the allowed value range
+	gint13 = 0; // We can assign a value inside of the allowed value range
 	for(boost::uint32_t i=0; i<NTESTS; i++){
 		// mutate the value and have a look at the
 		// internal and external values.

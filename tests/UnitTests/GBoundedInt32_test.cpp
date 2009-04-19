@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( GBoundedInt32_no_failure_expected )
 	BOOST_CHECK(gbi5.getUpperBoundary() ==  10);
 
 	// Test automatic conversion to boost::int32_t
-	boost::int32_t val=0.;
+	boost::int32_t val=0;
 	val = gbi5;
 	BOOST_CHECK(val == 2);
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( GBoundedInt32_no_failure_expected )
 		// Check equalities and inequalities
 		BOOST_CHECK(gbi6_cp == gbi6);
 		// Re-assign a new value to gbi6_cp
-		gbi6_cp = 1.;
+		gbi6_cp = 1;
 		BOOST_CHECK(gbi6_cp.value() == 1);
 		BOOST_CHECK(gbi6_cp != gbi6);
 
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( GBoundedInt32_no_failure_expected )
 		// Check equalities and inequalities
 		BOOST_CHECK(gbi6_cp == gbi6);
 		// Re-assign a new value to gbi6_cp
-		gbi6_cp = 1.;
+		gbi6_cp = 1;
 		BOOST_CHECK(gbi6_cp.value() == 1);
 		BOOST_CHECK(gbi6_cp != gbi6);
 
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( GBoundedInt32_no_failure_expected )
 		// Check equalities and inequalities
 		BOOST_CHECK(gbi6_cp == gbi6);
 		// Re-assign a new value to gbi6_cp
-		gbi6_cp = 1.;
+		gbi6_cp = 1;
 		BOOST_CHECK(gbi6_cp.value() == 1);
 		BOOST_CHECK(gbi6_cp != gbi6);
 

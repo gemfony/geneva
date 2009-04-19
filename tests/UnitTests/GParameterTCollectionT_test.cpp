@@ -92,7 +92,7 @@ template <> GBoundedDouble getTemplateItemNoAdaptor<GBoundedDouble>() {
 
 // Specialization for GBoundedInt32
 template <> GBoundedInt32 getTemplateItemNoAdaptor<GBoundedInt32>() {
-	return GBoundedInt32(0,0.,100);
+	return GBoundedInt32(0,0,100);
 }
 
 // This template allows to create items different of the default item.
@@ -148,7 +148,7 @@ template <> GDouble getTemplateItem<GDouble>() {
 
 // Specialization for GInt32
 template <> GInt32 getTemplateItem<GInt32>() {
-	GInt32 gint32(0.);
+	GInt32 gint32(0);
 	gint32.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
 	return gint32;
 }
@@ -201,7 +201,7 @@ template <> GDouble getFindItem<GDouble>() {
 
 // Specialization for GInt32
 template <> GInt32 getFindItem<GInt32>() {
-	GInt32 gint32(1.);
+	GInt32 gint32(1);
 	gint32.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
 	return gint32;
 }
