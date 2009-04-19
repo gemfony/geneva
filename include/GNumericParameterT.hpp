@@ -107,12 +107,7 @@ public:
 	 *
 	 * @param param The value of the parameter
 	 */
-	GNumericParameterT(const T& param)
-		:param_(param),
-		 lowerBoundary_(T(0)),
-		 upperBoundary_(T(0)),
-		 precision_(DEFAULTPRECISION)
-	{ /* nothing */	}
+	GNumericParameterT(const T& param);
 
 	/***************************************************************************/
 	/**
@@ -565,6 +560,10 @@ template<> void GNumericParameterT<char>::readFromStream(std::istream&);
 
 template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameterT<double>& cp, const double& limit) const;
 
+/*****************************************************************************************/
+/**
+ * Needed here due to deficiencies of g++ 3.4.6
+ */
 template <typename T>
 GNumericParameterT<T>::GNumericParameterT()
 	:param_(T(0)),
@@ -572,6 +571,20 @@ GNumericParameterT<T>::GNumericParameterT()
 	 upperBoundary_(T(0)),
 	 precision_(DEFAULTPRECISION)
 { /* nothing */ }
+
+/*****************************************************************************************/
+/**
+ * Needed here due to deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GNumericParameterT<T>::GNumericParameterT(const T& param)
+	:param_(param),
+	 lowerBoundary_(T(0)),
+	 upperBoundary_(T(0)),
+	 precision_(DEFAULTPRECISION)
+{ /* nothing */	}
+
+/*****************************************************************************************/
 
 template <> GNumericParameterT<bool>::GNumericParameterT();
 template <> GNumericParameterT<bool>::GNumericParameterT(const bool&);
