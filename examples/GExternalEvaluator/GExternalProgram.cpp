@@ -82,6 +82,7 @@ int main(int argc, char **argv){
 	 double sigma,sigmaSigma,minSigma,maxSigma;
 	 boost::uint32_t nEvaluations;
 	 Gem::GenEvA::dataExchangeMode exchangeMode;
+	 bool sortingScheme;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -105,6 +106,7 @@ int main(int argc, char **argv){
 						 maxSigma,
 						 nEvaluations,
 						 exchangeMode,
+						 sortingScheme,
 						 verbose))
 	{ exit(1); }
 
@@ -166,6 +168,7 @@ int main(int argc, char **argv){
 	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
 	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+	  pop_ser.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 
 	  // Do the actual optimization
 	  pop_ser.optimize();
@@ -188,6 +191,7 @@ int main(int argc, char **argv){
 	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+	  pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 
 	  // Do the actual optimization
 	  pop_par.optimize();
@@ -215,6 +219,7 @@ int main(int argc, char **argv){
 			pop_broker.setMaxTime(boost::posix_time::minutes(maxMinutes));
 			pop_broker.setReportGeneration(reportGeneration);
 			pop_broker.setRecombinationMethod(rScheme);
+			pop_broker.setSortingScheme(sortingScheme);
 
 			// Do the actual optimization
 			pop_broker.optimize();

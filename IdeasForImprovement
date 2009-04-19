@@ -53,3 +53,4 @@
 - Add GSwarm, GSteepestDescent ?
 - Catch signals in the network clients, so that we are sure that we complete network transfers before stopping
 - Use the Boost.Filesystem library to access data on the disk - makes Geneva portable to Windows.
+- Network clients should catch signals, so that they complete a network transfer before terminating
