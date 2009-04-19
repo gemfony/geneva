@@ -570,10 +570,10 @@ template<> void GNumericParameterT<char>::readFromStream(std::istream&);
 
 template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameterT<double>& cp, const double& limit) const;
 
-template <> GNumericParameterT<bool>::GNumericParameterT();
-template <> GNumericParameterT<bool>::GNumericParameterT(const bool&);
-template <> GNumericParameterT<bool>::GNumericParameterT(const bool&, const bool&, const bool&);
-template <> GNumericParameterT<bool>::GNumericParameterT(const GNumericParameterT<bool>&);
+inline template <> GNumericParameterT<bool>::GNumericParameterT();
+inline template <> GNumericParameterT<bool>::GNumericParameterT(const bool&);
+inline template <> GNumericParameterT<bool>::GNumericParameterT(const bool&, const bool&, const bool&);
+inline template <> GNumericParameterT<bool>::GNumericParameterT(const GNumericParameterT<bool>&);
 template <> void GNumericParameterT<bool>::setParameter(const bool&, const bool&, const bool&);
 
 } /* namespace Util */
