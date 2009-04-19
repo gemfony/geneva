@@ -117,26 +117,7 @@ public:
 	 * @param lower The value of the lower boundary
 	 * @param upper The value of the upper boundary
 	 */
-	GNumericParameterT(const T& param, const T& lower, const T& upper)
-		:param_(param),
-		 lowerBoundary_(lower),
-		 upperBoundary_(upper),
-		 precision_(DEFAULTPRECISION)
-	{
-		// Check the validity of the boundaries.
-		if(lowerBoundary_ != upperBoundary_ &&
-		   (param_ < lowerBoundary_ || param_ > upperBoundary_ || lowerBoundary_ >= upperBoundary_)) {
-			std::ostringstream error;
-			error << "In GNumericParameterT<T>::GNumericParameterT(param, lower, upper): Error!" << std::endl
-			        << "Invalid boundary and/or parameter values:" << std:: endl
-			        << "param_ = " << param_ << std::endl
-			        << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-			        << "upperBoundary_ = " << upperBoundary_ << std::endl
-			        << "Leaving ... " << std::endl;
-
-			throw GDataExchangeException(error.str());
-		}
-	}
+	GNumericParameterT(const T& param, const T& lower, const T& upper);
 
 	/***************************************************************************/
 	/**
@@ -144,19 +125,13 @@ public:
 	 *
 	 * @param A const reference to another GNumericParameterT object
 	 */
-	GNumericParameterT(const GNumericParameterT& cp)
-		:param_(cp.param_),
-		 lowerBoundary_(cp.lowerBoundary_),
-		 upperBoundary_(cp.upperBoundary_),
-		 precision_(cp.precision_)
-	{ /* nothing */	}
+	GNumericParameterT(const GNumericParameterT& cp);
 
 	/***************************************************************************/
 	/**
 	 * The destructor
 	 */
-	virtual ~GNumericParameterT()
-	{ /* nothing */ }
+	virtual ~GNumericParameterT();
 
 	/***************************************************************************/
 	/**
@@ -583,6 +558,51 @@ GNumericParameterT<T>::GNumericParameterT(const T& param)
 	 upperBoundary_(T(0)),
 	 precision_(DEFAULTPRECISION)
 { /* nothing */	}
+
+/*****************************************************************************************/
+/**
+ * Needed here due to deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GNumericParameterT<T>::GNumericParameterT(const T& param, const T& lower, const T& upper)
+	:param_(param),
+	 lowerBoundary_(lower),
+	 upperBoundary_(upper),
+	 precision_(DEFAULTPRECISION)
+{
+	// Check the validity of the boundaries.
+	if(lowerBoundary_ != upperBoundary_ &&
+	   (param_ < lowerBoundary_ || param_ > upperBoundary_ || lowerBoundary_ >= upperBoundary_)) {
+		std::ostringstream error;
+		error << "In GNumericParameterT<T>::GNumericParameterT(param, lower, upper): Error!" << std::endl
+		        << "Invalid boundary and/or parameter values:" << std:: endl
+		        << "param_ = " << param_ << std::endl
+		        << "lowerBoundary_ = " << lowerBoundary_ << std::endl
+		        << "upperBoundary_ = " << upperBoundary_ << std::endl
+		        << "Leaving ... " << std::endl;
+
+		throw GDataExchangeException(error.str());
+	}
+}
+/*****************************************************************************************/
+/**
+ * Needed here due to deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GNumericParameterT<T>::GNumericParameterT(const GNumericParameterT& cp)
+	:param_(cp.param_),
+	 lowerBoundary_(cp.lowerBoundary_),
+	 upperBoundary_(cp.upperBoundary_),
+	 precision_(cp.precision_)
+{ /* nothing */	}
+
+/*****************************************************************************************/
+/**
+ * Needed here due to deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GNumericParameterT<T>::~GNumericParameterT()
+{ /* nothing */ }
 
 /*****************************************************************************************/
 
