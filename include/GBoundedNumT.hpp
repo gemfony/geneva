@@ -424,7 +424,7 @@ public:
 		}
 
 		// Then calculate the corresponding external value and set it accordingly
-		double externalValue = calculateExternalValue(internalValue_);
+		T externalValue = calculateExternalValue(internalValue_);
 
 		// Set the external value accordingly.
 		setExternalValue(externalValue);
