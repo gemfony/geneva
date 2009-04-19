@@ -99,12 +99,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GNumericParameterT(void)
-		:param_(T(0)),
-		 lowerBoundary_(T(0)),
-		 upperBoundary_(T(0)),
-		 precision_(DEFAULTPRECISION)
-	{ /* nothing */ }
+	GNumericParameterT();
 
 	/***************************************************************************/
 	/**
@@ -570,10 +565,18 @@ template<> void GNumericParameterT<char>::readFromStream(std::istream&);
 
 template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameterT<double>& cp, const double& limit) const;
 
-inline template <> GNumericParameterT<bool>::GNumericParameterT();
-inline template <> GNumericParameterT<bool>::GNumericParameterT(const bool&);
-inline template <> GNumericParameterT<bool>::GNumericParameterT(const bool&, const bool&, const bool&);
-inline template <> GNumericParameterT<bool>::GNumericParameterT(const GNumericParameterT<bool>&);
+template <typename T>
+GNumericParameterT<T>::GNumericParameterT()
+	:param_(T(0)),
+	 lowerBoundary_(T(0)),
+	 upperBoundary_(T(0)),
+	 precision_(DEFAULTPRECISION)
+{ /* nothing */ }
+
+template <> GNumericParameterT<bool>::GNumericParameterT();
+template <> GNumericParameterT<bool>::GNumericParameterT(const bool&);
+template <> GNumericParameterT<bool>::GNumericParameterT(const bool&, const bool&, const bool&);
+template <> GNumericParameterT<bool>::GNumericParameterT(const GNumericParameterT<bool>&);
 template <> void GNumericParameterT<bool>::setParameter(const bool&, const bool&, const bool&);
 
 } /* namespace Util */
