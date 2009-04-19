@@ -235,13 +235,13 @@ int main(int argc, char **argv)
 				pFF->SetCoordinates(mol);
 				energy = pFF->Energy(false);
 
-				// Clean up
-				mol.Clear();
-
 				// Finally store the result in the parameter set
 				ge.setValue(energy);
 			}
 			while(ge.nextDataSet());
+
+			// Clean up
+			mol.Clear();
 
 			// Write out the results
 			ge.writeToFile(paramfile, binary);

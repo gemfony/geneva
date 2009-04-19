@@ -600,7 +600,7 @@ protected:
 		}
 
 		// Make the parameters known externally
-		std::string parFile = parameterFile_ +
+		std::string parFile = parameterFile_ + "_" +
 											boost::lexical_cast<std::string>(this->getParentPopGeneration()) + "_" +
 										    boost::lexical_cast<std::string>( this->getPopulationPosition());
 

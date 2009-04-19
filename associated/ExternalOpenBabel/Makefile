@@ -7,7 +7,7 @@ GENEVAINC=/opt/geneva/include/
 GENEVALIB=/opt/geneva/lib/
 
 LDFLAGS=-L$(LIBDIR) -L$(BOOSTLIB) -L$(GENEVALIB) -lgeneva -lopenbabel -lboost_program_options-gcc43-mt -lboost_date_time-gcc43-mt -lboost_system-gcc43-mt -lboost_serialization-gcc43-mt -lboost_thread-gcc43-mt
-CPPFLAGS=-I. -I$(BABEL_INCDIR) -I$(BOOSTINC) -I$(GENEVAINC)
+CPPFLAGS=-I. -I$(BABEL_INCDIR) -I$(BOOSTINC) -I$(GENEVAINC) -O3
 
 all:    eminim2
 

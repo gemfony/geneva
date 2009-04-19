@@ -31,7 +31,7 @@ bool GetVectorOfDihedrals (OpenBabel::OBMol *mol, std::vector<double>& vod) {
   std::vector<OBInternalCoord*> vic = mol->GetInternalCoord();
   int natoms=mol->NumAtoms();
   if (natoms < 4) {
-    std::cerr << "Error: No dihedral angles for less than 4 natoms.\n";
+    std::cerr << "In GetVectorOfDihedrals(): Error: No dihedral angles for less than 4 natoms.\n";
     return false;
   }
 
@@ -42,12 +42,12 @@ bool GetVectorOfDihedrals (OpenBabel::OBMol *mol, std::vector<double>& vod) {
 bool SetVectorOfDihedrals (OpenBabel::OBMol *mol, const std::vector<double>& vod) {
   // define a vector of internal coordinates
   if (!mol) {
-    std::cerr << "Error: Bad molecule given" << std::endl;
+    std::cerr << "In SetVectorOfDihedrals(): Error: Bad molecule given" << std::endl;
     return false;
   }
   int natoms=mol->NumAtoms();
   if(vod.size() != natoms-3) {
-    std::cerr << "Error: invalid number of dihedrals: " << vod.size() << std::endl;
+    std::cerr << "In SetVectorOfDihedrals(): Error: invalid number of dihedrals: " << vod.size() << " " << natoms << " " << natoms-3 << std::endl;
     return false;
   }
 
