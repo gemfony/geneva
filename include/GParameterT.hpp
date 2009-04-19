@@ -72,10 +72,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GParameterT()
-		:GParameterBaseWithAdaptorsT<T>(),
-		 val_((T)NULL)
-	{ /* nothing */ }
+	GParameterT();
 
 	/*******************************************************************************************/
 	/**
@@ -83,10 +80,7 @@ public:
 	 *
 	 * @param cp A copy of another GParameterT<T> object
 	 */
-	GParameterT(const GParameterT<T>& cp)
-		:GParameterBaseWithAdaptorsT<T>(cp),
-		 val_(cp.val_)
-	{ /* nothing */	}
+	GParameterT(const GParameterT<T>& cp);
 
 	/*******************************************************************************************/
 	/**
@@ -94,17 +88,13 @@ public:
 	 *
 	 * @param val The new value of val_
 	 */
-	explicit GParameterT(const T& val)
-		:GParameterBaseWithAdaptorsT<T>(),
-		 val_(val)
-	{ /* nothing */	}
+	explicit GParameterT(const T& val);
 
 	/*******************************************************************************************/
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GParameterT()
-	{ /* nothing */ }
+	virtual ~GParameterT();
 
 	/*******************************************************************************************/
 	/**
@@ -279,6 +269,44 @@ private:
 template<> bool GParameterT<double>::isSimilarTo(const GObject& cp, const double& limit) const;
 /** @brief A default constructor for bool, needed as it appears useful to initialize the value with a printable character */
 template <> GParameterT<char>::GParameterT();
+
+/*********************************************************************************************/
+/**
+ * Non-inline definition in order to circumvent a g++ 3.4.6 deficiency
+ */
+template <typename T>
+GParameterT<T>::GParameterT()
+	:GParameterBaseWithAdaptorsT<T>(),
+	 val_(T(0))
+{ /* nothing */ }
+
+/*********************************************************************************************/
+/**
+ * Non-inline definition in order to circumvent a g++ 3.4.6 deficiency
+ */
+template <typename T>
+GParameterT<T>::GParameterT(const GParameterT<T>& cp)
+	:GParameterBaseWithAdaptorsT<T>(cp),
+	 val_(cp.val_)
+{ /* nothing */	}
+
+/*********************************************************************************************/
+/**
+ * Non-inline definition in order to circumvent a g++ 3.4.6 deficiency
+ */
+template <typename T>
+GParameterT<T>::GParameterT(const T& val)
+	:GParameterBaseWithAdaptorsT<T>(),
+	 val_(val)
+{ /* nothing */	}
+
+/*********************************************************************************************/
+/**
+ * Non-inline definition in order to circumvent a g++ 3.4.6 deficiency
+ */
+template <typename T>
+GParameterT<T>:: ~GParameterT()
+{ /* nothing */ }
 
 /*********************************************************************************************/
 
