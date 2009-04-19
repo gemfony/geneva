@@ -99,7 +99,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GNumericParameterT()
+	GNumericParameterT(void)
 		:param_(T(0)),
 		 lowerBoundary_(T(0)),
 		 upperBoundary_(T(0)),

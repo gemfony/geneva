@@ -390,7 +390,7 @@ template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameter
  * Specialization of the default constructor for typeof(T)==bool. It is needed
  * as boolean values always have a lower and upper boundary.
  */
-template <> GNumericParameterT<bool>::GNumericParameterT()
+template <> GNumericParameterT<bool>::GNumericParameterT(void)
 	:param_(false),
 	 lowerBoundary_(false),
 	 upperBoundary_(true),
