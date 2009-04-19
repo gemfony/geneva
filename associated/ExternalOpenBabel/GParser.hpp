@@ -22,11 +22,13 @@
 // Standard headers go here
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <vector>
 
 // Boost headers go here
 #include <boost/program_options.hpp>
+#include <boost/cstdint.hpp>
 
 // OpenBabel headers go here
 #include <openbabel/babelconfig.h>
@@ -48,7 +50,7 @@ const std::string DEFAULTPROTEINDESCRIPTION="unknown";
 
 const std::string DEFAULTPARAMFILE="empty";
 const boost::uint16_t DEFAULTTRANSFERMODE=0; // binary mode
-const std::string DEFAULTCONFIGFILE="./eminim2.cfg"
+const std::string DEFAULTCONFIGFILE="./eminim2.cfg";
 
 namespace po = boost::program_options;
 
@@ -56,7 +58,6 @@ bool parseCommandLine(int argc, char **argv,
 			  boost::uint16_t& executionMode,
 			  std::string& paramfile,
 			  boost::uint16_t& transferMode,
-			  bool& singleEvaluation,
 			  std::string& configFile
 );
 

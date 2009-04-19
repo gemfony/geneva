@@ -46,6 +46,9 @@
  * -m / --transferMode=<number>
  *     0 means binary mode (the default, if --transferMode is not used)
  *     1 means text mode
+ * -s / --singleEvaluation Used as the only command line argument. Performs a single
+ *  calculation of the energy of a given protein. Used independently of the optimization run for
+ *  verification purposes only.
  *
  * In other words, the following arguments are possible
  * [Mode  0] -h
@@ -59,12 +62,12 @@
  * [Mode  4] -p <filename>  -t -m <mode>
  * [Mode  5] -p <filename> -t -R -m <mode>
  * [Mode  6] -p <filename> -r -m <mode>
+ * [Mode  7] -s
  */
 bool parseCommandLine(int argc, char **argv,
 		boost::uint16_t& executionMode,
 		std::string& paramfile,
 		boost::uint16_t& transferMode,
-		bool& singleEvaluation,
 		std::string& configFile)
 {
 	try{
@@ -89,7 +92,6 @@ bool parseCommandLine(int argc, char **argv,
 
 		// Initialize some arguments
 		executionMode = 0; // no effect
-		singleEvaluation=false;
 
 		// Emit a help message, if necessary
 		if (vm.count("help")) {
@@ -101,7 +103,7 @@ bool parseCommandLine(int argc, char **argv,
 		// There is no need to do any further parsing of the command line, as all necessary options
 		// are already known.
 		if(vm.count("singleEvaluation")) {
-			singleEvaluation=true;
+			executionMode=7;
 			return true;
 		}
 
@@ -155,7 +157,7 @@ bool parseCommandLine(int argc, char **argv,
 		executionMode = 3;
 		return true;
 	}
-	catch(exception& e){
+	catch(std::exception& e){
 		std::cout << "Error parsing the command line" << std::endl
 			            << e.what() << std::endl;
 		return false;
@@ -194,7 +196,7 @@ bool parseConfigFile(const std::string& configFile,
 		("proteinDescription",po::value<std::string>(&proteinDescription)->default_value(DEFAULTPROTEINDESCRIPTION),	"Name of a file with the available molecule configurations");
 
 		po::variables_map vm;
-		ifstream ifs(configFile.c_str());
+		std::ifstream ifs(configFile.c_str());
 		if(!ifs.good()) {
 			std::cerr << "Error accessing configuration file " << configFile;
 			return false;
@@ -215,8 +217,8 @@ bool parseConfigFile(const std::string& configFile,
 		// Our duty is to evaluate the content of the parameter file
 		return true;
 	}
-	catch(exception& e){
-		std::cout << "Error parsing config file \ " << configFile << "\"" << std::endl
+	catch(std::exception& e){
+		std::cout << "Error parsing config file \" " << configFile << "\"" << std::endl
 			            << e.what() << std::endl;
 		return false;
 	}
