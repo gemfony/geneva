@@ -88,20 +88,7 @@ public:
 	 * such as the GDoubleGaussAdaptor. This function is a trap. Use one of the
      * provided specializations instead.
 	 */
-	GBoundedNumT()
-		:GParameterT<T>(T(0)),
-		 lowerBoundary_(T(0)),
-		 upperBoundary_(T(1)),
-		 internalValue_(T(0))
-	{
-		std::ostringstream error;
-		error << "In GBoundedNumT<T>::GBoundedNumT(): Error!" << std::endl
-				 << "This class seems to have been instantiated with types" << std::endl
-				 << "it was not designed for:" << std::endl
-				 << "typeid(T).name() = " << typeid(T).name() << std::endl;
-
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
-	}
+	GBoundedNumT();
 
 	/****************************************************************************/
 	/**
@@ -111,20 +98,7 @@ public:
 	 *
 	 * @param val The desired external value of this object
 	 */
-	explicit GBoundedNumT(const T& val)
-		:GParameterT<T>(T(0)),
-		 lowerBoundary_(T(0)),
-		 upperBoundary_(T(1)),
-		 internalValue_(T(0))
-	{
-		std::ostringstream error;
-		error << "In GBoundedNumT<T>::GBoundedNumT(const T&): Error!" << std::endl
-				 << "This class seems to have been instantiated with types" << std::endl
-				 << "it was not designed for:" << std::endl
-				 << "typeid(T).name() = " << typeid(T).name() << std::endl;
-
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
-	}
+	explicit GBoundedNumT(const T& val);
 
 	/****************************************************************************/
     /**
@@ -135,20 +109,7 @@ public:
      * @param lowerBoundary The lower boundary of the value range
      * @param upperBoundary The upper boundary of the value range
      */
-	GBoundedNumT(const T& lowerBoundary, const T& upperBoundary)
-		:GParameterT<T>(T(0)),
-		 lowerBoundary_(lowerBoundary),
-		 upperBoundary_(upperBoundary),
-		 internalValue_(T(0))
-	{
-		std::ostringstream error;
-		error << "In GBoundedNumT<T>::GBoundedNumT(const T&, const T&): Error!" << std::endl
-		<< "This class seems to have been instantiated with types" << std::endl
-		<< "it was not designed for:" << std::endl
-		<< "typeid(T).name() = " << typeid(T).name() << std::endl;
-
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
-	}
+	GBoundedNumT(const T& lowerBoundary, const T& upperBoundary);
 
 	/****************************************************************************/
 	/**
@@ -158,14 +119,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
      * @param upperBoundary The upper boundary of the value range
 	 */
-	GBoundedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary)
-		:GParameterT<T>(T(0)),
-		 lowerBoundary_(lowerBoundary),
-		 upperBoundary_(upperBoundary),
-		 internalValue_(T(0))
-	{
-		setExternalValue(val);
-	}
+	GBoundedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary);
 
 	/****************************************************************************/
 	/**
@@ -175,20 +129,14 @@ public:
 	 *
 	 * @param cp Another GBoundedNumT<T> object
 	 */
-	GBoundedNumT(const GBoundedNumT<T>& cp)
-		:GParameterT<T>(cp),
-		 lowerBoundary_(cp.lowerBoundary_),
-		 upperBoundary_(cp.upperBoundary_),
-		 internalValue_(cp.internalValue_)
-	{ /* nothing */ }
+	GBoundedNumT(const GBoundedNumT<T>& cp);
 
 	/****************************************************************************/
 	/**
 	 * A standard destructor. No local, dynamically allocated data,
 	 * hence nothing to do.
 	 */
-	virtual ~GBoundedNumT()
-	{ /* nothing */ }
+	virtual ~GBoundedNumT();
 
 	/****************************************************************************/
 	/**
@@ -585,6 +533,99 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t&, co
 template <> bool GBoundedNumT<double>::isSimilarTo(const GObject&, const double&) const;
 template <> void GBoundedNumT<double>::resetBoundaries();
 template <> void GBoundedNumT<boost::int32_t>::resetBoundaries();
+
+/******************************************************************************/
+/**
+ * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GBoundedNumT<T>::GBoundedNumT()
+	:GParameterT<T>(T(0)),
+	 lowerBoundary_(T(0)),
+	 upperBoundary_(T(1)),
+	 internalValue_(T(0))
+{
+	std::ostringstream error;
+	error << "In GBoundedNumT<T>::GBoundedNumT(): Error!" << std::endl
+			 << "This class seems to have been instantiated with types" << std::endl
+			 << "it was not designed for:" << std::endl
+			 << "typeid(T).name() = " << typeid(T).name() << std::endl;
+
+	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+}
+
+/******************************************************************************/
+/**
+ * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GBoundedNumT<T>::GBoundedNumT(const T& val)
+	:GParameterT<T>(T(0)),
+	 lowerBoundary_(T(0)),
+	 upperBoundary_(T(1)),
+	 internalValue_(T(0))
+{
+	std::ostringstream error;
+	error << "In GBoundedNumT<T>::GBoundedNumT(const T&): Error!" << std::endl
+			 << "This class seems to have been instantiated with types" << std::endl
+			 << "it was not designed for:" << std::endl
+			 << "typeid(T).name() = " << typeid(T).name() << std::endl;
+
+	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+}
+
+/******************************************************************************/
+/**
+ * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GBoundedNumT<T>::GBoundedNumT(const T& lowerBoundary, const T& upperBoundary)
+	:GParameterT<T>(T(0)),
+	 lowerBoundary_(lowerBoundary),
+	 upperBoundary_(upperBoundary),
+	 internalValue_(T(0))
+{
+	std::ostringstream error;
+	error << "In GBoundedNumT<T>::GBoundedNumT(const T&, const T&): Error!" << std::endl
+	<< "This class seems to have been instantiated with types" << std::endl
+	<< "it was not designed for:" << std::endl
+	<< "typeid(T).name() = " << typeid(T).name() << std::endl;
+
+	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+}
+/******************************************************************************/
+/**
+ * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GBoundedNumT<T>::GBoundedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary)
+	:GParameterT<T>(T(0)),
+	 lowerBoundary_(lowerBoundary),
+	 upperBoundary_(upperBoundary),
+	 internalValue_(T(0))
+{
+	setExternalValue(val);
+}
+
+/******************************************************************************/
+/**
+ * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GBoundedNumT<T>::GBoundedNumT(const GBoundedNumT<T>& cp)
+	:GParameterT<T>(cp),
+	 lowerBoundary_(cp.lowerBoundary_),
+	 upperBoundary_(cp.upperBoundary_),
+	 internalValue_(cp.internalValue_)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * Non-inline definition in order to circumvent deficiencies of g++ 3.4.6
+ */
+template <typename T>
+GBoundedNumT<T>::~GBoundedNumT()
+{ /* nothing */ }
 
 /******************************************************************************/
 
