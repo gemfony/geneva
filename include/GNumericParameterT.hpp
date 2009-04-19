@@ -100,9 +100,9 @@ public:
 	 * The default constructor
 	 */
 	GNumericParameterT()
-		:param_(T(NULL)),
-		 lowerBoundary_(T(NULL)),
-		 upperBoundary_(T(NULL)),
+		:param_(T(0)),
+		 lowerBoundary_(T(0)),
+		 upperBoundary_(T(0)),
 		 precision_(DEFAULTPRECISION)
 	{ /* nothing */ }
 
@@ -114,8 +114,8 @@ public:
 	 */
 	GNumericParameterT(const T& param)
 		:param_(param),
-		 lowerBoundary_(T(NULL)),
-		 upperBoundary_(T(NULL)),
+		 lowerBoundary_(T(0)),
+		 upperBoundary_(T(0)),
 		 precision_(DEFAULTPRECISION)
 	{ /* nothing */	}
 
@@ -269,7 +269,8 @@ public:
 	 * @param limit The maximum acceptable level of difference between both objects
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	bool isSimilarTo(const GNumericParameterT<T>& cp, const T& limit=(T)NULL) const {
+	bool isSimilarTo(const GNumericParameterT<T>& cp, const T& limit=T(0)) const
+	{
 		return operator==(cp);
 	}
 
@@ -278,9 +279,9 @@ public:
 	 * Erases all previous values
 	 */
 	void reset() {
-		param_ = T(NULL);
-		lowerBoundary_ = T(NULL);
-		upperBoundary_ = T(NULL);
+		param_ = T(0);
+		lowerBoundary_ = T(0);
+		upperBoundary_ = T(0);
 		precision_ = DEFAULTPRECISION;
 	}
 
