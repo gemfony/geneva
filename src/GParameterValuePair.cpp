@@ -113,6 +113,8 @@ namespace Gem
 		return cp;
 	}
 
+#define GENEVATESTING
+
 	/******************************************************************************/
 	/**
 	 * Checks equality of this object with another object of the same type.
@@ -342,6 +344,8 @@ namespace Gem
 		// Now we are sure that all parameters are equal
 		return true;
 	}
+
+#undef GENEVATESTING
 
 	/******************************************************************************/
 	/**

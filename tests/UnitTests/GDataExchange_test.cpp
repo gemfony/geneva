@@ -359,18 +359,18 @@ BOOST_AUTO_TEST_CASE(gparametervaluepair_no_failure_expected)
 
 	// Check the assignment operator and check again equality
 	*p2 = *p0;
-	BOOST_CHECK(p2->isEqualTo(*p0));
+	BOOST_CHECK(*p2 == *p0);
 
 	// Write the object out in binary mode and load it back in. Then check equality.
 	std::ofstream binaryOutput("pvp.bin");
 	p0->binaryWriteToStream(binaryOutput);
 	binaryOutput.close();
 	p2->reset();
-	BOOST_CHECK(!p2->isEqualTo(*p0));
+	BOOST_CHECK(*p2 !=*p0);
 	std::ifstream binaryInput("pvp.bin");
 	p2->binaryReadFromStream(binaryInput);
 	binaryInput.close();
-	BOOST_CHECK(p2->isEqualTo(*p0));
+	BOOST_CHECK(*p2 == *p0);
 
 	// Write the object out in text mode and load it back in. Then check similarity
 	std::ofstream textOutput("pvp.txt");
@@ -523,7 +523,7 @@ BOOST_AUTO_TEST_CASE( gdataexchange_no_failure_expected )
 	// In binary mode
 	gde->writeToFile("testFile.bin",true);
 	gde2->readFromFile("testFile.bin",true);
-	BOOST_CHECK(gde->isEqualTo(*gde2));
+	BOOST_CHECK(*gde == *gde2);
 
 	gde->resetAll(); // There should now only be one data set remaining
 	BOOST_CHECK(gde->nDataSets() == 1);
