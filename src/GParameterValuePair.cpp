@@ -623,8 +623,8 @@ namespace Gem
 			for(ccit=cArray_.begin(); ccit!=cArray_.end(); ++ccit) (*ccit)->binaryWriteToStream(stream);
 		}
 
-		stream.write(reinterpret_cast<const char *>(&value_), sizeof(&value_));
-		stream.write(reinterpret_cast<const char *>(&hasValue_), sizeof(&hasValue_));
+		stream.write(reinterpret_cast<const char *>(&value_), sizeof(value_));
+		stream.write(reinterpret_cast<const char *>(&hasValue_), sizeof(hasValue_));
 	}
 
 	/**************************************************************************/
@@ -737,8 +737,8 @@ namespace Gem
 		}
 
 		// Finally read the value and the flag indicating whether it is valid
-		stream.read(reinterpret_cast<char *>(&value_), sizeof(&value_));
-		stream.read(reinterpret_cast<char *>(&hasValue_), sizeof(&hasValue_));
+		stream.read(reinterpret_cast<char *>(&value_), sizeof(value_));
+		stream.read(reinterpret_cast<char *>(&hasValue_), sizeof(hasValue_));
 	}
 
 	/******************************************************************************/
