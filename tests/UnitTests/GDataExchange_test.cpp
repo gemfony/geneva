@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE(gparametervaluepair_no_failure_expected)
 	binaryOutput.close();
 	p2->reset();
 	BOOST_CHECK(*p2 !=*p0);
-	std::ifstream binaryInput("pvp.bin");
+	std::ifstream binaryInput("pvp.bin",  std::ios::in | std::ios::binary);
 	BOOST_CHECK(binaryInput.good());
 	p2->binaryReadFromStream(binaryInput);
 	binaryInput.close();
