@@ -363,11 +363,13 @@ BOOST_AUTO_TEST_CASE(gparametervaluepair_no_failure_expected)
 
 	// Write the object out in binary mode and load it back in. Then check equality.
 	std::ofstream binaryOutput("pvp.bin");
+	BOOST_CHECK(binaryOutput.good());
 	p0->binaryWriteToStream(binaryOutput);
 	binaryOutput.close();
 	p2->reset();
 	BOOST_CHECK(*p2 !=*p0);
 	std::ifstream binaryInput("pvp.bin");
+	BOOST_CHECK(binaryInput.good());
 	p2->binaryReadFromStream(binaryInput);
 	binaryInput.close();
 	BOOST_CHECK(*p2 == *p0);
