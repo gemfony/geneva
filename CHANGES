@@ -1,4 +1,7 @@
-Added modules for the "standardized" exchange of data with external evaluation programs. (March 27, 2009)
+Created a unit test framework for most classes in Geneva. 
+Added modules for the "standardized" exchange of data with external evaluation programs.
+Added new container for bounded doubles, as well as a bounded int32
+Made vector-wrapper more complete and derived classes with vector interface from a common vector wrapper base class
 
 -----------------------------------------------------------------------------
 
