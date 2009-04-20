@@ -1,3 +1,6 @@
+-----------------------------------------------------------------------------
+// Version 0.5.2, released on April 20, 2009
+
 Created a unit test framework for most classes in Geneva. 
 Added modules for the "standardized" exchange of data with external evaluation programs.
 Added new container for bounded doubles, as well as a bounded int32

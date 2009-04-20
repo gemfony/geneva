@@ -31,6 +31,6 @@
 #define ALLOWED_BOOST_VERSION 103600
 
 /** The current version of the Geneva library */
-#define GENEVAVERSION 0051
+#define GENEVAVERSION 0053
 
 #endif /* GGLOBALDEFINES_HPP_ */
