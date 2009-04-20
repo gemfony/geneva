@@ -277,13 +277,13 @@ public:
 
 	/**************************************************************************/
 	/** @brief Adds a boost::shared_ptr<GDoubleParameter> object to the corresponding vector */
-	void append(const boost::shared_ptr<GDoubleParameter>&);
+	void append(boost::shared_ptr<GDoubleParameter>);
 	/** @brief Adds a boost::shared_ptr<GLongParameter> object to the corresponding vector */
-	void append(const boost::shared_ptr<GLongParameter>&);
+	void append(boost::shared_ptr<GLongParameter>);
 	/** @brief Adds a boost::shared_ptr<GBoolParameter> object to the corresponding vector */
-	void append(const boost::shared_ptr<GBoolParameter>&);
+	void append(boost::shared_ptr<GBoolParameter>);
 	/** @brief Adds a boost::shared_ptr<GCharParameter> object to the corresponding vector */
-	void append(const boost::shared_ptr<GCharParameter>&);
+	void append(boost::shared_ptr<GCharParameter>);
 
 	/**************************************************************************/
 

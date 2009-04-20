@@ -100,7 +100,7 @@ public:
 	virtual ~GLogger();
 
 	/** @brief Adds a log target, such as console or file */
-	void addTarget(const boost::shared_ptr<GBaseLogTarget>& gblt);
+	void addTarget(boost::shared_ptr<GBaseLogTarget> gblt);
 	/** @brief Does the actual logging */
 	void log(const std::string& msg, const logLevels& level);
 	/** @brief Sets a log level that should be observed */

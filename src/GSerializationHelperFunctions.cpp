@@ -35,7 +35,7 @@ namespace GenEvA
  * @param sm The corresponding serialization mode
  * @return A string representation of gi_ptr
  */
-std::string indptrToString(const boost::shared_ptr<GIndividual>& gi_ptr, const serializationMode& serMod){
+std::string indptrToString(boost::shared_ptr<GIndividual> gi_ptr, const serializationMode& serMod){
 	std::ostringstream oarchive_stream;
 
 	switch(serMod){

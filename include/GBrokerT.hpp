@@ -124,7 +124,7 @@ public:
 	 *
 	 * @param gbp A shared pointer to a new GBufferPortT object
 	 */
-	void enrol(const boost::shared_ptr<GBufferPortT<carryer_type> >& gbp) {
+	void enrol(boost::shared_ptr<GBufferPortT<carryer_type> > gbp) {
 		// Lock the access to our internal data
 		boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -187,7 +187,7 @@ public:
 	 *
 	 * @param gc A pointer to a GConsumer object
 	 */
-	void enrol(const boost::shared_ptr<GConsumer>& gc) {
+	void enrol(boost::shared_ptr<GConsumer> gc) {
 		consumerCollection_.push_back(gc);
 		consumerThreads_.create_thread(boost::bind(&GConsumer::process, gc));
 	}

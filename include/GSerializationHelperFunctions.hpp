@@ -69,7 +69,7 @@ namespace GenEvA
 /***************************************************************************************************/
 
 /** @brief Convert a shared_ptr<GIndividual> into its string representation */
-std::string indptrToString(const boost::shared_ptr<GIndividual>&, const serializationMode&);
+std::string indptrToString(boost::shared_ptr<GIndividual>, const serializationMode&);
 
 /** @brief Load a shared_ptr<GIndividual> from its string representation */
 boost::shared_ptr<GIndividual> indptrFromString(const std::string&, const serializationMode&);

@@ -252,7 +252,7 @@ public:
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this)))
 			throw Gem::Util::gem_util_condition_time_out();
-		*pItem = container_.back();
+		(*pItem) = container_.back();
 		container_.pop_back();
 		lock.unlock();
 		not_full_.notify_one();

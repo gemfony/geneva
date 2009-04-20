@@ -597,7 +597,7 @@ template <> std::size_t GDataExchange::size<char>() {
  *
  * @param gdp The boost::shared_ptr to the GDoubleParameter to be added to the vector
  */
-void GDataExchange::append(const boost::shared_ptr<GDoubleParameter>& gdp) {
+void GDataExchange::append(boost::shared_ptr<GDoubleParameter> gdp) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
 		std::ostringstream error;
@@ -617,7 +617,7 @@ void GDataExchange::append(const boost::shared_ptr<GDoubleParameter>& gdp) {
  *
  * @param glp The boost::shared_ptr to the GLongParameter to be added to the vector
  */
-void GDataExchange::append(const boost::shared_ptr<GLongParameter>& glp) {
+void GDataExchange::append(boost::shared_ptr<GLongParameter> glp) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
 		std::ostringstream error;
@@ -637,7 +637,7 @@ void GDataExchange::append(const boost::shared_ptr<GLongParameter>& glp) {
  *
  * @param gbp The boost::shared_ptr to the GBoolParameter to be added to the vector
  */
-void GDataExchange::append(const boost::shared_ptr<GBoolParameter>& gbp) {
+void GDataExchange::append(boost::shared_ptr<GBoolParameter> gbp) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
 		std::ostringstream error;
@@ -657,7 +657,7 @@ void GDataExchange::append(const boost::shared_ptr<GBoolParameter>& gbp) {
  *
  * @param gcp The boost::shared_ptr to the GCharParameter to be added to the vector
  */
-void GDataExchange::append(const boost::shared_ptr<GCharParameter>& gcp) {
+void GDataExchange::append(boost::shared_ptr<GCharParameter> gcp) {
 	// Prevent any changes if a value has already been calculated
 	if((*current_)->hasValue_) {
 		std::ostringstream error;

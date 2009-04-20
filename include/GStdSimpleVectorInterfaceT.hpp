@@ -112,7 +112,7 @@ public:
 	/**
 	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
 	 */
-	inline bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const {
+	bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const {
 		return this->checkIsEqualTo(cp);
 	}
 
@@ -120,7 +120,7 @@ public:
 	/**
 	 * Checks inquality with another GStdSimpleVectorInterfaceT<T> object
 	 */
-	inline bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const {
+	bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const {
 		return ! this->checkIsEqualTo(cp);
 	}
 
@@ -128,7 +128,7 @@ public:
 	/**
 	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
 	 */
-	inline bool checkIsEqualTo(const GStdSimpleVectorInterfaceT<T>& cp) const {
+	bool checkIsEqualTo(const GStdSimpleVectorInterfaceT<T>& cp) const {
 		return data==cp.data;
 	}
 
@@ -136,7 +136,7 @@ public:
 	/**
 	 * Checks for equality with a std::vector<T> object
 	 */
-	inline bool checkIsEqualTo(const std::vector<T>& cp_data) const{
+	bool checkIsEqualTo(const std::vector<T>& cp_data) const{
 		return data == cp_data;
 	}
 
@@ -144,7 +144,7 @@ public:
 	/**
 	 * Checks for similarity with another GStdSimpleVectorInterfaceT<T> object.
 	 */
-	inline bool checkIsSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit) const {
+	bool checkIsSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit) const {
 		return this->checkIsSimilarTo(cp.data, limit);
 	}
 
@@ -153,7 +153,7 @@ public:
 	 * Checks for similarity with another std::vector<T>  object. A specialized
 	 * version of this function exists for typeof(T) == typeof(double)
 	 */
-	inline bool checkIsSimilarTo(const std::vector<T>& cp_data, const double&) const {
+	bool checkIsSimilarTo(const std::vector<T>& cp_data, const double&) const {
 		if(	data != cp_data) return false;
 		return true;
 	}
@@ -162,7 +162,7 @@ public:
 	/**
 	 * operator==
 	 */
-	inline bool operator==(const std::vector<T>& cp_data) const {
+	bool operator==(const std::vector<T>& cp_data) const {
 		return cp_data == data;
 	}
 
@@ -170,7 +170,7 @@ public:
 	/**
 	 * operator!=
 	 */
-	inline bool operator!=(const std::vector<T>& cp_data)  const {
+	bool operator!=(const std::vector<T>& cp_data)  const {
 		return !operator==(cp_data);
 	}
 
@@ -190,12 +190,12 @@ public:
 
 	/*****************************************************************************/
 	// Non modifying access
-	inline size_type size() const { return data.size(); }
-	inline bool empty() const { return data.empty(); }
-	inline size_type max_size() const { return data.max_size(); }
+	size_type size() const { return data.size(); }
+	bool empty() const { return data.empty(); }
+	size_type max_size() const { return data.max_size(); }
 
-	inline size_type capacity() const { return data.capacity(); }
-	inline void reserve(size_type amount) { data.reserve(amount); }
+	size_type capacity() const { return data.capacity(); }
+	void reserve(size_type amount) { data.reserve(amount); }
 
 	/*****************************************************************************/
 	/**
@@ -204,7 +204,7 @@ public:
 	 * @param item The item to be counted in the collection
 	 * @return The number of items found
 	 */
-	inline size_type count(const T& item) const { return std::count(data.begin(), data.end(), item); }
+	size_type count(const T& item) const { return std::count(data.begin(), data.end(), item); }
 
 	/*****************************************************************************/
 	/**
@@ -212,39 +212,40 @@ public:
 	 * re-implemented here, as we are dealing with a collection of smart pointers
 	 * and we do not want to compare the pointers themselves.
 	 */
-	inline const_iterator find(const T& item) const {
+	const_iterator find(const T& item) const {
 		return std::find(data.begin(), data.end(), item);
 	}
 
 	/*****************************************************************************/
 
 	// Modifying functions
-	inline void swap(std::vector<T>& cont) { std::swap(data, cont); }
+	void swap(std::vector<T>& cont) { std::swap(data, cont); }
 
 	// Access to elements (unchecked / checked)
-	inline reference operator[](std::size_t pos) { return data[pos]; }
-	inline const reference operator[](std::size_t pos) const { return data[pos]; }
-	inline reference at(std::size_t pos) { return data.at(pos); }
-	inline const reference at(std::size_t pos) const { return data.at(pos); }
+	reference operator[](std::size_t pos) { return data[pos]; }
+	const_reference operator[](std::size_t pos) const { return data[pos]; }
 
-	inline reference front() { return data.front(); }
-	inline const_reference front() const { return data.front(); }
+	reference at(std::size_t pos) { return data.at(pos); }
+	const_reference at(std::size_t pos) const { return data.at(pos); }
 
-	inline reference back() { return data.back(); }
-	inline const_reference back() const { return data.back(); }
+	reference front() { return data.front(); }
+	const_reference front() const { return data.front(); }
+
+	reference back() { return data.back(); }
+	const_reference back() const { return data.back(); }
 
 	// Iterators
-	inline iterator begin() { return data.begin(); }
-	inline const_iterator begin() const { return data.begin(); }
+	iterator begin() { return data.begin(); }
+	const_iterator begin() const { return data.begin(); }
 
-	inline iterator end() { return data.end(); }
-	inline const_iterator end() const { return data.end(); }
+	iterator end() { return data.end(); }
+	const_iterator end() const { return data.end(); }
 
-	inline reverse_iterator rbegin() { return data.rbegin(); }
-	inline const_reverse_iterator rbegin() const { return data.rbegin(); }
+	reverse_iterator rbegin() { return data.rbegin(); }
+	const_reverse_iterator rbegin() const { return data.rbegin(); }
 
-	inline reverse_iterator rend() { return data.rend(); }
-	inline const_reverse_iterator rend() const { return data.rend(); }
+	reverse_iterator rend() { return data.rend(); }
+	const_reverse_iterator rend() const { return data.rend(); }
 
 	/*****************************************************************************/
 	// Insertion and removal
@@ -253,26 +254,26 @@ public:
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere.
 	 */
-	inline iterator insert(iterator pos, const T& item) { return data.insert(pos, item); }
+	iterator insert(iterator pos, const T& item) { return data.insert(pos, item); }
 
 	/*****************************************************************************/
 	/**
 	 * Inserts a given amount of items after position pos.
 	 */
-	inline void insert(iterator pos, size_type amount, const T& item) {	return data.insert(pos,amount,item); }
+	void insert(iterator pos, size_type amount, const T& item) {	return data.insert(pos,amount,item); }
 
 	/*****************************************************************************/
 	// Adding simple items to the  back of the vector
-	inline void push_back(const T& item){ data.push_back(item); }
+	void push_back(const T& item){ data.push_back(item); }
 
 	/*****************************************************************************/
 
 	// Removal at a given position or in a range
-	inline iterator erase(iterator pos) { return data.erase(pos); }
-	inline iterator erase(iterator from, iterator to) { return data.erase(from, to); }
+	iterator erase(iterator pos) { return data.erase(pos); }
+	iterator erase(iterator from, iterator to) { return data.erase(from, to); }
 
 	// Removing an element from the end of the vector
-	inline void pop_back(){ data.pop_back(); }
+	void pop_back(){ data.pop_back(); }
 
 	/*****************************************************************************/
 	/**
@@ -283,11 +284,11 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	inline void resize(size_type amount, const T& item) { data.resize(amount, item);	}
+	void resize(size_type amount, const T& item) { data.resize(amount, item);	}
 
 	/*****************************************************************************/
 	/** @brief Clearing the data vector */
-	inline void clear() { data.clear(); }
+	void clear() { data.clear(); }
 
 	/*****************************************************************************/
 	/**
@@ -299,7 +300,7 @@ public:
 	 * @param cp A constant reference to another std::vector<T>
 	 * @return The argument of this function (a std::vector<T>)
 	 */
-	inline const std::vector<T>& operator=(const std::vector<T>& cp) {
+	const std::vector<T>& operator=(const std::vector<T>& cp) {
 		data=cp;
 		return cp;
 	}
@@ -311,7 +312,7 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	inline void getDataCopy(std::vector<T>& cp){	cp=data; 	}
+	void getDataCopy(std::vector<T>& cp){	cp=data; 	}
 
 	/*****************************************************************************/
 

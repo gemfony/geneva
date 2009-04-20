@@ -57,7 +57,7 @@ namespace Gem {
 		 *
 		 * @param gblt The log target to be added to the logger
 		 */
-		void GLogger::addTarget(const boost::shared_ptr<GBaseLogTarget>& gblt) {
+		void GLogger::addTarget(boost::shared_ptr<GBaseLogTarget> gblt) {
 			if(!gblt) {
 				std::cerr << "In GLogger::addTarget: Error!" << std::endl
 						  << "GBaseLogTarget is empty." << std::endl;
