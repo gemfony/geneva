@@ -643,11 +643,20 @@ void GBasePopulation::customRecombine() {
 			std::vector<double> threshold(nParents_);
 			double thresholdSum=0.;
 			for(i=0; i<nParents_; i++) {
+#ifdef DEBUG
+				thresholdSum += 1./(boost::numeric_cast<double>(i)+2.);
+#else
 				thresholdSum += 1./(static_cast<double>(i)+2.);
+#endif /* DEBUG */
 			}
 			for(i=0; i<nParents_-1; i++) {
-				// norming the sum to 1
+				// normalising the sum to 1
+#ifdef DEBUG
+				threshold[i] = (1./(boost::numeric_cast<double>(i)+2.)) / thresholdSum;
+#else
 				threshold[i] = (1./(static_cast<double>(i)+2.)) / thresholdSum;
+#endif /* DEBUG */
+
 				// Make sure the subsequent range is in the right position
 				if(i>0) threshold[i] += threshold[i-1];
 			}

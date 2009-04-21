@@ -56,7 +56,7 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/shared_ptr.hpp>
-
+#include <boost/cast.hpp>
 
 #ifndef GNUMERICPARAMETERT_HPP_
 #define GNUMERICPARAMETERT_HPP_

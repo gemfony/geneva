@@ -40,6 +40,7 @@
 #include <boost/date_time.hpp>
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
+#include <boost/cast.hpp>
 
 /**
  * Check that we have support for threads

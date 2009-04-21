@@ -199,7 +199,7 @@ void GRandom::fillContainer01() {
  * (Re-)Initialization of p01_. Checks that a valid GRandomFactory still
  * exists, then retrieves a new container.
  */
-inline void GRandom::getNewP01() {
+void GRandom::getNewP01() {
 	if(grf_) p01_ = grf_->new01Container();
 
 	if (!grf_ || !p01_) {

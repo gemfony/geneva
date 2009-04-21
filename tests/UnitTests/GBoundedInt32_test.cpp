@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( GBoundedInt32_no_failure_expected )
 	std::vector<boost::int32_t> iVec(20,0);
 	GBoundedInt32 cc(-10,9); // cc == "checkConversion; 20 values
 	for(boost::int32_t i=0; i<1000; i++) {
-		boost::int32_t val =  cc.calculateExternalValue(-10+i%20);
+		val =  cc.calculateExternalValue(-10+i%20);
 		iVec[boost::numeric_cast<std::size_t>(10 + val)] += 1;
 	}
 	for(std::size_t i=1; i<20; i++) {

@@ -53,7 +53,7 @@ GRandomFactory::GRandomFactory() throw() :
 GRandomFactory::GRandomFactory(const boost::uint16_t& n01Threads) throw() :
 	g01_(DEFAULTFACTORYBUFFERSIZE),
 	seed_(GRandomFactory::GSeed()),
-	n01Threads_(n01Threads ? n01Threads : 1)
+	n01Threads_(n01Threads ? n01Threads : static_cast<boost::uint16_t>(1)) // calm a warning ...
 {
 	startProducerThreads();
 }

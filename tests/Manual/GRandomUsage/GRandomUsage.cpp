@@ -42,6 +42,7 @@
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/cast.hpp>
 
 // GenEvA header files
 #include "GRandom.hpp"
@@ -88,11 +89,11 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 		break;
 
 	case DISCRETE:
-		for(i=0; i<nEntries; i++) vec_t.push_back(gr.discreteRandom(10));
+		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int16_t>(gr.discreteRandom(10)));
 		break;
 
 	case DISCRETEBOUND:
-		for(i=0; i<nEntries; i++) vec_t.push_back(gr.discreteRandom(-3,10));
+		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int16_t>(gr.discreteRandom(-3,10)));
 		break;
 
 	case BITPROB:

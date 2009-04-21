@@ -131,7 +131,13 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::serializationMode& 
 std::istream& operator>>(std::istream& i, Gem::GenEvA::serializationMode& serMode){
 	boost::uint16_t tmp;
 	i >> tmp;
+
+#ifdef DEBUG
+	serMode = boost::numeric_cast<Gem::GenEvA::serializationMode>(tmp);
+#else
 	serMode = static_cast<Gem::GenEvA::serializationMode>(tmp);
+#endif  /* DEBUG */
+
 	return i;
 }
 
@@ -160,7 +166,13 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::dataExchangeMode& e
 std::istream& operator>>(std::istream& i, Gem::GenEvA::dataExchangeMode& exchMode){
 	boost::uint16_t tmp;
 	i >> tmp;
+
+#ifdef DEBUG
+	exchMode = boost::numeric_cast<Gem::GenEvA::dataExchangeMode>(tmp);
+#else
 	exchMode = static_cast<Gem::GenEvA::dataExchangeMode>(tmp);
+#endif /* DEBUG */
+
 	return i;
 }
 

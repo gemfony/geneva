@@ -358,9 +358,15 @@ template<> void GNumericParameterT<char>::readFromStream(std::istream& stream) {
 		stream >>  uint_upperBoundary;
 
 		// And convert the integers to characters
+#ifdef DEBUG
+		param_ = boost::numeric_cast<char>(uint_param);
+		lowerBoundary_ = boost::numeric_cast<char>(uint_lowerBoundary);
+		upperBoundary_ = boost::numeric_cast<char>(uint_upperBoundary);
+#else
 		param_ = static_cast<char>(uint_param);
 		lowerBoundary_ = static_cast<char>(uint_lowerBoundary);
 		upperBoundary_ = static_cast<char>(uint_upperBoundary);
+#endif /* DEBUG */
 }
 
 /***********************************************************************************************/

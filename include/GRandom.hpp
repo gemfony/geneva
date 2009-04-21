@@ -136,7 +136,7 @@ public:
 	int_type discreteRandom(const int_type& min, const int_type& max) {
 	#ifdef DEBUG
 		assert(min < max);
-		int_type result = discreteRandom(max - min) + min;
+		int_type result = boost::numeric_cast<int_type>(discreteRandom(max - min) + min);
 		assert(result>=min && result<max);
 		return result;
 	#else

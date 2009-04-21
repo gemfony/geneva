@@ -51,6 +51,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/cast.hpp>
 
 #ifndef GSERIALIZATIONHELPERFUNCTIONS_HPP_
 #define GSERIALIZATIONHELPERFUNCTIONS_HPP_

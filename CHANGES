@@ -1,6 +1,8 @@
 -----------------------------------------------------------------------------
 // Version 0.5.3, yet unreleased
 
+Made the library compile (mostly clean) with the Intel 10.1 compiler
+
 -----------------------------------------------------------------------------
 // Version 0.5.2, released on April 20, 2009
 
