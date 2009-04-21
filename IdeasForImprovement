@@ -7,17 +7,14 @@
   of them heads for a review (we do not want to include further candidate libraries. Geneva should work with a 
   vanilla Boost installation (>= 1.36)
 - Ship the threadpool library with Geneva or move to standard Boost threadpool (once it has been reviewed)
-- Add many more tests using the Boost.Test library
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
 - Add a CMake macro "FindGeneva.cmake"
-- An operator=(const std::vector<num_type> for GNumCollectionT and similar std::vector look-alikes
-- Complete GMutatableT std::vector wrapper (see GParameterTCollectionT class)
 - Stop criterium "quality is below or above a given threshold"
 - Allow clients in network mode to pull over a series of individuals
+- Transfer parents rather than children
 - Allow clients to create a series of copies from the master individual by themself and return the best one
 - De-central sorting (by letting clients communicate)
 - Additional network implementations (MPI, PVM, ...)
-- Further optimization algorithms: gradient descents, swarm, ...
 - Split tests into "failures expected" and "no failures expected"
 - Test for self-assignment can be eliminated in all classes derived from GObject, as GObject will
   be first to check. One check is sufficient.
@@ -29,8 +26,6 @@
 - Clean up comments and run doxygen
 - Implement a "trap" in GRandom and provide specializations for "allowed" types rather than 
   specializations for "forbidden" types
-- Check GRandom in unit tests (e.g.: discreteRandom never returns the upper boundary. Also needed
-  for GBoundedInt32 aka GBoundedNumT<boost::int32_t> .
 - Check how often the GRandomFactory queue is empty or full. Automatic adaption of number of threads ?
 - Implement a chi-square test for the randomness of our generator, as a basic means of ensuring that 
   our random number generator does the right thing.
@@ -47,10 +42,8 @@
   part of the network overhead
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR in assembler ? (Would be fun ...)
 - It should be possible to ask individuals to take charge of the external evaluation of other individuals as well, avoiding generation of local, random copies
-- SSE optimization ?
 - RNR in float faster ?
 - Rename GBasePopulation, e.g. to GenevaPopulation ?
 - Add GSwarm, GSteepestDescent ?
 - Catch signals in the network clients, so that we are sure that we complete network transfers before stopping
 - Use the Boost.Filesystem library to access data on the disk - makes Geneva portable to Windows.
-- Network clients should catch signals, so that they complete a network transfer before terminating

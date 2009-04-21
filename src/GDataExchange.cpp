@@ -383,9 +383,6 @@ bool GDataExchange::dataIsAvailable() {
 
 		return true;
 	}
-
-	// Make the compiler happy
-	return false;
 }
 
 /**************************************************************************/
