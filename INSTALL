@@ -86,10 +86,10 @@ installed in /opt/boost138 (which should be writable), execute
 make install
 
 After compilation finishes, download the threadpool library from http://threadpool.sf.net
-and unzip that file. This will create a folder "threadpool-0_2_4-src", for instance.
+and unzip that file. This will create a folder "threadpool-0_2_5-src", for instance.
 Then you should copy the threadpool files to the Boost location:
 
-cp -a threadpool-0_2_4-src/threadpool/include/* /opt/boost138/include/boost-1_38/boost/
+cp -a threadpool-0_2_5-src/threadpool/boost/* /opt/boost138/include/boost-1_38/boost/
 
 Once at this stage you can use the Boost include path as explained
 above, with BOOST_ROOT="/opt/boost138".
