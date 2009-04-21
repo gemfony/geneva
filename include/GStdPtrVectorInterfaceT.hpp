@@ -224,8 +224,7 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * A small helper class that compares two items and checks for
-	 * equality, depending on the current mode
+	 * A small helper class that compares two items and checks for equality, depending on the current mode
 	 */
 	template <typename item_type>
 	class vi_equal_to {
@@ -248,6 +247,41 @@ public:
 #endif
 			return result;
 		}
+
+		bool operator() (const boost::shared_ptr<item_type>& item, const boost::shared_ptr<T>& cont_item)  const{
+			bool result = false;
+#ifdef DEBUG
+			try {
+				result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
+			}
+			catch(...) {
+				std::ostringstream error;
+				error << "Unknown error in bool vi_equal_to::operator()" << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+#else
+			result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));
+#endif
+			return result;
+		}
+	};
+
+	/*****************************************************************************/
+	/**
+	 * A small helper class that compares two items of identical type
+	 * and checks for equality, depending on the current mode
+	 */
+	class same_equal_to {
+	public:
+		typedef bool result_type;
+
+		bool operator() (const T& item, const boost::shared_ptr<T>& cont_item)  const{
+			return (item == *cont_item);
+		}
+
+		bool operator() (const boost::shared_ptr<T>& item, const boost::shared_ptr<T>& cont_item)  const{
+			return (*item == *cont_item);
+		}
 	};
 
 	/*****************************************************************************/
@@ -261,7 +295,7 @@ public:
 	template <typename item_type>
 	size_type count(const item_type& item) const {
 		if(typeid(item_type) == typeid(T)) {
-			return std::count_if(data.begin(), data.end(), boost::bind(std::equal_to<T>(), item, boost::bind(Gem::Util::dereference<T>, _1)));
+			return std::count_if(data.begin(), data.end(), boost::bind(same_equal_to(), item, _1));
 		}
 		else {
 			return std::count_if(data.begin(), data.end(), boost::bind(vi_equal_to<item_type>(), item, _1));
@@ -287,13 +321,10 @@ public:
 		}
 
 		if(typeid(item_type) == typeid(T)) {
-			return std::count_if(data.begin(), data.end(),
-					boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
-							boost::bind(Gem::Util::dereference<T>, _1)));
+			return std::count_if(data.begin(), data.end(), boost::bind(same_equal_to(), item, _1));
 		}
 		else {
-			return std::count_if(data.begin(), data.end(),
-					boost::bind(vi_equal_to<item_type>(), boost::bind(Gem::Util::dereference<item_type>, item), _1));
+			return std::count_if(data.begin(), data.end(),  boost::bind(vi_equal_to<item_type>(), item, _1));
 		}
 	}
 
@@ -306,8 +337,7 @@ public:
 	template <typename item_type>
 	const_iterator find(const item_type& item) const {
 		if(typeid(item_type) == typeid(T)) {
-			return std::find_if(data.begin(), data.end(),
-					boost::bind(std::equal_to<T>(),item, boost::bind(Gem::Util::dereference<T>, _1)));
+			return std::find_if(data.begin(), data.end(), boost::bind(same_equal_to(), item, _1));
 		}
 		else {
 			return std::find_if(data.begin(), data.end(), boost::bind(vi_equal_to<item_type>(), item, _1));
@@ -331,13 +361,10 @@ public:
 		}
 
 		if(typeid(item_type) == typeid(T)) {
-			return std::find_if(data.begin(), data.end(),
-					boost::bind(std::equal_to<T>(), boost::bind(Gem::Util::dereference<T>, item),
-							boost::bind(Gem::Util::dereference<T>, _1)));
+			return std::find_if(data.begin(), data.end(), boost::bind(same_equal_to(), item, _1));
 		}
 		else {
-			return std::find_if(data.begin(), data.end(),
-					boost::bind(vi_equal_to<item_type>(), boost::bind(Gem::Util::dereference<item_type>, item), _1));
+			return std::find_if(data.begin(), data.end(), boost::bind(vi_equal_to<item_type>(), item, _1));
 		}
 	}
 
@@ -564,9 +591,9 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<boost::shared_ptr<T> >& cp){
+	void getDataCopy(std::vector<boost::shared_ptr<T> >& cp) const {
 		cp.clear();
-		typename std::vector<boost::shared_ptr<T> >::iterator it;
+		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
 		for(it=data.begin(); it!= data.end(); ++it)
 			cp.push_back(boost::shared_ptr<T>((*it)->GObject::clone_ptr_cast<T>()));
 	}
@@ -578,6 +605,20 @@ protected:
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
+
+private:
+	/*****************************************************************************/
+	/**
+	 * Helper function that dereferences its argument. Needed in conjunction with
+	 * boost::bind e.g. in the count function.
+	 *
+	 * @param p The boost::shared_ptr object to be de-referenced
+	 * @return The de-referenced object
+	 */
+	template<class item_type>
+	const T& dereference(const boost::shared_ptr<item_type>& p ) {
+		return *p;
+	}
 };
 
 /********************************************************************************/
@@ -592,9 +633,9 @@ protected:
 namespace boost {
   namespace serialization {
     template<typename T>
-    struct is_abstract<Gem::GenEvA::GStdPtrVectorInterfaceT<T> > : boost::true_type {};
+    struct is_abstract<Gem::GenEvA::GStdPtrVectorInterfaceT<T> > : public boost::true_type {};
     template<typename T>
-    struct is_abstract< const Gem::GenEvA::GStdPtrVectorInterfaceT<T> > : boost::true_type {};
+    struct is_abstract< const Gem::GenEvA::GStdPtrVectorInterfaceT<T> > : public boost::true_type {};
   }
 }
 

@@ -82,7 +82,7 @@ const boost::uint8_t CLIENTTEXTMODE=1;
  * the server.
  */
 class GBaseClient
-	:boost::noncopyable
+	:private boost::noncopyable
 {
 public:
 	/** @brief Constructor passes command line arguments

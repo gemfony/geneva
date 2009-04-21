@@ -316,9 +316,9 @@ private:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GAdaptorT<T> > : boost::true_type {};
+		struct is_abstract<Gem::GenEvA::GAdaptorT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GAdaptorT<T> > : boost::true_type {};
+		struct is_abstract< const Gem::GenEvA::GAdaptorT<T> > : public boost::true_type {};
 	}
 }
 

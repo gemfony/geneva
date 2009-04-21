@@ -99,14 +99,6 @@ void copySmartPointerVector(const std::vector<boost::shared_ptr<T> >& from,
 }
 
 /*********************************************************************************/
-/**
- * Dereferences its argument. Needed in conjunction with boost::bind .
- */
-template<class T>
-const T& dereference(const boost::shared_ptr<T>& p )
-{ return *p; }
-
-/*********************************************************************************/
 
 } /* namespace Util */
 } /* namespace Gem */

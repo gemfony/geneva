@@ -85,7 +85,7 @@ namespace Util {
  * transparent to the user.
  */
 class GRandom
-	:boost::noncopyable
+	:private boost::noncopyable
 {
 public:
 	/** @brief The standard constructor */

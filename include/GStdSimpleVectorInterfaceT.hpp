@@ -312,7 +312,7 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<T>& cp){	cp=data; 	}
+	void getDataCopy(std::vector<T>& cp) const {	cp=data; 	}
 
 	/*****************************************************************************/
 
@@ -337,9 +337,9 @@ template <> bool GStdSimpleVectorInterfaceT<double>::checkIsSimilarTo(const std:
 namespace boost {
   namespace serialization {
     template<typename T>
-    struct is_abstract<Gem::GenEvA::GStdSimpleVectorInterfaceT<T> > : boost::true_type {};
+    struct is_abstract<Gem::GenEvA::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
     template<typename T>
-    struct is_abstract< const Gem::GenEvA::GStdSimpleVectorInterfaceT<T> > : boost::true_type {};
+    struct is_abstract< const Gem::GenEvA::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
   }
 }
 

@@ -92,7 +92,9 @@ enum logLevels {
  * go, so that different log events do not interfere. By design it is impossible for
  * the GLogger to be copied.
  */
-class GLogger: boost::noncopyable {
+class GLogger
+	:private boost::noncopyable
+{
 public:
 	/** @brief The default constructor - needed for the singleton*/
 	GLogger();

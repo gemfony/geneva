@@ -70,7 +70,8 @@ namespace Util
  * thread by the broker. GConsumer::shutdown() is called by the broker
  * when the consumer is supposed to shut down.
  */
-class GConsumer :boost::noncopyable
+class GConsumer
+	:private boost::noncopyable
 {
 public:
 	/**********************************************************************************/

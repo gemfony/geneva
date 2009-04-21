@@ -22,6 +22,12 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInf
     # Enforce proper C++. Use this for debug builds.
     # ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
     ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread")
+    
+    IF ($ENV{CXX} MATCHES "icpc" OR $ENV{CXX} MATCHES "icc")
+    	# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
+    	# (and, according to the authors' opinion, irrelevant in this context) warnings
+    	ADD_DEFINITIONS ("-wd1572 -wd1418 -wd981 -wd444 -wd383")
+    ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
     # Use this for release builds.
     ADD_DEFINITIONS ("-O3 -pthread")

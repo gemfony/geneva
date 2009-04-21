@@ -58,7 +58,7 @@ namespace Util {
  */
 template<typename T>
 class GSingleton
-	:boost::noncopyable
+	:private boost::noncopyable
 {
 public:
 	/*******************************************************************/

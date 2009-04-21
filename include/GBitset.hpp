@@ -319,9 +319,9 @@ protected:
 namespace boost {
   namespace serialization {
     template<class N>
-    struct is_abstract<Gem::GenEvA::GBitset<N> > : boost::true_type {};
+    struct is_abstract<Gem::GenEvA::GBitset<N> > : public boost::true_type {};
     template<class N>
-    struct is_abstract< const Gem::GenEvA::GBitset<N> > : boost::true_type {};
+    struct is_abstract< const Gem::GenEvA::GBitset<N> > : public boost::true_type {};
   }
 }
 

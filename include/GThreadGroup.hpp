@@ -84,7 +84,9 @@ namespace Util {
  * the need for a pointer to them. This class was adapted from a version by
  * Anthony Williams, as offered as part of the Boost 1.36 release
  */
-class GThreadGroup: private boost::noncopyable {
+class GThreadGroup
+	 :private boost::noncopyable
+{
 	typedef boost::shared_ptr<boost::thread> thread_ptr;
 	typedef std::vector<thread_ptr> thread_vector;
 

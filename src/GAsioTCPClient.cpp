@@ -176,12 +176,14 @@ bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
 	// Any system error (except for those where a connection attempt failed) is considered
 	// fatal and leads to the termination, by returning false.
 	catch (boost::system::system_error&) {
-		std::ostringstream error;
-		error << "In GAsioTCPClient::retrieve:" << std::endl
-				<< "Caught boost::system::system_error exception."
-				<< std::endl << "Leaving now." << std::endl;
+		{ // Make sure we do not hide the next error declaration (avoid a warning message)
+			std::ostringstream error;
+			error << "In GAsioTCPClient::retrieve:" << std::endl
+					 << "Caught boost::system::system_error exception."
+					 << std::endl << "Leaving now." << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
+		}
 
 		try {
 			return shutdown(false);
@@ -266,12 +268,14 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
 	// Any system error (except for those where a connection attempt failed) is considered
 	// fatal and leads to the termination, by returning false.
 	catch (boost::system::system_error&) {
-		std::ostringstream error;
-		error << "In GAsioTCPClient::retrieve:" << std::endl
-				<< "Caught boost::system::system_error exception."
-				<< std::endl << "Leaving now." << std::endl;
+		{
+			std::ostringstream error;
+			error << "In GAsioTCPClient::retrieve:" << std::endl
+					  << "Caught boost::system::system_error exception."
+					  << std::endl << "Leaving now." << std::endl;
 
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
+			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
+		}
 
 		try {
 			return shutdown(false);

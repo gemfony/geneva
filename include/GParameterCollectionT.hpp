@@ -240,9 +240,9 @@ protected:
 namespace boost {
   namespace serialization {
     template<typename T>
-    struct is_abstract<Gem::GenEvA::GParameterCollectionT<T> > : boost::true_type {};
+    struct is_abstract<Gem::GenEvA::GParameterCollectionT<T> > : public boost::true_type {};
     template<typename T>
-    struct is_abstract< const Gem::GenEvA::GParameterCollectionT<T> > : boost::true_type {};
+    struct is_abstract< const Gem::GenEvA::GParameterCollectionT<T> > : public boost::true_type {};
   }
 }
 

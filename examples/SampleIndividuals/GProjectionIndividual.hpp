@@ -478,8 +478,8 @@ public:
 					// nDimOrig will be at least 3 here.
 					std::size_t nAngles = nDimOrig - 1;
 					std::vector<double> angle_collection(nAngles);
-					for(std::size_t i=0; i<(nAngles-1); i++){ // Angles in range [0,Pi[
-						angle_collection[i]=l_gr.evenRandom(0., M_PI);
+					for(std::size_t j=0; j<(nAngles-1); j++){ // Angles in range [0,Pi[
+						angle_collection[j]=l_gr.evenRandom(0., M_PI);
 					}
 					angle_collection[nAngles-1]=l_gr.evenRandom(0., 2.*M_PI); // Range of last angle is [0,2*Pi[
 
@@ -487,15 +487,15 @@ public:
 					// Now we can fill the source-vector itself
 					std::vector<double> cartCoord(nDimOrig);
 
-					for(std::size_t i=0; i<nDimOrig; i++) cartCoord[i]=local_radius; // They all have that
+					for(std::size_t j=0; j<nDimOrig; j++) cartCoord[j]=local_radius; // They all have that
 
 					cartCoord[0] *= cos(angle_collection[0]); // x_1 / cartCoord[0]
 
-					for(std::size_t i=1; i<nDimOrig-1; i++){ // x_2 ... x_(n-1) / cartCoord[1] .... cartCoord[n-2]
-						for(std::size_t j=0; j<i; j++){
-							cartCoord[i] *= sin(angle_collection[j]);
+					for(std::size_t j=1; j<nDimOrig-1; j++){ // x_2 ... x_(n-1) / cartCoord[1] .... cartCoord[n-2]
+						for(std::size_t k=0; k<j; k++){
+							cartCoord[j] *= sin(angle_collection[k]);
 						}
-						cartCoord[i] *= cos(angle_collection[i]);
+						cartCoord[j] *= cos(angle_collection[j]);
 					}
 
 					for(std::size_t j=0; j<nAngles; j++){ // x_n / cartCoord[n-1]
@@ -503,8 +503,8 @@ public:
 					}
 
 					// Transfer the results
-					for(std::size_t i=0; i<nDimOrig; i++){
-						pD.source.push_back(cartCoord[i]);
+					for(std::size_t j=0; j<nDimOrig; j++){
+						pD.source.push_back(cartCoord[j]);
 					}
 				}
 				break;

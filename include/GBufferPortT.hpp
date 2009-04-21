@@ -60,7 +60,7 @@ namespace Util {
  */
 template<typename T>
 class GBufferPortT
-	:boost::noncopyable
+	:private boost::noncopyable
 {
 public:
 	/*****************************************************************************/

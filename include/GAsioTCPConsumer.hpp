@@ -86,7 +86,7 @@ const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
  * header files.
  */
 class GAsioServerSession
-	:boost::noncopyable
+	:private boost::noncopyable
 {
 public:
 	/** @brief The standard constructor */

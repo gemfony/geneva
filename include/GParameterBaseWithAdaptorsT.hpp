@@ -609,9 +609,9 @@ template<> void GParameterBaseWithAdaptorsT<bool>::applyNamedAdaptor(const std::
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GParameterBaseWithAdaptorsT<T> > : boost::true_type {};
+		struct is_abstract<Gem::GenEvA::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GParameterBaseWithAdaptorsT<T> > : boost::true_type {};
+		struct is_abstract< const Gem::GenEvA::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
 	}
 }
 
