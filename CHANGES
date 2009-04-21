@@ -1,31 +1,36 @@
------------------------------------------------------------------------------
-// Version 0.5.3, yet unreleased
+* Version 0.5.3, yet unreleased
 
-Made the library compile (mostly clean) with the Intel 10.1 compiler
+Made the library compile (mostly clean) with the Intel 10.1 compiler.
 
------------------------------------------------------------------------------
-// Version 0.5.2, released on April 20, 2009
+* Version 0.5.2 - April 20, 2009
 
-Created a unit test framework for most classes in Geneva. 
-Added modules for the "standardized" exchange of data with external evaluation programs.
-Added new container for bounded doubles, as well as a bounded int32
-Made vector-wrapper more complete and derived classes with vector interface from a common vector wrapper base class
+The main changes for this release include:
+ - Created a unit test framework for most classes in Geneva.
+ - Added modules for the "standardized" exchange of data with external
+   evaluation programs.
+ - Added new container for bounded doubles, as well as a bounded int32.
+ - Made vector-wrapper more complete and derived classes with vector
+   interface from a common vector wrapper base class.
 
------------------------------------------------------------------------------
+* Version 0.5.1 "Ferney-Voltaire" - March 20, 2009
 
-March 20, 2009: Again a long list of changes, too long to mention here. Check the
-SVN pages for details. Development is still very dynamic. 
+Again a long list of changes, too long to mention here. Check the SVN
+pages for details. Development is still very dynamic.
 
 October 23, 2008: Too many changes have been made in the software to be
-named here. This was partially in the course of searching for problems that 
-in the end turned out not to be on Geneva's side. We nevertheless believe 
-that the library has improved a lot. Not the least, we have started to 
-integrate the Boost.Test suite of unit testing tools. We will aim at listing
-major changes in the code here in the future, as they occur. 
+named here. This was partially in the course of searching for problems 
+that in the end turned out not to be on Geneva's side. We nevertheless 
+believe that the library has improved a lot. Not the least, we have 
+started to integrate the Boost.Test suite of unit testing tools. We will 
+aim at listing major changes in the code here in the future, as they 
+occur.
 
-July 31, 2008: Complete revision of the entire project (due to become 
-version 0.5). Yet uncomplete. Also moved from GNU autotools to CMake.
-Directory structure of SVN repository has been revised.
---
-July 7, 2008: Initial public release (R.B.)
+* Version 0.5 "Meyrin" - July 31, 2008
 
+Complete revision of the entire project (due to become version 0.5).
+Yet uncomplete. Also moved from GNU autotools to CMake. Directory
+structure of SVN repository has been revised.
+
+* Version 0.4 "CERN-barracks" - July 7, 2008
+
+Initial public release (R.B.)
