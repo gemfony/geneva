@@ -25,11 +25,10 @@ started to integrate the Boost.Test suite of unit testing tools. We will
 aim at listing major changes in the code here in the future, as they 
 occur.
 
-* Version 0.5 "Meyrin" - July 31, 2008
+* Version 0.5 "Meyrin" - September 15, 2008
 
-Complete revision of the entire project (due to become version 0.5).
-Yet uncomplete. Also moved from GNU autotools to CMake. Directory
-structure of SVN repository has been revised.
+Complete revision of the entire project. Also moved from GNU autotools 
+to CMake. Directory structure of SVN repository has been revised.
 
 * Version 0.4 "CERN-barracks" - July 7, 2008
 
