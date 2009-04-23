@@ -28,8 +28,8 @@
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
 
-#ifndef GPARABOLAINDIVIDUAL_HPP_
-#define GPARABOLAINDIVIDUAL_HPP_
+#ifndef GBOUNDEDPARABOLAINDIVIDUAL_HPP_
+#define GBOUNDEDPARABOLAINDIVIDUAL_HPP_
 
 // GenEvA header files go here
 #include "GParameterSet.hpp"
@@ -45,7 +45,7 @@ namespace GenEvA
 /************************************************************************************************/
 /**
  * This individual searches for the minimum of a simple parabola in n dimensions. It is meant
- * as an example of how to set up custom individuals. In contrast to the GBoundedParabolaIndividual,
+ * as an example of how to set up custom individuals. In contrast to the GParabolaIndividual,
  * this class stores collections of GBoundedDouble objects.
  */
 class GBoundedParabolaIndividual
@@ -246,4 +246,4 @@ protected:
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::GenEvA::GBoundedParabolaIndividual)
 
-#endif /* GPARABOLAINDIVIDUAL_HPP_ */
+#endif /* GBOUNDEDPARABOLAINDIVIDUAL_HPP_ */
