@@ -249,7 +249,7 @@ void GBoostThreadPopulation::setNThreads(const boost::uint8_t& nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-uint8_t GBoostThreadPopulation::getNThreads() const throw() {
+uint8_t GBoostThreadPopulation::getNThreads() const  {
 	return nThreads_;
 }
 

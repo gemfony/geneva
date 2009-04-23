@@ -147,7 +147,7 @@ void GBoostThreadConsumer::setMaxThreads(const std::size_t& maxThreads) {
  *
  * @return The maximum number of allowed threads
  */
-std::size_t GBoostThreadConsumer::getMaxThreads(void) const throw() {
+std::size_t GBoostThreadConsumer::getMaxThreads(void) const  {
 	return maxThreads_;
 }
 

@@ -83,7 +83,7 @@ class GParameterBase:
     ///////////////////////////////////////////////////////////////////////
 public:
 	/** @brief The standard constructor */
-	GParameterBase() throw();
+	GParameterBase();
 	/** @brief The copy constructor */
 	GParameterBase(const GParameterBase&);
 	/** @brief The standard destructor */

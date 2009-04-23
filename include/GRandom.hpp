@@ -89,7 +89,7 @@ class GRandom
 {
 public:
 	/** @brief The standard constructor */
-	GRandom() throw();
+	GRandom();
 	/** @brief A standard destructor */
 	~GRandom();
 

@@ -59,7 +59,7 @@ GAsioTCPClient::~GAsioTCPClient()
  *
  * @param maxStalls The maximum number of stalled connection attempts
  */
-void GAsioTCPClient::setMaxStalls(const boost::uint32_t& maxStalls) throw() {
+void GAsioTCPClient::setMaxStalls(const boost::uint32_t& maxStalls)  {
 	maxStalls_ = maxStalls;
 }
 
@@ -69,7 +69,7 @@ void GAsioTCPClient::setMaxStalls(const boost::uint32_t& maxStalls) throw() {
  *
  * @return The value of the maxStalls_ variable
  */
-boost::uint32_t GAsioTCPClient::getMaxStalls() const throw() {
+boost::uint32_t GAsioTCPClient::getMaxStalls() const  {
 	return maxStalls_;
 }
 
@@ -79,7 +79,7 @@ boost::uint32_t GAsioTCPClient::getMaxStalls() const throw() {
  *
  * @param maxConnectionAttempts The maximum number of allowed failed connection attempts
  */
-void GAsioTCPClient::setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts) throw() {
+void GAsioTCPClient::setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts)  {
 	maxConnectionAttempts_ = maxConnectionAttempts;
 }
 
@@ -89,7 +89,7 @@ void GAsioTCPClient::setMaxConnectionAttempts(const boost::uint32_t& maxConnecti
  *
  * @return The value of the maxConnectionAttempts_ variable
  */
-boost::uint32_t GAsioTCPClient::getMaxConnectionAttempts() const throw() {
+boost::uint32_t GAsioTCPClient::getMaxConnectionAttempts() const  {
 	return maxConnectionAttempts_;
 }
 

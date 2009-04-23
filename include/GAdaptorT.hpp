@@ -109,7 +109,7 @@ public:
 	 *
 	 * @param name The name assigned to the adaptor
 	 */
-	explicit GAdaptorT(const std::string& name) throw() :
+	explicit GAdaptorT(const std::string& name)  :
 		GObject(name),
 		adaptionCounter_(0),
 		adaptionThreshold_(0) // No automatic adaption of the adaptor by default
@@ -121,7 +121,7 @@ public:
 	 *
 	 * @param cp A copy of another GAdaptorT<T>
 	 */
-	GAdaptorT(const GAdaptorT<T>& cp) throw() :
+	GAdaptorT(const GAdaptorT<T>& cp)  :
 		GObject(cp),
 		adaptionCounter_(cp.adaptionCounter_),
 		adaptionThreshold_(cp.adaptionThreshold_)
@@ -239,7 +239,7 @@ public:
 	 *
 	 * @param val The value that needs to be mutated
 	 */
-	inline void mutate(T& val) throw() {
+	inline void mutate(T& val)  {
 		if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
 			adaptionCounter_ = 0;
 			adaptMutation();
@@ -254,7 +254,7 @@ public:
 	 *
 	 * @return The value of the adaptionCounter_ variable
 	 */
-	boost::uint32_t getAdaptionCounter() const throw() {
+	boost::uint32_t getAdaptionCounter() const  {
 		return adaptionCounter_;
 	}
 
@@ -265,7 +265,7 @@ public:
 	 *
 	 * @param adaptionCounter The value that should be assigned to the adaptionCounter_ variable
 	 */
-	void setAdaptionThreshold(const boost::uint32_t& adaptionThreshold) throw() {
+	void setAdaptionThreshold(const boost::uint32_t& adaptionThreshold)  {
 		adaptionThreshold_ = adaptionThreshold;
 	}
 
@@ -275,7 +275,7 @@ public:
 	 *
 	 * @return The value of the adaptionThreshold_ variable
 	 */
-	boost::uint32_t getAdaptionThreshold() const throw() {
+	boost::uint32_t getAdaptionThreshold() const  {
 		return adaptionThreshold_;
 	}
 

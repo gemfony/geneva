@@ -1,0 +1,4 @@
+Q: Why do member functions of Geneva classes do not carry the "throw(...)" specifier ?
+A: In former releases, throw() specifiers were used to list the exceptions a function
+   could throw. A rationale for the decision to remove these specifiers can be found
+   here: http://www.gotw.ca/publications/mill22.htm . 

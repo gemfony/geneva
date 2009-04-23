@@ -221,7 +221,7 @@ double GIndividual::fitness() {
  * @param dirtyFlag The value of the dirtyFlag_ variable
  * @return The current fitness value (not necessarily up-to-date)
  */
-double GIndividual::getCurrentFitness(bool& dirtyFlag) const throw() {
+double GIndividual::getCurrentFitness(bool& dirtyFlag) const  {
 	dirtyFlag = dirtyFlag_;
 	return currentFitness_;
 }
@@ -245,7 +245,7 @@ double GIndividual::doFitnessCalculation() {
  * @param allowLazyEvaluation The new value for the allowLazyEvaluation_ parameter
  * @return The previous value of the allowLazyEvaluation_ parameter
  */
-bool GIndividual::setAllowLazyEvaluation(const bool& allowLazyEvaluation) throw() {
+bool GIndividual::setAllowLazyEvaluation(const bool& allowLazyEvaluation)  {
 	bool previous = allowLazyEvaluation_;
 	allowLazyEvaluation_ = allowLazyEvaluation;
 	return previous;
@@ -257,7 +257,7 @@ bool GIndividual::setAllowLazyEvaluation(const bool& allowLazyEvaluation) throw(
  *
  * @return The value of the allowLazyEvaluation_ parameter
  */
-bool GIndividual::getAllowLazyEvaluation() const throw() {
+bool GIndividual::getAllowLazyEvaluation() const  {
 	return allowLazyEvaluation_;
 }
 
@@ -267,7 +267,7 @@ bool GIndividual::getAllowLazyEvaluation() const throw() {
  *
  * @param parenPopGeneration The generation of the parent population
  */
-void GIndividual::setParentPopGeneration(const boost::uint32_t& parentPopGeneration) throw() {
+void GIndividual::setParentPopGeneration(const boost::uint32_t& parentPopGeneration)  {
 	parentPopGeneration_ = parentPopGeneration;
 }
 
@@ -277,7 +277,7 @@ void GIndividual::setParentPopGeneration(const boost::uint32_t& parentPopGenerat
  *
  * @return The current generation of the parent population
  */
-boost::uint32_t GIndividual::getParentPopGeneration() const throw() {
+boost::uint32_t GIndividual::getParentPopGeneration() const  {
 	return parentPopGeneration_;
 }
 
@@ -291,7 +291,7 @@ boost::uint32_t GIndividual::getParentPopGeneration() const throw() {
  * @param isParent Indicates whether or not this is a parent individual
  * @return A boolean indicating the previous situation
  */
-bool GIndividual::setIsParent(const bool& isParent) throw() {
+bool GIndividual::setIsParent(const bool& isParent)  {
 	bool previous=(parentCounter_>0)?true:false;
 
 	if(isParent) parentCounter_++;
@@ -326,7 +326,7 @@ bool GIndividual::setIsChild(){
  *
  * @return A boolean indicating whether this object is a parent at this time
  */
-bool GIndividual::isParent() const throw() {
+bool GIndividual::isParent() const  {
 	return (parentCounter_>0)?true:false;
 }
 
@@ -336,7 +336,7 @@ bool GIndividual::isParent() const throw() {
  *
  * @return The value of the dirtyFlag_ variable
  */
-bool GIndividual::isDirty() const throw() {
+bool GIndividual::isDirty() const  {
 	return dirtyFlag_;
 }
 
@@ -346,7 +346,7 @@ bool GIndividual::isDirty() const throw() {
  *
  * @param popPos The new position of this individual in the population
  */
-void GIndividual::setPopulationPosition(std::size_t popPos) throw() {
+void GIndividual::setPopulationPosition(std::size_t popPos)  {
 	popPos_ = popPos;
 }
 
@@ -356,7 +356,7 @@ void GIndividual::setPopulationPosition(std::size_t popPos) throw() {
  *
  * @return The current position of this individual in the population
  */
-std::size_t GIndividual::getPopulationPosition(void) const throw() {
+std::size_t GIndividual::getPopulationPosition(void) const  {
 	return popPos_;
 }
 
@@ -364,7 +364,7 @@ std::size_t GIndividual::getPopulationPosition(void) const throw() {
 /**
  * Sets the dirtyFlag_
  */
-void GIndividual::setDirtyFlag() throw() {
+void GIndividual::setDirtyFlag()  {
 	dirtyFlag_ = true;
 }
 
@@ -375,7 +375,7 @@ void GIndividual::setDirtyFlag() throw() {
  * @param dirtyFlag The new value for the dirtyFlag_ variable
  * @return The previous value of the dirtyFlag_ variable
  */
-bool GIndividual::setDirtyFlag(const bool& dirtyFlag) throw() {
+bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
 	bool previous = dirtyFlag_;
 	dirtyFlag_ = dirtyFlag;
 	return previous;
@@ -387,7 +387,7 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag) throw() {
  *
  * @return The current value of the parentCounter_ variable
  */
-boost::uint32_t GIndividual::getParentCounter() const throw(){
+boost::uint32_t GIndividual::getParentCounter() const {
 	return parentCounter_;
 }
 

@@ -36,7 +36,7 @@ boost::mutex randomseed_mutex;
  * The standard constructor, which seeds the random number generator and
  * creates a predefined number of threads.
  */
-GRandomFactory::GRandomFactory() throw() :
+GRandomFactory::GRandomFactory()  :
 	g01_(DEFAULTFACTORYBUFFERSIZE),
 	seed_(GRandomFactory::GSeed()),
 	n01Threads_(DEFAULT01PRODUCERTHREADS)
@@ -50,7 +50,7 @@ GRandomFactory::GRandomFactory() throw() :
  * gauss threads. It seeds the random number generator and starts the
  * producer01 thread. Note that we enforce a minimum number of threads.
  */
-GRandomFactory::GRandomFactory(const boost::uint16_t& n01Threads) throw() :
+GRandomFactory::GRandomFactory(const boost::uint16_t& n01Threads)  :
 	g01_(DEFAULTFACTORYBUFFERSIZE),
 	seed_(GRandomFactory::GSeed()),
 	n01Threads_(n01Threads ? n01Threads : static_cast<boost::uint16_t>(1)) // calm a warning ...
@@ -133,7 +133,7 @@ boost::uint32_t GRandomFactory::GSeed(){
 /**
  * This function starts the threads needed for the production of random numbers
  */
-void GRandomFactory::startProducerThreads() throw() {
+void GRandomFactory::startProducerThreads()  {
 	for (boost::uint16_t i = 0; i < n01Threads_; i++) {
 		// thread() doesn't throw, and no exceptions are listed in the documentation
 		// for the create_thread() function, so we assume it doesn't throw.
@@ -151,7 +151,7 @@ void GRandomFactory::startProducerThreads() throw() {
  *
  * @param seed The seed for our local random number generator
  */
-void GRandomFactory::producer01(const boost::uint32_t& seed) throw() {
+void GRandomFactory::producer01(const boost::uint32_t& seed)  {
 	try {
 		boost::lagged_fibonacci607 lf(seed);
 

@@ -449,7 +449,7 @@ public:
 	 *
 	 * @return The current transfer mode
 	 */
-	transferMode getTransferMode() const throw(){
+	transferMode getTransferMode() const {
 		return transferMode_;
 	}
 

@@ -233,7 +233,7 @@ protected:
 	 *
 	 * @param val The new T value stored in this class
 	 */
-	void setValue(const T& val) throw() {
+	void setValue(const T& val)  {
 		val_ = val;
 	}
 

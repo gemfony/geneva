@@ -107,7 +107,7 @@ public:
 	/** @brief Sets the maximum number of threads */
 	void setNThreads(const boost::uint8_t&);
 	/** @brief Retrieves the maximum number of threads */
-	uint8_t getNThreads() const throw();
+	uint8_t getNThreads() const ;
 
 protected:
 	/** @brief Overloaded version from GBasePopulation,

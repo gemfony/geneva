@@ -84,7 +84,7 @@ public:
 	/** @brief Sets the maximum number of threads */
 	void setMaxThreads(const std::size_t&);
 	/** @brief Retrieves the maximum number of threads */
-	std::size_t getMaxThreads() const throw();
+	std::size_t getMaxThreads() const ;
 
 	/** @brief The actual business logic */
 	virtual void process();

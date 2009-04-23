@@ -185,7 +185,7 @@ bool GBrokerPopulation::isSimilarTo(const GObject& cp, const double& limit) cons
  *
  * @param waitFactor The desired new value for waitFactor_ .
  */
-void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor) throw() {
+void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor)  {
 	waitFactor_ = waitFactor;
 }
 
@@ -195,7 +195,7 @@ void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor) throw()
  *
  * @return The value of the waitFactor_ variable
  */
-boost::uint32_t GBrokerPopulation::getWaitFactor() const throw() {
+boost::uint32_t GBrokerPopulation::getWaitFactor() const  {
 	return waitFactor_;
 }
 

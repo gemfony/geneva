@@ -84,14 +84,14 @@ public:
 	virtual ~GAsioTCPClient();
 
 	/** @brief Sets the maximum allowed number of stalled attempts */
-	void setMaxStalls(const boost::uint32_t&) throw();
+	void setMaxStalls(const boost::uint32_t&) ;
 	/** @brief Retrieves the maximum allowed number of stalled attempts */
-	boost::uint32_t getMaxStalls() const throw();
+	boost::uint32_t getMaxStalls() const ;
 
 	/** @brief Sets the maximum allowed number of failed connection attempts */
-	void setMaxConnectionAttempts(const boost::uint32_t&) throw();
+	void setMaxConnectionAttempts(const boost::uint32_t&) ;
 	/** @brief Retrieves the maximum allowed number of failed connection attempts */
-	boost::uint32_t getMaxConnectionAttempts() const throw();
+	boost::uint32_t getMaxConnectionAttempts() const ;
 
 protected:
 	/** @brief Retrieve work items from the server. */

@@ -34,7 +34,7 @@ namespace GenEvA {
 /**
  * The default constructor. No local data, hence nothing to do.
  */
-GParameterBase::GParameterBase() throw() :GMutableI(), GObject()
+GParameterBase::GParameterBase()  :GMutableI(), GObject()
 { /* nothing */ }
 
 /**********************************************************************************/

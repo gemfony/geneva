@@ -114,9 +114,9 @@ const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 class GRandomFactory {
 public:
 	/** @brief The default constructor */
-	GRandomFactory() throw();
+	GRandomFactory();
 	/** @brief A constructor that creates a user-specified number of producer threads*/
-	GRandomFactory(const boost::uint16_t&) throw();
+	GRandomFactory(const boost::uint16_t&);
 	/** @brief The destructor */
 	~GRandomFactory();
 
@@ -132,9 +132,9 @@ public:
 
 private:
 	/** @brief Starts the threads needed for the production of random numbers */
-	void startProducerThreads() throw();
+	void startProducerThreads();
 	/** @brief The production of [0,1[ random numbers takes place here */
-	void producer01(const boost::uint32_t& seed) throw();
+	void producer01(const boost::uint32_t& seed);
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
 	Gem::Util::GBoundedBufferT<boost::shared_array<double> > g01_;

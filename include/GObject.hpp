@@ -91,11 +91,11 @@ class GObject
 
 public:
 	/** @brief The default constructor */
-	GObject() throw();
+	GObject() ;
 	/** @brief Initialization by name */
-	explicit GObject(const std::string&) throw();
+	explicit GObject(const std::string&) ;
 	/** @brief The copy constructor */
-	GObject(const GObject& cp) throw();
+	GObject(const GObject& cp) ;
 	/** @brief The destructor */
 	virtual ~GObject();
 
@@ -129,9 +129,9 @@ public:
 	std::string report();
 
 	/** @brief Retrieve the name of this class */
-	std::string name() const throw();
+	std::string name() const ;
 	/** @brief Give the class a name */
-	void setName(const std::string&) throw();
+	void setName(const std::string&) ;
 
 	/**************************************************************************************************/
 	/**

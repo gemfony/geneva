@@ -270,7 +270,7 @@ public:
      *
      * @return The value of the lower boundary
      */
-	T getLowerBoundary() const throw() {
+	T getLowerBoundary() const  {
     	return lowerBoundary_;
 	}
 
@@ -280,7 +280,7 @@ public:
      *
      * @return The value of the upper boundary
      */
-	T getUpperBoundary() const throw() {
+	T getUpperBoundary() const  {
     	return upperBoundary_;
 	}
 
@@ -421,7 +421,7 @@ public:
 	 *
 	 * @return The current value of internalValue_
 	 */
-	T getInternalValue() const throw() {
+	T getInternalValue() const  {
 		return internalValue_;
 	}
 

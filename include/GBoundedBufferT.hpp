@@ -140,7 +140,7 @@ public:
 	/**
 	 * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
 	 */
-	GBoundedBufferT() throw()
+	GBoundedBufferT()
 		:capacity_(DEFAULTBUFFERSIZE)
 	{ /* nothing */}
 
@@ -151,7 +151,7 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBufferT(const std::size_t& capacity) throw()
+	explicit GBoundedBufferT(const std::size_t& capacity)
 		:capacity_(capacity?capacity:1)
 	{ /* nothing */}
 
@@ -266,7 +266,7 @@ public:
 	 *
 	 * @return The maximum allowed capacity
 	 */
-	std::size_t getCapacity() const throw()
+	std::size_t getCapacity() const
 	{
 		return capacity_;
 	}
@@ -299,7 +299,7 @@ protected:
 	 *
 	 * @return A boolean value indication whether the buffer is not empty
 	 */
-	bool is_not_empty() const throw()
+	bool is_not_empty() const
 	{
 		return (container_.size() > 0);
 	}
@@ -311,7 +311,7 @@ protected:
 	 *
 	 * @return A boolean value indicating whether the buffer is not full
 	 */
-	bool is_not_full() const throw()
+	bool is_not_full() const
 	{
 		return (container_.size() < capacity_);
 	}

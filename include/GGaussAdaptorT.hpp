@@ -310,7 +310,7 @@ public:
 	 *
 	 * @return The current value of sigma_
 	 */
-	double getSigma() const throw() {
+	double getSigma() const  {
 		return sigma_;
 	}
 
@@ -354,7 +354,7 @@ public:
 	 *
 	 * @return The allowed value range for sigma
 	 */
-	std::pair<double,double> getSigmaRange() const throw() {
+	std::pair<double,double> getSigmaRange() const  {
 		return std::make_pair(minSigma_, maxSigma_);
 	}
 
@@ -389,7 +389,7 @@ public:
 	 *
 	 * @return The value of the sigmaSigma_ parameter
 	 */
-	double getSigmaAdaptionRate() const throw() {
+	double getSigmaAdaptionRate() const  {
 		return sigmaSigma_;
 	}
 
@@ -416,7 +416,7 @@ public:
 	 *
 	 * @return The name assigned to adaptors of this type
 	 */
-	static std::string adaptorName() throw() {
+	static std::string adaptorName()  {
 		return GGAUSSADAPTORSTANDARDNAME;
 	}
 

@@ -313,7 +313,7 @@ public:
 	 *
 	 * @return The name assigned to adaptors of this type
 	 */
-	static std::string adaptorName() throw() {
+	static std::string adaptorName()  {
 		return GINTFLIPADAPTORSTANDARDNAME;
 	}
 

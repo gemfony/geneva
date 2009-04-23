@@ -141,9 +141,9 @@ public:
 	virtual void shutdown();
 
 	/** @brief Retrieves the current serialization mode */
-	serializationMode getSerializationMode() const throw();
+	serializationMode getSerializationMode() const ;
 	/** @brief Sets the serialization mode */
-	void setSerializationMode(const serializationMode&) throw();
+	void setSerializationMode(const serializationMode&) ;
 
 private:
 	/** @brief Called for each new client request */

@@ -120,30 +120,30 @@ public:
 	/** @brief Retrieve a value for this class and check for exceptions. Useful for threads */
 	virtual double checkedFitness();
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
-	double getCurrentFitness(bool&) const throw();
+	double getCurrentFitness(bool&) const ;
 	/** @brief Enforce fitness calculation */
 	double doFitnessCalculation();
 
 	/** @brief Indicate whether lazy evaluation is allowed */
-	bool setAllowLazyEvaluation(const bool&) throw();
+	bool setAllowLazyEvaluation(const bool&) ;
 	/** @brief Retrieve the allowLazyEvaluation_ parameter */
-	bool getAllowLazyEvaluation() const throw();
+	bool getAllowLazyEvaluation() const ;
 
 	/** @brief Check whether the dirty flag is set */
-	bool isDirty() const throw();
+	bool isDirty() const ;
 
 	/** @brief Sets the parentPopGeneration_ parameter */
-	void setParentPopGeneration(const boost::uint32_t&) throw();
+	void setParentPopGeneration(const boost::uint32_t&) ;
 	/** @brief Retrieve the parentPopGeneration_ parameter */
-	boost::uint32_t getParentPopGeneration() const throw();
+	boost::uint32_t getParentPopGeneration() const ;
 
 	/** @brief Sets the position of the individual in the population */
-	void setPopulationPosition(std::size_t) throw();
+	void setPopulationPosition(std::size_t) ;
 	/** @brief Retrieves the position of the individual in the population */
-	std::size_t getPopulationPosition(void) const throw();
+	std::size_t getPopulationPosition(void) const ;
 
 	/** @brief Checks whether this is a parent individual */
-	bool isParent() const throw();
+	bool isParent() const ;
 
 	/** @brief Marks an individual as a parent*/
 	bool setIsParent();
@@ -151,7 +151,7 @@ public:
 	bool setIsChild();
 
 	/** @brief Retrieves the current value of the parentCounter_ variable */
-	boost::uint32_t getParentCounter() const throw();
+	boost::uint32_t getParentCounter() const ;
 
 	/** @brief Adds an attribute to the individual */
 	std::string setAttribute(const std::string&, const std::string&);
@@ -169,14 +169,14 @@ protected:
 	virtual void customMutations() = 0;
 
 	/** @brief Sets the dirtyFlag_ */
-	void setDirtyFlag() throw();
+	void setDirtyFlag() ;
 
 private:
 	/** @brief Sets the parentCounter_ parameter */
-	bool setIsParent(const bool&) throw();
+	bool setIsParent(const bool&) ;
 
 	/** @brief Sets the dirtyFlag_ to any desired value */
-	bool setDirtyFlag(const bool&) throw();
+	bool setDirtyFlag(const bool&) ;
 
 	/** @brief Holds this object's internal fitness */
     double currentFitness_;

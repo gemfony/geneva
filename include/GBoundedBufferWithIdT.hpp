@@ -70,7 +70,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GBoundedBufferWithIdT() throw()
+	GBoundedBufferWithIdT()
 		:GBoundedBufferT<T>(),
 		 id_(0),
 		 idSet_(false)
@@ -83,7 +83,7 @@ public:
 	 *
 	 * @param capacity The desired size of the buffer
 	 */
-	explicit GBoundedBufferWithIdT(const std::size_t& capacity) throw()
+	explicit GBoundedBufferWithIdT(const std::size_t& capacity)
 		:GBoundedBufferT<T>(capacity),
 		 id_(0),
 		 idSet_(false)
@@ -102,7 +102,7 @@ public:
 	 *
 	 * @return The value of the id_ variable
 	 */
-	PORTIDTYPE getId() const throw(){
+	PORTIDTYPE getId() const {
 		return id_;
 	}
 
@@ -113,7 +113,7 @@ public:
 	 *
 	 * @param id The desired value of the id_ variable
 	 */
-	void setId(const PORTIDTYPE& id) throw(){
+	void setId(const PORTIDTYPE& id) {
 		if(!idSet_){
 			id_ = id;
 			idSet_ = true;

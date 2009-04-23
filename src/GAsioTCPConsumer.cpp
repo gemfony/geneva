@@ -354,7 +354,7 @@ void GAsioTCPConsumer::shutdown()
  *
  * @return The current serialization mode
  */
-serializationMode GAsioTCPConsumer::getSerializationMode() const throw() {
+serializationMode GAsioTCPConsumer::getSerializationMode() const  {
 	return serializationMode_;
 }
 
@@ -366,7 +366,7 @@ serializationMode GAsioTCPConsumer::getSerializationMode() const throw() {
  *
  * @param ser The new serialization mode
  */
-void GAsioTCPConsumer::setSerializationMode(const serializationMode& ser) throw() {
+void GAsioTCPConsumer::setSerializationMode(const serializationMode& ser)  {
 	serializationMode_ = ser;
 }
 

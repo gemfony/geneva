@@ -32,9 +32,9 @@ namespace Util {
  * makes sure that the factory doesn't get destroyed while it
  * is still needed.
  */
-GRandom::GRandom() throw() :
-	current01_(0),
-	grf_(GRANDOMFACTORY)
+GRandom::GRandom()
+	:current01_(0),
+	 grf_(GRANDOMFACTORY)
 { /* nothing */ }
 
 /*************************************************************************/

@@ -35,7 +35,7 @@ namespace GenEvA {
  * The default constructor initializes the internal values of this class.
  * In particular, it sets the name of the Geneva object to "GObject"
  */
-GObject::GObject() throw() :
+GObject::GObject()  :
 	name_("GObject")
 { /* nothing */ }
 
@@ -46,7 +46,7 @@ GObject::GObject() throw() :
  *
  * @param geneva_object_name The name which is assigned to a Geneva object
  */
-GObject::GObject(const std::string& geneva_object_name) throw() :
+GObject::GObject(const std::string& geneva_object_name)  :
 	name_(geneva_object_name)
 { /* nothing */ }
 
@@ -61,7 +61,7 @@ GObject::GObject(const std::string& geneva_object_name) throw() :
  *
  * @param cp A copy of another GObject object
  */
-GObject::GObject(const GObject& cp) throw() :
+GObject::GObject(const GObject& cp)  :
 	name_(cp.name_)
 { /* nothing */ }
 
@@ -294,7 +294,7 @@ void GObject::load(const GObject *cp) {
  *
  * @return The name of this class
  */
-std::string GObject::name() const throw() {
+std::string GObject::name() const  {
 	return name_;
 }
 
@@ -304,7 +304,7 @@ std::string GObject::name() const throw() {
  *
  * @param geneva_object_name The name of this class
  */
-void GObject::setName(const std::string& geneva_object_name) throw() {
+void GObject::setName(const std::string& geneva_object_name)  {
 	name_ = geneva_object_name;
 }
 

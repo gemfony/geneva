@@ -140,9 +140,9 @@ namespace GenEvA
     virtual void optimize();
 
     /** @brief Sets the wait factor */
-    void setWaitFactor(const boost::uint32_t&) throw();
+    void setWaitFactor(const boost::uint32_t&) ;
     /** @brief Retrieves the wait factor */
-    boost::uint32_t getWaitFactor() const throw();
+    boost::uint32_t getWaitFactor() const ;
 
     /** @brief Sets the first timeout factor */
     void setFirstTimeOut(const boost::posix_time::time_duration&);
