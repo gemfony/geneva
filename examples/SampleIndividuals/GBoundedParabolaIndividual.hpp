@@ -45,7 +45,7 @@ namespace GenEvA
 /************************************************************************************************/
 /**
  * This individual searches for the minimum of a simple parabola in n dimensions. It is meant
- * as an example of how to set up custom individuals. In contrast the the GBoundedParabolaIndividual,
+ * as an example of how to set up custom individuals. In contrast to the GBoundedParabolaIndividual,
  * this class stores collections of GBoundedDouble objects.
  */
 class GBoundedParabolaIndividual
