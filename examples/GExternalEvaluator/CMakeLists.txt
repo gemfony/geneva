@@ -7,7 +7,7 @@ ADD_SUBDIRECTORY (
 SET (EXECUTABLENAME GExternalProgram)
 
 SET (${EXECUTABLENAME}_SRCS 
-	GExternalProgram
+	GExternalEvaluator
 	GCommandLineParser
 )
 
