@@ -93,6 +93,10 @@ namespace GenEvA
  * -m / --transferMode=<number>
  *     0 means binary mode (the default, if --transferMode is not used)
  *     1 means text mode
+ * During evaluations or when being asked to print a result, the external program may
+ * also be passed an additional identifying string (such as the current generation)
+ * -g <string> switch. This can e.g. be used to create different result file names for different
+ * generations. Usage of this string by the external program is optional.
  */
 class GExternalEvaluator
 	:public GParameterSet
@@ -542,14 +546,14 @@ public:
 	/**
 	 * Initiates the printing of the best individual
 	 */
-	void printResult() {
+	void printResult(const std::string& identifyer = "empty") {
 		std::string commandLine;
 
-		// Make the parameters known externally
-		std::string resultFile = "bestParameterSet";
+		// Determine the output file name
+		std::string bestParameterSetFile = "bestParameterSet";
 
 		// Emit our data
-		this->writeParametersToFile(resultFile);
+		this->writeParametersToFile(bestParameterSetFile);
 
 		// Check that we have a valid program_ ...
 		if(program_.empty() || program_ == "empty" || program_=="unknown") {
@@ -562,10 +566,11 @@ public:
 
 		// Assemble command line and run the external program
 		if(exchangeMode_ == Gem::GenEvA::BINARYEXCHANGE)
-			commandLine = program_ + " -m 0  -r -p " + resultFile;
+			commandLine = program_ + " -m 0  -r -p " + bestParameterSetFile;
 		else
-			commandLine = program_ + " -m 1  -r -p " + resultFile;;
+			commandLine = program_ + " -m 1  -r -p " + bestParameterSetFile;;
 
+	    if(identifyer != "empty" && !identifyer.empty()) commandLine += (" -g \"" + identifyer + "\"");
 		if(arguments_ != "empty" && !arguments_.empty()) commandLine +=  (" " + arguments_);
 
 #ifdef PRINTCOMMANDLINE
@@ -578,7 +583,7 @@ public:
 #endif /* PRINTCOMMANDLINE */
 
 		// Clean up - remove the result file
-		system(("rm -f " + resultFile).c_str());
+		system(("rm -f " + bestParameterSetFile).c_str());
 	}
 
 protected:

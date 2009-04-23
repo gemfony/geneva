@@ -25,12 +25,15 @@
 #include <cmath>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <cstdlib>
 #include <vector>
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/bind.hpp>
 
 // GenEvA header files go here
 #include "GRandom.hpp"
@@ -48,6 +51,7 @@
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"
+#include "GEnums.hpp"
 
 // The individual calls an external program for the evaluation step
 #include "GExternalEvaluator.hpp"
@@ -58,6 +62,61 @@
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
 using namespace Gem::GLogFramework;
+
+/************************************************************************************************/
+/**
+ * An information object that will also emit result information in every nth generation,
+ * if requested.
+ */
+class optimizationMonitor{
+public:
+	/*********************************************************************************************/
+	/**
+	 * The standard constructor. All collected data will to be written to file
+	 *
+	 * @param nGenInfo The number of generations after which a result file should be emitted (0 if none is desired)
+	 */
+	optimizationMonitor(const boost::uint16_t nGenInfo)
+		:nGenInfo_(nGenInfo)
+	{ /* nothing */  }
+
+	/*********************************************************************************************/
+	/**
+	 * The function that does the actual collection of data. It can be called in
+	 * three modes:
+	 *
+	 * INFOINIT: is called once before the optimization run.
+	 * INFOPROCESSING: is called in regular intervals during the optimization, as determined by the user
+	 * INFOEND: is called once after the optimization run
+	 *
+	 * @param im The current mode in which the function is called
+	 * @param gbp A pointer to a GBasePopulation object for which information should be collected
+	 */
+	void informationFunction(const infoMode& im, GBasePopulation * const gbp){
+		// First act on the request to emit result files
+		if(nGenInfo_ && im == Gem::GenEvA::INFOPROCESSING) { // > 0 && in processing mode ?
+			// Retrieve the current generation
+			boost::uint32_t generation = gbp->getGeneration();
+
+			if(generation%nGenInfo_ == 0) {
+				// Get access to the best individual in the population (or the one chosen as
+				// best parent, in MUCOMMANU mode)
+				boost::shared_ptr<GExternalEvaluator> gev_ptr = gbp->getBestIndividual<GExternalEvaluator>();
+
+				// Tell the individual to output the result, offering the external program an identifying string
+				gev_ptr->printResult(boost::lexical_cast<std::string>(generation));
+			}
+		}
+
+		// Then emit the "usual" output
+		Gem::GenEvA::GBasePopulation::defaultInfoFunction(im, gbp);
+	}
+
+	/*********************************************************************************************/
+
+private:
+	boost::uint16_t nGenInfo_;
+};
 
 /************************************************************************************************/
 /**
@@ -83,6 +142,7 @@ int main(int argc, char **argv){
 	 boost::uint32_t nEvaluations;
 	 Gem::GenEvA::dataExchangeMode exchangeMode;
 	 bool sortingScheme;
+	 boost::uint32_t interval;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -107,6 +167,7 @@ int main(int argc, char **argv){
 						 nEvaluations,
 						 exchangeMode,
 						 sortingScheme,
+						 interval,
 						 verbose))
 	{ exit(1); }
 
@@ -122,6 +183,10 @@ int main(int argc, char **argv){
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+
+	// Create an instance of our optimization monitor, telling it to output information in
+	// given intervals
+	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(interval));
 
 	// Tell the evaluation program to do any initial work
 	GExternalEvaluator::initialize(program, externalArguments);
@@ -170,6 +235,9 @@ int main(int argc, char **argv){
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 	  pop_ser.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 
+	  // Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
+	  pop_ser.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
+
 	  // Do the actual optimization
 	  pop_ser.optimize();
 
@@ -192,6 +260,9 @@ int main(int argc, char **argv){
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 	  pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+
+	  // Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
+	  pop_par.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
 
 	  // Do the actual optimization
 	  pop_par.optimize();
@@ -220,6 +291,9 @@ int main(int argc, char **argv){
 			pop_broker.setReportGeneration(reportGeneration);
 			pop_broker.setRecombinationMethod(rScheme);
 			pop_broker.setSortingScheme(sortingScheme);
+
+			// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
+			pop_broker.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
 
 			// Do the actual optimization
 			pop_broker.optimize();

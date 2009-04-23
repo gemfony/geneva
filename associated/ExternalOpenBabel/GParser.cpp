@@ -63,11 +63,17 @@
  * [Mode  5] -p <filename> -t -R -m <mode>
  * [Mode  6] -p <filename> -r -m <mode>
  * [Mode  7] -s
+ *
+ * During evaluations or when being asked to print a result, the external program may
+ * also be passed an additional identifying string (such as the current generation)
+ * -g <nr> switch. This can e.g. be used to create different result file names for different
+ * generations.
  */
 bool parseCommandLine(int argc, char **argv,
 		boost::uint16_t& executionMode,
 		std::string& paramfile,
 		boost::uint16_t& transferMode,
+	    std::string& identifyer,
 		std::string& configFile)
 {
 	try{
@@ -82,6 +88,7 @@ bool parseCommandLine(int argc, char **argv,
 		("template,t", "Write out a template for this population. Requires option \"-p\"")
 		("random,R", "Asks the program to fill the template with random values. Requires option \"-t\"")
 		("transferMode,m",  po::value<boost::uint16_t>(&transferMode)->default_value(DEFAULTTRANSFERMODE),  "The transfer mode between optimizer and this program (binary or text mode, at the moment)")
+		("identifyer,g", po::value<std::string>(&identifyer)->default_value(DEFAULTIDENTIFYER),"An optional identifyer which may e.g. be passed during result printing")
 		("singleEvaluation,s", "Perform just a single evaluation of the molecule data")
 		("configFile,F", po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILE) ,"The name of the config file used to store additional program options")
 		;

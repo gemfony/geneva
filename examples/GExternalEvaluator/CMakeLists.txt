@@ -4,7 +4,7 @@ ADD_SUBDIRECTORY (
         evaluator
 )
 
-SET (EXECUTABLENAME GExternalProgram)
+SET (EXECUTABLENAME GExternalEvaluator)
 
 SET (${EXECUTABLENAME}_SRCS 
 	GExternalEvaluator

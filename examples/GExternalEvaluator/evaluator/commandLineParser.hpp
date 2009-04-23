@@ -37,12 +37,15 @@
 // Default settings
 const std::string DEFAULTPARAMFILE="empty";
 const boost::uint16_t DEFAULTTRANSFERMODE=0; // binary mode
+const std::string DEFAULTIDENTIFYER="empty";
 
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
 			  boost::uint16_t& executionMode,
 			  std::string& paramfile,
-			  boost::uint16_t& transferMode);
+			  boost::uint16_t& transferMode,
+			  std::string& identifyer
+);
 
 #endif /* COMMANDLINEPARSER_HPP_ */

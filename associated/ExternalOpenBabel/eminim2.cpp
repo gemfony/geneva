@@ -65,6 +65,7 @@ int main(int argc, char **argv)
 
 	boost::uint16_t executionMode, transferMode;
 	bool binary=true;
+	std::string identifyer;
 	std::string paramfile;
 	std::string configFile;
 
@@ -84,6 +85,7 @@ int main(int argc, char **argv)
 				  executionMode,
 				  paramfile,
 				  transferMode,
+				  identifyer,
 				  configFile	))
 	{ exit(1); }
 
@@ -364,7 +366,15 @@ int main(int argc, char **argv)
 			};
 
 			// and write the structure to file
-			std::ofstream resultFile("result.pdb");
+			std::ofstream resultFile;
+			if(identifyer != DEFAULTIDENTIFYER) {
+				std::ostringstream result;
+				result << identifyer << "_result.pdb";
+				resultFile.open(result.str().c_str());
+			}
+			else {
+				resultFile.open("result.pdb");
+			}
 			conv.Write(&mol, &resultFile);
 			resultFile.close();
 

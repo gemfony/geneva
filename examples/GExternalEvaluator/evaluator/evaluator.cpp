@@ -54,12 +54,14 @@ int main(int argc, char **argv)
 	boost::uint16_t executionMode, transferMode;
 	bool binary=true;
 	std::string paramfile;
+	std::string identifyer;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
 												executionMode,
 												paramfile,
-												transferMode))
+												transferMode,
+												identifyer))
 	{exit(1);}
 
 	switch(transferMode) {
@@ -140,6 +142,11 @@ int main(int argc, char **argv)
 
 	case 6: // Write out the result for a given parameter set
 		{
+			// Output the identifyer
+			if(identifyer != DEFAULTIDENTIFYER) {
+				std::cout << "Printing result with identifyer = " << identifyer << std::endl;
+			}
+
 			// Read in the parameter data
 			ge.readFromFile(paramfile, binary);
 

@@ -269,49 +269,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
-protected:
-	/** @brief user-defined halt-criterium for the optimization */
-	virtual bool customHalt();
-	/** @brief user-defined recombination scheme */
-	virtual void customRecombine();
-
-	/** @brief Creates children from parents according to a predefined recombination scheme */
-	virtual void recombine();
-	/** @brief Mutates all children of this population */
-	virtual void mutateChildren();
-	/** @brief Selects the best children of the population */
-	virtual void select();
-
-	/** @brief The mutation scheme for this population */
-	virtual void customMutations();
-	/** @brief The evaluation scheme for this population */
-	virtual double fitnessCalculation();
-
-	/** @brief Marks parents as parents and children as children */
-	void markParents();
-
-	/** @brief Lets individuals know about the current generation */
-	void markGeneration();
-
-	/** @brief Lets individuals know about their position in the population */
-	void markIndividualPositions();
-
-private:
-	/** @brief Emits true once a given time has passed */
-	bool timedHalt();
-	/** @brief Adjusts the actual population size to the desired value */
-	void adjustPopulation();
-
-	/** @brief Determines when to stop the optimization */
-	bool halt();
-
-	/** @brief Implements the RANDOMRECOMBINE recombination scheme */
-	void randomRecombine(boost::shared_ptr<GIndividual>&);
-	/** @brief Implements the VALUERECOMBINE recombination scheme */
-	void valueRecombine(boost::shared_ptr<GIndividual>&, const std::vector<double>&);
-
-	/***********************************************************************************/
 	/**
 	 * Emits information about the population it has been given. This is the default
 	 * information function provided for all populations. Information is emitted in the
@@ -358,7 +315,49 @@ private:
 
 		LOGGER->log(information.str(), Gem::GLogFramework::PROGRESS);
 	}
-	/***********************************************************************************/
+
+	/**************************************************************************************************/
+
+protected:
+	/** @brief user-defined halt-criterium for the optimization */
+	virtual bool customHalt();
+	/** @brief user-defined recombination scheme */
+	virtual void customRecombine();
+
+	/** @brief Creates children from parents according to a predefined recombination scheme */
+	virtual void recombine();
+	/** @brief Mutates all children of this population */
+	virtual void mutateChildren();
+	/** @brief Selects the best children of the population */
+	virtual void select();
+
+	/** @brief The mutation scheme for this population */
+	virtual void customMutations();
+	/** @brief The evaluation scheme for this population */
+	virtual double fitnessCalculation();
+
+	/** @brief Marks parents as parents and children as children */
+	void markParents();
+
+	/** @brief Lets individuals know about the current generation */
+	void markGeneration();
+
+	/** @brief Lets individuals know about their position in the population */
+	void markIndividualPositions();
+
+private:
+	/** @brief Emits true once a given time has passed */
+	bool timedHalt();
+	/** @brief Adjusts the actual population size to the desired value */
+	void adjustPopulation();
+
+	/** @brief Determines when to stop the optimization */
+	bool halt();
+
+	/** @brief Implements the RANDOMRECOMBINE recombination scheme */
+	void randomRecombine(boost::shared_ptr<GIndividual>&);
+	/** @brief Implements the VALUERECOMBINE recombination scheme */
+	void valueRecombine(boost::shared_ptr<GIndividual>&, const std::vector<double>&);
 
 	std::size_t nParents_; ///< The number of parents
 	std::size_t popSize_; ///< The size of the population. Only used in adjustPopulation()

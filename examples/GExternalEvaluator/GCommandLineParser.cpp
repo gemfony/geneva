@@ -53,6 +53,7 @@ bool parseCommandLine(int argc, char **argv,
 					  boost::uint32_t& nEvaluations,
 					  Gem::GenEvA::dataExchangeMode& exchangeMode,
 					  bool&sortingScheme,
+					  boost::uint32_t& interval,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -101,6 +102,8 @@ bool parseCommandLine(int argc, char **argv,
 					"Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
 			("sortingScheme,o", po::value<bool>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
 					"Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode")
+			("interval,i", po::value<boost::uint32_t>(&interval)->default_value(DEFAULTINTERVAL),
+					"The generation interval in which result files should be printed")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -162,6 +165,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "nEvaluations = " << nEvaluations << std::endl
 					  << "exchangeMode = " << (exchangeMode==0?"binary mode":"text mode") << std::endl
 					  << "sortingScheme = " << (sortingScheme?"MUPLUSNU":"MUCOMMANU") << std::endl
+					  << "interval = " << interval << std::endl
 					  << std::endl;
 		}
 	}

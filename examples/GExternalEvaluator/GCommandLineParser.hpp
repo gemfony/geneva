@@ -67,6 +67,7 @@ const std::string DEFAULTIP="localhost";
 const boost::uint32_t DEFAULTNEVALUATIONS=5;
 const Gem::GenEvA::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::GenEvA::BINARYEXCHANGE;
 const bool DEFAULTSORTINGSCHEME=true; // MUPLUSNU
+const boost::uint32_t DEFAULTINTERVAL=0;
 
 namespace po = boost::program_options;
 
@@ -92,6 +93,7 @@ bool parseCommandLine(int argc, char **argv,
 					  boost::uint32_t& nEvaluations,
 					  Gem::GenEvA::dataExchangeMode& exchangeMode,
 					  bool& sortingScheme,
+					  boost::uint32_t& interval,
 					  bool& verbose);
 
 } /* namespace GenEvA */

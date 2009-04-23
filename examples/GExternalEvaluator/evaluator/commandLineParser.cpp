@@ -64,7 +64,8 @@
 bool parseCommandLine(int argc, char **argv,
 		boost::uint16_t& executionMode,
 		std::string& paramfile,
-		boost::uint16_t& transferMode)
+		boost::uint16_t& transferMode,
+	    std::string& identifyer)
 {
 	try{
 		// Check the command line options. Uses the Boost program options library.
@@ -78,6 +79,7 @@ bool parseCommandLine(int argc, char **argv,
 		("template,t", "Write out a template for this population. Requires option \"-p\"")
 		("random,R", "Asks the program to fill the template with random values. Requires option \"-t\"")
 		("transferMode,m",  po::value<boost::uint16_t>(&transferMode)->default_value(DEFAULTTRANSFERMODE),  "The transfer mode between optimizer and this program (binary or text mode, at the moment)")
+		("identifyer,g", po::value<std::string>(&identifyer)->default_value(DEFAULTIDENTIFYER),"An optional identifyer which may e.g. be passed during result printing")
 		;
 
 		po::variables_map vm;
