@@ -49,3 +49,5 @@
 - Use the Boost.Filesystem library to access data on the disk - makes Geneva portable to Windows.
 - GThreadGroup could be given a vector interface
 - Script that scans which files contain which license types and creates a report
+- gLite submission script
+- Observe, which parameters change a lot in successful mutations. Try to predominantly modify these parameters and keep the other parameters const. Could be done with a kind of line search ?
