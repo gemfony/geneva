@@ -105,11 +105,11 @@ bool parseCommandLine(int argc, char **argv,
 			("exchangeMode,x", po::value<Gem::GenEvA::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
 					"Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
 			("sortingScheme,o", po::value<bool>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
-					"Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode")
+					"Determines whether sorting is done in MUCOMMANU (0) or MUPLUSNU (1)  mode")
 			("interval,i", po::value<boost::uint32_t>(&interval)->default_value(DEFAULTINTERVAL),
 					"The generation interval in which result files should be printed")
-			("maximize,X", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
-					"Specifies whether the program should maximize or minimize the evaluation function")
+			("maximize,A", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
+					"Specifies whether the program should minimize (0) or maximize (1) evaluation function")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
