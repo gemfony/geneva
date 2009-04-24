@@ -55,6 +55,7 @@ bool parseCommandLine(int argc, char **argv,
 					  Gem::GenEvA::dataExchangeMode& exchangeMode,
 					  bool&sortingScheme,
 					  boost::uint32_t& interval,
+					  bool& maximize,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -107,6 +108,8 @@ bool parseCommandLine(int argc, char **argv,
 					"Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode")
 			("interval,i", po::value<boost::uint32_t>(&interval)->default_value(DEFAULTINTERVAL),
 					"The generation interval in which result files should be printed")
+			("maximize,X", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
+					"Specifies whether the program should maximize or minimize the evaluation function")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -170,6 +173,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "exchangeMode = " << (exchangeMode==0?"binary mode":"text mode") << std::endl
 					  << "sortingScheme = " << (sortingScheme?"MUPLUSNU":"MUCOMMANU") << std::endl
 					  << "interval = " << interval << std::endl
+					  << "maximize = " << maximize << std::endl
 					  << std::endl;
 		}
 	}

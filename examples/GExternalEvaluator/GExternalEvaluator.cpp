@@ -144,6 +144,7 @@ int main(int argc, char **argv){
 	 Gem::GenEvA::dataExchangeMode exchangeMode;
 	 bool sortingScheme;
 	 boost::uint32_t interval;
+	 bool maximize;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -170,6 +171,7 @@ int main(int argc, char **argv){
 						 exchangeMode,
 						 sortingScheme,
 						 interval,
+						 maximize,
 						 verbose))
 	{ exit(1); }
 
@@ -236,6 +238,7 @@ int main(int argc, char **argv){
 	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 	  pop_ser.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+	  pop_ser.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
 
 	  // Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
 	  pop_ser.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
@@ -262,6 +265,7 @@ int main(int argc, char **argv){
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 	  pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+	  pop_par.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
 
 	  // Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
 	  pop_par.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
@@ -293,6 +297,7 @@ int main(int argc, char **argv){
 			pop_broker.setReportGeneration(reportGeneration);
 			pop_broker.setRecombinationMethod(rScheme);
 			pop_broker.setSortingScheme(sortingScheme);
+			pop_broker.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
 
 			// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
 			pop_broker.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));

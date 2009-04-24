@@ -69,6 +69,7 @@ const boost::uint32_t DEFAULTNEVALUATIONS=5;
 const Gem::GenEvA::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::GenEvA::BINARYEXCHANGE;
 const bool DEFAULTSORTINGSCHEME=true; // MUPLUSNU
 const boost::uint32_t DEFAULTINTERVAL=0;
+const bool DEFAULTMAXIMIZE=false;
 
 namespace po = boost::program_options;
 
@@ -96,6 +97,7 @@ bool parseCommandLine(int argc, char **argv,
 					  Gem::GenEvA::dataExchangeMode& exchangeMode,
 					  bool& sortingScheme,
 					  boost::uint32_t& interval,
+					  bool& maximize,
 					  bool& verbose);
 
 } /* namespace GenEvA */
