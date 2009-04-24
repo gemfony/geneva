@@ -43,7 +43,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  boost::uint16_t& parallel,
+					  boost::uint16_t& parallelizationMode,
 					  bool& serverMode,
 					  std::string& ip,
 					  unsigned short& port,
@@ -78,7 +78,7 @@ bool parseCommandLine(int argc, char **argv,
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
 			("nProcessingThreads,N",po::value<boost::uint16_t>(&nProcessingThreads)->default_value(DEFAULTNPROCESSINGTHREADS),
-					"The amount of threads used to process individuals. Only relevant if \"parallel == 1\"")
+					"The amount of threads used to process individuals. Only relevant if \"parallelizationMode == 1\"")
 			("maxGenerations,G", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
 					"maximum number of generations in the population")
 			("maxMinutes,X", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
@@ -87,9 +87,9 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of generations after which information should be emitted in the super-population")
 			("rScheme,E",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme for the super-population")
-			("parallel,p", po::value<boost::uint16_t>(&parallel)->default_value(DEFAULTPARALLEL),
+			("parallelizationMode,p", po::value<boost::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLEL),
 					"Whether or not to run this optimization in serial (0), multi-threaded (1) or networked (2) mode")
-			("serverMode,d","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallel=2\"")
+			("serverMode,d","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")
 			("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
 			("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
 			("sigma,s", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
@@ -137,14 +137,14 @@ bool parseCommandLine(int argc, char **argv,
 		}
 
 		serverMode=false;
-		if (vm.count("parallel")) {
-			if(parallel > 2) {
-				std::cout << "Error: the \"-p\" or \"--parallel\" option may only assume the"<< std::endl
+		if (vm.count("parallelizationMode")) {
+			if(parallelizationMode > 2) {
+				std::cout << "Error: the \"-p\" or \"--parallelizationMode\" option may only assume the"<< std::endl
 						  << "values 0 (seriel), 1 (multi-threaded) or 2 (networked). Leaving ..." << std::endl;
 				return false;
 			}
 
-			if(parallel == 2) if(vm.count("serverMode")) serverMode = true;
+			if(parallelizationMode == 2) if(vm.count("serverMode")) serverMode = true;
 		}
 
 		if(verbose){
@@ -161,7 +161,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
-					  << "parallel = " << parallel << std::endl
+					  << "parallelizationMode = " << parallelizationMode << std::endl
 					  << "serverMode = " << (serverMode?"true":"false") << std::endl
 					  << "ip = " << ip << std::endl
 					  << "port = " << port << std::endl

@@ -133,7 +133,7 @@ int main(int argc, char **argv){
 	 boost::uint32_t maxGenerations, reportGeneration;
 	 boost::uint32_t adaptionThreshold;
 	 long maxMinutes;
-	 boost::uint16_t parallel;
+	 boost::uint16_t parallelizationMode;
 	 bool serverMode;
 	 std::string ip;
 	 unsigned short port=10000;
@@ -159,7 +159,7 @@ int main(int argc, char **argv){
 						 maxMinutes,
 						 reportGeneration,
 						 rScheme,
-						 parallel,
+						 parallelizationMode,
 						 serverMode,
 						 ip,
 						 port,
@@ -227,7 +227,7 @@ int main(int argc, char **argv){
 	gev_ptr->setMaximize(false);
 
 	// Set up the populations, as requested
-	if(parallel==0) { // serial execution
+	if(parallelizationMode==0) { // serial execution
 	  // Now we've got our first individual and can create a simple population with serial execution.
 	  GBasePopulation pop_ser;
 
@@ -253,7 +253,7 @@ int main(int argc, char **argv){
 	  boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_ser.getBestIndividual<GExternalEvaluator>();
 	  bestIndividual->printResult();
 	}
-	else if(parallel==1) { // multi-threaded execution
+	else if(parallelizationMode==1) { // multi-threaded execution
 		// Now we can create a simple population with parallel execution.
 	  GBoostThreadPopulation pop_par;
 	  pop_par.setNThreads(nProcessingThreads);
@@ -268,7 +268,6 @@ int main(int argc, char **argv){
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 	  pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
-
 	  pop_par.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
 
 	  // Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
@@ -281,7 +280,7 @@ int main(int argc, char **argv){
 	  boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_par.getBestIndividual<GExternalEvaluator>();
 	  bestIndividual->printResult();
 	}
-	else if(parallel==2) { // execution in networked mode
+	else if(parallelizationMode==2) { // execution in networked mode
 		if(serverMode) {
 			// Create a consumer and enrol it with the broker
 			boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
