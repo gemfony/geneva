@@ -499,7 +499,7 @@ public:
 	 *
 	 * @param A boolean indicating whether we do maximization (true) or minimization (false)
 	 */
-	void setMaximize(const bool& maximize=true)	{
+	void setMaximize(const bool& maximize = true)	{
 		maximize_ = maximize;
 	}
 

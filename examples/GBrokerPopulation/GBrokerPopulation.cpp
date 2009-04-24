@@ -72,6 +72,7 @@ int main(int argc, char **argv){
 	long maxMinutes;
 	bool verbose;
 	recoScheme rScheme;
+	bool sortingScheme;
 
 	// Retrieve command line options
 	if(!parseCommandLine(argc, argv,
@@ -89,6 +90,7 @@ int main(int argc, char **argv){
 				         maxMinutes,
 				         reportGeneration,
 				         rScheme,
+				         sortingScheme,
 				         verbose))
 		{ exit(1); }
 
@@ -126,6 +128,7 @@ int main(int argc, char **argv){
 		pop.setMaxTime(boost::posix_time::minutes(maxMinutes));
 		pop.setReportGeneration(reportGeneration);
 		pop.setRecombinationMethod(rScheme);
+		pop.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 
 		// Do the actual optimization
 		pop.optimize();

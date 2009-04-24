@@ -223,6 +223,9 @@ int main(int argc, char **argv){
 	// Make each external program evaluate a number of data sets, if nEvaluations > 1
 	gev_ptr->setNEvaluations(nEvaluations);
 
+	// Make sure we perform minimizations
+	gev_ptr->setMaximize(false);
+
 	// Set up the populations, as requested
 	if(parallel==0) { // serial execution
 	  // Now we've got our first individual and can create a simple population with serial execution.
