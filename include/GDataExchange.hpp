@@ -298,7 +298,7 @@ public:
 	void binaryReadFromStream(std::istream&);
 
 	/** @brief Writes the class'es data to a file in binary or text mode */
-	void writeToFile(const std::string&, bool binary=true);
+	void writeToFile(const std::string&, const bool& binary=true, const std::size_t& nDataSets=0, const bool& ascending=true);
 	/** @brief Reads the class'es data to a file in binary or text mode */
 	void readFromFile(const std::string&, bool binary=true);
 

@@ -245,8 +245,8 @@ int main(int argc, char **argv)
 			// Clean up
 			mol.Clear();
 
-			// Write out the results
-			ge.writeToFile(paramfile, binary);
+			// Write out the results. We only want to write out one (the best) item
+			ge.writeToFile(paramfile, binary, 1, true);
 		}
 		break;
 

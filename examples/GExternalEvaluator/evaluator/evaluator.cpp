@@ -110,8 +110,8 @@ int main(int argc, char **argv)
 			}
 			while(ge.nextDataSet());
 
-			// Write out the results
-			ge.writeToFile(paramfile, binary);
+			// Write out the results. We only want to write out one (the best) item
+			ge.writeToFile(paramfile, binary, 1, true);
 		}
 		break;
 
@@ -148,11 +148,11 @@ int main(int argc, char **argv)
 			}
 
 			// Read in the parameter data
-			ge.readFromFile(paramfile, binary);
+			// ge.readFromFile(paramfile, binary);
 
 			// Output the data on the console
-			std::size_t nDoubles = ge.size<double>(); // The amount of doubles in the current data set
-			for(std::size_t pos = 0; pos<nDoubles; pos++) std::cout << ge.at<double>(pos) << std::endl;
+			// std::size_t nDoubles = ge.size<double>(); // The amount of doubles in the current data set
+			// for(std::size_t pos = 0; pos<nDoubles; pos++) std::cout << ge.at<double>(pos) << std::endl;
 		}
 		break;
 

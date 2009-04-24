@@ -268,6 +268,7 @@ int main(int argc, char **argv){
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 	  pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+
 	  pop_par.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
 
 	  // Register the monitor with the population. boost::bind knows how to handle a shared_ptr.

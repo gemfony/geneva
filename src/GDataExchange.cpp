@@ -987,8 +987,9 @@ void GDataExchange::binaryReadFromStream(std::istream& stream) {
  *
  * @param fileName The name of the output file
  * @param binary Indicates whether output should be done in binary- or text-mode
+ * @param nDataSets The number of data sets to write to the file
  */
-void GDataExchange::writeToFile(const std::string& fileName, bool binary) {
+void GDataExchange::writeToFile(const std::string& fileName, const bool& binary, const std::size_t& nDataSets, const bool& ascending) {
 	std::ofstream output(fileName.c_str());
 	if(!output.good()) {
 		std::ostringstream error;
@@ -996,6 +997,13 @@ void GDataExchange::writeToFile(const std::string& fileName, bool binary) {
 			          << "Output stream is in a bad state. Leaving ..." << std::endl;
 
 		throw(GDataExchangeException(error.str()));
+	}
+
+	// We have been asked to resize the container. For this
+	// we need to make sure that the nDatasets best items are in the front position
+	if(nDataSets && parameterValueSet_.size() > nDataSets) {
+		this->sort(ascending);
+		parameterValueSet_.resize(nDataSets);
 	}
 
 	if(binary)
