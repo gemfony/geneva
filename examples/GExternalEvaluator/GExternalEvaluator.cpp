@@ -129,6 +129,7 @@ int main(int argc, char **argv){
 	 std::string externalArguments;
 	 std::size_t populationSize, nParents;
 	 boost::uint16_t nProducerThreads;
+	 boost::uint16_t nProcessingThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
 	 boost::uint32_t adaptionThreshold;
 	 long maxMinutes;
@@ -152,6 +153,7 @@ int main(int argc, char **argv){
 				         nParents,
 						 adaptionThreshold,
 						 nProducerThreads,
+						 nProcessingThreads,
 						 maxGenerations,
 						 maxMinutes,
 						 reportGeneration,
@@ -248,7 +250,7 @@ int main(int argc, char **argv){
 	else if(parallel==1) { // multi-threaded execution
 		// Now we can create a simple population with parallel execution.
 	  GBoostThreadPopulation pop_par;
-	  pop_par.setNThreads(4);
+	  pop_par.setNThreads(nProcessingThreads);
 
 	  // Attach the individual to the population
 	  pop_par.push_back(gev_ptr);

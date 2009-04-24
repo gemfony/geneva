@@ -38,6 +38,7 @@ bool parseCommandLine(int argc, char **argv,
 					  std::size_t& nParents,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
+					  boost::uint16_t& nProcessingThreads,
 					  boost::uint32_t& maxGenerations,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
@@ -75,6 +76,8 @@ bool parseCommandLine(int argc, char **argv,
 					"Number of calls to mutate after which mutation parameters should be adapted")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
+			("nProcessingThreads,N",po::value<boost::uint16_t>(&nProcessingThreads)->default_value(DEFAULTNPROCESSINGTHREADS),
+					"The amount of threads used to process individuals. Only relevant if \"parallel == 1\"")
 			("maxGenerations,G", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
 					"maximum number of generations in the population")
 			("maxMinutes,X", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
@@ -149,7 +152,8 @@ bool parseCommandLine(int argc, char **argv,
 					  << "popSize = " << popSize << std::endl
 					  << "nParents = " << nParents << std::endl
 					  << "adaptionThreshold = " << adaptionThreshold << std::endl
-					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
+					  << "nProducerThreads = " << nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
+					  << "nProcessingThreads = " << nProcessingThreads << std::endl
 					  << "maxGenerations = " << maxGenerations << std::endl
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl

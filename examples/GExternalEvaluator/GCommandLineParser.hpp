@@ -54,6 +54,7 @@ const std::size_t DEFAULTPOPSIZE=100;
 const std::size_t DEFAULTNPARENTS=5;
 const std::string DEFAULTPROGRAM="./evaluator/evaluator";
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=5;
+const boost::uint16_t DEFAULTNPROCESSINGTHREADS=4;
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
 const long DEFAULTMAXMINUTES=0;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
@@ -78,6 +79,7 @@ bool parseCommandLine(int argc, char **argv,
 					  std::size_t& nParents,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
+					  boost::uint16_t& nProcessingThreads,
 					  boost::uint32_t& maxGenerations,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
