@@ -20,24 +20,19 @@ ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     # Use this for debug builds.    
-    IF ($ENV{CXX} MATCHES "icpc" OR $ENV{CXX} MATCHES "icc")
+    IF($ENV{CXX} MATCHES "icpc" OR $ENV{CXX} MATCHES "icc")
     	# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
     	# (and, according to the authors' opinion, irrelevant in this context) warnings
     	ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
-    ELSEIF ($ENV{CXX} MATCHES "pgCC")
-    	# NOTE: This does not work yet
-    	ADD_DEFINITIONS ("-DDEBUG -g -lpthread -DBOOST_THREAD_POSIX -DBOOST_HAS_THREADS")
-    ELSE()
+    ELSE() # e.g. g++
         # ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
     	ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread")
     ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
     # Use this for release builds.
-    IF ($ENV{CXX} MATCHES "icpc" OR $ENV{CXX} MATCHES "icc")
+    IF($ENV{CXX} MATCHES "icpc" OR $ENV{CXX} MATCHES "icc")
     	ADD_DEFINITIONS ("-O3 -pthread")
-    ELSEIF ($ENV{CXX} MATCHES "pgCC")
-    	ADD_DEFINITIONS ("-nfast -lpthread -DBOOST_THREAD_POSIX -DBOOST_HAS_THREADS")
-    ELSE()
+    ELSE() # e.g. g++
     	ADD_DEFINITIONS ("-O3 -pthread")
     ENDIF()
 ENDIF()
