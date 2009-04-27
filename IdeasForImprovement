@@ -9,7 +9,6 @@
 - Ship the threadpool library with Geneva or move to standard Boost threadpool (once it has been reviewed)
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
 - Add a CMake macro "FindGeneva.cmake"
-- Stop criterium "quality is below or above a given threshold"
 - Allow clients in network mode to pull over a series of individuals
 - Transfer parents rather than children
 - Allow clients to create a series of copies from the master individual by themself and return the best one
