@@ -31,7 +31,6 @@
 #endif /* BOOST_VERSION */
 
 #include <boost/shared_ptr.hpp>
-#include <boost/utility.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
@@ -58,7 +57,6 @@ namespace Util {
  */
 template<typename T>
 class GSingleton
-	:private boost::noncopyable
 {
 public:
 	/*******************************************************************/
@@ -69,18 +67,15 @@ public:
 	 * the pointer, so that T doesn't get deleted while it is still needed.
 	 */
 	static boost::shared_ptr<T> getInstance() {
-		static bool first=true;
 		static boost::shared_ptr<T> p;
 		static boost::mutex creation_mutex;
 
-		{
+		// Several callers can reach the next line/ simultaneously. Hence, if
+		// p is empty, we need to ask again if it empty after we have acquired the lock
+		if(!p) {
 			// Prevent concurrent "first" access
 			boost::mutex::scoped_lock lk(creation_mutex);
-
-			if(first) {
-				p = boost::shared_ptr<T>(new T());
-				first=false;
-			}
+			if(!p) p = boost::shared_ptr<T>(new T());
 		}
 
 		return p;
@@ -91,6 +86,8 @@ public:
 private:
 	GSingleton(); ///< Intentionally left undefined
 	~GSingleton(); ///< Intentionally left undefined
+	GSingleton(const GSingleton<T>&); ///< intentionally left undefined
+	const GSingleton<T>& operator=(const GSingleton<T>&); ///< intentionally left undefined
 };
 
 /************************************************************************/

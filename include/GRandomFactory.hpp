@@ -115,8 +115,6 @@ class GRandomFactory {
 public:
 	/** @brief The default constructor */
 	GRandomFactory();
-	/** @brief A constructor that creates a user-specified number of producer threads*/
-	GRandomFactory(const boost::uint16_t&);
 	/** @brief The destructor */
 	~GRandomFactory();
 
@@ -131,6 +129,9 @@ public:
 	/*************************************************************************/
 
 private:
+	GRandomFactory(const GRandomFactory&); ///< Intentionally left undefined
+	const GRandomFactory& operator=(const GRandomFactory&);  ///< Intentionally left undefined
+
 	/** @brief Starts the threads needed for the production of random numbers */
 	void startProducerThreads();
 	/** @brief The production of [0,1[ random numbers takes place here */
@@ -142,6 +143,9 @@ private:
 	boost::uint32_t seed_; ///< The seed for the random number generators
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
+
+	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
+	static boost::mutex thread_creation_mutex_; ///< Synchronization of access tp multiple_call_trap and thread creation
 };
 
 } /* namespace Util */

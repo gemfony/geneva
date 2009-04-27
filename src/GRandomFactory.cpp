@@ -25,11 +25,18 @@
 namespace Gem {
 namespace Util {
 
-/****************************************************************************/
+/*************************************************************************/
 /**
  * Synchronization of access to boost::date_time functions.
  */
 boost::mutex randomseed_mutex;
+
+/*************************************************************************/
+/**
+ * Initialize of static data members
+ */
+boost::uint16_t Gem::Util::GRandomFactory::multiple_call_trap_ = 0;
+boost::mutex Gem::Util::GRandomFactory::thread_creation_mutex_;
 
 /*************************************************************************/
 /**
@@ -41,21 +48,17 @@ GRandomFactory::GRandomFactory()  :
 	seed_(GRandomFactory::GSeed()),
 	n01Threads_(DEFAULT01PRODUCERTHREADS)
 {
-	startProducerThreads();
-}
-
-/*************************************************************************/
-/**
- * A constructor that creates a user-specified number of [0,1[ threads and
- * gauss threads. It seeds the random number generator and starts the
- * producer01 thread. Note that we enforce a minimum number of threads.
- */
-GRandomFactory::GRandomFactory(const boost::uint16_t& n01Threads)  :
-	g01_(DEFAULTFACTORYBUFFERSIZE),
-	seed_(GRandomFactory::GSeed()),
-	n01Threads_(n01Threads ? n01Threads : static_cast<boost::uint16_t>(1)) // calm a warning ...
-{
-	startProducerThreads();
+	{ // explicit scope ensures proper destruction of mutex
+		boost::mutex::scoped_lock lk(thread_creation_mutex_);
+		if(multiple_call_trap_ > 0) {
+			std::cerr << "Error in GRandomFactory::GRandomFactory(): class has been instantiated before" << std::endl;
+			std::terminate();
+		}
+		else {
+			startProducerThreads();
+			multiple_call_trap_++;
+		}
+	}
 }
 
 /*************************************************************************/
