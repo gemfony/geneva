@@ -138,7 +138,7 @@ private:
 	void producer01(const boost::uint32_t& seed);
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	Gem::Util::GBoundedBufferT<boost::shared_array<double> > g01_;
+	Gem::Util::GBoundedBufferT<boost::shared_array<double> >  g01_;
 
 	boost::uint32_t seed_; ///< The seed for the random number generators
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
