@@ -64,6 +64,7 @@ const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
 const bool DEFAULTPARALLEL=true;
 const bool DEFAULTMAXIMIZE=false;
 const bool DEFAULTSORTINGSCHEME=true; // MUPLUSNU
+const double DEFAULTQTHRESHOLD=0.;
 
 namespace po = boost::program_options;
 
@@ -76,6 +77,7 @@ bool parseCommandLine(int argc, char **argv,
 					  std::size_t& populationSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,
+					  double &qualityThreshold,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,

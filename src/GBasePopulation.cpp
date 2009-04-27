@@ -53,6 +53,8 @@ GBasePopulation::GBasePopulation() :
 	firstId_(true), // The "real" id will be set in the GBasePopulation::optimize function
 	maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION)),
 	defaultNChildren_(0),
+	qualityThreshold_(DEFAULTQUALITYTHRESHOLD),
+	hasQualityThreshold_(false),
 	infoFunction_(&GBasePopulation::defaultInfoFunction)
 { /* nothing */ }
 
@@ -78,6 +80,8 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	firstId_(true), // We want the id to be re-calculated for a new object
 	maxDuration_(cp.maxDuration_),
 	defaultNChildren_(cp.defaultNChildren_),
+	qualityThreshold_(cp.qualityThreshold_),
+	hasQualityThreshold_(cp.hasQualityThreshold_),
 	infoFunction_(cp.infoFunction_)
 { /* nothing */ }
 
@@ -126,6 +130,8 @@ void GBasePopulation::load(const GObject * cp)
 	firstId_=true, // We want the id to be re-calculated for a new object
 	maxDuration_ = gbp_load->maxDuration_;
 	defaultNChildren_ = gbp_load->defaultNChildren_;
+	qualityThreshold_=gbp_load->qualityThreshold_;
+	hasQualityThreshold_=gbp_load->hasQualityThreshold_;
 
 	infoFunction_ = gbp_load->infoFunction_;
 }
@@ -190,6 +196,8 @@ bool GBasePopulation::isEqualTo(const GObject& cp) const {
 	if(maxDuration_ != gbp_load->maxDuration_) return false;
 	// if(startTime_ != gbp_load->startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
 	if(defaultNChildren_ != gbp_load->defaultNChildren_) return false;
+	if(qualityThreshold_ != gbp_load->qualityThreshold_) return false;
+	if(hasQualityThreshold_ != gbp_load->hasQualityThreshold_) return false;
 
 	return true;
 }
@@ -224,6 +232,8 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit) const 
 	if(maxDuration_ != gbp_load->maxDuration_) return false;
 	// if(startTime_ != gbp_load->startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
 	if(defaultNChildren_ != gbp_load->defaultNChildren_) return false;
+	if(fabs(qualityThreshold_ - gbp_load->qualityThreshold_) > fabs(limit)) return false; // A real similarity check
+	if(hasQualityThreshold_ != gbp_load->hasQualityThreshold_) return false;
 
 	return true;
 }
@@ -578,6 +588,65 @@ bool GBasePopulation::timedHalt() {
 	ptime currentTime = microsec_clock::local_time();
 	if((currentTime - startTime_) >= maxDuration_) return true;
 	return false;
+}
+
+/***********************************************************************************/
+/**
+ * This function returns true once the quality is below or above a given threshold
+ * (depending on whether we maximize or minimize).
+ *
+ * @return A boolean indicating whether the quality is above or below a given threshold
+ */
+bool GBasePopulation::qualityHalt() {
+	bool isDirty;
+	if(maximize_) {
+		if(this->data.at(0)->getCurrentFitness(isDirty) >= qualityThreshold_) return true;
+	}
+	else { // minimization
+		if(this->data.at(0)->getCurrentFitness(isDirty) <= qualityThreshold_) return true;
+	}
+
+	return false;
+}
+
+/***********************************************************************************/
+/**
+ *  Sets a quality threshold beyond which optimization is expected to stop
+ *
+ *  @param qualityThreshold A threshold beyond which optimization should stop
+ */
+void GBasePopulation::setQualityThreshold(const double& qualityThreshold) {
+	qualityThreshold_ = qualityThreshold;
+	hasQualityThreshold_=true;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the current value of the quality threshold and also indicates whether
+ * the threshold is active
+ */
+double GBasePopulation::getQualityThreshold(bool& hasQualityThreshold) const {
+	hasQualityThreshold = hasQualityThreshold_;
+	return qualityThreshold_;
+}
+
+
+/***********************************************************************************/
+/**
+ * Removes the quality threshold
+ */
+void GBasePopulation::unsetQualityThreshold() {
+	hasQualityThreshold_ = false;
+}
+
+/***********************************************************************************/
+/**
+ * Checks whether a quality threshold has been set
+ *
+ * @return A boolean indicating whether a quality threshold has been set
+ */
+bool GBasePopulation::hasQualityThreshold() const {
+	return hasQualityThreshold_;
 }
 
 /***********************************************************************************/
@@ -963,7 +1032,10 @@ bool GBasePopulation::halt()
 	// is at least one microsecond.
 	if(maxDuration_.total_microseconds() && timedHalt()) return true;
 
-	// Has the user specified an additional break condition ?
+	// Are we supposed to stop when the quality has exceeded a threshold ?
+	if(hasQualityThreshold_ && qualityHalt()) return true;
+
+	// Has the user specified an additional stop criterion ?
 	if(customHalt()) return true;
 
 	// Fine, we can continue.

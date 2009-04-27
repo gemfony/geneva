@@ -67,6 +67,7 @@ int main(int argc, char **argv){
 	 bool maximize;
 	 recoScheme rScheme;
 	  bool sortingScheme;
+	  double qualityThreshold;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -78,6 +79,7 @@ int main(int argc, char **argv){
 						 populationSize,
 						 nParents,
 						 maxGenerations,
+						 qualityThreshold,
 						 maxMinutes,
 						 reportGeneration,
 						 rScheme,
@@ -121,6 +123,8 @@ int main(int argc, char **argv){
 	  pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 	  pop_par.setMaximize(maximize); // Specifies whether we want to do maximization or minimization
 
+	  if(qualityThreshold > 0.) pop_par.setQualityThreshold(qualityThreshold);
+
 	  // Do the actual optimization
 	  pop_par.optimize();
 	}
@@ -138,6 +142,8 @@ int main(int argc, char **argv){
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 	  pop_ser.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 	  pop_ser.setMaximize(maximize); // Specifies whether we want to do maximization or minimization
+
+	  if(qualityThreshold > 0.) pop_ser.setQualityThreshold(qualityThreshold);
 
 	  // Do the actual optimization
 	  pop_ser.optimize();

@@ -40,6 +40,7 @@ bool parseCommandLine(int argc, char **argv,
 					  std::size_t& populationSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,
+					  double &qualityThreshold,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
@@ -71,6 +72,8 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of parents in the population") // Needs to be treated separately
 			("maxGenerations,G", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
 					"maximum number of generations in the population")
+			("qualityThreshold,q", po::value<double>(&qualityThreshold)->default_value(DEFAULTQTHRESHOLD),
+					"A threshold beyond which optimization is supposed to stop")
 			("maxMinutes,X", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
 					"The maximum number of minutes the optimization of the population should run")
 			("reportGeneration,R",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),

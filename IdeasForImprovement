@@ -15,9 +15,6 @@
 - Allow clients to create a series of copies from the master individual by themself and return the best one
 - De-central sorting (by letting clients communicate)
 - Additional network implementations (MPI, PVM, ...)
-- Split tests into "failures expected" and "no failures expected"
-- Test for self-assignment can be eliminated in all classes derived from GObject, as GObject will
-  be first to check. One check is sufficient.
 - Implement *1.5 vs. /0.5 rule for sigma adaption. Can be based on the parentCounter_ variable
   of individuals.
 - Add a GBiDoubleGaussAdaptor

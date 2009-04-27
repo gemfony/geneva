@@ -104,6 +104,11 @@ const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
  */
 const std::string DEFAULTDURATION = EMPTYDURATION;
 
+/**
+ * The default quality threshold
+ */
+const double DEFAULTQUALITYTHRESHOLD=0.;
+
 /*********************************************************************************/
 /**
  * The GBasePopulation class adds the notion of parents and children to
@@ -144,6 +149,9 @@ class GBasePopulation
 		ar & make_nvp("maximize_", maximize_);
 		ar & make_nvp("maxDuration_", maxDuration_);
 		ar & make_nvp("defaultNChildren_", defaultNChildren_);
+		ar & make_nvp("qualityThreshold_", qualityThreshold_);
+		ar & make_nvp("hasQualityThreshold_", hasQualityThreshold_);
+
 		// Note that id and firstId_ are not serialized as we need the id
 		// to be recalculated for de-serialized objects. Likewise, startTime_
 		// doesn't need to be serialized.
@@ -215,6 +223,15 @@ public:
 	void setMaxTime(const boost::posix_time::time_duration&);
 	/** @brief Retrieves the maximum allowed processing time */
 	boost::posix_time::time_duration getMaxTime();
+
+	/** @brief Sets a quality threshold beyond which optimization is expected to stop */
+	void setQualityThreshold(const double&);
+	/** @brief Retrieves the current value of the quality threshold */
+	double getQualityThreshold(bool&) const;
+	/** @brief Removes the quality threshold */
+	void unsetQualityThreshold();
+	/** @brief Checks whether a quality threshold has been set */
+	bool hasQualityThreshold() const;
 
 	/** @brief Specify whether we want to work in maximization or minimization mode */
 	void setMaximize(const bool& val);
@@ -348,6 +365,8 @@ protected:
 private:
 	/** @brief Emits true once a given time has passed */
 	bool timedHalt();
+	/** @brief Emits true once the quality is below or above a given threshold */
+	bool qualityHalt();
 	/** @brief Adjusts the actual population size to the desired value */
 	void adjustPopulation();
 
@@ -372,6 +391,8 @@ private:
 	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
 	boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization
 	std::size_t defaultNChildren_; ///< Expected number of children
+	double qualityThreshold_; ///< A threshold beyond which optimization is expected to stop
+	bool hasQualityThreshold_; ///< Specifies whether a qualityThreshold has been set
 
 	boost::function<void (const infoMode&, GBasePopulation * const)> infoFunction_; ///< Used to emit information with doInfo()
 };
