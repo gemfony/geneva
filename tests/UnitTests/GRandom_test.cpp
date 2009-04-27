@@ -85,8 +85,10 @@ BOOST_AUTO_TEST_CASE( GRandom_no_failure_expected )
 // Test features that are expected to fail
 BOOST_AUTO_TEST_CASE( GRandom_failures_expected )
 {
-	GRandom gr;
-
+	// Test (as the very last test) that multiple creation of GRandomFactory throws.
+	// Note that one instance of GRandomFactory should already be running, simply by virtue of
+	// the inclusion of the GRandom header file.
+	BOOST_CHECK_THROW(boost::shared_ptr<GRandomFactory>(new GRandomFactory()), Gem::GenEvA::geneva_error_condition);
 }
 /***********************************************************************************/
 

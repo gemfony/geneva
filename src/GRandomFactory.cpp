@@ -44,15 +44,16 @@ boost::mutex Gem::Util::GRandomFactory::thread_creation_mutex_;
  * creates a predefined number of threads.
  */
 GRandomFactory::GRandomFactory()  :
-	g01_(DEFAULTFACTORYBUFFERSIZE),
 	seed_(GRandomFactory::GSeed()),
-	n01Threads_(DEFAULT01PRODUCERTHREADS)
+	n01Threads_(DEFAULT01PRODUCERTHREADS),
+	g01_ (boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Util::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
 {
 	{ // explicit scope ensures proper destruction of mutex
 		boost::mutex::scoped_lock lk(thread_creation_mutex_);
 		if(multiple_call_trap_ > 0) {
-			std::cerr << "Error in GRandomFactory::GRandomFactory(): class has been instantiated before" << std::endl;
-			std::terminate();
+			std::ostringstream error;
+			error << "Error in GRandomFactory::GRandomFactory(): class has been instantiated before." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 		else {
 			startProducerThreads();
@@ -105,7 +106,7 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 	boost::shared_array<double> result; // empty
 
 	try {
-		g01_.pop_back(&result, boost::posix_time::milliseconds(
+		g01_->pop_back(&result, boost::posix_time::milliseconds(
 				DEFAULTFACTORYPUTWAIT));
 	} catch (Gem::Util::gem_util_condition_time_out&) {
 		// nothing - our way of signaling a time out
@@ -162,7 +163,10 @@ void GRandomFactory::producer01(const boost::uint32_t& seed)  {
 			if(boost::this_thread::interruption_requested()) break;
 
 			boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
-			double *p_raw = p.get(); // Faster access during the fill procedure
+
+			 // Faster access during the fill procedure
+			// Note that we own the only instance of this pointer at this point
+			double *p_raw = p.get();
 
 			for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++) {
 #ifdef DEBUG
@@ -174,7 +178,10 @@ void GRandomFactory::producer01(const boost::uint32_t& seed)  {
 #endif /* DEBUG */
 			}
 
-			g01_.push_front(p);
+			// Get a local copy of g01_, so its object does not get deleted involuntarily
+			// when the singleton exits.
+			boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > > g01_cp = g01_;
+			if(g01_cp) g01_cp->push_front(p);
 		}
 	} catch (boost::thread_interrupted&) { // Not an error
 		return; // We're done

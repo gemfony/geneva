@@ -1,5 +1,5 @@
 /**
- * @file GSingleton.hpp
+ * @file GSingletonT.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich
@@ -56,7 +56,7 @@ namespace Util {
  * the static shared_ptr may long have vanished at that time.
  */
 template<typename T>
-class GSingleton
+class GSingletonT
 {
 public:
 	/*******************************************************************/
@@ -84,10 +84,10 @@ public:
 	/*******************************************************************/
 
 private:
-	GSingleton(); ///< Intentionally left undefined
-	~GSingleton(); ///< Intentionally left undefined
-	GSingleton(const GSingleton<T>&); ///< intentionally left undefined
-	const GSingleton<T>& operator=(const GSingleton<T>&); ///< intentionally left undefined
+	GSingletonT(); ///< Intentionally left undefined
+	~GSingletonT(); ///< Intentionally left undefined
+	GSingletonT(const GSingletonT<T>&); ///< intentionally left undefined
+	const GSingletonT<T>& operator=(const GSingletonT<T>&); ///< intentionally left undefined
 };
 
 /************************************************************************/

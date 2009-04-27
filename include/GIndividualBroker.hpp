@@ -50,7 +50,7 @@
 // GenEvA headers go here
 #include "GBrokerT.hpp"
 #include "GIndividual.hpp"
-#include "GSingleton.hpp"
+#include "GSingletonT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -79,7 +79,7 @@ public:
  * ensures that one and only one Broker object exists that is constructed
  * before main begins. All external communication should refer to GINDIVIDUALBROKER.
  */
-typedef Gem::Util::GSingleton<GIndividualBroker> gindividualbroker;
+typedef Gem::Util::GSingletonT<GIndividualBroker> gindividualbroker;
 #define GINDIVIDUALBROKER gindividualbroker::getInstance()
 
 /**************************************************************************************/

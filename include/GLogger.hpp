@@ -56,7 +56,7 @@
 #define GLOGGER_HPP_
 
 #include "GLogTargets.hpp"
-#include "GSingleton.hpp"
+#include "GSingletonT.hpp"
 
 namespace Gem
 {
@@ -128,7 +128,7 @@ private:
 /**
  * We currently require the global GLogger object to be a singleton
  */
-typedef Gem::Util::GSingleton<Gem::GLogFramework::GLogger>  logger;
+typedef Gem::Util::GSingletonT<Gem::GLogFramework::GLogger>  logger;
 #define LOGGER logger::getInstance()
 
 #endif /* GLOGGER_HPP_ */

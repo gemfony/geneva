@@ -67,7 +67,8 @@
 #include "GBoundedBufferT.hpp"
 #include "GEnums.hpp"
 #include "GThreadGroup.hpp"
-#include "GSingleton.hpp"
+#include "GSingletonT.hpp"
+#include "GenevaExceptions.hpp"
 
 /****************************************************************************/
 
@@ -137,12 +138,12 @@ private:
 	/** @brief The production of [0,1[ random numbers takes place here */
 	void producer01(const boost::uint32_t& seed);
 
-	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	Gem::Util::GBoundedBufferT<boost::shared_array<double> >  g01_;
-
 	boost::uint32_t seed_; ///< The seed for the random number generators
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
+
+	/** @brief A bounded buffer holding the [0,1[ random number packages */
+	boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > > g01_; // Note: Absolutely needs to be defined after the thread group !!!
 
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex thread_creation_mutex_; ///< Synchronization of access tp multiple_call_trap and thread creation
@@ -155,7 +156,7 @@ private:
 /**
  * A single, global random number factory is created as a singleton.
  */
-typedef Gem::Util::GSingleton<Gem::Util::GRandomFactory> grfactory;
+typedef Gem::Util::GSingletonT<Gem::Util::GRandomFactory> grfactory;
 #define GRANDOMFACTORY grfactory::getInstance()
 
 #endif /* GRANDOMFACTORY_HPP_ */

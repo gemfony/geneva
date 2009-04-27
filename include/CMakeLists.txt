@@ -70,7 +70,7 @@ SET ( GENEVAINCLUDES
 	GRateableI.hpp
 	GSerializableI.hpp
 	GSerializationHelperFunctions.hpp
-	GSingleton.hpp
+	GSingletonT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GStdSimpleVectorInterfaceT.hpp
 	GThreadGroup.hpp
