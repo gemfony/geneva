@@ -78,7 +78,6 @@ class GParameterBase:
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
       ar & make_nvp("GObject",boost::serialization::base_object<GObject>(*this));
-      ar & make_nvp("GMutableI", boost::serialization::base_object<GMutableI>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 public:

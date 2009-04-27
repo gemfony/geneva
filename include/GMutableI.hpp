@@ -31,16 +31,6 @@
 #error "Error: Boost has incorrect version !"
 #endif /* BOOST_VERSION */
 
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/exception.hpp>
-
 #ifndef GMUTABLEI_HPP_
 #define GMUTABLEI_HPP_
 
@@ -55,13 +45,6 @@ namespace GenEvA {
  * This is a simple interface class for mutable objects.
  */
 class GMutableI {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
-
-	template<typename Archive>
-	void serialize(Archive &, const unsigned int){  /* nothing - this is a base class */ }
-	///////////////////////////////////////////////////////////////////////
-
 public:
 	/** @brief The standard destructor */
 	virtual ~GMutableI(){ /* nothing */ }
@@ -76,6 +59,7 @@ public:
 	 * function to be called by a thread.
 	 */
 	void checkedMutate(){
+#ifdef DEBUG
 		try{
 			this->mutate();
 		}
@@ -103,17 +87,14 @@ public:
 
 			std::terminate();
 		}
+#else
+	this->mutate();
+#endif
 	}
 };
 
 } /* namespace GenEvA */
 } /* namespace Gem */
-
-/**************************************************************************************************/
-/**
- * @brief Needed for Boost.Serialization
- */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GMutableI)
 
 /**************************************************************************************************/
 

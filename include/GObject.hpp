@@ -84,7 +84,6 @@ class GObject
     template<typename Archive>
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
-      ar & make_nvp("GSerializableI", boost::serialization::base_object<GSerializableI>(*this));
       ar & make_nvp("name_",GObject::name_);
     }
     ///////////////////////////////////////////////////////////////////////
