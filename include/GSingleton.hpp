@@ -52,7 +52,7 @@ namespace Util {
 /************************************************************************/
 /**
  * This class implements a singleton pattern, augmented so that it returns
- * a boost::shared_ptr. This is allows other singletons to store a copy of
+ * a boost::shared_ptr. This allows other singletons to store a copy of
  * T, so that it only gets destroyed once it is no longer needed. Note that
  * the static shared_ptr may long have vanished at that time.
  */
@@ -68,17 +68,19 @@ public:
 	 * will return the stored copy of the shared_ptr. Other classes can store
 	 * the pointer, so that T doesn't get deleted while it is still needed.
 	 */
-	static boost::shared_ptr<T>& getInstance() {
+	static boost::shared_ptr<T> getInstance() {
 		static bool first=true;
 		static boost::shared_ptr<T> p;
 		static boost::mutex creation_mutex;
 
-		if(first) {
-			// Prevent concurrent "first access"
+		{
+			// Prevent concurrent "first" access
 			boost::mutex::scoped_lock lk(creation_mutex);
 
-			p = boost::shared_ptr<T>(new T());
-			first=false;
+			if(first) {
+				p = boost::shared_ptr<T>(new T());
+				first=false;
+			}
 		}
 
 		return p;
