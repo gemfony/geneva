@@ -157,6 +157,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, T, test_types )
 		GGaussAdaptorT<T> ggat0;
 		BOOST_CHECK_THROW(ggat0.setSigmaAdaptionRate(0.), Gem::GenEvA::geneva_error_condition); // 0. is not an allowed value
 	}
+
+	{
+		// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
+		GGaussAdaptorT<T> ggat0;
+		BOOST_CHECK_THROW(ggat0.load(&ggat0), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
+	}
 }
 /***********************************************************************************/
 

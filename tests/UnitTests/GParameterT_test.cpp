@@ -349,10 +349,11 @@ BOOST_AUTO_TEST_CASE( GParmeterT_failures_expected)
 #endif /* DEBUG */
 
 	{
-		// Default construction
+		// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
 		GInt32 gpt0;
-		// Self assignment should throw
 		BOOST_CHECK_THROW(gpt0.load(&gpt0), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
 	}
 }
 /***********************************************************************************/

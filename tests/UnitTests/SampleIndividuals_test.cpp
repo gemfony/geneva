@@ -1,5 +1,5 @@
 /**
- * @file testTemplate.cpp
+ * @file SampleIndividuals_test.cpp
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -35,6 +35,8 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
+//#include "GParabolaIndividual.hpp"
+#include "GNoisyParabolaIndividual.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -42,23 +44,43 @@ using namespace Gem::GenEvA;
 using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
-// This file holds a template that should be used for unit tests
-BOOST_AUTO_TEST_SUITE(testTemplateSuite)
+// This test suite tests common functionality of some important sample individuals,
+// such as copy construction, assignment etc. . Note that we assume that these individuals
+// copy- and default-constructable.
+BOOST_AUTO_TEST_SUITE(SampleIndividualsSuite)
+
+typedef boost::mpl::list</*GParabolaIndividual,*/ GNoisyParabolaIndividual> test_types;
 
 /***********************************************************************************/
 // Test features that are expected to work
-BOOST_AUTO_TEST_CASE( className_no_failure_expected )
+BOOST_AUTO_TEST_CASE_TEMPLATE(sampleIndividuals_no_failure_expected, T, test_types)
 {
 	GRandom gr;
 
+	// Default construction
+
+	// Copy construction
+
+	// Assignment
+
+	// cloning and loading
+
+	// Test (de-)serialization in different modes
 }
 
 /***********************************************************************************/
 // Test features that are expected to fail
-BOOST_AUTO_TEST_CASE( className_failures_expected )
+BOOST_AUTO_TEST_CASE_TEMPLATE(sampleIndividuals_failures_expected, T, test_types)
 {
 	GRandom gr;
 
+	{
+	// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
+		// T si();
+		// BOOST_CHECK_THROW(si.load(&si), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
+	}
 }
 /***********************************************************************************/
 

@@ -194,12 +194,19 @@ BOOST_AUTO_TEST_CASE( GBoundedInt32_failures_expected )
 {
 	GRandom gr;
 
-	// Assignment of value outside of the allowed range
-	GBoundedInt32 gbi(-10,10);
-	BOOST_CHECK_THROW(gbi=11, Gem::GenEvA::geneva_error_condition);
+	{
+		// Assignment of value outside of the allowed range
+		GBoundedInt32 gbi(-10,10);
+		BOOST_CHECK_THROW(gbi=11, Gem::GenEvA::geneva_error_condition);
+	}
 
-	// Self assignment should throw
-	BOOST_CHECK_THROW(gbi.load(&gbi), Gem::GenEvA::geneva_error_condition);
+	{
+		// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
+		GBoundedInt32 gbi(-10,10);
+		BOOST_CHECK_THROW(gbi.load(&gbi), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
+	}
 }
 /***********************************************************************************/
 

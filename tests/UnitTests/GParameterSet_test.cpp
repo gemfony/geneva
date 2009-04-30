@@ -302,12 +302,12 @@ BOOST_AUTO_TEST_CASE( GParameterSet_failures_expected )
 {
 	GRandom gr;
 
-	{ // test done in its own scope in order to limit the effects of the throw (necessary ?)
-		// Default construction
+	{
+		// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
 		GParabolaIndividual gpi;
-
-		// Self-assignment should throw
 		BOOST_CHECK_THROW(gpi.load(&gpi), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
 	}
 
 	{

@@ -23,6 +23,7 @@ SET (${EXECUTABLENAME}_SRCS
 	GParameterT_test
 	GParameterTCollectionT_test
 	GRandom_test
+	SampleIndividuals_test.cpp
 )
 	
 ADD_EXECUTABLE(${EXECUTABLENAME}

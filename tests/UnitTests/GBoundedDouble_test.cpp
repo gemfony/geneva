@@ -204,11 +204,13 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_failures_expected )
 		BOOST_CHECK_THROW(gbd.setBoundaries(-7, 7), Gem::GenEvA::geneva_error_condition);
 	}
 
-	// Self assignment should throw
+#ifdef DEBUG
+	// Self assignment should throw in DEBUG mode
 	{
 		GBoundedDouble gbd(-10,10.);
 		BOOST_CHECK_THROW(gbd.load(&gbd), Gem::GenEvA::geneva_error_condition);
 	}
+#endif /* DEBUG */
 }
 /***********************************************************************************/
 

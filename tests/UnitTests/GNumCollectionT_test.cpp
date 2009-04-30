@@ -181,9 +181,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GNumCollectionT_failures_expected, T, test_types)
 {
 	GRandom gr;
 
-	// Self-assignment should throw
-	GNumCollectionT<T> gnct;
-	BOOST_CHECK_THROW(gnct.load(&gnct), geneva_error_condition);
+	{
+		// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
+		GNumCollectionT<T> gnct;
+		BOOST_CHECK_THROW(gnct.load(&gnct), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
+	}
 }
 /***********************************************************************************/
 

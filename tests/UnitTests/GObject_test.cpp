@@ -112,8 +112,13 @@ BOOST_AUTO_TEST_CASE( GObject_failures_expected )
 {
 	GRandom gr;
 
-	GBooleanAdaptor gba0;
-	BOOST_CHECK_THROW(gba0.load(&gba0), Gem::GenEvA::geneva_error_condition);
+	{
+		// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
+		GBooleanAdaptor gba0;
+		BOOST_CHECK_THROW(gba0.load(&gba0), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
+	}
 }
 /***********************************************************************************/
 

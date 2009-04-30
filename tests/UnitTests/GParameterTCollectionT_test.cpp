@@ -331,11 +331,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParmeterTCollectionT_failures_expected, T, test_
 {
 	GRandom gr;
 
-	// Default construction
-	GParameterTCollectionT<T> gptct;
-
-	// Self assignment should throw
-	BOOST_CHECK_THROW(gptct.load(&gptct), Gem::GenEvA::geneva_error_condition);
+	{
+		// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
+		// Default construction
+		GParameterTCollectionT<T> gptct;
+		BOOST_CHECK_THROW(gptct.load(&gptct), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
+	}
 }
 /***********************************************************************************/
 

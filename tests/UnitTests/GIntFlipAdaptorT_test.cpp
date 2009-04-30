@@ -147,11 +147,27 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_failures_expected, T, test_types
 {
 	GRandom gr;
 
-	// Simple instantiation
-	GIntFlipAdaptorT<T> gifat0;
-	// Assignment of an invalid mutation probability
-	BOOST_CHECK_THROW(gifat0.setMutationProbability(-0.1), Gem::GenEvA::geneva_error_condition);
-	BOOST_CHECK_THROW(gifat0.setMutationProbability(1.1), Gem::GenEvA::geneva_error_condition);
+	{
+		// Simple instantiation
+		GIntFlipAdaptorT<T> gifat0;
+		// Assignment of an invalid mutation probability
+		BOOST_CHECK_THROW(gifat0.setMutationProbability(-0.1), Gem::GenEvA::geneva_error_condition);
+	}
+
+	{
+		// Simple instantiation
+		GIntFlipAdaptorT<T> gifat0;
+		// Assignment of an invalid mutation probability
+		BOOST_CHECK_THROW(gifat0.setMutationProbability(1.1), Gem::GenEvA::geneva_error_condition);
+	}
+
+	{
+		// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
+		GIntFlipAdaptorT<T> gifat0;
+		BOOST_CHECK_THROW(gifat0.load(&gifat0), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
+	}
 }
 /***********************************************************************************/
 

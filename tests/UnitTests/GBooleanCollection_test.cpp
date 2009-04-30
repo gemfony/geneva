@@ -177,9 +177,13 @@ BOOST_AUTO_TEST_CASE( GBooleanCollection_failures_expected )
 {
 	GRandom gr;
 
-	// Self-assignment should throw
-	GBooleanCollection gbc(100);
-	BOOST_CHECK_THROW(gbc.load(&gbc), geneva_error_condition);
+	{
+		// Self assignment should throw in DEBUG mode
+#ifdef DEBUG
+		GBooleanCollection gbc(100);
+		BOOST_CHECK_THROW(gbc.load(&gbc), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
+	}
 }
 /***********************************************************************************/
 
