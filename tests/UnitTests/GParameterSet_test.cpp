@@ -39,6 +39,7 @@
 #include "GParameterSet.hpp"
 #include "GParabolaIndividual.hpp"
 #include "GDoubleCollection.hpp"
+#include "GInt32Collection.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GStdVectorInterface_test.hpp"
 
@@ -95,14 +96,27 @@ BOOST_AUTO_TEST_CASE( GParameterSet_no_failure_expected )
 	BOOST_CHECK(gpi_load.isEqualTo(gpi));
 	delete gpi_clone;
 
+	// Test retrieval of the GDoubleCollection object. Can it be modified ?
+	boost::shared_ptr<GDoubleCollection> gpi_load_gdc = gpi_load.pc_at<GDoubleCollection>(0);
+	gpi_load_gdc->at(0) = gpi_load_gdc->at(0) + 1;
+	boost::shared_ptr<GDoubleCollection> gpi_cc_gdc = gpi_cc.pc_at<GDoubleCollection>(0);
+	gpi_cc_gdc->at(0) = gpi_cc_gdc->at(0) + 1;
+
 	// Test that the copied, cloned, ... objects become inequal to the
 	// original when they are modified
-
-	// Test registering and using an evaluator
+	BOOST_CHECK(gpi_load.isNotEqualTo(gpi));
+	BOOST_CHECK(gpi_cc.isNotEqualTo(gpi));
+	BOOST_CHECK(gpi_cc.isEqualTo(gpi_load));
 
 	// Test mutation
-
-	// Test retrieval of the GDoubleCollection object. Can it be modified ?
+	const int NMUTATIONS=100;
+	double oldValue = -1., currentValue=0.;
+	for(int i=0; i<NMUTATIONS; i++) {
+		gpi.mutate();
+		currentValue = gpi.fitness();
+		BOOST_CHECK(currentValue != oldValue);
+		oldValue=currentValue;
+	}
 
 	// Test serialization and loading in different serialization modes
 	{ // plain text format
@@ -182,11 +196,27 @@ BOOST_AUTO_TEST_CASE( GParameterSet_failures_expected )
 {
 	GRandom gr;
 
-	// Default construction
-	GParabolaIndividual gpi;
+	{ // test done in its own scope in order to limit the effects of the throw (necessary ?)
+		// Default construction
+		GParabolaIndividual gpi;
 
-	// Self-assignment should throw
-	BOOST_CHECK_THROW(gpi.load(&gpi), Gem::GenEvA::geneva_error_condition);
+		// Self-assignment should throw
+		BOOST_CHECK_THROW(gpi.load(&gpi), Gem::GenEvA::geneva_error_condition);
+	}
+
+	{
+		// Default construction
+		GParabolaIndividual gpi;
+
+		// Needed for the following throw test
+		boost::shared_ptr<GDoubleCollection > gdc_ptr(new GDoubleCollection(100, -10., 10.));
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga1(new GDoubleGaussAdaptor(1.,0.001,0.,1.));
+		gdc_ptr->addAdaptor(gdga1);
+		gpi.push_back(gdc_ptr);
+
+		// Try to retrieve an item of wrong type
+		BOOST_CHECK_THROW(gpi.pc_at<GInt32Collection>(0), Gem::GenEvA::geneva_error_condition);
+	}
 }
 /***********************************************************************************/
 
