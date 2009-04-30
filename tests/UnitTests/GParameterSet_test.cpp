@@ -188,6 +188,80 @@ BOOST_AUTO_TEST_CASE( GParameterSet_no_failure_expected )
 		BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
 		BOOST_CHECK(gpi_ser_cp.isEqualTo(gpi_ser));
 	}
+
+	//----------------------------------------------------------------------------------------------
+	// Tests of the GIndividual interface
+	GParabolaIndividual gpi2;
+
+	// Setting and retrieval of attributes
+	for(int i=0; i<10; i++) {
+		gpi2.setAttribute(boost::lexical_cast<std::string>(i), boost::lexical_cast<std::string>(i) + "-value");
+	}
+	for(int i=0; i<11; i++) {
+		std::string attributeValue =	gpi2.getAttribute(boost::lexical_cast<std::string>(i));
+		if(i<10) {
+			BOOST_CHECK(gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
+			BOOST_CHECK(attributeValue == boost::lexical_cast<std::string>(i) + "-value");
+		}
+		else { // no attribute "11" has been stored in the individual
+			BOOST_CHECK(!gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
+			BOOST_CHECK(attributeValue.empty());
+		}
+	}
+
+	// Delete some attributes
+	for(int i=0; i<10; i++) {
+		if(i%2==0) {
+			std::string previous = gpi2.delAttribute(boost::lexical_cast<std::string>(i));
+			BOOST_CHECK(previous == boost::lexical_cast<std::string>(i) + "-value");
+			BOOST_CHECK(!gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
+		}
+		else {
+			BOOST_CHECK(gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
+			std::string attributeValue =	gpi2.getAttribute(boost::lexical_cast<std::string>(i));
+			BOOST_CHECK(attributeValue == boost::lexical_cast<std::string>(i) + "-value");
+		}
+	}
+
+	// Delete all remaining attributes
+	gpi2.clearAttributes();
+	for(int i=0; i<20; i++) BOOST_CHECK(!gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
+
+	// Check that a default-constructed GIndividual does not regard itself as a parent
+	BOOST_CHECK(!gpi2.isParent());
+	BOOST_CHECK(gpi2.getParentCounter() == 0);
+
+	// Mark the individual as parent a few times. Should update the parent counter
+	for(boost::uint32_t i=0; i<10; i++) {
+		bool previous = gpi2.setIsParent();
+
+		if(i==0) BOOST_CHECK(previous==false);
+		else BOOST_CHECK(previous==true);
+
+		BOOST_CHECK(gpi2.getParentCounter() == i+1);
+		BOOST_CHECK(gpi2.isParent());
+	}
+
+	// Mark the individual as a child
+	bool previous = gpi2.setIsChild();
+	BOOST_CHECK(previous=true);
+	BOOST_CHECK(!gpi2.isParent());
+	BOOST_CHECK(gpi2.getParentCounter()==0);
+
+	// Set an retrieve the position in the population a number of times
+	for(std::size_t i=0; i <100; i++) {
+		gpi2.setPopulationPosition(i);
+		BOOST_CHECK(i == gpi2.getPopulationPosition());
+	}
+
+	// Do the same with the current generation
+	for(boost::uint32_t i=0; i<10000; i++) {
+		gpi2.setParentPopGeneration(i);
+		BOOST_CHECK(i==gpi2.getParentPopGeneration());
+	}
+
+	// The dirty flag should have been set by default
+	BOOST_CHECK(gpi2.isDirty());
 }
 
 /***********************************************************************************/

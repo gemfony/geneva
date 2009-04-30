@@ -426,6 +426,18 @@ std::string GIndividual::getAttribute(const std::string& key){
 
 /**********************************************************************************/
 /**
+ * Checks whether a given attribute has been stored in the individual
+ *
+ * @param key The key for the attribute
+ * @return A boolean indicating whether the attribute is present or not
+ */
+bool GIndividual::hasAttribute(const std::string& key) {
+	if(attributeTable_.find(key) != attributeTable_.end()) return true;
+	return false;
+}
+
+/**********************************************************************************/
+/**
  * Removes an attribute from the object, if the corresponding key exists in the map. An
  * empty string will be returned, if this key doesn't exist-
  *

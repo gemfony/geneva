@@ -157,6 +157,8 @@ public:
 	std::string getAttribute(const std::string&);
 	/** @brief Removes an attribute from the individual */
 	std::string delAttribute(const std::string&);
+	/** @brief Checks whether a given attribute is present */
+	bool hasAttribute(const std::string&);
 	/** @brief Clears the attribute table */
 	void clearAttributes();
 
