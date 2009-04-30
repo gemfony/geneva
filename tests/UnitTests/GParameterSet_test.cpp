@@ -310,6 +310,7 @@ BOOST_AUTO_TEST_CASE( GParameterSet_failures_expected )
 #endif /* DEBUG */
 	}
 
+#ifdef DEBUG
 	{
 		// Default construction
 		GParabolaIndividual gpi;
@@ -320,9 +321,10 @@ BOOST_AUTO_TEST_CASE( GParameterSet_failures_expected )
 		gdc_ptr->addAdaptor(gdga1);
 		gpi.push_back(gdc_ptr);
 
-		// Try to retrieve an item of wrong type
+		// Trying to retrieve an item of wrong type should throw in DEBUG mode
 		BOOST_CHECK_THROW(gpi.pc_at<GInt32Collection>(0), Gem::GenEvA::geneva_error_condition);
 	}
+#endif
 
 	{
 		// Default construction
