@@ -144,9 +144,9 @@ bool GBrokerPopulation::isEqualTo(const GObject& cp) const {
 	if(!GBasePopulation::isEqualTo(*gbp_load)) return  false;
 
 	// Then we take care of the local data
-	if(waitFactor_ != gbp_load->waitFactor_) return false;
-    if(firstTimeOut_ != gbp_load->firstTimeOut_) return false;
-    if(loopTime_ != gbp_load->loopTime_) return false;
+	if(checkForInequality("GBrokerPopulation", waitFactor_, gbp_load->waitFactor_,"waitFactor_", "gbp_load->waitFactor_")) return false;
+	if(checkForInequality("GBrokerPopulation", firstTimeOut_, gbp_load->firstTimeOut_,"firstTimeOut_", "gbp_load->firstTimeOut_")) return false;
+	if(checkForInequality("GBrokerPopulation", loopTime_, gbp_load->loopTime_,"loopTime_", "gbp_load->loopTime_")) return false;
 
 	return true;
 }
@@ -166,11 +166,10 @@ bool GBrokerPopulation::isSimilarTo(const GObject& cp, const double& limit) cons
 	// First take care of our parent class
 	if(!GBasePopulation::isSimilarTo(*gbp_load, limit)) return  false;
 
-	// Then we take care of the local data. As there are no double values,
-	// we just ask for equality.
-	if(waitFactor_ != gbp_load->waitFactor_) return false;
-    if(firstTimeOut_ != gbp_load->firstTimeOut_) return false;
-    if(loopTime_ != gbp_load->loopTime_) return false;
+	// Then we take care of the local data
+	if(checkForDissimilarity("GBrokerPopulation", waitFactor_, gbp_load->waitFactor_, limit, "waitFactor_", "gbp_load->waitFactor_")) return false;
+	if(checkForDissimilarity("GBrokerPopulation", firstTimeOut_, gbp_load->firstTimeOut_, limit, "firstTimeOut_", "gbp_load->firstTimeOut_")) return false;
+	if(checkForDissimilarity("GBrokerPopulation", loopTime_, gbp_load->loopTime_, limit, "loopTime_", "gbp_load->loopTime_")) return false;
 
 	return true;
 }

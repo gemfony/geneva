@@ -233,12 +233,14 @@ public:
 		// Check that we are indeed dealing with a GGaussAdaptorT reference
 		const GGaussAdaptorT<T> *ggat_load = GObject::conversion_cast(&cp,  this);
 
+		// First take care of our parent class
 		if(!GAdaptorT<T>::isEqualTo(*ggat_load)) return false;
 
-		if(sigma_ != ggat_load->sigma_) return false;
-		if(sigmaSigma_ != ggat_load->sigmaSigma_) return false;
-		if(minSigma_ != ggat_load->minSigma_) return false;
-		if(maxSigma_ != ggat_load->maxSigma_) return false;
+		// Then we take care of the local data
+		if(checkForInequality("GGaussAdaptorT<T>", sigma_, ggat_load->sigma_,"sigma_", "ggat_load->sigma_")) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", sigmaSigma_, ggat_load->sigmaSigma_,"sigmaSigma_", "ggat_load->sigmaSigma_")) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", minSigma_, ggat_load->minSigma_,"minSigma_", "ggat_load->minSigma_")) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", maxSigma_, ggat_load->maxSigma_,"maxSigma_", "ggat_load->maxSigma_")) return false;
 
 		return true;
 	}
@@ -257,12 +259,14 @@ public:
 		// Check that we are indeed dealing with a GGaussAdaptorT reference
 		const GGaussAdaptorT<T> *ggat_load = GObject::conversion_cast(&cp,  this);
 
+		// First take care of our parent class
 		if(!GAdaptorT<T>::isSimilarTo(*ggat_load, limit)) return false;
 
-		if(fabs(sigma_ - ggat_load->sigma_) > fabs(limit)) return false;
-		if(fabs(sigmaSigma_ - ggat_load->sigmaSigma_) > fabs(limit)) return false;
-		if(fabs(minSigma_ - ggat_load->minSigma_) > fabs(limit)) return false;
-		if(fabs(maxSigma_ - ggat_load->maxSigma_) > fabs(limit)) return false;
+		// Then we take care of the local data
+		if(checkForDissimilarity("GGaussAdaptorT<T>", sigma_, ggat_load->sigma_, limit, "sigma_", "ggat_load->sigma_")) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", sigmaSigma_, ggat_load->sigmaSigma_, limit, "sigmaSigma_", "ggat_load->sigmaSigma_")) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", minSigma_, ggat_load->minSigma_, limit, "minSigma_", "ggat_load->minSigma_")) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", maxSigma_, ggat_load->maxSigma_, limit, "maxSigma_", "ggat_load->maxSigma_")) return false;
 
 		return true;
 	}

@@ -53,4 +53,4 @@
   additionally emit information on the location of the deviation, if requested. Performance is not an issue for these functions
 - The GNeuralNetworkIndividual needs to be renovated (e.g. the isEqualTo function needs to be added).
 - Same for GNoisyParabolaIndividual and GProjectionIndividual
-   
+- Need checkForInequality and checkForDissimilarity specializations for std::map, std::vector<T> and std::vector<boost::shared_ptr<T> >   

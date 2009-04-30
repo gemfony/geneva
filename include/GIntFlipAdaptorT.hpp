@@ -207,19 +207,11 @@ public:
 		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
 		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
 
-		if(!GAdaptorT<T>::isEqualTo(*gifat_load)) { // [1]
-#ifdef GENEVATESTING
-			std::cout << "Inequality in GIntFlipAdaptorT::[1]" << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
+		// Check our parent class
+		if(!GAdaptorT<T>::isEqualTo(*gifat_load)) return false;
 
-		if(!mutProb_.isEqualTo(gifat_load->mutProb_)) { // [2]
-#ifdef GENEVATESTING
-			std::cout << "Inequality in GIntFlipAdaptorT::[2]" << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
+		// And then our local data
+		if(!mutProb_.isEqualTo(gifat_load->mutProb_)) 	return false;
 
 		return true;
 	}

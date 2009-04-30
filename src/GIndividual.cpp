@@ -107,14 +107,14 @@ bool GIndividual::isEqualTo(const GObject& cp) const {
 	// Check for equality of our parent class
 	if(!GObject::isEqualTo(*gi_load)) return  false;
 
-	// Check our local data
-    if(currentFitness_ !=  gi_load->currentFitness_) return false;
-    if(dirtyFlag_ != gi_load->dirtyFlag_) return false;
-    if(allowLazyEvaluation_ != gi_load->allowLazyEvaluation_) return false;
-    if(parentPopGeneration_ != gi_load->parentPopGeneration_) return false;
-    if(parentCounter_ != gi_load->parentCounter_) return false;
-    if(popPos_ != gi_load->popPos_) return false;
-    if(attributeTable_ != gi_load->attributeTable_) return false;
+	// Then we take care of the local data
+	if(checkForInequality("GIndividual", currentFitness_, gi_load->currentFitness_,"currentFitness_", "gi_load->currentFitness_")) return false;
+	if(checkForInequality("GIndividual", dirtyFlag_, gi_load->dirtyFlag_,"dirtyFlag_", "gi_load->dirtyFlag_")) return false;
+	if(checkForInequality("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,"allowLazyEvaluation_", "gi_load->allowLazyEvaluation_")) return false;
+	if(checkForInequality("GIndividual", parentPopGeneration_, gi_load->parentPopGeneration_,"parentPopGeneration_", "gi_load->parentPopGeneration_")) return false;
+	if(checkForInequality("GIndividual", parentCounter_, gi_load->parentCounter_,"parentCounter_", "gi_load->parentCounter_")) return false;
+	if(checkForInequality("GIndividual", popPos_, gi_load->popPos_,"popPos_", "gi_load->popPos_")) return false;
+	if(checkForInequality("GIndividual", attributeTable_, gi_load->attributeTable_,"attributeTable_", "gi_load->attributeTable_")) return false;
 
 	return true;
 }
@@ -134,14 +134,14 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit) const {
 	// Check for equality of our parent class
 	if(!GObject::isSimilarTo(*gi_load, limit)) return false;
 
-	// Check our local data
-    if(fabs(currentFitness_ - gi_load->currentFitness_) > fabs(limit)) return false; // The sole similarity check of local data
-    if(dirtyFlag_ != gi_load->dirtyFlag_) return false;
-    if(allowLazyEvaluation_ != gi_load->allowLazyEvaluation_) return false;
-    if(parentPopGeneration_ != gi_load->parentPopGeneration_) return false;
-    if(parentCounter_ != gi_load->parentCounter_) return false;
-    if(popPos_ != gi_load->popPos_) return false;
-    if(attributeTable_ != gi_load->attributeTable_) return false;
+	// Then we take care of the local data
+	if(checkForDissimilarity("GIndividual", currentFitness_, gi_load->currentFitness_, limit, "currentFitness_", "gi_load->currentFitness_")) return false;
+	if(checkForDissimilarity("GIndividual", dirtyFlag_, gi_load->dirtyFlag_, limit, "dirtyFlag_", "gi_load->dirtyFlag_")) return false;
+	if(checkForDissimilarity("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,limit, "allowLazyEvaluation_", "gi_load->allowLazyEvaluation_")) return false;
+	if(checkForDissimilarity("GIndividual", parentPopGeneration_, gi_load->parentPopGeneration_,limit, "parentPopGeneration_", "gi_load->parentPopGeneration_")) return false;
+	if(checkForDissimilarity("GIndividual", parentCounter_, gi_load->parentCounter_,limit, "parentCounter_", "gi_load->parentCounter_")) return false;
+	if(checkForDissimilarity("GIndividual", popPos_, gi_load->popPos_,limit, "popPos_", "gi_load->popPos_")) return false;
+	if(checkForDissimilarity("GIndividual", attributeTable_, gi_load->attributeTable_,limit, "attributeTable_", "gi_load->attributeTable_")) return false;
 
 	return true;
 }

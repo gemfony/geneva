@@ -91,6 +91,9 @@ namespace Gem
 
 			// Check our parent class
 			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isEqualTo(*gis_load)) return  false;
+
+			// No local data
+
 			return true;
 		}
 
@@ -109,6 +112,9 @@ namespace Gem
 
 			// Check our parent class
 			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isSimilarTo(*gis_load, limit)) return  false;
+
+			// No local data
+
 			return true;
 		}
 

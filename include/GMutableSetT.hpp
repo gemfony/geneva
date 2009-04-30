@@ -159,6 +159,8 @@ public:
 		if(!GIndividual::isEqualTo(*gmst_load)) return false;
 		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gmst_load)) return false;
 
+		// No local data
+
 		return true;
 	}
 
@@ -178,6 +180,8 @@ public:
 		// Check similarity of the parent class
 		if(!GIndividual::isSimilarTo(*gmst_load, limit)) return false;
 		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gmst_load, limit)) return false;
+
+		// No local data
 
 		return true;
 	}

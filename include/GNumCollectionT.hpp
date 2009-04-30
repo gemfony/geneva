@@ -154,6 +154,9 @@ public:
 
 		// Check equality of the parent class
 		if(!GParameterCollectionT<T>::isEqualTo(*gnct_load)) return false;
+
+		// No local data
+
 		return true;
 	}
 
@@ -172,6 +175,9 @@ public:
 
 		// Check similarity of the parent class
 		if(!GParameterCollectionT<T>::isSimilarTo(*gnct_load, limit)) return false;
+
+		// No local data
+
 		return true;
 	}
 

@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <typeinfo>
+#include <map>
 
 // Boost header files go here
 
