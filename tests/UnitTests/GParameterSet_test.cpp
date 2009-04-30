@@ -192,6 +192,9 @@ BOOST_AUTO_TEST_CASE( GParameterSet_no_failure_expected )
 	//----------------------------------------------------------------------------------------------
 	// Tests of the GIndividual interface
 	GParabolaIndividual gpi2;
+	boost::shared_ptr<GDoubleCollection> gdc2_ptr(new GDoubleCollection(100, -10., 10.));
+	gdc2_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(1.,0.001,0.,1.)));
+	gpi2.push_back(gdc2_ptr);
 
 	// Setting and retrieval of attributes
 	for(int i=0; i<10; i++) {
@@ -262,6 +265,35 @@ BOOST_AUTO_TEST_CASE( GParameterSet_no_failure_expected )
 
 	// The dirty flag should have been set by default
 	BOOST_CHECK(gpi2.isDirty());
+	// Fitness should be 0. at this point
+	bool dirtyFlag;
+	BOOST_CHECK(gpi2.getCurrentFitness(dirtyFlag) == 0.);
+	BOOST_CHECK(dirtyFlag==true);
+
+	// Enforce calculation of the object's fitness. Should be != 0
+	BOOST_CHECK(gpi2.doFitnessCalculation() != 0.); // note: just calling fitness() will throw if lazy evaluation is not allowed
+
+	// Dirty Flag should have been reset now
+	BOOST_CHECK(!gpi2.isDirty());
+
+	// current fitness should be == externally visible fitness
+	BOOST_CHECK(gpi2.getCurrentFitness(dirtyFlag) == gpi2.fitness());
+	BOOST_CHECK(!gpi2.isDirty());
+	BOOST_CHECK(dirtyFlag == false);
+
+	// Mutate the object and check if the dirty flag was set
+	BOOST_CHECK(!gpi2.getAllowLazyEvaluation());
+	gpi2.mutate();
+	BOOST_CHECK(!gpi2.isDirty());
+	BOOST_CHECK(gpi2.fitness() != 0); // We can safely call the fitness function in this situation
+
+	// Allow lazy evaluation, mutate and check the fitness again
+	gpi2.setAllowLazyEvaluation(true);
+	BOOST_CHECK(gpi2.getAllowLazyEvaluation() == true);
+	gpi2.mutate();
+	BOOST_CHECK(gpi2.isDirty()); // No evaluation should have taken place at this pojnt
+	BOOST_CHECK(gpi2.fitness() != 0); // Does the actual fitness calculation
+	BOOST_CHECK(!gpi2.isDirty()); // Should have been reset by the fitness function
 }
 
 /***********************************************************************************/
@@ -290,6 +322,23 @@ BOOST_AUTO_TEST_CASE( GParameterSet_failures_expected )
 
 		// Try to retrieve an item of wrong type
 		BOOST_CHECK_THROW(gpi.pc_at<GInt32Collection>(0), Gem::GenEvA::geneva_error_condition);
+	}
+
+	{
+		// Default construction
+		GParabolaIndividual gpi;
+
+		// Needed for the following throw test
+		boost::shared_ptr<GDoubleCollection > gdc_ptr(new GDoubleCollection(100, -10., 10.));
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga1(new GDoubleGaussAdaptor(1.,0.001,0.,1.));
+		gdc_ptr->addAdaptor(gdga1);
+		gpi.push_back(gdc_ptr);
+
+		// As the dirty flag is set, but lazy evaluation is not allowed, calculating
+		// the object's fitness should throw in generations larger than 0 (see also the GIndividual::fitness() function)
+		BOOST_CHECK(gpi.isDirty());
+		gpi.setParentPopGeneration(1);
+		BOOST_CHECK_THROW(gpi.fitness(), Gem::GenEvA::geneva_error_condition);
 	}
 }
 /***********************************************************************************/
