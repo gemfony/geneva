@@ -205,9 +205,12 @@ public:
 		// Check that we are indeed dealing with a GAdaptorT reference
 		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
 
+		// First check our parent class for equality
 		if(!GObject::isEqualTo(*gat_load)) return false;
-		if(adaptionCounter_ != gat_load->adaptionCounter_) return false;
-		if(adaptionThreshold_ != gat_load->adaptionThreshold_) return false;
+
+		// then our local data
+		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_")) return false;
+		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_")) return false;
 
 		return true;
 	}
@@ -224,9 +227,12 @@ public:
 		// Check that we are indeed dealing with a GAdaptorT reference
 		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
 
+		// First check our parent class for dissimilarity
 		if(!GObject::isSimilarTo(*gat_load, limit)) return false;
-		if(adaptionCounter_ != gat_load->adaptionCounter_) return false;
-		if(adaptionThreshold_ != gat_load->adaptionThreshold_) return false;
+
+		// Then our local data
+		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_")) return false;
+		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_")) return false;
 
 		return true;
 	}

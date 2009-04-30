@@ -153,36 +153,12 @@ public:
 		const GBoundedNumT<T> *gbnt_load = GObject::conversion_cast(&cp,  this);
 
     	// Check the parent class'es equality
-    	if(!GParameterT<T>::isEqualTo(*gbnt_load)) { // [1]
-#ifdef GENEVATESTING
-		std::cout << "Inequality in GBoundedNumT<T>::[1]" << std::endl
-						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
-#endif /* GENEVATESTING */
-    		return false;
-    	}
+    	if(!GParameterT<T>::isEqualTo(*gbnt_load)) return false;
 
     	// Check our local data
-    	if(lowerBoundary_ != gbnt_load->lowerBoundary_) { // [2]
-#ifdef GENEVATESTING
-		std::cout << "Inequality in GBoundedNumT<T>::[2]" << std::endl
-		                << "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
-#endif /* GENEVATESTING */
-    		return false;
-    	}
-    	if(upperBoundary_ != gbnt_load->upperBoundary_) { // [3]
-#ifdef GENEVATESTING
-		std::cout << "Inequality in GBoundedNumT<T>::[3]" << std::endl
-					    << "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
-#endif /* GENEVATESTING */
-    		return false;
-    	}
-		if(internalValue_ != gbnt_load->internalValue_) { // [4]
-#ifdef GENEVATESTING
-		std::cout << "Inequality in GBoundedNumT<T>::[4]" << std::endl
-					    << "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
+		if(checkForInequality("GBoundedNumT<T>", lowerBoundary_, gbnt_load->lowerBoundary_,"lowerBoundary_", "gbnt_load->lowerBoundary_")) return false;
+		if(checkForInequality("GBoundedNumT<T>", upperBoundary_, gbnt_load->upperBoundary_,"upperBoundary_", "gbnt_load->upperBoundary_")) return false;
+		if(checkForInequality("GBoundedNumT<T>", internalValue_, gbnt_load->internalValue_,"internalValue_", "gbnt_load->internalValue_")) return false;
 
     	return true;
 	}
@@ -201,36 +177,12 @@ public:
 		const GBoundedNumT<T> *gbnt_load = GObject::conversion_cast(&cp,  this);
 
     	// Check the parent class'es similarity
-    	if(!GParameterT<T>::isSimilarTo(*gbnt_load, limit)) { // [1]
-#ifdef GENEVATESTING
-		std::cout << "Dissimilarity in GBoundedNumT<T>::[1]" << std::endl
-						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
-#endif /* GENEVATESTING */
-    		return false;
-    	}
+    	if(!GParameterT<T>::isSimilarTo(*gbnt_load, limit)) return false;
 
     	// Check our local data
-    	if(lowerBoundary_  != gbnt_load->lowerBoundary_) { // [2]
-#ifdef GENEVATESTING
-		std::cout << "Dissimilarity in GBoundedNumT<T>::[2]" << std::endl
-						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
-#endif /* GENEVATESTING */
-    		return false;
-    	}
-    	if(upperBoundary_ != gbnt_load->upperBoundary_) { // [3]
-#ifdef GENEVATESTING
-		std::cout << "Dissimilarity in GBoundedNumT<T>::[3]" << std::endl
-						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
-#endif /* GENEVATESTING */
-    		return false;
-    	}
-		if(internalValue_ != gbnt_load->internalValue_) { // [4]
-#ifdef GENEVATESTING
-		std::cout << "Dissimilarity in GBoundedNumT<T>::[4]" << std::endl
-						<< "with typeid(T).name() = " <<  typeid(T).name() << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
+		if(checkForDissimilarity("GBoundedNumT<T>", lowerBoundary_, gbnt_load->lowerBoundary_, limit, "lowerBoundary_", "gbnt_load->lowerBoundary_")) return false;
+		if(checkForDissimilarity("GBoundedNumT<T>", upperBoundary_, gbnt_load->upperBoundary_, limit, "upperBoundary_", "gbnt_load->upperBoundary_")) return false;
+		if(checkForDissimilarity("GBoundedNumT<T>", internalValue_, gbnt_load->internalValue_, limit, "internalValue_", "gbnt_load->internalValue_")) return false;
 
 		return true;
 	}

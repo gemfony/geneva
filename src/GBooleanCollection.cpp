@@ -178,10 +178,13 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are equal
    */
   bool GBooleanCollection::isEqualTo(const GObject& cp) const {
-		// Check that we are indeed dealing with a GBooleanCollection reference
-		const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
+	  // Check that we are indeed dealing with a GBooleanCollection reference
+	  const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
 
+	  // Check our paren class'es data
 	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isEqualTo(*gbc_load)) return false;
+
+	  // No local data, so we can leave
 	  return true;
   }
 
@@ -195,10 +198,13 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are similar to each other
    */
   bool GBooleanCollection::isSimilarTo(const GObject& cp, const double& limit) const {
-		// Check that we are indeed dealing with a GBooleanCollection reference
-		const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
+	  // Check that we are indeed dealing with a GBooleanCollection reference
+	  const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
 
+	  // Check our paren class'es data
 	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isSimilarTo(*gbc_load, limit)) return false;
+
+	  // No local data, so we can leave
 	  return true;
   }
 

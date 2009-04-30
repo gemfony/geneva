@@ -116,7 +116,7 @@ bool  GObject::operator!=(const GObject& cp) const {
  * @return A boolean indicating whether both objects are equal
  */
 bool  GObject::isEqualTo(const GObject& cp) const {
-	if(name_ != cp.name_) return false;
+	if(GObject::checkForInequality("GObject", name_, cp.name_,"name_", "cp.name_")) return false;
 	return true;
 }
 
@@ -144,8 +144,9 @@ bool  GObject::isNotEqualTo(const GObject& cp) const {
  * @param limit A double indicating the level of acceptable deviation of two double values
  * @return A boolean indicating whether both objects are similar or not
  */
-bool  GObject::isSimilarTo(const GObject& cp, const double&) const {
-	return GObject::isEqualTo(cp);
+bool  GObject::isSimilarTo(const GObject& cp, const double& limit) const {
+	if(GObject::checkForDissimilarity("GObject", name_, cp.name_,limit, "name_", "cp.name_")) return false;
+	return true;
 }
 
 /**************************************************************************************************/
@@ -306,6 +307,39 @@ std::string GObject::name() const  {
  */
 void GObject::setName(const std::string& geneva_object_name)  {
 	name_ = geneva_object_name;
+}
+
+/**************************************************************************************************/
+/**
+ * Specialization for typeof(basic_type) == typeof(double).
+ *
+ * @param className The name of the calling class
+ * @param x The first parameter to be compared
+ * @param y The second parameter to be compared
+ * @param limit The acceptable deviation of x and y
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @return A boolean indicating whether any differences were found
+ */
+template <>
+bool GObject::checkForDissimilarity<double>(const std::string& className,
+															                       const double& x,
+															                       const double& y,
+															                       const double& limit,
+															                       const std::string& x_name,
+															                       const std::string& y_name) const
+{
+	if(fabs(x-y) <= fabs(limit)) return false;
+	else {
+#ifdef GENEVATESTING
+		std::cout << "//-----------------------------------------------------------------" << std::endl
+			            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
+			            << x_name << " (type " << typeid(x).name() << ") = " << x << std::endl
+			            << y_name << " (type " << typeid(y).name() << ") = " << y << std::endl;
+			            << "limit = " << limit << std::endl;
+#endif /* GENEVATESTING */
+		return true;
+	}
 }
 
 /**************************************************************************************************/

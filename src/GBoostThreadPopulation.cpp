@@ -144,7 +144,7 @@ bool GBoostThreadPopulation::isEqualTo(const GObject& cp) const {
 	if(!GBasePopulation::isEqualTo(*gbtp_load)) return  false;
 
 	// Then we take care of the local data
-	if(nThreads_ != gbtp_load->nThreads_) return false;
+	if(checkForInequality("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_,"nThreads_", "gbtp_load->nThreads_")) return false;
 
 	return true;
 }
@@ -164,9 +164,8 @@ bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit)
 	// First take care of our parent class
 	if(!GBasePopulation::isSimilarTo(*gbtp_load, limit)) return  false;
 
-	// Then we take care of the local data. As there are no double values,
-	// we just ask for equality.
-	if(nThreads_ != gbtp_load->nThreads_) return false;
+	// Then we take care of the local data
+	if(checkForDissimilarity("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_, limit, "nThreads_", "gbtp_load->nThreads_")) return false;
 
 	return true;
 }

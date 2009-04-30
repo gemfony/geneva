@@ -7,4 +7,6 @@ OpenBabel library. Note that this particular program is covered by the GPL2 (in 
 other parts of Geneva) in order to comply with OpenBabel's license requirements. For further
 information on OpenBabel see http://www.openbabel.org . Note that this program is not currently included
 in the build process, as the OpenBabel libraries would be needed (available from the above URL).
- 
+
+GIndividualCreator:
+A small program that creates .hpp and .cpp files for a new individual, as needed by the user

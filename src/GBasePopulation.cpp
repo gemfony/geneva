@@ -183,21 +183,21 @@ bool GBasePopulation::isEqualTo(const GObject& cp) const {
 	if(!GIndividualSet::isEqualTo( *gbp_load)) return  false;
 
 	// Then we take care of the local data
-	if(nParents_ !=  gbp_load->nParents_) return false;
-	if(popSize_ != gbp_load->popSize_) return false;
-	if(generation_ != gbp_load->generation_) return false;
-	if(maxGeneration_ != gbp_load->maxGeneration_) return false;
-	if(reportGeneration_ != gbp_load->reportGeneration_) return false;
-	if(recombinationMethod_ != gbp_load->recombinationMethod_) return false;
-	if(muplusnu_ != gbp_load->muplusnu_) return false;
-	if(maximize_ != gbp_load->maximize_) return false;
-	if(id_ != gbp_load->id_) return false;
-	if(firstId_ != gbp_load->firstId_) return false;
-	if(maxDuration_ != gbp_load->maxDuration_) return false;
-	// if(startTime_ != gbp_load->startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
-	if(defaultNChildren_ != gbp_load->defaultNChildren_) return false;
-	if(qualityThreshold_ != gbp_load->qualityThreshold_) return false;
-	if(hasQualityThreshold_ != gbp_load->hasQualityThreshold_) return false;
+	if(checkForInequality("GBasePopulation", nParents_, gbp_load->nParents_,"nParents_", "gbp_load->nParents_")) return false;
+	if(checkForInequality("GBasePopulation", popSize_, gbp_load->popSize_,"popSize_", "gbp_load->popSize_")) return false;
+	if(checkForInequality("GBasePopulation", generation_, gbp_load->generation_,"generation_", "gbp_load->generation_")) return false;
+	if(checkForInequality("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_,"maxGeneration_", "gbp_load->maxGeneration_")) return false;
+	if(checkForInequality("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_,"reportGeneration_", "gbp_load->reportGeneration_")) return false;
+	if(checkForInequality("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_")) return false;
+	if(checkForInequality("GBasePopulation", muplusnu_, gbp_load->muplusnu_,"muplusnu_", "gbp_load->muplusnu_")) return false;
+	if(checkForInequality("GBasePopulation", maximize_, gbp_load->maximize_,"maximize_", "gbp_load->maximize_")) return false;
+	if(checkForInequality("GBasePopulation", id_, gbp_load->id_,"id_", "gbp_load->id_")) return false;
+	if(checkForInequality("GBasePopulation", firstId_, gbp_load->firstId_,"firstId_", "gbp_load->firstId_")) return false;
+	if(checkForInequality("GBasePopulation", maxDuration_, gbp_load->maxDuration_,"maxDuration_", "gbp_load->maxDuration_")) return false;
+	// startTime_ Not compared, as it is used for temporary storage only.
+	if(checkForInequality("GExternalEvaluator", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_")) return false;
+	if(checkForInequality("GExternalEvaluator", qualityThreshold_, gbp_load->qualityThreshold_,"qualityThreshold_", "gbp_load->qualityThreshold_")) return false;
+	if(checkForInequality("GExternalEvaluator", hasQualityThreshold_, gbp_load->hasQualityThreshold_,"hasQualityThreshold_", "gbp_load->hasQualityThreshold_")) return false;
 
 	return true;
 }
@@ -217,23 +217,22 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit) const 
 	// First take care of our parent class
 	if(!GIndividualSet::isSimilarTo(*gbp_load, limit)) return  false;
 
-	// Then we take care of the local data. As there are no double values,
-	// we just ask for equality.
-	if(nParents_ != gbp_load->nParents_) return false;
-	if(popSize_ != gbp_load->popSize_) return false;
-	if(generation_ != gbp_load->generation_) return false;
-	if(maxGeneration_ != gbp_load->maxGeneration_) return false;
-	if(reportGeneration_ != gbp_load->reportGeneration_) return false;
-	if(recombinationMethod_ != gbp_load->recombinationMethod_) return false;
-	if(muplusnu_ != gbp_load->muplusnu_) return false;
-	if(maximize_ != gbp_load->maximize_) return false;
-	if(id_ != gbp_load->id_) return false;
-	if(firstId_ != gbp_load->firstId_) return false;
-	if(maxDuration_ != gbp_load->maxDuration_) return false;
-	// if(startTime_ != gbp_load->startTime_) return false; // Not compared, as it is filled new for every optimization run. Temporary storage only.
-	if(defaultNChildren_ != gbp_load->defaultNChildren_) return false;
-	if(fabs(qualityThreshold_ - gbp_load->qualityThreshold_) > fabs(limit)) return false; // A real similarity check
-	if(hasQualityThreshold_ != gbp_load->hasQualityThreshold_) return false;
+	// Then we take care of the local data
+	if(checkForDissimilarity("GBasePopulation", nParents_, gbp_load->nParents_, limit, "nParents_", "gbp_load->nParents_")) return false;
+	if(checkForDissimilarity("GBasePopulation", popSize_, gbp_load->popSize_, limit, "popSize_", "gbp_load->popSize_")) return false;
+	if(checkForDissimilarity("GBasePopulation", generation_, gbp_load->generation_, limit, "generation_", "gbp_load->generation_")) return false;
+	if(checkForDissimilarity("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_, limit, "maxGeneration_", "gbp_load->maxGeneration_")) return false;
+	if(checkForDissimilarity("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_, limit, "reportGeneration_", "gbp_load->reportGeneration_")) return false;
+	if(checkForDissimilarity("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_")) return false;
+	if(checkForDissimilarity("GBasePopulation", muplusnu_, gbp_load->muplusnu_, limit, "muplusnu_", "gbp_load->muplusnu_")) return false;
+	if(checkForDissimilarity("GBasePopulation", maximize_, gbp_load->maximize_, limit, "maximize_", "gbp_load->maximize_")) return false;
+	if(checkForDissimilarity("GBasePopulation", id_, gbp_load->id_, limit, "id_", "gbp_load->id_")) return false;
+	if(checkForDissimilarity("GBasePopulation", firstId_, gbp_load->firstId_, limit, "firstId_", "gbp_load->firstId_")) return false;
+	if(checkForDissimilarity("GBasePopulation", maxDuration_, gbp_load->maxDuration_, limit, "maxDuration_", "gbp_load->maxDuration_")) return false;
+	// startTime_ Not compared, as it is used for temporary storage only.
+	if(checkForDissimilarity("GExternalEvaluator", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_")) return false;
+	if(checkForDissimilarity("GExternalEvaluator", qualityThreshold_, gbp_load->qualityThreshold_, limit, "qualityThreshold_", "gbp_load->qualityThreshold_")) return false;
+	if(checkForDissimilarity("GExternalEvaluator", hasQualityThreshold_, gbp_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_")) return false;
 
 	return true;
 }

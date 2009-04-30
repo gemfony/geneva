@@ -25,6 +25,7 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
+#include <cmath>
 #include <typeinfo>
 
 // Boost header files go here
@@ -141,7 +142,7 @@ public:
 	 * @return A converted clone of this object
 	 */
 	template <typename clone_type>
-	inline clone_type* clone_ptr_cast() const {
+	clone_type* clone_ptr_cast() const {
 #ifdef DEBUG
 		clone_type *result = dynamic_cast<clone_type *> (this->clone());
 
@@ -170,7 +171,7 @@ public:
 	 * @return A converted clone of this object, wrapped into a boost::shared_ptr
 	 */
 	template <typename clone_type>
-	inline boost::shared_ptr<clone_type> clone_bptr_cast() const {
+	boost::shared_ptr<clone_type> clone_bptr_cast() const {
 		// Get a clone of this object and wrap it in a boost::shared_ptr<GObject>
 		boost::shared_ptr<GObject> p_base(this->clone());
 
@@ -215,7 +216,7 @@ protected:
 	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
 	 */
 	template <typename load_type>
-	inline const load_type* conversion_cast(const GObject *load_ptr, const load_type* This) const {
+	const load_type* conversion_cast(const GObject *load_ptr, const load_type* This) const {
 #ifdef DEBUG
 		const load_type *result = dynamic_cast<const load_type *> (load_ptr);
 
@@ -245,14 +246,87 @@ protected:
 	}
 
 	/**************************************************************************************************/
+	/**
+	 * Checks for inequality of the two arguments, which are assumed to be basic types. This is
+	 * needed by the isEqualTo function, so we have a standardized way of emitting information
+	 * on deviations. Note: If you want specific behavior for a particular type then you can always
+	 * create a specialization of this function.
+	 *
+	 * @param className The name of the calling class
+	 * @param x The first parameter to be compared
+	 * @param y The second parameter to be compared
+	 * @param x_name The name of the first parameter
+	 * @param y_name The name of the second parameter
+	 * @return A boolean indicating whether any differences were found
+	 */
+	template <typename basic_type>
+	bool checkForInequality(const std::string& className,
+										          const basic_type& x,
+										          const basic_type& y,
+										          const std::string& x_name,
+										          const std::string& y_name) const
+	{
+		if(x==y) return false;
+		else {
+#ifdef GENEVATESTING
+			std::cout << "//-----------------------------------------------------------------" << std::endl
+				            << "Found inequality in object of type \"" << className << "\":" << std::endl
+				            << x_name << " (type " << typeid(x).name() << ") = " << x << std::endl
+				            << y_name << " (type " << typeid(y).name() << ") = " << y << std::endl;
+#endif /* GENEVATESTING */
+			return true;
+		}
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * Checks for similarity of the two arguments, which are assumed to be basic types. This is
+	 * needed by the isSimilarTo function, so we have a standardized way of emitting information on
+	 * deviations.  By default all types are just checked for equality. A specialization exists for
+	 * typeof(basic_type) == typeof(double). Note that: If you want specific behaviour for any other
+	 * type then you can always create a specialization of this function.
+	 *
+	 * @param className The name of the calling class
+	 * @param x The first parameter to be compared
+	 * @param y The second parameter to be compared
+	 * @param limit The acceptable deviation of x and y
+	 * @param x_name The name of the first parameter
+	 * @param y_name The name of the second parameter
+	 * @return A boolean indicating whether any differences were found
+	 */
+	template <typename basic_type>
+	bool checkForDissimilarity(const std::string& className,
+													  const basic_type& x,
+													  const basic_type& y,
+													  const double& limit,
+													  const std::string& x_name,
+													  const std::string& y_name) const
+	{
+		if(x==y) return false;
+		else {
+#ifdef GENEVATESTING
+			std::cout << "//-----------------------------------------------------------------" << std::endl
+				            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
+				            << x_name << " (type " << typeid(x).name() << ") = " << x << std::endl
+				            << y_name << " (type " << typeid(y).name() << ") = " << y << std::endl;
+#endif /* GENEVATESTING */
+			return true;
+		}
+	}
+
+	/**************************************************************************************************/
 
 private:
 	std::string name_; ///< Allows to assign a name to this object
 };
 
+/*
+ * Specializations of some template functions
+ */
+template <> bool GObject::checkForDissimilarity<double>(const std::string&, const double&,	const double&, const double&, const std::string&, const std::string&) const;
+
 } /* namespace GenEvA */
 } /* namespace Gem */
-
 
 /**************************************************************************************************/
 /**
