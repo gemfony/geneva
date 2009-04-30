@@ -238,6 +238,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, T, te
 	T findItem = getFindItem<T>();
 	// Make sure both items are indeed different
 	BOOST_CHECK(templItem != findItem);
+
+	// Run the actual vector tests
 	stdvectorinterfacetestSP(gptct, templItem, findItem);
 
 	// vector functionality of the collection has now been thoroughly tested.
@@ -245,8 +247,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, T, te
 	BOOST_CHECK(!gptct.empty());
 
 	// Create two copies of the object
-	GParameterTCollectionT<T> gptct_cp1, gptct_cp2;
-	gptct_cp1 = gptct_cp2 = gptct;
+	GParameterTCollectionT<T> gptct_cp1, gptct_cp2, gptct_cp4;
+	gptct_cp1 = gptct_cp2 = gptct_cp4 = gptct;
 
 	// Check that they are indeed identical
 	BOOST_CHECK(gptct_cp1 == gptct);
@@ -256,6 +258,22 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, T, te
 	BOOST_REQUIRE_NO_THROW(gptct_cp2.mutate());
 	BOOST_CHECK(gptct_cp2 != gptct);
 	BOOST_CHECK(gptct_cp2 != gptct_cp1);
+
+	// Assign for later usage
+	gptct_cp4=gptct_cp2;
+
+	// Test copy construction
+	GParameterTCollectionT<T> gptct_cc(gptct);
+	BOOST_CHECK(gptct_cc.isEqualTo(gptct));
+	BOOST_CHECK(gptct_cc.isNotEqualTo(gptct_cp2));
+
+	// Test cloning and loading
+	GObject *gptct_clone_ptr = gptct.clone();
+	BOOST_CHECK_NO_THROW(gptct_cp4.load(gptct_clone_ptr));
+	delete gptct_clone_ptr;
+	BOOST_CHECK(gptct_cp4 == gptct);
+	BOOST_CHECK(gptct_cp4 == gptct_cp1);
+	BOOST_CHECK(gptct_cp4 != gptct_cp2);
 
 	// Test serialization and loading in different serialization modes
 	{ // plain text format

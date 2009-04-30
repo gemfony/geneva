@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE( GBoundedDouble_no_failure_expected )
 	BOOST_CHECK_NO_THROW(gbd4 = gbd3.clone());
 	GBoundedDouble gbd5;
 	BOOST_CHECK_NO_THROW(gbd5.load(gbd4));
-	BOOST_CHECK(gbd5 == gbd3);
 	delete gbd4;
+	BOOST_CHECK(gbd5 == gbd3);
 
 	// Value assignment
 	gbd5=gbd1;
