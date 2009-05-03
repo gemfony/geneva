@@ -165,8 +165,7 @@ public:
 
 	/****************************************************************************/
     /**
-     * Checks similarity of this object with another. This function has a
-     * specialization for typeof(T) == typeof(double).
+     * Checks similarity of this object with another.
      *
      * @param cp A constant reference to another GBoundedNumT<T> object
      * @param limit The acceptable different between two doubles
@@ -438,7 +437,6 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double&);
 template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t&);
 template <> GBoundedNumT<double>::GBoundedNumT(const double&, const double&);
 template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&);
-template <> bool GBoundedNumT<double>::isSimilarTo(const GObject&, const double&) const;
 template <> void GBoundedNumT<double>::resetBoundaries();
 template <> void GBoundedNumT<boost::int32_t>::resetBoundaries();
 

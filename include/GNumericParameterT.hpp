@@ -76,7 +76,9 @@ const std::streamsize DEFAULTPRECISION=std::numeric_limits< double >::digits10;
 /**
  * This class allows to store a numeric parameter plus possible boundaries (both
  * included in the allowed value range). If the upper- and lower boundary are both
- * set to equal values, then no boundaries are assumed to be present.
+ * set to equal values, then no boundaries are assumed to be present. The class is
+ * used in conjunction with the communication with external programs used for
+ * evaluation.
  */
 template <typename T>
 class GNumericParameterT {

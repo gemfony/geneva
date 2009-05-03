@@ -156,49 +156,6 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& low
 
 /***********************************************************************************************/
 /**
- * This function works differently if double is the base type of GBoundedNumT<T>.
- *
- * @param cp A copy of another GBoundedNumT<double>, camouflaged as a GObject
- * @param limit The allowed deviation of doubles between cp and the current object
- * @return A boolean indiciating similarity or dissimilarity
- */
-template <> bool GBoundedNumT<double>::isSimilarTo(const GObject& cp, const double& limit) const {
-	// Check that we are indeed dealing with a GBoundedNumT<T> reference
-	const GBoundedNumT<double> *gbnt_load = GObject::conversion_cast(&cp,  this);
-
-	// Check the parent class'es similarity
-	if(!GParameterT<double>::isSimilarTo(*gbnt_load, limit)) { // [1]
-#ifdef GENEVATESTING
-	std::cout << "Dissimilarity in GBoundedNumT<double>::[1]" << std::endl;
-#endif /* GENEVATESTING */
-		return false;
-	}
-
-	// Check our local data
-	if(fabs(lowerBoundary_  - gbnt_load->lowerBoundary_) > fabs(limit)) { // [2]
-#ifdef GENEVATESTING
-	std::cout << "Dissimilarity in GBoundedNumT<double>::[2]" << std::endl;
-#endif /* GENEVATESTING */
-		return false;
-	}
-	if(fabs(upperBoundary_ - gbnt_load->upperBoundary_) > fabs(limit)) { // [3]
-#ifdef GENEVATESTING
-	std::cout << "Dissimilarity in GBoundedNumT<double>::[3]" << std::endl;
-#endif /* GENEVATESTING */
-		return false;
-	}
-	if(fabs(internalValue_ - gbnt_load->internalValue_) > fabs(limit)) { // [4]
-#ifdef GENEVATESTING
-	std::cout << "Dissimilarity in GBoundedNumT<double>::[4]" << std::endl;
-#endif /* GENEVATESTING */
-		return false;
-	}
-
-	return true;
-}
-
-/***********************************************************************************************/
-/**
  * Resets the boundaries to the maximum allowed value. Specialization for
  * typeof(T) == typeof(double).
  */

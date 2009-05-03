@@ -129,7 +129,7 @@ public:
 	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
 	 */
 	bool checkIsEqualTo(const GStdSimpleVectorInterfaceT<T>& cp) const {
-		return data==cp.data;
+		return this->checkIsEqualTo(cp.data);
 	}
 
 	/*****************************************************************************/
@@ -137,7 +137,34 @@ public:
 	 * Checks for equality with a std::vector<T> object
 	 */
 	bool checkIsEqualTo(const std::vector<T>& cp_data) const{
-		return data == cp_data;
+		if(data==cp_data) return true;
+		else {
+#ifdef GENEVATESTING
+			// Check sizes
+			if(data.size() != cp_data.size()) {
+				std::cout << "//-----------------------------------------------------------------" << std::endl
+					            << "Found inequality in object of type GStdSimpleVectorInterfaceT<T>:" << std::endl
+					            <<  "data (type std::vector<" << typeid(T).name() <<">): Size = " << data.size() << std::endl
+					            << "cp_data (type std::vector<" << typeid(T).name() <<">): Size = " << cp_data.size() << std::endl;
+
+				return false;
+			}
+
+			// Loop over all entries and find out which is wrong
+			for(std::size_t i=0; i<data.size(); i++) {
+				if(data.at(i) != cp_data.at(i)) {
+					std::cout << "//-----------------------------------------------------------------" << std::endl
+						            << "Found inequality in object of type GStdSimpleVectorInterfaceT<T>:" << std::endl
+						            <<"data[" << i << "] (type std::vector<" << typeid(T).name() <<">) " << data.at(i) << std::endl
+						            << "cp_data[" << i << "] (type std::vector<" << typeid(T).name() <<">) " << cp_data.at(i) << std::endl;
+
+					return false;
+				}
+			}
+#endif /* GENEVATESTING  */
+
+			return false;
+		}
 	}
 
 	/*****************************************************************************/
@@ -154,7 +181,32 @@ public:
 	 * version of this function exists for typeof(T) == typeof(double)
 	 */
 	bool checkIsSimilarTo(const std::vector<T>& cp_data, const double&) const {
+#ifdef GENEVATESTING
+		// Check sizes
+		if(data.size() != cp_data.size()) {
+			std::cout << "//-----------------------------------------------------------------" << std::endl
+				            << "Found dissimilarity in object of type GStdSimpleVectorInterfaceT<T>:" << std::endl
+				            <<  "data (type std::vector<" << typeid(T).name() <<">): Size = " << data.size() << std::endl
+				            << "cp_data (type std::vector<" << typeid(T).name() <<">): Size = " << cp_data.size() << std::endl;
+
+			return false;
+		}
+
+		// Loop over all entries and find out which is wrong
+		for(std::size_t i=0; i<data.size(); i++) {
+			if(data.at(i) != cp_data.at(i)) {
+				std::cout << "//-----------------------------------------------------------------" << std::endl
+					            << "Found dissimilarity in object of type GStdSimpleVectorInterfaceT<T>:" << std::endl
+					            <<"data[" << i << "] (type std::vector<" << typeid(T).name() <<">) " << data.at(i) << std::endl
+					            << "cp_data[" << i << "] (type std::vector<" << typeid(T).name() <<">) " << cp_data.at(i) << std::endl;
+
+				return false;
+			}
+		}
+#else
 		if(	data != cp_data) return false;
+#endif  /* GENEVATESTING  */
+
 		return true;
 	}
 
@@ -163,7 +215,7 @@ public:
 	 * operator==
 	 */
 	bool operator==(const std::vector<T>& cp_data) const {
-		return cp_data == data;
+		return this->checkIsEqualTo(cp_data);
 	}
 
 	/*****************************************************************************/

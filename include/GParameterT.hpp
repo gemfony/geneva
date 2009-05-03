@@ -167,15 +167,14 @@ public:
 		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpt_load)) return false;
 
 		// Check the local data
-		if(val_ != gpt_load->val_) return false;
+		if(checkForInequality("GParameterT", val_, gpt_load->val_,"val_", "gpt_load->val_")) return false;
 
 		return true;
 	}
 
 	/*******************************************************************************************/
 	/**
-	 * Checks for similarity with another GParameterT<T> object.  As we do not know the
-	 * type of T, we need to create a specialization of this function for typeof(T)==double
+	 * Checks for similarity with another GParameterT<T> object.
 	 *
 	 * @param  cp A constant reference to another GParameterT<T> object
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
@@ -189,7 +188,7 @@ public:
 		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpt_load, limit)) return false;
 
 		// Check the local data
-		if(val_ != gpt_load->val_) return false;
+		if(checkForDissimilarity("GParameterT", val_, gpt_load->val_,limit, "val_", "gpt_load->val_")) return false;
 
 		return true;
 	}
@@ -246,8 +245,6 @@ private:
 
 /*********************************************************************************************/
 // Declaration of specializations for various types
-/** @brief Checks similarity of this object, if typeof(T) == typeof(double) */
-template<> bool GParameterT<double>::isSimilarTo(const GObject& cp, const double& limit) const;
 /** @brief A default constructor for bool, needed as it appears useful to initialize the value with a printable character */
 template <> GParameterT<char>::GParameterT();
 

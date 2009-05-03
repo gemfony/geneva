@@ -29,15 +29,33 @@ namespace GenEvA {
  * Specialization fo typeof(T) == typof(double).
  */
 template <> bool GStdSimpleVectorInterfaceT<double>::checkIsSimilarTo(const std::vector<double>& cp_data, const double& limit) const {
-	// Check sizes
-	if(data.size() != cp_data.size()) return false;
+#ifdef GENEVATESTING
+		// Check sizes
+		if(data.size() != cp_data.size()) {
+			std::cout << "//-----------------------------------------------------------------" << std::endl
+				            << "Found dissimilarity in object of type GStdSimpleVectorInterfaceT<double>:" << std::endl
+				            <<  "data (type std::vector<double>): Size = " << data.size() << std::endl
+				            << "cp_data (type std::vector<double>): Size = " << cp_data.size() << std::endl;
 
-	std::vector<double>::const_iterator cp_it;
-	std::vector<double>::const_iterator it;
+			return false;
+		}
 
-	for(it=data.begin(), cp_it=cp_data.begin(); it!=data.end(), cp_it!=cp_data.end(); ++it, ++cp_it)	if(fabs(*it-*cp_it) > fabs(limit)) return false;
+		// Loop over all entries and find out which is wrong
+		for(std::size_t i=0; i<data.size(); i++) {
+			if(fabs(data.at(i) - cp_data.at(i)) > fabs(limit)) {
+				std::cout << "//-----------------------------------------------------------------" << std::endl
+					            << "Found dissimilarity in object of type GStdSimpleVectorInterfaceT<double>:" << std::endl
+					            <<"data[" << i << "] (type std::vector<double>) " << data.at(i) << std::endl
+					            << "cp_data[" << i << "] (type std::vector<double>) " << cp_data.at(i) << std::endl;
 
-	return true;
+				return false;
+			}
+		}
+#else
+		if(	data != cp_data) return false;
+#endif  /* GENEVATESTING  */
+
+		return true;
 }
 
 /***********************************************************************************************/

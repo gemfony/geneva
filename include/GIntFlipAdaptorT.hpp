@@ -230,19 +230,11 @@ public:
 		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
 		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
 
-		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit)) { // [1]
-#ifdef GENEVATESTING
-			std::cout << " Dissimilarity GIntFlipAdaptorT::[1]" << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
+		// First check our parent class
+		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit))  return false;
 
-		if(!mutProb_.isSimilarTo(gifat_load->mutProb_, limit)) { // [2]
-#ifdef GENEVATESTING
-			std::cout << "Dissimilarity in GIntFlipAdaptorT::[2]" << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
+		// Then our local data
+		if(!mutProb_.isSimilarTo(gifat_load->mutProb_, limit)) return false;
 
 		return true;
 	}

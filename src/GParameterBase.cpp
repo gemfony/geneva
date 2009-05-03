@@ -112,6 +112,7 @@ bool GParameterBase::isEqualTo(const GObject& cp) const {
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GParameterBase *gpb_load = GObject::conversion_cast(&cp,  this);
 
+	// Check our parent class
 	if(!GObject::isEqualTo(*gpb_load)) return  false;
 
 	// No local data
@@ -132,6 +133,7 @@ bool GParameterBase::isSimilarTo(const GObject& cp, const double& limit) const {
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GParameterBase *gpb_load = GObject::conversion_cast(&cp,  this);
 
+	// Check our parent class
 	if(!GObject::isSimilarTo(*gpb_load, limit)) 	return false;
 
 	// No local data

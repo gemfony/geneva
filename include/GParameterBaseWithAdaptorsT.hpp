@@ -148,34 +148,10 @@ public:
 		const GParameterBaseWithAdaptorsT<T> *gpbwa_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterBase::isEqualTo(*gpbwa_load)) { // [1]
-#ifdef GENEVATESTING
-			std::cout << "Inequality in GParameterBaseWithAdaptorsT::[1]" << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
+		if(!GParameterBase::isEqualTo(*gpbwa_load)) return false;
 
-		// Check sizes of the local containers
-		if(adaptors_.size() != gpbwa_load->adaptors_.size()) { // [2]
-#ifdef GENEVATESTING
-			std::cout << "Inequality in GParameterBaseWithAdaptorsT::[2]" << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
-
-		// Then check individual items
-		typename GATvec::const_iterator it;
-		typename GATvec::const_iterator cp_it;
-		for(it=adaptors_.begin(), cp_it=gpbwa_load->adaptors_.begin();
-			  it!=adaptors_.end(), cp_it!=gpbwa_load->adaptors_.end(); ++it, ++cp_it)
-		{
-			if(!(*it)->isEqualTo(**cp_it)) { // [3]
-#ifdef GENEVATESTING
-			std::cout << "Inequality in GParameterBaseWithAdaptorsT::[3]" << std::endl;
-#endif /* GENEVATESTING */
-				return false;
-			}
-		}
+		// Then check the adaptor vector
+		if(checkForInequality("GParameterBaseWithAdaptorsT", adaptors_, gpbwa_load->adaptors_,"adaptors_", "gpbwa_load->adaptors_")) return false;
 
 		return true;
 	}
@@ -193,35 +169,11 @@ public:
 		// and convert accordingly
 		const GParameterBaseWithAdaptorsT<T> *gpbwa_load = GObject::conversion_cast(&cp,  this);
 
-		// Check similarity of the parent class
-		if(!GParameterBase::isSimilarTo(*gpbwa_load, limit)) { // [1]
-#ifdef GENEVATESTING
-			std::cout << "Dissimilarity in GParameterBaseWithAdaptorsT::[1]" << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
+		// Check equality of the parent class
+		if(!GParameterBase::isSimilarTo(*gpbwa_load, limit)) return false;
 
-		// Check sizes of local containers
-		if(adaptors_.size() != gpbwa_load->adaptors_.size()) { // [2]
-#ifdef GENEVATESTING
-			std::cout << "Dissimilarity in GParameterBaseWithAdaptorsT::[2]" << std::endl;
-#endif /* GENEVATESTING */
-			return false;
-		}
-
-		// Then check individual items
-		typename GATvec::const_iterator it;
-		typename GATvec::const_iterator cp_it;
-		for(it=adaptors_.begin(), cp_it=gpbwa_load->adaptors_.begin();
-			  it!=adaptors_.end(), cp_it!=gpbwa_load->adaptors_.end(); ++it, ++cp_it)
-		{
-			if(!(*it)->isSimilarTo(**cp_it,limit)) { // [3]
-#ifdef GENEVATESTING
-			std::cout << "Dissimilarity in GParameterBaseWithAdaptorsT::[3]" << std::endl;
-#endif /* GENEVATESTING */
-				return false;
-			}
-		}
+		// Then check the adaptor vector
+		if(checkForDissimilarity("GParameterBaseWithAdaptorsT", adaptors_, gpbwa_load->adaptors_, limit, "adaptors_", "gpbwa_load->adaptors_")) return false;
 
 		return true;
 	}
