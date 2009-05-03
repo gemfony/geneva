@@ -120,7 +120,7 @@ public:
 	 * @param sigma The initial value for the sigma_ parameter
 	 * @param sigmaSigma The initial value for the sigmaSigma_ parameter
 	 * @param minSigma The minimal value allowed for sigma_
-	 * @param name The name assigned to this adaptor
+	 * @param maxSigma The maximal value allowed for sigma_
 	 */
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
