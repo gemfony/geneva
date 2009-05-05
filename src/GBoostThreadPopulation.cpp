@@ -115,7 +115,7 @@ GObject *GBoostThreadPopulation::clone() const  {
  * @return A boolean indicating whether both objects are equal
  */
 bool GBoostThreadPopulation::operator==(const GBoostThreadPopulation& cp) const {
-	return GBoostThreadPopulation::isEqualTo(cp);
+	return GBoostThreadPopulation::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /********************************************************************/
@@ -126,7 +126,7 @@ bool GBoostThreadPopulation::operator==(const GBoostThreadPopulation& cp) const 
  * @return A boolean indicating whether both objects are inequal
  */
 bool GBoostThreadPopulation::operator!=(const GBoostThreadPopulation& cp) const {
-	return !GBoostThreadPopulation::isEqualTo(cp);
+	return !GBoostThreadPopulation::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /********************************************************************/
@@ -136,15 +136,17 @@ bool GBoostThreadPopulation::operator!=(const GBoostThreadPopulation& cp) const 
  * @param  cp A constant reference to another GBoostThreadPopulation object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBoostThreadPopulation::isEqualTo(const GObject& cp) const {
+bool GBoostThreadPopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+   using namespace Gem::Util;
+
 	// Check that we are indeed dealing with a GIndividual reference
 	const GBoostThreadPopulation *gbtp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GBasePopulation::isEqualTo(*gbtp_load)) return  false;
+	if(!GBasePopulation::isEqualTo(*gbtp_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_,"nThreads_", "gbtp_load->nThreads_")) return false;
+	if(checkForInequality("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_,"nThreads_", "gbtp_load->nThreads_", expected)) return false;
 
 	return true;
 }
@@ -157,15 +159,17 @@ bool GBoostThreadPopulation::isEqualTo(const GObject& cp) const {
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit) const {
+bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+    using namespace Gem::Util;
+
 	// Check that we are indeed dealing with a GIndividual reference
 	const GBoostThreadPopulation *gbtp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GBasePopulation::isSimilarTo(*gbtp_load, limit)) return  false;
+	if(!GBasePopulation::isSimilarTo(*gbtp_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_, limit, "nThreads_", "gbtp_load->nThreads_")) return false;
+	if(checkForDissimilarity("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_, limit, "nThreads_", "gbtp_load->nThreads_", expected)) return false;
 
 	return true;
 }

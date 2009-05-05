@@ -116,7 +116,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GParameterCollectionT<T>& cp) const {
-		return GParameterCollectionT<T>::isEqualTo(cp);
+		return GParameterCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -127,7 +127,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParameterCollectionT<T>& cp) const {
-		return !Gem::GenEvA::GParameterCollectionT<T>::isEqualTo(cp);
+		return !Gem::GenEvA::GParameterCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -137,13 +137,15 @@ public:
 	 * @param  cp A constant reference to another GParameterCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool isEqualTo(const GObject& cp) const {
+	bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GParamterCollectionT reference
 		const GParameterCollectionT<T> *gpct_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpct_load)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsEqualTo(*gpct_load)) return false;
+		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpct_load, expected)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsEqualTo(*gpct_load, expected)) return false;
 
 		return true;
 	}
@@ -158,13 +160,15 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	bool isSimilarTo(const GObject& cp, const double& limit) const {
+	bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GParamterCollectionT reference
 		const GParameterCollectionT<T> *gpct_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent class
-		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpct_load, limit)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsSimilarTo(*gpct_load, limit)) return false;
+		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpct_load, limit, expected)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsSimilarTo(*gpct_load, limit, expected)) return false;
 
 		return true;
 	}

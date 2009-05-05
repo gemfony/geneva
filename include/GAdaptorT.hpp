@@ -180,7 +180,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GAdaptorT<T>& cp) const {
-		return GAdaptorT<T>::isEqualTo(cp);
+		return GAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/***********************************************************************************/
@@ -191,7 +191,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GAdaptorT<T>& cp) const {
-		return !GAdaptorT<T>::isEqualTo(cp);
+		return !GAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/***********************************************************************************/
@@ -201,16 +201,18 @@ public:
 	 * @param  cp A constant reference to another GAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GAdaptorT reference
 		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
 
 		// First check our parent class for equality
-		if(!GObject::isEqualTo(*gat_load)) return false;
+		if(!GObject::isEqualTo(*gat_load, expected)) return false;
 
 		// then our local data
-		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_")) return false;
-		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_")) return false;
+		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
+		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
 
 		return true;
 	}
@@ -223,16 +225,18 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GAdaptorT reference
 		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
 
 		// First check our parent class for dissimilarity
-		if(!GObject::isSimilarTo(*gat_load, limit)) return false;
+		if(!GObject::isSimilarTo(*gat_load, limit, expected)) return false;
 
 		// Then our local data
-		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_")) return false;
-		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_")) return false;
+		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
 
 		return true;
 	}

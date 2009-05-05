@@ -106,8 +106,7 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 	boost::shared_array<double> result; // empty
 
 	try {
-		g01_->pop_back(&result, boost::posix_time::milliseconds(
-				DEFAULTFACTORYPUTWAIT));
+		g01_->pop_back(&result, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
 	} catch (Gem::Util::gem_util_condition_time_out&) {
 		// nothing - our way of signaling a time out
 		// is to return an empty boost::shared_ptr
@@ -155,7 +154,7 @@ void GRandomFactory::startProducerThreads()  {
  *
  * @param seed The seed for our local random number generator
  */
-void GRandomFactory::producer01(const boost::uint32_t& seed)  {
+void GRandomFactory::producer01(boost::uint32_t seed)  {
 	try {
 		boost::lagged_fibonacci607 lf(seed);
 
@@ -178,8 +177,7 @@ void GRandomFactory::producer01(const boost::uint32_t& seed)  {
 #endif /* DEBUG */
 			}
 
-			// Get a local copy of g01_, so its object does not get deleted involuntarily
-			// when the singleton exits.
+			// Get a local copy of g01_, so its object does not get deleted involuntarily  when the singleton exits.
 			boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > > g01_cp = g01_;
 			if(g01_cp) g01_cp->push_front(p);
 		}

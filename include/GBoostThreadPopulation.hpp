@@ -97,9 +97,9 @@ public:
 	/** @brief Checks for inequality with another GBoostThreadPopulation object */
 	bool operator!=(const GBoostThreadPopulation&) const;
 	/** @brief Checks for equality with another GBoostThreadPopulation object */
-	virtual bool isEqualTo(const GObject&) const;
+	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for similarity with another GBoostThreadPopulation object */
-	virtual bool isSimilarTo(const GObject&, const double&) const;
+	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Overloaded from GBasePopulation::optimize() */
 	virtual void optimize();

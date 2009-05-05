@@ -78,7 +78,7 @@ namespace Gem
 		 * @return A boolean indicating whether both objects are equal
 		 */
 		bool GParameterSet::operator==(const GParameterSet& cp) const {
-			return GParameterSet::isEqualTo(cp);
+			return GParameterSet::isEqualTo(cp, boost::logic::indeterminate);
 		}
 
 		/**********************************************************************************/
@@ -89,7 +89,7 @@ namespace Gem
 		 * @return A boolean indicating whether both objects are inequal
 		 */
 		bool GParameterSet::operator!=(const GParameterSet& cp) const {
-			return !GParameterSet::isEqualTo(cp);
+			return !GParameterSet::isEqualTo(cp, boost::logic::indeterminate);
 		}
 
 		/**********************************************************************************/
@@ -100,12 +100,14 @@ namespace Gem
 		 * @param  cp A constant reference to another GParameterSet object
 		 * @return A boolean indicating whether both objects are equal
 		 */
-		bool GParameterSet::isEqualTo(const GObject& cp) const {
+		bool GParameterSet::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+		    using namespace Gem::Util;
+
 			// Check that we are indeed dealing with a GIndividual reference
 			const GParameterSet *gps_load = GObject::conversion_cast(&cp,  this);
 
 			// Check our parent class
-			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isEqualTo(*gps_load)) return  false;
+			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isEqualTo(*gps_load, expected)) return  false;
 			return true;
 		}
 
@@ -118,12 +120,14 @@ namespace Gem
 		 * @param limit A double value specifying the acceptable level of differences of floating point values
 		 * @return A boolean indicating whether both objects are similar to each other
 		 */
-		bool GParameterSet::isSimilarTo(const GObject& cp, const double& limit) const {
+		bool GParameterSet::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+		    using namespace Gem::Util;
+
 			// Check that we are indeed dealing with a GIndividual reference
 			const GParameterSet *gps_load = GObject::conversion_cast(&cp,  this);
 
 			// Check our parent class
-			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isSimilarTo(*gps_load, limit)) return  false;
+			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isSimilarTo(*gps_load, limit, expected)) return  false;
 			return true;
 		}
 

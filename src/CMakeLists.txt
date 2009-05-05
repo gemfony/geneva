@@ -31,6 +31,7 @@ SET ( GENEVASOURCES
 	GDoubleObjectCollection
 	GDoubleParameter
 	GGaussAdaptorT
+	GHelperFunctionsT
 	GIndividual
 	GIndividualSet
 	GInt32
@@ -53,7 +54,6 @@ SET ( GENEVASOURCES
 	GRandom
 	GRandomFactory
 	GSerializationHelperFunctions
-	GStdSimpleVectorInterfaceT
 	GThreadGroup
 )
 

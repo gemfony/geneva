@@ -126,7 +126,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GNumCollectionT<T>& cp) const {
-		return GNumCollectionT<T>::isEqualTo(cp);
+		return GNumCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/******************************************************************/
@@ -137,7 +137,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GNumCollectionT<T>& cp) const {
-		return !GNumCollectionT<T>::isEqualTo(cp);
+		return !GNumCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/******************************************************************/
@@ -148,12 +148,14 @@ public:
 	 * @param  cp A constant reference to another GNumCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GNumCollectionT reference
 		const GNumCollectionT<T> *gnct_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterCollectionT<T>::isEqualTo(*gnct_load)) return false;
+		if(!GParameterCollectionT<T>::isEqualTo(*gnct_load, expected)) return false;
 
 		// No local data
 
@@ -169,12 +171,14 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GNumCollectionT reference
 		const GNumCollectionT<T> *gnct_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent class
-		if(!GParameterCollectionT<T>::isSimilarTo(*gnct_load, limit)) return false;
+		if(!GParameterCollectionT<T>::isSimilarTo(*gnct_load, limit, expected)) return false;
 
 		// No local data
 

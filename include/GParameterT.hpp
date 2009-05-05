@@ -137,7 +137,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GParameterT<T>& cp) const {
-		return GParameterT<T>::isEqualTo(cp);
+		return GParameterT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -148,7 +148,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParameterT<T>& cp) const {
-		return !GParameterT<T>::isEqualTo(cp);
+		return !GParameterT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -159,15 +159,17 @@ public:
 	 * @param  cp A constant reference to another GParameterT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GParamterT reference
 		const GParameterT<T> *gpt_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpt_load)) return false;
+		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpt_load, expected)) return false;
 
 		// Check the local data
-		if(checkForInequality("GParameterT", val_, gpt_load->val_,"val_", "gpt_load->val_")) return false;
+		if(checkForInequality("GParameterT", val_, gpt_load->val_,"val_", "gpt_load->val_", expected)) return false;
 
 		return true;
 	}
@@ -180,15 +182,17 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GParamterT reference
 		const GParameterT<T> *gpt_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent class
-		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpt_load, limit)) return false;
+		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpt_load, limit, expected)) return false;
 
 		// Check the local data
-		if(checkForDissimilarity("GParameterT", val_, gpt_load->val_,limit, "val_", "gpt_load->val_")) return false;
+		if(checkForDissimilarity("GParameterT", val_, gpt_load->val_,limit, "val_", "gpt_load->val_", expected)) return false;
 
 		return true;
 	}

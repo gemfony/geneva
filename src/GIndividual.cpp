@@ -79,7 +79,7 @@ GIndividual::~GIndividual() { /* nothing */ }
  * @return A boolean indicating whether both objects are equal
  */
 bool GIndividual::operator==(const GIndividual& cp) const {
-	return GIndividual::isEqualTo(cp);
+	return GIndividual::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /**********************************************************************************/
@@ -90,7 +90,7 @@ bool GIndividual::operator==(const GIndividual& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GIndividual::operator!=(const GIndividual& cp) const {
-	return !GIndividual::isEqualTo(cp);
+	return !GIndividual::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /**********************************************************************************/
@@ -100,21 +100,23 @@ bool GIndividual::operator!=(const GIndividual& cp) const {
  * @param  cp A constant reference to another GIndividual object
  * @return A boolean indicating whether both objects are equal
  */
-bool GIndividual::isEqualTo(const GObject& cp) const {
+bool GIndividual::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+    using namespace Gem::Util;
+
 	// Check that we are indeed dealing with a GIndividual reference
 	const GIndividual *gi_load = GObject::conversion_cast(&cp,  this);
 
 	// Check for equality of our parent class
-	if(!GObject::isEqualTo(*gi_load)) return  false;
+	if(!GObject::isEqualTo(*gi_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GIndividual", currentFitness_, gi_load->currentFitness_,"currentFitness_", "gi_load->currentFitness_")) return false;
-	if(checkForInequality("GIndividual", dirtyFlag_, gi_load->dirtyFlag_,"dirtyFlag_", "gi_load->dirtyFlag_")) return false;
-	if(checkForInequality("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,"allowLazyEvaluation_", "gi_load->allowLazyEvaluation_")) return false;
-	if(checkForInequality("GIndividual", parentPopGeneration_, gi_load->parentPopGeneration_,"parentPopGeneration_", "gi_load->parentPopGeneration_")) return false;
-	if(checkForInequality("GIndividual", parentCounter_, gi_load->parentCounter_,"parentCounter_", "gi_load->parentCounter_")) return false;
-	if(checkForInequality("GIndividual", popPos_, gi_load->popPos_,"popPos_", "gi_load->popPos_")) return false;
-	if(checkForInequality("GIndividual", attributeTable_, gi_load->attributeTable_,"attributeTable_", "gi_load->attributeTable_")) return false;
+	if(checkForInequality("GIndividual", currentFitness_, gi_load->currentFitness_,"currentFitness_", "gi_load->currentFitness_", expected)) return false;
+	if(checkForInequality("GIndividual", dirtyFlag_, gi_load->dirtyFlag_,"dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
+	if(checkForInequality("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,"allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
+	if(checkForInequality("GIndividual", parentPopGeneration_, gi_load->parentPopGeneration_,"parentPopGeneration_", "gi_load->parentPopGeneration_", expected)) return false;
+	if(checkForInequality("GIndividual", parentCounter_, gi_load->parentCounter_,"parentCounter_", "gi_load->parentCounter_", expected)) return false;
+	if(checkForInequality("GIndividual", popPos_, gi_load->popPos_,"popPos_", "gi_load->popPos_", expected)) return false;
+	if(checkForInequality("GIndividual", attributeTable_, gi_load->attributeTable_,"attributeTable_", "gi_load->attributeTable_", expected)) return false;
 
 	return true;
 }
@@ -127,21 +129,23 @@ bool GIndividual::isEqualTo(const GObject& cp) const {
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GIndividual::isSimilarTo(const GObject& cp, const double& limit) const {
+bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+    using namespace Gem::Util;
+
 	// Check that we are indeed dealing with a GIndividual reference
 	const GIndividual *gi_load = GObject::conversion_cast(&cp,  this);
 
 	// Check for equality of our parent class
-	if(!GObject::isSimilarTo(*gi_load, limit)) return false;
+	if(!GObject::isSimilarTo(*gi_load, limit, expected)) return false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GIndividual", currentFitness_, gi_load->currentFitness_, limit, "currentFitness_", "gi_load->currentFitness_")) return false;
-	if(checkForDissimilarity("GIndividual", dirtyFlag_, gi_load->dirtyFlag_, limit, "dirtyFlag_", "gi_load->dirtyFlag_")) return false;
-	if(checkForDissimilarity("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,limit, "allowLazyEvaluation_", "gi_load->allowLazyEvaluation_")) return false;
-	if(checkForDissimilarity("GIndividual", parentPopGeneration_, gi_load->parentPopGeneration_,limit, "parentPopGeneration_", "gi_load->parentPopGeneration_")) return false;
-	if(checkForDissimilarity("GIndividual", parentCounter_, gi_load->parentCounter_,limit, "parentCounter_", "gi_load->parentCounter_")) return false;
-	if(checkForDissimilarity("GIndividual", popPos_, gi_load->popPos_,limit, "popPos_", "gi_load->popPos_")) return false;
-	if(checkForDissimilarity("GIndividual", attributeTable_, gi_load->attributeTable_,limit, "attributeTable_", "gi_load->attributeTable_")) return false;
+	if(checkForDissimilarity("GIndividual", currentFitness_, gi_load->currentFitness_, limit, "currentFitness_", "gi_load->currentFitness_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", dirtyFlag_, gi_load->dirtyFlag_, limit, "dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,limit, "allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", parentPopGeneration_, gi_load->parentPopGeneration_,limit, "parentPopGeneration_", "gi_load->parentPopGeneration_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", parentCounter_, gi_load->parentCounter_,limit, "parentCounter_", "gi_load->parentCounter_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", popPos_, gi_load->popPos_,limit, "popPos_", "gi_load->popPos_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", attributeTable_, gi_load->attributeTable_,limit, "attributeTable_", "gi_load->attributeTable_", expected)) return false;
 
 	return true;
 }

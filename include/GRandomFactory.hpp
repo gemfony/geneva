@@ -136,7 +136,7 @@ private:
 	/** @brief Starts the threads needed for the production of random numbers */
 	void startProducerThreads();
 	/** @brief The production of [0,1[ random numbers takes place here */
-	void producer01(const boost::uint32_t& seed);
+	void producer01(boost::uint32_t seed);
 
 	boost::uint32_t seed_; ///< The seed for the random number generators
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers

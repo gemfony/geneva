@@ -153,7 +153,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GParabolaIndividual& cp) const {
-		return GParabolaIndividual::isEqualTo(cp);
+		return GParabolaIndividual::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -164,7 +164,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParabolaIndividual& cp) const {
-		return !GParabolaIndividual::isEqualTo(cp);
+		return !GParabolaIndividual::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -175,12 +175,12 @@ public:
 	 * @param  cp A constant reference to another GParabolaIndividual object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
 		const GParabolaIndividual *gpi_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterSet::isEqualTo(*gpi_load)) return false;
+		if(!GParameterSet::isEqualTo(*gpi_load, expected)) return false;
 
 		return true;
 	}
@@ -194,12 +194,12 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit=0) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
 		const GParabolaIndividual *gpi_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterSet::isSimilarTo(*gpi_load, limit)) return false;
+		if(!GParameterSet::isSimilarTo(*gpi_load, limit, expected)) return false;
 
 		return true;
 	}

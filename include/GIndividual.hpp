@@ -97,9 +97,9 @@ public:
 	/** @brief Checks for inequality with another GIndividual object */
 	bool operator!=(const GIndividual&) const;
 	/** @brief Checks for equality with another GIndividual object */
-	virtual bool isEqualTo(const GObject&) const;
+	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for similarity with another GIndividual object */
-	virtual bool isSimilarTo(const GObject&, const double& limit) const;
+	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const = 0;

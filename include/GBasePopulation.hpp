@@ -179,9 +179,9 @@ public:
 	/** @brief Checks for inequality with another GBasePopulation object */
 	bool operator!=(const GBasePopulation&) const;
 	/** @brief Checks for equality with another GBasePopulation object */
-	virtual bool isEqualTo(const GObject&) const;
+	virtual bool isEqualTo(const GObject&,  const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for similarity with another GBasePopulation object */
-	virtual bool isSimilarTo(const GObject&, const double&) const;
+	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief The core function of the entire GenEvA library.
 	 * Triggers the optimization of a population. */

@@ -121,7 +121,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		return GParameterBaseWithAdaptorsT<T>::isEqualTo(cp);
+		return GParameterBaseWithAdaptorsT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -132,7 +132,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		return !GParameterBaseWithAdaptorsT<T>::isEqualTo(cp);
+		return !GParameterBaseWithAdaptorsT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -142,16 +142,18 @@ public:
 	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GParameterBaseWithAdaptorsT reference
 		// and convert accordingly
 		const GParameterBaseWithAdaptorsT<T> *gpbwa_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterBase::isEqualTo(*gpbwa_load)) return false;
+		if(!GParameterBase::isEqualTo(*gpbwa_load, expected)) return false;
 
 		// Then check the adaptor vector
-		if(checkForInequality("GParameterBaseWithAdaptorsT", adaptors_, gpbwa_load->adaptors_,"adaptors_", "gpbwa_load->adaptors_")) return false;
+		if(checkForInequality("GParameterBaseWithAdaptorsT", adaptors_, gpbwa_load->adaptors_,"adaptors_", "gpbwa_load->adaptors_", expected)) return false;
 
 		return true;
 	}
@@ -164,16 +166,18 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GParameterBaseWithAdaptorsT reference
 		// and convert accordingly
 		const GParameterBaseWithAdaptorsT<T> *gpbwa_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterBase::isSimilarTo(*gpbwa_load, limit)) return false;
+		if(!GParameterBase::isSimilarTo(*gpbwa_load, limit, expected)) return false;
 
 		// Then check the adaptor vector
-		if(checkForDissimilarity("GParameterBaseWithAdaptorsT", adaptors_, gpbwa_load->adaptors_, limit, "adaptors_", "gpbwa_load->adaptors_")) return false;
+		if(checkForDissimilarity("GParameterBaseWithAdaptorsT", adaptors_, gpbwa_load->adaptors_, limit, "adaptors_", "gpbwa_load->adaptors_", expected)) return false;
 
 		return true;
 	}

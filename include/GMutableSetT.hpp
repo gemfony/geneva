@@ -129,7 +129,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GMutableSetT<T>& cp) const {
-		return GMutableSetT<T>::isEqualTo(cp);
+		return GMutableSetT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/**********************************************************************************/
@@ -140,7 +140,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GMutableSetT<T>& cp) const {
-		return !GMutableSetT<T>::isEqualTo(cp);
+		return !GMutableSetT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/**********************************************************************************/
@@ -151,13 +151,15 @@ public:
 	 * @param  cp A constant reference to another GMutableSetT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GIndividual reference
 		const GMutableSetT<T> *gmst_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GIndividual::isEqualTo(*gmst_load)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gmst_load)) return false;
+		if(!GIndividual::isEqualTo(*gmst_load, expected)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gmst_load, expected)) return false;
 
 		// No local data
 
@@ -173,13 +175,15 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GIndividual reference
 		const GMutableSetT<T> *gmst_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent class
-		if(!GIndividual::isSimilarTo(*gmst_load, limit)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gmst_load, limit)) return false;
+		if(!GIndividual::isSimilarTo(*gmst_load, limit, expected)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gmst_load, limit, expected)) return false;
 
 		// No local data
 

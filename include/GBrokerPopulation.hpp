@@ -132,9 +132,9 @@ namespace GenEvA
 	/** @brief Checks for inequality with another GBrokerPopulation object */
 	bool operator!=(const GBrokerPopulation&) const;
 	/** @brief Checks for equality with another GBrokerPopulation object */
-	virtual bool isEqualTo(const GObject&) const;
+	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for similarity with another GBrokerPopulation object */
-	virtual bool isSimilarTo(const GObject&, const double&) const;
+	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
     /** @brief Starts the optimization cycle */
     virtual void optimize();

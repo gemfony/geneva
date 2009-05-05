@@ -49,11 +49,13 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/logic/tribool.hpp>
 
 #ifndef GSTDPTRVECTORINTERFACET_HPP_
 #define GSTDPTRVECTORINTERFACET_HPP_
 
 #include "GObject.hpp"
+#include "GHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -127,7 +129,7 @@ public:
 	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
 	 */
 	bool operator==(const GStdPtrVectorInterfaceT<T>& cp) const {
-		return this->checkIsEqualTo(cp);
+		return this->checkIsEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*****************************************************************************/
@@ -135,42 +137,7 @@ public:
 	 * Checks inquality with another GStdPtrVectorInterfaceT<T> object
 	 */
 	bool operator!=(const GStdPtrVectorInterfaceT<T>& cp) const {
-		return ! this->checkIsEqualTo(cp);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
-	 */
-	bool checkIsEqualTo(const GStdPtrVectorInterfaceT<T>& cp) const {
-		return this->operator==(cp.data);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for similarity with another GStdPtrVectorInterfaceT<T> object.
-	 */
-	bool checkIsSimilarTo(const GStdPtrVectorInterfaceT<T>& cp, const double& limit) const {
-		return this->checkIsSimilarTo(cp.data, limit);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for similarity with another std::vector<boost::shared_ptr<T> > object.
-	 * Note that we assume here that T actually implements a isSimilarTo function.
-	 */
-	bool checkIsSimilarTo(const std::vector<boost::shared_ptr<T> >& cp_data, const double& limit) const {
-		// Check sizes
-		if(data.size() != cp_data.size()) return false;
-
-		// Check the content
-		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
-		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
-		for(cp_it=cp_data.begin(), it=data.begin(); cp_it != cp_data.end(), it!=data.end(); ++cp_it, ++it) {
-			if(!(*it)->isSimilarTo(**cp_it, limit)) return false;
-		}
-
-		return true;
+		return ! this->checkIsEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*****************************************************************************/
@@ -178,17 +145,7 @@ public:
 	 * operator==, modified to check the content of the smart pointers
 	 */
 	bool operator==(const std::vector<boost::shared_ptr<T> >& cp_data) const {
-		// Check sizes
-		if(data.size() != cp_data.size()) return false;
-
-		// Check the content
-		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
-		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
-		for(cp_it=cp_data.begin(), it=data.begin(); cp_it != cp_data.end(), it!=data.end(); ++cp_it, ++it) {
-			if(!(*it)->isEqualTo(**cp_it)) return false;
-		}
-
-		return true;
+		return this->checkIsEqualTo(cp_data, boost::logic::indeterminate);
 	}
 
 	/*****************************************************************************/
@@ -196,7 +153,50 @@ public:
 	 * operator!=, modified to check the content of the smart pointers
 	 */
 	bool operator!=(const std::vector<boost::shared_ptr<T> >& cp_data) const {
-		return !operator==(cp_data);
+		return ! this->checkIsEqualTo(cp_data, boost::logic::indeterminate);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
+	 */
+	bool checkIsEqualTo(const GStdPtrVectorInterfaceT<T>& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		return this->checkIsEqualTo(cp.data, expected);;
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for similarity with another GStdPtrVectorInterfaceT<T> object.
+	 */
+	bool checkIsSimilarTo(const GStdPtrVectorInterfaceT<T>& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		return this->checkIsSimilarTo(cp.data, limit, expected);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for equality with a  std::vector<boost::shared_ptr<T> > object
+	 */
+	bool checkIsEqualTo(const std::vector<boost::shared_ptr<T> >& cp_data, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		using namespace Gem::Util;
+
+		std::string className = std::string("GStdPtrVectorInterfaceT<") + typeid(T).name() + ">";
+		if(checkForInequality(className, this->data, cp_data,"data", "cp_data", expected)) return false;
+
+		return true;
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for similarity with another std::vector<boost::shared_ptr<T> > object.
+	 * Note that we assume here that T actually implements a isSimilarTo function.
+	 */
+	bool checkIsSimilarTo(const std::vector<boost::shared_ptr<T> >& cp_data, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		using namespace Gem::Util;
+
+		std::string className = std::string("GStdPtrVectorInterfaceT<") + typeid(T).name() + ">";
+		if(checkForDissimilarity(className, this->data, cp_data, limit, "data", "cp_data", expected)) return false;
+
+		return true;
 	}
 
 	/*****************************************************************************/

@@ -154,7 +154,7 @@ GObject *GBasePopulation::clone() const  {
  * @return A boolean indicating whether both objects are equal
  */
 bool GBasePopulation::operator==(const GBasePopulation& cp) const {
-	return GBasePopulation::isEqualTo(cp);
+	return GBasePopulation::isEqualTo(cp,  boost::logic::indeterminate);
 }
 
 /***********************************************************************************/
@@ -165,7 +165,7 @@ bool GBasePopulation::operator==(const GBasePopulation& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GBasePopulation::operator!=(const GBasePopulation& cp) const {
-	return !GBasePopulation::isEqualTo(cp);
+	return !GBasePopulation::isEqualTo(cp,  boost::logic::indeterminate);
 }
 
 /***********************************************************************************/
@@ -175,29 +175,31 @@ bool GBasePopulation::operator!=(const GBasePopulation& cp) const {
  * @param  cp A constant reference to another GBasePopulation object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBasePopulation::isEqualTo(const GObject& cp) const {
+bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+	using namespace Gem::Util;
+
 	// Check that we are indeed dealing with a GIndividual reference
 	const GBasePopulation *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GIndividualSet::isEqualTo( *gbp_load)) return  false;
+	if(!GIndividualSet::isEqualTo( *gbp_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GBasePopulation", nParents_, gbp_load->nParents_,"nParents_", "gbp_load->nParents_")) return false;
-	if(checkForInequality("GBasePopulation", popSize_, gbp_load->popSize_,"popSize_", "gbp_load->popSize_")) return false;
-	if(checkForInequality("GBasePopulation", generation_, gbp_load->generation_,"generation_", "gbp_load->generation_")) return false;
-	if(checkForInequality("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_,"maxGeneration_", "gbp_load->maxGeneration_")) return false;
-	if(checkForInequality("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_,"reportGeneration_", "gbp_load->reportGeneration_")) return false;
-	if(checkForInequality("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_")) return false;
-	if(checkForInequality("GBasePopulation", muplusnu_, gbp_load->muplusnu_,"muplusnu_", "gbp_load->muplusnu_")) return false;
-	if(checkForInequality("GBasePopulation", maximize_, gbp_load->maximize_,"maximize_", "gbp_load->maximize_")) return false;
-	if(checkForInequality("GBasePopulation", id_, gbp_load->id_,"id_", "gbp_load->id_")) return false;
-	if(checkForInequality("GBasePopulation", firstId_, gbp_load->firstId_,"firstId_", "gbp_load->firstId_")) return false;
-	if(checkForInequality("GBasePopulation", maxDuration_, gbp_load->maxDuration_,"maxDuration_", "gbp_load->maxDuration_")) return false;
+	if(checkForInequality("GBasePopulation", nParents_, gbp_load->nParents_,"nParents_", "gbp_load->nParents_", expected)) return false;
+	if(checkForInequality("GBasePopulation", popSize_, gbp_load->popSize_,"popSize_", "gbp_load->popSize_", expected)) return false;
+	if(checkForInequality("GBasePopulation", generation_, gbp_load->generation_,"generation_", "gbp_load->generation_", expected)) return false;
+	if(checkForInequality("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_,"maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
+	if(checkForInequality("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_,"reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
+	if(checkForInequality("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
+	if(checkForInequality("GBasePopulation", muplusnu_, gbp_load->muplusnu_,"muplusnu_", "gbp_load->muplusnu_", expected)) return false;
+	if(checkForInequality("GBasePopulation", maximize_, gbp_load->maximize_,"maximize_", "gbp_load->maximize_", expected)) return false;
+	if(checkForInequality("GBasePopulation", id_, gbp_load->id_,"id_", "gbp_load->id_", expected)) return false;
+	if(checkForInequality("GBasePopulation", firstId_, gbp_load->firstId_,"firstId_", "gbp_load->firstId_", expected)) return false;
+	if(checkForInequality("GBasePopulation", maxDuration_, gbp_load->maxDuration_,"maxDuration_", "gbp_load->maxDuration_", expected)) return false;
 	// startTime_ Not compared, as it is used for temporary storage only.
-	if(checkForInequality("GExternalEvaluator", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_")) return false;
-	if(checkForInequality("GExternalEvaluator", qualityThreshold_, gbp_load->qualityThreshold_,"qualityThreshold_", "gbp_load->qualityThreshold_")) return false;
-	if(checkForInequality("GExternalEvaluator", hasQualityThreshold_, gbp_load->hasQualityThreshold_,"hasQualityThreshold_", "gbp_load->hasQualityThreshold_")) return false;
+	if(checkForInequality("GExternalEvaluator", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
+	if(checkForInequality("GExternalEvaluator", qualityThreshold_, gbp_load->qualityThreshold_,"qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
+	if(checkForInequality("GExternalEvaluator", hasQualityThreshold_, gbp_load->hasQualityThreshold_,"hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
 
 	return true;
 }
@@ -210,29 +212,31 @@ bool GBasePopulation::isEqualTo(const GObject& cp) const {
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit) const {
+bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+	using namespace Gem::Util;
+
 	// Check that we are indeed dealing with a GIndividual reference
 	const GBasePopulation *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GIndividualSet::isSimilarTo(*gbp_load, limit)) return  false;
+	if(!GIndividualSet::isSimilarTo(*gbp_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GBasePopulation", nParents_, gbp_load->nParents_, limit, "nParents_", "gbp_load->nParents_")) return false;
-	if(checkForDissimilarity("GBasePopulation", popSize_, gbp_load->popSize_, limit, "popSize_", "gbp_load->popSize_")) return false;
-	if(checkForDissimilarity("GBasePopulation", generation_, gbp_load->generation_, limit, "generation_", "gbp_load->generation_")) return false;
-	if(checkForDissimilarity("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_, limit, "maxGeneration_", "gbp_load->maxGeneration_")) return false;
-	if(checkForDissimilarity("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_, limit, "reportGeneration_", "gbp_load->reportGeneration_")) return false;
-	if(checkForDissimilarity("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_")) return false;
-	if(checkForDissimilarity("GBasePopulation", muplusnu_, gbp_load->muplusnu_, limit, "muplusnu_", "gbp_load->muplusnu_")) return false;
-	if(checkForDissimilarity("GBasePopulation", maximize_, gbp_load->maximize_, limit, "maximize_", "gbp_load->maximize_")) return false;
-	if(checkForDissimilarity("GBasePopulation", id_, gbp_load->id_, limit, "id_", "gbp_load->id_")) return false;
-	if(checkForDissimilarity("GBasePopulation", firstId_, gbp_load->firstId_, limit, "firstId_", "gbp_load->firstId_")) return false;
-	if(checkForDissimilarity("GBasePopulation", maxDuration_, gbp_load->maxDuration_, limit, "maxDuration_", "gbp_load->maxDuration_")) return false;
+	if(checkForDissimilarity("GBasePopulation", nParents_, gbp_load->nParents_, limit, "nParents_", "gbp_load->nParents_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", popSize_, gbp_load->popSize_, limit, "popSize_", "gbp_load->popSize_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", generation_, gbp_load->generation_, limit, "generation_", "gbp_load->generation_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_, limit, "maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_, limit, "reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", muplusnu_, gbp_load->muplusnu_, limit, "muplusnu_", "gbp_load->muplusnu_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", maximize_, gbp_load->maximize_, limit, "maximize_", "gbp_load->maximize_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", id_, gbp_load->id_, limit, "id_", "gbp_load->id_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", firstId_, gbp_load->firstId_, limit, "firstId_", "gbp_load->firstId_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", maxDuration_, gbp_load->maxDuration_, limit, "maxDuration_", "gbp_load->maxDuration_", expected)) return false;
 	// startTime_ Not compared, as it is used for temporary storage only.
-	if(checkForDissimilarity("GExternalEvaluator", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_")) return false;
-	if(checkForDissimilarity("GExternalEvaluator", qualityThreshold_, gbp_load->qualityThreshold_, limit, "qualityThreshold_", "gbp_load->qualityThreshold_")) return false;
-	if(checkForDissimilarity("GExternalEvaluator", hasQualityThreshold_, gbp_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_")) return false;
+	if(checkForDissimilarity("GExternalEvaluator", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
+	if(checkForDissimilarity("GExternalEvaluator", qualityThreshold_, gbp_load->qualityThreshold_, limit, "qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
+	if(checkForDissimilarity("GExternalEvaluator", hasQualityThreshold_, gbp_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
 
 	return true;
 }

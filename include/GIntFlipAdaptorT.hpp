@@ -181,7 +181,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GIntFlipAdaptorT<T>& cp) const {
-		return GIntFlipAdaptorT<T>::isEqualTo(cp);
+		return GIntFlipAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/********************************************************************************************/
@@ -192,7 +192,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GIntFlipAdaptorT<T>& cp) const {
-		return !GIntFlipAdaptorT<T>::isEqualTo(cp);
+		return !GIntFlipAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/********************************************************************************************/
@@ -203,15 +203,17 @@ public:
 	 * @param  cp A constant reference to another GIntFlipAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
 		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
 
 		// Check our parent class
-		if(!GAdaptorT<T>::isEqualTo(*gifat_load)) return false;
+		if(!GAdaptorT<T>::isEqualTo(*gifat_load, expected)) return false;
 
 		// And then our local data
-		if(!mutProb_.isEqualTo(gifat_load->mutProb_)) 	return false;
+		if(!mutProb_.isEqualTo(gifat_load->mutProb_, expected)) 	return false;
 
 		return true;
 	}
@@ -226,15 +228,17 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
 		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
 
 		// First check our parent class
-		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit))  return false;
+		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit, expected))  return false;
 
 		// Then our local data
-		if(!mutProb_.isSimilarTo(gifat_load->mutProb_, limit)) return false;
+		if(!mutProb_.isSimilarTo(gifat_load->mutProb_, limit, expected)) return false;
 
 		return true;
 	}

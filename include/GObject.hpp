@@ -55,6 +55,7 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/logic/tribool.hpp>
 
 #ifndef GOBJECT_HPP_
 #define GOBJECT_HPP_
@@ -66,6 +67,7 @@
 #include "GRandom.hpp"
 #include "GEnums.hpp"
 #include "GLogger.hpp"
+#include "GHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -106,16 +108,16 @@ public:
 
 	/** @brief Checks for equality with another GObject object */
 	bool operator==(const GObject&) const;
-	/** @brief Checks inquality with another GObject object */
+	/** @brief Checks inequality with another GObject object */
 	bool operator!=(const GObject&) const;
 	/** @brief Checks for equality with another GObject object */
-	virtual bool isEqualTo(const GObject&) const;
+	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for inequality with another GObject object (or a derivative) */
-	virtual bool isNotEqualTo(const GObject&) const;
+	virtual bool isNotEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for similarity with another GObject object */
-	virtual bool isSimilarTo(const GObject&, const double&) const;
-	/** @brief Checks for disimilarity with another GObject object (or a derivative) */
-	virtual bool isNotSimilarTo(const GObject&, const double&) const;
+	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for dissimilarity with another GObject object (or a derivative) */
+	virtual bool isNotSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);
@@ -203,9 +205,10 @@ public:
 protected:
     /**
      * A random number generator. Each GenEvA object has
-     * its own instance. Note that the actual calculation is done in
-     * a random number server. Also note that the GRandom
-     * object will not be serialized.
+     * its own instance. Note that the actual calculation is likely done in
+     * a random number server. GRandom has a fallback generator in
+     * case the factory is unreachable. Note that the GRandom
+     * object (and its state) will NOT be serialized.
      */
 	Gem::Util::GRandom gr;
 
@@ -248,297 +251,10 @@ protected:
 	}
 
 	/**************************************************************************************************/
-	/**
-	 * Checks for inequality of the two arguments, which are assumed to be basic types. This is
-	 * needed by the isEqualTo function, so we have a standardized way of emitting information
-	 * on deviations. Note: If you want specific behavior for a particular type then you can always
-	 * create a specialization of this function.
-	 *
-	 * @param className The name of the calling class
-	 * @param x The first parameter to be compared
-	 * @param y The second parameter to be compared
-	 * @param x_name The name of the first parameter
-	 * @param y_name The name of the second parameter
-	 * @return A boolean indicating whether any differences were found
-	 */
-	template <typename basic_type>
-	bool checkForInequality(const std::string& className,
-										          const basic_type& x,
-										          const basic_type& y,
-										          const std::string& x_name,
-										          const std::string& y_name) const
-	{
-		if(x==y) return false;
-		else {
-#ifdef GENEVATESTING
-			std::cout << "//-----------------------------------------------------------------" << std::endl
-				            << "Found inequality in object of type \"" << className << "\":" << std::endl
-				            << x_name << " (type " << typeid(x).name() << ") = " << x << std::endl
-				            << y_name << " (type " << typeid(y).name() << ") = " << y << std::endl;
-#endif /* GENEVATESTING */
-			return true;
-		}
-	}
-
-	/**************************************************************************************************/
-	/**
-	 * Checks for inequality of the two arguments, which are assumed to be vectors of basic types.
-	 * This is needed by the isEqualTo function, so we have a standardized way of emitting information
-	 * on deviations. Note: If you want specific behavior for a particular type then you can always
-	 * create a specialization of this function.
-	 *
-	 * @param className The name of the calling class
-	 * @param x The first parameter to be compared
-	 * @param y The second parameter to be compared
-	 * @param x_name The name of the first parameter
-	 * @param y_name The name of the second parameter
-	 * @return A boolean indicating whether any differences were found
-	 */
-	template <typename basic_type>
-	bool checkForInequality(const std::string& className,
-										           const std::vector<basic_type>& x,
-										           const std::vector<basic_type>& y,
-										           const std::string& x_name,
-										           const std::string& y_name) const
-	{
-		if(x==y) return false;
-		else {
-#ifdef GENEVATESTING
-			// Check sizes
-			if(x.size() != y.size()) {
-				std::cout << "//-----------------------------------------------------------------" << std::endl
-					            << "Found inequality in object of type \"" << className << "\":" << std::endl
-					            << x_name << " (type std::vector<" << typeid(basic_type).name() <<">): Size = " << x.size() << std::endl
-					            << y_name << " (type std::vector<" << typeid(basic_type).name() <<">): Size = " << y.size() << std::endl;
-
-				return true;
-			}
-
-			// Loop over all entries and find out which is wrong
-			for(std::size_t i=0; i<x.size(); i++) {
-				if(x.at(i) != y.at(i)) {
-					std::cout << "//-----------------------------------------------------------------" << std::endl
-						            << "Found inequality in object of type \"" << className << "\":" << std::endl
-						            << x_name << "[" << i << "] (type std::vector<" << typeid(basic_type).name() <<">) " << x << std::endl
-						            << y_name << "[" << i << "] (type std::vector<" << typeid(basic_type).name() <<">) " << y << std::endl;
-
-					return true;
-				}
-			}
-
-#endif /* GENEVATESTING */
-			return true;
-		}
-	}
-
-	/**************************************************************************************************/
-	/**
-	 * Checks for inequality of the two arguments, which are assumed to be vectors of boost::share_ptr
-	 * objects of complex. This is needed by the isEqualTo function, so we have a standardized way of
-	 * emitting information on deviations. Note: If you want specific behavior for a particular type then you
-	 * can always create a specialization of this function.
-	 *
-	 * @param className The name of the calling class
-	 * @param x The first parameter to be compared
-	 * @param y The second parameter to be compared
-	 * @param x_name The name of the first parameter
-	 * @param y_name The name of the second parameter
-	 * @return A boolean indicating whether any differences were found
-	 */
-	template <typename complex_type>
-	bool checkForInequality(const std::string& className,
-										           const std::vector<boost::shared_ptr<complex_type> >& x,
-										           const std::vector<boost::shared_ptr<complex_type> >& y,
-										           const std::string& x_name,
-										           const std::string& y_name) const
-	{
-		// Check sizes
-		if(x.size() != y.size()) {
-#ifdef GENEVATESTING
-			std::cout << "//-----------------------------------------------------------------" << std::endl
-							<< "Found inequality in object of type \"" << className << "\":" << std::endl
-							<< x_name << " (type std::vector<boost::shared_ptr<" << typeid(complex_type).name() <<"> >): Size = " << x.size() << std::endl
-							<< y_name << " (type std::vector<boost::shared_ptr<" << typeid(complex_type).name() <<"> >): Size = " << y.size() << std::endl;
-#endif /* GENEVATESTING */
-			return true;
-		}
-
-		// Loop over all entries and find out which is wrong
-		typename std::vector<boost::shared_ptr<complex_type> >::const_iterator cit_x;
-		typename std::vector<boost::shared_ptr<complex_type> >::const_iterator cit_y;
-		std::size_t i=0;
-		for(cit_x=x.begin(), cit_y=y.begin(); cit_x != x.end(), cit_y != y.end(); ++cit_x, ++cit_y) {
-			if(!(*cit_x)->isEqualTo(**cit_y)) {
-#ifdef GENEVATESTING
-				std::cout << "//-----------------------------------------------------------------" << std::endl
-								<< "Found inequality in object of type \"" << className << "\":" << std::endl
-								<< x_name << "[" << i << "] (type std::vector<boost::shared_ptr<" << typeid(complex_type).name() <<"> >) " << std::endl
-								<< y_name << "[" << i << "] (type std::vector<boost:.shared_ptr<" << typeid(complex_type).name() <<"> >) " << std::endl;
-#endif /* GENEVATESTING */
-
-				i++;
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**************************************************************************************************/
-	/**
-	 * Checks for similarity of the two arguments, which are assumed to be basic types. This is
-	 * needed by the isSimilarTo function, so we have a standardized way of emitting information on
-	 * deviations.  By default all types are just checked for equality. A specialization exists for
-	 * typeof(basic_type) == typeof(double). Note that: If you want specific behaviour for any other
-	 * type then you can always create a specialization of this function.
-	 *
-	 * @param className The name of the calling class
-	 * @param x The first parameter to be compared
-	 * @param y The second parameter to be compared
-	 * @param limit The acceptable deviation of x and y
-	 * @param x_name The name of the first parameter
-	 * @param y_name The name of the second parameter
-	 * @return A boolean indicating whether any differences were found
-	 */
-	template <typename basic_type>
-	bool checkForDissimilarity(const std::string& className,
-													  const basic_type& x,
-													  const basic_type& y,
-													  const double& limit,
-													  const std::string& x_name,
-													  const std::string& y_name) const
-	{
-		if(x==y) return false;
-		else {
-#ifdef GENEVATESTING
-			std::cout << "//-----------------------------------------------------------------" << std::endl
-				            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
-				            << x_name << " (type " << typeid(x).name() << ") = " << x << std::endl
-				            << y_name << " (type " << typeid(y).name() << ") = " << y << std::endl;
-#endif /* GENEVATESTING */
-			return true;
-		}
-	}
-
-	/**************************************************************************************************/
-	/**
-	 * Checks for dissimilarity of the two arguments, which are assumed to be vectors of basic types.
-	 * This is needed by the isSimilarTo function, so we have a standardized way of emitting information
-	 * on deviations. Note: If you want specific behavior for a particular type then you can always
-	 * create a specialization of this function. One such specialization exists for
-	 * typef(basic_type) == typeof(double).
-	 *
-	 * @param className The name of the calling class
-	 * @param x The first parameter to be compared
-	 * @param y The second parameter to be compared
-	 * @param x_name The name of the first parameter
-	 * @param y_name The name of the second parameter
-	 * @return A boolean indicating whether any differences were found
-	 */
-	template <typename basic_type>
-	bool checkForDissimilarity(const std::string& className,
-										           const std::vector<basic_type>& x,
-										           const std::vector<basic_type>& y,
-										           const double& limit,
-										           const std::string& x_name,
-										           const std::string& y_name) const
-	{
-		if(x==y) return false;
-		else {
-#ifdef GENEVATESTING
-			// Check sizes
-			if(x.size() != y.size()) {
-				std::cout << "//-----------------------------------------------------------------" << std::endl
-					            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
-					            << x_name << " (type std::vector<" << typeid(basic_type).name() <<">): Size = " << x.size() << std::endl
-					            << y_name << " (type std::vector<" << typeid(basic_type).name() <<">): Size = " << y.size() << std::endl;
-			}
-
-			// Loop over all entries and find out which is wrong
-			for(std::size_t i=0; i<x.size(); i++) {
-				if(x.at(i) != y.at(i)) {
-					std::cout << "//-----------------------------------------------------------------" << std::endl
-						            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
-						            << x_name << "[" << i << "] (type std::vector<" << typeid(basic_type).name() <<">) " << x << std::endl
-						            << y_name << "[" << i << "] (type std::vector<" << typeid(basic_type).name() <<">) " << y << std::endl;
-
-					return true;
-				}
-			}
-
-#endif /* GENEVATESTING */
-			return true;
-		}
-	}
-
-	/**************************************************************************************************/
-	/**
-	 * Checks for dissimilarity of the two arguments, which are assumed to be vectors of boost::share_ptr
-	 * objects of complex. This is needed by the isEqualTo function, so we have a standardized way of
-	 * emitting information on deviations. Note: If you want specific behavior for a particular type then you
-	 * can always create a specialization of this function.
-	 *
-	 * @param className The name of the calling class
-	 * @param x The first parameter to be compared
-	 * @param y The second parameter to be compared
-	 * @param limit Acceptable limits for deviation of the two parameters
-	 * @param x_name The name of the first parameter
-	 * @param y_name The name of the second parameter
-	 * @return A boolean indicating whether any differences were found
-	 */
-	template <typename complex_type>
-	bool checkForDissimilarity(const std::string& className,
-										           const std::vector<boost::shared_ptr<complex_type> >& x,
-										           const std::vector<boost::shared_ptr<complex_type> >& y,
-										           const double& limit,
-										           const std::string& x_name,
-										           const std::string& y_name) const
-	{
-		// Check sizes
-		if(x.size() != y.size()) {
-#ifdef GENEVATESTING
-			std::cout << "//-----------------------------------------------------------------" << std::endl
-							<< "Found inequality in object of type \"" << className << "\":" << std::endl
-							<< x_name << " (type std::vector<boost::shared_ptr<" << typeid(complex_type).name() <<"> >): Size = " << x.size() << std::endl
-							<< y_name << " (type std::vector<boost::shared_ptr<" << typeid(complex_type).name() <<"> >): Size = " << y.size() << std::endl;
-#endif /* GENEVATESTING */
-			return true;
-		}
-
-		// Loop over all entries and find out which is wrong
-		typename std::vector<boost::shared_ptr<complex_type> >::const_iterator cit_x;
-		typename std::vector<boost::shared_ptr<complex_type> >::const_iterator cit_y;
-		std::size_t i=0;
-		for(cit_x=x.begin(), cit_y=y.begin(); cit_x != x.end(), cit_y != y.end(); ++cit_x, ++cit_y) {
-			if(!(*cit_x)->isSimilarTo(**cit_y, limit)) {
-#ifdef GENEVATESTING
-				std::cout << "//-----------------------------------------------------------------" << std::endl
-								<< "Found inequality in object of type \"" << className << "\":" << std::endl
-								<< x_name << "[" << i << "] (type std::vector<boost::shared_ptr<" << typeid(complex_type).name() <<"> >) " << std::endl
-								<< y_name << "[" << i << "] (type std::vector<boost:.shared_ptr<" << typeid(complex_type).name() <<"> >) " << std::endl;
-#endif /* GENEVATESTING */
-
-				i++;
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**************************************************************************************************/
 
 private:
 	std::string name_; ///< Allows to assign a name to this object
 };
-
-/*
- * Specializations of some template functions
- */
-template <> bool GObject::checkForDissimilarity<double>(const std::string&, const double&,	const double&, const double&, const std::string&, const std::string&) const;
-template <> bool GObject::checkForDissimilarity<std::map<std::string, std::string> >(const std::string&, const std::map<std::string, std::string>&, const std::map<std::string, std::string>&, const double&, const std::string&, const std::string&) const;
-template <> bool GObject::checkForInequality<std::map<std::string, std::string> >(const std::string&, const std::map<std::string, std::string>&,	const std::map<std::string, std::string>&, const std::string&, const std::string&) const;
-template <> bool GObject::checkForDissimilarity<double>(const std::string&,  const std::vector<double>&,  const std::vector<double>&,  const double&,  const std::string&, const std::string&) const;
 
 } /* namespace GenEvA */
 } /* namespace Gem */

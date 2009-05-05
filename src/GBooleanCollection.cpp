@@ -155,7 +155,7 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are equal
    */
   bool GBooleanCollection::operator==(const GBooleanCollection& cp) const {
-	  return GBooleanCollection::isEqualTo(cp);
+	  return GBooleanCollection::isEqualTo(cp, boost::logic::indeterminate);
   }
 
   /**********************************************************************/
@@ -166,7 +166,7 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are inequal
    */
   bool GBooleanCollection::operator!=(const GBooleanCollection& cp) const {
-	  return !this->isEqualTo(cp);
+	  return !this->isEqualTo(cp, boost::logic::indeterminate);
   }
 
   /**********************************************************************/
@@ -177,12 +177,14 @@ namespace GenEvA
    * @param  cp A constant reference to another GBooleanCollection object
    * @return A boolean indicating whether both objects are equal
    */
-  bool GBooleanCollection::isEqualTo(const GObject& cp) const {
+  bool GBooleanCollection::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+	  using namespace Gem::Util;
+
 	  // Check that we are indeed dealing with a GBooleanCollection reference
 	  const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
 
 	  // Check our paren class'es data
-	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isEqualTo(*gbc_load)) return false;
+	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isEqualTo(*gbc_load, expected)) return false;
 
 	  // No local data, so we can leave
 	  return true;
@@ -197,12 +199,14 @@ namespace GenEvA
    * @param limit A double value specifying the acceptable level of differences of floating point values
    * @return A boolean indicating whether both objects are similar to each other
    */
-  bool GBooleanCollection::isSimilarTo(const GObject& cp, const double& limit) const {
+  bool GBooleanCollection::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+	  using namespace Gem::Util;
+
 	  // Check that we are indeed dealing with a GBooleanCollection reference
 	  const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
 
 	  // Check our paren class'es data
-	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isSimilarTo(*gbc_load, limit)) return false;
+	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isSimilarTo(*gbc_load, limit, expected)) return false;
 
 	  // No local data, so we can leave
 	  return true;

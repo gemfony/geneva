@@ -123,7 +123,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GParameterTCollectionT<T>& cp) const {
-		return GParameterTCollectionT<T>::isEqualTo(cp);
+		return GParameterTCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -134,7 +134,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParameterTCollectionT<T>& cp) const {
-		return !GParameterTCollectionT<T>::isEqualTo(cp);
+		return !GParameterTCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*******************************************************************************************/
@@ -145,13 +145,15 @@ public:
 	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GParamterCollectionT reference
 		const GParameterTCollectionT<T> *gptct_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent classes
-		if(!GParameterBase::isEqualTo(*gptct_load)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gptct_load)) return false;
+		if(!GParameterBase::isEqualTo(*gptct_load, expected)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gptct_load, expected)) return false;
 
 		return true;
 	}
@@ -165,13 +167,15 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GParamterCollectionT reference
 		const GParameterTCollectionT<T> *gptct_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent classes
-		if(!GParameterBase::isSimilarTo(*gptct_load, limit))  return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gptct_load, limit)) return false;
+		if(!GParameterBase::isSimilarTo(*gptct_load, limit, expected))  return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gptct_load, limit, expected)) return false;
 
 		return true;
 	}

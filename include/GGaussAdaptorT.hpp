@@ -207,7 +207,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GGaussAdaptorT<T>& cp) const {
-		return GGaussAdaptorT<T>::isEqualTo(cp);
+		return GGaussAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/********************************************************************************************/
@@ -218,7 +218,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GGaussAdaptorT<T>& cp) const {
-		return !GGaussAdaptorT<T>::isEqualTo(cp);
+		return !GGaussAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/********************************************************************************************/
@@ -229,18 +229,20 @@ public:
 	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GGaussAdaptorT reference
 		const GGaussAdaptorT<T> *ggat_load = GObject::conversion_cast(&cp,  this);
 
 		// First take care of our parent class
-		if(!GAdaptorT<T>::isEqualTo(*ggat_load)) return false;
+		if(!GAdaptorT<T>::isEqualTo(*ggat_load, expected)) return false;
 
 		// Then we take care of the local data
-		if(checkForInequality("GGaussAdaptorT<T>", sigma_, ggat_load->sigma_,"sigma_", "ggat_load->sigma_")) return false;
-		if(checkForInequality("GGaussAdaptorT<T>", sigmaSigma_, ggat_load->sigmaSigma_,"sigmaSigma_", "ggat_load->sigmaSigma_")) return false;
-		if(checkForInequality("GGaussAdaptorT<T>", minSigma_, ggat_load->minSigma_,"minSigma_", "ggat_load->minSigma_")) return false;
-		if(checkForInequality("GGaussAdaptorT<T>", maxSigma_, ggat_load->maxSigma_,"maxSigma_", "ggat_load->maxSigma_")) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", sigma_, ggat_load->sigma_,"sigma_", "ggat_load->sigma_", expected)) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", sigmaSigma_, ggat_load->sigmaSigma_,"sigmaSigma_", "ggat_load->sigmaSigma_", expected)) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", minSigma_, ggat_load->minSigma_,"minSigma_", "ggat_load->minSigma_", expected)) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", maxSigma_, ggat_load->maxSigma_,"maxSigma_", "ggat_load->maxSigma_", expected)) return false;
 
 		return true;
 	}
@@ -255,18 +257,20 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+	    using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GGaussAdaptorT reference
 		const GGaussAdaptorT<T> *ggat_load = GObject::conversion_cast(&cp,  this);
 
 		// First take care of our parent class
-		if(!GAdaptorT<T>::isSimilarTo(*ggat_load, limit)) return false;
+		if(!GAdaptorT<T>::isSimilarTo(*ggat_load, limit, expected)) return false;
 
 		// Then we take care of the local data
-		if(checkForDissimilarity("GGaussAdaptorT<T>", sigma_, ggat_load->sigma_, limit, "sigma_", "ggat_load->sigma_")) return false;
-		if(checkForDissimilarity("GGaussAdaptorT<T>", sigmaSigma_, ggat_load->sigmaSigma_, limit, "sigmaSigma_", "ggat_load->sigmaSigma_")) return false;
-		if(checkForDissimilarity("GGaussAdaptorT<T>", minSigma_, ggat_load->minSigma_, limit, "minSigma_", "ggat_load->minSigma_")) return false;
-		if(checkForDissimilarity("GGaussAdaptorT<T>", maxSigma_, ggat_load->maxSigma_, limit, "maxSigma_", "ggat_load->maxSigma_")) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", sigma_, ggat_load->sigma_, limit, "sigma_", "ggat_load->sigma_", expected)) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", sigmaSigma_, ggat_load->sigmaSigma_, limit, "sigmaSigma_", "ggat_load->sigmaSigma_", expected)) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", minSigma_, ggat_load->minSigma_, limit, "minSigma_", "ggat_load->minSigma_", expected)) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", maxSigma_, ggat_load->maxSigma_, limit, "maxSigma_", "ggat_load->maxSigma_", expected)) return false;
 
 		return true;
 	}

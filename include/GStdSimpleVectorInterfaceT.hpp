@@ -50,11 +50,13 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/logic/tribool.hpp>
 
 #ifndef GSTDSIMPLEVECTORINTERFACET_HPP_
 #define GSTDSIMPLEVECTORINTERFACET_HPP_
 
 #include "GObject.hpp"
+#include "GHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -113,7 +115,7 @@ public:
 	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
 	 */
 	bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const {
-		return this->checkIsEqualTo(cp);
+		return this->checkIsEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*****************************************************************************/
@@ -121,93 +123,7 @@ public:
 	 * Checks inquality with another GStdSimpleVectorInterfaceT<T> object
 	 */
 	bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const {
-		return ! this->checkIsEqualTo(cp);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
-	 */
-	bool checkIsEqualTo(const GStdSimpleVectorInterfaceT<T>& cp) const {
-		return this->checkIsEqualTo(cp.data);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for equality with a std::vector<T> object
-	 */
-	bool checkIsEqualTo(const std::vector<T>& cp_data) const{
-		if(data==cp_data) return true;
-		else {
-#ifdef GENEVATESTING
-			// Check sizes
-			if(data.size() != cp_data.size()) {
-				std::cout << "//-----------------------------------------------------------------" << std::endl
-					            << "Found inequality in object of type GStdSimpleVectorInterfaceT<T>:" << std::endl
-					            <<  "data (type std::vector<" << typeid(T).name() <<">): Size = " << data.size() << std::endl
-					            << "cp_data (type std::vector<" << typeid(T).name() <<">): Size = " << cp_data.size() << std::endl;
-
-				return false;
-			}
-
-			// Loop over all entries and find out which is wrong
-			for(std::size_t i=0; i<data.size(); i++) {
-				if(data.at(i) != cp_data.at(i)) {
-					std::cout << "//-----------------------------------------------------------------" << std::endl
-						            << "Found inequality in object of type GStdSimpleVectorInterfaceT<T>:" << std::endl
-						            <<"data[" << i << "] (type std::vector<" << typeid(T).name() <<">) " << data.at(i) << std::endl
-						            << "cp_data[" << i << "] (type std::vector<" << typeid(T).name() <<">) " << cp_data.at(i) << std::endl;
-
-					return false;
-				}
-			}
-#endif /* GENEVATESTING  */
-
-			return false;
-		}
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for similarity with another GStdSimpleVectorInterfaceT<T> object.
-	 */
-	bool checkIsSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit) const {
-		return this->checkIsSimilarTo(cp.data, limit);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for similarity with another std::vector<T>  object. A specialized
-	 * version of this function exists for typeof(T) == typeof(double)
-	 */
-	bool checkIsSimilarTo(const std::vector<T>& cp_data, const double&) const {
-#ifdef GENEVATESTING
-		// Check sizes
-		if(data.size() != cp_data.size()) {
-			std::cout << "//-----------------------------------------------------------------" << std::endl
-				            << "Found dissimilarity in object of type GStdSimpleVectorInterfaceT<T>:" << std::endl
-				            <<  "data (type std::vector<" << typeid(T).name() <<">): Size = " << data.size() << std::endl
-				            << "cp_data (type std::vector<" << typeid(T).name() <<">): Size = " << cp_data.size() << std::endl;
-
-			return false;
-		}
-
-		// Loop over all entries and find out which is wrong
-		for(std::size_t i=0; i<data.size(); i++) {
-			if(data.at(i) != cp_data.at(i)) {
-				std::cout << "//-----------------------------------------------------------------" << std::endl
-					            << "Found dissimilarity in object of type GStdSimpleVectorInterfaceT<T>:" << std::endl
-					            <<"data[" << i << "] (type std::vector<" << typeid(T).name() <<">) " << data.at(i) << std::endl
-					            << "cp_data[" << i << "] (type std::vector<" << typeid(T).name() <<">) " << cp_data.at(i) << std::endl;
-
-				return false;
-			}
-		}
-#else
-		if(	data != cp_data) return false;
-#endif  /* GENEVATESTING  */
-
-		return true;
+		return ! this->checkIsEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/*****************************************************************************/
@@ -215,7 +131,7 @@ public:
 	 * operator==
 	 */
 	bool operator==(const std::vector<T>& cp_data) const {
-		return this->checkIsEqualTo(cp_data);
+		return this->checkIsEqualTo(cp_data, boost::logic::indeterminate);
 	}
 
 	/*****************************************************************************/
@@ -223,7 +139,50 @@ public:
 	 * operator!=
 	 */
 	bool operator!=(const std::vector<T>& cp_data)  const {
-		return !operator==(cp_data);
+		return ! this->checkIsEqualTo(cp_data, boost::logic::indeterminate);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
+	 */
+	bool checkIsEqualTo(const GStdSimpleVectorInterfaceT<T>& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		return this->checkIsEqualTo(cp.data, expected);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for equality with a std::vector<T> object
+	 */
+	bool checkIsEqualTo(const std::vector<T>& cp_data, const boost::logic::tribool& expected = boost::logic::indeterminate) const{
+		using namespace Gem::Util;
+
+		std::string className = std::string("GStdSimpleVectorInterfaceT<") + typeid(T).name() + ">";
+		if(checkForInequality(className, this->data, cp_data,"data", "cp_data", expected)) return false;
+
+		return true;
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for similarity with another GStdSimpleVectorInterfaceT<T> object.
+	 */
+	bool checkIsSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		return this->checkIsSimilarTo(cp.data, limit, expected);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Checks for similarity with another std::vector<T>  object. A specialized
+	 * version of this function exists for typeof(T) == typeof(double)
+	 */
+	bool checkIsSimilarTo(const std::vector<T>& cp_data, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		using namespace Gem::Util;
+
+		std::string className = std::string("GStdSimpleVectorInterfaceT<") + typeid(T).name() + ">";
+		if(checkForDissimilarity(className, this->data, cp_data, limit, "data", "cp_data", expected)) return false;
+
+		return true;
 	}
 
 	/*****************************************************************************/
@@ -376,8 +335,6 @@ protected:
 };
 
 /********************************************************************************/
-/** @brief Specialization for typeof(T) == typof(double) */
-template <> bool GStdSimpleVectorInterfaceT<double>::checkIsSimilarTo(const std::vector<double>& cp_data, const double& limit) const;
 
 } /* namespace GenEvA */
 } /* namespace Gem */

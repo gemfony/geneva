@@ -101,9 +101,9 @@ public:
 	/** @brief Checks for inequality with another GParameterBase object */
 	bool operator!=(const GParameterBase&) const;
 	/** @brief Checks for equality with another GParameterBase object */
-	virtual bool isEqualTo(const GObject&) const;
+	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for similarity with another GParameterBase object */
-	virtual bool isSimilarTo(const GObject&, const double&) const;
+	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Convenience function so we do not need to always cast derived classes */
 	virtual std::size_t numberOfAdaptors() const;

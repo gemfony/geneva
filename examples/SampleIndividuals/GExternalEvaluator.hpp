@@ -372,7 +372,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GExternalEvaluator& cp) const {
-		return GExternalEvaluator::isEqualTo(cp);
+		return GExternalEvaluator::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/********************************************************************************************/
@@ -383,7 +383,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GExternalEvaluator& cp) const {
-		return !GExternalEvaluator::isEqualTo(cp);
+		return !GExternalEvaluator::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/********************************************************************************************/
@@ -393,7 +393,9 @@ public:
 	 * @param  cp A constant reference to another GExternalEvaluator object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool isEqualTo(const GObject& cp) const {
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GNumCollectionT reference
 		const GExternalEvaluator *gev_load = GObject::conversion_cast(&cp,  this);
 
@@ -405,17 +407,17 @@ public:
 		// Then check our local data
 
 		// First basic types
-		if(checkForInequality("GExternalEvaluator", program_, gev_load->program_,"program_", "gev_load->program_")) return false;
-		if(checkForInequality("GExternalEvaluator", arguments_, gev_load->arguments_,"arguments_", "gev_load->arguments_")) return false;
-		if(checkForInequality("GExternalEvaluator", nEvaluations_, gev_load->nEvaluations_,"nEvaluations_", "gev_load->nEvaluations_")) return false;
-		if(checkForInequality("GExternalEvaluator", exchangeMode_, gev_load->exchangeMode_,"exchangeMode_", "gev_load->exchangeMode_")) return false;
-		if(checkForInequality("GExternalEvaluator", maximize_, gev_load->maximize_,"maximize_", "gev_load->maximize_")) return false;
-		if(checkForInequality("GExternalEvaluator", parameterFile_, gev_load->parameterFile_,"parameterFile_", "gev_load->parameterFile_")) return false;
+		if(checkForInequality("GExternalEvaluator", program_, gev_load->program_,"program_", "gev_load->program_", expected)) return false;
+		if(checkForInequality("GExternalEvaluator", arguments_, gev_load->arguments_,"arguments_", "gev_load->arguments_", expected)) return false;
+		if(checkForInequality("GExternalEvaluator", nEvaluations_, gev_load->nEvaluations_,"nEvaluations_", "gev_load->nEvaluations_", expected)) return false;
+		if(checkForInequality("GExternalEvaluator", exchangeMode_, gev_load->exchangeMode_,"exchangeMode_", "gev_load->exchangeMode_", expected)) return false;
+		if(checkForInequality("GExternalEvaluator", maximize_, gev_load->maximize_,"maximize_", "gev_load->maximize_", expected)) return false;
+		if(checkForInequality("GExternalEvaluator", parameterFile_, gev_load->parameterFile_,"parameterFile_", "gev_load->parameterFile_", expected)) return false;
 
 		// Then objects
-		if(gdbl_ptr_->isNotEqualTo(*(gev_load->gdbl_ptr_))) return false;
-		if(glong_ptr_->isNotEqualTo(*(gev_load->glong_ptr_))) return false;
-		if(gchar_ptr_->isNotEqualTo(*(gev_load->gchar_ptr_))) return false;
+		if(gdbl_ptr_->isNotEqualTo(*(gev_load->gdbl_ptr_), expected)) return false;
+		if(glong_ptr_->isNotEqualTo(*(gev_load->glong_ptr_), expected)) return false;
+		if(gchar_ptr_->isNotEqualTo(*(gev_load->gchar_ptr_), expected)) return false;
 
 		return true;
 	}
@@ -429,7 +431,9 @@ public:
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit) const {
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GNumCollectionT reference
 		const GExternalEvaluator *gev_load = GObject::conversion_cast(&cp,  this);
 
@@ -441,17 +445,17 @@ public:
 		// Then check our local data
 
 		// First the basic types
-		if(checkForDissimilarity("GExternalEvaluator", program_, gev_load->program_, limit, "program_", "gev_load->program_")) return false;
-		if(checkForDissimilarity("GExternalEvaluator", arguments_, gev_load->arguments_, limit,"arguments_", "gev_load->arguments_")) return false;
-		if(checkForDissimilarity("GExternalEvaluator", nEvaluations_, gev_load->nEvaluations_, limit,"nEvaluations_", "gev_load->nEvaluations_")) return false;
-		if(checkForDissimilarity("GExternalEvaluator", exchangeMode_, gev_load->exchangeMode_, limit, "exchangeMode_", "gev_load->exchangeMode_")) return false;
-		if(checkForDissimilarity("GExternalEvaluator", maximize_, gev_load->maximize_, limit, "maximize_", "gev_load->maximize_")) return false;
-		if(checkForDissimilarity("GExternalEvaluator", parameterFile_, gev_load->parameterFile_, limit, "parameterFile_", "gev_load->parameterFile_")) return false;
+		if(checkForDissimilarity("GExternalEvaluator", program_, gev_load->program_, limit, "program_", "gev_load->program_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluator", arguments_, gev_load->arguments_, limit,"arguments_", "gev_load->arguments_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluator", nEvaluations_, gev_load->nEvaluations_, limit,"nEvaluations_", "gev_load->nEvaluations_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluator", exchangeMode_, gev_load->exchangeMode_, limit, "exchangeMode_", "gev_load->exchangeMode_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluator", maximize_, gev_load->maximize_, limit, "maximize_", "gev_load->maximize_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluator", parameterFile_, gev_load->parameterFile_, limit, "parameterFile_", "gev_load->parameterFile_", expected)) return false;
 
 		// Then objects
-		if(gdbl_ptr_->isNotSimilarTo(*(gev_load->gdbl_ptr_), limit)) return false;
-		if(glong_ptr_->isNotSimilarTo(*(gev_load->glong_ptr_), limit)) return false;
-		if(gchar_ptr_->isNotSimilarTo(*(gev_load->gchar_ptr_), limit)) return false;
+		if(gdbl_ptr_->isNotSimilarTo(*(gev_load->gdbl_ptr_), limit, expected)) return false;
+		if(glong_ptr_->isNotSimilarTo(*(gev_load->glong_ptr_), limit, expected)) return false;
+		if(gchar_ptr_->isNotSimilarTo(*(gev_load->gchar_ptr_), limit, expected)) return false;
 
 		return true;
 	}

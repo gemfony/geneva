@@ -93,7 +93,7 @@ const GObject& GObject::operator=(const GObject& cp){
  * @return A boolean indicating whether both objects are equal
  */
 bool  GObject::operator==(const GObject& cp) const {
-	return GObject::isEqualTo(cp);
+	return GObject::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /**************************************************************************************************/
@@ -104,7 +104,7 @@ bool  GObject::operator==(const GObject& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool  GObject::operator!=(const GObject& cp) const {
-	return !GObject::isEqualTo(cp);
+	return !GObject::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /**************************************************************************************************/
@@ -113,11 +113,14 @@ bool  GObject::operator!=(const GObject& cp) const {
  * plus the parent class'es data.
  *
  * @param  cp A constant reference to another GObject object
+ * @param expected Indicates whether we expect the condition to be true or false, or whether any reporting should be suppressed ("ignore")
  * @return A boolean indicating whether both objects are equal
  */
-bool  GObject::isEqualTo(const GObject& cp) const {
-	if(GObject::checkForInequality("GObject", name_, cp.name_,"name_", "cp.name_")) return false;
-	return true;
+bool  GObject::isEqualTo(const GObject& cp,  const boost::logic::tribool& expected) const {
+    using namespace Gem::Util;
+
+	if(checkForInequality("GObject", name_, cp.name_,"name_", "cp.name_", expected)) return false;
+	else return true;
 }
 
 /**************************************************************************************************/
@@ -128,10 +131,11 @@ bool  GObject::isEqualTo(const GObject& cp) const {
  * to read wrong.
  *
  * @param  cp A constant reference to another GObject object
+ * @param expected Indicates whether we expect the condition to be true or false, or whether any reporting should be suppressed ("ignore")
  * @return A boolean indicating whether both objects are equal
  */
-bool  GObject::isNotEqualTo(const GObject& cp) const {
-	return !this->isEqualTo(cp);
+bool  GObject::isNotEqualTo(const GObject& cp,  const boost::logic::tribool& expected) const {
+	return !this->isEqualTo(cp, expected);
 }
 
 /**************************************************************************************************/
@@ -142,11 +146,14 @@ bool  GObject::isNotEqualTo(const GObject& cp) const {
  *
  * @param  cp A constant reference to another GObject object
  * @param limit A double indicating the level of acceptable deviation of two double values
+ * @param expected Indicates whether we expect the condition to be true or false, or whether any reporting should be suppressed ("ignore")
  * @return A boolean indicating whether both objects are similar or not
  */
-bool  GObject::isSimilarTo(const GObject& cp, const double& limit) const {
-	if(GObject::checkForDissimilarity("GObject", name_, cp.name_,limit, "name_", "cp.name_")) return false;
-	return true;
+bool  GObject::isSimilarTo(const GObject& cp, const double& limit,  const boost::logic::tribool& expected) const {
+    using namespace Gem::Util;
+
+	if(checkForDissimilarity("GObject", name_, cp.name_,limit, "name_", "cp.name_", expected)) return false;
+	else return true;
 }
 
 /**************************************************************************************************/
@@ -162,10 +169,11 @@ bool  GObject::isSimilarTo(const GObject& cp, const double& limit) const {
  *
  * @param  cp A constant reference to another GObject object
  * @param limit A double indicating the level of acceptable deviation of two double values
+ * @param expected Indicates whether we expect the condition to be true or false, or whether any reporting should be suppressed ("ignore")
  * @return A boolean indicating whether both objects are similar or not
  */
-bool  GObject::isNotSimilarTo(const GObject& cp, const double& limit) const {
-	return !this->isSimilarTo(cp, limit);
+bool  GObject::isNotSimilarTo(const GObject& cp, const double& limit,  const boost::logic::tribool& expected) const {
+	return !this->isSimilarTo(cp, limit, expected);
 }
 
 /**************************************************************************************************/
@@ -310,185 +318,6 @@ void GObject::setName(const std::string& geneva_object_name)  {
 }
 
 /**************************************************************************************************/
-/**
- * Specialization for typeof(basic_type) == typeof(double).
- *
- * @param className The name of the calling class
- * @param x The first parameter to be compared
- * @param y The second parameter to be compared
- * @param limit The acceptable deviation of x and y
- * @param x_name The name of the first parameter
- * @param y_name The name of the second parameter
- * @return A boolean indicating whether any differences were found
- */
-template <>
-bool GObject::checkForDissimilarity<double>(const std::string& className,
-															                       const double& x,
-															                       const double& y,
-															                       const double& limit,
-															                       const std::string& x_name,
-															                       const std::string& y_name) const
-{
-	if(fabs(x-y) <= fabs(limit)) return false;
-	else {
-#ifdef GENEVATESTING
-		std::cout << "//-----------------------------------------------------------------" << std::endl
-			            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
-			            << x_name << " (type " << typeid(x).name() << ") = " << x << std::endl
-			            << y_name << " (type " << typeid(y).name() << ") = " << y << std::endl
-			            << "limit = " << limit << std::endl;
-#endif /* GENEVATESTING */
-		return true;
-	}
-}
 
-/**************************************************************************************************/
-/**
- * Specialization for typeof(basic_type) == typeof(std::map<std::string, std::string>).
- *
- * @param className The name of the calling class
- * @param x The first parameter to be compared
- * @param y The second parameter to be compared
- * @param limit The acceptable deviation of x and y
- * @param x_name The name of the first parameter
- * @param y_name The name of the second parameter
- * @return A boolean indicating whether any differences were found
- */
-template <>
-bool GObject::checkForDissimilarity<std::map<std::string, std::string> >(const std::string& className,
-		                                                                                                                     const std::map<std::string, std::string>& x,
-		                                                                                                                     const std::map<std::string, std::string>& y,
-		                                                                                                                     const double& limit,
-		                                                                                                                     const std::string& x_name,
-		                                                                                                                     const std::string& y_name) const
- {
-	// Check sizes
-	if(x.size() != y.size()) {
-#ifdef GENEVATESTING
-		std::cout << "//-----------------------------------------------------------------" << std::endl
-			            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
-			            << x_name << " (type std::map<std::string, std::string>): Size = " << x.size() << std::endl
-			            << y_name << " (type std::map<std::string, std::string>): Size = " << y.size() << std::endl;
-#endif /* GENEVATESTING */
-		return true;
-	}
-
-	// Check individual entries
-	std::map<std::string, std::string>::const_iterator cit_x, cit_y;
-	for(cit_x=x.begin(), cit_y=y.begin(); cit_x!=x.end(), cit_y!=y.end(); ++cit_x, ++cit_y) {
-		if(*cit_x != *cit_y) {
-#ifdef GENEVATESTING
-		std::cout << "//-----------------------------------------------------------------" << std::endl
-			            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
-			            << x_name << " (type std::map<std::string, std::string>): Key = " << cit_x->first << " value = " << cit_x->second << std::endl
-			            << y_name << " (type std::map<std::string, std::string>): Key = " << cit_y->first << " value = " << cit_y->second << std::endl;
-#endif /* GENEVATESTING */
-			return true;
-		}
-	}
-
-	return false;
- }
-
-/**************************************************************************************************/
-/**
- * Specialization for typeof(basic_type) == typeof(std::map<std::string, std::string>).
- *
- * @param className The name of the calling class
- * @param x The first parameter to be compared
- * @param y The second parameter to be compared
- * @param limit The acceptable deviation of x and y
- * @param x_name The name of the first parameter
- * @param y_name The name of the second parameter
- * @return A boolean indicating whether any differences were found
- */
-template <>
-bool GObject::checkForInequality<std::map<std::string, std::string> >(const std::string& className,
-																														const std::map<std::string, std::string>& x,
-																														const std::map<std::string, std::string>& y,
-																														const std::string& x_name,
-																														const std::string& y_name) const
-{
-	// Check sizes
-	if(x.size() != y.size()) {
-#ifdef GENEVATESTING
-		std::cout << "//-----------------------------------------------------------------" << std::endl
-			            << "Found inequality in object of type \"" << className << "\":" << std::endl
-			            << x_name << " (type std::map<std::string, std::string>): Size = " << x.size() << std::endl
-			            << y_name << " (type std::map<std::string, std::string>): Size = " << y.size() << std::endl;
-#endif /* GENEVATESTING */
-		return true;
-	}
-
-	// Check individual entries
-	std::map<std::string, std::string>::const_iterator cit_x, cit_y;
-	for(cit_x=x.begin(), cit_y=y.begin(); cit_x!=x.end(), cit_y!=y.end(); ++cit_x, ++cit_y) {
-		if(*cit_x != *cit_y) {
-#ifdef GENEVATESTING
-		std::cout << "//-----------------------------------------------------------------" << std::endl
-			            << "Found inequality in object of type \"" << className << "\":" << std::endl
-			            << x_name << " (type std::map<std::string, std::string>): Key = " << cit_x->first << " value = " << cit_x->second << std::endl
-			            << y_name << " (type std::map<std::string, std::string>): Key = " << cit_y->first << " value = " << cit_y->second << std::endl;
-#endif /* GENEVATESTING */
-			return true;
-		}
-	}
-
-	return false;
-}
-
-/**************************************************************************************************/
-/**
- * Checks for dissimilarity of the two arguments, which are assumed to be vectors of doubles.
- * This is needed by the isSimilarTo function, so we have a standardized way of emitting information
- * on deviations.
- *
- * @param className The name of the calling class
- * @param x The first parameter to be compared
- * @param y The second parameter to be compared
- * @param x_name The name of the first parameter
- * @param y_name The name of the second parameter
- * @return A boolean indicating whether any differences were found
- */
-template <>
-bool GObject::checkForDissimilarity<double>(const std::string& className,
-									           const std::vector<double>& x,
-									           const std::vector<double>& y,
-									           const double& limit,
-									           const std::string& x_name,
-									           const std::string& y_name) const
-{
-	if(x==y) return false;
-	else {
-#ifdef GENEVATESTING
-		// Check sizes
-		if(x.size() != y.size()) {
-			std::cout << "//-----------------------------------------------------------------" << std::endl
-				            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
-				            << x_name << " (type std::vector<double>): Size = " << x.size() << std::endl
-				            << y_name << " (type std::vector<double>): Size = " << y.size() << std::endl;
-
-			return true;
-		}
-
-		// Loop over all entries and find out which is wrong
-		for(std::size_t i=0; i<x.size(); i++) {
-			if(fabs(x.at(i) - y.at(i)) > fabs(limit)) {
-				std::cout << "//-----------------------------------------------------------------" << std::endl
-					            << "Found dissimilarity in object of type \"" << className << "\":" << std::endl
-					            << x_name << "[" << i << "] (type std::vector<double>) " << x.at(i) << std::endl
-					            << y_name << "[" << i << "] (type std::vector<double>) " << y.at(i) << std::endl
-					            << "limit = " << limit << std::endl;
-
-				return true;
-			}
-		}
-
-#endif /* GENEVATESTING */
-		return true;
-	}
-}
-
-/**************************************************************************************************/
 } /* namespace GenEvA */
 } /* namespace Gem */
