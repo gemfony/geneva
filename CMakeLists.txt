@@ -20,7 +20,7 @@ ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 	# Use this for debug builds.    
-	IF($ENV{CXX} MATCHES "icpc" OR $ENV{CXX} MATCHES "icc")
+	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
 		# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
 		# (and, according to the authors' opinion, irrelevant in this context) warnings
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
@@ -30,7 +30,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInf
 	ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 	# Use this for release builds.
-	IF($ENV{CXX} MATCHES "icpc" OR $ENV{CXX} MATCHES "icc")
+	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
 		ADD_DEFINITIONS ("-O3 -pthread")
 	ELSE() # e.g. g++
 		ADD_DEFINITIONS ("-O3 -pthread")
