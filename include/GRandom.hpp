@@ -52,6 +52,7 @@
 #include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
+#include <boost/function.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -93,6 +94,9 @@ public:
 	/** @brief A standard destructor */
 	~GRandom();
 
+	/** @brief Specififies where production of random numbers should take place */
+	void setProductionPlace(const bool&);
+
 	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
 	double evenRandom();
 	/** @brief Emits evenly distributed random numbers in the range [0,max[ */
@@ -103,7 +107,6 @@ public:
 	double gaussRandom(const double&, const double&);
 	/** @brief Produces two gaussians with defined distance */
 	double doubleGaussRandom(const double&, const double&, const double&);
-
 
 	/*************************************************************************/
 	/**
@@ -154,6 +157,9 @@ public:
 	char charRandom(const bool& printable = true);
 
 private:
+	/** @brief Evenly distributed random numbers taken from a random factory */
+	double evenRandomFromFactory();
+
 	GRandom(const GRandom&); ///< Intentionally left undefined
 	GRandom& operator=(const GRandom&); ///< Intentionally left undefined
 
@@ -162,11 +168,16 @@ private:
 	/** @brief (Re-)Initialization of p01_ */
 	void getNewP01();
 
+	std::size_t currentPackageSize_; ///< The package size, as obtained from the factory
+
 	boost::shared_array<double> p01_; ///< Holds the container of [0,1[ random numbers
 	std::size_t current01_; ///< The current position in p01_
 	double *p_raw_; ///< A pointer to the content of p01_ for faster access
 
 	boost::shared_ptr<Gem::Util::GRandomFactory> grf_; ///< A local copy of the global GRandomFactory
+
+	boost::lagged_fibonacci607 lf; ///< Our own private random number generator
+	bool productionPlace_; ///< Specifies whether production happens remotely (true) or locally (false)
 };
 
 /****************************************************************************/

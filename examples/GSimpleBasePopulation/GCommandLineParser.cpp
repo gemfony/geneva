@@ -47,6 +47,8 @@ bool parseCommandLine(int argc, char **argv,
 					  bool& sortingScheme,
 					  bool& parallel,
 					  bool& maximize,
+					  std::size_t& arraySize,
+					  bool& productionPlace,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -86,6 +88,10 @@ bool parseCommandLine(int argc, char **argv,
 			        "Whether or not to run this optimization in multi-threaded mode")
 			("maximize,z", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
 					"Whether or not to run this optimization in multi-threaded mode")
+			("arraySize,A", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
+					"The size of the buffer with random arrays in the random factory")
+            ("productionPlace,D", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
+            		"Whether production of random numbers should happen locally or remotely")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -145,6 +151,9 @@ bool parseCommandLine(int argc, char **argv,
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
 					  << "sortingScheme = " << sortingScheme << std::endl
+					  << "maximize = " << maximize << std::endl
+					  << "arraySize = " << arraySize << std::endl
+					  << "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
 					  << std::endl;
 		}
 	}

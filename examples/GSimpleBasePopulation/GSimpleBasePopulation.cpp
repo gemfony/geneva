@@ -68,6 +68,8 @@ int main(int argc, char **argv){
 	 recoScheme rScheme;
 	  bool sortingScheme;
 	  double qualityThreshold;
+	  std::size_t arraySize;
+	  bool productionPlace;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -86,6 +88,8 @@ int main(int argc, char **argv){
 						 sortingScheme,
 						 parallel,
 						 maximize,
+						 arraySize,
+						 productionPlace,
 						 verbose))
 	{ exit(1); }
 
@@ -102,10 +106,15 @@ int main(int argc, char **argv){
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+	GRANDOMFACTORY->setArraySize(arraySize);
 
 	// Set up a single parabola individual
 	boost::shared_ptr<GParabolaIndividual>
-		parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax, adaptionThreshold));
+		parabolaIndividual(new GParabolaIndividual(parabolaDimension,
+				                                                                          parabolaMin,
+				                                                                          parabolaMax,
+				                                                                          adaptionThreshold,
+				                                                                          productionPlace));
 
 	if(parallel) {
 	  // Now we've got our first individual and can create a simple population with parallel execution.

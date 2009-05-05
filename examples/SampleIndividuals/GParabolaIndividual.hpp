@@ -75,7 +75,8 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * A constructor which initializes the individual with a suitable set of random double values.
+	 * A constructor which initializes the individual with a suitable set of random double values
+	 * and also determines when the adaptor should be updated.
 	 *
 	 * @param sz The desired size of the double collection
 	 * @param min The minimum value of the random numbers to fill the collection
@@ -97,6 +98,37 @@ public:
 
 		// Make the parameter collection known to this individual
 		this->data.push_back(gdc);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * A constructor which initializes the individual with a suitable set of random double values,
+	 * determines when the adaptor should be updated and whether random numbers should
+	 * be produced locally or remotely.
+	 *
+	 * @param sz The desired size of the double collection
+	 * @param min The minimum value of the random numbers to fill the collection
+	 * @param max The maximum value of the random numbers to fill the collection
+	 * @param as The number of calls to GDoubleGaussAdaptor::mutate after which mutation should be adapted
+	 */
+	GParabolaIndividual(std::size_t sz, double min, double max, boost::uint32_t as, bool productionPlace){
+		// Set up a GDoubleCollection with sz values, each initialized
+		// with a random number in the range [min,max[
+		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(sz,min,max));
+
+		// Set up and register an adaptor for the collection, so it
+		// knows how to be mutated. We want a sigma of 1, a sigma-adaption of 0.001, a
+		// minimum sigma of 0.000001 and a maximum sigma of 5.
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(1.,0.001,0.000001,5));
+		gdga->setAdaptionThreshold(as);
+		gdga->setProductionPlace(productionPlace);
+
+		gdc->addAdaptor(gdga);
+		gdc->setProductionPlace(productionPlace);
+
+		// Make the parameter collection known to this individual
+		this->data.push_back(gdc);
+		this->setProductionPlace(productionPlace);
 	}
 
 	/********************************************************************************************/

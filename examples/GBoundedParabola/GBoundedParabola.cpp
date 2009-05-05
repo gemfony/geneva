@@ -58,12 +58,15 @@ int main(int argc, char **argv){
 	 std::size_t populationSize, nParents;
 	 double parabolaMin, parabolaMax;
 	 boost::uint16_t nProducerThreads;
+	 boost::uint16_t nEvaluationThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
 	 boost::uint32_t adaptionThreshold;
 	 long maxMinutes;
 	 bool parallel;
 	 bool verbose;
 	 recoScheme rScheme;
+	  std::size_t arraySize;
+	  bool productionPlace;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -72,6 +75,7 @@ int main(int argc, char **argv){
 						 parabolaMax,
 						 adaptionThreshold,
 						 nProducerThreads,
+						 nEvaluationThreads,
 						 populationSize,
 						 nParents,
 						 maxGenerations,
@@ -79,6 +83,8 @@ int main(int argc, char **argv){
 						 reportGeneration,
 						 rScheme,
 						 parallel,
+						 arraySize,
+						 productionPlace,
 						 verbose))
 	{ exit(1); }
 
@@ -95,15 +101,20 @@ int main(int argc, char **argv){
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+	GRANDOMFACTORY->setArraySize(arraySize);
 
 	// Set up a single parabola individual
 	boost::shared_ptr<GBoundedParabolaIndividual>
-		parabolaIndividual(new GBoundedParabolaIndividual(parabolaDimension, parabolaMin, parabolaMax, adaptionThreshold));
+		parabolaIndividual(new GBoundedParabolaIndividual(parabolaDimension,
+					                                                                                       parabolaMin,
+					                                                                                       parabolaMax,
+					                                                                                       adaptionThreshold,
+					                                                                                       productionPlace));
 
 	if(parallel) {
 	  // Now we've got our first individual and can create a simple population with parallel execution.
 	  GBoostThreadPopulation pop_par;
-	  pop_par.setNThreads(10);
+	  pop_par.setNThreads(nEvaluationThreads);
 
 	  pop_par.push_back(parabolaIndividual);
 

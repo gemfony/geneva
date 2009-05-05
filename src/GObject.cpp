@@ -36,8 +36,11 @@ namespace GenEvA {
  * In particular, it sets the name of the Geneva object to "GObject"
  */
 GObject::GObject()  :
-	name_("GObject")
-{ /* nothing */ }
+	name_("GObject"),
+	productionPlace_(true)
+{
+	gr.setProductionPlace(productionPlace_);
+}
 
 /**************************************************************************************************/
 /**
@@ -47,8 +50,11 @@ GObject::GObject()  :
  * @param geneva_object_name The name which is assigned to a Geneva object
  */
 GObject::GObject(const std::string& geneva_object_name)  :
-	name_(geneva_object_name)
-{ /* nothing */ }
+	name_(geneva_object_name),
+	productionPlace_(true)
+{
+	gr.setProductionPlace(productionPlace_);
+}
 
 /**************************************************************************************************/
 /**
@@ -62,8 +68,11 @@ GObject::GObject(const std::string& geneva_object_name)  :
  * @param cp A copy of another GObject object
  */
 GObject::GObject(const GObject& cp)  :
-	name_(cp.name_)
-{ /* nothing */ }
+	name_(cp.name_),
+	productionPlace_(cp.productionPlace_)
+{
+	gr.setProductionPlace(productionPlace_);
+}
 
 /**************************************************************************************************/
 /**
@@ -120,6 +129,8 @@ bool  GObject::isEqualTo(const GObject& cp,  const boost::logic::tribool& expect
     using namespace Gem::Util;
 
 	if(checkForInequality("GObject", name_, cp.name_,"name_", "cp.name_", expected)) return false;
+	if(checkForInequality("GObject", productionPlace_, cp.productionPlace_,"productionPlace_", "cp.productionPlace_", expected)) return false;
+
 	else return true;
 }
 
@@ -153,6 +164,8 @@ bool  GObject::isSimilarTo(const GObject& cp, const double& limit,  const boost:
     using namespace Gem::Util;
 
 	if(checkForDissimilarity("GObject", name_, cp.name_,limit, "name_", "cp.name_", expected)) return false;
+	if(checkForDissimilarity("GObject", productionPlace_, cp.productionPlace_,limit, "productionPlace_", "cp.productionPlace_", expected)) return false;
+
 	else return true;
 }
 
@@ -174,6 +187,16 @@ bool  GObject::isSimilarTo(const GObject& cp, const double& limit,  const boost:
  */
 bool  GObject::isNotSimilarTo(const GObject& cp, const double& limit,  const boost::logic::tribool& expected) const {
 	return !this->isSimilarTo(cp, limit, expected);
+}
+
+/**************************************************************************************************/
+/**
+ * Determines whether production of random numbers should happen remotely (true) or
+ * locally (false)
+ */
+void GObject::setProductionPlace(const bool& productionPlace) {
+	gr.setProductionPlace(productionPlace);
+	productionPlace_ = productionPlace;
 }
 
 /**************************************************************************************************/
@@ -295,6 +318,10 @@ void GObject::load(const GObject *cp) {
 
 	// Load the actual data
 	name_ = cp->name_;
+	productionPlace_ = cp->productionPlace_;
+
+	// Adjust the production place
+	gr.setProductionPlace(productionPlace_);
 }
 
 /**************************************************************************************************/

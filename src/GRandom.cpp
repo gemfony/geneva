@@ -33,8 +33,11 @@ namespace Util {
  * is still needed.
  */
 GRandom::GRandom()
-	:current01_(0),
-	 grf_(GRANDOMFACTORY)
+	:currentPackageSize_(DEFAULTARRAYSIZE),
+	 current01_(0),
+	 grf_(GRANDOMFACTORY),
+	 lf(GRandomFactory::GSeed()),
+	 productionPlace_(true) // remote production
 { /* nothing */ }
 
 /*************************************************************************/
@@ -42,6 +45,7 @@ GRandom::GRandom()
  * A standard destructor
  */
 GRandom::~GRandom() {
+	currentPackageSize_ = DEFAULTARRAYSIZE;
 	p_raw_ = (double *)NULL;
 	p01_.reset();
 	grf_.reset();
@@ -49,19 +53,45 @@ GRandom::~GRandom() {
 
 /*************************************************************************/
 /**
- * This function emits evenly distributed random numbers in the range [0,1[ .
- * Random numbers are usually not produced locally, but are taken from an array
- * provided by the the GRandomFactory class. Random numbers are only produced
- * locally if no valid array could be retrieved.
+ * Specififies whether production should happen in the factory or locally
  *
- * @return Random numbers evenly distributed in the range [0,1[ .
+ * @param productionPlace A boolean indicating whether production should happen remotely (true) or locally (false)
+ */
+void GRandom::setProductionPlace(const bool& productionPlace) {
+	productionPlace_ = productionPlace;
+}
+
+/*************************************************************************/
+/**
+ *	Returns local or factory random numbers, depending on the
+ *	productionPlace_  variable.
+ *
+ *	@return Random numbers evenly distributed in the range [0, 1[
  */
 double GRandom::evenRandom() {
-	// If the object has been newly created,
-	// p01_ will be empty
-	if (!p01_ || current01_ == DEFAULTARRAYSIZE) {
+	if(productionPlace_) {// true means remote
+		return evenRandomFromFactory();
+	}
+	else {
+		return lf();
+	}
+}
+
+
+/*************************************************************************/
+/**
+ * This function emits evenly distributed random numbers in the range [0,1[ .
+ * Random numbers are not produced locally, but are taken from an array
+ * provided by the the GRandomFactory class. Random numbers are only
+ * produced locally if no valid array could be retrieved.
+ *
+ * @return Random numbers evenly distributed in the range [0,1[
+ */
+double GRandom::evenRandomFromFactory() {
+	// If the object has been newly created, p01_ will be empty
+	if (!p01_ || (current01_ == currentPackageSize_+1)) {
 		getNewP01();
-		current01_ = 0;
+		current01_ = 1; // Position 0 is the array size
 	}
 
 	return p_raw_[current01_++];
@@ -178,10 +208,11 @@ char GRandom::charRandom(const bool& printable) {
  */
 void GRandom::fillContainer01() {
 	boost::lagged_fibonacci607 lf(GRandomFactory::GSeed());
-	boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
+	boost::shared_array<double> p(new double[currentPackageSize_+1]);
 	double *local_p = p.get();
+	local_p[0] = static_cast<double>(currentPackageSize_);
 
-	for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++) {
+	for (std::size_t i = 1; i <= currentPackageSize_; i++) {
 #ifdef DEBUG
 		double value = lf();
 		assert(value>=0. && value<1.);
@@ -205,12 +236,16 @@ void GRandom::getNewP01() {
 	if (!grf_ || !p01_) {
 		// Something went wrong with the retrieval of the
 		// random number container. We need to create
-		// our own instead.
+		// our own instead. This will be done with the last
+		// known array size
 		GRandom::fillContainer01();
 	}
 
 	// We should now have a valid p01_ in any case
 	p_raw_ = p01_.get();
+
+	// Extract the array size for later use
+	currentPackageSize_ = static_cast<std::size_t>(p_raw_[0]);
 }
 
 /*************************************************************************/

@@ -87,10 +87,22 @@ class GObject
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive & ar, const unsigned int){
+    void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
       ar & make_nvp("name_",GObject::name_);
+      ar & make_nvp("productionPlace_", productionPlace_);
     }
+
+    template<typename Archive>
+    void load(Archive & ar, const unsigned int){
+        using boost::serialization::make_nvp;
+        ar & make_nvp("name_",GObject::name_);
+        ar & make_nvp("productionPlace_", productionPlace_);
+
+        gr.setProductionPlace(productionPlace_);
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
     ///////////////////////////////////////////////////////////////////////
 
 public:
@@ -118,6 +130,9 @@ public:
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for dissimilarity with another GObject object (or a derivative) */
 	virtual bool isNotSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Determines whether production of random numbers should happen remotely (true) or locally (false) */
+	void setProductionPlace(const bool&);
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);
@@ -254,6 +269,7 @@ protected:
 
 private:
 	std::string name_; ///< Allows to assign a name to this object
+	bool productionPlace_;
 };
 
 } /* namespace GenEvA */

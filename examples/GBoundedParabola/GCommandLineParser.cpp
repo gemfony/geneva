@@ -37,6 +37,7 @@ bool parseCommandLine(int argc, char **argv,
 					  double& parabolaMax,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
+					  boost::uint16_t& nEvaluationThreads,
 					  std::size_t& populationSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,
@@ -44,6 +45,8 @@ bool parseCommandLine(int argc, char **argv,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
 					  bool& parallel,
+					  std::size_t& arraySize,
+					  bool& productionPlace,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -63,6 +66,8 @@ bool parseCommandLine(int argc, char **argv,
 					"Upper boundary for random numbers")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
+			("nEvaluationThreads,N",po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
+					"The amount of threads processing individuals simultaneously")
 			("populationSize,S",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
 					"The size of the super-population")
 			("nParents,P",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
@@ -77,6 +82,10 @@ bool parseCommandLine(int argc, char **argv,
 					"The recombination scheme for the super-population")
 			("parallel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
 			                "Whether or not to run this optimization in multi-threaded mode")
+			("arraySize,A", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
+					"The size of the buffer with random arrays in the random factory")
+		    ("productionPlace,D", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
+		    		"Whether production of random numbers should happen locally or remotely")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -135,6 +144,9 @@ bool parseCommandLine(int argc, char **argv,
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
+					  << "parallel = " << parallel << std::endl
+					  << "arraySize = " << arraySize << std::endl
+					  << "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
 					  << std::endl;
 		}
 	}

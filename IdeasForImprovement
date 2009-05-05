@@ -36,7 +36,7 @@
   Order DUPLICATE(M) -> MUTATE -> EVALUATE. Earlier orders imply the latter
 - Network transfers initiated by clients in separate thread, in parallel to the calculation, thereby eliminating 
   part of the network overhead
-- Coding central routines (particularly even RNR generation and transformation to gaussian RNR in assembler ? (Would be fun ...)
+- Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
 - It should be possible to ask individuals to take charge of the external evaluation of other individuals as well, avoiding generation of local, random copies
 - RNR in float faster ?
 - Rename GBasePopulation and/or GBrokerPopulation, e.g. to GenevaPopulation ?
@@ -53,4 +53,6 @@
   additionally emit information on the location of the deviation, if requested. Performance is not an issue for these functions
 - The GNeuralNetworkIndividual needs to be renovated (e.g. the isEqualTo function needs to be added).
 - Same for GNoisyParabolaIndividual and GProjectionIndividual
-- Need checkForInequality and checkForDissimilarity specializations for std::map, std::vector<T> and std::vector<boost::shared_ptr<T> >   
+- Add test for very large GBoundedDoubleCollections in order to test memory limits
+- Perform tests and benchmarks also with local random number creation
+- Test that seeding works with local random number creation

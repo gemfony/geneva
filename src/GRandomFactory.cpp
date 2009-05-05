@@ -36,7 +36,7 @@ boost::mutex randomseed_mutex;
  * Initialize of static data members
  */
 boost::uint16_t Gem::Util::GRandomFactory::multiple_call_trap_ = 0;
-boost::mutex Gem::Util::GRandomFactory::thread_creation_mutex_;
+boost::mutex Gem::Util::GRandomFactory::factory_creation_mutex_;
 
 /*************************************************************************/
 /**
@@ -44,21 +44,22 @@ boost::mutex Gem::Util::GRandomFactory::thread_creation_mutex_;
  * creates a predefined number of threads.
  */
 GRandomFactory::GRandomFactory()  :
+	arraySize_(DEFAULTARRAYSIZE),
+	threadsHaveBeenStarted_(false),
 	seed_(GRandomFactory::GSeed()),
 	n01Threads_(DEFAULT01PRODUCERTHREADS),
 	g01_ (boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Util::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
 {
-	{ // explicit scope ensures proper destruction of mutex
-		boost::mutex::scoped_lock lk(thread_creation_mutex_);
-		if(multiple_call_trap_ > 0) {
-			std::ostringstream error;
-			error << "Error in GRandomFactory::GRandomFactory(): class has been instantiated before." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
-		}
-		else {
-			startProducerThreads();
-			multiple_call_trap_++;
-		}
+	boost::mutex::scoped_lock lk(factory_creation_mutex_);
+	if(multiple_call_trap_ > 0) {
+		std::ostringstream error;
+		error << "Error in GRandomFactory::GRandomFactory():" << std::endl
+		         << "Class has been instantiated before." << std::endl
+		         << "and may be instantiated only once" << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+	else {
+		multiple_call_trap_++;
 	}
 }
 
@@ -74,39 +75,111 @@ GRandomFactory::~GRandomFactory() {
 
 /*************************************************************************/
 /**
+ * Allows to globally set the size of random number arrays. Note that this function
+ * will throw if  an array size of 0 was requested. Calling this function from
+ * multipe threads is not recommended, as the new array size will have
+ * no effects on the existing items in the buffer, and so changing the array
+ * size from different locations will lead to confusion.
+ *
+ * @param arraySize The desired size of the array
+ */
+void GRandomFactory::setArraySize(const std::size_t& arraySize) {
+	if(arraySize == 0) {
+		std::ostringstream error;
+		error << "In GRandomFactory::setArraySize(): Error" << std::endl
+		          << "Requested array size is 0: " << arraySize << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
+	{
+		boost::mutex::scoped_lock lk(arraySizeMutex_);
+		arraySize_ = arraySize;
+	}
+}
+
+/*************************************************************************/
+/**
+ * Allows to retrieve the current value of the arraySize_ variable. Note that
+ * its value may change after retrieval.
+ *
+ * @return The current value of the arraySize_ variable
+ */
+std::size_t GRandomFactory::getCurrentArraySize() const {
+	std::size_t result;
+
+	{
+		boost::mutex::scoped_lock lk(arraySizeMutex_);
+		result = arraySize_;
+	}
+
+	return result;
+}
+
+/*************************************************************************/
+/**
+ * Retrieves the size of the random buffer
+ *
+ * @return The size of the random buffer
+ */
+std::size_t GRandomFactory::getBufferSize() const {
+	return DEFAULTFACTORYBUFFERSIZE;
+}
+
+/*************************************************************************/
+/**
  * Sets the number of producer threads for this factory.
  *
  * @param n01Threads
  */
 void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 {
-	if (n01Threads > n01Threads_) { // start new 01 threads
-		for (boost::uint16_t i = n01Threads_; i < n01Threads; i++) {
-			producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_++));
-		}
-	} else if (n01Threads < n01Threads_) { // We need to remove threads
-		if (n01Threads == 0)
-			return; // We need at least 1 thread
-
-		producer_threads_01_.remove_last(n01Threads_ - n01Threads);
+	// Do some error checking
+	if (n01Threads == 0)	{  // We need at least 1 thread
+		std::ostringstream error;
+		error << "In GRandomFactory::setNProducerThreads(): Error" << std::endl
+		          << "Requested 0 threads: " << n01Threads << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
 	}
 
-	n01Threads_ = n01Threads;
+	// Threads might already be running, so we need to restrict access
+	{
+		boost::mutex::scoped_lock lk(thread_creation_mutex_);
+		if(threadsHaveBeenStarted_) {
+			if (n01Threads > n01Threads_) { // start new 01 threads
+				for (boost::uint16_t i = n01Threads_; i < n01Threads; i++) {
+					producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_++));
+				}
+			} else if (n01Threads < n01Threads_) { // We need to remove threads
+				producer_threads_01_.remove_last(n01Threads_ - n01Threads);
+			}
+		}
+
+		n01Threads_ = n01Threads;
+	}
 }
 
 /*************************************************************************/
 /**
- * When objects need new [0,1[ random numbers, they call this function. Note
- * that calling threads are responsible for catching the boost::thread_interrupted
- * exception.
+ * When objects need a new container [0,1[ of random numbers with the current
+ * default size, they call this function. Note that calling threads are responsible
+ * for catching the boost::thread_interrupted exception.
  *
  * @return A packet of new [0,1[ random numbers
  */
 boost::shared_array<double> GRandomFactory::new01Container() {
+	// Start the producer threads upon first access to this function
+	if(!threadsHaveBeenStarted_) {
+		boost::mutex::scoped_lock lk(thread_creation_mutex_);
+		if(!threadsHaveBeenStarted_) {
+			startProducerThreads();
+			threadsHaveBeenStarted_=true;
+		}
+	}
+
 	boost::shared_array<double> result; // empty
 
 	try {
-		g01_->pop_back(&result, boost::posix_time::milliseconds(DEFAULTFACTORYPUTWAIT));
+		g01_->pop_back(&result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Util::gem_util_condition_time_out&) {
 		// nothing - our way of signaling a time out
 		// is to return an empty boost::shared_ptr
@@ -150,24 +223,37 @@ void GRandomFactory::startProducerThreads()  {
  * is called in a thread, it may not throw under any circumstance. Exceptions
  * could otherwise go unnoticed. Hence this function has a possibly confusing
  * setup. Note that we do not use the global logger, as we do not want to risk
- * accessing a singleton past its possible destruction.
+ * accessing a singleton past its possible destruction. The current value of the
+ * arraySize_ variable is stored in the random number array, so it is possible
+ * to change the size later.
  *
  * @param seed The seed for our local random number generator
  */
 void GRandomFactory::producer01(boost::uint32_t seed)  {
+	std::size_t localArraySize;
+
 	try {
 		boost::lagged_fibonacci607 lf(seed);
 
 		while (true) {
 			if(boost::this_thread::interruption_requested()) break;
 
-			boost::shared_array<double> p(new double[DEFAULTARRAYSIZE]);
+			{
+				// Retrieve the current array size. Reading this variable should
+				// be an atomic operation and should thus not affect thread-safety.
+				boost::mutex::scoped_lock lk(arraySizeMutex_);
+				localArraySize = arraySize_;
+			}
+
+			// we want to store both the array size and the random numbers
+			boost::shared_array<double> p(new double[localArraySize + 1]);
 
 			 // Faster access during the fill procedure
 			// Note that we own the only instance of this pointer at this point
 			double *p_raw = p.get();
+			p_raw[0] = static_cast<double>(localArraySize);
 
-			for (std::size_t i = 0; i < DEFAULTARRAYSIZE; i++) {
+			for (std::size_t i = 1; i <= arraySize_; i++) {
 #ifdef DEBUG
 				double value = lf();
 				assert(value>=0. && value<1.);
@@ -191,16 +277,14 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 		std::terminate();
 	} catch (std::invalid_argument& e) {
 		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
-				  << "Caught std::invalid_argument exception with message"
-				  << std::endl << e.what() << std::endl;
+				  << "Caught std::invalid_argument exception with message"  << std::endl
+				  << e.what() << std::endl;
 
 		std::terminate();
 	} catch (boost::thread_resource_error&) {
 		std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
-				  << "Caught boost::thread_resource_error exception which"
-				  << std::endl
-				  << "likely indicates that a mutex could not be locked."
-				  << std::endl;
+				  << "Caught boost::thread_resource_error exception which"  << std::endl
+				  << "likely indicates that a mutex could not be locked."  << std::endl;
 
 		// Terminate the process
 		std::terminate();

@@ -65,6 +65,8 @@ const bool DEFAULTPARALLEL=true;
 const bool DEFAULTMAXIMIZE=false;
 const bool DEFAULTSORTINGSCHEME=true; // MUPLUSNU
 const double DEFAULTQTHRESHOLD=0.;
+const std::size_t DEFAULTARRAYSIZE=1000;
+const bool DEFAULTPRODUCTIONPLACE=true; // remote production
 
 namespace po = boost::program_options;
 
@@ -84,6 +86,8 @@ bool parseCommandLine(int argc, char **argv,
 					  bool& sortingScheme,
 					  bool& parallel,
 					  bool& maximize,
+					  std::size_t& arraySize,
+					  bool& productionPlace,
 					  bool& verbose);
 
 } /* namespace GenEvA */

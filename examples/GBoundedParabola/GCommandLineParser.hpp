@@ -53,6 +53,7 @@ const std::size_t DEFAULTPARABOLADIMENSION=1000;
 const double DEFAULTPARABOLAMIN=-100.;
 const double DEFAULTPARABOLAMAX=100.;
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
+const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
 const std::size_t DEFAULTPOPULATIONSIZE=100;
 const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
@@ -62,6 +63,8 @@ const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
 const bool DEFAULTPARALLEL=true;
+const std::size_t DEFAULTARRAYSIZE=1000;
+const bool DEFAULTPRODUCTIONPLACE=false; // local production
 
 namespace po = boost::program_options;
 
@@ -71,6 +74,7 @@ bool parseCommandLine(int argc, char **argv,
 					  double& parabolaMax,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
+					  boost::uint16_t& nEvaluationThreads,
 					  std::size_t& populationSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,
@@ -78,6 +82,8 @@ bool parseCommandLine(int argc, char **argv,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
 					  bool& parallel,
+					  std::size_t& arraySize,
+					  bool& productionPlace,
 					  bool& verbose);
 
 } /* namespace GenEvA */

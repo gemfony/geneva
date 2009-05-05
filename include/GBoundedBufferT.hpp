@@ -190,7 +190,7 @@ public:
 	 *
 	 * @param item An item to be added to the front of the buffer
 	 */
-	void push_front(const value_type& item)
+	void push_front(value_type item)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		// Note that this overload of wait() internally runs a loop on is_not_full to
@@ -210,7 +210,7 @@ public:
 	 * @param item An item to be added to the front of the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
-	void push_front(const value_type& item, const boost::posix_time::time_duration& timeout)
+	void push_front(value_type item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_full_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_full, this)))

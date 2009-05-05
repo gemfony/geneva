@@ -78,10 +78,10 @@ namespace Util {
 /****************************************************************************/
 // Some constants needed for the random number generation
 
-const std::size_t DEFAULTARRAYSIZE = 10000; ///< Default size of the random number array
-const std::size_t DEFAULTFACTORYBUFFERSIZE = 400; ///< Default size of the underlying buffer
-const boost::uint16_t DEFAULTFACTORYPUTWAIT = 10; ///< waiting time in milliseconds
-const boost::uint16_t DEFAULTFACTORYGETWAIT = 10; ///< waiting time in milliseconds
+const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
+const std::size_t DEFAULTFACTORYBUFFERSIZE = 200; ///< Default size of the underlying buffer
+const boost::uint16_t DEFAULTFACTORYPUTWAIT = 5; ///< waiting time in milliseconds
+const boost::uint16_t DEFAULTFACTORYGETWAIT = 5; ///< waiting time in milliseconds
 
 /****************************************************************************/
 /**
@@ -121,8 +121,16 @@ public:
 
 	/** @brief Sets the number of producer threads for this factory. */
 	void setNProducerThreads(const boost::uint16_t&);
-	/** @brief Delivers a new [0,1[ random number container to clients */
+	/** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
 	boost::shared_array<double> new01Container();
+
+	/** @brief Allows to set the size of random number arrays */
+	void setArraySize(const std::size_t&);
+	/** @brief Allows to retrieve the current value of the arraySize_ variable */
+	std::size_t getCurrentArraySize() const;
+
+	/** @brief Allows to retrieve the size of the buffer */
+	std::size_t getBufferSize() const;
 
 	/** @brief Calculation of a seed for the random numbers */
 	static boost::uint32_t GSeed();
@@ -138,6 +146,8 @@ private:
 	/** @brief The production of [0,1[ random numbers takes place here */
 	void producer01(boost::uint32_t seed);
 
+	std::size_t arraySize_;
+	bool threadsHaveBeenStarted_;
 	boost::uint32_t seed_; ///< The seed for the random number generators
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
@@ -146,7 +156,10 @@ private:
 	boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > > g01_; // Note: Absolutely needs to be defined after the thread group !!!
 
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
-	static boost::mutex thread_creation_mutex_; ///< Synchronization of access tp multiple_call_trap and thread creation
+	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
+
+	boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
+	mutable boost::mutex arraySizeMutex_; ///< Regulates access to the arraySize_ variable
 };
 
 } /* namespace Util */
