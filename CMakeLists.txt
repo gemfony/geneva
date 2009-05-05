@@ -1,6 +1,6 @@
 PROJECT (geneva)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
@@ -12,6 +12,13 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # Set once for Eclipse to find the boost libraries, you can then comment
 #   it out again
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
+
+# Uncomment to compile static libs
+#SET( GENEVA_STATIC TRUE )
+
+# Set the build type (default value is "Release")
+#SET( CMAKE_BUILD_TYPE Debug )
+
 
 # Set the build type to Release by default
 IF(NOT CMAKE_BUILD_TYPE)
@@ -37,7 +44,23 @@ ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 	ENDIF()
 ENDIF()
 
-SET (Boost_USE_STATIC_LIBS OFF)
+# Set the library type to shared by default
+IF( NOT GENEVA_STATIC )
+	SET( GENEVA_STATIC FALSE )
+ENDIF()
+
+IF( GENEVA_STATIC )
+	SET (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -lpthread")
+	SET (LINK_FLAGS "-static-libgcc -lpthread")
+	SET (BUILD_SHARED_LIBS OFF)
+	SET (Boost_USE_STATIC_LIBS ON)
+	# Why is this needed for static and not for shared libs??
+	LINK_LIBRARIES (pthread)
+ELSE()
+	SET (BUILD_SHARED_LIBS ON)
+	SET (Boost_USE_STATIC_LIBS OFF)
+ENDIF()
+
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS "1.39" "1.39.0")
 
