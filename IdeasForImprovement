@@ -56,3 +56,4 @@
 - Add test for very large GBoundedDoubleCollections in order to test memory limits
 - Perform tests and benchmarks also with local random number creation
 - Test that seeding works with local random number creation
+- Track down all used of setSigmaRange and associates and check for consistency

@@ -63,8 +63,7 @@ const std::string GGAUSSADAPTORSTANDARDNAME = "GGaussAdaptorT"; ///< The designa
  * The type used needs to be specified as a template parameter.
  */
 template<typename T>
-class GGaussAdaptorT:
-	public GAdaptorT<T>
+class GGaussAdaptorT :public GAdaptorT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -96,25 +95,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * In addition to passing the name of the adaptor to the parent class,
-	 * it is also possible to specify a value for the sigma_ parameter in
-	 * this constructor.
-	 *
-	 * @param sigma The initial value for the sigma_ parameter
-	 */
-	explicit GGaussAdaptorT(const double& sigma)
-		:GAdaptorT<T> (GGAUSSADAPTORSTANDARDNAME),
-		 sigmaSigma_(DEFAULTSIGMASIGMA),
-		 minSigma_(DEFAULTMINSIGMA),
-		 maxSigma_(DEFAULTMAXSIGMA)
-	{
-		// This functions does an error check on sigma, so we do not assign
-		// the value directly to the private variable.
-		setSigma(sigma);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * This constructor lets a user set all parameters in one go.
 	 *
 	 * @param sigma The initial value for the sigma_ parameter
@@ -124,7 +104,11 @@ public:
 	 */
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
-		:GAdaptorT<T> (GGAUSSADAPTORSTANDARDNAME)
+		:GAdaptorT<T> (GGAUSSADAPTORSTANDARDNAME),
+		 sigma_(DEFAULTSIGMA),
+		 sigmaSigma_(DEFAULTSIGMASIGMA),
+		 minSigma_(DEFAULTMINSIGMA),
+		 maxSigma_(DEFAULTMAXSIGMA)
 	{
 		// These functions do error checks on their values
 		setSigmaAdaptionRate(sigmaSigma);
@@ -134,17 +118,18 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * A standard copy constructor.
+	 * A standard copy constructor. It assumes that the values of the other object are correct
+	 * and does no additional error checks.
 	 *
 	 * @param cp Another GGaussAdaptorT object
 	 */
 	GGaussAdaptorT(const GGaussAdaptorT<T>& cp)
-		:GAdaptorT<T> (cp)
-	{
-		setSigmaAdaptionRate(cp.sigmaSigma_);
-		setSigmaRange(cp.minSigma_, cp.maxSigma_);
-		setSigma(cp.sigma_);
-	}
+		:GAdaptorT<T> (cp),
+		 sigma_(cp.sigma_),
+		 sigmaSigma_(cp.sigmaSigma_),
+		 minSigma_(cp.minSigma_),
+		 maxSigma_(cp.maxSigma_)
+	{ /* nothing */	}
 
 	/********************************************************************************************/
 	/**
@@ -169,6 +154,7 @@ public:
 	/********************************************************************************************/
 	/**
 	 * This function loads the data of another GGaussAdaptorT, camouflaged as a GObject.
+	 * We assume that the values given to us by the other object are correct and do no error checks.
 	 *
 	 * @param A copy of another GGaussAdaptorT, camouflaged as a GObject
 	 */
