@@ -24,6 +24,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 // Boost header files go here
 
@@ -36,6 +37,7 @@
 #include "GLogger.hpp"
 #include "GLogTargets.hpp"
 #include "GRandom.hpp"
+#include "GEnums.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -54,7 +56,70 @@ const std::size_t NRNR = 100000;
 // Test features that are expected to work
 BOOST_AUTO_TEST_CASE( GRandom_no_failure_expected )
 {
-	GRandom gr1, gr2;
+	const boost::uint32_t startSeed = 41;
+	BOOST_CHECK(GRANDOMFACTORY->checkSeedIsInitialized() == false);
+
+	// Check that we can set and retrieve the current seed
+	GRANDOMFACTORY->setSeed(startSeed);
+	BOOST_CHECK(GRANDOMFACTORY->checkSeedIsInitialized() == true);
+	boost::uint32_t  testSeed = GRANDOMFACTORY->getSeed();
+	BOOST_CHECK_MESSAGE(testSeed == startSeed, "testSeed = " << testSeed << ", should be " << startSeed);
+
+	// Check that seeding creates different values during every call
+	std::vector<boost::uint32_t> seedVec(static_cast<boost::uint32_t>(NRNR));
+	for(std::size_t i=0; i<NRNR; i++) {
+		seedVec.at(i) = GRandomFactory::GSeed();
+	}
+	std::sort(seedVec.begin(), seedVec.end());
+	for(std::size_t i=1; i<NRNR; i++) {
+		BOOST_CHECK(seedVec.at(i) > seedVec.at(i-1));
+	}
+
+	GRandom gr1, gr2, gr3;
+	boost::shared_ptr<GRandom> gr4_ptr(new GRandom());
+
+	// Make gr1 and gr2 use the random factory
+	BOOST_CHECK_NO_THROW(gr1.setRNRFactoryMode());
+	BOOST_CHECK_NO_THROW(gr2.setRNRFactoryMode());
+
+	// As now four random number generators have been started, the global seed should have
+	// been incremented. Setting a new start seed should be ignored, and the current seed should
+	// be different from the start seed
+	BOOST_CHECK(GRANDOMFACTORY->getSeed() > startSeed);
+	GRANDOMFACTORY->setSeed(startSeed);
+	BOOST_CHECK(GRANDOMFACTORY->getSeed() > startSeed);
+
+	// gr1 and gr2 should have received different seeds
+	boost::uint32_t seed1, seed2;
+	seed1 = gr1.getSeed();
+	seed2 = gr2.getSeed();
+	BOOST_CHECK_MESSAGE(seed1 != seed2, "Error: Found equal seeds: " << seed1 << " " << seed2);
+
+	// Check that we can set gr3's production flags and can prouce a number of random numbers
+	gr3.setRNRFactoryMode();
+	BOOST_CHECK(gr3.getRNRGenerationMode () == Gem::Util::RNRFACTORY);
+	double last = -1., now=0.;
+	for(std::size_t i=0; i<NRNR; i++) {
+		now = gr3.evenRandom();
+		BOOST_CHECK_MESSAGE(now != last, "Found equal random numbers(1)" << last << " " << now);
+		last = now;
+	}
+	gr3.setRNRLocalMode();
+	BOOST_CHECK(gr3.getRNRGenerationMode () == Gem::Util::RNRLOCAL);
+	last = -1., now=0.;
+	for(std::size_t i=0; i<NRNR; i++) {
+		now = gr3.evenRandom();
+		BOOST_CHECK_MESSAGE(now != last, "Found equal random numbers(1)" << last << " " << now);
+		last = now;
+	}
+	gr3.setRNRProxyMode(gr4_ptr);
+	BOOST_CHECK(gr3.getRNRGenerationMode () == Gem::Util::RNRPROXY);
+	last = -1., now=0.;
+	for(std::size_t i=0; i<NRNR; i++) {
+		now = gr3.evenRandom();
+		BOOST_CHECK_MESSAGE(now != last, "Found equal random numbers(1)" << last << " " << now);
+		last = now;
+	}
 
 	// Check that two objects emit different values
 	const std::size_t arraySize=10;

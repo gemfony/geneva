@@ -178,6 +178,18 @@ bool GBrokerPopulation::isSimilarTo(const GObject& cp, const double& limit, cons
 	return true;
 }
 
+/******************************************************************/
+/**
+ * Determines whether production of random numbers should happen remotely
+ * (RNRFACTORY) or locally (RNRLOCAL)
+ *
+ * @param rnrGenMode A parameter which indicates where random numbers should be produced
+ */
+void GBrokerPopulation::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+	// Set the parent number's mode
+	GBasePopulation::setRnrGenerationMode(rnrGenMode);
+}
+
 /******************************************************************************/
 /**
  * Sets the waitFactor_ variable. This population measures the time until the

@@ -78,6 +78,15 @@
 namespace Gem {
 namespace Util {
 
+// const choices of glibc for the linear congruential algorithm,
+// according to Wikipedia . Used for local random number
+// generation. See http://en.wikipedia.org/wiki/Linear_congruential_generator
+// for further information.
+const boost::uint32_t rnr_m = 4294697296; // 2^32
+const boost::uint32_t rnr_a = 1103515245;
+const boost::uint32_t rnr_c = 12345;
+const double rnr_max = static_cast<double>(std::numeric_limits<boost::uint32_t>::max());
+
 /****************************************************************************/
 /**
  * This class gives objects access to random numbers. It internally handles
@@ -94,60 +103,26 @@ public:
 	/** @brief A standard destructor */
 	~GRandom();
 
-	/** @brief Specififies where production of random numbers should take place */
-	void setProductionPlace(const bool&);
-
 	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
 	double evenRandom();
+	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
+	double evenRandomFromFactory();
+	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
+	double evenRandomLocalProduction();
 	/** @brief Emits evenly distributed random numbers in the range [0,max[ */
 	double evenRandom(const double&);
 	/** @brief Produces evenly distributed random numbers in the range [min,max[ */
 	double evenRandom(const double&, const double&);
+
 	/** @brief Produces gaussian-distributed random numbers */
 	double gaussRandom(const double&, const double&);
 	/** @brief Produces two gaussians with defined distance */
 	double doubleGaussRandom(const double&, const double&, const double&);
 
-	/*************************************************************************/
-	/**
-	 * This function produces integer random numbers in the range of [0, max[ .
-	 *
-	 * @param max The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [0,max[
-	 */
-	template <typename int_type>
-	int_type discreteRandom(const int_type& max) {
-	#ifdef DEBUG
-		int_type result = boost::numeric_cast<int_type> (this->evenRandom(boost::numeric_cast<double> (max)));
-		assert(result<max);
-		return result;
-	#else
-		return static_cast<int_type>(this->evenRandom(static_cast<double>(max)));
-	#endif
-	}
-
-	/*************************************************************************/
-	/**
-	 * This function produces integer random numbers in the range of [min, max[ .
-	 * Note that max may also be < 0. .
-	 *
-	 * @param min The minimum value of the range
-	 * @param max The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [min,max[
-	 */
-	template <typename int_type>
-	int_type discreteRandom(const int_type& min, const int_type& max) {
-	#ifdef DEBUG
-		assert(min < max);
-		int_type result = boost::numeric_cast<int_type>(discreteRandom(max - min) + min);
-		assert(result>=min && result<max);
-		return result;
-	#else
-		return discreteRandom(max - min) + min;
-	#endif
-	}
-
-	/*************************************************************************/
+	/** @brief Produces integer random numbers in the range of [0, max[  */
+	template <typename int_type> int_type discreteRandom(const int_type&);
+	/** @brief Produces integer random numbers in the range of [min, max[ . */
+	template <typename int_type> int_type discreteRandom(const int_type&, const int_type&);
 
 	/** @brief Produces bool values with a 50% likelihood each for true and false. */
 	bool boolRandom();
@@ -156,10 +131,23 @@ public:
 	/** @brief Produces random ASCII characters */
 	char charRandom(const bool& printable = true);
 
-private:
-	/** @brief Evenly distributed random numbers taken from a random factory */
-	double evenRandomFromFactory();
+	/** @brief Retrieves the current random number generation mode */
+	Gem::Util::rnrGenerationMode getRNRGenerationMode () const;
+	/** @brief Specifies a rng-proxy to be used and empties the p01_ array */
+	void setRNRProxyMode(boost::shared_ptr<Gem::Util::GRandom>);
+	/** @brief  Switches to factory production mode */
+	void setRNRFactoryMode();
+	/** @brief Switches to local production mode, using GRandomFactory::GSeed() for seeding */
+	void setRNRLocalMode();
+	/** @brief Switches to local production mode, using the supplied seed value */
+	void setRNRLocalMode(const boost::uint32_t&);
 
+	/** @brief Allows to store a user-defined seed for local random number generation */
+	void setSeed(const boost::uint32_t&);
+	/** @brief Retrieves the current seed valie */
+	boost::uint32_t getSeed();
+
+private:
 	GRandom(const GRandom&); ///< Intentionally left undefined
 	GRandom& operator=(const GRandom&); ///< Intentionally left undefined
 
@@ -168,19 +156,62 @@ private:
 	/** @brief (Re-)Initialization of p01_ */
 	void getNewP01();
 
-	std::size_t currentPackageSize_; ///< The package size, as obtained from the factory
+	rnrGenerationMode currentGenerationMode_; ///< The current random number generation mode. Size 4 Byte on a 64bit system
 
-	boost::shared_array<double> p01_; ///< Holds the container of [0,1[ random numbers
-	std::size_t current01_; ///< The current position in p01_
-	double *p_raw_; ///< A pointer to the content of p01_ for faster access
+	// The following options are used when random numbers are taken from the factory
+	std::size_t currentPackageSize_; ///< The package size, as obtained from the factory.  Size is 8 byte on a 64 bit system
+	boost::shared_array<double> p01_; ///< Holds the container of [0,1[ random numbers  Size is 16 bytes on a 64 bit system
+	std::size_t current01_; ///< The current position in p01_.  Size is 8 byte on a 64 bit system
+	double *p_raw_; ///< A pointer to the content of p01_ for faster access.  Size is 8 byte on a 64 bit system
+	boost::shared_ptr<Gem::Util::GRandomFactory> grf_; ///< A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system (?)
 
-	boost::shared_ptr<Gem::Util::GRandomFactory> grf_; ///< A local copy of the global GRandomFactory
+	// Used in conjunction with the local generation of random numbers
+	boost::uint32_t rnr_last_; ///< Used as a start value for the local random number generator.  Size is 4 byte on a 64 bit system
 
-	boost::lagged_fibonacci607 lf; ///< Our own private random number generator
-	bool productionPlace_; ///< Specifies whether production happens remotely (true) or locally (false)
+	// Used when random numbers are retrieved from a proxy generator
+	boost::shared_ptr<Gem::Util::GRandom> gr_proxy_ptr_; // Size is 16 byte on a 64 bit system (?)
 };
 
 /****************************************************************************/
+/**
+ * This function produces integer random numbers in the range of [0, max[ .
+ *
+ * @param max The maximum (excluded) value of the range
+ * @return Discrete random numbers evenly distributed in the range [0,max[
+ */
+template <typename int_type>
+int_type GRandom::discreteRandom(const int_type& max) {
+#ifdef DEBUG
+	int_type result = boost::numeric_cast<int_type> (this->evenRandom(boost::numeric_cast<double> (max)));
+	assert(result<max);
+	return result;
+#else
+	return static_cast<int_type>(this->evenRandom(static_cast<double>(max)));
+#endif
+}
+
+/*************************************************************************/
+/**
+ * This function produces integer random numbers in the range of [min, max[ .
+ * Note that max may also be < 0. .
+ *
+ * @param min The minimum value of the range
+ * @param max The maximum (excluded) value of the range
+ * @return Discrete random numbers evenly distributed in the range [min,max[
+ */
+template <typename int_type>
+int_type GRandom::discreteRandom(const int_type& min, const int_type& max) {
+#ifdef DEBUG
+	assert(min < max);
+	int_type result = boost::numeric_cast<int_type>(discreteRandom(max - min) + min);
+	assert(result>=min && result<max);
+	return result;
+#else
+	return discreteRandom(max - min) + min;
+#endif
+}
+
+/*************************************************************************/
 
 template <> double GRandom::discreteRandom(const double&); ///< Specialization for double
 template <>	double GRandom::discreteRandom(const double&, const double&); ///< Specialization for double

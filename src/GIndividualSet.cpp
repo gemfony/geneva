@@ -124,6 +124,18 @@ namespace Gem
 
 		/******************************************************************/
 		/**
+		 * Determines whether production of random numbers should happen remotely
+		 * (RNRFACTORY) or locally (RNRLOCAL)
+		 *
+		 * @param rnrGenMode A parameter which indicates where random numbers should be produced
+		 */
+		void GIndividualSet::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+			// Set the parent number's mode
+			GMutableSetT<Gem::GenEvA::GIndividual>::setRnrGenerationMode(rnrGenMode);
+		}
+
+		/******************************************************************/
+		/**
 		 * Loads the data of another GObject
 		 *
 		 * @param cp Another GIndividualSet object, camouflaged as a GObject

@@ -27,9 +27,12 @@ namespace Util {
 
 /*************************************************************************/
 /**
- * Synchronization of access to boost::date_time functions.
+ * Declaration (and initialization) of some global mutexes and data items
  */
 boost::mutex randomseed_mutex;
+boost::mutex global_seed_mutex_;
+boost::uint32_t globalSeed = 0;  ///< A global seed that is incremented for each new invocation of GSeed()
+bool seedInitialized = false;  ///< Specifies whether an initial seed has already been set
 
 /*************************************************************************/
 /**
@@ -46,7 +49,6 @@ boost::mutex Gem::Util::GRandomFactory::factory_creation_mutex_;
 GRandomFactory::GRandomFactory()  :
 	arraySize_(DEFAULTARRAYSIZE),
 	threadsHaveBeenStarted_(false),
-	seed_(GRandomFactory::GSeed()),
 	n01Threads_(DEFAULT01PRODUCERTHREADS),
 	g01_ (boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Util::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
 {
@@ -71,6 +73,10 @@ GRandomFactory::GRandomFactory()  :
 GRandomFactory::~GRandomFactory() {
 	producer_threads_01_.interrupt_all(); // doesn't throw
 	producer_threads_01_.join_all();
+
+#ifdef DEBUG
+	std::cout << "GRandomFactory has terminated" << std::endl;
+#endif /* DEBUG */
 }
 
 /*************************************************************************/
@@ -127,6 +133,64 @@ std::size_t GRandomFactory::getBufferSize() const {
 
 /*************************************************************************/
 /**
+ * Provides users with an interface to setting the global seed variable.
+ * Note that this function will have no effect once a seed has been set.
+ * If not set by the user, GSeed will set the value upon first invocation.
+ *
+ * @param seed The desired initial value of the global seed
+ */
+void GRandomFactory::setSeed(const boost::uint32_t& seed) const {
+	GRandomFactory::setSeed_(seed); // Static, private member function
+}
+
+/*************************************************************************/
+/**
+ * Retrieval of the current value of the globalSeed variable
+ * @return The currentl value of the global seed
+ */
+boost::uint32_t GRandomFactory::getSeed() const {
+	return GRandomFactory::getSeed_(); // Static, private member function
+}
+
+/*************************************************************************/
+/**
+ * Checks whether the global seed has already been initialized
+ *
+ * @return A boolean indicating whether the seed has already been initialized
+ */
+bool GRandomFactory::checkSeedIsInitialized() const {
+	// Make sure we have sole access to global variables
+	boost::mutex::scoped_lock lk(global_seed_mutex_);
+	return seedInitialized;
+}
+
+/*************************************************************************/
+/**
+ * A static, private member function that allows to set the global
+ * seed once. After the first invocation there will be no further effect.
+ *
+ * @param seed The initial value of the global seed
+ */
+void GRandomFactory::setSeed_(const boost::uint32_t& seed) {
+	// Make sure we have sole access to global variables
+	boost::mutex::scoped_lock lk(global_seed_mutex_);
+	if(seedInitialized) return; // Do nothing after the first invocation
+	globalSeed = seed; // Set the seed as requested;
+	seedInitialized=true; // Let the audience know
+}
+
+/*************************************************************************/
+/**
+ * Retrieval of the _current_ value of the global seed
+ */
+boost::uint32_t GRandomFactory::getSeed_() {
+	// Make sure we have sole access to global variables
+	boost::mutex::scoped_lock lk(global_seed_mutex_);
+	return globalSeed;
+}
+
+/*************************************************************************/
+/**
  * Sets the number of producer threads for this factory.
  *
  * @param n01Threads
@@ -147,7 +211,8 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 		if(threadsHaveBeenStarted_) {
 			if (n01Threads > n01Threads_) { // start new 01 threads
 				for (boost::uint16_t i = n01Threads_; i < n01Threads; i++) {
-					producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_++));
+					boost::uint32_t seed_ =  GRandomFactory::GSeed();
+					producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_));
 				}
 			} else if (n01Threads < n01Threads_) { // We need to remove threads
 				producer_threads_01_.remove_last(n01Threads_ - n01Threads);
@@ -190,19 +255,20 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 
 /*************************************************************************/
 /**
- * This static function returns a seed based on the current time.
- *
- * Comments on some boost mailing lists (late 2005) seem to indicate that
- * the date_time library's functions are not re-entrant when using gcc and
- * its libraries. It was not possible to determine whether this is still
- * the case, hence we protect calls to date_time with a mutex.
+ * This static function returns a seed based on a global counter
  *
  * @return A seed based on the current time
  */
 boost::uint32_t GRandomFactory::GSeed(){
-	boost::mutex::scoped_lock lk(randomseed_mutex);
-	boost::posix_time::ptime t1;
-    return (uint32_t)t1.time_of_day().total_milliseconds();
+	if(!seedInitialized) GRandomFactory::setSeed_(DEFAULTSEED);
+
+	// Make sure we have sole access to global variables
+	boost::mutex::scoped_lock lk(global_seed_mutex_);
+
+	if(globalSeed >= std::numeric_limits<boost::uint32_t>::max() - (GLOBALSEEDINCREMENT+1)) globalSeed = DEFAULTSEED;
+	else (globalSeed+=GLOBALSEEDINCREMENT); // "7" chosen randomly -- no special meaning
+
+	return globalSeed;
 }
 
 /*************************************************************************/
@@ -213,7 +279,11 @@ void GRandomFactory::startProducerThreads()  {
 	for (boost::uint16_t i = 0; i < n01Threads_; i++) {
 		// thread() doesn't throw, and no exceptions are listed in the documentation
 		// for the create_thread() function, so we assume it doesn't throw.
-		producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_++));
+		boost::uint32_t seed_ = GRandomFactory::GSeed();
+		producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_));
+#ifdef DEBUG
+	std::cout << "Started producer thread " << i << " in GRandomFactory with seed " << seed_ << std::endl;
+#endif /* DEBUG */
 	}
 }
 

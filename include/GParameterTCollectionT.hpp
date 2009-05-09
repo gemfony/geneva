@@ -182,6 +182,24 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Determines whether production of random numbers should happen remotely
+	 * (RNRFACTORY) or locally (RNRLOCAL)
+	 *
+	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
+	 */
+	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+		// Set the parent number's mode
+		GParameterBase::setRnrGenerationMode(rnrGenMode);
+
+		// Set the modes of our local data
+		typename GParameterTCollectionT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->setRnrGenerationMode(rnrGenMode);
+		}
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GObject

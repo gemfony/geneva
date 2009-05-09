@@ -174,6 +174,18 @@ bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit,
 	return true;
 }
 
+/******************************************************************/
+/**
+ * Determines whether production of random numbers should happen remotely
+ * (RNRFACTORY) or locally (RNRLOCAL)
+ *
+ * @param rnrGenMode A parameter which indicates where random numbers should be produced
+ */
+void GBoostThreadPopulation::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+	// Set the parent number's mode
+	GBasePopulation::setRnrGenerationMode(rnrGenMode);
+}
+
 /********************************************************************/
 /**
  * We want to do all fitness calculation in the threads. Hence lazy

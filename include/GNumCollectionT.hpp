@@ -187,6 +187,18 @@ public:
 
 	/******************************************************************/
 	/**
+	 * Determines whether production of random numbers should happen remotely
+	 * (RNRFACTORY) or locally (RNRLOCAL)
+	 *
+	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
+	 */
+	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+		// Set the parent number's mode
+		GParameterCollectionT<T>::setRnrGenerationMode(rnrGenMode);
+	}
+
+	/******************************************************************/
+	/**
 	 * Creates a deep copy of this object.
 	 *
 	 * @return A pointer to a deep clone of this object

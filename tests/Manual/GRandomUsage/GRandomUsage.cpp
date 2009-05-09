@@ -67,38 +67,37 @@ enum distType {
 };
 
 template <class T>
-void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries){
-	Gem::Util::GRandom gr; // create our own local consumer
+void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Util::GRandom> gr_ptr){
 	std::size_t i;
 
 	switch(dType){
 	case GAUSSIAN: // standard distribution
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr.gaussRandom(-3.,1.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->gaussRandom(-3.,1.)));
 		break;
 
 	case DOUBLEGAUSSIAN:
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr.doubleGaussRandom(-3.,0.5,3.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->doubleGaussRandom(-3.,0.5,3.)));
 		break;
 
 	case EVEN: // double in the range [0,1[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr.evenRandom()));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->evenRandom()));
 		break;
 
 	case EVENWITHBOUNDARIES: // double in the range [-3,2[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr.evenRandom(-3.,2.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->evenRandom(-3.,2.)));
 		break;
 
 	case DISCRETE:
-		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int16_t>(gr.discreteRandom(10)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->discreteRandom(10)));
 		break;
 
 	case DISCRETEBOUND:
-		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int16_t>(gr.discreteRandom(-3,10)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->discreteRandom(-3,10)));
 		break;
 
 	case BITPROB:
 		for(i=0; i<nEntries; i++){
-			if(gr.boolRandom(0.7))
+			if(gr_ptr->boolRandom(0.7))
 				vec_t.push_back(1);
 			else
 				vec_t.push_back(0);
@@ -107,7 +106,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 
 	case BITSIMPLE:
 		for(i=0; i<nEntries; i++){
-			if(gr.boolRandom())
+			if(gr_ptr->boolRandom())
 				vec_t.push_back(1);
 			else
 				vec_t.push_back(0);
@@ -116,7 +115,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 
 	case CHARRND:
 		for(i=0; i<nEntries; i++){
-			char tmp = gr.charRandom(false); // also non-printable ASCII characters
+			char tmp = gr_ptr->charRandom(false); // also non-printable ASCII characters
 			vec_t.push_back((int16_t)tmp);
 		}
 		break;
@@ -124,42 +123,52 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 }
 
 int main(int argc, char **argv){
-	Gem::Util::GRandom gr; // create our own local consumer
+	boost::shared_ptr<Gem::Util::GRandom> gr_ptr(new GRandom());
+	boost::shared_ptr<Gem::Util::GRandom> gr_ptr2(new GRandom());
+
 	bool verbose;
 	std::size_t nEntries;
 	boost::uint16_t nProducerThreads;
+	boost::uint16_t rnrProductionMode;
 
 	if(!parseCommandLine(argc, argv,
 						 nEntries,
 						 nProducerThreads,
+						 rnrProductionMode,
 						 verbose))
 	{ exit(1); }
 
 	std::size_t i;
 	std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
-	std::vector<boost::int16_t> discrete, discretebound, bitprob, bitsimple, charrnd;
+	std::vector<boost::int32_t> discrete, discretebound, bitprob, bitsimple, charrnd;
 
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
-	boost::thread g_thread(boost::bind(createRandomVector<double>, boost::ref(gaussian), GAUSSIAN, nEntries));
-	boost::thread dg_thread(boost::bind(createRandomVector<double>, boost::ref(doublegaussian), DOUBLEGAUSSIAN, nEntries));
-	boost::thread e_thread(boost::bind(createRandomVector<double>, boost::ref(even), EVEN, nEntries));
-	boost::thread ewb_thread(boost::bind(createRandomVector<double>, boost::ref(evenwithboundaries), EVENWITHBOUNDARIES, nEntries));
-	boost::thread dc_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discrete), DISCRETE, nEntries));
-	boost::thread dcb_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(discretebound), DISCRETEBOUND, nEntries));
-	boost::thread bp_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(bitprob), BITPROB, nEntries));
-	boost::thread bs_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(bitsimple), BITSIMPLE, nEntries));
-	boost::thread cr_thread(boost::bind(createRandomVector<boost::int16_t>, boost::ref(charrnd), CHARRND, nEntries));
+	// Set the random number generation mode as requested
+	switch(rnrProductionMode) {
+	case 0:
+		gr_ptr->setRNRFactoryMode();
+		break;
 
-	g_thread.join();
-	dg_thread.join();
-	e_thread.join();
-	ewb_thread.join();
-	dc_thread.join();
-	dcb_thread.join();
-	bp_thread.join();
-	bs_thread.join();
-	cr_thread.join();
+	case 1:
+		gr_ptr2->setRNRFactoryMode();
+		gr_ptr->setRNRProxyMode(gr_ptr2);
+		break;
+
+	case 2:
+		gr_ptr->setRNRLocalMode();
+		break;
+	};
+
+	createRandomVector<double>(gaussian, GAUSSIAN, nEntries, gr_ptr);
+	createRandomVector<double>(doublegaussian, DOUBLEGAUSSIAN, nEntries, gr_ptr);
+	createRandomVector<double>(even, EVEN, nEntries, gr_ptr);
+	createRandomVector<double>(evenwithboundaries, EVENWITHBOUNDARIES, nEntries, gr_ptr);
+	createRandomVector<boost::int32_t>(discrete, DISCRETE, nEntries,gr_ptr);
+	createRandomVector<boost::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
+	createRandomVector<boost::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
+	createRandomVector<boost::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
+	createRandomVector<boost::int32_t>(charrnd, CHARRND, nEntries, gr_ptr);
 
 	if(gaussian.size() != nEntries ||
 	   doublegaussian.size() != nEntries ||
@@ -240,7 +249,7 @@ int main(int argc, char **argv){
 		ofs << std::endl;
 
 		for(i=0; i<nEntries; i++){
-			ofs << "  evenCorrelation->Fill(" << gr.evenRandom(-1.,1.) << ", " << gr.evenRandom(-1.,1.)  << ");" << std::endl;
+			ofs << "  evenCorrelation->Fill(" << gr_ptr->evenRandom(-1.,1.) << ", " << gr_ptr->evenRandom(-1.,1.)  << ");" << std::endl;
 		}
 		ofs << std::endl;
 

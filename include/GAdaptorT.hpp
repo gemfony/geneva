@@ -243,6 +243,18 @@ public:
 
 	/***********************************************************************************/
 	/**
+	 * Determines whether production of random numbers should happen remotely
+	 * (RNRFACTORY) or locally (RNRLOCAL)
+	 *
+	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
+	 */
+	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+		// Set the parent number's mode
+		GObject::setRnrGenerationMode(rnrGenMode);
+	}
+
+	/***********************************************************************************/
+	/**
 	 * Common interface for all adaptors to the mutation
 	 * functionality. The user specifies this functionality in the
 	 * customMutations() function.

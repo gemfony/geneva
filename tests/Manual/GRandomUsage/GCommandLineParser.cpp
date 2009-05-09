@@ -35,6 +35,7 @@ namespace GenEvA
 bool parseCommandLine(int argc, char **argv,
 					  std::size_t& nEntries,
 					  boost::uint16_t& nProducerThreads,
+					  boost::uint16_t& rnrProductionMode,
 					  bool& verbose)
 {
 	try{
@@ -46,6 +47,8 @@ bool parseCommandLine(int argc, char **argv,
 					"Number of random numbers to generate for each distribution")
 			("nProducerThreads,t",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
+			("rnrProductionMode,r",po::value<boost::uint16_t>(&rnrProductionMode)->default_value(DEFAULTRNRPRODUCTIONMODE),
+					"FACTORY(0), PROXY(1) or LOCAL(2)")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -60,11 +63,22 @@ bool parseCommandLine(int argc, char **argv,
 			 return false;
 		}
 
+		if(rnrProductionMode > 2) {
+			std::cerr << "Got invalid random number production mode: " << rnrProductionMode << std::endl;
+			return false;
+		}
+
 		if(verbose){
+			std::string rnrProductionModeString;
+			if(rnrProductionMode == 0) rnrProductionModeString = "Factory";
+			else if(rnrProductionMode == 1) rnrProductionModeString = "Proxy";
+			else if(rnrProductionMode == 2) rnrProductionModeString = "Local";
+
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
 				      << "nEntries = " << nEntries << std::endl
-					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
+					  << "nProducerThreads = " << nProducerThreads << std::endl
+					  << "rnrProductionMode = " << rnrProductionModeString << std::endl
 					  << std::endl;
 		}
 	}

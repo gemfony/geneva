@@ -66,10 +66,10 @@ int main(int argc, char **argv){
 	 bool verbose;
 	 bool maximize;
 	 recoScheme rScheme;
-	  bool sortingScheme;
-	  double qualityThreshold;
-	  std::size_t arraySize;
-	  bool productionPlace;
+	 bool sortingScheme;
+	 double qualityThreshold;
+	 std::size_t arraySize;
+	 bool productionPlace;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -111,10 +111,14 @@ int main(int argc, char **argv){
 	// Set up a single parabola individual
 	boost::shared_ptr<GParabolaIndividual>
 		parabolaIndividual(new GParabolaIndividual(parabolaDimension,
-				                                                                          parabolaMin,
-				                                                                          parabolaMax,
-				                                                                          adaptionThreshold,
-				                                                                          productionPlace));
+				parabolaMin,
+				parabolaMax,
+				adaptionThreshold));
+
+	if(productionPlace) // Factory means "true"
+		parabolaIndividual->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+	else // Local means "false"
+		parabolaIndividual->setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
 	if(parallel) {
 	  // Now we've got our first individual and can create a simple population with parallel execution.

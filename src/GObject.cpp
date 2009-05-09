@@ -37,9 +37,9 @@ namespace GenEvA {
  */
 GObject::GObject()  :
 	name_("GObject"),
-	productionPlace_(true)
+	rnrGenerationMode_(Gem::Util::RNRFACTORY)
 {
-	gr.setProductionPlace(productionPlace_);
+	gr.setRNRFactoryMode();
 }
 
 /**************************************************************************************************/
@@ -51,9 +51,9 @@ GObject::GObject()  :
  */
 GObject::GObject(const std::string& geneva_object_name)  :
 	name_(geneva_object_name),
-	productionPlace_(true)
+	rnrGenerationMode_(Gem::Util::RNRFACTORY)
 {
-	gr.setProductionPlace(productionPlace_);
+	gr.setRNRFactoryMode();
 }
 
 /**************************************************************************************************/
@@ -69,9 +69,27 @@ GObject::GObject(const std::string& geneva_object_name)  :
  */
 GObject::GObject(const GObject& cp)  :
 	name_(cp.name_),
-	productionPlace_(cp.productionPlace_)
+	rnrGenerationMode_(cp.rnrGenerationMode_)
 {
-	gr.setProductionPlace(productionPlace_);
+    switch(rnrGenerationMode_) {
+    case Gem::Util::RNRFACTORY:
+    	gr.setRNRFactoryMode();
+    	break;
+
+    case Gem::Util::RNRLOCAL:
+    	gr.setRNRLocalMode();
+    	break;
+
+    case Gem::Util::RNRPROXY:
+    	// Complain
+		{
+			std::ostringstream error;
+			error << "In GObject::GObject(const GObject&) : Error!" << std::endl
+			      << "Proxy random number generation is not implemented" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+    	break;
+    };
 }
 
 /**************************************************************************************************/
@@ -129,7 +147,7 @@ bool  GObject::isEqualTo(const GObject& cp,  const boost::logic::tribool& expect
     using namespace Gem::Util;
 
 	if(checkForInequality("GObject", name_, cp.name_,"name_", "cp.name_", expected)) return false;
-	if(checkForInequality("GObject", productionPlace_, cp.productionPlace_,"productionPlace_", "cp.productionPlace_", expected)) return false;
+	if(checkForInequality("GObject", rnrGenerationMode_, cp.rnrGenerationMode_,"rnrGenerationMode_", "cp.rnrGenerationMode_", expected)) return false;
 
 	else return true;
 }
@@ -164,7 +182,7 @@ bool  GObject::isSimilarTo(const GObject& cp, const double& limit,  const boost:
     using namespace Gem::Util;
 
 	if(checkForDissimilarity("GObject", name_, cp.name_,limit, "name_", "cp.name_", expected)) return false;
-	if(checkForDissimilarity("GObject", productionPlace_, cp.productionPlace_,limit, "productionPlace_", "cp.productionPlace_", expected)) return false;
+	if(checkForDissimilarity("GObject", rnrGenerationMode_, cp.rnrGenerationMode_,limit, "rnrGenerationMode_", "cp.rnrGenerationMode_", expected)) return false;
 
 	else return true;
 }
@@ -191,12 +209,43 @@ bool  GObject::isNotSimilarTo(const GObject& cp, const double& limit,  const boo
 
 /**************************************************************************************************/
 /**
- * Determines whether production of random numbers should happen remotely (true) or
- * locally (false)
+ * Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL)
+ *
+ * @param rnrGenMode A parameter which indicates where random numbers should be produced
  */
-void GObject::setProductionPlace(const bool& productionPlace) {
-	gr.setProductionPlace(productionPlace);
-	productionPlace_ = productionPlace;
+void GObject::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+    switch(rnrGenerationMode_) {
+    case Gem::Util::RNRFACTORY:
+    	gr.setRNRFactoryMode();
+    	break;
+
+    case Gem::Util::RNRLOCAL:
+    	gr.setRNRLocalMode();
+    	break;
+
+    case Gem::Util::RNRPROXY:
+    	// Complain
+		{
+			std::ostringstream error;
+			error << "In GObject::GObject(const GObject&) : Error!" << std::endl
+			      << "Proxy random number generation is not implemented" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+    	break;
+    };
+
+    // Store the value locally
+    rnrGenerationMode_ = rnrGenMode;
+}
+
+/**************************************************************************************************/
+/**
+ * Retrieves the current value of the random number generation mode.
+ *
+ * @return The current value of the random number generation mode
+ */
+Gem::Util::rnrGenerationMode GObject::getRnrGenerationMode() const {
+	return rnrGenerationMode_;
 }
 
 /**************************************************************************************************/
@@ -318,10 +367,32 @@ void GObject::load(const GObject *cp) {
 
 	// Load the actual data
 	name_ = cp->name_;
-	productionPlace_ = cp->productionPlace_;
 
-	// Adjust the production place
-	gr.setProductionPlace(productionPlace_);
+	Gem::Util::rnrGenerationMode rnrGenerationModeOrig = rnrGenerationMode_;
+	rnrGenerationMode_ = cp->rnrGenerationMode_;
+
+	// Adjust the production place, if necessary
+	if(rnrGenerationMode_ != rnrGenerationModeOrig) {
+		switch(rnrGenerationMode_) {
+		case Gem::Util::RNRFACTORY:
+			gr.setRNRFactoryMode();
+			break;
+
+		case Gem::Util::RNRLOCAL:
+			gr.setRNRLocalMode();
+			break;
+
+		case Gem::Util::RNRPROXY:
+			// Complain
+			{
+				std::ostringstream error;
+				error << "In GObject::GObject(const GObject&) : Error!" << std::endl
+				      << "Proxy random number generation is not implemented" << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+			break;
+		};
+	}
 }
 
 /**************************************************************************************************/

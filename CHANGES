@@ -4,7 +4,10 @@ The main changes for this release include:
  - Made the library compile (mostly clean) with the Intel 10.1 compiler.
  - Made the library compile cleanly with the old GNU g++ 3.4.6
  - Made the package size produced by the GRandomFactory changeable at run-time
- - Allow for random numbers to be produced locally in each GRandom object, if desired
+ - Allow for random numbers to be produced locally in each GRandom object, if desired. 
+   This makes it possible to assign many more parameters to an individual
+ - Moved away from the Boost random number generator for local generation mode
+   due to its large memory requirements
  - Add possibility to compile the library/executables statically
 
 * Version 0.5.2 "Building 38" - April 20, 2009

@@ -33,11 +33,11 @@ namespace Util {
  * is still needed.
  */
 GRandom::GRandom()
-	:currentPackageSize_(DEFAULTARRAYSIZE),
-	 current01_(0),
+	:currentGenerationMode_(Gem::Util::RNRFACTORY),
+	 currentPackageSize_(DEFAULTARRAYSIZE),
+	 current01_(1), // position 0 holds the array size
 	 grf_(GRANDOMFACTORY),
-	 lf(GRandomFactory::GSeed()),
-	 productionPlace_(true) // remote production
+	 rnr_last_(Gem::Util::GRandomFactory::GSeed())
 { /* nothing */ }
 
 /*************************************************************************/
@@ -45,38 +45,49 @@ GRandom::GRandom()
  * A standard destructor
  */
 GRandom::~GRandom() {
-	currentPackageSize_ = DEFAULTARRAYSIZE;
-	p_raw_ = (double *)NULL;
 	p01_.reset();
 	grf_.reset();
+	gr_proxy_ptr_.reset();
 }
 
 /*************************************************************************/
 /**
- * Specififies whether production should happen in the factory or locally
+ * This function emits evenly distributed random numbers in the range [0,1[ .
+ * These are either taken from the random number factory or come through
+ * a proxy random number generator.
  *
- * @param productionPlace A boolean indicating whether production should happen remotely (true) or locally (false)
- */
-void GRandom::setProductionPlace(const bool& productionPlace) {
-	productionPlace_ = productionPlace;
-}
-
-/*************************************************************************/
-/**
- *	Returns local or factory random numbers, depending on the
- *	productionPlace_  variable.
- *
- *	@return Random numbers evenly distributed in the range [0, 1[
+ * @return Random numbers evenly distributed in the range [0,1[
  */
 double GRandom::evenRandom() {
-	if(productionPlace_) {// true means remote
-		return evenRandomFromFactory();
-	}
-	else {
-		return lf();
-	}
-}
+	switch(currentGenerationMode_) {
+	case RNRFACTORY:
+		return this->evenRandomFromFactory();
+		break;
 
+	case RNRPROXY:
+#ifdef DEBUG
+		if(gr_proxy_ptr_) {
+			return gr_proxy_ptr_->evenRandomFromFactory();
+		} else {
+			std::ostringstream error;
+			error << "In GRandom::evenRandom() : Error!" << std::endl
+				     << "Tried to retrieve proxy random number" << std::endl
+				     << "when no valid rnr proxy was present" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+#else
+		return gr_proxy_ptr_->evenRandomFromFactory(); // Assume a valid pointer is present
+#endif /* DEBUG */
+		break;
+
+	case RNRLOCAL:
+		return evenRandomLocalProduction();
+		break;
+	}; // no default necessary, as this switch is based on an enum
+
+	return 0.; // make the compiler happy
+}
 
 /*************************************************************************/
 /**
@@ -95,6 +106,146 @@ double GRandom::evenRandomFromFactory() {
 	}
 
 	return p_raw_[current01_++];
+}
+
+/*************************************************************************/
+/**
+ * Produces random numbers locally, following the linear
+ * congruential method. See http://en.wikipedia.org/wiki/Linear_congruential_generator
+ * for further information.
+ *
+ * NOTE: It is not really clear whether a maximum value of 1 can be reached this way
+ *
+ * @return Random numbers evenly distributed in the range [0,1]
+ */
+double GRandom::evenRandomLocalProduction() {
+	rnr_last_ = (rnr_a * rnr_last_ + rnr_c) % rnr_m;
+
+#ifdef DEBUG
+	double value =  boost::numeric_cast<double>(rnr_last_)/rnr_max; // Will be slower ...
+	assert(value>=0. && value<1.);
+	return value;
+#else
+	return static_cast<double>(rnr_last_)/rnr_max;
+#endif
+}
+
+/*************************************************************************/
+/**
+ * Sets the seed of the local random number generator
+ *
+ * @param seed A user-defined seed for the local random number generator
+ */
+void  GRandom::setSeed(const boost::uint32_t& seed) {
+	rnr_last_ = seed;
+}
+
+/*************************************************************************/
+/**
+ * Retrieves the current seed value of the local generator.
+ * Mostly useful for testing purposes.
+ *
+ * @return The current value of the rnr_last_ variable
+ */
+boost::uint32_t GRandom::getSeed() {
+	return rnr_last_;
+}
+
+/*************************************************************************/
+/**
+ * Retrieves the current random number generation mode
+ *
+ * @return The current random number generation scheme
+ */
+Gem::Util::rnrGenerationMode  GRandom::getRNRGenerationMode () const {
+	return currentGenerationMode_;
+}
+
+/*************************************************************************/
+/**
+ * Specifies a rng-proxy to be used and disables all other modes
+ *
+ * @param rnr_proxy_ptr A pointer to another random number generator
+ */
+void  GRandom::setRNRProxyMode(boost::shared_ptr<Gem::Util::GRandom> gr_proxy_ptr) {
+	// Do nothing if an attempt was made to supply again the same proxy pointer
+	if(currentGenerationMode_==Gem::Util::RNRPROXY && gr_proxy_ptr==gr_proxy_ptr_) return;
+
+	// Check that we have been handed a "filled" pointer
+	if(!gr_proxy_ptr) {
+		std::ostringstream error;
+		error << "In GRandom::setRNRProxyMode: Error" << std::endl
+		        << "Received invalid proxy pointer" << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
+	// Reset all other random number generation modes
+	p01_.reset();
+	grf_.reset();
+
+	// Set the mode accordingly
+	currentGenerationMode_ = Gem::Util::RNRPROXY;
+	gr_proxy_ptr_ = gr_proxy_ptr;
+}
+
+/*************************************************************************/
+/**
+ * Switches to factory production mode and disables all other modes
+ */
+void  GRandom::setRNRFactoryMode() {
+	// Do nothing if the mode has already been set
+	if(currentGenerationMode_ == Gem::Util::RNRFACTORY) return;
+
+	// Reset all other random number generation modes
+	gr_proxy_ptr_.reset();
+
+	// Get access to the factory and set the mode
+	currentGenerationMode_ = Gem::Util::RNRFACTORY;
+	grf_ = GRANDOMFACTORY;
+}
+
+/*************************************************************************/
+/**
+ * Switches to local production mode, using GRandomFactory::GSeed() for seeding,
+ *  and disables all other modes
+ */
+void  GRandom::setRNRLocalMode() {
+	// Do nothing if the mode has already been set
+	if(currentGenerationMode_ == Gem::Util::RNRLOCAL) return;
+
+	// Reset all other random number generation modes
+	gr_proxy_ptr_.reset();
+	p01_.reset();
+	grf_.reset();
+
+	// Switch the mode
+	currentGenerationMode_ = Gem::Util::RNRLOCAL;
+}
+
+/*************************************************************************/
+/**
+ * Switches to local production mode, using the supplied seed value,
+ *  and disables all other modes
+ *
+ * @param seed A user-defined seed for the local random number generator
+ */
+void  GRandom::setRNRLocalMode(const boost::uint32_t& seed) {
+	// If the mode has already been set, just reset the seed
+	if(currentGenerationMode_ == Gem::Util::RNRLOCAL) {
+		this->setSeed(seed);
+	}
+	else { // Otherwise take the required steps
+		// Reset all other random number generation modes
+		gr_proxy_ptr_.reset();
+		p01_.reset();
+		grf_.reset();
+
+		// Set the seed
+		this->setSeed(seed);
+
+		// Switch the mode
+		currentGenerationMode_ = RNRLOCAL;
+	}
 }
 
 /*************************************************************************/
@@ -207,19 +358,12 @@ char GRandom::charRandom(const bool& printable) {
  * array of [0,1[ random numbers we need to produce our own.
  */
 void GRandom::fillContainer01() {
-	boost::lagged_fibonacci607 lf(GRandomFactory::GSeed());
 	boost::shared_array<double> p(new double[currentPackageSize_+1]);
 	double *local_p = p.get();
 	local_p[0] = static_cast<double>(currentPackageSize_);
 
 	for (std::size_t i = 1; i <= currentPackageSize_; i++) {
-#ifdef DEBUG
-		double value = lf();
-		assert(value>=0. && value<1.);
-		local_p[i]=value;
-#else
-		local_p[i] = lf();
-#endif /* DEBUG */
+		local_p[i] = evenRandomLocalProduction();
 	}
 
 	p01_ = p;
@@ -231,7 +375,9 @@ void GRandom::fillContainer01() {
  * exists, then retrieves a new container.
  */
 void GRandom::getNewP01() {
-	if(grf_) p01_ = grf_->new01Container();
+	if(grf_) {
+		p01_ = grf_->new01Container();
+	}
 
 	if (!grf_ || !p01_) {
 		// Something went wrong with the retrieval of the

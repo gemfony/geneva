@@ -183,6 +183,9 @@ public:
 	/** @brief Checks for similarity with another GBasePopulation object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
+	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
+	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+
 	/** @brief The core function of the entire GenEvA library.
 	 * Triggers the optimization of a population. */
 	virtual void optimize();

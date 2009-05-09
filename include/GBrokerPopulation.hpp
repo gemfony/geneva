@@ -136,6 +136,9 @@ namespace GenEvA
 	/** @brief Checks for similarity with another GBrokerPopulation object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
+	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
+	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+
     /** @brief Starts the optimization cycle */
     virtual void optimize();
 

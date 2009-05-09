@@ -101,6 +101,9 @@ public:
 	/** @brief Checks for similarity with another GBoostThreadPopulation object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
+	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
+	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+
 	/** @brief Overloaded from GBasePopulation::optimize() */
 	virtual void optimize();
 

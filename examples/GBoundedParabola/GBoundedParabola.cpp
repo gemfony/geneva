@@ -106,10 +106,14 @@ int main(int argc, char **argv){
 	// Set up a single parabola individual
 	boost::shared_ptr<GBoundedParabolaIndividual>
 		parabolaIndividual(new GBoundedParabolaIndividual(parabolaDimension,
-					                                                                                       parabolaMin,
-					                                                                                       parabolaMax,
-					                                                                                       adaptionThreshold,
-					                                                                                       productionPlace));
+				parabolaMin,
+				parabolaMax,
+				adaptionThreshold));
+
+	if(productionPlace) // Factory means "true"
+		parabolaIndividual->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+	else
+		parabolaIndividual->setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
 	if(parallel) {
 	  // Now we've got our first individual and can create a simple population with parallel execution.

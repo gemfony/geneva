@@ -50,6 +50,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/limits.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -82,12 +83,19 @@ const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random numbe
 const std::size_t DEFAULTFACTORYBUFFERSIZE = 200; ///< Default size of the underlying buffer
 const boost::uint16_t DEFAULTFACTORYPUTWAIT = 5; ///< waiting time in milliseconds
 const boost::uint16_t DEFAULTFACTORYGETWAIT = 5; ///< waiting time in milliseconds
+const boost::uint32_t DEFAULTSEED = 1234; ///< The starting value of the global seed
 
 /****************************************************************************/
 /**
  * The number of threads that simultaneously produce [0,1[ random numbers
  */
 const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
+
+/****************************************************************************/
+/**
+ * Increment of the global seed
+ */
+const boost::uint32_t GLOBALSEEDINCREMENT = 7;
 
 /****************************************************************************/
 /**
@@ -132,6 +140,13 @@ public:
 	/** @brief Allows to retrieve the size of the buffer */
 	std::size_t getBufferSize() const;
 
+	/** @brief Setting of an initial seed for random number generators */
+	void setSeed(const boost::uint32_t&) const;
+	/** @brief Retrieval of the current value of the global seed */
+	boost::uint32_t getSeed() const;
+	/** @brief Checks whether the global seed has already been initialized */
+	bool checkSeedIsInitialized() const;
+
 	/** @brief Calculation of a seed for the random numbers */
 	static boost::uint32_t GSeed();
 
@@ -141,6 +156,11 @@ private:
 	GRandomFactory(const GRandomFactory&); ///< Intentionally left undefined
 	const GRandomFactory& operator=(const GRandomFactory&);  ///< Intentionally left undefined
 
+	/** @brief Setting of an initial seed for random numbers. Will be incremented for each instantiation */
+	static void setSeed_(const boost::uint32_t&);
+	/** @brief Retrieval of the current value of the global seed */
+	static  boost::uint32_t getSeed_();
+
 	/** @brief Starts the threads needed for the production of random numbers */
 	void startProducerThreads();
 	/** @brief The production of [0,1[ random numbers takes place here */
@@ -148,7 +168,6 @@ private:
 
 	std::size_t arraySize_;
 	bool threadsHaveBeenStarted_;
-	boost::uint32_t seed_; ///< The seed for the random number generators
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
 	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 

@@ -64,7 +64,7 @@ const bool DEFAULTVERBOSE=true;
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
 const bool DEFAULTPARALLEL=true;
 const std::size_t DEFAULTARRAYSIZE=1000;
-const bool DEFAULTPRODUCTIONPLACE=false; // local production
+const bool DEFAULTPRODUCTIONPLACE=true; // local production
 
 namespace po = boost::program_options;
 

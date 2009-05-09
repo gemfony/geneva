@@ -90,16 +90,34 @@ class GObject
     void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
       ar & make_nvp("name_",GObject::name_);
-      ar & make_nvp("productionPlace_", productionPlace_);
+      ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
     }
 
     template<typename Archive>
     void load(Archive & ar, const unsigned int){
         using boost::serialization::make_nvp;
         ar & make_nvp("name_",GObject::name_);
-        ar & make_nvp("productionPlace_", productionPlace_);
+        ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
 
-        gr.setProductionPlace(productionPlace_);
+        switch(rnrGenerationMode_) {
+        case Gem::Util::RNRFACTORY:
+        	gr.setRNRFactoryMode();
+        	break;
+
+        case Gem::Util::RNRLOCAL:
+        	gr.setRNRLocalMode();
+        	break;
+
+        case Gem::Util::RNRPROXY:
+        	// Complain
+			{
+				std::ostringstream error;
+				error << "In GObject::load(Archive&, ...) : Error!" << std::endl
+				      << "Proxy random number generation is not implemented" << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+        	break;
+        };
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -131,8 +149,10 @@ public:
 	/** @brief Checks for dissimilarity with another GObject object (or a derivative) */
 	virtual bool isNotSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Determines whether production of random numbers should happen remotely (true) or locally (false) */
-	void setProductionPlace(const bool&);
+	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
+	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+	/** @brief Retrieves the current value of the random number generation mode */
+	Gem::Util::rnrGenerationMode getRnrGenerationMode() const;
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);
@@ -269,7 +289,7 @@ protected:
 
 private:
 	std::string name_; ///< Allows to assign a name to this object
-	bool productionPlace_;
+	Gem::Util::rnrGenerationMode rnrGenerationMode_;
 };
 
 } /* namespace GenEvA */

@@ -53,12 +53,14 @@ namespace GenEvA
 const std::size_t DEFAULTNENTRIES=20000;
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
 const bool DEFAULTVERBOSE=true;
+const boost::uint16_t DEFAULTRNRPRODUCTIONMODE=0;
 
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
 					  std::size_t& nEntries,
 					  boost::uint16_t& nProducerThreads,
+					  boost::uint16_t& rnrProductionMode,
 					  bool& verbose);
 
 } /* namespace GenEvA */

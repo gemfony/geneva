@@ -39,16 +39,20 @@
 
 namespace Gem {
 namespace GenEvA {
+
+/**********************************************************************************************/
 /**
  * The allowed modes during data exchange with external programs
  */
 	enum dataExchangeMode {BINARYEXCHANGE=0, TEXTEXCHANGE=1};
 
+/**********************************************************************************************/
 /**
    * The serialization modes that are currently allowed
    */
   enum serializationMode {TEXTSERIALIZATION=0, XMLSERIALIZATION=1, BINARYSERIALIZATION=2};
 
+  /**********************************************************************************************/
   /**
    * Currently three types of recombination schemes are supported:
    * - DEFAULTRECOMBINE defaults to RANDOMRECOMBINE
@@ -57,10 +61,13 @@ namespace GenEvA {
    */
   enum recoScheme {DEFAULTRECOMBINE=0, RANDOMRECOMBINE=1, VALUERECOMBINE=2};
 
+  /**********************************************************************************************/
   /**
    * The info function can be called in these three modes
    */
   enum infoMode {INFOINIT=0, INFOPROCESSING=1, INFOEND=2};
+
+  /**********************************************************************************************/
 
   const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
   const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption
@@ -68,7 +75,24 @@ namespace GenEvA {
   const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
   const double DEFAULTMUTPROB = 0.05; // 5 percent mutation probability
 
+  /**********************************************************************************************/
+
 } /* namespace GenEvA */
+
+//-----------------------------------------------------------------------------------------------
+
+namespace Util {
+/**********************************************************************************************/
+/**
+ * Random number generation can happen in three modes
+ */
+enum rnrGenerationMode { RNRFACTORY=0, RNRLOCAL=1, RNRPROXY=2};
+
+/**********************************************************************************************/
+} /* namespace Util */
+
 } /* namespace Gem */
+
+
 
 #endif /* GENUMS_HPP_ */

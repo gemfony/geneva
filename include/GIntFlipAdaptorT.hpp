@@ -243,6 +243,20 @@ public:
 		return true;
 	}
 
+	/********************************************************************************************/
+	/**
+	 * Determines whether production of random numbers should happen remotely
+	 * (RNRFACTORY) or locally (RNRLOCAL)
+	 *
+	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
+	 */
+	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+		// Set the parent number's mode
+		GAdaptorT<T>::setRnrGenerationMode(rnrGenMode);
+
+		// Set our local object's mode
+		mutProb_.setRnrGenerationMode(rnrGenMode);
+	}
 
 	/********************************************************************************************/
 	/**

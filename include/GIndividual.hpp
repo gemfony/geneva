@@ -101,6 +101,9 @@ public:
 	/** @brief Checks for similarity with another GIndividual object */
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
+	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
+	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const = 0;
 	/** @brief Loads the data of another GObject */

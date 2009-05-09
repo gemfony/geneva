@@ -85,7 +85,7 @@ bool parseCommandLine(int argc, char **argv,
 			("arraySize,A", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
 					"The size of the buffer with random arrays in the random factory")
 		    ("productionPlace,D", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
-		    		"Whether production of random numbers should happen locally or remotely")
+		    		"Whether production of random numbers in individuals should happen locally (0) or in the random number factory (1)")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
