@@ -208,17 +208,12 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Allows to mutate the values stored in this class. If more than one adaptor was registered,
-	 * all will be applied to the value. applyFirstAdaptor and applyAllAdaptors expects a reference
-	 * to a vector<T>. As we are derived from this class, we can just pass a reference to ourselves
-	 * to the functions.
+	 * Allows to mutate the values stored in this class. applyAdaptor expects a reference
+	 * to a std::vector<T>. As we are derived from a wrapper of this class, we can just pass
+	 * a reference to its data vector to the function.
 	 */
 	virtual void mutate() {
-		if (GParameterBaseWithAdaptorsT<T>::numberOfAdaptors() == 1) {
-			GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(GStdSimpleVectorInterfaceT<T>::data);
-		} else {
-			GParameterBaseWithAdaptorsT<T>::applyAllAdaptors(GStdSimpleVectorInterfaceT<T>::data);
-		}
+		GParameterBaseWithAdaptorsT<T>::applyAdaptor(GStdSimpleVectorInterfaceT<T>::data);
 	}
 
 	/*******************************************************************************************/

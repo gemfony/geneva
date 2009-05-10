@@ -135,16 +135,15 @@ BOOST_AUTO_TEST_CASE( GParameterT_bool_no_failure_expected)
 	GBoolean gpt0;
 
 	// Adding a single adaptor
-	BOOST_CHECK(!gpt0.hasAdaptors());
+	BOOST_CHECK(!gpt0.hasAdaptor());
 	BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor())));
-	BOOST_CHECK(gpt0.numberOfAdaptors() == 1);
-	BOOST_CHECK(gpt0.hasAdaptors());
+	BOOST_CHECK(gpt0.hasAdaptor());
 
 	// Retrieve the adaptor again, as a GAdaptorT
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<bool> > gadb0_ptr = gpt0.getAdaptor(GBooleanAdaptor::adaptorName()));
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<bool> > gadb0_ptr = gpt0.getAdaptor());
 
 	// Retrieve the adaptor in its original form
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_ptr = gpt0.adaptor_cast<GBooleanAdaptor>(GBooleanAdaptor::adaptorName()));
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_ptr = gpt0.adaptor_cast<GBooleanAdaptor>());
 
 	// Check mutations
 	const std::size_t NMUTATIONS=10000;
@@ -171,13 +170,12 @@ BOOST_AUTO_TEST_CASE( GParameterT_char_no_failure_expected)
 
 	// Adding a single adaptor
 	BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor())));
-	BOOST_CHECK(gpt0.numberOfAdaptors() == 1);
 
 	// Retrieve the adaptor again, as a GAdaptorT
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<char> > gadb0_ptr = gpt0.getAdaptor(GCharFlipAdaptor::adaptorName()));
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<char> > gadb0_ptr = gpt0.getAdaptor());
 
 	// Retrieve the adaptor in its original form
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GCharFlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GCharFlipAdaptor>(GCharFlipAdaptor::adaptorName()));
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GCharFlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GCharFlipAdaptor>());
 
 	// Check mutations
 	const std::size_t NMUTATIONS=10000;
@@ -205,13 +203,12 @@ BOOST_AUTO_TEST_CASE( GParameterT_int32_no_failure_expected)
 
 		// Adding a single adaptor
 		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
-		BOOST_CHECK(gpt0.numberOfAdaptors() == 1);
 
 		// Retrieve the adaptor again, as a GAdaptorT
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<boost::int32_t> > gadb0_ptr = gpt0.getAdaptor(GInt32FlipAdaptor::adaptorName()));
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<boost::int32_t> > gadb0_ptr = gpt0.getAdaptor());
 
 		// Retrieve the adaptor in its original form
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GInt32FlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GInt32FlipAdaptor>(GInt32FlipAdaptor::adaptorName()));
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GInt32FlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GInt32FlipAdaptor>());
 
 		// Check mutations
 		const std::size_t NMUTATIONS=10000;
@@ -224,56 +221,6 @@ BOOST_AUTO_TEST_CASE( GParameterT_int32_no_failure_expected)
 
 		// Check that values do not stay the same for a larger number of mutations
 		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
-		BOOST_CHECK(nOriginalValues < NMUTATIONS);
-	}
-
-	{   // Now we do the same again, with two adaptors
-		// Default construction
-		GInt32 gpt0;
-
-		// Adding two adaptors
-		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
-		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor())));
-		BOOST_CHECK(gpt0.numberOfAdaptors() == 2);
-		BOOST_CHECK(gpt0.hasAdaptors());
-
-		// Retrieve the adaptors again, camouflaged as a GAdaptorT
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<boost::int32_t> > gadb0_ptr = gpt0.getAdaptor(GInt32FlipAdaptor::adaptorName()));
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<boost::int32_t> > gadb1_ptr = gpt0.getAdaptor(GInt32GaussAdaptor::adaptorName()));
-
-		// Retrieve the adaptors in their original form
-		boost::shared_ptr<GInt32GaussAdaptor> gpt1_ptr;
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GInt32FlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GInt32FlipAdaptor>(GInt32FlipAdaptor::adaptorName()));
-		BOOST_CHECK_NO_THROW(gpt1_ptr = gpt0.adaptor_cast<GInt32GaussAdaptor>(GInt32GaussAdaptor::adaptorName()));
-
-		// Check mutations
-		const std::size_t NMUTATIONS=10000;
-		std::vector<boost::int32_t> mutvals(NMUTATIONS);
-		boost::int32_t originalValue = gpt0.value();
-		for(std::size_t i=0; i<NMUTATIONS; i++) {
-			BOOST_CHECK_NO_THROW(gpt0.mutate());
-			mutvals[i] = gpt0.value();
-		}
-
-		// Check that values do not stay the same for a larger number of mutations
-		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
-		BOOST_CHECK(nOriginalValues < NMUTATIONS);
-
-		// Delete one adaptor
-		BOOST_CHECK_NO_THROW(gpt0.deleteAdaptor(GInt32FlipAdaptor::adaptorName()));
-		BOOST_CHECK(gpt0.numberOfAdaptors() == 1);
-
-		// again perform mutations. Make sure the adaptor has useful values so that
-		// mutations actually have an effect ...
-		gpt1_ptr->setAll(10., 1., 0., 100);
-		originalValue = gpt0.value();
-		for(std::size_t i=0; i<NMUTATIONS; i++) {
-			BOOST_CHECK_NO_THROW(gpt0.mutate());
-			mutvals[i] = gpt0.value();
-		}
-
-		// and check that values do not stay the same for a larger number of mutations
-		nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
 		BOOST_CHECK(nOriginalValues < NMUTATIONS);
 	}
 }
@@ -290,10 +237,10 @@ BOOST_AUTO_TEST_CASE( GParameterT_double_no_failure_expected)
 	BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor())));
 
 	// Retrieve the adaptor again, as a GAdaptorT
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<double> > gadb0_ptr = gpt0.getAdaptor(GDoubleGaussAdaptor::adaptorName()));
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<double> > gadb0_ptr = gpt0.getAdaptor());
 
 	// Retrieve the adaptor in its original form
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GDoubleGaussAdaptor> gpt0_ptr = gpt0.adaptor_cast<GDoubleGaussAdaptor>(GDoubleGaussAdaptor::adaptorName()));
+	BOOST_CHECK_NO_THROW(boost::shared_ptr<GDoubleGaussAdaptor> gpt0_ptr = gpt0.adaptor_cast<GDoubleGaussAdaptor>());
 
 	// Check mutations
 	const std::size_t NMUTATIONS=10000;
@@ -322,29 +269,13 @@ BOOST_AUTO_TEST_CASE( GParmeterT_failures_expected)
 		BOOST_CHECK_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>()), Gem::GenEvA::geneva_error_condition);
 	}
 
-	{
-		// Default construction
-		GInt32 gpt0;
-		// Adding the same adaptor twice should throw
-		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
-		BOOST_CHECK_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())), Gem::GenEvA::geneva_error_condition);
-	}
-
-	{
-		// Default construction
-		GInt32 gpt0;
-		// Trying to find an adaptor that does not exist should throw
-		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
-		BOOST_CHECK_THROW(gpt0.adaptor_cast<GInt32FlipAdaptor>("xyz"), Gem::GenEvA::geneva_error_condition);
-	}
-
 #ifdef DEBUG
 	{
 		// Default construction
 		GInt32 gpt0;
 		// Extracting an adaptor of wrong type should throw in DEBUG mode
 		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
-		BOOST_CHECK_THROW(gpt0.adaptor_cast<GCharFlipAdaptor>(GInt32FlipAdaptor::adaptorName()), Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(gpt0.adaptor_cast<GCharFlipAdaptor>(), Gem::GenEvA::geneva_error_condition);
 	}
 #endif /* DEBUG */
 

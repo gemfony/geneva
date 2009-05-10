@@ -228,16 +228,10 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Allows to mutate the value stored in this class. If more than one adaptor was registered,
-	 * all will be applied to the value.
+	 * Allows to mutate the value stored in this class.
 	 */
 	virtual void mutate(){
-		if(this->numberOfAdaptors() == 1){
-			GParameterBaseWithAdaptorsT<T>::applyFirstAdaptor(val_);
-		}
-		else {
-			GParameterBaseWithAdaptorsT<T>::applyAllAdaptors(val_);
-		}
+		GParameterBaseWithAdaptorsT<T>::applyAdaptor(val_);
 	}
 
 protected:

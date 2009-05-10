@@ -36,60 +36,12 @@ namespace GenEvA {
  * @param collection A vector of values that shall be mutated
  */
 template<>
-void GParameterBaseWithAdaptorsT<bool>::applyFirstAdaptor(std::vector<bool> &collection) {
+void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collection) {
 	std::vector<bool>::iterator it;
 	for (it = collection.begin(); it != collection.end(); ++it)	{
 		bool value = *it;
-		applyFirstAdaptor(value);
+		applyAdaptor(value);
 		*it = value;
-	}
-}
-
-/***********************************************************************************************/
-/**
- * This function applies all adaptors of the adaptor sequence to a collection of values. Note that
- * the parameter of this function will get changed. This is a specialization of a generic template
- * function.
- *
- * @param collection A vector of values that shall be mutated
- */
-template<>
-void GParameterBaseWithAdaptorsT<bool>::applyAllAdaptors(std::vector<bool> &collection) {
-	std::vector<bool>::iterator it;
-	for (it = collection.begin(); it != collection.end(); ++it) {
-		bool value = *it;
-		applyAllAdaptors(value);
-		*it = value;
-	}
-}
-
-/***********************************************************************************************/
-/**
- * This function applies a named adaptor to a collection of values. Note that the parameter of
- * this function will get changed. This is a specialization of a generic template function.
- *
- * @param adName The name of the adaptor to apply to the collection
- * @param collection The vector of values that shall be mutated
- */
-template<>
-void GParameterBaseWithAdaptorsT<bool>::applyNamedAdaptor(const std::string& adName, std::vector<bool> &collection) {
-	GATvec::iterator pos;
-	std::vector<bool>::iterator it;
-
-	// Search for the adaptor
-	if (findAdaptor(adName, pos)) {
-		// Now apply the adaptor to all values of the collection in sequence
-		for (it = collection.begin(); it != collection.end(); ++it) {
-			bool value = *it;
-			(*pos)->mutate(value);
-			*it = value;
-		}
-	} else { // Error - bad adaptor called
-		std::ostringstream error;
-		error << "In GParameterBaseWithAdaptorsT<bool>::applyNamedAdaptor(string adName, std::vector<bool>& value):" << std::endl
-			  << "Error: Named adaptor " << adName << " was not found." << std::endl;
-
-		throw geneva_error_condition(error.str());
 	}
 }
 

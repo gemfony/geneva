@@ -304,7 +304,7 @@ public:
 	void setMutationParameters(const double& sgm, const double& sgmSgm,
 							   const double& minSgm, const double& maxSgm) {
 		boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor
-			= mutProb_.adaptor_cast<GDoubleGaussAdaptor>(GDoubleGaussAdaptor::adaptorName());
+			= mutProb_.adaptor_cast<GDoubleGaussAdaptor>();
 		// Then set the values as requested.
 		gaussAdaptor->setAll(sgm,sgmSgm,minSgm,maxSgm);
 	}

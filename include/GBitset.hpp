@@ -212,11 +212,7 @@ public:
 	 * to the functions.
 	 */
 	virtual void mutate() {
-		if (GParameterBaseWithAdaptorsT<bool>::numberOfAdaptors() == 1) {
-			GParameterBaseWithAdaptorsT<bool>::applyFirstAdaptor(data);
-		} else {
-			GParameterBaseWithAdaptorsT<bool>::applyAllAdaptors(data);
-		}
+		GParameterBaseWithAdaptorsT<bool>::applyAdaptor(data);
 	}
 
 	/*******************************************************************************************/

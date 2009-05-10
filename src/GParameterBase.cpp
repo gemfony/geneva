@@ -160,20 +160,10 @@ void GParameterBase::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rn
 /**********************************************************************************/
 /**
  * Convenience function so we do not need to always cast  derived classes.
- * See GParameterBaseWithAdaptors::numberOfAdaptors() for the "real"
- * function.
- */
-std::size_t GParameterBase::numberOfAdaptors() const {
-	return 0;
-}
-
-/**********************************************************************************/
-/**
- * Convenience function so we do not need to always cast  derived classes.
  * See GParameterBaseWithAdaptors::hasAdaptors() for the "real"
  * function.
  */
-bool GParameterBase::hasAdaptors() const {
+bool GParameterBase::hasAdaptor() const {
 	return false;
 }
 

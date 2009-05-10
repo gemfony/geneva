@@ -338,13 +338,7 @@ public:
 	 * in GParameterT<T>, which is set accordingly.
 	 */
 	virtual void mutate() {
-		// First apply the mutation to the internal representation of our value
-		if(this->numberOfAdaptors() == 1){
-			this->applyFirstAdaptor(internalValue_);
-		}
-		else {
-			this->applyAllAdaptors(internalValue_);
-		}
+		this->applyAdaptor(internalValue_);
 
 		// Then calculate the corresponding external value and set it accordingly
 		T externalValue = calculateExternalValue(internalValue_);

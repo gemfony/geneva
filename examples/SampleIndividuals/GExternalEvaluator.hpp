@@ -819,7 +819,7 @@ private:
 		GBoundedDoubleCollection::iterator gbdc_it;
 		std::size_t pos;
 		for(pos=0, gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++pos, ++gbdc_it) {
-			if(!(*gbdc_it)->hasAdaptors()) {
+			if(!(*gbdc_it)->hasAdaptor()) {
 				std::ostringstream error;
 				error << "In GExternalEvaluator::readParametersFromFile(): Error!" << std::endl
 						 << "GBoundedDouble item " << pos << " has no adaptor" << std::endl;
@@ -860,7 +860,7 @@ private:
 		// Now copy the items over
 		GBoundedInt32Collection::iterator gbic_it;
 		for(pos=0, gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++pos, ++gbic_it) {
-			if(!(*gbic_it)->hasAdaptors()) {
+			if(!(*gbic_it)->hasAdaptor()) {
 				std::ostringstream error;
 				error << "In GExternalEvaluator::readParametersFromFile(): Error!" << std::endl
 						 << "GBoundedInt32 item " << pos << " has no adaptor" << std::endl;
@@ -911,7 +911,7 @@ private:
 		// Now copy the items over
 		GCharObjectCollection::iterator gcoc_it;
 		for(pos=0, gcoc_it=gcoc->begin(); gcoc_it!=gcoc->end(); ++pos, ++gcoc_it) {
-			if(!(*gcoc_it)->hasAdaptors()) {
+			if(!(*gcoc_it)->hasAdaptor()) {
 				std::ostringstream error;
 				error << "In GExternalEvaluator::readParametersFromFile(): Error!" << std::endl
 						 << "GCharObject" << pos << " has no adaptor" << std::endl;
