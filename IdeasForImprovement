@@ -54,8 +54,23 @@
 - The GNeuralNetworkIndividual needs to be renovated (e.g. the isEqualTo function needs to be added).
 - Same for GNoisyParabolaIndividual and GProjectionIndividual
 - Add test for very large GBoundedDoubleCollections in order to test memory limits
-- Perform tests and benchmarks also with local random number creation
-- Test that seeding works with local random number creation
-- Track down all uses of setSigmaRange and associates and check for consistency
 - Create boost::shared_ptr<GObject> versions of load() and clone(), adapt in all places (e.g. GStdPtrVectorInterface.hpp)
 - Get rid of the logging code
+- Implementation of a GETSEED command in remote clients
+- Perform tests and benchmarks also with local random number creation
+- Test that seeding works with local random number creation
+- Track down all used of setSigmaRange and associates and check for consistency
+- Cross-check usefulness of "const var&" usage for simple and complex parameters
+- Remove all non-boost::shared_ptr functions from GStdPtrVectorInterface
+- Need an infrastructure to give a single adaptor to an object collection
+- Use the stack instead of the free store in GParameterTCollectionT ?
+- Make most GRandom functions const, then hand down a constant reference to the parameter sets
+- Check whether we need to declare anything as volatile, particularly in connection with random number generation
+- Implement an option to get the initial seed from /dev/urandom or possibly /dev/random ?
+- Remove the eval_ function from GParameterSet ... . Useless in parallel environments (?)
+- Is GIndividualSet really needed ? Could all be handled from GBasePopulation ? But no: can serve as the base class for a GSwarm 
+  or a GGradientDescent
+- Recycling of partially used random number blocks. Can be done by also storing the current01-pointer in the array and 
+  re-injecting the array in the random-factory's queue. Also reduces the size of the GRandom objects. Recycling should be
+  triggered upon destruction of the GRandom object, or when another production mode is chosen.
+- Make GRandom serializable

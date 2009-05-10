@@ -55,8 +55,6 @@
 namespace Gem {
 namespace GenEvA {
 
-const std::string GINTFLIPADAPTORSTANDARDNAME = "GIntFlipAdaptorT"; ///< The designated name of this adaptor
-
 /************************************************************************************************/
 /**
  * GIntFlipAdaptorT represents an adaptor used for the mutation of integer
@@ -88,7 +86,7 @@ public:
 	 * parent class and initializes the internal variables.
 	 */
 	GIntFlipAdaptorT()
-		:GAdaptorT<T> (GINTFLIPADAPTORSTANDARDNAME),
+		:GAdaptorT<T> (GINTFLIPADAPTORT),
 		 mutProb_(DEFAULTMUTPROB, 0., 1.) // probability is in the range [0:1[
 	{
 		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA,
@@ -104,7 +102,7 @@ public:
 	 * @param prob The probability for a bit-flip
 	 */
 	explicit GIntFlipAdaptorT(const double& prob)
-		:GAdaptorT<T>(GINTFLIPADAPTORSTANDARDNAME),
+		:GAdaptorT<T>(GINTFLIPADAPTORT),
 		 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
 	{
 		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA,
@@ -307,16 +305,6 @@ public:
 			= mutProb_.adaptor_cast<GDoubleGaussAdaptor>();
 		// Then set the values as requested.
 		gaussAdaptor->setAll(sgm,sgmSgm,minSgm,maxSgm);
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Returns the standard name of a GIntFlipAdaptorT
-	 *
-	 * @return The name assigned to adaptors of this type
-	 */
-	static std::string adaptorName()  {
-		return GINTFLIPADAPTORSTANDARDNAME;
 	}
 
 protected:

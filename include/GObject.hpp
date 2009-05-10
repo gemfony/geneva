@@ -89,14 +89,12 @@ class GObject
     template<typename Archive>
     void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
-      ar & make_nvp("name_",GObject::name_);
       ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
     }
 
     template<typename Archive>
     void load(Archive & ar, const unsigned int){
         using boost::serialization::make_nvp;
-        ar & make_nvp("name_",GObject::name_);
         ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
 
         switch(rnrGenerationMode_) {
@@ -126,8 +124,6 @@ class GObject
 public:
 	/** @brief The default constructor */
 	GObject() ;
-	/** @brief Initialization by name */
-	explicit GObject(const std::string&) ;
 	/** @brief The copy constructor */
 	GObject(const GObject& cp) ;
 	/** @brief The destructor */
@@ -166,11 +162,6 @@ public:
 
 	/** @brief Returns an XML description of the derivative it is called for */
 	std::string report();
-
-	/** @brief Retrieve the name of this class */
-	std::string name() const ;
-	/** @brief Give the class a name */
-	void setName(const std::string&) ;
 
 	/**************************************************************************************************/
 	/**
@@ -288,7 +279,6 @@ protected:
 	/**************************************************************************************************/
 
 private:
-	std::string name_; ///< Allows to assign a name to this object
 	Gem::Util::rnrGenerationMode rnrGenerationMode_;
 };
 

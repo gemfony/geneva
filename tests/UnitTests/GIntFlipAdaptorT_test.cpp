@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 	// Test simple instantiation
 	GIntFlipAdaptorT<T> gifat0;
 
-	// A name should have been set automatically
-	BOOST_CHECK(gifat0.adaptorName() == GINTFLIPADAPTORSTANDARDNAME);
+	// An id should have been set automatically
+	BOOST_CHECK(gifat0.getAdaptorId() == Gem::GenEvA::GINTFLIPADAPTORT);
 
 	// Test instantiation with a probability mutation
 	GIntFlipAdaptorT<T> gifat1(0.2);

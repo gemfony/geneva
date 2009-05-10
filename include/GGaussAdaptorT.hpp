@@ -53,8 +53,6 @@
 namespace Gem {
 namespace GenEvA {
 
-const std::string GGAUSSADAPTORSTANDARDNAME = "GGaussAdaptorT"; ///< The designated name of this adaptor
-
 /************************************************************************************************/
 /**
  * GGaussAdaptorT represents an adaptor used for the mutation of numeric
@@ -86,7 +84,7 @@ public:
 	 * parent class and initializes the internal variables.
 	 */
 	GGaussAdaptorT()
-		:GAdaptorT<T> (GGAUSSADAPTORSTANDARDNAME),
+		:GAdaptorT<T> (GGAUSSADAPTORT),
 		 sigma_(DEFAULTSIGMA),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
 		 minSigma_(DEFAULTMINSIGMA),
@@ -104,7 +102,7 @@ public:
 	 */
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
-		:GAdaptorT<T> (GGAUSSADAPTORSTANDARDNAME),
+		:GAdaptorT<T> (GGAUSSADAPTORT),
 		 sigma_(DEFAULTSIGMA),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
 		 minSigma_(DEFAULTMINSIGMA),
@@ -414,16 +412,6 @@ public:
 		setSigmaAdaptionRate(sigmaSigma);
 		setSigmaRange(minSigma, maxSigma);
 		setSigma(sigma);
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Returns the standard name of a GGaussAdaptorT
-	 *
-	 * @return The name assigned to adaptors of this type
-	 */
-	static std::string adaptorName()  {
-		return GGAUSSADAPTORSTANDARDNAME;
 	}
 
 protected:

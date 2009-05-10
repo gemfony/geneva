@@ -68,6 +68,12 @@ namespace GenEvA {
   enum infoMode {INFOINIT=0, INFOPROCESSING=1, INFOEND=2};
 
   /**********************************************************************************************/
+  /**
+   * Ids that are assigned to adaptors and which should (by convention!) be unique for these
+   */
+  enum adaptorId {BADADAPTOR=0, GINTFLIPADAPTORT=1, GGAUSSADAPTORT=2};
+
+  /**********************************************************************************************/
 
   const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
   const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption

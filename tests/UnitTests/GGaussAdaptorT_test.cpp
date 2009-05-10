@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, T, test_types
 
 	// Test simple instantiation
 	GGaussAdaptorT<T> ggat0;
-	// A name should have been set automatically
-	BOOST_CHECK(ggat0.adaptorName() == GGAUSSADAPTORSTANDARDNAME);
+	// An id should have been set automatically
+	BOOST_CHECK(ggat0.getAdaptorId() == Gem::GenEvA::GGAUSSADAPTORT);
 
 	// Instantiation with an intentionally long sigma
 	GGaussAdaptorT<T> ggat1(0.202030405060708,0.001, 0., 1.); // intentionally long

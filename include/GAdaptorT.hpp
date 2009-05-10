@@ -46,6 +46,7 @@
 #define GADAPTORT_HPP_
 
 #include "GObject.hpp"
+#include "GEnums.hpp"
 #include "GLogger.hpp"
 
 namespace Gem {
@@ -96,24 +97,32 @@ class GAdaptorT:
 		ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
 		ar & make_nvp("adaptionCounter_", adaptionCounter_);
 		ar & make_nvp("adaptionThreshold_", adaptionThreshold_);
+		ar & make_nvp("adaptorId_", adaptorId_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/***********************************************************************************/
 	/**
-	 * Every adaptor is required to have a name. It is set in this
-	 * constructor and the name is passed to the underlying GObject
-	 * class.  No default constructor exists, as we want to enforce
-	 * names for adaptors.
-	 *
-	 * @param name The name assigned to the adaptor
+	 * An adaptor that takes an id for identification. Each adaptor is assigned its own
+	 * id (see GEnum.hpp). We also ask for adaption of mutation algorithms after each mutation
+	 * by default
 	 */
-	explicit GAdaptorT(const std::string& name)  :
-		GObject(name),
+	explicit GAdaptorT(const Gem::GenEvA::adaptorId& aid):
+		GObject(),
 		adaptionCounter_(0),
-		adaptionThreshold_(0) // No automatic adaption of the adaptor by default
-	{ /* nothing */ }
+		adaptionThreshold_(0),
+		adaptorId_(aid)
+	{
+		// Complain if we received a bad id
+		if(adaptorId_ == Gem::GenEvA::BADADAPTOR) {
+			std::ostringstream error;
+			error << "In GAdaptorT<T>::GAdaptorT(adaptorId):" << std::endl
+				  << "received BADADAPTOR" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+	}
+
 
 	/***********************************************************************************/
 	/**
@@ -121,10 +130,11 @@ public:
 	 *
 	 * @param cp A copy of another GAdaptorT<T>
 	 */
-	GAdaptorT(const GAdaptorT<T>& cp)  :
+	GAdaptorT(const GAdaptorT<T>& cp):
 		GObject(cp),
 		adaptionCounter_(cp.adaptionCounter_),
-		adaptionThreshold_(cp.adaptionThreshold_)
+		adaptionThreshold_(cp.adaptionThreshold_),
+		adaptorId_(cp.adaptorId_)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -166,6 +176,7 @@ public:
 		// Then our own data
 		adaptionCounter_ = gat->adaptionCounter_;
 		adaptionThreshold_ = gat->adaptionThreshold_;
+		adaptorId_ = gat->adaptorId_;
 	}
 
 	/***********************************************************************************/
@@ -213,6 +224,7 @@ public:
 		// then our local data
 		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
+		if(checkForInequality("GAdaptorT", adaptorId_, gat_load->adaptorId_,"adaptorId_", "gat_load->adaptorId_", expected)) return false;
 
 		return true;
 	}
@@ -237,8 +249,19 @@ public:
 		// Then our local data
 		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", adaptorId_, gat_load->adaptorId_, limit, "adaptorId_", "gat_load->adaptorId_", expected)) return false;
 
 		return true;
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Retrieves the id of the adaptor. Setting it is only possible from the constructor
+	 *
+	 * @return The id of the adaptor
+	 */
+	Gem::GenEvA::adaptorId getAdaptorId() const {
+		return adaptorId_;
 	}
 
 	/***********************************************************************************/
@@ -320,11 +343,20 @@ protected:
 
 private:
 	/***********************************************************************************/
-	/** @brief Default constructor. Private as we want every adaptor to have a name. */
-	GAdaptorT(){}
+	/**
+	 * The Default constructor
+	 */
+	GAdaptorT():
+		GObject(),
+		adaptionCounter_(0),
+		adaptionThreshold_(0), // No automatic adaption of the adaptor by default
+		adaptorId_(0)
+	{ /* empty */ }
 
-	boost::uint32_t adaptionCounter_;
-	boost::uint32_t adaptionThreshold_;
+	/***********************************************************************************/
+	boost::uint32_t adaptionCounter_; ///< A local counter
+	boost::uint32_t adaptionThreshold_; ///< Specifies after how many mutations the mutation itself should be adapted
+	adaptorId adaptorId_; ///< An id which is specific for all adaptors (defined in GEnum.hpp)
 };
 
 /******************************************************************************************/

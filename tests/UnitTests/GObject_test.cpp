@@ -59,11 +59,8 @@ BOOST_AUTO_TEST_CASE( GObject_no_failure_expected )
 {
 	GRandom gr;
 
-	// Test name setting
+	// Default construction
 	GBooleanAdaptor gba0;
-	BOOST_CHECK(gba0.name() == GINTFLIPADAPTORSTANDARDNAME);
-	gba0.setName("myNewName");
-	BOOST_CHECK(gba0.name() == "myNewName");
 
 	// Test that the object can be translated into a string and back
 	// again and that afterwards both objects are at least similar.

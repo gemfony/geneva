@@ -35,23 +35,8 @@ namespace GenEvA {
  * The default constructor initializes the internal values of this class.
  * In particular, it sets the name of the Geneva object to "GObject"
  */
-GObject::GObject()  :
-	name_("GObject"),
-	rnrGenerationMode_(Gem::Util::RNRFACTORY)
-{
-	gr.setRNRFactoryMode();
-}
-
-/**************************************************************************************************/
-/**
- * If a particular name is desired for an object of this class, it can be
- * set upon initialization with this function.
- *
- * @param geneva_object_name The name which is assigned to a Geneva object
- */
-GObject::GObject(const std::string& geneva_object_name)  :
-	name_(geneva_object_name),
-	rnrGenerationMode_(Gem::Util::RNRFACTORY)
+GObject::GObject()
+	:rnrGenerationMode_(Gem::Util::RNRFACTORY)
 {
 	gr.setRNRFactoryMode();
 }
@@ -67,9 +52,8 @@ GObject::GObject(const std::string& geneva_object_name)  :
  *
  * @param cp A copy of another GObject object
  */
-GObject::GObject(const GObject& cp)  :
-	name_(cp.name_),
-	rnrGenerationMode_(cp.rnrGenerationMode_)
+GObject::GObject(const GObject& cp)
+	:rnrGenerationMode_(cp.rnrGenerationMode_)
 {
     switch(rnrGenerationMode_) {
     case Gem::Util::RNRFACTORY:
@@ -146,7 +130,6 @@ bool  GObject::operator!=(const GObject& cp) const {
 bool  GObject::isEqualTo(const GObject& cp,  const boost::logic::tribool& expected) const {
     using namespace Gem::Util;
 
-	if(checkForInequality("GObject", name_, cp.name_,"name_", "cp.name_", expected)) return false;
 	if(checkForInequality("GObject", rnrGenerationMode_, cp.rnrGenerationMode_,"rnrGenerationMode_", "cp.rnrGenerationMode_", expected)) return false;
 
 	else return true;
@@ -181,7 +164,6 @@ bool  GObject::isNotEqualTo(const GObject& cp,  const boost::logic::tribool& exp
 bool  GObject::isSimilarTo(const GObject& cp, const double& limit,  const boost::logic::tribool& expected) const {
     using namespace Gem::Util;
 
-	if(checkForDissimilarity("GObject", name_, cp.name_,limit, "name_", "cp.name_", expected)) return false;
 	if(checkForDissimilarity("GObject", rnrGenerationMode_, cp.rnrGenerationMode_,limit, "rnrGenerationMode_", "cp.rnrGenerationMode_", expected)) return false;
 
 	else return true;
@@ -354,6 +336,7 @@ void GObject::fromString(const std::string& descr, const serializationMode& serM
  * @param cp A pointer to another GObject object
  */
 void GObject::load(const GObject *cp) {
+#ifdef DEBUG
 	// Check that this object is not accidentally assigned to itself.
 	if (cp == this) {
 		// Compose an error message
@@ -364,15 +347,13 @@ void GObject::load(const GObject *cp) {
 		// is caught through a base object, no information is lost
 		throw geneva_error_condition(str.str());
 	}
+#endif /* DEBUG */
 
-	// Load the actual data
-	name_ = cp->name_;
-
-	Gem::Util::rnrGenerationMode rnrGenerationModeOrig = rnrGenerationMode_;
-	rnrGenerationMode_ = cp->rnrGenerationMode_;
 
 	// Adjust the production place, if necessary
-	if(rnrGenerationMode_ != rnrGenerationModeOrig) {
+	if(rnrGenerationMode_ != cp->rnrGenerationMode_) {
+		rnrGenerationMode_ = cp->rnrGenerationMode_;
+
 		switch(rnrGenerationMode_) {
 		case Gem::Util::RNRFACTORY:
 			gr.setRNRFactoryMode();
@@ -393,26 +374,6 @@ void GObject::load(const GObject *cp) {
 			break;
 		};
 	}
-}
-
-/**************************************************************************************************/
-/**
- * Returns the name of this class.
- *
- * @return The name of this class
- */
-std::string GObject::name() const  {
-	return name_;
-}
-
-/**************************************************************************************************/
-/**
- * Allows to set a name for this class.
- *
- * @param geneva_object_name The name of this class
- */
-void GObject::setName(const std::string& geneva_object_name)  {
-	name_ = geneva_object_name;
 }
 
 /**************************************************************************************************/
