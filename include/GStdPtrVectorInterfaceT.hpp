@@ -68,7 +68,7 @@ namespace GenEvA {
  * using this class prevents us from having to derive directly from a
  * std::vector, which has a non-virtual destructor. Note that we assume here
  * that T holds a complex type, such as a class.  T must implement
- * the Geneva-style isEqualTo and isSimilarTo functions.
+ * the interface "usual" for Geneva-GObject derivatives.
  *
  * Some std::vector functions can not be implemented, as they require
  * the data in this class to be default-constructible. As this class can hold
@@ -96,7 +96,7 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Copy construction
+	 * Copy construction. The content of the smart pointers is cloned.
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
@@ -108,8 +108,8 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * The destructor. Destruction of the objects pointed to by the smart
-	 * pointers will be taken care of by boost::shared_ptr<T>.
+	 * The destructor. Destruction of the objects will be taken care of
+	 * by boost::shared_ptr<T>.
 	 */
 	virtual ~GStdPtrVectorInterfaceT() {
 		data.clear();
@@ -118,9 +118,56 @@ public:
 	/*****************************************************************************/
 	/**
 	 * Assginment operator
+	 *
+	 * @param cp A copy of another GStdPtrVectorInterfaceT<T> object
+	 * @return The argument of this function
 	 */
 	const GStdPtrVectorInterfaceT& operator=(const GStdPtrVectorInterfaceT<T>& cp) {
 		this->operator=(cp.data);
+		return cp;
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Assignment of a std::vector<boost::shared_ptr<T> > . As the vector contains smart
+	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
+	 *
+	 * @param cp A constant reference to another std::vector<boost::shared_ptr<T> >
+	 * @return The argument of this function
+	 */
+	const std::vector<boost::shared_ptr<T> >& operator=(const std::vector<boost::shared_ptr<T> >& cp) {
+		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
+		typename std::vector<boost::shared_ptr<T> >::iterator it;
+
+		std::size_t localSize = data.size();
+		std::size_t cpSize = cp.size();
+
+		if(cpSize == localSize) { // The most likely case
+			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(), cp_it!=cp.end(); ++it, ++cp_it) {
+				(*it)->load((*cp_it).get());
+			}
+		}
+		else if(cpSize > localSize) {
+			// First copy the initial elements
+			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
+				(*it)->load((*cp_it).get());
+			}
+
+			// Then attach the remaining objects from cp
+			for(cp_it=cp.begin()+localSize; cp_it != cp.end(); ++cp_it) {
+				data.push_back((*cp_it)->GObject::clone_bptr_cast<T>());
+			}
+		}
+		else if(cpSize < localSize) {
+			// First get rid of surplus items
+			data.resize(cpSize);
+
+			// Then copy the elements
+			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(), cp_it!=cp.end(); ++it, ++cp_it) {
+				(*it)->load((*cp_it).get());
+			}
+		}
+
 		return cp;
 	}
 
@@ -231,23 +278,6 @@ public:
 	public:
 		typedef bool result_type;
 
-		bool operator() (const item_type& item, const boost::shared_ptr<T>& cont_item)  const{
-			bool result = false;
-#ifdef DEBUG
-			try {
-				result = (item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
-			}
-			catch(...) {
-				std::ostringstream error;
-				error << "Unknown error in bool vi_equal_to::operator()" << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
-			}
-#else
-			result = (item == *(boost::static_pointer_cast<item_type>(cont_item)));
-#endif
-			return result;
-		}
-
 		bool operator() (const boost::shared_ptr<item_type>& item, const boost::shared_ptr<T>& cont_item)  const{
 			bool result = false;
 #ifdef DEBUG
@@ -275,32 +305,10 @@ public:
 	public:
 		typedef bool result_type;
 
-		bool operator() (const T& item, const boost::shared_ptr<T>& cont_item)  const{
-			return (item == *cont_item);
-		}
-
 		bool operator() (const boost::shared_ptr<T>& item, const boost::shared_ptr<T>& cont_item)  const{
 			return (*item == *cont_item);
 		}
 	};
-
-	/*****************************************************************************/
-	/**
-	 * Counts the elements whose content is equal to item.
-	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
-	 * and we do not want to compare the pointers themselves.
-	 *
-	 * @param item The item to be counted in the collection
-	 */
-	template <typename item_type>
-	size_type count(const item_type& item) const {
-		if(typeid(item_type) == typeid(T)) {
-			return std::count_if(data.begin(), data.end(), boost::bind(same_equal_to(), item, _1));
-		}
-		else {
-			return std::count_if(data.begin(), data.end(), boost::bind(vi_equal_to<item_type>(), item, _1));
-		}
-	}
 
 	/*****************************************************************************/
 	/**
@@ -330,22 +338,6 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Searches for item in the entire range of the vector. Needs to be
-	 * re-implemented here, as we are dealing with a collection of smart pointers
-	 * and we do not want to compare the pointers themselves.
-	 */
-	template <typename item_type>
-	const_iterator find(const item_type& item) const {
-		if(typeid(item_type) == typeid(T)) {
-			return std::find_if(data.begin(), data.end(), boost::bind(same_equal_to(), item, _1));
-		}
-		else {
-			return std::find_if(data.begin(), data.end(), boost::bind(vi_equal_to<item_type>(), item, _1));
-		}
-	}
-
-	/*****************************************************************************/
-	/**
 	 * Searches for the content of item in the entire range of the vector. Needs to be
 	 * re-implemented here, as we are dealing with a collection of smart pointers
 	 * and we do not want to compare the pointers themselves.
@@ -369,8 +361,9 @@ public:
 	}
 
 	/*****************************************************************************/
-
 	// Modifying functions
+
+	// Exchange of two data sets
 	void swap(std::vector<boost::shared_ptr<T> >& cont) { data.swap(cont); }
 
 	// Access to elements (unchecked / checked)
@@ -402,51 +395,86 @@ public:
 	/*****************************************************************************/
 	// Insertion and removal
 
+
+	/*****************************************************************************/
 	/**
-	 * Inserts a given item at position pos. Checks whether the item actually points
-	 * somewhere.
+	 * Inserts a given item at position pos. Behavior defaults
+	 * to isert_noclone(pos,item).
+	 *
+	 * @param pos The position where the item should be inserted
+	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert(iterator pos, const T& item) {
-		return data.insert(pos, item.GObject::clone_bptr_cast<T>());
+	iterator insert(iterator pos, boost::shared_ptr<T> item_ptr) {
+		return this->insert_noclone(pos, item_ptr);
 	}
 
 	/*****************************************************************************/
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
-	 * somewhere.
+	 * somewhere. Note that the shared_ptr will inserted itself. Hence any Change you
+	 * might make to the object pointed to will also affect the item in the collection.
+	 *
+	 * @param pos The position where the item should be inserted
+	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert(iterator pos, boost::shared_ptr<T> item) {
-		if(!item) { // Check that item actually contains something useful
+	iterator insert_noclone(iterator pos, boost::shared_ptr<T> item_ptr) {
+		if(!item_ptr) { // Check that item actually contains something useful
 			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::insert(pos, item): Error!"
+			error << "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
 
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 
-		return data.insert(pos, item->GObject::clone_bptr_cast<T>());
+		return data.insert(pos, item_ptr);
 	}
 
 	/*****************************************************************************/
 	/**
-	 * Inserts a given amount of items after position pos.
+	 * Inserts a given item at position pos. Checks whether the item actually points
+	 * somewhere. This function clones the item, hence changes to the argument after
+	 * invocation of this function will not affect the item pointed to.
+	 *
+	 * @param pos The position where the item should be inserted
+	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert(iterator pos, size_type amount, const T& item) {
-		std::size_t iterator_pos = pos - data.begin();
-		for(std::size_t i=0; i<amount; i++) {
-			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin() + iterator_pos, item.GObject::clone_bptr_cast<T>());
-		}
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Inserts a given amount of items after position pos.
-	 */
-	void insert(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+	iterator insert_clone(iterator pos, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
 			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::insert(pos, amount, item): Error!"
+			error << "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr): Error!"
+				     << "Tried to insert an empty smart pointer." << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		return data.insert(pos, item_ptr->GObject::clone_bptr_cast<T>());
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Inserts a given amount of items at position pos. Defaults to
+	 * insert_clone(pos, amount, item_ptr)
+	 *
+	 * @param pos The position where items should be inserted
+	 * @param amount The amount of items to be inserted
+	 * @param item_ptr The item to be inserted into the collection
+	 */
+	void insert(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+		this->insert_clone(pos, amount, item_ptr);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Inserts a given amount of items at position pos. Will always clone.
+	 *
+	 * @param pos The position where items should be inserted
+	 * @param amount The amount of items to be inserted
+	 * @param item_ptr The item to be inserted into the collection
+	 */
+	void insert_clone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+		if(!item_ptr) { // Check that item actually contains something useful
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::insert_clone(pos, amount, item): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
 
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
@@ -460,8 +488,54 @@ public:
 	}
 
 	/*****************************************************************************/
-	// Adding shared_ptr objects to the  back of the vector.
+	/**
+	 * Inserts a given amount of items at position pos. Will not clone the argument.
+	 * Note that changes made to item_ptr's object after a call to this function will
+	 * also affect the container.
+	 *
+	 * @param pos The position where items should be inserted
+	 * @param amount The amount of items to be inserted
+	 * @param item_ptr The item to be inserted into the collection
+	 */
+	void insert_noclone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
+		if(!item_ptr) { // Check that item actually contains something useful
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item): Error!"
+				     << "Tried to insert an empty smart pointer." << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		std::size_t iterator_pos = pos - data.begin();
+		// Create (amount-1) clones
+		for(std::size_t i=0; i<amount-1; i++) {
+			 // Note that we re-calculate the iterator, as it is not clear whether it remains valid
+			data.insert(data.begin() + iterator_pos,  item_ptr->GObject::clone_bptr_cast<T>());
+		}
+		// Add the argument
+		data.insert(data.begin() + iterator_pos, item_ptr);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Ads a shared_ptr object to the  back of the vector. The function defaults to
+	 * push_back_noclone
+	 *
+	 * @param item_ptr The item to be appended to the collection
+	 */
 	void push_back(boost::shared_ptr<T> item_ptr){
+		this->push_back_noclone(item_ptr);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Ads a shared_ptr object to the  back of the vector. Note that the shared_ptr
+	 * will inserted itself. Hence any Change you might make to the object pointed
+	 * to will also affect the item in the collection.
+	 *
+	 * @param item_ptr The item to be appended to the collection
+	 */
+	void push_back_noclone(boost::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
 			std::ostringstream error;
 			error << "In GParameterTCollectionT<T>::push_back(item): Error!"
@@ -470,14 +544,27 @@ public:
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 
-		data.push_back(item_ptr->GObject::clone_bptr_cast<T>());
+		data.push_back(item_ptr);
 	}
 
 	/*****************************************************************************/
-	// Adding simple items to the  back of the vector. Note
-	// that this function does not clone the object.
-	void push_back(const T& item){
-		data.push_back(item.GObject::clone_bptr_cast<T>());
+	/**
+	 * Ads a shared_ptr object to the  back of the vector. The object pointed to
+	 * will be cloned. Hence changes to it after a call to this function will not
+	 * affect the item stored in the collection.
+	 *
+	 * @param item_ptr The item to be appended to the collection
+	 */
+	void push_back_clone(boost::shared_ptr<T> item_ptr){
+		if(!item_ptr) { // Check that item actually contains something useful
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::push_back_clone(item): Error!"
+				     << "Tried to insert an empty smart pointer." << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		data.push_back(item_ptr->GObject::clone_bptr_cast<T>());
 	}
 
 	/*****************************************************************************/
@@ -491,14 +578,61 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Resizing the vector, initialization with item. This function does nothing
-	 * if amount is the same as data.size(). We assume in this function that
-	 * T is copy-constructible.
+	 * Resizing the vector, initialization with item. This function is a front end
+	 * to resize_clone()
 	 *
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
 	void resize(size_type amount, boost::shared_ptr<T> item_ptr) {
+		resize_clone(amount, item_ptr);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Resizing the vector, initialization with item. This function does nothing
+	 * if amount is the same as data.size(). Note that item_ptr will become part
+	 * of the collection. Hence changes to the object pointed to will also affect
+	 * the collection.
+	 *
+	 * @param amount The new desired size of the vector
+	 * @param item An item that should be used for initialization of new items, if any
+	 */
+	void resize_noclone(size_type amount, boost::shared_ptr<T> item_ptr) {
+		std::size_t dataSize = data.size();
+
+		if(amount < dataSize)
+			data.resize(amount);
+		else if(amount > dataSize) {
+			// Check that item is not empty
+			if(!item_ptr) { // Check that item actually contains something useful
+				std::ostringstream error;
+				error << "In GParameterTCollectionT<T>::resize(amount, item): Error!"
+					     << "Tried to insert an empty smart pointer." << std::endl;
+
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+
+			// Create a (amount - dataSize -1) clones
+			for(std::size_t i=dataSize; i<amount-1; i++) {
+				data.push_back(item_ptr->GObject::clone_bptr_cast<T>());
+			}
+
+			// Finally add item_ptr
+			data.push_back(item_ptr);
+		}
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Resizing the vector, initialization with item. This function does nothing
+	 * if amount is the same as data.size(). item_ptr will be cloned. Hence
+	 * changes to the object pointed to will not affect the collection.
+	 *
+	 * @param amount The new desired size of the vector
+	 * @param item An item that should be used for initialization of new items, if any
+	 */
+	void resize_clone(size_type amount, boost::shared_ptr<T> item_ptr) {
 		std::size_t dataSize = data.size();
 
 		if(amount < dataSize)
@@ -520,69 +654,8 @@ public:
 	}
 
 	/*****************************************************************************/
-	/**
-	 * Resizing the vector, initialization with item. This function does nothing
-	 * if amount is the same as data.size(). We assume in this function that
-	 * T is copy-constructible.
-	 *
-	 * @param amount The new desired size of the vector
-	 * @param item An item that should be used for initialization of new items, if any
-	 */
-	void resize(size_type amount, const T& item) {
-		std::size_t dataSize = data.size();
-
-		if(amount < dataSize)
-			data.resize(amount);
-		else if(amount > dataSize) {
-			for(std::size_t i=dataSize; i<amount; i++) {
-				data.push_back(item.GObject::clone_bptr_cast<T>());
-			}
-		}
-	}
-
-	/*****************************************************************************/
 	/** @brief Clearing the data vector */
 	void clear() { data.clear(); }
-
-	/*****************************************************************************/
-	/**
-	 * Assignment of a std::vector<boost::shared_ptr<T> > . As the vector contains smart
-	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
-	 * We assume here that T has a load() function, as is common for GObject-derivatives.
-	 * We also assume that T is copy-constructable.
-	 *
-	 * @param cp A constant reference to another std::vector<boost::shared_ptr<T> >
-	 * @return The argument of this function (a std::vector<boost::shared_ptr<T> >)
-	 */
-	const std::vector<boost::shared_ptr<T> >& operator=(const std::vector<boost::shared_ptr<T> >& cp) {
-		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
-		typename std::vector<boost::shared_ptr<T> >::iterator it;
-
-		std::size_t localSize = data.size();
-		std::size_t cpSize = cp.size();
-
-		if(cpSize == localSize) { // The most likely case
-			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(), cp_it!=cp.end(); ++it, ++cp_it) **it = **cp_it;
-		}
-		else if(cpSize > localSize) {
-			// First copy the initial elements
-			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) **it = **cp_it;
-
-			// Then attach the remaining objects from cp
-			for(cp_it=cp.begin()+localSize; cp_it != cp.end(); ++cp_it) {
-				data.push_back((*cp_it)->GObject::clone_bptr_cast<T>());
-			}
-		}
-		else if(cpSize < localSize) {
-			// First get rid of surplus items
-			data.resize(cpSize);
-
-			// Then copy the elements
-			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(), cp_it!=cp.end(); ++it, ++cp_it) **it = **cp_it;
-		}
-
-		return cp;
-	}
 
 	/*****************************************************************************/
 	/**
@@ -605,20 +678,6 @@ protected:
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
-
-private:
-	/*****************************************************************************/
-	/**
-	 * Helper function that dereferences its argument. Needed in conjunction with
-	 * boost::bind e.g. in the count function.
-	 *
-	 * @param p The boost::shared_ptr object to be de-referenced
-	 * @return The de-referenced object
-	 */
-	template<class item_type>
-	const T& dereference(const boost::shared_ptr<item_type>& p ) {
-		return *p;
-	}
 };
 
 /********************************************************************************/

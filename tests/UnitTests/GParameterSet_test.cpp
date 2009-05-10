@@ -66,15 +66,15 @@ BOOST_AUTO_TEST_CASE( GParameterSet_no_failure_expected )
 	GParabolaIndividual gpi;
 
 	// Test the vector interface of GMutableSetT
-	GDoubleCollection tempIItem(100, -10., 10.);
+	boost::shared_ptr<GDoubleCollection> tempIItem_ptr(new GDoubleCollection(100, -10., 10.));
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga1(new GDoubleGaussAdaptor(1.,0.001,0.,1.));
-	tempIItem.addAdaptor(gdga1);
+	tempIItem_ptr->addAdaptor(gdga1);
 
-	GDoubleCollection findItem(100, -10., 10.);
+	boost::shared_ptr<GDoubleCollection> findItem_ptr(new GDoubleCollection(100, -10., 10.));
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga2(new GDoubleGaussAdaptor(2.,0.001,0.,2.));
-	findItem.addAdaptor(gdga2);
+	findItem_ptr->addAdaptor(gdga2);
 
-	stdvectorinterfacetestSP(gpi, tempIItem, findItem);
+	stdvectorinterfacetestSP(gpi, tempIItem_ptr, findItem_ptr);
 	// At this point gpi should have a number of items attached to it
 
 	BOOST_CHECK(!gpi.empty());

@@ -213,7 +213,9 @@ void stdvectorinterfacetest(vi& vectorObject, const item& templItem, const item&
  * pointers.
  */
 template <typename vi, typename item>
-void stdvectorinterfacetestSP(vi& vectorObject, const item& templItem, const item& findItem) {
+void stdvectorinterfacetestSP(vi& vectorObject,
+								  boost::shared_ptr<item> templItem,
+								  boost::shared_ptr<item> findItem) {
 	const std::size_t NITEMS = 100;
 
 	// Make sure the object is empty
@@ -221,7 +223,7 @@ void stdvectorinterfacetestSP(vi& vectorObject, const item& templItem, const ite
 
 	// Attach items
 	for(std::size_t i=0; i<NITEMS; i++) {
-		BOOST_CHECK_NO_THROW(vectorObject.push_back(boost::shared_ptr<item>(new item(templItem))));
+		BOOST_CHECK_NO_THROW(vectorObject.push_back(templItem->Gem::GenEvA::GObject::clone_bptr_cast<item>()));
 	}
 
 	BOOST_CHECK(vectorObject.size() == NITEMS);
@@ -233,25 +235,17 @@ void stdvectorinterfacetestSP(vi& vectorObject, const item& templItem, const ite
 
 	// Attach again items using another method
 	for(std::size_t i=0; i<NITEMS; i++) {
-		BOOST_CHECK_NO_THROW(vectorObject.push_back(templItem));
+		BOOST_CHECK_NO_THROW(vectorObject.push_back_clone(templItem));
 	}
 	BOOST_CHECK(vectorObject.size() == 2*NITEMS);
 
 	// Count objects in the collection
-	BOOST_CHECK_NO_THROW((*vectorObject.at(2)) = findItem);
+	BOOST_CHECK_NO_THROW((*vectorObject.at(2)) = *findItem);
 	BOOST_CHECK(vectorObject.count(findItem)==1);
-
-	// Try the same with a shared_ptr<T> as search object
-	boost::shared_ptr<item> findItem_ptr(new item(findItem));
-	BOOST_CHECK(vectorObject.count(findItem_ptr)==1);
 
 	// Find items in the collection
 	typename vi::const_iterator begin_cit = vectorObject.begin(), find_cit;
 	find_cit = vectorObject.find(findItem);
-	BOOST_CHECK(find_cit - begin_cit == 2);
-
-	// Try the same with a shared_ptr<T> as search object
-	find_cit = vectorObject.find(findItem_ptr);
 	BOOST_CHECK(find_cit - begin_cit == 2);
 
 	/***********************************************************************************/
@@ -264,7 +258,7 @@ void stdvectorinterfacetestSP(vi& vectorObject, const item& templItem, const ite
 	BOOST_CHECK(vectorObject_cp2== vectorObject);
 
 	// Assign a different value to the first position of the first copy to create different data sets
-	vectorObject_cp1[0]->load(&findItem);
+	(*vectorObject_cp1[0]) = *findItem;
 
 	// Check that now cp1 is different from the others
 	BOOST_CHECK(!vectorObject_cp1.isEqualTo(vectorObject));
@@ -279,52 +273,46 @@ void stdvectorinterfacetestSP(vi& vectorObject, const item& templItem, const ite
 
 	// Check that the front and back elements can be accessed
 	BOOST_CHECK_NO_THROW(boost::shared_ptr<item> frontItem = boost::dynamic_pointer_cast<item>(vectorObject.front()));
-	BOOST_CHECK_NO_THROW(*boost::dynamic_pointer_cast<item>(vectorObject.back()) = findItem);
-	BOOST_CHECK(*boost::dynamic_pointer_cast<item>(vectorObject.back()) == findItem);
+	BOOST_CHECK_NO_THROW(*boost::dynamic_pointer_cast<item>(vectorObject.back()) = *findItem);
+	BOOST_CHECK(*boost::dynamic_pointer_cast<item>(vectorObject.back()) == *findItem);
 
 	// Count the number of findItems again, this time from the end to the beginning.
-
-	// std::size_t nFindItems = std::count_if(vectorObject.rbegin(), vectorObject.rend(), boost::bind(std::equal_to<item>(), findItem, boost::bind(Gem::Util::dereference<item>, _1)));
 	std::size_t nFindItems = vectorObject.count(findItem);
 	BOOST_CHECK(nFindItems == 2);
 
 	// Insert another copy
-	BOOST_CHECK_NO_THROW(vectorObject.insert(vectorObject.begin()+3, boost::shared_ptr<item>(new item(findItem))));
+	BOOST_CHECK_NO_THROW(vectorObject.insert_clone(vectorObject.begin()+3, findItem));
 	// and count again
-	// nFindItems = std::count_if(vectorObject.rbegin(), vectorObject.rend(), boost::bind(std::equal_to<item>(), findItem, boost::bind(Gem::Util::dereference<item>, _1)));
 	nFindItems = vectorObject.count(findItem);
 	BOOST_CHECK(nFindItems == 3);
 
-	BOOST_CHECK_NO_THROW(vectorObject.insert(vectorObject.begin()+4, findItem));
+	BOOST_CHECK_NO_THROW(vectorObject.insert_clone(vectorObject.begin()+4, findItem));
 	// and count again
-	// nFindItems = std::count_if(vectorObject.rbegin(), vectorObject.rend(), boost::bind(std::equal_to<item>(), findItem, boost::bind(Gem::Util::dereference<item>, _1)));
 	nFindItems = vectorObject.count(findItem);
 	BOOST_CHECK(nFindItems == 4);
 
-	// Inser a number of items
+	// Insert a number of items (will clone)
 	const std::size_t NINSERT=5;
-	BOOST_CHECK_NO_THROW(vectorObject.insert(vectorObject.begin()+3, NINSERT, boost::shared_ptr<item>(new item(findItem))));
+	BOOST_CHECK_NO_THROW(vectorObject.insert(vectorObject.begin()+3, NINSERT, findItem));
 	// and count again
-	// nFindItems = std::count_if(vectorObject.rbegin(), vectorObject.rend(), boost::bind(std::equal_to<item>(), findItem, boost::bind(Gem::Util::dereference<item>, _1)));
 	nFindItems = vectorObject.count(findItem);
 	BOOST_CHECK(nFindItems == 9);
 
 	// Insert a number of items with a different method
-	BOOST_CHECK_NO_THROW(vectorObject.insert(vectorObject.begin()+4, NINSERT, findItem));
+	BOOST_CHECK_NO_THROW(vectorObject.insert_clone(vectorObject.begin()+4, NINSERT, findItem));
 	// and count again
-	// nFindItems = std::count_if(vectorObject.rbegin(), vectorObject.rend(), boost::bind(std::equal_to<item>(), findItem, boost::bind(Gem::Util::dereference<item>, _1)));
 	nFindItems = vectorObject.count(findItem);
 	BOOST_CHECK(nFindItems == 14);
 
 	std::size_t currentSize = vectorObject.size();
 	vectorObject.erase(vectorObject.begin() + 7);
 	vectorObject.erase(vectorObject.begin() + 7, vectorObject.begin() + 10);
-	BOOST_CHECK(vectorObject.size() == currentSize -4);
+	BOOST_CHECK(vectorObject.size() == currentSize - 4);
 
 	currentSize = vectorObject.size();
 	std::size_t NPOPBACK=10;
 	for(std::size_t i=0; i<NPOPBACK; i++) vectorObject.pop_back();
-	BOOST_CHECK(vectorObject.size() == currentSize -10);
+	BOOST_CHECK(vectorObject.size() == currentSize - 10);
 
 	// Clear, then resize to NITEMS, filling up with templItem
 	vectorObject.clear();
@@ -334,13 +322,11 @@ void stdvectorinterfacetestSP(vi& vectorObject, const item& templItem, const ite
 
 	// Add another NITEMS copies of findItem, then count their number
 	vectorObject.resize(2*NITEMS, findItem);
-	// nFindItems = std::count_if(vectorObject.begin(), vectorObject.end(), boost::bind(std::equal_to<item>(), findItem, boost::bind(Gem::Util::dereference<item>, _1)));
 	nFindItems = vectorObject.count(findItem);
 	BOOST_CHECK(nFindItems == NITEMS);
 
 	// Add another NITEMS copies of findItem, using a different method,, then count their number
-	vectorObject.resize(3*NITEMS, boost::shared_ptr<item>(new item(findItem)));
-	// nFindItems = std::count_if(vectorObject.begin(), vectorObject.end(), boost::bind(std::equal_to<item>(), findItem, boost::bind(Gem::Util::dereference<item>, _1)));
+	vectorObject.resize_clone(3*NITEMS, findItem);
 	nFindItems = vectorObject.count(findItem);
 	BOOST_CHECK(nFindItems == 2*NITEMS);
 }

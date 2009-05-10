@@ -291,8 +291,8 @@ void GBrokerPopulation::optimize() {
  * broker. In the first generation, in the case of the MUPLUSNU sorting strategy,
  * also the fitness of the parents is calculated. The type of command intended to
  * be executed on the individuals is stored in their attributes. The function
- * then waits for the first individual to come back. The timeframe for all other
- * individuals to come back is a multiple of this timeframe.
+ * then waits for the first individual to come back. The time frame for all other
+ * individuals to come back is a multiple of this time frame.
  */
 void GBrokerPopulation::mutateChildren() {
 	using namespace boost::posix_time;
@@ -348,13 +348,17 @@ void GBrokerPopulation::mutateChildren() {
 	{
 		try {
 			boost::shared_ptr<GIndividual> p;
+
+			// This function will throw a time out condition if we
+			// have exceeded the allowed time. Hence, when we reach
+			// the next code line, we can assume to have a valid object
 			CurrentBufferPort_->pop_back_processed(&p,loopTime_);
 
 			// If it is from the current generation, break the loop.
 			// Count the number of items received.
 			if(p->getParentPopGeneration() == generation){
 				// Add the individual to our list.
-				data.push_back(p);
+				this->push_back(p);
 
 				// Update the counter.
 				if(p->isParent()) nReceivedParent++;
@@ -365,7 +369,7 @@ void GBrokerPopulation::mutateChildren() {
 			else {
 				if(!p->isParent()){ // We do not accept parents from older populations
 					// Add the individual to our list.
-					data.push_back(p);
+					this->push_back(p);
 
 					// Update the counter
 					nReceivedChildOlder++;
@@ -400,7 +404,7 @@ void GBrokerPopulation::mutateChildren() {
 			// Count the number of items received.
 			if(p->getParentPopGeneration() == generation) {
 				// Add the individual to our list.
-				data.push_back(p);
+				this->push_back(p);
 
 				// Update the counter
 				if(p->isParent()) nReceivedParent++;
@@ -409,7 +413,7 @@ void GBrokerPopulation::mutateChildren() {
 			else {
 				if(!p->isParent()){  // We do not accept parents from older populations
 					// Add the individual to our list.
-					data.push_back(p);
+					this->push_back(p);
 
 					// Update the counter
 					nReceivedChildOlder++;
@@ -449,7 +453,7 @@ void GBrokerPopulation::mutateChildren() {
 			throw geneva_error_condition(error.str());
 		}
 
-		// Sort according to parent/child tag. We do not know in whar order individuals have returned.
+		// Sort according to parent/child tag. We do not know in what order individuals have returned.
 		// Hence we need to sort them.
 		sort(data.begin(), data.end(),
 			 boost::bind(&GIndividual::isParent, _1) > boost::bind(&GIndividual::isParent, _2));
@@ -488,7 +492,8 @@ void GBrokerPopulation::mutateChildren() {
 #endif /* DEBUG */
 
 		for(std::size_t i=0; i<fixSize; i++){
-			data.push_back((data.back())->clone_bptr_cast<GIndividual>());
+			// This function will create a clone of its argument
+			this->push_back_clone(data.back());
 		}
 	}
 

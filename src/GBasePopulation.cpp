@@ -438,9 +438,7 @@ void GBasePopulation::adjustPopulation() {
 	if(this_sz >= popSize_) return; // Nothing to do - more children than expected is o.k.
 	else { // We need to add members, so that we have a minimum of popSize_ members in the population
 		// Missing members are created as copies of the population's first individual
-		for(std::size_t i=0; i<(popSize_-this_sz); i++) {
-			data.push_back(data.at(0)->clone_bptr_cast<GIndividual>());
-		}
+		this->resize_clone(popSize_, data[0]);
 	}
 
 	// Let parents know they are parents and children that they are children

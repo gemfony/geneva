@@ -81,35 +81,41 @@ BOOST_AUTO_TEST_SUITE(GParameterTCollectionTSuite)
 // This template allows to create items different of the default item.
 // Note that these will not have an adaptor assigned to them and
 // can thus not be mutated.
-template <typename T> T getTemplateItemNoAdaptor() {
-	return T(0);
+template <typename T>
+boost::shared_ptr<T> getTemplateItemNoAdaptor() {
+	return boost::shared_ptr<T>(new T(0));
 }
 
 // Specialization for GBoundedDouble
-template <> GBoundedDouble getTemplateItemNoAdaptor<GBoundedDouble>() {
-	return GBoundedDouble(0.,0.,1.);
+template <>
+boost::shared_ptr<GBoundedDouble> getTemplateItemNoAdaptor<GBoundedDouble>() {
+	return boost::shared_ptr<GBoundedDouble>(new GBoundedDouble(0.,0.,1.));
 }
 
 // Specialization for GBoundedInt32
-template <> GBoundedInt32 getTemplateItemNoAdaptor<GBoundedInt32>() {
-	return GBoundedInt32(0,0,100);
+template <>
+boost::shared_ptr<GBoundedInt32> getTemplateItemNoAdaptor<GBoundedInt32>() {
+	return boost::shared_ptr<GBoundedInt32>(new GBoundedInt32(0,0,100));
 }
 
 // This template allows to create items different of the default item.
 // Note that these will not have an adaptor assigned to them and
 // can thus not be mutated.
-template <typename T> T getFindItemNoAdaptor() {
-	return T(1);
+template <typename T>
+boost::shared_ptr<T> getFindItemNoAdaptor() {
+	return boost::shared_ptr<T>(new T(1));
 }
 
 // Specialization for GBoundedDouble
-template <> GBoundedDouble getFindItemNoAdaptor<GBoundedDouble>() {
-	return GBoundedDouble(1.,0.,1.);
+template <>
+boost::shared_ptr<GBoundedDouble> getFindItemNoAdaptor<GBoundedDouble>() {
+	return boost::shared_ptr<GBoundedDouble>(new GBoundedDouble(1.,0.,1.));
 }
 
 // Specialization for GBoundedInt32
-template <> GBoundedInt32 getFindItemNoAdaptor<GBoundedInt32>() {
-	return GBoundedInt32(1,0,100);
+template <>
+boost::shared_ptr<GBoundedInt32> getFindItemNoAdaptor<GBoundedInt32>() {
+	return boost::shared_ptr<GBoundedInt32>(new GBoundedInt32(1,0,100));
 }
 
 /***********************************************************************************/
@@ -118,7 +124,8 @@ template <> GBoundedInt32 getFindItemNoAdaptor<GBoundedInt32>() {
 // equipped with adaptors. As these are different for each type, this
 // template should not be called directly. Instead, specializations should
 // be used.
-template <typename T> T getTemplateItem() {
+template <typename T>
+boost::shared_ptr<T> getTemplateItem() {
 	// This function should never be called directly
 	std::ostringstream error;
 	error << "In getTemplateItem<T>(): The template itself should never be called!" << std::endl;
@@ -126,52 +133,59 @@ template <typename T> T getTemplateItem() {
 }
 
 // Specialization for GBoundedDouble
-template <> GBoundedDouble getTemplateItem<GBoundedDouble>() {
-	GBoundedDouble gbd(0.,0.,1.);
-	gbd.addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
-	return gbd;
+template <>
+boost::shared_ptr<GBoundedDouble> getTemplateItem<GBoundedDouble>() {
+	boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(0.,0.,1.));
+	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
+	return gbd_ptr;
 }
 
 // Specialization for GBoundedInt32
-template <> GBoundedInt32 getTemplateItem<GBoundedInt32>() {
-	GBoundedInt32 gbi(0,0,100);
-	gbi.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
-	return gbi;
+template <>
+boost::shared_ptr<GBoundedInt32> getTemplateItem<GBoundedInt32>() {
+	boost::shared_ptr<GBoundedInt32> gbi_ptr(new GBoundedInt32(0,0,100));
+	gbi_ptr->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
+	return gbi_ptr;
 }
 
 // Specialization for GDouble
-template <> GDouble getTemplateItem<GDouble>() {
-	GDouble gbd(0.);
-	gbd.addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
-	return gbd;
+template <>
+boost::shared_ptr<GDouble> getTemplateItem<GDouble>() {
+	boost::shared_ptr<GDouble> gbd_ptr(new GDouble(0.));
+	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
+	return gbd_ptr;
 }
 
 // Specialization for GInt32
-template <> GInt32 getTemplateItem<GInt32>() {
-	GInt32 gint32(0);
-	gint32.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
-	return gint32;
+template <>
+boost::shared_ptr<GInt32> getTemplateItem<GInt32>() {
+	boost::shared_ptr<GInt32> gint32_ptr(new GInt32(0));
+	gint32_ptr->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
+	return gint32_ptr;
 }
 
 // Specialization for GBoolean
-template <> GBoolean getTemplateItem<GBoolean>() {
-	GBoolean gboolean(false);
-	gboolean.addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor()));
-	return gboolean;
+template <>
+boost::shared_ptr<GBoolean> getTemplateItem<GBoolean>() {
+	boost::shared_ptr<GBoolean> gboolean_ptr(new GBoolean(false));
+	gboolean_ptr->addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor()));
+	return gboolean_ptr;
 }
 
 // Specialization for GChar
-template <> GChar getTemplateItem<GChar>() {
-	GChar gchar('a');
-	gchar.addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor()));
-	return gchar;
+template <>
+boost::shared_ptr<GChar> getTemplateItem<GChar>() {
+	boost::shared_ptr<GChar> gchar_ptr(new GChar('a'));
+	gchar_ptr->addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor()));
+	return gchar_ptr;
 }
 
 // This template allows to create items different of the default item, , fully
 // equipped with adaptors. As these are different for each type, this
 // template should not be called directly. Instead, specializations should
 // be used.
-template <typename T> T getFindItem() {
+template <typename T>
+boost::shared_ptr<T> getFindItem() {
 	// This function should never be called directly
 	std::ostringstream error;
 	error << "In getFindItem<T>(): The template itself should never be called!" << std::endl;
@@ -179,45 +193,51 @@ template <typename T> T getFindItem() {
 }
 
 // Specialization for GBoundedDouble
-template <> GBoundedDouble getFindItem<GBoundedDouble>() {
-	GBoundedDouble gbd(1.,0.,1.);
-	gbd.addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
-	return gbd;
+template <>
+boost::shared_ptr<GBoundedDouble> getFindItem<GBoundedDouble>() {
+	boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(1.,0.,1.));
+	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
+	return gbd_ptr;
 }
 
 // Specialization for GBoundedInt32
-template <> GBoundedInt32 getFindItem<GBoundedInt32>() {
-	GBoundedInt32 gbi(1,0,100);
-	gbi.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
-	return gbi;
+template <>
+boost::shared_ptr<GBoundedInt32> getFindItem<GBoundedInt32>() {
+	boost::shared_ptr<GBoundedInt32> gbi_ptr(new GBoundedInt32(1,0,100));
+	gbi_ptr->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
+	return gbi_ptr;
 }
 
 // Specialization for GDouble
-template <> GDouble getFindItem<GDouble>() {
-	GDouble gbd(1.);
-	gbd.addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
-	return gbd;
+template <>
+boost::shared_ptr<GDouble> getFindItem<GDouble>() {
+	boost::shared_ptr<GDouble> gbd_ptr(new GDouble(1.));
+	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
+	return gbd_ptr;
 }
 
 // Specialization for GInt32
-template <> GInt32 getFindItem<GInt32>() {
-	GInt32 gint32(1);
-	gint32.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
-	return gint32;
+template <>
+boost::shared_ptr<GInt32> getFindItem<GInt32>() {
+	boost::shared_ptr<GInt32> gint32_ptr(new GInt32(1));
+	gint32_ptr->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
+	return gint32_ptr;
 }
 
 // Specialization for GBoolean
-template <> GBoolean getFindItem<GBoolean>() {
-	GBoolean gboolean(true);
-	gboolean.addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor()));
-	return gboolean;
+template <>
+boost::shared_ptr<GBoolean> getFindItem<GBoolean>() {
+	boost::shared_ptr<GBoolean> gboolean_ptr(new GBoolean(true));
+	gboolean_ptr->addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor()));
+	return gboolean_ptr;
 }
 
 // Specialization for GChar
-template <> GChar getFindItem<GChar>() {
-	GChar gchar('b');
-	gchar.addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor()));
-	return gchar;
+template <>
+boost::shared_ptr<GChar> getFindItem<GChar>() {
+	boost::shared_ptr<GChar> gchar_ptr(new GChar('b'));
+	gchar_ptr->addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor()));
+	return gchar_ptr;
 }
 
 /***********************************************************************************/
@@ -234,13 +254,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, T, te
 	GParameterTCollectionT<T> gptct;
 
 	// Check the vector interface
-	T templItem = getTemplateItem<T>();
-	T findItem = getFindItem<T>();
+	boost::shared_ptr<T> templItem_ptr = getTemplateItem<T>();
+	boost::shared_ptr<T> findItem_ptr = getFindItem<T>();
 	// Make sure both items are indeed different
-	BOOST_CHECK(templItem != findItem);
+	BOOST_CHECK(*templItem_ptr != *findItem_ptr);
 
 	// Run the actual vector tests
-	stdvectorinterfacetestSP(gptct, templItem, findItem);
+	stdvectorinterfacetestSP(gptct, templItem_ptr, findItem_ptr);
 
 	// vector functionality of the collection has now been thoroughly tested.
 	// Collection items should be remaining in the object. Check.

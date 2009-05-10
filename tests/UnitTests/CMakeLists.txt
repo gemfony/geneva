@@ -4,6 +4,7 @@ SET (EXECUTABLENAME GUnitTests)
 
 SET (${EXECUTABLENAME}_SRCS 
 	GUnitTests
+	GRandom_test # Should be compiled and linked (!) first
 	GAdaptorT_test
 	GBasePopulation_test
 	GBooleanCollection_test
@@ -22,7 +23,6 @@ SET (${EXECUTABLENAME}_SRCS
 	GParameterSet_test
 	GParameterT_test
 	GParameterTCollectionT_test
-	GRandom_test
 	SampleIndividuals_test.cpp
 )
 	

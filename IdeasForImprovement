@@ -56,4 +56,6 @@
 - Add test for very large GBoundedDoubleCollections in order to test memory limits
 - Perform tests and benchmarks also with local random number creation
 - Test that seeding works with local random number creation
-- Track down all used of setSigmaRange and associates and check for consistency
+- Track down all uses of setSigmaRange and associates and check for consistency
+- Create boost::shared_ptr<GObject> versions of load() and clone(), adapt in all places (e.g. GStdPtrVectorInterface.hpp)
+- Get rid of the logging code
