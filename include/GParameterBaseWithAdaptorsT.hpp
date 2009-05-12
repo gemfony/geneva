@@ -223,7 +223,7 @@ public:
 		// Only act if the other object actually holds an adaptor
 		if(gpbwa_load->adaptor_) {
 			// Same type: We can just load the data
-			if (adaptor_->getAdaptorId() == gpbwa_load->adaptor_->getAdaptorId()) {
+		    if (adaptor_ && (adaptor_->getAdaptorId() == gpbwa_load->adaptor_->getAdaptorId())) {
 				adaptor_->load((gpbwa_load->adaptor_).get());
 			}
 			// Different type - need to convert

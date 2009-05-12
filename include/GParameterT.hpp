@@ -68,6 +68,9 @@ class GParameterT
 	///////////////////////////////////////////////////////////////////////
 
 public:
+	/** @brief Used to identify the type supplied to this object */
+	typedef T p_type;
+
 	/** @brief The default constructor */
 	GParameterT();
 	/** @brief The copy constructor */
@@ -105,7 +108,7 @@ public:
 	/**
 	 * Automatic conversion to the target type
 	 */
-	operator T(){
+	operator T() const{
 		return this->value();
 	}
 
@@ -115,7 +118,7 @@ public:
 	 *
 	 * @return The value of val_
 	 */
-	inline T value(){
+	T value() const{
 		return val_;
 	}
 
