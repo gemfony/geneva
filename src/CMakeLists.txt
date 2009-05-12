@@ -40,8 +40,6 @@ SET ( GENEVASOURCES
 	GInt32GaussAdaptor
 	GInt32ObjectCollection
 	GIntFlipAdaptorT
-	GLogger
-	GLogTargets
 	GLongParameter
 	GNumCollectionT
 	GNumericParameterT

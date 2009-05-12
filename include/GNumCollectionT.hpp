@@ -43,7 +43,6 @@
 #include "GObject.hpp"
 #include "GParameterCollectionT.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem {

@@ -39,7 +39,6 @@
 
 // GenEvA headers go here
 
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem

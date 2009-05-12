@@ -47,7 +47,6 @@
 #include "GBasePopulation.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem {

@@ -498,7 +498,7 @@ void GBrokerPopulation::mutateChildren() {
 	}
 
 #ifdef DEBUG
-	LOGGER->log(information.str(), Gem::GLogFramework::INFORMATIONAL);
+	std::cout << information.str();
 #endif /* DEBUG */
 
 	// We care for too many returned individuals in the select() function. Older

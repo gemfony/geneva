@@ -48,7 +48,6 @@
 // GenEvA headers go here
 
 #include "GenevaExceptions.hpp"
-#include "GLogger.hpp"
 #include "GIndividual.hpp"
 #include "GBasePopulation.hpp"
 #include "GBufferPortT.hpp"

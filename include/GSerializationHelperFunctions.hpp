@@ -59,7 +59,6 @@
 // GenEvA headers go here
 
 #include "GIndividual.hpp"
-#include "GLogger.hpp"
 #include "GEnums.hpp"
 
 namespace Gem

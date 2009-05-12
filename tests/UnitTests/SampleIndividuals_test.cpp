@@ -32,8 +32,6 @@
 
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
-#include "GLogger.hpp"
-#include "GLogTargets.hpp"
 #include "GRandom.hpp"
 //#include "GParabolaIndividual.hpp"
 #include "GNoisyParabolaIndividual.hpp"
@@ -41,7 +39,6 @@
 using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
-using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
 // This test suite tests common functionality of some important sample individuals,

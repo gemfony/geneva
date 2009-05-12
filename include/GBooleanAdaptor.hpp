@@ -42,7 +42,6 @@
 #include "GObject.hpp"
 #include "GBoundedDouble.hpp"
 #include "GEnums.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 #include "GIntFlipAdaptorT.hpp"
 

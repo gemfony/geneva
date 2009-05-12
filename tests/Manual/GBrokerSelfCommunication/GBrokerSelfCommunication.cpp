@@ -39,8 +39,6 @@
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GLogger.hpp"
-#include "GLogTargets.hpp"
 #include "GBrokerPopulation.hpp"
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
@@ -60,7 +58,6 @@
 
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
-using namespace Gem::GLogFramework;
 
 /************************************************************************************************/
 /**
@@ -108,16 +105,6 @@ int main(int argc, char **argv){
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Set-up of local resources
-
-	// Add some log levels to the logger
-	LOGGER->addLogLevel(Gem::GLogFramework::CRITICAL);
-	LOGGER->addLogLevel(Gem::GLogFramework::WARNING);
-	LOGGER->addLogLevel(Gem::GLogFramework::INFORMATIONAL);
-	LOGGER->addLogLevel(Gem::GLogFramework::PROGRESS);
-
-	// Add log targets to the system
-	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("GBrokerSelfCommunication.log")));
-	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);

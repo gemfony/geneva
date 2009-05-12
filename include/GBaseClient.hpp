@@ -59,7 +59,6 @@
 
 #include "GIndividual.hpp"
 #include "GSerializationHelperFunctions.hpp"
-#include "GLogger.hpp"
 #include "GEnums.hpp"
 
 namespace Gem

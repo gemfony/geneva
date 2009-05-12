@@ -3,7 +3,7 @@
 - Prevent GBrokerPopulation from being used inside itself (doesn't make sense, will likely not work)
 - Make individuals optionally output their information in ROOT-tree format (see http://root.cern.ch). Can
   be done with the info function framework ??
-- Move from GLogger to one of the two Boost logging library candidates. Requires that at least one 
+- Use one of the Boost logging library candidates. Requires that at least one 
   of them heads for a review (we do not want to include further candidate libraries. Geneva should work with a 
   vanilla Boost installation (>= 1.36)
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
@@ -34,7 +34,6 @@
   Order DUPLICATE(M) -> MUTATE -> EVALUATE. Earlier orders imply the latter
 - Network transfers initiated by clients in separate thread, in parallel to the calculation, thereby eliminating 
   part of the network overhead
-- Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
 - It should be possible to ask individuals to take charge of the external evaluation of other individuals as well, avoiding generation of local, random copies
 - RNR in float faster ?
 - Rename GBasePopulation and/or GBrokerPopulation, e.g. to GenevaPopulation ?
@@ -53,7 +52,6 @@
 - Same for GNoisyParabolaIndividual and GProjectionIndividual
 - Add test for very large GBoundedDoubleCollections in order to test memory limits
 - Create boost::shared_ptr<GObject> versions of load() and clone(), adapt in all places (e.g. GStdPtrVectorInterface.hpp)
-- Get rid of the logging code
 - Implementation of a GETSEED command in remote clients
 - Perform tests and benchmarks also with local random number creation
 - Test that seeding works with local random number creation
@@ -77,3 +75,6 @@
 - Check all load code whether it checks for empty smart pointers
 - Use CPack to create RPM and DEB packages
 - Switch examples to the noise parabola, due to its higher learning potential
+
+Nice to have:
+- Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)

@@ -48,7 +48,6 @@
 #include "GDoubleGaussAdaptor.hpp"
 #include "GObject.hpp"
 #include "GRandom.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 #include "GEnums.hpp"
 

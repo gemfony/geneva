@@ -42,7 +42,6 @@
 #include "GBoolean.hpp"
 #include "GBooleanCollection.hpp"
 #include "GBooleanAdaptor.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
 

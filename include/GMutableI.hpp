@@ -21,6 +21,7 @@
  */
 
 // Standard header files go here
+#include <iostream>
 #include <sstream>
 
 // Boost header files go here
@@ -31,11 +32,12 @@
 #error "Error: Boost has incorrect version !"
 #endif /* BOOST_VERSION */
 
+#include <boost/exception.hpp>
+
 #ifndef GMUTABLEI_HPP_
 #define GMUTABLEI_HPP_
 
 // Geneva header files go here
-#include "GLogger.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -67,24 +69,19 @@ public:
 			std::ostringstream error;
 			error << "In GMutableI::checkedMutate(): Caught std::exception with message" << std::endl
 				  << e.what() << std::endl;
-
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+			std::cerr << error.str();
 			std::terminate();
 		}
 		catch(boost::exception& e){
 			std::ostringstream error;
 			error << "In GMutableI::checkedMutate(): Caught boost::exception" << std::endl;
-
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
+			std::cerr << error.str();
 			std::terminate();
 		}
 		catch(...){
 			std::ostringstream error;
 			error << "In GMutableI::checkedMutate(): Caught unknown exception" << std::endl;
-
-			LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+			std::cerr << error.str();
 			std::terminate();
 		}
 #else

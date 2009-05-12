@@ -52,8 +52,6 @@ SET ( GENEVAINCLUDES
 	GInt32GaussAdaptor.hpp
 	GInt32ObjectCollection.hpp
 	GIntFlipAdaptorT.hpp
-	GLogger.hpp
-	GLogTargets.hpp
 	GLongParameter.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp

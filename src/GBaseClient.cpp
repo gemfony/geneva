@@ -60,23 +60,19 @@ void GBaseClient::run(){
 		std::ostringstream error;
 		error << "In GBaseClient::run(): Caught std::exception with message" << std::endl
 		      << e.what() << std::endl;
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+		std::cerr << error.str();
 		std::terminate();
 	}
 	catch(boost::exception& e){
 		std::ostringstream error;
 		error << "In GBaseClient::run(): Caught boost::exception" << std::endl;
-
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+		std::cerr << error.str();
 		std::terminate();
 	}
 	catch(...){
 		std::ostringstream error;
 		error << "In GBaseClient::run(): Caught unknown exception" << std::endl;
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+		std::cerr << error.str();
 		std::terminate();
 	}
 }
@@ -182,7 +178,7 @@ bool GBaseClient::process(){
 		std::ostringstream error;
 		error << "In GBaseClient::process() : Error!" << std::endl
 			  << "Found empty serModeStr" << std::endl;
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
+		std::cerr << error.str();
 
 		return false;
 	}
@@ -209,7 +205,7 @@ bool GBaseClient::process(){
 		std::ostringstream error;
 		error << "In GBaseClient::process() : Error!" << std::endl
 			  << "Empty portid found" << std::endl;
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
+		std::cerr << error.str();
 
 		return false;
 	}

@@ -47,7 +47,6 @@
 #include "GParameterBaseWithAdaptorsT.hpp"
 #include "GParameterT.hpp"
 #include "GObject.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem

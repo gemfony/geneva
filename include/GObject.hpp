@@ -66,7 +66,6 @@
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
 #include "GEnums.hpp"
-#include "GLogger.hpp"
 #include "GHelperFunctionsT.hpp"
 
 namespace Gem {

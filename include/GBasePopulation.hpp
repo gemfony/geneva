@@ -57,7 +57,6 @@
 #include "GIndividual.hpp"
 #include "GIndividualSet.hpp"
 #include "GRandom.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 #include "GEnums.hpp"
 
@@ -333,7 +332,8 @@ public:
 			break;
 		}
 
-		LOGGER->log(information.str(), Gem::GLogFramework::PROGRESS);
+		// Let the audience know
+		std::cout << information.str();
 	}
 
 	/**************************************************************************************************/

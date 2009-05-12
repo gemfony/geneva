@@ -40,7 +40,6 @@
 
 #include "GParameterCollectionT.hpp"
 #include "GEnums.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem

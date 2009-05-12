@@ -65,7 +65,6 @@
 #include "GIndividualBroker.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GSerializationHelperFunctions.hpp"
-#include "GLogger.hpp"
 
 namespace Gem
 {

@@ -54,7 +54,6 @@
 #include "GAsioHelperFunctions.hpp"
 #include "GSerializationHelperFunctions.hpp"
 #include "GBaseClient.hpp"
-#include "GLogger.hpp"
 
 
 namespace Gem

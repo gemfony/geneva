@@ -47,8 +47,6 @@
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GLogger.hpp"
-#include "GLogTargets.hpp"
 #include "GBoostThreadPopulation.hpp"
 
 // The individual that should be optimized
@@ -63,7 +61,6 @@
 
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
-using namespace Gem::GLogFramework;
 
 
 /************************************************************************************************/
@@ -99,16 +96,6 @@ int main(int argc, char **argv){
 						 rScheme,
 						 verbose))
 	{ exit(1); }
-
-	// Add some log levels to the logger
-	LOGGER->addLogLevel(Gem::GLogFramework::CRITICAL);
-	LOGGER->addLogLevel(Gem::GLogFramework::WARNING);
-	LOGGER->addLogLevel(Gem::GLogFramework::INFORMATIONAL);
-	LOGGER->addLogLevel(Gem::GLogFramework::PROGRESS);
-
-	// Add log targets to the system
-	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GDiskLogger("InfoFunctionUsage.log")));
-	LOGGER->addTarget(boost::shared_ptr<GBaseLogTarget>(new GConsoleLogger()));
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);

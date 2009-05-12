@@ -32,14 +32,11 @@
 
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
-#include "GLogger.hpp"
-#include "GLogTargets.hpp"
 #include "GRandom.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
-using namespace Gem::GLogFramework;
 
 /***********************************************************************************/
 // This file holds a template that should be used for unit tests
@@ -59,7 +56,6 @@ BOOST_AUTO_TEST_CASE( className_failures_expected )
 {
 	GRandom gr;
 
-}
 /***********************************************************************************/
 
 BOOST_AUTO_TEST_SUITE_END()

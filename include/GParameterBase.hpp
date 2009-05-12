@@ -54,7 +54,6 @@
 
 #include "GMutableI.hpp"
 #include "GObject.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem {

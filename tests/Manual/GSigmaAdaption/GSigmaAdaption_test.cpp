@@ -45,7 +45,6 @@
 using namespace Gem;
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
-using namespace Gem::GLogFramework;
 
 int main(int argc, char **argv) {
 	bool verbose;

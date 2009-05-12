@@ -493,22 +493,19 @@ double GIndividual::checkedFitness(){
 		std::ostringstream error;
 		error << "In GIndividual::checkedFitness(): Caught std::exception with message" << std::endl
 		      << e.what() << std::endl;
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+		std::cerr << error.str();
 		std::terminate();
 	}
 	catch(boost::exception& e){
 		std::ostringstream error;
 		error << "In GIndividual::checkedFitness(): Caught boost::exception with message" << std::endl;
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+		std::cerr << error.str();
 		std::terminate();
 	}
 	catch(...){
 		std::ostringstream error;
 		error << "In GIndividual::checkedFitness(): Caught unknown exception" << std::endl;
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+		std::cerr << error.str();
 		std::terminate();
 	}
 }
@@ -545,23 +542,19 @@ void GIndividual::checkedProcess(){
 		std::ostringstream error;
 		error << "In GIndividual::checkedProcess(): Caught std::exception with message" << std::endl
 		      << e.what() << std::endl;
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+		std::cerr << error.str();
 		std::terminate();
 	}
 	catch(boost::exception& e){
 		std::ostringstream error;
 		error << "In GIndividual::checkedProcess(): Caught boost::exception" << std::endl;
-
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+		std::cerr << error.str();
 		std::terminate();
 	}
 	catch(...){
 		std::ostringstream error;
 		error << "In GIndividual::checkedProcess(): Caught unknown exception" << std::endl;
-		LOGGER->log(error.str(), Gem::GLogFramework::CRITICAL);
-
+		std::cerr << error.str();
 		std::terminate();
 	}
 }

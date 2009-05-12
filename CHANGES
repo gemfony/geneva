@@ -14,6 +14,9 @@ The main changes for this release include:
  - Added the CMake 2.6.4 FindBoost.cmake macro to the Geneva distribution in order
    to ease the compilation procedure. There should be no need to upgrade older 2.6.x
    CMake distributions, as their FindBoost.cmake seemed to have had a problem.
+ - Removed the former GLogger framework. It was only used in a few places and
+   hasn't been updated for a while. When the Boost.Logging library will pass its
+   review, it will be used in Geneva instead.
 
 * Version 0.5.2 "Building 38" - April 20, 2009
 

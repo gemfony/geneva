@@ -42,7 +42,6 @@
 #include "GObject.hpp"
 #include "GMutableSetT.hpp"
 #include "GParameterBase.hpp"
-#include "GLogger.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem {

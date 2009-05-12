@@ -65,8 +65,6 @@
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GenevaExceptions.hpp"
-#include "GLogger.hpp"
-#include "GLogTargets.hpp"
 #include "GBoostThreadPopulation.hpp"
 #include "GRandom.hpp"
 
