@@ -75,4 +75,5 @@
 - Make GRandom serializable and remove the proxy code
 - Check in GStdPtrVectorInterface whether smart pointers actually point somewhere. Otherwise
   just copy an empty pointer (or throw ?? Different behavior in DEBUG mode ?)
-- Check all load code whether it checks for empty smart pointers 
+- Check all load code whether it checks for empty smart pointers
+- Use CPack to create RPM and DEB packages

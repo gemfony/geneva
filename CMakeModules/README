@@ -1,3 +1,6 @@
 This folder contains CMake modules needed for building Geneva. 
-At current, it holds the CMake 2.6.3 version of FindBoost.cmake,
-as older versions seemed to have a broken module. 
+At current, it holds the CMake 2.6.4 version of FindBoost.cmake,
+as older versions seemed to be broken.
+
+FindBoost.cmake:
+	See the file COPYING-CMAKE-SCRIPTS for the conditions of using this module.

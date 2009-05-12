@@ -11,6 +11,9 @@ The main changes for this release include:
  - Added possibility to compile the library/executables statically
  - Added Philipp Henkel's threadpool library to the Geneva distribution (with his
    kind permission), in order to ease the compilation procedure.
+ - Added the CMake 2.6.4 FindBoost.cmake macro to the Geneva distribution in order
+   to ease the compilation procedure. There should be no need to upgrade older 2.6.x
+   CMake distributions, as their FindBoost.cmake seemed to have had a problem.
 
 * Version 0.5.2 "Building 38" - April 20, 2009
 
@@ -42,4 +45,4 @@ to CMake. Directory structure of SVN repository has been revised.
 
 * Version 0.4 "CERN-barracks" - July 7, 2008
 
-Initial public release (R.B.)
+Initial public release

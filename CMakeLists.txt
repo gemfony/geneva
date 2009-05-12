@@ -20,6 +20,8 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # Set the build type (default value is "Release")
 # SET( CMAKE_BUILD_TYPE Debug )
 
+# Make sure we first check our local modules directory
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
 # Set the build type to Release by default
 IF(NOT CMAKE_BUILD_TYPE)
@@ -90,13 +92,19 @@ ADD_SUBDIRECTORY (src)
 ADD_SUBDIRECTORY (examples)
 ADD_SUBDIRECTORY (tests)
 ADD_SUBDIRECTORY (associated)
+ADD_SUBDIRECTORY (CMakeModules)
 
 SET ( INFORMATIONFILES
 	AUTHORS
 	CHANGES
 	COPYING
+	CREDITS
+	FAQ
 	INSTALL
+	KNOWNBUGS
+	RATEYOUREXPERIENCE
 	README
+	README.eclipse
 )
 
 INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
