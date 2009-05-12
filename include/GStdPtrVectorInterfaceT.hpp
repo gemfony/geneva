@@ -96,14 +96,16 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Copy construction. The content of the smart pointers is cloned.
+	 * Copy construction. The content of the smart pointers is cloned (if content is
+	 * available).
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
 	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T>& cp) {
 		typename std::vector<boost::shared_ptr<T> >::const_iterator cp_it;
-		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it)
+		for(cp_it=cp.data.begin(); cp_it!=cp.data.end(); ++cp_it) {
 			data.push_back((*cp_it)->GObject::clone_bptr_cast<T>());
+		}
 	}
 
 	/*****************************************************************************/
