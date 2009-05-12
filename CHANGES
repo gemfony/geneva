@@ -8,7 +8,9 @@ The main changes for this release include:
    This makes it possible to assign many more parameters to an individual
  - Moved away from the Boost random number generator for local generation mode
    due to its large memory requirements
- - Add possibility to compile the library/executables statically
+ - Added possibility to compile the library/executables statically
+ - Added Philipp Henkel's threadpool library to the Geneva distribution (with his
+   kind permission), in order to ease the compilation procedure.
 
 * Version 0.5.2 "Building 38" - April 20, 2009
 

@@ -6,7 +6,6 @@
 - Move from GLogger to one of the two Boost logging library candidates. Requires that at least one 
   of them heads for a review (we do not want to include further candidate libraries. Geneva should work with a 
   vanilla Boost installation (>= 1.36)
-- Ship the threadpool library with Geneva or move to standard Boost threadpool (once it has been reviewed)
 - data_time usage in GBasePopulation::optimize() might lead to problems in multi-populations (-> thread-safety)
 - Add a CMake macro "FindGeneva.cmake"
 - Allow clients in network mode to pull over a series of individuals
