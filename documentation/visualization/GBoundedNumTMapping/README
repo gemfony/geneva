@@ -1,0 +1,11 @@
+This directory contains various files that illustrate 
+the behaviour of the GBoundedDouble class. In particular:
+- realMapping.pdf (created with GBoundedDoubleTest),
+  transferFunction.odg / transferFunction.pdf show how bounded 
+  values are achieved in the GBoundedDouble class
+- gaussianMapping.png (also created with GBoundedDoubleTest) 
+  shows how gaussian-distributed random numbers on the internal
+  representation of the GBoundedDouble "behave" on the outside.
+  In particular, it is important to note that the "mapped" 
+  values still have a largely gaussian shape (up until the limit)
+
