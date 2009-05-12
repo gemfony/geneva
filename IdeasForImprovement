@@ -27,7 +27,6 @@
 - Create plots for Gauss mutation (the result of the adaptor) for unbounded and bounded doubles and ints.
   Need to check possible distortions of the gaussian at the "edges" of a variable's allowed data range.
 - When boundaries are at the maximum in GBoundedNumT<>, simply return the "in" value after the transformation
-- Allow to supply template items to the GExternalEvaluator in an easy way (particularly the adaptors are important!)
 - Make the external evaluation program read a configuration file rather than the command line
 - Network transfer of the parent rather than the child to avoid transfer of multiple, identical child items
   Local duplication AND mutation
