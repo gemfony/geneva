@@ -17,10 +17,6 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GBasePopulationSerialization
-)
-
-ADD_SUBDIRECTORY (
 	GBrokerSelfCommunication
 )
 

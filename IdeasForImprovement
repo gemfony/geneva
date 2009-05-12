@@ -76,3 +76,4 @@
   just copy an empty pointer (or throw ?? Different behavior in DEBUG mode ?)
 - Check all load code whether it checks for empty smart pointers
 - Use CPack to create RPM and DEB packages
+- Switch examples to the noise parabola, due to its higher learning potential
