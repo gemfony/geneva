@@ -4,20 +4,21 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
-#   it was not deployed in one of the stadard system locations
+# it was not deployed in one of the standard system locations. Otherwise,
+# see the comments in the INSTALL file on how to set the path on the 
+# command line.
 #SET (BOOST_ROOT "/opt/boost136")
 #SET (BOOST_INCLUDEDIR "/opt/boost136/include/boost-1_36")
 #SET (BOOST_LIBRARYDIR "/opt/boost136/lib")
 
-# Set once for Eclipse to find the boost libraries, you can then comment
-#   it out again
-#SET(CMAKE_VERBOSE_MAKEFILE ON)
+# Uncomment this if you want to see compiler arguments
+# SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Uncomment to compile static libs
-#SET( GENEVA_STATIC TRUE )
+# SET( GENEVA_STATIC TRUE )
 
 # Set the build type (default value is "Release")
-#SET( CMAKE_BUILD_TYPE Debug )
+# SET( CMAKE_BUILD_TYPE Debug )
 
 
 # Set the build type to Release by default
