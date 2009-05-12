@@ -20,6 +20,9 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # Set the build type (default value is "Release")
 # SET( CMAKE_BUILD_TYPE Debug )
 
+# Change this setting to install in a different directory
+SET(CMAKE_INSTALL_PREFIX "/opt/geneva/") 
+
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
@@ -87,12 +90,14 @@ LINK_DIRECTORIES (
 	${Boost_LIBRARY_DIRS}
 )
 
-ADD_SUBDIRECTORY (include)
-ADD_SUBDIRECTORY (src)
-ADD_SUBDIRECTORY (examples)
-ADD_SUBDIRECTORY (tests)
 ADD_SUBDIRECTORY (associated)
 ADD_SUBDIRECTORY (CMakeModules)
+ADD_SUBDIRECTORY (examples)
+ADD_SUBDIRECTORY (include)
+ADD_SUBDIRECTORY (licenses)
+ADD_SUBDIRECTORY (src)
+ADD_SUBDIRECTORY (tests)
+
 
 SET ( INFORMATIONFILES
 	AUTHORS
@@ -113,3 +118,30 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
 	GROUP_READ
 	WORLD_READ
 )
+
+#########################################################
+# Code for package generation with CPack
+# This is experimental. Use with care. 
+# An RPM package can be created using the 
+# "make package" command.
+#
+# PROBLEM: Somehow all files end up below /usr, which
+# is not intended. Do not use the "make package" feature
+# of Geneva at the moment.
+
+INCLUDE(InstallRequiredSystemLibraries)
+
+SET(CPACK_RPM_PACKAGE_SUMMARY
+"This package contains the Geneva optimization library"
+)
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Geneva optimization library")
+SET(CPACK_PACKAGE_VENDOR "Gemfony scientific")
+SET(CPACK_PACKAGE_VERSION_MAJOR "0")
+SET(CPACK_PACKAGE_VERSION_MINOR "5")
+SET(CPACK_PACKAGE_VERSION_PATCH "3")
+SET(CPACK_INSTALL_PREFIX "/opt/geneva")
+SET(CPACK_CMAKE_GENERATOR "Unix Makefiles")
+SET(CPACK_RPM_PACKAGE_LICENSE "Affero GPL v3")
+SET(CPACK_GENERATOR "RPM")
+
+INCLUDE(CPack)

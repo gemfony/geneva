@@ -1,4 +1,4 @@
-- Add cross-over function to GParameterCollectionT
+- Add cross-over function to GStdVector interfaces
 - Shifting in multi-populations
 - Prevent GBrokerPopulation from being used inside itself (doesn't make sense, will likely not work)
 - Make individuals optionally output their information in ROOT-tree format (see http://root.cern.ch). Can
@@ -11,11 +11,9 @@
 - Allow clients in network mode to pull over a series of individuals
 - Transfer parents rather than children
 - Allow clients to create a series of copies from the master individual by themself and return the best one
-- De-central sorting (by letting clients communicate)
 - Additional network implementations (MPI, PVM, ...)
 - Implement *1.5 vs. /0.5 rule for sigma adaption. Can be based on the parentCounter_ variable
   of individuals.
-- Add a GBiDoubleGaussAdaptor
 - GSelectedChar should allow a selection of the characters to be mutated. Very similar:
   An integer class that allows mutation between several selected integers only.
 - Clean up comments and run doxygen
@@ -24,8 +22,6 @@
 - Check how often the GRandomFactory queue is empty or full. Automatic adaption of number of threads ?
 - Implement a chi-square test for the randomness of our generator, as a basic means of ensuring that 
   our random number generator does the right thing.
-- Create plots for Gauss mutation (the result of the adaptor) for unbounded and bounded doubles and ints.
-  Need to check possible distortions of the gaussian at the "edges" of a variable's allowed data range.
 - When boundaries are at the maximum in GBoundedNumT<>, simply return the "in" value after the transformation
 - Make the external evaluation program read a configuration file rather than the command line
 - Network transfer of the parent rather than the child to avoid transfer of multiple, identical child items
@@ -50,14 +46,13 @@
   additionally emit information on the location of the deviation, if requested. Performance is not an issue for these functions
 - The GNeuralNetworkIndividual needs to be renovated (e.g. the isEqualTo function needs to be added).
 - Same for GNoisyParabolaIndividual and GProjectionIndividual
-- Add test for very large GBoundedDoubleCollections in order to test memory limits
+- Separate useful individuals (neural network, external evaluation, ...) from pure examples
 - Create boost::shared_ptr<GObject> versions of load() and clone(), adapt in all places (e.g. GStdPtrVectorInterface.hpp)
 - Implementation of a GETSEED command in remote clients
 - Perform tests and benchmarks also with local random number creation
 - Test that seeding works with local random number creation
-- Track down all used of setSigmaRange and associates and check for consistency
+- Track down all uses of setSigmaRange and associates and check for consistency
 - Cross-check usefulness of "const var&" usage for simple and complex parameters
-- Remove all non-boost::shared_ptr functions from GStdPtrVectorInterface
 - Need an infrastructure to give a single adaptor to an object collection
 - Use the stack instead of the free store in GParameterTCollectionT ?
 - Make most GRandom functions const, then hand down a constant reference to the parameter sets
@@ -78,3 +73,4 @@
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
+- De-central sorting (by letting clients communicate)
