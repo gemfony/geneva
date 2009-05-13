@@ -66,6 +66,7 @@
 - Check all load code whether it checks for empty smart pointers
 - Use CPack to create RPM and DEB packages
 - Switch examples to the noise parabola, due to its higher learning potential
+- Only compile tests if test_exec_monitor library could be found (not always in default installations)
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
