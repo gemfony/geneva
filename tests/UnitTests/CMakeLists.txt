@@ -1,10 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GUnitTests)
-
-SET (${EXECUTABLENAME}_SRCS 
-	GUnitTests
-	GRandom_test # Should be compiled and linked (!) first
+SET (TESTNAMES
 	GAdaptorT_test
 	GBasePopulation_test
 	GBooleanCollection_test
@@ -22,23 +18,27 @@ SET (${EXECUTABLENAME}_SRCS
 	GParameterSet_test
 	GParameterT_test
 	GParameterTCollectionT_test
-	SampleIndividuals_test.cpp
+	GRandom_test
+	SampleIndividuals_test
 )
+
+FOREACH(EXECUTABLE ${TESTNAMES})
+	ADD_EXECUTABLE(${EXECUTABLE}
+		${EXECUTABLE}
+		GUnitTests
+	)
 	
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
+	TARGET_LINK_LIBRARIES (${EXECUTABLE}
+		${PROJECT_NAME}
+		${Boost_LIBRARIES}
+	)
+ENDFOREACH()
 
 INCLUDE_DIRECTORIES (AFTER
 	${PROJECT_SOURCE_DIR}/examples/SampleIndividuals
 )
 
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-	${PROJECT_NAME}
-	${Boost_LIBRARIES}
-)
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION tests/unittests
+INSTALL ( TARGETS ${TESTNAMES} DESTINATION tests/unittests
 	PERMISSIONS
 	OWNER_READ OWNER_WRITE OWNER_EXECUTE
 	GROUP_READ GROUP_EXECUTE
