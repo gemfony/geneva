@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 #ADD_SUBDIRECTORY (
-#   GExternalProgram
+#    ExternalOpenBabel
 #)
 
 #ADD_SUBDIRECTORY (
-#   GIndividualCreator
+#    GIndividualCreator
 #)
