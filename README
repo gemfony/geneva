@@ -1,4 +1,4 @@
-This is a beta version of the Geneva library. As the name -
+This is a beta version of the Geneva library. As the name --
 it stands for "Grid-enabled evolutionary algorithms" -- suggests, it
 aims to provide the necessary tools to perform parametric optimization
 in parallel on devices ranging from multi-processor machines over
@@ -24,7 +24,7 @@ By the same token, however, we aim to remain the single largest
 contributor to the code and will only be able to accept contributions
 where an appropriate transfer of rights takes place. 
 
-To users and programmers wishing to contribute to this software the
+To users and programmers wishing to contribute to this software, the
 terms of the AGPL guarantee the continued availability of the code
 under this license.
 

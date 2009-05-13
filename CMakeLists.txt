@@ -124,22 +124,19 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
 # This is experimental. Use with care. 
 # An RPM package can be created using the 
 # "make package" command.
-#
-# PROBLEM: Somehow all files end up below /usr, which
-# is not intended. Do not use the "make package" feature
-# of Geneva at the moment.
 
 INCLUDE(InstallRequiredSystemLibraries)
 
+SET(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/README")
 SET(CPACK_RPM_PACKAGE_SUMMARY
 "This package contains the Geneva optimization library"
 )
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Geneva optimization library")
-SET(CPACK_PACKAGE_VENDOR "Gemfony scientific")
+SET(CPACK_PACKAGE_VENDOR "Gemfony scientific and Karlsruhe Institute of Technology")
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "5")
 SET(CPACK_PACKAGE_VERSION_PATCH "3")
-SET(CPACK_INSTALL_PREFIX "/opt/geneva")
+SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt/geneva")
 SET(CPACK_CMAKE_GENERATOR "Unix Makefiles")
 SET(CPACK_RPM_PACKAGE_LICENSE "Affero GPL v3")
 SET(CPACK_GENERATOR "RPM")
