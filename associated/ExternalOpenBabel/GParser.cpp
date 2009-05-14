@@ -131,8 +131,8 @@ bool parseCommandLine(int argc, char **argv,
 		// All other options require the -p/--paramfile switch
 		if(vm.count("paramfile") == 0 || paramfile == DEFAULTPARAMFILE || paramfile.empty()) {
 			std::cerr << "Error: You need to specify the name of the parameter file (option \"-p\")." << std::endl
-			<< "Make sure it is not \"empty\"" << std::endl;
-			if(vm.count("paramfile")==0) std::cout << "Current name is \"" << paramfile << "\"" << std::endl;
+			<< "Make sure it is not \"empty\"" << std::endl
+			<< "Use the option \"--help\" to see all options of this program" << std::endl;
 			return false;
 		}
 
