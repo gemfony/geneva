@@ -71,7 +71,13 @@ namespace GenEvA {
   /**
    * Ids that are assigned to adaptors and which should (by convention!) be unique for these
    */
-  enum adaptorId {BADADAPTOR=0, GINTFLIPADAPTORT=1, GGAUSSADAPTORT=2};
+  enum adaptorId {
+		 GDOUBLEGAUSSADAPTOR=0,
+		 GINT32GAUSSADAPTOR=1,
+		 GBOOLEANADAPTOR=2,
+		 GINT32FLIPADAPTOR=3,
+		 GCHARFLIPADAPTOR=4
+  };
 
   /**********************************************************************************************/
 
@@ -88,6 +94,7 @@ namespace GenEvA {
 //-----------------------------------------------------------------------------------------------
 
 namespace Util {
+
 /**********************************************************************************************/
 /**
  * Random number generation can happen in three modes
@@ -95,6 +102,7 @@ namespace Util {
 enum rnrGenerationMode { RNRFACTORY=0, RNRLOCAL=1, RNRPROXY=2};
 
 /**********************************************************************************************/
+
 } /* namespace Util */
 
 } /* namespace Gem */

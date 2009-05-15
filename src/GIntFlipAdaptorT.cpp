@@ -157,6 +157,36 @@ void GIntFlipAdaptorT<char>::customMutations(char& value) {
 }
 
 /***********************************************************************************************/
+/**
+ * Specialization for typeof(T) == typeof(char).
+ *
+ * @return The id of a GBooleanAdaptor
+ */
+template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<bool>::getAdaptorId() const {
+	return Gem::GenEvA::GBOOLEANADAPTOR;
+}
+
+/***********************************************************************************************/
+/**
+ * Specialization for typeof(T) == typeof(boost::int32_t).
+ *
+ * @return The id of a GInt32FlipAdaptor
+ */
+template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<boost::int32_t>::getAdaptorId() const {
+	return Gem::GenEvA::GINT32FLIPADAPTOR;
+}
+
+/***********************************************************************************************/
+/**
+ * Specialization for typeof(T) == typeof(boost::int32_t).
+ *
+ * @return The id of a GCharFlipAdaptor
+ */
+template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<char>::getAdaptorId() const {
+	return Gem::GenEvA::GCHARFLIPADAPTOR;
+}
+
+/***********************************************************************************************/
 
 } /* namespace GenEvA  */
 } /* namespace Gem */

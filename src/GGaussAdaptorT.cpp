@@ -94,6 +94,26 @@ void GGaussAdaptorT<short>::customMutations(short& value) {
 }
 
 /***********************************************************************************************/
+/**
+ * Returns the id of this object
+ *
+ * @return The id of a GDoubleGaussAdaptor
+ */
+template<> Gem::GenEvA::adaptorId GGaussAdaptorT<double>::getAdaptorId() const {
+	return Gem::GenEvA::GDOUBLEGAUSSADAPTOR;
+}
+
+/***********************************************************************************************/
+/**
+ * Returns the id of this object
+ *
+ * @return The id of a GInt32GaussAdaptor
+ */
+template<> Gem::GenEvA::adaptorId GGaussAdaptorT<boost::int32_t>::getAdaptorId() const {
+	return Gem::GenEvA::GINT32GAUSSADAPTOR;
+}
+
+/***********************************************************************************************/
 
 } /* namespace GenEvA  */
 } /* namespace Gem */

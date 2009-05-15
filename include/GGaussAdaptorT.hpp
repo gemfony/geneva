@@ -79,11 +79,10 @@ class GGaussAdaptorT :public GAdaptorT<T>
 public:
 	/********************************************************************************************/
 	/**
-	 * The standard constructor. It passes the adaptor's standard name to the
-	 * parent class and initializes the internal variables.
+	 * The standard constructor. It initializes the internal variables.
 	 */
 	GGaussAdaptorT()
-		:GAdaptorT<T> (GGAUSSADAPTORT),
+		:GAdaptorT<T> (),
 		 sigma_(DEFAULTSIGMA),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
 		 minSigma_(DEFAULTMINSIGMA),
@@ -101,7 +100,7 @@ public:
 	 */
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
-		:GAdaptorT<T> (GGAUSSADAPTORT),
+		:GAdaptorT<T> (),
 		 sigma_(DEFAULTSIGMA),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
 		 minSigma_(DEFAULTMINSIGMA),
@@ -206,7 +205,7 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GGaussAdaptorT<T> object Equality means
+	 * Checks for equality with another GGaussAdaptorT<T> object. Equality means
 	 * that all individual sub-values are equal and that the parent class is equal.
 	 *
 	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
@@ -413,6 +412,20 @@ public:
 		setSigma(sigma);
 	}
 
+	/***********************************************************************************/
+	/**
+	 * Retrieves the id of the adaptor. Specializations of this function
+	 * exist.
+	 *
+	 * @return The id of the adaptor
+	 */
+	virtual Gem::GenEvA::adaptorId getAdaptorId() const {
+		std::ostringstream error;
+		error << "In Gem::GenEvA::adaptorId GGaussAdaptorT::getAdaptorId(): Error!" << std::endl
+			  << "Function used with a type it was not designed for" << std::endl;
+		throw (Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
 protected:
 	/********************************************************************************************/
 	/**
@@ -440,6 +453,7 @@ protected:
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
 #if defined (CHECKOVERFLOWS)
+
 		// Prevent over- and underflows.
 #if defined (DEBUG)
 		T addition = boost::numeric_cast<T>(this->gr.gaussRandom(0.,sigma_));
@@ -455,13 +469,14 @@ protected:
 		}
 
 		value += addition;
-#else
+#else  /* CHECKOVERFLOWS */
 		// We do not check for over- or underflows for performance reasons.
 #if defined (DEBUG)
 		value += boost::numeric_cast<T>(this->gr.gaussRandom(0.,sigma_));
 #else
 		value += static_cast<T>(this->gr.gaussRandom(0.,sigma_));
 #endif /* DEBUG */
+
 #endif /* CHECKOVERFLOWS  */
 	}
 
@@ -478,6 +493,8 @@ private:
 template<> void GGaussAdaptorT<double>::customMutations(double&);
 template<> void GGaussAdaptorT<char>::customMutations(char&);
 template<> void GGaussAdaptorT<short>::customMutations(short&);
+template<> Gem::GenEvA::adaptorId GGaussAdaptorT<double>::getAdaptorId() const;
+template<> Gem::GenEvA::adaptorId GGaussAdaptorT<boost::int32_t>::getAdaptorId() const;
 
 } /* namespace GenEvA */
 } /* namespace Gem */

@@ -86,9 +86,42 @@ std::ostream& operator<<(std::ostream&, const Gem::GenEvA::dataExchangeMode&);
 /** @brief Reads a Gem::GenEvA::dataExchangeMode item from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::GenEvA::dataExchangeMode&);
 
+/** @brief Puts a Gem::GenEvA::recoScheme into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::GenEvA::recoScheme&);
+
+/** @brief Reads a Gem::GenEvA::recoScheme item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::GenEvA::recoScheme&);
+
+/** @brief Puts a Gem::GenEvA::infoMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::GenEvA::infoMode&);
+
+/** @brief Reads a Gem::GenEvA::infoMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::GenEvA::infoMode&);
+
+/** @brief Puts a Gem::GenEvA::adaptorId into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::GenEvA::adaptorId&);
+
+/** @brief Reads a Gem::GenEvA::adaptorId item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::GenEvA::adaptorId&);
+
 /***************************************************************************************************/
 
 } /* namespace GenEvA */
+
+namespace Util
+{
+/***************************************************************************************************/
+
+/** @brief Puts a Gem::Util::rnrGenerationMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Util::rnrGenerationMode&);
+
+/** @brief Reads a Gem::Util::rnrGenerationMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Util::rnrGenerationMode&);
+
+/***************************************************************************************************/
+
+} /* namespace Util */
+
 } /* namespace Gem */
 
 #endif /* GSERIALIZATIONHELPERFUNCTIONS_HPP_ */

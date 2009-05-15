@@ -96,32 +96,19 @@ class GAdaptorT:
 		ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
 		ar & make_nvp("adaptionCounter_", adaptionCounter_);
 		ar & make_nvp("adaptionThreshold_", adaptionThreshold_);
-		ar & make_nvp("adaptorId_", adaptorId_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/***********************************************************************************/
 	/**
-	 * An adaptor that takes an id for identification. Each adaptor is assigned its own
-	 * id (see GEnum.hpp). We also ask for adaption of mutation algorithms after each mutation
-	 * by default
+	 * The default constructor
 	 */
-	explicit GAdaptorT(const Gem::GenEvA::adaptorId& aid):
+	GAdaptorT():
 		GObject(),
 		adaptionCounter_(0),
-		adaptionThreshold_(0),
-		adaptorId_(aid)
-	{
-		// Complain if we received a bad id
-		if(adaptorId_ == Gem::GenEvA::BADADAPTOR) {
-			std::ostringstream error;
-			error << "In GAdaptorT<T>::GAdaptorT(adaptorId):" << std::endl
-				  << "received BADADAPTOR" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
-		}
-	}
-
+		adaptionThreshold_(0)
+	{ /* nothing */ }
 
 	/***********************************************************************************/
 	/**
@@ -132,8 +119,7 @@ public:
 	GAdaptorT(const GAdaptorT<T>& cp):
 		GObject(cp),
 		adaptionCounter_(cp.adaptionCounter_),
-		adaptionThreshold_(cp.adaptionThreshold_),
-		adaptorId_(cp.adaptorId_)
+		adaptionThreshold_(cp.adaptionThreshold_)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -175,7 +161,6 @@ public:
 		// Then our own data
 		adaptionCounter_ = gat->adaptionCounter_;
 		adaptionThreshold_ = gat->adaptionThreshold_;
-		adaptorId_ = gat->adaptorId_;
 	}
 
 	/***********************************************************************************/
@@ -223,7 +208,6 @@ public:
 		// then our local data
 		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
-		if(checkForInequality("GAdaptorT", adaptorId_, gat_load->adaptorId_,"adaptorId_", "gat_load->adaptorId_", expected)) return false;
 
 		return true;
 	}
@@ -248,20 +232,18 @@ public:
 		// Then our local data
 		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", adaptorId_, gat_load->adaptorId_, limit, "adaptorId_", "gat_load->adaptorId_", expected)) return false;
 
 		return true;
 	}
 
 	/***********************************************************************************/
 	/**
-	 * Retrieves the id of the adaptor. Setting it is only possible from the constructor
+	 * Retrieves the id of the adaptor. Purely virtual, must be implemented by the
+	 * actual adaptors.
 	 *
 	 * @return The id of the adaptor
 	 */
-	Gem::GenEvA::adaptorId getAdaptorId() const {
-		return adaptorId_;
-	}
+	virtual Gem::GenEvA::adaptorId getAdaptorId() const = 0;
 
 	/***********************************************************************************/
 	/**
@@ -298,7 +280,7 @@ public:
 	 *
 	 * @return The value of the adaptionCounter_ variable
 	 */
-	boost::uint32_t getAdaptionCounter() const  {
+	virtual boost::uint32_t getAdaptionCounter() const  {
 		return adaptionCounter_;
 	}
 
@@ -342,20 +324,8 @@ protected:
 
 private:
 	/***********************************************************************************/
-	/**
-	 * The Default constructor
-	 */
-	GAdaptorT():
-		GObject(),
-		adaptionCounter_(0),
-		adaptionThreshold_(0), // No automatic adaption of the adaptor by default
-		adaptorId_(0)
-	{ /* empty */ }
-
-	/***********************************************************************************/
 	boost::uint32_t adaptionCounter_; ///< A local counter
 	boost::uint32_t adaptionThreshold_; ///< Specifies after how many mutations the mutation itself should be adapted
-	adaptorId adaptorId_; ///< An id which is specific for all adaptors (defined in GEnum.hpp)
 };
 
 /******************************************************************************************/

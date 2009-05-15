@@ -85,11 +85,11 @@ public:
 	 * parent class and initializes the internal variables.
 	 */
 	GIntFlipAdaptorT()
-		:GAdaptorT<T> (GINTFLIPADAPTORT),
+		:GAdaptorT<T> (),
 		 mutProb_(DEFAULTMUTPROB, 0., 1.) // probability is in the range [0:1[
 	{
-		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA,
-				                                                                   DEFAULTMINSIGMA, DEFAULTMAXSIGMA));
+		// Uses whatever GDoubleGaussAdaptor believes should be the default values
+		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor());
 		mutProb_.addAdaptor(gaussAdaptor);
 	}
 
@@ -101,11 +101,11 @@ public:
 	 * @param prob The probability for a bit-flip
 	 */
 	explicit GIntFlipAdaptorT(const double& prob)
-		:GAdaptorT<T>(GINTFLIPADAPTORT),
+		:GAdaptorT<T>(),
 		 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
 	{
-		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor(DEFAULTSIGMA, DEFAULTSIGMASIGMA,
-																				   DEFAULTMINSIGMA, DEFAULTMAXSIGMA));
+		// Uses whatever GDoubleGaussAdaptor believes should be the default values
+		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor());
 		mutProb_.addAdaptor(gaussAdaptor);
 	}
 
@@ -306,6 +306,19 @@ public:
 		gaussAdaptor->setAll(sgm,sgmSgm,minSgm,maxSgm);
 	}
 
+	/********************************************************************************************/
+	/**
+	 * Retrieves the id of the adaptor.
+	 *
+	 * @return The id of the adaptor
+	 */
+	virtual Gem::GenEvA::adaptorId getAdaptorId() const {
+		std::ostringstream error;
+		error << "In Gem::GenEvA::adaptorId GIntFlipAdaptorT::getAdaptorId(): Error!" << std::endl
+			  << "Function used with a type it was not designed for" << std::endl;
+		throw (Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
 protected:
 	/********************************************************************************************/
 	/**
@@ -363,6 +376,9 @@ template<> void GIntFlipAdaptorT<unsigned short>::customMutations(unsigned short
 template<> void GIntFlipAdaptorT<boost::uint8_t>::customMutations(boost::uint8_t&);
 template<> void GIntFlipAdaptorT<boost::int8_t>::customMutations(boost::int8_t&);
 template<> void GIntFlipAdaptorT<char>::customMutations(char&);
+template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<bool>::getAdaptorId() const;
+template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<boost::int32_t>::getAdaptorId() const;
+template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<char>::getAdaptorId() const;
 
 } /* namespace GenEvA */
 } /* namespace Gem */
