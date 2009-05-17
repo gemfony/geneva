@@ -1,5 +1,5 @@
 /**
- * @file GEnum.hpp
+ * @file GEnums.hpp
  */
 
 /* Copyright (C) 2004-2008 Dr. Ruediger Berlich

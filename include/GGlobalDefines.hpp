@@ -1,5 +1,5 @@
 /**
- * @file GDefines.hpp
+ * @file GGlobalDefines.hpp
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
