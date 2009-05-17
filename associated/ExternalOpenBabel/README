@@ -8,7 +8,7 @@ http://www.openbabel.org .
 The program is optionally included in the build process, if CMake was able
 to find the OpenBabel libraries. In order to achieve this, OpenBabel's 
 package config file (called openbabel-2.0.pc with OpenBabel 2.2.1) must be
-in a standard localtion (e.g. /usr/lib64/pkgconfig on OpenSUSE 11.1, 64 bit).
+in a standard location (e.g. /usr/lib64/pkgconfig on OpenSUSE 11.1, 64 bit).
 You will also need the OpenBabel header files to be installed on your system.
 
 If CMake cannot find OpenBabel (but you know for sure that it is installed
