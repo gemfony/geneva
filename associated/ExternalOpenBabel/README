@@ -3,15 +3,35 @@ of protein structures, making use of the OpenBabel library. Note that
 this particular program is covered by the GPL2 (in contrast to most
 other parts of Geneva) in order to comply with OpenBabel's license
 requirements. For further information on OpenBabel see
-http://www.openbabel.org . Note that this program is not currently
-included in the build process of the Geneva library, as the OpenBabel
-libraries would be needed (available from the above URL).
+http://www.openbabel.org . 
+
+The program is optionally included in the build process, if CMake was able
+to find the OpenBabel libraries. In order to achieve this, OpenBabel's 
+package config file (called openbabel-2.0.pc with OpenBabel 2.2.1) must be
+in a standard localtion (e.g. /usr/lib64/pkgconfig on OpenSUSE 11.1, 64 bit).
+You will also need the OpenBabel header files to be installed on your system.
+
+If CMake cannot find OpenBabel (but you know for sure that it is installed
+on your system, including headers and libraries), then you can still adapt
+the supplied Makefile in this directory to your needs.
 
 In order to use this program, you will need a PDB description of a molecule.
+Such a description is not provided with the Geneva distribution.
 
-Optimization can be done with a command like the following:
+Once all necessary programs have been compiled, optimization can be done with 
+a command like the following:
 
-/some/path/GExternalProgram -f ./eminim2 -e "-n ./some/file.pdb" -X 0 -a 1 -G 4000 -z 100 -Z 1
+/some/path/GExternalEvaluator -X 0 -G 1000 -z 11 -Z 1 -P /another/path/eminim2 -i 1 --parallel=1
 
-This would use the eminim2 program to evaluate different molecular
-configurations.
+This will start an optimization run for 1000 generations, without time limit,
+using 10 children and 1 parent (i.e. a population size of 11), with the external
+evaluation program eminim2 (the one you have just compiled and whose sources
+are in this directoy). The optimization will run in multi-threaded mode (option "1"
+of --parallel), and will write out a result PDB-file after each generation.
+
+You will also need to supply a suitable eminim2.cfg in the directory from which
+the command was started. A sample file is provided alongside the eminim2 sources.
+You will particularly need to adapt the path to the .pdb file.
+
+Further program options can be seen by giving the --help switch to GExternalProgram
+and eminim2 respectively.
