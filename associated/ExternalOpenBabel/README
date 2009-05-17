@@ -26,7 +26,7 @@ a command like the following:
 This will start an optimization run for 1000 generations, without time limit,
 using 10 children and 1 parent (i.e. a population size of 11), with the external
 evaluation program eminim2 (the one you have just compiled and whose sources
-are in this directoy). The optimization will run in multi-threaded mode (option "1"
+are in this directory). The optimization will run in multi-threaded mode (option "1"
 of --parallel), and will write out a result PDB-file after each generation.
 
 You will also need to supply a suitable eminim2.cfg in the directory from which
