@@ -35,3 +35,19 @@ You will particularly need to adapt the path to the .pdb file.
 
 Further program options can be seen by giving the --help switch to GExternalProgram
 and eminim2 respectively.
+
+Some useful switches of GExternalEvaluator, according to our experience:
+-o 0 
+will switch selection from "MUPLUSNU" to "MUCOMMANU". This means that new parents
+will be selected from the last generation's children only. As a consequence, the
+algorithm searches a wider area, but you might see a *decrease* in quality.
+-V <some Number> 
+will ask the external evaluation program to perform several evaluations at once.
+A useful value on a fast machine would be 10
+-s 0.5 -S 0.0001 -m 0 -M 1
+You can play with suitable values for these settings. -s influences the "width" sigma 
+of the gaussian random number distribution added to parameters. Searching for finer
+structures can require a smaller sigma. Sigma is itself adapted after a number of 
+mutations (you can set this with the option "-a <number>", 1 is a good value in many
+cases). sigmaSigma (influenced by the -S switch) steers how quickly sigma is adapted.
+-m and -M specify minimum and maximum values for sigma respectively.
