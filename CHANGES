@@ -17,6 +17,10 @@ The main changes for this release include:
  - Removed the former GLogger framework. It was only used in a few places and
    hasn't been updated for a while. When the Boost.Logging library will pass its
    review, it will be used in Geneva instead.
+ - Added the ability to GParameterTColletionT to use a common adaptor for all of its 
+   GParameterT objects. Note: Needs some more testing. 
+ - GSeed will now first try to get an initial seed from /dev/urandom, if available, and 
+   will then set the seed to a predefined value upon failure.
 
 * Version 0.5.2 "Building 38" - April 20, 2009
 
