@@ -62,8 +62,13 @@ int main(int argc, char **argv){
 	 bool parallel;
 	 bool verbose;
 	 recoScheme rScheme;
-	  std::size_t arraySize;
-	  bool productionPlace;
+	 std::size_t arraySize;
+	 bool productionPlace;
+	 bool useCommonAdaptor;
+	 double sigma;
+	 double sigmaSigma;
+	 double minSigma;
+	 double maxSigma;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -82,6 +87,11 @@ int main(int argc, char **argv){
 						 parallel,
 						 arraySize,
 						 productionPlace,
+						 useCommonAdaptor,
+						 sigma,
+						 sigmaSigma,
+						 minSigma,
+						 maxSigma,
 						 verbose))
 	{ exit(1); }
 
@@ -90,12 +100,49 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setArraySize(arraySize);
 
 	// Set up a single parabola individual
-	boost::shared_ptr<GBoundedParabolaIndividual>
-		parabolaIndividual(new GBoundedParabolaIndividual(parabolaDimension,
-				parabolaMin,
-				parabolaMax,
-				adaptionThreshold));
+	boost::shared_ptr<GBoundedParabolaIndividual> parabolaIndividual(new GBoundedParabolaIndividual());
 
+	// Set up a GBoundedDoubleCollection
+	boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
+
+	// Set up an adaptor.
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
+	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+
+	if(useCommonAdaptor) {
+		// Adding the adaptor to the collection instead of individual GBoundedDouble objects will
+		// result in a joint adaptor for all GBoundedDoubles
+		gbdc_ptr->addAdaptor(gdga_ptr);
+
+		// Set up parabolaDimension GBoundedDouble objects in the desired value range,
+		// and register them with the double collection
+		for(std::size_t i=0; i<parabolaDimension; i++) {
+			// GBoundedDouble will start with value "max"
+			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(parabolaMax, parabolaMin, parabolaMax));
+
+			// Make the GBoundedDouble known to the collection
+			gbdc_ptr->push_back(gbd_ptr);
+		}
+	}
+	else {
+		// Set up parabolaDimension GBoundedDouble objects in the desired value range,
+		// and register them with the double collection
+		for(std::size_t i=0; i<parabolaDimension; i++) {
+			// GBoundedDouble will start with value "max"
+			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(parabolaMax, parabolaMin, parabolaMax));
+
+			// Registering the adaptor with each GBoundedDouble results in individual adaptors for each object
+			gbd_ptr->addAdaptor(gdga_ptr);
+
+			// Make the GBoundedDouble known to the collection
+			gbdc_ptr->push_back(gbd_ptr);
+		}
+	}
+
+	// Make the GBoundedDouble collection known to the individual
+	parabolaIndividual->push_back(gbdc_ptr);
+
+	// Check whether random numbers should be produced locally or in the factory
 	if(productionPlace) // Factory means "true"
 		parabolaIndividual->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 	else

@@ -74,9 +74,9 @@ GRandomFactory::~GRandomFactory() {
 	producer_threads_01_.interrupt_all(); // doesn't throw
 	producer_threads_01_.join_all();
 
-#ifdef DEBUG
-	std::cout << "GRandomFactory has terminated" << std::endl;
-#endif /* DEBUG */
+// #ifdef DEBUG
+//	std::cout << "GRandomFactory has terminated" << std::endl;
+//#endif /* DEBUG */
 }
 
 /*************************************************************************/
@@ -140,6 +140,8 @@ std::size_t GRandomFactory::getBufferSize() const {
  * @param seed The desired initial value of the global seed
  */
 void GRandomFactory::setSeed(const boost::uint32_t& seed) const {
+	// Make sure we have sole access to global variables
+	boost::mutex::scoped_lock lk(global_seed_mutex_);
 	GRandomFactory::setSeed_(seed); // Static, private member function
 }
 
@@ -149,6 +151,8 @@ void GRandomFactory::setSeed(const boost::uint32_t& seed) const {
  * @return The currentl value of the global seed
  */
 boost::uint32_t GRandomFactory::getSeed() const {
+	// Make sure we have sole access to global variables
+	boost::mutex::scoped_lock lk(global_seed_mutex_);
 	return GRandomFactory::getSeed_(); // Static, private member function
 }
 
@@ -172,8 +176,6 @@ bool GRandomFactory::checkSeedIsInitialized() const {
  * @param seed The initial value of the global seed
  */
 void GRandomFactory::setSeed_(const boost::uint32_t& seed) {
-	// Make sure we have sole access to global variables
-	boost::mutex::scoped_lock lk(global_seed_mutex_);
 	if(seedInitialized) return; // Do nothing after the first invocation
 	globalSeed = seed; // Set the seed as requested;
 	seedInitialized=true; // Let the audience know
@@ -181,11 +183,34 @@ void GRandomFactory::setSeed_(const boost::uint32_t& seed) {
 
 /*************************************************************************/
 /**
+ * A static, private member function that allows to set the global
+ * seed once, using a random number taken from /dev/urandom.
+ * After the first invocation there will be no further effect.
+ *
+ * @return A boolean indicating whether retrieval was succesful
+ */
+bool GRandomFactory::setSeedURandom_() {
+	if(seedInitialized) return true; // Do nothing after the first invocation
+	// Check if /dev/urandom exists (this might not be a Linux system after all)
+	if(!boost::filesystem::exists("/dev/urandom")) return false;
+	// Open the device
+	std::ifstream urandom("/dev/urandom");
+	if(!urandom) return false;
+	// Read in the data
+	boost::uint32_t seed;
+	char *seedArray = reinterpret_cast<char *>(&seed);
+	for(std::size_t i=0; i<sizeof(seed); i++) 	urandom >> seedArray[i];
+	urandom.close();
+	globalSeed = seed; // Set the seed as requested;
+	seedInitialized=true; // Let the audience know
+	return true;
+}
+
+/*************************************************************************/
+/**
  * Retrieval of the _current_ value of the global seed
  */
 boost::uint32_t GRandomFactory::getSeed_() {
-	// Make sure we have sole access to global variables
-	boost::mutex::scoped_lock lk(global_seed_mutex_);
 	return globalSeed;
 }
 
@@ -260,10 +285,12 @@ boost::shared_array<double> GRandomFactory::new01Container() {
  * @return A seed based on the current time
  */
 boost::uint32_t GRandomFactory::GSeed(){
-	if(!seedInitialized) GRandomFactory::setSeed_(DEFAULTSEED);
-
 	// Make sure we have sole access to global variables
 	boost::mutex::scoped_lock lk(global_seed_mutex_);
+
+	if(!seedInitialized) {
+		if(!setSeedURandom_())	GRandomFactory::setSeed_(DEFAULTSEED);
+	}
 
 	if(globalSeed >= std::numeric_limits<boost::uint32_t>::max() - (GLOBALSEEDINCREMENT+1)) globalSeed = DEFAULTSEED;
 	else (globalSeed+=GLOBALSEEDINCREMENT); // "7" chosen randomly -- no special meaning
@@ -281,9 +308,9 @@ void GRandomFactory::startProducerThreads()  {
 		// for the create_thread() function, so we assume it doesn't throw.
 		boost::uint32_t seed_ = GRandomFactory::GSeed();
 		producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_));
-#ifdef DEBUG
-	std::cout << "Started producer thread " << i << " in GRandomFactory with seed " << seed_ << std::endl;
-#endif /* DEBUG */
+//#ifdef DEBUG
+//	std::cout << "Started producer thread " << i << " in GRandomFactory with seed " << seed_ << std::endl;
+//#endif /* DEBUG */
 	}
 }
 

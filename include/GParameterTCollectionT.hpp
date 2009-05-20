@@ -40,7 +40,7 @@
 #define GPARAMETERTCOLLECTIONT_HPP_
 
 // GenEvA header files go here
-#include "GParameterBase.hpp"
+#include "GParameterBaseWithAdaptorsT.hpp"
 #include "GParameterT.hpp"
 #include "GHelperFunctionsT.hpp"
 #include "GStdPtrVectorInterfaceT.hpp"
@@ -52,16 +52,16 @@ namespace GenEvA {
 /**
  * This class shares many similarities with the GParameterCollectionT class. Instead
  * of individual values that can be modified with adaptors, however, it assumes that
- * the objects stored in it have their own mutate() function. Consequently it is not
- * necessary to store adaptors locally. This class has been designed as a collection
- * of GParameterT objects, hence the name.  As an example, one can create a collection
- * of GBoundedDouble objects with this class rather than a simple GDoubleCollection.
+ * the objects stored in it have their own mutate() function. This class has been designed
+ * as a collection of GParameterT objects, hence the name.  As an example, one can create a
+ * collection of GBoundedDouble objects with this class rather than a simple GDoubleCollection.
  * In order to facilitate memory management, the GParameterT objects are stored
- * in boost::shared_ptr objects.
+ * in boost::shared_ptr objects. When supplied with a local adaptor, it is used for all
+ * dependent GParameterT objects.
  */
 template<typename T>
 class GParameterTCollectionT
-	:public GParameterBase,
+	:public GParameterBaseWithAdaptorsT<typename T::p_type >,
 	 public GStdPtrVectorInterfaceT<T>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ class GParameterTCollectionT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this));
+		ar & make_nvp("GParameterBaseWithAdaptorsT_ptype", boost::serialization::base_object<GParameterBaseWithAdaptorsT<typename T::p_type > >(*this));
 		ar & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ public:
 	 * The default constructor
 	 */
 	GParameterTCollectionT()
-		:GParameterBase()
+		:GParameterBaseWithAdaptorsT<typename T::p_type >()
 	{ /* nothing */ }
 
 	/*******************************************************************************************/
@@ -91,7 +91,7 @@ public:
 	 * @param cp A copy of another GParameterTCollectionT<T> object
 	 */
 	GParameterTCollectionT(const GParameterTCollectionT<T>& cp)
-		:GParameterBase (cp),
+		:GParameterBaseWithAdaptorsT<typename T::p_type >(cp),
 		GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
 
@@ -152,7 +152,7 @@ public:
 		const GParameterTCollectionT<T> *gptct_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent classes
-		if(!GParameterBase::isEqualTo(*gptct_load, expected)) return false;
+		if(!GParameterBaseWithAdaptorsT<typename T::p_type >::isEqualTo(*gptct_load, expected)) return false;
 		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gptct_load, expected)) return false;
 
 		return true;
@@ -174,7 +174,7 @@ public:
 		const GParameterTCollectionT<T> *gptct_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent classes
-		if(!GParameterBase::isSimilarTo(*gptct_load, limit, expected))  return false;
+		if(!GParameterBaseWithAdaptorsT<typename T::p_type >::isSimilarTo(*gptct_load, limit, expected))  return false;
 		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gptct_load, limit, expected)) return false;
 
 		return true;
@@ -189,7 +189,7 @@ public:
 	 */
 	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
 		// Set the parent number's mode
-		GParameterBase::setRnrGenerationMode(rnrGenMode);
+		GParameterBaseWithAdaptorsT<typename T::p_type >::setRnrGenerationMode(rnrGenMode);
 
 		// Set the modes of our local data
 		typename GParameterTCollectionT<T>::iterator it;
@@ -209,7 +209,7 @@ public:
 		const GParameterTCollectionT<T> *gptct = this->conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
-		GParameterBase::load(cp);
+		GParameterBaseWithAdaptorsT<typename T::p_type >::load(cp);
 		GStdPtrVectorInterfaceT<T>::operator=(*gptct);
 	}
 
@@ -229,7 +229,15 @@ public:
 	 */
 	virtual void mutate() {
 		typename GParameterTCollectionT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) (*it)->mutate();
+		if(this->hasAdaptor()) {
+			for(it=this->begin(); it!=this->end(); ++it) {
+				(*it)->addAdaptorNoClone(this->getAdaptor());
+				(*it)->mutate();
+			}
+		}
+		else {
+			for(it=this->begin(); it!=this->end(); ++it) (*it)->mutate();
+		}
 	}
 
 	/*******************************************************************************************/

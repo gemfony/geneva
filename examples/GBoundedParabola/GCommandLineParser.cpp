@@ -47,6 +47,11 @@ bool parseCommandLine(int argc, char **argv,
 					  bool& parallel,
 					  std::size_t& arraySize,
 					  bool& productionPlace,
+					  bool& useCommonAdaptor,
+					  double& sigma,
+					  double& sigmaSigma,
+					  double& minSigma,
+					  double& maxSigma,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -86,6 +91,16 @@ bool parseCommandLine(int argc, char **argv,
 					"The size of the buffer with random arrays in the random factory")
 		    ("productionPlace,D", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
 		    		"Whether production of random numbers in individuals should happen locally (0) or in the random number factory (1)")
+		    ("useCommonAdaptor,u", po::value<bool>(&useCommonAdaptor)->default_value(DEFAULTUSECOMMONADAPTOR),
+		    		"Specifies whether a common adaptor should be used for all GParameterT objects")
+		    ("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
+		    		"The width of the gaussian used for the adaption of double values")
+		    ("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
+		    		"The adaption rate of sigma")
+		    ("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
+		    		"The minimum allowed value for sigma")
+		    ("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
+		    		"The maximum allowed value for sigma")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -147,6 +162,11 @@ bool parseCommandLine(int argc, char **argv,
 					  << "parallel = " << parallel << std::endl
 					  << "arraySize = " << arraySize << std::endl
 					  << "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
+					  << "useCommonAdaptor = " << (useCommonAdaptor?"joint adaptor":"individual adaptor") << std::endl
+					  << "sigma = " << sigma << std::endl
+					  << "sigmaSigma " << sigmaSigma << std::endl
+					  << "minSigma " << minSigma << std::endl
+					  << "maxSigma " << maxSigma << std::endl
 					  << std::endl;
 		}
 	}

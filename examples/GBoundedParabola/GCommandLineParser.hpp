@@ -61,10 +61,11 @@ const long DEFAULTMAXMINUTES=10;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
 const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
-const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
+const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
 const bool DEFAULTPARALLEL=true;
 const std::size_t DEFAULTARRAYSIZE=1000;
 const bool DEFAULTPRODUCTIONPLACE=true; // local production
+const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
 
 namespace po = boost::program_options;
 
@@ -84,6 +85,11 @@ bool parseCommandLine(int argc, char **argv,
 					  bool& parallel,
 					  std::size_t& arraySize,
 					  bool& productionPlace,
+					  bool& useCommonAdaptor,
+					  double& sigma,
+					  double& sigmaSigma,
+					  double& minSigma,
+					  double& maxSigma,
 					  bool& verbose);
 
 } /* namespace GenEvA */

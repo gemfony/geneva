@@ -59,7 +59,13 @@ namespace GenEvA {
  * this class is also implemented as a template. Storing the adaptors in
  * the GParameterBase class would not have been possible, as it cannot be
  * templatized - it serves as a base class for the objects stored in the
- * GParameterSet collections.
+ * GParameterSet collections. This class may either hold its own, globally
+ * unique adaptor, or can contain a shared_ptr to a "foreign" adaptor. The
+ * latter is useful in conjunction with the GParameterTCollectionT class,
+ * if all contained GParameterT objects should use the same adaptor. Note
+ * that, in all relevant functions of this class, we only copy foreign adaptors
+ * if they are unique. If this is not the case, we assume that "someone else"
+ * will give us an adaptor before the first call to mutate().
  */
 template <typename T>
 class GParameterBaseWithAdaptorsT:
@@ -72,7 +78,10 @@ class GParameterBaseWithAdaptorsT:
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this));
-		ar & make_nvp("adaptor_", adaptor_);
+		ar & make_nvp("hasLocalAdaptor_", hasLocalAdaptor_);
+		if(hasLocalAdaptor_) {
+			ar & make_nvp("adaptor_", adaptor_);
+		}
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -83,7 +92,8 @@ public:
 	 * contain a NULL pointer (which is o.k.).
 	 */
 	GParameterBaseWithAdaptorsT()
-		:GParameterBase()
+		:GParameterBase(),
+		 hasLocalAdaptor_(false)
 	{ /* nothing */	}
 
 	/*******************************************************************************************/
@@ -93,10 +103,11 @@ public:
 	 * @param cp A copy of another GParameterBaseWithAdaptorsT object
 	 */
 	GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
-		:GParameterBase(cp)
+		:GParameterBase(cp),
+		 hasLocalAdaptor_(cp.hasLocalAdaptor_)
 	{
 		// Copy the other adaptor's content if it holds an object
-		if(cp.adaptor_)  adaptor_ = (cp.adaptor_)->GObject::clone_bptr_cast<GAdaptorT<T> >();
+		if(hasLocalAdaptor_ && cp.adaptor_)  adaptor_ = (cp.adaptor_)->GObject::clone_bptr_cast<GAdaptorT<T> >();
 	}
 
 	/*******************************************************************************************/
@@ -105,7 +116,7 @@ public:
 	 */
 	virtual ~GParameterBaseWithAdaptorsT(){
 		// boost::shared_ptr takes care of the deletion of
-		// adaptors in the vector.
+		// adaptors in the vector (if we hold the only copy)
 		adaptor_.reset();
 	}
 
@@ -158,6 +169,9 @@ public:
 		// Check our local adaptor
 		if((adaptor_ && gpbwa_load->adaptor_) && !adaptor_->isEqualTo(*(gpbwa_load->adaptor_), expected)) return false;
 
+		// Check other local data
+		if(checkForInequality("GParameterBaseWithAdaptorsT", hasLocalAdaptor_, gpbwa_load->hasLocalAdaptor_,"hasLocalAdaptor_", "gpbwa_load->hasLocalAdaptor_", expected)) return false;
+
 		return true;
 	}
 
@@ -184,6 +198,9 @@ public:
 
 		// Then check the local adaptor
 		if((adaptor_ && gpbwa_load->adaptor_) && !adaptor_->isSimilarTo(*(gpbwa_load->adaptor_), limit, expected)) return false;
+
+		// Check other local data
+		if(checkForDissimilarity("GParameterBaseWithAdaptorsT", hasLocalAdaptor_, gpbwa_load->hasLocalAdaptor_, limit, "hasLocalAdaptor_", "gpbwa_load->hasLocalAdaptor_", expected)) return false;
 
 		return true;
 	}
@@ -218,9 +235,10 @@ public:
 		GParameterBase::load(cp);
 
 		// and then our local data
+		hasLocalAdaptor_ = gpbwa_load->hasLocalAdaptor_;
 
-		// Only act if the other object actually holds an adaptor
-		if(gpbwa_load->adaptor_) {
+		// Only act if the other object actually holds a unique adaptor
+		if(hasLocalAdaptor_ && gpbwa_load->adaptor_) {
 			// Same type: We can just load the data
 		    if (adaptor_ && (adaptor_->getAdaptorId() == gpbwa_load->adaptor_->getAdaptorId())) {
 				adaptor_->load((gpbwa_load->adaptor_).get());
@@ -238,14 +256,14 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Adds an adaptor to this object. Please note that this class takes ownership of the adaptor.
-	 * Thus, at the end of the lifetime, the adaptor will be destroyed.
+	 * Adds an adaptor to this object. Please note that this class takes ownership of the adaptor
+	 * by cloning it.
 	 *
-	 * @param gat A boost::shared_ptr to an adaptor
+	 * @param gat_ptr A boost::shared_ptr to an adaptor
 	 */
-	void addAdaptor(boost::shared_ptr<GAdaptorT<T> > gat) {
+	void addAdaptor(boost::shared_ptr<GAdaptorT<T> > gat_ptr) {
 		// Check that we have indeed been given an adaptor
-		if(!gat){
+		if(!gat_ptr){
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor():" << std::endl
 				  << "Error: Empty adaptor provided." << std::endl;
@@ -254,27 +272,66 @@ public:
 		}
 
 		if(adaptor_) { // Is an adaptor already present ?
-			if (adaptor_->getAdaptorId() == gat->getAdaptorId()) {
-				adaptor_->load(gat.get());
+			if (adaptor_->getAdaptorId() == gat_ptr->getAdaptorId()) {
+				adaptor_->load(gat_ptr.get());
 			}
 			// Different type - need to convert
 			else {
-				adaptor_ = gat->GObject::clone_bptr_cast<GAdaptorT<T> >();
+				adaptor_ = gat_ptr->GObject::clone_bptr_cast<GAdaptorT<T> >();
 			}
 		}
-		// None there ? Clone and assign gat
+		// None there ? Clone and assign gat_ptr
 		else {
-			adaptor_ = gat->GObject::clone_bptr_cast<GAdaptorT<T> >();
+			adaptor_ = gat_ptr->GObject::clone_bptr_cast<GAdaptorT<T> >();
 		}
+
+		hasLocalAdaptor_ = true;
 	}
 
 	/*******************************************************************************************/
 	/**
-	 * Retrieves the adaptor.
+	 * Adds a pointer to a "foreign" adaptor to this object. Thus external modification of the
+	 * adaptor can also influence this object. This is useful in conjunction with the
+	 * GParameterTCollectionT class, if all contained GParameterT objects should use the same
+	 * adaptor.
+	 *
+	 * BAD: This function should be private, with a friend declaration for GParameterTCollectionT's
+	 * mutate() function, as it is not intended for public use.
+	 *
+	 * @param gat_ptr A boost::shared_ptr to an adaptor
+	 */
+	void addAdaptorNoClone(boost::shared_ptr<GAdaptorT<T> > gat_ptr) {
+		// Check that we have indeed been given an adaptor
+		if(!gat_ptr){
+			std::ostringstream error;
+			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor():" << std::endl
+				  << "Error: Empty adaptor provided." << std::endl;
+
+			throw geneva_error_condition(error.str());
+		}
+
+		adaptor_ = gat_ptr;
+		hasLocalAdaptor_ = false;
+	}
+
+
+	/*******************************************************************************************/
+	/**
+	 * Retrieves the adaptor. Throws in DBEUG mode , if we have no local adaptor. It is assumed
+	 * that only the object holding the "master" adaptor pointer should be allowed to modify it.
 	 *
 	 * @return A boost::shared_ptr to the adaptor
 	 */
-	boost::shared_ptr<GAdaptorT<T> > getAdaptor() {
+	boost::shared_ptr<GAdaptorT<T> > getAdaptor() const {
+#ifdef DEBUG
+		if(!hasLocalAdaptor_) {
+			std::ostringstream error;
+			error << "In GParameterBaseWithAdaptorsT::getAdaptor() : Error!" << std::endl
+				  << "Tried to retrieve adaptor that is not unique" << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+#endif /* DEBUG */
+
 		return adaptor_;
 	}
 
@@ -289,6 +346,13 @@ public:
 	boost::shared_ptr<adaptor_type> adaptor_cast() const {
 
 #ifdef DEBUG
+		if(!hasLocalAdaptor_) {
+			std::ostringstream error;
+			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Error!" << std::endl
+				  << "Tried to retrieve adaptor that is not unique" << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+
 		// Convert to the desired target type
 		boost::shared_ptr<adaptor_type> p_adaptor = boost::dynamic_pointer_cast<adaptor_type>(adaptor_);
 
@@ -311,7 +375,7 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * This function resets the local adaptor_ object
+	 * This function resets the local adaptor_ pointer.
 	 */
 	void resetAdaptor() {
 		adaptor_.reset();
@@ -323,13 +387,23 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Indicates whether any adaptors are present
+	 * Indicates whether an adaptor is present
 	 *
 	 * @return A boolean indicating whether adaptors are present
 	 */
 	bool hasAdaptor() const {
 		if(adaptor_) return true;
 		return false;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Indicates whether a local adaptor is present
+	 *
+	 * @return A boolean indicating whether adaptors are present
+	 */
+	bool hasLocalAdaptor() const {
+		return hasLocalAdaptor_;
 	}
 
 protected:
@@ -341,6 +415,7 @@ protected:
 	 * @param value The parameter to be mutated
 	 */
 	void applyAdaptor(T &value) {
+#ifdef DEBUG
 		if (adaptor_) {
 			adaptor_->mutate(value);
 		} else {
@@ -350,6 +425,9 @@ protected:
 
 			throw geneva_error_condition(error.str());
 		}
+#else
+		adaptor_->mutate(value);
+#endif /* DEBUG */
 	}
 
 	/*******************************************************************************************/
@@ -366,6 +444,12 @@ protected:
 
 private:
 	/*******************************************************************************************/
+	/**
+	 * Specifies whether we use a unique (i.e. cloned) adaptor, or one that can be in use
+	 * by another object
+	 */
+	bool hasLocalAdaptor_;
+
 	/**
 	 * Holds the adaptor used for mutation of the values stored in derived classes.
 	 */

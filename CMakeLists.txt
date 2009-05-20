@@ -76,7 +76,8 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	thread
 	serialization
 	program_options
-	test_exec_monitor
+	filesystem
+	test_exec_monitor	
 )
 
 INCLUDE_DIRECTORIES (
@@ -97,7 +98,6 @@ ADD_SUBDIRECTORY (include)
 ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (src)
 ADD_SUBDIRECTORY (tests)
-
 
 SET ( INFORMATIONFILES
 	AUTHORS

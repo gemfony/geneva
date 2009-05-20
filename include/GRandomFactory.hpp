@@ -28,6 +28,7 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <cassert>
 
 // Boost headers go here
@@ -51,6 +52,7 @@
 #include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/limits.hpp>
+#include <boost/filesystem.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -95,7 +97,7 @@ const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 /**
  * Increment of the global seed
  */
-const boost::uint32_t GLOBALSEEDINCREMENT = 7;
+const boost::uint32_t GLOBALSEEDINCREMENT = 3;
 
 /****************************************************************************/
 /**
@@ -158,6 +160,8 @@ private:
 
 	/** @brief Setting of an initial seed for random numbers. Will be incremented for each instantiation */
 	static void setSeed_(const boost::uint32_t&);
+	/** @brief Setting of an initial seed for random numbers, as taken from /dev/urandom */
+	static bool setSeedURandom_();
 	/** @brief Retrieval of the current value of the global seed */
 	static  boost::uint32_t getSeed_();
 
