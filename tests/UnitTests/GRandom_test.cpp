@@ -109,14 +109,6 @@ BOOST_AUTO_TEST_CASE( GRandom_no_failure_expected )
 		BOOST_CHECK_MESSAGE(now != last, "Found equal random numbers(1)" << last << " " << now);
 		last = now;
 	}
-	gr3.setRNRProxyMode(gr4_ptr);
-	BOOST_CHECK(gr3.getRNRGenerationMode () == Gem::Util::RNRPROXY);
-	last = -1., now=0.;
-	for(std::size_t i=0; i<NRNR; i++) {
-		now = gr3.evenRandom();
-		BOOST_CHECK_MESSAGE(now != last, "Found equal random numbers(1)" << last << " " << now);
-		last = now;
-	}
 
 	// Check that two objects emit different values
 	const std::size_t arraySize=10;

@@ -124,7 +124,6 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 
 int main(int argc, char **argv){
 	boost::shared_ptr<Gem::Util::GRandom> gr_ptr(new GRandom());
-	boost::shared_ptr<Gem::Util::GRandom> gr_ptr2(new GRandom());
 
 	bool verbose;
 	std::size_t nEntries;
@@ -151,11 +150,6 @@ int main(int argc, char **argv){
 		break;
 
 	case 1:
-		gr_ptr2->setRNRFactoryMode();
-		gr_ptr->setRNRProxyMode(gr_ptr2);
-		break;
-
-	case 2:
 		gr_ptr->setRNRLocalMode();
 		break;
 	};

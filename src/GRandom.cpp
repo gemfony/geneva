@@ -47,38 +47,20 @@ GRandom::GRandom()
 GRandom::~GRandom() {
 	p01_.reset();
 	grf_.reset();
-	gr_proxy_ptr_.reset();
 }
 
 /*************************************************************************/
 /**
  * This function emits evenly distributed random numbers in the range [0,1[ .
- * These are either taken from the random number factory or come through
- * a proxy random number generator.
+ * These are either taken from the random number factory or are created
+ * locally.
  *
  * @return Random numbers evenly distributed in the range [0,1[
  */
 double GRandom::evenRandom() {
 	switch(currentGenerationMode_) {
 	case RNRFACTORY:
-		return this->evenRandomFromFactory();
-		break;
-
-	case RNRPROXY:
-#ifdef DEBUG
-		if(gr_proxy_ptr_) {
-			return gr_proxy_ptr_->evenRandomFromFactory();
-		} else {
-			std::ostringstream error;
-			error << "In GRandom::evenRandom() : Error!" << std::endl
-				     << "Tried to retrieve proxy random number" << std::endl
-				     << "when no valid rnr proxy was present" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
-		}
-
-#else
-		return gr_proxy_ptr_->evenRandomFromFactory(); // Assume a valid pointer is present
-#endif /* DEBUG */
+		return evenRandomFromFactory();
 		break;
 
 	case RNRLOCAL:
@@ -163,41 +145,11 @@ Gem::Util::rnrGenerationMode  GRandom::getRNRGenerationMode () const {
 
 /*************************************************************************/
 /**
- * Specifies a rng-proxy to be used and disables all other modes
- *
- * @param rnr_proxy_ptr A pointer to another random number generator
- */
-void  GRandom::setRNRProxyMode(boost::shared_ptr<Gem::Util::GRandom> gr_proxy_ptr) {
-	// Do nothing if an attempt was made to supply again the same proxy pointer
-	if(currentGenerationMode_==Gem::Util::RNRPROXY && gr_proxy_ptr==gr_proxy_ptr_) return;
-
-	// Check that we have been handed a "filled" pointer
-	if(!gr_proxy_ptr) {
-		std::ostringstream error;
-		error << "In GRandom::setRNRProxyMode: Error" << std::endl
-		        << "Received invalid proxy pointer" << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
-	}
-
-	// Reset all other random number generation modes
-	p01_.reset();
-	grf_.reset();
-
-	// Set the mode accordingly
-	currentGenerationMode_ = Gem::Util::RNRPROXY;
-	gr_proxy_ptr_ = gr_proxy_ptr;
-}
-
-/*************************************************************************/
-/**
  * Switches to factory production mode and disables all other modes
  */
 void  GRandom::setRNRFactoryMode() {
 	// Do nothing if the mode has already been set
 	if(currentGenerationMode_ == Gem::Util::RNRFACTORY) return;
-
-	// Reset all other random number generation modes
-	gr_proxy_ptr_.reset();
 
 	// Get access to the factory and set the mode
 	currentGenerationMode_ = Gem::Util::RNRFACTORY;
@@ -214,7 +166,6 @@ void  GRandom::setRNRLocalMode() {
 	if(currentGenerationMode_ == Gem::Util::RNRLOCAL) return;
 
 	// Reset all other random number generation modes
-	gr_proxy_ptr_.reset();
 	p01_.reset();
 	grf_.reset();
 
@@ -236,7 +187,6 @@ void  GRandom::setRNRLocalMode(const boost::uint32_t& seed) {
 	}
 	else { // Otherwise take the required steps
 		// Reset all other random number generation modes
-		gr_proxy_ptr_.reset();
 		p01_.reset();
 		grf_.reset();
 

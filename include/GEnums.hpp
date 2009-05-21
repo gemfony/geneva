@@ -99,7 +99,7 @@ namespace Util {
 /**
  * Random number generation can happen in three modes
  */
-enum rnrGenerationMode { RNRFACTORY=0, RNRLOCAL=1, RNRPROXY=2};
+enum rnrGenerationMode { RNRFACTORY=0, RNRLOCAL=1 };
 
 /**********************************************************************************************/
 

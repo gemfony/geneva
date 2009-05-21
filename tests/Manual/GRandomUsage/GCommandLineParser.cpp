@@ -48,7 +48,7 @@ bool parseCommandLine(int argc, char **argv,
 			("nProducerThreads,t",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
 			("rnrProductionMode,r",po::value<boost::uint16_t>(&rnrProductionMode)->default_value(DEFAULTRNRPRODUCTIONMODE),
-					"FACTORY(0), PROXY(1) or LOCAL(2)")
+					"FACTORY(0), or LOCAL(1)")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -63,7 +63,7 @@ bool parseCommandLine(int argc, char **argv,
 			 return false;
 		}
 
-		if(rnrProductionMode > 2) {
+		if(rnrProductionMode > 1) {
 			std::cerr << "Got invalid random number production mode: " << rnrProductionMode << std::endl;
 			return false;
 		}
@@ -71,8 +71,7 @@ bool parseCommandLine(int argc, char **argv,
 		if(verbose){
 			std::string rnrProductionModeString;
 			if(rnrProductionMode == 0) rnrProductionModeString = "Factory";
-			else if(rnrProductionMode == 1) rnrProductionModeString = "Proxy";
-			else if(rnrProductionMode == 2) rnrProductionModeString = "Local";
+			else if(rnrProductionMode == 1) rnrProductionModeString = "Local";
 
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl

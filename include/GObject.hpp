@@ -104,16 +104,6 @@ class GObject
         case Gem::Util::RNRLOCAL:
         	gr.setRNRLocalMode();
         	break;
-
-        case Gem::Util::RNRPROXY:
-        	// Complain
-			{
-				std::ostringstream error;
-				error << "In GObject::load(Archive&, ...) : Error!" << std::endl
-				      << "Proxy random number generation is not implemented" << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
-			}
-        	break;
         };
     }
 

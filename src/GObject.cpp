@@ -63,16 +63,6 @@ GObject::GObject(const GObject& cp)
     case Gem::Util::RNRLOCAL:
     	gr.setRNRLocalMode();
     	break;
-
-    case Gem::Util::RNRPROXY:
-    	// Complain
-		{
-			std::ostringstream error;
-			error << "In GObject::GObject(const GObject&) : Error!" << std::endl
-			      << "Proxy random number generation is not implemented" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
-		}
-    	break;
     };
 }
 
@@ -203,16 +193,6 @@ void GObject::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMod
 
     case Gem::Util::RNRLOCAL:
     	gr.setRNRLocalMode();
-    	break;
-
-    case Gem::Util::RNRPROXY:
-    	// Complain
-		{
-			std::ostringstream error;
-			error << "In GObject::GObject(const GObject&) : Error!" << std::endl
-			      << "Proxy random number generation is not implemented" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
-		}
     	break;
     };
 
@@ -361,16 +341,6 @@ void GObject::load(const GObject *cp) {
 
 		case Gem::Util::RNRLOCAL:
 			gr.setRNRLocalMode();
-			break;
-
-		case Gem::Util::RNRPROXY:
-			// Complain
-			{
-				std::ostringstream error;
-				error << "In GObject::GObject(const GObject&) : Error!" << std::endl
-				      << "Proxy random number generation is not implemented" << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
-			}
 			break;
 		};
 	}

@@ -134,8 +134,6 @@ public:
 	/** @brief Retrieves the current random number generation mode */
 	Gem::Util::rnrGenerationMode getRNRGenerationMode () const;
 	/** @brief Specifies a rng-proxy to be used and empties the p01_ array */
-	void setRNRProxyMode(boost::shared_ptr<Gem::Util::GRandom>);
-	/** @brief  Switches to factory production mode */
 	void setRNRFactoryMode();
 	/** @brief Switches to local production mode, using GRandomFactory::GSeed() for seeding */
 	void setRNRLocalMode();
@@ -167,9 +165,6 @@ private:
 
 	// Used in conjunction with the local generation of random numbers
 	boost::uint32_t rnr_last_; ///< Used as a start value for the local random number generator.  Size is 4 byte on a 64 bit system
-
-	// Used when random numbers are retrieved from a proxy generator
-	boost::shared_ptr<Gem::Util::GRandom> gr_proxy_ptr_; // Size is 16 byte on a 64 bit system (?)
 };
 
 /****************************************************************************/
