@@ -30,6 +30,10 @@
 #include "GRandom.hpp"
 #include "GBasePopulation.hpp"
 #include "GBoostThreadPopulation.hpp"
+#include "GBrokerPopulation.hpp"
+#include "GIndividualBroker.hpp"
+#include "GAsioTCPConsumer.hpp"
+#include "GAsioTCPClient.hpp"
 
 // The individual that should be optimized
 // This is a simple parabola
@@ -51,24 +55,27 @@ using namespace Gem::Util;
 
 int main(int argc, char **argv){
 	// Variables for the command line parsing
-	 std::size_t parabolaDimension;
-	 std::size_t populationSize, nParents;
-	 double parabolaMin, parabolaMax;
-	 boost::uint16_t nProducerThreads;
-	 boost::uint16_t nEvaluationThreads;
-	 boost::uint32_t maxGenerations, reportGeneration;
-	 boost::uint32_t adaptionThreshold;
-	 long maxMinutes;
-	 bool parallel;
-	 bool verbose;
-	 recoScheme rScheme;
-	 std::size_t arraySize;
-	 bool productionPlace;
-	 bool useCommonAdaptor;
-	 double sigma;
-	 double sigmaSigma;
-	 double minSigma;
-	 double maxSigma;
+	std::size_t parabolaDimension;
+	std::size_t populationSize, nParents;
+	double parabolaMin, parabolaMax;
+	boost::uint16_t nProducerThreads;
+	boost::uint16_t nEvaluationThreads;
+	boost::uint32_t maxGenerations, reportGeneration;
+	boost::uint32_t adaptionThreshold;
+	long maxMinutes;
+	bool verbose;
+	recoScheme rScheme;
+	std::size_t arraySize;
+	bool productionPlace;
+	bool useCommonAdaptor;
+	double sigma;
+	double sigmaSigma;
+	double minSigma;
+	double maxSigma;
+	boost::uint16_t parallelizationMode;
+	bool serverMode;
+	std::string ip;
+	unsigned short port;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -84,7 +91,10 @@ int main(int argc, char **argv){
 						 maxMinutes,
 						 reportGeneration,
 						 rScheme,
-						 parallel,
+						 parallelizationMode,
+						 serverMode,
+						 ip,
+						 port,
 						 arraySize,
 						 productionPlace,
 						 useCommonAdaptor,
@@ -148,53 +158,94 @@ int main(int argc, char **argv){
 	// Make the GBoundedDouble collection known to the individual
 	parabolaIndividual->push_back(gbdc_ptr);
 
-	if(parallel) {
-	  // Now we've got our first individual and can create a simple population with parallel execution.
-	  GBoostThreadPopulation pop_par;
-	  pop_par.setNThreads(nEvaluationThreads);
+	switch(parallelizationMode) {
+	case 0: // serial execution
+		{
+		  // Now we've got our first individual and can create a simple population with serial execution.
+		  GBasePopulation pop_ser;
 
-	  pop_par.push_back(parabolaIndividual);
+		  pop_ser.push_back(parabolaIndividual);
 
-	  // Specify some population settings
-	  pop_par.setPopulationSize(populationSize,nParents);
-	  pop_par.setMaxGeneration(maxGenerations);
-	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
-	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+		  // Specify some population settings
+		  pop_ser.setPopulationSize(populationSize,nParents);
+		  pop_ser.setMaxGeneration(maxGenerations);
+		  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
+		  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
+		  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
-	  // Check whether random numbers should be produced locally or in the factory
-	  if(productionPlace) // Factory means "true"
-		  pop_par.setRnrGenerationMode(Gem::Util::RNRFACTORY);
-	  else
-		  pop_par.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		  // Check whether random numbers should be produced locally or in the factory
+		  if(productionPlace) // Factory means "true"
+			  pop_ser.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+		  else
+			  pop_ser.setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
-	  // Do the actual optimization
-	  pop_par.optimize();
-	}
-	else {
-	  // Now we've got our first individual and can create a simple population with serial execution.
-	  GBasePopulation pop_ser;
+		  // Do the actual optimization
+		  pop_ser.optimize();
+		}
+		break;
+	case 1: // multi-threaded execution
+		{
+		  // Now we've got our first individual and can create a simple population with parallel execution.
+		  GBoostThreadPopulation pop_par;
+		  pop_par.setNThreads(nEvaluationThreads);
 
-	  pop_ser.push_back(parabolaIndividual);
+		  pop_par.push_back(parabolaIndividual);
 
-	  // Specify some population settings
-	  pop_ser.setPopulationSize(populationSize,nParents);
-	  pop_ser.setMaxGeneration(maxGenerations);
-	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
-	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+		  // Specify some population settings
+		  pop_par.setPopulationSize(populationSize,nParents);
+		  pop_par.setMaxGeneration(maxGenerations);
+		  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
+		  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
+		  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
-	  // Check whether random numbers should be produced locally or in the factory
-	  if(productionPlace) // Factory means "true"
-		  pop_ser.setRnrGenerationMode(Gem::Util::RNRFACTORY);
-	  else
-		  pop_ser.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		  // Check whether random numbers should be produced locally or in the factory
+		  if(productionPlace) // Factory means "true"
+			  pop_par.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+		  else
+			  pop_par.setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
-	  // Do the actual optimization
-	  pop_ser.optimize();
-	}
+		  // Do the actual optimization
+		  pop_par.optimize();
+		}
+		break;
+	case 2: // networked execution
+		if(serverMode) {
+			// Create a consumer and enrol it with the broker
+			boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+			// gatc->setSerializationMode(BINARYSERIALIZATION);
+			GINDIVIDUALBROKER->enrol(gatc);
+
+			// Create the actual population
+			GBrokerPopulation pop_broker;
+
+			// Make the individual known to the population
+			pop_broker.push_back(parabolaIndividual);
+
+			// Specify some population settings
+			pop_broker.setPopulationSize(populationSize,nParents);
+			pop_broker.setMaxGeneration(maxGenerations);
+			pop_broker.setMaxTime(boost::posix_time::minutes(maxMinutes));
+			pop_broker.setReportGeneration(reportGeneration);
+			pop_broker.setRecombinationMethod(rScheme);
+
+			// Check whether random numbers should be produced locally or in the factory
+			if(productionPlace) // Factory means "true"
+				pop_broker.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+			else
+				pop_broker.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
+
+			// Do the actual optimization
+			pop_broker.optimize();
+		}
+		else { // Client mode
+			// Just start the client with the required parameters
+			GAsioTCPClient gasiotcpclient(ip,boost::lexical_cast<std::string>(port));
+			gasiotcpclient.run();
+		}
+		break;
+	};
 
 	std::cout << "Done ..." << std::endl;
-
 	return 0;
 }

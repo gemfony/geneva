@@ -140,7 +140,7 @@ bool parseCommandLine(int argc, char **argv,
 		if (vm.count("parallelizationMode")) {
 			if(parallelizationMode > 2) {
 				std::cout << "Error: the \"-p\" or \"--parallelizationMode\" option may only assume the"<< std::endl
-						  << "values 0 (seriel), 1 (multi-threaded) or 2 (networked). Leaving ..." << std::endl;
+						  << "values 0 (serial), 1 (multi-threaded) or 2 (networked). Leaving ..." << std::endl;
 				return false;
 			}
 

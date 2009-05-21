@@ -62,10 +62,12 @@ const boost::uint32_t DEFAULTREPORTGENERATION=1;
 const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
-const bool DEFAULTPARALLEL=true;
+const bool DEFAULTPARALLELIZATIONMODE=1;
 const std::size_t DEFAULTARRAYSIZE=1000;
 const bool DEFAULTPRODUCTIONPLACE=true; // local production
 const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
+const unsigned short DEFAULTPORT=10000;
+const std::string DEFAULTIP="localhost";
 
 namespace po = boost::program_options;
 
@@ -82,7 +84,10 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  bool& parallel,
+					  boost::uint16_t& parallelizationMode,
+					  bool& serverMode,
+					  std::string& ip,
+					  unsigned short& port,
 					  std::size_t& arraySize,
 					  bool& productionPlace,
 					  bool& useCommonAdaptor,

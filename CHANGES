@@ -21,6 +21,9 @@ The main changes for this release include:
    GParameterT objects. Note: Needs some more testing. 
  - GSeed will now first try to get an initial seed from /dev/urandom, if available, and 
    will then set the seed to a predefined value upon failure.
+ - Removed GRandom from GObject, providing individual GRandom objects only for GAdaptorT
+   and GIndividualSet. This results in a greatly reduced memory consumption at very
+   little expense to functionality.
 
 * Version 0.5.2 "Building 38" - April 20, 2009
 
