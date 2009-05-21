@@ -243,18 +243,6 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 
 /***********************************************************************************/
 /**
- * Determines whether production of random numbers should happen remotely
- * (RNRFACTORY) or locally (RNRLOCAL)
- *
- * @param rnrGenMode A parameter which indicates where random numbers should be produced
- */
-void GBasePopulation::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
-	// Set the parent number's mode
-	GIndividualSet::setRnrGenerationMode(rnrGenMode);
-}
-
-/***********************************************************************************/
-/**
  * This is the main optimization function and the heart of the GenEvA library.
  * Every time it is called, the number of generations is reseted. The recombination
  * scheme, type of child mutations and the selection scheme are determined in

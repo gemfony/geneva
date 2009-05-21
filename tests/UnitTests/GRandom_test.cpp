@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( GRandom_no_failure_expected )
 
 	// Check that we can set gr3's production flags and can prouce a number of random numbers
 	gr3.setRNRFactoryMode();
-	BOOST_CHECK(gr3.getRNRGenerationMode () == Gem::Util::RNRFACTORY);
+	BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Util::RNRFACTORY);
 	double last = -1., now=0.;
 	for(std::size_t i=0; i<NRNR; i++) {
 		now = gr3.evenRandom();
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( GRandom_no_failure_expected )
 		last = now;
 	}
 	gr3.setRNRLocalMode();
-	BOOST_CHECK(gr3.getRNRGenerationMode () == Gem::Util::RNRLOCAL);
+	BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Util::RNRLOCAL);
 	last = -1., now=0.;
 	for(std::size_t i=0; i<NRNR; i++) {
 		now = gr3.evenRandom();

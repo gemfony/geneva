@@ -94,17 +94,27 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 	GRANDOMFACTORY->setArraySize(arraySize);
 
-	// Set up a single parabola individual
-	boost::shared_ptr<GParabolaIndividual>
-		parabolaIndividual(new GParabolaIndividual(parabolaDimension,
-				parabolaMin,
-				parabolaMax,
-				adaptionThreshold));
 
+	// Set up a single parabola individual
+	boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual());
+
+	// Set up a GDoubleCollection with parabolaDimension values, each initialized
+	// with a random number in the range [min,max[
+	boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parabolaDimension,parabolaMin,parabolaMax));
+
+	// Set up and register an adaptor for the collection, so it
+	// knows how to be mutated. We want a sigma of 1, a sigma-adaption of 0.001, a
+	// minimum sigma of 0.000001 and a maximum sigma of 5.
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.001,0.000001,5));
+	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	if(productionPlace) // Factory means "true"
-		parabolaIndividual->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 	else // Local means "false"
-		parabolaIndividual->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+	gdc_ptr->addAdaptor(gdga_ptr);
+
+	// Make the parameter collection known to this individual
+	parabolaIndividual->push_back(gdc_ptr);
 
 	if(parallel) {
 	  // Now we've got our first individual and can create a simple population with parallel execution.
@@ -121,6 +131,11 @@ int main(int argc, char **argv){
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 	  pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 	  pop_par.setMaximize(maximize); // Specifies whether we want to do maximization or minimization
+
+	  if(productionPlace) // Factory means "true"
+		  pop_par.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+	  else // Local means "false"
+		  pop_par.setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
 	  if(qualityThreshold > 0.) pop_par.setQualityThreshold(qualityThreshold);
 
@@ -141,6 +156,11 @@ int main(int argc, char **argv){
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 	  pop_ser.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 	  pop_ser.setMaximize(maximize); // Specifies whether we want to do maximization or minimization
+
+	  if(productionPlace) // Factory means "true"
+		  pop_ser.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+	  else // Local means "false"
+		  pop_ser.setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
 	  if(qualityThreshold > 0.) pop_ser.setQualityThreshold(qualityThreshold);
 

@@ -33,6 +33,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/function.hpp>
 
 #ifndef GPARAMETERSET_HPP_
 #define GPARAMETERSET_HPP_
@@ -84,9 +85,6 @@ public:
 	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for similarity with another GParameterSet object */
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-
-	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
-	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const;

@@ -40,6 +40,9 @@ void GNumCollectionT<double>::addRandomData(const std::size_t& nval,
 										   const double& min,
 										   const double& max)
 {
+	Gem::Util::GRandom gr;
+	gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
 	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.evenRandom(min,max));
 }
 
@@ -56,6 +59,9 @@ void GNumCollectionT<boost::int32_t>::addRandomData(const std::size_t& nval,
 		                                            const boost::int32_t& min,
 		                                            const boost::int32_t& max)
 {
+	Gem::Util::GRandom gr;
+	gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
 	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.discreteRandom(min,max));
 }
 

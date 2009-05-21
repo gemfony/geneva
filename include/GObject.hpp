@@ -64,7 +64,6 @@
 
 #include "GSerializableI.hpp"
 #include "GenevaExceptions.hpp"
-#include "GRandom.hpp"
 #include "GEnums.hpp"
 #include "GHelperFunctionsT.hpp"
 
@@ -86,28 +85,10 @@ class GObject
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void save(Archive & ar, const unsigned int) const {
+    void serialize(Archive & ar, const unsigned int)  {
       using boost::serialization::make_nvp;
-      ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
+      // No local data
     }
-
-    template<typename Archive>
-    void load(Archive & ar, const unsigned int){
-        using boost::serialization::make_nvp;
-        ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
-
-        switch(rnrGenerationMode_) {
-        case Gem::Util::RNRFACTORY:
-        	gr.setRNRFactoryMode();
-        	break;
-
-        case Gem::Util::RNRLOCAL:
-        	gr.setRNRLocalMode();
-        	break;
-        };
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
     ///////////////////////////////////////////////////////////////////////
 
 public:
@@ -133,11 +114,6 @@ public:
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for dissimilarity with another GObject object (or a derivative) */
 	virtual bool isNotSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-
-	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
-	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
-	/** @brief Retrieves the current value of the random number generation mode */
-	Gem::Util::rnrGenerationMode getRnrGenerationMode() const;
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
 	std::string toString(const serializationMode& serMod);
@@ -215,18 +191,7 @@ public:
 #endif
 	}
 
-	/**************************************************************************************************/
-
 protected:
-    /**
-     * A random number generator. Each GenEvA object has
-     * its own instance. Note that the actual calculation is likely done in
-     * a random number server. GRandom has a fallback generator in
-     * case the factory is unreachable. Note that the GRandom
-     * object (and its state) will NOT be serialized.
-     */
-	Gem::Util::GRandom gr;
-
 	/**************************************************************************************************/
 	/**
 	 * The load function takes a GObject pointer and converts it to a pointer to a derived class. This
@@ -266,9 +231,6 @@ protected:
 	}
 
 	/**************************************************************************************************/
-
-private:
-	Gem::Util::rnrGenerationMode rnrGenerationMode_;
 };
 
 } /* namespace GenEvA */

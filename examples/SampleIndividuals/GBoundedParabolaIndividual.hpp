@@ -76,41 +76,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * A constructor which initializes the individual with a suitable set of random double values
-	 * and also determines how often the adaptor should be adapted.
-	 *
-	 * @param sz The desired size of the double collection
-	 * @param min The minimum value of the random numbers to fill the collection
-	 * @param max The maximum value of the random numbers to fill the collection
-	 * @param as The number of calls to GDoubleGaussAdaptor::mutate after which mutation should be adapted
-	 */
-	GBoundedParabolaIndividual(const std::size_t& sz, const double& min, const double& max, const boost::uint32_t& as){
-		// Set up a GBoundedDoubleCollection with sz values, each initialized
-		// with a random number in the range [min,max[
-		boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
-
-		// Set up and register GBoundedDouble objects in the desired value range
-		for(std::size_t i=0; i<sz; i++) {
-			// Set up an adaptor so the GBoundedDouble objects know how to be mutated.
-			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.001, 0.1, 1));
-			gdga_ptr->setAdaptionThreshold(as);
-
-			// GBoundedDouble will start with value "max"
-			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(max, min, max));
-
-			// Register the adaptor
-			gbd_ptr->addAdaptor(gdga_ptr);
-
-			// Make the GBoundedDouble known to the collection
-			gbdc_ptr->push_back(gbd_ptr);
-		}
-
-		// Make the GBoundedDouble collection known to this individual
-		this->data.push_back(gbdc_ptr);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * A standard copy constructor
 	 */
 	GBoundedParabolaIndividual(const GBoundedParabolaIndividual& cp)

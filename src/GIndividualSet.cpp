@@ -29,135 +29,153 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GIndividualSet)
 
 namespace Gem
 {
-	namespace GenEvA
-	{
-		/******************************************************************/
-		/**
-		 * The default constructor
-		 */
-		GIndividualSet::GIndividualSet() :GMutableSetT<Gem::GenEvA::GIndividual>()
-		{ /* nothing */	}
+namespace GenEvA
+{
+/******************************************************************/
+/**
+ * The default constructor
+ */
+GIndividualSet::GIndividualSet()
+	:GMutableSetT<Gem::GenEvA::GIndividual>()
+{
+	gr.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+}
 
-		/******************************************************************/
-		/**
-		 * The copy constructor
-		 *
-		 * @param cp A constant reference to another GIndividualSet object
-		 */
-		GIndividualSet::GIndividualSet(const GIndividualSet& cp)
-		  :GMutableSetT<Gem::GenEvA::GIndividual>(cp)
-		{ /* nothing */ }
+/******************************************************************/
+/**
+ * The copy constructor
+ *
+ * @param cp A constant reference to another GIndividualSet object
+ */
+GIndividualSet::GIndividualSet(const GIndividualSet& cp)
+:GMutableSetT<Gem::GenEvA::GIndividual>(cp),
+ gr(cp.gr)
+{ /* nothing */ }
 
-		/******************************************************************/
-		/**
-		 * The destructor
-		 */
-		GIndividualSet::~GIndividualSet()
-		{ /* nothing */ }
+/******************************************************************/
+/**
+ * The destructor
+ */
+GIndividualSet::~GIndividualSet()
+{ /* nothing */ }
 
-		/******************************************************************/
-		/**
-		 * Checks for equality with another GIndividualSet object
-		 *
-		 * @param  cp A constant reference to another GIndividualSet object
-		 * @return A boolean indicating whether both objects are equal
-		 */
-		bool GIndividualSet::operator==(const GIndividualSet& cp) const {
-			return GIndividualSet::isEqualTo(cp, boost::logic::indeterminate);
-		}
+/******************************************************************/
+/**
+ * Checks for equality with another GIndividualSet object
+ *
+ * @param  cp A constant reference to another GIndividualSet object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GIndividualSet::operator==(const GIndividualSet& cp) const {
+	return GIndividualSet::isEqualTo(cp, boost::logic::indeterminate);
+}
 
-		/******************************************************************/
-		/**
-		 * Checks for inequality with another GIndividualSet object
-		 *
-		 * @param  cp A constant reference to another GIndividualSet object
-		 * @return A boolean indicating whether both objects are inequal
-		 */
-		bool GIndividualSet::operator!=(const GIndividualSet& cp) const {
-			return !GIndividualSet::isEqualTo(cp, boost::logic::indeterminate);
-		}
+/******************************************************************/
+/**
+ * Checks for inequality with another GIndividualSet object
+ *
+ * @param  cp A constant reference to another GIndividualSet object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GIndividualSet::operator!=(const GIndividualSet& cp) const {
+	return !GIndividualSet::isEqualTo(cp, boost::logic::indeterminate);
+}
 
-		/******************************************************************/
-		/**
-		 * Checks for equality with another GIndividualSet object. As we have no
-		 * local data, we just check for equality of the parent class-
-		 *
-		 * @param  cp A constant reference to another GIndividualSet object
-		 * @return A boolean indicating whether both objects are equal
-		 */
-		bool GIndividualSet::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-		    using namespace Gem::Util;
+/******************************************************************/
+/**
+ * Checks for equality with another GIndividualSet object. As we have no
+ * local data, we just check for equality of the parent class-
+ *
+ * @param  cp A constant reference to another GIndividualSet object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GIndividualSet::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+	using namespace Gem::Util;
 
-			// Check that we are indeed dealing with a GIndividual reference
-			const GIndividualSet *gis_load = GObject::conversion_cast(&cp,  this);
+	// Check that we are indeed dealing with a GIndividual reference
+	const GIndividualSet *gis_load = GObject::conversion_cast(&cp,  this);
 
-			// Check our parent class
-			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isEqualTo(*gis_load, expected)) return  false;
+	// Check our parent class
+	if(!GMutableSetT<Gem::GenEvA::GIndividual>::isEqualTo(*gis_load, expected)) return  false;
 
-			// No local data
+	// And then our local data
+	if(!gr.isEqualTo(gis_load->gr, expected)) return false;
 
-			return true;
-		}
+	return true;
+}
 
-		/******************************************************************/
-		/**
-		 * Checks for similarity with another GIndividualSet object. As we have
-		 * no local data, we just check for similarity of the parent class.
-		 *
-		 * @param  cp A constant reference to another GIndividualSet object
-		 * @param limit A double value specifying the acceptable level of differences of floating point values
-		 * @return A boolean indicating whether both objects are similar to each other
-		 */
-		bool GIndividualSet::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-		    using namespace Gem::Util;
+/******************************************************************/
+/**
+ * Checks for similarity with another GIndividualSet object. As we have
+ * no local data, we just check for similarity of the parent class.
+ *
+ * @param  cp A constant reference to another GIndividualSet object
+ * @param limit A double value specifying the acceptable level of differences of floating point values
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+bool GIndividualSet::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+	using namespace Gem::Util;
 
-			// Check that we are indeed dealing with a GIndividual reference
-			const GIndividualSet *gis_load = GObject::conversion_cast(&cp,  this);
+	// Check that we are indeed dealing with a GIndividual reference
+	const GIndividualSet *gis_load = GObject::conversion_cast(&cp,  this);
 
-			// Check our parent class
-			if(!GMutableSetT<Gem::GenEvA::GIndividual>::isSimilarTo(*gis_load, limit, expected)) return  false;
+	// Check our parent class
+	if(!GMutableSetT<Gem::GenEvA::GIndividual>::isSimilarTo(*gis_load, limit, expected)) return  false;
 
-			// No local data
+	// And then our local data
+	if(!gr.isSimilarTo(gis_load->gr, limit, expected)) return false;
 
-			return true;
-		}
+	return true;
+}
 
-		/******************************************************************/
-		/**
-		 * Determines whether production of random numbers should happen remotely
-		 * (RNRFACTORY) or locally (RNRLOCAL)
-		 *
-		 * @param rnrGenMode A parameter which indicates where random numbers should be produced
-		 */
-		void GIndividualSet::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
-			// Set the parent number's mode
-			GMutableSetT<Gem::GenEvA::GIndividual>::setRnrGenerationMode(rnrGenMode);
-		}
+/******************************************************************/
+/**
+ * Determines whether production of random numbers should happen remotely
+ * (RNRFACTORY) or locally (RNRLOCAL)
+ *
+ * @param rnrGenMode A parameter which indicates where random numbers should be produced
+ */
+void GIndividualSet::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+	gr.setRnrGenerationMode(rnrGenMode);
+}
 
-		/******************************************************************/
-		/**
-		 * Loads the data of another GObject
-		 *
-		 * @param cp Another GIndividualSet object, camouflaged as a GObject
-		 */
-		void GIndividualSet::load(const GObject* cp)
-		{
-			const GIndividualSet *gis_load = static_cast<const GIndividualSet *> (cp);
+/******************************************************************/
+/**
+ * Retrieves the random number generators current generation mode.
+ *
+ * @return The current random number generation mode of the local generator
+ */
+Gem::Util::rnrGenerationMode GIndividualSet::getRnrGenerationMode() const {
+	return gr.getRnrGenerationMode();
+}
 
-			// Check that this object is not accidentally assigned to itself.
-			if (gis_load == this) {
-				std::ostringstream error;
-				error << "In GIndividualSet::load(): Error!" << std::endl
-					  << "Tried to assign an object to itself." << std::endl;
+/******************************************************************/
+/**
+ * Loads the data of another GObject
+ *
+ * @param cp Another GIndividualSet object, camouflaged as a GObject
+ */
+void GIndividualSet::load(const GObject* cp)
+{
+	const GIndividualSet *gis_load = static_cast<const GIndividualSet *> (cp);
 
-				throw geneva_error_condition(error.str());
-			}
+	// Check that this object is not accidentally assigned to itself.
+	if (gis_load == this) {
+		std::ostringstream error;
+		error << "In GIndividualSet::load(): Error!" << std::endl
+		<< "Tried to assign an object to itself." << std::endl;
 
-			// Load the parent class'es data
-			GMutableSetT<Gem::GenEvA::GIndividual>::load(cp);
-		}
+		throw geneva_error_condition(error.str());
+	}
 
-		/******************************************************************/
+	// Load the parent class'es data
+	GMutableSetT<Gem::GenEvA::GIndividual>::load(cp);
 
-	} /* namespace GenEvA */
+	// and then our local data
+	gr.load(&(gis_load->gr));
+}
+
+/******************************************************************/
+
+} /* namespace GenEvA */
 } /* namespace Gem */

@@ -259,18 +259,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Determines whether production of random numbers should happen remotely
-	 * (RNRFACTORY) or locally (RNRLOCAL)
-	 *
-	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
-	 */
-	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
-		// Set the parent number's mode
-		GAdaptorT<T>::setRnrGenerationMode(rnrGenMode);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * This function sets the value of the sigma_ parameter. Note that this function
 	 * will silently set a 0 sigma to a very small value.
 	 *

@@ -41,6 +41,7 @@
 #include "GMutableSetT.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
+#include "GRandom.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -54,8 +55,8 @@ class GIndividualSet
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & make_nvp("GMutableSetT_GIndividual",
-			  boost::serialization::base_object<GMutableSetT<Gem::GenEvA::GIndividual> >(*this));
+	  ar & make_nvp("GMutableSetT_GIndividual", boost::serialization::base_object<GMutableSetT<Gem::GenEvA::GIndividual> >(*this));
+	  ar & make_nvp("gr", gr);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -77,7 +78,10 @@ public:
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
-	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+	void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+	/** @brief Retrieves the random number generators current generation mode. */
+	Gem::Util::rnrGenerationMode getRnrGenerationMode() const;
+
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const = 0;
@@ -124,6 +128,15 @@ public:
 	}
 
 protected:
+	/***********************************************************************************/
+    /**
+     * A random number generator. Note that the actual calculation is possibly
+     * done in a random number server. GRandom also has a local generator
+     * in case the factory is unreachable, or local storage of random
+     * number containers requires too much memory.
+     */
+	Gem::Util::GRandom gr;
+
 	/**********************************************************************************/
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;

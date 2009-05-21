@@ -50,6 +50,7 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/logic/tribool.hpp>
+#include <boost/bind.hpp>
 
 #ifndef GSTDPTRVECTORINTERFACET_HPP_
 #define GSTDPTRVECTORINTERFACET_HPP_

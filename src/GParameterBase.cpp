@@ -145,18 +145,6 @@ bool GParameterBase::isSimilarTo(const GObject& cp, const double& limit, const b
 	return true;
 }
 
-/***********************************************************************************/
-/**
- * Determines whether production of random numbers should happen remotely
- * (RNRFACTORY) or locally (RNRLOCAL)
- *
- * @param rnrGenMode A parameter which indicates where random numbers should be produced
- */
-void GParameterBase::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
-	// Set the parent number's mode
-	GObject::setRnrGenerationMode(rnrGenMode);
-}
-
 /**********************************************************************************/
 /**
  * Convenience function so we do not need to always cast  derived classes.

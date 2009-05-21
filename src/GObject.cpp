@@ -36,35 +36,16 @@ namespace GenEvA {
  * In particular, it sets the name of the Geneva object to "GObject"
  */
 GObject::GObject()
-	:rnrGenerationMode_(Gem::Util::RNRFACTORY)
-{
-	gr.setRNRFactoryMode();
-}
+{ /* nothong */ }
 
 /**************************************************************************************************/
 /**
- * We need a copy constructor, even though this class is purely virtual. It is called by child
- * classes, when their copy constructor is executed. Note that this function is not implemented
- * with the load() function. Reason: A copy constructor needs to call the constructor
- * of its parent class. Using a load function in the copy constructor might replicate some
- * copying. Hence, throughout the Geneva library, we do not use the load function for copying
- * in the copy constructor.
+ * The copy constructor
  *
  * @param cp A copy of another GObject object
  */
 GObject::GObject(const GObject& cp)
-	:rnrGenerationMode_(cp.rnrGenerationMode_)
-{
-    switch(rnrGenerationMode_) {
-    case Gem::Util::RNRFACTORY:
-    	gr.setRNRFactoryMode();
-    	break;
-
-    case Gem::Util::RNRLOCAL:
-    	gr.setRNRLocalMode();
-    	break;
-    };
-}
+{ /* nothing */ }
 
 /**************************************************************************************************/
 /**
@@ -120,9 +101,9 @@ bool  GObject::operator!=(const GObject& cp) const {
 bool  GObject::isEqualTo(const GObject& cp,  const boost::logic::tribool& expected) const {
     using namespace Gem::Util;
 
-	if(checkForInequality("GObject", rnrGenerationMode_, cp.rnrGenerationMode_,"rnrGenerationMode_", "cp.rnrGenerationMode_", expected)) return false;
+    // No local data, hence nothing to do
 
-	else return true;
+    return true;
 }
 
 /**************************************************************************************************/
@@ -154,9 +135,9 @@ bool  GObject::isNotEqualTo(const GObject& cp,  const boost::logic::tribool& exp
 bool  GObject::isSimilarTo(const GObject& cp, const double& limit,  const boost::logic::tribool& expected) const {
     using namespace Gem::Util;
 
-	if(checkForDissimilarity("GObject", rnrGenerationMode_, cp.rnrGenerationMode_,limit, "rnrGenerationMode_", "cp.rnrGenerationMode_", expected)) return false;
+    // No local data, hence nothing to do
 
-	else return true;
+	return true;
 }
 
 /**************************************************************************************************/
@@ -177,37 +158,6 @@ bool  GObject::isSimilarTo(const GObject& cp, const double& limit,  const boost:
  */
 bool  GObject::isNotSimilarTo(const GObject& cp, const double& limit,  const boost::logic::tribool& expected) const {
 	return !this->isSimilarTo(cp, limit, expected);
-}
-
-/**************************************************************************************************/
-/**
- * Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL)
- *
- * @param rnrGenMode A parameter which indicates where random numbers should be produced
- */
-void GObject::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
-    switch(rnrGenerationMode_) {
-    case Gem::Util::RNRFACTORY:
-    	gr.setRNRFactoryMode();
-    	break;
-
-    case Gem::Util::RNRLOCAL:
-    	gr.setRNRLocalMode();
-    	break;
-    };
-
-    // Store the value locally
-    rnrGenerationMode_ = rnrGenMode;
-}
-
-/**************************************************************************************************/
-/**
- * Retrieves the current value of the random number generation mode.
- *
- * @return The current value of the random number generation mode
- */
-Gem::Util::rnrGenerationMode GObject::getRnrGenerationMode() const {
-	return rnrGenerationMode_;
 }
 
 /**************************************************************************************************/
@@ -329,21 +279,7 @@ void GObject::load(const GObject *cp) {
 	}
 #endif /* DEBUG */
 
-
-	// Adjust the production place, if necessary
-	if(rnrGenerationMode_ != cp->rnrGenerationMode_) {
-		rnrGenerationMode_ = cp->rnrGenerationMode_;
-
-		switch(rnrGenerationMode_) {
-		case Gem::Util::RNRFACTORY:
-			gr.setRNRFactoryMode();
-			break;
-
-		case Gem::Util::RNRLOCAL:
-			gr.setRNRLocalMode();
-			break;
-		};
-	}
+	// No local data, hence nothing to do
 }
 
 /**************************************************************************************************/

@@ -192,24 +192,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Determines whether production of random numbers should happen remotely
-	 * (RNRFACTORY) or locally (RNRLOCAL)
-	 *
-	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
-	 */
-	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
-		// Set the parent number's mode
-		GIndividual::setRnrGenerationMode(rnrGenMode);
-
-		// Set the modes of our local data
-		typename GMutableSetT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->setRnrGenerationMode(rnrGenMode);
-		}
-	}
-
-	/*******************************************************************************************/
-	/**
 	 * Swap another object's vector with ours
 	 */
 	inline void swap(GMutableSetT<T>& cp) { GStdPtrVectorInterfaceT<T>::swap(cp.data); }

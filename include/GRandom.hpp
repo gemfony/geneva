@@ -67,6 +67,7 @@
 
 // GenEvA headers go here
 
+#include "GObject.hpp"
 #include "GBoundedBufferT.hpp"
 #include "GEnums.hpp"
 #include "GThreadGroup.hpp"
@@ -90,18 +91,72 @@ const double rnr_max = static_cast<double>(std::numeric_limits<boost::uint32_t>:
 /****************************************************************************/
 /**
  * This class gives objects access to random numbers. It internally handles
- * retrieval of random numbers from the GRandomFactory class as needed. Random
- * distributions are calculated on the fly from these numbers. Usage is thus
- * transparent to the user.
+ * retrieval of random numbers from the GRandomFactory class as needed, or
+ * produces them locally. Random distributions are calculated on the fly from
+ * these numbers. Usage is thus transparent to the user, when random numbers
+ * are retrieved from the factory.
  */
 class GRandom
-	:private boost::noncopyable
+	:public Gem::GenEvA::GObject
 {
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    template<typename Archive>
+    void save(Archive & ar, const unsigned int) const {
+      using boost::serialization::make_nvp;
+      ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
+      ar & make_nvp("rnr_last_", rnr_last_);
+    }
+
+    template<typename Archive>
+    void load(Archive & ar, const unsigned int){
+        using boost::serialization::make_nvp;
+        ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
+
+        switch(rnrGenerationMode_) {
+        case Gem::Util::RNRFACTORY:
+        	// Make sure we have a local pointer to the factory
+        	grf_ = GRANDOMFACTORY;
+        	break;
+
+        case Gem::Util::RNRLOCAL:
+        	// Reset all other random number generation modes
+        	p01_.reset();
+        	grf_.reset();
+        	break;
+        };
+
+        ar & make_nvp("rnr_last_", rnr_last_);
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    ///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The standard constructor */
 	GRandom();
+	/** @brief A copy constructor */
+	GRandom(const GRandom&);
 	/** @brief A standard destructor */
 	~GRandom();
+
+	/** @brief A standard assignment operator */
+	GRandom& operator=(const GRandom&);
+
+	/** @brief Checks for equality with another GRandom object */
+	bool operator==(const GRandom&) const;
+	/** @brief Checks inequality with another GRandom object */
+	bool operator!=(const GRandom&) const;
+	/** @brief Checks for equality with another GRandom object, camouflaged as a GObject */
+	virtual bool isEqualTo(const Gem::GenEvA::GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GRandom object, camouflaged as a GObject */
+	virtual bool isSimilarTo(const Gem::GenEvA::GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Creates a deep clone of this object */
+	virtual Gem::GenEvA::GObject* clone() const;
+	/** @brief Loads the data of another GRandom object, camouflaged as a GObject */
+	virtual void load(const Gem::GenEvA::GObject*);
 
 	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
 	double evenRandom();
@@ -131,8 +186,10 @@ public:
 	/** @brief Produces random ASCII characters */
 	char charRandom(const bool& printable = true);
 
+	/** @brief Sets the random number generation mode */
+	void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
 	/** @brief Retrieves the current random number generation mode */
-	Gem::Util::rnrGenerationMode getRNRGenerationMode () const;
+	Gem::Util::rnrGenerationMode getRnrGenerationMode () const;
 	/** @brief Specifies a rng-proxy to be used and empties the p01_ array */
 	void setRNRFactoryMode();
 	/** @brief Switches to local production mode, using GRandomFactory::GSeed() for seeding */
@@ -146,15 +203,12 @@ public:
 	boost::uint32_t getSeed();
 
 private:
-	GRandom(const GRandom&); ///< Intentionally left undefined
-	GRandom& operator=(const GRandom&); ///< Intentionally left undefined
-
 	/** @brief Fills a random container if none could be retrieved from the factory */
 	void fillContainer01();
 	/** @brief (Re-)Initialization of p01_ */
 	void getNewP01();
 
-	rnrGenerationMode currentGenerationMode_; ///< The current random number generation mode. Size 4 Byte on a 64bit system
+	rnrGenerationMode rnrGenerationMode_; ///< The current random number generation mode. Size 4 Byte on a 64bit system
 
 	// The following options are used when random numbers are taken from the factory
 	std::size_t currentPackageSize_; ///< The package size, as obtained from the factory.  Size is 8 byte on a 64 bit system

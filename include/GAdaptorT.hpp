@@ -46,6 +46,7 @@
 #define GADAPTORT_HPP_
 
 #include "GObject.hpp"
+#include "GRandom.hpp"
 #include "GEnums.hpp"
 
 namespace Gem {
@@ -94,6 +95,7 @@ class GAdaptorT:
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
+		ar & make_nvp("gr",gr);
 		ar & make_nvp("adaptionCounter_", adaptionCounter_);
 		ar & make_nvp("adaptionThreshold_", adaptionThreshold_);
 	}
@@ -102,13 +104,15 @@ class GAdaptorT:
 public:
 	/***********************************************************************************/
 	/**
-	 * The default constructor
+	 * The default constructor.
 	 */
 	GAdaptorT():
 		GObject(),
 		adaptionCounter_(0),
 		adaptionThreshold_(0)
-	{ /* nothing */ }
+	{
+		gr.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+	}
 
 	/***********************************************************************************/
 	/**
@@ -118,6 +122,7 @@ public:
 	 */
 	GAdaptorT(const GAdaptorT<T>& cp):
 		GObject(cp),
+		gr(cp.gr),
 		adaptionCounter_(cp.adaptionCounter_),
 		adaptionThreshold_(cp.adaptionThreshold_)
 	{ /* nothing */ }
@@ -159,6 +164,7 @@ public:
 		GObject::load(cp);
 
 		// Then our own data
+		gr.load(&(gat->gr));
 		adaptionCounter_ = gat->adaptionCounter_;
 		adaptionThreshold_ = gat->adaptionThreshold_;
 	}
@@ -206,6 +212,7 @@ public:
 		if(!GObject::isEqualTo(*gat_load, expected)) return false;
 
 		// then our local data
+		if(!gr.isEqualTo(gat_load->gr, expected)) return false;
 		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
 
@@ -230,6 +237,7 @@ public:
 		if(!GObject::isSimilarTo(*gat_load, limit, expected)) return false;
 
 		// Then our local data
+		if(!gr.isSimilarTo(gat_load->gr, limit, expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
 
@@ -248,13 +256,22 @@ public:
 	/***********************************************************************************/
 	/**
 	 * Determines whether production of random numbers should happen remotely
-	 * (RNRFACTORY) or locally (RNRLOCAL)
+	 * (RNRFACTORY) or locally (RNRLOCAL) in the local random number generator.
 	 *
 	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
 	 */
 	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
-		// Set the parent number's mode
-		GObject::setRnrGenerationMode(rnrGenMode);
+		gr.setRnrGenerationMode(rnrGenMode);
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Retrieves the random number generators current generation mode.
+	 *
+	 * @return The current random number generation mode of the local generator
+	 */
+	Gem::Util::rnrGenerationMode getRnrGenerationMode() const {
+		return gr.getRnrGenerationMode();
 	}
 
 	/***********************************************************************************/
@@ -306,6 +323,15 @@ public:
 	}
 
 protected:
+	/***********************************************************************************/
+    /**
+     * A random number generator. Note that the actual calculation is possibly
+     * done in a random number server. GRandom also has a local generator
+     * in case the factory is unreachable, or local storage of random
+     * number containers requires too much memory.
+     */
+	Gem::Util::GRandom gr;
+
 	/***********************************************************************************/
 	/**
 	 *  This function is re-implemented by derived classes, if they wish to

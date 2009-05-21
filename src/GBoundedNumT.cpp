@@ -37,6 +37,9 @@ template <>  GBoundedNumT<double>::GBoundedNumT()
 	 upperBoundary_(1.),
 	 internalValue_(0.)
 {
+		Gem::Util::GRandom gr;
+		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
 		// This function also sets the internalValue_ variable.
 		setExternalValue(gr.evenRandom(lowerBoundary_,upperBoundary_));
 }
@@ -53,6 +56,9 @@ template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT()
  	 upperBoundary_(1000),
 	 internalValue_(1)
 {
+		Gem::Util::GRandom gr;
+		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
 		// This function also sets the internalValue_ variable.
 		// discreteRandom returns values in the range [lower,upper[ , i.e., the upper boundary
 		// is not included. Needs to be checked in the testing code!!!
@@ -107,6 +113,9 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, cons
 	 upperBoundary_(1.),
 	 internalValue_(0.)
 {
+		Gem::Util::GRandom gr;
+		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
 		// Check that the boundaries make sense
 		if(lowerBoundary >= upperBoundary) {
 			std::ostringstream error;
@@ -146,7 +155,25 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& low
 	 upperBoundary_(upperBoundary),
 	 internalValue_(0)
 {
-		// do an error check here ...
+		Gem::Util::GRandom gr;
+		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
+		// Complain if the boundaries are invalid
+		if(lowerBoundary >= upperBoundary) {
+			std::ostringstream error;
+			error << "In GBoundedNumT<double>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&)" << std::endl
+				     << "Error: Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		// Check size of the boundaries
+		if(lowerBoundary <= -std::numeric_limits<boost::int32_t>::max()/2 || upperBoundary >= std::numeric_limits<boost::int32_t>::max()/2) {
+			std::ostringstream error;
+			error << "In GBoundedNumT<double>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&)" << std::endl
+				     << "Error: Lower and/or upper boundaries have too high values: " << lowerBoundary << " " << upperBoundary << std::endl;
+
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
 
 		// This function also sets the internalValue_ variable.
 		// discreteRandom returns values in the range [lower,upper[ , i.e., the upper boundary

@@ -33,12 +33,40 @@ namespace Util {
  * is still needed.
  */
 GRandom::GRandom()
-	:currentGenerationMode_(Gem::Util::RNRFACTORY),
+	:rnrGenerationMode_(Gem::Util::RNRFACTORY),
 	 currentPackageSize_(DEFAULTARRAYSIZE),
 	 current01_(1), // position 0 holds the array size
 	 grf_(GRANDOMFACTORY),
 	 rnr_last_(Gem::Util::GRandomFactory::GSeed())
 { /* nothing */ }
+
+/*************************************************************************/
+/**
+ * The copy constructor. Note that we acquire our own seed and do not copy
+ * it from the other object. This way we do not have two generators that produce
+ * the same numbers.
+ *
+ * @param cp A copy of another GRandom object
+ */
+GRandom::GRandom(const GRandom& cp)
+	:rnrGenerationMode_(cp.rnrGenerationMode_),
+	 currentPackageSize_(DEFAULTARRAYSIZE),
+	 current01_(1), // position 0 holds the array size
+	 rnr_last_(Gem::Util::GRandomFactory::GSeed())
+{
+    switch(rnrGenerationMode_) {
+    case Gem::Util::RNRFACTORY:
+    	// Make sure we have a local pointer to the factory
+    	grf_ = GRANDOMFACTORY;
+    	break;
+
+    case Gem::Util::RNRLOCAL:
+    	// Reset all other random number generation modes
+    	p01_.reset();
+    	grf_.reset();
+    	break;
+    };
+}
 
 /*************************************************************************/
 /**
@@ -51,6 +79,128 @@ GRandom::~GRandom() {
 
 /*************************************************************************/
 /**
+ * A standard assignment operator.
+ *
+ * @param cp A copy of another GRandom object
+ */
+GRandom& GRandom::operator=(const GRandom& cp) {
+	GRandom::load(&cp);
+	return *this;
+}
+
+/*************************************************************************/
+/**
+ * Checks for equality with another GRandom object
+ *
+ * @param  cp A constant reference to another GRandom object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GRandom::operator==(const GRandom& cp) const {
+	return GRandom::isEqualTo(cp, boost::logic::indeterminate);
+}
+
+/*************************************************************************/
+/**
+ * Checks for inequality with another GRandom object
+ *
+ * @param  cp A constant reference to another GRandom object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GRandom::operator!=(const GRandom& cp) const {
+	return !GRandom::isEqualTo(cp, boost::logic::indeterminate);
+}
+
+/*************************************************************************/
+/**
+ * Checks for equality with another GRandom object. Only a small subset of
+ * the data is checked. Different instances of GRandom need to produce different
+ * random number sequences, so deviations a are expected and normal.
+ *
+ * @param  cp A constant reference to another GRandom object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GRandom::isEqualTo(const Gem::GenEvA::GObject& cp, const boost::logic::tribool& expected) const {
+	using namespace Gem::Util;
+
+	// Check that we are indeed dealing with a GAdaptorT reference
+	const GRandom *gr_load = Gem::GenEvA::GObject::conversion_cast(&cp,  this);
+
+	// First check our parent class for equality
+	if(!Gem::GenEvA::GObject::isEqualTo(*gr_load, expected)) return false;
+
+	// then our local data.
+	if(checkForInequality("GRandom", rnrGenerationMode_, gr_load->rnrGenerationMode_,"rnrGenerationMode_", "gr_load->rnrGenerationMode_", expected)) return false;
+
+	return true;
+}
+
+/*************************************************************************/
+/**
+ * Checks for similarity with another GRandom object. Only a small subset of
+ * the data is checked. Different instances of GRandom need to produce different
+ * random number sequences, so deviations a are expected and normal.
+ *
+ * @param  cp A constant reference to another GRandom object
+ * @param limit A double value specifying the acceptable level of differences of floating point values
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+bool GRandom::isSimilarTo(const Gem::GenEvA::GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+	using namespace Gem::Util;
+
+	// Check that we are indeed dealing with a GAdaptorT reference
+	const GRandom *gr_load = Gem::GenEvA::GObject::conversion_cast(&cp,  this);
+
+	// First check our parent class for equality
+	if(!Gem::GenEvA::GObject::isSimilarTo(*gr_load, limit, expected)) return false;
+
+	// then our local data.
+	if(checkForDissimilarity("GRandom", rnrGenerationMode_, gr_load->rnrGenerationMode_, limit, "rnrGenerationMode_", "gr_load->rnrGenerationMode_", expected)) return false;
+
+	return true;
+}
+
+/*************************************************************************/
+/**
+ * Creates a deep copy of this object
+ *
+ * @return A deep copy of this object, camouflaged as a pointer to a Gem::GenEvA::GObject
+ */
+Gem::GenEvA::GObject* GRandom::clone() const {
+	return new GRandom(*this);
+}
+
+/*************************************************************************/
+/**
+ * Loads the contents of another GRandom. The function
+ * is similar to a copy constructor (but with a pointer as
+ * argument). As this function might be called in an environment
+ * where we do not know the exact type of the class, the
+ * GRandom is camouflaged as a GObject . This implies the
+ * need for dynamic conversion.
+ *
+ * @param gb A pointer to another GRandom, camouflaged as a GObject
+ */
+void GRandom::load(const Gem::GenEvA::GObject* cp) {
+	// Convert cp into local format
+	const GRandom *gr_ptr = this->conversion_cast(cp, this);
+
+	// Load the parent class'es data
+	Gem::GenEvA::GObject::load(cp);
+
+	// Then our own data
+	rnrGenerationMode_ = gr_ptr->rnrGenerationMode_;
+	switch(rnrGenerationMode_) {
+	case RNRFACTORY:
+		this->setRNRFactoryMode();
+		break;
+	case RNRLOCAL:
+		this->setRNRLocalMode();
+		break;
+	};
+}
+
+/*************************************************************************/
+/**
  * This function emits evenly distributed random numbers in the range [0,1[ .
  * These are either taken from the random number factory or are created
  * locally.
@@ -58,7 +208,7 @@ GRandom::~GRandom() {
  * @return Random numbers evenly distributed in the range [0,1[
  */
 double GRandom::evenRandom() {
-	switch(currentGenerationMode_) {
+	switch(rnrGenerationMode_) {
 	case RNRFACTORY:
 		return evenRandomFromFactory();
 		break;
@@ -135,12 +285,30 @@ boost::uint32_t GRandom::getSeed() {
 
 /*************************************************************************/
 /**
+ * Sets the random number generation mode to a new value
+ *
+ * @param rnrGenMode The new desired random number generation mode
+ */
+
+void GRandom::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+	switch (rnrGenMode) {
+	case Gem::Util::RNRFACTORY:
+		this->setRNRFactoryMode();
+		break;
+	case Gem::Util::RNRLOCAL:
+		this->setRNRLocalMode();
+		break;
+	}
+}
+
+/*************************************************************************/
+/**
  * Retrieves the current random number generation mode
  *
  * @return The current random number generation scheme
  */
-Gem::Util::rnrGenerationMode  GRandom::getRNRGenerationMode () const {
-	return currentGenerationMode_;
+Gem::Util::rnrGenerationMode  GRandom::getRnrGenerationMode () const {
+	return rnrGenerationMode_;
 }
 
 /*************************************************************************/
@@ -149,10 +317,10 @@ Gem::Util::rnrGenerationMode  GRandom::getRNRGenerationMode () const {
  */
 void  GRandom::setRNRFactoryMode() {
 	// Do nothing if the mode has already been set
-	if(currentGenerationMode_ == Gem::Util::RNRFACTORY) return;
+	if(rnrGenerationMode_ == Gem::Util::RNRFACTORY) return;
 
 	// Get access to the factory and set the mode
-	currentGenerationMode_ = Gem::Util::RNRFACTORY;
+	rnrGenerationMode_ = Gem::Util::RNRFACTORY;
 	grf_ = GRANDOMFACTORY;
 }
 
@@ -163,14 +331,14 @@ void  GRandom::setRNRFactoryMode() {
  */
 void  GRandom::setRNRLocalMode() {
 	// Do nothing if the mode has already been set
-	if(currentGenerationMode_ == Gem::Util::RNRLOCAL) return;
+	if(rnrGenerationMode_ == Gem::Util::RNRLOCAL) return;
 
 	// Reset all other random number generation modes
 	p01_.reset();
 	grf_.reset();
 
 	// Switch the mode
-	currentGenerationMode_ = Gem::Util::RNRLOCAL;
+	rnrGenerationMode_ = Gem::Util::RNRLOCAL;
 }
 
 /*************************************************************************/
@@ -182,7 +350,7 @@ void  GRandom::setRNRLocalMode() {
  */
 void  GRandom::setRNRLocalMode(const boost::uint32_t& seed) {
 	// If the mode has already been set, just reset the seed
-	if(currentGenerationMode_ == Gem::Util::RNRLOCAL) {
+	if(rnrGenerationMode_ == Gem::Util::RNRLOCAL) {
 		this->setSeed(seed);
 	}
 	else { // Otherwise take the required steps
@@ -194,7 +362,7 @@ void  GRandom::setRNRLocalMode(const boost::uint32_t& seed) {
 		this->setSeed(seed);
 
 		// Switch the mode
-		currentGenerationMode_ = RNRLOCAL;
+		rnrGenerationMode_ = RNRLOCAL;
 	}
 }
 

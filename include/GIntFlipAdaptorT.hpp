@@ -106,6 +106,7 @@ public:
 	{
 		// Uses whatever GDoubleGaussAdaptor believes should be the default values
 		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor());
+		gaussAdaptor->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 		mutProb_.addAdaptor(gaussAdaptor);
 	}
 
@@ -243,7 +244,9 @@ public:
 	/********************************************************************************************/
 	/**
 	 * Determines whether production of random numbers should happen remotely
-	 * (RNRFACTORY) or locally (RNRLOCAL)
+	 * (RNRFACTORY) or locally (RNRLOCAL). This function is one of the rare cases where it is
+	 * necessary to re-implent this function. We want to propagate the random number generation
+	 * mode to our local mutProb_ object's adaptor.
 	 *
 	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
 	 */
@@ -251,8 +254,10 @@ public:
 		// Set the parent number's mode
 		GAdaptorT<T>::setRnrGenerationMode(rnrGenMode);
 
-		// Set our local object's mode
-		mutProb_.setRnrGenerationMode(rnrGenMode);
+		// Set mutProb_'s adaptor's generation mode
+		boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor
+					= mutProb_.adaptor_cast<GDoubleGaussAdaptor>();
+		gaussAdaptor->setRnrGenerationMode(rnrGenMode);
 	}
 
 	/********************************************************************************************/

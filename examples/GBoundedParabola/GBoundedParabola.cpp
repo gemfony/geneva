@@ -109,6 +109,12 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
 	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 
+	// Check whether random numbers should be produced locally or in the factory
+	if(productionPlace) // Factory means "true"
+		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+	else
+		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
 	if(useCommonAdaptor) {
 		// Adding the adaptor to the collection instead of individual GBoundedDouble objects will
 		// result in a joint adaptor for all GBoundedDoubles
@@ -142,12 +148,6 @@ int main(int argc, char **argv){
 	// Make the GBoundedDouble collection known to the individual
 	parabolaIndividual->push_back(gbdc_ptr);
 
-	// Check whether random numbers should be produced locally or in the factory
-	if(productionPlace) // Factory means "true"
-		parabolaIndividual->setRnrGenerationMode(Gem::Util::RNRFACTORY);
-	else
-		parabolaIndividual->setRnrGenerationMode(Gem::Util::RNRLOCAL);
-
 	if(parallel) {
 	  // Now we've got our first individual and can create a simple population with parallel execution.
 	  GBoostThreadPopulation pop_par;
@@ -161,6 +161,12 @@ int main(int argc, char **argv){
 	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+
+	  // Check whether random numbers should be produced locally or in the factory
+	  if(productionPlace) // Factory means "true"
+		  pop_par.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+	  else
+		  pop_par.setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
 	  // Do the actual optimization
 	  pop_par.optimize();
@@ -177,6 +183,12 @@ int main(int argc, char **argv){
 	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
 	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+
+	  // Check whether random numbers should be produced locally or in the factory
+	  if(productionPlace) // Factory means "true"
+		  pop_ser.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+	  else
+		  pop_ser.setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
 	  // Do the actual optimization
 	  pop_ser.optimize();
