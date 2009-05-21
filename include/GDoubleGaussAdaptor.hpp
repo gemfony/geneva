@@ -26,13 +26,10 @@
 #include <sstream>
 #include <utility> // For std::pair
 
-// Boost headers go here
-
-#include <boost/version.hpp>
+// Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
-#if BOOST_VERSION < ALLOWED_BOOST_VERSION
-#error "Error: Boost has incorrect version !"
-#endif /* BOOST_VERSION */
+
+// Boost headers go here
 
 #include <boost/cstdint.hpp>
 

@@ -30,6 +30,11 @@
 /** The minimum allowed version of the Boost library */
 #define ALLOWED_BOOST_VERSION 103600
 
+#include <boost/version.hpp>
+#if BOOST_VERSION < ALLOWED_BOOST_VERSION
+#error "Error: Boost has incorrect version !"
+#endif /* BOOST_VERSION */
+
 /** The current version of the Geneva library */
 #define GENEVAVERSION 0053
 

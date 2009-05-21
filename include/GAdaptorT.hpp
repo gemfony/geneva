@@ -20,16 +20,16 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Standard headers go here
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
 
-#include <boost/version.hpp>
+// Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
-#if BOOST_VERSION < ALLOWED_BOOST_VERSION
-#error "Error: Boost has incorrect version !"
-#endif /* BOOST_VERSION */
+
+// Boost headers go here
 
 #include <boost/cstdint.hpp>
 #include <boost/archive/xml_oarchive.hpp>
@@ -44,6 +44,8 @@
 
 #ifndef GADAPTORT_HPP_
 #define GADAPTORT_HPP_
+
+// Geneva headers go here
 
 #include "GObject.hpp"
 #include "GRandom.hpp"

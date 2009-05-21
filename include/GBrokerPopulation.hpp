@@ -26,14 +26,10 @@
 #include <algorithm>
 #include <vector>
 
+// Includes check for correct Boost version(s)
+#include "GGlobalDefines.hpp"
 
 // Boost headers go here
-
-#include <boost/version.hpp>
-#include "GGlobalDefines.hpp"
-#if BOOST_VERSION < ALLOWED_BOOST_VERSION
-#error "Error: Boost has incorrect version !"
-#endif /* BOOST_VERSION */
 
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>

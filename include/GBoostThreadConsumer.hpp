@@ -20,11 +20,12 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/version.hpp>
+// Standard headers go here
+
+// Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
-#if BOOST_VERSION < ALLOWED_BOOST_VERSION
-#error "Error: Boost has incorrect version !"
-#endif /* BOOST_VERSION */
+
+// Boost headers go here
 
 #include <boost/cstdint.hpp>
 #include <boost/bind.hpp>

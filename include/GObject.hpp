@@ -30,13 +30,10 @@
 #include <map>
 #include <vector>
 
-// Boost header files go here
-
-#include <boost/version.hpp>
+// Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
-#if BOOST_VERSION < ALLOWED_BOOST_VERSION
-#error "Error: Boost has incorrect version !"
-#endif /* BOOST_VERSION */
+
+// Boost header files go here
 
 #include <boost/cstdint.hpp>
 #include <boost/lexical_cast.hpp>
