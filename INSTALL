@@ -15,11 +15,7 @@ The build system now uses CMake in version 2.6, which is required due
 to the availability of the FindBoost macro.
 
 You will need a copy of Boost (see http://www.boost.org), in version
-1.36 or newer. You will also need to add the threadpool library (have a look
-at http://threadpool.sf.net). It is assumed that the threadpool library
-is installed in the same location as Boost (i.e., you have copied the
-files and directories recursively to /where/boost/resides/boost .
-See the Appendix "Compiling Boost" below for more details.
+1.36 or newer. See the Appendix "Compiling Boost" below for more details.
 
 In order to compile this project and the examples:
 Create a build directory anywhere in the file system and change into it.
@@ -91,7 +87,7 @@ Download Boost from http://www.boost.org and extract the compressed file. This w
 folder "boost_1_38_0", for instance. Change to that folder and, assuming Boost should be
 installed in /opt/boost138 (which should be writable), execute
 
-./configure --with-libraries=date_time,system,thread,serialization,program_options,test \
+./configure --with-libraries=date_time,system,thread,serialization,program_options,filesystem,test \
             --prefix=/opt/boost138
 make install
 
