@@ -23,7 +23,7 @@ Then call
 
 cmake /path/to/geneva-top-dir
 
-followed by a simple "make".
+followed by a simple "make" and "make install".
 
 In order to choose a custom installation directory (instead of the default
 /usr/local), call
