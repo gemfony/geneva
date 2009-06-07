@@ -51,7 +51,6 @@ using namespace boost::unit_test;
 test_suite* init_unit_test_suite(int /* argc */, char** /* argv */) {
    // Intentionally in the first position so we can do tests of GRandomFactory before the first call to it
    framework::master_test_suite().add(new GRandomSuite());
-
    framework::master_test_suite().add(new GAdaptorTSuite());
    framework::master_test_suite().add(new GBasePopulationSuite());
    framework::master_test_suite().add(new GBooleanCollectionSuite());
