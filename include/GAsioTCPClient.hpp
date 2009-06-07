@@ -90,6 +90,9 @@ public:
 	boost::uint32_t getMaxConnectionAttempts() const ;
 
 protected:
+	/** @brief Perform initialization work */
+	virtual bool init();
+
 	/** @brief Retrieve work items from the server. */
 	virtual bool retrieve(std::string&, std::string&);
 

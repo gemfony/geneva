@@ -70,6 +70,8 @@ const Gem::GenEvA::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::GenEvA::BINARYEXCHA
 const bool DEFAULTSORTINGSCHEME=true; // MUPLUSNU
 const boost::uint32_t DEFAULTINTERVAL=0;
 const bool DEFAULTMAXIMIZE=false;
+const bool DEFAULTPRODUCTIONPLACE=true; // local production of random numbers
+const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
 
 namespace po = boost::program_options;
 
@@ -98,6 +100,8 @@ bool parseCommandLine(int argc, char **argv,
 					  bool& sortingScheme,
 					  boost::uint32_t& interval,
 					  bool& maximize,
+					  bool& productionPlace,
+					  bool& useCommonAdaptor,
 					  bool& verbose);
 
 } /* namespace GenEvA */

@@ -70,9 +70,17 @@ void GAsioServerSession::processRequest() {
 	// Every client transmission starts with a command
 	std::string command = getSingleCommand();
 
-	// Retrieve an item from the broker and
-	// submit it to the client.
-	if (command == "ready") {
+	if(command == "getSeed") {
+		boost::uint32_t seed = Gem::Util::GRandomFactory::GSeed();
+
+#ifdef DEBUG
+		std::cout << "Sending seed " << seed << std::endl;
+#endif
+
+		this->sendSingleCommand(boost::lexical_cast<std::string>(seed));
+	}
+	else if (command == "ready") {
+		// Retrieve an item from the broker and submit it to the client.
 		try{
 			boost::shared_ptr<GIndividual> p;
 			Gem::Util::PORTIDTYPE id;
@@ -91,7 +99,7 @@ void GAsioServerSession::processRequest() {
 				std::cout << information.str();
 			}
 		}
-		catch(Gem::Util::gem_util_condition_time_out &) {
+		catch(Gem::Util::gem_util_condition_time_out &gucto) {
 			this->sendSingleCommand("timeout");
 		}
 
@@ -112,7 +120,7 @@ void GAsioServerSession::processRequest() {
 			try {
 				GINDIVIDUALBROKER->put(id, p, timeout);
 			}
-			catch(Gem::Util::gem_util_condition_time_out &){ /* nothing we can do */ }
+			catch(Gem::Util::gem_util_condition_time_out &gucto){ /* nothing we can do */ }
 		}
 		else {
 			std::ostringstream information;

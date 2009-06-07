@@ -24,6 +24,8 @@ The main changes for this release include:
  - Removed GRandom from GObject, providing individual GRandom objects only for GAdaptorT
    and GIndividualSet. This results in a greatly reduced memory consumption at very
    little expense to functionality.
+ - Made the network clients ask the server for a seed for their local random number
+   genrator, so we are sure that each client uses a different random number sequence
 
 * Version 0.5.2 "Building 38" - April 20, 2009
 

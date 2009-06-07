@@ -56,6 +56,8 @@ bool parseCommandLine(int argc, char **argv,
 					  bool&sortingScheme,
 					  boost::uint32_t& interval,
 					  bool& maximize,
+					  bool& productionPlace,
+					  bool& useCommonAdaptor,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -110,6 +112,10 @@ bool parseCommandLine(int argc, char **argv,
 					"The generation interval in which result files should be printed")
 			("maximize,A", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
 					"Specifies whether the program should minimize (0) or maximize (1) evaluation function")
+			("productionPlace,D", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
+		    		"Whether production of random numbers in individuals should happen locally (0) or in the random number factory (1)")
+		    ("useCommonAdaptor,u", po::value<bool>(&useCommonAdaptor)->default_value(DEFAULTUSECOMMONADAPTOR),
+		    		"Specifies whether a common adaptor should be used for all GParameterT objects")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -174,6 +180,8 @@ bool parseCommandLine(int argc, char **argv,
 					  << "sortingScheme = " << (sortingScheme?"MUPLUSNU":"MUCOMMANU") << std::endl
 					  << "interval = " << interval << std::endl
 					  << "maximize = " << maximize << std::endl
+					  << "productionPlace = " << (productionPlace?"factory":"local") << std::endl
+					  << "useCommonAdaptor = " << (useCommonAdaptor?"joint adaptor":"individual adaptor") << std::endl
 					  << std::endl;
 		}
 	}

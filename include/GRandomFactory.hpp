@@ -140,7 +140,7 @@ public:
 	std::size_t getBufferSize() const;
 
 	/** @brief Setting of an initial seed for random number generators */
-	void setSeed(const boost::uint32_t&) const;
+	bool setSeed(const boost::uint32_t&) const;
 	/** @brief Retrieval of the current value of the global seed */
 	boost::uint32_t getSeed() const;
 	/** @brief Checks whether the global seed has already been initialized */
@@ -156,7 +156,7 @@ private:
 	const GRandomFactory& operator=(const GRandomFactory&);  ///< Intentionally left undefined
 
 	/** @brief Setting of an initial seed for random numbers. Will be incremented for each instantiation */
-	static void setSeed_(const boost::uint32_t&);
+	static bool setSeed_(const boost::uint32_t&);
 	/** @brief Setting of an initial seed for random numbers, as taken from /dev/urandom */
 	static bool setSeedURandom_();
 	/** @brief Retrieval of the current value of the global seed */

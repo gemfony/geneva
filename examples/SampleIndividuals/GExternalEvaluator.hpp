@@ -189,7 +189,7 @@ public:
 		boost::shared_ptr<GBoundedInt32Collection> gbic_ptr(new GBoundedInt32Collection());
 		this->push_back(gbic_ptr);
 
-		// GBooleanCollection in special in that it directly contains adaptors
+		// GBooleanCollection is special in that it directly contains adaptors
 		boost::shared_ptr<GBooleanCollection> gbc_ptr(new GBooleanCollection());
         if(gbool_ad_ptr) {
         	gbc_ptr->addAdaptor(gbool_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<bool> >());

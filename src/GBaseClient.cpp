@@ -54,25 +54,29 @@ GBaseClient::~GBaseClient()
  */
 void GBaseClient::run(){
 	try{
-		while(!this->halt() && this->process()){;}
+		if(this->init()) {
+			while(!this->halt() && this->process()){;}
+		}
+		else {
+			std::cerr << "In GBaseClient::run(): Initialization failed. Leaving ..." << std::endl;
+			std::terminate();
+		}
+
+		if(!this->finally()) {
+			std::cerr << "In GBaseClient::run(): Finalization failed." << std::endl;
+		}
 	}
 	catch(std::exception& e){
-		std::ostringstream error;
-		error << "In GBaseClient::run(): Caught std::exception with message" << std::endl
-		      << e.what() << std::endl;
-		std::cerr << error.str();
+		std::cerr << "In GBaseClient::run(): Caught std::exception with message" << std::endl
+			      << e.what();
 		std::terminate();
 	}
 	catch(boost::exception& e){
-		std::ostringstream error;
-		error << "In GBaseClient::run(): Caught boost::exception" << std::endl;
-		std::cerr << error.str();
+		std::cerr << "In GBaseClient::run(): Caught boost::exception" << std::endl;
 		std::terminate();
 	}
 	catch(...){
-		std::ostringstream error;
-		error << "In GBaseClient::run(): Caught unknown exception" << std::endl;
-		std::cerr << error.str();
+		std::cerr << "In GBaseClient::run(): Caught unknown exception" << std::endl;
 		std::terminate();
 	}
 }

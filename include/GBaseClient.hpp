@@ -57,6 +57,7 @@
 #include "GIndividual.hpp"
 #include "GSerializationHelperFunctions.hpp"
 #include "GEnums.hpp"
+#include "GRandom.hpp"
 
 namespace Gem
 {
@@ -100,14 +101,14 @@ public:
 	/** @brief Retrieves the maximum allowed processing time */
 	boost::posix_time::time_duration getMaxTime();
 
-	/** @brief Initializes the networking implementation */
-	virtual void init(){}; // To be called from derived classes' constructor
-	/** @brief Shuts down the network implementation */
-	virtual void finally(){}; // To be called from derived classes' destructor
-
 protected:
 	/** @brief One-time data retrieval, processing and result submission */
 	bool process();
+
+	/** @brief Performs initialization work */
+	virtual bool init() { return true; }
+	/** @brief Perform necessary finalization activities */
+	virtual bool finally() { return true; }
 
 	/** @brief Retrieve work items from the server. To be defined by derived classes. */
 	virtual bool retrieve(std::string&, std::string&) = 0;

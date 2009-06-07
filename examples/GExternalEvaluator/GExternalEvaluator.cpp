@@ -74,7 +74,7 @@ public:
 	 * @param nGenInfo The number of generations after which a result file should be emitted (0 if none is desired)
 	 */
 	optimizationMonitor(const boost::uint16_t nGenInfo)
-		:nGenInfo_(nGenInfo)
+	:nGenInfo_(nGenInfo)
 	{ /* nothing */  }
 
 	/*********************************************************************************************/
@@ -122,54 +122,58 @@ private:
  */
 int main(int argc, char **argv){
 	// Variables for the command line parsing
-	 std::string program;
-	 std::string externalArguments;
-	 std::size_t populationSize, nParents;
-	 boost::uint16_t nProducerThreads;
-	 boost::uint16_t nProcessingThreads;
-	 boost::uint32_t maxGenerations, reportGeneration;
-	 boost::uint32_t adaptionThreshold;
-	 long maxMinutes;
-	 boost::uint16_t parallelizationMode;
-	 bool serverMode;
-	 std::string ip;
-	 unsigned short port=10000;
-	 bool verbose;
-	 recoScheme rScheme;
-	 double sigma,sigmaSigma,minSigma,maxSigma;
-	 boost::uint32_t nEvaluations;
-	 Gem::GenEvA::dataExchangeMode exchangeMode;
-	 bool sortingScheme;
-	 boost::uint32_t interval;
-	 bool maximize;
+	std::string program;
+	std::string externalArguments;
+	std::size_t populationSize, nParents;
+	boost::uint16_t nProducerThreads;
+	boost::uint16_t nProcessingThreads;
+	boost::uint32_t maxGenerations, reportGeneration;
+	boost::uint32_t adaptionThreshold;
+	long maxMinutes;
+	boost::uint16_t parallelizationMode;
+	bool serverMode;
+	std::string ip;
+	unsigned short port=10000;
+	bool verbose;
+	recoScheme rScheme;
+	double sigma,sigmaSigma,minSigma,maxSigma;
+	boost::uint32_t nEvaluations;
+	Gem::GenEvA::dataExchangeMode exchangeMode;
+	bool sortingScheme;
+	boost::uint32_t interval;
+	bool maximize;
+    bool productionPlace;
+    bool useCommonAdaptor;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
-				         program,
-				         externalArguments,
-				         populationSize,
-				         nParents,
-						 adaptionThreshold,
-						 nProducerThreads,
-						 nProcessingThreads,
-						 maxGenerations,
-						 maxMinutes,
-						 reportGeneration,
-						 rScheme,
-						 parallelizationMode,
-						 serverMode,
-						 ip,
-						 port,
-						 sigma,
-						 sigmaSigma,
-						 minSigma,
-						 maxSigma,
-						 nEvaluations,
-						 exchangeMode,
-						 sortingScheme,
-						 interval,
-						 maximize,
-						 verbose))
+			program,
+			externalArguments,
+			populationSize,
+			nParents,
+			adaptionThreshold,
+			nProducerThreads,
+			nProcessingThreads,
+			maxGenerations,
+			maxMinutes,
+			reportGeneration,
+			rScheme,
+			parallelizationMode,
+			serverMode,
+			ip,
+			port,
+			sigma,
+			sigmaSigma,
+			minSigma,
+			maxSigma,
+			nEvaluations,
+			exchangeMode,
+			sortingScheme,
+			interval,
+			maximize,
+			productionPlace,
+			useCommonAdaptor, // TODO: not yet integrated into individual
+			verbose))
 	{ exit(1); }
 
 	// Random numbers are our most valuable good. Set the number of threads
@@ -182,93 +186,211 @@ int main(int argc, char **argv){
 	// Tell the evaluation program to do any initial work
 	GExternalEvaluator::initialize(program, externalArguments);
 
-	// Create a number of adaptors to be used in the individual
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
-	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-	boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
-	gifa_ptr->setAdaptionThreshold(adaptionThreshold);
-	boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor());
-	gba_ptr->setAdaptionThreshold(adaptionThreshold);
-	boost::shared_ptr<GCharFlipAdaptor> gcfa_ptr(new GCharFlipAdaptor());
-	gcfa_ptr->setAdaptionThreshold(adaptionThreshold);
-
-	// Create an initial individual (it will get the necessary information
-	// from the external executable)
-	boost::shared_ptr<GExternalEvaluator> gev_ptr(
-			new GExternalEvaluator(
-					program,
-					externalArguments,
-					false,  // random initialization of template data
-					exchangeMode,
-					gdga_ptr,
-					gifa_ptr,
-					gba_ptr,
-					gcfa_ptr
-			)
-	);
-
-	// Make each external program evaluate a number of data sets, if nEvaluations > 1
-	gev_ptr->setNEvaluations(nEvaluations);
-
-	// Make sure we perform minimizations
-	gev_ptr->setMaximize(false);
-
 	// Set up the populations, as requested
 	if(parallelizationMode==0) { // serial execution
-	  // Now we've got our first individual and can create a simple population with serial execution.
-	  GBasePopulation pop_ser;
+		// Create a number of adaptors to be used in the individual
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
+		boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+		boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor());
+		boost::shared_ptr<GCharFlipAdaptor> gcfa_ptr(new GCharFlipAdaptor());
 
-	  // Attach all individuals to the population
-	  pop_ser.push_back(gev_ptr);
+		// Set the adaption threshold
+		gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+		gifa_ptr->setAdaptionThreshold(adaptionThreshold);
+		gba_ptr->setAdaptionThreshold(adaptionThreshold);
+		gcfa_ptr->setAdaptionThreshold(adaptionThreshold);
 
-	  // Specify some population settings
-	  pop_ser.setPopulationSize(populationSize,nParents);
-	  pop_ser.setMaxGeneration(maxGenerations);
-	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
-	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
-	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-	  pop_ser.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
-	  pop_ser.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
+		// Check whether random numbers should be produced locally or in the factory
+		if(productionPlace) { // Factory means "true"
+			gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+			gifa_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+			gba_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+			gcfa_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+		}
+		else {
+			gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+			gifa_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+			gba_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+			gcfa_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		}
 
-	  // Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
-	  pop_ser.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
+		// Create an initial individual (it will get the necessary information
+		// from the external executable)
+		boost::shared_ptr<GExternalEvaluator> gev_ptr(
+				new GExternalEvaluator(
+						program,
+						externalArguments,
+						false,  // random initialization of template data
+						exchangeMode,
+						gdga_ptr,
+						gifa_ptr,
+						gba_ptr,
+						gcfa_ptr
+				)
+		);
 
-	  // Do the actual optimization
-	  pop_ser.optimize();
+		// Make each external program evaluate a number of data sets, if nEvaluations > 1
+		gev_ptr->setNEvaluations(nEvaluations);
 
-	  // Retrieve best individual and make it output a result file
-	  boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_ser.getBestIndividual<GExternalEvaluator>();
-	  bestIndividual->printResult();
+		// Make sure we perform minimizations
+		gev_ptr->setMaximize(false);
+
+		// Now we've got our first individual and can create a simple population with serial execution.
+		GBasePopulation pop_ser;
+
+		// Attach all individuals to the population
+		pop_ser.push_back(gev_ptr);
+
+		// Specify some population settings
+		pop_ser.setPopulationSize(populationSize,nParents);
+		pop_ser.setMaxGeneration(maxGenerations);
+		pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
+		pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
+		pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+		pop_ser.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+		pop_ser.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
+
+		// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
+		pop_ser.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
+
+		// Specify where the population should produce random numbers
+		if(productionPlace) pop_ser.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+		else pop_ser.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
+		// Do the actual optimization
+		pop_ser.optimize();
+
+		// Retrieve best individual and make it output a result file
+		boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_ser.getBestIndividual<GExternalEvaluator>();
+		bestIndividual->printResult();
 	}
 	else if(parallelizationMode==1) { // multi-threaded execution
+		// Create a number of adaptors to be used in the individual
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
+		boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+		boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor());
+		boost::shared_ptr<GCharFlipAdaptor> gcfa_ptr(new GCharFlipAdaptor());
+
+		// Set the adaption threshold
+		gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+		gifa_ptr->setAdaptionThreshold(adaptionThreshold);
+		gba_ptr->setAdaptionThreshold(adaptionThreshold);
+		gcfa_ptr->setAdaptionThreshold(adaptionThreshold);
+
+		// Check whether random numbers should be produced locally or in the factory
+		if(productionPlace) { // Factory means "true"
+			gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+			gifa_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+			gba_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+			gcfa_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+		}
+		else {
+			gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+			gifa_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+			gba_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+			gcfa_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		}
+
+		// Create an initial individual (it will get the necessary information
+		// from the external executable)
+		boost::shared_ptr<GExternalEvaluator> gev_ptr(
+				new GExternalEvaluator(
+						program,
+						externalArguments,
+						false,  // random initialization of template data
+						exchangeMode,
+						gdga_ptr,
+						gifa_ptr,
+						gba_ptr,
+						gcfa_ptr
+				)
+		);
+
+		// Make each external program evaluate a number of data sets, if nEvaluations > 1
+		gev_ptr->setNEvaluations(nEvaluations);
+
+		// Make sure we perform minimizations
+		gev_ptr->setMaximize(false);
+
 		// Now we can create a simple population with parallel execution.
-	  GBoostThreadPopulation pop_par;
-	  pop_par.setNThreads(nProcessingThreads);
+		GBoostThreadPopulation pop_par;
+		pop_par.setNThreads(nProcessingThreads);
 
-	  // Attach the individual to the population
-	  pop_par.push_back(gev_ptr);
+		// Attach the individual to the population
+		pop_par.push_back(gev_ptr);
 
-	  // Specify some population settings
-	  pop_par.setPopulationSize(populationSize,nParents);
-	  pop_par.setMaxGeneration(maxGenerations);
-	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
-	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
-	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-	  pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
-	  pop_par.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
+		// Specify some population settings
+		pop_par.setPopulationSize(populationSize,nParents);
+		pop_par.setMaxGeneration(maxGenerations);
+		pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
+		pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
+		pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
+		pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+		pop_par.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
 
-	  // Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
-	  pop_par.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
+		// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
+		pop_par.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
 
-	  // Do the actual optimization
-	  pop_par.optimize();
+		// Specify where the population should produce random numbers
+		if(productionPlace) pop_par.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+		else pop_par.setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
-	  // Retrieve best individual and make it output a result file
-	  boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_par.getBestIndividual<GExternalEvaluator>();
-	  bestIndividual->printResult();
+		// Do the actual optimization
+		pop_par.optimize();
+
+		// Retrieve best individual and make it output a result file
+		boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_par.getBestIndividual<GExternalEvaluator>();
+		bestIndividual->printResult();
 	}
 	else if(parallelizationMode==2) { // execution in networked mode
 		if(serverMode) {
+			// Create a number of adaptors to be used in the individual
+			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
+			boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+			boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor());
+			boost::shared_ptr<GCharFlipAdaptor> gcfa_ptr(new GCharFlipAdaptor());
+
+			// Set the adaption threshold
+			gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+			gifa_ptr->setAdaptionThreshold(adaptionThreshold);
+			gba_ptr->setAdaptionThreshold(adaptionThreshold);
+			gcfa_ptr->setAdaptionThreshold(adaptionThreshold);
+
+			// Check whether random numbers should be produced locally or in the factory
+			if(productionPlace) { // Factory means "true"
+				gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+				gifa_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+				gba_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+				gcfa_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+			}
+			else {
+				gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+				gifa_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+				gba_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+				gcfa_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+			}
+
+			// Create an initial individual (it will get the necessary information
+			// from the external executable)
+			boost::shared_ptr<GExternalEvaluator> gev_ptr(
+					new GExternalEvaluator(
+							program,
+							externalArguments,
+							false,  // random initialization of template data
+							exchangeMode,
+							gdga_ptr,
+							gifa_ptr,
+							gba_ptr,
+							gcfa_ptr
+					)
+			);
+
+			// Make each external program evaluate a number of data sets, if nEvaluations > 1
+			gev_ptr->setNEvaluations(nEvaluations);
+
+			// Make sure we perform minimizations
+			gev_ptr->setMaximize(false);
+
 			// Create a consumer and enrol it with the broker
 			boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
 			// gatc->setSerializationMode(BINARYSERIALIZATION);
@@ -292,17 +414,21 @@ int main(int argc, char **argv){
 			// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
 			pop_broker.registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
 
+			// Specify where the population should produce random numbers
+			if(productionPlace) pop_broker.setRnrGenerationMode(Gem::Util::RNRFACTORY);
+			else pop_broker.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+
 			// Do the actual optimization
 			pop_broker.optimize();
 
-		    // Retrieve best individual and make it output a result file
-		    boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_broker.getBestIndividual<GExternalEvaluator>();
-		    bestIndividual->printResult();
+			// Retrieve best individual and make it output a result file
+			boost::shared_ptr<GExternalEvaluator> bestIndividual = pop_broker.getBestIndividual<GExternalEvaluator>();
+			bestIndividual->printResult();
 		}
 		else { // Client mode
 			// Just start the client with the required parameters
-		    GAsioTCPClient gasiotcpclient(ip,boost::lexical_cast<std::string>(port));
-		    gasiotcpclient.run();
+			GAsioTCPClient gasiotcpclient(ip,boost::lexical_cast<std::string>(port));
+			gasiotcpclient.run();
 		}
 	}
 

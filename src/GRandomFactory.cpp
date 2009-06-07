@@ -135,14 +135,17 @@ std::size_t GRandomFactory::getBufferSize() const {
 /**
  * Provides users with an interface to setting the global seed variable.
  * Note that this function will have no effect once a seed has been set.
- * If not set by the user, GSeed will set the value upon first invocation.
+ * A boolean will be returned that indicated whether the function has had
+ * an effect, i.e. whether the seed could be set. If not set by the user,
+ * GSeed will set the value upon first invocation.
  *
  * @param seed The desired initial value of the global seed
+ * @return A boolean indicating whether the seed could be set
  */
-void GRandomFactory::setSeed(const boost::uint32_t& seed) const {
+bool GRandomFactory::setSeed(const boost::uint32_t& seed) const {
 	// Make sure we have sole access to global variables
 	boost::mutex::scoped_lock lk(global_seed_mutex_);
-	GRandomFactory::setSeed_(seed); // Static, private member function
+	return GRandomFactory::setSeed_(seed); // Static, private member function
 }
 
 /*************************************************************************/
@@ -175,19 +178,21 @@ bool GRandomFactory::checkSeedIsInitialized() const {
  *
  * @param seed The initial value of the global seed
  */
-void GRandomFactory::setSeed_(const boost::uint32_t& seed) {
-	if(seedInitialized) return; // Do nothing after the first invocation
+bool GRandomFactory::setSeed_(const boost::uint32_t& seed) {
+	if(seedInitialized) return false; // Do nothing after the first invocation
 	globalSeed = seed; // Set the seed as requested;
 	seedInitialized=true; // Let the audience know
+	return true;
 }
 
 /*************************************************************************/
 /**
  * A static, private member function that allows to set the global
  * seed once, using a random number taken from /dev/urandom.
- * After the first invocation there will be no further effect.
+ * After the first invocation there will be no further effect. Note the different
+ * meaning of the return value, compared to setSeed_() .
  *
- * @return A boolean indicating whether retrieval was succesful
+ * @return A boolean indicating whether retrieval was successful
  */
 bool GRandomFactory::setSeedURandom_() {
 	if(seedInitialized) return true; // Do nothing after the first invocation
@@ -292,8 +297,9 @@ boost::uint32_t GRandomFactory::GSeed(){
 		if(!setSeedURandom_())	GRandomFactory::setSeed_(DEFAULTSEED);
 	}
 
+	// roll the global seed over once it has reached the upper limit
 	if(globalSeed >= std::numeric_limits<boost::uint32_t>::max() - (GLOBALSEEDINCREMENT+1)) globalSeed = DEFAULTSEED;
-	else (globalSeed+=GLOBALSEEDINCREMENT); // "7" chosen randomly -- no special meaning
+	else (globalSeed+=GLOBALSEEDINCREMENT);
 
 	return globalSeed;
 }
