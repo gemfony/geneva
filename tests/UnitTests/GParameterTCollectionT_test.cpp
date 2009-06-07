@@ -68,12 +68,10 @@ using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
 
-/***********************************************************************************/
-// This test suite checks as much as possible of the functionality provided
-// by the GParameterT class. Tests include features of the parent class
-// GParameterBaseWithAdaptorsT, as it cannot be instantiated itself.
-BOOST_AUTO_TEST_SUITE(GParameterTCollectionTSuite)
+using boost::unit_test_framework::test_suite;
+using boost::unit_test_framework::test_case;
 
+/***********************************************************************************/
 // This template allows to create default entries for the collection
 // This template allows to create items different of the default item.
 // Note that these will not have an adaptor assigned to them and
@@ -237,13 +235,11 @@ boost::shared_ptr<GChar> getFindItem<GChar>() {
 	return gchar_ptr;
 }
 
-/***********************************************************************************/
+/********************************************************************************************/
+// The actual unit tests for this class
+
 // Test features that are expected to work
-
-// typedef boost::mpl::list<GDouble, GBoundedDouble, GChar, GInt32, GBoolean> test_types;
-typedef boost::mpl::list<GDouble, GChar, GInt32, GBoolean, GBoundedDouble, GBoundedInt32> test_types;
-
-BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, T, test_types )
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T )
 {
 	GRandom gr;
 
@@ -344,7 +340,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, T, te
 
 /***********************************************************************************/
 // Test features that are expected to fail. Test with one derived class only.
-BOOST_AUTO_TEST_CASE_TEMPLATE( GParmeterTCollectionT_failures_expected, T, test_types)
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_failures_expected, T )
 {
 	GRandom gr;
 
@@ -357,6 +353,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParmeterTCollectionT_failures_expected, T, test_
 #endif /* DEBUG */
 	}
 }
-/***********************************************************************************/
 
-BOOST_AUTO_TEST_SUITE_END()
+/***********************************************************************************/
+// This test suite checks as much as possible of the functionality provided
+// by the GParameterT class. Tests include features of the parent class
+// GParameterBaseWithAdaptorsT, as it cannot be instantiated itself.
+class GParameterTCollectionTSuite: public test_suite
+{
+public:
+	/***********************************************************************************/
+	GParameterTCollectionTSuite() :test_suite("GParameterTCollectionTSuite") {
+		// typedef boost::mpl::list<GDouble, GBoundedDouble, GChar, GInt32, GBoolean> test_types;
+		typedef boost::mpl::list<GDouble, GChar, GInt32, GBoolean, GBoundedDouble, GBoundedInt32> test_types;
+
+		add( BOOST_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, test_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( GParameterTCollectionT_failures_expected, test_types ) );
+	}
+};

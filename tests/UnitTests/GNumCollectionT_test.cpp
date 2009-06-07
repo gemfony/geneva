@@ -47,16 +47,12 @@ using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
 
-/***********************************************************************************/
-// This test suite checks as much as possible of the functionality provided
-// by the GNumCollectionT class
-BOOST_AUTO_TEST_SUITE(GNumCollectionTSuite)
-
-typedef boost::mpl::list<boost::int32_t, double> test_types;
+using boost::unit_test_framework::test_suite;
+using boost::unit_test_framework::test_case;
 
 /***********************************************************************************/
 // Test features that are expected to work
-BOOST_AUTO_TEST_CASE_TEMPLATE( GNumCollectionT_no_failure_expected, T, test_types )
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 {
 	GRandom gr;
 
@@ -174,7 +170,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GNumCollectionT_no_failure_expected, T, test_type
 
 /***********************************************************************************/
 // Test features that are expected to fail
-BOOST_AUTO_TEST_CASE_TEMPLATE( GNumCollectionT_failures_expected, T, test_types)
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_failures_expected, T)
 {
 	GRandom gr;
 
@@ -188,4 +184,16 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GNumCollectionT_failures_expected, T, test_types)
 }
 /***********************************************************************************/
 
-BOOST_AUTO_TEST_SUITE_END()
+/***********************************************************************************/
+// This test suite checks as much as possible of the functionality provided
+// by the GNumCollectionT class
+class GNumCollectionTSuite: public test_suite
+{
+public:
+	GNumCollectionTSuite() :test_suite("GNumCollectionTSuite") {
+		typedef boost::mpl::list<boost::int32_t, double> test_types;
+
+		add( BOOST_TEST_CASE_TEMPLATE( GNumCollectionT_no_failure_expected, test_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( GNumCollectionT_failures_expected, test_types ) );
+	}
+};

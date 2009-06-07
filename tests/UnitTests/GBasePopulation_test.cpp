@@ -40,26 +40,46 @@ using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
 
-/***********************************************************************************/
+using boost::unit_test_framework::test_suite;
+using boost::unit_test_framework::test_case;
+
+/********************************************************************************************/
+// The actual unit tests for this class
+class GBasePopulation_test {
+public:
+	/***********************************************************************************/
+	// Test features that are expected to work
+	void no_failure_expected() {
+		/* empty */
+	}
+
+	/***********************************************************************************/
+	// Test features that are expected to fail
+	void failures_expected() {
+		/* empty */
+	}
+
+	/***********************************************************************************/
+private:
+	GRandom gr;
+};
+
+/********************************************************************************************/
 // This test suite checks as much as possible of the functionality provided
 // by the GBasePopulation class.
-BOOST_AUTO_TEST_SUITE(GBasePopulation)
-
-/***********************************************************************************/
-// Test features that are expected to work
-BOOST_AUTO_TEST_CASE( GBasePopulation_no_failure_expected )
+class GBasePopulationSuite: public test_suite
 {
-	GRandom gr;
+public:
+	GBasePopulationSuite() :test_suite("GBasePopulationSuite") {
+	  // create an instance of the test cases class
+	  boost::shared_ptr<GBasePopulation_test> instance(new GBasePopulation_test());
 
-}
+	  test_case* GBasePopulation_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GBasePopulation_test::no_failure_expected, instance);
+	  test_case* GBasePopulation_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GBasePopulation_test::failures_expected, instance);
 
-/***********************************************************************************/
-// Test features that are expected to fail
-BOOST_AUTO_TEST_CASE( GBasePopulation_failures_expected )
-{
-	GRandom gr;
+	  add(GBasePopulation_no_failure_expected_test_case);
+	  add(GBasePopulation_failures_expected_test_case);
+	}
+};
 
-}
-/***********************************************************************************/
-
-BOOST_AUTO_TEST_SUITE_END()
+/********************************************************************************************/

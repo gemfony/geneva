@@ -45,19 +45,12 @@ using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
 
-/***********************************************************************************/
-// This test suite checks as much as possible of the functionality provided
-// by the GIntFlipAdaptorT class. The template is instantiated for all types
-// defined in the above mpl::list . Note that a lot of functionality of this class has
-// already been covered as GBooleanAdaptor has been used as a vehicle to
-// test GObject and GAdaotorT.
-BOOST_AUTO_TEST_SUITE(GIntFlipAdaptorTSuite)
-
-typedef boost::mpl::list<boost::int32_t, bool,  char> test_types;
+using boost::unit_test_framework::test_suite;
+using boost::unit_test_framework::test_case;
 
 /***********************************************************************************/
 // Test features that are expected to work
-BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_types )
+BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 {
 	GRandom gr;
 
@@ -66,8 +59,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 
 	// An id should have been set automatically
 	BOOST_CHECK(gifat0.getAdaptorId() == Gem::GenEvA::GBOOLEANADAPTOR ||
-				gifat0.getAdaptorId() == Gem::GenEvA::GINT32FLIPADAPTOR ||
-				gifat0.getAdaptorId() == Gem::GenEvA::GCHARFLIPADAPTOR);
+			gifat0.getAdaptorId() == Gem::GenEvA::GINT32FLIPADAPTOR ||
+			gifat0.getAdaptorId() == Gem::GenEvA::GCHARFLIPADAPTOR);
 
 	// Test instantiation with a probability mutation
 	GIntFlipAdaptorT<T> gifat1(0.2);
@@ -142,7 +135,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, T, test_typ
 
 /***********************************************************************************/
 // Test features that are expected to fail
-BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_failures_expected, T, test_types )
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GIntFlipAdaptorT_failures_expected, T)
 {
 	GRandom gr;
 
@@ -168,6 +161,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_failures_expected, T, test_types
 #endif /* DEBUG */
 	}
 }
-/***********************************************************************************/
 
-BOOST_AUTO_TEST_SUITE_END()
+/***********************************************************************************/
+// This test suite checks as much as possible of the functionality provided
+// by the GIntFlipAdaptorT class. The template is instantiated for all types
+// defined in the above mpl::list . Note that a lot of functionality of this class has
+// already been covered as GBooleanAdaptor has been used as a vehicle to
+// test GObject and GAdaotorT.
+class GIntFlipAdaptorTSuite: public test_suite
+{
+public:
+	GIntFlipAdaptorTSuite() :test_suite("GIntFlipAdaptorTSuite") {
+		typedef boost::mpl::list<boost::int32_t, bool,  char> test_types;
+
+		add( BOOST_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, test_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_failures_expected, test_types ) );
+	}
+};

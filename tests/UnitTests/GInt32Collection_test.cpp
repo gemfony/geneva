@@ -40,26 +40,46 @@ using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
 
-/***********************************************************************************/
+using boost::unit_test_framework::test_suite;
+using boost::unit_test_framework::test_case;
+
+/********************************************************************************************/
+// The actual unit tests for this class
+class GInt32Collection_test {
+public:
+	/***********************************************************************************/
+	// Test features that are expected to work
+	void no_failure_expected() {
+		/* empty */
+	}
+
+	/***********************************************************************************/
+	// Test features that are expected to fail
+	void failures_expected() {
+		/* empty */
+	}
+
+	/***********************************************************************************/
+private:
+	GRandom gr;
+};
+
+/********************************************************************************************/
 // This test suite checks as much as possible of the functionality provided
 // by the GInt32Collection class.
-BOOST_AUTO_TEST_SUITE(GInt32Collection)
-
-/***********************************************************************************/
-// Test features that are expected to work
-BOOST_AUTO_TEST_CASE( GInt32Collection_no_failure_expected )
+class GInt32CollectionSuite: public test_suite
 {
-	GRandom gr;
+public:
+	GInt32CollectionSuite() :test_suite("GInt32CollectionSuite") {
+	  // create an instance of the test cases class
+	  boost::shared_ptr<GInt32Collection_test> instance(new GInt32Collection_test());
 
-}
+	  test_case* no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GInt32Collection_test::no_failure_expected, instance);
+	  test_case* failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GInt32Collection_test::failures_expected, instance);
 
-/***********************************************************************************/
-// Test features that are expected to fail
-BOOST_AUTO_TEST_CASE( GInt32Collection_failures_expected )
-{
-	GRandom gr;
+	  add(no_failure_expected_test_case);
+	  add(failures_expected_test_case);
+	}
+};
 
-}
-/***********************************************************************************/
-
-BOOST_AUTO_TEST_SUITE_END()
+/********************************************************************************************/

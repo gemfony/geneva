@@ -54,18 +54,12 @@ using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
 
-/***********************************************************************************/
-// This test suite checks as much as possible of the functionality provided
-// by the GParameterT class. Tests include features of the parent class
-// GParameterBaseWithAdaptorsT, as it cannot be instantiated itself.
-BOOST_AUTO_TEST_SUITE(GParameterTSuite)
+using boost::unit_test_framework::test_suite;
+using boost::unit_test_framework::test_case;
 
-typedef boost::mpl::list<bool, char, boost::int32_t, double> test_types;
-
-/***********************************************************************************/
-// Test features that are expected to work
-BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, T, test_types )
-{
+/*******************************************************************************************/
+// Test general features that are expected to work in GParameterT
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	GRandom gr;
 
 	// Test default construction
@@ -100,102 +94,96 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, T, test_types )
 
 	// Test (de-)serialization in differnet modes
 	{ // plain text format
-	   GParameterT<T> gpt4(gpt0);
-	   BOOST_CHECK(gpt4.isEqualTo(gpt0));
-	   gpt4.fromString(gpt1.toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
-	   BOOST_CHECK(!gpt4.isEqualTo(gpt0));
-	   BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
+		GParameterT<T> gpt4(gpt0);
+		BOOST_CHECK(gpt4.isEqualTo(gpt0));
+		gpt4.fromString(gpt1.toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
+		BOOST_CHECK(!gpt4.isEqualTo(gpt0));
+		BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
 	}
 	{ // XML format
-	   GParameterT<T> gpt4(gpt0);
-	   BOOST_CHECK(gpt4.isEqualTo(gpt0));
-	   gpt4.fromString(gpt1.toString(XMLSERIALIZATION), XMLSERIALIZATION);
-	   BOOST_CHECK(!gpt4.isEqualTo(gpt0));
-	   BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
+		GParameterT<T> gpt4(gpt0);
+		BOOST_CHECK(gpt4.isEqualTo(gpt0));
+		gpt4.fromString(gpt1.toString(XMLSERIALIZATION), XMLSERIALIZATION);
+		BOOST_CHECK(!gpt4.isEqualTo(gpt0));
+		BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
 	}
 	{ // binary test format
-	   GParameterT<T> gpt4(gpt0);
-	   BOOST_CHECK(gpt4 == gpt0);
-	   gpt4.fromString(gpt1.toString(BINARYSERIALIZATION), BINARYSERIALIZATION);
-	   BOOST_CHECK(gpt4 != gpt0);
-	   BOOST_CHECK(gpt4 == gpt1);
+		GParameterT<T> gpt4(gpt0);
+		BOOST_CHECK(gpt4 == gpt0);
+		gpt4.fromString(gpt1.toString(BINARYSERIALIZATION), BINARYSERIALIZATION);
+		BOOST_CHECK(gpt4 != gpt0);
+		BOOST_CHECK(gpt4 == gpt1);
 	}
 }
 
-/***********************************************************************************/
-// Test features that are expected to work - bool case
-BOOST_AUTO_TEST_CASE( GParameterT_bool_no_failure_expected)
-{
-	GRandom gr;
-
-	// Default construction
-	GBoolean gpt0;
-
-	// Adding a single adaptor
-	BOOST_CHECK(!gpt0.hasAdaptor());
-	BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor())));
-	BOOST_CHECK(gpt0.hasAdaptor());
-
-	// Retrieve the adaptor again, as a GAdaptorT
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<bool> > gadb0_ptr = gpt0.getAdaptor());
-
-	// Retrieve the adaptor in its original form
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_ptr = gpt0.adaptor_cast<GBooleanAdaptor>());
-
-	// Check mutations
-	const std::size_t NMUTATIONS=10000;
-	std::vector<bool> mutvals(NMUTATIONS);
-	bool originalValue = gpt0.value();
-	for(std::size_t i=0; i<NMUTATIONS; i++) {
-		BOOST_CHECK_NO_THROW(gpt0.mutate());
-		mutvals[i] = gpt0.value();
-	}
-
-	// Check that values do not stay the same for a larger number of mutations
-	std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
-	BOOST_CHECK(nOriginalValues < NMUTATIONS);
-}
-
-/***********************************************************************************/
-// Test features that are expected to work - char case
-BOOST_AUTO_TEST_CASE( GParameterT_char_no_failure_expected)
-{
-	GRandom gr;
-
-	// Default construction
-	GChar gpt0;
-
-	// Adding a single adaptor
-	BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor())));
-
-	// Retrieve the adaptor again, as a GAdaptorT
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<char> > gadb0_ptr = gpt0.getAdaptor());
-
-	// Retrieve the adaptor in its original form
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GCharFlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GCharFlipAdaptor>());
-
-	// Check mutations
-	const std::size_t NMUTATIONS=10000;
-	std::vector<char> mutvals(NMUTATIONS);
-	char originalValue = gpt0.value();
-	for(std::size_t i=0; i<NMUTATIONS; i++) {
-		BOOST_CHECK_NO_THROW(gpt0.mutate());
-		mutvals[i] = gpt0.value();
-	}
-
-	// Check that values do not stay the same for a larger number of mutations
-	std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
-	BOOST_CHECK(nOriginalValues < NMUTATIONS);
-}
-
-/***********************************************************************************/
-// Test features that are expected to work - boost::int32 case
-BOOST_AUTO_TEST_CASE( GParameterT_int32_no_failure_expected)
-{
-	GRandom gr;
-
-	{   // First try with just one adaptor
+/********************************************************************************************/
+// Test features for some particular types that cannot be implemented with a single code base
+// The actual unit tests for this class
+class GParameterT_test {
+public:
+	/***********************************************************************************/
+	// Test features that are expected to work: boolean case
+	void bool_no_failure_expected() {
 		// Default construction
+		GBoolean gpt0;
+
+		// Adding a single adaptor
+		BOOST_CHECK(!gpt0.hasAdaptor());
+		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor())));
+		BOOST_CHECK(gpt0.hasAdaptor());
+
+		// Retrieve the adaptor again, as a GAdaptorT
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<bool> > gadb0_ptr = gpt0.getAdaptor());
+
+		// Retrieve the adaptor in its original form
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_ptr = gpt0.adaptor_cast<GBooleanAdaptor>());
+
+		// Check mutations
+		const std::size_t NMUTATIONS=10000;
+		std::vector<bool> mutvals(NMUTATIONS);
+		bool originalValue = gpt0.value();
+		for(std::size_t i=0; i<NMUTATIONS; i++) {
+			BOOST_CHECK_NO_THROW(gpt0.mutate());
+			mutvals[i] = gpt0.value();
+		}
+
+		// Check that values do not stay the same for a larger number of mutations
+		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
+		BOOST_CHECK(nOriginalValues < NMUTATIONS);
+	}
+
+	/***********************************************************************************/
+	// Test features that are expected to work: char case
+	void char_no_failure_expected() {
+		// Default construction
+		GChar gpt0;
+
+		// Adding a single adaptor
+		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor())));
+
+		// Retrieve the adaptor again, as a GAdaptorT
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<char> > gadb0_ptr = gpt0.getAdaptor());
+
+		// Retrieve the adaptor in its original form
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GCharFlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GCharFlipAdaptor>());
+
+		// Check mutations
+		const std::size_t NMUTATIONS=10000;
+		std::vector<char> mutvals(NMUTATIONS);
+		char originalValue = gpt0.value();
+		for(std::size_t i=0; i<NMUTATIONS; i++) {
+			BOOST_CHECK_NO_THROW(gpt0.mutate());
+			mutvals[i] = gpt0.value();
+		}
+
+		// Check that values do not stay the same for a larger number of mutations
+		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
+		BOOST_CHECK(nOriginalValues < NMUTATIONS);
+	}
+
+	/***********************************************************************************/
+	// Test features that are expected to work: boost::int32_t case
+	void int32_no_failure_expected() {
 		GInt32 gpt0;
 
 		// Adding a single adaptor
@@ -220,70 +208,96 @@ BOOST_AUTO_TEST_CASE( GParameterT_int32_no_failure_expected)
 		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
 		BOOST_CHECK(nOriginalValues < NMUTATIONS);
 	}
-}
 
-/***********************************************************************************/
-// Test features that are expected to work - double case
-BOOST_AUTO_TEST_CASE( GParameterT_double_no_failure_expected)
-{
-	GRandom gr;
+	/***********************************************************************************/
+	// Test features that are expected to work: double case
+	void double_no_failure_expected() {
+		GDouble gpt0;
 
-	GDouble gpt0;
+		// Adding a single adaptor
+		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor())));
 
-	// Adding a single adaptor
-	BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor())));
+		// Retrieve the adaptor again, as a GAdaptorT
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<double> > gadb0_ptr = gpt0.getAdaptor());
 
-	// Retrieve the adaptor again, as a GAdaptorT
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<double> > gadb0_ptr = gpt0.getAdaptor());
+		// Retrieve the adaptor in its original form
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GDoubleGaussAdaptor> gpt0_ptr = gpt0.adaptor_cast<GDoubleGaussAdaptor>());
 
-	// Retrieve the adaptor in its original form
-	BOOST_CHECK_NO_THROW(boost::shared_ptr<GDoubleGaussAdaptor> gpt0_ptr = gpt0.adaptor_cast<GDoubleGaussAdaptor>());
+		// Check mutations
+		const std::size_t NMUTATIONS=10000;
+		std::vector<double> mutvals(NMUTATIONS);
+		double originalValue = gpt0.value();
+		for(std::size_t i=0; i<NMUTATIONS; i++) {
+			BOOST_CHECK_NO_THROW(gpt0.mutate());
+			mutvals[i] = gpt0.value();
+		}
 
-	// Check mutations
-	const std::size_t NMUTATIONS=10000;
-	std::vector<double> mutvals(NMUTATIONS);
-	double originalValue = gpt0.value();
-	for(std::size_t i=0; i<NMUTATIONS; i++) {
-		BOOST_CHECK_NO_THROW(gpt0.mutate());
-		mutvals[i] = gpt0.value();
+		// Check that values do not stay the same for a larger number of mutations
+		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
+		BOOST_CHECK(nOriginalValues < NMUTATIONS);
 	}
 
-	// Check that values do not stay the same for a larger number of mutations
-	std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
-	BOOST_CHECK(nOriginalValues < NMUTATIONS);
-}
-
-/***********************************************************************************/
-// Test features that are expected to fail
-BOOST_AUTO_TEST_CASE( GParmeterT_failures_expected)
-{
-	GRandom gr;
-
-	{
-		// Default construction
-		GInt32 gpt0;
-		// Adding an empty adaptor should throw
-		BOOST_CHECK_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>()), Gem::GenEvA::geneva_error_condition);
-	}
+	/***********************************************************************************/
+	// Test features that are expected to fail
+	void failures_expected() {
+		{
+			// Default construction
+			GInt32 gpt0;
+			// Adding an empty adaptor should throw
+			BOOST_CHECK_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>()), Gem::GenEvA::geneva_error_condition);
+		}
 
 #ifdef DEBUG
-	{
-		// Default construction
-		GInt32 gpt0;
-		// Extracting an adaptor of wrong type should throw in DEBUG mode
-		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
-		BOOST_CHECK_THROW(gpt0.adaptor_cast<GCharFlipAdaptor>(), Gem::GenEvA::geneva_error_condition);
-	}
+		{
+			// Default construction
+			GInt32 gpt0;
+			// Extracting an adaptor of wrong type should throw in DEBUG mode
+			BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
+			BOOST_CHECK_THROW(gpt0.adaptor_cast<GCharFlipAdaptor>(), Gem::GenEvA::geneva_error_condition);
+		}
 #endif /* DEBUG */
 
-	{
-		// Self assignment should throw in DEBUG mode
+		{
+			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-		GInt32 gpt0;
-		BOOST_CHECK_THROW(gpt0.load(&gpt0), Gem::GenEvA::geneva_error_condition);
+			GInt32 gpt0;
+			BOOST_CHECK_THROW(gpt0.load(&gpt0), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
+		}
 	}
-}
-/***********************************************************************************/
 
-BOOST_AUTO_TEST_SUITE_END()
+	/***********************************************************************************/
+private:
+	GRandom gr;
+};
+
+
+/********************************************************************************************/
+// This test suite checks as much as possible of the functionality provided
+// by the GParameterT class. Tests include features of the parent class
+// GParameterBaseWithAdaptorsT, as it cannot be instantiated itself.
+class GParameterTSuite: public test_suite
+{
+public:
+	GParameterTSuite() :test_suite("GParameterTSuite") {
+		typedef boost::mpl::list<bool, char, boost::int32_t, double> test_types;
+		add( BOOST_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, test_types ) );
+
+		// create an instance of the test cases class
+		boost::shared_ptr<GParameterT_test> instance(new GParameterT_test());
+
+		test_case* GParameterT_bool_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::bool_no_failure_expected, instance);
+		test_case* GParameterT_char_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::char_no_failure_expected, instance);
+		test_case* GParameterT_int32_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::int32_no_failure_expected, instance);
+		test_case* GParameterT_double_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::double_no_failure_expected, instance);
+		test_case* GParameterT_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::failures_expected, instance);
+
+		add(GParameterT_bool_no_failure_expected_test_case);
+		add(GParameterT_char_no_failure_expected_test_case);
+		add(GParameterT_int32_no_failure_expected_test_case);
+		add(GParameterT_double_no_failure_expected_test_case);
+		add(GParameterT_failures_expected_test_case);
+	}
+};
+
+/********************************************************************************************/

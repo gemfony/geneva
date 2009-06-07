@@ -57,15 +57,11 @@
 - Remove the eval_ function from GParameterSet ... . Useless in parallel environments (?)
 - Is GIndividualSet really needed ? Could all be handled from GBasePopulation ? But no: can serve as the base class for a GSwarm 
   or a GGradientDescent
-- Recycling of partially used random number blocks. Can be done by also storing the current01-pointer in the array and 
-  re-injecting the array in the random-factory's queue. Also reduces the size of the GRandom objects. Recycling should be
-  triggered upon destruction of the GRandom object, or when another production mode is chosen.
-- Make GRandom serializable and remove the proxy code
 - Check in GStdPtrVectorInterface whether smart pointers actually point somewhere. Otherwise
   just copy an empty pointer (or throw ?? Different behavior in DEBUG mode ?)
 - Check all load code whether it checks for empty smart pointers
-- Use CPack to create RPM and DEB packages
-- Switch examples to the noise parabola, due to its higher learning potential
+- Use CPack to create DEB packages (RPM already implemented)
+- Switch examples to the noisy parabola, due to its higher learning potential
 - Only compile tests if test_exec_monitor library could be found (not always in default installations)
 - Change installed library name e.g. to geneva-opt so we do not create collisions
   with other, similarly named libraries
@@ -76,3 +72,7 @@ Nice to have:
 - Script that scans which files contain which license types and creates a report
 - Make individuals optionally output their information in ROOT-tree format (see http://root.cern.ch). Can
   be done with the info function framework ??
+- Recycling of partially used random number blocks. Can be done by also storing the current01-pointer in the array and 
+  re-injecting the array in the random-factory's queue. Also reduces the size of the GRandom objects. Recycling should be
+  triggered upon destruction of the GRandom object, or when another production mode is chosen.
+  

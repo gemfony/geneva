@@ -45,19 +45,14 @@ using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
 
-/***********************************************************************************/
-// This test suite checks as much as possible of the functionality provided
-// by the GGaussAdaptorT class. The template is instantiated for all types
-// defined in the above mpl::list . Note that a lot of functionality of this class has
-// already been covered as GBooleanAdaptor has been used as a vehicle to
-// test GObject and GAdaotorT.
-BOOST_AUTO_TEST_SUITE(GGaussAdaptorTSuite)
+using boost::unit_test_framework::test_suite;
+using boost::unit_test_framework::test_case;
 
-typedef boost::mpl::list<boost::int32_t, double> test_types;
+/********************************************************************************************/
+// The actual unit tests for this class
 
-/***********************************************************************************/
 // Test features that are expected to work
-BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, T, test_types )
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 {
 	GRandom gr;
 
@@ -136,7 +131,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, T, test_types
 
 /***********************************************************************************/
 // Test features that are expected to fail
-BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, T, test_types )
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_failures_expected, T )
 {
 	GRandom gr;
 
@@ -163,6 +158,23 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, T, test_types )
 #endif /* DEBUG */
 	}
 }
+
 /***********************************************************************************/
 
-BOOST_AUTO_TEST_SUITE_END()
+
+/***********************************************************************************/
+// This test suite checks as much as possible of the functionality provided
+// by the GGaussAdaptorT class. The template is instantiated for all types
+// defined in an mpl::list . Note that a lot of functionality of this class has
+// already been covered as GBooleanAdaptor has been used as a vehicle to
+// test GObject and GAdaotorT.
+class GGaussAdaptorTSuite: public test_suite
+{
+public:
+	GGaussAdaptorTSuite() :test_suite("GGaussAdaptorTSuite") {
+		typedef boost::mpl::list<boost::int32_t, double> test_types;
+
+		add( BOOST_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, test_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, test_types ) );
+	}
+};

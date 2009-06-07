@@ -40,26 +40,46 @@ using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
 
-/***********************************************************************************/
+using boost::unit_test_framework::test_suite;
+using boost::unit_test_framework::test_case;
+
+/********************************************************************************************/
+// The actual unit tests for this class
+class GBrokerPopulation_test {
+public:
+	/***********************************************************************************/
+	// Test features that are expected to work
+	void no_failure_expected() {
+		/* empty */
+	}
+
+	/***********************************************************************************/
+	// Test features that are expected to fail
+	void failures_expected() {
+		/* empty */
+	}
+
+	/***********************************************************************************/
+private:
+	GRandom gr;
+};
+
+/********************************************************************************************/
 // This test suite checks as much as possible of the functionality provided
 // by the GBrokerPopulation class.
-BOOST_AUTO_TEST_SUITE(GBrokerPopulation)
-
-/***********************************************************************************/
-// Test features that are expected to work
-BOOST_AUTO_TEST_CASE( GBrokerPopulation_no_failure_expected )
+class GBrokerPopulationSuite: public test_suite
 {
-	GRandom gr;
+public:
+	GBrokerPopulationSuite() :test_suite("GBrokerPopulationSuite") {
+	  // create an instance of the test cases class
+	  boost::shared_ptr<GBrokerPopulation_test> instance(new GBrokerPopulation_test());
 
-}
+	  test_case* no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GBrokerPopulation_test::no_failure_expected, instance);
+	  test_case* failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GBrokerPopulation_test::failures_expected, instance);
 
-/***********************************************************************************/
-// Test features that are expected to fail
-BOOST_AUTO_TEST_CASE( GBrokerPopulation_failures_expected )
-{
-	GRandom gr;
+	  add(no_failure_expected_test_case);
+	  add(failures_expected_test_case);
+	}
+};
 
-}
-/***********************************************************************************/
-
-BOOST_AUTO_TEST_SUITE_END()
+/********************************************************************************************/
