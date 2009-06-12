@@ -48,9 +48,7 @@ using namespace boost::unit_test;
 #include "GRandom_test.cpp"
 
 // test program entry point
-test_suite* init_unit_test_suite(int /* argc */, char** /* argv */) {
-   // Intentionally in the first position so we can do tests of GRandomFactory before the first call to it
-   framework::master_test_suite().add(new GRandomSuite());
+test_suite* init_unit_test_suite(int argc, char** argv) {
    framework::master_test_suite().add(new GAdaptorTSuite());
    framework::master_test_suite().add(new GBasePopulationSuite());
    framework::master_test_suite().add(new GBooleanCollectionSuite());
