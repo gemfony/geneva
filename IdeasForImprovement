@@ -45,21 +45,17 @@
 - Same for GNoisyParabolaIndividual and GProjectionIndividual
 - Separate useful individuals (neural network, external evaluation, ...) from pure examples
 - Create boost::shared_ptr<GObject> versions of load() and clone(), adapt in all places (e.g. GStdPtrVectorInterface.hpp)
-- Implementation of a GETSEED command in remote clients
-- Perform tests and benchmarks also with local random number creation
 - Test that seeding works with local random number creation
 - Track down all uses of setSigmaRange and associates and check for consistency
-- Cross-check usefulness of "const var&" usage for simple and complex parameters
 - Need an infrastructure to give a single adaptor to an object collection !!
 - Make most GRandom functions const, then hand down a constant reference to the parameter sets
 - Check whether we need to declare anything as volatile, particularly in connection with random number generation
-- Implement an option to get the initial seed from /dev/urandom or possibly /dev/random ?
 - Remove the eval_ function from GParameterSet ... . Useless in parallel environments (?)
 - Is GIndividualSet really needed ? Could all be handled from GBasePopulation ? But no: can serve as the base class for a GSwarm 
   or a GGradientDescent
 - Check in GStdPtrVectorInterface whether smart pointers actually point somewhere. Otherwise
   just copy an empty pointer (or throw ?? Different behavior in DEBUG mode ?)
-- Check all load code whether it checks for empty smart pointers
+- Check all load code whether it checks for empty smart pointers. Always check in DEBUG mode.
 - Use CPack to create DEB packages (RPM already implemented)
 - Switch examples to the noisy parabola, due to its higher learning potential
 - Only compile tests if test_exec_monitor library could be found (not always in default installations)
