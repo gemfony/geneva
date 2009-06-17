@@ -26,6 +26,7 @@
 #include <cmath>
 #include <typeinfo>
 #include <limits>
+#include <utility> // for std::pair
 
 // Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
@@ -384,7 +385,7 @@ private:
 	T setExternalValue(const T& val) {
 		T previous = this->value();
 
-		// Check the lower an upper boundaries
+		// Check the lower and upper boundaries
 		if(upperBoundary_ <= lowerBoundary_){
 			std::ostringstream error;
 			error << "In GBoundedNumT<T>::setExternalValue() : Error!" << std::endl

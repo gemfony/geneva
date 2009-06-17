@@ -28,6 +28,8 @@ The main changes for this release include:
    genrator, so we are sure that each client uses a different random number sequence
  - Reworked test suite so that it now uses manual test registration rather than automatic
    test cases. Needed in order to let the GRandomFactory tests be performed in the beginning.
+ - Renamed the installed library to geneva-opt, so that it doesn't clash with other, similarly
+   named libraries on the system.
 
 * Version 0.5.2 "Building 38" - April 20, 2009
 
