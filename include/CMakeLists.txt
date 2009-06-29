@@ -39,6 +39,7 @@ SET ( GENEVAINCLUDES
 	GDoubleObjectCollection.hpp
 	GDoubleParameter.hpp
 	GenevaExceptions.hpp
+	GGlobalOptionsT.hpp
 	GEnums.hpp
 	GGaussAdaptorT.hpp
 	GGlobalDefines.hpp

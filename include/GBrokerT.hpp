@@ -274,8 +274,7 @@ public:
 		while(!buffersPresentProcessed_) readyToGoProcessed_.wait(processedLock);
 
 		// Cross-check that the id is indeed available and retrieve the buffer
-		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end())
-		currentBuffer = ProcessedBuffers_[id];
+		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end()) currentBuffer = ProcessedBuffers_[id];
 
 		// Make the mutex available again, as the last call in this
 		// function could block.

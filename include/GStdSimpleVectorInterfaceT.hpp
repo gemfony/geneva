@@ -117,7 +117,7 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Checks inquality with another GStdSimpleVectorInterfaceT<T> object
+	 * Checks inequality with another GStdSimpleVectorInterfaceT<T> object
 	 */
 	bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const {
 		return ! this->checkIsEqualTo(cp, boost::logic::indeterminate);
