@@ -80,8 +80,8 @@ namespace Util {
 // according to Wikipedia . Used for local random number
 // generation. See http://en.wikipedia.org/wiki/Linear_congruential_generator
 // for further information.
-const boost::uint32_t rnr_m = 4294697296; // 2^32
-const boost::uint32_t rnr_a = 1103515245;
+const boost::uint32_t rnr_m = 4294697296UL; // 2^32
+const boost::uint32_t rnr_a = 1103515245UL;
 const boost::uint32_t rnr_c = 12345;
 const double rnr_max = static_cast<double>(std::numeric_limits<boost::uint32_t>::max());
 
