@@ -60,6 +60,8 @@
 - Switch examples to the noisy parabola, due to its higher learning potential
 - Only compile tests if test_exec_monitor library could be found (not always in default installations)
 - Renovation of client / consumer infrastructure (clean base classes, separation of protocol from network implementation)
+- Test checkpointing of Geneva objects
+- Make clients run in multi-threaded mode so they can pull a user-defined number of items over
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)

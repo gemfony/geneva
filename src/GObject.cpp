@@ -172,15 +172,12 @@ std::string GObject::report() {
 
 /**************************************************************************************************/
 /**
- * Converts the class to a text representation, using the currently set serialization mode for this
- * class. Note that you will have to take care yourself that serialization and de-serialization
- * happens in the same mode.
+ * Converts class to a serial representation that is then written to a stream.
  *
+ * @param oarchive_stream The output stream the object should be written to
  * @param serMod The desired serialization mode
- * @return A text-representation of this class (or its derivative)
  */
-std::string GObject::toString(const serializationMode& serMod) {
-	std::ostringstream oarchive_stream;
+void GObject::toStream(std::ostream& oarchive_stream, const serializationMode& serMod) {
     GObject *local = this; // Serialization should happen through a base pointer
 
     switch(serMod)
@@ -209,22 +206,17 @@ std::string GObject::toString(const serializationMode& serMod) {
 
 		break;
     }
-
-    return oarchive_stream.str();
 }
 
 /**************************************************************************************************/
 /**
- * Initializes the object from its string representation, using the currently set serialization mode.
- * Note that the string will likely describe a derivative of GObject, as GObject cannot be instantiated.
- * Note also that you will have to take care yourself that serialization and de-serialization happens
- * in the same mode.
+ * Loads the object from a stream.
  *
- * @param descr A text representation of a GObject-derivative
+ * @param istr The stream from which the object should be loaded
  * @param serMod The desired serialization mode
+ *
  */
-void GObject::fromString(const std::string& descr, const serializationMode& serMod) {
-    std::istringstream istr(descr);
+void GObject::fromStream(std::istream& istr, const serializationMode& serMod) {
     // De-serialization and serialization should happen through a pointer to the same type.
     GObject *local = (GObject *)NULL;
 
@@ -257,6 +249,61 @@ void GObject::fromString(const std::string& descr, const serializationMode& serM
 
     this->load(local);
     if(local) delete local;
+}
+
+/**************************************************************************************************/
+/**
+ * Converts the class to a text representation, using the currently set serialization mode for this
+ * class. Note that you will have to take care yourself that serialization and de-serialization
+ * happens in the same mode.
+ *
+ * @param serMod The desired serialization mode
+ * @return A text-representation of this class (or its derivative)
+ */
+std::string GObject::toString(const serializationMode& serMod) {
+	std::ostringstream oarchive_stream;
+	this->toStream(oarchive_stream, serMod);
+    return oarchive_stream.str();
+}
+
+/**************************************************************************************************/
+/**
+ * Initializes the object from its string representation, using the currently set serialization mode.
+ * Note that the string will likely describe a derivative of GObject, as GObject cannot be instantiated.
+ * Note also that you will have to take care yourself that serialization and de-serialization happens
+ * in the same mode.
+ *
+ * @param descr A text representation of a GObject-derivative
+
+ */
+void GObject::fromString(const std::string& descr, const serializationMode& serMod) {
+    std::istringstream istr(descr);
+    this->fromStream(istr, serMod);
+}
+
+/**************************************************************************************************/
+/**
+ * Writes a serial representation of this object to a file. Can be used for check-pointing.
+ *
+ * @param fileName The name of the file the object should be saved to.
+ * @param serMod The desired serialization mode
+ */
+void GObject::toFile(const std::string& fileName, const serializationMode& serMod) {
+	std::ofstream checkpointStream(fileName.c_str());
+	this->toStream(checkpointStream, serMod);
+	checkpointStream.close();
+}
+
+/**************************************************************************************************/
+/**
+ * Loads a serial representation of this object from file. Can be used for check-pointing.
+ *
+ * @param fileName The name of the file the object should be loaded from
+ * @param serMod The desired serialization mode
+ */
+void GObject::fromFile(const std::string& fileName, const serializationMode& serMod) {
+	std::ifstream checkpointStream(fileName.c_str());
+	this->fromStream(checkpointStream, serMod);
 }
 
 /**************************************************************************************************/

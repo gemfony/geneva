@@ -24,6 +24,7 @@
 
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <cstdlib>
 #include <cmath>
 #include <typeinfo>
@@ -112,10 +113,20 @@ public:
 	/** @brief Checks for dissimilarity with another GObject object (or a derivative) */
 	virtual bool isNotSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
+	/** @brief Convert class to a serial representation that is then written to a stream */
+	void toStream(std::ostream&, const serializationMode&);
+	/** @brief Load class from a stream */
+	void fromStream(std::istream&, const serializationMode&);
+
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
-	std::string toString(const serializationMode& serMod);
+	std::string toString(const serializationMode&);
 	/** @brief Convert class to a serial representation, using a specific serialization mode */
-	void fromString(const std::string&, const serializationMode& serMod);
+	void fromString(const std::string&, const serializationMode&);
+
+	/** @brief Writes a serial representation of this object to a file */
+	void toFile(const std::string&, const serializationMode&);
+	/** @brief Loads a serial representation of this object from file */
+	void fromFile(const std::string&, const serializationMode&);
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const = 0;
