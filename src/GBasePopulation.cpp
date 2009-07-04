@@ -46,6 +46,8 @@ GBasePopulation::GBasePopulation() :
 	generation_(0),
 	maxGeneration_(DEFAULTMAXGEN),
 	reportGeneration_(DEFAULTREPORTGEN),
+	checkpointGeneration_(DEFAULTCHECKPOINTGEN),
+	cpBaseName_(DEFAULTCPBASENAME), // Set in GIndividualSet.hpp
 	recombinationMethod_(DEFAULTRECOMBINE),
 	muplusnu_(MUPLUSNU),
 	maximize_(DEFAULTMAXMODE),
@@ -73,6 +75,8 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	generation_(0),
 	maxGeneration_(cp.maxGeneration_),
 	reportGeneration_(cp.reportGeneration_),
+	checkpointGeneration_(cp.checkpointGeneration_),
+	cpBaseName_(cp.cpBaseName_),
 	recombinationMethod_(cp.recombinationMethod_),
 	muplusnu_(cp.muplusnu_),
 	maximize_(cp.maximize_),
@@ -123,6 +127,8 @@ void GBasePopulation::load(const GObject * cp)
 	generation_ = 0; // We assume that this is the start of a new optimization run
 	maxGeneration_ = gbp_load->maxGeneration_;
 	reportGeneration_ = gbp_load->reportGeneration_;
+	checkpointGeneration_ = gbp_load->checkpointGeneration_;
+	cpBaseName_ = gbp_load->cpBaseName_;
 	recombinationMethod_ = gbp_load->recombinationMethod_;
 	muplusnu_ = gbp_load->muplusnu_;
 	maximize_ = gbp_load->maximize_;
@@ -190,6 +196,8 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 	if(checkForInequality("GBasePopulation", generation_, gbp_load->generation_,"generation_", "gbp_load->generation_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_,"maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
 	if(checkForInequality("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_,"reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
+	if(checkForInequality("GBasePopulation", checkpointGeneration_, gbp_load->checkpointGeneration_,"checkpointGeneration_", "gbp_load->checkpointGeneration_", expected)) return false;
+	if(checkForInequality("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_,"cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
 	if(checkForInequality("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
 	if(checkForInequality("GBasePopulation", muplusnu_, gbp_load->muplusnu_,"muplusnu_", "gbp_load->muplusnu_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maximize_, gbp_load->maximize_,"maximize_", "gbp_load->maximize_", expected)) return false;
@@ -227,6 +235,8 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GBasePopulation", generation_, gbp_load->generation_, limit, "generation_", "gbp_load->generation_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_, limit, "maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_, limit, "reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", checkpointGeneration_, gbp_load->checkpointGeneration_, limit, "checkpointGeneration_", "gbp_load->checkpointGeneration_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_, limit, "cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", muplusnu_, gbp_load->muplusnu_, limit, "muplusnu_", "gbp_load->muplusnu_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maximize_, gbp_load->maximize_, limit, "maximize_", "gbp_load->maximize_", expected)) return false;
@@ -239,6 +249,137 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GExternalEvaluator", hasQualityThreshold_, gbp_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
 
 	return true;
+}
+
+/***********************************************************************************/
+/**
+ * Saves the state of the class to disc. The function adds the current generation
+ * to the base name, which is either supplied as an argument or, if left empty (or
+ * "empty" is supplied, is created automatically. We do not save the entire population,
+ * but only the best individuals, as these contain the "real" information. Note that
+ * no real copying of the individual's data takes place here, as we are dealing with
+ * boost::shared_ptr objects.
+ */
+void GBasePopulation::saveCheckpoint() const {
+	// Copy the nParents best individuals to a vector
+	std::vector<boost::shared_ptr<Gem::GenEvA::GIndividual> > bestIndividuals;
+	GBasePopulation::const_iterator it;
+	for(it=this->begin(); it!=this->begin() + this->getNParents(); ++it)
+		bestIndividuals.push_back(*it);
+
+	// Determine a suitable name for the output file
+	std::string outputFile = boost::lexical_cast<std::string>(this->getGeneration()) + "_" + cpBaseName_;
+
+	// Create the output stream and check that it is in good order
+	std::ofstream checkpointStream(outputFile.c_str());
+	if(!checkpointStream) {
+		std::ostringstream error;
+		error << "In GBasePopulation::saveCheckpoint(const std::string&)" << std::endl
+			  << "Error: Could not open output file";
+		throw geneva_error_condition(error.str());
+	}
+
+	// Write the individuals' data to disc in binary mode
+	{
+		boost::archive::binary_oarchive oa(checkpointStream);
+		oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+	} // note: explicit scope here is essential so the oa-destructor gets called
+
+	// Make sure the stream is closed again
+	checkpointStream.close();
+}
+
+/***********************************************************************************/
+/**
+ * Loads the state of the class from disc. The function adds the current generation
+ * to the base name, which is either supplied as an argument or, if left empty (or
+ * "empty" is supplied, is created automatically. We do not load the entire population,
+ * but only the best individuals of a former optimization run, as these contain the
+ * "real" information.
+ */
+void GBasePopulation::loadCheckpoint() {
+	// Create a vector to hold the best individuals
+	std::vector<boost::shared_ptr<Gem::GenEvA::GIndividual> > bestIndividuals;
+
+	// Determine the name of the input file.
+	std::string inputFile = boost::lexical_cast<std::string>(this->getGeneration()) + "_" + cpBaseName_;
+
+	// Create the input stream and check that it is in good order
+	std::ifstream checkpointStream(inputFile.c_str());
+	if(!checkpointStream) {
+		std::ostringstream error;
+		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
+			  << "Error: Could not open input file";
+		throw geneva_error_condition(error.str());
+	}
+
+	// Load the data from disc in binary mode
+	{
+		boost::archive::binary_iarchive ia(checkpointStream);
+	    ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+	} // note: explicit scope here is essential so the ia-destructor gets called
+
+	// Make sure the stream is closed again
+	checkpointStream.close();
+
+	// Check that the desired number of individuals was indeed loaded from disc
+	// and complain, if necessary
+	if(bestIndividuals.size() != this->getNParents()) {
+		std::ostringstream error;
+		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
+			  << "Error: Invalid number of individuals loaded: " << this->getNParents() << " " << bestIndividuals.size() << std::endl;
+		throw geneva_error_condition(error.str());
+	}
+
+	// Finally copy the parent individuals over.
+	std::vector<Gem::GenEvA::GIndividual>::iterator it;
+	for(std::size_t pc=0; pc<this->getNParents(); pc++) {
+		(*this)[pc]->load((bestIndividuals[pc]).get());
+	}
+}
+
+/***********************************************************************************/
+/**
+ * Allows to set the number of generations after which a checkpoint should be written
+ *
+ * @param checkpointGeneration The number of generations after which a checkpoint should be written
+ */
+void GBasePopulation::setCheckpointGeneration(const boost::uint32_t& checkpointGeneration) {
+	checkpointGeneration_ = checkpointGeneration;
+}
+
+/***********************************************************************************/
+/**
+ * Allows to retrieve the number of generations after which a checkpoint should be written
+ *
+ * @return The number of generations after which a checkpoint should be written
+ */
+boost::uint32_t GBasePopulation::getCheckpointGeneration() const {
+	return checkpointGeneration_;
+}
+
+/***********************************************************************************/
+/**
+ * Allows to set the base name of the checkpoint file.
+ */
+void GBasePopulation::setCheckpointBaseName(const std::string& cpBaseName) {
+	// Do some basic checks
+	if(cpBaseName == "empty" || cpBaseName.empty()) {
+		std::ostringstream error;
+		error << "In GBasePopulation::setCheckpointBaseName(const std::string&):" << std::endl
+			  << "Error: Invalid cpBaseName: " << cpBaseName << std::endl;
+		throw geneva_error_condition(error.str());
+	}
+
+	cpBaseName_ = cpBaseName;
+}
+
+/***********************************************************************************/
+/**
+ * Allows to retrieve the base name of the checkpoint file.
+ */
+std::string GBasePopulation::getCheckpointBaseName() const {
+	return cpBaseName_;
 }
 
 /***********************************************************************************/
@@ -276,7 +417,11 @@ void GBasePopulation::optimize() {
 		// any information.
 		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo(INFOPROCESSING);
 
-		generation_++; // update the generation_ counter
+		// Save checkpoints if required by the user
+		if(checkpointGeneration_ && (generation_%checkpointGeneration_ == 0)) saveCheckpoint();
+
+		// update the generation_ counter
+		generation_++;
 	}
 	while(!halt()); // allows custom halt criteria
 
@@ -294,7 +439,6 @@ void GBasePopulation::optimize() {
  *
  * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
  */
-
 void GBasePopulation::doInfo(const infoMode& im) {
 	if(!infoFunction_.empty()) infoFunction_(im, this);
 }

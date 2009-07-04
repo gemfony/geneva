@@ -43,6 +43,13 @@
 namespace Gem {
 namespace GenEvA {
 
+/**
+ * The default base name used for checkpointing. Derivatives of this
+ * class can build distinguished filenames from this e.g. by adding
+ * the current generation.
+ */
+const std::string DEFAULTCPBASENAME = "geneva.cp";
+
 class GIndividualSet
 	:public GMutableSetT<Gem::GenEvA::GIndividual>
 {
@@ -64,6 +71,11 @@ public:
 	GIndividualSet(const GIndividualSet&);
 	/** @brief The destructor */
 	virtual ~GIndividualSet();
+
+	/** @brief Saves the state of the class to disc */
+	virtual void saveCheckpoint() const = 0;
+	/** @brief Loads the state of the class from disc */
+	virtual void loadCheckpoint() = 0;
 
 	/** @brief Checks for equality with another GIndividualSet object */
 	bool operator==(const GIndividualSet&) const;
@@ -98,7 +110,7 @@ public:
 	 * @return A converted version of the GIndividual object, as required by the user
 	 */
 	template <typename parameter_type>
-	inline boost::shared_ptr<parameter_type> individual_cast(const std::size_t& pos){
+	boost::shared_ptr<parameter_type> individual_cast(const std::size_t& pos){
 #ifdef DEBUG
 		// Extract data. at() will throw if we have tried to access a position in the
 		// vector that does not exist.

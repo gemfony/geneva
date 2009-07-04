@@ -22,6 +22,7 @@
 
 // Standard headers go here
 #include <string>
+#include <fstream>
 #include <sstream>
 #include <cmath>
 
@@ -78,12 +79,18 @@ const bool MINIMIZE = false;
  * The number of generations after which information should be
  * emitted about the inner state of the population.
  */
-const boost::int32_t DEFAULTREPORTGEN = 20;
+const boost::int32_t DEFAULTREPORTGEN = 10;
+
+/**
+ * The number of generations after which a checkpoint should be written.
+ * 0 means that no checkpoints are written at all.
+ */
+const boost::int32_t DEFAULTCHECKPOINTGEN = 0;
 
 /**
  * The default maximum number of generations
  */
-const boost::int32_t DEFAULTMAXGEN = 100;
+const boost::int32_t DEFAULTMAXGEN = 1000;
 
 /**
  * The default maximization mode
@@ -140,6 +147,8 @@ class GBasePopulation
 		ar & make_nvp("generation_", generation_);
 		ar & make_nvp("maxGeneration_", maxGeneration_);
 		ar & make_nvp("reportGeneration_", reportGeneration_);
+		ar & make_nvp("checkpointGeneration_", checkpointGeneration_);
+		ar & make_nvp("cpBaseName_", cpBaseName_);
 		ar & make_nvp("recombinationMethod_", recombinationMethod_);
 		ar & make_nvp("muplusnu_", muplusnu_);
 		ar & make_nvp("maximize_", maximize_);
@@ -178,6 +187,21 @@ public:
 	virtual bool isEqualTo(const GObject&,  const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for similarity with another GBasePopulation object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Saves the state of the class to disc */
+	virtual void saveCheckpoint() const;
+	/** @brief Loads the state of the class from disc */
+	virtual void loadCheckpoint();
+
+	/** @brief Allows to set the number of generations after which a checkpoint should be written */
+	void setCheckpointGeneration(const boost::uint32_t&);
+	/** @brief Allows to retrieve the number of generations after which a checkpoint should be written */
+	boost::uint32_t getCheckpointGeneration() const;
+
+	/** @brief Allows to set the base name of the checkpoint file */
+	void setCheckpointBaseName(const std::string&);
+	/** @brief Allows to retrieve the base name of the checkpoint file */
+	std::string getCheckpointBaseName() const;
 
 	/** @brief The core function of the entire GenEvA library.
 	 * Triggers the optimization of a population. */
@@ -380,6 +404,8 @@ private:
 	boost::uint32_t generation_; ///< The current generation
 	boost::uint32_t maxGeneration_; ///< The maximum number of generations
 	boost::uint32_t reportGeneration_; ///< Number of generations after which a report should be issued
+	boost::uint32_t checkpointGeneration_; ///< Number of generations after which a checkpoint should be written
+	std::string cpBaseName_; ///< The base name of the checkpoint file
 	recoScheme recombinationMethod_; ///< The chosen recombination method
 	bool muplusnu_; ///< The chosen sorting scheme
 	bool maximize_; ///< The optimization mode (minimization/false vs. maximization/true)
