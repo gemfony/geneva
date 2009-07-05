@@ -46,8 +46,9 @@ GBasePopulation::GBasePopulation() :
 	generation_(0),
 	maxGeneration_(DEFAULTMAXGEN),
 	reportGeneration_(DEFAULTREPORTGEN),
-	checkpointGeneration_(DEFAULTCHECKPOINTGEN),
+	cpInterval_(DEFAULTCHECKPOINTGEN),
 	cpBaseName_(DEFAULTCPBASENAME), // Set in GIndividualSet.hpp
+	cpDirectory_(DEFAULTCPDIR), // Set in GIndividualSet.hpp
 	recombinationMethod_(DEFAULTRECOMBINE),
 	muplusnu_(MUPLUSNU),
 	maximize_(DEFAULTMAXMODE),
@@ -75,8 +76,9 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	generation_(0),
 	maxGeneration_(cp.maxGeneration_),
 	reportGeneration_(cp.reportGeneration_),
-	checkpointGeneration_(cp.checkpointGeneration_),
+	cpInterval_(cp.cpInterval_),
 	cpBaseName_(cp.cpBaseName_),
+	cpDirectory_(cp.cpDirectory_),
 	recombinationMethod_(cp.recombinationMethod_),
 	muplusnu_(cp.muplusnu_),
 	maximize_(cp.maximize_),
@@ -127,8 +129,9 @@ void GBasePopulation::load(const GObject * cp)
 	generation_ = 0; // We assume that this is the start of a new optimization run
 	maxGeneration_ = gbp_load->maxGeneration_;
 	reportGeneration_ = gbp_load->reportGeneration_;
-	checkpointGeneration_ = gbp_load->checkpointGeneration_;
+	cpInterval_ = gbp_load->cpInterval_;
 	cpBaseName_ = gbp_load->cpBaseName_;
+	cpDirectory_ = gbp_load->cpDirectory_;
 	recombinationMethod_ = gbp_load->recombinationMethod_;
 	muplusnu_ = gbp_load->muplusnu_;
 	maximize_ = gbp_load->maximize_;
@@ -196,8 +199,9 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 	if(checkForInequality("GBasePopulation", generation_, gbp_load->generation_,"generation_", "gbp_load->generation_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_,"maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
 	if(checkForInequality("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_,"reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
-	if(checkForInequality("GBasePopulation", checkpointGeneration_, gbp_load->checkpointGeneration_,"checkpointGeneration_", "gbp_load->checkpointGeneration_", expected)) return false;
+	if(checkForInequality("GBasePopulation", cpInterval_, gbp_load->cpInterval_,"cpInterval_", "gbp_load->cpInterval_", expected)) return false;
 	if(checkForInequality("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_,"cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
+	if(checkForInequality("GBasePopulation", cpDirectory_, gbp_load->cpDirectory_,"cpDirectory_", "gbp_load->cpDirectory_", expected)) return false;
 	if(checkForInequality("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
 	if(checkForInequality("GBasePopulation", muplusnu_, gbp_load->muplusnu_,"muplusnu_", "gbp_load->muplusnu_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maximize_, gbp_load->maximize_,"maximize_", "gbp_load->maximize_", expected)) return false;
@@ -235,8 +239,9 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GBasePopulation", generation_, gbp_load->generation_, limit, "generation_", "gbp_load->generation_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_, limit, "maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_, limit, "reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", checkpointGeneration_, gbp_load->checkpointGeneration_, limit, "checkpointGeneration_", "gbp_load->checkpointGeneration_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", cpInterval_, gbp_load->cpInterval_, limit, "cpInterval_", "gbp_load->cpInterval_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_, limit, "cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", cpDirectory_, gbp_load->cpDirectory_, limit, "cpDirectory_", "gbp_load->cpDirectory_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", muplusnu_, gbp_load->muplusnu_, limit, "muplusnu_", "gbp_load->muplusnu_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maximize_, gbp_load->maximize_, limit, "maximize_", "gbp_load->maximize_", expected)) return false;
@@ -268,7 +273,7 @@ void GBasePopulation::saveCheckpoint() const {
 		bestIndividuals.push_back(*it);
 
 	// Determine a suitable name for the output file
-	std::string outputFile = boost::lexical_cast<std::string>(this->getGeneration()) + "_" + cpBaseName_;
+	std::string outputFile = cpDirectory_ + boost::lexical_cast<std::string>(this->getGeneration()) + "_" + cpBaseName_;
 
 	// Create the output stream and check that it is in good order
 	std::ofstream checkpointStream(outputFile.c_str());
@@ -291,21 +296,16 @@ void GBasePopulation::saveCheckpoint() const {
 
 /***********************************************************************************/
 /**
- * Loads the state of the class from disc. The function adds the current generation
- * to the base name, which is either supplied as an argument or, if left empty (or
- * "empty" is supplied, is created automatically. We do not load the entire population,
+ * Loads the state of the class from disc. We do not load the entire population,
  * but only the best individuals of a former optimization run, as these contain the
  * "real" information.
  */
-void GBasePopulation::loadCheckpoint() {
+void GBasePopulation::loadCheckpoint(const std::string& cpFile) {
 	// Create a vector to hold the best individuals
 	std::vector<boost::shared_ptr<Gem::GenEvA::GIndividual> > bestIndividuals;
 
-	// Determine the name of the input file.
-	std::string inputFile = boost::lexical_cast<std::string>(this->getGeneration()) + "_" + cpBaseName_;
-
 	// Create the input stream and check that it is in good order
-	std::ifstream checkpointStream(inputFile.c_str());
+	std::ifstream checkpointStream(cpFile.c_str());
 	if(!checkpointStream) {
 		std::ostringstream error;
 		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
@@ -327,7 +327,16 @@ void GBasePopulation::loadCheckpoint() {
 	if(bestIndividuals.size() != this->getNParents()) {
 		std::ostringstream error;
 		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
-			  << "Error: Invalid number of individuals loaded: " << this->getNParents() << " " << bestIndividuals.size() << std::endl;
+			  << "Error: Number of individuals loaded (" << bestIndividuals.size() << ")" << std::endl
+			  << "does not match number of parents (" << this->getNParents() << ")" << std::endl;
+		throw geneva_error_condition(error.str());
+	}
+
+	if(this->size() < bestIndividuals.size()) {
+		std::ostringstream error;
+		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
+			  << "Error: At least the same number of individuals must be present in" << std::endl
+			  << "the population as were loaded from the checkpoint file" << std::endl;
 		throw geneva_error_condition(error.str());
 	}
 
@@ -342,10 +351,10 @@ void GBasePopulation::loadCheckpoint() {
 /**
  * Allows to set the number of generations after which a checkpoint should be written
  *
- * @param checkpointGeneration The number of generations after which a checkpoint should be written
+ * @param cpInterval The number of generations after which a checkpoint should be written
  */
-void GBasePopulation::setCheckpointGeneration(const boost::uint32_t& checkpointGeneration) {
-	checkpointGeneration_ = checkpointGeneration;
+void GBasePopulation::setCheckpointInterval(const boost::uint32_t& cpInterval) {
+	cpInterval_ = cpInterval;
 }
 
 /***********************************************************************************/
@@ -354,32 +363,67 @@ void GBasePopulation::setCheckpointGeneration(const boost::uint32_t& checkpointG
  *
  * @return The number of generations after which a checkpoint should be written
  */
-boost::uint32_t GBasePopulation::getCheckpointGeneration() const {
-	return checkpointGeneration_;
+boost::uint32_t GBasePopulation::getCheckpointInterval() const {
+	return cpInterval_;
 }
 
 /***********************************************************************************/
 /**
- * Allows to set the base name of the checkpoint file.
+ * Allows to set the base name of the checkpoint file and the directory where it
+ * should be stored.
+ *
+ * @param cpDirectory The directory where checkpoint files should be stored
+ * @param cpBaseName The base name used for the checkpoint files
  */
-void GBasePopulation::setCheckpointBaseName(const std::string& cpBaseName) {
+void GBasePopulation::setCheckpointBaseName(const std::string& cpDirectory, const std::string& cpBaseName) {
 	// Do some basic checks
 	if(cpBaseName == "empty" || cpBaseName.empty()) {
 		std::ostringstream error;
-		error << "In GBasePopulation::setCheckpointBaseName(const std::string&):" << std::endl
+		error << "In GBasePopulation::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 			  << "Error: Invalid cpBaseName: " << cpBaseName << std::endl;
 		throw geneva_error_condition(error.str());
 	}
 
+	if(cpDirectory == "empty" || cpDirectory.empty()) {
+		std::ostringstream error;
+		error << "In GBasePopulation::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+			  << "Error: Invalid cpDirectory: " << cpDirectory << std::endl;
+		throw geneva_error_condition(error.str());
+	}
+
 	cpBaseName_ = cpBaseName;
+
+	// Check that the provided directory exists
+	if(!boost::filesystem::exists(cpDirectory) || !boost::filesystem::is_directory(cpDirectory)) {
+		std::ostringstream error;
+		error << "In GBasePopulation::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+			  << "Error: directory does not exist: " << cpDirectory << std::endl;
+		throw geneva_error_condition(error.str());
+	}
+
+	// Add a trailing slash to the directory name, if necessary
+    if(cpDirectory[cpDirectory.size() - 1] != '/') cpDirectory_ = cpDirectory + '/';
+    else cpDirectory_ = cpDirectory;
 }
 
 /***********************************************************************************/
 /**
  * Allows to retrieve the base name of the checkpoint file.
+ *
+ * @return The base name used for checkpoint files
  */
 std::string GBasePopulation::getCheckpointBaseName() const {
 	return cpBaseName_;
+}
+
+/***********************************************************************************/
+/**
+ * Allows to retrieve the directory where checkpoint files should be stored
+ *
+ * @return The base name used for checkpoint files
+ */
+std::string GBasePopulation::getCheckpointDirectory() const {
+	return cpDirectory_;
 }
 
 /***********************************************************************************/
@@ -405,6 +449,15 @@ void GBasePopulation::optimize() {
 	// Initialize the start time with the current time. Uses Boost::date_time
 	startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
 
+	// We want to know when a better value was found.
+	double bestPastValue = 0.;
+	if(maximize_) {
+		bestPastValue = -DBL_MAX+1; // the worst possible value
+	}
+	else { // minimization
+		bestPastValue = DBL_MAX;
+	}
+
 	do {
 		this->markGeneration(); // Let all individuals know the current generation
 		this->recombine(); // create new children from parents
@@ -418,7 +471,30 @@ void GBasePopulation::optimize() {
 		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo(INFOPROCESSING);
 
 		// Save checkpoints if required by the user
-		if(checkpointGeneration_ && (generation_%checkpointGeneration_ == 0)) saveCheckpoint();
+		if(cpInterval_ != 0) {
+			if(cpInterval_ == -1) {
+				// Retrieve the value of the best individual, do cross-checks in DEBUG mode
+#ifdef DEBUG
+				if(this->at(0)->isDirty()) {
+					std::ostringstream error;
+					error << "In GBasePopulation::optimize():" << std::endl
+						  << "Error: class member has the dirty flag set" << std::endl;
+					throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				}
+#endif /* DEBUG */
+				double newValue = this->at(0)->fitness();
+
+				// Check whether an improvement has been achieved
+				bool better = this->isBetter(newValue, bestPastValue);
+				// Prepare for the next generation
+				bestPastValue = newValue;
+				// Write a checkpoint, if necessary
+				if(better) saveCheckpoint();
+			}
+			else {
+				if(generation_%cpInterval_ == 0) saveCheckpoint();
+			}
+		}
 
 		// update the generation_ counter
 		generation_++;
@@ -583,6 +659,27 @@ void GBasePopulation::adjustPopulation() {
 	// network environment, some individuals might not return and some individuals return
 	// late. The size of the population then changes and we need to take action.
 	defaultNChildren_ = popSize_ - nParents_;
+}
+
+/***********************************************************************************/
+/**
+ * A helper function that helps to determine whether a given value is better than
+ * a given older one. As "better" means something different for maximization and minimization,
+ * this function helps to make the code easier to understand.
+ *
+ * @param newValue The new value
+ * @param oldValue The old value
+ * @return true of newValue is better than oldValue, otherwise false.
+ */
+bool GBasePopulation::isBetter(double newValue, const double& oldValue) const {
+	if(maximize_) {
+		if(newValue > oldValue) return true;
+		else return false;
+	}
+	else { // minimization
+		if(newValue < oldValue) return true;
+		else return false;
+	}
 }
 
 /***********************************************************************************/

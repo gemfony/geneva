@@ -25,6 +25,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <cfloat>
 
 // Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
@@ -40,6 +41,7 @@
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/cast.hpp>
+#include <boost/filesystem.hpp>
 
 /**
  * Check that we have support for threads
@@ -147,8 +149,9 @@ class GBasePopulation
 		ar & make_nvp("generation_", generation_);
 		ar & make_nvp("maxGeneration_", maxGeneration_);
 		ar & make_nvp("reportGeneration_", reportGeneration_);
-		ar & make_nvp("checkpointGeneration_", checkpointGeneration_);
+		ar & make_nvp("cpInterval_", cpInterval_);
 		ar & make_nvp("cpBaseName_", cpBaseName_);
+		ar & make_nvp("cpDirectory_", cpDirectory_);
 		ar & make_nvp("recombinationMethod_", recombinationMethod_);
 		ar & make_nvp("muplusnu_", muplusnu_);
 		ar & make_nvp("maximize_", maximize_);
@@ -191,17 +194,19 @@ public:
 	/** @brief Saves the state of the class to disc */
 	virtual void saveCheckpoint() const;
 	/** @brief Loads the state of the class from disc */
-	virtual void loadCheckpoint();
+	virtual void loadCheckpoint(const std::string&);
 
 	/** @brief Allows to set the number of generations after which a checkpoint should be written */
-	void setCheckpointGeneration(const boost::uint32_t&);
+	void setCheckpointInterval(const boost::uint32_t&);
 	/** @brief Allows to retrieve the number of generations after which a checkpoint should be written */
-	boost::uint32_t getCheckpointGeneration() const;
+	boost::uint32_t getCheckpointInterval() const;
 
 	/** @brief Allows to set the base name of the checkpoint file */
-	void setCheckpointBaseName(const std::string&);
+	void setCheckpointBaseName(const std::string&, const std::string&);
 	/** @brief Allows to retrieve the base name of the checkpoint file */
 	std::string getCheckpointBaseName() const;
+	/** @brief Allows to retrieve the directory where checkpoint files should be stored */
+	std::string getCheckpointDirectory() const;
 
 	/** @brief The core function of the entire GenEvA library.
 	 * Triggers the optimization of a population. */
@@ -384,15 +389,18 @@ protected:
 	void markIndividualPositions();
 
 private:
+	/** @brief Adjusts the actual population size to the desired value */
+	void adjustPopulation();
+
 	/** @brief Emits true once a given time has passed */
 	bool timedHalt();
 	/** @brief Emits true once the quality is below or above a given threshold */
 	bool qualityHalt();
-	/** @brief Adjusts the actual population size to the desired value */
-	void adjustPopulation();
-
 	/** @brief Determines when to stop the optimization */
 	bool halt();
+
+	/** @brief Helper function that determines whether a new value is better than an older one */
+	bool isBetter(double, const double&) const;
 
 	/** @brief Implements the RANDOMRECOMBINE recombination scheme */
 	void randomRecombine(boost::shared_ptr<GIndividual>&);
@@ -404,8 +412,9 @@ private:
 	boost::uint32_t generation_; ///< The current generation
 	boost::uint32_t maxGeneration_; ///< The maximum number of generations
 	boost::uint32_t reportGeneration_; ///< Number of generations after which a report should be issued
-	boost::uint32_t checkpointGeneration_; ///< Number of generations after which a checkpoint should be written
+	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file
+	std::string cpDirectory_; ///< The directory where checkpoint files should be stored
 	recoScheme recombinationMethod_; ///< The chosen recombination method
 	bool muplusnu_; ///< The chosen sorting scheme
 	bool maximize_; ///< The optimization mode (minimization/false vs. maximization/true)

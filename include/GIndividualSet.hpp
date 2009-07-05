@@ -50,6 +50,12 @@ namespace GenEvA {
  */
 const std::string DEFAULTCPBASENAME = "geneva.cp";
 
+/**
+ * The default directory used for checkpointing. We choose a directory
+ * that will always exist.
+ */
+const std::string DEFAULTCPDIR = "./";
+
 class GIndividualSet
 	:public GMutableSetT<Gem::GenEvA::GIndividual>
 {
@@ -75,7 +81,7 @@ public:
 	/** @brief Saves the state of the class to disc */
 	virtual void saveCheckpoint() const = 0;
 	/** @brief Loads the state of the class from disc */
-	virtual void loadCheckpoint() = 0;
+	virtual void loadCheckpoint(const std::string&) = 0;
 
 	/** @brief Checks for equality with another GIndividualSet object */
 	bool operator==(const GIndividualSet&) const;
