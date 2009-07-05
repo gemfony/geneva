@@ -191,13 +191,11 @@ public:
 	/** @brief Checks for similarity with another GBasePopulation object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Saves the state of the class to disc */
-	virtual void saveCheckpoint() const;
 	/** @brief Loads the state of the class from disc */
 	virtual void loadCheckpoint(const std::string&);
 
 	/** @brief Allows to set the number of generations after which a checkpoint should be written */
-	void setCheckpointInterval(const boost::uint32_t&);
+	void setCheckpointInterval(const boost::int32_t&);
 	/** @brief Allows to retrieve the number of generations after which a checkpoint should be written */
 	boost::uint32_t getCheckpointInterval() const;
 
@@ -389,6 +387,9 @@ protected:
 	void markIndividualPositions();
 
 private:
+	/** @brief Saves the state of the class to disc. Private, as we do not want to accidently trigger value calculation  */
+	virtual void saveCheckpoint() const;
+
 	/** @brief Adjusts the actual population size to the desired value */
 	void adjustPopulation();
 

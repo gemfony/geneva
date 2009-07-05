@@ -259,11 +259,12 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 /***********************************************************************************/
 /**
  * Saves the state of the class to disc. The function adds the current generation
- * to the base name, which is either supplied as an argument or, if left empty (or
- * "empty" is supplied, is created automatically. We do not save the entire population,
- * but only the best individuals, as these contain the "real" information. Note that
- * no real copying of the individual's data takes place here, as we are dealing with
- * boost::shared_ptr objects.
+ * and the fitness to the base name, which is either supplied as an argument or, if
+ * left empty (or "empty" is supplied, is created automatically. We do not save the
+ * entire population, but only the best individuals, as these contain the "real"
+ * information. Note that no real copying of the individual's data takes place here,
+ * as we are dealing with boost::shared_ptr objects. Private, as we do not want to
+ * accidently trigger value calculation
  */
 void GBasePopulation::saveCheckpoint() const {
 	// Copy the nParents best individuals to a vector
@@ -272,8 +273,19 @@ void GBasePopulation::saveCheckpoint() const {
 	for(it=this->begin(); it!=this->begin() + this->getNParents(); ++it)
 		bestIndividuals.push_back(*it);
 
+#ifdef DEBUG // Cross check so we do not accidently trigger value calculation
+				if(this->at(0)->isDirty()) {
+					std::ostringstream error;
+					error << "In GBasePopulation::optimize():" << std::endl
+						  << "Error: class member has the dirty flag set" << std::endl;
+					throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				}
+#endif /* DEBUG */
+	double newValue = this->at(0)->fitness();
+
 	// Determine a suitable name for the output file
-	std::string outputFile = cpDirectory_ + boost::lexical_cast<std::string>(this->getGeneration()) + "_" + cpBaseName_;
+	std::string outputFile = cpDirectory_ + boost::lexical_cast<std::string>(this->getGeneration()) + "_"
+		+ boost::lexical_cast<std::string>(newValue) + "_" + cpBaseName_;
 
 	// Create the output stream and check that it is in good order
 	std::ofstream checkpointStream(outputFile.c_str());
@@ -303,6 +315,14 @@ void GBasePopulation::saveCheckpoint() const {
 void GBasePopulation::loadCheckpoint(const std::string& cpFile) {
 	// Create a vector to hold the best individuals
 	std::vector<boost::shared_ptr<Gem::GenEvA::GIndividual> > bestIndividuals;
+
+	// Check that the file indeed exists
+	if(!boost::filesystem::exists(cpFile)) {
+		std::ostringstream error;
+		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
+			  << "Got invalid checkpoint file name " << cpFile << std::endl;
+		throw geneva_error_condition(error.str());
+	}
 
 	// Create the input stream and check that it is in good order
 	std::ifstream checkpointStream(cpFile.c_str());
@@ -353,7 +373,14 @@ void GBasePopulation::loadCheckpoint(const std::string& cpFile) {
  *
  * @param cpInterval The number of generations after which a checkpoint should be written
  */
-void GBasePopulation::setCheckpointInterval(const boost::uint32_t& cpInterval) {
+void GBasePopulation::setCheckpointInterval(const boost::int32_t& cpInterval) {
+	if(cpInterval < -1) {
+		std::ostringstream error;
+		error << "In GBasePopulation::setCheckpointInterval():" << std::endl
+			  << "Error: received bad checkpoint interval: " << cpInterval << std::endl;
+		throw geneva_error_condition(error.str());
+	}
+
 	cpInterval_ = cpInterval;
 }
 
@@ -459,8 +486,8 @@ void GBasePopulation::optimize() {
 	}
 
 	do {
-		this->markGeneration(); // Let all individuals know the current generation
 		this->recombine(); // create new children from parents
+		this->markGeneration(); // Let all individuals know the current generation
 		this->markIndividualPositions();
 		this->mutateChildren(); // mutate children and calculate their value
 		this->select(); // sort children according to their fitness
@@ -486,10 +513,12 @@ void GBasePopulation::optimize() {
 
 				// Check whether an improvement has been achieved
 				bool better = this->isBetter(newValue, bestPastValue);
-				// Prepare for the next generation
-				bestPastValue = newValue;
-				// Write a checkpoint, if necessary
-				if(better) saveCheckpoint();
+
+				// Write a checkpoint, if necessary abd store the new highscore
+				if(better) {
+					saveCheckpoint();
+					bestPastValue = newValue;
+				}
 			}
 			else {
 				if(generation_%cpInterval_ == 0) saveCheckpoint();
