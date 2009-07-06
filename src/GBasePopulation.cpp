@@ -342,28 +342,21 @@ void GBasePopulation::loadCheckpoint(const std::string& cpFile) {
 	// Make sure the stream is closed again
 	checkpointStream.close();
 
-	// Check that the desired number of individuals was indeed loaded from disc
-	// and complain, if necessary
-	if(bestIndividuals.size() != this->getNParents()) {
-		std::ostringstream error;
-		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
-			  << "Error: Number of individuals loaded (" << bestIndividuals.size() << ")" << std::endl
-			  << "does not match number of parents (" << this->getNParents() << ")" << std::endl;
-		throw geneva_error_condition(error.str());
+	// Load the individuals into this class
+	std::size_t thisSize = this->size();
+	std::size_t biSize = bestIndividuals.size();
+	if(thisSize >= biSize) { // The most likely case
+		for(std::size_t ic=0; ic<biSize; ic++) {
+			(*this)[ic]->load((bestIndividuals[ic]).get());
+		}
 	}
-
-	if(this->size() < bestIndividuals.size()) {
-		std::ostringstream error;
-		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
-			  << "Error: At least the same number of individuals must be present in" << std::endl
-			  << "the population as were loaded from the checkpoint file" << std::endl;
-		throw geneva_error_condition(error.str());
-	}
-
-	// Finally copy the parent individuals over.
-	std::vector<Gem::GenEvA::GIndividual>::iterator it;
-	for(std::size_t pc=0; pc<this->getNParents(); pc++) {
-		(*this)[pc]->load((bestIndividuals[pc]).get());
+	else if(thisSize < biSize) {
+		for(std::size_t ic=0; ic<thisSize; ic++) {
+			(*this)[ic]->load((bestIndividuals[ic]).get());
+		}
+		for(std::size_t ic=thisSize; ic<biSize; ic++) {
+			this->push_back(bestIndividuals[ic]);
+		}
 	}
 }
 
