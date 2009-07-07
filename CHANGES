@@ -1,4 +1,8 @@
-* Version 0.5.3, "Building 39" - yet unreleased
+* Version 0.6, "Route Enrico Fermi" - yet unreleased
+
+The main changes for this release include: 
+
+* Version 0.5.3, "Building 39" - July 6, 2009
 
 The main changes for this release include:
  - Made the library compile (mostly clean) with the Intel 10.1 compiler.
