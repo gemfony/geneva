@@ -1,6 +1,8 @@
 * Version 0.6, "Route Enrico Fermi" - yet unreleased
 
 The main changes for this release include: 
+ - Added option to GBasePopulation to stop optimizing after a user-defined number of stalls
+ - Allowed to switch off mutations (i.e. value changes) for GParameterBase derivatives
 
 * Version 0.5.3, "Building 39" - July 6, 2009
 
@@ -16,8 +18,8 @@ The main changes for this release include:
  - Added Philipp Henkel's threadpool library to the Geneva distribution (with his
    kind permission), in order to ease the compilation procedure.
  - Added the CMake 2.6.4 FindBoost.cmake macro to the Geneva distribution in order
-   to ease the compilation procedure. There should be no need to upgrade older 2.6.x
-   CMake distributions, as their FindBoost.cmake seemed to have had a problem.
+   to ease the compilation procedure. There should now be no need to upgrade older 2.6.x
+   CMake distributions, whose FindBoost.cmake seemed to have had a problem.
  - Removed the former GLogger framework. It was only used in a few places and
    hasn't been updated for a while. When the Boost.Logging library will pass its
    review, it will be used in Geneva instead.

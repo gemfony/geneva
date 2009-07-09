@@ -197,7 +197,7 @@ public:
 	 * to a std::vector<T>. As we are derived from a wrapper of this class, we can just pass
 	 * a reference to its data vector to the function.
 	 */
-	virtual void mutate() {
+	virtual void mutateImpl() {
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(GStdSimpleVectorInterfaceT<T>::data);
 	}
 

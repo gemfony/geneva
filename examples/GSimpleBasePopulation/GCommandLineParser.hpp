@@ -56,6 +56,7 @@ const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
 const std::size_t DEFAULTPOPULATIONSIZE=100;
 const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
+const boost::uint32_t DEFAULTMAXSTALLGENERATIONS=100;
 const long DEFAULTMAXMINUTES=10;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
 const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
@@ -79,6 +80,7 @@ bool parseCommandLine(int argc, char **argv,
 					  std::size_t& populationSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,
+					  boost::uint32_t& maxStallGenerations,
 					  double &qualityThreshold,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,

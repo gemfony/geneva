@@ -74,6 +74,7 @@ class GParameterBase:
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
       ar & make_nvp("GObject",boost::serialization::base_object<GObject>(*this));
+      ar & make_nvp("mutationsActive_", mutationsActive_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -90,7 +91,16 @@ public:
 	virtual void load(const GObject*);
 
 	/** @brief The mutate interface */
-	virtual void mutate() = 0;
+	void mutate();
+	/** @brief The actual mutation logic */
+	virtual void mutateImpl() = 0;
+
+	/** @brief Switches on mutations for this object */
+	void setMutationsActive();
+	/** @brief Disables mutations for this object */
+	void setMutationsInactive();
+	/** @brief Determines whether mutations are performed for this object */
+	bool mutationsActive() const;
 
 	/** @brief Checks for equality with another GParameterBase object */
 	bool operator==(const GParameterBase&) const;
@@ -103,6 +113,9 @@ public:
 
 	/** @brief Convenience function so we do not need to always cast derived classes */
 	virtual bool hasAdaptor() const;
+
+private:
+	bool mutationsActive_; ///< Specifies whether mutations of this object should be carried out
 };
 
 } /* namespace GenEvA */

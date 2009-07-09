@@ -206,7 +206,7 @@ public:
 	 * each item has its own mutate function. Hence we do not need to use or
 	 * store own adaptors.
 	 */
-	virtual void mutate() {
+	virtual void mutateImpl() {
 		typename GParameterTCollectionT<T>::iterator it;
 		if(this->hasAdaptor()) {
 			for(it=this->begin(); it!=this->end(); ++it) {

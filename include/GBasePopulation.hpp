@@ -81,18 +81,23 @@ const bool MINIMIZE = false;
  * The number of generations after which information should be
  * emitted about the inner state of the population.
  */
-const boost::int32_t DEFAULTREPORTGEN = 10;
+const boost::uint32_t DEFAULTREPORTGEN = 10;
 
 /**
  * The number of generations after which a checkpoint should be written.
  * 0 means that no checkpoints are written at all.
  */
-const boost::int32_t DEFAULTCHECKPOINTGEN = 0;
+const boost::uint32_t DEFAULTCHECKPOINTGEN = 0;
 
 /**
  * The default maximum number of generations
  */
-const boost::int32_t DEFAULTMAXGEN = 1000;
+const boost::uint32_t DEFAULTMAXGEN = 1000;
+
+/**
+ * The default maximum number of generations without improvement. 0 means: ignore
+ */
+const boost::uint32_t DEFAULMAXTSTALLGEN = 0;
 
 /**
  * The default maximization mode
@@ -148,6 +153,7 @@ class GBasePopulation
 		ar & make_nvp("popSize_", popSize_);
 		ar & make_nvp("generation_", generation_);
 		ar & make_nvp("maxGeneration_", maxGeneration_);
+		ar & make_nvp("maxStallGeneration_", maxStallGeneration_);
 		ar & make_nvp("reportGeneration_", reportGeneration_);
 		ar & make_nvp("cpInterval_", cpInterval_);
 		ar & make_nvp("cpBaseName_", cpBaseName_);
@@ -239,6 +245,12 @@ public:
 	void setMaxGeneration(const boost::uint32_t&);
 	/** @brief Retrieve the number of generations after which sorting should be stopped */
 	boost::uint32_t getMaxGeneration() const;
+
+	/** @brief Set the number of generations after which sorting should be stopped */
+	void setMaxStallGeneration(const boost::uint32_t&);
+	/** @brief Retrieve the number of generations after which sorting should be stopped */
+	boost::uint32_t getMaxStallGeneration() const;
+
 	/** @brief Get information about the current generation */
 	boost::uint32_t getGeneration() const;
 
@@ -412,6 +424,7 @@ private:
 	std::size_t popSize_; ///< The size of the population. Only used in adjustPopulation()
 	boost::uint32_t generation_; ///< The current generation
 	boost::uint32_t maxGeneration_; ///< The maximum number of generations
+	boost::uint32_t maxStallGeneration_; ///< The maximum number of generations without improvement
 	boost::uint32_t reportGeneration_; ///< Number of generations after which a report should be issued
 	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file

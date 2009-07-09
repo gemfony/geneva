@@ -323,7 +323,7 @@ public:
 	 * that gets mutated. This value is then "translated" into the external value (stored
 	 * in GParameterT<T>, which is set accordingly.
 	 */
-	virtual void mutate() {
+	virtual void mutateImpl() {
 		this->applyAdaptor(internalValue_);
 
 		// Then calculate the corresponding external value and set it accordingly

@@ -40,6 +40,7 @@ bool parseCommandLine(int argc, char **argv,
 					  std::size_t& populationSize,
 					  std::size_t& nParents,
 					  boost::uint32_t& maxGenerations,
+					  boost::uint32_t& maxStallGenerations,
 					  double &qualityThreshold,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
@@ -74,6 +75,8 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of parents in the population") // Needs to be treated separately
 			("maxGenerations,G", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
 					"maximum number of generations in the population")
+			("maxStallGenerations,Y", po::value<boost::uint32_t>(&maxStallGenerations)->default_value(DEFAULTMAXSTALLGENERATIONS),
+					"maximum number of generations without improvement in the population")
 			("qualityThreshold,q", po::value<double>(&qualityThreshold)->default_value(DEFAULTQTHRESHOLD),
 					"A threshold beyond which optimization is supposed to stop")
 			("maxMinutes,X", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
@@ -84,7 +87,7 @@ bool parseCommandLine(int argc, char **argv,
 					"The recombination scheme for the super-population")
 			("sortingScheme,o", po::value<bool>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
 					"Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode")
-			("parralel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
+			("parallel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
 			        "Whether or not to run this optimization in multi-threaded mode")
 			("maximize,z", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
 					"Whether or not to run this optimization in multi-threaded mode")
@@ -147,6 +150,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "populationSize = " << populationSize << std::endl
 					  << "nParents = " << nParents << std::endl
 					  << "maxGenerations = " << maxGenerations << std::endl
+					  << "maxStallGenerations = " << maxStallGenerations << std::endl
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl

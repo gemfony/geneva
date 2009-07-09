@@ -32,20 +32,24 @@ namespace GenEvA {
 
 /**********************************************************************************/
 /**
- * The default constructor. No local data, hence nothing to do.
+ * The default constructor. mutations are switched on by default.
  */
-GParameterBase::GParameterBase()  :GMutableI(), GObject()
+GParameterBase::GParameterBase():
+	GMutableI(),
+	GObject(),
+	mutationsActive_(true)
 { /* nothing */ }
 
 /**********************************************************************************/
 /**
- * The standard copy constructor. No local data, hence nothing to do.
+ * The standard copy constructor.
  *
  * @param cp A copy of another GParameterBase object
  */
 GParameterBase::GParameterBase(const GParameterBase& cp)
 	:GMutableI(cp),
-	 GObject(cp)
+	 GObject(cp),
+	 mutationsActive_(cp.mutationsActive_)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -62,20 +66,49 @@ GParameterBase::~GParameterBase()
  * @param cp A copy of another GParameterBase object, camouflaged as a GObject
  */
 void GParameterBase::load(const GObject* cp){
-	// Convert to local format. No local data - we can thus use the faster static_cast
-	const GParameterBase *gpb_load = static_cast<const GParameterBase *> (cp);
-
-	// Check that this object is not accidentally assigned to itself.
-	if (gpb_load == this) {
-		std::ostringstream error;
-		error << "In GParameterBase::load(): Error!" << std::endl
-			  << "Tried to assign an object to itself." << std::endl;
-
-		throw geneva_error_condition(error.str());
-	}
+	// Convert cp into local format
+	const GParameterBase *gpb = conversion_cast(cp, this);
 
 	// Load the parent class'es data
 	GObject::load(cp);
+
+	// Load local data
+	mutationsActive_ = gpb->mutationsActive_;
+}
+
+/**********************************************************************************/
+/**
+ * Calls the function that does the actual mutation (which is in turn implemented
+ * by derived classes. Will omit mutation if the mutationsActive_ parameter is set.
+ */
+void GParameterBase::mutate() {
+	if(mutationsActive_) this->mutateImpl();
+}
+
+/**********************************************************************************/
+/**
+ * Switches on mutations for this object
+ */
+void GParameterBase::setMutationsActive() {
+	mutationsActive_ = true;
+}
+
+/**********************************************************************************/
+/**
+ * Disables mutations for this object
+ */
+void GParameterBase::setMutationsInactive() {
+	mutationsActive_ = false;
+}
+
+/**********************************************************************************/
+/**
+ * Determines whether mutations are performed for this object
+ *
+ * @return A boolean indicating whether mutations are performed for this object
+ */
+bool GParameterBase::mutationsActive() const {
+	return mutationsActive_;
 }
 
 /**********************************************************************************/
@@ -117,7 +150,8 @@ bool GParameterBase::isEqualTo(const GObject& cp, const boost::logic::tribool& e
 	// Check our parent class
 	if(!GObject::isEqualTo(*gpb_load, expected)) return  false;
 
-	// No local data
+	// Check the local data
+	if(checkForInequality("GParameterBase", mutationsActive_, gpb_load->mutationsActive_,"mutationsActive_", "gpb_load->mutationsActive_", expected)) return false;
 
 	return true;
 }
@@ -140,7 +174,9 @@ bool GParameterBase::isSimilarTo(const GObject& cp, const double& limit, const b
 	// Check our parent class
 	if(!GObject::isSimilarTo(*gpb_load, limit, expected)) 	return false;
 
-	// No local data
+	// Check the local data
+	if(checkForDissimilarity("GParameterBase", mutationsActive_, gpb_load->mutationsActive_, limit, "mutationsActive_", "gpb_load->mutationsActive_", expected)) return false;
+
 
 	return true;
 }

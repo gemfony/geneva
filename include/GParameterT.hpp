@@ -217,7 +217,7 @@ public:
 	/**
 	 * Allows to mutate the value stored in this class.
 	 */
-	virtual void mutate(){
+	virtual void mutateImpl(){
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(val_);
 	}
 

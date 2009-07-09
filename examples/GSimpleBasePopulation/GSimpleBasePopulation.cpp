@@ -57,6 +57,7 @@ int main(int argc, char **argv){
 	 double parabolaMin, parabolaMax;
 	 boost::uint16_t nProducerThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
+	 boost::uint32_t maxStallGenerations;
 	 boost::uint32_t adaptionThreshold;
 	 long maxMinutes;
 	 bool parallel;
@@ -78,6 +79,7 @@ int main(int argc, char **argv){
 						 populationSize,
 						 nParents,
 						 maxGenerations,
+						 maxStallGenerations,
 						 qualityThreshold,
 						 maxMinutes,
 						 reportGeneration,
@@ -126,6 +128,7 @@ int main(int argc, char **argv){
 	  // Specify some population settings
 	  pop_par.setPopulationSize(populationSize,nParents);
 	  pop_par.setMaxGeneration(maxGenerations);
+	  pop_par.setMaxStallGeneration(maxStallGenerations);
 	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
@@ -151,6 +154,7 @@ int main(int argc, char **argv){
 	  // Specify some population settings
 	  pop_ser.setPopulationSize(populationSize,nParents);
 	  pop_ser.setMaxGeneration(maxGenerations);
+	  pop_ser.setMaxStallGeneration(maxStallGenerations);
 	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
 	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival

@@ -45,6 +45,7 @@ GBasePopulation::GBasePopulation() :
 	popSize_(0),
 	generation_(0),
 	maxGeneration_(DEFAULTMAXGEN),
+	maxStallGeneration_(DEFAULMAXTSTALLGEN),
 	reportGeneration_(DEFAULTREPORTGEN),
 	cpInterval_(DEFAULTCHECKPOINTGEN),
 	cpBaseName_(DEFAULTCPBASENAME), // Set in GIndividualSet.hpp
@@ -75,6 +76,7 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	popSize_(cp.popSize_),
 	generation_(0),
 	maxGeneration_(cp.maxGeneration_),
+	maxStallGeneration_(cp.maxStallGeneration_),
 	reportGeneration_(cp.reportGeneration_),
 	cpInterval_(cp.cpInterval_),
 	cpBaseName_(cp.cpBaseName_),
@@ -128,6 +130,7 @@ void GBasePopulation::load(const GObject * cp)
 	popSize_ = gbp_load->popSize_;
 	generation_ = 0; // We assume that this is the start of a new optimization run
 	maxGeneration_ = gbp_load->maxGeneration_;
+	maxStallGeneration_ = gbp_load->maxStallGeneration_;
 	reportGeneration_ = gbp_load->reportGeneration_;
 	cpInterval_ = gbp_load->cpInterval_;
 	cpBaseName_ = gbp_load->cpBaseName_;
@@ -198,6 +201,7 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 	if(checkForInequality("GBasePopulation", popSize_, gbp_load->popSize_,"popSize_", "gbp_load->popSize_", expected)) return false;
 	if(checkForInequality("GBasePopulation", generation_, gbp_load->generation_,"generation_", "gbp_load->generation_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_,"maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
+	if(checkForInequality("GBasePopulation", maxStallGeneration_, gbp_load->maxStallGeneration_,"maxStallGeneration_", "gbp_load->maxStallGeneration_", expected)) return false;
 	if(checkForInequality("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_,"reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
 	if(checkForInequality("GBasePopulation", cpInterval_, gbp_load->cpInterval_,"cpInterval_", "gbp_load->cpInterval_", expected)) return false;
 	if(checkForInequality("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_,"cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
@@ -209,9 +213,9 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 	if(checkForInequality("GBasePopulation", firstId_, gbp_load->firstId_,"firstId_", "gbp_load->firstId_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maxDuration_, gbp_load->maxDuration_,"maxDuration_", "gbp_load->maxDuration_", expected)) return false;
 	// startTime_ Not compared, as it is used for temporary storage only.
-	if(checkForInequality("GExternalEvaluator", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
-	if(checkForInequality("GExternalEvaluator", qualityThreshold_, gbp_load->qualityThreshold_,"qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
-	if(checkForInequality("GExternalEvaluator", hasQualityThreshold_, gbp_load->hasQualityThreshold_,"hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
+	if(checkForInequality("GBasePopulation", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
+	if(checkForInequality("GBasePopulation", qualityThreshold_, gbp_load->qualityThreshold_,"qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
+	if(checkForInequality("GBasePopulation", hasQualityThreshold_, gbp_load->hasQualityThreshold_,"hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
 
 	return true;
 }
@@ -238,6 +242,7 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GBasePopulation", popSize_, gbp_load->popSize_, limit, "popSize_", "gbp_load->popSize_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", generation_, gbp_load->generation_, limit, "generation_", "gbp_load->generation_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_, limit, "maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", maxStallGeneration_, gbp_load->maxStallGeneration_, limit, "maxStallGeneration_", "gbp_load->maxStallGeneration_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_, limit, "reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", cpInterval_, gbp_load->cpInterval_, limit, "cpInterval_", "gbp_load->cpInterval_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_, limit, "cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
@@ -249,9 +254,9 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GBasePopulation", firstId_, gbp_load->firstId_, limit, "firstId_", "gbp_load->firstId_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maxDuration_, gbp_load->maxDuration_, limit, "maxDuration_", "gbp_load->maxDuration_", expected)) return false;
 	// startTime_ Not compared, as it is used for temporary storage only.
-	if(checkForDissimilarity("GExternalEvaluator", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
-	if(checkForDissimilarity("GExternalEvaluator", qualityThreshold_, gbp_load->qualityThreshold_, limit, "qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
-	if(checkForDissimilarity("GExternalEvaluator", hasQualityThreshold_, gbp_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", qualityThreshold_, gbp_load->qualityThreshold_, limit, "qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", hasQualityThreshold_, gbp_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
 
 	return true;
 }
@@ -801,6 +806,28 @@ boost::uint32_t GBasePopulation::getMaxGeneration() const {
 
 /***********************************************************************************/
 /**
+ * Sets the maximum number of generations allowed without improvement of the best
+ * individual. Set to 0 in order for this stop criterion to be disabled.
+ *
+ * @param The maximum number of allowed generations
+ */
+void GBasePopulation::setMaxStallGeneration(const boost::uint32_t& maxStallGeneration) {
+	maxStallGeneration_ = maxStallGeneration;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the maximum number of generations allowed in an optimization run without
+ * improvement of the best individual.
+ *
+ * @return The maximum number of generations
+ */
+boost::uint32_t GBasePopulation::getMaxStallGeneration() const {
+	return maxStallGeneration_;
+}
+
+/***********************************************************************************/
+/**
  * Retrieves the currently active generation
  *
  * @return The currently active generation
@@ -1290,6 +1317,9 @@ bool GBasePopulation::halt()
 	// Have we exceeded the maximum number of generations and
 	// do we indeed intend to stop in this case ?
 	if(maxGeneration_ && (generation_ > maxGeneration_)) return true;
+
+	// Has the optimization stalled too often ?
+	if(maxStallGeneration_ && this->at(0)->getParentCounter() > maxStallGeneration_) return true;
 
 	// Do we have a scheduled halt time ? The comparatively expensive
 	// timedHalt() calculation is only called if maxDuration_
