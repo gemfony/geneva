@@ -62,6 +62,9 @@
 - Renovation of client / consumer infrastructure (clean base classes, separation of protocol from network implementation)
 - Test checkpointing of Geneva objects
 - Make clients run in multi-threaded mode so they can pull a user-defined number of items over
+- Create a new sorting scheme, where a number of the last generation's parents become parents 
+  of the next generation (unless better children were found), and in addition a number of 
+  the best children becomes parents of the next generation. Mixture of MUPLUSNU and MUCOMMANU
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
