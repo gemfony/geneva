@@ -65,6 +65,7 @@
 - Create a new sorting scheme, where a number of the last generation's parents become parents 
   of the next generation (unless better children were found), and in addition a number of 
   the best children becomes parents of the next generation. Mixture of MUPLUSNU and MUCOMMANU
+- Check how many individuals are left out for large populations in networked mode, because of late arrival
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
