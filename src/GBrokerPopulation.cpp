@@ -339,29 +339,41 @@ void GBrokerPopulation::mutateChildren() {
 	data.resize(np);
 
 	// Make sure we also evaluate the parents in the first generation, if needed.
-	// This is only applicable to the MUPLUSNU mode.
-	if(generation==0 && this->getSortingScheme()==MUPLUSNU) {
-		// Note that we only have parents left in this generation
-		for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
-			(*rit)->setAttribute("command","evaluate");
-			CurrentBufferPort_->push_front_orig(*rit);
-		}
+	// This is only applicable to the MUPLUSNU and MUNU1PRETAIN modes.
+	if(generation==0) {
+		switch(this->getSortingScheme()) {
+		//--------------------------------------------------------------
+		case MUPLUSNU:
+		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
+			// Note that we only have parents left in this generation
+			for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
+				(*rit)->setAttribute("command","evaluate");
+				CurrentBufferPort_->push_front_orig(*rit);
+			}
 
-		// Next we clear the population. We do not loose anything,
-		// as at least one shared_ptr to our individuals remains
-		data.clear();
+			// Next we clear the population. We do not loose anything,
+			// as at least one shared_ptr to our individuals remains
+			data.clear();
+			break;
+
+		case MUCOMMANU:
+			break; // nothing
+		}
+		//--------------------------------------------------------------
 	}
 
 	//--------------------------------------------------------------------------------
-	// If we are running in MUPLUSNU mode, we now have an empty population, as parents
-	// have been sent away for evaluation. If this is the MUCOMMANU mode, parents do not
-	// participate in the sorting and can be ignored. We can now wait for individuals
-	// to return from their journey.
+	// If we are running in MUPLUSNU or MUNU1PRETAIN mode, we now have an empty population,
+	// as parents have been sent away for evaluation. If this is the MUCOMMANU mode, parents
+	// do not participate in the sorting and can be ignored.
+	//
+	// We can now wait for the individuals to return from their journey.
 
-	// First we wait for the first individual from the current generation to arrive
+	// First we wait for the first individual from the current generation to arrive,
 	// or until a timeout has been reached. Individuals from older generations will
 	// also be accepted in this loop, unless they are parents. If firstTimeOut_ is set
-	// to 0, we do not timeout.
+	// to 0, we do not timeout. Note that we can have a situation where less genuine
+	// parents are in the population than have originally been sent away.
 
 	// start to measure time. Uses the Boost.date_time library
 	ptime startTime = boost::posix_time::microsec_clock::local_time();
@@ -373,7 +385,7 @@ void GBrokerPopulation::mutateChildren() {
 		try {
 			boost::shared_ptr<GIndividual> p;
 
-			// This function will throw a time out condition if we
+			// This function will throw a time-out condition if we
 			// have exceeded the allowed time. Hence, when we reach
 			// the next code line, we can assume to have a valid object
 			CurrentBufferPort_->pop_back_processed(&p,loopTime_);
@@ -413,11 +425,13 @@ void GBrokerPopulation::mutateChildren() {
 
 				throw geneva_error_condition(error.str());
 			}
+
+			// The loop will continue if no exception was thrown here
 		}
 	}
 
 	// At this point we have received the first individual of the current generation back.
-	// Record the time
+	// Record the elapsed time.
 	time_duration totalElapsedFirst = microsec_clock::local_time()-startTime;
 	time_duration maxAllowedElapsed = totalElapsedFirst * waitFactor_;
 	time_duration totalElapsed = totalElapsedFirst;
@@ -439,7 +453,7 @@ void GBrokerPopulation::mutateChildren() {
 				else nReceivedChildCurrent++;
 			}
 			else {
-				if(!p->isParent()){  // We do not accept parents from older populations
+				if(!p->isParent()){  // Parents from older populations will be ignored, as there is no else clause
 					// Make it known to the individual that it is now part of a new generation
 					p->setParentPopGeneration(generation);
 
@@ -457,10 +471,10 @@ void GBrokerPopulation::mutateChildren() {
 			if(waitFactor_ && (totalElapsed > maxAllowedElapsed)) break;
 		}
 
-		// Break if all children (and parents in generation 0 / MUPLUSNU) of the
-		// current generation have returned. Older individuals have another chance
-		// to return in the next generation, unless they are parents.
-		if(generation == 0 && this->getSortingScheme()==MUPLUSNU) {
+		// Break if all children (and parents in generation 0 / MUPLUSNU / MUNU1PRETAIN)
+		// of the current generation have returned. Older individuals have another chance
+		// to return in the next generation (unless they are parents).
+		if(generation == 0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)) {
 			if(nReceivedParent+nReceivedChildCurrent==np+this->getDefaultNChildren()) {
 				complete=true;
 				break;
@@ -474,7 +488,7 @@ void GBrokerPopulation::mutateChildren() {
 		}
 	}
 
-	if(generation==0 && this->getSortingScheme()==MUPLUSNU){
+	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)){
 		// Have any individuals returned at all ??
 		if(data.size()==0) { // No way out ...
 			std::ostringstream error;
@@ -520,7 +534,7 @@ void GBrokerPopulation::mutateChildren() {
 				<< "some individuals of the current population did not return" << std::endl
 				<< "in generation " << generation << "." << std::endl;
 
-	if(generation==0 && this->getSortingScheme()==MUPLUSNU){
+	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)){
 		information << "We have received " << nReceivedParent << " parents." << std::endl
 			        << "where " << np << " parents are required." << std::endl;
 	}
@@ -562,10 +576,19 @@ void GBrokerPopulation::mutateChildren() {
 #endif /* DEBUG */
 	}
 
+	// Mark the first nParents_ individuals as parents, if they aren't parents yet. We want
+	// to have a "sane" population.
+	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)){
+		GBasePopulation::iterator it;
+		for(it=this->begin(); it!=this->begin() + this->getNParents(); ++it) {
+			if(!(*it)->isParent()) (*it)->setIsParent();
+		}
+	}
+
 	// We care for too many returned individuals in the select() function. Older
 	// individuals might nevertheless have a better quality. We do not want to loose them.
 
-	// We might theoretically at this point have a population that (in generation 0 / MUPLUSNU)
+	// We might theoretically at this point have a population that (in generation 0 / MUPLUSNU / MUNU1PRETAIN)
 	// consists of only parents. This is not a problem, as the entire population will get sorted
 	// in this case, and new parents and children will be tagged after the select function.
 }

@@ -418,6 +418,13 @@ private:
 	/** @brief Implements the VALUERECOMBINE recombination scheme */
 	void valueRecombine(boost::shared_ptr<GIndividual>&, const std::vector<double>&);
 
+	/** @brief Selection, MUPLUSNU style */
+	void sortMuplusnuMode();
+	/** @brief Selection, MUCOMMANU style */
+	void sortMucommanuMode();
+	/** @brief Selection, MUNU1PRETAIN style */
+	void sortMunu1pretainMode();
+
 	std::size_t nParents_; ///< The number of parents
 	std::size_t popSize_; ///< The size of the population. Only used in adjustPopulation()
 	boost::uint32_t generation_; ///< The current generation

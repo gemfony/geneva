@@ -218,8 +218,8 @@ void GBoostThreadPopulation::mutateChildren() {
 
 	// We start with the parents, if this is generation 0. Their
 	// initial fitness needs to be determined, if this is the MUPLUSNU
-	// selection model.
-	if(generation==0 && (this->getSortingScheme()==MUPLUSNU)) {
+	// or MUNU1PRETAIN selection model.
+	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)) {
 		for(it=data.begin(); it!=data.begin() + nParents; ++it) {
 			tp_.schedule(boost::bind(&GIndividual::checkedFitness, it->get()));
 		}

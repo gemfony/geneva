@@ -596,16 +596,16 @@ void GBasePopulation::setPopulationSize(const std::size_t& popSize, const std::s
 
 /***********************************************************************************/
 /**
- * This action is performed before the optimization cycle. The function checks that
- * the population size meets the requirements and resizes the population to the
- * appropriate size, if required. An obvious precondition is that at least one individual
- * has been added to the population. It is interpreted as a parent and serves as the
- * template for missing individuals (children and parents). Parents that have already
- * been added will not be replaced. This is one of the few occasions where popSize_ is
- * used directly. In most occasions we refer to the size of the vector instead to allow
- * short-term adjustments of the vector size. Note, though, that GBasePopulation will
- * enforce a minimum number of children, as implied by the initial population size and
- * the number of parents.
+ * The function checks that the population size meets the requirements and resizes the
+ * population to the appropriate size, if required. An obvious precondition is that at
+ * least one individual has been added to the population. It is interpreted as a parent
+ * and serves as the template for missing individuals (children and parents). Parents
+ * that have already been added will not be replaced. This is one of the few occasions
+ * where popSize_ is used directly. In most occasions we refer to the size of the vector
+ * instead to allow short-term adjustments of the vector size. Note, though, that
+ * GBasePopulation will enforce a minimum number of children, as implied by the initial
+ * population size and the number of parents. This function is called once before the
+ * optimization cycle.
  */
 void GBasePopulation::adjustPopulation() {
 	// First check that we have been given suitable values for population size
@@ -627,14 +627,27 @@ void GBasePopulation::adjustPopulation() {
 
 	// In MUCOMMANU mode we want to have at least as many children as parents,
 	// whereas MUPLUSNU only requires the population size to be larger than the
-	// number of parents.
-	if((smode_==MUCOMMANU && (popSize_ < 2*nParents_)) ||
-	   (smode_==MUPLUSNU && popSize_<=nParents_))
+	// number of parents. NUNU1PRETAIN has the same requirements as MUCOMMANU,
+	// as it is theoretically possible that all children are better than the former
+	// parents, so that the first parent individual will be replaced.
+	if(((smode_==MUCOMMANU || smode_==MUNU1PRETAIN) && (popSize_ < 2*nParents_)) || (smode_==MUPLUSNU && popSize_<=nParents_))
 	{
 		std::ostringstream error;
 		error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
 			  << "Requested size of population is too small :" << popSize_ << " " << nParents_ << std::endl
-		      << "Sorting scheme is " << (smode_==MUCOMMANU?"MUCOMMANU":"MUPLUSNU") << std::endl;
+		      << "Sorting scheme is ";
+
+		switch(smode_) {
+		case MUPLUSNU:
+			error << "MUPLUSNU" << std::endl;
+			break;
+		case MUCOMMANU:
+			error << "MUCOMMANU" << std::endl;
+			break;
+		case MUNU1PRETAIN:
+			error << "MUNU1PRETAIN" << std::endl;
+			break;
+		}
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
@@ -1163,6 +1176,7 @@ void GBasePopulation::mutateChildren()
  */
 void GBasePopulation::select()
 {
+#ifdef DEBUG
 	// We require at this stage that at least the default number of
 	// children is present. If individuals can get lost in your setting,
 	// you must add mechanisms to "repair" the population.
@@ -1176,43 +1190,112 @@ void GBasePopulation::select()
 		// is caught through a base object, no information is lost.
 		throw geneva_error_condition(error.str());
 	}
+#endif /* DEBUG */
+
+	switch(smode_) {
+	//----------------------------------------------------------------------------
+	case MUPLUSNU:
+		this->sortMuplusnuMode();
+		break;
+
+	//----------------------------------------------------------------------------
+	case MUCOMMANU:
+		this->sortMucommanuMode();
+		break;
+
+
+	case MUNU1PRETAIN:
+		this->sortMunu1pretainMode();
+		break;
+
+	//----------------------------------------------------------------------------
+	}
 
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it_begin;
 
-	// Find suitable start and end-points
-	if(smode_ == MUPLUSNU) it_begin = data.begin();
-	else it_begin = data.begin() + nParents_; // MUCOMMANU
+	// Let all parents know they are parents
+	std::for_each(data.begin(), data.begin()+nParents_,boost::bind(&GIndividual::setIsParent, _1));
+}
 
-	// Sort the arrays. Note that we are using boost::function
-	// objects here, that have been "loaded" with function objects
-	// in the default constructor. We use partial_sort so that we
-        // do not have to sort the entire vector. All we need is a sorted
-	// list of the nParent_ best individuals.
+/***********************************************************************************/
+/**
+ * Selection, MUPLUSNU style. All individuals of the population (including parents)
+ * are sorted. The quality of the population can only increase, but the optimization
+ * will stall more easily.
+ */
+void GBasePopulation::sortMuplusnuMode() {
+	// Sort the entire array
 	if(maximize_){
-	        std::partial_sort(it_begin, it_begin + nParents_, data.end(),
-				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
+				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 	}
 	else{
-	        std::partial_sort(it_begin, it_begin + nParents_, data.end(),
-				  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
-	}
-
-	// Move the parents' region to the end of the range if
-	// this is the MUCOMMANU case
-	if(smode_ == MUCOMMANU)
-		std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
-
-	// Let all parents know they are parents
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(); it!=data.begin()+nParents_; ++it){
-		(*it)->setIsParent();
+		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
+				boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
 	}
 }
 
 /***********************************************************************************/
 /**
+ * Selection, MUCOMMANU style. New parents are selected from children only. The quality
+ * of the population may decrease from generation to generation, but the optimization
+ * is less likely to stall.
+ */
+void GBasePopulation::sortMucommanuMode() {
+	// Only sort the children
+	if(maximize_){
+		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
+			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+	}
+	else{
+		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
+			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+	}
+	std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
+}
+
+/***********************************************************************************/
+/**
+ * Selection, MUNU1PRETAIN style. This is a hybrid between MUPLUSNU and MUCOMMANU
+ * mode. If a better child was found than the best parent of the last generation,
+ * all former parents are replaced. If no better child was found than the best
+ * parent of the last generation, then this parent stays in place. All other parents
+ * are replaced by the (nParents_-1) best children. The scheme falls back to MUPLUSNU
+ * mode, of only one parent is available, or if this is the first generation (so we
+ * do not accidentally trigger value calculation.
+ */
+void GBasePopulation::sortMunu1pretainMode() {
+	if(nParents_==1 || generation_==0) { // Falls back to MUPLUSNU mode
+		this->sortMuplusnuMode();
+	} else {
+		// Sort the children
+		if(maximize_){
+			std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
+				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+		}
+		else{
+			std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
+				  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+		}
+
+		// Retrieve the best child's and the last generation's best parent's fitness
+		double bestChildFitness = (*(data.begin() + nParents_))->fitness();
+		double bestParentFitness = (*(data.begin()))->fitness();
+
+		// Leave the best parent in place, if no better child was found
+		if(!this->isBetter(bestChildFitness, bestParentFitness)) {
+			std::swap_ranges(data.begin()+1,data.begin()+nParents_,data.begin()+nParents_);
+		} else { // A better child was found. Overwrite all parents
+			std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
+		}
+	}
+}
+
+
+/***********************************************************************************/
+/**
  * Possible mutations of a population could involve shifting of individuals.
- * By default, no mutation is defined.
+ * By default, no mutations are defined.
  */
 void GBasePopulation::customMutations()
 { /* nothing */}

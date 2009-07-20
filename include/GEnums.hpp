@@ -83,7 +83,7 @@ enum adaptorId {
  * MUNU1PRETAIN means that the best parent of the last generation will also become a new parent
  * (unless a better child was found). All other parents are selected from children only.
  */
-enum sortingMode {MUPLUSNU=0, MUCOMMANU=1 /*, MUNU1PRETAIN=2 */};
+enum sortingMode {MUPLUSNU=0, MUCOMMANU=1, MUNU1PRETAIN=2};
 
 /**********************************************************************************************/
 

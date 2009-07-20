@@ -4,6 +4,9 @@ The main changes for this release include:
  - Added option to GBasePopulation to stop optimizing after a user-defined number of stalls
  - Allowed to selectively switch off mutations (i.e. value changes) for GParameterBase derivatives
  - Gave GBrokerPopulation the ability to dynamically adapt the waitFactor_ variable upon request
+ - Added a new selection scheme MUNU1PRETAIN to GBasePopulation. In this scheme, the best parent of
+   the last generation is retained, unless a better child was found. The other parents are replaced
+   by the best children. This is a hybrid between the MUPLUSNU and MUCOMMANU modes.
 
 * Version 0.5.3, "Building 39" - July 6, 2009
 
