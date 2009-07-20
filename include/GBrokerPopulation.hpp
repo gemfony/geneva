@@ -62,6 +62,13 @@ namespace GenEvA
   const boost::uint32_t DEFAULTWAITFACTOR = 20;
 
   /**
+   * The default maximum value of the wait factor used during automatic
+   * adaption of the waitFactor_ variable. If set to 0, no automatic
+   * adaption will take place.
+   */
+  const boost::uint32_t DEFAULTMAXWAITFACTOR = 0;
+
+  /**
    * The default allowed time in seconds for the first individual
    * in generation 0 to return. Set it to 0 to disable this timeout.
    */
@@ -101,6 +108,7 @@ namespace GenEvA
       ar & make_nvp("firstTimeOut_", firstTimeOut_);
       ar & make_nvp("loopTime_",loopTime_);
       ar & make_nvp("waitFactor_", waitFactor_);
+      ar & make_nvp("maxWaitFactor_", maxWaitFactor_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -135,9 +143,13 @@ namespace GenEvA
     virtual void optimize();
 
     /** @brief Sets the wait factor */
-    void setWaitFactor(const boost::uint32_t&) ;
+    void setWaitFactor(const boost::uint32_t&);
+    /** @brief Sets the wait factor, including automatic adaption of the factor */
+    void setWaitFactor(const boost::uint32_t&, const boost::uint32_t&);
     /** @brief Retrieves the wait factor */
-    boost::uint32_t getWaitFactor() const ;
+    boost::uint32_t getWaitFactor() const;
+    /** @brief Retrieves the maximum wait factor used in automatic adaption of the wait factor */
+    boost::uint32_t getMaxWaitFactor() const;
 
     /** @brief Sets the first timeout factor */
     void setFirstTimeOut(const boost::posix_time::time_duration&);
@@ -157,6 +169,7 @@ namespace GenEvA
 
   private:
 	boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
+	boost::uint32_t maxWaitFactor_; ///< Determines the maximum allowed wait factor during automatic adaption of the waitFactor_ variable
 
     boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
     boost::posix_time::time_duration loopTime_;

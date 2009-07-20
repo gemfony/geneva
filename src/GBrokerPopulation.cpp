@@ -41,6 +41,7 @@ namespace GenEvA
 GBrokerPopulation::GBrokerPopulation()
 	:GBasePopulation(),
      waitFactor_(DEFAULTWAITFACTOR),
+     maxWaitFactor_(DEFAULTMAXWAITFACTOR),
      firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT)),
      loopTime_(boost::posix_time::milliseconds(DEFAULTLOOPMSEC))
 { /* nothing */ }
@@ -54,6 +55,7 @@ GBrokerPopulation::GBrokerPopulation()
 GBrokerPopulation::GBrokerPopulation(const GBrokerPopulation& cp)
 	:GBasePopulation(cp),
 	 waitFactor_(cp.waitFactor_),
+	 maxWaitFactor_(cp.maxWaitFactor_),
 	firstTimeOut_(cp.firstTimeOut_),
 	loopTime_(cp.loopTime_)
 { /* nothing */ }
@@ -93,6 +95,7 @@ void GBrokerPopulation::load(const GObject * cp) {
 
 	// ... and then our own
 	waitFactor_=gbp_load->waitFactor_;
+	maxWaitFactor_=gbp_load->maxWaitFactor_;
 	firstTimeOut_=gbp_load->firstTimeOut_;
 	loopTime_=gbp_load->loopTime_;
 }
@@ -147,6 +150,7 @@ bool GBrokerPopulation::isEqualTo(const GObject& cp, const boost::logic::tribool
 
 	// Then we take care of the local data
 	if(checkForInequality("GBrokerPopulation", waitFactor_, gbp_load->waitFactor_,"waitFactor_", "gbp_load->waitFactor_", expected)) return false;
+	if(checkForInequality("GBrokerPopulation", maxWaitFactor_, gbp_load->maxWaitFactor_,"maxWaitFactor_", "gbp_load->maxWaitFactor_", expected)) return false;
 	if(checkForInequality("GBrokerPopulation", firstTimeOut_, gbp_load->firstTimeOut_,"firstTimeOut_", "gbp_load->firstTimeOut_", expected)) return false;
 	if(checkForInequality("GBrokerPopulation", loopTime_, gbp_load->loopTime_,"loopTime_", "gbp_load->loopTime_", expected)) return false;
 
@@ -172,6 +176,7 @@ bool GBrokerPopulation::isSimilarTo(const GObject& cp, const double& limit, cons
 
 	// Then we take care of the local data
 	if(checkForDissimilarity("GBrokerPopulation", waitFactor_, gbp_load->waitFactor_, limit, "waitFactor_", "gbp_load->waitFactor_", expected)) return false;
+	if(checkForDissimilarity("GBrokerPopulation", maxWaitFactor_, gbp_load->maxWaitFactor_, limit, "maxWaitFactor_", "gbp_load->maxWaitFactor_", expected)) return false;
 	if(checkForDissimilarity("GBrokerPopulation", firstTimeOut_, gbp_load->firstTimeOut_, limit, "firstTimeOut_", "gbp_load->firstTimeOut_", expected)) return false;
 	if(checkForDissimilarity("GBrokerPopulation", loopTime_, gbp_load->loopTime_, limit, "loopTime_", "gbp_load->loopTime_", expected)) return false;
 
@@ -194,12 +199,43 @@ void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor)  {
 
 /******************************************************************************/
 /**
+ * Sets the waitFactor_ and the maximumWaitFactor_ variable. If the latter is
+ * != 0, the waitFactor_ will be automatically adapted, based on the number of
+ * older individuals received.
+ *
+ * @param waitFactor The desired new value for waitFactor_ .
+ */
+void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor, const boost::uint32_t& maxWaitFactor)  {
+	// Do error checks
+	if(maxWaitFactor && maxWaitFactor < waitFactor) {
+		std::ostringstream error;
+		error << "In GBrokerPopulation::setWaitFactor(uint32_t, uint32_t) : Error!" << std::endl
+			  << "invalid maximum wait factor: " << maxWaitFactor << " / " << waitFactor << std::endl;
+		throw geneva_error_condition(error.str());
+	}
+
+	waitFactor_ = waitFactor;
+	maxWaitFactor_ = maxWaitFactor;
+}
+
+/******************************************************************************/
+/**
  * Retrieves the waitFactor_ variable.
  *
  * @return The value of the waitFactor_ variable
  */
 boost::uint32_t GBrokerPopulation::getWaitFactor() const  {
 	return waitFactor_;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the maxWaitFactor_ variable.
+ *
+ * @return The value of the maxWaitFactor_ variable
+ */
+boost::uint32_t GBrokerPopulation::getMaxWaitFactor() const  {
+	return maxWaitFactor_;
 }
 
 /******************************************************************************/
@@ -356,6 +392,9 @@ void GBrokerPopulation::mutateChildren() {
 			}
 			else {
 				if(!p->isParent()){ // We do not accept parents from older populations
+					// Make it known to the individual that it is now part of a new generation
+					p->setParentPopGeneration(generation);
+
 					// Add the individual to our list.
 					this->push_back(p);
 
@@ -380,6 +419,7 @@ void GBrokerPopulation::mutateChildren() {
 	// At this point we have received the first individual of the current generation back.
 	// Record the time
 	time_duration totalElapsedFirst = microsec_clock::local_time()-startTime;
+	time_duration maxAllowedElapsed = totalElapsedFirst * waitFactor_;
 	time_duration totalElapsed = totalElapsedFirst;
 
 	// Wait for further arrivals
@@ -400,6 +440,9 @@ void GBrokerPopulation::mutateChildren() {
 			}
 			else {
 				if(!p->isParent()){  // We do not accept parents from older populations
+					// Make it known to the individual that it is now part of a new generation
+					p->setParentPopGeneration(generation);
+
 					// Add the individual to our list.
 					this->push_back(p);
 
@@ -411,7 +454,7 @@ void GBrokerPopulation::mutateChildren() {
 		catch(Gem::Util::gem_util_condition_time_out&) {
 			// Break if we have reached the timeout
 			totalElapsed = microsec_clock::local_time()-startTime;
-			if(waitFactor_ && (totalElapsed > totalElapsedFirst*waitFactor_)) break;
+			if(waitFactor_ && (totalElapsed > maxAllowedElapsed)) break;
 		}
 
 		// Break if all children (and parents in generation 0 / MUPLUSNU) of the
@@ -447,9 +490,26 @@ void GBrokerPopulation::mutateChildren() {
 			 boost::bind(&GIndividual::isParent, _1) > boost::bind(&GIndividual::isParent, _2));
 	}
 
+	//--------------------------------------------------------------------------------
 	// We are done, if all individuals from this generation have returned.
 	// The population size is at least at nominal values.
-	if(complete) return;
+	if(complete) {
+		// Check if we have used significantly less time than allowed by the waitFactor_ variable
+		// If so, and we do use automatic adaption of that variable, decrease the factor by one.
+		if(waitFactor_ && maxWaitFactor_) { // Have we been asked to adapt the waitFactor_ variable ?
+			totalElapsed = microsec_clock::local_time()-startTime;
+			if(totalElapsed < maxAllowedElapsed &&
+					(maxAllowedElapsed.total_microseconds() - totalElapsedFirst.total_microseconds()) >
+					 long(double(maxAllowedElapsed.total_microseconds())*0.1)) {
+				if(waitFactor_ > 1) waitFactor_ -= 1;
+#ifdef DEBUG
+				std::cout << "Adapted the waitFactor_ variable to " << waitFactor_ << std::endl;
+#endif /* DEBUG */
+			}
+		}
+
+		return;
+	}
 
 	//--------------------------------------------------------------------------------
 	// O.k., we are missing individuals from the current population. Do some fixing.
@@ -488,6 +548,19 @@ void GBrokerPopulation::mutateChildren() {
 #ifdef DEBUG
 	std::cout << information.str();
 #endif /* DEBUG */
+
+	// Adapt the waitFactor_ variable, if necessary
+	// Check if we have used significantly less time than allowed by the waitFactor_ variable
+	// If so, and we do use automatic adaption of that variable, decrease the factor by one.
+	if(waitFactor_ && maxWaitFactor_) { // Have we been asked to adapt the waitFactor_ variable ?
+		if(generation>0 && double(nReceivedChildOlder) > 0.1*double(nc)) {
+			if(waitFactor_ < maxWaitFactor_) waitFactor_ += 1;
+		}
+
+#ifdef DEBUG
+			std::cout << "Adapted the waitFactor_ variable to " << waitFactor_ << std::endl;
+#endif /* DEBUG */
+	}
 
 	// We care for too many returned individuals in the select() function. Older
 	// individuals might nevertheless have a better quality. We do not want to loose them.
