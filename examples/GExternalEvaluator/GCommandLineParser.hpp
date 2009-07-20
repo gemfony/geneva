@@ -67,7 +67,7 @@ const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
 const boost::uint32_t DEFAULTNEVALUATIONS=5;
 const Gem::GenEvA::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::GenEvA::BINARYEXCHANGE;
-const bool DEFAULTSORTINGSCHEME=true; // MUPLUSNU
+const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
 const boost::uint32_t DEFAULTINTERVAL=0;
 const bool DEFAULTMAXIMIZE=false;
 const bool DEFAULTPRODUCTIONPLACE=true; // local production of random numbers
@@ -97,7 +97,7 @@ bool parseCommandLine(int argc, char **argv,
 					  double& maxSigma,
 					  boost::uint32_t& nEvaluations,
 					  Gem::GenEvA::dataExchangeMode& exchangeMode,
-					  bool& sortingScheme,
+					  sortingMode& smode,
 					  boost::uint32_t& interval,
 					  bool& maximize,
 					  bool& productionPlace,

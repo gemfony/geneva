@@ -580,7 +580,7 @@ void GBrokerPopulation::select() {
 	////////////////////////////////////////////////////////////
 	// Great - we are at least at the default level and are
 	// ready to call the actual select() function. This will
-	// automatically take care of MUPLUSNU and MUCOMMANU mode.
+	// automatically take care of the selection modes.
 	GBasePopulation::select();
 
 	////////////////////////////////////////////////////////////

@@ -139,7 +139,7 @@ int main(int argc, char **argv){
 	double sigma,sigmaSigma,minSigma,maxSigma;
 	boost::uint32_t nEvaluations;
 	Gem::GenEvA::dataExchangeMode exchangeMode;
-	bool sortingScheme;
+	sortingMode smode;
 	boost::uint32_t interval;
 	bool maximize;
     bool productionPlace;
@@ -168,7 +168,7 @@ int main(int argc, char **argv){
 			maxSigma,
 			nEvaluations,
 			exchangeMode,
-			sortingScheme,
+			smode,
 			interval,
 			maximize,
 			productionPlace,
@@ -247,7 +247,7 @@ int main(int argc, char **argv){
 		pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
 		pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
 		pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-		pop_ser.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+		pop_ser.setSortingScheme(smode); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 		pop_ser.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
 
 		// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
@@ -325,7 +325,7 @@ int main(int argc, char **argv){
 		pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after this amount of time
 		pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 		pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-		pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+		pop_par.setSortingScheme(smode); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
 		pop_par.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
 
 		// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
@@ -408,7 +408,7 @@ int main(int argc, char **argv){
 			pop_broker.setMaxTime(boost::posix_time::minutes(maxMinutes));
 			pop_broker.setReportGeneration(reportGeneration);
 			pop_broker.setRecombinationMethod(rScheme);
-			pop_broker.setSortingScheme(sortingScheme);
+			pop_broker.setSortingScheme(smode);
 			pop_broker.setMaximize(maximize); // Specifies whether the program should do maximization or minimization
 
 			// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.

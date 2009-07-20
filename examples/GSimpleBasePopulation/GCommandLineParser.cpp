@@ -45,7 +45,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  bool& sortingScheme,
+					  sortingMode& smode,
 					  bool& parallel,
 					  bool& maximize,
 					  std::size_t& arraySize,
@@ -85,8 +85,8 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of generations after which information should be emitted in the super-population")
 			("rScheme,E",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme for the super-population")
-			("sortingScheme,o", po::value<bool>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
-					"Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode")
+			("sortingMode,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
+					"Determines the sorting scheme being used")
 			("parallel,p", po::value<bool>(&parallel)->default_value(DEFAULTPARALLEL),
 			        "Whether or not to run this optimization in multi-threaded mode")
 			("maximize,z", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
@@ -154,7 +154,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
-					  << "sortingScheme = " << sortingScheme << std::endl
+					  << "sortingMode = " << smode << std::endl
 					  << "maximize = " << maximize << std::endl
 					  << "arraySize = " << arraySize << std::endl
 					  << "productionPlace = " << (productionPlace?"factory":"locally") << std::endl

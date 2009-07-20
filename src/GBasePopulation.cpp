@@ -51,7 +51,7 @@ GBasePopulation::GBasePopulation() :
 	cpBaseName_(DEFAULTCPBASENAME), // Set in GIndividualSet.hpp
 	cpDirectory_(DEFAULTCPDIR), // Set in GIndividualSet.hpp
 	recombinationMethod_(DEFAULTRECOMBINE),
-	muplusnu_(MUPLUSNU),
+	smode_(DEFAULTSMODE),
 	maximize_(DEFAULTMAXMODE),
 	id_("empty"),
 	firstId_(true), // The "real" id will be set in the GBasePopulation::optimize function
@@ -82,7 +82,7 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	cpBaseName_(cp.cpBaseName_),
 	cpDirectory_(cp.cpDirectory_),
 	recombinationMethod_(cp.recombinationMethod_),
-	muplusnu_(cp.muplusnu_),
+	smode_(cp.smode_),
 	maximize_(cp.maximize_),
 	id_("empty"),
 	firstId_(true), // We want the id to be re-calculated for a new object
@@ -136,7 +136,7 @@ void GBasePopulation::load(const GObject * cp)
 	cpBaseName_ = gbp_load->cpBaseName_;
 	cpDirectory_ = gbp_load->cpDirectory_;
 	recombinationMethod_ = gbp_load->recombinationMethod_;
-	muplusnu_ = gbp_load->muplusnu_;
+	smode_ = gbp_load->smode_;
 	maximize_ = gbp_load->maximize_;
 	id_="empty"; // We need our own id
 	firstId_=true, // We want the id to be re-calculated for a new object
@@ -207,7 +207,7 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 	if(checkForInequality("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_,"cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
 	if(checkForInequality("GBasePopulation", cpDirectory_, gbp_load->cpDirectory_,"cpDirectory_", "gbp_load->cpDirectory_", expected)) return false;
 	if(checkForInequality("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
-	if(checkForInequality("GBasePopulation", muplusnu_, gbp_load->muplusnu_,"muplusnu_", "gbp_load->muplusnu_", expected)) return false;
+	if(checkForInequality("GBasePopulation", smode_, gbp_load->smode_,"smode_", "gbp_load->smode_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maximize_, gbp_load->maximize_,"maximize_", "gbp_load->maximize_", expected)) return false;
 	if(checkForInequality("GBasePopulation", id_, gbp_load->id_,"id_", "gbp_load->id_", expected)) return false;
 	if(checkForInequality("GBasePopulation", firstId_, gbp_load->firstId_,"firstId_", "gbp_load->firstId_", expected)) return false;
@@ -248,7 +248,7 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_, limit, "cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", cpDirectory_, gbp_load->cpDirectory_, limit, "cpDirectory_", "gbp_load->cpDirectory_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", muplusnu_, gbp_load->muplusnu_, limit, "muplusnu_", "gbp_load->muplusnu_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", smode_, gbp_load->smode_, limit, "smode_", "gbp_load->smode_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maximize_, gbp_load->maximize_, limit, "maximize_", "gbp_load->maximize_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", id_, gbp_load->id_, limit, "id_", "gbp_load->id_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", firstId_, gbp_load->firstId_, limit, "firstId_", "gbp_load->firstId_", expected)) return false;
@@ -628,13 +628,13 @@ void GBasePopulation::adjustPopulation() {
 	// In MUCOMMANU mode we want to have at least as many children as parents,
 	// whereas MUPLUSNU only requires the population size to be larger than the
 	// number of parents.
-	if((muplusnu_==MUCOMMANU && (popSize_ < 2*nParents_)) ||
-	   (muplusnu_==MUPLUSNU && popSize_<=nParents_))
+	if((smode_==MUCOMMANU && (popSize_ < 2*nParents_)) ||
+	   (smode_==MUPLUSNU && popSize_<=nParents_))
 	{
 		std::ostringstream error;
 		error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
 			  << "Requested size of population is too small :" << popSize_ << " " << nParents_ << std::endl
-		      << "Sorting scheme is " << (muplusnu_==MUCOMMANU?"MUCOMMANU":"MUPLUSNU") << std::endl;
+		      << "Sorting scheme is " << (smode_==MUCOMMANU?"MUCOMMANU":"MUPLUSNU") << std::endl;
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
@@ -762,14 +762,16 @@ std::size_t GBasePopulation::getNChildren() const {
 
 /***********************************************************************************/
 /**
- * Sets the sorting scheme to MUPLUSNU (new parents will be selected from the entire
- * population, including the old parents) or MUCOMMANU (new parents will be selected
- * from children only).
+ * Sets the sorting scheme. In MUPLUSNU, new parents will be selected from the entire
+ * population, including the old parents. In MUCOMMANU new parents will be selected
+ * from children only. MUNU1PRETAIN means that the best parent of the last generation
+ * will also become a new parent (unless a better child was found). All other parents are
+ * selected from children only.
  *
- * @param muplusnu The desired sorting scheme
+ * @param smode The desired sorting scheme
  */
-void GBasePopulation::setSortingScheme(const bool& muplusnu) {
-	muplusnu_=muplusnu;
+void GBasePopulation::setSortingScheme(const sortingMode& smode) {
+	smode_=smode;
 }
 
 /***********************************************************************************/
@@ -779,8 +781,8 @@ void GBasePopulation::setSortingScheme(const bool& muplusnu) {
  *
  * @return The current sorting scheme
  */
-bool GBasePopulation::getSortingScheme() const {
-	return muplusnu_;
+sortingMode GBasePopulation::getSortingScheme() const {
+	return smode_;
 }
 
 /***********************************************************************************/
@@ -1178,7 +1180,7 @@ void GBasePopulation::select()
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it_begin;
 
 	// Find suitable start and end-points
-	if(muplusnu_ == MUPLUSNU) it_begin = data.begin();
+	if(smode_ == MUPLUSNU) it_begin = data.begin();
 	else it_begin = data.begin() + nParents_; // MUCOMMANU
 
 	// Sort the arrays. Note that we are using boost::function
@@ -1197,7 +1199,7 @@ void GBasePopulation::select()
 
 	// Move the parents' region to the end of the range if
 	// this is the MUCOMMANU case
-	if(!muplusnu_)
+	if(smode_ == MUCOMMANU)
 		std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
 
 	// Let all parents know they are parents
@@ -1219,8 +1221,7 @@ void GBasePopulation::customMutations()
 /**
  * Fitness calculation for a population means optimization. The fitness is then determined
  * by the best individual which, after the end of the optimization cycle, can be found in
- * the first position of the array. This is true both for MUPLUSNU and MUCOMMANU sorting
- * mode.
+ * the first position of the array. This is true both for all sorting modes.
  *
  * @return The fitness of the best individual in the population
  */

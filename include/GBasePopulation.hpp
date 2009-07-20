@@ -64,13 +64,6 @@ namespace Gem {
 namespace GenEvA {
 
 /**
- * The two const variables MUPLUSNU and MUCOMMANU determine, whether new parents
- * should be selected from the entire population or from the children only
- */
-const bool MUPLUSNU = true;
-const bool MUCOMMANU = false;
-
-/**
  * The two const variables MAXIMIZE and MINIMIZE determine, whether the library
  * should work in maximization or minimization mode.
  */
@@ -119,6 +112,11 @@ const std::string DEFAULTDURATION = EMPTYDURATION;
  */
 const double DEFAULTQUALITYTHRESHOLD=0.;
 
+/**
+ * The default sorting mode
+ */
+const sortingMode DEFAULTSMODE=MUPLUSNU;
+
 /*********************************************************************************/
 /**
  * The GBasePopulation class adds the notion of parents and children to
@@ -159,7 +157,7 @@ class GBasePopulation
 		ar & make_nvp("cpBaseName_", cpBaseName_);
 		ar & make_nvp("cpDirectory_", cpDirectory_);
 		ar & make_nvp("recombinationMethod_", recombinationMethod_);
-		ar & make_nvp("muplusnu_", muplusnu_);
+		ar & make_nvp("smode_", smode_);
 		ar & make_nvp("maximize_", maximize_);
 		ar & make_nvp("maxDuration_", maxDuration_);
 		ar & make_nvp("defaultNChildren_", defaultNChildren_);
@@ -236,10 +234,10 @@ public:
 	/** @brief Retrieves the default population size */
 	std::size_t getDefaultPopulationSize() const;
 
-	/** @brief Set the sorting scheme for this population (MUPLUSNU or MUCOMMANU) */
-	void setSortingScheme(const bool&);
+	/** @brief Set the sorting scheme for this population */
+	void setSortingScheme(const sortingMode&);
 	/** @brief Retrieve the current sorting scheme for this population */
-	bool getSortingScheme() const;
+	sortingMode getSortingScheme() const;
 
 	/** @brief Set the number of generations after which sorting should be stopped */
 	void setMaxGeneration(const boost::uint32_t&);
@@ -430,7 +428,7 @@ private:
 	std::string cpBaseName_; ///< The base name of the checkpoint file
 	std::string cpDirectory_; ///< The directory where checkpoint files should be stored
 	recoScheme recombinationMethod_; ///< The chosen recombination method
-	bool muplusnu_; ///< The chosen sorting scheme
+	sortingMode smode_; ///< The chosen sorting scheme
 	bool maximize_; ///< The optimization mode (minimization/false vs. maximization/true)
 	std::string id_; ///< A unique id, used in networking contexts
 	bool firstId_; ///< Is this the first call to getId() ?

@@ -43,6 +43,7 @@
 
 // GenEvA headers go here
 #include "GEnums.hpp"
+#include "GSerializationHelperFunctions.hpp"
 
 namespace Gem
 {
@@ -65,7 +66,7 @@ const boost::uint32_t DEFAULTREPORTGENERATION=1;
 const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=0;
-const bool DEFAULTSORTINGSCHEME=true; // MUPLUSNU
+const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
 
 namespace po = boost::program_options;
 
@@ -84,7 +85,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  bool&sortingScheme,
+					  sortingMode&,
 					  bool& verbose);
 
 } /* namespace GenEvA */

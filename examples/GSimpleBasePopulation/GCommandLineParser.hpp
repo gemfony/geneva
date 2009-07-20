@@ -42,6 +42,7 @@
 
 // GenEvA headers go here
 #include "GEnums.hpp"
+#include "GSerializationHelperFunctions.hpp"
 
 namespace Gem
 {
@@ -64,7 +65,7 @@ const bool DEFAULTVERBOSE=true;
 const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
 const bool DEFAULTPARALLEL=true;
 const bool DEFAULTMAXIMIZE=false;
-const bool DEFAULTSORTINGSCHEME=true; // MUPLUSNU
+const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
 const double DEFAULTQTHRESHOLD=0.;
 const std::size_t DEFAULTARRAYSIZE=1000;
 const bool DEFAULTPRODUCTIONPLACE=true; // remote production
@@ -85,7 +86,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  bool& sortingScheme,
+					  sortingMode& smode,
 					  bool& parallel,
 					  bool& maximize,
 					  std::size_t& arraySize,

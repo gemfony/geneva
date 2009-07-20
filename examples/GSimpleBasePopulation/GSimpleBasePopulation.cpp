@@ -64,7 +64,7 @@ int main(int argc, char **argv){
 	 bool verbose;
 	 bool maximize;
 	 recoScheme rScheme;
-	 bool sortingScheme;
+	 sortingMode smode;
 	 double qualityThreshold;
 	 std::size_t arraySize;
 	 bool productionPlace;
@@ -84,7 +84,7 @@ int main(int argc, char **argv){
 						 maxMinutes,
 						 reportGeneration,
 						 rScheme,
-						 sortingScheme,
+						 smode,
 						 parallel,
 						 maximize,
 						 arraySize,
@@ -132,7 +132,7 @@ int main(int argc, char **argv){
 	  pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
 	  pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-	  pop_par.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+	  pop_par.setSortingScheme(smode); // Determines the sorting scheme
 	  pop_par.setMaximize(maximize); // Specifies whether we want to do maximization or minimization
 
 	  if(productionPlace) // Factory means "true"
@@ -158,7 +158,7 @@ int main(int argc, char **argv){
 	  pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
 	  pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
 	  pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-	  pop_ser.setSortingScheme(sortingScheme); // Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode
+	  pop_ser.setSortingScheme(smode); // Determines the sorting scheme
 	  pop_ser.setMaximize(maximize); // Specifies whether we want to do maximization or minimization
 
 	  if(productionPlace) // Factory means "true"

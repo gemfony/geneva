@@ -2,8 +2,8 @@
  * @file GBrokerPopulation.hpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2004-2009 Dr. Ruediger Berlich
+ * Copyright (C) 2007-2009 Forschungszentrum Karlsruhe GmbH
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *

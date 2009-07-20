@@ -41,50 +41,59 @@ namespace GenEvA {
 /**
  * The allowed modes during data exchange with external programs
  */
-	enum dataExchangeMode {BINARYEXCHANGE=0, TEXTEXCHANGE=1};
+enum dataExchangeMode {BINARYEXCHANGE=0, TEXTEXCHANGE=1};
 
 /**********************************************************************************************/
 /**
-   * The serialization modes that are currently allowed
-   */
-  enum serializationMode {TEXTSERIALIZATION=0, XMLSERIALIZATION=1, BINARYSERIALIZATION=2};
+ * The serialization modes that are currently allowed
+ */
+enum serializationMode {TEXTSERIALIZATION=0, XMLSERIALIZATION=1, BINARYSERIALIZATION=2};
 
-  /**********************************************************************************************/
-  /**
-   * Currently three types of recombination schemes are supported:
-   * - DEFAULTRECOMBINE defaults to RANDOMRECOMBINE
-   * - RANDOMRECOMBINE chooses the parents to be replicated randomly from all parents
-   * - VALUERECOMBINE prefers parents with a higher fitness
-   */
-  enum recoScheme {DEFAULTRECOMBINE=0, RANDOMRECOMBINE=1, VALUERECOMBINE=2};
+/**********************************************************************************************/
+/**
+ * Currently three types of recombination schemes are supported:
+ * - DEFAULTRECOMBINE defaults to RANDOMRECOMBINE
+ * - RANDOMRECOMBINE chooses the parents to be replicated randomly from all parents
+ * - VALUERECOMBINE prefers parents with a higher fitness
+ */
+enum recoScheme {DEFAULTRECOMBINE=0, RANDOMRECOMBINE=1, VALUERECOMBINE=2};
 
-  /**********************************************************************************************/
-  /**
-   * The info function can be called in these three modes
-   */
-  enum infoMode {INFOINIT=0, INFOPROCESSING=1, INFOEND=2};
+/**********************************************************************************************/
+/**
+ * The info function can be called in these three modes
+ */
+enum infoMode {INFOINIT=0, INFOPROCESSING=1, INFOEND=2};
 
-  /**********************************************************************************************/
-  /**
-   * Ids that are assigned to adaptors and which should (by convention!) be unique for these
-   */
-  enum adaptorId {
-		 GDOUBLEGAUSSADAPTOR=0,
-		 GINT32GAUSSADAPTOR=1,
-		 GBOOLEANADAPTOR=2,
-		 GINT32FLIPADAPTOR=3,
-		 GCHARFLIPADAPTOR=4
-  };
+/**********************************************************************************************/
+/**
+ * Ids that are assigned to adaptors and which should (by convention!) be unique for these
+ */
+enum adaptorId {
+	GDOUBLEGAUSSADAPTOR=0,
+	GINT32GAUSSADAPTOR=1,
+	GBOOLEANADAPTOR=2,
+	GINT32FLIPADAPTOR=3,
+	GCHARFLIPADAPTOR=4
+};
 
-  /**********************************************************************************************/
+/**********************************************************************************************/
+/**
+ * The selection mode in propulations. MUPLUSNU means that new parents are selected from old
+ * parents and their children. MUCOMMNU means that new parents are selected from children only.
+ * MUNU1PRETAIN means that the best parent of the last generation will also become a new parent
+ * (unless a better child was found). All other parents are selected from children only.
+ */
+enum sortingMode {MUPLUSNU=0, MUCOMMANU=1 /*, MUNU1PRETAIN=2 */};
 
-  const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
-  const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption
-  const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for sigma_
-  const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
-  const double DEFAULTMUTPROB = 0.05; // 5 percent mutation probability
+/**********************************************************************************************/
 
-  /**********************************************************************************************/
+const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
+const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption
+const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for sigma_
+const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
+const double DEFAULTMUTPROB = 0.05; // 5 percent mutation probability
+
+/**********************************************************************************************/
 
 } /* namespace GenEvA */
 

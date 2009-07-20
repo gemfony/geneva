@@ -53,7 +53,7 @@ bool parseCommandLine(int argc, char **argv,
 					  double& maxSigma,
 					  boost::uint32_t& nEvaluations,
 					  Gem::GenEvA::dataExchangeMode& exchangeMode,
-					  bool&sortingScheme,
+					  sortingMode& smode,
 					  boost::uint32_t& interval,
 					  bool& maximize,
 					  bool& productionPlace,
@@ -106,7 +106,7 @@ bool parseCommandLine(int argc, char **argv,
 					"The amount of evaluations each external program shall perform")
 			("exchangeMode,x", po::value<Gem::GenEvA::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
 					"Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
-			("sortingScheme,o", po::value<bool>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
+			("sortingMode,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
 					"Determines whether sorting is done in MUCOMMANU (0) or MUPLUSNU (1)  mode")
 			("interval,i", po::value<boost::uint32_t>(&interval)->default_value(DEFAULTINTERVAL),
 					"The generation interval in which result files should be printed")
@@ -177,7 +177,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "maxSigma = " << maxSigma << std::endl
 					  << "nEvaluations = " << nEvaluations << std::endl
 					  << "exchangeMode = " << (exchangeMode==0?"binary mode":"text mode") << std::endl
-					  << "sortingScheme = " << (sortingScheme?"MUPLUSNU":"MUCOMMANU") << std::endl
+					  << "sortingMode = " << (smode==MUPLUSNU?"MUPLUSNU":(smode==MUCOMMANU?"MUCOMMANU":"MUNU1PRETAIN")) << std::endl
 					  << "interval = " << interval << std::endl
 					  << "maximize = " << maximize << std::endl
 					  << "productionPlace = " << (productionPlace?"factory":"local") << std::endl

@@ -46,7 +46,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  bool&sortingScheme,
+					  sortingMode& smode,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme;
@@ -84,8 +84,8 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of generations after which information should be emitted")
 			("rScheme,r",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme")
-			("sortingScheme,o", po::value<bool>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
-					"Determines whether sorting is done in MUPLUSNU or MUCOMMANU mode")
+			("sortingMode,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
+					"Determines whether sorting is done in MUPLUSNU (0), MUCOMMANU (1) or MUNU1PRETAIN (2) mode")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -147,7 +147,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "maxMinutes = " << maxMinutes << std::endl
 					  << "reportGeneration = " << reportGeneration << std::endl
 					  << "rScheme = " << (boost::uint16_t)rScheme << std::endl
-					  << "sortingScheme = " << sortingScheme << std::endl
+					  << "sortingScheme = " << smode << std::endl
 					  << std::endl;
 		}
 	}
