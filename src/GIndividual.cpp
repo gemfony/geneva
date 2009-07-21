@@ -469,6 +469,24 @@ void GIndividual::clearAttributes() {
 
 /**********************************************************************************/
 /**
+ * Updates the individual's structure and/or parameters, if the optimization has
+ * stalled. The quality of the individual is likely to get worse. Hence it will
+ * enter a micro-training environment to improve its quality. The actions to be
+ * taken for this update depend on the actual structure of the individual
+ * and need to be implemented for each particular case individually. Thus, if this
+ * virtual base function is called directly, it will throw an exception.
+ */
+void GIndividual::updateOnStall() {
+	std::ostringstream error;
+	error << "In GIndividual::updateOnStall(): Error!" << std::endl
+		  << "Attempt to call the base function. This function" << std::endl
+		  << "should be re-implemented for each particular" << std::endl
+		  << "individual type." << std::endl;
+	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+}
+
+/**********************************************************************************/
+/**
  * A version of the fitness framework that also checks for
  * exceptions. To be used when fitness() is to become the main
  * function to be called by a thread.

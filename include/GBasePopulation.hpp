@@ -122,6 +122,13 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
  */
 const sortingMode DEFAULTSMODE=MUPLUSNU;
 
+/**
+ * The default number of generations without improvement after which
+ * a micro-training should be started. A value of 0 means that no
+ * micro-training will take place.
+ */
+const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
+
 /*********************************************************************************/
 /**
  * The GBasePopulation class adds the notion of parents and children to
@@ -157,6 +164,7 @@ class GBasePopulation
 		ar & make_nvp("generation_", generation_);
 		ar & make_nvp("maxGeneration_", maxGeneration_);
 		ar & make_nvp("maxStallGeneration_", maxStallGeneration_);
+		ar & make_nvp("microTrainingInterval_", microTrainingInterval_);
 		ar & make_nvp("stallCounter_", stallCounter_);
 		ar & make_nvp("bestPastFitness_", bestPastFitness_);
 		ar & make_nvp("reportGeneration_", reportGeneration_);
@@ -297,6 +305,14 @@ public:
 	boost::uint32_t getStallCounter() const;
 	/** @brief Retrieve the current best value found */
 	double getBestFitness() const;
+
+	/** @brief Set the interval in which micro training should be performed */
+	void setMicroTrainingInterval(const boost::uint32_t&);
+	/** @brief Retrieve the interval in which micro training should be performed */
+	boost::uint32_t getMicroTrainingInterval() const;
+
+	/** @brief Perform micro training */
+	void doMicroTraining();
 
 	/**************************************************************************************************/
 	/**
@@ -448,7 +464,8 @@ private:
 	boost::uint32_t maxGeneration_; ///< The maximum number of generations
 	boost::uint32_t stallCounter_; ///< Counts the number of generations without improvement
 	double bestPastFitness_; ///< Records the best fitness found in past generations
-	boost::uint32_t maxStallGeneration_; ///< The maximum number of generations without improvement
+	boost::uint32_t maxStallGeneration_; ///< The maximum number of generations without improvement, after which optimization is stopped
+	boost::uint32_t microTrainingInterval_; ///< The number of generations without improvements after which a micro training should be started
 	boost::uint32_t reportGeneration_; ///< Number of generations after which a report should be issued
 	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file

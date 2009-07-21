@@ -162,6 +162,9 @@ public:
 	/** @brief Clears the attribute table */
 	void clearAttributes();
 
+	/** @brief Updates the individual's structure and/or parameters, if the optimization has stalled */
+	virtual void updateOnStall();
+
 protected:
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;

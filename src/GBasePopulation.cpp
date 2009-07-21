@@ -48,6 +48,7 @@ GBasePopulation::GBasePopulation() :
 	stallCounter_(0),
 	bestPastFitness_(0.), // will be set appropriately in the optimize() function
 	maxStallGeneration_(DEFAULMAXTSTALLGEN),
+	microTrainingInterval_(DEFAULTMICROTRAININGINTERVAL),
 	reportGeneration_(DEFAULTREPORTGEN),
 	cpInterval_(DEFAULTCHECKPOINTGEN),
 	cpBaseName_(DEFAULTCPBASENAME), // Set in GIndividualSet.hpp
@@ -81,6 +82,7 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	stallCounter_(cp.stallCounter_),
 	bestPastFitness_(cp.bestPastFitness_),
 	maxStallGeneration_(cp.maxStallGeneration_),
+	microTrainingInterval_(cp.microTrainingInterval_),
 	reportGeneration_(cp.reportGeneration_),
 	cpInterval_(cp.cpInterval_),
 	cpBaseName_(cp.cpBaseName_),
@@ -137,6 +139,7 @@ void GBasePopulation::load(const GObject * cp)
 	stallCounter_ = gbp_load->stallCounter_;
 	bestPastFitness_ = gbp_load->bestPastFitness_;
 	maxStallGeneration_ = gbp_load->maxStallGeneration_;
+	microTrainingInterval_ = gbp_load->microTrainingInterval_;
 	reportGeneration_ = gbp_load->reportGeneration_;
 	cpInterval_ = gbp_load->cpInterval_;
 	cpBaseName_ = gbp_load->cpBaseName_;
@@ -210,6 +213,7 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 	if(checkForInequality("GBasePopulation", stallCounter_, gbp_load->stallCounter_,"stallCounter_", "gbp_load->stallCounter_", expected)) return false;
 	if(checkForInequality("GBasePopulation", bestPastFitness_, gbp_load->bestPastFitness_,"bestPastFitness_", "gbp_load->bestPastFitness_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maxStallGeneration_, gbp_load->maxStallGeneration_,"maxStallGeneration_", "gbp_load->maxStallGeneration_", expected)) return false;
+	if(checkForInequality("GBasePopulation", microTrainingInterval_, gbp_load->microTrainingInterval_,"microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
 	if(checkForInequality("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_,"reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
 	if(checkForInequality("GBasePopulation", cpInterval_, gbp_load->cpInterval_,"cpInterval_", "gbp_load->cpInterval_", expected)) return false;
 	if(checkForInequality("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_,"cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
@@ -253,6 +257,7 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GBasePopulation", stallCounter_, gbp_load->stallCounter_, limit, "stallCounter_", "gbp_load->stallCounter_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", bestPastFitness_, gbp_load->bestPastFitness_, limit, "bestPastFitness_", "gbp_load->bestPastFitness_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maxStallGeneration_, gbp_load->maxStallGeneration_, limit, "maxStallGeneration_", "gbp_load->maxStallGeneration_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", microTrainingInterval_, gbp_load->microTrainingInterval_, limit, "microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_, limit, "reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", cpInterval_, gbp_load->cpInterval_, limit, "cpInterval_", "gbp_load->cpInterval_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_, limit, "cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
@@ -273,7 +278,7 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 
 /***********************************************************************************/
 /**
- * Performs the necessary administratory work of doing checkpointing
+ * Performs the necessary administratory work of doing check-pointing
  */
 void GBasePopulation::checkpoint(const bool& better) const {
 	// Save checkpoints if required by the user
@@ -505,8 +510,16 @@ void GBasePopulation::optimize() {
 		this->mutateChildren(); // mutate children and calculate their value
 		this->select(); // find out the best individuals of the population
 
-		// Check whether a better value was found and do the check-pointing, if necessary
-		this->checkpoint(this->checkProgress());
+		// Check whether a better value was found
+		bool better = this->checkProgress();
+		//  Do the check-pointing, if necessary
+		this->checkpoint(better);
+
+		// Perform micro-training, if requested and necessary
+		if(microTrainingInterval_ && stallCounter_%microTrainingInterval_ == 0) {
+			this->doMicroTraining();
+			stallCounter_ = 0;
+		}
 
 		// We want to provide feedback to the user in regular intervals.
 		// Set the reportGeneration_ variable to 0 in order not to emit
@@ -746,6 +759,42 @@ boost::uint32_t GBasePopulation::getStallCounter() const {
  */
 double GBasePopulation::getBestFitness() const {
 	return bestPastFitness_;
+}
+
+/***********************************************************************************/
+/**
+ * Set the interval in which micro training should be performed. Set the
+ * interval to 0 in order to prevent micro training.
+ *
+ * @param mti The desired new value of the mircoTrainingInterval_ variable
+ */
+void GBasePopulation::setMicroTrainingInterval(const boost::uint32_t& mti) {
+	microTrainingInterval_ = mti;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieve the interval in which micro training should be performed
+ *
+ * @return The current value of the mircoTrainingInterval_ variable
+ */
+boost::uint32_t GBasePopulation::getMicroTrainingInterval() const {
+	return microTrainingInterval_;
+}
+
+/***********************************************************************************/
+/**
+ * Performs micro-training. If the optimization has stalled for too long: creates
+ * copies of the best individuals of the population. Calls their updateOnStall() functions,
+ * then does "private" training for a given number of cycles. If better individuals
+ * are found this way, they will replace the former parents
+ */
+void GBasePopulation::doMicroTraining() {
+	// Create copies of the parents of this population
+
+	// Call their updateOnStall functions
+
+	// Perform micro training
 }
 
 /***********************************************************************************/
