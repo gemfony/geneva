@@ -34,6 +34,11 @@
 #ifndef GDOUBLEPARAMETER_HPP_
 #define GDOUBLEPARAMETER_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // GenEvA headers go here
 
 #include "GNumericParameterT.hpp"

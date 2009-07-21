@@ -37,6 +37,12 @@
 #ifndef GBOUNDEDINT32_HPP_
 #define GBOUNDEDINT32_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
+
 // GenEvA headers go here
 #include "GBoundedNumT.hpp"
 

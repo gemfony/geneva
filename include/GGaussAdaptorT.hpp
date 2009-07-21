@@ -38,8 +38,13 @@
 #ifndef GGAUSSADAPTORT_HPP_
 #define GGAUSSADAPTORT_HPP_
 
-// GenEvA headers go here
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
+
+// GenEvA headers go here
 #include "GAdaptorT.hpp"
 #include "GObject.hpp"
 #include "GRandom.hpp"

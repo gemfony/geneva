@@ -30,7 +30,6 @@
 #include "GGlobalDefines.hpp"
 
 // Boost header files go here
-
 #include <boost/cstdint.hpp>
 #include <boost/serialization/map.hpp>
 
@@ -38,8 +37,13 @@
 #ifndef GINDIVIDUAL_HPP_
 #define GINDIVIDUAL_HPP_
 
-// Geneva header files go here
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
+
+// Geneva header files go here
 #include "GMutableI.hpp"
 #include "GRateableI.hpp"
 #include "GObject.hpp"

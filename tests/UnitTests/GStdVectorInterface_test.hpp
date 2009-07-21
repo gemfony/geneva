@@ -39,6 +39,12 @@
 #ifndef GSTDVECTORINTERFACE_TEST_HPP_
 #define GSTDVECTORINTERFACE_TEST_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
+// Geneva headers go here
 #include "GHelperFunctionsT.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
 #include "GStdPtrVectorInterfaceT.hpp"

@@ -41,6 +41,10 @@
 #ifndef GPARSER_HPP_
 #define GPARSER_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
 // Default settings
 const unsigned short DEFAULTLOGLEVEL=0;

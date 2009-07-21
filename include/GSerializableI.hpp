@@ -32,8 +32,13 @@
 #ifndef GSERIALIZABLEI_HPP_
 #define GSERIALIZABLEI_HPP_
 
-// Geneva header files go here
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
+
+// Geneva header files go here
 #include "GEnums.hpp" // For the serialization mode
 
 namespace Gem {

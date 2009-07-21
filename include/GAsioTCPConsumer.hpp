@@ -31,7 +31,6 @@
 #include "GGlobalDefines.hpp"
 
 // Boost headers go here
-
 #include <boost/cstdint.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -55,8 +54,13 @@
 #ifndef GASIOTCPCONSUMER_HPP_
 #define GASIOTCPCONSUMER_HPP_
 
-// Geneva headers go here
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
+
+// Geneva headers go here
 #include "GEnums.hpp"
 #include "GConsumer.hpp"
 #include "GIndividualBroker.hpp"

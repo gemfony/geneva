@@ -31,7 +31,6 @@
 #include "GGlobalDefines.hpp"
 
 // Boost headers go here
-
 #include <boost/cstdint.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -46,8 +45,13 @@
 #ifndef GASIOTCPCLIENT_HPP_
 #define GASIOTCPCLIENT_HPP_
 
-// GenEvA headers go here
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
+
+// GenEvA headers go here
 #include "GAsioHelperFunctions.hpp"
 #include "GSerializationHelperFunctions.hpp"
 #include "GBaseClient.hpp"

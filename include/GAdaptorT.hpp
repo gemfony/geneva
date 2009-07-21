@@ -45,6 +45,11 @@
 #ifndef GADAPTORT_HPP_
 #define GADAPTORT_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // Geneva headers go here
 
 #include "GObject.hpp"

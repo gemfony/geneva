@@ -51,6 +51,11 @@
 #ifndef GOPTIMIZATIONMONITOR_HPP_
 #define GOPTIMIZATIONMONITOR_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // GenEvA header files go here
 #include "GBasePopulation.hpp"
 #include "GEnums.hpp"

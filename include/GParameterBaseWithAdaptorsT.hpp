@@ -39,6 +39,12 @@
 #ifndef GPARAMETERBASEWITHADAPTORST_HPP_
 #define GPARAMETERBASEWITHADAPTORST_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
+
 // GenEvA headers go here
 #include "GParameterBase.hpp"
 #include "GObject.hpp"

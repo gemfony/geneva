@@ -32,5 +32,15 @@
 
 #include <vector>
 
+#ifndef INTCOORD_HPP_
+#define INTCOORD_HPP_
+
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 bool GetVectorOfDihedrals (OpenBabel::OBMol*, std::vector<double>&);
 bool SetVectorOfDihedrals (OpenBabel::OBMol*, const std::vector<double>&);
+
+#endif /* INTCOORD_HPP_ */

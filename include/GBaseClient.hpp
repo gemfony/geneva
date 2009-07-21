@@ -32,7 +32,6 @@
 #include "GGlobalDefines.hpp"
 
 // Boost headers go here
-
 #include <boost/cstdint.hpp>
 #include <boost/utility.hpp>
 #include <boost/asio.hpp>
@@ -52,8 +51,12 @@
 #ifndef GBASECLIENT_HPP_
 #define GBASECLIENT_HPP_
 
-// GenEvA headers go here
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
+// GenEvA headers go here
 #include "GIndividual.hpp"
 #include "GSerializationHelperFunctions.hpp"
 #include "GEnums.hpp"

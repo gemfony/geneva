@@ -61,6 +61,12 @@
 #ifndef GPARAMETERVALUEPAIR_HPP_
 #define GPARAMETERVALUEPAIR_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
+// Geneva headers go here
 #include "GNumericParameterT.hpp"
 #include "GBoolParameter.hpp"
 #include "GCharParameter.hpp"

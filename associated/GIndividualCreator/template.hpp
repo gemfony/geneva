@@ -33,6 +33,11 @@
 #ifndef UPPERCASECLASSNAME_HPP_
 #define UPPERCASECLASSNAME_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // GenEvA header files go here
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"

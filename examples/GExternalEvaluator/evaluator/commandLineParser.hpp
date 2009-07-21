@@ -34,6 +34,11 @@
 #ifndef COMMANDLINEPARSER_HPP_
 #define COMMANDLINEPARSER_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
 // Default settings
 const std::string DEFAULTPARAMFILE="empty";
 const boost::uint16_t DEFAULTTRANSFERMODE=0; // binary mode

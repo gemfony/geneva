@@ -35,6 +35,12 @@
 #ifndef GBOUNDEDINT32COLLECTION_HPP_
 #define GBOUNDEDINT32COLLECTION_HPP_
 
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
+
 // GenEvA header files go here
 #include "GBoundedInt32.hpp"
 #include "GParameterTCollectionT.hpp"

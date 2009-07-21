@@ -35,8 +35,13 @@
 #ifndef GDOUBLECOLLECTION_HPP_
 #define GDOUBLECOLLECTION_HPP_
 
-// GenEvA header files go here
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
 
+
+// GenEvA header files go here
 #include "GNumCollectionT.hpp"
 
 

@@ -475,20 +475,14 @@ void GBasePopulation::optimize() {
 	startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
 
 	// We want to know when a better value was found.
-	double bestPastValue = 0.;
-	if(maximize_) {
-		bestPastValue = -DBL_MAX+1; // the worst possible value
-	}
-	else { // minimization
-		bestPastValue = DBL_MAX;
-	}
+	double bestPastValue = (maximize_?(-DBL_MAX+1):DBL_MAX);
 
 	do {
 		this->recombine(); // create new children from parents
 		this->markGeneration(); // Let all individuals know the current generation
 		this->markIndividualPositions();
 		this->mutateChildren(); // mutate children and calculate their value
-		this->select(); // sort children according to their fitness
+		this->select(); // find out the best individuals of the population
 
 		// We want to provide feedback to the user in regular intervals.
 		// Set the reportGeneration_ variable to 0 in order not to emit
