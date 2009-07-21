@@ -45,6 +45,8 @@ GBasePopulation::GBasePopulation() :
 	popSize_(0),
 	generation_(0),
 	maxGeneration_(DEFAULTMAXGEN),
+	stallCounter_(0),
+	bestPastFitness_(0.), // will be set appropriately in the optimize() function
 	maxStallGeneration_(DEFAULMAXTSTALLGEN),
 	reportGeneration_(DEFAULTREPORTGEN),
 	cpInterval_(DEFAULTCHECKPOINTGEN),
@@ -76,6 +78,8 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	popSize_(cp.popSize_),
 	generation_(0),
 	maxGeneration_(cp.maxGeneration_),
+	stallCounter_(cp.stallCounter_),
+	bestPastFitness_(cp.bestPastFitness_),
 	maxStallGeneration_(cp.maxStallGeneration_),
 	reportGeneration_(cp.reportGeneration_),
 	cpInterval_(cp.cpInterval_),
@@ -130,6 +134,8 @@ void GBasePopulation::load(const GObject * cp)
 	popSize_ = gbp_load->popSize_;
 	generation_ = 0; // We assume that this is the start of a new optimization run
 	maxGeneration_ = gbp_load->maxGeneration_;
+	stallCounter_ = gbp_load->stallCounter_;
+	bestPastFitness_ = gbp_load->bestPastFitness_;
 	maxStallGeneration_ = gbp_load->maxStallGeneration_;
 	reportGeneration_ = gbp_load->reportGeneration_;
 	cpInterval_ = gbp_load->cpInterval_;
@@ -201,6 +207,8 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 	if(checkForInequality("GBasePopulation", popSize_, gbp_load->popSize_,"popSize_", "gbp_load->popSize_", expected)) return false;
 	if(checkForInequality("GBasePopulation", generation_, gbp_load->generation_,"generation_", "gbp_load->generation_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_,"maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
+	if(checkForInequality("GBasePopulation", stallCounter_, gbp_load->stallCounter_,"stallCounter_", "gbp_load->stallCounter_", expected)) return false;
+	if(checkForInequality("GBasePopulation", bestPastFitness_, gbp_load->bestPastFitness_,"bestPastFitness_", "gbp_load->bestPastFitness_", expected)) return false;
 	if(checkForInequality("GBasePopulation", maxStallGeneration_, gbp_load->maxStallGeneration_,"maxStallGeneration_", "gbp_load->maxStallGeneration_", expected)) return false;
 	if(checkForInequality("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_,"reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
 	if(checkForInequality("GBasePopulation", cpInterval_, gbp_load->cpInterval_,"cpInterval_", "gbp_load->cpInterval_", expected)) return false;
@@ -242,6 +250,8 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GBasePopulation", popSize_, gbp_load->popSize_, limit, "popSize_", "gbp_load->popSize_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", generation_, gbp_load->generation_, limit, "generation_", "gbp_load->generation_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_, limit, "maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", stallCounter_, gbp_load->stallCounter_, limit, "stallCounter_", "gbp_load->stallCounter_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", bestPastFitness_, gbp_load->bestPastFitness_, limit, "bestPastFitness_", "gbp_load->bestPastFitness_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", maxStallGeneration_, gbp_load->maxStallGeneration_, limit, "maxStallGeneration_", "gbp_load->maxStallGeneration_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_, limit, "reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", cpInterval_, gbp_load->cpInterval_, limit, "cpInterval_", "gbp_load->cpInterval_", expected)) return false;
@@ -259,6 +269,16 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GBasePopulation", hasQualityThreshold_, gbp_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
 
 	return true;
+}
+
+/***********************************************************************************/
+/**
+ * Performs the necessary administratory work of doing checkpointing
+ */
+void GBasePopulation::checkpoint(const bool& better) const {
+	// Save checkpoints if required by the user
+	if(cpInterval_ == -1 && better) this->saveCheckpoint();
+	else if(cpInterval_ && generation_%cpInterval_ == 0) this->saveCheckpoint();
 }
 
 /***********************************************************************************/
@@ -281,7 +301,7 @@ void GBasePopulation::saveCheckpoint() const {
 #ifdef DEBUG // Cross check so we do not accidently trigger value calculation
 				if(this->at(0)->isDirty()) {
 					std::ostringstream error;
-					error << "In GBasePopulation::optimize():" << std::endl
+					error << "In GBasePopulation::saveCheckpoint():" << std::endl
 						  << "Error: class member has the dirty flag set" << std::endl;
 					throw(Gem::GenEvA::geneva_error_condition(error.str()));
 				}
@@ -475,7 +495,8 @@ void GBasePopulation::optimize() {
 	startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
 
 	// We want to know when a better value was found.
-	double bestPastValue = (maximize_?(-DBL_MAX+1):DBL_MAX);
+	bestPastFitness_ = (maximize_?(-DBL_MAX+1):DBL_MAX);
+	stallCounter_ = 0;
 
 	do {
 		this->recombine(); // create new children from parents
@@ -484,38 +505,13 @@ void GBasePopulation::optimize() {
 		this->mutateChildren(); // mutate children and calculate their value
 		this->select(); // find out the best individuals of the population
 
+		// Check whether a better value was found and do the check-pointing, if necessary
+		this->checkpoint(this->checkProgress());
+
 		// We want to provide feedback to the user in regular intervals.
 		// Set the reportGeneration_ variable to 0 in order not to emit
 		// any information.
 		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo(INFOPROCESSING);
-
-		// Save checkpoints if required by the user
-		if(cpInterval_ != 0) {
-			if(cpInterval_ == -1) {
-				// Retrieve the value of the best individual, do cross-checks in DEBUG mode
-#ifdef DEBUG
-				if(this->at(0)->isDirty()) {
-					std::ostringstream error;
-					error << "In GBasePopulation::optimize():" << std::endl
-						  << "Error: class member has the dirty flag set" << std::endl;
-					throw(Gem::GenEvA::geneva_error_condition(error.str()));
-				}
-#endif /* DEBUG */
-				double newValue = this->at(0)->fitness();
-
-				// Check whether an improvement has been achieved
-				bool better = this->isBetter(newValue, bestPastValue);
-
-				// Write a checkpoint, if necessary abd store the new highscore
-				if(better) {
-					saveCheckpoint();
-					bestPastValue = newValue;
-				}
-			}
-			else {
-				if(generation_%cpInterval_ == 0) saveCheckpoint();
-			}
-		}
 
 		// update the generation_ counter
 		generation_++;
@@ -730,6 +726,26 @@ std::string GBasePopulation::getId() {
 	}
 
 	return id_;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieve the current number of failed optimization attempts in succession
+ *
+ * @return The current number of failed optimization attempts in succession
+ */
+boost::uint32_t GBasePopulation::getStallCounter() const {
+	return stallCounter_;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieve the current best value found
+ *
+ * @return The best fitness found so far
+ */
+double GBasePopulation::getBestFitness() const {
+	return bestPastFitness_;
 }
 
 /***********************************************************************************/
@@ -1231,6 +1247,39 @@ void GBasePopulation::sortMuplusnuMode() {
 
 /***********************************************************************************/
 /**
+ * Checks whether a better solution was found and updates the stallCounter_ variable
+ * as necessary.
+ *
+ * @return A boolean indicating whether a better solution was found
+ */
+bool GBasePopulation::checkProgress() {
+#ifdef DEBUG
+	if(this->at(0)->isDirty()) {
+		std::ostringstream error;
+		error << "In GBasePopulation::checkProgress(): Error" << std::endl
+			  << "Attempt to calculate fitness of an individual" << std::endl
+			  << "whose dirty flag was set." << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+
+	double newFitness = this->at(0)->fitness(); // the best fitness found in this generation
+
+	// Check whether an improvement has been achieved
+	bool better = this->isBetter(newFitness, bestPastFitness_);
+	if(better) {
+		bestPastFitness_ = newFitness;
+		stallCounter_ = 0;
+	}
+	else {
+		stallCounter_++;
+	}
+
+	return better;
+}
+
+/***********************************************************************************/
+/**
  * Selection, MUCOMMANU style. New parents are selected from children only. The quality
  * of the population may decrease from generation to generation, but the optimization
  * is less likely to stall.
@@ -1397,7 +1446,7 @@ bool GBasePopulation::halt()
 	if(maxGeneration_ && (generation_ > maxGeneration_)) return true;
 
 	// Has the optimization stalled too often ?
-	if(maxStallGeneration_ && this->at(0)->getParentCounter() > maxStallGeneration_) return true;
+	if(maxStallGeneration_ && stallCounter_ > maxStallGeneration_) return true;
 
 	// Do we have a scheduled halt time ? The comparatively expensive
 	// timedHalt() calculation is only called if maxDuration_

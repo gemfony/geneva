@@ -157,6 +157,8 @@ class GBasePopulation
 		ar & make_nvp("generation_", generation_);
 		ar & make_nvp("maxGeneration_", maxGeneration_);
 		ar & make_nvp("maxStallGeneration_", maxStallGeneration_);
+		ar & make_nvp("stallCounter_", stallCounter_);
+		ar & make_nvp("bestPastFitness_", bestPastFitness_);
 		ar & make_nvp("reportGeneration_", reportGeneration_);
 		ar & make_nvp("cpInterval_", cpInterval_);
 		ar & make_nvp("cpBaseName_", cpBaseName_);
@@ -291,6 +293,11 @@ public:
 	/** @brief Retrieve the id of this class */
 	std::string getId();
 
+	/** @brief Retrieve the current number of failed optimization attempts */
+	boost::uint32_t getStallCounter() const;
+	/** @brief Retrieve the current best value found */
+	double getBestFitness() const;
+
 	/**************************************************************************************************/
 	/**
 	 * Retrieves the best individual of the population and casts it to the desired type.
@@ -402,6 +409,8 @@ protected:
 	void markIndividualPositions();
 
 private:
+	/** @brief Performs the necessary administratory work of doing checkpointing */
+	void checkpoint(const bool&) const;
 	/** @brief Saves the state of the class to disc. Private, as we do not want to accidently trigger value calculation  */
 	virtual void saveCheckpoint() const;
 
@@ -430,10 +439,15 @@ private:
 	/** @brief Selection, MUNU1PRETAIN style */
 	void sortMunu1pretainMode();
 
+	/** @brief Check whether a better solution was found and update the stall counter as necessary */
+	bool checkProgress();
+
 	std::size_t nParents_; ///< The number of parents
 	std::size_t popSize_; ///< The size of the population. Only used in adjustPopulation()
 	boost::uint32_t generation_; ///< The current generation
 	boost::uint32_t maxGeneration_; ///< The maximum number of generations
+	boost::uint32_t stallCounter_; ///< Counts the number of generations without improvement
+	double bestPastFitness_; ///< Records the best fitness found in past generations
 	boost::uint32_t maxStallGeneration_; ///< The maximum number of generations without improvement
 	boost::uint32_t reportGeneration_; ///< Number of generations after which a report should be issued
 	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
