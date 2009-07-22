@@ -162,10 +162,12 @@ public:
 	/** @brief Clears the attribute table */
 	void clearAttributes();
 
-	/** @brief Updates the individual's structure and/or parameters, if the optimization has stalled */
-	virtual void updateOnStall();
+	/** @brief Wrapper for customUpdateOnStall that does error checking and sets the dirty flag */
+	virtual bool updateOnStall();
 
 protected:
+	/** @brief Updates the individual's structure and/or parameters, if the optimization has stalled */
+	virtual bool customUpdateOnStall();
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;
 	/** @brief The actual mutation operations */

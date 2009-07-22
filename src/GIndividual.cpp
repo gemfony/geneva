@@ -366,7 +366,9 @@ std::size_t GIndividual::getPopulationPosition(void) const  {
 
 /**********************************************************************************/
 /**
- * Sets the dirtyFlag_
+ * Sets the dirtyFlag_. This is a "one way" function, accessible to the external
+ * user. Once the dirty flag has been set, the only way to reset it is to calculate
+ * the fitness of this object.
  */
 void GIndividual::setDirtyFlag()  {
 	dirtyFlag_ = true;
@@ -469,20 +471,46 @@ void GIndividual::clearAttributes() {
 
 /**********************************************************************************/
 /**
+ * A wrapper for GIndividual::customUpdateOnStall() (or the corresponding overloaded
+ * functions in derived classes) that does error-checking and sets the dirty flag.
+ *
+ * @return A boolean indicating whether an update was performed and the individual has changed
+ */
+bool GIndividual::updateOnStall() {
+	// This function should only be called for parents. Check ...
+	if(!this->isParent()) {
+		std::ostringstream error;
+		error << "In GIndividual::updateOnStall(): Error!" << std::endl
+			  << "This function should only be called for parent individuals." << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
+	// Do the actual update of the individual's structure
+	bool updatePerformed = this->customUpdateOnStall();
+	if(updatePerformed) {
+		this->setDirtyFlag();
+		return true;
+	}
+
+	return false;
+}
+
+/**********************************************************************************/
+/**
  * Updates the individual's structure and/or parameters, if the optimization has
  * stalled. The quality of the individual is likely to get worse. Hence it will
- * enter a micro-training environment to improve its quality. The actions to be
- * taken for this update depend on the actual structure of the individual
- * and need to be implemented for each particular case individually. Thus, if this
- * virtual base function is called directly, it will throw an exception.
+ * enter a micro-training environment to improve its quality. The function can
+ * inform the caller that no action was taken, by returning false. Otherwise, if
+ * an update was made that requires micro-training, true should be returned.
+ * The actions to be taken for this update depend on the actual structure of the
+ * individual and need to be implemented for each particular case individually.
+ * Note that, as soon as the structure of this object changes, it should return
+ * true, as otherwise no value calculation takes place.
+ *
+ * @return A boolean indicating whether an update was performed and the individual has changed
  */
-void GIndividual::updateOnStall() {
-	std::ostringstream error;
-	error << "In GIndividual::updateOnStall(): Error!" << std::endl
-		  << "Attempt to call the base function. This function" << std::endl
-		  << "should be re-implemented for each particular" << std::endl
-		  << "individual type." << std::endl;
-	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+bool GIndividual::customUpdateOnStall() {
+	return false;
 }
 
 /**********************************************************************************/

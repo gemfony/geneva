@@ -109,6 +109,27 @@ GObject *GBoostThreadPopulation::clone() const  {
 
 /********************************************************************/
 /**
+ * Creates a clone of this population that only holds the parent individuals. This function
+ * is re-implemented from the corresponding GBasePopulation function, so we get a clone of
+ * this class instead of the base class. This function is used for the micro-training
+ * environment. Note that the boost::shared_ptr<GBoostThreadPopulation> will be implicitly
+ * converted to a boost::shared_ptr<GBasePopulation>.
+ *
+ * @return A smart pointer to a copy of this population, holding only the parent individuals
+ */
+boost::shared_ptr<GBasePopulation> GBoostThreadPopulation::parent_clone() const {
+	// Create a copy of this population
+	boost::shared_ptr<GBoostThreadPopulation> p(new GBoostThreadPopulation(*this));
+
+	// Get rid of the child individuals
+	p->resize(p->getNParents());
+
+	// Return the result
+	return p;
+}
+
+/********************************************************************/
+/**
  * Checks for equality with another GBoostThreadPopulation object
  *
  * @param  cp A constant reference to another GBoostThreadPopulation object

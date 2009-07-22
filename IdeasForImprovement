@@ -66,7 +66,9 @@
   of the next generation (unless better children were found), and in addition a number of 
   the best children becomes parents of the next generation. Mixture of MUPLUSNU and MUCOMMANU
 - Check how many individuals are left out for large populations in networked mode, because of late arrival
-- Profile the server part of networked execution. Is de-serialization always necessary ? 
+- Profile the server part of networked execution. Is de-serialization always necessary ?
+- Some error checks can be simplified if GBrokerPopulation tells its individuals that they are running on a server, where
+  e.g. value calculation is not allowed.
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)

@@ -66,7 +66,7 @@ namespace GenEvA {
 
 /********************************************************************************/
 /**
- * This class implements most important functions of the std::vector
+ * This class implements the most important functions of the std::vector
  * class. It is intended to hold boost::shared_ptr smart pointers. Hence
  * special implementations of some functions are needed. Furthermore,
  * using this class prevents us from having to derive directly from a
@@ -74,9 +74,12 @@ namespace GenEvA {
  * that T holds a complex type, such as a class.  T must implement
  * the interface "usual" for Geneva-GObject derivatives.
  *
- * Some std::vector functions can not be implemented, as they require
+ * Some std::vector functions can not be fully implemented, as they require
  * the data in this class to be default-constructible. As this class can hold
- * smart pointers with purely virtual base pointers, this cannot be done.
+ * smart pointers with purely virtual base pointers, this cannot be done. One
+ * important example is the resize(std::size_t) function, which would need to
+ * add default-constructed T() objects, if the requested size is larger than
+ * the current one.
  */
 template <typename T>
 class GStdPtrVectorInterfaceT
@@ -564,7 +567,7 @@ public:
 	void push_back_clone(boost::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
 			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::push_back_clone(item): Error!"
+			error << "In GStdPtrVectorInterface<T>::push_back_clone(item): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
 
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
@@ -581,6 +584,29 @@ public:
 
 	// Removing an element from the end of the vector
 	void pop_back(){ data.pop_back(); }
+
+	/*****************************************************************************/
+	/**
+	 * Resizing the vector. An increase in size is only allowed if at least one item
+	 * is already stored in the collection. The first stored item will then be cloned
+	 * the required number of times. The function will throw if an attempt is made to
+	 * increase the size of the vector, if it was empty before. The reason is that this
+	 * class may hold boost::shared_ptr objects with purely virtual objects. These cannot
+	 * be default constructed, which is required if we increase the size of the vector,
+	 * and no items in the collection can be used as a template.
+	 */
+	void resize(size_type amount) {
+		if(this->empty() && amount != 0) {
+			std::ostringstream error;
+			error << "In GStdPtrVectorInterface<T>::resize(size_type): Error!"
+				     << "Tried to increase the size even though the vector is empty." << std::endl
+				     << "Use a resize-version that allows you to specify the objects" << std::endl
+				     << "to be added." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		this->resize_clone(amount, this->at(0));
+	}
 
 	/*****************************************************************************/
 	/**

@@ -7,6 +7,11 @@ The main changes for this release include:
  - Added a new selection scheme MUNU1PRETAIN to GBasePopulation. In this scheme, the best parent of
    the last generation is retained, unless a better child was found. The other parents are replaced
    by the best children. This is a hybrid between the MUPLUSNU and MUCOMMANU modes.
+ - Added micro-training environment to GBasePopulation (and derivatives). When the optimization 
+   stalls, parents may perform structural updates. As these will very likely lead to a decrease in 
+   quality, "private" training cycles can help improve the quality. This can be applied e.g. to 
+   environments, where the structure of individuals is built up over time, and it is not clear, how
+   many structure items need to be added.
 
 * Version 0.5.3, "Building 39" - July 6, 2009
 
@@ -41,7 +46,7 @@ The main changes for this release include:
  - Renamed the installed library to geneva-opt, so that it doesn't clash with other, similarly
    named libraries on the system.
  - Improved the check-pointing infrastructure (toFile/fromFile) in GObject
- - Added ability to GBasePopulation to checkpoint the nParents best individuals in regular intervals
+ - Added ability to GBasePopulation to checkpoint the nParents' best individuals in regular intervals
 
 * Version 0.5.2 "Building 38" - April 20, 2009
 

@@ -62,6 +62,10 @@ GBasePopulation::GBasePopulation() :
 	defaultNChildren_(0),
 	qualityThreshold_(DEFAULTQUALITYTHRESHOLD),
 	hasQualityThreshold_(false),
+	mtNChildren_(DEFAULTMTNCHILDREN),
+	mtMaxGenerations_(DEFAULTMTMAXGENERATIONS),
+	mtAlwaysCopy_(DEFAULTMTALWAYSCOPY),
+	mtSMode_(DEFAULTMTSMODE),
 	infoFunction_(&GBasePopulation::defaultInfoFunction)
 { /* nothing */ }
 
@@ -96,6 +100,10 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
 	defaultNChildren_(cp.defaultNChildren_),
 	qualityThreshold_(cp.qualityThreshold_),
 	hasQualityThreshold_(cp.hasQualityThreshold_),
+	mtNChildren_(cp.mtNChildren_),
+	mtMaxGenerations_(cp.mtMaxGenerations_),
+	mtAlwaysCopy_(cp.mtAlwaysCopy_),
+	mtSMode_(cp.mtSMode_),
 	infoFunction_(cp.infoFunction_)
 { /* nothing */ }
 
@@ -153,7 +161,11 @@ void GBasePopulation::load(const GObject * cp)
 	defaultNChildren_ = gbp_load->defaultNChildren_;
 	qualityThreshold_=gbp_load->qualityThreshold_;
 	hasQualityThreshold_=gbp_load->hasQualityThreshold_;
-
+	hasQualityThreshold_=gbp_load->hasQualityThreshold_;
+	mtNChildren_=gbp_load->mtNChildren_;
+	mtMaxGenerations_=gbp_load->mtMaxGenerations_;
+	mtAlwaysCopy_=gbp_load->mtAlwaysCopy_;
+	mtSMode_=gbp_load->mtSMode_;
 	infoFunction_ = gbp_load->infoFunction_;
 }
 
@@ -228,6 +240,11 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 	if(checkForInequality("GBasePopulation", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
 	if(checkForInequality("GBasePopulation", qualityThreshold_, gbp_load->qualityThreshold_,"qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
 	if(checkForInequality("GBasePopulation", hasQualityThreshold_, gbp_load->hasQualityThreshold_,"hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
+	if(checkForInequality("GBasePopulation", mtNChildren_, gbp_load->mtNChildren_,"mtNChildren_", "gbp_load->mtNChildren_", expected)) return false;
+	if(checkForInequality("GBasePopulation", mtMaxGenerations_, gbp_load->mtMaxGenerations_,"mtMaxGenerations_", "gbp_load->mtMaxGenerations_", expected)) return false;
+	if(checkForInequality("GBasePopulation", mtAlwaysCopy_, gbp_load->mtAlwaysCopy_,"mtAlwaysCopy_", "gbp_load->mtAlwaysCopy_", expected)) return false;
+	if(checkForInequality("GBasePopulation", mtSMode_, gbp_load->mtSMode_,"mtSMode_", "gbp_load->mtSMode_", expected)) return false;
+
 
 	return true;
 }
@@ -272,6 +289,10 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	if(checkForDissimilarity("GBasePopulation", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", qualityThreshold_, gbp_load->qualityThreshold_, limit, "qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", hasQualityThreshold_, gbp_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", mtNChildren_, gbp_load->mtNChildren_, limit, "mtNChildren_", "gbp_load->mtNChildren_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", mtMaxGenerations_, gbp_load->mtMaxGenerations_, limit, "mtMaxGenerations_", "gbp_load->mtMaxGenerations_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", mtAlwaysCopy_, gbp_load->mtAlwaysCopy_, limit, "mtAlwaysCopy_", "gbp_load->mtAlwaysCopy_", expected)) return false;
+	if(checkForDissimilarity("GBasePopulation", mtSMode_, gbp_load->mtSMode_, limit, "mtSMode_", "gbp_load->mtSMode_", expected)) return false;
 
 	return true;
 }
@@ -787,14 +808,144 @@ boost::uint32_t GBasePopulation::getMicroTrainingInterval() const {
  * Performs micro-training. If the optimization has stalled for too long: creates
  * copies of the best individuals of the population. Calls their updateOnStall() functions,
  * then does "private" training for a given number of cycles. If better individuals
- * are found this way, they will replace the former parents
+ * are found this way (or the user requests to always do this), they will replace the former
+ * parents
  */
 void GBasePopulation::doMicroTraining() {
-	// Create copies of the parents of this population
+	// Record the best individual's fitness prior to the micro training
+	double startFitness = this->at(0)->fitness();
 
-	// Call their updateOnStall functions
+	// Create a copy of this population, holding the parent objects
+	boost::shared_ptr<GBasePopulation> p = this->parent_clone();
 
-	// Perform micro training
+	// Call their updateOnStall functions and check that at least one update was made
+	bool updatePerformed=false;
+	GBasePopulation::iterator it;
+	for(it=p->begin(); it!=p->end(); ++it) {
+		if((*it)->updateOnStall()) updatePerformed = true;
+	}
+
+	// Perform micro training, if at least one parent was updated
+	if(updatePerformed) {
+		// Update the number of children (set automatically, if requested by the user)
+		if(mtNChildren_) p->setPopulationSize(p->getNParents(), mtNChildren_);
+		else p->setPopulationSize(p->getNParents(), 10*p->getNParents());
+
+		// Update the number of micro-training generations. If set to 0,
+		// we perform training only until an improvement can be seen for the
+		// best individual.
+		if(mtMaxGenerations_) p->setMaxGeneration(mtMaxGenerations_);
+		else {
+			p->setMaxGeneration(0); // no generation limit
+			p->setQualityThreshold(startFitness); // We want to stop once we are better than the initial fitness
+		}
+
+		// Prevent micro-training in the micro-training environment (can lead to an endless loop)
+		p->setMicroTrainingInterval(0);
+
+		// Do the actual training
+		p->optimize();
+
+		// Check whether an improvement could be seen
+		double endFitness = p->at(0)->fitness();
+
+		// Copy the new parents over, if a better result was found (or if the
+		// user has asked to copy items over anyway). Note that we use copying
+		// instead of loading here for performance reasons. The micro-training
+		// population will cease to exist anyway after the end of this function,
+		// and copying smart pointers does not mean copying the contents.
+		if(mtAlwaysCopy_ || isBetter(endFitness, startFitness)) {
+			std::size_t nParents = p->getNParents();
+			for(std::size_t i=0; i<nParents; i++) this->at(i) = p->at(i);
+		}
+	}
+}
+
+/***********************************************************************************/
+/**
+ * Allows to set the number of children used in micro training.
+ *
+ * @param mtNChildren The number of children used in micro training
+ */
+void GBasePopulation::setMTNChildren(const boost::uint32_t& mtNChildren) {
+	mtNChildren_=mtNChildren;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the current value of the mtNChildren_ variable
+ *
+ * @return The current value of the mtNChildren_ variable
+ */
+boost::uint32_t GBasePopulation::getMTNChildren() const {
+	return mtNChildren_;
+}
+
+/***********************************************************************************/
+/**
+ * Allows to set the number of generations used in micro training.
+ *
+ * @param mtMaxGenerations The number of generations used in micro training
+ */
+void GBasePopulation::setMTMaxGenerations(const boost::uint32_t& mtMaxGenerations) {
+	mtMaxGenerations_ = mtMaxGenerations;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the current value of the mtNChildren_ variable
+ *
+ * @return The number of generations used in micro training
+ */
+boost::uint32_t GBasePopulation::getMTMaxGenerations() const {
+	return mtMaxGenerations_;
+}
+
+/***********************************************************************************/
+/**
+ * Specifies that parents from a micro training environment should always be copied.
+ */
+void GBasePopulation::setMTAlwaysCopy() {
+	mtAlwaysCopy_=true;
+}
+
+/***********************************************************************************/
+/**
+ * Specifies that parents from a micro training environment should only be copied,
+ * if a better result has been achieved
+ */
+void GBasePopulation::setMTCopyIfBetter() {
+	mtAlwaysCopy_=false;
+}
+
+/***********************************************************************************/
+/**
+ * Allows to retrieve the current value of the mtAlwaysCopy_ variable.
+ *
+ * @return The current value of the mtAlwaysCopy_ variable
+ */
+bool GBasePopulation::getMTAlwaysCopy() const {
+	return mtAlwaysCopy_;
+}
+
+/***********************************************************************************/
+/**
+ * Allows to set the sorting mode used in the micro training environment
+ *
+ * @param mtSMode The desired sorting mode used in the micro training environment
+ */
+void GBasePopulation::setMTSortingMode(const sortingMode& mtSMode) {
+	mtSMode_=mtSMode;
+}
+
+/***********************************************************************************/
+/**
+ * Allows to retrieve the sorting mode used in the micro training environment
+ *
+ * @return The sorting mode used in the micro training environment
+ */
+sortingMode GBasePopulation::getMTSortingMode() const {
+	return mtSMode_;
 }
 
 /***********************************************************************************/
@@ -1455,6 +1606,25 @@ void GBasePopulation::markIndividualPositions() {
 	std::size_t pos = 0;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->setPopulationPosition(pos++);
+}
+
+/***********************************************************************************/
+/**
+ * Creates a clone of this population that only holds the parent individuals. This function
+ * is re-implemented for derived populations, so we get a clone of these classes instead
+ * of the base class. This function is used for the micro-training environment
+ *
+ * @return A smart pointer to a copy of this population, holding only the parent individuals
+ */
+boost::shared_ptr<GBasePopulation> GBasePopulation::parent_clone() const {
+	// Create a copy of this population
+	boost::shared_ptr<GBasePopulation> p(new GBasePopulation(*this));
+
+	// Get rid of the child individuals
+	p->resize(p->getNParents());
+
+	// Return the result
+	return p;
 }
 
 /***********************************************************************************/

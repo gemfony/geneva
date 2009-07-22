@@ -129,6 +129,28 @@ const sortingMode DEFAULTSMODE=MUPLUSNU;
  */
 const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
 
+/**
+ * The default number of children used for micro training. 0 means automatic
+ */
+const boost::uint32_t DEFAULTMTNCHILDREN=0;
+
+/**
+ * The default number of generations used for micro-training. 0 means: stop when
+ * an improvement over the old value has been reached (can be dangerous).
+ */
+const boost::uint32_t DEFAULTMTMAXGENERATIONS=100;
+
+/**
+ * The default behaviour upon completion of the micro training wrt. to copying over
+ * of the micro-trained parents.
+ */
+const bool DEFAULTMTALWAYSCOPY=true;
+
+/**
+ * The default sorting mode used for micro training
+ */
+const sortingMode DEFAULTMTSMODE=MUNU1PRETAIN;
+
 /*********************************************************************************/
 /**
  * The GBasePopulation class adds the notion of parents and children to
@@ -157,8 +179,7 @@ class GBasePopulation
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GIndividualSet",
-				boost::serialization::base_object<GIndividualSet>(*this));
+		ar & make_nvp("GIndividualSet",	boost::serialization::base_object<GIndividualSet>(*this));
 		ar & make_nvp("nParents_", nParents_);
 		ar & make_nvp("popSize_", popSize_);
 		ar & make_nvp("generation_", generation_);
@@ -178,6 +199,10 @@ class GBasePopulation
 		ar & make_nvp("defaultNChildren_", defaultNChildren_);
 		ar & make_nvp("qualityThreshold_", qualityThreshold_);
 		ar & make_nvp("hasQualityThreshold_", hasQualityThreshold_);
+		ar & make_nvp("mtNChildren_", mtNChildren_);
+		ar & make_nvp("mtMaxGenerations_", mtMaxGenerations_);
+		ar & make_nvp("mtAlwaysCopy_", mtAlwaysCopy_);
+		ar & make_nvp("mtSMode_", mtSMode_);
 
 		// Note that id and firstId_ are not serialized as we need the id
 		// to be recalculated for de-serialized objects. Likewise, startTime_
@@ -306,13 +331,32 @@ public:
 	/** @brief Retrieve the current best value found */
 	double getBestFitness() const;
 
+	//------------------------------------------------------------------------------------------
+	// Settings specific to micro-training
 	/** @brief Set the interval in which micro training should be performed */
 	void setMicroTrainingInterval(const boost::uint32_t&);
 	/** @brief Retrieve the interval in which micro training should be performed */
 	boost::uint32_t getMicroTrainingInterval() const;
-
 	/** @brief Perform micro training */
 	void doMicroTraining();
+	/** @brief Allows to set the number of children used in micro training */
+	void setMTNChildren(const boost::uint32_t&);
+	/** @brief Retrieves the current value of the mtNChildren_ variable */
+	boost::uint32_t getMTNChildren() const;
+	/** @brief Allows to set the number of generations used in micro training */
+	void setMTMaxGenerations(const boost::uint32_t&);
+	/** @brief Retrieves the current value of the mtNChildren_ variable */
+	boost::uint32_t getMTMaxGenerations() const;
+	/** @brief Specifies that parents from a micro training environment should always be copied */
+	void setMTAlwaysCopy();
+	/** @brief Specifies that parents from a micro training environment should only be copied, if a better result has been achieved */
+	void setMTCopyIfBetter();
+	/** @brief Allows to retrieve the current value of the mtAlwaysCopy_ variable */
+	bool getMTAlwaysCopy() const;
+	/** @brief Allows to set the sorting mode used in the micro training environment */
+	void setMTSortingMode(const sortingMode&);
+	/** @brief Allows to retrieve the sorting mode used in the micro training environment */
+	sortingMode getMTSortingMode() const;
 
 	/**************************************************************************************************/
 	/**
@@ -424,6 +468,9 @@ protected:
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();
 
+	/** @brief Creates a clone of this object that only holds the parent individuals */
+	virtual boost::shared_ptr<GBasePopulation> parent_clone() const;
+
 private:
 	/** @brief Performs the necessary administratory work of doing checkpointing */
 	void checkpoint(const bool&) const;
@@ -480,6 +527,10 @@ private:
 	std::size_t defaultNChildren_; ///< Expected number of children
 	double qualityThreshold_; ///< A threshold beyond which optimization is expected to stop
 	bool hasQualityThreshold_; ///< Specifies whether a qualityThreshold has been set
+	boost::uint32_t mtNChildren_; ///< The number of children used in the micro training environment (0 means automatic)
+	boost::uint32_t mtMaxGenerations_; ///< The number of generations used for micro trainings (0 means: stop when an improvement was achieved)
+	bool mtAlwaysCopy_; ///< States whether, after micro-training has been done, the parents should be copied over even if no improvement could be achieved
+	sortingMode mtSMode_; ///< The sorting mode used for micro training
 
 	boost::function<void (const infoMode&, GBasePopulation * const)> infoFunction_; ///< Used to emit information with doInfo()
 };
