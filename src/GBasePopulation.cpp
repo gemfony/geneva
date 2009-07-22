@@ -537,7 +537,8 @@ void GBasePopulation::optimize() {
 		this->checkpoint(better);
 
 		// Perform micro-training, if requested and necessary
-		if(microTrainingInterval_ && stallCounter_%microTrainingInterval_ == 0) {
+		if(microTrainingInterval_ && stallCounter_ && stallCounter_%microTrainingInterval_ == 0) {
+			std::cout << "Doing micro training ..." << std::endl;
 			this->doMicroTraining();
 			stallCounter_ = 0;
 		}
@@ -829,7 +830,7 @@ void GBasePopulation::doMicroTraining() {
 	if(updatePerformed) {
 		// Update the number of children (set automatically, if requested by the user)
 		if(mtNChildren_) p->setPopulationSize(p->getNParents(), mtNChildren_);
-		else p->setPopulationSize(p->getNParents(), 10*p->getNParents());
+		else p->setPopulationSize(10*p->getNParents(), p->getNParents());
 
 		// Update the number of micro-training generations. If set to 0,
 		// we perform training only until an improvement can be seen for the
