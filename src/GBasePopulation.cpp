@@ -585,7 +585,8 @@ void GBasePopulation::registerInfoFunction(boost::function<void (const infoMode&
 /***********************************************************************************/
 /**
  * Sets the number of generations after which the population should
- * report about its inner state.
+ * report about its inner state. Set to 0 if you do not want information
+ * to be emitted.
  *
  * @param reportGeneration The number of generations after which information should be emitted
  */
@@ -830,7 +831,7 @@ void GBasePopulation::doMicroTraining() {
 	if(updatePerformed) {
 		// Update the number of children (set automatically, if requested by the user)
 		if(mtNChildren_) p->setPopulationSize(p->getNParents(), mtNChildren_);
-		else p->setPopulationSize(10*p->getNParents(), p->getNParents());
+		else p->setPopulationSize(this->getPopulationSize(), p->getNParents());
 
 		// Update the number of micro-training generations. If set to 0,
 		// we perform training only until an improvement can be seen for the
@@ -840,6 +841,12 @@ void GBasePopulation::doMicroTraining() {
 			p->setMaxGeneration(0); // no generation limit
 			p->setQualityThreshold(startFitness); // We want to stop once we are better than the initial fitness
 		}
+
+		// Set the sorting scheme
+		p->setSortingScheme(mtSMode_);
+
+		// Register a "simple" info function
+		p->registerInfoFunction(GBasePopulation::simpleInfoFunction);
 
 		// Prevent micro-training in the micro-training environment (can lead to an endless loop)
 		p->setMicroTrainingInterval(0);
@@ -1622,7 +1629,7 @@ boost::shared_ptr<GBasePopulation> GBasePopulation::parent_clone() const {
 	boost::shared_ptr<GBasePopulation> p(new GBasePopulation(*this));
 
 	// Get rid of the child individuals
-	p->resize(p->getNParents());
+	p->resize(this->getNParents());
 
 	// Return the result
 	return p;

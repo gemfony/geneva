@@ -392,6 +392,42 @@ public:
 
 	/**************************************************************************************************/
 	/**
+	 * Emits information about the population it has been given, using a simple format. This is
+	 * used in the micro training environment.
+	 *
+	 * @param im Indicates the information mode
+	 * @param gbp A pointer to the population information should be emitted about
+	 */
+	static void simpleInfoFunction(const infoMode& im, GBasePopulation * const gbp) {
+		std::ostringstream information;
+
+		switch(im){
+		case INFOINIT: // nothing
+			break;
+
+		case INFOPROCESSING:
+			{
+				bool isDirty = false;
+
+				information << std::setprecision(10) << "// " << gbp->getGeneration() << ": " << gbp->data.at(0)->getCurrentFitness(isDirty);
+
+				if(isDirty) {
+					information << " (dirty flag is set)";
+				}
+				information << std::endl;
+			}
+			break;
+
+		case INFOEND: // nothing
+			break;
+		}
+
+		// Let the audience know
+		std::cout << information.str();
+	}
+
+	/**************************************************************************************************/
+	/**
 	 * Emits information about the population it has been given. This is the default
 	 * information function provided for all populations. Information is emitted in the
 	 * format of the ROOT analysis toolkit (see http://root.cern.ch). Note that we are
@@ -422,7 +458,7 @@ public:
 							<< gbp->data.at(0)->getCurrentFitness(isDirty) << ");";
 
 				if(isDirty) {
-					information << "// dirty!";
+					information << "// dirty flag is set";
 				}
 				information << std::endl;
 			}
