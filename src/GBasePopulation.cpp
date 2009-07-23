@@ -536,17 +536,17 @@ void GBasePopulation::optimize() {
 		//  Do the check-pointing, if necessary
 		this->checkpoint(better);
 
+		// We want to provide feedback to the user in regular intervals.
+		// Set the reportGeneration_ variable to 0 in order not to emit
+		// any information.
+		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo(INFOPROCESSING);
+
 		// Perform micro-training, if requested and necessary
 		if(microTrainingInterval_ && stallCounter_ && stallCounter_%microTrainingInterval_ == 0) {
 			std::cout << "Doing micro training ..." << std::endl;
 			this->doMicroTraining();
 			stallCounter_ = 0;
 		}
-
-		// We want to provide feedback to the user in regular intervals.
-		// Set the reportGeneration_ variable to 0 in order not to emit
-		// any information.
-		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo(INFOPROCESSING);
 
 		// update the generation_ counter
 		generation_++;
