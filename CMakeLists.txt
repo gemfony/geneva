@@ -21,7 +21,7 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # SET( CMAKE_BUILD_TYPE Debug )
 
 # Change this setting to install in a different directory
-SET(CMAKE_INSTALL_PREFIX "/opt/geneva/") 
+SET(CMAKE_INSTALL_PREFIX "/opt/geneva/")
 
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
@@ -79,7 +79,11 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	serialization
 	program_options
 	filesystem
-	test_exec_monitor	
+)
+
+# The test component is not necessary for the library, but needed for the tests
+FIND_PACKAGE( Boost 1.36 COMPONENTS
+	test_exec_monitor
 )
 
 INCLUDE_DIRECTORIES (
@@ -99,7 +103,9 @@ ADD_SUBDIRECTORY (examples)
 ADD_SUBDIRECTORY (include)
 ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (src)
-ADD_SUBDIRECTORY (tests)
+IF( Boost_TEST_EXEC_MONITOR_FOUND )
+	ADD_SUBDIRECTORY (tests)
+ENDIF()
 
 SET ( INFORMATIONFILES
 	AUTHORS
