@@ -48,9 +48,9 @@
 #endif
 
 // GenEvA headers go here
+#include "GObject.hpp"
 #include "GParameterBaseWithAdaptorsT.hpp"
 #include "GParameterT.hpp"
-#include "GObject.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem
@@ -318,7 +318,7 @@ public:
 	 * This allows us to define only few operators, as the bulk of the work will be
 	 * done by automatic conversions done by the C++ compiler.
 	 */
-	operator T () {
+	operator T () const {
 		return this->value();
 	}
 

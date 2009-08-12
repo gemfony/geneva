@@ -139,6 +139,8 @@ class GRandom
 public:
 	/** @brief The standard constructor */
 	GRandom();
+	/** @brief Initialization with the random number generation mode */
+	GRandom(const Gem::Util::rnrGenerationMode&);
 	/** @brief A copy constructor */
 	GRandom(const GRandom&);
 	/** @brief A standard destructor */

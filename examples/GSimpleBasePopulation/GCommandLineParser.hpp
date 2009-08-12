@@ -74,6 +74,7 @@ const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
 const double DEFAULTQTHRESHOLD=0.;
 const std::size_t DEFAULTARRAYSIZE=1000;
 const bool DEFAULTPRODUCTIONPLACE=true; // remote production
+const double DEFAULTGDAMUTPROB=1.0;
 
 namespace po = boost::program_options;
 
@@ -96,6 +97,7 @@ bool parseCommandLine(int argc, char **argv,
 					  bool& maximize,
 					  std::size_t& arraySize,
 					  bool& productionPlace,
+					  double& mutProb,
 					  bool& verbose);
 
 } /* namespace GenEvA */

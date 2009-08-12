@@ -127,7 +127,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 	gifat3.setMutationProbability(1.);
 	gifat3.setAdaptionThreshold(2);
 	for(std::size_t p=0; p<10; p++) {
-		BOOST_CHECK_NO_THROW(gifat3.setMutationParameters(gr.evenRandom(0.,0.01),0.00001,0.,0.01));
+		// BOOST_CHECK_NO_THROW(gifat3.setMutationParameters(gr.evenRandom(0.,0.01),0.00001,0.,0.01));
 		for(std::size_t m=0; m<NMUTATIONS; m++)
 			BOOST_CHECK_NO_THROW(gifat3.mutate(mutationTarget));
 	}

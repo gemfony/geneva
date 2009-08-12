@@ -68,6 +68,7 @@ int main(int argc, char **argv){
 	 double qualityThreshold;
 	 std::size_t arraySize;
 	 bool productionPlace;
+	 double mutProb;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -89,6 +90,7 @@ int main(int argc, char **argv){
 						 maximize,
 						 arraySize,
 						 productionPlace,
+						 mutProb,
 						 verbose))
 	{ exit(1); }
 
@@ -109,6 +111,7 @@ int main(int argc, char **argv){
 	// minimum sigma of 0.000001 and a maximum sigma of 5.
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.001,0.000001,5));
 	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+	gdga_ptr->setMutationProbability(mutProb);
 	if(productionPlace) // Factory means "true"
 		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 	else // Local means "false"

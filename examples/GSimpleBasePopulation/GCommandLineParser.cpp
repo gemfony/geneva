@@ -50,6 +50,7 @@ bool parseCommandLine(int argc, char **argv,
 					  bool& maximize,
 					  std::size_t& arraySize,
 					  bool& productionPlace,
+					  double& mutProb,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -95,6 +96,8 @@ bool parseCommandLine(int argc, char **argv,
 					"The size of the buffer with random arrays in the random factory")
             ("productionPlace,D", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
             		"Whether production of random numbers in individuals should happen locally (0) or in the random number factory (1)")
+            ("mutProb", po::value<double>(&mutProb)->default_value(DEFAULTGDAMUTPROB),
+            		"Specifies the likelihood for mutations to be actually carried out")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -158,6 +161,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "maximize = " << maximize << std::endl
 					  << "arraySize = " << arraySize << std::endl
 					  << "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
+					  << "mutProb = " << mutProb << std::endl
 					  << std::endl;
 		}
 	}

@@ -78,7 +78,8 @@ namespace GenEvA {
  * The GAdaptorT class mostly acts as an interface for these
  * adaptors, but also implements some functionality of its own. E.g., it is possible
  * to specify a function that shall be called every adaptionThreshold_ calls of the
- * mutate() function.
+ * mutate() function. It is also possible to set a mutation probability, only a certain
+ * percentage of mutations is actually performed at run-time.
  *
  * In order to use this class, the user must derive a class from
  * GAdaptorT<T> and specify the type of mutation he wishes to
@@ -91,7 +92,7 @@ namespace GenEvA {
  * As a derivative of GObject, this class follows similar rules as
  * the other GenEvA classes.
  */
-template<typename T>
+template <typename T>
 class GAdaptorT:
 	public GObject
 {
@@ -105,6 +106,7 @@ class GAdaptorT:
 		ar & make_nvp("gr",gr);
 		ar & make_nvp("adaptionCounter_", adaptionCounter_);
 		ar & make_nvp("adaptionThreshold_", adaptionThreshold_);
+		ar & make_nvp("mutProb_", mutProb_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -115,11 +117,24 @@ public:
 	 */
 	GAdaptorT():
 		GObject(),
+		gr(Gem::Util::DEFAULTRNRGENMODE),
 		adaptionCounter_(0),
-		adaptionThreshold_(0)
-	{
-		gr.setRnrGenerationMode(Gem::Util::RNRFACTORY);
-	}
+		adaptionThreshold_(0),
+		mutProb_(DEFAULTMUTPROB)
+	{ /* nothing */ }
+
+	/***********************************************************************************/
+	/**
+	 * This constructor allows to set the probability with which a mutation is indeed
+	 * performed.
+	 */
+	GAdaptorT(const double& prob):
+		GObject(),
+		gr(Gem::Util::DEFAULTRNRGENMODE),
+		adaptionCounter_(0),
+		adaptionThreshold_(0),
+		mutProb_(prob)
+	{ /* nothing */ }
 
 	/***********************************************************************************/
 	/**
@@ -131,7 +146,8 @@ public:
 		GObject(cp),
 		gr(cp.gr),
 		adaptionCounter_(cp.adaptionCounter_),
-		adaptionThreshold_(cp.adaptionThreshold_)
+		adaptionThreshold_(cp.adaptionThreshold_),
+		mutProb_(cp.mutProb_)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -174,6 +190,7 @@ public:
 		gr.load(&(gat->gr));
 		adaptionCounter_ = gat->adaptionCounter_;
 		adaptionThreshold_ = gat->adaptionThreshold_;
+		mutProb_ = gat->mutProb_;
 	}
 
 	/***********************************************************************************/
@@ -222,6 +239,7 @@ public:
 		if(!gr.isEqualTo(gat_load->gr, expected)) return false;
 		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
+		if(checkForInequality("GAdaptorT", mutProb_, gat_load->mutProb_,"mutProb_", "gat_load->mutProb_", expected)) return false;
 
 		return true;
 	}
@@ -247,6 +265,7 @@ public:
 		if(!gr.isSimilarTo(gat_load->gr, limit, expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", mutProb_, gat_load->mutProb_, limit, "mutProb_", "gat_load->mutProb_", expected)) return false;
 
 		return true;
 	}
@@ -268,6 +287,7 @@ public:
 	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
 	 */
 	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+		// Set the local randum number generation mode
 		gr.setRnrGenerationMode(rnrGenMode);
 	}
 
@@ -283,19 +303,34 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Common interface for all adaptors to the mutation
-	 * functionality. The user specifies this functionality in the
-	 * customMutations() function.
+	 * Sets the mutation probability to a given value. This function will throw
+	 * if the probability is not in the allowed range.
 	 *
-	 * @param val The value that needs to be mutated
+	 * @param val The new value of the probability for integer flips
 	 */
-	inline void mutate(T& val)  {
-		if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
-			adaptionCounter_ = 0;
-			adaptMutation();
+	void setMutationProbability(const double& probability) {
+		// Check the supplied probability value
+		if(probability < 0. || probability > 1.) {
+			std::ostringstream error;
+			error << "In GAdaptorT::setMutationProbability(const double&) : Error!" << std::endl
+				  << "Bad probability value given: " << probability << std::endl;
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_error_condition(error.str());
 		}
 
-		this->customMutations(val);
+		mutProb_ = probability;
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Retrieves the current value of the mutation probability
+	 *
+	 * @return The current value of the mutation probability
+	 */
+	double getMutationProbability() const {
+		return mutProb_;
 	}
 
 	/***********************************************************************************/
@@ -329,6 +364,26 @@ public:
 		return adaptionThreshold_;
 	}
 
+	/***********************************************************************************/
+	/**
+	 * Common interface for all adaptors to the mutation
+	 * functionality. The user specifies this functionality in the
+	 * customMutations() function.
+	 *
+	 * @param val The value that needs to be mutated
+	 */
+	inline void mutate(T& val)  {
+		// We only allow mutations in a certain percentage of cases
+		if(this->gr.evenRandom(0.,1.) > mutProb_) return;
+
+		if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
+			adaptionCounter_ = 0;
+			this->adaptMutation();
+		}
+
+		this->customMutations(val);
+	}
+
 protected:
 	/***********************************************************************************/
     /**
@@ -343,11 +398,14 @@ protected:
 	/**
 	 *  This function is re-implemented by derived classes, if they wish to
 	 *  implement special behavior upon a new mutation run. E.g., an internal
-	 *  variable could be set to a new value. This is used in GDoubleGaussAdaptor
-	 *  to modify the sigma of the gaussian, if desired. The function will be
-	 *  called every adaptionThreshold_ calls of the mutate function, unless the
-	 *  threshold is set to 0 . It is not purely virtual, as we do not force
-	 *  derived classes to re-implement this function.
+	 *  variable could be set to a new value. The function will be called every
+	 *  adaptionThreshold_ calls of the mutate function, unless the threshold is
+	 *  set to 0 . It is not purely virtual, as we do not force derived classes
+	 *  to re-implement this function. Note though that, if the function is
+	 *  re-implemented, this class'es function should be called as the last action,
+	 *  as later versions of this function might implement local logic. Adaption
+	 *  of mutation parameters can be switched off by setting the adaptionThreshold_
+	 *  variable to 0.
 	 */
 	virtual void adaptMutation() { /* nothing */ }
 
@@ -359,6 +417,7 @@ private:
 	/***********************************************************************************/
 	boost::uint32_t adaptionCounter_; ///< A local counter
 	boost::uint32_t adaptionThreshold_; ///< Specifies after how many mutations the mutation itself should be adapted
+	double mutProb_; ///< internal representation of the mutation probability
 };
 
 /******************************************************************************************/

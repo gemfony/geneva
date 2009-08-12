@@ -81,7 +81,7 @@ class GGaussAdaptorT :public GAdaptorT<T>
 public:
 	/********************************************************************************************/
 	/**
-	 * The standard constructor. It initializes the internal variables.
+	 * The standard constructor.
 	 */
 	GGaussAdaptorT()
 		:GAdaptorT<T> (),
@@ -93,7 +93,21 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * This constructor lets a user set all parameters in one go.
+	 * Initialization of the parent class'es mutation probability.
+	 *
+	 * @param probability The likelihood for a mutation actually taking place
+	 */
+	GGaussAdaptorT(const double& probability)
+		:GAdaptorT<T> (probability),
+		 sigma_(DEFAULTSIGMA),
+		 sigmaSigma_(DEFAULTSIGMASIGMA),
+		 minSigma_(DEFAULTMINSIGMA),
+		 maxSigma_(DEFAULTMAXSIGMA)
+	{ /* nothing */ }
+
+	/********************************************************************************************/
+	/**
+	 * This constructor lets a user set all sigma parameters in one go.
 	 *
 	 * @param sigma The initial value for the sigma_ parameter
 	 * @param sigmaSigma The initial value for the sigmaSigma_ parameter
@@ -103,6 +117,31 @@ public:
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
 		:GAdaptorT<T> (),
+		 sigma_(DEFAULTSIGMA),
+		 sigmaSigma_(DEFAULTSIGMASIGMA),
+		 minSigma_(DEFAULTMINSIGMA),
+		 maxSigma_(DEFAULTMAXSIGMA)
+	{
+		// These functions do error checks on their values
+		setSigmaAdaptionRate(sigmaSigma);
+		setSigmaRange(minSigma, maxSigma);
+		setSigma(sigma);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * This constructor lets a user set all parameters in one go.
+	 *
+	 * @param sigma The initial value for the sigma_ parameter
+	 * @param sigmaSigma The initial value for the sigmaSigma_ parameter
+	 * @param minSigma The minimal value allowed for sigma_
+	 * @param maxSigma The maximal value allowed for sigma_
+	 * @param probability The likelihood for a mutation actually taking place
+	 */
+	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
+				const double& minSigma, const double& maxSigma,
+				const double& probability)
+		:GAdaptorT<T> (probability),
 		 sigma_(DEFAULTSIGMA),
 		 sigmaSigma_(DEFAULTSIGMASIGMA),
 		 minSigma_(DEFAULTMINSIGMA),
@@ -420,16 +459,18 @@ protected:
 	/********************************************************************************************/
 	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
-	 * algorithm to adapt to changing geometries of the quality surface. The
-	 * function is declared inline, as it might be called very often.
+	 * algorithm to adapt to changing geometries of the quality surface.
 	 */
-	inline void adaptMutation()
+	virtual void adaptMutation()
 	{
 		sigma_ *= exp(this->gr.gaussRandom(0.,sigmaSigma_));
 
 		// make sure sigma_ doesn't get out of range
 		if(fabs(sigma_) < minSigma_) sigma_ = minSigma_;
 		else if(fabs(sigma_) > maxSigma_) sigma_ = maxSigma_;
+
+		// Make sure that the appropriate actions are performed by the parent class
+		GAdaptorT<T>::adaptMutation();
 	}
 
 	/********************************************************************************************/
@@ -438,7 +479,7 @@ protected:
 	 *
 	 * @param value The value that is going to be mutated in situ
 	 */
-	inline void customMutations(T &value)
+	virtual void customMutations(T &value)
 	{
 		// adapt the value in situ. Note that this changes
 		// the argument of this function

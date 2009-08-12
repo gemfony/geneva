@@ -42,6 +42,20 @@ GRandom::GRandom()
 
 /*************************************************************************/
 /**
+ * Initialization with the random number generation mode
+ *
+ * @param rnrGenMode The random number generation mode (local vs. factory)
+ */
+GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
+	:rnrGenerationMode_(rnrGenMode),
+	 currentPackageSize_(DEFAULTARRAYSIZE),
+	 current01_(1), // position 0 holds the array size
+	 grf_(GRANDOMFACTORY),
+	 rnr_last_(Gem::Util::GRandomFactory::GSeed())
+{ /* nothing */ }
+
+/*************************************************************************/
+/**
  * The copy constructor. Note that we acquire our own seed and do not copy
  * it from the other object. This way we do not have two generators that produce
  * the same numbers.

@@ -59,11 +59,10 @@ namespace GenEvA {
 /************************************************************************************************/
 /**
  * GIntFlipAdaptorT represents an adaptor used for the mutation of integer
- * types, by flipping an integer number to the next larger or smaller number
- * with a given probability. The integer type used needs to be specified as
- * a template parameter. Note that a specialization of this class, as defined
- * in GIntFlipAdaptorT.cpp, allows to deal with booleans instead of "standard"
- * integer types.
+ * types, by flipping an integer number to the next larger or smaller number.
+ * The integer type used needs to be specified as a template parameter. Note
+ * that a specialization of this class, as defined in GIntFlipAdaptorT.cpp,
+ * allows to deal with booleans instead of "standard" integer types.
  */
 template<typename T>
 class GIntFlipAdaptorT:
@@ -76,41 +75,28 @@ class GIntFlipAdaptorT:
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<T> >(*this));
-		ar & make_nvp("mutProb_", mutProb_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/********************************************************************************************/
 	/**
-	 * The standard constructor. It passes the adaptor's standard name to the
-	 * parent class and initializes the internal variables.
+	 * The standard constructor.
 	 */
 	GIntFlipAdaptorT()
-		:GAdaptorT<T> (),
-		 mutProb_(DEFAULTMUTPROB, 0., 1.) // probability is in the range [0:1[
-	{
-		// Uses whatever GDoubleGaussAdaptor believes should be the default values
-		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor());
-		mutProb_.addAdaptor(gaussAdaptor);
-	}
+		:GAdaptorT<T> (DEFAULTBITMUTPROB)
+	{ /* nothing */	}
 
 	/********************************************************************************************/
 	/**
 	 * This constructor takes an argument, that specifies the (initial) probability
-	 * for the mutation of a bit value.
+	 * for the mutation of an integer or bit value
 	 *
-	 * @param prob The probability for a bit-flip
+	 * @param prob The probability for a flip
 	 */
 	explicit GIntFlipAdaptorT(const double& prob)
-		:GAdaptorT<T>(),
-		 mutProb_(prob, 0., 1.) // probability is in the range [0:1]
-	{
-		// Uses whatever GDoubleGaussAdaptor believes should be the default values
-		boost::shared_ptr<GAdaptorT<double> > gaussAdaptor(new GDoubleGaussAdaptor());
-		gaussAdaptor->setRnrGenerationMode(Gem::Util::RNRFACTORY);
-		mutProb_.addAdaptor(gaussAdaptor);
-	}
+		:GAdaptorT<T>(prob)
+	{ /* nothing */ }
 
 	/********************************************************************************************/
 	/**
@@ -119,8 +105,7 @@ public:
 	 * @param cp Another GIntFlipAdaptorT object
 	 */
 	GIntFlipAdaptorT(const GIntFlipAdaptorT<T>& cp)
-		:GAdaptorT<T>(cp),
-		 mutProb_(cp.mutProb_)
+		:GAdaptorT<T>(cp)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -152,13 +137,13 @@ public:
 	void load(const GObject *cp)
 	{
 		// Convert GObject pointer to local format
+		// (also checks for self-assignments in DEBUG mode)
 		const GIntFlipAdaptorT<T> *gifa = this->conversion_cast(cp, this);
 
 		// Load the data of our parent class ...
 		GAdaptorT<T>::load(cp);
 
-		// ... and then our own
-		mutProb_ = gifa->mutProb_;
+		// no local data
 	}
 
 
@@ -212,8 +197,7 @@ public:
 		// Check our parent class
 		if(!GAdaptorT<T>::isEqualTo(*gifat_load, expected)) return false;
 
-		// And then our local data
-		if(!mutProb_.isEqualTo(gifat_load->mutProb_, expected)) 	return false;
+		// no local data
 
 		return true;
 	}
@@ -237,80 +221,9 @@ public:
 		// First check our parent class
 		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit, expected))  return false;
 
-		// Then our local data
-		if(!mutProb_.isSimilarTo(gifat_load->mutProb_, limit, expected)) return false;
+		// no local data
 
 		return true;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Determines whether production of random numbers should happen remotely
-	 * (RNRFACTORY) or locally (RNRLOCAL). This function is one of the rare cases where it is
-	 * necessary to re-implent this function. We want to propagate the random number generation
-	 * mode to our local mutProb_ object's adaptor.
-	 *
-	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
-	 */
-	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
-		// Set the parent number's mode
-		GAdaptorT<T>::setRnrGenerationMode(rnrGenMode);
-
-		// Set mutProb_'s adaptor's generation mode
-		boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor
-					= mutProb_.adaptor_cast<GDoubleGaussAdaptor>();
-		gaussAdaptor->setRnrGenerationMode(rnrGenMode);
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Retrieves the current value of the mutation probability
-	 *
-	 * @return The current value of the mutation probability
-	 */
-	double getMutationProbability() {
-		return mutProb_.value();
-	}
-
-	/*************************************************************************/
-	/**
-	 * Sets the mutation probability to a given value. This function will throw
-	 * if the probability is not in the allowed range.
-	 *
-	 * @param val The new value of the probability for integer flips
-	 */
-	void setMutationProbability(const double& probability) {
-		// Check the supplied probability value
-		if(probability < 0. || probability > 1.) {
-			std::ostringstream error;
-			error << "In GIntFlipAdaptor::setMutationProbability(double) : Error!" << std::endl
-				  << "Bad probability value given: " << probability << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
-		}
-
-		mutProb_ = probability;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * The mutation of a GDouble object has a number of parameters that can
-	 * be set with this function. See the documentation of the GDouble class
-	 * for further information.
-	 *
-	 * @param sgm Sigma for gauss mutation
-	 * @param sgmSgm Parameter which determines the amount of evolutionary adaption of sigma
-	 * @param minSgm The minimal value sigma may assume
-	 * @param maxSgm The maximim value sigma may assume
-	 */
-	void setMutationParameters(const double& sgm, const double& sgmSgm,
-							   const double& minSgm, const double& maxSgm) {
-		boost::shared_ptr<GDoubleGaussAdaptor> gaussAdaptor
-			= mutProb_.adaptor_cast<GDoubleGaussAdaptor>();
-		// Then set the values as requested.
-		gaussAdaptor->setAll(sgm,sgmSgm,minSgm,maxSgm);
 	}
 
 	/********************************************************************************************/
@@ -329,15 +242,6 @@ public:
 protected:
 	/********************************************************************************************/
 	/**
-	 * The mutation probability is implemented as a GDouble. It thus can take
-	 * care of its own mutation within its boundaries [0.,1.] .
-	 */
-	void adaptMutation() {
-		mutProb_.mutate();
-	}
-
-	/********************************************************************************************/
-	/**
 	 * We want to flip the value only in a given percentage of cases. Thus
 	 * we calculate a probability between 0 and 1 and compare it with the desired
 	 * mutation probability. Please note that evenRandom returns a value in the
@@ -348,44 +252,34 @@ protected:
 	 * @param value The bit value to be mutated
 	 */
 	virtual void customMutations(T& value) {
-		double probe = this->gr.evenRandom(0.,1.);
-		if(probe < mutProb_.value()) {
-			bool up = this->gr.boolRandom();
-			if(up){
+		bool up = this->gr.boolRandom();
+		if(up){
 #if defined (CHECKOVERFLOWS) || defined (DEBUG)
-				if(std::numeric_limits<T>::max() == value) value -= 1;
-				else value += 1;
+			if(std::numeric_limits<T>::max() == value) value -= 1;
+			else value += 1;
 #else
-				value += 1;
+			value += 1;
 #endif
-			}
-			else {
+		}
+		else {
 #if defined (CHECKOVERFLOWS) || defined (DEBUG)
-				if(std::numeric_limits<T>::min() == value) value += 1;
-				else value -= 1;
+			if(std::numeric_limits<T>::min() == value) value += 1;
+			else value -= 1;
 #else
-				value -= 1;
+			value -= 1;
 #endif
-			}
 		}
 	}
-
-private:
-	/********************************************************************************************/
-
-	GBoundedDouble mutProb_; ///< internal representation of the mutation probability
 };
 
+/************************************************************************************************/
 // Declaration of some specializations
 template<> void GIntFlipAdaptorT<bool>::customMutations(bool&);
-template<> void GIntFlipAdaptorT<short>::customMutations(short&);
-template<> void GIntFlipAdaptorT<unsigned short>::customMutations(unsigned short&);
-template<> void GIntFlipAdaptorT<boost::uint8_t>::customMutations(boost::uint8_t&);
-template<> void GIntFlipAdaptorT<boost::int8_t>::customMutations(boost::int8_t&);
-template<> void GIntFlipAdaptorT<char>::customMutations(char&);
 template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<bool>::getAdaptorId() const;
 template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<boost::int32_t>::getAdaptorId() const;
 template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<char>::getAdaptorId() const;
+
+/************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

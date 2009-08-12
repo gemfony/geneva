@@ -96,7 +96,8 @@ const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
 const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption
 const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for sigma_
 const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
-const double DEFAULTMUTPROB = 0.05; // 5 percent mutation probability
+const double DEFAULTBITMUTPROB = 0.05; // 5 percent mutation probability for bits
+const double DEFAULTMUTPROB = 1.0; // 109 percent mutation probability for all other cases
 
 /**********************************************************************************************/
 
@@ -108,9 +109,14 @@ namespace Util {
 
 /**********************************************************************************************/
 /**
- * Random number generation can happen in three modes
+ * Random number generation can happen in two modes
  */
 enum rnrGenerationMode { RNRFACTORY=0, RNRLOCAL=1 };
+
+/**
+ * The default random number generation mode
+ */
+const rnrGenerationMode DEFAULTRNRGENMODE=RNRFACTORY;
 
 /**********************************************************************************************/
 
