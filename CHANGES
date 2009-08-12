@@ -9,9 +9,7 @@ The main changes for this release include:
    by the best children. This is a hybrid between the MUPLUSNU and MUCOMMANU modes.
  - Added micro-training environment to GBasePopulation (and derivatives). When the optimization 
    stalls, parents may perform structural updates. As these will very likely lead to a decrease in 
-   quality, "private" training cycles can help improve the quality. This can be applied e.g. to 
-   environments, where the structure of individuals is built up over time, and it is not clear, how
-   many structure items need to be added.
+   quality, a one-time selection policy of MUPLUSNU is used.
 
 * Version 0.5.3, "Building 39" - July 6, 2009
 
