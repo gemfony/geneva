@@ -552,7 +552,9 @@ void GBasePopulation::optimize() {
 
 		// Perform micro-training, if requested and necessary
 		if(microTrainingInterval_ && stallCounter_ && stallCounter_%microTrainingInterval_ == 0) {
+#ifdef DEBUG
 			std::cout << "Updating parents ..." << std::endl;
+#endif /* DEBUG */
 			if(this->updateParentStructure()) this->setOneTimeMuCommaNu();
 			stallCounter_ = 0;
 		}
