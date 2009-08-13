@@ -69,6 +69,7 @@
 - Profile the server part of networked execution. Is de-serialization always necessary ?
 - Some error checks can be simplified if GBrokerPopulation tells its individuals that they are running on a server, where
   e.g. value calculation is not allowed.
+- Allow to pass an arbitrary output stream to the info function
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)

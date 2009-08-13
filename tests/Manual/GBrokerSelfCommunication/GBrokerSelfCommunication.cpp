@@ -110,7 +110,6 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	// We create a thread group of nClients threads + the server thread.
-	// Note that boost::bind knows how to handle a boost::shared_ptr.
 	Gem::Util::GThreadGroup gtg;
 
 	// Global settings
@@ -153,8 +152,6 @@ int main(int argc, char **argv){
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Start of clients
-
-	std::vector<boost::shared_ptr<GAsioTCPClient> > clientCollection;
 	for(std::size_t i=0; i<nClients; i++){
 		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip,boost::lexical_cast<std::string>(port)));
 		gtg.create_thread(boost::bind(&GAsioTCPClient::run,p));

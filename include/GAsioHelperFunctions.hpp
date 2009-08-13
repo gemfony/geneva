@@ -60,6 +60,9 @@ std::string assembleQueryString(const std::string&, const std::size_t&);
 /** @brief Extracts the size of ASIO's data section from a C string. */
 std::size_t extractDataSize(const char*, const std::size_t&);
 
+/** @brief Starts a number of threads with clients */
+void startNClients(unsigned short, std::string, unsigned short);
+
 /**********************************************************************************/
 
 } /* namespace GenEvA */
