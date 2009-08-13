@@ -67,12 +67,6 @@ namespace Gem
 namespace GenEvA
 {
 
-/**
- * The serialization mode - XML or text
- */
-const boost::uint8_t CLIENTXMLMODE=0;
-const boost::uint8_t CLIENTTEXTMODE=1;
-
 /*********************************************************************************/
 /**
  * This class forms the basis of a hierarchy of classes designed for client-side

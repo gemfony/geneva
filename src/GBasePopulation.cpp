@@ -515,10 +515,20 @@ std::string GBasePopulation::getCheckpointDirectory() const {
  * scheme, type of child mutations and the selection scheme are determined in
  * other functions, namely GBasePopulation::recombine(), GBasePopulation::mutateChildren()
  * and GBasePopulation::select() (or overloaded versions in derived classes).
+ *
+ * @param startGeneration The start value of the generation_ counter
  */
-void GBasePopulation::optimize() {
+void GBasePopulation::optimize(const boost::uint32_t& startGeneration) {
+	// Check the value of the supplied start generation
+	if(maxGeneration_ && startGeneration >= maxGeneration_) {
+		std::ostringstream error;
+		error << "In GBasePopulation::optimize(const boost::uint32_t&): Error!" << std::endl
+			  << "Received invalid start generation value: " << startGeneration << " " << maxGeneration_ << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
 	// Reset the generation counter
-	generation_ = 0;
+	generation_ = startGeneration;
 
 	// Fill up the population as needed
 	GBasePopulation::adjustPopulation();

@@ -199,8 +199,10 @@ bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit,
 /**
  * We want to do all fitness calculation in the threads. Hence lazy
  * evaluation is not allowed.
+ *
+ * @param startGeneration The start value of the generation_ counter
  */
-void GBoostThreadPopulation::optimize() {
+void GBoostThreadPopulation::optimize(const boost::uint32_t& startGeneration) {
 	std::vector<bool> le_value;
 
 	std::vector<bool>::iterator b_it;
@@ -215,7 +217,7 @@ void GBoostThreadPopulation::optimize() {
 
 	// Do the actual optimization. Thus function will use our overloaded
 	// mutateChildren class.
-	GBasePopulation::optimize();
+	GBasePopulation::optimize(startGeneration);
 
 	// Restore the original values
 	for(it=data.begin(), b_it=le_value.begin();

@@ -144,7 +144,7 @@ namespace GenEvA
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
     /** @brief Starts the optimization cycle */
-    virtual void optimize();
+    virtual void optimize(const boost::uint32_t& startGeneration = 0);
 
     /** @brief Sets the wait factor */
     void setWaitFactor(const boost::uint32_t&);

@@ -10,6 +10,10 @@ The main changes for this release include:
  - Added micro-training environment to GBasePopulation (and derivatives). When the optimization 
    stalls, parents may perform structural updates. As these will very likely lead to a decrease in 
    quality, a one-time selection policy of MUPLUSNU is used.
+ - Added the option to set an arbitrary start generation. This is useful when intermediate results
+   are written out, whose file name is based on the current generation. Files can continue to be
+   written out with sequential generation numbers, even if the optimization was started anew, e.g.
+   using a checkpoint file.
 
 * Version 0.5.3, "Building 39" - July 6, 2009
 

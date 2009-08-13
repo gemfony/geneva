@@ -225,9 +225,8 @@ public:
 	/** @brief Allows to retrieve the directory where checkpoint files should be stored */
 	std::string getCheckpointDirectory() const;
 
-	/** @brief The core function of the entire GenEvA library.
-	 * Triggers the optimization of a population. */
-	virtual void optimize();
+	/** @brief Triggers the optimization of a population. */
+	virtual void optimize(const boost::uint32_t& startGeneration = 0);
 
 	/** @brief Emits information specific to this population */
 	virtual void doInfo(const infoMode&);

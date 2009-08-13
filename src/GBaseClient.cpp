@@ -199,7 +199,7 @@ bool GBaseClient::process(){
 	target->process();
 
 	// We do not want to accidently trigger value calculation if it is not desired by the user
-	// - after all we do not know in this class was is done in GIndividual::process() .
+	// - after all we do not know in this class what is being done in GIndividual::process() .
 	bool isDirty;
 	double fitness = target->getCurrentFitness(isDirty);
 

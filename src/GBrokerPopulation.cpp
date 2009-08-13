@@ -318,13 +318,15 @@ boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
  * of the parent population is started. When it is finished, we reset the shared_ptr<GBufferPortT>.
  * The corresponding object is then deleted, and the GBoundedBufferT objects  owned by the broker are
  * orphaned. They will then be removed during the next enrollment.
+ *
+ * @param startGeneration The start value of the generation_ counter
  */
-void GBrokerPopulation::optimize() {
+void GBrokerPopulation::optimize(const boost::uint32_t& startGeneration) {
 	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Util::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
 	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
 
 	// The main optimization cycle
-	GBasePopulation::optimize();
+	GBasePopulation::optimize(startGeneration);
 
 	// Remove the GBufferPortT object
 	CurrentBufferPort_.reset();

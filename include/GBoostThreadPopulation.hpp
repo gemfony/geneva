@@ -103,7 +103,7 @@ public:
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Overloaded from GBasePopulation::optimize() */
-	virtual void optimize();
+	virtual void optimize(const boost::uint32_t& startGeneration = 0);
 
 	/** @brief Sets the maximum number of threads */
 	void setNThreads(const boost::uint8_t&);
