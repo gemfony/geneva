@@ -20,11 +20,7 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include "GAsioHelperFunctions.hpp"
-#include "GThreadGroup.hpp"
 
 namespace Gem
 {

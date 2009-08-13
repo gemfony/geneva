@@ -44,6 +44,12 @@ namespace GenEvA {
 
 /**********************************************************************************************/
 /**
+ * Needed so that server and client agree about the size of the headers and commands
+ */
+const std::size_t COMMANDLENGTH=64;
+
+/**********************************************************************************************/
+/**
  * The allowed modes during data exchange with external programs
  */
 enum dataExchangeMode {BINARYEXCHANGE=0, TEXTEXCHANGE=1};

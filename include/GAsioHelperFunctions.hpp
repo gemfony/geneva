@@ -33,6 +33,8 @@
 #include <climits>
 
 // Boost headers go here
+#include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
 
 #ifndef GASIOHELPERFUNCTIONS_HPP_
 #define GASIOHELPERFUNCTIONS_HPP_
@@ -43,7 +45,9 @@
 #endif
 
 // GenEvA headers go here
+#include "GEnums.hpp"
 #include "GenevaExceptions.hpp"
+#include "GAsioTCPClient.hpp"
 
 namespace Gem
 {
@@ -51,9 +55,6 @@ namespace GenEvA
 {
 
 /**********************************************************************************/
-/** @brief Needed so that server and client agree about the size of the headers and commands */
-const std::size_t COMMANDLENGTH=64;
-
 /** @brief Assembles a query string from a given command */
 std::string assembleQueryString(const std::string&, const std::size_t&);
 
