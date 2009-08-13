@@ -98,7 +98,9 @@ const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
 
 /****************************************************************************/
 /**
- * Increment of the global seed
+ * Increment of the global seed. This number was chosen randomly. The intention
+ * is to make the number small enough so the seed doesn't roll over too quickly,
+ * and large enough so we can be sure to have very different random number sequences.
  */
 const boost::uint32_t GLOBALSEEDINCREMENT = 3;
 
