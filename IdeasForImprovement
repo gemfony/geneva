@@ -46,9 +46,6 @@
 - Separate useful individuals (neural network, external evaluation, ...) from pure examples
 - Create boost::shared_ptr<GObject> versions of load() and clone(), adapt in all places (e.g. GStdPtrVectorInterface.hpp)
 - Test that seeding works with local random number creation
-- Track down all uses of setSigmaRange and associates and check for consistency
-- Need an infrastructure to give a single adaptor to an object collection !!
-- Make most GRandom functions const, then hand down a constant reference to the parameter sets
 - Check whether we need to declare anything as volatile, particularly in connection with random number generation
 - Remove the eval_ function from GParameterSet ... . Useless in parallel environments (?)
 - Is GIndividualSet really needed ? Could all be handled from GBasePopulation ? But no: can serve as the base class for a GSwarm 
@@ -58,13 +55,9 @@
 - Check all load code whether it checks for empty smart pointers. Always check in DEBUG mode.
 - Use CPack to create DEB packages (RPM already implemented)
 - Switch examples to the noisy parabola, due to its higher learning potential
-- Only compile tests if test_exec_monitor library could be found (not always in default installations)
-- Renovation of client / consumer infrastructure (clean base classes, separation of protocol from network implementation)
+- Renovation of client / consumer infrastructure (clean base classes, separation of protocol from network implementation).
+  Possibly: Network code as function objects ?
 - Test checkpointing of Geneva objects
-- Make clients run in multi-threaded mode so they can pull a user-defined number of items over
-- Create a new sorting scheme, where a number of the last generation's parents become parents 
-  of the next generation (unless better children were found), and in addition a number of 
-  the best children becomes parents of the next generation. Mixture of MUPLUSNU and MUCOMMANU
 - Check how many individuals are left out for large populations in networked mode, because of late arrival
 - Profile the server part of networked execution. Is de-serialization always necessary ?
 - Some error checks can be simplified if GBrokerPopulation tells its individuals that they are running on a server, where

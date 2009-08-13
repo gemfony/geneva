@@ -147,8 +147,8 @@ int main(int argc, char **argv){
 	pop->setReportGeneration(reportGeneration);
 	pop->setRecombinationMethod(rScheme);
 
-	// Do the actual optimization
-	gtg.create_thread(boost::bind(&GBrokerPopulation::optimize,pop));
+	// Start the actual optimization
+	gtg.create_thread(boost::bind(&GBrokerPopulation::optimize, pop, 0));
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Start of clients
