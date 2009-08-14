@@ -63,6 +63,7 @@
 - Some error checks can be simplified if GBrokerPopulation tells its individuals that they are running on a server, where
   e.g. value calculation is not allowed.
 - Allow to pass an arbitrary output stream to the info function
+- Check that in multiple multi-threaded clients the seed is not identical due to local increment at the same rate
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
