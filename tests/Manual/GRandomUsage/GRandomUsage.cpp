@@ -63,7 +63,12 @@ enum distType {
 	DISCRETEBOUND,
 	BITPROB,
 	BITSIMPLE,
-	CHARRND
+	CHARRND,
+	EXPGAUSS01,
+	EXPGAUSS02,
+	EXPGAUSS04,
+	EXPGAUSS08,
+	EXPGAUSS16,
 };
 
 template <class T>
@@ -119,6 +124,26 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 			vec_t.push_back((int16_t)tmp);
 		}
 		break;
+
+	case EXPGAUSS01:
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,0.1))));
+		break;
+
+	case EXPGAUSS02:
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,0.2))));
+		break;
+
+	case EXPGAUSS04:
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,0.4))));
+		break;
+
+	case EXPGAUSS08:
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,0.8))));
+		break;
+
+	case EXPGAUSS16:
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,1.6))));
+		break;
 	}
 }
 
@@ -139,6 +164,7 @@ int main(int argc, char **argv){
 
 	std::size_t i;
 	std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
+	std::vector<double> expgauss01, expgauss02, expgauss04, expgauss08, expgauss16;
 	std::vector<boost::int32_t> discrete, discretebound, bitprob, bitsimple, charrnd;
 
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
@@ -163,6 +189,11 @@ int main(int argc, char **argv){
 	createRandomVector<boost::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
 	createRandomVector<boost::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
 	createRandomVector<boost::int32_t>(charrnd, CHARRND, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss01, EXPGAUSS01, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss02, EXPGAUSS02, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss04, EXPGAUSS04, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss08, EXPGAUSS08, nEntries, gr_ptr);
+	createRandomVector<double>(expgauss16, EXPGAUSS16, nEntries, gr_ptr);
 
 	if(gaussian.size() != nEntries ||
 	   doublegaussian.size() != nEntries ||
@@ -172,7 +203,12 @@ int main(int argc, char **argv){
 	   discretebound.size() != nEntries ||
 	   bitprob.size() != nEntries ||
 	   bitsimple.size() != nEntries ||
-	   charrnd.size() != nEntries){
+	   charrnd.size() != nEntries ||
+	   expgauss01.size() != nEntries ||
+	   expgauss02.size() != nEntries ||
+	   expgauss04.size() != nEntries ||
+	   expgauss08.size() != nEntries ||
+	   expgauss16.size() != nEntries){
 		std::cout << "Error: received invalid sizes for at least one vector" << std::endl;
 		return 1;
 	}
@@ -182,19 +218,24 @@ int main(int argc, char **argv){
 	if(ofs){ // Output the data
 		// The header of the root file
 		ofs << "{" << std::endl;
-		ofs << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);" << std::endl
-			<< "  cc->Divide(2,5);" << std::endl
-			<< std::endl;
-		ofs << "  TH1F *gauss = new TH1F(\"gauss\",\"gauss\",200,-8.,2.);" << std::endl;
-		ofs << "  TH1F *dgauss = new TH1F(\"dgauss\",\"dgauss\",200,-8.,2.);" << std::endl;
-		ofs << "  TH1F *even = new TH1F(\"even\",\"even\",200,-0.5,1.5);" << std::endl;
-		ofs << "  TH1F *evenwb = new TH1F(\"evenwb\",\"evenwb\",200,-3.5,2.5);" << std::endl;
-		ofs << "  TH1I *discrete = new TH1I(\"discrete\",\"discrete\",12,-1,10);" << std::endl;
-		ofs << "  TH1I *discretewb = new TH1I(\"discretewb\",\"discretewb\",16,-4,11);" << std::endl;
-		ofs << "  TH1I *bitprob = new TH1I(\"bitprob\",\"bitprob\",4,-1,2);" << std::endl;
-		ofs << "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << std::endl;
-		ofs << "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl;
-		ofs << "  TH2F *evenCorrelation = new TH2F(\"evenCorrelation\",\"evenCorrelation\",100,-1.,1.,100,-1.,1.);" << std::endl
+		ofs << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,1000,1200);" << std::endl
+			<< "  cc->Divide(3,4);" << std::endl
+			<< std::endl
+			<< "  TH1F *gauss = new TH1F(\"gauss\",\"gauss\",200,-8.,2.);" << std::endl
+			<< "  TH1F *dgauss = new TH1F(\"dgauss\",\"dgauss\",200,-8.,2.);" << std::endl
+			<< "  TH1F *expGauss01 = new TH1F(\"expGauss01\",\"expGauss01\",1000,0.,10.);" << std::endl
+			<< "  TH1F *expGauss02 = new TH1F(\"expGauss02\",\"expGauss02\",1000,0.,10.);" << std::endl
+			<< "  TH1F *expGauss04 = new TH1F(\"expGauss04\",\"expGauss04\",1000,0.,10.);" << std::endl
+			<< "  TH1F *expGauss08 = new TH1F(\"expGauss08\",\"expGauss08\",1000,0.,10.);" << std::endl
+			<< "  TH1F *expGauss16 = new TH1F(\"expGauss16\",\"expGauss16\",1000,0.,10.);" << std::endl
+			<< "  TH1F *even = new TH1F(\"even\",\"even\",200,-0.5,1.5);" << std::endl
+			<< "  TH1F *evenwb = new TH1F(\"evenwb\",\"evenwb\",200,-3.5,2.5);" << std::endl
+			<< "  TH1I *discrete = new TH1I(\"discrete\",\"discrete\",12,-1,10);" << std::endl
+			<< "  TH1I *discretewb = new TH1I(\"discretewb\",\"discretewb\",16,-4,11);" << std::endl
+			<< "  TH1I *bitprob = new TH1I(\"bitprob\",\"bitprob\",4,-1,2);" << std::endl
+			<< "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << std::endl
+			<< "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl
+			<< "  TH2F *evenCorrelation = new TH2F(\"evenCorrelation\",\"evenCorrelation\",100,-1.,1.,100,-1.,1.);" << std::endl
 			<< std::endl;
 
 		for(i=0; i<nEntries; i++){
@@ -204,6 +245,31 @@ int main(int argc, char **argv){
 
 		for(i=0; i<nEntries; i++){
 			ofs << "  dgauss->Fill(" << doublegaussian.at(i) << ");" << std::endl;
+		}
+		ofs << std::endl;
+
+		for(i=0; i<nEntries; i++){
+			ofs << "  expGauss01->Fill(" << expgauss01.at(i) << ");" << std::endl;
+		}
+		ofs << std::endl;
+
+		for(i=0; i<nEntries; i++){
+			ofs << "  expGauss02->Fill(" << expgauss02.at(i) << ");" << std::endl;
+		}
+		ofs << std::endl;
+
+		for(i=0; i<nEntries; i++){
+			ofs << "  expGauss04->Fill(" << expgauss04.at(i) << ");" << std::endl;
+		}
+		ofs << std::endl;
+
+		for(i=0; i<nEntries; i++){
+			ofs << "  expGauss08->Fill(" << expgauss08.at(i) << ");" << std::endl;
+		}
+		ofs << std::endl;
+
+		for(i=0; i<nEntries; i++){
+			ofs << "  expGauss16->Fill(" << expgauss16.at(i) << ");" << std::endl;
 		}
 		ofs << std::endl;
 
@@ -245,6 +311,7 @@ int main(int argc, char **argv){
 		for(i=0; i<nEntries; i++){
 			ofs << "  evenCorrelation->Fill(" << gr_ptr->evenRandom(-1.,1.) << ", " << gr_ptr->evenRandom(-1.,1.)  << ");" << std::endl;
 		}
+
 		ofs << std::endl;
 
 		ofs << "  cc->cd(1);" << std::endl
@@ -252,20 +319,26 @@ int main(int argc, char **argv){
 			<< "  cc->cd(2);" << std::endl
 			<< "  dgauss->Draw();" << std::endl
 			<< "  cc->cd(3);" << std::endl
-			<< "  even->Draw();" << std::endl
+			<< "  expGauss01->Draw();" << std::endl
+			<< "  expGauss02->Draw(\"same\");" << std::endl
+			<< "  expGauss04->Draw(\"same\");" << std::endl
+			<< "  expGauss08->Draw(\"same\");" << std::endl
+			<< "  expGauss16->Draw(\"same\");" << std::endl
 			<< "  cc->cd(4);" << std::endl
-			<< "  evenwb->Draw();" << std::endl
+			<< "  even->Draw();" << std::endl
 			<< "  cc->cd(5);" << std::endl
-			<< "  discrete->Draw();" << std::endl
+			<< "  evenwb->Draw();" << std::endl
 			<< "  cc->cd(6);" << std::endl
-			<< "  discretewb->Draw();" << std::endl
+			<< "  discrete->Draw();" << std::endl
 			<< "  cc->cd(7);" << std::endl
-			<< "  bitprob->Draw();" << std::endl
+			<< "  discretewb->Draw();" << std::endl
 			<< "  cc->cd(8);" << std::endl
-			<< "  bitsimple->Draw();" << std::endl
+			<< "  bitprob->Draw();" << std::endl
 			<< "  cc->cd(9);" << std::endl
-			<< "  charrnd->Draw();" << std::endl
+			<< "  bitsimple->Draw();" << std::endl
 			<< "  cc->cd(10);" << std::endl
+			<< "  charrnd->Draw();" << std::endl
+			<< "  cc->cd(11);" << std::endl
 			<< "  evenCorrelation->Draw(\"contour\");" << std::endl
 			<< "  cc->cd();" << std::endl;
 		ofs	<< "}" << std::endl;
