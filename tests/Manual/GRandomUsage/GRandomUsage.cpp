@@ -180,39 +180,6 @@ int main(int argc, char **argv){
 		break;
 	};
 
-	createRandomVector<double>(gaussian, GAUSSIAN, nEntries, gr_ptr);
-	createRandomVector<double>(doublegaussian, DOUBLEGAUSSIAN, nEntries, gr_ptr);
-	createRandomVector<double>(even, EVEN, nEntries, gr_ptr);
-	createRandomVector<double>(evenwithboundaries, EVENWITHBOUNDARIES, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(discrete, DISCRETE, nEntries,gr_ptr);
-	createRandomVector<boost::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(charrnd, CHARRND, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss01, EXPGAUSS01, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss02, EXPGAUSS02, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss04, EXPGAUSS04, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss08, EXPGAUSS08, nEntries, gr_ptr);
-	createRandomVector<double>(expgauss16, EXPGAUSS16, nEntries, gr_ptr);
-
-	if(gaussian.size() != nEntries ||
-	   doublegaussian.size() != nEntries ||
-	   even.size() != nEntries ||
-	   evenwithboundaries.size() != nEntries ||
-	   discrete.size() != nEntries ||
-	   discretebound.size() != nEntries ||
-	   bitprob.size() != nEntries ||
-	   bitsimple.size() != nEntries ||
-	   charrnd.size() != nEntries ||
-	   expgauss01.size() != nEntries ||
-	   expgauss02.size() != nEntries ||
-	   expgauss04.size() != nEntries ||
-	   expgauss08.size() != nEntries ||
-	   expgauss16.size() != nEntries){
-		std::cout << "Error: received invalid sizes for at least one vector" << std::endl;
-		return 1;
-	}
-
 	std::ofstream ofs("randomResult.C");
 
 	if(ofs){ // Output the data
@@ -235,8 +202,46 @@ int main(int argc, char **argv){
 			<< "  TH1I *bitprob = new TH1I(\"bitprob\",\"bitprob\",4,-1,2);" << std::endl
 			<< "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << std::endl
 			<< "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl
-			<< "  TH2F *evenCorrelation = new TH2F(\"evenCorrelation\",\"evenCorrelation\",100,-1.,1.,100,-1.,1.);" << std::endl
+			<< "  TH2F *evenCorrelation = new TH2F(\"evenCorrelation\",\"evenCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
 			<< std::endl;
+
+		for(i=0; i<nEntries; i++){
+			ofs << "  evenCorrelation->Fill(" << gr_ptr->evenRandom() << ", " << gr_ptr->evenRandom()  << ");" << std::endl;
+		}
+		ofs << std::endl;
+
+		createRandomVector<double>(gaussian, GAUSSIAN, nEntries, gr_ptr);
+		createRandomVector<double>(doublegaussian, DOUBLEGAUSSIAN, nEntries, gr_ptr);
+		createRandomVector<double>(even, EVEN, nEntries, gr_ptr);
+		createRandomVector<double>(evenwithboundaries, EVENWITHBOUNDARIES, nEntries, gr_ptr);
+		createRandomVector<boost::int32_t>(discrete, DISCRETE, nEntries,gr_ptr);
+		createRandomVector<boost::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
+		createRandomVector<boost::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
+		createRandomVector<boost::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
+		createRandomVector<boost::int32_t>(charrnd, CHARRND, nEntries, gr_ptr);
+		createRandomVector<double>(expgauss01, EXPGAUSS01, nEntries, gr_ptr);
+		createRandomVector<double>(expgauss02, EXPGAUSS02, nEntries, gr_ptr);
+		createRandomVector<double>(expgauss04, EXPGAUSS04, nEntries, gr_ptr);
+		createRandomVector<double>(expgauss08, EXPGAUSS08, nEntries, gr_ptr);
+		createRandomVector<double>(expgauss16, EXPGAUSS16, nEntries, gr_ptr);
+
+		if(gaussian.size() != nEntries ||
+		   doublegaussian.size() != nEntries ||
+		   even.size() != nEntries ||
+		   evenwithboundaries.size() != nEntries ||
+		   discrete.size() != nEntries ||
+		   discretebound.size() != nEntries ||
+		   bitprob.size() != nEntries ||
+		   bitsimple.size() != nEntries ||
+		   charrnd.size() != nEntries ||
+		   expgauss01.size() != nEntries ||
+		   expgauss02.size() != nEntries ||
+		   expgauss04.size() != nEntries ||
+		   expgauss08.size() != nEntries ||
+		   expgauss16.size() != nEntries){
+			std::cout << "Error: received invalid sizes for at least one vector" << std::endl;
+			return 1;
+		}
 
 		for(i=0; i<nEntries; i++){
 			ofs << "  gauss->Fill(" << gaussian.at(i) << ");" << std::endl;
@@ -306,12 +311,6 @@ int main(int argc, char **argv){
 		for(i=0; i<nEntries; i++){
 			ofs << "  charrnd->Fill(" << charrnd.at(i) << ");" << std::endl;
 		}
-		ofs << std::endl;
-
-		for(i=0; i<nEntries; i++){
-			ofs << "  evenCorrelation->Fill(" << gr_ptr->evenRandom(-1.,1.) << ", " << gr_ptr->evenRandom(-1.,1.)  << ");" << std::endl;
-		}
-
 		ofs << std::endl;
 
 		ofs << "  cc->cd(1);" << std::endl
