@@ -740,6 +740,8 @@ void GBasePopulation::adjustPopulation() {
 	markParents();
 	// Let all individuals know about the current generation
 	markGeneration();
+	// Let all individuals know whether they are part of a maximization or minimization scheme
+	markMaxMode();
 
 	// Make sure derived classes (such as GTransferPopulation) have a way of finding out
 	// what the desired number of children is. This is particularly important, if - in a
@@ -1465,6 +1467,17 @@ void GBasePopulation::markParents() {
 
 	for(it=data.begin()+nParents_; it!=data.end(); ++it){
 		(*it)->setIsChild();
+	}
+}
+
+/***********************************************************************************/
+/**
+ * Lets individuals know whether they are part of a maximization or minimization scheme
+ */
+void GBasePopulation::markMaxMode() {
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	for(it=data.begin(); it!=data.end(); ++it){
+		(*it)->setMaxMode(maximize_);
 	}
 }
 

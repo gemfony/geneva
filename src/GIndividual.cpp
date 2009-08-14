@@ -43,7 +43,9 @@ GIndividual::GIndividual() :
 	allowLazyEvaluation_(false),
 	parentPopGeneration_(0),
 	parentCounter_(0),
-	popPos_(0)
+	popPos_(0),
+	processingCycles_(1),
+	maximize_(false)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -62,7 +64,9 @@ GIndividual::GIndividual(const GIndividual& cp) :
 	parentPopGeneration_(cp.parentPopGeneration_),
 	parentCounter_(cp.parentCounter_),
 	popPos_(cp.popPos_),
-	attributeTable_(cp.attributeTable_)
+	attributeTable_(cp.attributeTable_),
+	processingCycles_(cp.processingCycles_),
+	maximize_(cp.maximize_)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -117,6 +121,8 @@ bool GIndividual::isEqualTo(const GObject& cp, const boost::logic::tribool& expe
 	if(checkForInequality("GIndividual", parentCounter_, gi_load->parentCounter_,"parentCounter_", "gi_load->parentCounter_", expected)) return false;
 	if(checkForInequality("GIndividual", popPos_, gi_load->popPos_,"popPos_", "gi_load->popPos_", expected)) return false;
 	if(checkForInequality("GIndividual", attributeTable_, gi_load->attributeTable_,"attributeTable_", "gi_load->attributeTable_", expected)) return false;
+	if(checkForInequality("GIndividual", processingCycles_, gi_load->processingCycles_,"processingCycles_", "gi_load->processingCycles_", expected)) return false;
+	if(checkForInequality("GIndividual", maximize_, gi_load->maximize_,"maximize_", "gi_load->maximize_", expected)) return false;
 
 	return true;
 }
@@ -146,6 +152,8 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boos
 	if(checkForDissimilarity("GIndividual", parentCounter_, gi_load->parentCounter_,limit, "parentCounter_", "gi_load->parentCounter_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", popPos_, gi_load->popPos_,limit, "popPos_", "gi_load->popPos_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", attributeTable_, gi_load->attributeTable_,limit, "attributeTable_", "gi_load->attributeTable_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", processingCycles_, gi_load->processingCycles_, limit, "processingCycles_", "gi_load->processingCycles_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", maximize_, gi_load->maximize_, limit, "maximize_", "gi_load->maximize_", expected)) return false;
 
 	return true;
 }
@@ -170,6 +178,8 @@ void GIndividual::load(const GObject* cp) {
 	parentCounter_ = gi_load->parentCounter_;
 	popPos_ = gi_load->popPos_;
 	attributeTable_ = gi_load->attributeTable_;
+	processingCycles_ = gi_load->processingCycles_;
+	maximize_ = gi_load->maximize_;
 }
 
 /**********************************************************************************/
@@ -342,6 +352,27 @@ bool GIndividual::isParent() const  {
  */
 bool GIndividual::isDirty() const  {
 	return dirtyFlag_;
+}
+
+/**********************************************************************************/
+/**
+ * Specify whether we want to work in maximization (true) or minimization
+ * (false) mode
+ *
+ * @param mode A boolean whoch indicates whether we want to work in maximization or minimization mode
+ */
+void GIndividual::setMaxMode(const bool& mode) {
+	maximize_ = mode;
+}
+
+/**********************************************************************************/
+/**
+ * Allows to retrieve the maximize_ parameter
+ *
+ * @return The current value of the maximize_ parameter
+ */
+bool GIndividual::getMaxMode() const {
+	return maximize_;
 }
 
 /**********************************************************************************/
@@ -548,10 +579,49 @@ double GIndividual::checkedFitness(){
 /**
  * Performs all necessary processing steps for this object. Not meant to be
  * called from threads, as no exceptions are caught. Use checkedProcess() instead.
+ * If the processingCycles_ variable is set to a value of 0 or higher than 1, multiple
+ * mutate() calls will be performed, until the maximum number of calls is reached or
+ * a better solution is found. If processingCycles_ has a value of 0, this routine
+ * will loop forever, unless a better solution is found (DANGEROUS: USE WITH CARE!!!).
  */
 void GIndividual::process(){
 	bool previous=this->setAllowLazyEvaluation(false);
-	if(this->getAttribute("command") == "mutate") this->mutate();
+	if(this->getAttribute("command") == "mutate") {
+		if(processingCycles_ == 1) this->mutate();
+		else{
+			// Calculate this object's fitness (this also makes sure that the dirty flag is not set)
+			double myFitness = this->fitness();
+
+			// Will hold a copy of this object
+			boost::shared_ptr<GIndividual> p;
+
+			// Indicates whether a better solution was found
+			bool success = false;
+
+			// Record the number of processing cycles
+			boost::uint32_t nCycles=0;
+
+			// Loop until a better solution was found or the maximum number of attempts was reached
+			while(true) {
+				// Create a copy of this object
+				p = this->clone_bptr_cast<GIndividual>();
+
+				// Mutate and check fitness. Leave if a better solution was found
+				p->mutate();
+				if((!maximize_ && p->fitness() < myFitness) || (maximize_ && p->fitness() > myFitness)) {
+					success = true;
+					break;
+				}
+
+				// Leave if the maximum number of cycles was reached. Will continue
+				// to loop if processingCycles_ is 0 (dangerous!)
+				if(processingCycles_ && nCycles++ >= processingCycles_) break;
+			}
+
+			// If a better solution was found, load it into this object
+			if(success) this->load(p.get());
+		}
+	}
 	else if(this->getAttribute("command") == "evaluate") this->fitness();
 	else {
 		std::ostringstream error;
@@ -591,6 +661,24 @@ void GIndividual::checkedProcess(){
 		std::cerr << error.str();
 		std::terminate();
 	}
+}
+
+/**********************************************************************************/
+/**
+ * Allows to instruct this individual to perform multiple process operations in one go.
+ * This is useful in order to minimize communication between client and server. See the
+ * description of the process() function for further information.
+ *
+ * @param processingCycles The desired number of maximum processing cycles
+ */
+void GIndividual::setProcessingCycles(const boost::uint32_t& processingCycles) {
+	processingCycles_= processingCycles;
+}
+
+/**********************************************************************************/
+/** @brief Retrieves the number of allowed processing cycles */
+boost::uint32_t GIndividual::getProcessingCycles() const {
+	return processingCycles_;
 }
 
 /**********************************************************************************/

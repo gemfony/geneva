@@ -81,6 +81,8 @@ class GIndividual
 	  ar & make_nvp("parentCounter_",parentCounter_);
 	  ar & make_nvp("popPos_",popPos_);
 	  ar & make_nvp("attributeTable_",attributeTable_);
+	  ar & make_nvp("processingCycles_", processingCycles_);
+	  ar & make_nvp("maximize_", maximize_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -114,6 +116,10 @@ public:
 	void process();
 	/** @brief Do the required processing for this object and catch all exceptions */
 	void checkedProcess();
+	/** @brief Allows to instruct this individual to perform multiple process operations in one go. */
+	void setProcessingCycles(const boost::uint32_t&);
+	/** @brief Retrieves the number of allowed processing cycles */
+	boost::uint32_t getProcessingCycles() const;
 
 	/** @brief Retrieve a value for this class and check for exceptions. Useful for threads */
 	virtual double checkedFitness();
@@ -147,6 +153,11 @@ public:
 	bool setIsParent();
 	/** @brief Marks an individual as a child */
 	bool setIsChild();
+
+	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
+	void setMaxMode(const bool& mode);
+	/** @brief Allows to retrieve the maximize_ parameter */
+	bool getMaxMode() const;
 
 	/** @brief Retrieves the current value of the parentCounter_ variable */
 	boost::uint32_t getParentCounter() const ;
@@ -197,6 +208,10 @@ private:
     std::size_t popPos_;
     /** @brief Holds string attributes assigned to this class */
     std::map<std::string, std::string> attributeTable_;
+    /** @brief The maximum number of processing cycles. 0 means "loop forever" (use with care!) */
+    boost::uint32_t processingCycles_;
+    /** @brief Indicates whether we are running in maximization or minimization mode */
+    bool maximize_;
 };
 
 } /* namespace GenEvA */

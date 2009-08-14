@@ -281,7 +281,7 @@ public:
 	bool hasQualityThreshold() const;
 
 	/** @brief Specify whether we want to work in maximization or minimization mode */
-	void setMaximize(const bool& val);
+	void setMaximize(const bool&);
 	/** @brief Find out whether we work in maximization or minimization mode */
 	bool getMaximize() const;
 
@@ -451,10 +451,10 @@ protected:
 
 	/** @brief Marks parents as parents and children as children */
 	void markParents();
-
 	/** @brief Lets individuals know about the current generation */
 	void markGeneration();
-
+	/** @brief Lets individuals know whether they are part of a maximization or minimization scheme */
+	void markMaxMode();
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();
 
