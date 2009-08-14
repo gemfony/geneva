@@ -77,6 +77,7 @@ void startNClients(unsigned short nClients, std::string ip, unsigned short port)
 	// We create a thread group of nClients threads
 	Gem::Util::GThreadGroup gtg;
 	for(std::size_t nT=0; nT<nClients; nT++) {
+		std::cout << "Starting client nr. " << nT << std::endl;
 		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip, boost::lexical_cast<std::string>(port)));
 		gtg.create_thread(boost::bind(&GAsioTCPClient::run,p));
 	}
