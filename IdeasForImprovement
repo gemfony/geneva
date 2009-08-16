@@ -64,6 +64,7 @@
   e.g. value calculation is not allowed.
 - Allow to pass an arbitrary output stream to the info function
 - Check that in multiple multi-threaded clients the seed is not identical due to local increment at the same rate
+- Check for all variables in CMakeLists.txt whether they are already set. Hence e.g the CMake_Install_Prefix will gain a higher priority when set on the command line
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
