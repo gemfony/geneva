@@ -463,11 +463,13 @@ protected:
 	 */
 	virtual void adaptMutation()
 	{
-		sigma_ *= exp(this->gr.gaussRandom(0.,sigmaSigma_));
+		if(this->gr.boolRandom()) sigma_ *= exp(this->gr.gaussRandom(0.,sigmaSigma_));
+		else sigma_ /= exp(this->gr.gaussRandom(0.,sigmaSigma_));
+
 
 		// make sure sigma_ doesn't get out of range
-		if(fabs(sigma_) < minSigma_) sigma_ = minSigma_;
-		else if(fabs(sigma_) > maxSigma_) sigma_ = maxSigma_;
+		if(sigma_ < minSigma_) sigma_ = minSigma_;
+		else if(sigma_ > maxSigma_) sigma_ = maxSigma_;
 
 		// Make sure that the appropriate actions are performed by the parent class
 		GAdaptorT<T>::adaptMutation();

@@ -190,11 +190,11 @@ int main(int argc, char **argv){
 			<< std::endl
 			<< "  TH1F *gauss = new TH1F(\"gauss\",\"gauss\",200,-8.,2.);" << std::endl
 			<< "  TH1F *dgauss = new TH1F(\"dgauss\",\"dgauss\",200,-8.,2.);" << std::endl
-			<< "  TH1F *expGauss01 = new TH1F(\"expGauss01\",\"expGauss01\",1000,0.,10.);" << std::endl
-			<< "  TH1F *expGauss02 = new TH1F(\"expGauss02\",\"expGauss02\",1000,0.,10.);" << std::endl
-			<< "  TH1F *expGauss04 = new TH1F(\"expGauss04\",\"expGauss04\",1000,0.,10.);" << std::endl
-			<< "  TH1F *expGauss08 = new TH1F(\"expGauss08\",\"expGauss08\",1000,0.,10.);" << std::endl
-			<< "  TH1F *expGauss16 = new TH1F(\"expGauss16\",\"expGauss16\",1000,0.,10.);" << std::endl
+			<< "  TH1F *expGauss01 = new TH1F(\"expGauss01\",\"expGauss01\",110,-1.,10.);" << std::endl
+			<< "  TH1F *expGauss02 = new TH1F(\"expGauss02\",\"expGauss02\",110,-1.,10.);" << std::endl
+			<< "  TH1F *expGauss04 = new TH1F(\"expGauss04\",\"expGauss04\",110,-1.,10.);" << std::endl
+			<< "  TH1F *expGauss08 = new TH1F(\"expGauss08\",\"expGauss08\",110,-1.,10.);" << std::endl
+			<< "  TH1F *expGauss16 = new TH1F(\"expGauss16\",\"expGauss16\",110,-1.,10.);" << std::endl
 			<< "  TH1F *even = new TH1F(\"even\",\"even\",200,-0.5,1.5);" << std::endl
 			<< "  TH1F *evenwb = new TH1F(\"evenwb\",\"evenwb\",200,-3.5,2.5);" << std::endl
 			<< "  TH1I *discrete = new TH1I(\"discrete\",\"discrete\",12,-1,10);" << std::endl
