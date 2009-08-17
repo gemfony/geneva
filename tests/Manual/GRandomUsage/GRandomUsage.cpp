@@ -166,6 +166,7 @@ int main(int argc, char **argv){
 	std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
 	std::vector<double> expgauss01, expgauss02, expgauss04, expgauss08, expgauss16;
 	std::vector<boost::int32_t> discrete, discretebound, bitprob, bitsimple, charrnd;
+	std::vector<double> initCorr;
 
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
@@ -203,6 +204,7 @@ int main(int argc, char **argv){
 			<< "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << std::endl
 			<< "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl
 			<< "  TH2F *evenCorrelation = new TH2F(\"evenCorrelation\",\"evenCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
+			<< "  TH1F *initCorrelation = new TH1F(\"initCorrelation\",\"initCorrelation\",10,0.5,10.5);" << std::endl
 			<< std::endl;
 
 		for(i=0; i<nEntries; i++){
@@ -224,6 +226,13 @@ int main(int argc, char **argv){
 		createRandomVector<double>(expgauss04, EXPGAUSS04, nEntries, gr_ptr);
 		createRandomVector<double>(expgauss08, EXPGAUSS08, nEntries, gr_ptr);
 		createRandomVector<double>(expgauss16, EXPGAUSS16, nEntries, gr_ptr);
+
+		for(i=1; i<=10; i++) {
+			boost::shared_ptr<Gem::Util::GRandom> gr_ptr_seed(new GRandom());
+			gr_ptr_seed->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+			for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->evenRandom(0.,1.);
+			initCorr.push_back(gr_ptr_seed->evenRandom(0.,1.));
+		}
 
 		if(gaussian.size() != nEntries ||
 		   doublegaussian.size() != nEntries ||
@@ -313,6 +322,11 @@ int main(int argc, char **argv){
 		}
 		ofs << std::endl;
 
+		for(i=1; i<=10; i++){
+			ofs << "  initCorrelation->Fill(" << i << ", " << initCorr.at(i-1) << ");" << std::endl;
+		}
+		ofs << std::endl;
+
 		ofs << "  cc->cd(1);" << std::endl
 			<< "  gauss->Draw();" << std::endl
 			<< "  cc->cd(2);" << std::endl
@@ -339,6 +353,8 @@ int main(int argc, char **argv){
 			<< "  charrnd->Draw();" << std::endl
 			<< "  cc->cd(11);" << std::endl
 			<< "  evenCorrelation->Draw(\"contour\");" << std::endl
+			<< "  cc->cd(12);" << std::endl
+			<< "  initCorrelation->Draw();" << std::endl
 			<< "  cc->cd();" << std::endl;
 		ofs	<< "}" << std::endl;
 
