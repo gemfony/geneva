@@ -465,8 +465,7 @@ protected:
 	{
 		// We do not want to favor the decrease or increase of sigma, hence we choose
 		// randomly whether to multiply or divide.
-		if(this->gr.boolRandom()) sigma_ *= exp(this->gr.gaussRandom(0.,sigmaSigma_));
-		else sigma_ /= exp(this->gr.gaussRandom(0.,sigmaSigma_));
+		sigma_ *= exp(this->gr.gaussRandom(0.,sigmaSigma_)*(this->gr.boolRandom()?1:-1));
 
 		// make sure sigma_ doesn't get out of range
 		if(sigma_ < minSigma_) sigma_ = minSigma_;
