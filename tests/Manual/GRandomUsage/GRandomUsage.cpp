@@ -172,11 +172,11 @@ int main(int argc, char **argv){
 
 	// Set the random number generation mode as requested
 	switch(rnrProductionMode) {
-	case 0:
+	case Gem::Util::RNRFACTORY:
 		gr_ptr->setRNRFactoryMode();
 		break;
 
-	case 1:
+	case Gem::Util::RNRLOCAL:
 		gr_ptr->setRNRLocalMode();
 		break;
 	};
@@ -187,7 +187,7 @@ int main(int argc, char **argv){
 		// The header of the root file
 		ofs << "{" << std::endl;
 		ofs << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,1000,1200);" << std::endl
-			<< "  cc->Divide(3,4);" << std::endl
+			<< "  cc->Divide(4,4);" << std::endl
 			<< std::endl
 			<< "  TH1F *gauss = new TH1F(\"gauss\",\"gauss\",200,-8.,2.);" << std::endl
 			<< "  TH1F *dgauss = new TH1F(\"dgauss\",\"dgauss\",200,-8.,2.);" << std::endl
@@ -203,14 +203,44 @@ int main(int argc, char **argv){
 			<< "  TH1I *bitprob = new TH1I(\"bitprob\",\"bitprob\",4,-1,2);" << std::endl
 			<< "  TH1I *bitsimple = new TH1I(\"bitsimple\",\"bitsimple\",4,-1,2);" << std::endl
 			<< "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl
-			<< "  TH2F *evenCorrelation = new TH2F(\"evenCorrelation\",\"evenCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
+			<< "  TH2F *evenSelfCorrelation = new TH2F(\"evenSelfCorrelation\",\"evenSelfCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
 			<< "  TH1F *initCorrelation = new TH1F(\"initCorrelation\",\"initCorrelation\",10,0.5,10.5);" << std::endl
+			<< "  TH2F *evenProxyCorrelation = new TH2F(\"evenProxyCorrelation\",\"evenProxyCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
+			<< "  TH1F *proxyDiff = new TH1F(\"proxyDiff\",\"proxyDiff\"," << nEntries << ", " << 0.5 << "," << 100.5 << ");" << std::endl
 			<< std::endl;
 
+		// In this test correlations between sequential random numbers (with same proxy/seed) are sought for
 		for(i=0; i<nEntries; i++){
-			ofs << "  evenCorrelation->Fill(" << gr_ptr->evenRandom() << ", " << gr_ptr->evenRandom()  << ");" << std::endl;
+			ofs << "  evenSelfCorrelation->Fill(" << gr_ptr->evenRandom() << ", " << gr_ptr->evenRandom()  << ");" << std::endl;
 		}
 		ofs << std::endl;
+
+		// In this test correlations between subsequent numbers of two proxies (with different seeds) are sought for
+		boost::shared_ptr<Gem::Util::GRandom> gr_ptr_one(new GRandom());
+		boost::shared_ptr<Gem::Util::GRandom> gr_ptr_two(new GRandom());
+		for(i=0; i<nEntries; i++) {
+			ofs << "  evenProxyCorrelation->Fill(" << gr_ptr_one->evenRandom() << ", " << gr_ptr_two->evenRandom()  << ");" << std::endl;
+			ofs << "  proxyDiff->Fill(" << 	i << ", " << gr_ptr_one->evenRandom()-gr_ptr_two->evenRandom() << ");" << std::endl;
+		}
+
+		// In this test, a number of random number proxies are instantiated and their
+		// initial values (after a number of calls) are asked for. There should be no
+		// correlation.
+		for(i=1; i<=10; i++) {
+			boost::shared_ptr<Gem::Util::GRandom> gr_ptr_seed(new GRandom());
+			switch(rnrProductionMode) {
+			case Gem::Util::RNRFACTORY:
+				gr_ptr_seed->setRNRFactoryMode();
+				break;
+
+			case Gem::Util::RNRLOCAL:
+				gr_ptr_seed->setRNRLocalMode();
+				break;
+			};
+
+			for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->evenRandom(0.,1.);
+			initCorr.push_back(gr_ptr_seed->evenRandom(0.,1.));
+		}
 
 		createRandomVector<double>(gaussian, GAUSSIAN, nEntries, gr_ptr);
 		createRandomVector<double>(doublegaussian, DOUBLEGAUSSIAN, nEntries, gr_ptr);
@@ -226,13 +256,6 @@ int main(int argc, char **argv){
 		createRandomVector<double>(expgauss04, EXPGAUSS04, nEntries, gr_ptr);
 		createRandomVector<double>(expgauss08, EXPGAUSS08, nEntries, gr_ptr);
 		createRandomVector<double>(expgauss16, EXPGAUSS16, nEntries, gr_ptr);
-
-		for(i=1; i<=10; i++) {
-			boost::shared_ptr<Gem::Util::GRandom> gr_ptr_seed(new GRandom());
-			gr_ptr_seed->setRnrGenerationMode(Gem::Util::RNRLOCAL);
-			for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->evenRandom(0.,1.);
-			initCorr.push_back(gr_ptr_seed->evenRandom(0.,1.));
-		}
 
 		if(gaussian.size() != nEntries ||
 		   doublegaussian.size() != nEntries ||
@@ -352,9 +375,13 @@ int main(int argc, char **argv){
 			<< "  cc->cd(10);" << std::endl
 			<< "  charrnd->Draw();" << std::endl
 			<< "  cc->cd(11);" << std::endl
-			<< "  evenCorrelation->Draw(\"contour\");" << std::endl
+			<< "  evenSelfCorrelation->Draw(\"contour\");" << std::endl
 			<< "  cc->cd(12);" << std::endl
 			<< "  initCorrelation->Draw();" << std::endl
+			<< "  cc->cd(13);" << std::endl
+			<< "  evenProxyCorrelation->Draw(\"contour\");" << std::endl
+			<< "  cc->cd(14);" << std::endl
+			<< "  proxyDiff->Draw();" << std::endl
 			<< "  cc->cd();" << std::endl;
 		ofs	<< "}" << std::endl;
 
