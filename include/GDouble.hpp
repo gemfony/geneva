@@ -52,7 +52,7 @@ namespace GenEvA {
  * have individual adaptors (with individual settings) for each double, you need
  * to use this class instead.
  *
- * For reasons of simplicity this class is implemented as a simple typdef of the GParameterT
+ * For reasons of simplicity this class is implemented as a simple typedef of the GParameterT
  * template class.
  */
 typedef GParameterT<double> GDouble;

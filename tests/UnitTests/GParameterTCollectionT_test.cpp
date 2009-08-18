@@ -300,6 +300,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 
 		// Serialize cp2 and load into cp3, check inequalities and similarities
 		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+		//gptct_cp3.fromString(gptct_cp2.toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
 		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct));
 		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct_cp1));
 		BOOST_CHECK(gptct_cp3.isSimilarTo(gptct_cp2, exp(-10)));
