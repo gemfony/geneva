@@ -589,8 +589,16 @@ void GIndividual::process(){
 	if(this->getAttribute("command") == "mutate") {
 		if(processingCycles_ == 1) this->mutate();
 		else{
-			// Calculate this object's fitness (this also makes sure that the dirty flag is not set)
-			double myFitness = this->fitness();
+			// Retrieve this object's current fitness.
+			bool isDirty=false;
+			double currentFitness = getCurrentFitness(isDirty);
+
+			// Individuals that arrive here for mutation should be "clean"
+			if(isDirty) {
+				std::ostringstream error;
+				error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl;
+				throw geneva_error_condition(error.str());
+			}
 
 			// Will hold a copy of this object
 			boost::shared_ptr<GIndividual> p;
@@ -608,7 +616,9 @@ void GIndividual::process(){
 
 				// Mutate and check fitness. Leave if a better solution was found
 				p->mutate();
-				if((!maximize_ && p->fitness() < myFitness) || (maximize_ && p->fitness() > myFitness)) {
+				if((!maximize_ && p->fitness() < currentFitness) ||
+				   (maximize_ && p->fitness() > currentFitness))
+				{
 					success = true;
 					break;
 				}
@@ -640,7 +650,7 @@ void GIndividual::process(){
  */
 void GIndividual::checkedProcess(){
 	try{
-		return this->process();
+		this->process();
 	}
 	catch(std::exception& e){
 		std::ostringstream error;

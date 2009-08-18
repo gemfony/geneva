@@ -38,6 +38,7 @@
 #include "GRandom.hpp"
 #include "GAdaptorT.hpp"
 #include "GBooleanAdaptor.hpp"
+#include "GEnums.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -55,13 +56,26 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
-		GBooleanAdaptor gba0;
+		GBooleanAdaptor gba0; // note - this adaptor has a mutation probability < 1
 
 		// Perform tests with various settings of the adaptionThreshold.
 		BOOST_CHECK(gba0.getAdaptionThreshold() == 0); // Should have been initialized with this value
 		BOOST_CHECK(gba0.getAdaptionCounter() == 0);
 		gba0.setAdaptionThreshold(1);
 		BOOST_CHECK(gba0.getAdaptionThreshold() == 1);
+
+		BOOST_CHECK_MESSAGE(gba0.getMutationProbability() == Gem::GenEvA::DEFAULTBITMUTPROB,
+				"mutProb_ = " << gba0.getMutationProbability() << "\n"
+			<<  "Gem::GenEvA::DEFAULTBITMUTPROB = " << Gem::GenEvA::DEFAULTBITMUTPROB
+		);
+
+		// Reset the probability
+		gba0.setMutationProbability(1.0);
+
+		// Cross-check
+		BOOST_CHECK_MESSAGE(gba0.getMutationProbability() == 1.,
+				"mutProb_ = " << gba0.getMutationProbability() << "\n"
+		);
 
 		// Test mutation, including a test of the incrementation of the
 		// adaption counter after each mutation. This is also a good test
@@ -74,7 +88,13 @@ public:
 				gba0.mutate(mutationTarget);
 				boost::uint32_t currentAdaptionCounter=gba0.getAdaptionCounter();
 				BOOST_CHECK(currentAdaptionCounter<=aT);
-				if(aT != 0) BOOST_CHECK(currentAdaptionCounter != oldAdaptionCounter);
+				if(aT != 0)
+						BOOST_CHECK_MESSAGE(currentAdaptionCounter != oldAdaptionCounter,
+								"currentAdaptionCounter = " << currentAdaptionCounter << "\n"
+							 << "oldAdaptionCounter = " << oldAdaptionCounter << "\n"
+							 << "aT = " << aT << "\n"
+							 << "m = " << m << "\n"
+						);
 				oldAdaptionCounter = currentAdaptionCounter;
 			}
 		}

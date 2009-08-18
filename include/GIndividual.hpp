@@ -124,7 +124,7 @@ public:
 	/** @brief Retrieve a value for this class and check for exceptions. Useful for threads */
 	virtual double checkedFitness();
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
-	double getCurrentFitness(bool&) const ;
+	double getCurrentFitness(bool&) const;
 	/** @brief Enforce fitness calculation */
 	double doFitnessCalculation();
 
