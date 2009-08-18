@@ -458,9 +458,6 @@ protected:
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();
 
-	/** @brief Creates a clone of this object that only holds the parent individuals */
-	virtual boost::shared_ptr<GBasePopulation> parent_clone() const;
-
 private:
 	/** @brief Enforces a one-time selection policy of MUCOMMANU */
 	void setOneTimeMuCommaNu();

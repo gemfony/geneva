@@ -112,27 +112,6 @@ GObject *GBrokerPopulation::clone() const {
 
 /******************************************************************************/
 /**
- * Creates a clone of this population that only holds the parent individuals. This function
- * is re-implemented from the corresponding GBasePopulation function, so we get a clone of
- * this class instead of the base class. This function is used for the micro-training
- * environment. Note that the boost::shared_ptr<GBrokerPopulation> will be implicitly
- * converted to a boost::shared_ptr<GBasePopulation>.
- *
- * @return A smart pointer to a copy of this population, holding only the parent individuals
- */
-boost::shared_ptr<GBasePopulation> GBrokerPopulation::parent_clone() const {
-	// Create a copy of this population
-	boost::shared_ptr<GBrokerPopulation> p(new GBrokerPopulation(*this));
-
-	// Get rid of the child individuals
-	p->resize(p->getNParents());
-
-	// Return the result
-	return p;
-}
-
-/******************************************************************************/
-/**
  * Checks for equality with another GBrokerPopulation object
  *
  * @param  cp A constant reference to another GBrokerPopulation object
@@ -383,13 +362,13 @@ void GBrokerPopulation::mutateChildren() {
 			break; // nothing
 		}
 		//--------------------------------------------------------------
+		// If we are running in MUPLUSNU or MUNU1PRETAIN mode, we now have an empty population,
+		// as parents have been sent away for evaluation. If this is the MUCOMMANU mode, parents
+		// do not participate in the sorting and can be ignored.
+		//
 	}
 
 	//--------------------------------------------------------------------------------
-	// If we are running in MUPLUSNU or MUNU1PRETAIN mode, we now have an empty population,
-	// as parents have been sent away for evaluation. If this is the MUCOMMANU mode, parents
-	// do not participate in the sorting and can be ignored.
-	//
 	// We can now wait for the individuals to return from their journey.
 
 	// First we wait for the first individual from the current generation to arrive,
@@ -414,7 +393,7 @@ void GBrokerPopulation::mutateChildren() {
 			CurrentBufferPort_->pop_back_processed(&p,loopTime_);
 
 			// If it is from the current generation, break the loop.
-			// Count the number of items received.
+			// Update the number of items received.
 			if(p->getParentPopGeneration() == generation){
 				// Add the individual to our list.
 				this->push_back(p);
@@ -444,12 +423,16 @@ void GBrokerPopulation::mutateChildren() {
 			if(firstTimeOut_.total_microseconds() && ((microsec_clock::local_time()-startTime) > firstTimeOut_)){
 				std::ostringstream error;
 				error << "In GBrokerPopulation::mutateChildren() : Error!" << std::endl
-					  << "Timeout for first individual reached." << std::endl;
+					  << "Timeout for first individual reached." << std::endl
+					  << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
+					  << "You can change this value with the setFirstTimeOut() function." << std::endl;
 
 				throw geneva_error_condition(error.str());
 			}
-
 			// The loop will continue if no exception was thrown here
+			else {
+				continue;
+			}
 		}
 	}
 
@@ -459,7 +442,8 @@ void GBrokerPopulation::mutateChildren() {
 	time_duration maxAllowedElapsed = totalElapsedFirst * waitFactor_;
 	time_duration totalElapsed = totalElapsedFirst;
 
-	// Wait for further arrivals
+	// Wait for further arrivals until the population is complete or
+	// a timeout has been reached.
 	bool complete=false;
 	while(true){
 		try {
@@ -492,11 +476,11 @@ void GBrokerPopulation::mutateChildren() {
 			// Break if we have reached the timeout
 			totalElapsed = microsec_clock::local_time()-startTime;
 			if(waitFactor_ && (totalElapsed > maxAllowedElapsed)) break;
+			else continue; // Nothing to do. Continue to wait for arrivals
 		}
 
-		// Break if all children (and parents in generation 0 / MUPLUSNU / MUNU1PRETAIN)
-		// of the current generation have returned. Older individuals have another chance
-		// to return in the next generation (unless they are parents).
+		// Break if a full set of children (and parents in generation 0 / MUPLUSNU / MUNU1PRETAIN)
+		// has returned. Older individuals may return in the next iterations (i.e. generations), unless they are parents
 		if(generation == 0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)) {
 			if(nReceivedParent+nReceivedChildCurrent==np+this->getDefaultNChildren()) {
 				complete=true;
@@ -504,7 +488,7 @@ void GBrokerPopulation::mutateChildren() {
 			}
 		}
 		else {
-			if(nReceivedChildCurrent==this->getDefaultNChildren()) {
+			if(nReceivedChildCurrent>=this->getDefaultNChildren()) { // Note the >=
 				complete=true;
 				break;
 			}
@@ -512,7 +496,7 @@ void GBrokerPopulation::mutateChildren() {
 	}
 
 	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)){
-		// Have any individuals returned at all ??
+		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
 			std::ostringstream error;
 			error << "In GBrokerPopulation::mutateChildren() : Error!" << std::endl
@@ -528,7 +512,7 @@ void GBrokerPopulation::mutateChildren() {
 	}
 
 	//--------------------------------------------------------------------------------
-	// We are done, if all individuals from this generation have returned.
+	// We are done, if a full set of individuals has returned.
 	// The population size is at least at nominal values.
 	if(complete) {
 		// Check if we have used significantly less time than allowed by the waitFactor_ variable
@@ -549,7 +533,7 @@ void GBrokerPopulation::mutateChildren() {
 	}
 
 	//--------------------------------------------------------------------------------
-	// O.k., we are missing individuals from the current population. Do some fixing.
+	// O.k., so we are missing individuals from the current population. Do some fixing.
 
 #ifdef DEBUG
 	std::ostringstream information;
@@ -559,7 +543,7 @@ void GBrokerPopulation::mutateChildren() {
 
 	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)){
 		information << "We have received " << nReceivedParent << " parents." << std::endl
-			        << "where " << np << " parents are required." << std::endl;
+			        << "where " << np << " parents were expected." << std::endl;
 	}
 
 	information << nReceivedChildCurrent << " children of the current population returned" << std::endl
@@ -591,12 +575,14 @@ void GBrokerPopulation::mutateChildren() {
 	// If so, and we do use automatic adaption of that variable, decrease the factor by one.
 	if(waitFactor_ && maxWaitFactor_) { // Have we been asked to adapt the waitFactor_ variable ?
 		if(generation>0 && double(nReceivedChildOlder) > 0.1*double(nc)) {
-			if(waitFactor_ < maxWaitFactor_) waitFactor_ += 1;
-		}
+			if(waitFactor_ < maxWaitFactor_) {
+				waitFactor_ += 1;
 
 #ifdef DEBUG
-			std::cout << "Adapted the waitFactor_ variable to " << waitFactor_ << std::endl;
+				std::cout << "Adapted the waitFactor_ variable to " << waitFactor_ << std::endl;
 #endif /* DEBUG */
+			}
+		}
 	}
 
 	// Mark the first nParents_ individuals as parents, if they aren't parents yet. We want

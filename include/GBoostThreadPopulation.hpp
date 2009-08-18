@@ -114,8 +114,6 @@ protected:
 	/** @brief Overloaded version from GBasePopulation,
 	 * core of the Boost-thread implementation */
 	virtual void mutateChildren();
-	/** @brief Creates a clone of this object that only holds the parent individuals */
-	virtual boost::shared_ptr<GBasePopulation> parent_clone() const;
 
 private:
 	boost::uint8_t nThreads_; ///< The number of threads

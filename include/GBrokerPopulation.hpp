@@ -170,8 +170,6 @@ namespace GenEvA
     virtual void mutateChildren();
     /** @brief Selects new parents */
     virtual void select();
-	/** @brief Creates a clone of this object that only holds the parent individuals */
-	virtual boost::shared_ptr<GBasePopulation> parent_clone() const;
 
   private:
 	boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals

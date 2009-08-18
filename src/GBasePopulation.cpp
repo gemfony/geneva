@@ -744,9 +744,9 @@ void GBasePopulation::adjustPopulation() {
 	markMaxMode();
 
 	// Make sure derived classes (such as GTransferPopulation) have a way of finding out
-	// what the desired number of children is. This is particularly important, if - in a
+	// what the desired number of children is. This is particularly important, if, in a
 	// network environment, some individuals might not return and some individuals return
-	// late. The size of the population then changes and we need to take action.
+	// late. The factual size of the population then changes and we need to take action.
 	defaultNChildren_ = popSize_ - nParents_;
 }
 
@@ -1501,25 +1501,6 @@ void GBasePopulation::markIndividualPositions() {
 	std::size_t pos = 0;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->setPopulationPosition(pos++);
-}
-
-/***********************************************************************************/
-/**
- * Creates a clone of this population that only holds the parent individuals. This function
- * is re-implemented for derived populations, so we get a clone of these classes instead
- * of the base class. This function is used for the micro-training environment
- *
- * @return A smart pointer to a copy of this population, holding only the parent individuals
- */
-boost::shared_ptr<GBasePopulation> GBasePopulation::parent_clone() const {
-	// Create a copy of this population
-	boost::shared_ptr<GBasePopulation> p(new GBasePopulation(*this));
-
-	// Get rid of the child individuals
-	p->resize(this->getNParents());
-
-	// Return the result
-	return p;
 }
 
 /***********************************************************************************/

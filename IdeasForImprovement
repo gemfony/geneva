@@ -65,6 +65,8 @@
 - Allow to pass an arbitrary output stream to the info function
 - Check that in multiple multi-threaded clients the seed is not identical due to local increment at the same rate
 - Check for all variables in CMakeLists.txt whether they are already set. Hence e.g the CMake_Install_Prefix will gain a higher priority when set on the command line
+- Generic GBaseClient. Can be achieved by making the object type to be processed a template argument
+- Statistics in GBrokerPopulation about the number of drop-outs, parents and childs from current and older generations
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
