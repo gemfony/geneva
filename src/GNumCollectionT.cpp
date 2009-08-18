@@ -22,6 +22,12 @@
 
 #include "GNumCollectionT.hpp"
 
+// Included here so no conflicts occur. See explanation at
+// http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(Gem::GenEvA::GNumCollectionT<double>)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GNumCollectionT<boost::int32_t>)
+
 namespace Gem {
 namespace GenEvA {
 

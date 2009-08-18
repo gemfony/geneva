@@ -1,5 +1,5 @@
 /**
- * @file GParameterT.cpp
+ * @file GParameterTCollectionT.cpp
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -19,32 +19,21 @@
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GParameterT.hpp"
+#include "GParameterTCollectionT.hpp"
+
+#include "GDouble.hpp"
+#include "GChar.hpp"
+#include "GInt32.hpp"
+#include "GBoolean.hpp"
+#include "GBoundedDouble.hpp"
+#include "GBoundedInt32.hpp"
 
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterT<double>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterT<char>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterT<boost::int32_t>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterT<bool>)
-
-namespace Gem
-{
-namespace GenEvA
-{
-
-/***********************************************************************************************/
-/**
-  * A default constructor for typeof(T)==typeof(bool), needed as it seems useful to
-  * initialize the value with a printable character.
-  */
-template <> GParameterT<char>::GParameterT()
-   :GParameterBaseWithAdaptorsT<char>(),
-     val_('a')
-{ /* nothing */ }
-
-/***********************************************************************************************/
-
-} /* namespace GenEvA */
-} /* namespace Gem */
+BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterTCollectionT<Gem::GenEvA::GDouble>)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterTCollectionT<Gem::GenEvA::GChar>)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterTCollectionT<Gem::GenEvA::GInt32>)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterTCollectionT<Gem::GenEvA::GBoolean>)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterTCollectionT<Gem::GenEvA::GBoundedDouble>)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterTCollectionT<Gem::GenEvA::GBoundedInt32>)

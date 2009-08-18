@@ -83,14 +83,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 	BOOST_CHECK(ggat5 == ggat3 && *ggat4_ptr == ggat2);
 
 	// Check (de-)serialization in different modes
-	ggat5.fromString(ggat1.toString(TEXTSERIALIZATION),TEXTSERIALIZATION);
+	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(TEXTSERIALIZATION),TEXTSERIALIZATION));
 	BOOST_CHECK(ggat5.isSimilarTo(ggat1, exp(-10)));
 	ggat5 = ggat3; // reset
 	BOOST_CHECK(!ggat5.isEqualTo(ggat1));
-	ggat5.fromString(ggat1.toString(XMLSERIALIZATION),XMLSERIALIZATION);
+	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(XMLSERIALIZATION),XMLSERIALIZATION));
 	BOOST_CHECK(ggat5.isSimilarTo(ggat1, exp(-10)));
 	ggat5 = ggat3; // reset
-	ggat5.fromString(ggat1.toString(BINARYSERIALIZATION),BINARYSERIALIZATION);
+	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(BINARYSERIALIZATION),BINARYSERIALIZATION));
 	BOOST_CHECK(ggat5.isEqualTo(ggat1)); // no longer just similar in binary mode!
 
 	// Check that we can set and retrieve sigma

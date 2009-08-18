@@ -129,7 +129,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 		BOOST_CHECK(gnct7_cp != gnct7);
 
 		// Serialize gnct7 and load into gnct7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(gnct7_cp.fromString(gnct7.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gnct7_cp.fromString(gnct7.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
 		BOOST_CHECK(gnct7_cp.isSimilarTo(gnct7, exp(-10)));
 	}
 
@@ -146,7 +146,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 		BOOST_CHECK(gnct7_cp != gnct7);
 
 		// Serialize gnct7 and load into gnct7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(gnct7_cp.fromString(gnct7.toString(XMLSERIALIZATION), XMLSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gnct7_cp.fromString(gnct7.toString(XMLSERIALIZATION), XMLSERIALIZATION));
 		BOOST_CHECK(gnct7_cp.isSimilarTo(gnct7, exp(-10)));
 	}
 
@@ -163,7 +163,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 		BOOST_CHECK(gnct7_cp != gnct7);
 
 		// Serialize gnct7 and load into gnct7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(gnct7_cp.fromString(gnct7.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gnct7_cp.fromString(gnct7.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
 		BOOST_CHECK(gnct7_cp.isEqualTo(gnct7));
 	}
 }

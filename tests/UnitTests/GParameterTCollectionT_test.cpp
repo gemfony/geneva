@@ -268,7 +268,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 	BOOST_CHECK(gptct_cp2 == gptct);
 
 	// Mutate the second copy and check that it has become different from the other two collections
-	BOOST_REQUIRE_NO_THROW(gptct_cp2.mutate());
+	BOOST_CHECK_NO_THROW(gptct_cp2.mutate());
 	BOOST_CHECK(gptct_cp2 != gptct);
 	BOOST_CHECK(gptct_cp2 != gptct_cp1);
 
@@ -299,7 +299,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 		BOOST_CHECK(gptct_cp3 != gptct_cp2);
 
 		// Serialize cp2 and load into cp3, check inequalities and similarities
-		BOOST_REQUIRE_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
 		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct));
 		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct_cp1));
 		BOOST_CHECK(gptct_cp3.isSimilarTo(gptct_cp2, exp(-10)));
@@ -315,7 +315,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 		BOOST_CHECK(gptct_cp3 != gptct_cp2);
 
 		// Serialize cp2 and load into cp3, check inequalities and similarities
-		BOOST_REQUIRE_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(XMLSERIALIZATION), XMLSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(XMLSERIALIZATION), XMLSERIALIZATION));
 		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct));
 		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct_cp1));
 		BOOST_CHECK(gptct_cp3.isSimilarTo(gptct_cp2, exp(-10)));
@@ -331,7 +331,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 		BOOST_CHECK(gptct_cp3 != gptct_cp2);
 
 		// Serialize cp2 and load into cp3, check inequalities and similarities
-		BOOST_REQUIRE_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
 		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct));
 		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct_cp1));
 		BOOST_CHECK(gptct_cp3.isEqualTo(gptct_cp2));
