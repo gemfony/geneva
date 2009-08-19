@@ -26,7 +26,7 @@
  * and are Copyright (C) 2008 Ruediger Berlich and Copyright (C) 2008
  * Forschungszentrum Karlsruhe GmbH.
  *
- * In particular, please note that
+ * In particular, please note that:
  *
  ***************************************************************
  * RUEDIGER BERLICH AND FORSCHUNGSZENTRUM KARLSRUHE MAKE NO
