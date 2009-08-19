@@ -118,7 +118,7 @@ const boost::uint32_t GLOBALSEEDINCREMENT = 3;
  * libraries to use the GenEvA library.
  *
  * This class produces packets of random numbers and stores them in bounded buffers.
- * Clients can retrieve packets of random numbers, while a separate thread keeps
+ * Clients can retrieve packets of random numbers, while separate threads keep
  * filling the buffer up.
  *
  * The implementation currently uses the lagged fibonacci generator. According to
@@ -164,11 +164,9 @@ private:
 	const GRandomFactory& operator=(const GRandomFactory&);  ///< Intentionally left undefined
 
 	/** @brief Setting of an initial seed for random numbers. Will be incremented for each instantiation */
-	static bool setSeed_(const boost::uint32_t&);
+	static void setSeedFixed_(const boost::uint32_t&);
 	/** @brief Setting of an initial seed for random numbers, as taken from /dev/urandom */
 	static bool setSeedURandom_();
-	/** @brief Retrieval of the current value of the global seed */
-	static  boost::uint32_t getSeed_();
 
 	/** @brief Starts the threads needed for the production of random numbers */
 	void startProducerThreads();

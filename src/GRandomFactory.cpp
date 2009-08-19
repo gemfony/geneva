@@ -31,7 +31,7 @@ namespace Util {
  */
 boost::mutex randomseed_mutex;
 boost::mutex global_seed_mutex_;
-boost::uint32_t globalSeed = 0;  ///< A global seed that is incremented for each new invocation of GSeed()
+boost::uint32_t globalSeed = 0;  ///< A global seed that is changed for each new invocation of GSeed()
 bool seedInitialized = false;  ///< Specifies whether an initial seed has already been set
 
 /*************************************************************************/
@@ -145,7 +145,12 @@ std::size_t GRandomFactory::getBufferSize() const {
 bool GRandomFactory::setSeed(const boost::uint32_t& seed) const {
 	// Make sure we have sole access to global variables
 	boost::mutex::scoped_lock lk(global_seed_mutex_);
-	return GRandomFactory::setSeed_(seed); // Static, private member function
+	if(seedInitialized) return false; // Someone else was faster
+
+	GRandomFactory::setSeedFixed_(seed); // Static, private member function
+	seedInitialized = true;
+
+	return true;
 }
 
 /*************************************************************************/
@@ -156,7 +161,7 @@ bool GRandomFactory::setSeed(const boost::uint32_t& seed) const {
 boost::uint32_t GRandomFactory::getSeed() const {
 	// Make sure we have sole access to global variables
 	boost::mutex::scoped_lock lk(global_seed_mutex_);
-	return GRandomFactory::getSeed_(); // Static, private member function
+	return globalSeed;
 }
 
 /*************************************************************************/
@@ -174,28 +179,28 @@ bool GRandomFactory::checkSeedIsInitialized() const {
 /*************************************************************************/
 /**
  * A static, private member function that allows to set the global
- * seed once. After the first invocation there will be no further effect.
+ * seed. Should be called at maximum once. Note that this function assumes
+ * that it may access the globalSeed variable. Hence a calling function
+ * needs to set the corresponding lock.
  *
  * @param seed The initial value of the global seed
  */
-bool GRandomFactory::setSeed_(const boost::uint32_t& seed) {
-	if(seedInitialized) return false; // Do nothing after the first invocation
+void GRandomFactory::setSeedFixed_(const boost::uint32_t& seed) {
 	globalSeed = seed; // Set the seed as requested;
-	seedInitialized=true; // Let the audience know
 	return true;
 }
 
 /*************************************************************************/
 /**
  * A static, private member function that allows to set the global
- * seed once, using a random number taken from /dev/urandom.
- * After the first invocation there will be no further effect. Note the different
- * meaning of the return value, compared to setSeed_() .
+ * seed once, using a random number taken from /dev/urandom. This function
+ * should be called only once. Note that this function assumes that it
+ * may access the globalSeed variable. Hence a calling function needs to
+ * set the corresponding lock.
  *
  * @return A boolean indicating whether retrieval was successful
  */
 bool GRandomFactory::setSeedURandom_() {
-	if(seedInitialized) return true; // Do nothing after the first invocation
 	// Check if /dev/urandom exists (this might not be a Linux system after all)
 	if(!boost::filesystem::exists("/dev/urandom")) return false;
 	// Open the device
@@ -207,16 +212,7 @@ bool GRandomFactory::setSeedURandom_() {
 	for(std::size_t i=0; i<sizeof(seed); i++) 	urandom >> seedArray[i];
 	urandom.close();
 	globalSeed = seed; // Set the seed as requested;
-	seedInitialized=true; // Let the audience know
 	return true;
-}
-
-/*************************************************************************/
-/**
- * Retrieval of the _current_ value of the global seed
- */
-boost::uint32_t GRandomFactory::getSeed_() {
-	return globalSeed;
 }
 
 /*************************************************************************/
@@ -294,7 +290,9 @@ boost::uint32_t GRandomFactory::GSeed(){
 	boost::mutex::scoped_lock lk(global_seed_mutex_);
 
 	if(!seedInitialized) {
+		// If we cannot get a seed from /dev/urandom, set a fixed seed
 		if(!setSeedURandom_())	GRandomFactory::setSeed_(DEFAULTSEED);
+		seedInitialized = true;
 	}
 
 	// roll the global seed over once it has reached the upper limit
@@ -342,8 +340,7 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 			if(boost::this_thread::interruption_requested()) break;
 
 			{
-				// Retrieve the current array size. Reading this variable should
-				// be an atomic operation and should thus not affect thread-safety.
+				// Retrieve the current array size.
 				boost::mutex::scoped_lock lk(arraySizeMutex_);
 				localArraySize = arraySize_;
 			}
@@ -351,12 +348,13 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 			// we want to store both the array size and the random numbers
 			boost::shared_array<double> p(new double[localArraySize + 1]);
 
-			 // Faster access during the fill procedure
+			// Faster access during the fill procedure - uses the "raw" pointer.
 			// Note that we own the only instance of this pointer at this point
 			double *p_raw = p.get();
 			p_raw[0] = static_cast<double>(localArraySize);
 
-			for (std::size_t i = 1; i <= arraySize_; i++) {
+			for (std::size_t i = 1; i <= arraySize_; i++)
+			{
 #ifdef DEBUG
 				double value = lf();
 				assert(value>=0. && value<1.);

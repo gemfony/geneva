@@ -166,7 +166,7 @@ int main(int argc, char **argv){
 	std::vector<double> gaussian, doublegaussian, even, evenwithboundaries;
 	std::vector<double> expgauss01, expgauss02, expgauss04, expgauss08, expgauss16;
 	std::vector<boost::int32_t> discrete, discretebound, bitprob, bitsimple, charrnd;
-	std::vector<double> initCorr;
+	std::vector<double> initCorr, initLFCorr;
 
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
@@ -205,6 +205,7 @@ int main(int argc, char **argv){
 			<< "  TH1I *charrnd = new TH1I(\"charrnd\",\"charrnd\",131,-1,129);" << std::endl
 			<< "  TH2F *evenSelfCorrelation = new TH2F(\"evenSelfCorrelation\",\"evenSelfCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
 			<< "  TH1F *initCorrelation = new TH1F(\"initCorrelation\",\"initCorrelation\",10,0.5,10.5);" << std::endl
+			<< "  TH1F *initLFCorrelation = new TH1F(\"initLFCorrelation\",\"initLFCorrelation\",10,0.5,10.5);" << std::endl // Lagged Fibonacci
 			<< "  TH2F *evenProxyCorrelation = new TH2F(\"evenProxyCorrelation\",\"evenProxyCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
 			<< "  TH1F *proxyDiff = new TH1F(\"proxyDiff\",\"proxyDiff\"," << nEntries << ", " << 0.5 << "," << 100.5 << ");" << std::endl
 			<< std::endl;
@@ -240,6 +241,14 @@ int main(int argc, char **argv){
 
 			for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->evenRandom(0.,1.);
 			initCorr.push_back(gr_ptr_seed->evenRandom(0.,1.));
+		}
+
+		// In this test, a number of lagged fibonacci generators are instantiated with
+		// different seeds, and their initial values (after a number of calls) are asked
+		// for. There should be no correlation.
+		for(i=1; i<=10; i++) {
+			boost::lagged_fibonacci607 lf(boost::numeric_cast<boost::uint32_t>(i));
+			initLFCorr.push_back(lf());
 		}
 
 		createRandomVector<double>(gaussian, GAUSSIAN, nEntries, gr_ptr);
@@ -350,6 +359,11 @@ int main(int argc, char **argv){
 		}
 		ofs << std::endl;
 
+		for(i=1; i<=10; i++){
+			ofs << "  initLFCorrelation->Fill(" << i << ", " << initLFCorr.at(i-1) << ");" << std::endl;
+		}
+		ofs << std::endl;
+
 		ofs << "  cc->cd(1);" << std::endl
 			<< "  gauss->Draw();" << std::endl
 			<< "  cc->cd(2);" << std::endl
@@ -379,8 +393,10 @@ int main(int argc, char **argv){
 			<< "  cc->cd(12);" << std::endl
 			<< "  initCorrelation->Draw();" << std::endl
 			<< "  cc->cd(13);" << std::endl
-			<< "  evenProxyCorrelation->Draw(\"contour\");" << std::endl
+			<< "  initLFCorrelation->Draw();" << std::endl
 			<< "  cc->cd(14);" << std::endl
+			<< "  evenProxyCorrelation->Draw(\"contour\");" << std::endl
+			<< "  cc->cd(15);" << std::endl
 			<< "  proxyDiff->Draw();" << std::endl
 			<< "  cc->cd();" << std::endl;
 		ofs	<< "}" << std::endl;
