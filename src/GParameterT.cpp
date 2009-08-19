@@ -23,14 +23,6 @@
 
 #include "GDouble.hpp"
 
-// Included here so no conflicts occur. See explanation at
-// http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterT<double>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterT<char>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterT<boost::int32_t>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterT<bool>)
-
 namespace Gem
 {
 namespace GenEvA

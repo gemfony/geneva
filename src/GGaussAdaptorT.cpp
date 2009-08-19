@@ -22,14 +22,6 @@
 
 #include "GGaussAdaptorT.hpp"
 
-// Included here so no conflicts occur. See explanation at
-// http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GGaussAdaptorT<double>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GGaussAdaptorT<char>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GGaussAdaptorT<short>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GGaussAdaptorT<boost::int32_t>)
-
 namespace Gem {
 namespace GenEvA {
 
