@@ -69,6 +69,7 @@ SET ( GENEVAINCLUDES
 	GRandom.hpp
 	GRandomFactory.hpp
 	GRateableI.hpp
+	GSeedManager.hpp
 	GSerializableI.hpp
 	GSerializationHelperFunctions.hpp
 	GSingletonT.hpp
