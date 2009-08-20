@@ -77,6 +77,224 @@
 namespace Gem {
 namespace Util {
 
+const boost::uint32_t DEFAULTSTARTSEED=1234;
+
+/****************************************************************************/
+/**
+ * This class manages a set of seeds, making sure they are handed out in
+ * random order themselves. The need for this class became clear when it
+ * turned out that random number sequences with successive seeds can be
+ * highly correlated. This can only be amended by handing out seeds in a
+ * pseudo-random order themselves.
+ */
+class GSeedManager: private boost::noncopyable // prevents this class from being copied
+{
+public:
+	/************************************************************************/
+	/**
+	 * Sets the internal queue to a given size
+	 *
+	 * @param minUniqueSeeds The number of unique seeds delivered by this class in succession
+	 */
+	GSeedManager(const boost::uint32_t minUniqueSeeds):
+		minUniqueSeeds_(minUniqueSeeds),
+		seedQueue_(minUniqueSeeds_),
+		seedInitialized_(false),
+		startSeed_(DEFAULTSTARTSEED)
+	{ /* nothing */ }
+
+	/************************************************************************/
+	/**
+	 * The destructor. Its main purpose is to make sure that the seed thread
+	 * has terminated.
+	 */
+	~GSeedManager() {
+
+	}
+
+	/************************************************************************/
+	/**
+	 * Allows the set the initial seed of the sequence to a defined (i.e. not
+	 * random) value. This function will only  have an effect if seeding hasn't
+	 * started yet. It should thus be called before any random number consumers
+	 * are started.
+	 */
+	void setStartSeed(boost::uint32_t startSeed) {
+		if(!seedInitialized_) { // Faster when read before locking
+			boost::mutex::scoped_lock lk(class_lock_);
+			if(!seedInitialized_) { // could have been set by another thread already
+				startSeed_ = startSeed;
+			}
+			seedInitialized_ = true;
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Allows different objects to retrieve seeds concurrently
+	 *
+	 * @return A seed that will not be followed by the same value in the next minUniqueSeeds_ calls
+	 */
+	boost::uint32_t getSeed() {
+		// Double lock
+		if(!seedInitialized_) { // Faster when read before locking
+			boost::mutex::scoped_lock lk(class_lock_);
+			if(!seedInitialized_) { // could have been set by another thread already
+				// Set the local seed
+				setStartSeed();
+
+				// Start the seed thread. If the seed hasn't been
+				// initialized yet, it is not yet running.
+
+				// Make it known that seeding has started
+				seedInitialized_ = true;
+			}
+		}
+
+		boost::uint32_t seed;
+		seedQueue_.pop_back(&seed);
+		return seed;
+	}
+
+	/************************************************************************/
+	/**
+	 * Allows different objects to retrieve seeds concurrently, while observing
+	 * a time-out. Note that this function will throw once the timeout is
+	 * reached. See the GBoundedBufferT class for details.
+	 *
+	 * @param timeout duration until a timeout occurs
+	 * @return A seed that will not be followed by the same value in the next minUniqueSeeds_ calls
+	 */
+	boost::uint32_t getSeed(const boost::posix_time::time_duration& timeout) {
+		boost::uint32_t seed;
+		seedQueue_.pop_back(&seed, timeout);
+		return seed;
+	}
+
+	/************************************************************************/
+	/**
+	 * Allows to retrieve the minimum number of unique seeds delivered in
+	 * succession. No need to lock the data structures - reading this variable
+	 * should be atomic.
+	 *
+	 * @return The minimum number of unique seeds
+	 */
+	std::size_t getMinUniqueSeeds() const {
+		return minUniqueSeeds_;
+	}
+
+private:
+	/************************************************************************/
+	/**
+	 * We do not need a default constructor. Hence this function is
+	 * intentionally private and undefined
+	 */
+	GSeedManager();
+
+	/************************************************************************/
+	/**
+	 * Manages the production of seeds.
+	 */
+	void producerInt32() {
+		try {
+			// Instantiate a random number generator
+			boost::lagged_fibonacci607 lf(seed);
+
+			// Loop until the end of production has been signalled
+			while (true) {
+				if(boost::this_thread::interruption_requested()) break;
+
+				{
+					// Retrieve the current array size.
+					boost::mutex::scoped_lock lk(arraySizeMutex_);
+					localArraySize = arraySize_;
+				}
+
+				// we want to store both the array size and the random numbers
+				boost::shared_array<double> p(new double[localArraySize + 1]);
+
+				// Faster access during the fill procedure - uses the "raw" pointer.
+				// Note that we own the only instance of this pointer at this point
+				double *p_raw = p.get();
+				p_raw[0] = static_cast<double>(localArraySize);
+
+				for (std::size_t i = 1; i <= arraySize_; i++)
+				{
+#ifdef DEBUG
+					double value = lf();
+					assert(value>=0. && value<1.);
+					p_raw[i]=value;
+#else
+					p_raw[i] = lf();
+#endif /* DEBUG */
+				}
+
+				// Get a local copy of g01_, so its object does not get deleted involuntarily  when the singleton exits.
+				boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > > g01_cp = g01_;
+				if(g01_cp) g01_cp->push_front(p);
+			}
+		} catch (boost::thread_interrupted&) { // Not an error
+			return; // We're done
+		} catch (std::bad_alloc& e) {
+			std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+			<< "Caught std::bad_alloc exception with message"
+			<< std::endl << e.what() << std::endl;
+
+			std::terminate();
+		} catch (std::invalid_argument& e) {
+			std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+			<< "Caught std::invalid_argument exception with message"  << std::endl
+			<< e.what() << std::endl;
+
+			std::terminate();
+		} catch (boost::thread_resource_error&) {
+			std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+			<< "Caught boost::thread_resource_error exception which"  << std::endl
+			<< "likely indicates that a mutex could not be locked."  << std::endl;
+
+			// Terminate the process
+			std::terminate();
+		} catch (...) {
+			std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+			<< "Caught unkown exception." << std::endl;
+
+			// Terminate the process
+			std::terminate();
+		}
+	}
+
+	/************************************************************************/
+	/**
+	 * Creates an initial seed for the seeding random seed sequence to a random
+	 * value. If no way of setting a random start value can be found, it leaves
+	 * the startSeed_ variable untouched.
+	 *
+	 *
+	 * @return An integer used as the start seed for a sequence of seeds
+	 */
+	void setStartSeed() {
+
+	}
+
+	/************************************************************************/
+	// Variables and data structures
+
+	/** @brief The minimum number of unique seeds to be delivered by this class */
+	std::size_t minUniqueSeeds_;
+	/** @brief Holds a predefined number of unique seeds */
+	GBoundedBufferT<boost::uint32_t> seedQueue_;
+
+	/** @brief Indicates whether the seed has already been initialized. Once
+	 * this is done, no changes to this class'es settings are allowed anymore */
+	bool seedInitialized_;
+
+	/** The initial seed of the random seed sequence */
+	boost::uint32_t startSeed_;
+
+	/** @brief Locks access to all data structures of this class */
+	boost::mutex class_lock_;
+};
+
 } /* namespace Util */
 } /* namespace Gem */
 
