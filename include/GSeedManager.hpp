@@ -77,7 +77,7 @@
 namespace Gem {
 namespace Util {
 
-const boost::uint32_t DEFAULTSTARTSEED=1234;
+const boost::uint32_t DEFAULTSTARTSEED=5489; // Follows a setting in boost's mersenne twister
 
 /****************************************************************************/
 /**
@@ -87,8 +87,11 @@ const boost::uint32_t DEFAULTSTARTSEED=1234;
  * highly correlated. This can only be amended by handing out seeds in a
  * pseudo-random order themselves.
  */
-class GSeedManager: private boost::noncopyable // prevents this class from being copied
+class GSeedManager:
+	private boost::noncopyable // prevents this class from being copied
 {
+	typedef boost::shared_ptr<boost::thread> thread_ptr;
+
 public:
 	/************************************************************************/
 	/**
@@ -96,11 +99,10 @@ public:
 	 *
 	 * @param minUniqueSeeds The number of unique seeds delivered by this class in succession
 	 */
-	GSeedManager(const boost::uint32_t minUniqueSeeds):
+	explicit GSeedManager(const boost::uint32_t minUniqueSeeds):
 		minUniqueSeeds_(minUniqueSeeds),
 		seedQueue_(minUniqueSeeds_),
-		seedInitialized_(false),
-		startSeed_(DEFAULTSTARTSEED)
+		startSeed_(0) // means: "unset"
 	{ /* nothing */ }
 
 	/************************************************************************/
@@ -109,7 +111,10 @@ public:
 	 * has terminated.
 	 */
 	~GSeedManager() {
-
+		if(seedThread_) {
+			seedThread_->interrupt();
+			seedThread_->join();
+		}
 	}
 
 	/************************************************************************/
@@ -120,37 +125,43 @@ public:
 	 * are started.
 	 */
 	void setStartSeed(boost::uint32_t startSeed) {
-		if(!seedInitialized_) { // Faster when read before locking
+		// Check that startSeed is != 0
+		if(startSeed == 0) {
+			std::cerr << "In GSeedManager::setStartSeed : Error!" << std::endl
+					  << "Tried to set the start seed to 0. This value" << std::endl
+					  << "has a special meaning in the class" << std::endl;
+			exit(1);
+		}
+
+		// We only act if seeding hasn't started yet
+		if(!seedThread_) { // Faster when read before locking
 			boost::mutex::scoped_lock lk(class_lock_);
-			if(!seedInitialized_) { // could have been set by another thread already
+			if(!seedThread_) { // could have been set by another thread already
 				startSeed_ = startSeed;
 			}
-			seedInitialized_ = true;
 		}
 	}
 
 	/************************************************************************/
 	/**
-	 * Allows different objects to retrieve seeds concurrently
+	 * Allows to retrieve the current value of the start seed
+	 *
+	 * @return The current value of the start seed
+	 */
+	boost::uint32_t getStartSeed() const {
+		return startSeed_;
+	}
+
+	/************************************************************************/
+	/**
+	 * Allows different objects to retrieve seeds concurrently. Note that
+	 * this function will block if the queue is empty and will only wake
+	 * up again once seed items have again become available.
 	 *
 	 * @return A seed that will not be followed by the same value in the next minUniqueSeeds_ calls
 	 */
 	boost::uint32_t getSeed() {
-		// Double lock
-		if(!seedInitialized_) { // Faster when read before locking
-			boost::mutex::scoped_lock lk(class_lock_);
-			if(!seedInitialized_) { // could have been set by another thread already
-				// Set the local seed
-				setStartSeed();
-
-				// Start the seed thread. If the seed hasn't been
-				// initialized yet, it is not yet running.
-
-				// Make it known that seeding has started
-				seedInitialized_ = true;
-			}
-		}
-
+		checkSeedAndThread();
 		boost::uint32_t seed;
 		seedQueue_.pop_back(&seed);
 		return seed;
@@ -166,6 +177,7 @@ public:
 	 * @return A seed that will not be followed by the same value in the next minUniqueSeeds_ calls
 	 */
 	boost::uint32_t getSeed(const boost::posix_time::time_duration& timeout) {
+		checkSeedAndThread();
 		boost::uint32_t seed;
 		seedQueue_.pop_back(&seed, timeout);
 		return seed;
@@ -183,6 +195,17 @@ public:
 		return minUniqueSeeds_;
 	}
 
+	/*************************************************************************/
+	/**
+	 * Checks whether the global seeding has already started. This is the case
+	 * if the seedThread_ sharerd_ptr points to an actual object
+	 *
+	 * @return A boolean indicating whether the seed has already been initialized
+	 */
+	bool checkSeedingIsInitialized() const {
+		return (seedThread_?true:false);
+	}
+
 private:
 	/************************************************************************/
 	/**
@@ -190,6 +213,68 @@ private:
 	 * intentionally private and undefined
 	 */
 	GSeedManager();
+
+	/*************************************************************************/
+	/**
+	 * A private member function that allows to set the global
+	 * seed to a fixed value.
+	 *
+	 * @param seed The desired initial value of the global seed
+	 */
+	void setSeedFixed(const boost::uint32_t& seed) {
+		globalSeed = seed; // Set the seed as requested;
+	}
+
+	/*************************************************************************/
+	/**
+	 * A private member function that allows to set the global
+	 * seed once, using a random number taken from /dev/urandom. This function
+	 * should be called only once.
+	 *
+	 * @return A boolean indicating whether retrieval was successful
+	 */
+	bool setSeedURandom() {
+		// Check if /dev/urandom exists (this might not be a Linux system after all)
+		if(!boost::filesystem::exists("/dev/urandom")) return false;
+		// Open the device
+		std::ifstream urandom("/dev/urandom");
+		if(!urandom) return false;
+		// Read in the data
+		boost::uint32_t seed;
+		char *seedArray = reinterpret_cast<char *>(&seed);
+		for(std::size_t i=0; i<sizeof(seed); i++) 	urandom >> seedArray[i];
+		urandom.close();
+		globalSeed = seed; // Set the seed as requested;
+		return true;
+	}
+
+	/************************************************************************/
+	/**
+	 * Checks whether the seed has already been set and, if necessary, initializes
+	 * it and starts the seeding thread.
+	 */
+	void checkSeedAndThread() {
+		// Double lock
+		if(!seedThread_) { // Faster when read before locking
+			boost::mutex::scoped_lock lk(class_lock_);
+			if(!seedThread_) { // could have been set by another thread already
+				// Set the local seed, unless it as been set already
+				if(startSeed_==0) {
+					if(!setSeedURandom()) {
+						std::cerr << "Using /dev/urandom to set global seed failed." << std::endl
+							      << "Setting the seed to the default value " << DEFAULTSTARTSEED << "instead" << std::endl;
+						setSeedFixed(DEFAULTSTARTSEED);
+					}
+					else {
+						std::cout << "Used /dev/urandom to set the start seed to " << startSeed_ << std::endl;
+					}
+				}
+
+				// Start the seed thread.
+				seedThread_ = thread_ptr(new boost::thread(boost::bind(&GSeedManager::seedProducer, this)));
+			}
+		}
+	}
 
 	/************************************************************************/
 	/**
@@ -237,19 +322,6 @@ private:
 	}
 
 	/************************************************************************/
-	/**
-	 * Creates an initial seed for the seeding random seed sequence to a random
-	 * value. If no way of setting a random start value can be found, it leaves
-	 * the startSeed_ variable untouched.
-	 *
-	 *
-	 * @return An integer used as the start seed for a sequence of seeds
-	 */
-	void setStartSeed() {
-
-	}
-
-	/************************************************************************/
 	// Variables and data structures
 
 	/** @brief The minimum number of unique seeds to be delivered by this class */
@@ -257,15 +329,14 @@ private:
 	/** @brief Holds a predefined number of unique seeds */
 	GBoundedBufferT<boost::uint32_t> seedQueue_;
 
-	/** @brief Indicates whether the seed has already been initialized. Once
-	 * this is done, no changes to this class'es settings are allowed anymore */
-	bool seedInitialized_;
-
 	/** The initial seed of the random seed sequence */
 	boost::uint32_t startSeed_;
 
 	/** @brief Locks access to all data structures of this class */
 	boost::mutex class_lock_;
+
+	/** @brief Holds the producer thread */
+	thread_ptr seedThread_;
 };
 
 } /* namespace Util */
