@@ -67,6 +67,14 @@
 - Check for all variables in CMakeLists.txt whether they are already set. Hence e.g the CMake_Install_Prefix will gain a higher priority when set on the command line
 - Generic GBaseClient. Can be achieved by making the object type to be processed a template argument
 - Statistics in GBrokerPopulation about the number of drop-outs, parents and childs from current and older generations
+- int_type GRandom::discreteRandom(const int_type& max) might yield bad results for large max values.
+  Better multiply the maximum allowed value for int_type with a random double [0:1] and down-cast ?
+- Make local vs. factory production of random numbers a template parameter for GRandom, so we
+  can avoid the "switch" overhead. Or use purely virtual base class, with "factory" and "local" derivatives
+- Can we use the Boost rnr-distributions with a factory or local generator in order to produce 
+  different random distributions ? 
+- Use http://www.boost.org/doc/libs/1_39_0/libs/random/nondet_random.html for the 
+  generation of a non-deterministic start seed
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)

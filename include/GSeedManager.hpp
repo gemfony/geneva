@@ -114,7 +114,7 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Allows the set the initial seed of the sequence to a defined (i.e. not
+	 * Allows to set the initial seed of the sequence to a defined (i.e. not
 	 * random) value. This function will only  have an effect if seeding hasn't
 	 * started yet. It should thus be called before any random number consumers
 	 * are started.
@@ -195,69 +195,42 @@ private:
 	/**
 	 * Manages the production of seeds.
 	 */
-	void producerInt32() {
+	void seedProducer() {
 		try {
-			// Instantiate a random number generator
-			boost::lagged_fibonacci607 lf(seed);
+			// Instantiate a uniform random number generator with the start seed
+			boost::mt19937 rng(startSeed_);
 
-			// Loop until the end of production has been signalled
+			// Add random seeds to the queue until the end of production has been signaled
 			while (true) {
 				if(boost::this_thread::interruption_requested()) break;
-
-				{
-					// Retrieve the current array size.
-					boost::mutex::scoped_lock lk(arraySizeMutex_);
-					localArraySize = arraySize_;
-				}
-
-				// we want to store both the array size and the random numbers
-				boost::shared_array<double> p(new double[localArraySize + 1]);
-
-				// Faster access during the fill procedure - uses the "raw" pointer.
-				// Note that we own the only instance of this pointer at this point
-				double *p_raw = p.get();
-				p_raw[0] = static_cast<double>(localArraySize);
-
-				for (std::size_t i = 1; i <= arraySize_; i++)
-				{
-#ifdef DEBUG
-					double value = lf();
-					assert(value>=0. && value<1.);
-					p_raw[i]=value;
-#else
-					p_raw[i] = lf();
-#endif /* DEBUG */
-				}
-
-				// Get a local copy of g01_, so its object does not get deleted involuntarily  when the singleton exits.
-				boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > > g01_cp = g01_;
-				if(g01_cp) g01_cp->push_front(p);
+				seedQueue_.push_front_if_unique(boost::ref(rng));
 			}
-		} catch (boost::thread_interrupted&) { // Not an error
+		}
+		catch (boost::thread_interrupted&) { // Not an error
 			return; // We're done
-		} catch (std::bad_alloc& e) {
-			std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+		}
+		catch (std::bad_alloc& e) {
+			std::cerr << "In GSeedManager::seedProducer(): Error!" << std::endl
 			<< "Caught std::bad_alloc exception with message"
 			<< std::endl << e.what() << std::endl;
-
 			std::terminate();
-		} catch (std::invalid_argument& e) {
-			std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+		}
+		catch (std::invalid_argument& e) {
+			std::cerr << "In GSeedManager::seedProducer(): Error!" << std::endl
 			<< "Caught std::invalid_argument exception with message"  << std::endl
 			<< e.what() << std::endl;
-
 			std::terminate();
-		} catch (boost::thread_resource_error&) {
-			std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+		}
+		catch (boost::thread_resource_error&) {
+			std::cerr << "In GSeedManager::seedProducer(): Error!" << std::endl
 			<< "Caught boost::thread_resource_error exception which"  << std::endl
 			<< "likely indicates that a mutex could not be locked."  << std::endl;
-
 			// Terminate the process
 			std::terminate();
-		} catch (...) {
-			std::cerr << "In GRandomFactory::producer01(): Error!" << std::endl
+		}
+		catch (...) {
+			std::cerr << "In GSeedManager::seedProducer(): Error!" << std::endl
 			<< "Caught unkown exception." << std::endl;
-
 			// Terminate the process
 			std::terminate();
 		}
