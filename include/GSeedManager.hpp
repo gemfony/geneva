@@ -210,7 +210,7 @@ private:
 	/************************************************************************/
 	/**
 	 * We do not need a default constructor. Hence this function is
-	 * intentionally private and undefined
+	 * intentionally private and undefined.
 	 */
 	GSeedManager();
 
