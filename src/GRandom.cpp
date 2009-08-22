@@ -37,7 +37,7 @@ GRandom::GRandom()
 	 currentPackageSize_(DEFAULTARRAYSIZE),
 	 current01_(1), // position 0 holds the array size
 	 grf_(GRANDOMFACTORY),
-	 rnr_last_(GRANDOMFACTORY->getStartSeed())
+	 rnr_last_(GRANDOMFACTORY->getSeed())
 { /* nothing */ }
 
 /*************************************************************************/
@@ -51,7 +51,7 @@ GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
 	 currentPackageSize_(DEFAULTARRAYSIZE),
 	 current01_(1), // position 0 holds the array size
 	 grf_(GRANDOMFACTORY),
-	 rnr_last_(GRANDOMFACTORY->getStartSeed())
+	 rnr_last_(GRANDOMFACTORY->getSeed())
 { /* nothing */ }
 
 /*************************************************************************/
@@ -66,7 +66,7 @@ GRandom::GRandom(const GRandom& cp)
 	:rnrGenerationMode_(cp.rnrGenerationMode_),
 	 currentPackageSize_(DEFAULTARRAYSIZE),
 	 current01_(1), // position 0 holds the array size
-	 rnr_last_(GRANDOMFACTORY->getStartSeed()) // We do not want use the other generator's start seed
+	 rnr_last_(GRANDOMFACTORY->getSeed()) // We do not want use the other generator's start seed
 {
     switch(rnrGenerationMode_) {
     case Gem::Util::RNRFACTORY:
@@ -340,7 +340,7 @@ void  GRandom::setRNRFactoryMode() {
 
 /*************************************************************************/
 /**
- * Switches to local production mode, using GRandomFactory::getStartSeed() for seeding,
+ * Switches to local production mode, using GRandomFactory::getSeed() for seeding,
  *  and disables all other modes
  */
 void  GRandom::setRNRLocalMode() {

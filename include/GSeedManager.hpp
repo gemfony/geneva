@@ -277,6 +277,9 @@ private:
 						std::cout << "Used /dev/urandom to set the start seed to " << startSeed_ << std::endl;
 					}
 				}
+				else {
+					std::cout << "Using pre-set seed of " << startSeed_ << std::endl;
+				}
 
 				// Start the seed thread.
 				seedThread_ = thread_ptr(new boost::thread(boost::bind(&GSeedManager::seedProducer, this)));

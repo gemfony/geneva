@@ -172,11 +172,11 @@ int main(int argc, char **argv){
 
 	// Set the random number generation mode as requested
 	switch(rnrProductionMode) {
-	case Gem::Util::RNRFACTORY:
+	case 0:
 		gr_ptr->setRNRFactoryMode();
 		break;
 
-	case Gem::Util::RNRLOCAL:
+	case 1:
 		gr_ptr->setRNRLocalMode();
 		break;
 	};
@@ -230,11 +230,11 @@ int main(int argc, char **argv){
 		for(i=1; i<=10; i++) {
 			boost::shared_ptr<Gem::Util::GRandom> gr_ptr_seed(new GRandom());
 			switch(rnrProductionMode) {
-			case Gem::Util::RNRFACTORY:
+			case 0:
 				gr_ptr_seed->setRNRFactoryMode();
 				break;
 
-			case Gem::Util::RNRLOCAL:
+			case 1:
 				gr_ptr_seed->setRNRLocalMode();
 				break;
 			};
