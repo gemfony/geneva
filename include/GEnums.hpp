@@ -89,7 +89,7 @@ enum adaptorId {
 
 /**********************************************************************************************/
 /**
- * The selection mode in propulations. MUPLUSNU means that new parents are selected from old
+ * The selection mode in populations. MUPLUSNU means that new parents are selected from old
  * parents and their children. MUCOMMNU means that new parents are selected from children only.
  * MUNU1PRETAIN means that the best parent of the last generation will also become a new parent
  * (unless a better child was found). All other parents are selected from children only.
