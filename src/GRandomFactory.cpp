@@ -156,17 +156,6 @@ bool GRandomFactory::checkSeedingIsInitialized() const {
 
 /*************************************************************************/
 /**
- * Allows to determine the minimum number of unique seeds that can be expected
- * in a row.
- *
- * @return The minimum number of unique seeds in a row
- */
-std::size_t GRandomFactory::getMinUniqueSeeds() const {
-	return seedManager_.getMinUniqueSeeds();
-}
-
-/*************************************************************************/
-/**
  * Sets the number of producer threads for this factory.
  *
  * @param n01Threads
@@ -239,6 +228,16 @@ boost::shared_array<double> GRandomFactory::new01Container() {
  */
 boost::uint32_t GRandomFactory::getSeed(){
 	return seedManager_.getSeed();
+}
+
+/*************************************************************************/
+/**
+ * Allows to retrieve the size of the seeding queue
+ *
+ * @return The size of the seeding queue
+ */
+std::size_t GRandomFactory::getSeedingQueueSize() const {
+	return seedManager_.getQueueSize();
 }
 
 /*************************************************************************/

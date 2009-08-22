@@ -50,6 +50,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 #include <boost/function.hpp>
+#include <boost/random/linear_congruential.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -82,14 +83,8 @@
 namespace Gem {
 namespace Util {
 
-// const choices of glibc for the linear congruential algorithm,
-// according to Wikipedia . Used for local random number
-// generation. See http://en.wikipedia.org/wiki/Linear_congruential_generator
-// for further information.
-const boost::uint32_t rnr_m = 4294697296UL; // 2^32
-const boost::uint32_t rnr_a = 1103515245UL;
-const boost::uint32_t rnr_c = 12345;
-const double rnr_max = static_cast<double>(std::numeric_limits<boost::uint32_t>::max());
+// const double rnr_max = static_cast<double>(std::numeric_limits<boost::uint32_t>::max());
+const double rnr_max = static_cast<double>(std::numeric_limits<boost::int32_t>::max()); // The return type of boost::rand48
 
 /****************************************************************************/
 /**
@@ -109,7 +104,7 @@ class GRandom
     void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
       ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
-      ar & make_nvp("rnr_last_", rnr_last_);
+      ar & make_nvp("initialSeed_", initialSeed_);
     }
 
     template<typename Archive>
@@ -130,7 +125,10 @@ class GRandom
         	break;
         };
 
-        ar & make_nvp("rnr_last_", rnr_last_);
+        ar & make_nvp("initialSeed_", initialSeed_);
+
+        // Make sure we use the correct seed
+        linCongr_.seed(boost::numeric_cast<boost::uint64_t>(initialSeed_));
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -140,7 +138,7 @@ public:
 	/** @brief The standard constructor */
 	GRandom();
 	/** @brief Initialization with the random number generation mode */
-	GRandom(const Gem::Util::rnrGenerationMode&);
+	explicit GRandom(const Gem::Util::rnrGenerationMode&);
 	/** @brief A copy constructor */
 	GRandom(const GRandom&);
 	/** @brief A standard destructor */
@@ -222,8 +220,10 @@ private:
 	double *p_raw_; ///< A pointer to the content of p01_ for faster access.  Size is 8 byte on a 64 bit system
 	boost::shared_ptr<Gem::Util::GRandomFactory> grf_; ///< A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system (?)
 
-	// Used in conjunction with the local generation of random numbers
-	boost::uint32_t rnr_last_; ///< Used as a start value for the local random number generator.  Size is 4 byte on a 64 bit system
+	/** @brief Used in conjunction with the local generation of random numbers */
+	boost::uint32_t initialSeed_; ///< Used as a start value for the local random number generator.  Size is 4 byte on a 64 bit system
+	/** @brief Used as a fall-back when the factory could not return a package, or for local random number generation */
+	boost::rand48 linCongr_;
 };
 
 /****************************************************************************/

@@ -89,7 +89,7 @@ const boost::uint32_t DEFAULTSTARTSEED=5489;
  * This value specifies the guaranteed number of unique seeds that will
  * follow when retrieving a seed from this class.
  */
-const std::size_t DEFAULTMINUNIQUESEEDS=100000;
+const std::size_t DEFAULTSEEDQUEUESIZE=5000;
 
 /****************************************************************************/
 /**
@@ -110,7 +110,8 @@ public:
 	 * The default constructor.
 	 */
 	GSeedManager():
-		seedQueue_(DEFAULTMINUNIQUESEEDS),
+		queueSize_(DEFAULTSEEDQUEUESIZE),
+		seedQueue_(queueSize_),
 		startSeed_(0) // means: "unset"
 	{ /* nothing */ }
 
@@ -174,7 +175,7 @@ public:
 	 * this function will block if the queue is empty and will only wake
 	 * up again once seed items have again become available.
 	 *
-	 * @return A seed that will not be followed by the same value in the next minUniqueSeeds_ calls
+	 * @return A seed that will not be followed by the same value in the next _ calls
 	 */
 	boost::uint32_t getSeed() {
 		checkSeedAndThread();
@@ -190,24 +191,13 @@ public:
 	 * reached. See the GBoundedBufferT class for details.
 	 *
 	 * @param timeout duration until a timeout occurs
-	 * @return A seed that will not be followed by the same value in the next minUniqueSeeds_ calls
+	 * @return A seed that will not be followed by the same value in the next _ calls
 	 */
 	boost::uint32_t getSeed(const boost::posix_time::time_duration& timeout) {
 		checkSeedAndThread();
 		boost::uint32_t seed;
 		seedQueue_.pop_back(&seed, timeout);
 		return seed;
-	}
-
-	/************************************************************************/
-	/**
-	 * Allows to retrieve the minimum number of unique seeds delivered in
-	 * succession.
-	 *
-	 * @return The minimum number of unique seeds
-	 */
-	std::size_t getMinUniqueSeeds() const {
-		return DEFAULTMINUNIQUESEEDS;
 	}
 
 	/*************************************************************************/
@@ -219,6 +209,14 @@ public:
 	 */
 	bool checkSeedingIsInitialized() const {
 		return (seedThread_?true:false);
+	}
+
+	/*************************************************************************/
+	/**
+	 * Retrieve the size of the seeding queue
+	 */
+	std::size_t getQueueSize() const {
+		return queueSize_;
 	}
 
 private:
@@ -299,7 +297,8 @@ private:
 			// Add random seeds to the queue until the end of production has been signaled
 			while (true) {
 				if(boost::this_thread::interruption_requested()) break;
-				seedQueue_.push_front_if_unique(boost::ref(rng));
+				double seedValue = rng();
+				seedQueue_.push_front(seedValue);
 			}
 		}
 		catch (boost::thread_interrupted&) { // Not an error
@@ -336,7 +335,8 @@ private:
 	// Variables and data structures
 
 	/** @brief The minimum number of unique seeds to be delivered by this class */
-	std::size_t minUniqueSeeds_;
+	std::size_t queueSize_;
+
 	/** @brief Holds a predefined number of unique seeds */
 	GBoundedBufferT<boost::uint32_t> seedQueue_;
 

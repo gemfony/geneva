@@ -37,7 +37,8 @@ GRandom::GRandom()
 	 currentPackageSize_(DEFAULTARRAYSIZE),
 	 current01_(1), // position 0 holds the array size
 	 grf_(GRANDOMFACTORY),
-	 rnr_last_(GRANDOMFACTORY->getSeed())
+	 initialSeed_(GRANDOMFACTORY->getSeed()),
+	 linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
 { /* nothing */ }
 
 /*************************************************************************/
@@ -51,7 +52,8 @@ GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
 	 currentPackageSize_(DEFAULTARRAYSIZE),
 	 current01_(1), // position 0 holds the array size
 	 grf_(GRANDOMFACTORY),
-	 rnr_last_(GRANDOMFACTORY->getSeed())
+	 initialSeed_(GRANDOMFACTORY->getSeed()),
+	 linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
 { /* nothing */ }
 
 /*************************************************************************/
@@ -66,7 +68,8 @@ GRandom::GRandom(const GRandom& cp)
 	:rnrGenerationMode_(cp.rnrGenerationMode_),
 	 currentPackageSize_(DEFAULTARRAYSIZE),
 	 current01_(1), // position 0 holds the array size
-	 rnr_last_(GRANDOMFACTORY->getSeed()) // We do not want use the other generator's start seed
+	 initialSeed_(GRANDOMFACTORY->getSeed()), // We do not want use the other generator's start seed
+	 linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
 {
     switch(rnrGenerationMode_) {
     case Gem::Util::RNRFACTORY:
@@ -265,14 +268,14 @@ double GRandom::evenRandomFromFactory() {
  * @return Random numbers evenly distributed in the range [0,1]
  */
 double GRandom::evenRandomLocalProduction() {
-	rnr_last_ = (rnr_a * rnr_last_ + rnr_c) % rnr_m;
+	initialSeed_ = boost::numeric_cast<boost::uint32_t>(linCongr_());
 
 #ifdef DEBUG
-	double value =  boost::numeric_cast<double>(rnr_last_)/rnr_max; // Will be slower ...
+	double value =  boost::numeric_cast<double>(initialSeed_)/rnr_max; // Will be slower ...
 	assert(value>=0. && value<1.);
 	return value;
 #else
-	return static_cast<double>(rnr_last_)/rnr_max;
+	return static_cast<double>(initialSeed_)/rnr_max;
 #endif
 }
 
@@ -283,7 +286,10 @@ double GRandom::evenRandomLocalProduction() {
  * @param seed A user-defined seed for the local random number generator
  */
 void  GRandom::setSeed(const boost::uint32_t& seed) {
-	rnr_last_ = seed;
+	initialSeed_ = seed;
+
+    // Make sure we continue with the correct seed
+    linCongr_.seed(boost::numeric_cast<boost::uint64_t>(initialSeed_));
 }
 
 /*************************************************************************/
@@ -291,10 +297,10 @@ void  GRandom::setSeed(const boost::uint32_t& seed) {
  * Retrieves the current seed value of the local generator.
  * Mostly useful for testing purposes.
  *
- * @return The current value of the rnr_last_ variable
+ * @return The current value of the initialSeed_ variable
  */
 boost::uint32_t GRandom::getSeed() {
-	return rnr_last_;
+	return initialSeed_;
 }
 
 /*************************************************************************/

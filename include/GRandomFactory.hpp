@@ -86,7 +86,7 @@ namespace Util {
 // Some constants needed for the random number generation
 
 const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
-const std::size_t DEFAULTFACTORYBUFFERSIZE = 200; ///< Default size of the underlying buffer
+const std::size_t DEFAULTFACTORYBUFFERSIZE = 400; ///< Default size of the underlying buffer
 const boost::uint16_t DEFAULTFACTORYPUTWAIT = 5; ///< waiting time in milliseconds
 const boost::uint16_t DEFAULTFACTORYGETWAIT = 5; ///< waiting time in milliseconds
 
@@ -146,11 +146,11 @@ public:
 	/** @brief Checks whether seeding has already started*/
 	bool checkSeedingIsInitialized() const;
 
-	/** @brief Allows to find out the minimum number of unique seeds in a row */
-	std::size_t getMinUniqueSeeds() const;
-
 	/** @brief Retrieval of a new seed for external or internal random number generators */
 	boost::uint32_t getSeed();
+
+	/** @brief Allows to retrieve the size of the seeding queue */
+	std::size_t getSeedingQueueSize() const;
 
 	/*************************************************************************/
 

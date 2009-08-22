@@ -67,13 +67,13 @@ public:
 		BOOST_CHECK_MESSAGE(testSeed == startSeed, "testSeed = " << testSeed << ", should be " << startSeed);
 
 		// Check that seeding creates different values during every call for a predefined number of calls
-		std::size_t minUniqueRandomNumbers = GRANDOMFACTORY->getMinUniqueSeeds();
-		std::vector<boost::uint32_t> seedVec(static_cast<boost::uint32_t>(minUniqueRandomNumbers));
-		for(std::size_t i=0; i<minUniqueRandomNumbers; i++) {
+		std::size_t seedingQueueSize = GRANDOMFACTORY->getSeedingQueueSize();
+		std::vector<boost::uint32_t> seedVec(static_cast<boost::uint32_t>(seedingQueueSize));
+		for(std::size_t i=0; i<seedingQueueSize; i++) {
 			seedVec.at(i) = GRANDOMFACTORY->getSeed();
 		}
 		std::sort(seedVec.begin(), seedVec.end());
-		for(std::size_t i=1; i<minUniqueRandomNumbers; i++) {
+		for(std::size_t i=1; i<seedingQueueSize; i++) {
 			BOOST_CHECK(seedVec.at(i) > seedVec.at(i-1));
 		}
 
