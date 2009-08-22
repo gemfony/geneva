@@ -269,7 +269,7 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 	std::size_t localArraySize;
 
 	try {
-		boost::lagged_fibonacci607 lf(seed);
+		lagged_fibonacci lf(seed);
 
 		while (true) {
 			if(boost::this_thread::interruption_requested()) break;

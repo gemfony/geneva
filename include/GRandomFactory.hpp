@@ -120,6 +120,8 @@ const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
  * geometry of the quality surface adds to the randomness.
  */
 class GRandomFactory {
+	typedef boost::lagged_fibonacci1279 lagged_fibonacci;
+
 public:
 	/** @brief The default constructor */
 	GRandomFactory();

@@ -103,6 +103,7 @@ class GSeedManager:
 	private boost::noncopyable // prevents this class from being copied
 {
 	typedef boost::shared_ptr<boost::thread> thread_ptr;
+	typedef boost::mt19937 mersenne_twister;
 
 public:
 	/************************************************************************/
@@ -292,13 +293,12 @@ private:
 	void seedProducer() {
 		try {
 			// Instantiate a uniform random number generator with the start seed
-			boost::mt19937 rng(startSeed_);
+			mersenne_twister mt(startSeed_);
 
 			// Add random seeds to the queue until the end of production has been signaled
 			while (true) {
 				if(boost::this_thread::interruption_requested()) break;
-				double seedValue = rng();
-				seedQueue_.push_front(seedValue);
+				seedQueue_.push_front(mt());
 			}
 		}
 		catch (boost::thread_interrupted&) { // Not an error
