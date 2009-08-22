@@ -77,7 +77,19 @@
 namespace Gem {
 namespace Util {
 
-const boost::uint32_t DEFAULTSTARTSEED=5489; // Follows a setting in boost's mersenne twister
+/**
+ * This seed will be used as the global setting if the seed hasn't
+ * been set manually and could not be determined in a random way (e.g.
+ * by reading from /dev/urandom). The chosen value follows a setting
+ * in boost's mersenne twister library.
+ */
+const boost::uint32_t DEFAULTSTARTSEED=5489;
+
+/**
+ * This value specifies the guaranteed number of unique seeds that will
+ * follow when retrieving a seed from this class.
+ */
+const std::size_t DEFAULTMINUNIQUESEEDS=100000;
 
 /****************************************************************************/
 /**
@@ -95,13 +107,10 @@ class GSeedManager:
 public:
 	/************************************************************************/
 	/**
-	 * Sets the internal queue to a given size
-	 *
-	 * @param minUniqueSeeds The number of unique seeds delivered by this class in succession
+	 * The default constructor.
 	 */
-	explicit GSeedManager(const boost::uint32_t minUniqueSeeds):
-		minUniqueSeeds_(minUniqueSeeds),
-		seedQueue_(minUniqueSeeds_),
+	GSeedManager():
+		seedQueue_(DEFAULTMINUNIQUESEEDS),
 		startSeed_(0) // means: "unset"
 	{ /* nothing */ }
 
@@ -186,13 +195,12 @@ public:
 	/************************************************************************/
 	/**
 	 * Allows to retrieve the minimum number of unique seeds delivered in
-	 * succession. No need to lock the data structures - reading this variable
-	 * should be atomic.
+	 * succession.
 	 *
 	 * @return The minimum number of unique seeds
 	 */
 	std::size_t getMinUniqueSeeds() const {
-		return minUniqueSeeds_;
+		return DEFAULTMINUNIQUESEEDS;
 	}
 
 	/*************************************************************************/
@@ -207,13 +215,6 @@ public:
 	}
 
 private:
-	/************************************************************************/
-	/**
-	 * We do not need a default constructor. Hence this function is
-	 * intentionally private and undefined.
-	 */
-	GSeedManager();
-
 	/*************************************************************************/
 	/**
 	 * A private member function that allows to set the global

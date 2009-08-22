@@ -186,6 +186,8 @@ private:
 
 	boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
 	mutable boost::mutex arraySizeMutex_; ///< Regulates access to the arraySize_ variable
+
+	GSeedManager seedManager_; ///< Manages seed creation
 };
 
 } /* namespace Util */
