@@ -75,6 +75,7 @@
 #include "GThreadGroup.hpp"
 #include "GSingletonT.hpp"
 #include "GenevaExceptions.hpp"
+#include "GSeedManager.hpp"
 
 /****************************************************************************/
 
@@ -88,21 +89,12 @@ const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random numbe
 const std::size_t DEFAULTFACTORYBUFFERSIZE = 200; ///< Default size of the underlying buffer
 const boost::uint16_t DEFAULTFACTORYPUTWAIT = 5; ///< waiting time in milliseconds
 const boost::uint16_t DEFAULTFACTORYGETWAIT = 5; ///< waiting time in milliseconds
-const boost::uint32_t DEFAULTSEED = 1234; ///< The starting value of the global seed
 
 /****************************************************************************/
 /**
  * The number of threads that simultaneously produce [0,1[ random numbers
  */
 const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
-
-/****************************************************************************/
-/**
- * Increment of the global seed. This number was chosen randomly. The intention
- * is to make the number small enough so the seed doesn't roll over too quickly,
- * and large enough so we can be sure to have very different random number sequences.
- */
-const boost::uint32_t GLOBALSEEDINCREMENT = 3;
 
 /****************************************************************************/
 /**
@@ -148,25 +140,23 @@ public:
 	std::size_t getBufferSize() const;
 
 	/** @brief Setting of an initial seed for random number generators */
-	bool setSeed(const boost::uint32_t&) const;
-	/** @brief Retrieval of the current value of the global seed */
-	boost::uint32_t getSeed() const;
-	/** @brief Checks whether the global seed has already been initialized */
-	bool checkSeedIsInitialized() const;
+	bool setStartSeed(const boost::uint32_t&);
+	/** @brief Retrieval of the start-value of the global seed */
+	boost::uint32_t getStartSeed() const;
+	/** @brief Checks whether seeding has already started*/
+	bool checkSeedingIsInitialized() const;
 
-	/** @brief Calculation of a seed for the random numbers */
-	static boost::uint32_t GSeed();
+	/** @brief Allows to find out the minimum number of unique seeds in a row */
+	std::size_t getMinUniqueSeeds() const;
+
+	/** @brief Retrieval of a new seed for external or internal random number generators */
+	boost::uint32_t getSeed();
 
 	/*************************************************************************/
 
 private:
 	GRandomFactory(const GRandomFactory&); ///< Intentionally left undefined
 	const GRandomFactory& operator=(const GRandomFactory&);  ///< Intentionally left undefined
-
-	/** @brief Setting of an initial seed for random numbers. Will be incremented for each instantiation */
-	static void setSeedFixed_(const boost::uint32_t&);
-	/** @brief Setting of an initial seed for random numbers, as taken from /dev/urandom */
-	static bool setSeedURandom_();
 
 	/** @brief Starts the threads needed for the production of random numbers */
 	void startProducerThreads();

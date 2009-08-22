@@ -58,21 +58,22 @@ public:
 	// Test features that are expected to work
 	void no_failure_expected() {
 		const boost::uint32_t startSeed = 41;
-		BOOST_CHECK(GRANDOMFACTORY->checkSeedIsInitialized() == false);
+		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == false);
 
 		// Check that we can set and retrieve the current seed
-		GRANDOMFACTORY->setSeed(startSeed);
-		BOOST_CHECK(GRANDOMFACTORY->checkSeedIsInitialized() == true);
-		boost::uint32_t  testSeed = GRANDOMFACTORY->getSeed();
+		GRANDOMFACTORY->setStartSeed(startSeed);
+		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == true);
+		boost::uint32_t  testSeed = GRANDOMFACTORY->getStartSeed();
 		BOOST_CHECK_MESSAGE(testSeed == startSeed, "testSeed = " << testSeed << ", should be " << startSeed);
 
-		// Check that seeding creates different values during every call
-		std::vector<boost::uint32_t> seedVec(static_cast<boost::uint32_t>(NRNR));
-		for(std::size_t i=0; i<NRNR; i++) {
-			seedVec.at(i) = GRandomFactory::GSeed();
+		// Check that seeding creates different values during every call for a predefined number of calls
+		std::size_t minUniqueRandomNumbers = GRANDOMFACTORY->getMinUniqueSeeds();
+		std::vector<boost::uint32_t> seedVec(static_cast<boost::uint32_t>(minUniqueRandomNumbers));
+		for(std::size_t i=0; i<minUniqueRandomNumbers; i++) {
+			seedVec.at(i) = GRANDOMFACTORY->getSeed();
 		}
 		std::sort(seedVec.begin(), seedVec.end());
-		for(std::size_t i=1; i<NRNR; i++) {
+		for(std::size_t i=1; i<minUniqueRandomNumbers; i++) {
 			BOOST_CHECK(seedVec.at(i) > seedVec.at(i-1));
 		}
 
@@ -86,9 +87,9 @@ public:
 		// As now four random number generators have been started, the global seed should have
 		// been incremented. Setting a new start seed should be ignored, and the current seed should
 		// be different from the start seed
-		BOOST_CHECK(GRANDOMFACTORY->getSeed() > startSeed);
-		GRANDOMFACTORY->setSeed(startSeed);
-		BOOST_CHECK(GRANDOMFACTORY->getSeed() > startSeed);
+		BOOST_CHECK(GRANDOMFACTORY->getStartSeed() > startSeed);
+		GRANDOMFACTORY->setStartSeed(startSeed);
+		BOOST_CHECK(GRANDOMFACTORY->getStartSeed() > startSeed);
 
 		// gr1 and gr2 should have received different seeds
 		boost::uint32_t seed1, seed2;

@@ -133,7 +133,7 @@ public:
 	 * started yet. It should thus be called before any random number consumers
 	 * are started.
 	 */
-	void setStartSeed(boost::uint32_t startSeed) {
+	bool setStartSeed(boost::uint32_t startSeed) {
 		// Check that startSeed is != 0
 		if(startSeed == 0) {
 			std::cerr << "In GSeedManager::setStartSeed : Error!" << std::endl
@@ -147,7 +147,14 @@ public:
 			boost::mutex::scoped_lock lk(class_lock_);
 			if(!seedThread_) { // could have been set by another thread already
 				startSeed_ = startSeed;
+				return true;
 			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
 		}
 	}
 
@@ -223,7 +230,7 @@ private:
 	 * @param seed The desired initial value of the global seed
 	 */
 	void setSeedFixed(const boost::uint32_t& seed) {
-		globalSeed = seed; // Set the seed as requested;
+		startSeed_ = seed; // Set the seed as requested;
 	}
 
 	/*************************************************************************/
@@ -245,7 +252,7 @@ private:
 		char *seedArray = reinterpret_cast<char *>(&seed);
 		for(std::size_t i=0; i<sizeof(seed); i++) 	urandom >> seedArray[i];
 		urandom.close();
-		globalSeed = seed; // Set the seed as requested;
+		startSeed_ = seed; // Set the seed as requested;
 		return true;
 	}
 

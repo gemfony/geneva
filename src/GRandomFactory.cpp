@@ -27,16 +27,7 @@ namespace Util {
 
 /*************************************************************************/
 /**
- * Declaration (and initialization) of some global mutexes and data items
- */
-boost::mutex randomseed_mutex;
-boost::mutex global_seed_mutex_;
-boost::uint32_t globalSeed = 0;  ///< A global seed that is changed for each new invocation of GSeed()
-bool seedInitialized = false;  ///< Specifies whether an initial seed has already been set
-
-/*************************************************************************/
-/**
- * Initialize of static data members
+ * Initialization of static data members
  */
 boost::uint16_t Gem::Util::GRandomFactory::multiple_call_trap_ = 0;
 boost::mutex Gem::Util::GRandomFactory::factory_creation_mutex_;
@@ -130,86 +121,48 @@ std::size_t GRandomFactory::getBufferSize() const {
 
 /*************************************************************************/
 /**
- * Provides users with an interface to setting the global seed variable.
- * Note that this function will have no effect once a seed has been set.
- * A boolean will be returned that indicated whether the function has had
+ * Provides users with an interface to set the initial seed for the global seed
+ * generator. Note that this function will have no effect once seeding has started.
+ * A boolean will be returned that indicates whether the function has had
  * an effect, i.e. whether the seed could be set. If not set by the user,
- * GSeed will set the value upon first invocation.
+ * the seed manager will set the value upon first invocation.
  *
  * @param seed The desired initial value of the global seed
  * @return A boolean indicating whether the seed could be set
  */
-bool GRandomFactory::setSeed(const boost::uint32_t& seed) const {
-	// Make sure we have sole access to global variables
-	boost::mutex::scoped_lock lk(global_seed_mutex_);
-	if(seedInitialized) return false; // Someone else was faster
-
-	GRandomFactory::setSeedFixed_(seed); // Static, private member function
-	seedInitialized = true;
-
-	return true;
+bool GRandomFactory::setStartSeed(const boost::uint32_t& seed) {
+	return seedManager_.setStartSeed(seed);
 }
 
 /*************************************************************************/
 /**
- * Retrieval of the current value of the globalSeed variable
- * @return The currentl value of the global seed
+ * Retrieval of the value of the global startSeed_ variable
+ *
+ * @return The value of the global start seed
  */
-boost::uint32_t GRandomFactory::getSeed() const {
-	// Make sure we have sole access to global variables
-	boost::mutex::scoped_lock lk(global_seed_mutex_);
-	return globalSeed;
+boost::uint32_t GRandomFactory::getStartSeed() const {
+	return seedManager_.getStartSeed();
 }
 
 /*************************************************************************/
 /**
- * Checks whether the global seed has already been initialized
+ * Checks whether the seeding process has already started
  *
  * @return A boolean indicating whether the seed has already been initialized
  */
-bool GRandomFactory::checkSeedIsInitialized() const {
-	// Make sure we have sole access to global variables
-	boost::mutex::scoped_lock lk(global_seed_mutex_);
-	return seedInitialized;
+bool GRandomFactory::checkSeedingIsInitialized() const {
+	return seedManager_.checkSeedingIsInitialized();
 }
 
 /*************************************************************************/
 /**
- * A static, private member function that allows to set the global
- * seed. Should be called at maximum once. Note that this function assumes
- * that it may access the globalSeed variable. Hence a calling function
- * needs to set the corresponding lock.
+ * Allows to determine the minimum number of unique seeds that can be expected
+ * in a row.
  *
- * @param seed The initial value of the global seed
+ * @return The minimum number of unique seeds in a row
  */
-void GRandomFactory::setSeedFixed_(const boost::uint32_t& seed) {
-	globalSeed = seed; // Set the seed as requested;
-	return true;
-}
-
-/*************************************************************************/
-/**
- * A static, private member function that allows to set the global
- * seed once, using a random number taken from /dev/urandom. This function
- * should be called only once. Note that this function assumes that it
- * may access the globalSeed variable. Hence a calling function needs to
- * set the corresponding lock.
- *
- * @return A boolean indicating whether retrieval was successful
- */
-bool GRandomFactory::setSeedURandom_() {
-	// Check if /dev/urandom exists (this might not be a Linux system after all)
-	if(!boost::filesystem::exists("/dev/urandom")) return false;
-	// Open the device
-	std::ifstream urandom("/dev/urandom");
-	if(!urandom) return false;
-	// Read in the data
-	boost::uint32_t seed;
-	char *seedArray = reinterpret_cast<char *>(&seed);
-	for(std::size_t i=0; i<sizeof(seed); i++) 	urandom >> seedArray[i];
-	urandom.close();
-	globalSeed = seed; // Set the seed as requested;
-	return true;
+std::size_t GRandomFactory::getMinUniqueSeeds() const {
+	return seedManager_.getMinUniqueSeeds();
 }
 
 /*************************************************************************/
@@ -234,7 +187,7 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 		if(threadsHaveBeenStarted_) {
 			if (n01Threads > n01Threads_) { // start new 01 threads
 				for (boost::uint16_t i = n01Threads_; i < n01Threads; i++) {
-					boost::uint32_t seed_ =  GRandomFactory::GSeed();
+					boost::uint32_t seed_ =  this->getSeed();
 					producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_));
 				}
 			} else if (n01Threads < n01Threads_) { // We need to remove threads
@@ -278,25 +231,14 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 
 /*************************************************************************/
 /**
- * This static function returns a seed based on a global counter
+ * This function returns a number that is guaranteed to be unique within
+ * the next DEFAULTMINUNIQUESEEDS calls to this function. DEFAULTMINUNIQUESEEDS
+ * is defined in GSeedManager.hpp .
  *
  * @return A seed based on the current time
  */
-boost::uint32_t GRandomFactory::GSeed(){
-	// Make sure we have sole access to global variables
-	boost::mutex::scoped_lock lk(global_seed_mutex_);
-
-	if(!seedInitialized) {
-		// If we cannot get a seed from /dev/urandom, set a fixed seed
-		if(!setSeedURandom_())	GRandomFactory::setSeed_(DEFAULTSEED);
-		seedInitialized = true;
-	}
-
-	// roll the global seed over once it has reached the upper limit
-	if(globalSeed >= std::numeric_limits<boost::uint32_t>::max() - (GLOBALSEEDINCREMENT+1)) globalSeed = DEFAULTSEED;
-	else (globalSeed+=GLOBALSEEDINCREMENT);
-
-	return globalSeed;
+boost::uint32_t GRandomFactory::getSeed(){
+	return seedManager_.getSeed();
 }
 
 /*************************************************************************/
@@ -307,11 +249,8 @@ void GRandomFactory::startProducerThreads()  {
 	for (boost::uint16_t i = 0; i < n01Threads_; i++) {
 		// thread() doesn't throw, and no exceptions are listed in the documentation
 		// for the create_thread() function, so we assume it doesn't throw.
-		boost::uint32_t seed_ = GRandomFactory::GSeed();
-		producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_));
-//#ifdef DEBUG
-//	std::cout << "Started producer thread " << i << " in GRandomFactory with seed " << seed_ << std::endl;
-//#endif /* DEBUG */
+		boost::uint32_t seed = this->getSeed();
+		producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed));
 	}
 }
 

@@ -244,7 +244,7 @@ public:
 			// Produce an item
 			value_type item = f();
 			// Search the container for this item
-			if(std::search(container_.begin(), container_.end()) == container_.end()) {
+			if(std::find(container_.begin(), container_.end(), item) == container_.end()) {
 				// Only add the item if it could not be found in the list
 				container_.push_front(item);
 				break; // break the loop if unique

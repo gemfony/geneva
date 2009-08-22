@@ -128,7 +128,7 @@ bool GAsioTCPClient::init() {
 #endif /* DEBUG */
 
 		// Set the seed of the global factory
-		if(!GRANDOMFACTORY->setSeed(seed)) {
+		if(!GRANDOMFACTORY->setStartSeed(seed)) {
 			std::cerr << "In GAsioTCPClient::init(): Warning" << std::endl
 					  << "Seed (" << seed << ") has already been set." << std::endl;
 		}

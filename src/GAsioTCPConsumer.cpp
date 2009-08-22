@@ -71,7 +71,7 @@ void GAsioServerSession::processRequest() {
 	std::string command = getSingleCommand();
 
 	if(command == "getSeed") {
-		boost::uint32_t seed = Gem::Util::GRandomFactory::GSeed();
+		boost::uint32_t seed = GRANDOMFACTORY->getStartSeed();
 
 #ifdef DEBUG
 		std::cout << "Sending seed " << seed << std::endl;

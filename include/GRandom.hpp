@@ -197,14 +197,14 @@ public:
 	Gem::Util::rnrGenerationMode getRnrGenerationMode () const;
 	/** @brief Specifies a rng-proxy to be used and empties the p01_ array */
 	void setRNRFactoryMode();
-	/** @brief Switches to local production mode, using GRandomFactory::GSeed() for seeding */
+	/** @brief Switches to local production mode, using GRandomFactory::getStartSeed() for seeding */
 	void setRNRLocalMode();
 	/** @brief Switches to local production mode, using the supplied seed value */
 	void setRNRLocalMode(const boost::uint32_t&);
 
 	/** @brief Allows to store a user-defined seed for local random number generation */
 	void setSeed(const boost::uint32_t&);
-	/** @brief Retrieves the current seed valie */
+	/** @brief Retrieves the current seed value */
 	boost::uint32_t getSeed();
 
 private:
