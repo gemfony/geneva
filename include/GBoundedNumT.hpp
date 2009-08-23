@@ -76,6 +76,11 @@ class GBoundedNumT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
+
+		// Register this class
+		ar.template register_type<GBoundedNumT<T> >();
+
+		// Save data
 		ar & make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T> >(*this));
 		ar & make_nvp("internalValue_", internalValue_);
 		ar & make_nvp("lowerBoundary_", lowerBoundary_);

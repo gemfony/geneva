@@ -89,6 +89,8 @@ struct projectionData
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
+		ar.template register_type<projectionData>();
+
 		ar & make_nvp("source", source);
 		ar & make_nvp("nData", nData);
 		ar & make_nvp("nDimOrig", nDimOrig);
@@ -129,6 +131,8 @@ class GProjectionIndividual
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
+
+		ar.template register_type<GProjectionIndividual>();
 
 		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
 		ar & make_nvp("source_", source_);
