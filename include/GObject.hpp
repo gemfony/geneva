@@ -91,6 +91,7 @@ class GObject
     template<typename Archive>
     void serialize(Archive & ar, const unsigned int)  {
       using boost::serialization::make_nvp;
+
       // No local data
     }
     ///////////////////////////////////////////////////////////////////////

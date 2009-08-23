@@ -70,6 +70,11 @@ class GGaussAdaptorT :public GAdaptorT<T>
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
+
+		// Register this class with the library
+		ar.template register_type<GGaussAdaptorT<T> >();
+
+		// Save all necessary data
 		ar & make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<T> >(*this));
 		ar & make_nvp("sigma_", sigma_);
 		ar & make_nvp("sigmaSigma_", sigmaSigma_);

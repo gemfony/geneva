@@ -61,10 +61,16 @@ public:
 		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == false);
 
 		// Check that we can set and retrieve the current seed
-		GRANDOMFACTORY->setStartSeed(startSeed);
-		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == true);
+		bool seedSetSuccess = GRANDOMFACTORY->setStartSeed(startSeed);
+		BOOST_CHECK(seedSetSuccess == true);
+		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == false); // The thread hasn't started yet
 		boost::uint32_t  testSeed = GRANDOMFACTORY->getStartSeed();
 		BOOST_CHECK_MESSAGE(testSeed == startSeed, "testSeed = " << testSeed << ", should be " << startSeed);
+
+		// Retrieve a single seed and check that the seeding thread has started
+		boost::uint32_t singleSeed = GRANDOMFACTORY->getSeed();
+		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == true);
+		BOOST_CHECK(singleSeed != startSeed);
 
 		// Check that seeding creates different values during every call for a predefined number of calls
 		std::size_t seedingQueueSize = GRANDOMFACTORY->getSeedingQueueSize();
@@ -84,14 +90,7 @@ public:
 		BOOST_CHECK_NO_THROW(gr1.setRNRFactoryMode());
 		BOOST_CHECK_NO_THROW(gr2.setRNRFactoryMode());
 
-		// As now four random number generators have been started, the global seed should have
-		// been incremented. Setting a new start seed should be ignored, and the current seed should
-		// be different from the start seed
-		BOOST_CHECK(GRANDOMFACTORY->getStartSeed() > startSeed);
-		GRANDOMFACTORY->setStartSeed(startSeed);
-		BOOST_CHECK(GRANDOMFACTORY->getStartSeed() > startSeed);
-
-		// gr1 and gr2 should have received different seeds
+		// gr1 and gr2 should have received different start seeds
 		boost::uint32_t seed1, seed2;
 		seed1 = gr1.getSeed();
 		seed2 = gr2.getSeed();
