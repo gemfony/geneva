@@ -477,7 +477,7 @@ private:
 	/** @brief Emits true once the quality is below or above a given threshold */
 	bool qualityHalt();
 	/** @brief Determines when to stop the optimization */
-	bool halt();
+	bool halt(const std::size_t&);
 
 	/** @brief Helper function that determines whether a new value is better than an older one */
 	bool isBetter(double, const double&) const;

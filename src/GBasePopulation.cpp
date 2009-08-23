@@ -519,14 +519,6 @@ std::string GBasePopulation::getCheckpointDirectory() const {
  * @param startGeneration The start value of the generation_ counter
  */
 void GBasePopulation::optimize(const boost::uint32_t& startGeneration) {
-	// Check the value of the supplied start generation
-	if(maxGeneration_ && startGeneration >= maxGeneration_) {
-		std::ostringstream error;
-		error << "In GBasePopulation::optimize(const boost::uint32_t&): Error!" << std::endl
-			  << "Received invalid start generation value: " << startGeneration << " " << maxGeneration_ << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
-	}
-
 	// Reset the generation counter
 	generation_ = startGeneration;
 
@@ -572,7 +564,7 @@ void GBasePopulation::optimize(const boost::uint32_t& startGeneration) {
 		// update the generation_ counter
 		generation_++;
 	}
-	while(!halt()); // allows custom halt criteria
+	while(!halt(startGeneration)); // allows custom halt criteria
 
 	// Finalize the info output
 	if(reportGeneration_) doInfo(INFOEND);
@@ -1530,15 +1522,19 @@ std::size_t GBasePopulation::getDefaultPopulationSize() const {
 /**
  * This function checks whether a halt criterion has been reached. The most
  * common criterion is the maximum number of generations. Set the maxGeneration_
- * counter to 0 if you want to disable this criterion.
+ * counter to 0 if you want to disable this criterion. If the optimization is
+ * supposed to start with a higher value of the generation counter, e.g. because
+ * a checkpoint file has been loaded, then an offset can be added to the
+ * generation counter.
  *
+ * @param generationOffset An offset to be added to the maximum generation
  * @return A boolean indicating whether a halt criterion has been reached
  */
-bool GBasePopulation::halt()
+bool GBasePopulation::halt(const std::size_t& generationOffset)
 {
 	// Have we exceeded the maximum number of generations and
 	// do we indeed intend to stop in this case ?
-	if(maxGeneration_ && (generation_ > maxGeneration_)) return true;
+	if(maxGeneration_ && (generation_ > (maxGeneration_ + generationOffset))) return true;
 
 	// Has the optimization stalled too often ?
 	if(maxStallGeneration_ && stallCounter_ > maxStallGeneration_) return true;
