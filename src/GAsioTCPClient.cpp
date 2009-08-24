@@ -123,9 +123,7 @@ bool GAsioTCPClient::init() {
 		std::string inboundSeedString = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
 		boost::uint32_t seed = boost::lexical_cast<boost::uint32_t>(inboundSeedString);
 
-#ifdef DEBUG
 		std::cout << "Received seed " << seed << " from the server" << std::endl;
-#endif /* DEBUG */
 
 		// Set the seed of the global factory
 		if(!GRANDOMFACTORY->setStartSeed(seed)) {
@@ -141,8 +139,8 @@ bool GAsioTCPClient::init() {
 		{ // Make sure we do not hide the next error declaration (avoid a warning message)
 			std::ostringstream error;
 			error << "In GAsioTCPClient::init:" << std::endl
-					 << "Caught boost::system::system_error exception."
-					 << std::endl << "Leaving now." << std::endl;
+				  << "Caught boost::system::system_error exception." << std::endl
+				  << "Leaving now." << std::endl;
 
 			std::cerr << error.str();
 		}
