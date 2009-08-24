@@ -587,12 +587,13 @@ double GIndividual::checkedFitness(){
 void GIndividual::process(){
 	bool previous=this->setAllowLazyEvaluation(false);
 	if(this->getAttribute("command") == "mutate") {
-		if(processingCycles_ == 1) this->mutate();
+		if(processingCycles_ == 1 || this->getParentPopGeneration() == 0) this->mutate();
 		else{
 			// Retrieve this object's current fitness.
 			bool isDirty=false;
 			double currentFitness = getCurrentFitness(isDirty);
 
+#ifdef DEBUG
 			// Individuals that arrive here for mutation should be "clean"
 			if(isDirty) {
 				std::ostringstream error;
@@ -603,6 +604,7 @@ void GIndividual::process(){
 					  << "isParent = " << (isParent()?"true":"false") << std::endl;
 				throw geneva_error_condition(error.str());
 			}
+#endif /* DEBUG */
 
 			// Will hold a copy of this object
 			boost::shared_ptr<GIndividual> p;
