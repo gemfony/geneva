@@ -21,7 +21,9 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # SET( CMAKE_BUILD_TYPE Debug )
 
 # Change this setting to install in a different directory
-SET(CMAKE_INSTALL_PREFIX "/opt/geneva/")
+IF(NOT CMAKE_INSTALL_PREFIX)
+	SET(CMAKE_INSTALL_PREFIX "/opt/geneva/")
+ENDIF()
 
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
