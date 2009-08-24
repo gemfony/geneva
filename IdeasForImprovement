@@ -79,6 +79,9 @@
 - Cloning, loading and copy construction of GRandom currently instantiates a new local generator. Modify so that there are
   really identical copies, but fix the Geneva code to re-initialize the local random seed, where needed. 
 - Switch GRandom::initialSeed_ to boost::rand48's int32_t return format
+- Add a remote console, allowing to retrieve information about the fitness history and other parameters, as well as
+  providing an interface to setting certain crucial parameters. Can use a map<boost::int32_t, boost::function<std::string ()> > for
+  the mapping between commands and local functions.
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
