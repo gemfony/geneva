@@ -98,6 +98,9 @@ public:
 	/** @brief Retrieves the maximum allowed processing time */
 	boost::posix_time::time_duration getMaxTime();
 
+	/** @brief Specifies whether results should be returned to the server regardless of their success */
+	void returnResultIfUnsuccessful(const bool&);
+
 protected:
 	/** @brief One-time data retrieval, processing and result submission */
 	bool process();
@@ -128,6 +131,8 @@ private:
 
 	boost::uint32_t processed_; ///< The number of processed items so far
 	boost::uint32_t processMax_; ///< The maximum number of items to process
+
+	bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 };
 
 /*********************************************************************************/

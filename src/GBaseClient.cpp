@@ -35,7 +35,8 @@ GBaseClient::GBaseClient()
 	:startTime_(boost::posix_time::microsec_clock::local_time()),
 	 maxDuration_(boost::posix_time::microsec(0)),
 	 processed_(0),
-	 processMax_(0)
+	 processMax_(0),
+	 returnRegardless_(false)
 { /* nothing*/ }
 
 /*********************************************************************************/
@@ -195,8 +196,10 @@ bool GBaseClient::process(){
 
 	// This one line is all it takes to do the processing required for this individual.
 	// GIndividual has all required functions on board. GBaseClient does not need to understand
-	// what is being done during the processing.
-	target->process();
+	// what is being done during the processing. If processing did not lead to a useful result,
+	// information will be returned back to the server only if discardIfUnsuccessful_ is set to
+	// false.
+	if(!target->process() && !returnRegardless_) return true;
 
 	// We do not want to accidently trigger value calculation if it is not desired by the user
 	// - after all we do not know in this class what is being done in GIndividual::process() .
@@ -227,6 +230,17 @@ bool GBaseClient::process(){
 	// Everything worked. Indicate that we want to continue
 	return true;
 } // boost::shared_ptr<GIndividual> target will cease to exist at this point
+
+/*********************************************************************************/
+/**
+ * Specifies whether results should be returned regardless of the success achieved
+ * in the processing step.
+ *
+ * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
+ */
+void GBaseClient::returnResultIfUnsuccessful(const bool& returnRegardless) {
+	returnRegardless_ = returnRegardless;
+}
 
 /*********************************************************************************/
 

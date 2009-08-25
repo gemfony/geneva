@@ -113,9 +113,9 @@ public:
 	/** @brief Calculate the fitness of this object */
 	virtual double fitness();
 	/** @brief Do the required processing for this object */
-	void process();
+	bool process();
 	/** @brief Do the required processing for this object and catch all exceptions */
-	void checkedProcess();
+	bool checkedProcess();
 	/** @brief Allows to instruct this individual to perform multiple process operations in one go. */
 	void setProcessingCycles(const boost::uint32_t&);
 	/** @brief Retrieves the number of allowed processing cycles */

@@ -583,11 +583,17 @@ double GIndividual::checkedFitness(){
  * mutate() calls will be performed, until the maximum number of calls is reached or
  * a better solution is found. If processingCycles_ has a value of 0, this routine
  * will loop forever, unless a better solution is found (DANGEROUS: USE WITH CARE!!!).
+ *
+ * @return A boolean which indicates whether processing has led to a useful result
  */
-void GIndividual::process(){
+bool GIndividual::process(){
+	bool gotUsefulResult = false;
 	bool previous=this->setAllowLazyEvaluation(false);
 	if(this->getAttribute("command") == "mutate") {
-		if(processingCycles_ == 1 || this->getParentPopGeneration() == 0) this->mutate();
+		if(processingCycles_ == 1 || this->getParentPopGeneration() == 0) {
+			this->mutate();
+			gotUsefulResult = true;
+		}
 		else{
 			// Retrieve this object's current fitness.
 			bool isDirty=false;
@@ -635,10 +641,16 @@ void GIndividual::process(){
 			}
 
 			// If a better solution was found, load it into this object
-			if(success) this->load(p.get());
+			if(success) {
+				this->load(p.get());
+				gotUsefulResult = true;
+			}
 		}
 	}
-	else if(this->getAttribute("command") == "evaluate") this->fitness();
+	else if(this->getAttribute("command") == "evaluate") {
+		this->fitness();
+		gotUsefulResult = true;
+	}
 	else {
 		std::ostringstream error;
 		error << "In GIndividual::process(): Unknown command:\""
@@ -647,16 +659,20 @@ void GIndividual::process(){
 		throw geneva_error_condition(error.str());
 	}
 	this->setAllowLazyEvaluation(previous);
+
+	return gotUsefulResult;
 }
 
 /**********************************************************************************/
 /**
  * Performs all necessary processing steps for this object and catches all exceptions.
  * Meant to be called by threads.
+ *
+ * @return A boolean which indicates whether processing has led to a useful result
  */
-void GIndividual::checkedProcess(){
+bool GIndividual::checkedProcess(){
 	try{
-		this->process();
+		return this->process();
 	}
 	catch(std::exception& e){
 		std::ostringstream error;
