@@ -14,6 +14,9 @@ The main changes for this release include:
    are written out, whose file name is based on the current generation. Files can continue to be
    written out with sequential generation numbers, even if the optimization was started anew, e.g.
    using a checkpoint file.
+ - Added the option to prevent the data of unsuccessful mutation attempts to be returned to the server.
+   The goal is to lessen the network traffic. On the down-side, the MUCOMMANU and MUNU1PRETAIN 
+   selection mode also use "bad" results and might work less efficient, when this setting is enabled.
 
 * Version 0.5.3, "Building 39" - July 6, 2009
 
