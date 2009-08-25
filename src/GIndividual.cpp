@@ -597,7 +597,7 @@ bool GIndividual::process(){
 		else{
 			// Retrieve this object's current fitness.
 			bool isDirty=false;
-			double currentFitness = getCurrentFitness(isDirty);
+			double originalFitness = getCurrentFitness(isDirty);
 
 #ifdef DEBUG
 			// Individuals that arrive here for mutation should be "clean"
@@ -612,14 +612,14 @@ bool GIndividual::process(){
 			}
 #endif /* DEBUG */
 
+			// Record the number of processing cycles
+			boost::uint32_t nCycles=0;
+
 			// Will hold a copy of this object
 			boost::shared_ptr<GIndividual> p;
 
 			// Indicates whether a better solution was found
 			bool success = false;
-
-			// Record the number of processing cycles
-			boost::uint32_t nCycles=0;
 
 			// Loop until a better solution was found or the maximum number of attempts was reached
 			while(true) {
@@ -628,8 +628,8 @@ bool GIndividual::process(){
 
 				// Mutate and check fitness. Leave if a better solution was found
 				p->mutate();
-				if((!maximize_ && p->fitness() < currentFitness) ||
-				   (maximize_ && p->fitness() > currentFitness))
+				if((!maximize_ && p->fitness() < originalFitness) ||
+				   (maximize_ && p->fitness() > originalFitness))
 				{
 					success = true;
 					break;
@@ -640,11 +640,11 @@ bool GIndividual::process(){
 				if(processingCycles_ && nCycles++ >= processingCycles_) break;
 			}
 
-			// If a better solution was found, load it into this object
-			if(success) {
-				this->load(p.get());
-				gotUsefulResult = true;
-			}
+			// Load the last tested solution into this object
+			this->load(p.get());
+
+			// If a better solution was found, let the audience know
+			if(success) gotUsefulResult = true;
 		}
 	}
 	else if(this->getAttribute("command") == "evaluate") {
