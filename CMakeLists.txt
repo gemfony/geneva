@@ -7,9 +7,9 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # it was not deployed in one of the standard system locations. Otherwise,
 # see the comments in the INSTALL file on how to set the path on the 
 # command line.
-#SET (BOOST_ROOT "/opt/boost136")
-#SET (BOOST_INCLUDEDIR "/opt/boost136/include/boost-1_36")
-#SET (BOOST_LIBRARYDIR "/opt/boost136/lib")
+#SET (BOOST_ROOT "/opt/boost140")
+#SET (BOOST_INCLUDEDIR "/opt/boost140/include/boost-1_40")
+#SET (BOOST_LIBRARYDIR "/opt/boost140/lib")
 
 # Uncomment this if you want to see compiler arguments
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
@@ -21,13 +21,15 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # SET( CMAKE_BUILD_TYPE Debug )
 
 # Change this setting to install in a different directory
-SET(CMAKE_INSTALL_PREFIX "/opt/geneva/")
+IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
+	SET(CMAKE_INSTALL_PREFIX "/opt/geneva")
+ENDIF()
 
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
 # Set the build type to Release by default
-IF(NOT CMAKE_BUILD_TYPE)
+IF(NOT DEFINED CMAKE_BUILD_TYPE)
 	SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
@@ -137,7 +139,7 @@ INCLUDE(InstallRequiredSystemLibraries)
 
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/README")
 SET(CPACK_RPM_PACKAGE_SUMMARY
-"This package contains the Geneva optimization library"
+	"The Geneva optimization library"
 )
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Geneva optimization library")
 SET(CPACK_PACKAGE_VENDOR "Gemfony scientific and Karlsruhe Institute of Technology")
