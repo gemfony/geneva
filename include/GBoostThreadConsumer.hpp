@@ -68,14 +68,10 @@ const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
 
 /***************************************************************/
 /**
- * A derivative of GConsumer<carryer_type>, that processes items in separate
- * threads. This class is mainly intended for debugging purposes.
- * Use GBoostThreadPopulation instead, if you want to have a
- * multi-threaded population - it should have a much higher performance.
- *
- * This class could exist alongside a networked consumer, as the broker
- * accepts more than one consumer. Hence there might be real-life environments
- * where using this class makes sense.
+ * A derivative of GConsumer, that processes items in separate threads.
+ * Objects of this class can exist alongside a networked consumer, as the broker
+ * accepts more than one consumer. You can thus use this class to aid networked
+ * optimization, if the server has spare CPU cores that would otherwise run idle.
  */
 class GBoostThreadConsumer
 	:public Gem::Util::GConsumer
