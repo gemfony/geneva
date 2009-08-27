@@ -27,6 +27,7 @@
 
 // Boost headers go here
 
+#include <boost/cast.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
@@ -53,6 +54,7 @@
 
 namespace Gem {
 namespace GenEvA {
+
 /** @brief The default number of threads for parallelization with boost */
 const boost::uint16_t DEFAULTBOOSTTHREADS = 2;
 

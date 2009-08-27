@@ -238,13 +238,28 @@ void GBoostThreadPopulation::mutateChildren() {
 
 /********************************************************************/
 /**
- * Sets the number of threads for this population. Standard
- * value is DEFAULTBOOSTTHREADS.
+ * Sets the number of threads for this population. If nThreads is set
+ * to 0, an attempt will be made to set the number of threads to the
+ * number of hardware threading units (e.g. number of cores or hyperthreading
+ * units).
  *
  * @param nThreads The number of threads this class uses
  */
 void GBoostThreadPopulation::setNThreads(const boost::uint8_t& nThreads) {
-	nThreads_ = nThreads;
+	if(nThreads == 0) {
+		boost::uint8_t hardwareThreads = boost::numeric_cast<boost::uint8_t>(boost::thread::hardware_concurrency());
+		if(hardwareThreads > 0) {
+			std::cout << "Determined " << (int)hardwareThreads << " as a suitable number of processing threads for this architecture." << std::endl;
+			nThreads_ = hardwareThreads;
+		}
+		else {
+			nThreads_ = DEFAULTBOOSTTHREADS;
+		}
+	}
+	else {
+		nThreads_ = nThreads;
+	}
+
 	tp_.size_controller().resize(nThreads_);
 }
 

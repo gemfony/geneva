@@ -128,11 +128,21 @@ void GBoostThreadConsumer::shutdown() {
 /**
  * Sets the maximum number of threads. Note that this function
  * will only have an effect before the threads have been started.
+ * If maxThreads is set to 0, an attempt will be made to automatically
+ * determine a suitable number of threads.
  *
  * @param maxThreads The maximum number of allowed threads
  */
 void GBoostThreadConsumer::setMaxThreads(const std::size_t& maxThreads) {
-	maxThreads_ = maxThreads;
+	if(maxThreads == 0) {
+		std::size_t hardwareThreads = boost::thread::hardware_concurrency();
+
+		if(hardwareThreads > 0) maxThreads_ = hardwareThreads;
+		else maxThreads_ = DEFAULTGBTCMAXTHREADS;
+	}
+	else {
+		maxThreads_ = maxThreads;
+	}
 }
 
 /***************************************************************/
