@@ -76,8 +76,6 @@ const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
  * This class could exist alongside a networked consumer, as the broker
  * accepts more than one consumer. Hence there might be real-life environments
  * where using this class makes sense.
- *
- * \todo Need to deal with id issue of GConsumer. get/put now work with this
  */
 class GBoostThreadConsumer
 	:public Gem::Util::GConsumer

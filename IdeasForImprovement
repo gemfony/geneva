@@ -1,6 +1,5 @@
 - Add cross-over function to GStdVector interfaces
 - Shifting in multi-populations
-- Prevent GBrokerPopulation from being used inside itself (doesn't make sense, will likely not work)
 - Use one of the Boost logging library candidates. Requires that at least one 
   of them heads for a review (we do not want to include further candidate libraries. Geneva should work with a 
   vanilla Boost installation (>= 1.36)

@@ -301,6 +301,18 @@ boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
  * @param startGeneration The start value of the generation_ counter
  */
 void GBrokerPopulation::optimize(const boost::uint32_t& startGeneration) {
+	// Prevent usage of this population inside another broker population - check type of first individual
+	{
+		boost::shared_ptr<GBrokerPopulation> p = boost::dynamic_pointer_cast<GBrokerPopulation>(this->at(0));
+		if(p) { // Conversion was successful - this should not be
+			std::ostringstream error;
+			error << "In GBrokerPopulation::optimize(): Error" << std::endl
+			      << "GBrokerPopulation stored as an individual inside of" << std::endl
+			      << "a population of the same type" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+	}
+
 	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Util::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
 	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
 

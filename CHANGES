@@ -17,6 +17,8 @@ The main changes for this release include:
  - Added the option to prevent the data of unsuccessful mutation attempts to be returned to the server.
    The goal is to lessen the network traffic. On the down-side, the MUCOMMANU and MUNU1PRETAIN 
    selection mode also use "bad" results and might work less efficient, when this setting is enabled.
+ - Prevented GBrokerPopulation from becoming an individual inside of itself. Doesn't make sense and
+   will likely not work.
 
 * Version 0.5.3, "Building 39" - July 6, 2009
 

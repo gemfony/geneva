@@ -2,8 +2,7 @@
  * @file GFunctionIndividual.hpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2009 Dr. Ruediger Berlich
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *
@@ -55,6 +54,7 @@ namespace GenEvA
  * - A "noisy" parabola, featuring an immense number of local optima
  * Note that the free variables of this example are not equipped with boundaries.
  * See the GBoundedParabola example for ways of specifying boundaries for variables.
+ * This class is purely meant for demonstration purposes.
  */
 class GFunctionIndividual
 	:public GParameterSet
@@ -81,33 +81,6 @@ public:
 	 */
 	GFunctionIndividual()
 	{ /* nothing */ }
-
-	/********************************************************************************************/
-	/**
-	 * A constructor which initializes the individual with a suitable set of random double values
-	 * and also determines when the adaptor should be updated.
-	 *
-	 * @param sz The desired size of the double collection
-	 * @param min The minimum value of the random numbers to fill the collection
-	 * @param max The maximum value of the random numbers to fill the collection
-	 * @param as The number of calls to GDoubleGaussAdaptor::mutate after which mutation should be adapted
-	 */
-	GFunctionIndividual(std::size_t sz, double min, double max, boost::uint32_t as){
-		// Set up a GDoubleCollection with sz values, each initialized
-		// with a random number in the range [min,max[
-		boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection(sz,min,max));
-
-		// Set up and register an adaptor for the collection, so it
-		// knows how to be mutated. We want a sigma of 1, a sigma-adaption of 0.001, a
-		// minimum sigma of 0.000001 and a maximum sigma of 5.
-		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(1.,0.001,0.000001,5));
-		gdga->setAdaptionThreshold(as);
-
-		gdc->addAdaptor(gdga);
-
-		// Make the parameter collection known to this individual
-		this->data.push_back(gdc);
-	}
 
 	/********************************************************************************************/
 	/**
@@ -235,6 +208,10 @@ protected:
 	}
 
 	/********************************************************************************************/
+
+private:
+
+	boost::function<double(const std::vector<double>&)> eval_;
 };
 
 } /* namespace GenEvA */
