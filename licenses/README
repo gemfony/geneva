@@ -1,6 +1,6 @@
-This directory contains an overview of the licenses used in the Geneva library.
-For exact information on the licenses applicable to each file, please have a 
-look into each file separately.
+This directory contains the licenses related to or used in different
+constituents of the Geneva library. For exact information on the license
+applicable to each file, please have a look into the respective file.
 
-Please note that you have no free choice of licenses. The Geneva library, as a whole,
-is covered by the GNU Affero GPL v3 .
+Please note that you have no free choice of licenses. The Geneva library, as
+a whole, is covered by the GNU Affero GPL v3.
