@@ -76,11 +76,11 @@ SET (Boost_ADDITIONAL_VERSIONS "1.39" "1.39.0" "1.40" "1.40.0")
 
 FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	date_time
+	filesystem
+	program_options
+	serialization
 	system
 	thread
-	serialization
-	program_options
-	filesystem
 )
 
 # The test component is not necessary for the library, but needed for the tests
@@ -130,25 +130,69 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
 )
 
 #########################################################
-# Code for package generation with CPack
-# This is experimental. Use with care. 
-# An RPM package can be created using the 
-# "make package" command.
+# Code for package generation with CPack.
+# This is experimental and the packages don't
+# satisfy the Linux FHS yet. Use with care. 
+# An RPM or DEB package can be created using
+#   umask 022 && fakeroot make package
 
 INCLUDE(InstallRequiredSystemLibraries)
 
-SET(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/README")
-SET(CPACK_RPM_PACKAGE_SUMMARY
-	"The Geneva optimization library"
-)
+SET(CPACK_PACKAGE_NAME "geneva-opt")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Geneva optimization library")
+
+# The package description. Indentation is important!
+SET(CPACK_AUX_PACKAGE_DESCRIPTION
+ "This is a beta version of the Geneva optimization library. As the name
+ suggests --it stands for 'Grid-enabled evolutionary algorithms'--, Geneva
+ aims to provide the necessary tools to perform parametric optimization
+ in parallel on devices ranging from multi-processor machines over
+ clusters all the way to Grids and Cloud installations.
+ .
+ Geneva does not want to be the fastest library of evolutionary
+ algorithms on single-processor machines, but is instead targeted at
+ large scale problems, where the evaluation of a single individual will
+ typically take longer than a few seconds."
+)
+
 SET(CPACK_PACKAGE_VENDOR "Gemfony scientific and Karlsruhe Institute of Technology")
+SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <info@gemfony.com>")
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "6")
 SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt/geneva")
-SET(CPACK_CMAKE_GENERATOR "Unix Makefiles")
+
+# DEB specific variables. Indentation is important in the description!
+SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}
+ ${CPACK_AUX_PACKAGE_DESCRIPTION}"
+)
+SET(CPACK_DEBIAN_PACKAGE_SECTION "Science")
+SET(CPACK_DEBIAN_PACKAGE_PRIORITY "Extra")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-dev (>= 1.38.1),
+	libboost-date-time-dev (>= 1.38.1),
+	libboost-filesystem-dev (>= 1.38.1),
+	libboost-program-options-dev (>= 1.38.1),
+	libboost-serialization-dev (>= 1.38.1),
+	libboost-system-dev (>= 1.38.1),
+	libboost-thread-dev (>= 1.38.1),
+	libboost-test-dev (>= 1.38.1)"
+)
+
+# RPM specific variables
+SET(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_AUX_PACKAGE_DESCRIPTION})
 SET(CPACK_RPM_PACKAGE_LICENSE "Affero GPL v3")
-SET(CPACK_GENERATOR "RPM")
+SET(CPACK_RPM_PACKAGE_GROUP "Sciences/Libraries")
+SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= 1.36")
+
+# Detect the distribution to autoselect the package generator...
+EXECUTE_PROCESS(COMMAND lsb_release -is
+	OUTPUT_VARIABLE CPACK_AUX_DISTRO
+)
+IF(CPACK_AUX_DISTRO MATCHES "^Debian" OR CPACK_AUX_DISTRO MATCHES "^Ubuntu")
+	SET(CPACK_GENERATOR "DEB")
+ELSE(CPACK_AUX_DISTRO MATCHES "^RedHat" OR CPACK_AUX_DISTRO MATCHES "^CentOS"
+     CPACK_AUX_DISTRO MATCHES "^Scientific" OR CPACK_AUX_DISTRO MATCHES "^SUSE" )
+	SET(CPACK_GENERATOR "RPM")
+ENDIF()
 
 INCLUDE(CPack)
