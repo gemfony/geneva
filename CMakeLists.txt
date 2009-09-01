@@ -159,7 +159,7 @@ SET(CPACK_PACKAGE_VENDOR "Gemfony scientific and Karlsruhe Institute of Technolo
 SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <info@gemfony.com>")
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "6")
-SET(CPACK_PACKAGE_VERSION_PATCH "0")
+SET(CPACK_PACKAGE_VERSION_PATCH "1")
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt/geneva")
 
 # DEB specific variables. Indentation is important in the description!
