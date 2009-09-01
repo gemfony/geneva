@@ -1,4 +1,4 @@
-* Version 0.6, "Route Enrico Fermi" - yet unreleased
+* Version 0.6, "Route Enrico Fermi" - September 1, 2009
 
 The main changes for this release include: 
  - Added option to GBasePopulation to stop optimizing after a user-defined number of stalls
@@ -16,11 +16,12 @@ The main changes for this release include:
    using a checkpoint file.
  - Added the option to prevent the data of unsuccessful mutation attempts to be returned to the server.
    The goal is to lessen the network traffic. On the down-side, the MUCOMMANU and MUNU1PRETAIN 
-   selection mode also use "bad" results and might work less efficient, when this setting is enabled.
+   selection mode also need sub-optimal results and might work less efficient, when this setting is enabled.
  - Prevented GBrokerPopulation from becoming an individual inside of itself. Doesn't make sense and
    will likely not work.
  - Added the option to let Geneva automatically determine a suitable number of processing threads
-   (set the number of threads to 0 using GBoostThreadPopulation::setNThreads() to use this feature).
+   in GBoostThreadPopulation (set the number of threads to 0 using 
+   GBoostThreadPopulation::setNThreads() to use this feature).
 
 * Version 0.5.3, "Building 39" - July 6, 2009
 
