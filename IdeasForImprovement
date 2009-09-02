@@ -81,7 +81,9 @@
 - Add a remote console, allowing to retrieve information about the fitness history and other parameters, as well as
   providing an interface to setting certain crucial parameters. Can use a map<boost::int32_t, boost::function<std::string ()> > for
   the mapping between commands and local functions.
+- Hide the core-Geneva headers in a single header for easier usage
 - Add the Rosenbrock function as a performance check (see http://en.wikipedia.org/wiki/Rosenbrock_function)
+- Create a "dlopen individual", capable of loading external libraries for the evaluation step
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)

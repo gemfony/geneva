@@ -130,7 +130,7 @@ struct trainingData
 /************************************************************************************************/
 /**
  * With this individual you can use evolutionary strategies instead of the standard
- * backpropagation algorithm to train feedforward neural networks. A specialty of this
+ * back-propagation algorithm to train feed-forward neural networks. A specialty of this
  * class is the split load and save function. This is necessary as, depending on the
  * value of the "transferMode_" variable, we have to register a suitable transfer_
  * function.

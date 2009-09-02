@@ -48,30 +48,64 @@ namespace GenEvA
 
 /************************************************************************************************/
 /**
- * This individual searches for the minimum of a number of predefined functions, each capable
- * of being defined in multiple dimensions. Currently implemented are:
+ * This enum denotes the possible demo function types
+ */
+enum demoFunction {
+					PARABOLA=1,
+					NOISYPARABOLA=2,
+					ROSENBROCK=3
+};
+
+/************************************************************************************************/
+/**
+ * This individual searches for a minimum of a number of predefined functions, each capable
+ * of processing their input in multiple dimensions. Currently implemented are:
  * - A simple parabola
  * - A "noisy" parabola, featuring an immense number of local optima
+ * - The generalized Rosenbrock function
+ *
  * Note that the free variables of this example are not equipped with boundaries.
  * See the GBoundedParabola example for ways of specifying boundaries for variables.
- * This class is purely meant for demonstration purposes.
+ * This class is purely meant for demonstration purposes and in order to check the
+ * performance of the Geneva library.
  */
-class GFunctionIndividual
-	:public GParameterSet
+class GFunctionIndividual: public GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int) {
+    template<class Archive>
+    void save(Archive & ar, const unsigned int version) const
+    {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("ParameterSet",
-				boost::serialization::base_object<GParameterSet>(*this));
+		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
+		ar & make_nvp("demoFunction_", demoFunction_);
+
 		// add all local variables here, if you want them to be serialized. E.g.:
 		// ar & make_nvp("myLocalVar_",myLocalVar_);
-		// This also works with objects, if they have a corresponding serialize() function.
-	}
+		// This also works with objects, if they have a corresponding function.
+    }
+
+    template<class Archive>
+    void load(Archive & ar, const unsigned int version)
+    {
+		using boost::serialization::make_nvp;
+
+		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
+
+		demoFunction tmpDemoFunction;
+
+		ar & make_nvp("demoFunction_", tmpDemoFunction);
+		this->setDemoFunction(tmpDemoFunction);
+
+		// add other local variables here, if you want them to be de-serialized. E.g.:
+		// ar & make_nvp("myLocalVar_",myLocalVar_);
+		// This also works with objects, if they have a corresponding function.
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 	///////////////////////////////////////////////////////////////////////
 
 public:
@@ -79,7 +113,8 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GFunctionIndividual()
+	GFunctionIndividual():
+		demoFunction_(PARABOLA)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -87,8 +122,22 @@ public:
 	 * A standard copy constructor
 	 */
 	GFunctionIndividual(const GFunctionIndividual& cp)
-		:GParameterSet(cp)
-	{ /* nothing */	}
+		:GParameterSet(cp),
+		 demoFunction_(cp.demoFunction_)
+	{
+		// Register a suitable transfer function, depending on the value of transferMode_
+		switch(demoFunction_){
+		case PARABOLA:
+			eval_ = &GFunctionIndividual::parabola;
+			break;
+		case NOISYPARABOLA:
+			eval_ = &GFunctionIndividual::noisyParabola;
+			break;
+		case ROSENBROCK:
+			eval_ = &GFunctionIndividual::rosenbrock;
+			break;
+		}
+	}
 
 	/********************************************************************************************/
 	/**
@@ -123,9 +172,13 @@ public:
 	 * @param cp A copy of another GFunctionIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
+		const GFunctionIndividual *gfi_load = conversion_cast(cp, this);
+
 		// We have no local data. Hence we can just pass the pointer to our parent class.
 		// Note that we'd have to use the GObject::conversion_cast() function otherwise.
 		GParameterSet::load(cp);
+
+		this->setDemoFunction(gfi_load->demoFunction_);
 	}
 
 	/*******************************************************************************************/
@@ -165,6 +218,9 @@ public:
 		// Check equality of the parent class
 		if(!GParameterSet::isEqualTo(*gpi_load, expected)) return false;
 
+		// Check local data
+		if(checkForInequality("GFunctionIndividual", demoFunction_, gbp_load->demoFunction_,"demoFunction_", "gbp_load->demoFunction_", expected)) return false;
+
 		return true;
 	}
 
@@ -184,35 +240,148 @@ public:
 		// Check equality of the parent class
 		if(!GParameterSet::isSimilarTo(*gpi_load, limit, expected)) return false;
 
+		// Check our local data
+		if(checkForDissimilarity("GFunctionIndividual", demoFunction_, gbp_load->demoFunction_, limit, "demoFunction_", "gbp_load->demoFunction_", expected)) return false;
+
 		return true;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Specifies that a given function should be used for the evaluation step
+	 *
+	 * @param df The id of the demo function
+	 */
+	void setDemoFunction(const demoFunction& df) {
+		if(df == demoFunction_) return; // nothing to do
+
+		// Register a suitable transfer function, depending on the value of transferMode_
+		switch(demoFunction_){
+		case PARABOLA:
+			eval_ = &GFunctionIndividual::parabola;
+			break;
+		case NOISYPARABOLA:
+			eval_ = &GFunctionIndividual::noisyParabola;
+			break;
+		case ROSENBROCK:
+			eval_ = &GFunctionIndividual::rosenbrock;
+			break;
+		}
+
+		demoFunction_ = df;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Allows to retrieve the demo function
+	 *
+	 * @return The current value of the demoFunction_ variable
+	 */
+	demoFunction getDemoFunction() const {
+		return demoFunction_;
 	}
 
 protected:
 	/********************************************************************************************/
 	/**
-	 * The actual fitness calculation takes place here
+	 * The actual fitness calculation takes place here.
 	 *
 	 * @return The value of this object
 	 */
 	virtual double fitnessCalculation(){
-		double result = 0;
-		std::vector<double>::const_iterator cit;
+		// Check whether an evaluation function is available
+		if(!eval_) {
+			std::ostringstream error;
+			error << "In GFunctionIndividual::fitnessCalculation(): Error!" << std::endl
+				  << "No evaluation function is available." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
 
-		// Compile in DEBUG mode in order to check this conversion
-		boost::shared_ptr<GDoubleCollection> gdc_load = pc_at<GDoubleCollection>(0);
+		// Extract the GDoubleCollection object
+		boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
 
-		// Great - now we can do the actual calculations. We do this the fancy way ...
-		for(cit=gdc_load->begin(); cit!=gdc_load->end(); ++cit) 	result += std::pow(*cit, 2);
+		// Do the actual calculation
+		return eval_(x);
+	}
+
+	/********************************************************************************************/
+private:
+	/**
+	 * This function object gives access to the actual evaluation function
+	 */
+	boost::function<double(boost::shared_ptr<GDoubleCollection>)> eval_;
+
+	demoFunction demoFunction_; ///< Specifies which demo function should be used
+
+	/********************************************************************************************/
+	/**
+	 * A simple, multi-dimensional parabola
+	 *
+	 * @param x The input parameters for the function
+	 * @return The result of the calculation
+	 */
+	static double parabola(boost::shared_ptr<GDoubleCollection> x) {
+		double result = 0.;
+		GDoubleCollection::const_iterator cit;
+
+		for(cit=x->begin(); cit!=x->end(); ++cit) {
+			result += std::pow(*cit,2);
+		}
 
 		return result;
 	}
 
 	/********************************************************************************************/
+	/**
+	 * A "noisy" parabola, i.e. a parabola with a very large number of local optima
+	 *
+	 * @param x The input parameters for the function
+	 * @return The result of the calculation
+	 */
+	static double noisyParabola(boost::shared_ptr<GDoubleCollection> x) {
+		double result = 0.;
+		GDoubleCollection::const_iterator cit;
 
-private:
+		// Great - now we can do the actual calculations. We do this the fancy way ...
+		for(cit=x->begin(); cit!=x->end(); ++cit){
+			double xsquared = std::pow(*cit, 2);
+			result += (cos(xsquared) + 2)*xsquared;
+		}
 
-	boost::function<double(const std::vector<double>&)> eval_;
+		return result;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * The generalized Rosenbrock function (see e.g. http://en.wikipedia.org/wiki/Rosenbrock_function)
+	 *
+	 * @param x The input parameters for the function
+	 * @return The result of the calculation
+	 */
+	static double rosenbrock(boost::shared_ptr<GDoubleCollection> x) {
+		std::size_t parameterSize = x->size();
+		double result = 0.;
+
+		// Check the size of the parameter vector -- must be at least 2
+		if(parameterSize < 2) {
+			std::ostringstream error;
+			error << "In GFunctionIndividual::rosenbrock(): Error!" << std::endl
+				  << "Need to use at least two input dimensions, but got " << parameterSize < std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		for(std::size_t i=0; i<(parameterSize-1); i++) {
+			double firstTerm = pow(1.-x->at(i),2.);
+			double secondTerm = 100.*pow(x->at(i+1)-pow(x->at(i), 2.),2.);
+			result += firstTerm + secondTerm;
+		}
+
+		return result;
+	}
+
+	/********************************************************************************************/
 };
+
 
 } /* namespace GenEvA */
 } /* namespace Gem */
