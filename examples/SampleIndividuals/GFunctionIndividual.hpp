@@ -114,7 +114,8 @@ public:
 	 * The default constructor.
 	 */
 	GFunctionIndividual():
-		demoFunction_(PARABOLA)
+		demoFunction_(PARABOLA),
+		eval_(&GFunctionIndividual::parabola)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -212,6 +213,8 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
 		const GFunctionIndividual *gpi_load = GObject::conversion_cast(&cp,  this);
 
@@ -219,7 +222,7 @@ public:
 		if(!GParameterSet::isEqualTo(*gpi_load, expected)) return false;
 
 		// Check local data
-		if(checkForInequality("GFunctionIndividual", demoFunction_, gbp_load->demoFunction_,"demoFunction_", "gbp_load->demoFunction_", expected)) return false;
+		if(checkForInequality("GFunctionIndividual", demoFunction_, gpi_load->demoFunction_,"demoFunction_", "gpi_load->demoFunction_", expected)) return false;
 
 		return true;
 	}
@@ -234,6 +237,8 @@ public:
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
 	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
+		using namespace Gem::Util;
+
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
 		const GFunctionIndividual *gpi_load = GObject::conversion_cast(&cp,  this);
 
@@ -241,7 +246,7 @@ public:
 		if(!GParameterSet::isSimilarTo(*gpi_load, limit, expected)) return false;
 
 		// Check our local data
-		if(checkForDissimilarity("GFunctionIndividual", demoFunction_, gbp_load->demoFunction_, limit, "demoFunction_", "gbp_load->demoFunction_", expected)) return false;
+		if(checkForDissimilarity("GFunctionIndividual", demoFunction_, gpi_load->demoFunction_, limit, "demoFunction_", "gpi_load->demoFunction_", expected)) return false;
 
 		return true;
 	}
@@ -366,7 +371,7 @@ private:
 		if(parameterSize < 2) {
 			std::ostringstream error;
 			error << "In GFunctionIndividual::rosenbrock(): Error!" << std::endl
-				  << "Need to use at least two input dimensions, but got " << parameterSize < std::endl;
+				  << "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 

@@ -33,8 +33,8 @@
 #include "GBoostThreadPopulation.hpp"
 
 // The individual that should be optimized
-// This is a simple parabola
-#include "GParabolaIndividual.hpp"
+// This is a collection of different mathematical functions
+#include "GFunctionIndividual.hpp"
 
 // Declares a function to parse the command line
 #include "GCommandLineParser.hpp"
@@ -44,10 +44,9 @@ using namespace Gem::Util;
 
 /************************************************************************************************/
 /**
- * The main function. We search for the minimum of a parabola. This example demonstrates the use
- * of the GBasePopulation class or (at your choice) of the GBoostThreadPopulation class. Note that
- * a number of command line options are available. Call the executable with the "-h" switch
- * to get an overview.
+ * The main function. We search for the minimum of a mathematical function. This example demonstrates
+ * the use of the GBasePopulation class or (at your choice) of the GBoostThreadPopulation class. Note that
+ * a number of command line options are available. Call the executable with the "-h" switch to get an overview.
  */
 
 int main(int argc, char **argv){
@@ -99,8 +98,8 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setArraySize(arraySize);
 
 
-	// Set up a single parabola individual
-	boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual());
+	// Set up a single function individual
+	boost::shared_ptr<GFunctionIndividual> functionIndividual(new GFunctionIndividual());
 
 	// Set up a GDoubleCollection with parabolaDimension values, each initialized
 	// with a random number in the range [min,max[
@@ -119,14 +118,14 @@ int main(int argc, char **argv){
 	gdc_ptr->addAdaptor(gdga_ptr);
 
 	// Make the parameter collection known to this individual
-	parabolaIndividual->push_back(gdc_ptr);
+	functionIndividual->push_back(gdc_ptr);
 
 	if(parallel) {
 	  // Now we've got our first individual and can create a simple population with parallel execution.
 	  GBoostThreadPopulation pop_par;
-	  pop_par.setNThreads(10);
+	  pop_par.setNThreads(0); // The number of threads are chosen according to the number of processors
 
-	  pop_par.push_back(parabolaIndividual);
+	  pop_par.push_back(functionIndividual);
 
 	  // Specify some population settings
 	  pop_par.setPopulationSize(populationSize,nParents);
@@ -152,7 +151,7 @@ int main(int argc, char **argv){
 	  // Now we've got our first individual and can create a simple population with serial execution.
 	  GBasePopulation pop_ser;
 
-	  pop_ser.push_back(parabolaIndividual);
+	  pop_ser.push_back(functionIndividual);
 
 	  // Specify some population settings
 	  pop_ser.setPopulationSize(populationSize,nParents);

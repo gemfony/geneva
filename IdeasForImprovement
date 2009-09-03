@@ -82,8 +82,8 @@
   providing an interface to setting certain crucial parameters. Can use a map<boost::int32_t, boost::function<std::string ()> > for
   the mapping between commands and local functions.
 - Hide the core-Geneva headers in a single header for easier usage
-- Add the Rosenbrock function as a performance check (see http://en.wikipedia.org/wiki/Rosenbrock_function)
 - Create a "dlopen individual", capable of loading external libraries for the evaluation step
+- Check boost::optional for return values and indicating valid return values
 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
