@@ -40,21 +40,12 @@
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
+#include "GFunctionIndividualDefines.hpp"
 
 namespace Gem
 {
 namespace GenEvA
 {
-
-/************************************************************************************************/
-/**
- * This enum denotes the possible demo function types
- */
-enum demoFunction {
-					PARABOLA=1,
-					NOISYPARABOLA=2,
-					ROSENBROCK=3
-};
 
 /************************************************************************************************/
 /**

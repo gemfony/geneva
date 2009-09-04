@@ -51,9 +51,11 @@ bool parseCommandLine(int argc, char **argv,
 					  std::size_t& arraySize,
 					  bool& productionPlace,
 					  double& mutProb,
+					  demoFunction& df,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme=0;
+	boost::uint16_t evalFunction=0;
 
 	try{
 		// Check the command line options. Uses the Boost program options library.
@@ -98,6 +100,8 @@ bool parseCommandLine(int argc, char **argv,
             		"Whether production of random numbers in individuals should happen locally (0) or in the random number factory (1)")
             ("mutProb", po::value<double>(&mutProb)->default_value(DEFAULTGDAMUTPROB),
             		"Specifies the likelihood for mutations to be actually carried out")
+            ("evalFunction", po::value<boost::uint16_t>(&evalFunction),
+            		"The id of the evaluation function. Allowed values: 0 (parabola), 1 (noisy parabola), 2 (rosenbrock)")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")
 		;
@@ -142,6 +146,14 @@ bool parseCommandLine(int argc, char **argv,
 			return false;
 		}
 
+		if(evalFunction == (boost::uint16_t)PARABOLA) df=PARABOLA;
+		else if(evalFunction == (boost::uint16_t)NOISYPARABOLA) df=NOISYPARABOLA;
+		else if(evalFunction == (boost::uint16_t)ROSENBROCK) df=ROSENBROCK;
+		else {
+			std::cout << "Error: Invalid evaluation function: " << evalFunction << std::endl;
+			return false;
+		}
+
 		if(verbose){
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
@@ -162,6 +174,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "arraySize = " << arraySize << std::endl
 					  << "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
 					  << "mutProb = " << mutProb << std::endl
+					  << "evalFunction = " << (boost::uint16_t)evalFunction << std::endl
 					  << std::endl;
 		}
 	}

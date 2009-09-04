@@ -68,6 +68,7 @@ int main(int argc, char **argv){
 	 std::size_t arraySize;
 	 bool productionPlace;
 	 double mutProb;
+	 demoFunction df;
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
@@ -90,6 +91,7 @@ int main(int argc, char **argv){
 						 arraySize,
 						 productionPlace,
 						 mutProb,
+						 df,
 						 verbose))
 	{ exit(1); }
 
@@ -100,6 +102,9 @@ int main(int argc, char **argv){
 
 	// Set up a single function individual
 	boost::shared_ptr<GFunctionIndividual> functionIndividual(new GFunctionIndividual());
+
+	// Choose the demo function
+	functionIndividual->setDemoFunction(df);
 
 	// Set up a GDoubleCollection with parabolaDimension values, each initialized
 	// with a random number in the range [min,max[

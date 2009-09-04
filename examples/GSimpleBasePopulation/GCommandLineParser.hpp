@@ -48,6 +48,7 @@
 // GenEvA headers go here
 #include "GEnums.hpp"
 #include "GSerializationHelperFunctions.hpp"
+#include "GFunctionIndividualDefines.hpp"
 
 namespace Gem
 {
@@ -99,7 +100,7 @@ bool parseCommandLine(int argc, char **argv,
 					  std::size_t& arraySize,
 					  bool& productionPlace,
 					  double& mutProb,
-
+					  demoFunction& df,
 					  bool& verbose);
 
 } /* namespace GenEvA */

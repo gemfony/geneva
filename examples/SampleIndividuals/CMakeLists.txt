@@ -4,6 +4,7 @@ SET ( SAMPLEINDIVIDUALSINCLUDES
 	GBoundedParabolaIndividual.hpp
 	GExternalEvaluator.hpp
 	GFunctionIndividual.hpp
+	GFunctionIndividualDefines.hpp
 	GNeuralNetworkIndividual.hpp
 	GNoisyParabolaIndividual.hpp
 	GParabolaIndividual.hpp
