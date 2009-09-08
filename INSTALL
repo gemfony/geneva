@@ -44,11 +44,11 @@ installed it in a non-standard location. In order for CMake to find this directo
 you can either edit the top-level CMakeLists.txt file and hard-code the paths
 (uncomment the appropriate entries there), or provide the necessary variables at
 the command line when calling cmake. This can be done in the following way
-(assuming that Boost is installed in /opt/boost138):
+(assuming that Boost is installed in /opt/boost140):
 
-cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost138"\
-                              -DBOOST_INCLUDEDIR="/opt/boost138/include/boost-1_38/"\
-                              -DBOOST_LIBRARYDIR="/opt/boost138/lib"
+cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost140"\
+                              -DBOOST_INCLUDEDIR="/opt/boost140/include/boost-1_40/"\
+                              -DBOOST_LIBRARYDIR="/opt/boost140/lib"
 
 Adding another define -DCMAKE_BUILD_TYPE="Release" or -DCMAKE_BUILD_TYPE="Debug"
 switches between Release (default) and Debug builds.
@@ -84,14 +84,14 @@ Appendix: Compiling Boost
 ==========================
 
 Download Boost from http://www.boost.org and extract the compressed file. This will create a
-folder "boost_1_38_0", for instance. Change to that folder and, assuming Boost should be
-installed in /opt/boost138 (which should be writable), execute
+folder "boost_1_40_0", for instance. Change to that folder and, assuming Boost should be
+installed in /opt/boost140 (which should be writable), execute
 
-./configure --with-libraries=date_time,system,thread,serialization,program_options,filesystem,test \
-            --prefix=/opt/boost138
+./bootstrap.sh --with-libraries=date_time,filesystem,program_options,regex,serialization,system,thread,test \
+               --prefix=/opt/boost140
 make install
 
-Once done you can use the Boost include path as explained above, with BOOST_ROOT="/opt/boost138".
+Once done you can use the Boost include path as explained above, with BOOST_ROOT="/opt/boost140".
 
 
 Appendix: Known bugs and (possibly) fixes on some platforms
