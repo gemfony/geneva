@@ -1,9 +1,11 @@
+//------------------------------------------------------------------------------------------------------
 * Version 0.6.1, name not yet clear, yet unreleased
 
 The main changes for this release include:
  - Gave the GAsioTCPConsumer the ability to automatically determine the number of listener threads.
    Should improve scalability of the server on systems with many cores. 
 
+//------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009
 
 The main changes for this release include: 
@@ -29,6 +31,7 @@ The main changes for this release include:
    in GBoostThreadPopulation (set the number of threads to 0 using 
    GBoostThreadPopulation::setNThreads() to use this feature).
 
+//------------------------------------------------------------------------------------------------------
 * Version 0.5.3, "Building 39" - July 6, 2009
 
 The main changes for this release include:
@@ -64,6 +67,7 @@ The main changes for this release include:
  - Improved the check-pointing infrastructure (toFile/fromFile) in GObject
  - Added ability to GBasePopulation to checkpoint the nParents' best individuals in regular intervals
 
+//------------------------------------------------------------------------------------------------------
 * Version 0.5.2 "Building 38" - April 20, 2009
 
 The main changes for this release include:
@@ -74,6 +78,7 @@ The main changes for this release include:
  - Made vector-wrapper more complete and derived classes with vector
    interface from a common vector wrapper base class.
 
+//------------------------------------------------------------------------------------------------------
 * Version 0.5.1 "Ferney-Voltaire" - March 20, 2009
 
 Again a long list of changes, too long to mention here. Check the SVN
@@ -87,11 +92,13 @@ started to integrate the Boost.Test suite of unit testing tools. We will
 aim at listing major changes in the code here in the future, as they 
 occur.
 
+//------------------------------------------------------------------------------------------------------
 * Version 0.5 "Meyrin" - September 15, 2008
 
 Complete revision of the entire project. Also moved from GNU autotools 
 to CMake. Directory structure of SVN repository has been revised.
 
+//------------------------------------------------------------------------------------------------------
 * Version 0.4 "CERN-barracks" - July 7, 2008
 
 Initial public release
