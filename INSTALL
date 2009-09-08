@@ -89,7 +89,7 @@ installed in /opt/boost140 (which should be writable), execute
 
 ./bootstrap.sh --with-libraries=date_time,filesystem,program_options,regex,serialization,system,thread,test \
                --prefix=/opt/boost140
-make install
+./bjam install
 
 Once done you can use the Boost include path as explained above, with BOOST_ROOT="/opt/boost140".
 
