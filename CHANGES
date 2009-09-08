@@ -1,7 +1,8 @@
 * Version 0.6.1, name not yet clear, yet unreleased
 
 The main changes for this release include:
- - 
+ - Gave the GAsioTCPConsumer the ability to automatically determine the number of listener threads.
+   Should improve scalability of the server on systems with many cores. 
 
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009
 

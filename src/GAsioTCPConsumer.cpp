@@ -288,17 +288,26 @@ bool GAsioServerSession::submit(const std::string& item, const std::string& comm
 /**
  * Standard constructor. Initializes the acceptor with ioservice and port.
  * It would be good to use boost::uint8_t here, however endpoint uses
- * unsigned short, so we stick with this convention.
+ * unsigned short, so we stick with this convention. The number of threads will
+ * be initialized with the number of processor cores, if listenerThreads is
+ * set to 0.
  *
  * @param port The port through which clients can access the server
+ * @param initialThreads The number of threads used to listen for incoming connections
  */
-GAsioTCPConsumer::GAsioTCPConsumer(const unsigned short& port)
+GAsioTCPConsumer::GAsioTCPConsumer(const unsigned short& port, const std::size_t& listenerThreads)
 	:GConsumer(),
 	 work_(new boost::asio::io_service::work(io_service_)),
 	 acceptor_(work_->get_io_service(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
-	 tp_(GASIOTCPCONSUMERTHREADS),
+	 listenerThreads_(listenerThreads>0?listenerThreads:boost::thread::hardware_concurrency()),
+	 tp_(listenerThreads_),
 	 serializationMode_(TEXTSERIALIZATION)
 {
+	if(listenerThreads_ == 0) { // boost::thread::hardware_concurrency() has returned 0. Needs to be corrected.
+		listenerThreads_ = GASIOTCPCONSUMERTHREADS;
+		tp_.size_controller().resize(listenerThreads_);
+	}
+
 	// Start the actual processing. All real work is done in the GAsioServerSession class .
 	boost::shared_ptr<GAsioServerSession> newSession(new GAsioServerSession(work_->get_io_service() ,serializationMode_));
 	acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumer::handleAccept, this, newSession, _1));

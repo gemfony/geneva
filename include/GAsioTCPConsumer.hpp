@@ -132,7 +132,7 @@ class GAsioTCPConsumer
 {
 public:
 	/** @brief The standard constructor */
-	GAsioTCPConsumer(const unsigned short&);
+	GAsioTCPConsumer(const unsigned short&, const std::size_t& listenerThreads=0);
 	/** @brief A standard destructor */
 	virtual ~GAsioTCPConsumer();
 
@@ -158,6 +158,8 @@ private:
 	boost::shared_ptr<boost::asio::io_service::work> work_;
 
 	boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
+
+	std::size_t listenerThreads_; /// The number of threads used to listen for incoming connections
 
 	boost::threadpool::pool tp_; ///< A simple threadpool, see http://threadpoo.sf.net
 
