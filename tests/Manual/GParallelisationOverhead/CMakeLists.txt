@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GBoundedParabola)
+SET (EXECUTABLENAME GParallelisationOverhead)
 
 SET (${EXECUTABLENAME}_SRCS 
-	GBoundedParabola
+	GParallelisationOverhead
 	GCommandLineParser
 )
 
