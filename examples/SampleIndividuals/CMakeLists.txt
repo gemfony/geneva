@@ -2,6 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( SAMPLEINDIVIDUALSINCLUDES
 	GBoundedParabolaIndividual.hpp
+	GDelayIndividual.hpp
 	GExternalEvaluator.hpp
 	GFunctionIndividual.hpp
 	GFunctionIndividualDefines.hpp

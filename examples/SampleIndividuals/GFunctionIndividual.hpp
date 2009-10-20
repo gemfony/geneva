@@ -112,6 +112,8 @@ public:
 	/********************************************************************************************/
 	/**
 	 * A standard copy constructor
+	 *
+	 * @param cp A copy of another GFunctionIndidivual
 	 */
 	GFunctionIndividual(const GFunctionIndividual& cp)
 		:GParameterSet(cp),
@@ -141,6 +143,8 @@ public:
 	/********************************************************************************************/
 	/**
 	 * A standard assignment operator
+	 *
+ 	 * @param cp A copy of another GFunctionIndividual
 	 */
 	const GFunctionIndividual& operator=(const GFunctionIndividual& cp){
 		GFunctionIndividual::load(&cp);
@@ -166,10 +170,10 @@ public:
 	virtual void load(const GObject* cp){
 		const GFunctionIndividual *gfi_load = conversion_cast(cp, this);
 
-		// We have no local data. Hence we can just pass the pointer to our parent class.
-		// Note that we'd have to use the GObject::conversion_cast() function otherwise.
+		// Load our parent class'es data ...
 		GParameterSet::load(cp);
 
+		// ... and then our own
 		this->setDemoFunction(gfi_load->demoFunction_);
 	}
 
@@ -197,8 +201,7 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Checks for equality with another GFunctionIndividual object.  If T is an object type,
-	 * then it must implement operator!= .
+	 * Checks for equality with another GFunctionIndividual object.
 	 *
 	 * @param  cp A constant reference to another GFunctionIndividual object
 	 * @return A boolean indicating whether both objects are equal
@@ -220,8 +223,7 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Checks for similarity with another GFunctionIndividual object.  As we do not know the
-	 * type of T, we need to create a specialization of this function for typeof(T)==double
+	 * Checks for similarity with another GFunctionIndividual object.
 	 *
 	 * @param  cp A constant reference to another GFunctionIndividual object
 	 * @param limit A double value specifying the acceptable level of differences of floating point values

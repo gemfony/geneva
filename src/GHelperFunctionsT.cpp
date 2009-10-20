@@ -182,7 +182,6 @@ bool checkForDissimilarity<std::map<std::string, std::string> >(const std::strin
  * @param className The name of the calling class
  * @param x The first parameter to be compared
  * @param y The second parameter to be compared
- * @param limit The acceptable deviation of x and y
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param expected Indicates whether we expect the condition to be true or false, or whether any reporting should be suppressed ("ignore")
@@ -265,6 +264,7 @@ bool checkForInequality<std::map<std::string, std::string> >(const std::string& 
  * @param className The name of the calling class
  * @param x The first parameter to be compared
  * @param y The second parameter to be compared
+ * @param limit The acceptable deviation of x and y
  * @param x_name The name of the first parameter
  * @param y_name The name of the second parameter
  * @param expected Indicates whether we expect the condition to be true or false, or whether any reporting should be suppressed ("ignore")
@@ -325,6 +325,133 @@ bool checkForDissimilarity<double>(const std::string& className,
 		}
 
 		result=true;
+	}
+
+	if(raiseAlarm) {
+		std::cerr << error.str();
+	}
+
+	return result;
+}
+
+/**************************************************************************************************/
+/**
+ * Checks for inequality of the two arguments.
+ * Specialization for typeof(basic_type) == typeof(boost::posix_time::time_duration).
+ *
+ * expected == true means: An inequality is expected, emit a message if nevertheless an equality was found
+ * expected == boost::logic::indeterminate means: do not emit any messages
+ * expected == false means: No inequality is expected, emit a message, if nevertheless an inequality was found
+ *
+ * @param className The name of the calling class
+ * @param x The first parameter to be compared
+ * @param y The second parameter to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param expected Indicates whether we expect the condition to be true or false, or whether any reporting should be suppressed ("ignore")
+ * @return A boolean indicating whether any differences were found
+ */
+template <>
+bool checkForInequality<boost::date_time::time_duration>(const std::string& className,
+							                             const boost::date_time::time_duration& x,
+							                             const boost::date_time::time_duration& y,
+							                             const std::string& x_name,
+							                             const std::string& y_name,
+							                             const boost::logic::tribool& expected)
+{
+	bool raiseAlarm = false;
+	bool result = false;
+	std::ostringstream error;
+
+	if(x==y) {
+		if(expected == true) {
+			raiseAlarm = true; // expected the result to be "inequal"
+
+			error << "//-----------------------------------------------------------------" << std::endl
+				  << "Found the following value(s) in inequality check of object of type \"" << className << "\":" << std::endl
+				  << x_name << " (type boost::date_time::time_duration) = " << x << std::endl
+				  << y_name << " (type boost::date_time::time_duration) = " << y << std::endl
+				  << "when inequality was expected" << std::endl;
+		}
+
+		result = false;
+	}
+	else {
+		if(expected==false) {
+			raiseAlarm = true; // expected the result to be "equal"
+
+			error << "//-----------------------------------------------------------------" << std::endl
+				      << "Found the following value(s) in inequality check of object of type \"" << className << "\":" << std::endl
+				      << x_name << " (type boost::date_time::time_duration) = " << x << std::endl
+				      << y_name << " (type boost::date_time::time_duration) = " << y << std::endl
+				      << "when equality was expected" << std::endl;
+		}
+		result = true;
+	}
+
+	if(raiseAlarm) {
+		std::cerr << error.str();
+	}
+
+	return result;
+}
+
+/**************************************************************************************************/
+/**
+ * Checks for dissimilarity of the two arguments, which are assumed to be of type boost::posix_time::time_duration.
+ * This is needed by the isSimilarTo function, so we have a standardized way of emitting information
+ * on deviations.
+ *
+ * expected == true means: An inequality is expected, emit a message if nevertheless an equality was found
+ * expected == boost::logic::indeterminate means: do not emit any messages
+ * expected == false means: No inequality is expected, emit a message, if nevertheless an inequality was found
+ *
+ * @param className The name of the calling class
+ * @param x The first parameter to be compared
+ * @param y The second parameter to be compared
+ * @param limit The acceptable deviation of x and y
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param expected Indicates whether we expect the condition to be true or false, or whether any reporting should be suppressed ("ignore")
+ * @return A boolean indicating whether any differences were found
+ */
+template <>
+bool checkForDissimilarity<boost::date_time::time_duration>(const std::string& className,
+														     const boost::date_time::time_duration& x,
+														     const boost::date_time::time_duration& y,
+														     const double& limit,
+														     const std::string& x_name,
+														     const std::string& y_name,
+														     const boost::logic::tribool& expected)
+{
+	bool raiseAlarm = false;
+	bool result = false;
+	std::ostringstream error;
+
+	if(x==y) {
+		if(expected == true) {
+			raiseAlarm = true; // expected the result to be "inequal"
+
+			error << "//-----------------------------------------------------------------" << std::endl
+				      << "Found the following value(s) in dissimilarity check of object of type \"" << className << "\":" << std::endl
+				      << x_name << " (type boost::date_time::time_duration) = " << x << std::endl
+				      << y_name << " (type boost::date_time::time_duration) = " << y << std::endl
+				      << "when dissimilarity was expected" << std::endl;
+		}
+
+		result = false;
+	}
+	else {
+		if(expected==false) {
+			raiseAlarm = true; // expected the result to be "equal"
+
+			error << "//-----------------------------------------------------------------" << std::endl
+				      << "Found the following value(s) in dissimilarity check of object of type \"" << className << "\":" << std::endl
+				      << x_name << " (type boost::date_time::time_duration) = " << x << std::endl
+				      << y_name << " (type boost::date_time::time_duration) = " << y << std::endl
+				      << "when no dissimilarity was expected" << std::endl;
+		}
+		result = true;
 	}
 
 	if(raiseAlarm) {
