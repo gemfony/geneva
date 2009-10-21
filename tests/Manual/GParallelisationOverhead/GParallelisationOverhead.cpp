@@ -188,6 +188,7 @@ int main(int argc, char **argv){
 
 	result
 	<< "{" << std::endl
+	<< "  gStyle->SetOptTitle(0);" << std::endl
 	<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,600);" << std::endl
 	<< std::endl
 	<< "  std::vector<double> sleepTime; // The amount of time each individual sleeps" << std::endl
@@ -314,8 +315,8 @@ int main(int argc, char **argv){
 
 		// Output the results
 		result << "  // Iteration " << iter << ":" << std::endl
-			   << "  sleepTime.push_back(" << sleepTime.total_milliseconds() << ");" << std::endl
-			   << "  averageProcessingTime.push_back(" << double(duration.total_milliseconds())/double(maxGenerations+1) <<");" << std::endl;
+			   << "  sleepTime.push_back(" << sleepTime.total_milliseconds() << "/1000.);" << std::endl
+			   << "  averageProcessingTime.push_back(" << double(duration.total_milliseconds())/double(maxGenerations+1) <<"/1000.);" << std::endl;
 
 		//--------------------------------------------------------------------------------------------
 	}
@@ -337,7 +338,11 @@ int main(int argc, char **argv){
 	       << "  // Creation of TGraph objects and data transfer into the objects" << std::endl
 	       << "  TGraph *evGraph = new TGraph(" << nMeasurements << ", sleepTimeArr, averageProcessingTimeArr);" << std::endl
 	       << std::endl
-	       << "  evGraph->Draw(\"AP\");" << std::endl
+	       << "  evGraph->SetMarkerStyle(2);" << std::endl
+	       << "  evGraph->SetMarkerSize(1.0);" << std::endl
+	       << "  evGraph->Draw(\"ACP\");" << std::endl
+	       << "  evGraph->GetXaxis()->SetTitle(\"Evaluation time/individual [s]\");" << std::endl
+	       << "  evGraph->GetYaxis()->SetTitle(\"Average processing time/generation [s]\");" << std::endl
 	       << "}" << std::endl;
 
 	 // Close the result file
