@@ -59,6 +59,8 @@ using namespace Gem::Util;
  * The main function. We try to measure the overhead incurred through the parallelisation.
  */
 int main(int argc, char **argv){
+	bool firstConsumer = true; // Controls the start of consumers
+
 	std::string configFile;
 	boost::uint16_t parallelizationMode;
 	bool serverMode;
@@ -231,17 +233,21 @@ int main(int argc, char **argv){
 		//-----------------------------------------------------------------------------------------------------
 		case 2: // Networked execution (server-side)
 		{
-			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
-			GINDIVIDUALBROKER->enrol(gatc);
+			if(firstConsumer) {
+				// Create a network consumer and enrol it with the broker
+				boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+				GINDIVIDUALBROKER->enrol(gatc);
 
-			// Create a local thread consumer and enrol it with the broker,
-			// if local execution has been requested. Stable ? Observed one crash
-			// that is possibly related to this
-			if(nBoostThreadConsumerThreads) {
-				boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
-				gbtc->setMaxThreads(nBoostThreadConsumerThreads);
-				GINDIVIDUALBROKER->enrol(gbtc);
+				// Create a local thread consumer and enrol it with the broker,
+				// if local execution has been requested. Stable ? Observed one crash
+				// that is possibly related to this
+				if(nBoostThreadConsumerThreads) {
+					boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
+					gbtc->setMaxThreads(nBoostThreadConsumerThreads);
+					GINDIVIDUALBROKER->enrol(gbtc);
+				}
+
+				firstConsumer = false;
 			}
 
 			// Create the actual broker population
