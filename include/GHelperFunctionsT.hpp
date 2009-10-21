@@ -591,9 +591,6 @@ template <> bool checkForInequality<std::map<std::string, std::string> >(const s
 template <> bool checkForDissimilarity<std::map<std::string, std::string> >(const std::string&, const std::map<std::string, std::string>&, const std::map<std::string, std::string>&, const double&, const std::string&, const std::string&, const boost::logic::tribool& expected);
 template <> bool checkForDissimilarity<double>(const std::string&, const double&,	const double&, const double&, const std::string&, const std::string&, const boost::logic::tribool& expected);
 template <> bool checkForDissimilarity<double>(const std::string&,  const std::vector<double>&,  const std::vector<double>&,  const double&,  const std::string&, const std::string&, const boost::logic::tribool& expected);
-template <> bool checkForInequality<boost::date_time::time_duration>(const std::string&, const boost::date_time::time_duration&,	const boost::date_time::time_duration&, const std::string&, const std::string&, const boost::logic::tribool& expected);
-template <> bool checkForDissimilarity<boost::date_time::time_duration>(const std::string&, const boost::date_time::time_duration&, const boost::date_time::time_duration&, const double&, const std::string&, const std::string&, const boost::logic::tribool& expected);
-
 
 } /* namespace Util */
 } /* namespace Gem */
