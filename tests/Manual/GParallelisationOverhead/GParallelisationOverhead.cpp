@@ -103,11 +103,8 @@ int main(int argc, char **argv){
 	if(parallelizationMode==2 && !serverMode) {
 		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip, boost::lexical_cast<std::string>(port)));
 
-		// Set the maximum number of stalls and failed connection attempts to a relatively high value
-		// As a consequence, clients might wait for up to 100 seconds for a successful connection before
-		// terminating
-		p->setMaxStalls(100);
-		p->setMaxConnectionAttempts(100);
+		p->setMaxStalls(0); // Loop indefinitely when receiving no work items
+		p->setMaxConnectionAttempts(200); // Try up to 200 times to connect to the server before terminating
 
 		// Return results even if no better results were found
 		p->returnResultIfUnsuccessful(true);
