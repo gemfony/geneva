@@ -337,7 +337,7 @@ int main(int argc, char **argv){
 	       << "  // Creation of TGraph objects and data transfer into the objects" << std::endl
 	       << "  TGraph *evGraph = new TGraph(" << nMeasurements << ", sleepTimeArr, averageProcessingTimeArr);" << std::endl
 	       << std::endl
-	       << "  evGraph->Draw();" << std::endl
+	       << "  evGraph->Draw(\"AP\");" << std::endl
 	       << "}" << std::endl;
 
 	 // Close the result file
