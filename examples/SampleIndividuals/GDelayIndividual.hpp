@@ -29,6 +29,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/date_time.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
+#include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/thread.hpp>
 
 #ifndef GDELAYINDIVIDUAL_HPP_

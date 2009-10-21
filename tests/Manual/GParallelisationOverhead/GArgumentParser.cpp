@@ -186,11 +186,6 @@ bool parseConfigFile(const std::string& configFile,
 
 		if(waitFactor == 0) waitFactor = DEFAULTGBTCWAITFACTOR;
 
-		if(sleepSeconds < 0 || sleepMilliSeconds < 0) {
-			std::cout << "Error: invalid sleep time:" << sleepSeconds << " " << sleepMilliSeconds << std::endl;
-			return false;
-		}
-
 		if(verbose){
 			std::cout << std::endl
 					<< "Running with the following options from " << configFile << ":" << std::endl
@@ -201,8 +196,7 @@ bool parseConfigFile(const std::string& configFile,
 					<< "processingCycles = " << processingCycles << std::endl
 					<< "nBoostThreadConsumerThreads = " << nBoostThreadConsumerThreads << std::endl
 					<< "waitFactor = " << waitFactor << std::endl
-					<< "sleepSeconds = " << sleepSeconds << std::endl
-					<< "sleepMilliSeconds = " << sleepMilliSeconds << std::endl
+					<< "nVariables = " << nVariables << std::endl
 					<< std::endl;
 		}
 	}

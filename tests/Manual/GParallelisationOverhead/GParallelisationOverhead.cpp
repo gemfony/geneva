@@ -31,6 +31,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 // GenEvA header files go here
 #include "GRandom.hpp"
@@ -42,6 +43,7 @@
 #include "GAsioTCPClient.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GBoostThreadConsumer.hpp"
+#include "GBoundedDoubleCollection.hpp"
 
 // The individual that should be optimized
 #include "GDelayIndividual.hpp"
@@ -117,55 +119,55 @@ int main(int argc, char **argv){
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Set up the sleeping times
-	vector<long> sleepSeconds, sleepMilliSeconds;
+	std::vector<long> sleepSeconds, sleepMilliSeconds;
 
 	// 0.01 s
-	sleepSeconds,push_back(0);
+	sleepSeconds.push_back(0);
 	sleepMilliSeconds.push_back(10);
 	// 0.1 s
-	sleepSeconds,push_back(0);
+	sleepSeconds.push_back(0);
 	sleepMilliSeconds.push_back(100);
 	// 0.5 s
-	sleepSeconds,push_back(0);
+	sleepSeconds.push_back(0);
 	sleepMilliSeconds.push_back(500);
 	// 1 s
-	sleepSeconds,push_back(1);
+	sleepSeconds.push_back(1);
 	sleepMilliSeconds.push_back(0);
 	// 2 s
-	sleepSeconds,push_back(2);
+	sleepSeconds.push_back(2);
 	sleepMilliSeconds.push_back(0);
 	// 3 s
-	sleepSeconds,push_back(3);
+	sleepSeconds.push_back(3);
 	sleepMilliSeconds.push_back(0);
 	// 4 s
-	sleepSeconds,push_back(4);
+	sleepSeconds.push_back(4);
 	sleepMilliSeconds.push_back(0);
 	// 5 s
-	sleepSeconds,push_back(5);
+	sleepSeconds.push_back(5);
 	sleepMilliSeconds.push_back(0);
 	// 6 s
-	sleepSeconds,push_back(6);
+	sleepSeconds.push_back(6);
 	sleepMilliSeconds.push_back(0);
 	// 7 s
-	sleepSeconds,push_back(7);
+	sleepSeconds.push_back(7);
 	sleepMilliSeconds.push_back(0);
 	// 8 s
-	sleepSeconds,push_back(8);
+	sleepSeconds.push_back(8);
 	sleepMilliSeconds.push_back(0);
 	// 9 s
-	sleepSeconds,push_back(9);
+	sleepSeconds.push_back(9);
 	sleepMilliSeconds.push_back(0);
 	// 10 s
-	sleepSeconds,push_back(10);
+	sleepSeconds.push_back(10);
 	sleepMilliSeconds.push_back(0);
 	// 60 s
-	sleepSeconds,push_back(60);
+	sleepSeconds.push_back(60);
 	sleepMilliSeconds.push_back(0);
 	// 120 s
-	sleepSeconds,push_back(120);
+	sleepSeconds.push_back(120);
 	sleepMilliSeconds.push_back(0);
 	// 240 s
-	sleepSeconds,push_back(240);
+	sleepSeconds.push_back(240);
 	sleepMilliSeconds.push_back(0);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -304,16 +306,16 @@ int main(int argc, char **argv){
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Do the actual optimization and measure the time
-		boost::posix_time::ptime startTime = boost::poxix_time::microsec_clock::local_time();
+		boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
 		pop_ptr->optimize(startGeneration);
-		boost::posix_time::ptime endTime = boost::poxix_time::microsec_clock::local_time();
+		boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
 
 		boost::posix_time::time_duration duration = endTime - startTime;
 
 		// Output the results
 		result << "  // Iteration " << iter << ":" << std::endl
 			   << "  sleepTime.push_back(" << sleepTime.total_milliseconds() << ");" << std::endl
-			   << "  averageProcessingTime.push_back(" << double(duration.total_milliseconds())/double(maxGenerations) <<");" << std::endl;
+			   << "  averageProcessingTime.push_back(" << double(duration.total_milliseconds())/double(maxGenerations+1) <<");" << std::endl;
 
 		//--------------------------------------------------------------------------------------------
 	}
