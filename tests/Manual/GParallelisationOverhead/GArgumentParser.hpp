@@ -1,11 +1,11 @@
 /**
- * @file GCommandLineParser.hpp
+ * @file GArgumentParser.hpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) 2009 Dr. Ruediger Berlich
  *
- * This file is part of the Geneva library.
+ * This file is part of the Geneva library,
+ * Gemfony scientific's optimization library,
  *
  * Geneva is free software: you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Affero General Public License
@@ -23,6 +23,7 @@
 // Standard headers go here
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -36,9 +37,10 @@
 #endif /* BOOST_VERSION */
 
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
-#ifndef GCOMMANDLINEPARSER_HPP_
-#define GCOMMANDLINEPARSER_HPP_
+#ifndef GARGUMENTPARSER_HPP_
+#define GARGUMENTPARSER_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -47,60 +49,52 @@
 
 // GenEvA headers go here
 #include "GEnums.hpp"
+#include "GSerializationHelperFunctions.hpp"
 
 namespace Gem
 {
 namespace GenEvA
 {
-
 // Default settings
-const std::size_t DEFAULTPARABOLADIMENSION=1000;
-const double DEFAULTPARABOLAMIN=-100.;
-const double DEFAULTPARABOLAMAX=100.;
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
 const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
 const std::size_t DEFAULTPOPULATIONSIZE=100;
 const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
 const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
-const long DEFAULTMAXMINUTES=10;
-const boost::uint32_t DEFAULTREPORTGENERATION=1;
-const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
-const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
 const bool DEFAULTPARALLELIZATIONMODE=1;
-const std::size_t DEFAULTARRAYSIZE=1000;
 const bool DEFAULTPRODUCTIONPLACE=true; // local production
 const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
+const std::string DEFAULTCONFIGFILE="./GParallelisationOverhead.cfg";
+const boost::int32_t DEFAULTCPINTERVAL=-1;
+const boost::uint32_t DEFAULTSTARTGENERATION=0;
+const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
+const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
+const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
+const std::size_t DEFAULTNVARIABLES=1000;
 
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
-					  std::size_t& parabolaDimension,
-					  double& parabolaMin,
-					  double& parabolaMax,
-					  boost::uint32_t& adaptionThreshold,
-					  boost::uint16_t& nProducerThreads,
-					  boost::uint16_t& nEvaluationThreads,
-					  std::size_t& populationSize,
-					  std::size_t& nParents,
-					  boost::uint32_t& maxGenerations,
-					  long& maxMinutes,
-					  boost::uint32_t& reportGeneration,
-					  recoScheme& rScheme,
-					  boost::uint16_t& parallelizationMode,
-					  bool& serverMode,
-					  std::string& ip,
-					  unsigned short& port,
-					  std::size_t& arraySize,
-					  bool& productionPlace,
-					  bool& useCommonAdaptor,
-					  double& sigma,
-					  double& sigmaSigma,
-					  double& minSigma,
-					  double& maxSigma,
-					  bool& verbose);
+		std::string& configFile,
+		boost::uint16_t& parallelizationMode,
+		bool& serverMode,
+		std::string& ip,
+		unsigned short& port,
+		boost::uint32_t& startGeneration);
+
+bool parseConfigFile(const std::string& configFile,
+		boost::uint16_t& nProducerThreads,
+		boost::uint16_t& nEvaluationThreads,
+		std::size_t& populationSize,
+		std::size_t& nParents,
+		boost::uint32_t& maxGenerations,
+		boost::uint32_t& processingCycles,
+		std::size_t& nBoostThreadConsumerThreads,
+		boost::uint32_t& waitFactor,
+		std::size_t& nVariables);
 
 } /* namespace GenEvA */
 } /* namespace Gem */

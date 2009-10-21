@@ -28,6 +28,7 @@
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
 #include <boost/date_time.hpp>
+#include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/thread.hpp>
 
 #ifndef GDELAYINDIVIDUAL_HPP_
@@ -204,6 +205,15 @@ public:
 	}
 
 protected:
+	/**********************************************************************************/
+	/**
+	 * The actual mutation operations. We want to avoid spending time on mutations, as
+	 * all we want to do is measure the overhead of the parallelization. We thus simply
+	 * provide an empty replacement for the default behavior.
+	 */
+	virtual void customMutations(){ /* nothing */ }
+
+
 	/********************************************************************************************/
 	/**
 	 * The actual fitness calculation takes place here.

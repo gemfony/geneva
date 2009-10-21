@@ -1,5 +1,5 @@
 /**
- * @file GBoundedParabola.cpp
+ * @file GParallelisationOverhead.cpp
  */
 
 /* Copyright (C) 2009 Dr. Ruediger Berlich
@@ -22,9 +22,15 @@
 // Standard header files go here
 #include <iostream>
 #include <cmath>
+#include <string>
+#include <fstream>
 #include <sstream>
 
+
 // Boost header files go here
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/date_time.hpp>
 
 // GenEvA header files go here
 #include "GRandom.hpp"
@@ -34,329 +40,306 @@
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"
+#include "GAsioHelperFunctions.hpp"
+#include "GBoostThreadConsumer.hpp"
 
 // The individual that should be optimized
-// This is a simple parabola
-#include "GBoundedParabolaIndividual.hpp"
+#include "GDelayIndividual.hpp"
 
 // Declares a function to parse the command line
-#include "GCommandLineParser.hpp"
+#include "GArgumentParser.hpp"
 
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
 
 /************************************************************************************************/
 /**
- * The main function. We search for the minimum of a parabola. This example demonstrates the use
- * of the GBasePopulation class or (at your choice) the GBoostThreadPopulation or GBrokerPopilation
- * class. Note that a number of command line options are available. Call the executable with the "-h"
- * switch to get an overview.
+ * The main function. We try to measure the overhead incurred through the parallelisation.
  */
-
 int main(int argc, char **argv){
-	// Variables for the command line parsing
-	std::size_t parabolaDimension;
-	std::size_t populationSize, nParents;
-	double parabolaMin, parabolaMax;
-	boost::uint16_t nProducerThreads;
-	boost::uint16_t nEvaluationThreads;
-	boost::uint32_t maxGenerations, reportGeneration;
-	boost::uint32_t adaptionThreshold;
-	long maxMinutes;
-	bool verbose;
-	recoScheme rScheme;
-	std::size_t arraySize;
-	bool productionPlace;
-	bool useCommonAdaptor;
-	double sigma;
-	double sigmaSigma;
-	double minSigma;
-	double maxSigma;
+	std::string configFile;
 	boost::uint16_t parallelizationMode;
 	bool serverMode;
 	std::string ip;
 	unsigned short port;
+	boost::uint16_t nProducerThreads;
+	boost::uint16_t nEvaluationThreads;
+	std::size_t nBoostThreadConsumerThreads;
+	std::size_t populationSize;
+	std::size_t nParents;
+	boost::uint32_t maxGenerations;
+	boost::uint32_t startGeneration;
+	boost::uint32_t processingCycles;
+	boost::uint32_t waitFactor;
+	std::size_t nVariables;
 
-	// Parse the command line
 	if(!parseCommandLine(argc, argv,
-		  			     parabolaDimension,
-						 parabolaMin,
-						 parabolaMax,
-						 adaptionThreshold,
-						 nProducerThreads,
-						 nEvaluationThreads,
-						 populationSize,
-						 nParents,
-						 maxGenerations,
-						 maxMinutes,
-						 reportGeneration,
-						 rScheme,
-						 parallelizationMode,
-						 serverMode,
-						 ip,
-						 port,
-						 arraySize,
-						 productionPlace,
-						 useCommonAdaptor,
-						 sigma,
-						 sigmaSigma,
-						 minSigma,
-						 maxSigma,
-						 verbose))
+			configFile,
+			parallelizationMode,
+			serverMode,
+			ip,
+			port,
+			startGeneration)
+			||
+		!parseConfigFile(configFile,
+			nProducerThreads,
+			nEvaluationThreads,
+			populationSize,
+			nParents,
+			maxGenerations,
+			processingCycles,
+			nBoostThreadConsumerThreads,
+			waitFactor,
+			nVariables))
 	{ exit(1); }
 
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
-	GRANDOMFACTORY->setArraySize(arraySize);
 
+	// If this is a client in networked mode, we can just start the listener
+	if(parallelizationMode==2 && !serverMode) {
+		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip, boost::lexical_cast<std::string>(port)));
+
+		// Set the maximum number of stalls and failed connection attempts to a relatively high value
+		// As a consequence, clients might wait for up to 100 seconds for a successful connection before
+		// terminating
+		p->setMaxStalls(100);
+		p->setMaxConnectionAttempts(100);
+
+		// Return results even if no better results were found
+		p->returnResultIfUnsuccessful(true);
+
+		// Start the client loop
+		p->run();
+
+		return 0;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Set up the sleeping times
+	vector<long> sleepSeconds, sleepMilliSeconds;
+
+	// 0.01 s
+	sleepSeconds,push_back(0);
+	sleepMilliSeconds.push_back(10);
+	// 0.1 s
+	sleepSeconds,push_back(0);
+	sleepMilliSeconds.push_back(100);
+	// 0.5 s
+	sleepSeconds,push_back(0);
+	sleepMilliSeconds.push_back(500);
+	// 1 s
+	sleepSeconds,push_back(1);
+	sleepMilliSeconds.push_back(0);
+	// 2 s
+	sleepSeconds,push_back(2);
+	sleepMilliSeconds.push_back(0);
+	// 3 s
+	sleepSeconds,push_back(3);
+	sleepMilliSeconds.push_back(0);
+	// 4 s
+	sleepSeconds,push_back(4);
+	sleepMilliSeconds.push_back(0);
+	// 5 s
+	sleepSeconds,push_back(5);
+	sleepMilliSeconds.push_back(0);
+	// 6 s
+	sleepSeconds,push_back(6);
+	sleepMilliSeconds.push_back(0);
+	// 7 s
+	sleepSeconds,push_back(7);
+	sleepMilliSeconds.push_back(0);
+	// 8 s
+	sleepSeconds,push_back(8);
+	sleepMilliSeconds.push_back(0);
+	// 9 s
+	sleepSeconds,push_back(9);
+	sleepMilliSeconds.push_back(0);
+	// 10 s
+	sleepSeconds,push_back(10);
+	sleepMilliSeconds.push_back(0);
+	// 60 s
+	sleepSeconds,push_back(60);
+	sleepMilliSeconds.push_back(0);
+	// 120 s
+	sleepSeconds,push_back(120);
+	sleepMilliSeconds.push_back(0);
+	// 240 s
+	sleepSeconds,push_back(240);
+	sleepMilliSeconds.push_back(0);
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Prepare the output file used to record the measurements
+	std::string resultFile;
 	switch (parallelizationMode) {
-	//-----------------------------------------------------------------------------------------------------
-	case 0: // Serial execution
-		{
-			// Set up a single parabola individual
-			boost::shared_ptr<GBoundedParabolaIndividual> parabolaIndividual(new GBoundedParabolaIndividual());
+	case 0:
+		resultFile = "resultSerial.C";
+		break;
+	case 1:
+		resultFile = "resultThread.C";
+		break;
+	case 2:
+		resultFile = "resultNetwork.C";
+		break;
+	}
+	std::ofstream result(resultFile.c_str());
 
-			// Set up a GBoundedDoubleCollection
+	result
+	<< "{" << std::endl
+	<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,600);" << std::endl
+	<< std::endl
+	<< "  std::vector<double> sleepTime; // The amount of time each individual sleeps" << std::endl
+	<< "  std::vector<double> averageProcessingTime; // The average processing time per generation" << std::endl
+	<< std::endl;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// We need to measure consecutively for a number of times specified by the sleepSeconds vector.
+	std::size_t nMeasurements = sleepSeconds.size();
+
+	for(std::size_t iter=0; iter<nMeasurements; iter++) {
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Create a population, depending on the parallelization mode. We refer to it through the base class.
+
+		// This smart pointer will hold the different population types
+		boost::shared_ptr<GBasePopulation> pop_ptr;
+
+		// Create the actual populations
+		switch (parallelizationMode) {
+		//-----------------------------------------------------------------------------------------------------
+		case 0: // Serial execution
+			// Create an empty population
+			pop_ptr = boost::shared_ptr<GBasePopulation>(new GBasePopulation());
+			break;
+
+			//-----------------------------------------------------------------------------------------------------
+		case 1: // Multi-threaded execution
+		{
+			// Create the multi-threaded population
+			boost::shared_ptr<GBoostThreadPopulation> popPar_ptr(new GBoostThreadPopulation());
+
+			// Population-specific settings
+			popPar_ptr->setNThreads(nEvaluationThreads);
+
+			// Assignment to the base pointer
+			pop_ptr = popPar_ptr;
+		}
+		break;
+
+		//-----------------------------------------------------------------------------------------------------
+		case 2: // Networked execution (server-side)
+		{
+			// Create a network consumer and enrol it with the broker
+			boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+			GINDIVIDUALBROKER->enrol(gatc);
+
+			// Create a local thread consumer and enrol it with the broker,
+			// if local execution has been requested. Stable ? Observed one crash
+			// that is possibly related to this
+			if(nBoostThreadConsumerThreads) {
+				boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
+				gbtc->setMaxThreads(nBoostThreadConsumerThreads);
+				GINDIVIDUALBROKER->enrol(gbtc);
+			}
+
+			// Create the actual broker population
+			boost::shared_ptr<GBrokerPopulation> popBroker_ptr(new GBrokerPopulation());
+			popBroker_ptr->setWaitFactor(waitFactor);
+
+			// Assignment to the base pointer
+			pop_ptr = popBroker_ptr;
+		}
+		break;
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Now we have a suitable population and can fill it with data
+
+		boost::posix_time::time_duration sleepTime =
+				boost::posix_time::seconds(sleepSeconds.at(iter)) +
+				boost::posix_time::milliseconds(sleepMilliSeconds.at(iter));
+
+		// Create the first set of parent individuals.
+		std::vector<boost::shared_ptr<GDelayIndividual> > parentIndividuals;
+		for(std::size_t p = 0 ; p<nParents; p++) {
+			boost::shared_ptr<GDelayIndividual> gdi_ptr(new GDelayIndividual(sleepTime));
+			gdi_ptr->setProcessingCycles(processingCycles);
+
+			// Set up a GBoundedDoubleCollection, including adaptor
 			boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
+			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
+			gdga_ptr->setAdaptionThreshold(1);
+			gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+			gbdc_ptr->addAdaptor(gdga_ptr); // We use a common adaptor for all objects in the collection
 
-			// Set up an adaptor.
-			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
-			gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+			// Set up nVariables GBoundedDouble objects in the desired value range,
+			// and register them with the double collection
+			for(std::size_t var=0; var<nVariables; var++) {
+				boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(0.,1.)); // range [0,1], random initialization
 
-			// Check whether random numbers should be produced locally or in the factory
-			if(productionPlace) // Factory means "true"
-				gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
-			else
-				gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
-
-			if(useCommonAdaptor) {
-				// Adding the adaptor to the collection instead of individual GBoundedDouble objects will
-				// result in a joint adaptor for all GBoundedDoubles
-				gbdc_ptr->addAdaptor(gdga_ptr);
-
-				// Set up parabolaDimension GBoundedDouble objects in the desired value range,
-				// and register them with the double collection
-				for(std::size_t i=0; i<parabolaDimension; i++) {
-					// GBoundedDouble will start with value "max"
-					boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(parabolaMax, parabolaMin, parabolaMax));
-
-					// Make the GBoundedDouble known to the collection
-					gbdc_ptr->push_back(gbd_ptr);
-				}
-			}
-			else {
-				// Set up parabolaDimension GBoundedDouble objects in the desired value range,
-				// and register them with the double collection
-				for(std::size_t i=0; i<parabolaDimension; i++) {
-					// GBoundedDouble will start with value "max"
-					boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(parabolaMax, parabolaMin, parabolaMax));
-
-					// Registering the adaptor with each GBoundedDouble results in individual adaptors for each object
-					gbd_ptr->addAdaptor(gdga_ptr);
-
-					// Make the GBoundedDouble known to the collection
-					gbdc_ptr->push_back(gbd_ptr);
-				}
+				// Make the GBoundedDouble known to the collection
+				gbdc_ptr->push_back(gbd_ptr);
 			}
 
-			// Make the GBoundedDouble collection known to the individual
-			parabolaIndividual->push_back(gbdc_ptr);
+			// Make the GBoundedDoubleCollection known to the individual
+			gdi_ptr->push_back(gbdc_ptr);
 
-			// Now we've got our first individual and can create a simple population with serial execution.
-			GBasePopulation pop_ser;
-
-			pop_ser.push_back(parabolaIndividual);
-
-			// Specify some population settings
-			pop_ser.setPopulationSize(populationSize,nParents);
-			pop_ser.setMaxGeneration(maxGenerations);
-			pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-			pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
-			pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-
-			// Check whether random numbers should be produced locally or in the factory
-			if(productionPlace) // Factory means "true"
-			  pop_ser.setRnrGenerationMode(Gem::Util::RNRFACTORY);
-			else
-			  pop_ser.setRnrGenerationMode(Gem::Util::RNRLOCAL);
-
-			// Do the actual optimization
-			pop_ser.optimize();
+			parentIndividuals.push_back(gdi_ptr);
 		}
-		break;
 
-		//-----------------------------------------------------------------------------------------------------
-	case 1: // Multi-threaded execution
-		{
-			// Set up a single parabola individual
-			boost::shared_ptr<GBoundedParabolaIndividual> parabolaIndividual(new GBoundedParabolaIndividual());
-
-			// Set up a GBoundedDoubleCollection
-			boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
-
-			// Set up an adaptor.
-			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
-			gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-
-			// Check whether random numbers should be produced locally or in the factory
-			if(productionPlace) // Factory means "true"
-				gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
-			else
-				gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
-
-			if(useCommonAdaptor) {
-				// Adding the adaptor to the collection instead of individual GBoundedDouble objects will
-				// result in a joint adaptor for all GBoundedDoubles
-				gbdc_ptr->addAdaptor(gdga_ptr);
-
-				// Set up parabolaDimension GBoundedDouble objects in the desired value range,
-				// and register them with the double collection
-				for(std::size_t i=0; i<parabolaDimension; i++) {
-					// GBoundedDouble will start with value "max"
-					boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(parabolaMax, parabolaMin, parabolaMax));
-
-					// Make the GBoundedDouble known to the collection
-					gbdc_ptr->push_back(gbd_ptr);
-				}
-			}
-			else {
-				// Set up parabolaDimension GBoundedDouble objects in the desired value range,
-				// and register them with the double collection
-				for(std::size_t i=0; i<parabolaDimension; i++) {
-					// GBoundedDouble will start with value "max"
-					boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(parabolaMax, parabolaMin, parabolaMax));
-
-					// Registering the adaptor with each GBoundedDouble results in individual adaptors for each object
-					gbd_ptr->addAdaptor(gdga_ptr);
-
-					// Make the GBoundedDouble known to the collection
-					gbdc_ptr->push_back(gbd_ptr);
-				}
-			}
-
-			// Make the GBoundedDouble collection known to the individual
-			parabolaIndividual->push_back(gbdc_ptr);
-
-			// Now we've got our first individual and can create a simple population with parallel execution.
-			GBoostThreadPopulation pop_par;
-			pop_par.setNThreads(nEvaluationThreads);
-
-			pop_par.push_back(parabolaIndividual);
-
-			// Specify some population settings
-			pop_par.setPopulationSize(populationSize,nParents);
-			pop_par.setMaxGeneration(maxGenerations);
-			pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-			pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
-			pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-
-			// Check whether random numbers should be produced locally or in the factory
-			if(productionPlace) // Factory means "true"
-			  pop_par.setRnrGenerationMode(Gem::Util::RNRFACTORY);
-			else
-			  pop_par.setRnrGenerationMode(Gem::Util::RNRLOCAL);
-
-			// Do the actual optimization
-			pop_par.optimize();
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Add individuals to the population
+		for(std::size_t p = 0 ; p<nParents; p++) {
+			pop_ptr->push_back(parentIndividuals[p]);
 		}
-		break;
 
-		//-----------------------------------------------------------------------------------------------------
-	case 2: // Networked execution
-		{
-			// Check if we are running as a (networked) client or server.
-			// The client should be executed before the setup of individuals,
-			// as it sets the seed of the random number factory, using a
-			// seed supplied by the server
-			if (serverMode) {
-				// Set up a single parabola individual
-				boost::shared_ptr<GBoundedParabolaIndividual> parabolaIndividual(new GBoundedParabolaIndividual());
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Specify some general population settings
+		pop_ptr->setPopulationSize(populationSize,nParents);
+		pop_ptr->setMaxGeneration(maxGenerations);
+		pop_ptr->setMaxTime(boost::posix_time::minutes(0));
+		pop_ptr->setReportGeneration(1); // Emit information during every generation
+		pop_ptr->setRecombinationMethod(Gem::GenEvA::DEFAULTRECOMBINE);
+		pop_ptr->setSortingScheme(Gem::GenEvA::MUPLUSNU);
+		pop_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
-				// Set up a GBoundedDoubleCollection
-				boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Do the actual optimization and measure the time
+		boost::posix_time::ptime startTime = boost::poxix_time::microsec_clock::local_time();
+		pop_ptr->optimize(startGeneration);
+		boost::posix_time::ptime endTime = boost::poxix_time::microsec_clock::local_time();
 
-				// Set up an adaptor.
-				boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
-				gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+		boost::posix_time::time_duration duration = endTime - startTime;
 
-				// Check whether random numbers should be produced locally or in the factory
-				if(productionPlace) // Factory means "true"
-					gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
-				else
-					gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		// Output the results
+		result << "  // Iteration " << iter << ":" << std::endl
+			   << "  sleepTime.push_back(" << sleepTime.total_milliseconds() << ");" << std::endl
+			   << "  averageProcessingTime.push_back(" << double(duration.total_milliseconds())/double(maxGenerations) <<");" << std::endl;
 
-				if(useCommonAdaptor) {
-					// Adding the adaptor to the collection instead of individual GBoundedDouble objects will
-					// result in a joint adaptor for all GBoundedDoubles
-					gbdc_ptr->addAdaptor(gdga_ptr);
+		//--------------------------------------------------------------------------------------------
+	}
 
-					// Set up parabolaDimension GBoundedDouble objects in the desired value range,
-					// and register them with the double collection
-					for(std::size_t i=0; i<parabolaDimension; i++) {
-						// GBoundedDouble will start with value "max"
-						boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(parabolaMax, parabolaMin, parabolaMax));
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Clean up
 
-						// Make the GBoundedDouble known to the collection
-						gbdc_ptr->push_back(gbd_ptr);
-					}
-				}
-				else {
-					// Set up parabolaDimension GBoundedDouble objects in the desired value range,
-					// and register them with the double collection
-					for(std::size_t i=0; i<parabolaDimension; i++) {
-						// GBoundedDouble will start with value "max"
-						boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(parabolaMax, parabolaMin, parabolaMax));
+	// Output the footer of the result file
+	result << std::endl
+		   << "  // Transfer of vectors into arrays" << std::endl
+		   << "  double sleepTimeArr[" << nMeasurements << "];" << std::endl
+		   << "  double averageProcessingTimeArr[" << nMeasurements << "];" << std::endl
+		   << std::endl
+		   << "  for(int i=0; i< " << nMeasurements << "; i++) {" << std::endl
+		   << "    sleepTimeArr[i] = sleepTime.at(i);" << std::endl
+		   << "    averageProcessingTimeArr[i] = averageProcessingTime.at(i);" << std::endl
+		   << "  }" << std::endl
+	       << std::endl
+	       << "  // Creation of TGraph objects and data transfer into the objects" << std::endl
+	       << "  TGraph *evGraph = new TGraph(" << nMeasurements << ", sleepTimeArr, averageProcessingTimeArr);" << std::endl
+	       << std::endl
+	       << "  evGraph->Draw();" << std::endl
+	       << "}" << std::endl;
 
-						// Registering the adaptor with each GBoundedDouble results in individual adaptors for each object
-						gbd_ptr->addAdaptor(gdga_ptr);
-
-						// Make the GBoundedDouble known to the collection
-						gbdc_ptr->push_back(gbd_ptr);
-					}
-				}
-
-				// Make the GBoundedDouble collection known to the individual
-				parabolaIndividual->push_back(gbdc_ptr);
-
-				// Create a consumer and enrol it with the broker
-				boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
-				// gatc->setSerializationMode(BINARYSERIALIZATION);
-				GINDIVIDUALBROKER->enrol(gatc);
-
-				// Create the actual population
-				GBrokerPopulation pop_broker;
-
-				// Make the individual known to the population
-				pop_broker.push_back(parabolaIndividual);
-
-				// Specify some population settings
-				pop_broker.setPopulationSize(populationSize,nParents);
-				pop_broker.setMaxGeneration(maxGenerations);
-				pop_broker.setMaxTime(boost::posix_time::minutes(maxMinutes));
-				pop_broker.setReportGeneration(reportGeneration);
-				pop_broker.setRecombinationMethod(rScheme);
-
-				// Check whether random numbers should be produced locally or in the factory
-				if(productionPlace) // Factory means "true"
-					pop_broker.setRnrGenerationMode(Gem::Util::RNRFACTORY);
-				else
-					pop_broker.setRnrGenerationMode(Gem::Util::RNRLOCAL);
-
-
-				// Do the actual optimization
-				pop_broker.optimize();
-			}
-			else { // Client
-				// Just start the client with the required parameters
-				GAsioTCPClient gasiotcpclient(ip,boost::lexical_cast<std::string>(port));
-				gasiotcpclient.run();
-				return 0;
-			}
-		}
-		break;
-
-		//-----------------------------------------------------------------------------------------------------
-	};
+	 // Close the result file
+	result.close();
 
 	std::cout << "Done ..." << std::endl;
 	return 0;
