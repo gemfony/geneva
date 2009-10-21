@@ -42,7 +42,6 @@
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"
 #include "GAsioHelperFunctions.hpp"
-#include "GBoostThreadConsumer.hpp"
 #include "GBoundedDoubleCollection.hpp"
 
 // The individual that should be optimized
@@ -237,15 +236,6 @@ int main(int argc, char **argv){
 				// Create a network consumer and enrol it with the broker
 				boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
 				GINDIVIDUALBROKER->enrol(gatc);
-
-				// Create a local thread consumer and enrol it with the broker,
-				// if local execution has been requested. Stable ? Observed one crash
-				// that is possibly related to this
-				if(nBoostThreadConsumerThreads) {
-					boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
-					gbtc->setMaxThreads(nBoostThreadConsumerThreads);
-					GINDIVIDUALBROKER->enrol(gbtc);
-				}
 
 				firstConsumer = false;
 			}
