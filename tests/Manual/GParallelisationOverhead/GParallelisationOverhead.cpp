@@ -55,7 +55,7 @@ using namespace Gem::Util;
 
 /************************************************************************************************/
 /**
- * The main function. We try to measure the overhead incurred through the parallelisation.
+ * The main function. We try to measure the overhead incurred through the parallelization.
  */
 int main(int argc, char **argv){
 	bool firstConsumer = true; // Controls the start of consumers
