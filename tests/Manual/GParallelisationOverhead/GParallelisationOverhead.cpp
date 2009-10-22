@@ -319,7 +319,7 @@ int main(int argc, char **argv){
 		pop_ptr->setMaxTime(boost::posix_time::minutes(0));
 		pop_ptr->setReportGeneration(1); // Emit information during every generation
 		pop_ptr->setRecombinationMethod(Gem::GenEvA::DEFAULTRECOMBINE);
-		pop_ptr->setSortingScheme(Gem::GenEvA::MUPLUSNU);
+		pop_ptr->setSortingScheme(Gem::GenEvA::MUCOMMANU);
 		pop_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
