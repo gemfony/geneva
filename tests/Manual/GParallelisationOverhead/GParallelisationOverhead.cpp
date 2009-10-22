@@ -158,8 +158,32 @@ int main(int argc, char **argv){
 	// 10 s
 	sleepSeconds.push_back(10);
 	sleepMilliSeconds.push_back(0);
+	// 15 s
+	sleepSeconds.push_back(15);
+	sleepMilliSeconds.push_back(0);
+	// 20 s
+	sleepSeconds.push_back(20);
+	sleepMilliSeconds.push_back(0);
+	// 25 s
+	sleepSeconds.push_back(25);
+	sleepMilliSeconds.push_back(0);
+	// 30 s
+	sleepSeconds.push_back(30);
+	sleepMilliSeconds.push_back(0);
+	// 40 s
+	sleepSeconds.push_back(40);
+	sleepMilliSeconds.push_back(0);
+	// 50 s
+	sleepSeconds.push_back(50);
+	sleepMilliSeconds.push_back(0);
 	// 60 s
 	sleepSeconds.push_back(60);
+	sleepMilliSeconds.push_back(0);
+	// 80 s
+	sleepSeconds.push_back(80);
+	sleepMilliSeconds.push_back(0);
+	// 100 s
+	sleepSeconds.push_back(100);
 	sleepMilliSeconds.push_back(0);
 	// 120 s
 	sleepSeconds.push_back(120);
