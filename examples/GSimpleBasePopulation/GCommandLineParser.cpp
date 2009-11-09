@@ -32,9 +32,9 @@ namespace GenEvA
  * A function that parses the command line for all required parameters
  */
 bool parseCommandLine(int argc, char **argv,
-					  std::size_t& parabolaDimension,
-					  double& parabolaMin,
-					  double& parabolaMax,
+					  std::size_t& dimension,
+					  double& randMin,
+					  double& randMax,
 					  boost::uint32_t& adaptionThreshold,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& populationSize,
@@ -62,14 +62,14 @@ bool parseCommandLine(int argc, char **argv,
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "emit help message")
-			("parabolaDimension,d", po::value<std::size_t>(&parabolaDimension)->default_value(DEFAULTPARABOLADIMENSION),
-					"number of dimensions in the parabola")
-			("parabolaMin,m", po::value<double>(&parabolaMin)->default_value(DEFAULTPARABOLAMIN),
+			("dimension,d", po::value<std::size_t>(&dimension)->default_value(DEFAULTDIMENSION),
+					"number of parameters of the evaluation function")
+			("randMin,m", po::value<double>(&randMin)->default_value(DEFAULTRANDMIN),
 					"Lower boundary for random numbers")
-			("adaptionThreshold,a", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
-					"Number of calls to mutate after which mutation parameters should be adapted")
-			("parabolaMax,M", po::value<double>(&parabolaMax)->default_value(DEFAULTPARABOLAMAX),
+			("randMax,M", po::value<double>(&randMax)->default_value(DEFAULTRANDMAX),
 					"Upper boundary for random numbers")
+		    ("adaptionThreshold,a", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+		    		"Number of calls to mutate after which mutation parameters should be adapted")
 			("nProducerThreads,n",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
 					"The amount of random number producer threads")
 			("populationSize,S",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
@@ -126,10 +126,10 @@ bool parseCommandLine(int argc, char **argv,
 		}
 
 		// Check the parabolaMin/Max parameters
-		if(parabolaMin >= parabolaMax){
-			std::cout << "Error: Invalid parabolaMin/Max parameters" << std::endl
-				      << "parabolaMin = " << parabolaMin << std::endl
-				      << "parabolaMax = " << parabolaMax << std::endl;
+		if(randMin >= randMax){
+			std::cout << "Error: Invalid randMin/Max parameters" << std::endl
+				      << "randMin = " << randMin << std::endl
+				      << "randMax = " << randMax << std::endl;
 
 			return false;;
 		}
@@ -155,11 +155,24 @@ bool parseCommandLine(int argc, char **argv,
 		}
 
 		if(verbose){
+			std::string eF;
+			switch(evalFunction) {
+			case PARABOLA:
+				eF = "PARABOLA";
+				break;
+			case NOISYPARABOLA:
+				eF = "NOISYPARABOLA";
+				break;
+			case ROSENBROCK:
+				eF = "ROSENBROCK";
+				break;
+			}
+
 			std::cout << std::endl
 				      << "Running with the following options:" << std::endl
-					  << "parabolaDimension = " << parabolaDimension << std::endl
-					  << "parabolaMin = " << parabolaMin << std::endl
-					  << "parabolaMax = " << parabolaMax << std::endl
+					  << "dimension = " << dimension << std::endl
+					  << "randMin = " << randMin << std::endl
+					  << "randMax = " << randMax << std::endl
 					  << "adaptionThreshold = " << adaptionThreshold << std::endl
 					  << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 					  << "populationSize = " << populationSize << std::endl
@@ -174,7 +187,7 @@ bool parseCommandLine(int argc, char **argv,
 					  << "arraySize = " << arraySize << std::endl
 					  << "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
 					  << "mutProb = " << mutProb << std::endl
-					  << "evalFunction = " << (boost::uint16_t)evalFunction << std::endl
+					  << "evalFunction = " << eF << std::endl
 					  << std::endl;
 		}
 	}
