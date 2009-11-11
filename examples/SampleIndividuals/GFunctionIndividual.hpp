@@ -346,6 +346,8 @@ private:
 			result += (cos(xsquared) + 2)*xsquared;
 		}
 
+		// std::cout << "result = " << result << std::endl;
+
 		return result;
 	}
 

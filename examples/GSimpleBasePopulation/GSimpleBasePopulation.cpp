@@ -51,9 +51,9 @@ using namespace Gem::Util;
 
 int main(int argc, char **argv){
 	// Variables for the command line parsing
-	 std::size_t parabolaDimension;
+	 std::size_t dimension;
 	 std::size_t populationSize, nParents;
-	 double parabolaMin, parabolaMax;
+	 double randMin, randMax;
 	 boost::uint16_t nProducerThreads;
 	 boost::uint32_t maxGenerations, reportGeneration;
 	 boost::uint32_t maxStallGenerations;
@@ -72,9 +72,9 @@ int main(int argc, char **argv){
 
 	// Parse the command line
 	if(!parseCommandLine(argc, argv,
-		  			     parabolaDimension,
-						 parabolaMin,
-						 parabolaMax,
+		  			     dimension,
+						 randMin,
+						 randMax,
 						 adaptionThreshold,
 						 nProducerThreads,
 						 populationSize,
@@ -106,14 +106,13 @@ int main(int argc, char **argv){
 	// Choose the demo function
 	functionIndividual->setDemoFunction(df);
 
-	// Set up a GDoubleCollection with parabolaDimension values, each initialized
+	// Set up a GDoubleCollection with dimension values, each initialized
 	// with a random number in the range [min,max[
-	boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parabolaDimension,parabolaMin,parabolaMax));
+	boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(dimension,randMin,randMax));
 
 	// Set up and register an adaptor for the collection, so it
-	// knows how to be mutated. We want a sigma of 1, a sigma-adaption of 0.001, a
-	// minimum sigma of 0.000001 and a maximum sigma of 5.
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(1.,0.001,0.000001,5));
+	// knows how to be mutated.
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1,0.5,0.000001,5));
 	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	gdga_ptr->setMutationProbability(mutProb);
 	if(productionPlace) // Factory means "true"
