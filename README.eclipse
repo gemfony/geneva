@@ -82,15 +82,15 @@ If something goes wrong...
       9.4 -- expand the SVN tree, select the "trunk" folder, and run "Checkout..." from
              its context menu
 
-      9.5 -- select "Check out as a project in the workspace", name "GenEvA", and
+      9.5 -- select "Check out as a project in the workspace", name "Geneva", and
              click "Finish"
 
 
 CMake integration
 =================
 
-The Eclipse package and the GenEvA source tree are preconfigured to ease the development
-of GenEvA in Eclipse, and in particular of CMake.
+The Eclipse package and the Geneva source tree are preconfigured to ease the development
+of Geneva in Eclipse, and in particular of CMake.
 
 11 - After having checked out the source code on the WorkSpace, go to the main
      CMake file, namely CMakeLists.txt, and edit the following lines:
@@ -106,7 +106,7 @@ of GenEvA in Eclipse, and in particular of CMake.
        #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 12 - Run CMake, by opening the "Make Targets" view, and double clicking the
-     "Run CMake" target in the GenEvA project. Anothe not yet available alternative: run
+     "Run CMake" target in the Geneva project. Anothe not yet available alternative: run
        Run / External Tools / CMake
      (also in the "External Tools" drop down toolbar button).
 

@@ -12,7 +12,7 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 #SET (BOOST_LIBRARYDIR "/opt/boost140/lib")
 
 # Uncomment this if you want to see compiler arguments
-# SET(CMAKE_VERBOSE_MAKEFILE ON)
+#SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Uncomment to compile static libs
 # SET( GENEVA_STATIC TRUE )
