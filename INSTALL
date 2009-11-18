@@ -1,12 +1,12 @@
 Target systems
 ==============
 
-The Geneva library has been developed on OpenSUSE systems (version 11 at the time
+The Geneva library has been developed on OpenSUSE systems (version 11.x at the time
 of writing of this text). While it is likely that the same code will compile on
 any other Linux and possibly Unix platforms (particularly if gcc versions newer than
-4.3 are used), only Ubuntu and Debian systems have been tested in addition to OpenSUSE
-up to date. The authors would very much appreciate your feedback, if you manage to
-compile the library on other systems than those mentioned here.
+4.3 are used), only Ubuntu and Debian systems have been tested in addition to OpenSUSE. 
+The authors would very much appreciate your feedback, if you manage to compile the 
+library on other systems than those mentioned here.
 
 Building and Installing
 =======================
@@ -89,10 +89,17 @@ installed in /opt/boost140 (which should be writable), execute
 
 ./bootstrap.sh --with-libraries=date_time,filesystem,program_options,regex,serialization,system,thread,test \
                --prefix=/opt/boost140
+./bjam
 ./bjam install
+
+You can add a "-j 2" to the second command if your system has two cores. This will speed up the
+otherwise quite long compilation time.
 
 Once done you can use the Boost include path as explained above, with BOOST_ROOT="/opt/boost140".
 
+If FindBoost.cmake has trouble finding the Boost libraries in the specified location, it might
+help to compile the library with the bjam flag "--layout=versioned" or "--layout=tagged". This
+should not be necessary for boost versions prior to 1.40 . 
 
 Appendix: Known bugs and (possibly) fixes on some platforms
 ===========================================================
@@ -136,3 +143,6 @@ patch to /usr/share/cmake-2.6/Modules/FindBoost.cmake before calling cmake for G
          SET (_boost_COMPILER "-gcc${_boost_COMPILER_VERSION}")
        ENDIF (NOT CMAKE_COMPILER_IS_GNUCC)
 ================================================================================
+
+NOTE: This procedure is likely not necessary anymore in current versions of Geneva,
+as the code is shipped with a copy of a working FindBoost.cmake .
