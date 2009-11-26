@@ -233,6 +233,9 @@ namespace Gem
 		    << "processingCycles = " << processingCycles << std::endl
 		    << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
 	            << "waitFactor = " << waitFactor << std::endl
+		    << "parDim = " << parDim << std::endl
+		    << "minVar = " << minVar << std::endl
+		    << "maxVar = " << maxVar << std::endl
 		    << std::endl;
 	}
       }

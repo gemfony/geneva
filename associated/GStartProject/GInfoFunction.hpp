@@ -90,13 +90,12 @@ namespace Gem {
 		       << "  gROOT->Reset();" << std::endl
 		       << "  gStyle->SetOptTitle(0);" << std::endl
 		       << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);" << std::endl
-		       << "  cc->Divide(2," << nInfoIndividuals_ << ");" << std::endl 
+		       << "  cc->Divide(1," << nInfoIndividuals_ << ");" << std::endl 
 		       << std::endl
 		       << "  std::vector<long> generation;" << std::endl;
 
 	      for(std::size_t p=0; p<nInfoIndividuals_; p++) {
 		summary_ << "  std::vector<double> evaluation" << p << ";" << std::endl
-			 << "  std::vector<double> sigma" << p <<";" << std::endl
 			 << std::endl;
 	      }
 	    }
@@ -105,7 +104,6 @@ namespace Gem {
 	    //---------------------------------------------------------------------------
 	  case Gem::GenEvA::INFOPROCESSING:
 	    {
-	      double currentSigma = 0.;
 	      bool isDirty = false;
 	      double currentEvaluation = 0.;
 
@@ -119,20 +117,16 @@ namespace Gem {
 		  // Get access to the inidividual
 		  boost::shared_ptr<GStartIndividual> gdii_ptr = gbp->individual_cast<GStartIndividual>(p);
 	    
-		  // Retrieve the average sigma value
-		  currentSigma = gdii_ptr->getSigma();
-
 		  // Retrieve the fitness of this individual
 		  currentEvaluation = gdii_ptr->getCurrentFitness(isDirty);
 
 		  // Let the audience know about the best result
 		  if(p==0) {
-		    std::cout << generation << ": " << currentEvaluation << " " << currentSigma << std::endl;
+		    std::cout << generation << ": " << currentEvaluation << std::endl;
 		  }
 
 		  // Write information to the output stream		  
 		  summary_ << "  evaluation" << p << ".push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl;
-		  summary_ << "  sigma" << p << ".push_back(" << currentSigma << ");" << std::endl;
 		}
 		summary_ << std::endl; // Improves readability when following the output with "tail -f"
 	      }
@@ -147,29 +141,24 @@ namespace Gem {
 		       << "  double generation_arr[generation.size()];" << std::endl;
 	      for(std::size_t p=0; p<nInfoIndividuals_; p++) {
 		summary_ << "  double evaluation" << p << "_arr[evaluation" << p << ".size()];" << std::endl
-			 << "  double sigma" << p << "_arr[sigma" << p << ".size()];" << std::endl
 			 << std::endl
 			 << "  for(std::size_t i=0; i<generation.size(); i++) {" << std::endl;
 		
 		if(p==0) summary_ << "     generation_arr[i] = (double)generation[i];" << std::endl;
 		
 		summary_ << "     evaluation" << p << "_arr[i] = evaluation" << p << "[i];" << std::endl
-			 << "     sigma" << p << "_arr[i] = sigma" << p << "[i];" << std::endl
 			 << "  }" << std::endl
 			 << std::endl
 			 << "  // Create a TGraph object" << std::endl
 			 << "  TGraph *evGraph" << p << " = new TGraph(evaluation" << p << ".size(), generation_arr, evaluation" << p << "_arr);" << std::endl
-			 << "  TGraph *sgGraph" << p << " = new TGraph(sigma" << p << ".size(), generation_arr, sigma" << p << "_arr);" << std::endl
 			 << std::endl;
 	      }
 
 	      summary_ << "  // Do the actual drawing" << std::endl;
 
 	      for(std::size_t p=0; p<nInfoIndividuals_; p++) {
-		summary_ << "  cc->cd(" << 2*p + 1 << ");" << std::endl
-			 << "  evGraph" << p << "->Draw(\"AP\");" << std::endl
-			 << "  cc->cd(" << 2*p + 2 << ");" << std::endl
-			 << "  sgGraph" << p << "->Draw(\"AP\");" << std::endl;
+		summary_ << "  cc->cd(" << p+1 << ");" << std::endl
+			 << "  evGraph" << p << "->Draw(\"AP\");" << std::endl;
 	      }
 
 	      summary_ << "  cc->cd();" << std::endl		

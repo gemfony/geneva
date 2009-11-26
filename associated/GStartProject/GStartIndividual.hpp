@@ -116,6 +116,9 @@ namespace Gem
 	  // Add a GBoundedDouble object to the collection
 	  gbdc_ptr->push_back(gbd_ptr);			      
 	}
+
+	// Add the collection to this object
+	this->push_back(gbdc_ptr);
       }
 
       /********************************************************************************************/
@@ -172,19 +175,6 @@ namespace Gem
 
 	// Load local data here like this:
 	// myVar = gsi_load->myVar;
-      }
-
-      /********************************************************************************************/
-      /**
-       * Retrieves the sigma of the local GBoundedDoubleCollection used in this individual.
-       * This function is useful to determine the success of the automatic adaption of sigma.
-       * It is not necessary for the correct functioning of this individual and is meant to
-       * demonstrate the interaction with the optimization monitor only.
-       *
-       * @return The sigma value of the GBoundedDoubleCollection
-       */
-      double getSigma() const {
-        return pc_at<GBoundedDoubleCollection>(0)->adaptor_cast<GDoubleGaussAdaptor>()->getSigma();
       }
 
     protected:

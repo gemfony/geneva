@@ -49,8 +49,6 @@
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
 
-const std::size_t NINFOPARENTS=3; // The default number of individuals for which information should be gathered
-
 /************************************************************************************************/
 /**
  * The main function.
@@ -140,7 +138,7 @@ int main(int argc, char **argv){
 
   // Create an instance of our optimization monitor, telling it to output information in given intervals
   std::ofstream resultSummary("./result.C");
-  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(infoInterval, NINFOPARENTS, resultSummary));
+  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(infoInterval, nParents, resultSummary));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // We can now start creating populations. We refer to them through the base class
