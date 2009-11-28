@@ -82,7 +82,7 @@
   providing an interface to setting certain crucial parameters. Can use a map<boost::int32_t, boost::function<std::string ()> > for
   the mapping between commands and local functions.
 - Hide the core-Geneva headers in a single header for easier usage
-- Create a "dlopen individual", capable of loading external libraries for the evaluation step
+- Create a "dlopen individual", capable of loading external libraries for the evaluation step (Boost has a pluging framework in the making)
 - Check boost::optional for return values and indicating valid return values
 
 Nice to have:
