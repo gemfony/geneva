@@ -102,6 +102,8 @@ struct trainingSet
 	}
 	///////////////////////////////////////////////////////////////////////
 
+	virtual ~trainingSet() { /* nothing */ } // Virtual destructor needed due to serialization problem in Boost 1.41
+
 	std::vector<double> Input;
 	std::vector<double> Output;
 };
@@ -123,6 +125,8 @@ struct trainingData
 		ar & make_nvp("data", data);
 	}
 	///////////////////////////////////////////////////////////////////////
+
+	virtual ~trainingData() { /* nothing */ } // Virtual destructor needed due to serialization problem in Boost 1.41
 
 	std::vector<boost::shared_ptr<trainingSet> > data;
 };
@@ -364,7 +368,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	~GNeuralNetworkIndividual()
+	virtual ~GNeuralNetworkIndividual()
 	{ /* nothing */	}
 
 	/********************************************************************************************/

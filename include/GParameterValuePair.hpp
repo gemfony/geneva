@@ -106,8 +106,8 @@ public:
 	GParameterValuePair();
 	/** @brief A standard copy constructor */
 	GParameterValuePair(const GParameterValuePair&);
-	/** @brief The destructor */
-	~GParameterValuePair();
+	/** @brief The destructor Made virtual due to issues described here http://thread.gmane.org/gmane.comp.lib.boost.user/52384/focus=52390 */
+	virtual ~GParameterValuePair();
 
 	/** @brief  A standard assignment operator */
 	const GParameterValuePair& operator=(const GParameterValuePair&);
