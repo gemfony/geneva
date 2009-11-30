@@ -23,8 +23,8 @@
  *
  * All modifications to Jan Gaspar's original code, as shown in this
  * file, are also covered by the Boost Software License, Version 1.0,
- * and are Copyright (C) 2008 Ruediger Berlich and Copyright (C) 2008
- * Forschungszentrum Karlsruhe GmbH.
+ * and are Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute
+ * of Technology. Contact: info [at] gemfony (dot) com
  *
  * In particular, please note that:
  *

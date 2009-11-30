@@ -2,10 +2,14 @@
  * @file GCommandLineParser.hpp
  */
 
-/* Copyright (C) 2004-2008 Dr. Ruediger Berlich
- * Copyright (C) 2008 Forschungszentrum Karlsruhe GmbH
+/* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
+ * (University of the State of Baden-Wuerttemberg and National Laboratory
+ * of the Helmholtz Association)
  *
- * This file is part of the Geneva library.
+ * Contact: info [at] gemfony (dot) com
+ *
+ * This file is part of the Geneva library, Gemfony scientific's optimization
+ * library.
  *
  * Geneva is free software: you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Affero General Public License
@@ -18,7 +22,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * For further information on Gemfony scientific and Geneva, visit
+ * http://www.gemfony.com .
  */
+
 
 // Standard headers go here
 

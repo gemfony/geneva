@@ -2,7 +2,11 @@
  * @file GDataExchange.cpp
  */
 
-/* Copyright (C) 2009 Dr. Ruediger Berlich
+/* Copyright (C) 2009 Dr. Ruediger Berlich and Karlsruhe Institute of Technology
+ * (University of the State of Baden-Wuerttemberg and National Laboratory
+ * of the Helmholtz Association)
+ *
+ * Contact: info [at] gemfony (dot) com
  *
  * This file is part of Geneva, Gemfony scientific's optimization library.
  *
@@ -22,6 +26,9 @@
  * You should have received a copy of version 2 of the GNU General Public License
  * and of version 3 of the GNU Affero General Public License along with the Geneva
  * library. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * For further information on Gemfony scientific and Geneva, visit
+ * http://www.gemfony.com .
  */
 
 #include "GDataExchange.hpp"

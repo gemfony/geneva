@@ -4,19 +4,23 @@
 
 /* This file is part of Geneva, Gemfony scientific's optimization library.
  *
+ * Contact: info [at] gemfony (dot) com
+ *
  * Note: This class was adapted from an early Boost 1.36 version of the
  * thread_group class. The original code containted the following text:
  *
+ ****
  * Distributed under the Boost Software License, Version 1.0. (See
  * accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  * (C) Copyright 2007-8 Anthony Williams
+ ****
  *
  * Modifications were applied to the code.
  *
  * All modifications to Anthony William's original code, as shown in this
  * file, are also covered by the Boost Software License, Version 1.0,
- * and are Copyright (C) 2008 Ruediger Berlich and Copyright (C) 2008
- * Forschungszentrum Karlsruhe GmbH .
+ * and are Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of
+ * Technology.
  *
  * In particular, please note that
  *
@@ -28,7 +32,9 @@
  ***************************************************************
  */
 
-/* Boost Software License - Version 1.0 - August 17th, 2003
+/* The code in this file is covered by the following license:
+ *
+ * Boost Software License - Version 1.0 - August 17th, 2003
  *
  * Permission is hereby granted, free of charge, to any person or organization
  * obtaining a copy of the software and accompanying documentation covered by

@@ -3,14 +3,18 @@
  */
 
 /*
- * Copyright (C) 2009 Dr. Ruediger Berlich
+ * Copyright (C) Dr. Ruediger Berlich  and Karlsruhe Institute of Technology
+ * (University of the State of Baden-Wuerttemberg and National Laboratory
+ * of the Helmholtz Association); Based on earlier work by Dr. Ivan Kondov.
  *
- * Based on earlier work by Dr. Ivan Kondov
+ * Contact: info [at] gemfony (dot) com
  *
- * This file is part of the eminim2 program. eminim2 is free software:
- * you can redistribute and/or modify this file under the terms of
- * version 2 of the GNU General Public License as published by the
- * Free Software Foundation.
+ * This file is part of the eminim2 program, a demo application in the
+ * context of Gemfony scientific's optimization library.
+ *
+ * eminim2 is free software: you can redistribute and/or modify this file
+ * under the terms of version 2 of the GNU General Public License as published
+ * by the Free Software Foundation.
  *
  * eminim2 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,7 +23,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with the Geneva library.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * For further information on Gemfony scientific and Geneva, visit
+ * http://www.gemfony.com .
  */
+
 
 #include "intcoord.hpp"
 
