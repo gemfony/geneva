@@ -571,7 +571,7 @@ public:
 	/**
 	 * Initiates the printing of the best individual
 	 */
-	void printResult(const std::string& identifyer = "empty") {
+	void printResult(const std::string& identifier = "empty") {
 		std::string commandLine;
 
 		// Determine the output file name
@@ -595,7 +595,7 @@ public:
 		else
 			commandLine = program_ + " -m 1  -r -p " + bestParameterSetFile;;
 
-	    if(identifyer != "empty" && !identifyer.empty()) commandLine += (" -g \"" + identifyer + "\"");
+	    if(identifier != "empty" && !identifier.empty()) commandLine += (" -g \"" + identifier + "\"");
 		if(arguments_ != "empty" && !arguments_.empty()) commandLine +=  (" " + arguments_);
 
 #ifdef PRINTCOMMANDLINE
