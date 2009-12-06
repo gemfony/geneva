@@ -15,7 +15,8 @@ The build system now uses CMake in version 2.6, which is required due
 to the availability of the FindBoost macro.
 
 You will need a copy of Boost (see http://www.boost.org), in version
-1.36 or newer. See the Appendix "Compiling Boost" below for more details.
+1.36 or newer. See either the Appendix "Installing Boost in Debian/Ubuntu" or
+the Appendix "Compiling Boost" below for more details.
 
 In order to compile this project and the examples:
 Create a build directory anywhere in the file system and change into it.
@@ -80,8 +81,31 @@ ROOT in your system, as also some of the examples emit information in the ROOT f
 (they are essentially writing ROOT programs).
 
 
+Appendix: Installing Boost in Debian/Ubuntu
+===========================================
+
+Both Debian "Squeeze" (testing) and Ubuntu 9.10 "Karmic Koala" have the required
+Boost packages to be able to compile and run GenEvA:
+
+	libboost-dev
+	libboost-date-time-dev
+	libboost-filesystem-dev
+	libboost-program-options-dev
+	libboost-regex-dev
+	libboost-serialization-dev
+	libboost-system-dev
+	libboost-test-dev
+	libboost-thread-dev
+
+You can install them all at once with the command:
+
+sudo apt-get install libboost-dev libboost-date-time-dev libboost-filesystem-dev \
+	libboost-program-options-dev libboost-regex-dev libboost-serialization-dev \
+	libboost-system-dev libboost-test-dev libboost-thread-dev
+
+
 Appendix: Compiling Boost
-==========================
+=========================
 
 Download Boost from http://www.boost.org and extract the compressed file. This will create a
 folder "boost_1_40_0", for instance. Change to that folder and, assuming Boost should be
