@@ -213,7 +213,7 @@ bool GBaseClient::process(){
 	bool isDirty;
 	double fitness = target->getCurrentFitness(isDirty);
 
-	std::string portid = target->getAttribute("id");
+	std::string portid = target->getAttribute<std::string>("id");
 
 	if(portid.empty()){ // This is a severe error
 		std::ostringstream error;

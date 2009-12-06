@@ -199,10 +199,10 @@ public:
 
 		// Setting and retrieval of attributes
 		for(int i=0; i<10; i++) {
-			gpi2.setAttribute(boost::lexical_cast<std::string>(i), boost::lexical_cast<std::string>(i) + "-value");
+			gpi2.setAttribute<std::string>(boost::lexical_cast<std::string>(i), boost::lexical_cast<std::string>(i) + "-value");
 		}
 		for(int i=0; i<11; i++) {
-			std::string attributeValue =	gpi2.getAttribute(boost::lexical_cast<std::string>(i));
+			std::string attributeValue =	gpi2.getAttribute<std::string>(boost::lexical_cast<std::string>(i));
 			if(i<10) {
 				BOOST_CHECK(gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
 				BOOST_CHECK(attributeValue == boost::lexical_cast<std::string>(i) + "-value");
@@ -216,13 +216,13 @@ public:
 		// Delete some attributes
 		for(int i=0; i<10; i++) {
 			if(i%2==0) {
-				std::string previous = gpi2.delAttribute(boost::lexical_cast<std::string>(i));
-				BOOST_CHECK(previous == boost::lexical_cast<std::string>(i) + "-value");
+				bool success = gpi2.delAttribute(boost::lexical_cast<std::string>(i));
+				BOOST_CHECK(success == true);
 				BOOST_CHECK(!gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
 			}
 			else {
 				BOOST_CHECK(gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
-				std::string attributeValue =	gpi2.getAttribute(boost::lexical_cast<std::string>(i));
+				std::string attributeValue =	gpi2.getAttribute<std::string>(boost::lexical_cast<std::string>(i));
 				BOOST_CHECK(attributeValue == boost::lexical_cast<std::string>(i) + "-value");
 			}
 		}

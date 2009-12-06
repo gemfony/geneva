@@ -366,7 +366,7 @@ bool GIndividual::isDirty() const  {
  * Specify whether we want to work in maximization (true) or minimization
  * (false) mode
  *
- * @param mode A boolean whoch indicates whether we want to work in maximization or minimization mode
+ * @param mode A boolean which indicates whether we want to work in maximization or minimization mode
  */
 void GIndividual::setMaxMode(const bool& mode) {
 	maximize_ = mode;
@@ -437,39 +437,6 @@ boost::uint32_t GIndividual::getParentCounter() const {
 
 /**********************************************************************************/
 /**
- * Adds or sets an attribute in the object. Note that, if the attribute wasn't
- * available so far, std::map() will create a corresponding entry. If the entry
- * was available, the old setting will be returned by the function.
- *
- * @param key A key to be assigned to the attribute
- * @param attribute The actual attribute
- * @return The previous entry for this key, if any
- */
-std::string GIndividual::setAttribute(const std::string& key, const std::string& attribute){
-	std::string previous;
-
-	if(attributeTable_.find(key) != attributeTable_.end())	previous = attributeTable_[key];
-	attributeTable_[key]=attribute;
-
-	return previous;
-}
-
-/**********************************************************************************/
-/**
- * Retrieves an attribute from the object. An empty string will be returned if no
- * attribute with this key is available.
- *
- * @param key The key for the attribute.
- * @return The attribute associated with key (or an empty string, if this key doesn't exist)
- */
-std::string GIndividual::getAttribute(const std::string& key){
-	std::string result;
-	if(attributeTable_.find(key) != attributeTable_.end()) result = attributeTable_[key];
-    return result;
-}
-
-/**********************************************************************************/
-/**
  * Checks whether a given attribute has been stored in the individual
  *
  * @param key The key for the attribute
@@ -482,21 +449,18 @@ bool GIndividual::hasAttribute(const std::string& key) {
 
 /**********************************************************************************/
 /**
- * Removes an attribute from the object, if the corresponding key exists in the map. An
- * empty string will be returned, if this key doesn't exist-
+ * Removes an attribute from the object, if the corresponding key exists in the map.
  *
  * @param key The key of the attribute to be removed
- * @return The value of the attribute that has been removed (or an empty string, if this key doesn't exist)
+ * @return A boolean indicating whether the attribute was found
  */
-std::string GIndividual::delAttribute(const std::string& key){
-	std::string previous;
-
-	if(attributeTable_.find(key) != attributeTable_.end()) {
-		previous = attributeTable_[key];
+bool GIndividual::delAttribute(const std::string& key) {
+	if(this->hasAttribute(key)) {
 		attributeTable_.erase(key);
+		return true;
 	}
-
-	return previous;
+	else
+		return false;
 }
 
 /**********************************************************************************/
@@ -596,7 +560,7 @@ double GIndividual::checkedFitness(){
 bool GIndividual::process(){
 	bool gotUsefulResult = false;
 	bool previous=this->setAllowLazyEvaluation(false);
-	if(this->getAttribute("command") == "mutate") {
+	if(this->getAttribute<std::string>("command") == "mutate") {
 		if(processingCycles_ == 1 || this->getParentPopGeneration() == 0) {
 			this->mutate();
 			gotUsefulResult = true;
@@ -654,14 +618,14 @@ bool GIndividual::process(){
 			if(success) gotUsefulResult = true;
 		}
 	}
-	else if(this->getAttribute("command") == "evaluate") {
+	else if(this->getAttribute<std::string>("command") == "evaluate") {
 		this->fitness();
 		gotUsefulResult = true;
 	}
 	else {
 		std::ostringstream error;
 		error << "In GIndividual::process(): Unknown command:\""
-			  << this->getAttribute("command") << "\"" << std::endl;
+			  << this->getAttribute<std::string>("command") << "\"" << std::endl;
 
 		throw geneva_error_condition(error.str());
 	}

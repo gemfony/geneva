@@ -49,6 +49,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/date_time.hpp>
+#include <boost/variant.hpp>
 
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_
@@ -139,11 +140,11 @@ void copySmartPointerVector(const std::vector<boost::shared_ptr<T> >& from,
  */
 template <typename basic_type>
 bool checkForInequality(const std::string& className,
-									          const basic_type& x,
-									          const basic_type& y,
-									          const std::string& x_name,
-									          const std::string& y_name,
-									          const boost::logic::tribool& expected = boost::logic::indeterminate)
+		const basic_type& x,
+		const basic_type& y,
+		const std::string& x_name,
+		const std::string& y_name,
+		const boost::logic::tribool& expected = boost::logic::indeterminate)
 {
 	bool raiseAlarm = false;
 	bool result = false;
@@ -154,10 +155,10 @@ bool checkForInequality(const std::string& className,
 			raiseAlarm = true; // expected the result to be "inequal"
 
 			error << "//-----------------------------------------------------------------" << std::endl
-				      << "Found the following value(s) in inequality check of object of type \"" << className << "\":" << std::endl
-				      << x_name << " (type " << typeid(x).name() << ") = " << x << std::endl
-				      << y_name << " (type " << typeid(y).name() << ") = " << y << std::endl
-				      << "when inequality was expected" << std::endl;
+				  << "Found the following value(s) in inequality check of object of type \"" << className << "\":" << std::endl
+				  << x_name << " (type " << typeid(x).name() << ") = " << x << std::endl
+				  << y_name << " (type " << typeid(y).name() << ") = " << y << std::endl
+				  << "when inequality was expected" << std::endl;
 		}
 
 		result = false;
@@ -595,7 +596,22 @@ bool checkForDissimilarity(const std::string& className,
  * Specializations of some template functions
  */
 template <> bool checkForInequality<std::map<std::string, std::string> >(const std::string&, const std::map<std::string, std::string>&,	const std::map<std::string, std::string>&, const std::string&, const std::string&, const boost::logic::tribool& expected);
+template <> bool checkForInequality<std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> > >
+	(const std::string&,
+	 const std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> >&,
+	 const std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> >&,
+	 const std::string&,
+	 const std::string&,
+	 const boost::logic::tribool& expected);
 template <> bool checkForDissimilarity<std::map<std::string, std::string> >(const std::string&, const std::map<std::string, std::string>&, const std::map<std::string, std::string>&, const double&, const std::string&, const std::string&, const boost::logic::tribool& expected);
+template <> bool checkForDissimilarity<std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> > >
+    (const std::string&,
+     const std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> >&,
+     const std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> >&,
+     const double&,
+     const std::string&,
+     const std::string&,
+     const boost::logic::tribool& expected);
 template <> bool checkForDissimilarity<double>(const std::string&, const double&,	const double&, const double&, const std::string&, const std::string&, const boost::logic::tribool& expected);
 template <> bool checkForDissimilarity<double>(const std::string&,  const std::vector<double>&,  const std::vector<double>&,  const double&,  const std::string&, const std::string&, const boost::logic::tribool& expected);
 

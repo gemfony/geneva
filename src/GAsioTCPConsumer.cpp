@@ -96,7 +96,7 @@ void GAsioServerSession::processRequest() {
 			id = GINDIVIDUALBROKER->get(p, timeout);
 
 			// Store the id in the individual
-			p->setAttribute("id", boost::lexical_cast<std::string>(id));
+			p->setAttribute<std::string>("id", boost::lexical_cast<std::string>(id));
 
 			if (!this->submit(indptrToString(p, serializationMode_),"compute",boost::lexical_cast<std::string>(serializationMode_))) {
 				std::ostringstream information;
