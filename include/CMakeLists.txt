@@ -66,6 +66,7 @@ SET ( GENEVAINCLUDES
 	GParameterT.hpp
 	GParameterTCollectionT.hpp
 	GParameterValuePair.hpp
+	GPersonalityTraits.hpp
 	GRandom.hpp
 	GRandomFactory.hpp
 	GRateableI.hpp

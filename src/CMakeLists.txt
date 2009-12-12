@@ -49,6 +49,7 @@ SET ( GENEVASOURCES
 	GParameterSet
 	GParameterT
 	GParameterValuePair
+	GPersonalityTraits
 	GRandom
 	GRandomFactory
 	GSerializationHelperFunctions
