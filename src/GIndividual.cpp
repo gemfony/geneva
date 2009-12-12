@@ -442,7 +442,7 @@ boost::uint32_t GIndividual::getParentCounter() const {
  * @param key The key for the attribute
  * @return A boolean indicating whether the attribute is present or not
  */
-bool GIndividual::hasAttribute(const std::string& key) {
+bool GIndividual::hasAttribute(const std::string& key) const {
 	if(attributeTable_.find(key) != attributeTable_.end()) return true;
 	return false;
 }
@@ -480,6 +480,7 @@ void GIndividual::clearAttributes() {
  */
 bool GIndividual::updateOnStall() {
 	// This function should only be called for parents. Check ...
+	// ATTENTION: DEPENDENCY ON EA
 	if(!this->isParent()) {
 		std::ostringstream error;
 		error << "In GIndividual::updateOnStall(): Error!" << std::endl

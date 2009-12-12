@@ -56,7 +56,7 @@
 - Switch examples to the noisy parabola, due to its higher learning potential
 - Renovation of client / consumer infrastructure (clean base classes, separation of protocol from network implementation).
   Possibly: Network code as function objects ?
-- Test checkpointing of Geneva objects
+- Test check-pointing of Geneva objects
 - Check how many individuals are left out for large populations in networked mode, because of late arrival
 - Profile the server part of networked execution. Is de-serialization always necessary ?
 - Some error checks can be simplified if GBrokerPopulation tells its individuals that they are running on a server, where
@@ -84,7 +84,10 @@
 - Hide the core-Geneva headers in a single header for easier usage
 - Create a "dlopen individual", capable of loading external libraries for the evaluation step (Boost has a pluging framework in the making)
 - Check boost::optional for return values and indicating valid return values
-
+- Policy: FP-containers should always be in the front of a GIndividual and there should be an 
+  internal variable that indicates how many of the two different container types are available
+- Perform mutations locally on the server + get rid of the lazy evaluation
+ 
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
 - De-central sorting (by letting clients communicate)

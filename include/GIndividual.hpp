@@ -203,7 +203,7 @@ public:
 	 * Retrieves an attribute from the individual.
 	 *
 	 * @param key The key referring to the attribute
-	 * @return The retrieved value (or NULL, of not available)
+	 * @return The retrieved value (or NULL, if not available)
 	 */
 	template <typename T>
 	T getAttribute(const std::string& key) {
@@ -218,7 +218,7 @@ public:
 	/** @brief Removes an attribute from the individual */
 	bool delAttribute(const std::string&);
 	/** @brief Checks whether a given attribute is present */
-	bool hasAttribute(const std::string&);
+	bool hasAttribute(const std::string&) const;
 	/** @brief Clears the attribute table */
 	void clearAttributes();
 

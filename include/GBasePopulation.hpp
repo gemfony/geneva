@@ -438,6 +438,28 @@ public:
 	}
 
 	/**************************************************************************************************/
+	/**
+	 * Sets the generation parameter of an individual
+	 *
+	 * @param gi The individual whose parameter should be set
+	 * @param gen The generation value
+	 */
+	static void setIndParPopGeneration(GIndividual& gi, const boost::uint32_t gen) {
+		gi.setAttribute<boost::int32_t>("EAINDPPOPGEN", boost::numeric_cast<boost::int32_t>(gen));
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * Retrieves the parent-population's current generation of a given individual
+	 *
+	 * @param gi The individual whose generation should be retrieveds
+	 * @return The generation value
+	 */
+	static boost::uint32_t getIndParPopGeneration(GIndividual& gi) {
+		return boost::numeric_cast<boost::uint32_t>(gi.getAttribute<boost::int32_t>("EAINDPPOPGEN"));
+	}
+
+	/**************************************************************************************************/
 
 protected:
 	/** @brief user-defined halt-criterium for the optimization */
