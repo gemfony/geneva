@@ -299,6 +299,26 @@ void GBasePopulation::checkpoint(const bool& better) const {
 
 /***********************************************************************************/
 /**
+ * Sets the individual's personality types to EA
+ */
+void GBasePopulation::setIndividualPersonalities() {
+	GBasePopulation::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it)
+		(*it)->setPersonality(EA);
+}
+
+/***********************************************************************************/
+/**
+ * Resets the individual's personality types
+ */
+void GBasePopulation::resetIndividualPersonalities() {
+	GBasePopulation::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it)
+		(*it)->resetPersonality();
+}
+
+/***********************************************************************************/
+/**
  * Enforces a one-time selection policy of MUCOMMANU. This is used for updates of
  * the parents' structure in the optimize() function. As the quality of updated
  * parents may decrease, it is important to ensure that the next generation's parents
@@ -575,6 +595,9 @@ void GBasePopulation::optimize(const boost::uint32_t& startGeneration) {
 
 	// Finalize the info output
 	if(reportGeneration_) doInfo(INFOEND);
+
+	// Remove information particular to evolutionary algorithms from the individuals
+	resetIndividualPersonalities();
 }
 
 /***********************************************************************************/
@@ -727,14 +750,13 @@ void GBasePopulation::adjustPopulation() {
 		}
 	}
 
-	// Fill up as required. We are now sure we
-	// have a suitable number of individuals to do so
-	if(this_sz >= popSize_) return; // Nothing to do - more children than expected is o.k.
-	else { // We need to add members, so that we have a minimum of popSize_ members in the population
-		// Missing members are created as copies of the population's first individual
+	// Fill up as required. We are now sure we have a suitable number of individuals to do so
+	if(this_sz < popSize_) {
 		this->resize_clone(popSize_, data[0]);
 	}
 
+	// Let individuals know that they are part of an evolutionary algorithm
+	setIndividualPersonalities();
 	// Let parents know they are parents and children that they are children
 	markParents();
 	// Let all individuals know about the current generation

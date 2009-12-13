@@ -489,6 +489,11 @@ protected:
 	void markIndividualPositions();
 
 private:
+	/** @brief Sets the individual's personality types to EA */
+	void setIndividualPersonalities();
+	/** @brief Resets the individual's personality types */
+	void resetIndividualPersonalities();
+
 	/** @brief Enforces a one-time selection policy of MUCOMMANU */
 	void setOneTimeMuCommaNu();
 	/** @brief Updates the parent's structure */

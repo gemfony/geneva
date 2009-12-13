@@ -79,7 +79,7 @@ GIndividual::GIndividual(const GIndividual& cp) :
 {
 	// We need to take care of the personality pointer manually
 	this->setPersonality(pers_);
-	pt_ptr_->load(cp.pt_ptr_.get());
+	if(pers_ != NONE) pt_ptr_->load(cp.pt_ptr_.get());
 }
 
 /**********************************************************************************/
@@ -137,7 +137,7 @@ bool GIndividual::isEqualTo(const GObject& cp, const boost::logic::tribool& expe
 	if(checkForInequality("GIndividual", processingCycles_, gi_load->processingCycles_,"processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForInequality("GIndividual", maximize_, gi_load->maximize_,"maximize_", "gi_load->maximize_", expected)) return false;
 	if(checkForInequality("GIndividual", pers_, gi_load->pers_,"pers_", "gi_load->pers_", expected)) return false;
-	if(!pt_ptr_->isEqualTo(*(gi_load->pt_ptr_), expected)) return false;
+	if(pt_ptr_ && !pt_ptr_->isEqualTo(*(gi_load->pt_ptr_), expected)) return false;
 
 	return true;
 }
@@ -170,7 +170,7 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boos
 	if(checkForDissimilarity("GIndividual", processingCycles_, gi_load->processingCycles_, limit, "processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", maximize_, gi_load->maximize_, limit, "maximize_", "gi_load->maximize_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", pers_, gi_load->pers_, limit, "pers_", "gi_load->pers_", expected)) return false;
-	if(!pt_ptr_->isSimilarTo(*(gi_load->pt_ptr_), limit, expected)) return false;
+	if(pt_ptr_ && !pt_ptr_->isSimilarTo(*(gi_load->pt_ptr_), limit, expected)) return false;
 
 	return true;
 }
@@ -199,7 +199,7 @@ void GIndividual::load(const GObject* cp) {
 	maximize_ = gi_load->maximize_;
 
 	this->setPersonality(gi_load->pers_);
-	pt_ptr_->load((gi_load->pt_ptr_).get());
+	if(pers_ != NONE) pt_ptr_->load((gi_load->pt_ptr_).get());
 }
 
 /**********************************************************************************/

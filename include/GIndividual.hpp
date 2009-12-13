@@ -258,7 +258,8 @@ private:
 	/**************************************************************************************************/
 	/**
 	 * The function converts the local personality to the desired type and returns it for modification
-	 * by the corresponding optimization algorithm
+	 * by the corresponding optimization algorithm. The base algorithms have been declared "friend" of
+	 * GIndividual and can thus access this function. External entities have no need to do so.
 	 *
 	 * @return A boost::shared_ptr converted to the desired target type
 	 */
