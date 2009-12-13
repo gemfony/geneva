@@ -42,6 +42,7 @@ SET ( GENEVAINCLUDES
 	GenevaExceptions.hpp
 	GEnums.hpp
 	GGaussAdaptorT.hpp
+	GGDPersonalityTraits.hpp
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
 	GHelperFunctionsT.hpp
@@ -77,6 +78,7 @@ SET ( GENEVAINCLUDES
 	GSingletonT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GStdSimpleVectorInterfaceT.hpp
+	GSwarmPersonalityTraits.hpp
 	GThreadGroup.hpp
 )
 

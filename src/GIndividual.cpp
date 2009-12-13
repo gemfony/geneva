@@ -52,7 +52,8 @@ GIndividual::GIndividual() :
 	parentCounter_(0),
 	popPos_(0),
 	processingCycles_(1),
-	maximize_(false)
+	maximize_(false),
+	pers_(NONE)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -73,8 +74,13 @@ GIndividual::GIndividual(const GIndividual& cp) :
 	popPos_(cp.popPos_),
 	attributeTable_(cp.attributeTable_),
 	processingCycles_(cp.processingCycles_),
-	maximize_(cp.maximize_)
-{ /* nothing */ }
+	maximize_(cp.maximize_),
+	pers_(cp.pers_)
+{
+	// We need to take care of the personality pointer manually
+	this->setPersonality(pers_);
+	pt_ptr_->load(cp.pt_ptr_.get());
+}
 
 /**********************************************************************************/
 /**
@@ -130,6 +136,8 @@ bool GIndividual::isEqualTo(const GObject& cp, const boost::logic::tribool& expe
 	if(checkForInequality("GIndividual", attributeTable_, gi_load->attributeTable_,"attributeTable_", "gi_load->attributeTable_", expected)) return false;
 	if(checkForInequality("GIndividual", processingCycles_, gi_load->processingCycles_,"processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForInequality("GIndividual", maximize_, gi_load->maximize_,"maximize_", "gi_load->maximize_", expected)) return false;
+	if(checkForInequality("GIndividual", pers_, gi_load->pers_,"pers_", "gi_load->pers_", expected)) return false;
+	if(!pt_ptr_->isEqualTo(*(gi_load->pt_ptr_), expected)) return false;
 
 	return true;
 }
@@ -161,6 +169,8 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boos
 	if(checkForDissimilarity("GIndividual", attributeTable_, gi_load->attributeTable_,limit, "attributeTable_", "gi_load->attributeTable_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", processingCycles_, gi_load->processingCycles_, limit, "processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", maximize_, gi_load->maximize_, limit, "maximize_", "gi_load->maximize_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", pers_, gi_load->pers_, limit, "pers_", "gi_load->pers_", expected)) return false;
+	if(!pt_ptr_->isSimilarTo(*(gi_load->pt_ptr_), limit, expected)) return false;
 
 	return true;
 }
@@ -187,6 +197,9 @@ void GIndividual::load(const GObject* cp) {
 	attributeTable_ = gi_load->attributeTable_;
 	processingCycles_ = gi_load->processingCycles_;
 	maximize_ = gi_load->maximize_;
+
+	this->setPersonality(gi_load->pers_);
+	pt_ptr_->load((gi_load->pt_ptr_).get());
 }
 
 /**********************************************************************************/
@@ -380,6 +393,54 @@ void GIndividual::setMaxMode(const bool& mode) {
  */
 bool GIndividual::getMaxMode() const {
 	return maximize_;
+}
+
+/**********************************************************************************/
+/**
+ * Sets the current personality of this individual
+ *
+ * @param pers The desired personality of this individual
+ */
+void GIndividual::setPersonality(const personality& pers) {
+	if(this->pers_==pers && pt_ptr_)  return; // A suitable personality has already been added
+
+	switch(pers) {
+	case NONE:
+		pt_ptr_.reset();
+		break;
+
+	case EA:
+		pt_ptr_ = boost::shared_ptr<GEAPersonalityTraits>(new GEAPersonalityTraits());
+		break;
+
+	case GD:
+		pt_ptr_ = boost::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits());
+		break;
+
+	case SWARM:
+		pt_ptr_ = boost::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits());
+		break;
+	}
+
+	pers_ = pers;
+}
+
+/**********************************************************************************/
+/**
+ * Resets the current personality to NONE
+ */
+void GIndividual::resetPersonality() {
+	this->setPersonality(NONE);
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the current personality of this individual
+ *
+ * @return The current personality of this object
+ */
+personality GIndividual::getPersonality() const {
+	return pers_;
 }
 
 /**********************************************************************************/

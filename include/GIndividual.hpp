@@ -39,6 +39,7 @@
 // Boost header files go here
 #include <boost/variant.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/variant.hpp>
 
@@ -56,6 +57,9 @@
 #include "GMutableI.hpp"
 #include "GRateableI.hpp"
 #include "GObject.hpp"
+#include "GEAPersonalityTraits.hpp"
+#include "GGDPersonalityTraits.hpp"
+#include "GSwarmPersonalityTraits.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem {
@@ -77,6 +81,11 @@ class GIndividual
 	 public GObject
 {
 	///////////////////////////////////////////////////////////////////////
+	// Friend declarations needed so we can keep interaction with personality
+	// information private.
+	friend class GBasePopulation;
+
+	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
@@ -92,6 +101,8 @@ class GIndividual
 	  ar & make_nvp("attributeTable_",attributeTable_);
 	  ar & make_nvp("processingCycles_", processingCycles_);
 	  ar & make_nvp("maximize_", maximize_);
+	  ar & make_nvp("pers_", pers_);
+	  ar & make_nvp("pt_ptr_", pt_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -170,6 +181,9 @@ public:
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
 
+	/** @brief Retrieves the current personality of this individual */
+	personality getPersonality() const;
+
 	/*******************************************************************/
 	/**
 	 * Adds an attribute to the individual.
@@ -236,6 +250,39 @@ protected:
 	void setDirtyFlag() ;
 
 private:
+	/** @brief Sets the current personality of this individual */
+	void setPersonality(const personality&);
+	/** @brief Resets the current personality to NONE */
+	void resetPersonality();
+
+	/**************************************************************************************************/
+	/**
+	 * The function converts the local personality to the desired type and returns it for modification
+	 * by the corresponding optimization algorithm
+	 *
+	 * @return A boost::shared_ptr converted to the desired target type
+	 */
+	template <typename personality_type>
+	boost::shared_ptr<personality_type> getPersonalityTraits() {
+#ifdef DEBUG
+		// Convert to the desired target type
+		boost::shared_ptr<personality_type> p_load = boost::dynamic_pointer_cast<personality_type>(pt_ptr_);
+
+		// Check that the conversion worked. dynamic_cast emits an empty pointer, if this was not the case.
+		if(!p_load){
+			std::ostringstream error;
+			error << "In GIndividual::getPersonalityTraits<personality_type>() : Conversion error!" << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+
+		return p_load;
+#else
+		return boost::static_pointer_cast<personality_type>(pt_ptr_);
+#endif
+	}
+
+	/**************************************************************************************************/
+
 	/** @brief Sets the parentCounter_ parameter */
 	bool setIsParent(const bool&) ;
 
@@ -260,6 +307,10 @@ private:
     boost::uint32_t processingCycles_;
     /** @brief Indicates whether we are running in maximization or minimization mode */
     bool maximize_;
+    /** @brief Indicates the optimization algorithm the individual takes part in */
+    personality pers_;
+    /** @brief Holds the actual personality information */
+    boost::shared_ptr<GPersonalityTraits> pt_ptr_;
 };
 
 } /* namespace GenEvA */

@@ -324,6 +324,41 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::sortingMode& smode){
 }
 
 /*********************************************************************/
+/**
+ * Puts a Gem::GenEvA::personality item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param smode the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::personality& smode){
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(smode);
+	o << tmp;
+	return o;
+}
+
+/*********************************************************************/
+/**
+ * Reads a Gem::GenEvA::personality item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param smode The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::GenEvA::personality& smode){
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	smode = boost::numeric_cast<Gem::GenEvA::personality>(tmp);
+#else
+	smode = static_cast<Gem::GenEvA::personality>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/*********************************************************************/
 
 } /* namespace GenEvA */
 

@@ -120,6 +120,12 @@ std::ostream& operator<<(std::ostream&, const Gem::GenEvA::sortingMode&);
 /** @brief Reads a Gem::GenEvA::sortingMode from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::GenEvA::sortingMode&);
 
+/** @brief Puts a Gem::GenEvA::personality into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::GenEvA::personality&);
+
+/** @brief Reads a Gem::GenEvA::personality from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::GenEvA::personality&);
+
 /***************************************************************************************************/
 
 } /* namespace GenEvA */

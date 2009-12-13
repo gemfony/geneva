@@ -30,6 +30,7 @@
 
 // Standard headers go here
 #include <string>
+#include <sstream>
 
 // Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
@@ -63,6 +64,7 @@
 
 // GenEvA headers go here
 #include "GObject.hpp"
+#include "GenevaExceptions.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -86,7 +88,6 @@ class GPersonalityTraits :public GObject
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
 	  ar & make_nvp("parentAlgIteration_", parentAlgIteration_);
-	  ar & make_nvp("command_", command_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -116,14 +117,9 @@ public:
 	void setParentAlgIteration(const boost::uint32_t&);
 	/** @brief Gives access to the parent optimization algorithm's iteration */
 	boost::uint32_t getParentAlgIteration() const;
-	/** @brief Sets a command to be performed by a remote client. */
-	void setCommand(const std::string&);
-	/** @brief Retrieves the command to be performed by a remote client. */
-	std::string getCommand() const;
 
 private:
 	boost::uint32_t parentAlgIteration_; ///< The iteration of the parent algorithm's optimization cycle
-	std::string command_;
 };
 
 /*********************************************************************************/

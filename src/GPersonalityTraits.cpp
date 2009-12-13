@@ -42,8 +42,7 @@ namespace GenEvA {
  * The default constructor
  */
 GPersonalityTraits::GPersonalityTraits():
-	parentAlgIteration_(0),
-	command_("")
+	parentAlgIteration_(0)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -51,8 +50,7 @@ GPersonalityTraits::GPersonalityTraits():
  * The copy constructor
  */
 GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits& cp):
-	parentAlgIteration_(cp.parentAlgIteration_),
-	command_(cp.command_)
+	parentAlgIteration_(cp.parentAlgIteration_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -103,7 +101,6 @@ bool GPersonalityTraits::isEqualTo(const GObject& cp, const boost::logic::triboo
 
 	// Then we take care of the local data
 	if(checkForInequality("GPersonalityTraits", parentAlgIteration_, gpt_load->parentAlgIteration_,"parentAlgIteration_", "gpt_load->parentAlgIteration_", expected)) return false;
-	if(checkForInequality("GPersonalityTraits", command_, gpt_load->command_,"currentFitness_", "gpt_load->currentFitness_", expected)) return false;
 
 	return true;
 }
@@ -127,7 +124,6 @@ bool GPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, con
 
 	// Then we take care of the local data
 	if(checkForDissimilarity("GPersonalityTraits", parentAlgIteration_, gpt_load->parentAlgIteration_, limit, "parentAlgIteration_", "gpt_load->parentAlgIteration_", expected)) return false;
-	if(checkForDissimilarity("GPersonalityTraits", command_, gpt_load->command_, limit, "command_", "gpt_load->command_", expected)) return false;
 
 	return true;
 }
@@ -146,7 +142,6 @@ void GPersonalityTraits::load(const GObject *cp) {
 
 	// Then load our local data
 	parentAlgIteration_ = gpt_load->parentAlgIteration_;
-	command_ = gpt_load->command_;
 }
 
 /*****************************************************************************/
@@ -170,24 +165,6 @@ boost::uint32_t GPersonalityTraits::getParentAlgIteration() const {
 }
 
 /*****************************************************************************/
-/**
- * Sets a command to be performed by a remote client.
- *
- * @param command The command to be performed by a remote client
- */
-void GPersonalityTraits::setCommand(const std::string& command) {
-	command_ = command;
-}
-
-/*****************************************************************************/
-/**
- * Retrieves the command to be performed by a remote client.
- *
- * @return The command to be performed by a remote client.
- */
-std::string GPersonalityTraits::getCommand() const {
-	return command_;
-}
 
 } /* namespace GenEvA */
 } /* namespace Gem */

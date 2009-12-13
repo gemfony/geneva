@@ -44,7 +44,8 @@ namespace GenEvA {
 GEAPersonalityTraits::GEAPersonalityTraits()
 	:GPersonalityTraits(),
 	 parentCounter_(0),
-	 popPos_(0)
+	 popPos_(0),
+	 command_("")
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -56,7 +57,8 @@ GEAPersonalityTraits::GEAPersonalityTraits()
 GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits& cp)
 	:GPersonalityTraits(cp),
 	 parentCounter_(cp.parentCounter_),
-	 popPos_(cp.popPos_)
+	 popPos_(cp.popPos_),
+	 command_(cp.command_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -107,6 +109,7 @@ bool GEAPersonalityTraits::isEqualTo(const GObject& cp, const boost::logic::trib
 	// Then we take care of the local data
 	if(checkForInequality("GEAPersonalityTraits", parentCounter_, geapt_load->parentCounter_,"parentCounter_", "geapt_load->parentCounter_", expected)) return false;
 	if(checkForInequality("GEAPersonalityTraits", popPos_, geapt_load->popPos_,"popPos_", "geapt_load->popPos_", expected)) return false;
+	if(checkForInequality("GEAPersonalityTraits", command_, geapt_load->command_,"command_", "geapt_load->command_", expected)) return false;
 
 	return true;
 }
@@ -131,6 +134,7 @@ bool GEAPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, c
 	// Then we take care of the local data
 	if(checkForDissimilarity("GEAPersonalityTraits", parentCounter_, geapt_load->parentCounter_, limit, "parentCounter_", "geapt_load->parentCounter_", expected)) return false;
 	if(checkForDissimilarity("GEAPersonalityTraits", popPos_, geapt_load->popPos_, limit, "popPos_", "geapt_load->popPos_", expected)) return false;
+	if(checkForDissimilarity("GEAPersonalityTraits", command_, geapt_load->command_, limit, "command_", "geapt_load->command_", expected)) return false;
 
 	return true;
 }
@@ -160,6 +164,7 @@ void GEAPersonalityTraits::load(const GObject* cp) {
 	// Then load our local data
 	parentCounter_ = geapt_load->parentCounter_;
 	popPos_ = geapt_load->popPos_;
+	command_ = geapt_load->command_;
 }
 
 /*****************************************************************************/
@@ -224,6 +229,32 @@ void GEAPersonalityTraits::setPopulationPosition(std::size_t popPos) {
  */
 std::size_t GEAPersonalityTraits::getPopulationPosition(void) const {
 	return popPos_;
+}
+
+/*****************************************************************************/
+/**
+ * Sets a command to be performed by a remote client.
+ *
+ * @param command The command to be performed by a remote client
+ */
+void GEAPersonalityTraits::setCommand(const std::string& command) {
+	if(command != "evaluate" && command != "mutate") { // The allowed "grammar"
+		std::ostringstream error;
+		error << "In GEAPersonalityTraits::setCommand(): Got invalid command " << command << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+
+	command_ = command;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the command to be performed by a remote client.
+ *
+ * @return The command to be performed by a remote client.
+ */
+std::string GEAPersonalityTraits::getCommand() const {
+	return command_;
 }
 
 /*****************************************************************************/

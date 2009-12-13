@@ -47,6 +47,7 @@
 // GenEvA headers go here
 
 namespace Gem {
+
 namespace GenEvA {
 
 /**********************************************************************************************/
@@ -102,6 +103,14 @@ enum adaptorId {
  * (unless a better child was found). All other parents are selected from children only.
  */
 enum sortingMode {MUPLUSNU=0, MUCOMMANU=1, MUNU1PRETAIN=2};
+
+/**********************************************************************************************/
+/**
+ * Different optimization algorithms need to assign different information to individuals. They
+ * can thus assume different personalities, resulting in different data structures to be stored
+ * in them (see the GPersonalityTraits classes).
+ */
+enum personality {NONE=0, EA=1, GD=2, SWARM=3};
 
 /**********************************************************************************************/
 

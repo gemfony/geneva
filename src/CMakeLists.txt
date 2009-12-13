@@ -32,6 +32,7 @@ SET ( GENEVASOURCES
 	GDoubleParameter
 	GEAPersonalityTraits
 	GGaussAdaptorT
+	GGDPersonalityTraits
 	GHelperFunctionsT
 	GIndividual
 	GIndividualSet
@@ -54,6 +55,7 @@ SET ( GENEVASOURCES
 	GRandom
 	GRandomFactory
 	GSerializationHelperFunctions
+	GSwarmPersonalityTraits
 	GThreadGroup
 )
 

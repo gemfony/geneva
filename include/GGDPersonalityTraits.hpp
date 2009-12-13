@@ -1,5 +1,5 @@
 /**
- * @file GEAPersonalityTraits.hpp
+ * @file GGDPersonalityTraits.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -52,8 +52,8 @@
 #include <boost/serialization/export.hpp>
 
 
-#ifndef GEAPERSONALITYTRAITS_HPP_
-#define GEAPERSONALITYTRAITS_HPP_
+#ifndef GGDPERSONALITYTRAITS_HPP_
+#define GGDPERSONALITYTRAITS_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -72,7 +72,7 @@ namespace GenEvA {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to evolutionary algorithms.
  */
-class GEAPersonalityTraits :public GPersonalityTraits
+class GGDPersonalityTraits :public GPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -81,48 +81,31 @@ class GEAPersonalityTraits :public GPersonalityTraits
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GPersonalityTraits", boost::serialization::base_object<GPersonalityTraits>(*this));
-	  ar & make_nvp("parentCounter_", parentCounter_);
-	  ar & make_nvp("popPos_", popPos_);
 	  ar & make_nvp("command_", command_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GEAPersonalityTraits();
+	GGDPersonalityTraits();
 	/** @brief The copy contructor */
-	GEAPersonalityTraits(const GEAPersonalityTraits&);
+	GGDPersonalityTraits(const GGDPersonalityTraits&);
 	/** @brief The standard destructor */
-	virtual ~GEAPersonalityTraits();
+	virtual ~GGDPersonalityTraits();
 
-	/** @brief Checks for equality with another GEAPersonalityTraits object */
-	bool operator==(const GEAPersonalityTraits&) const;
-	/** @brief Checks for inequality with another GEAPersonalityTraits object */
-	bool operator!=(const GEAPersonalityTraits&) const;
-	/** @brief Checks for equality with another GEAPersonalityTraits object */
+	/** @brief Checks for equality with another GGDPersonalityTraits object */
+	bool operator==(const GGDPersonalityTraits&) const;
+	/** @brief Checks for inequality with another GGDPersonalityTraits object */
+	bool operator!=(const GGDPersonalityTraits&) const;
+	/** @brief Checks for equality with another GGDPersonalityTraits object */
 	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-	/** @brief Checks for similarity with another GEAPersonalityTraits object */
+	/** @brief Checks for similarity with another GGDPersonalityTraits object */
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const;
-	/** @brief Loads the data of another GEAPersonalityTraits object */
+	/** @brief Loads the data of another GGDPersonalityTraits object */
 	virtual void load(const GObject*);
-
-	/** @brief Checks whether this is a parent individual */
-	bool isParent() const ;
-	/** @brief Retrieves the current value of the parentCounter_ variable */
-	boost::uint32_t getParentCounter() const ;
-
-	/** @brief Marks an individual as a parent*/
-	bool setIsParent();
-	/** @brief Marks an individual as a child */
-	bool setIsChild();
-
-	/** @brief Sets the position of the individual in the population */
-	void setPopulationPosition(std::size_t) ;
-	/** @brief Retrieves the position of the individual in the population */
-	std::size_t getPopulationPosition(void) const ;
 
 	/** @brief Sets a command to be performed by a remote client. */
 	void setCommand(const std::string&);
@@ -130,10 +113,6 @@ public:
 	std::string getCommand() const;
 
 private:
-	/** @brief Allows populations to mark members as parents or children */
-	boost::uint32_t parentCounter_;
-	/** @brief Stores the current position in the population */
-	std::size_t popPos_;
 	/** @brief The command to be performed by remote clients */
 	std::string command_;
 };
@@ -142,5 +121,5 @@ private:
 } /* namespace Gem */
 
 
-#endif /* GEAPERSONALITYTRAITS_HPP_ */
+#endif /* GGDPERSONALITYTRAITS_HPP_ */
 
