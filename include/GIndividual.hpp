@@ -157,6 +157,8 @@ public:
 
 	/** @brief Checks whether this is a parent individual */
 	bool isParent() const ;
+	/** @brief Retrieves the current value of the parentCounter_ variable */
+	boost::uint32_t getParentCounter() const ;
 
 	/** @brief Marks an individual as a parent*/
 	bool setIsParent();
@@ -167,9 +169,6 @@ public:
 	void setMaxMode(const bool& mode);
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
-
-	/** @brief Retrieves the current value of the parentCounter_ variable */
-	boost::uint32_t getParentCounter() const ;
 
 	/*******************************************************************/
 	/**
@@ -257,8 +256,6 @@ private:
     std::size_t popPos_;
 	/** @brief Holds key/attribute pairs, with several attibute types being allowed */
     std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> > attributeTable_;
-    /** @brief Holds string attributes assigned to this class */
-    //std::map<std::string, std::string> attributeTable_;
     /** @brief The maximum number of processing cycles. 0 means "loop forever" (use with care!) */
     boost::uint32_t processingCycles_;
     /** @brief Indicates whether we are running in maximization or minimization mode */

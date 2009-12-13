@@ -38,11 +38,12 @@ SET ( GENEVAINCLUDES
 	GDoubleGaussAdaptor.hpp
 	GDoubleObjectCollection.hpp
 	GDoubleParameter.hpp
+	GEAPersonalityTraits.hpp
 	GenevaExceptions.hpp
-	GGlobalOptionsT.hpp
 	GEnums.hpp
 	GGaussAdaptorT.hpp
 	GGlobalDefines.hpp
+	GGlobalOptionsT.hpp
 	GHelperFunctionsT.hpp
 	GIndividualBroker.hpp
 	GIndividual.hpp

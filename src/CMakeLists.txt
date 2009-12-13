@@ -30,6 +30,7 @@ SET ( GENEVASOURCES
 	GDoubleGaussAdaptor
 	GDoubleObjectCollection
 	GDoubleParameter
+	GEAPersonalityTraits
 	GGaussAdaptorT
 	GHelperFunctionsT
 	GIndividual
