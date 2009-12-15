@@ -202,40 +202,6 @@ public:
 		gdc2_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(1.,0.001,0.,1.)));
 		gpi2.push_back(gdc2_ptr);
 
-		// Setting and retrieval of attributes
-		for(int i=0; i<10; i++) {
-			gpi2.setAttribute<std::string>(boost::lexical_cast<std::string>(i), boost::lexical_cast<std::string>(i) + "-value");
-		}
-		for(int i=0; i<11; i++) {
-			std::string attributeValue =	gpi2.getAttribute<std::string>(boost::lexical_cast<std::string>(i));
-			if(i<10) {
-				BOOST_CHECK(gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
-				BOOST_CHECK(attributeValue == boost::lexical_cast<std::string>(i) + "-value");
-			}
-			else { // no attribute "11" has been stored in the individual
-				BOOST_CHECK(!gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
-				BOOST_CHECK(attributeValue.empty());
-			}
-		}
-
-		// Delete some attributes
-		for(int i=0; i<10; i++) {
-			if(i%2==0) {
-				bool success = gpi2.delAttribute(boost::lexical_cast<std::string>(i));
-				BOOST_CHECK(success == true);
-				BOOST_CHECK(!gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
-			}
-			else {
-				BOOST_CHECK(gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
-				std::string attributeValue =	gpi2.getAttribute<std::string>(boost::lexical_cast<std::string>(i));
-				BOOST_CHECK(attributeValue == boost::lexical_cast<std::string>(i) + "-value");
-			}
-		}
-
-		// Delete all remaining attributes
-		gpi2.clearAttributes();
-		for(int i=0; i<20; i++) BOOST_CHECK(!gpi2.hasAttribute(boost::lexical_cast<std::string>(i)));
-
 		// Check that a default-constructed GIndividual does not regard itself as a parent
 		BOOST_CHECK(!gpi2.isParent());
 		BOOST_CHECK(gpi2.getParentCounter() == 0);

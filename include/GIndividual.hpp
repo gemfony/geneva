@@ -30,7 +30,6 @@
 // Standard header files go here
 #include <sstream>
 #include <string>
-#include <map>
 #include <cmath>
 
 // Includes check for correct Boost version(s)
@@ -95,10 +94,8 @@ class GIndividual
 	  ar & make_nvp("currentFitness_",currentFitness_);
 	  ar & make_nvp("dirtyFlag_",dirtyFlag_);
 	  ar & make_nvp("allowLazyEvaluation_",allowLazyEvaluation_);
-	  ar & make_nvp("parentPopGeneration_",parentPopGeneration_);
 	  ar & make_nvp("parentCounter_",parentCounter_);
 	  ar & make_nvp("popPos_",popPos_);
-	  ar & make_nvp("attributeTable_",attributeTable_);
 	  ar & make_nvp("processingCycles_", processingCycles_);
 	  ar & make_nvp("maximize_", maximize_);
 	  ar & make_nvp("pers_", pers_);
@@ -179,50 +176,6 @@ public:
 	/** @brief Retrieves the current personality of this individual */
 	personality getPersonality() const;
 
-	/*******************************************************************/
-	/**
-	 * Adds an attribute to the individual.
-	 *
-	 * @param key The key referring to the attribute
-	 * @param value The attribute's value
-	 * @return The attribute value
-	 */
-	template <typename T>
-	T setAttribute(const std::string& key, const T& value) {
-		// Do some preparatory checks
-		if(typeid(T) != typeid(std::string) &&
-				typeid(T) != typeid(boost::int32_t) &&
-				typeid(T) != typeid(double) &&
-				typeid(T) != typeid(bool)) {
-			std::ostringstream error;
-			error << "In GIndividual::setAttribute<>(): Error: bad type given for attribute: " << typeid(T).name() << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
-		}
-
-		// Add a suitable variant to the map
-		boost::variant<std::string, boost::int32_t, double, bool> attribute(value);
-		attributeTable_[key] = attribute;
-
-		return value;
-	}
-
-	/*******************************************************************/
-	/**
-	 * Retrieves an attribute from the individual.
-	 *
-	 * @param key The key referring to the attribute
-	 * @return The retrieved value (or NULL, if not available)
-	 */
-	template <typename T>
-	T getAttribute(const std::string& key) {
-		if(this->hasAttribute(key))
-			return boost::get<T>(attributeTable_[key]); // will throw if T is not a valid type
-		else
-			return (T)NULL;
-	}
-
-	/*******************************************************************/
-
 	/** @brief This function returns the current personality traits base pointer */
 	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
@@ -254,13 +207,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
-	/** @brief Removes an attribute from the individual */
-	bool delAttribute(const std::string&);
-	/** @brief Checks whether a given attribute is present */
-	bool hasAttribute(const std::string&) const;
-	/** @brief Clears the attribute table */
-	void clearAttributes();
 
 	/** @brief Wrapper for customUpdateOnStall that does error checking and sets the dirty flag */
 	virtual bool updateOnStall();
@@ -294,14 +240,10 @@ private:
     bool dirtyFlag_;
     /** @brief Steers whether lazy evaluation is allowed */
     bool allowLazyEvaluation_;
-    /** @brief Holds the parent population's current generation */
-    boost::uint32_t parentPopGeneration_;
     /** @brief Allows populations to mark members as parents or children */
     boost::uint32_t parentCounter_;
     /** @brief Stores the current position in the population */
     std::size_t popPos_;
-	/** @brief Holds key/attribute pairs, with several attribute types being allowed */
-    std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> > attributeTable_;
     /** @brief The maximum number of processing cycles. 0 means "loop forever" (use with care!) */
     boost::uint32_t processingCycles_;
     /** @brief Indicates whether we are running in maximization or minimization mode */

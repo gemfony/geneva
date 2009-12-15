@@ -48,7 +48,6 @@ GIndividual::GIndividual() :
 	currentFitness_(0.),
 	dirtyFlag_(true),
 	allowLazyEvaluation_(false),
-	parentPopGeneration_(0),
 	parentCounter_(0),
 	popPos_(0),
 	processingCycles_(1),
@@ -69,10 +68,8 @@ GIndividual::GIndividual(const GIndividual& cp) :
 	currentFitness_(cp.currentFitness_),
 	dirtyFlag_(cp.dirtyFlag_),
 	allowLazyEvaluation_(cp.allowLazyEvaluation_),
-	parentPopGeneration_(cp.parentPopGeneration_),
 	parentCounter_(cp.parentCounter_),
 	popPos_(cp.popPos_),
-	attributeTable_(cp.attributeTable_),
 	processingCycles_(cp.processingCycles_),
 	maximize_(cp.maximize_),
 	pers_(cp.pers_)
@@ -130,10 +127,8 @@ bool GIndividual::isEqualTo(const GObject& cp, const boost::logic::tribool& expe
 	if(checkForInequality("GIndividual", currentFitness_, gi_load->currentFitness_,"currentFitness_", "gi_load->currentFitness_", expected)) return false;
 	if(checkForInequality("GIndividual", dirtyFlag_, gi_load->dirtyFlag_,"dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
 	if(checkForInequality("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,"allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
-	if(checkForInequality("GIndividual", parentPopGeneration_, gi_load->parentPopGeneration_,"parentPopGeneration_", "gi_load->parentPopGeneration_", expected)) return false;
 	if(checkForInequality("GIndividual", parentCounter_, gi_load->parentCounter_,"parentCounter_", "gi_load->parentCounter_", expected)) return false;
 	if(checkForInequality("GIndividual", popPos_, gi_load->popPos_,"popPos_", "gi_load->popPos_", expected)) return false;
-	if(checkForInequality("GIndividual", attributeTable_, gi_load->attributeTable_,"attributeTable_", "gi_load->attributeTable_", expected)) return false;
 	if(checkForInequality("GIndividual", processingCycles_, gi_load->processingCycles_,"processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForInequality("GIndividual", maximize_, gi_load->maximize_,"maximize_", "gi_load->maximize_", expected)) return false;
 	if(checkForInequality("GIndividual", pers_, gi_load->pers_,"pers_", "gi_load->pers_", expected)) return false;
@@ -163,10 +158,8 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boos
 	if(checkForDissimilarity("GIndividual", currentFitness_, gi_load->currentFitness_, limit, "currentFitness_", "gi_load->currentFitness_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", dirtyFlag_, gi_load->dirtyFlag_, limit, "dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,limit, "allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", parentPopGeneration_, gi_load->parentPopGeneration_,limit, "parentPopGeneration_", "gi_load->parentPopGeneration_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", parentCounter_, gi_load->parentCounter_,limit, "parentCounter_", "gi_load->parentCounter_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", popPos_, gi_load->popPos_,limit, "popPos_", "gi_load->popPos_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", attributeTable_, gi_load->attributeTable_,limit, "attributeTable_", "gi_load->attributeTable_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", processingCycles_, gi_load->processingCycles_, limit, "processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", maximize_, gi_load->maximize_, limit, "maximize_", "gi_load->maximize_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", pers_, gi_load->pers_, limit, "pers_", "gi_load->pers_", expected)) return false;
@@ -191,10 +184,8 @@ void GIndividual::load(const GObject* cp) {
 	currentFitness_ = gi_load->currentFitness_;
 	dirtyFlag_ = gi_load->dirtyFlag_;
 	allowLazyEvaluation_ = gi_load->allowLazyEvaluation_;
-	parentPopGeneration_ = gi_load->parentPopGeneration_;
 	parentCounter_ = gi_load->parentCounter_;
 	popPos_ = gi_load->popPos_;
-	attributeTable_ = gi_load->attributeTable_;
 	processingCycles_ = gi_load->processingCycles_;
 	maximize_ = gi_load->maximize_;
 
@@ -229,17 +220,20 @@ void GIndividual::mutate() {
  */
 double GIndividual::fitness() {
 	if (dirtyFlag_) {
-		// Except for generation 0, it is an error if lazy evaluation is not allowed, but
-		// the dirty flag is set. There the fitness calculation of parents happens before
-		// the mutations
-		if (!allowLazyEvaluation_ && parentPopGeneration_>0) {
+
+#ifdef DEBUG
+		// Except for iteration 0, it is an error if lazy evaluation is not allowed, but
+		// the dirty flag is set. There the fitness calculation of initial individuals happens
+		// before their modification.
+		if (!allowLazyEvaluation_ && this->getPersonalityTraits()->getParentAlgIteration() > 0) {
 			std::ostringstream error;
 			error << "In GIndividual::fitness(): Error!" << std::endl
-					<< "The dirty flag is set while lazy evaluation is not allowed."
-					<< std::endl;
+				  << "The dirty flag is set while lazy evaluation is not allowed."
+				  << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
+#endif /* DEBUG */
 
 		currentFitness_ = fitnessCalculation();
 		setDirtyFlag(false);
@@ -474,42 +468,6 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
  */
 boost::uint32_t GIndividual::getParentCounter() const {
 	return parentCounter_;
-}
-
-/**********************************************************************************/
-/**
- * Checks whether a given attribute has been stored in the individual
- *
- * @param key The key for the attribute
- * @return A boolean indicating whether the attribute is present or not
- */
-bool GIndividual::hasAttribute(const std::string& key) const {
-	if(attributeTable_.find(key) != attributeTable_.end()) return true;
-	return false;
-}
-
-/**********************************************************************************/
-/**
- * Removes an attribute from the object, if the corresponding key exists in the map.
- *
- * @param key The key of the attribute to be removed
- * @return A boolean indicating whether the attribute was found
- */
-bool GIndividual::delAttribute(const std::string& key) {
-	if(this->hasAttribute(key)) {
-		attributeTable_.erase(key);
-		return true;
-	}
-	else
-		return false;
-}
-
-/**********************************************************************************/
-/**
- * Clears the attribute table.
- */
-void GIndividual::clearAttributes() {
-	attributeTable_.clear();
 }
 
 /**********************************************************************************/

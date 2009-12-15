@@ -33,7 +33,6 @@
 
 // Standard headers go here
 #include <vector>
-#include <map>
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -595,23 +594,6 @@ bool checkForDissimilarity(const std::string& className,
 /*
  * Specializations of some template functions
  */
-template <> bool checkForInequality<std::map<std::string, std::string> >(const std::string&, const std::map<std::string, std::string>&,	const std::map<std::string, std::string>&, const std::string&, const std::string&, const boost::logic::tribool& expected);
-template <> bool checkForInequality<std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> > >
-	(const std::string&,
-	 const std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> >&,
-	 const std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> >&,
-	 const std::string&,
-	 const std::string&,
-	 const boost::logic::tribool& expected);
-template <> bool checkForDissimilarity<std::map<std::string, std::string> >(const std::string&, const std::map<std::string, std::string>&, const std::map<std::string, std::string>&, const double&, const std::string&, const std::string&, const boost::logic::tribool& expected);
-template <> bool checkForDissimilarity<std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> > >
-    (const std::string&,
-     const std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> >&,
-     const std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> >&,
-     const double&,
-     const std::string&,
-     const std::string&,
-     const boost::logic::tribool& expected);
 template <> bool checkForDissimilarity<double>(const std::string&, const double&,	const double&, const double&, const std::string&, const std::string&, const boost::logic::tribool& expected);
 template <> bool checkForDissimilarity<double>(const std::string&,  const std::vector<double>&,  const std::vector<double>&,  const double&,  const std::string&, const std::string&, const boost::logic::tribool& expected);
 
