@@ -236,7 +236,7 @@ public:
 #ifdef PRINTCOMMANDLINE
 		std::cout << "Requesting template with commandLine = \"" << commandLine << "\" ...";
 #endif /* PRINTCOMMANDLINE */
-		system(commandLine.c_str());
+		GExternalEvaluator::runCommand(commandLine);
 #ifdef PRINTCOMMANDLINE
 		std::cout << "... done." << std::endl;
 #endif /* PRINTCOMMANDLINE */
@@ -249,7 +249,7 @@ public:
 
 		// Erase the parameter file - not needed anymore. Hmmm - this is not portable to Windows
 		// See here for a way to do this portably: http://www.boost.org/doc/libs/1_38_0/libs/filesystem/doc/index.htm
-		system(("rm -f  " + parameterFile_).c_str());
+		GExternalEvaluator::runCommand("rm -f  " + parameterFile_);
 	}
 
 	/********************************************************************************************/
@@ -299,7 +299,7 @@ public:
 #ifdef PRINTCOMMANDLINE
 		std::cout << "Initializing with command line = \"" << commandLine << "\" ...";
 #endif /* PRINTCOMMANDLINE */
-		system(commandLine.c_str());
+		GExternalEvaluator::runCommand(commandLine);
 #ifdef PRINTCOMMANDLINE
 		std::cout << " ... done." << std::endl;
 #endif /* PRINTCOMMANDLINE */
@@ -326,7 +326,7 @@ public:
 #ifdef PRINTCOMMANDLINE
 		std::cout << "Finalizing with command line = \"" << commandLine << "\" ...";
 #endif /* PRINTCOMMANDLINE */
-		system(commandLine.c_str());
+		GExternalEvaluator::runCommand(commandLine);
 #ifdef PRINTCOMMANDLINE
 		std::cout << " ... done." << std::endl;
 #endif /* PRINTCOMMANDLINE */
@@ -602,13 +602,13 @@ public:
 		std::cout << "Printing result with command line = \"" << commandLine << "\" ...";
 #endif /* PRINTCOMMANDLINE */
 		// Initiate the result calculation
-		system(commandLine.c_str());
+		GExternalEvaluator::runCommand(commandLine);
 #ifdef PRINTCOMMANDLINE
 		std::cout << " ... done." << std::endl;
 #endif /* PRINTCOMMANDLINE */
 
 		// Clean up - remove the result file
-		system(("rm -f " + bestParameterSetFile).c_str());
+		GExternalEvaluator::runCommand("rm -f " + bestParameterSetFile);
 	}
 
 protected:
@@ -631,7 +631,7 @@ protected:
 
 		// Make the parameters known externally
 		std::string parFile = parameterFile_ + "_" +
-											boost::lexical_cast<std::string>(this->getParentPopGeneration()) + "_" +
+											boost::lexical_cast<std::string>(this->getPersonalityTraits()->getParentAlgIteration()) + "_" +
 										    boost::lexical_cast<std::string>( this->getPopulationPosition());
 
 		// Write out the required data
@@ -652,7 +652,7 @@ protected:
 #ifdef PRINTCOMMANDLINE
 		std::cout << "Calculating result with command line = \"" << commandLine << "\" ...";
 #endif /* PRINTCOMMANDLINE */
-		system(commandLine.c_str()); // It is not clear whether this is thread-safe
+		GExternalEvaluator::runCommand(commandLine); // It is not clear whether this is thread-safe
 #ifdef PRINTCOMMANDLINE
 		std::cout << " ... done." << std::endl;
 #endif /* PRINTCOMMANDLINE */
@@ -670,7 +670,7 @@ protected:
 		}
 
 		// Clean up - remove the parameter file
-		system(("rm -f " + parFile).c_str());
+		GExternalEvaluator::runCommand("rm -f " + parFile);
 
 		// Let the audience know
 		return result;
@@ -943,6 +943,23 @@ private:
 			return gde_.value();
 		}
 		return 0.;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Execute an external command, reacting to possible errors.
+	 *
+	 * @param command The command to be executed
+	 */
+	static void runCommand(const std::string& command) {
+		int errorCode = system(command.c_str());
+		if(errorCode) {
+			std::ostringstream error;
+			error << "In GExternalEvaluator::runCommand(): Error" << std::endl
+				  << "Command: " << command << std::endl
+				  << "Error code: " << errorCode << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
 	}
 
 	/********************************************************************************************/

@@ -297,26 +297,6 @@ bool GIndividual::getAllowLazyEvaluation() const  {
 
 /**********************************************************************************/
 /**
- * Sets the generation of the population this individual is in
- *
- * @param parenPopGeneration The generation of the parent population
- */
-void GIndividual::setParentPopGeneration(const boost::uint32_t& parentPopGeneration)  {
-	parentPopGeneration_ = parentPopGeneration;
-}
-
-/**********************************************************************************/
-/**
- * Retrieves the parentPopGeneration_ parameter
- *
- * @return The current generation of the parent population
- */
-boost::uint32_t GIndividual::getParentPopGeneration() const  {
-	return parentPopGeneration_;
-}
-
-/**********************************************************************************/
-/**
  * Sets the parentCounter_ parameter. This is a counter which lets us find out
  * how often this object has become a parent in one go. Become parent frequently
  * could indicate that the mutations need to cover a wider area, as the
@@ -638,7 +618,7 @@ bool GIndividual::process(){
 		bool gotUsefulResult = false;
 		bool previous=this->setAllowLazyEvaluation(false);
 		if(this->getPersonalityTraits()->getCommand() == "mutate") {
-			if(processingCycles_ == 1 || this->getParentPopGeneration() == 0) {
+			if(processingCycles_ == 1 || this->getPersonalityTraits()->getParentAlgIteration() == 0) {
 				this->mutate();
 				gotUsefulResult = true;
 			}
@@ -653,7 +633,7 @@ bool GIndividual::process(){
 					std::ostringstream error;
 					error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl
 							<< "Identifying information:" << std::endl
-							<< "generation = " << getParentPopGeneration() << std::endl
+							<< "generation = " this->getPersonalityTraits()->getParentAlgIteration() << std::endl
 							<< "position in population = " << getPopulationPosition() << std::endl
 							<< "isParent = " << (isParent()?"true":"false") << std::endl;
 					throw geneva_error_condition(error.str());

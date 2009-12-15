@@ -369,7 +369,6 @@ void GBrokerPopulation::mutateChildren() {
 			// Note that we only have parents left in this generation
 			for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
 				(*rit)->getPersonalityTraits()->setCommand("mutate");
-				// (*rit)->setAttribute<std::string>("command","evaluate");
 				CurrentBufferPort_->push_front_orig(*rit);
 			}
 
@@ -414,7 +413,7 @@ void GBrokerPopulation::mutateChildren() {
 
 			// If it is from the current generation, break the loop.
 			// Update the number of items received.
-			if(p->getParentPopGeneration() == generation){
+			if(p->getPersonalityTraits()->getParentAlgIteration() == generation){
 				// Add the individual to our list.
 				this->push_back(p);
 
@@ -427,7 +426,7 @@ void GBrokerPopulation::mutateChildren() {
 			else {
 				if(!p->isParent()){ // We do not accept parents from older populations
 					// Make it known to the individual that it is now part of a new generation
-					p->setParentPopGeneration(generation);
+					p->getPersonalityTraits()->setParentAlgIteration(generation);
 
 					// Add the individual to our list.
 					this->push_back(p);
@@ -471,7 +470,7 @@ void GBrokerPopulation::mutateChildren() {
 			CurrentBufferPort_->pop_back_processed(&p,loopTime_);
 
 			// Count the number of items received.
-			if(p->getParentPopGeneration() == generation) {
+			if(p->getPersonalityTraits()->getParentAlgIteration() == generation) {
 				// Add the individual to our list.
 				this->push_back(p);
 
@@ -482,7 +481,7 @@ void GBrokerPopulation::mutateChildren() {
 			else {
 				if(!p->isParent()){  // Parents from older populations will be ignored, as there is no else clause
 					// Make it known to the individual that it is now part of a new generation
-					p->setParentPopGeneration(generation);
+					p->getPersonalityTraits()->setParentAlgIteration(generation);
 
 					// Add the individual to our list.
 					this->push_back(p);

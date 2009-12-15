@@ -105,10 +105,10 @@ protected:
 	virtual bool init();
 
 	/** @brief Retrieve work items from the server. */
-	virtual bool retrieve(std::string&, std::string&);
+	virtual bool retrieve(std::string&, std::string&, std::string&);
 
 	/** @brief Submit processed items to the server. */
-	virtual bool submit(const std::string&, const std::string&, const std::string&, const std::string&);
+	virtual bool submit(const std::string&, const std::string&);
 
 private:
 	GAsioTCPClient(); ///< Default constructor intentionally left blank

@@ -5,5 +5,9 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	TestIndividuals
+)
+
+ADD_SUBDIRECTORY (
 	UnitTests
 )

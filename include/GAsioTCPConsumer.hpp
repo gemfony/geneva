@@ -114,9 +114,9 @@ protected:
 	/** @brief Write a single command to the stream */
 	void sendSingleCommand(const std::string&);
 	/** @brief Retrieve items from the client. */
-	bool retrieve(std::string&, std::string&, std::string&, std::string&);
+	bool retrieve(std::string&, std::string&);
 	/** @brief Submit items to the client. */
-	bool submit(const std::string&, const std::string&, const std::string&);
+	bool submit(const std::string&, const std::string&, const std::string&, const std::string&);
 
 private:
 	GAsioServerSession(); ///< Intentionally left undefined

@@ -43,7 +43,7 @@
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
 #include "GParameterSet.hpp"
-#include "GParabolaIndividual.hpp"
+#include "GTestIndividual1.hpp"
 #include "GDoubleCollection.hpp"
 #include "GInt32Collection.hpp"
 #include "GDoubleGaussAdaptor.hpp"
@@ -64,7 +64,12 @@ public:
 	// Test features that are expected to work
 	void no_failure_expected() {
 		// Default construction
-		GParabolaIndividual gpi;
+		GTestIndividual1 gpi;
+
+		// Make this an evolutionary algorithm individual
+		gpi.setPersonalityType(EA);
+		// Check that this is indeed the case
+		BOOST_CHECK(gpi.getPersonalityType() == EA);
 
 		// Test the vector interface of GMutableSetT
 		boost::shared_ptr<GDoubleCollection> tempIItem_ptr(new GDoubleCollection(100, -10., 10.));
@@ -81,18 +86,18 @@ public:
 		BOOST_CHECK(!gpi.empty());
 
 		// Copy construction
-		GParabolaIndividual gpi_cc(gpi);
+		GTestIndividual1 gpi_cc(gpi);
 		BOOST_CHECK(gpi_cc.isEqualTo(gpi));
 
 		// Assignment
-		GParabolaIndividual gpi_as;
+		GTestIndividual1 gpi_as;
 		gpi_as = gpi;
 		BOOST_CHECK(gpi_as.isEqualTo(gpi));
 
 		// Test cloning and loading
 		GObject *gpi_clone;
 		BOOST_CHECK_NO_THROW(gpi_clone = gpi.clone());
-		GParabolaIndividual gpi_load;
+		GTestIndividual1 gpi_load;
 		BOOST_CHECK_NO_THROW(gpi_load.load(gpi_clone));
 		BOOST_CHECK(gpi_load.isEqualTo(gpi));
 		delete gpi_clone;
@@ -122,12 +127,12 @@ public:
 		// Test serialization and loading in different serialization modes
 		{ // plain text format
 			// Copy construction of a new object
-			GParabolaIndividual gpi_ser;
+			GTestIndividual1 gpi_ser;
 			boost::shared_ptr<GDoubleCollection> gdc_ser1(new GDoubleCollection(100, -10., 10.));
 			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ser1(new GDoubleGaussAdaptor(1.,0.001,0.,1.));
 			gdc_ser1->addAdaptor(gdga_ser1);
 			gpi_ser.push_back(gdc_ser1);
-			GParabolaIndividual gpi_ser_cp(gpi_ser);
+			GTestIndividual1 gpi_ser_cp(gpi_ser);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gpi_ser_cp == gpi_ser);
@@ -145,12 +150,12 @@ public:
 
 		{ // XML format
 			// Copy construction of a new object
-			GParabolaIndividual gpi_ser;
+			GTestIndividual1 gpi_ser;
 			boost::shared_ptr<GDoubleCollection> gdc_ser1(new GDoubleCollection(100, -10., 10.));
 			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ser1(new GDoubleGaussAdaptor(1.,0.001,0.,1.));
 			gdc_ser1->addAdaptor(gdga_ser1);
 			gpi_ser.push_back(gdc_ser1);
-			GParabolaIndividual gpi_ser_cp(gpi_ser);
+			GTestIndividual1 gpi_ser_cp(gpi_ser);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gpi_ser_cp == gpi_ser);
@@ -169,12 +174,12 @@ public:
 		{ // binary test format
 			// Copy construction of a new object
 			// Copy construction of a new object
-			GParabolaIndividual gpi_ser;
+			GTestIndividual1 gpi_ser;
 			boost::shared_ptr<GDoubleCollection> gdc_ser1(new GDoubleCollection(100, -10., 10.));
 			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ser1(new GDoubleGaussAdaptor(1.,0.001,0.,1.));
 			gdc_ser1->addAdaptor(gdga_ser1);
 			gpi_ser.push_back(gdc_ser1);
-			GParabolaIndividual gpi_ser_cp(gpi_ser);
+			GTestIndividual1 gpi_ser_cp(gpi_ser);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gpi_ser_cp == gpi_ser);
@@ -192,7 +197,7 @@ public:
 
 		//----------------------------------------------------------------------------------------------
 		// Tests of the GIndividual interface
-		GParabolaIndividual gpi2;
+		GTestIndividual1 gpi2;
 		boost::shared_ptr<GDoubleCollection> gdc2_ptr(new GDoubleCollection(100, -10., 10.));
 		gdc2_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(1.,0.001,0.,1.)));
 		gpi2.push_back(gdc2_ptr);
@@ -260,8 +265,8 @@ public:
 
 		// Do the same with the current generation
 		for(boost::uint32_t i=0; i<10000; i++) {
-			gpi2.setParentPopGeneration(i);
-			BOOST_CHECK(i==gpi2.getParentPopGeneration());
+			(gpi2.getPersonalityTraits())->setParentAlgIteration(i);
+			BOOST_CHECK(i==(gpi2.getPersonalityTraits())->getParentAlgIteration());
 		}
 
 		// The dirty flag should have been set by default
@@ -303,7 +308,7 @@ public:
 		{
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-			GParabolaIndividual gpi;
+			GTestIndividual1 gpi;
 			BOOST_CHECK_THROW(gpi.load(&gpi), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 		}
@@ -311,7 +316,7 @@ public:
 #ifdef DEBUG
 		{
 			// Default construction
-			GParabolaIndividual gpi;
+			GTestIndividual1 gpi;
 
 			// Needed for the following throw test
 			boost::shared_ptr<GDoubleCollection > gdc_ptr(new GDoubleCollection(100, -10., 10.));
@@ -326,7 +331,9 @@ public:
 
 		{
 			// Default construction
-			GParabolaIndividual gpi;
+			GTestIndividual1 gpi;
+			gpi.setPersonalityType(EA);
+			BOOST_CHECK(gpi.getPersonalityType() == EA);
 
 			// Needed for the following throw test
 			boost::shared_ptr<GDoubleCollection > gdc_ptr(new GDoubleCollection(100, -10., 10.));
@@ -337,7 +344,7 @@ public:
 			// As the dirty flag is set, but lazy evaluation is not allowed, calculating
 			// the object's fitness should throw in generations larger than 0 (see also the GIndividual::fitness() function)
 			BOOST_CHECK(gpi.isDirty());
-			gpi.setParentPopGeneration(1);
+			(gpi.getPersonalityTraits())->setParentAlgIteration(1);
 			BOOST_CHECK_THROW(gpi.fitness(), Gem::GenEvA::geneva_error_condition);
 		}
 	}
@@ -349,7 +356,7 @@ private:
 
 /********************************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GParameterSet class, using the GParabolaIndividual class. It also
+// by the GParameterSet class, using the GTestIndividual1 class. It also
 // checks the functionality of the GMutableSetT and the GIndividual classes,
 // as far as possible.
 class GParameterSetSuite: public test_suite

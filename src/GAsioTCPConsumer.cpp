@@ -95,10 +95,11 @@ void GAsioServerSession::processRequest() {
 			// Retrieve an item
 			id = GINDIVIDUALBROKER->get(p, timeout);
 
-			// Store the id in the individual
-			p->setAttribute<std::string>("id", boost::lexical_cast<std::string>(id));
-
-			if (!this->submit(indptrToString(p, serializationMode_),"compute",boost::lexical_cast<std::string>(serializationMode_))) {
+			if (!this->submit(indptrToString(p, serializationMode_),
+				              "compute",
+				              boost::lexical_cast<std::string>(serializationMode_),
+				              boost::lexical_cast<std::string>(id)))
+			{
 				std::ostringstream information;
 				information << "In GAsioServerSession::processRequest():" << std::endl
 							<< "Could not submit item to client!" << std::endl;
@@ -116,9 +117,9 @@ void GAsioServerSession::processRequest() {
 	// Retrieve an item from the client and
 	// submit it to the broker
 	else if (command == "result") {
-		std::string itemString, portid, fitness, dirtyflag;
+		std::string itemString, portid;
 
-		if (this->retrieve(itemString, portid, fitness, dirtyflag)) {
+		if (this->retrieve(itemString, portid)) {
 			// Give the object back to the broker, so it can be sorted back
 			// into the GBufferPortT objects.
 			boost::shared_ptr<GIndividual> p = indptrFromString(itemString, serializationMode_);
@@ -211,15 +212,11 @@ void GAsioServerSession::sendSingleCommand(const std::string& command){
  *
  * @param itemString An item to be retrieved from the socket
  * @param portid String representation of the id of the port the item originated from
- * @param fitness String representation of the fitness of the item
- * @param dirtyFlag Indicates whether the dirtyFlag of the item is set
  * @return true if successful, otherwise false
  */
-bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid, std::string& fitness, std::string& dirtyFlag){
+bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid){
 	itemString="";
 	portid="";
-	fitness="";
-	dirtyFlag="";
 
 	char inbound_header[COMMANDLENGTH];
 
@@ -227,14 +224,6 @@ bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid, 
 		// Read the port id from the socket and translate it into a string
 		boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
 		portid = boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH)); // removes white spaces
-
-		// Read the fitness from the socket
-		boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
-		fitness = boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH));
-
-		// Read the dirty flag from the socket
-		boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
-		dirtyFlag = boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH));
 
 		// Read the data size from the socket and translate into a number
 		boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
@@ -260,7 +249,10 @@ bool GAsioServerSession::retrieve(std::string& itemString, std::string& portid, 
  * @param item An item to be written to the socket
  * @return true if successful, otherwise false
  */
-bool GAsioServerSession::submit(const std::string& item, const std::string& command, const std::string& serMode){
+bool GAsioServerSession::submit(const std::string& item,
+								const std::string& command,
+								const std::string& serMode,
+								const std::string& portId){
 	// Format the command
 	std::string outbound_command_header = assembleQueryString(command, COMMANDLENGTH);
 
@@ -270,6 +262,9 @@ bool GAsioServerSession::submit(const std::string& item, const std::string& comm
 	// Format a header for the serialization mode
 	std::string serialization_header = assembleQueryString(serMode, COMMANDLENGTH);
 
+	// Format the portId header
+	std::string portid_header = assembleQueryString(portId, COMMANDLENGTH);
+
 	// Write the serialized data to the socket. We use "gather-write" to send
 	// command, header and data in a single write operation.
 	std::vector<boost::asio::const_buffer> buffers;
@@ -277,6 +272,7 @@ bool GAsioServerSession::submit(const std::string& item, const std::string& comm
 	buffers.push_back(boost::asio::buffer(outbound_command_header));
 	buffers.push_back(boost::asio::buffer(outbound_size_header));
 	buffers.push_back(boost::asio::buffer(serialization_header));
+	buffers.push_back(boost::asio::buffer(portid_header));
 	buffers.push_back(boost::asio::buffer(item));
 
 	try{

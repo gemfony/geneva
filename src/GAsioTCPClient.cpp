@@ -184,7 +184,7 @@ bool GAsioTCPClient::init() {
  * @param item Holds the string representation of the work item, if successful
  * @return true if operation should be continued, otherwise false
  */
-bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
+bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode, std::string& portId) {
 	item = "empty"; // Indicates that no item could be retrieved
 
 	try {
@@ -218,6 +218,10 @@ bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
 			// Now retrieve the serialization mode that was used
 			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
 			serMode = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
+
+			// Retrieve the port id
+			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
+			portId = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
 
 			// Create appropriately sized buffer
 			char *inboundData = new char[dataSize];
@@ -300,12 +304,9 @@ bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode) {
  *
  * @param item String to be submitted to the server
  * @param portid The port id of the individual to be submitted
- * @param fitness The current fitness of the individual to be submitted
- * @param isDirty Specifies whether the dirty flag was set on the individual
  * @return true if operation was successful, otherwise false
  */
-bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
-					        const std::string& fitness, const std::string& isDirty) {
+bool GAsioTCPClient::submit(const std::string& item, const std::string& portid) {
 	// Let's assemble an appropriate buffer
 	std::vector<boost::asio::const_buffer> buffers;
 	std::string result = assembleQueryString("result", COMMANDLENGTH); // The command
@@ -314,14 +315,6 @@ bool GAsioTCPClient::submit(const std::string& item, const std::string& portid,
 	// Assemble a buffer for the port id
 	std::string portidString = assembleQueryString(portid,COMMANDLENGTH);
 	buffers.push_back(boost::asio::buffer(portidString));
-
-	// Assemble a buffer for the fitness
-	std::string fitnessString = assembleQueryString(fitness,COMMANDLENGTH);
-	buffers.push_back(boost::asio::buffer(fitnessString));
-
-	// Assemble a buffer for the dirty flag
-	std::string dirtyString = assembleQueryString(isDirty,COMMANDLENGTH);
-	buffers.push_back(boost::asio::buffer(dirtyString));
 
 	// Assemble the size header
 	std::string sizeHeader = assembleQueryString(boost::lexical_cast<std::string> (item.size()), COMMANDLENGTH);

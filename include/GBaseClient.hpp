@@ -119,10 +119,10 @@ protected:
 	virtual bool finally() { return true; }
 
 	/** @brief Retrieve work items from the server. To be defined by derived classes. */
-	virtual bool retrieve(std::string&, std::string&) = 0;
+	virtual bool retrieve(std::string&, std::string&, std::string&) = 0;
 
 	/** @brief Submit processed items to the server. To be defined by derived classes. */
-	virtual bool submit(const std::string&, const std::string&, const std::string&, const std::string&) = 0;
+	virtual bool submit(const std::string&, const std::string&) = 0;
 
 	/** @brief Custom halt condition for processing */
 	virtual bool customHalt(){return false;};

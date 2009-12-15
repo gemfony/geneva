@@ -303,8 +303,7 @@ void GBasePopulation::checkpoint(const bool& better) const {
  */
 void GBasePopulation::setIndividualPersonalities() {
 	GBasePopulation::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it)
-		(*it)->setPersonality(EA);
+	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(EA);
 }
 
 /***********************************************************************************/
@@ -313,8 +312,7 @@ void GBasePopulation::setIndividualPersonalities() {
  */
 void GBasePopulation::resetIndividualPersonalities() {
 	GBasePopulation::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it)
-		(*it)->resetPersonality();
+	for(it=this->begin(); it!=this->end(); ++it) (*it)->resetPersonality();
 }
 
 /***********************************************************************************/
@@ -1509,7 +1507,7 @@ void GBasePopulation::markMaxMode() {
 void GBasePopulation::markGeneration() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it){
-		(*it)->setParentPopGeneration(generation_);
+		(*it)->getPersonalityTraits()->setParentAlgIteration(generation_);
 	}
 }
 

@@ -81,8 +81,8 @@ class GIndividual
 	 public GObject
 {
 	///////////////////////////////////////////////////////////////////////
-	// Friend declarations needed so we can keep interaction with personality
-	// information private.
+	// Needed so only the corresponding optimization algorithms can set the
+    // personality of an individual
 	friend class GBasePopulation;
 
 	///////////////////////////////////////////////////////////////////////
@@ -155,11 +155,6 @@ public:
 
 	/** @brief Check whether the dirty flag is set */
 	bool isDirty() const ;
-
-	/** @brief Sets the parentPopGeneration_ parameter */
-	void setParentPopGeneration(const boost::uint32_t&) ;
-	/** @brief Retrieve the parentPopGeneration_ parameter */
-	boost::uint32_t getParentPopGeneration() const ;
 
 	/** @brief Sets the position of the individual in the population */
 	void setPopulationPosition(std::size_t) ;
@@ -281,12 +276,12 @@ protected:
 	/** @brief Sets the dirtyFlag_ */
 	void setDirtyFlag() ;
 
-private:
 	/** @brief Sets the current personality of this individual */
 	void setPersonality(const personality&);
 	/** @brief Resets the current personality to NONE */
 	void resetPersonality();
 
+private:
 	/** @brief Sets the parentCounter_ parameter */
 	bool setIsParent(const bool&) ;
 

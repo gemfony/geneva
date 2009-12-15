@@ -175,12 +175,11 @@ bool GBaseClient::process(){
 	serializationMode serMode;
 
 	// Get an item from the server
-	std::string istr;
-	std::string serModeStr;
-	if(!this->retrieve(istr, serModeStr)) return false;
+	std::string istr, serModeStr, portId;
+	if(!this->retrieve(istr, serModeStr, portId)) return false;
 
 	// There is a possibility that we have received an unknown command
-	// or a timeout command. In this case we want to try again until retrieve
+	// or a timeout command. In this case we want to try again until retrieve()
 	// returns "false". If we return true here, the next "process" command will
 	// be executed.
 	if(istr == "empty") return true;
@@ -208,31 +207,9 @@ bool GBaseClient::process(){
 	// false.
 	if(!target->process() && !returnRegardless_) return true;
 
-	// We do not want to accidently trigger value calculation if it is not desired by the user
-	// - after all we do not know in this class what is being done in GIndividual::process() .
-	bool isDirty;
-	double fitness = target->getCurrentFitness(isDirty);
-
-	std::string portid = target->getAttribute<std::string>("id");
-
-	if(portid.empty()){ // This is a severe error
-		std::ostringstream error;
-		error << "In GBaseClient::process() : Error!" << std::endl
-			  << "Empty portid found" << std::endl;
-		std::cerr << error.str();
-
-		return false;
-	}
-
 	// transform target back into a string and submit to the server. The actual
 	// actions done by submit are defined by derived classes.
-	if(!this->submit(
-			indptrToString(target, serMode),
-			portid,
-			boost::lexical_cast<std::string>(fitness),
-			boost::lexical_cast<std::string>(isDirty)
-			)
-	) return false;
+	if(!this->submit(indptrToString(target, serMode), portId)) return false;
 
 	// Everything worked. Indicate that we want to continue
 	return true;
