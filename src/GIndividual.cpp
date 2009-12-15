@@ -534,6 +534,18 @@ void GIndividual::clearAttributes() {
 
 /**********************************************************************************/
 /**
+ * This function returns the current personality traits base pointer. Note that there
+ * is another version of the same command that does on-the-fly conversion of the
+ * personality traits to the derived class.
+ *
+ * @return A shared pointer to the personality traits base class
+ */
+boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
+	return pt_ptr_;
+}
+
+/**********************************************************************************/
+/**
  * A wrapper for GIndividual::customUpdateOnStall() (or the corresponding overloaded
  * functions in derived classes) that does error-checking and sets the dirty flag.
  *
@@ -620,80 +632,95 @@ double GIndividual::checkedFitness(){
  * @return A boolean which indicates whether processing has led to a useful result
  */
 bool GIndividual::process(){
-	bool gotUsefulResult = false;
-	bool previous=this->setAllowLazyEvaluation(false);
-	if(this->getAttribute<std::string>("command") == "mutate") {
-		if(processingCycles_ == 1 || this->getParentPopGeneration() == 0) {
-			this->mutate();
-			gotUsefulResult = true;
-		}
-		else{
-			// Retrieve this object's current fitness.
-			bool isDirty=false;
-			double originalFitness = getCurrentFitness(isDirty);
+	switch(pers_) {
+	case EA: // Evolutionary Algorithm
+	{
+		bool gotUsefulResult = false;
+		bool previous=this->setAllowLazyEvaluation(false);
+		if(this->getPersonalityTraits()->getCommand() == "mutate") {
+			if(processingCycles_ == 1 || this->getParentPopGeneration() == 0) {
+				this->mutate();
+				gotUsefulResult = true;
+			}
+			else{
+				// Retrieve this object's current fitness.
+				bool isDirty=false;
+				double originalFitness = getCurrentFitness(isDirty);
 
 #ifdef DEBUG
-			// Individuals that arrive here for mutation should be "clean"
-			if(isDirty) {
-				std::ostringstream error;
-				error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl
-					  << "Identifying information:" << std::endl
-					  << "generation = " << getParentPopGeneration() << std::endl
-					  << "position in population = " << getPopulationPosition() << std::endl
-					  << "isParent = " << (isParent()?"true":"false") << std::endl;
-				throw geneva_error_condition(error.str());
-			}
+				// Individuals that arrive here for mutation should be "clean"
+				if(isDirty) {
+					std::ostringstream error;
+					error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl
+							<< "Identifying information:" << std::endl
+							<< "generation = " << getParentPopGeneration() << std::endl
+							<< "position in population = " << getPopulationPosition() << std::endl
+							<< "isParent = " << (isParent()?"true":"false") << std::endl;
+					throw geneva_error_condition(error.str());
+				}
 #endif /* DEBUG */
 
-			// Record the number of processing cycles
-			boost::uint32_t nCycles=0;
+				// Record the number of processing cycles
+				boost::uint32_t nCycles=0;
 
-			// Will hold a copy of this object
-			boost::shared_ptr<GIndividual> p;
+				// Will hold a copy of this object
+				boost::shared_ptr<GIndividual> p;
 
-			// Indicates whether a better solution was found
-			bool success = false;
+				// Indicates whether a better solution was found
+				bool success = false;
 
-			// Loop until a better solution was found or the maximum number of attempts was reached
-			while(true) {
-				// Create a copy of this object
-				p = this->clone_bptr_cast<GIndividual>();
+				// Loop until a better solution was found or the maximum number of attempts was reached
+				while(true) {
+					// Create a copy of this object
+					p = this->clone_bptr_cast<GIndividual>();
 
-				// Mutate and check fitness. Leave if a better solution was found
-				p->mutate();
-				if((!maximize_ && p->fitness() < originalFitness) ||
-				   (maximize_ && p->fitness() > originalFitness))
-				{
-					success = true;
-					break;
+					// Mutate and check fitness. Leave if a better solution was found
+					p->mutate();
+					if((!maximize_ && p->fitness() < originalFitness) ||
+							(maximize_ && p->fitness() > originalFitness))
+					{
+						success = true;
+						break;
+					}
+
+					// Leave if the maximum number of cycles was reached. Will continue
+					// to loop if processingCycles_ is 0 (dangerous!)
+					if(processingCycles_ && nCycles++ >= processingCycles_) break;
 				}
 
-				// Leave if the maximum number of cycles was reached. Will continue
-				// to loop if processingCycles_ is 0 (dangerous!)
-				if(processingCycles_ && nCycles++ >= processingCycles_) break;
+				// Load the last tested solution into this object
+				this->load(p.get());
+
+				// If a better solution was found, let the audience know
+				if(success) gotUsefulResult = true;
 			}
-
-			// Load the last tested solution into this object
-			this->load(p.get());
-
-			// If a better solution was found, let the audience know
-			if(success) gotUsefulResult = true;
 		}
+		else if(this->getPersonalityTraits()->getCommand() == "evaluate") {
+			this->fitness();
+			gotUsefulResult = true;
+		}
+		else {
+			std::ostringstream error;
+			error << "In GIndividual::process(): Unknown command: \""
+					<< this->getPersonalityTraits()->getCommand() << "\"" << std::endl;
+
+			throw geneva_error_condition(error.str());
+		}
+		this->setAllowLazyEvaluation(previous);
+
+		return gotUsefulResult;
 	}
-	else if(this->getAttribute<std::string>("command") == "evaluate") {
-		this->fitness();
-		gotUsefulResult = true;
-	}
-	else {
+	break;
+
+	default:
+	{
 		std::ostringstream error;
-		error << "In GIndividual::process(): Unknown command:\""
-			  << this->getAttribute<std::string>("command") << "\"" << std::endl;
-
-		throw geneva_error_condition(error.str());
+		error << "In GIndividual::process(): Error" << std::endl
+			  << "Processing for invalid algorithm requested" << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
 	}
-	this->setAllowLazyEvaluation(previous);
-
-	return gotUsefulResult;
+	break;
+	}
 }
 
 /**********************************************************************************/

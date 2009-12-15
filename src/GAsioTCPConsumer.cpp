@@ -110,7 +110,7 @@ void GAsioServerSession::processRequest() {
 			this->sendSingleCommand("timeout");
 		}
 
-		// p have automatically been destroyed at this point
+		// p has automatically been destroyed at this point
 		// and should thus exist no longer on the system
 	}
 	// Retrieve an item from the client and

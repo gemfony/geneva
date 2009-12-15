@@ -228,32 +228,8 @@ public:
 
 	/*******************************************************************/
 
-	/** @brief Removes an attribute from the individual */
-	bool delAttribute(const std::string&);
-	/** @brief Checks whether a given attribute is present */
-	bool hasAttribute(const std::string&) const;
-	/** @brief Clears the attribute table */
-	void clearAttributes();
-
-	/** @brief Wrapper for customUpdateOnStall that does error checking and sets the dirty flag */
-	virtual bool updateOnStall();
-
-protected:
-	/** @brief Updates the individual's structure and/or parameters, if the optimization has stalled */
-	virtual bool customUpdateOnStall();
-	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation() = 0;
-	/** @brief The actual mutation operations */
-	virtual void customMutations() = 0;
-
-	/** @brief Sets the dirtyFlag_ */
-	void setDirtyFlag() ;
-
-private:
-	/** @brief Sets the current personality of this individual */
-	void setPersonality(const personality&);
-	/** @brief Resets the current personality to NONE */
-	void resetPersonality();
+	/** @brief This function returns the current personality traits base pointer */
+	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
 
 	/**************************************************************************************************/
 	/**
@@ -284,6 +260,33 @@ private:
 
 	/**************************************************************************************************/
 
+	/** @brief Removes an attribute from the individual */
+	bool delAttribute(const std::string&);
+	/** @brief Checks whether a given attribute is present */
+	bool hasAttribute(const std::string&) const;
+	/** @brief Clears the attribute table */
+	void clearAttributes();
+
+	/** @brief Wrapper for customUpdateOnStall that does error checking and sets the dirty flag */
+	virtual bool updateOnStall();
+
+protected:
+	/** @brief Updates the individual's structure and/or parameters, if the optimization has stalled */
+	virtual bool customUpdateOnStall();
+	/** @brief The actual fitness calculation takes place here */
+	virtual double fitnessCalculation() = 0;
+	/** @brief The actual mutation operations */
+	virtual void customMutations() = 0;
+
+	/** @brief Sets the dirtyFlag_ */
+	void setDirtyFlag() ;
+
+private:
+	/** @brief Sets the current personality of this individual */
+	void setPersonality(const personality&);
+	/** @brief Resets the current personality to NONE */
+	void resetPersonality();
+
 	/** @brief Sets the parentCounter_ parameter */
 	bool setIsParent(const bool&) ;
 
@@ -302,7 +305,7 @@ private:
     boost::uint32_t parentCounter_;
     /** @brief Stores the current position in the population */
     std::size_t popPos_;
-	/** @brief Holds key/attribute pairs, with several attibute types being allowed */
+	/** @brief Holds key/attribute pairs, with several attribute types being allowed */
     std::map<std::string, boost::variant<std::string, boost::int32_t, double, bool> > attributeTable_;
     /** @brief The maximum number of processing cycles. 0 means "loop forever" (use with care!) */
     boost::uint32_t processingCycles_;

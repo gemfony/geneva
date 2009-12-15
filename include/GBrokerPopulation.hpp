@@ -59,6 +59,7 @@
 #include "GBasePopulation.hpp"
 #include "GBufferPortT.hpp"
 #include "GIndividualBroker.hpp"
+#include "GEAPersonalityTraits.hpp"
 
 namespace Gem
 {

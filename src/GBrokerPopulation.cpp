@@ -352,7 +352,7 @@ void GBrokerPopulation::mutateChildren() {
 	// Start with the children from the back of the population
 	// This is the same for MUPLUSNU and MUCOMMANU mode
 	for(rit=data.rbegin(); rit!=data.rbegin()+nc; ++rit) {
-		(*rit)->setAttribute<std::string>("command","mutate");
+		(*rit)->getPersonalityTraits()->setCommand("mutate");
 		CurrentBufferPort_->push_front_orig(*rit);
 	}
 
@@ -368,7 +368,8 @@ void GBrokerPopulation::mutateChildren() {
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			// Note that we only have parents left in this generation
 			for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
-				(*rit)->setAttribute<std::string>("command","evaluate");
+				(*rit)->getPersonalityTraits()->setCommand("mutate");
+				// (*rit)->setAttribute<std::string>("command","evaluate");
 				CurrentBufferPort_->push_front_orig(*rit);
 			}
 

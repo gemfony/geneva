@@ -125,9 +125,9 @@ public:
 	std::size_t getPopulationPosition(void) const ;
 
 	/** @brief Sets a command to be performed by a remote client. */
-	void setCommand(const std::string&);
+	virtual void setCommand(const std::string&);
 	/** @brief Retrieves the command to be performed by a remote client. */
-	std::string getCommand() const;
+	virtual std::string getCommand() const;
 
 private:
 	/** @brief Allows populations to mark members as parents or children */

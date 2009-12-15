@@ -118,6 +118,11 @@ public:
 	/** @brief Gives access to the parent optimization algorithm's iteration */
 	boost::uint32_t getParentAlgIteration() const;
 
+	/** @brief Sets a command to be performed by a remote client. */
+	virtual void setCommand(const std::string&) = 0;
+	/** @brief Retrieves the command to be performed by a remote client. */
+	virtual std::string getCommand() const = 0;
+
 private:
 	boost::uint32_t parentAlgIteration_; ///< The iteration of the parent algorithm's optimization cycle
 };

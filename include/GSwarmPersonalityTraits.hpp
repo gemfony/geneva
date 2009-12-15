@@ -108,9 +108,9 @@ public:
 	virtual void load(const GObject*);
 
 	/** @brief Sets a command to be performed by a remote client. */
-	void setCommand(const std::string&);
+	virtual void setCommand(const std::string&);
 	/** @brief Retrieves the command to be performed by a remote client. */
-	std::string getCommand() const;
+	virtual std::string getCommand() const;
 
 private:
 	/** @brief The command to be performed by remote clients */
