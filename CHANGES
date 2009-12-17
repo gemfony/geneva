@@ -2,6 +2,9 @@
 * Version 0.6.1, "Route Arago" - yet unreleased
 
 The main changes for this release include:
+ - Removed all direct dependencies of GIndividual objects from the optimization algorithm in order to
+   allow the implementation of additional algorithms, based on the same data structures and 
+   parallelizsaton framework
  - Gave the GAsioTCPConsumer the ability to automatically determine the number of listener threads.
    Should improve scalability of the server on systems with many cores. 
  - Added GDelayIndividual in order to allow measurement of the overhead incurred through the parallelization

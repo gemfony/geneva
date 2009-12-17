@@ -418,13 +418,13 @@ void GBrokerPopulation::mutateChildren() {
 				this->push_back(p);
 
 				// Update the counter.
-				if(p->isParent()) nReceivedParent++;
+				if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
 				else nReceivedChildCurrent++;
 
 				break;
 			}
 			else {
-				if(!p->isParent()){ // We do not accept parents from older populations
+				if(!p->getEAPersonalityTraits()->isParent()){ // We do not accept parents from older populations
 					// Make it known to the individual that it is now part of a new generation
 					p->getPersonalityTraits()->setParentAlgIteration(generation);
 
@@ -475,11 +475,11 @@ void GBrokerPopulation::mutateChildren() {
 				this->push_back(p);
 
 				// Update the counter
-				if(p->isParent()) nReceivedParent++;
+				if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
 				else nReceivedChildCurrent++;
 			}
 			else {
-				if(!p->isParent()){  // Parents from older populations will be ignored, as there is no else clause
+				if(!p->getEAPersonalityTraits()->isParent()){  // Parents from older populations will be ignored, as there is no else clause
 					// Make it known to the individual that it is now part of a new generation
 					p->getPersonalityTraits()->setParentAlgIteration(generation);
 
@@ -526,8 +526,7 @@ void GBrokerPopulation::mutateChildren() {
 
 		// Sort according to parent/child tag. We do not know in what order individuals have returned.
 		// Hence we need to sort them.
-		sort(data.begin(), data.end(),
-			 boost::bind(&GIndividual::isParent, _1) > boost::bind(&GIndividual::isParent, _2));
+		sort(data.begin(), data.end(), indParentComp());
 	}
 
 	//--------------------------------------------------------------------------------
@@ -609,7 +608,9 @@ void GBrokerPopulation::mutateChildren() {
 	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)){
 		GBasePopulation::iterator it;
 		for(it=this->begin(); it!=this->begin() + this->getNParents(); ++it) {
-			if(!(*it)->isParent()) (*it)->setIsParent();
+			if(!(*it)->getEAPersonalityTraits()->isParent()) {
+				(*it)->getEAPersonalityTraits()->setIsParent();
+			}
 		}
 	}
 

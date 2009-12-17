@@ -94,8 +94,6 @@ class GIndividual
 	  ar & make_nvp("currentFitness_",currentFitness_);
 	  ar & make_nvp("dirtyFlag_",dirtyFlag_);
 	  ar & make_nvp("allowLazyEvaluation_",allowLazyEvaluation_);
-	  ar & make_nvp("parentCounter_",parentCounter_);
-	  ar & make_nvp("popPos_",popPos_);
 	  ar & make_nvp("processingCycles_", processingCycles_);
 	  ar & make_nvp("maximize_", maximize_);
 	  ar & make_nvp("pers_", pers_);
@@ -153,21 +151,6 @@ public:
 	/** @brief Check whether the dirty flag is set */
 	bool isDirty() const ;
 
-	/** @brief Sets the position of the individual in the population */
-	void setPopulationPosition(std::size_t) ;
-	/** @brief Retrieves the position of the individual in the population */
-	std::size_t getPopulationPosition(void) const ;
-
-	/** @brief Checks whether this is a parent individual */
-	bool isParent() const ;
-	/** @brief Retrieves the current value of the parentCounter_ variable */
-	boost::uint32_t getParentCounter() const ;
-
-	/** @brief Marks an individual as a parent*/
-	bool setIsParent();
-	/** @brief Marks an individual as a child */
-	bool setIsChild();
-
 	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	void setMaxMode(const bool& mode);
 	/** @brief Allows to retrieve the maximize_ parameter */
@@ -207,7 +190,42 @@ public:
 	}
 
 	/**************************************************************************************************/
+	/**
+	 * Convenience function to make the code more readable. Gives access to the evolutionary algorithm
+	 * personality. Will throw if another personality is active. Inline, as it is defined in the class
+	 * declaration.
+	 *
+	 * @return A shared_ptr to the evolutionary algorithms personality traits
+	 */
+	boost::shared_ptr<GEAPersonalityTraits> getEAPersonalityTraits() {
+		return this->getPersonalityTraits<GEAPersonalityTraits>();
+	}
 
+	/**************************************************************************************************/
+	/**
+	 * Convenience function to make the code more readable. Gives access to the gradient descent
+	 * personality. Will throw if another personality is active. Inline, as it is defined in the class
+	 * declaration.
+	 *
+	 * @return A shared_ptr to the gradient descent personality traits
+	 */
+	boost::shared_ptr<GGDPersonalityTraits> getGDPersonalityTraits() {
+		return this->getPersonalityTraits<GGDPersonalityTraits>();
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * Convenience function to make the code more readable. Gives access to the swarm algorithm
+	 * personality. Will throw if another personality is active. Inline, as it is defined in the class
+	 * declaration.
+	 *
+	 * @return A shared_ptr to the swarm algorithms personality traits
+	 */
+	boost::shared_ptr<GSwarmPersonalityTraits> getSwarmPersonalityTraits() {
+		return this->getPersonalityTraits<GSwarmPersonalityTraits>();
+	}
+
+	/**************************************************************************************************/
 	/** @brief Wrapper for customUpdateOnStall that does error checking and sets the dirty flag */
 	virtual bool updateOnStall();
 
@@ -228,9 +246,6 @@ protected:
 	void resetPersonality();
 
 private:
-	/** @brief Sets the parentCounter_ parameter */
-	bool setIsParent(const bool&) ;
-
 	/** @brief Sets the dirtyFlag_ to any desired value */
 	bool setDirtyFlag(const bool&) ;
 
@@ -240,10 +255,6 @@ private:
     bool dirtyFlag_;
     /** @brief Steers whether lazy evaluation is allowed */
     bool allowLazyEvaluation_;
-    /** @brief Allows populations to mark members as parents or children */
-    boost::uint32_t parentCounter_;
-    /** @brief Stores the current position in the population */
-    std::size_t popPos_;
     /** @brief The maximum number of processing cycles. 0 means "loop forever" (use with care!) */
     boost::uint32_t processingCycles_;
     /** @brief Indicates whether we are running in maximization or minimization mode */

@@ -203,30 +203,30 @@ public:
 		gpi2.push_back(gdc2_ptr);
 
 		// Check that a default-constructed GIndividual does not regard itself as a parent
-		BOOST_CHECK(!gpi2.isParent());
-		BOOST_CHECK(gpi2.getParentCounter() == 0);
+		BOOST_CHECK(!(gpi2.getEAPersonalityTraits())->isParent());
+		BOOST_CHECK((gpi2.getEAPersonalityTraits())->getParentCounter() == 0);
 
 		// Mark the individual as parent a few times. Should update the parent counter
 		for(boost::uint32_t i=0; i<10; i++) {
-			bool previous = gpi2.setIsParent();
+			bool previous = (gpi2.getEAPersonalityTraits())->setIsParent();
 
 			if(i==0) BOOST_CHECK(previous==false);
 			else BOOST_CHECK(previous==true);
 
-			BOOST_CHECK(gpi2.getParentCounter() == i+1);
-			BOOST_CHECK(gpi2.isParent());
+			BOOST_CHECK((gpi2.getEAPersonalityTraits())->getParentCounter() == i+1);
+			BOOST_CHECK((gpi2.getEAPersonalityTraits())->isParent());
 		}
 
 		// Mark the individual as a child
-		bool previous = gpi2.setIsChild();
+		bool previous = (gpi2.getEAPersonalityTraits())->setIsChild();
 		BOOST_CHECK(previous=true);
-		BOOST_CHECK(!gpi2.isParent());
-		BOOST_CHECK(gpi2.getParentCounter()==0);
+		BOOST_CHECK(!(gpi2.getEAPersonalityTraits())->isParent());
+		BOOST_CHECK((gpi2.getEAPersonalityTraits())->getParentCounter()==0);
 
 		// Set an retrieve the position in the population a number of times
 		for(std::size_t i=0; i <100; i++) {
-			gpi2.setPopulationPosition(i);
-			BOOST_CHECK(i == gpi2.getPopulationPosition());
+			(gpi2.getEAPersonalityTraits())->setPopulationPosition(i);
+			BOOST_CHECK(i == (gpi2.getEAPersonalityTraits())->getPopulationPosition());
 		}
 
 		// Do the same with the current generation

@@ -630,9 +630,9 @@ protected:
 		}
 
 		// Make the parameters known externally
-		std::string parFile = parameterFile_ + "_" +
-											boost::lexical_cast<std::string>(this->getPersonalityTraits()->getParentAlgIteration()) + "_" +
-										    boost::lexical_cast<std::string>( this->getPopulationPosition());
+		std::string parFile = parameterFile_ + "_" + boost::lexical_cast<std::string>(this->getPersonalityTraits()->getParentAlgIteration());
+
+		if(this->getPersonality() == EA) parFile +=  ("_" +  boost::lexical_cast<std::string>( this->getEAPersonalityTraits()->getPopulationPosition()));
 
 		// Write out the required data
 		this->writeParametersToFile(parFile);
@@ -823,7 +823,7 @@ private:
 		// Get the size of the  "foreign" container ...
 		std::size_t exchangeSize = gde_.size<double>();
 
-		// ... and adjust the population size, as needed . This will erase items
+		// ... and adjust the collection size, as needed . This will erase items
 		// or add copies of the second argument, as needed.
 		gbdc->resize(exchangeSize, gdbl_ptr_);
 

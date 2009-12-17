@@ -48,8 +48,6 @@ GIndividual::GIndividual() :
 	currentFitness_(0.),
 	dirtyFlag_(true),
 	allowLazyEvaluation_(false),
-	parentCounter_(0),
-	popPos_(0),
 	processingCycles_(1),
 	maximize_(false),
 	pers_(NONE)
@@ -68,8 +66,6 @@ GIndividual::GIndividual(const GIndividual& cp) :
 	currentFitness_(cp.currentFitness_),
 	dirtyFlag_(cp.dirtyFlag_),
 	allowLazyEvaluation_(cp.allowLazyEvaluation_),
-	parentCounter_(cp.parentCounter_),
-	popPos_(cp.popPos_),
 	processingCycles_(cp.processingCycles_),
 	maximize_(cp.maximize_),
 	pers_(cp.pers_)
@@ -127,8 +123,6 @@ bool GIndividual::isEqualTo(const GObject& cp, const boost::logic::tribool& expe
 	if(checkForInequality("GIndividual", currentFitness_, gi_load->currentFitness_,"currentFitness_", "gi_load->currentFitness_", expected)) return false;
 	if(checkForInequality("GIndividual", dirtyFlag_, gi_load->dirtyFlag_,"dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
 	if(checkForInequality("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,"allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
-	if(checkForInequality("GIndividual", parentCounter_, gi_load->parentCounter_,"parentCounter_", "gi_load->parentCounter_", expected)) return false;
-	if(checkForInequality("GIndividual", popPos_, gi_load->popPos_,"popPos_", "gi_load->popPos_", expected)) return false;
 	if(checkForInequality("GIndividual", processingCycles_, gi_load->processingCycles_,"processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForInequality("GIndividual", maximize_, gi_load->maximize_,"maximize_", "gi_load->maximize_", expected)) return false;
 	if(checkForInequality("GIndividual", pers_, gi_load->pers_,"pers_", "gi_load->pers_", expected)) return false;
@@ -158,8 +152,6 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boos
 	if(checkForDissimilarity("GIndividual", currentFitness_, gi_load->currentFitness_, limit, "currentFitness_", "gi_load->currentFitness_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", dirtyFlag_, gi_load->dirtyFlag_, limit, "dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,limit, "allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", parentCounter_, gi_load->parentCounter_,limit, "parentCounter_", "gi_load->parentCounter_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", popPos_, gi_load->popPos_,limit, "popPos_", "gi_load->popPos_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", processingCycles_, gi_load->processingCycles_, limit, "processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", maximize_, gi_load->maximize_, limit, "maximize_", "gi_load->maximize_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", pers_, gi_load->pers_, limit, "pers_", "gi_load->pers_", expected)) return false;
@@ -184,8 +176,6 @@ void GIndividual::load(const GObject* cp) {
 	currentFitness_ = gi_load->currentFitness_;
 	dirtyFlag_ = gi_load->dirtyFlag_;
 	allowLazyEvaluation_ = gi_load->allowLazyEvaluation_;
-	parentCounter_ = gi_load->parentCounter_;
-	popPos_ = gi_load->popPos_;
 	processingCycles_ = gi_load->processingCycles_;
 	maximize_ = gi_load->maximize_;
 
@@ -291,55 +281,6 @@ bool GIndividual::getAllowLazyEvaluation() const  {
 
 /**********************************************************************************/
 /**
- * Sets the parentCounter_ parameter. This is a counter which lets us find out
- * how often this object has become a parent in one go. Become parent frequently
- * could indicate that the mutations need to cover a wider area, as the
- * evolution has stalled.
- *
- * @param isParent Indicates whether or not this is a parent individual
- * @return A boolean indicating the previous situation
- */
-bool GIndividual::setIsParent(const bool& isParent)  {
-	bool previous=(parentCounter_>0)?true:false;
-
-	if(isParent) parentCounter_++;
-	else parentCounter_ = 0;
-
-	return previous;
-}
-
-/**********************************************************************************/
-/**
- * Marks an individual as a parent
- *
- * @return A boolean indicating the previous situation before calling this function
- */
-bool GIndividual::setIsParent(){
-	return setIsParent(true);
-}
-
-/**********************************************************************************/
-/**
- * Marks an individual as a child.
- *
- * @return A boolean indicating the previous situation before calling this function
- */
-bool GIndividual::setIsChild(){
-	return setIsParent(false);
-}
-
-/**********************************************************************************/
-/**
- * Checks whether this is a parent individual
- *
- * @return A boolean indicating whether this object is a parent at this time
- */
-bool GIndividual::isParent() const  {
-	return (parentCounter_>0)?true:false;
-}
-
-/**********************************************************************************/
-/**
  * Checks whether the dirty flag is set
  *
  * @return The value of the dirtyFlag_ variable
@@ -419,26 +360,6 @@ personality GIndividual::getPersonality() const {
 
 /**********************************************************************************/
 /**
- * Sets the position of the individual in the population
- *
- * @param popPos The new position of this individual in the population
- */
-void GIndividual::setPopulationPosition(std::size_t popPos)  {
-	popPos_ = popPos;
-}
-
-/**********************************************************************************/
-/**
- * Retrieves the position of the individual in the population
- *
- * @return The current position of this individual in the population
- */
-std::size_t GIndividual::getPopulationPosition(void) const  {
-	return popPos_;
-}
-
-/**********************************************************************************/
-/**
  * Sets the dirtyFlag_. This is a "one way" function, accessible to the external
  * user. Once the dirty flag has been set, the only way to reset it is to calculate
  * the fitness of this object.
@@ -462,16 +383,6 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
 
 /**********************************************************************************/
 /**
- * Retrieves the parentCounter_ variable
- *
- * @return The current value of the parentCounter_ variable
- */
-boost::uint32_t GIndividual::getParentCounter() const {
-	return parentCounter_;
-}
-
-/**********************************************************************************/
-/**
  * This function returns the current personality traits base pointer. Note that there
  * is another version of the same command that does on-the-fly conversion of the
  * personality traits to the derived class.
@@ -490,20 +401,34 @@ boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
  * @return A boolean indicating whether an update was performed and the individual has changed
  */
 bool GIndividual::updateOnStall() {
-	// This function should only be called for parents. Check ...
-	// ATTENTION: DEPENDENCY ON EA
-	if(!this->isParent()) {
-		std::ostringstream error;
-		error << "In GIndividual::updateOnStall(): Error!" << std::endl
-			  << "This function should only be called for parent individuals." << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
-	}
+	switch (pers_) {
+	case NONE:
+		break;
 
-	// Do the actual update of the individual's structure
-	bool updatePerformed = this->customUpdateOnStall();
-	if(updatePerformed) {
-		this->setDirtyFlag();
-		return true;
+	case EA:
+	{
+		// This function should only be called for parents. Check ...
+		if(!this->getEAPersonalityTraits()->isParent()) {
+			std::ostringstream error;
+			error << "In GIndividual::updateOnStall() (called for EA personality): Error!" << std::endl
+				  << "This function should only be called for parent individuals." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		// Do the actual update of the individual's structure
+		bool updatePerformed = this->customUpdateOnStall();
+		if(updatePerformed) {
+			this->setDirtyFlag();
+			return true;
+		}
+	}
+	break;
+
+	case GD:
+		break;
+
+	case SWARM:
+		break;
 	}
 
 	return false;
@@ -592,7 +517,7 @@ bool GIndividual::process(){
 					error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl
 							<< "Identifying information:" << std::endl
 							<< "generation = " this->getPersonalityTraits()->getParentAlgIteration() << std::endl
-							<< "position in population = " << getPopulationPosition() << std::endl
+							<< "position in population = " << getEAPersonalityTraits()->getPopulationPosition() << std::endl
 							<< "isParent = " << (isParent()?"true":"false") << std::endl;
 					throw geneva_error_condition(error.str());
 				}

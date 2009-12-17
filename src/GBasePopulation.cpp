@@ -1249,7 +1249,7 @@ void GBasePopulation::recombine()
 	// Let children know they are children
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin()+nParents_; it!=data.end(); ++it){
-		(*it)->setIsChild();
+		(*it)->getEAPersonalityTraits()->setIsChild();
 	}
 }
 
@@ -1324,10 +1324,10 @@ void GBasePopulation::select()
 	//----------------------------------------------------------------------------
 	}
 
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it_begin;
-
-	// Let all parents know they are parents
-	std::for_each(data.begin(), data.begin()+nParents_, boost::bind(&GIndividual::setIsParent, _1));
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	for(it=data.begin(); it!=data.begin()+nParents_; ++it) {
+		(*it)->getEAPersonalityTraits()->setIsParent();
+	}
 }
 
 /***********************************************************************************/
@@ -1481,11 +1481,11 @@ double GBasePopulation::fitnessCalculation() {
 void GBasePopulation::markParents() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.begin()+nParents_; ++it){
-		(*it)->setIsParent();
+		(*it)->getEAPersonalityTraits()->setIsParent();
 	}
 
 	for(it=data.begin()+nParents_; it!=data.end(); ++it){
-		(*it)->setIsChild();
+		(*it)->getEAPersonalityTraits()->setIsChild();
 	}
 }
 
@@ -1519,7 +1519,7 @@ void GBasePopulation::markGeneration() {
 void GBasePopulation::markIndividualPositions() {
 	std::size_t pos = 0;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it) (*it)->setPopulationPosition(pos++);
+	for(it=data.begin(); it!=data.end(); ++it) (*it)->getEAPersonalityTraits()->setPopulationPosition(pos++);
 }
 
 /***********************************************************************************/

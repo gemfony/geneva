@@ -178,6 +178,20 @@ namespace GenEvA
     virtual void select();
 
   private:
+    /*********************************************************************************/
+    /**
+     * A simple comparison operator that helps to sort individuals according to their
+     * status as parents or children
+     */
+    class indParentComp {
+    public:
+    	bool operator()(boost::shared_ptr<GIndividual> x, boost::shared_ptr<GIndividual> y) {
+    		return x->getEAPersonalityTraits()->isParent() > y->getEAPersonalityTraits()->isParent();
+    	}
+    };
+
+    /*********************************************************************************/
+
 	boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
 	boost::uint32_t maxWaitFactor_; ///< Determines the maximum allowed wait factor during automatic adaption of the waitFactor_ variable
 

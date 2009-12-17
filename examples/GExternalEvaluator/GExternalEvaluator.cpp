@@ -1,5 +1,5 @@
 /**
- * @file GExternalProgram.cpp
+ * @file GExternalEvaluator.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
