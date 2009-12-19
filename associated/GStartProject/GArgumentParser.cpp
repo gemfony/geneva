@@ -128,7 +128,6 @@ namespace Gem
 			 recoScheme& rScheme,
 			 sortingMode& smode,
 			 std::size_t& arraySize,
-			 boost::uint16_t& infoInterval,
 			 boost::uint32_t& processingCycles,
 			 bool& returnRegardless,
 			 boost::uint32_t& waitFactor,
@@ -169,8 +168,6 @@ namespace Gem
 	   "Determines whether sorting is done in MUCOMMANU (0), MUPLUSNU (1)  or MUNU1PRETAIN (2) mode")
 	  ("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
 	   "The size of the buffer with random arrays in the random factory")
-	  ("infoInterval", po::value<boost::uint16_t>(&infoInterval)->default_value(DEFAULTINFOINTERVAL),
-	   "The interval in which information should be emitted")
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 	   "Whether additional information should be emitted")
 	  ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
@@ -238,7 +235,6 @@ namespace Gem
 		    << "rScheme = " << (boost::uint16_t)rScheme << std::endl
 		    << "sortingScheme = " << smode << std::endl
 		    << "arraySize = " << arraySize << std::endl
-	            << "infoInterval = " << infoInterval << std::endl
 		    << "processingCycles = " << processingCycles << std::endl
 		    << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
 	            << "waitFactor = " << waitFactor << std::endl

@@ -79,7 +79,6 @@ namespace Gem
     const unsigned short DEFAULTPORT=10000;
     const std::string DEFAULTIP="localhost";
     const std::string DEFAULTCONFIGFILE="./GStartProject.cfg";
-    const boost::uint16_t DEFAULTINFOINTERVAL=1;
     const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
     const boost::uint32_t DEFAULTSTARTGENERATION=0;
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
@@ -110,7 +109,6 @@ namespace Gem
 			 recoScheme& rScheme,
 			 sortingMode& smode,
 			 std::size_t& arraySize,
-			 boost::uint16_t& infoInterval,
 			 boost::uint32_t& processingCycles,
 			 bool& returnRegardless,
 			 boost::uint32_t& waitFactor,
