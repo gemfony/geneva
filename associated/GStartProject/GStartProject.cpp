@@ -195,7 +195,7 @@ int main(int argc, char **argv){
 
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Now we have suitbale populations and can fill them with data
+  // Now we have suitable populations and can fill them with data
 
   // Add individuals to the population
   for(std::size_t p = 0 ; p<nParents; p++) {
@@ -205,10 +205,10 @@ int main(int argc, char **argv){
   // Specify some general population settings
   pop_ptr->setPopulationSize(populationSize,nParents);
   pop_ptr->setMaxGeneration(maxGenerations);
-  pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-  pop_ptr->setReportGeneration(reportGeneration); // Emit information during every generation
-  pop_ptr->setRecombinationMethod(rScheme); // The best parents have higher chances of survival
-  pop_ptr->setSortingScheme(smode); // Determines the sorting mode used (MUPLUSNU, MUCOMMANU, MUNU1PRETAIN)
+  pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
+  pop_ptr->setReportGeneration(reportGeneration);
+  pop_ptr->setRecombinationMethod(rScheme);
+  pop_ptr->setSortingScheme(smode);
   pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
   
   // Do the actual optimization

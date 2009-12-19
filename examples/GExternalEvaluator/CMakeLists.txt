@@ -8,7 +8,7 @@ SET (EXECUTABLENAME GExternalEvaluator)
 
 SET (${EXECUTABLENAME}_SRCS 
 	GExternalEvaluator
-	GCommandLineParser
+	GArgumentParser
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

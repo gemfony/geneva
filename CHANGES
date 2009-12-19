@@ -8,6 +8,8 @@ The main changes for this release include:
  - Gave the GAsioTCPConsumer the ability to automatically determine the number of listener threads.
    Should improve scalability of the server on systems with many cores. 
  - Added GDelayIndividual in order to allow measurement of the overhead incurred through the parallelization
+ - Reworked GExternalEvaluator example to be more usable in a production environment (e.g. added a configuration
+   file instead of command line options)
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009
