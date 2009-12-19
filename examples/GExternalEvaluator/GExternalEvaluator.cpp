@@ -76,7 +76,6 @@ int main(int argc, char **argv){
   boost::uint32_t reportGeneration;
   recoScheme rScheme;
   std::size_t arraySize;
-  boost::uint16_t infoInterval;
   sortingMode smode;
   boost::uint32_t processingCycles;
   bool returnRegardless;
@@ -113,7 +112,6 @@ int main(int argc, char **argv){
 		      rScheme,
 		      smode,
 		      arraySize,
-		      infoInterval,
 		      processingCycles,
 		      returnRegardless,
 		      waitFactor,
@@ -160,7 +158,7 @@ int main(int argc, char **argv){
 
   // Create an instance of our optimization monitor, telling it to output information in given intervals
   std::ofstream resultSummary("./result.C");
-  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(infoInterval, nParents, resultSummary));
+  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(nParents, resultSummary));
 
   // Tell the evaluation program to do any initial work
   GExternalEvaluatorIndividual::initialize(program, externalArguments);
