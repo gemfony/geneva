@@ -1,4 +1,6 @@
-/** @file FilterIterator.cpp */
+/**
+ * @file FilterIterator.cpp
+ */
 
 // This example is based on code by Jeremy Siek, as shipped
 // together with the Boost.Iterator library.

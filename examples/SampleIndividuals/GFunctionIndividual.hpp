@@ -114,8 +114,8 @@ public:
 	 * The default constructor.
 	 */
 	GFunctionIndividual():
-		demoFunction_(PARABOLA),
-		eval_(&GFunctionIndividual::parabola)
+		eval_(&GFunctionIndividual::parabola),
+		demoFunction_(PARABOLA)
 	{ /* nothing */ }
 
 	/********************************************************************************************/

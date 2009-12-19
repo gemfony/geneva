@@ -53,7 +53,7 @@ bool SetVectorOfDihedrals (OpenBabel::OBMol *mol, const std::vector<double>& vod
     std::cerr << "In SetVectorOfDihedrals(): Error: Bad molecule given" << std::endl;
     return false;
   }
-  int natoms=mol->NumAtoms();
+  std::size_t natoms=mol->NumAtoms();
   if(vod.size() != natoms-3) {
     std::cerr << "In SetVectorOfDihedrals(): Error: invalid number of dihedrals: " << vod.size() << " " << natoms << " " << natoms-3 << std::endl;
     return false;

@@ -168,9 +168,9 @@ public:
 		 arguments_(arguments),
 		 nEvaluations_(1),
 		 exchangeMode_(exchangeMode),
-		 useCommonAdaptor_(useCommonAdaptor),
 		 maximize_(false),
-		 parameterFile_("./parameterData")
+		 parameterFile_("./parameterData"),
+		 useCommonAdaptor_(useCommonAdaptor)
 	{
 		//-----------------------------------------------------------------------------------------------
 		// Create the required, empty collections.

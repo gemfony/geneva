@@ -514,11 +514,7 @@ bool GIndividual::process(){
 				// Individuals that arrive here for mutation should be "clean"
 				if(isDirty) {
 					std::ostringstream error;
-					error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl
-							<< "Identifying information:" << std::endl
-							<< "generation = " this->getPersonalityTraits()->getParentAlgIteration() << std::endl
-							<< "position in population = " << getEAPersonalityTraits()->getPopulationPosition() << std::endl
-							<< "isParent = " << (isParent()?"true":"false") << std::endl;
+					error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl;
 					throw geneva_error_condition(error.str());
 				}
 #endif /* DEBUG */
