@@ -45,6 +45,7 @@
 #endif
 
 // GenEvA headers go here
+
 #include "GParameterT.hpp"
 
 namespace Gem {
@@ -52,16 +53,13 @@ namespace GenEvA {
 
 /************************************************************************/
 /**
- * This class encapsulates a single doublel. This might appear heavy weight,
+ * This class encapsulates a char type. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
- * use the GDoubleCollection or GBoundedDoubleCollection instead.
+ * use the GString class instead. char types are mutated by the GCharAdaptor
+ * in GenEvA.
  *
- * Bits are mutated by the GDoubleGaussAdaptor in GenEvA. If you want to
- * have individual adaptors (with individual settings) for each double, you need
- * to use this class instead.
- *
- * For reasons of simplicity this class is implemented as a simple typedef of the GParameterT
- * template class.
+ * As the GParameterT template class holds a suitable specialization for char,
+ * this class can be implemented as a simple typedef.
  */
 typedef GParameterT<double> GDouble;
 

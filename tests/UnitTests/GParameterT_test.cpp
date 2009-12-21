@@ -72,19 +72,19 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	GRandom gr;
 
 	// Test default construction
-	BOOST_CHECK_NO_THROW(GParameterT<T> gpt);
+	BOOST_CHECK_NO_THROW(T gpt);
 
 	// Test construction with a value
-	GParameterT<T> gpt0(T(0)), gpt1(T(1));
+	T gpt0(0), gpt1(1);
 	BOOST_CHECK(gpt0 != gpt1);
 
 	// Test copy construction
-	GParameterT<T> gpt2(gpt1);
+	T gpt2(gpt1);
 	BOOST_CHECK(gpt2 == gpt1);
 	BOOST_CHECK(gpt2 != gpt0);
 
 	// Test assignment
-	GParameterT<T> gpt3;
+	T gpt3;
 	gpt3 = gpt1;
 	BOOST_CHECK(gpt3 == gpt1);
 	BOOST_CHECK(gpt3 != gpt0);
@@ -101,25 +101,27 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	gpt0 = T(0);
 	BOOST_CHECK(gpt0 != gpt3);
 
-	// Test (de-)serialization in differnet modes
+	// Test (de-)serialization in different modes
 	{ // plain text format
-		GParameterT<T> gpt4(gpt0);
+		T gpt4(gpt0);
 		BOOST_CHECK(gpt4.isEqualTo(gpt0));
-		gpt4.fromString(gpt1.toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
+		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
 		BOOST_CHECK(!gpt4.isEqualTo(gpt0));
 		BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
 	}
+
 	{ // XML format
-		GParameterT<T> gpt4(gpt0);
+		T gpt4(gpt0);
 		BOOST_CHECK(gpt4.isEqualTo(gpt0));
-		gpt4.fromString(gpt1.toString(XMLSERIALIZATION), XMLSERIALIZATION);
+		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(XMLSERIALIZATION), XMLSERIALIZATION));
 		BOOST_CHECK(!gpt4.isEqualTo(gpt0));
 		BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
 	}
+
 	{ // binary test format
-		GParameterT<T> gpt4(gpt0);
+		T gpt4(gpt0);
 		BOOST_CHECK(gpt4 == gpt0);
-		gpt4.fromString(gpt1.toString(BINARYSERIALIZATION), BINARYSERIALIZATION);
+		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
 		BOOST_CHECK(gpt4 != gpt0);
 		BOOST_CHECK(gpt4 == gpt1);
 	}
@@ -289,7 +291,7 @@ class GParameterTSuite: public test_suite
 {
 public:
 	GParameterTSuite() :test_suite("GParameterTSuite") {
-		typedef boost::mpl::list<bool, char, boost::int32_t, double> test_types;
+		typedef boost::mpl::list<GBoolean, GChar, GInt32, GDouble> test_types;
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, test_types ) );
 
 		// create an instance of the test cases class

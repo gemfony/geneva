@@ -108,7 +108,7 @@ public:
 		boost::shared_ptr<GDoubleCollection> gpi_cc_gdc = gpi_cc.pc_at<GDoubleCollection>(0);
 		gpi_cc_gdc->at(0) = gpi_cc_gdc->at(0) + 1;
 
-		// Test that the copied, cloned, ... objects become inequal to the
+		// Test that the copied, cloned, ... objects become in-equal to the
 		// original when they are modified
 		BOOST_CHECK(gpi_load.isNotEqualTo(gpi));
 		BOOST_CHECK(gpi_cc.isNotEqualTo(gpi));
@@ -198,6 +198,8 @@ public:
 		//----------------------------------------------------------------------------------------------
 		// Tests of the GIndividual interface
 		GTestIndividual1 gpi2;
+		gpi2.setPersonalityType(EA);
+
 		boost::shared_ptr<GDoubleCollection> gdc2_ptr(new GDoubleCollection(100, -10., 10.));
 		gdc2_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(1.,0.001,0.,1.)));
 		gpi2.push_back(gdc2_ptr);
@@ -307,11 +309,14 @@ public:
 			gdc_ptr->addAdaptor(gdga1);
 			gpi.push_back(gdc_ptr);
 
+#ifdef DEBUG
 			// As the dirty flag is set, but lazy evaluation is not allowed, calculating
-			// the object's fitness should throw in generations larger than 0 (see also the GIndividual::fitness() function)
+			// the object's fitness should throw in DEBUG mode in generations larger than 0
+			// (see also the GIndividual::fitness() function)
 			BOOST_CHECK(gpi.isDirty());
 			(gpi.getPersonalityTraits())->setParentAlgIteration(1);
 			BOOST_CHECK_THROW(gpi.fitness(), Gem::GenEvA::geneva_error_condition);
+#endif /* DEBUG */
 		}
 	}
 
