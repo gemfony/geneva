@@ -383,9 +383,17 @@
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 <buildTargets>
-<target name="Run CMake" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+<target name="CMake Release" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 <buildCommand>cmake</buildCommand>
 <buildArguments>-E chdir ${workspace_loc:/Geneva/build} cmake -G "Unix Makefiles" ../</buildArguments>
+<buildTarget/>
+<stopOnError>true</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+<runAllBuilders>false</runAllBuilders>
+</target>
+<target name="CMake Debug" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+<buildCommand>cmake</buildCommand>
+<buildArguments>-E chdir ${workspace_loc:/Geneva/build} cmake -G "Unix Makefiles" -D CMAKE_BUILD_TYPE=Debug ../</buildArguments>
 <buildTarget/>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>false</useDefaultCommand>
