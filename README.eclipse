@@ -106,7 +106,7 @@ of Geneva in Eclipse, and in particular of CMake.
        #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 12 - Run CMake, by opening the "Make Targets" view, and double clicking the
-     "Run CMake" target in the Geneva project. Anothe not yet available alternative: run
+     "Run CMake" target in the Geneva project. Another not yet available alternative: run
        Run / External Tools / CMake
      (also in the "External Tools" drop down toolbar button).
 
