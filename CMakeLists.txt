@@ -3,6 +3,11 @@ PROJECT (geneva-opt)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
+# Set the library/package version
+SET(VERSION_MAJOR "0")
+SET(VERSION_MINOR "6")
+SET(VERSION_PATCH "1rc")
+
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
 # it was not deployed in one of the standard system locations. Otherwise,
 # see the comments in the INSTALL file on how to set the path on the 
@@ -158,9 +163,9 @@ SET(CPACK_AUX_PACKAGE_DESCRIPTION
 
 SET(CPACK_PACKAGE_VENDOR "Gemfony scientific and Karlsruhe Institute of Technology")
 SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <info@gemfony.com>")
-SET(CPACK_PACKAGE_VERSION_MAJOR "0")
-SET(CPACK_PACKAGE_VERSION_MINOR "6")
-SET(CPACK_PACKAGE_VERSION_PATCH "1")
+SET(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
+SET(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt/geneva")
 
 # DEB specific variables. Indentation is important in the description!
