@@ -5,8 +5,8 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
 # Set the library/package version
 SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "6")
-SET(VERSION_PATCH "1rc")
+SET(VERSION_MINOR "7")
+SET(VERSION_PATCH "0rc")
 
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
 # it was not deployed in one of the standard system locations. Otherwise,
