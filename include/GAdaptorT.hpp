@@ -294,7 +294,7 @@ public:
 	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
 	 */
 	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
-		// Set the local randum number generation mode
+		// Set the local random number generation mode
 		gr.setRnrGenerationMode(rnrGenMode);
 	}
 

@@ -60,13 +60,20 @@ const std::size_t COMMANDLENGTH=64;
 /**
  * The allowed modes during data exchange with external programs
  */
-enum dataExchangeMode {BINARYEXCHANGE=0, TEXTEXCHANGE=1};
+enum dataExchangeMode {
+	BINARYEXCHANGE,
+	TEXTEXCHANGE
+};
 
 /**********************************************************************************************/
 /**
  * The serialization modes that are currently allowed
  */
-enum serializationMode {TEXTSERIALIZATION=0, XMLSERIALIZATION=1, BINARYSERIALIZATION=2};
+enum serializationMode {
+	TEXTSERIALIZATION,
+	XMLSERIALIZATION,
+	BINARYSERIALIZATION
+};
 
 /**********************************************************************************************/
 /**
@@ -75,24 +82,32 @@ enum serializationMode {TEXTSERIALIZATION=0, XMLSERIALIZATION=1, BINARYSERIALIZA
  * - RANDOMRECOMBINE chooses the parents to be replicated randomly from all parents
  * - VALUERECOMBINE prefers parents with a higher fitness
  */
-enum recoScheme {DEFAULTRECOMBINE=0, RANDOMRECOMBINE=1, VALUERECOMBINE=2};
+enum recoScheme {
+	DEFAULTRECOMBINE,
+	RANDOMRECOMBINE,
+	VALUERECOMBINE
+};
 
 /**********************************************************************************************/
 /**
  * The info function can be called in these three modes
  */
-enum infoMode {INFOINIT=0, INFOPROCESSING=1, INFOEND=2};
+enum infoMode {
+	INFOINIT,
+	INFOPROCESSING,
+	INFOEND
+};
 
 /**********************************************************************************************/
 /**
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
 enum adaptorId {
-	GDOUBLEGAUSSADAPTOR=0,
-	GINT32GAUSSADAPTOR=1,
-	GBOOLEANADAPTOR=2,
-	GINT32FLIPADAPTOR=3,
-	GCHARFLIPADAPTOR=4
+	GDOUBLEGAUSSADAPTOR,
+	GINT32GAUSSADAPTOR,
+	GBOOLEANADAPTOR,
+	GINT32FLIPADAPTOR,
+	GCHARFLIPADAPTOR
 };
 
 /**********************************************************************************************/
@@ -102,7 +117,11 @@ enum adaptorId {
  * MUNU1PRETAIN means that the best parent of the last generation will also become a new parent
  * (unless a better child was found). All other parents are selected from children only.
  */
-enum sortingMode {MUPLUSNU=0, MUCOMMANU=1, MUNU1PRETAIN=2};
+enum sortingMode {
+	MUPLUSNU,
+	MUCOMMANU,
+	MUNU1PRETAIN
+};
 
 /**********************************************************************************************/
 /**
@@ -110,7 +129,12 @@ enum sortingMode {MUPLUSNU=0, MUCOMMANU=1, MUNU1PRETAIN=2};
  * can thus assume different personalities, resulting in different data structures to be stored
  * in them (see the GPersonalityTraits classes).
  */
-enum personality {NONE=0, EA=1, GD=2, SWARM=3};
+enum personality {
+	NONE,
+	EA,
+	GD,
+	SWARM
+};
 
 /**********************************************************************************************/
 
@@ -133,7 +157,10 @@ namespace Util {
 /**
  * Random number generation can happen in two modes
  */
-enum rnrGenerationMode { RNRFACTORY=0, RNRLOCAL=1 };
+enum rnrGenerationMode {
+	RNRFACTORY,
+	RNRLOCAL
+};
 
 /**
  * The default random number generation mode

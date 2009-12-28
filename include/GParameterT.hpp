@@ -255,7 +255,7 @@ private:
 
 /*********************************************************************************************/
 // Declaration of specializations for various types
-/** @brief A default constructor for bool, needed as it appears useful to initialize the value with a printable character */
+/** @brief A default constructor for char, needed as it appears useful to initialize the value with a printable character */
 template <> GParameterT<char>::GParameterT();
 
 /*********************************************************************************************/

@@ -267,7 +267,7 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Assign anither vector object to ours
+	 * Assign another vector object to ours
 	 */
 	const std::vector<boost::shared_ptr<T> >& operator=(const std::vector<boost::shared_ptr<T> >& cp_data) {
 		return GStdPtrVectorInterfaceT<T>::operator=(cp_data);
@@ -278,7 +278,7 @@ public:
 protected:
 	/**
 	 * Re-implementation of a corresponding function in GStdPtrVectorInterface.
-	 * Make the vector wrapper purely virtual allows the compiler to perform
+	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
 	virtual void dummyFunction() { /* nothing */ }

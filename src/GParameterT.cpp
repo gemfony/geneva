@@ -29,8 +29,6 @@
 
 #include "GParameterT.hpp"
 
-#include "GDouble.hpp"
-
 namespace Gem
 {
 namespace GenEvA
@@ -38,7 +36,7 @@ namespace GenEvA
 
 /***********************************************************************************************/
 /**
-  * A default constructor for typeof(T)==typeof(bool), needed as it seems useful to
+  * A default constructor for typeof(T)==typeof(char), needed as it seems useful to
   * initialize the value with a printable character.
   */
 template <> GParameterT<char>::GParameterT()
