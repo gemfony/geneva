@@ -200,6 +200,9 @@ protected:
 	 * @return The value of this object
 	 */
 	virtual double fitnessCalculation(){
+		// If you know the exact structure of the individual, addressing each parameter collection
+		// individually might be a good choice. See further below for a different possibility.
+
 		// Compile in DEBUG mode in order to check this conversion
 		// The desired collection is in the first position, hence we pass a 0 to the function.
 		boost::shared_ptr<GBoundedDoubleCollection> gbdc_load = pc_at<GBoundedDoubleCollection>(0);
@@ -212,6 +215,26 @@ protected:
 			result += std::pow((*it)->value(), 2);
 
 		return result;
+
+
+		// The following allows to extract all GBoundedDoubleCollection objects from this
+		// individual. This can be a good choice if more than one collection is stored in
+		// the individual, and if there are collections of different types.
+		/*
+		double result = 0.;
+
+		std::vector<boost::shared_ptr<GBoundedDoubleCollection> > v;
+		this->attachViewTo(v);
+
+		std::vector<boost::shared_ptr<GBoundedDoubleCollection> >::iterator v_it;
+		for(v_it=v.begin(); v_it!=v.end(); ++v_it) {
+			GBoundedDoubleCollection::iterator it;
+			for(it=(*v_it)->begin(); it!=(*v_it)->end(); ++it) {
+				result += std::pow((*it)->value(), 2);
+			}
+		}
+		return result;
+		*/
 	}
 
 	/********************************************************************************************/
