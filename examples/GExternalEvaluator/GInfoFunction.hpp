@@ -31,6 +31,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <limits>
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
@@ -92,12 +93,15 @@ public:
 					<< "  gROOT->Reset();" << std::endl
 					<< "  gStyle->SetOptTitle(0);" << std::endl
 					<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,1200);" << std::endl
-					<< "  cc->Divide(1," << nInfoIndividuals_ << ");" << std::endl
+					<< "  cc->Divide(2,2);" << std::endl
 					<< std::endl
 					<< "  std::vector<long> generation;" << std::endl;
 
 			for(std::size_t p=0; p<nInfoIndividuals_; p++) {
 				summary_ << "  std::vector<double> evaluation" << p << ";" << std::endl
+						<< "  std::vector<double> sigma" << p << ";" << std::endl
+						<< "  std::vector<double> minSigma" << p << ";" << std::endl
+						<< "  std::vector<double> maxSigma" << p << ";" << std::endl
 						<< std::endl;
 			}
 		}
@@ -118,16 +122,71 @@ public:
 				// Get access to the inidividual
 				boost::shared_ptr<GExternalEvaluatorIndividual> gdii_ptr = gbp->individual_cast<GExternalEvaluatorIndividual>(p);
 
+				// Extract the GBoundedDoubleCollection object, so we can get information about sigma
+				std::vector<boost::shared_ptr<GBoundedDoubleCollection> > v;
+				gdii_ptr->attachViewTo(v);
+
+				std::size_t nSigmas = 0;
+				double sigmaSum=0.;
+				double minSigma=std::numeric_limits<double>::max();
+				double maxSigma=-std::numeric_limits<double>::max();
+
+				std::vector<boost::shared_ptr<GBoundedDoubleCollection> >::iterator it;
+				for(it=v.begin(); it!=v.end(); ++it) {
+					// A single adaptor has been stored in the collection
+					if((*it)->hasLocalAdaptor()) {
+						// Extract the adaptor
+						boost::shared_ptr<GDoubleGaussAdaptor> ad_ptr = (*it)->adaptor_cast<GDoubleGaussAdaptor>();
+
+						// And retrieve the sigma as well as its minimal and maximal values
+						double sigma = ad_ptr->getSigma();
+						sigmaSum += sigma;
+						if(sigma < minSigma) minSigma = sigma;
+						if(sigma > maxSigma) maxSigma = sigma;
+						nSigmas++;
+					}
+					// We need to loop over all GBoundedDouble objects to extract the desired information
+					else {
+						GBoundedDoubleCollection::iterator gbdc_it;
+						for(gbdc_it=(*it)->begin(); gbdc_it!=(*it)->end(); ++gbdc_it) {
+							if(!(*gbdc_it)->hasLocalAdaptor()) { // This should not happen
+								std::ostringstream error;
+								error << "In optimizationMonitor::informationFunction(INFOPROCESSING): Error!" << std::endl
+										<< "Expected an adaptor in GBoundedDouble object but didn't find it." << std::endl;
+								throw(Gem::GenEvA::geneva_error_condition(error.str()));
+							}
+
+							// Extract the adaptor
+							boost::shared_ptr<GDoubleGaussAdaptor> ad_ptr = (*gbdc_it)->adaptor_cast<GDoubleGaussAdaptor>();
+
+							// Get the sigma and sum it up
+							double sigma = ad_ptr->getSigma();
+							sigmaSum += sigma;
+							if(sigma < minSigma) minSigma = sigma;
+							if(sigma > maxSigma) maxSigma = sigma;
+							nSigmas++;
+						}
+					}
+				}
+
+				// Scale the overall sigmaSum according to the number of variables
+				sigmaSum /= nSigmas;
+
 				// Retrieve the fitness of this individual
 				currentEvaluation = gdii_ptr->getCurrentFitness(isDirty);
+
+				// Write the evaluation to the output stream
+				summary_ << "  evaluation" << p << ".push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl;
+
+				// Write the sigma values to the output stream
+				summary_ << "  sigma" << p << ".push_back(" << sigmaSum << ");" << std::endl
+						<< "  minSigma" << p << ".push_back(" << minSigma << ");" << std::endl
+						<< "  maxSigma" << p << ".push_back(" << maxSigma << ");" << std::endl;
 
 				// Let the audience know about the best result
 				if(p==0) {
 					std::cout << generation << ": " << currentEvaluation << std::endl;
 				}
-
-				// Write information to the output stream
-				summary_ << "  evaluation" << p << ".push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl;
 			}
 			summary_ << std::endl; // Improves readability when following the output with "tail -f"
 		}
@@ -141,28 +200,46 @@ public:
 					<< "  double generation_arr[generation.size()];" << std::endl;
 			for(std::size_t p=0; p<nInfoIndividuals_; p++) {
 				summary_ << "  double evaluation" << p << "_arr[evaluation" << p << ".size()];" << std::endl
+						<< "  double sigma" << p << "_arr[evaluation" << p << ".size()];" << std::endl
+						<< "  double minSigma" << p << "_arr[evaluation" << p << ".size()];" << std::endl
+						<< "  double maxSigma" << p << "_arr[evaluation" << p << ".size()];" << std::endl
 						<< std::endl
 						<< "  for(std::size_t i=0; i<generation.size(); i++) {" << std::endl;
 
 				if(p==0) summary_ << "     generation_arr[i] = (double)generation[i];" << std::endl;
 
 				summary_ << "     evaluation" << p << "_arr[i] = evaluation" << p << "[i];" << std::endl
+						<< "     sigma" << p << "_arr[i] = sigma" << p << "[i];" << std::endl
+						<< "     minSigma" << p << "_arr[i] = minSigma" << p << "[i];" << std::endl
+						<< "     maxSigma" << p << "_arr[i] = maxSigma" << p << "[i];" << std::endl
 						<< "  }" << std::endl
 						<< std::endl
 						<< "  // Create a TGraph object" << std::endl
 						<< "  TGraph *evGraph" << p << " = new TGraph(evaluation" << p << ".size(), generation_arr, evaluation" << p << "_arr);" << std::endl
+						<< "  TGraph *sigmaGraph" << p << " = new TGraph(sigma" << p << ".size(), generation_arr, sigma" << p << "_arr);" << std::endl
+						<< "  TGraph *minSigmaGraph" << p << " = new TGraph(minSigma" << p << ".size(), generation_arr, minSigma" << p << "_arr);" << std::endl
+						<< "  TGraph *maxSigmaGraph" << p << " = new TGraph(maxSigma" << p << ".size(), generation_arr, maxSigma" << p << "_arr);" << std::endl
 						<< std::endl;
 			}
 
 			summary_ << "  // Do the actual drawing" << std::endl;
 
 			for(std::size_t p=0; p<nInfoIndividuals_; p++) {
-				summary_ << "  cc->cd(" << p+1 << ");" << std::endl
-						<< "  evGraph" << p << "->Draw(\"AP\");" << std::endl;
+				summary_ << "  cc->cd(1);" << std::endl
+						<< "  evGraph" << p << "->Draw(\"AP\");" << std::endl
+						<< "  cc->cd(2);" << std::endl
+						<< "  sigmaGraph" << p << "->Draw(\"AP\");" << std::endl
+						<< "  cc->cd(3);" << std::endl
+						<< "  minSigmaGraph" << p << "->Draw(\"AP\");" << std::endl
+						<< "  cc->cd(4);" << std::endl
+						<< "  maxSigmaGraph" << p << "->Draw(\"AP\");" << std::endl
+						<< "  cc->cd();" << std::endl
+						<< std::endl
+						<< "  // Saving the result to file" << std::endl
+						<< "  cc->Print(\"individual" << p << ".pdf\");" << std::endl;
 			}
 
-			summary_ << "  cc->cd();" << std::endl
-					<< "}" << std::endl;
+			summary_ << "}" << std::endl;
 		}
 		break;
 

@@ -889,13 +889,11 @@ private:
 		std::size_t pos;
 		for(pos=0, gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++pos, ++gbdc_it) {
 			boost::shared_ptr<Gem::Util::GDoubleParameter> gdp_ptr = gde_.parameterSet_at<double>(pos);
+			(*gbdc_it)->resetBoundaries();
+			**gbdc_it = gdp_ptr->value();
+
 			if(gdp_ptr->hasBoundaries()) {
-				(*gbdc_it)->setBoundaries(gdp_ptr->getLowerBoundary(), gdp_ptr->getUpperBoundary());
-				**gbdc_it = gdp_ptr->value();
-			}
-			else {
-				(*gbdc_it)->resetBoundaries();
-				**gbdc_it = gdp_ptr->value();
+			  (*gbdc_it)->setBoundaries(gdp_ptr->getLowerBoundary(), gdp_ptr->getUpperBoundary());
 			}
 		}
 
@@ -922,13 +920,11 @@ private:
 		GBoundedInt32Collection::iterator gbic_it;
 		for(pos=0, gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++pos, ++gbic_it) {
 			boost::shared_ptr<Gem::Util::GLongParameter> glp_ptr = gde_.parameterSet_at<boost::int32_t>(pos);
+			(*gbic_it)->resetBoundaries();
+			**gbic_it = glp_ptr->value();
+
 			if(glp_ptr->hasBoundaries()) {
 				(*gbic_it)->setBoundaries(glp_ptr->getLowerBoundary(), glp_ptr->getUpperBoundary());
-				**gbic_it = glp_ptr->value();
-			}
-			else {
-				(*gbic_it)->resetBoundaries();
-				**gbic_it = glp_ptr->value();
 			}
 		}
 

@@ -305,11 +305,11 @@ public:
 		}
 
 		// Check that the value is inside the allowed range
-		if(currentValue < lowerBoundary_ || currentValue > upperBoundary_){
+		if(currentValue < lower || currentValue > upper){
 			std::ostringstream error;
 			error << "In GBoundedNumT<T>::setBoundaries(const T&, const T&) : Error!" << std::endl
 				      << "with typeid(T).name() = " << typeid(T).name() << std::endl
-				      << "Attempt to set new boundaries [" << lowerBoundary_ << ":" << upperBoundary_ << "]" << std::endl
+				      << "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
 				      << "with existing value  " << currentValue << " outside of this range." << std::endl;
 
 			// throw an exception. Add some information so that if the exception
