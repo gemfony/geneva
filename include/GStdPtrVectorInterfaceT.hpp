@@ -712,6 +712,23 @@ public:
 	}
 
 	/*****************************************************************************/
+	/**
+	 * Returns a view on the vector's content, filtering out only items of specific
+	 * type.
+	 *
+	 * @param target A vector to which pointers with the derived type are attached
+	 */
+	template <typename derivedType>
+	void attachViewTo(std::vector<boost::shared_ptr<derivedType> >& target) {
+		typename std::vector<boost::shared_ptr<T> >::iterator it;
+		for(it = data.begin(); it!=data.end(); ++it) {
+			if(boost::shared_ptr<derivedType> p = boost::dynamic_pointer_cast<derivedType>(*it)) {
+				target.push_back(p);
+			}
+		}
+	}
+
+	/*****************************************************************************/
 
 protected:
 	std::vector<boost::shared_ptr<T> > data;

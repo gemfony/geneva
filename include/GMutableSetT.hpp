@@ -200,17 +200,18 @@ public:
 		return true;
 	}
 
-	/*******************************************************************************************/
+	/**********************************************************************************/
 	/**
 	 * Swap another object's vector with ours
 	 */
 	inline void swap(GMutableSetT<T>& cp) { GStdPtrVectorInterfaceT<T>::swap(cp.data); }
 
-	/*******************************************************************************************/
+	/**********************************************************************************/
 	/**
 	 * Swap another vector with ours
 	 */
 	inline void swap(std::vector<boost::shared_ptr<T> >& cp_data) { GStdPtrVectorInterfaceT<T>::swap(cp_data); }
+
 
 protected:
 	/**********************************************************************************/
