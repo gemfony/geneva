@@ -69,7 +69,7 @@
 
 // GenEvA headers go here
 #include "GIndividual.hpp"
-#include "GIndividualSet.hpp"
+#include "GOptimizationAlgorithm.hpp"
 #include "GenevaExceptions.hpp"
 #include "GEnums.hpp"
 
@@ -91,7 +91,7 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
 /*********************************************************************************/
 /**
  * The GBasePopulation class adds the notion of parents and children to
- * the GIndividualSet class. The evolutionary adaptation is realized
+ * the GOptimizationAlgorithm class. The evolutionary adaptation is realized
  * through the cycle of mutation, evaluation, and sorting, as defined in this
  * class.
  *
@@ -107,7 +107,7 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
  * as implied by the population size and the number of parents set at the beginning.
  */
 class GBasePopulation
-	:public GIndividualSet
+	:public GOptimizationAlgorithm
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -116,7 +116,7 @@ class GBasePopulation
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GIndividualSet",	boost::serialization::base_object<GIndividualSet>(*this));
+		ar & make_nvp("GOptimizationAlgorithm",	boost::serialization::base_object<GOptimizationAlgorithm>(*this));
 		ar & make_nvp("nParents_", nParents_);
 		ar & make_nvp("popSize_", popSize_);
 		ar & make_nvp("generation_", generation_);

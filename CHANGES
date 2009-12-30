@@ -4,12 +4,15 @@
 The main changes for this release include:
  - Removed all direct dependencies of GIndividual objects from the optimization algorithm in order to
    allow the implementation of additional algorithms, based on the same data structures and 
-   parallelizsaton framework
+   parallelizaton framework
  - Gave the GAsioTCPConsumer the ability to automatically determine the number of listener threads.
-   Should improve scalability of the server on systems with many cores. 
+   Should improve scalebility of the server on systems with many cores. 
  - Added GDelayIndividual in order to allow measurement of the overhead incurred through the parallelization
  - Reworked GExternalEvaluator example to be more usable in a production environment (e.g. added a configuration
    file instead of command line options)
+ - Refactored GIndividualSet (now named GOptimizationAlgorithm) to become the base class of a hierarchy
+   of iteration-based optimization algorithms. The class now encapsulates functionality common to all of 
+   these algorithms.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009

@@ -68,7 +68,7 @@
 
 // GenEvA headers go here
 #include "GIndividual.hpp"
-#include "GIndividualSet.hpp"
+#include "GOptimizationAlgorithm.hpp"
 #include "GenevaExceptions.hpp"
 #include "GEnums.hpp"
 

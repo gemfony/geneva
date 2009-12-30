@@ -1,5 +1,5 @@
 /**
- * @file GIndividualSet.hpp
+ * @file GOptimizationAlgorithm.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -38,8 +38,8 @@
 #include <boost/cstdint.hpp>
 
 
-#ifndef GINDIVIDUALSET_HPP_
-#define GINDIVIDUALSET_HPP_
+#ifndef GOPTIMIZATIONALGORITHM_HPP_
+#define GOPTIMIZATIONALGORITHM_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -78,7 +78,7 @@ const std::string DEFAULTCPDIR = "./";
  * a given amount of time. The class also defines the interface functions found in these
  * algorithms, such as a general call to "optimize()".
  */
-class GIndividualSet
+class GOptimizationAlgorithm
 	:public GMutableSetT<Gem::GenEvA::GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -94,24 +94,24 @@ class GIndividualSet
 
 public:
 	/** @brief The default constructor */
-	GIndividualSet();
+	GOptimizationAlgorithm();
 	/** @brief The copy constructor */
-	GIndividualSet(const GIndividualSet&);
+	GOptimizationAlgorithm(const GOptimizationAlgorithm&);
 	/** @brief The destructor */
-	virtual ~GIndividualSet();
+	virtual ~GOptimizationAlgorithm();
 
 	/** @brief Saves the state of the class to disc */
 	virtual void saveCheckpoint() const = 0;
 	/** @brief Loads the state of the class from disc */
 	virtual void loadCheckpoint(const std::string&) = 0;
 
-	/** @brief Checks for equality with another GIndividualSet object */
-	bool operator==(const GIndividualSet&) const;
-	/** @brief Checks for inequality with another GIndividualSet object */
-	bool operator!=(const GIndividualSet&) const;
-	/** @brief Checks for equality with another GIndividualSet object */
+	/** @brief Checks for equality with another GOptimizationAlgorithm object */
+	bool operator==(const GOptimizationAlgorithm&) const;
+	/** @brief Checks for inequality with another GOptimizationAlgorithm object */
+	bool operator!=(const GOptimizationAlgorithm&) const;
+	/** @brief Checks for equality with another GOptimizationAlgorithm object */
 	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-	/** @brief Checks for similarity with another GIndividualSet object */
+	/** @brief Checks for similarity with another GOptimizationAlgorithm object */
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
@@ -151,7 +151,7 @@ public:
 		// if this was not the case.
 		if(!p_load){
 			std::ostringstream error;
-			error << "In GIndividualSet::individual_cast<parameter_type>() : Conversion error!" << std::endl;
+			error << "In GOptimizationAlgorithm::individual_cast<parameter_type>() : Conversion error!" << std::endl;
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -186,8 +186,8 @@ protected:
 /**
  * Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GIndividualSet)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GOptimizationAlgorithm)
 
 /**************************************************************************************************/
 
-#endif /* GINDIVIDUALSET_HPP_ */
+#endif /* GOPTIMIZATIONALGORITHM_HPP_ */

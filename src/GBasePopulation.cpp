@@ -47,7 +47,7 @@ namespace GenEvA {
  * vital parameters, such as the population size or the parent individuals by hand.
  */
 GBasePopulation::GBasePopulation() :
-	GIndividualSet(),
+	GOptimizationAlgorithm(),
 	nParents_(0),
 	popSize_(0),
 	generation_(0),
@@ -58,8 +58,8 @@ GBasePopulation::GBasePopulation() :
 	microTrainingInterval_(DEFAULTMICROTRAININGINTERVAL),
 	reportGeneration_(DEFAULTREPORTGEN),
 	cpInterval_(DEFAULTCHECKPOINTGEN),
-	cpBaseName_(DEFAULTCPBASENAME), // Set in GIndividualSet.hpp
-	cpDirectory_(DEFAULTCPDIR), // Set in GIndividualSet.hpp
+	cpBaseName_(DEFAULTCPBASENAME), // Set in GOptimizationAlgorithm.hpp
+	cpDirectory_(DEFAULTCPDIR), // Set in GOptimizationAlgorithm.hpp
 	recombinationMethod_(DEFAULTRECOMBINE),
 	smode_(DEFAULTSMODE),
 	maximize_(DEFAULTMAXMODE),
@@ -82,7 +82,7 @@ GBasePopulation::GBasePopulation() :
  * @param cp Another GBasePopulation object
  */
 GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
-	GIndividualSet(cp),
+	GOptimizationAlgorithm(cp),
 	nParents_(cp.nParents_),
 	popSize_(cp.popSize_),
 	generation_(0),
@@ -138,7 +138,7 @@ void GBasePopulation::load(const GObject * cp)
 	const GBasePopulation *gbp_load = this->conversion_cast(cp,this);
 
 	// First load the parent class'es data ...
-	GIndividualSet::load(cp);
+	GOptimizationAlgorithm::load(cp);
 
 	// ... and then our own data
 	nParents_ = gbp_load->nParents_;
@@ -212,7 +212,7 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 	const GBasePopulation *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GIndividualSet::isEqualTo( *gbp_load, expected)) return  false;
+	if(!GOptimizationAlgorithm::isEqualTo( *gbp_load, expected)) return  false;
 
 	// Then we take care of the local data
 	if(checkForInequality("GBasePopulation", nParents_, gbp_load->nParents_,"nParents_", "gbp_load->nParents_", expected)) return false;
@@ -257,7 +257,7 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 	const GBasePopulation *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GIndividualSet::isSimilarTo(*gbp_load, limit, expected)) return  false;
+	if(!GOptimizationAlgorithm::isSimilarTo(*gbp_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
 	if(checkForDissimilarity("GBasePopulation", nParents_, gbp_load->nParents_, limit, "nParents_", "gbp_load->nParents_", expected)) return false;

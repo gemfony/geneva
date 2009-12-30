@@ -48,7 +48,6 @@ SET ( GENEVAINCLUDES
 	GHelperFunctionsT.hpp
 	GIndividualBroker.hpp
 	GIndividual.hpp
-	GIndividualSet.hpp
 	GInt32.hpp
 	GInt32Collection.hpp
 	GInt32FlipAdaptor.hpp
@@ -61,6 +60,7 @@ SET ( GENEVAINCLUDES
 	GNumCollectionT.hpp
 	GNumericParameterT.hpp
 	GObject.hpp
+	GOptimizationAlgorithm.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp
 	GParameterCollectionT.hpp

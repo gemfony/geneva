@@ -47,8 +47,6 @@
 - Test that seeding works with local random number creation
 - Check whether we need to declare anything as volatile, particularly in connection with random number generation
 - Remove the eval_ function from GParameterSet ... . Useless in parallel environments (?)
-- Is GIndividualSet really needed ? Could all be handled from GBasePopulation ? But no: can serve as the base class for a GSwarm 
-  or a GGradientDescent
 - Check in GStdPtrVectorInterface whether smart pointers actually point somewhere. Otherwise
   just copy an empty pointer (or throw ?? Different behavior in DEBUG mode ?)
 - Check all load code whether it checks for empty smart pointers. Always check in DEBUG mode.
