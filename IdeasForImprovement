@@ -85,6 +85,7 @@
 - Policy: FP-containers should always be in the front of a GIndividual and there should be an 
   internal variable that indicates how many of the two different container types are available
 - Perform mutations locally on the server + get rid of the lazy evaluation
+- Add an example covering the "travelling salesman" problem
  
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
