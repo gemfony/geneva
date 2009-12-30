@@ -58,6 +58,64 @@ const std::size_t COMMANDLENGTH=64;
 
 /**********************************************************************************************/
 /**
+ * The two const variables MAXIMIZE and MINIMIZE determine, whether the library
+ * should work in maximization or minimization mode.
+ */
+const bool MAXIMIZE = true;
+const bool MINIMIZE = false;
+
+/**********************************************************************************************/
+/**
+ * The number of iterations after which information should be
+ * emitted about the inner state of the optimization algorithm.
+ */
+const boost::uint32_t DEFAULTREPORTGEN = 10;
+
+/**********************************************************************************************/
+/**
+ * The number of iterations after which a checkpoint should be written.
+ * 0 means that no checkpoints are written at all.
+ */
+const boost::uint32_t DEFAULTCHECKPOINTGEN = 0;
+
+/**********************************************************************************************/
+/**
+ * The default maximum number of iterations
+ */
+const boost::uint32_t DEFAULTMAXGEN = 1000;
+
+/**********************************************************************************************/
+/**
+ * The default maximum number of iterations without improvement. 0 means: ignore
+ */
+const boost::uint32_t DEFAULMAXTSTALLGEN = 0;
+
+/**********************************************************************************************/
+/**
+ * The default maximization mode
+ */
+const bool DEFAULTMAXMODE = false;
+
+/**********************************************************************************************/
+/**
+ * A 0 time period . timedHalt will not trigger if this duration is set
+ */
+const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
+
+/**********************************************************************************************/
+/**
+ * The default maximum duration of the calculation.
+ */
+const std::string DEFAULTDURATION = EMPTYDURATION;
+
+/**********************************************************************************************/
+/**
+ * The default quality threshold
+ */
+const double DEFAULTQUALITYTHRESHOLD=0.;
+
+/**********************************************************************************************/
+/**
  * The allowed modes during data exchange with external programs
  */
 enum dataExchangeMode {

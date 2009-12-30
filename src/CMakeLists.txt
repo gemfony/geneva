@@ -35,7 +35,6 @@ SET ( GENEVASOURCES
 	GGDPersonalityTraits
 	GHelperFunctionsT
 	GIndividual
-	GIndividualSet
 	GInt32
 	GInt32Collection
 	GInt32FlipAdaptor
@@ -46,6 +45,7 @@ SET ( GENEVASOURCES
 	GNumCollectionT
 	GNumericParameterT
 	GObject
+	GOptimizationAlgorithm
 	GParameterBase
 	GParameterBaseWithAdaptorsT
 	GParameterSet

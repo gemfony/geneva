@@ -56,19 +56,28 @@
 namespace Gem {
 namespace GenEvA {
 
+/******************************************************************************************/
 /**
- * The default base name used for checkpointing. Derivatives of this
+ * The default base name used for check-pointing. Derivatives of this
  * class can build distinguished filenames from this e.g. by adding
  * the current generation.
  */
 const std::string DEFAULTCPBASENAME = "geneva.cp";
 
+/******************************************************************************************/
 /**
  * The default directory used for checkpointing. We choose a directory
  * that will always exist.
  */
 const std::string DEFAULTCPDIR = "./";
 
+/******************************************************************************************/
+/**
+ * This class implements basic operations found in iteration-based optimization algorithms.
+ * E.g., one might want to stop the optimization after a given number of cycles, or after
+ * a given amount of time. The class also defines the interface functions found in these
+ * algorithms, such as a general call to "optimize()".
+ */
 class GIndividualSet
 	:public GMutableSetT<Gem::GenEvA::GIndividual>
 {

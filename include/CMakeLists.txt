@@ -78,6 +78,7 @@ SET ( GENEVAINCLUDES
 	GSingletonT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GStdSimpleVectorInterfaceT.hpp
+	GSwarm.hpp
 	GSwarmPersonalityTraits.hpp
 	GThreadGroup.hpp
 )
