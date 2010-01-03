@@ -11,13 +11,12 @@ SET ( GENEVASOURCES
 	GBooleanObjectCollection
 	GBoolParameter
 	GBoostThreadConsumer
-	GBoostThreadPopulation
 	GBoundedDouble
 	GBoundedDoubleCollection
 	GBoundedInt32
 	GBoundedInt32Collection
 	GBoundedNumT
-	GBrokerPopulation
+	GBrokerEA
 	GChar
 	GCharFlipAdaptor
 	GCharObjectCollection
@@ -42,6 +41,7 @@ SET ( GENEVASOURCES
 	GInt32ObjectCollection
 	GIntFlipAdaptorT
 	GLongParameter
+	GMultiThreadedEA
 	GNumCollectionT
 	GNumericParameterT
 	GObject

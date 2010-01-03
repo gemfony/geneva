@@ -14,7 +14,6 @@ SET ( GENEVAINCLUDES
 	GBooleanObjectCollection.hpp
 	GBoolParameter.hpp
 	GBoostThreadConsumer.hpp
-	GBoostThreadPopulation.hpp
 	GBoundedBufferT.hpp
 	GBoundedBufferWithIdT.hpp
 	GBoundedDouble.hpp
@@ -22,8 +21,8 @@ SET ( GENEVAINCLUDES
 	GBoundedInt32.hpp
 	GBoundedInt32Collection.hpp
 	GBoundedNumT.hpp
+	GBrokerEA.hpp
 	GBrokerT.hpp
-	GBrokerPopulation.hpp
 	GBufferPortT.hpp
 	GChar.hpp
 	GCharFlipAdaptor.hpp
@@ -55,6 +54,7 @@ SET ( GENEVAINCLUDES
 	GInt32ObjectCollection.hpp
 	GIntFlipAdaptorT.hpp
 	GLongParameter.hpp
+	GMultiThreadedEA.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
 	GNumCollectionT.hpp
