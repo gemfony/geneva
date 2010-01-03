@@ -44,8 +44,8 @@
 #include <boost/thread/xtime.hpp>
 #include <boost/threadpool.hpp>
 
-#ifndef GBOOSTTHREADPOPULATION_HPP_
-#define GBOOSTTHREADPOPULATION_HPP_
+#ifndef GMULTITHREADEDEA_HPP_
+#define GMULTITHREADEDEA_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -71,7 +71,7 @@ const boost::uint16_t DEFAULTBOOSTTHREADS = 2;
  * uses the Boost.Threads library and a thread-pool library from
  * http://threadpool.sf.net .
  */
-class GBoostThreadPopulation
+class GMultiThreadedEA
 	: public GenEvA::GEvolutionaryAlgorithm
 {
 	///////////////////////////////////////////////////////////////////////
@@ -88,27 +88,27 @@ class GBoostThreadPopulation
 
 public:
 	/** @brief The default constructor */
-	GBoostThreadPopulation();
+	GMultiThreadedEA();
 	/** @brief A standard copy constructor */
-	GBoostThreadPopulation(const GBoostThreadPopulation&);
+	GMultiThreadedEA(const GMultiThreadedEA&);
 	/** @brief The standard destructor */
-	virtual ~GBoostThreadPopulation();
+	virtual ~GMultiThreadedEA();
 
 	/** @brief Assignment operator */
-	const GBoostThreadPopulation& operator=(const GBoostThreadPopulation&);
+	const GMultiThreadedEA& operator=(const GMultiThreadedEA&);
 
 	/** @brief Loads data from another object */
 	virtual void load(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone() const;
 
-	/** @brief Checks for equality with another GBoostThreadPopulation object */
-	bool operator==(const GBoostThreadPopulation&) const;
-	/** @brief Checks for inequality with another GBoostThreadPopulation object */
-	bool operator!=(const GBoostThreadPopulation&) const;
-	/** @brief Checks for equality with another GBoostThreadPopulation object */
+	/** @brief Checks for equality with another GMultiThreadedEA object */
+	bool operator==(const GMultiThreadedEA&) const;
+	/** @brief Checks for inequality with another GMultiThreadedEA object */
+	bool operator!=(const GMultiThreadedEA&) const;
+	/** @brief Checks for equality with another GMultiThreadedEA object */
 	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-	/** @brief Checks for similarity with another GBoostThreadPopulation object */
+	/** @brief Checks for similarity with another GMultiThreadedEA object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Necessary initialization work before the start of the optimization */
@@ -138,4 +138,4 @@ private:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GBOOSTTHREADPOPULATION_HPP_ */
+#endif /* GMULTITHREADEDEA_HPP_ */

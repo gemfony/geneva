@@ -39,10 +39,10 @@ using namespace boost::unit_test;
 #include "GAdaptorT_test.cpp"
 #include "GEvolutionaryAlgorithm_test.cpp"
 #include "GBooleanCollection_test.cpp"
-#include "GBoostThreadPopulation_test.cpp"
+#include "GMultiThreadedEA_test.cpp"
 #include "GBoundedDouble_test.cpp"
 #include "GBoundedInt32_test.cpp"
-#include "GBrokerPopulation_test.cpp"
+#include "GBrokerEA_test.cpp"
 #include "GDataExchange_test.cpp"
 #include "GDoubleCollection_test.cpp"
 #include "GGaussAdaptorT_test.cpp"
@@ -60,10 +60,10 @@ test_suite* init_unit_test_suite(int argc, char** argv) {
    framework::master_test_suite().add(new GAdaptorTSuite());
    framework::master_test_suite().add(new GEvolutionaryAlgorithmSuite());
    framework::master_test_suite().add(new GBooleanCollectionSuite());
-   framework::master_test_suite().add(new GBoostThreadPopulationSuite());
+   framework::master_test_suite().add(new GMultiThreadedEASuite());
    framework::master_test_suite().add(new GBoundedDoubleSuite());
    framework::master_test_suite().add(new GBoundedInt32Suite());
-   framework::master_test_suite().add(new GBrokerPopulationSuite());
+   framework::master_test_suite().add(new GBrokerEASuite());
    framework::master_test_suite().add(new GDataExchangeSuite());
    framework::master_test_suite().add(new GDoubleCollectionSuite());
    framework::master_test_suite().add(new GGaussAdaptorTSuite());

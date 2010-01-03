@@ -1,5 +1,5 @@
 /**
- * @file GBrokerPopulation.hpp
+ * @file GBrokerEA.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -45,8 +45,8 @@
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
 
-#ifndef GBROKERPOPULATION_HPP_
-#define GBROKERPOPULATION_HPP_
+#ifndef GBROKEREA_HPP_
+#define GBROKEREA_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -105,7 +105,7 @@ namespace GenEvA
    * Serialization in a network context only happens below the level of this population,
    * it is itself usually not shipped over a network connection.
    */
-  class GBrokerPopulation
+  class GBrokerEA
     :public GenEvA::GEvolutionaryAlgorithm
   {
     ///////////////////////////////////////////////////////////////////////
@@ -126,27 +126,27 @@ namespace GenEvA
 	typedef boost::shared_ptr<Gem::Util::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> > > GBufferPortT_ptr;
 
 	/** @brief The standard constructor */
-    GBrokerPopulation();
+    GBrokerEA();
     /** @brief A standard copy constructor */
-    GBrokerPopulation(const GBrokerPopulation&);
+    GBrokerEA(const GBrokerEA&);
     /** @brief The standard destructor */
-    virtual ~GBrokerPopulation();
+    virtual ~GBrokerEA();
 
     /** @brief A standard assignment operator */
-    const GBrokerPopulation& operator=(const GBrokerPopulation&);
+    const GBrokerEA& operator=(const GBrokerEA&);
 
     /** @brief Loads the data of another GTransfer Population */
     virtual void load(const GObject *);
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone() const;
 
-	/** @brief Checks for equality with another GBrokerPopulation object */
-	bool operator==(const GBrokerPopulation&) const;
-	/** @brief Checks for inequality with another GBrokerPopulation object */
-	bool operator!=(const GBrokerPopulation&) const;
-	/** @brief Checks for equality with another GBrokerPopulation object */
+	/** @brief Checks for equality with another GBrokerEA object */
+	bool operator==(const GBrokerEA&) const;
+	/** @brief Checks for inequality with another GBrokerEA object */
+	bool operator!=(const GBrokerEA&) const;
+	/** @brief Checks for equality with another GBrokerEA object */
 	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-	/** @brief Checks for similarity with another GBrokerPopulation object */
+	/** @brief Checks for similarity with another GBrokerEA object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
@@ -208,4 +208,4 @@ namespace GenEvA
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GBROKERPOPULATION_HPP_ */
+#endif /* GBROKEREA_HPP_ */

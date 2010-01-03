@@ -1,5 +1,5 @@
 /**
- * @file GBrokerPopulation.cpp
+ * @file GBrokerEA.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,14 +27,14 @@
  * http://www.gemfony.com .
  */
 
-#include "GBrokerPopulation.hpp"
+#include "GBrokerEA.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GBrokerPopulation)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GBrokerEA)
 
 namespace Gem
 {
@@ -45,7 +45,7 @@ namespace GenEvA
 /**
  * The default constructor
  */
-GBrokerPopulation::GBrokerPopulation()
+GBrokerEA::GBrokerEA()
 	:GEvolutionaryAlgorithm(),
      waitFactor_(DEFAULTWAITFACTOR),
      maxWaitFactor_(DEFAULTMAXWAITFACTOR),
@@ -57,9 +57,9 @@ GBrokerPopulation::GBrokerPopulation()
 /**
  * The standard copy constructor
  *
- * @param cp A copy of another GBrokerPopulation object
+ * @param cp A copy of another GBrokerEA object
  */
-GBrokerPopulation::GBrokerPopulation(const GBrokerPopulation& cp)
+GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	:GEvolutionaryAlgorithm(cp),
 	 waitFactor_(cp.waitFactor_),
 	 maxWaitFactor_(cp.maxWaitFactor_),
@@ -72,30 +72,30 @@ GBrokerPopulation::GBrokerPopulation(const GBrokerPopulation& cp)
  * The standard destructor. We have no object-wide dynamically allocated data, hence
  * this function is empty.
  */
-GBrokerPopulation::~GBrokerPopulation()
+GBrokerEA::~GBrokerEA()
 { /* nothing */}
 
 /******************************************************************************/
 /**
- * A standard assignment operator for GBrokerPopulation objects,
+ * A standard assignment operator for GBrokerEA objects,
  *
- * @param cp A copy of another GBrokerPopulation object
+ * @param cp A copy of another GBrokerEA object
  * @return A constant reference to this object
  */
-const GBrokerPopulation& GBrokerPopulation::operator=(const GBrokerPopulation& cp) {
-	GBrokerPopulation::load(&cp);
+const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
+	GBrokerEA::load(&cp);
 	return *this;
 }
 
 /******************************************************************************/
 /**
- * Loads the data of another GBrokerPopulation object, camouflaged as a
+ * Loads the data of another GBrokerEA object, camouflaged as a
  * pointer to a GObject
  *
- * @param cp A pointer to another GBrokerPopulation object, camouflaged as a GObject
+ * @param cp A pointer to another GBrokerEA object, camouflaged as a GObject
  */
-void GBrokerPopulation::load(const GObject * cp) {
-	const GBrokerPopulation *gbp_load = conversion_cast(cp, this);
+void GBrokerEA::load(const GObject * cp) {
+	const GBrokerEA *gbp_load = conversion_cast(cp, this);
 
 	// Load the parent class'es data ...
 	GEvolutionaryAlgorithm::load(cp);
@@ -113,79 +113,79 @@ void GBrokerPopulation::load(const GObject * cp) {
  *
  * @return A deep copy of this object
  */
-GObject *GBrokerPopulation::clone() const {
-	return new GBrokerPopulation(*this);
+GObject *GBrokerEA::clone() const {
+	return new GBrokerEA(*this);
 }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GBrokerPopulation object
+ * Checks for equality with another GBrokerEA object
  *
- * @param  cp A constant reference to another GBrokerPopulation object
+ * @param  cp A constant reference to another GBrokerEA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBrokerPopulation::operator==(const GBrokerPopulation& cp) const {
-	return GBrokerPopulation::isEqualTo(cp, boost::logic::indeterminate);
+bool GBrokerEA::operator==(const GBrokerEA& cp) const {
+	return GBrokerEA::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /******************************************************************************/
 /**
- * Checks for inequality with another GBrokerPopulation object
+ * Checks for inequality with another GBrokerEA object
  *
- * @param  cp A constant reference to another GBrokerPopulation object
+ * @param  cp A constant reference to another GBrokerEA object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBrokerPopulation::operator!=(const GBrokerPopulation& cp) const {
-	return !GBrokerPopulation::isEqualTo(cp, boost::logic::indeterminate);
+bool GBrokerEA::operator!=(const GBrokerEA& cp) const {
+	return !GBrokerEA::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GBrokerPopulation object.
+ * Checks for equality with another GBrokerEA object.
  *
- * @param  cp A constant reference to another GBrokerPopulation object
+ * @param  cp A constant reference to another GBrokerEA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBrokerPopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+bool GBrokerEA::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GBrokerPopulation *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GBrokerEA *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
 	if(!GEvolutionaryAlgorithm::isEqualTo(*gbp_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GBrokerPopulation", waitFactor_, gbp_load->waitFactor_,"waitFactor_", "gbp_load->waitFactor_", expected)) return false;
-	if(checkForInequality("GBrokerPopulation", maxWaitFactor_, gbp_load->maxWaitFactor_,"maxWaitFactor_", "gbp_load->maxWaitFactor_", expected)) return false;
-	if(checkForInequality("GBrokerPopulation", firstTimeOut_, gbp_load->firstTimeOut_,"firstTimeOut_", "gbp_load->firstTimeOut_", expected)) return false;
-	if(checkForInequality("GBrokerPopulation", loopTime_, gbp_load->loopTime_,"loopTime_", "gbp_load->loopTime_", expected)) return false;
+	if(checkForInequality("GBrokerEA", waitFactor_, gbp_load->waitFactor_,"waitFactor_", "gbp_load->waitFactor_", expected)) return false;
+	if(checkForInequality("GBrokerEA", maxWaitFactor_, gbp_load->maxWaitFactor_,"maxWaitFactor_", "gbp_load->maxWaitFactor_", expected)) return false;
+	if(checkForInequality("GBrokerEA", firstTimeOut_, gbp_load->firstTimeOut_,"firstTimeOut_", "gbp_load->firstTimeOut_", expected)) return false;
+	if(checkForInequality("GBrokerEA", loopTime_, gbp_load->loopTime_,"loopTime_", "gbp_load->loopTime_", expected)) return false;
 
 	return true;
 }
 
 /******************************************************************************/
 /**
- * Checks for similarity with another GBrokerPopulation object.
+ * Checks for similarity with another GBrokerEA object.
  *
- * @param  cp A constant reference to another GBrokerPopulation object
+ * @param  cp A constant reference to another GBrokerEA object
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GBrokerPopulation::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+bool GBrokerEA::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GBrokerPopulation *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GBrokerEA *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
 	if(!GEvolutionaryAlgorithm::isSimilarTo(*gbp_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GBrokerPopulation", waitFactor_, gbp_load->waitFactor_, limit, "waitFactor_", "gbp_load->waitFactor_", expected)) return false;
-	if(checkForDissimilarity("GBrokerPopulation", maxWaitFactor_, gbp_load->maxWaitFactor_, limit, "maxWaitFactor_", "gbp_load->maxWaitFactor_", expected)) return false;
-	if(checkForDissimilarity("GBrokerPopulation", firstTimeOut_, gbp_load->firstTimeOut_, limit, "firstTimeOut_", "gbp_load->firstTimeOut_", expected)) return false;
-	if(checkForDissimilarity("GBrokerPopulation", loopTime_, gbp_load->loopTime_, limit, "loopTime_", "gbp_load->loopTime_", expected)) return false;
+	if(checkForDissimilarity("GBrokerEA", waitFactor_, gbp_load->waitFactor_, limit, "waitFactor_", "gbp_load->waitFactor_", expected)) return false;
+	if(checkForDissimilarity("GBrokerEA", maxWaitFactor_, gbp_load->maxWaitFactor_, limit, "maxWaitFactor_", "gbp_load->maxWaitFactor_", expected)) return false;
+	if(checkForDissimilarity("GBrokerEA", firstTimeOut_, gbp_load->firstTimeOut_, limit, "firstTimeOut_", "gbp_load->firstTimeOut_", expected)) return false;
+	if(checkForDissimilarity("GBrokerEA", loopTime_, gbp_load->loopTime_, limit, "loopTime_", "gbp_load->loopTime_", expected)) return false;
 
 	return true;
 }
@@ -200,7 +200,7 @@ bool GBrokerPopulation::isSimilarTo(const GObject& cp, const double& limit, cons
  *
  * @param waitFactor The desired new value for waitFactor_ .
  */
-void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor)  {
+void GBrokerEA::setWaitFactor(const boost::uint32_t& waitFactor)  {
 	waitFactor_ = waitFactor;
 }
 
@@ -212,11 +212,11 @@ void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor)  {
  *
  * @param waitFactor The desired new value for waitFactor_ .
  */
-void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor, const boost::uint32_t& maxWaitFactor)  {
+void GBrokerEA::setWaitFactor(const boost::uint32_t& waitFactor, const boost::uint32_t& maxWaitFactor)  {
 	// Do error checks
 	if(maxWaitFactor && maxWaitFactor < waitFactor) {
 		std::ostringstream error;
-		error << "In GBrokerPopulation::setWaitFactor(uint32_t, uint32_t) : Error!" << std::endl
+		error << "In GBrokerEA::setWaitFactor(uint32_t, uint32_t) : Error!" << std::endl
 			  << "invalid maximum wait factor: " << maxWaitFactor << " / " << waitFactor << std::endl;
 		throw geneva_error_condition(error.str());
 	}
@@ -231,7 +231,7 @@ void GBrokerPopulation::setWaitFactor(const boost::uint32_t& waitFactor, const b
  *
  * @return The value of the waitFactor_ variable
  */
-boost::uint32_t GBrokerPopulation::getWaitFactor() const  {
+boost::uint32_t GBrokerEA::getWaitFactor() const  {
 	return waitFactor_;
 }
 
@@ -241,7 +241,7 @@ boost::uint32_t GBrokerPopulation::getWaitFactor() const  {
  *
  * @return The value of the maxWaitFactor_ variable
  */
-boost::uint32_t GBrokerPopulation::getMaxWaitFactor() const  {
+boost::uint32_t GBrokerEA::getMaxWaitFactor() const  {
 	return maxWaitFactor_;
 }
 
@@ -253,7 +253,7 @@ boost::uint32_t GBrokerPopulation::getMaxWaitFactor() const  {
  *
  * @param firstTimeOut The maximum allowed time until the first individual returns
  */
-void GBrokerPopulation::setFirstTimeOut(const boost::posix_time::time_duration& firstTimeOut) {
+void GBrokerEA::setFirstTimeOut(const boost::posix_time::time_duration& firstTimeOut) {
 	firstTimeOut_ = firstTimeOut;
 }
 
@@ -263,7 +263,7 @@ void GBrokerPopulation::setFirstTimeOut(const boost::posix_time::time_duration& 
  *
  * @return The value of firstTimeOut_ variable
  */
-boost::posix_time::time_duration GBrokerPopulation::getFirstTimeOut() const {
+boost::posix_time::time_duration GBrokerEA::getFirstTimeOut() const {
 	return firstTimeOut_;
 }
 
@@ -275,11 +275,11 @@ boost::posix_time::time_duration GBrokerPopulation::getFirstTimeOut() const {
  *
  * @param loopTime Timeout until an item was retrieved from the GBoundedBufferT
  */
-void GBrokerPopulation::setLoopTime(const boost::posix_time::time_duration& loopTime) {
+void GBrokerEA::setLoopTime(const boost::posix_time::time_duration& loopTime) {
 	// Only allow "real" values
 	if(loopTime.is_special() || loopTime.is_negative() || loopTime.total_microseconds()==0) {
 		std::ostringstream error;
-		error << "In GBrokerPopulation::setLoopTime() : Error!" << std::endl
+		error << "In GBrokerEA::setLoopTime() : Error!" << std::endl
 			  << "loopTime is set to 0" << std::endl;
 
 		throw geneva_error_condition(error.str());
@@ -294,7 +294,7 @@ void GBrokerPopulation::setLoopTime(const boost::posix_time::time_duration& loop
  *
  * @return The value of the loopTime_ variable
  */
-boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
+boost::posix_time::time_duration GBrokerEA::getLoopTime() const {
 	return loopTime_;
 }
 
@@ -302,19 +302,19 @@ boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
 /**
  * Performs any necessary initialization work before the start of the optimization cycle
  */
-void GBrokerPopulation::init() {
+void GBrokerEA::init() {
 	// Prevent usage of this population inside another broker population - check type of first individual
 	{
 		std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			boost::shared_ptr<GBrokerPopulation> p = boost::dynamic_pointer_cast<GBrokerPopulation>(*it);
+			boost::shared_ptr<GBrokerEA> p = boost::dynamic_pointer_cast<GBrokerEA>(*it);
 
 			if(p) {
 				// Conversion was successful - this should not be, as there are not to supposed to be
-				// any GBrokerPopulation objects inside itself.
+				// any GBrokerEA objects inside itself.
 				std::ostringstream error;
-				error << "In GBrokerPopulation::optimize(): Error" << std::endl
-				      << "GBrokerPopulation stored as an individual inside of" << std::endl
+				error << "In GBrokerEA::optimize(): Error" << std::endl
+				      << "GBrokerEA stored as an individual inside of" << std::endl
 				      << "a population of the same type" << std::endl;
 				throw(Gem::GenEvA::geneva_error_condition(error.str()));
 			}
@@ -332,7 +332,7 @@ void GBrokerPopulation::init() {
 /**
  * Performs any necessary finalization work after the end of the optimization cycle
  */
-void GBrokerPopulation::finalize() {
+void GBrokerEA::finalize() {
 	// Remove the GBufferPortT object. The broker only holds shared_ptr's to the
 	// two objects contained therein, which are not invalidated, but become unique.
 	// This is a selection criterion which lets the broker remove surplus buffer
@@ -352,7 +352,7 @@ void GBrokerPopulation::finalize() {
  * then waits for the first individual to come back. The time frame for all other
  * individuals to come back is a multiple of this time frame.
  */
-void GBrokerPopulation::mutateChildren() {
+void GBrokerEA::mutateChildren() {
 	using namespace boost::posix_time;
 
 	std::vector<boost::shared_ptr<GIndividual> >::reverse_iterator rit;
@@ -454,7 +454,7 @@ void GBrokerPopulation::mutateChildren() {
 			// Find out whether we have exceeded a threshold
 			if(firstTimeOut_.total_microseconds() && ((microsec_clock::local_time()-startTime) > firstTimeOut_)){
 				std::ostringstream error;
-				error << "In GBrokerPopulation::mutateChildren() : Error!" << std::endl
+				error << "In GBrokerEA::mutateChildren() : Error!" << std::endl
 					  << "Timeout for first individual reached." << std::endl
 					  << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
 					  << "You can change this value with the setFirstTimeOut() function." << std::endl;
@@ -531,7 +531,7 @@ void GBrokerPopulation::mutateChildren() {
 		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
 			std::ostringstream error;
-			error << "In GBrokerPopulation::mutateChildren() : Error!" << std::endl
+			error << "In GBrokerEA::mutateChildren() : Error!" << std::endl
 				  << "Population is empty when it shouldn't be." << std::endl;
 
 			throw geneva_error_condition(error.str());
@@ -568,7 +568,7 @@ void GBrokerPopulation::mutateChildren() {
 
 #ifdef DEBUG
 	std::ostringstream information;
-	information << "Note that in GBrokerPopulation::mutateChildren()" << std::endl
+	information << "Note that in GBrokerEA::mutateChildren()" << std::endl
 				<< "some individuals of the current population did not return" << std::endl
 				<< "in generation " << generation << "." << std::endl;
 
@@ -641,7 +641,7 @@ void GBrokerPopulation::mutateChildren() {
  * of individuals. More individuals are allowed. the population will be
  * resized to nominal values at the end of this function.
  */
-void GBrokerPopulation::select() {
+void GBrokerEA::select() {
 	////////////////////////////////////////////////////////////
 	// Great - we are at least at the default level and are
 	// ready to call the actual select() function. This will

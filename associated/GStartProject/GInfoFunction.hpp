@@ -39,8 +39,8 @@
 // GenEvA header files go here
 #include "GRandom.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
-#include "GBoostThreadPopulation.hpp"
-#include "GBrokerPopulation.hpp"
+#include "GMultiThreadedEA.hpp"
+#include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"

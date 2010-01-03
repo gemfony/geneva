@@ -1,5 +1,5 @@
 /**
- * @file GBoostThreadPopulation.cpp
+ * @file GMultiThreadedEA.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,14 +27,14 @@
  * http://www.gemfony.com .
  */
 
-#include "GBoostThreadPopulation.hpp"
+#include "GMultiThreadedEA.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GBoostThreadPopulation)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GMultiThreadedEA)
 
 namespace Gem {
 namespace GenEvA {
@@ -44,7 +44,7 @@ namespace GenEvA {
  * A standard constructor. No local, dynamically allocated data,
  * hence this function is empty.
  */
-GBoostThreadPopulation::GBoostThreadPopulation() :
+GMultiThreadedEA::GMultiThreadedEA() :
 	GEvolutionaryAlgorithm(),
 	nThreads_(DEFAULTBOOSTTHREADS),
 	tp_(nThreads_)
@@ -55,9 +55,9 @@ GBoostThreadPopulation::GBoostThreadPopulation() :
  * A standard copy constructor. Note that we do not copy le_value_ as
  * it is used for internal caching only.
  *
- * @param cp Reference to another GBoostThreadPopulation object
+ * @param cp Reference to another GMultiThreadedEA object
  */
-GBoostThreadPopulation::GBoostThreadPopulation(const GBoostThreadPopulation& cp) :
+GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp) :
 	GEvolutionaryAlgorithm(cp),
 	nThreads_(cp.nThreads_),
 	tp_(nThreads_)
@@ -68,32 +68,32 @@ GBoostThreadPopulation::GBoostThreadPopulation(const GBoostThreadPopulation& cp)
  * The standard destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
  */
-GBoostThreadPopulation::~GBoostThreadPopulation() {
+GMultiThreadedEA::~GMultiThreadedEA() {
 	tp_.clear();
 	tp_.wait();
 }
 
 /********************************************************************/
 /**
- * A standard assignment operator for GBoostThreadPopulation objects.
+ * A standard assignment operator for GMultiThreadedEA objects.
  *
- * @param cp Reference to another GBoostThreadPopulation object
+ * @param cp Reference to another GMultiThreadedEA object
  * @return A constant reference to this object
  */
-const GBoostThreadPopulation& GBoostThreadPopulation::operator=(const GBoostThreadPopulation& cp) {
-	GBoostThreadPopulation::load(&cp);
+const GMultiThreadedEA& GMultiThreadedEA::operator=(const GMultiThreadedEA& cp) {
+	GMultiThreadedEA::load(&cp);
 	return *this;
 }
 
 /********************************************************************/
 /**
- * Loads the data from another GBoostThreadPopulation object.
+ * Loads the data from another GMultiThreadedEA object.
  *
- * @param vp Pointer to another GBoostThreadPopulation object, camouflaged as a GObject
+ * @param vp Pointer to another GMultiThreadedEA object, camouflaged as a GObject
  */
-void GBoostThreadPopulation::load(const GObject *cp) {
+void GMultiThreadedEA::load(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GBoostThreadPopulation *gbp = this->conversion_cast(cp, this);
+	const GMultiThreadedEA *gbp = this->conversion_cast(cp, this);
 
 	// First load our parent class'es data ...
 	GEvolutionaryAlgorithm::load(cp);
@@ -112,73 +112,73 @@ void GBoostThreadPopulation::load(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GBoostThreadPopulation::clone() const  {
-	return new GBoostThreadPopulation(*this);
+GObject *GMultiThreadedEA::clone() const  {
+	return new GMultiThreadedEA(*this);
 }
 
 /********************************************************************/
 /**
- * Checks for equality with another GBoostThreadPopulation object
+ * Checks for equality with another GMultiThreadedEA object
  *
- * @param  cp A constant reference to another GBoostThreadPopulation object
+ * @param  cp A constant reference to another GMultiThreadedEA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBoostThreadPopulation::operator==(const GBoostThreadPopulation& cp) const {
-	return GBoostThreadPopulation::isEqualTo(cp, boost::logic::indeterminate);
+bool GMultiThreadedEA::operator==(const GMultiThreadedEA& cp) const {
+	return GMultiThreadedEA::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /********************************************************************/
 /**
- * Checks for inequality with another GBoostThreadPopulation object
+ * Checks for inequality with another GMultiThreadedEA object
  *
- * @param  cp A constant reference to another GBoostThreadPopulation object
+ * @param  cp A constant reference to another GMultiThreadedEA object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBoostThreadPopulation::operator!=(const GBoostThreadPopulation& cp) const {
-	return !GBoostThreadPopulation::isEqualTo(cp, boost::logic::indeterminate);
+bool GMultiThreadedEA::operator!=(const GMultiThreadedEA& cp) const {
+	return !GMultiThreadedEA::isEqualTo(cp, boost::logic::indeterminate);
 }
 
 /********************************************************************/
 /**
- * Checks for equality with another GBoostThreadPopulation object.
+ * Checks for equality with another GMultiThreadedEA object.
  *
- * @param  cp A constant reference to another GBoostThreadPopulation object
+ * @param  cp A constant reference to another GMultiThreadedEA object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBoostThreadPopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+bool GMultiThreadedEA::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
    using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GBoostThreadPopulation *gbtp_load = GObject::conversion_cast(&cp,  this);
+	const GMultiThreadedEA *gbtp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
 	if(!GEvolutionaryAlgorithm::isEqualTo(*gbtp_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_,"nThreads_", "gbtp_load->nThreads_", expected)) return false;
+	if(checkForInequality("GMultiThreadedEA", nThreads_, gbtp_load->nThreads_,"nThreads_", "gbtp_load->nThreads_", expected)) return false;
 
 	return true;
 }
 
 /********************************************************************/
 /**
- * Checks for similarity with another GBoostThreadPopulation object.
+ * Checks for similarity with another GMultiThreadedEA object.
  *
- * @param  cp A constant reference to another GBoostThreadPopulation object
+ * @param  cp A constant reference to another GMultiThreadedEA object
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+bool GMultiThreadedEA::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GBoostThreadPopulation *gbtp_load = GObject::conversion_cast(&cp,  this);
+	const GMultiThreadedEA *gbtp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
 	if(!GEvolutionaryAlgorithm::isSimilarTo(*gbtp_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_, limit, "nThreads_", "gbtp_load->nThreads_", expected)) return false;
+	if(checkForDissimilarity("GMultiThreadedEA", nThreads_, gbtp_load->nThreads_, limit, "nThreads_", "gbtp_load->nThreads_", expected)) return false;
 
 	return true;
 }
@@ -187,7 +187,7 @@ bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit,
 /**
  * Necessary initialization work before the start of the optimization
  */
-void GBoostThreadPopulation::init() {
+void GMultiThreadedEA::init() {
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::init();
 
@@ -204,7 +204,7 @@ void GBoostThreadPopulation::init() {
 /**
  * Necessary clean-up work after the optimization has finished
  */
-void GBoostThreadPopulation::finalize() {
+void GMultiThreadedEA::finalize() {
 	// Restore the original values
 	std::vector<bool>::iterator b_it;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
@@ -224,9 +224,9 @@ void GBoostThreadPopulation::finalize() {
  * An overloaded version of GEvolutionaryAlgorithm::mutateChildren() . Mutation
  * and evaluation of children is handled by threads in a thread pool. The maximum
  * number of threads is DEFAULTBOOSTTHREADS (possibly 2) and can be overridden
- * with the GBoostThreadPopulation::setMaxThreads() function.
+ * with the GMultiThreadedEA::setMaxThreads() function.
  */
-void GBoostThreadPopulation::mutateChildren() {
+void GMultiThreadedEA::mutateChildren() {
 	std::size_t nParents = GEvolutionaryAlgorithm::getNParents();
 	boost::uint32_t generation = GEvolutionaryAlgorithm::getIteration();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
@@ -258,7 +258,7 @@ void GBoostThreadPopulation::mutateChildren() {
  *
  * @param nThreads The number of threads this class uses
  */
-void GBoostThreadPopulation::setNThreads(const boost::uint8_t& nThreads) {
+void GMultiThreadedEA::setNThreads(const boost::uint8_t& nThreads) {
 	if(nThreads == 0) {
 		boost::uint8_t hardwareThreads = boost::numeric_cast<boost::uint8_t>(boost::thread::hardware_concurrency());
 		if(hardwareThreads > 0) {
@@ -282,7 +282,7 @@ void GBoostThreadPopulation::setNThreads(const boost::uint8_t& nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-uint8_t GBoostThreadPopulation::getNThreads() const  {
+uint8_t GMultiThreadedEA::getNThreads() const  {
 	return nThreads_;
 }
 

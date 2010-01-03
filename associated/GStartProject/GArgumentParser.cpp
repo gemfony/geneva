@@ -175,7 +175,7 @@ namespace Gem
 	  ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
 	   "Specifies whether results should be returned even if they are not better than before")
 	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
-	   "Influences the maximum waiting time of the GBrokerPopulation after the arrival of the first evaluated individuum")
+	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
 	  ("parDim", po::value<std::size_t>(&parDim)->default_value(DEFAULTPARDIM),
 	   "The amount of variables in the parabola")
 	  ("minVar", po::value<double>(&minVar)->default_value(DEFAULTMINVAR),

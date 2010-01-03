@@ -1,5 +1,5 @@
 /**
- * @file GBrokerPopulation.cpp
+ * @file GBrokerSelfCommunication.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -46,7 +46,7 @@
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GBrokerPopulation.hpp"
+#include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"
@@ -139,7 +139,7 @@ int main(int argc, char **argv){
 	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
 
 	// Create the actual population
-	boost::shared_ptr<GBrokerPopulation> pop(new GBrokerPopulation());
+	boost::shared_ptr<GBrokerEA> pop(new GBrokerEA());
 
 	// Make the individual known to the population
 	pop->push_back(projectionIndividual);
@@ -155,7 +155,7 @@ int main(int argc, char **argv){
 	pop->setRecombinationMethod(rScheme);
 
 	// Start the actual optimization
-	gtg.create_thread(boost::bind(&GBrokerPopulation::optimize, pop, 0));
+	gtg.create_thread(boost::bind(&GBrokerEA::optimize, pop, 0));
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Start of clients

@@ -1,5 +1,5 @@
 /**
- * @file GBoostThreadPopulation_test.cpp
+ * @file GMultiThreadedEA_test.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -42,7 +42,7 @@
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
-#include "GBoostThreadPopulation.hpp"
+#include "GMultiThreadedEA.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -53,7 +53,7 @@ using boost::unit_test_framework::test_case;
 
 /********************************************************************************************/
 // The actual unit tests for this class
-class GBoostThreadPopulation_test {
+class GMultiThreadedEA_test {
 public:
 	/***********************************************************************************/
 	// Test features that are expected to work
@@ -74,16 +74,16 @@ private:
 
 /********************************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GBoostThreadPopulation class.
-class GBoostThreadPopulationSuite: public test_suite
+// by the GMultiThreadedEA class.
+class GMultiThreadedEASuite: public test_suite
 {
 public:
-	GBoostThreadPopulationSuite() :test_suite("GBoostThreadPopulationSuite") {
+	GMultiThreadedEASuite() :test_suite("GMultiThreadedEASuite") {
 	  // create an instance of the test cases class
-	  boost::shared_ptr<GBoostThreadPopulation_test> instance(new GBoostThreadPopulation_test());
+	  boost::shared_ptr<GMultiThreadedEA_test> instance(new GMultiThreadedEA_test());
 
-	  test_case* no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GBoostThreadPopulation_test::no_failure_expected, instance);
-	  test_case* failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GBoostThreadPopulation_test::failures_expected, instance);
+	  test_case* no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GMultiThreadedEA_test::no_failure_expected, instance);
+	  test_case* failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GMultiThreadedEA_test::failures_expected, instance);
 
 	  add(no_failure_expected_test_case);
 	  add(failures_expected_test_case);

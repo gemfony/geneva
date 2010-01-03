@@ -162,7 +162,7 @@ bool parseConfigFile(const std::string& configFile,
   	    ("nBoostThreadConsumerThreads", po::value<std::size_t>(&nBoostThreadConsumerThreads)->default_value(DEFAULTNBTCONSUMERTHREADS),
   	    		"The number of threads used in the GBoostThreadConsumer to process individuals")
   	    ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
-  	    		"Influences the maximum waiting time of the GBrokerPopulation after the arrival of the first evaluated individuum")
+  	    		"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
 		("nVariables", po::value<std::size_t>(&nVariables)->default_value(DEFAULTNVARIABLES),
 				"The amount of variables in each individual")
   	    ;

@@ -42,7 +42,7 @@
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
-#include "GBrokerPopulation.hpp"
+#include "GBrokerEA.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -53,7 +53,7 @@ using boost::unit_test_framework::test_case;
 
 /********************************************************************************************/
 // The actual unit tests for this class
-class GBrokerPopulation_test {
+class GBrokerEA_test {
 public:
 	/***********************************************************************************/
 	// Test features that are expected to work
@@ -74,16 +74,16 @@ private:
 
 /********************************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GBrokerPopulation class.
-class GBrokerPopulationSuite: public test_suite
+// by the GBrokerEA class.
+class GBrokerEASuite: public test_suite
 {
 public:
-	GBrokerPopulationSuite() :test_suite("GBrokerPopulationSuite") {
+	GBrokerEASuite() :test_suite("GBrokerEASuite") {
 	  // create an instance of the test cases class
-	  boost::shared_ptr<GBrokerPopulation_test> instance(new GBrokerPopulation_test());
+	  boost::shared_ptr<GBrokerEA_test> instance(new GBrokerEA_test());
 
-	  test_case* no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GBrokerPopulation_test::no_failure_expected, instance);
-	  test_case* failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GBrokerPopulation_test::failures_expected, instance);
+	  test_case* no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GBrokerEA_test::no_failure_expected, instance);
+	  test_case* failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GBrokerEA_test::failures_expected, instance);
 
 	  add(no_failure_expected_test_case);
 	  add(failures_expected_test_case);
