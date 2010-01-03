@@ -37,7 +37,7 @@
 
 // GenEvA header files go here
 #include "GRandom.hpp"
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
@@ -56,7 +56,7 @@ using namespace Gem::Util;
 /************************************************************************************************/
 /**
  * The main function. We search for the minimum of a parabola. This example demonstrates the use
- * of the GBasePopulation class or (at your choice) of the GBoostThreadPopulation class. Note that
+ * of the GEvolutionaryAlgorithm class or (at your choice) of the GBoostThreadPopulation class. Note that
  * a number of command line options are available. Call the executable with the "-h" switch
  * to get an overview.
  */

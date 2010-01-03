@@ -83,7 +83,7 @@ class GIndividual
 	// Needed so only the corresponding optimization algorithms can set the
     // personality of an individual
 	friend class GOptimizationAlgorithm;
-	friend class GBasePopulation;
+	friend class GEvolutionaryAlgorithm;
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

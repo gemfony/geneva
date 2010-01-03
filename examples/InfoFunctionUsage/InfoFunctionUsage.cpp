@@ -50,7 +50,7 @@
 
 // GenEvA header files go here
 #include "GRandom.hpp"
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 #include "GIndividual.hpp"
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
@@ -73,7 +73,7 @@ using namespace Gem::Util;
 
 /************************************************************************************************/
 /**
- * The main function - similar to the GBasePopulation example. We search for the minimum of a
+ * The main function - similar to the GEvolutionaryAlgorithm example. We search for the minimum of a
  * simple function, such as provided by the "parabola" or "noisy parabola" individuals.
  */
 int main(int argc, char **argv){

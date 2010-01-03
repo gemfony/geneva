@@ -36,7 +36,7 @@
 
 // GenEvA header files go here
 #include "GRandom.hpp"
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 #include "GBoostThreadPopulation.hpp"
 #include "GBrokerPopulation.hpp"
 #include "GIndividualBroker.hpp"
@@ -56,7 +56,7 @@ using namespace Gem::Util;
 /************************************************************************************************/
 /**
  * The main function. We search for the minimum of a parabola. This example demonstrates the use
- * of the GBasePopulation class or (at your choice) the GBoostThreadPopulation or GBrokerPopilation
+ * of the GEvolutionaryAlgorithm class or (at your choice) the GBoostThreadPopulation or GBrokerPopilation
  * class. Note that a number of command line options are available. Call the executable with the "-h"
  * switch to get an overview.
  */
@@ -171,7 +171,7 @@ int main(int argc, char **argv){
 			parabolaIndividual->push_back(gbdc_ptr);
 
 			// Now we've got our first individual and can create a simple population with serial execution.
-			GBasePopulation pop_ser;
+			GEvolutionaryAlgorithm pop_ser;
 
 			pop_ser.push_back(parabolaIndividual);
 

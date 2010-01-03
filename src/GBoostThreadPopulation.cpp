@@ -45,7 +45,7 @@ namespace GenEvA {
  * hence this function is empty.
  */
 GBoostThreadPopulation::GBoostThreadPopulation() :
-	GBasePopulation(),
+	GEvolutionaryAlgorithm(),
 	nThreads_(DEFAULTBOOSTTHREADS),
 	tp_(nThreads_)
 { /* nothing */ }
@@ -58,7 +58,7 @@ GBoostThreadPopulation::GBoostThreadPopulation() :
  * @param cp Reference to another GBoostThreadPopulation object
  */
 GBoostThreadPopulation::GBoostThreadPopulation(const GBoostThreadPopulation& cp) :
-	GBasePopulation(cp),
+	GEvolutionaryAlgorithm(cp),
 	nThreads_(cp.nThreads_),
 	tp_(nThreads_)
 { /* nothing */ }
@@ -96,7 +96,7 @@ void GBoostThreadPopulation::load(const GObject *cp) {
 	const GBoostThreadPopulation *gbp = this->conversion_cast(cp, this);
 
 	// First load our parent class'es data ...
-	GBasePopulation::load(cp);
+	GEvolutionaryAlgorithm::load(cp);
 
 	// ... and then our own
 	nThreads_ = gbp->nThreads_;
@@ -152,7 +152,7 @@ bool GBoostThreadPopulation::isEqualTo(const GObject& cp, const boost::logic::tr
 	const GBoostThreadPopulation *gbtp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GBasePopulation::isEqualTo(*gbtp_load, expected)) return  false;
+	if(!GEvolutionaryAlgorithm::isEqualTo(*gbtp_load, expected)) return  false;
 
 	// Then we take care of the local data
 	if(checkForInequality("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_,"nThreads_", "gbtp_load->nThreads_", expected)) return false;
@@ -175,7 +175,7 @@ bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit,
 	const GBoostThreadPopulation *gbtp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GBasePopulation::isSimilarTo(*gbtp_load, limit, expected)) return  false;
+	if(!GEvolutionaryAlgorithm::isSimilarTo(*gbtp_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
 	if(checkForDissimilarity("GBoostThreadPopulation", nThreads_, gbtp_load->nThreads_, limit, "nThreads_", "gbtp_load->nThreads_", expected)) return false;
@@ -188,8 +188,8 @@ bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit,
  * Necessary initialization work before the start of the optimization
  */
 void GBoostThreadPopulation::init() {
-	// GBasePopulation sees exactly the environment it would when called from its own class
-	GBasePopulation::init();
+	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
+	GEvolutionaryAlgorithm::init();
 
 	// We want to prevent lazy evaluation, as all value calculation
 	// shall take place in the threads. By the same token, though, we want to be
@@ -215,20 +215,20 @@ void GBoostThreadPopulation::finalize() {
 		(*it)->setAllowLazyEvaluation(*b_it);
 	}
 
-	// GBasePopulation sees exactly the environment it would when called from its own class
-	GBasePopulation::finalize();
+	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
+	GEvolutionaryAlgorithm::finalize();
 }
 
 /********************************************************************/
 /**
- * An overloaded version of GBasePopulation::mutateChildren() . Mutation
+ * An overloaded version of GEvolutionaryAlgorithm::mutateChildren() . Mutation
  * and evaluation of children is handled by threads in a thread pool. The maximum
  * number of threads is DEFAULTBOOSTTHREADS (possibly 2) and can be overridden
  * with the GBoostThreadPopulation::setMaxThreads() function.
  */
 void GBoostThreadPopulation::mutateChildren() {
-	std::size_t nParents = GBasePopulation::getNParents();
-	boost::uint32_t generation = GBasePopulation::getIteration();
+	std::size_t nParents = GEvolutionaryAlgorithm::getNParents();
+	boost::uint32_t generation = GEvolutionaryAlgorithm::getIteration();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	// We start with the parents, if this is generation 0. Their

@@ -56,7 +56,7 @@
 // GenEvA headers go here
 #include "GenevaExceptions.hpp"
 #include "GIndividual.hpp"
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 #include "GBufferPortT.hpp"
 #include "GIndividualBroker.hpp"
 #include "GEAPersonalityTraits.hpp"
@@ -84,7 +84,7 @@ namespace GenEvA
    * The default allowed time in seconds for the first individual
    * in generation 0 to return. Set it to 0 to disable this timeout.
    */
-  const std::string DEFAULTFIRSTTIMEOUT = EMPTYDURATION; // defined in GBasePopulation
+  const std::string DEFAULTFIRSTTIMEOUT = EMPTYDURATION; // defined in GEvolutionaryAlgorithm
 
   /**
    * The default number of milliseconds before the broker times out
@@ -106,7 +106,7 @@ namespace GenEvA
    * it is itself usually not shipped over a network connection.
    */
   class GBrokerPopulation
-    :public GenEvA::GBasePopulation
+    :public GenEvA::GEvolutionaryAlgorithm
   {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -114,7 +114,7 @@ namespace GenEvA
     template<typename Archive>
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
-      ar & make_nvp("GBasePopulation", boost::serialization::base_object<GBasePopulation>(*this));
+      ar & make_nvp("GEvolutionaryAlgorithm", boost::serialization::base_object<GEvolutionaryAlgorithm>(*this));
       ar & make_nvp("firstTimeOut_", firstTimeOut_);
       ar & make_nvp("loopTime_",loopTime_);
       ar & make_nvp("waitFactor_", waitFactor_);

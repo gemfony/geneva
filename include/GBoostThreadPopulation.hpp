@@ -54,7 +54,7 @@
 
 
 // GenEvA headers go here
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
 #include "GenevaExceptions.hpp"
@@ -67,12 +67,12 @@ const boost::uint16_t DEFAULTBOOSTTHREADS = 2;
 
 /********************************************************************/
 /**
- * A multi-threaded population based on GBasePopulation. This version
+ * A multi-threaded population based on GEvolutionaryAlgorithm. This version
  * uses the Boost.Threads library and a thread-pool library from
  * http://threadpool.sf.net .
  */
 class GBoostThreadPopulation
-	: public GenEvA::GBasePopulation
+	: public GenEvA::GEvolutionaryAlgorithm
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -80,8 +80,8 @@ class GBoostThreadPopulation
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GBTGBasePopulation",
-				boost::serialization::base_object<GBasePopulation>(*this));
+		ar & make_nvp("GBTGEvolutionaryAlgorithm",
+				boost::serialization::base_object<GEvolutionaryAlgorithm>(*this));
 		ar & make_nvp("nThreads_", nThreads_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ public:
 	uint8_t getNThreads() const ;
 
 protected:
-	/** @brief Overloaded version from GBasePopulation,
+	/** @brief Overloaded version from GEvolutionaryAlgorithm,
 	 * core of the Boost-thread implementation */
 	virtual void mutateChildren();
 

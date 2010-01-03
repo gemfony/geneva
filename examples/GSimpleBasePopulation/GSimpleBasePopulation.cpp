@@ -37,7 +37,7 @@
 
 // GenEvA header files go here
 #include "GRandom.hpp"
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 #include "GBoostThreadPopulation.hpp"
 
 // The individual that should be optimized
@@ -53,7 +53,7 @@ using namespace Gem::Util;
 /************************************************************************************************/
 /**
  * The main function. We search for the minimum of a mathematical function. This example demonstrates
- * the use of the GBasePopulation class or (at your choice) of the GBoostThreadPopulation class. Note that
+ * the use of the GEvolutionaryAlgorithm class or (at your choice) of the GBoostThreadPopulation class. Note that
  * a number of command line options are available. Call the executable with the "-h" switch to get an overview.
  */
 
@@ -161,7 +161,7 @@ int main(int argc, char **argv){
 	}
 	else {
 	  // Now we've got our first individual and can create a simple population with serial execution.
-	  GBasePopulation pop_ser;
+	  GEvolutionaryAlgorithm pop_ser;
 
 	  pop_ser.push_back(functionIndividual);
 

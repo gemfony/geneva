@@ -37,7 +37,7 @@ using namespace boost::unit_test;
 
 // These includes hold the actual tests
 #include "GAdaptorT_test.cpp"
-#include "GBasePopulation_test.cpp"
+#include "GEvolutionaryAlgorithm_test.cpp"
 #include "GBooleanCollection_test.cpp"
 #include "GBoostThreadPopulation_test.cpp"
 #include "GBoundedDouble_test.cpp"
@@ -58,7 +58,7 @@ using namespace boost::unit_test;
 // test program entry point
 test_suite* init_unit_test_suite(int argc, char** argv) {
    framework::master_test_suite().add(new GAdaptorTSuite());
-   framework::master_test_suite().add(new GBasePopulationSuite());
+   framework::master_test_suite().add(new GEvolutionaryAlgorithmSuite());
    framework::master_test_suite().add(new GBooleanCollectionSuite());
    framework::master_test_suite().add(new GBoostThreadPopulationSuite());
    framework::master_test_suite().add(new GBoundedDoubleSuite());

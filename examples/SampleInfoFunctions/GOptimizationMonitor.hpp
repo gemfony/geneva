@@ -64,7 +64,7 @@
 #endif
 
 // GenEvA header files go here
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 #include "GEnums.hpp"
 
 namespace Gem
@@ -74,10 +74,10 @@ namespace GenEvA
 
 /************************************************************************************************/
 /**
- * GBasePopulation, as the base class of all population classes in GenEvA, allows to store functions
+ * GEvolutionaryAlgorithm, as the base class of all population classes in GenEvA, allows to store functions
  * and function objects with the signature
  *
- * void infoFunction(const infoMode&, GBasePopulation * const);
+ * void infoFunction(const infoMode&, GEvolutionaryAlgorithm * const);
  *
  * The function is called once before and after the optimization run, and in regular intervals
  * (as determined by the user) during the optimization.
@@ -104,7 +104,7 @@ class optimizationMonitor{
 			ar & make_nvp("generation", generation);
 		}
 
-		boost::shared_ptr<GBasePopulation> pop;
+		boost::shared_ptr<GEvolutionaryAlgorithm> pop;
 		boost::uint32_t generation;
 	};
 
@@ -150,9 +150,9 @@ public:
 	 * INFOEND: is called once after the optimization run
 	 *
 	 * @param im The current mode in which the function is called
-	 * @param gbp A pointer to a GBasePopulation object for which information should be collected
+	 * @param gbp A pointer to a GEvolutionaryAlgorithm object for which information should be collected
 	 */
-	void informationFunction(const infoMode& im, GBasePopulation * const gbp){
+	void informationFunction(const infoMode& im, GEvolutionaryAlgorithm * const gbp){
 		switch(im){
 		case INFOINIT: // extract the population constraints
 			oD_.populationSize = gbp->getDefaultPopulationSize();
@@ -166,7 +166,7 @@ public:
 				generationData genDat;
 				genDat.generation = gbp->getIteration();
 
-				boost::shared_ptr<GBasePopulation> pop(new GBasePopulation());
+				boost::shared_ptr<GEvolutionaryAlgorithm> pop(new GEvolutionaryAlgorithm());
 				pop->load(gbp);
 				genDat.pop = pop;
 

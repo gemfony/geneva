@@ -1,5 +1,5 @@
 /**
- * @file GBasePopulation_test.cpp
+ * @file GEvolutionaryAlgorithm_test.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -43,7 +43,7 @@
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -54,7 +54,7 @@ using boost::unit_test_framework::test_case;
 
 /********************************************************************************************/
 // The actual unit tests for this class
-class GBasePopulation_test {
+class GEvolutionaryAlgorithm_test {
 public:
 	/***********************************************************************************/
 	// Test features that are expected to work
@@ -75,19 +75,19 @@ private:
 
 /********************************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GBasePopulation class.
-class GBasePopulationSuite: public test_suite
+// by the GEvolutionaryAlgorithm class.
+class GEvolutionaryAlgorithmSuite: public test_suite
 {
 public:
-	GBasePopulationSuite() :test_suite("GBasePopulationSuite") {
+	GEvolutionaryAlgorithmSuite() :test_suite("GEvolutionaryAlgorithmSuite") {
 	  // create an instance of the test cases class
-	  boost::shared_ptr<GBasePopulation_test> instance(new GBasePopulation_test());
+	  boost::shared_ptr<GEvolutionaryAlgorithm_test> instance(new GEvolutionaryAlgorithm_test());
 
-	  test_case* GBasePopulation_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GBasePopulation_test::no_failure_expected, instance);
-	  test_case* GBasePopulation_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GBasePopulation_test::failures_expected, instance);
+	  test_case* GEvolutionaryAlgorithm_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GEvolutionaryAlgorithm_test::no_failure_expected, instance);
+	  test_case* GEvolutionaryAlgorithm_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GEvolutionaryAlgorithm_test::failures_expected, instance);
 
-	  add(GBasePopulation_no_failure_expected_test_case);
-	  add(GBasePopulation_failures_expected_test_case);
+	  add(GEvolutionaryAlgorithm_no_failure_expected_test_case);
+	  add(GEvolutionaryAlgorithm_failures_expected_test_case);
 	}
 };
 

@@ -37,7 +37,7 @@
 
 // GenEvA header files go here
 #include "GRandom.hpp"
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 #include "GBoostThreadPopulation.hpp"
 #include "GBrokerPopulation.hpp"
 #include "GIndividualBroker.hpp"
@@ -225,14 +225,14 @@ int main(int argc, char **argv){
   // We can now start creating populations. We refer to them through the base class
 
   // This smart pointer will hold the different population types
-  boost::shared_ptr<GBasePopulation> pop_ptr;
+  boost::shared_ptr<GEvolutionaryAlgorithm> pop_ptr;
 
   // Create the actual populations
   switch (parallelizationMode) {
     //-----------------------------------------------------------------------------------------------------
   case 0: // Serial execution
     // Create an empty population
-    pop_ptr = boost::shared_ptr<GBasePopulation>(new GBasePopulation());
+    pop_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
     break;
 
     //-----------------------------------------------------------------------------------------------------

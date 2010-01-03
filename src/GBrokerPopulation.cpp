@@ -46,7 +46,7 @@ namespace GenEvA
  * The default constructor
  */
 GBrokerPopulation::GBrokerPopulation()
-	:GBasePopulation(),
+	:GEvolutionaryAlgorithm(),
      waitFactor_(DEFAULTWAITFACTOR),
      maxWaitFactor_(DEFAULTMAXWAITFACTOR),
      firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT)),
@@ -60,7 +60,7 @@ GBrokerPopulation::GBrokerPopulation()
  * @param cp A copy of another GBrokerPopulation object
  */
 GBrokerPopulation::GBrokerPopulation(const GBrokerPopulation& cp)
-	:GBasePopulation(cp),
+	:GEvolutionaryAlgorithm(cp),
 	 waitFactor_(cp.waitFactor_),
 	 maxWaitFactor_(cp.maxWaitFactor_),
 	firstTimeOut_(cp.firstTimeOut_),
@@ -98,7 +98,7 @@ void GBrokerPopulation::load(const GObject * cp) {
 	const GBrokerPopulation *gbp_load = conversion_cast(cp, this);
 
 	// Load the parent class'es data ...
-	GBasePopulation::load(cp);
+	GEvolutionaryAlgorithm::load(cp);
 
 	// ... and then our own
 	waitFactor_=gbp_load->waitFactor_;
@@ -153,7 +153,7 @@ bool GBrokerPopulation::isEqualTo(const GObject& cp, const boost::logic::tribool
 	const GBrokerPopulation *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GBasePopulation::isEqualTo(*gbp_load, expected)) return  false;
+	if(!GEvolutionaryAlgorithm::isEqualTo(*gbp_load, expected)) return  false;
 
 	// Then we take care of the local data
 	if(checkForInequality("GBrokerPopulation", waitFactor_, gbp_load->waitFactor_,"waitFactor_", "gbp_load->waitFactor_", expected)) return false;
@@ -179,7 +179,7 @@ bool GBrokerPopulation::isSimilarTo(const GObject& cp, const double& limit, cons
 	const GBrokerPopulation *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GBasePopulation::isSimilarTo(*gbp_load, limit, expected)) return  false;
+	if(!GEvolutionaryAlgorithm::isSimilarTo(*gbp_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
 	if(checkForDissimilarity("GBrokerPopulation", waitFactor_, gbp_load->waitFactor_, limit, "waitFactor_", "gbp_load->waitFactor_", expected)) return false;
@@ -321,8 +321,8 @@ void GBrokerPopulation::init() {
 		}
 	}
 
-	// GBasePopulation sees exactly the environment it would when called from its own class
-	GBasePopulation::init();
+	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
+	GEvolutionaryAlgorithm::init();
 
 	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Util::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
 	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
@@ -339,8 +339,8 @@ void GBrokerPopulation::finalize() {
 	// twins.
 	CurrentBufferPort_.reset();
 
-	// GBasePopulation sees exactly the environment it would when called from its own class
-	GBasePopulation::finalize();
+	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
+	GEvolutionaryAlgorithm::finalize();
 }
 
 /******************************************************************************/
@@ -619,7 +619,7 @@ void GBrokerPopulation::mutateChildren() {
 	// Mark the first nParents_ individuals as parents, if they aren't parents yet. We want
 	// to have a "sane" population.
 	if(generation==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
-		GBasePopulation::iterator it;
+		GEvolutionaryAlgorithm::iterator it;
 		for(it=this->begin(); it!=this->begin() + getNParents(); ++it) {
 			if(!(*it)->getEAPersonalityTraits()->isParent()) {
 				(*it)->getEAPersonalityTraits()->setIsParent();
@@ -646,7 +646,7 @@ void GBrokerPopulation::select() {
 	// Great - we are at least at the default level and are
 	// ready to call the actual select() function. This will
 	// automatically take care of the selection modes.
-	GBasePopulation::select();
+	GEvolutionaryAlgorithm::select();
 
 	////////////////////////////////////////////////////////////
 	// At this point we have a sorted list of individuals and can take care of

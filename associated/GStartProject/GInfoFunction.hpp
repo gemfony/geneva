@@ -38,7 +38,7 @@
 
 // GenEvA header files go here
 #include "GRandom.hpp"
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 #include "GBoostThreadPopulation.hpp"
 #include "GBrokerPopulation.hpp"
 #include "GIndividualBroker.hpp"
@@ -80,9 +80,9 @@ public:
 	 * INFOEND: is called once after the optimization run
 	 *
 	 * @param im The current mode in which the function is called
-	 * @param gbp A pointer to a GBasePopulation object for which information should be collected
+	 * @param gbp A pointer to a GEvolutionaryAlgorithm object for which information should be collected
 	 */
-	void informationFunction(const infoMode& im, GBasePopulation * const gbp){
+	void informationFunction(const infoMode& im, GEvolutionaryAlgorithm * const gbp){
 		switch(im) {
 		//---------------------------------------------------------------------------
 		case Gem::GenEvA::INFOINIT:
