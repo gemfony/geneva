@@ -7,7 +7,6 @@ SET ( GENEVAINCLUDES
 	GAsioTCPClient.hpp
 	GAsioTCPConsumer.hpp
 	GAdaptorT.hpp
-	GBasePopulation.hpp
 	GBaseClient.hpp
 	GBoolean.hpp
 	GBooleanAdaptor.hpp
@@ -41,6 +40,7 @@ SET ( GENEVAINCLUDES
 	GEAPersonalityTraits.hpp
 	GenevaExceptions.hpp
 	GEnums.hpp
+	GEvolutionaryAlgorithm.hpp
 	GGaussAdaptorT.hpp
 	GGDPersonalityTraits.hpp
 	GGlobalDefines.hpp

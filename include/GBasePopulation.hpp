@@ -1,5 +1,5 @@
 /**
- * @file GBasePopulation.hpp
+ * @file GEvolutionaryAlgorithm.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -58,8 +58,8 @@
 #error "Error: Support for multi-threading does not seem to be available."
 #endif
 
-#ifndef GBASEPOPULATION_HPP_
-#define GBASEPOPULATION_HPP_
+#ifndef GEVOLUTIONARYALGORITHM_HPP_
+#define GEVOLUTIONARYALGORITHM_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -90,7 +90,7 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
 
 /*********************************************************************************/
 /**
- * The GBasePopulation class adds the notion of parents and children to
+ * The GEvolutionaryAlgorithm class adds the notion of parents and children to
  * the GOptimizationAlgorithm class. The evolutionary adaptation is realized
  * through the cycle of mutation, evaluation, and sorting, as defined in this
  * class.
@@ -106,7 +106,7 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
  * starts. Note that this class will enforce a minimum, default number of children,
  * as implied by the population size and the number of parents set at the beginning.
  */
-class GBasePopulation
+class GEvolutionaryAlgorithm
 	:public GOptimizationAlgorithm
 {
 	///////////////////////////////////////////////////////////////////////
@@ -128,34 +128,34 @@ class GBasePopulation
 
 public:
 	/** @brief The default constructor */
-	GBasePopulation();
+	GEvolutionaryAlgorithm();
 	/** @brief A standard copy constructor */
-	GBasePopulation(const GBasePopulation&);
+	GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm&);
 	/** @brief The destructor */
-	virtual ~GBasePopulation();
+	virtual ~GEvolutionaryAlgorithm();
 
 	/** @brief A standard assignment operator */
-	const GBasePopulation& operator=(const GBasePopulation&);
+	const GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm&);
 
 	/** @brief Loads the data of another population */
 	virtual void load(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone() const;
 
-	/** @brief Checks for equality with another GBasePopulation object */
-	bool operator==(const GBasePopulation&) const;
-	/** @brief Checks for inequality with another GBasePopulation object */
-	bool operator!=(const GBasePopulation&) const;
-	/** @brief Checks for equality with another GBasePopulation object */
+	/** @brief Checks for equality with another GEvolutionaryAlgorithm object */
+	bool operator==(const GEvolutionaryAlgorithm&) const;
+	/** @brief Checks for inequality with another GEvolutionaryAlgorithm object */
+	bool operator!=(const GEvolutionaryAlgorithm&) const;
+	/** @brief Checks for equality with another GEvolutionaryAlgorithm object */
 	virtual bool isEqualTo(const GObject&,  const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-	/** @brief Checks for similarity with another GBasePopulation object */
+	/** @brief Checks for similarity with another GEvolutionaryAlgorithm object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Emits information specific to this population */
 	virtual void doInfo(const infoMode&);
 
 	/** @brief Registers a function to be called when emitting information from doInfo */
-	void registerInfoFunction(boost::function<void (const infoMode&, GBasePopulation * const)>);
+	void registerInfoFunction(boost::function<void (const infoMode&, GEvolutionaryAlgorithm * const)>);
 
 	/** @brief Sets population size and number of parents */
 	void setPopulationSize(const std::size_t&, const std::size_t&);
@@ -206,7 +206,7 @@ public:
 		// if this was not the case.
 		if(!p_load){
 			std::ostringstream error;
-			error << "In GBasePopulation::getBestIndividual<individual_type>() : Conversion error!" << std::endl;
+			error << "In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() : Conversion error!" << std::endl;
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -232,7 +232,7 @@ public:
 	 * @param im Indicates the information mode
 	 * @param gbp A pointer to the population information should be emitted about
 	 */
-	static void simpleInfoFunction(const infoMode& im, GBasePopulation * const gbp) {
+	static void simpleInfoFunction(const infoMode& im, GEvolutionaryAlgorithm * const gbp) {
 		std::ostringstream information;
 
 		switch(im){
@@ -314,7 +314,7 @@ private:
 	std::size_t defaultNChildren_; ///< Expected number of children
 	bool oneTimeMuCommaNu_; ///< Specifies whether a one-time selection scheme of MUCOMMANU should be used
 
-	boost::function<void (const infoMode&, GBasePopulation * const)> infoFunction_; ///< Used to emit information with doInfo()
+	boost::function<void (const infoMode&, GEvolutionaryAlgorithm * const)> infoFunction_; ///< Used to emit information with doInfo()
 };
 
 /*********************************************************************************/
@@ -322,4 +322,4 @@ private:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GBASEPOPULATION_HPP_ */
+#endif /* GEVOLUTIONARYALGORITHM_HPP_ */

@@ -1,5 +1,5 @@
 /**
- * @file GBasePopulation.cpp
+ * @file GEvolutionaryAlgorithm.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,14 +27,14 @@
  * http://www.gemfony.com .
  */
 
-#include "GBasePopulation.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GBasePopulation)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GEvolutionaryAlgorithm)
 
 namespace Gem {
 namespace GenEvA {
@@ -46,7 +46,7 @@ namespace GenEvA {
  * to provide constructors for each and every use case. Instead, you should set
  * vital parameters, such as the population size or the parent individuals by hand.
  */
-GBasePopulation::GBasePopulation()
+GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
 	: GOptimizationAlgorithm()
 	, nParents_(0)
 	, microTrainingInterval_(DEFAULTMICROTRAININGINTERVAL)
@@ -54,7 +54,7 @@ GBasePopulation::GBasePopulation()
 	, smode_(DEFAULTSMODE)
 	, defaultNChildren_(0)
 	, oneTimeMuCommaNu_(false)
-	, infoFunction_(&GBasePopulation::simpleInfoFunction)
+	, infoFunction_(&GEvolutionaryAlgorithm::simpleInfoFunction)
 { /* nothing */ }
 
 /***********************************************************************************/
@@ -63,9 +63,9 @@ GBasePopulation::GBasePopulation()
  * is not copied from the other object. We assume that a new optimization run will
  * be started.
  *
- * @param cp Another GBasePopulation object
+ * @param cp Another GEvolutionaryAlgorithm object
  */
-GBasePopulation::GBasePopulation(const GBasePopulation& cp)
+GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 	: GOptimizationAlgorithm(cp)
 	, nParents_(cp.nParents_)
 	, microTrainingInterval_(cp.microTrainingInterval_)
@@ -80,30 +80,30 @@ GBasePopulation::GBasePopulation(const GBasePopulation& cp)
 /**
  * The standard destructor. All work is done in the parent class.
  */
-GBasePopulation::~GBasePopulation()
+GEvolutionaryAlgorithm::~GEvolutionaryAlgorithm()
 { /* nothing */ }
 
 /***********************************************************************************/
 /**
  * The standard assignment operator.
  *
- * @param cp Another GBasePopulation object
+ * @param cp Another GEvolutionaryAlgorithm object
  * @return A constant reference to this object
  */
-const GBasePopulation& GBasePopulation::operator=(const GBasePopulation& cp) {
-	GBasePopulation::load(&cp);
+const GEvolutionaryAlgorithm& GEvolutionaryAlgorithm::operator=(const GEvolutionaryAlgorithm& cp) {
+	GEvolutionaryAlgorithm::load(&cp);
 	return *this;
 }
 
 /***********************************************************************************/
 /**
- * Loads the data of another GBasePopulation object, camouflaged as a GObject.
+ * Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject.
  *
- * @param cp A pointer to another GBasePopulation object, camouflaged as a GObject
+ * @param cp A pointer to another GEvolutionaryAlgorithm object, camouflaged as a GObject
  */
-void GBasePopulation::load(const GObject * cp)
+void GEvolutionaryAlgorithm::load(const GObject * cp)
 {
-	const GBasePopulation *gbp_load = this->conversion_cast(cp,this);
+	const GEvolutionaryAlgorithm *gbp_load = this->conversion_cast(cp,this);
 
 	// First load the parent class'es data ...
 	GOptimizationAlgorithm::load(cp);
@@ -124,83 +124,83 @@ void GBasePopulation::load(const GObject * cp)
  *
  * @return A deep copy of this object, camouflaged as a pointer to a GObject
  */
-GObject *GBasePopulation::clone() const  {
-	return new GBasePopulation(*this);
+GObject *GEvolutionaryAlgorithm::clone() const  {
+	return new GEvolutionaryAlgorithm(*this);
 }
 
 /***********************************************************************************/
 /**
- * Checks for equality with another GBasePopulation object
+ * Checks for equality with another GEvolutionaryAlgorithm object
  *
- * @param  cp A constant reference to another GBasePopulation object
+ * @param  cp A constant reference to another GEvolutionaryAlgorithm object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBasePopulation::operator==(const GBasePopulation& cp) const {
-	return GBasePopulation::isEqualTo(cp,  boost::logic::indeterminate);
+bool GEvolutionaryAlgorithm::operator==(const GEvolutionaryAlgorithm& cp) const {
+	return GEvolutionaryAlgorithm::isEqualTo(cp,  boost::logic::indeterminate);
 }
 
 /***********************************************************************************/
 /**
- * Checks for inequality with another GBasePopulation object
+ * Checks for inequality with another GEvolutionaryAlgorithm object
  *
- * @param  cp A constant reference to another GBasePopulation object
+ * @param  cp A constant reference to another GEvolutionaryAlgorithm object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBasePopulation::operator!=(const GBasePopulation& cp) const {
-	return !GBasePopulation::isEqualTo(cp,  boost::logic::indeterminate);
+bool GEvolutionaryAlgorithm::operator!=(const GEvolutionaryAlgorithm& cp) const {
+	return !GEvolutionaryAlgorithm::isEqualTo(cp,  boost::logic::indeterminate);
 }
 
 /***********************************************************************************/
 /**
- * Checks for equality with another GBasePopulation object.
+ * Checks for equality with another GEvolutionaryAlgorithm object.
  *
- * @param  cp A constant reference to another GBasePopulation object
+ * @param  cp A constant reference to another GEvolutionaryAlgorithm object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+bool GEvolutionaryAlgorithm::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GBasePopulation *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GEvolutionaryAlgorithm *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
 	if(!GOptimizationAlgorithm::isEqualTo( *gbp_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GBasePopulation", nParents_, gbp_load->nParents_,"nParents_", "gbp_load->nParents_", expected)) return false;
-	if(checkForInequality("GBasePopulation", microTrainingInterval_, gbp_load->microTrainingInterval_,"microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
-	if(checkForInequality("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
-	if(checkForInequality("GBasePopulation", smode_, gbp_load->smode_,"smode_", "gbp_load->smode_", expected)) return false;
-	if(checkForInequality("GBasePopulation", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
-	if(checkForInequality("GBasePopulation", oneTimeMuCommaNu_, gbp_load->oneTimeMuCommaNu_,"oneTimeMuCommaNu_", "gbp_load->oneTimeMuCommaNu_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", nParents_, gbp_load->nParents_,"nParents_", "gbp_load->nParents_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", microTrainingInterval_, gbp_load->microTrainingInterval_,"microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", smode_, gbp_load->smode_,"smode_", "gbp_load->smode_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", oneTimeMuCommaNu_, gbp_load->oneTimeMuCommaNu_,"oneTimeMuCommaNu_", "gbp_load->oneTimeMuCommaNu_", expected)) return false;
 
 	return true;
 }
 
 /***********************************************************************************/
 /**
- * Checks for similarity with another GBasePopulation object.
+ * Checks for similarity with another GEvolutionaryAlgorithm object.
  *
- * @param  cp A constant reference to another GBasePopulation object
+ * @param  cp A constant reference to another GEvolutionaryAlgorithm object
  * @param limit A double value specifying the acceptable level of differences of floating point values
  * @return A boolean indicating whether both objects are similar to each other
  */
-bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+bool GEvolutionaryAlgorithm::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GBasePopulation *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GEvolutionaryAlgorithm *gbp_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
 	if(!GOptimizationAlgorithm::isSimilarTo(*gbp_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GBasePopulation", nParents_, gbp_load->nParents_, limit, "nParents_", "gbp_load->nParents_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", microTrainingInterval_, gbp_load->microTrainingInterval_, limit, "microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", smode_, gbp_load->smode_, limit, "smode_", "gbp_load->smode_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", oneTimeMuCommaNu_, gbp_load->oneTimeMuCommaNu_, limit, "oneTimeMuCommaNu_", "gbp_load->oneTimeMuCommaNu_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", nParents_, gbp_load->nParents_, limit, "nParents_", "gbp_load->nParents_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", microTrainingInterval_, gbp_load->microTrainingInterval_, limit, "microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", smode_, gbp_load->smode_, limit, "smode_", "gbp_load->smode_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", oneTimeMuCommaNu_, gbp_load->oneTimeMuCommaNu_, limit, "oneTimeMuCommaNu_", "gbp_load->oneTimeMuCommaNu_", expected)) return false;
 
 	return true;
 }
@@ -209,8 +209,8 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 /**
  * Sets the individual's personality types to EA
  */
-void GBasePopulation::setIndividualPersonalities() {
-	GBasePopulation::iterator it;
+void GEvolutionaryAlgorithm::setIndividualPersonalities() {
+	GEvolutionaryAlgorithm::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(EA);
 }
 
@@ -221,7 +221,7 @@ void GBasePopulation::setIndividualPersonalities() {
  * parents may decrease, it is important to ensure that the next generation's parents
  * are chosen from children with new structure.
  */
-void GBasePopulation::setOneTimeMuCommaNu() {
+void GEvolutionaryAlgorithm::setOneTimeMuCommaNu() {
 	oneTimeMuCommaNu_ = true;
 }
 
@@ -231,10 +231,10 @@ void GBasePopulation::setOneTimeMuCommaNu() {
  *
  * @return A boolean indicating whether an update was performed
  */
-bool GBasePopulation::updateParentStructure() {
+bool GEvolutionaryAlgorithm::updateParentStructure() {
 	bool updatePerformed=false;
 
-	GBasePopulation::iterator it;
+	GEvolutionaryAlgorithm::iterator it;
 	for(it=this->begin(); it!=this->begin() + nParents_; ++it) {
 		if((*it)->updateOnStall()) updatePerformed = true;
 	}
@@ -250,17 +250,17 @@ bool GBasePopulation::updateParentStructure() {
  * copying of the individual's data takes place here, as we are dealing with
  * boost::shared_ptr objects.
  */
-void GBasePopulation::saveCheckpoint() const {
+void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	// Copy the nParents best individuals to a vector
 	std::vector<boost::shared_ptr<Gem::GenEvA::GIndividual> > bestIndividuals;
-	GBasePopulation::const_iterator it;
+	GEvolutionaryAlgorithm::const_iterator it;
 	for(it=this->begin(); it!=this->begin() + this->getNParents(); ++it)
 		bestIndividuals.push_back(*it);
 
 #ifdef DEBUG // Cross check so we do not accidently trigger value calculation
 	if(this->at(0)->isDirty()) {
 		std::ostringstream error;
-		error << "In GBasePopulation::saveCheckpoint():" << std::endl
+		error << "In GEvolutionaryAlgorithm::saveCheckpoint():" << std::endl
 			  << "Error: class member has the dirty flag set" << std::endl;
 		throw(Gem::GenEvA::geneva_error_condition(error.str()));
 	}
@@ -275,7 +275,7 @@ void GBasePopulation::saveCheckpoint() const {
 	std::ofstream checkpointStream(outputFile.c_str());
 	if(!checkpointStream) {
 		std::ostringstream error;
-		error << "In GBasePopulation::saveCheckpoint(const std::string&)" << std::endl
+		error << "In GEvolutionaryAlgorithm::saveCheckpoint(const std::string&)" << std::endl
 			  << "Error: Could not open output file";
 		throw geneva_error_condition(error.str());
 	}
@@ -296,14 +296,14 @@ void GBasePopulation::saveCheckpoint() const {
  * but only the best individuals of a former optimization run, as these contain the
  * "real" information.
  */
-void GBasePopulation::loadCheckpoint(const std::string& cpFile) {
+void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 	// Create a vector to hold the best individuals
 	std::vector<boost::shared_ptr<Gem::GenEvA::GIndividual> > bestIndividuals;
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
 		std::ostringstream error;
-		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
+		error << "In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
 			  << "Got invalid checkpoint file name " << cpFile << std::endl;
 		throw geneva_error_condition(error.str());
 	}
@@ -312,7 +312,7 @@ void GBasePopulation::loadCheckpoint(const std::string& cpFile) {
 	std::ifstream checkpointStream(cpFile.c_str());
 	if(!checkpointStream) {
 		std::ostringstream error;
-		error << "In GBasePopulation::loadCheckpoint(const std::string&)" << std::endl
+		error << "In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
 			  << "Error: Could not open input file";
 		throw geneva_error_condition(error.str());
 	}
@@ -348,13 +348,13 @@ void GBasePopulation::loadCheckpoint(const std::string& cpFile) {
 /**
  * Emits information specific to this population. The function can be overloaded
  * in derived classes. By default we allow the user to register a call-back function
- * using GBasePopulation::registerInfoFunction() . Please note that it is not
+ * using GEvolutionaryAlgorithm::registerInfoFunction() . Please note that it is not
  * possible to serialize this function, so it will only be active on the host were
  * it was registered, but not on remote systems.
  *
  * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
  */
-void GBasePopulation::doInfo(const infoMode& im) {
+void GEvolutionaryAlgorithm::doInfo(const infoMode& im) {
 	if(!infoFunction_.empty()) infoFunction_(im, this);
 }
 
@@ -365,7 +365,7 @@ void GBasePopulation::doInfo(const infoMode& im) {
  *
  * @param infoFunction A Boost.function object allowing the emission of information
  */
-void GBasePopulation::registerInfoFunction(boost::function<void (const infoMode&, GBasePopulation * const)> infoFunction) {
+void GEvolutionaryAlgorithm::registerInfoFunction(boost::function<void (const infoMode&, GEvolutionaryAlgorithm * const)> infoFunction) {
 	infoFunction_ = infoFunction;
 }
 
@@ -373,13 +373,13 @@ void GBasePopulation::registerInfoFunction(boost::function<void (const infoMode&
 /**
  * Specifies the initial size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
- * see GBasePopulation::adjustPopulation() . Also, all error checking is done in
+ * see GEvolutionaryAlgorithm::adjustPopulation() . Also, all error checking is done in
  * that function.
  *
  * @param popSize The desired size of the population
  * @param nParents The desired number of parents
  */
-void GBasePopulation::setPopulationSize(const std::size_t& popSize, const std::size_t& nParents) {
+void GEvolutionaryAlgorithm::setPopulationSize(const std::size_t& popSize, const std::size_t& nParents) {
 	GOptimizationAlgorithm::setPopulationSize(popSize);
 	nParents_ = nParents;
 }
@@ -391,7 +391,7 @@ void GBasePopulation::setPopulationSize(const std::size_t& popSize, const std::s
  *
  * @return The value of the best individual found
  */
-double GBasePopulation::cycleLogic() {
+double GEvolutionaryAlgorithm::cycleLogic() {
 	this->recombine(); // create new children from parents
 	this->markIndividualPositions();
 	this->mutateChildren(); // mutate children and calculate their value
@@ -415,7 +415,7 @@ double GBasePopulation::cycleLogic() {
 #ifdef DEBUG
 	if(isDirty) {
 		std::ostringstream error;
-		error << "In GBasePopulation::cycleLogic(): Found dirty individual when it should not be" << std::endl;
+		error << "In GEvolutionaryAlgorithm::cycleLogic(): Found dirty individual when it should not be" << std::endl;
 		throw(Gem::GenEvA::geneva_error_condition(error.str()));
 	}
 #endif /* DEBUG */
@@ -430,7 +430,7 @@ double GBasePopulation::cycleLogic() {
  * tagging. It is called from within GOptimizationAlgorithm::optimize(), before the
  * actual optimization cycle starts.
  */
-void GBasePopulation::init() {
+void GEvolutionaryAlgorithm::init() {
 	// First check that we have been given a suitable value for the number of parents.
 	// Note that a number of checks (e.g. population size != 0) has already been done
 	// in the parent class.
@@ -447,7 +447,7 @@ void GBasePopulation::init() {
 	if(((smode_==MUCOMMANU || smode_==MUNU1PRETAIN) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU && popSize<=nParents_))
 	{
 		std::ostringstream error;
-		error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
+		error << "In GEvolutionaryAlgorithm::adjustPopulation() : Error!" << std::endl
 			  << "Requested size of population is too small :" << popSize << " " << nParents_ << std::endl
 		      << "Sorting scheme is ";
 
@@ -485,7 +485,7 @@ void GBasePopulation::init() {
  *
  * @param mti The desired new value of the mircoTrainingInterval_ variable
  */
-void GBasePopulation::setMicroTrainingInterval(const boost::uint32_t& mti) {
+void GEvolutionaryAlgorithm::setMicroTrainingInterval(const boost::uint32_t& mti) {
 	microTrainingInterval_ = mti;
 }
 
@@ -495,7 +495,7 @@ void GBasePopulation::setMicroTrainingInterval(const boost::uint32_t& mti) {
  *
  * @return The current value of the mircoTrainingInterval_ variable
  */
-boost::uint32_t GBasePopulation::getMicroTrainingInterval() const {
+boost::uint32_t GEvolutionaryAlgorithm::getMicroTrainingInterval() const {
 	return microTrainingInterval_;
 }
 
@@ -506,7 +506,7 @@ boost::uint32_t GBasePopulation::getMicroTrainingInterval() const {
  *
  * @return The number of parents in the population
  */
-std::size_t GBasePopulation::getNParents() const {
+std::size_t GEvolutionaryAlgorithm::getNParents() const {
 	return nParents_;
 }
 
@@ -517,7 +517,7 @@ std::size_t GBasePopulation::getNParents() const {
  *
  * @return The number of children in the population
  */
-std::size_t GBasePopulation::getNChildren() const {
+std::size_t GEvolutionaryAlgorithm::getNChildren() const {
 	return data.size() - nParents_;
 }
 
@@ -531,18 +531,18 @@ std::size_t GBasePopulation::getNChildren() const {
  *
  * @param smode The desired sorting scheme
  */
-void GBasePopulation::setSortingScheme(const sortingMode& smode) {
+void GEvolutionaryAlgorithm::setSortingScheme(const sortingMode& smode) {
 	smode_=smode;
 }
 
 /***********************************************************************************/
 /**
  * Retrieves information about the current sorting scheme (see
- * GBasePopulation::setSortingScheme() for further information).
+ * GEvolutionaryAlgorithm::setSortingScheme() for further information).
  *
  * @return The current sorting scheme
  */
-sortingMode GBasePopulation::getSortingScheme() const {
+sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
 	return smode_;
 }
 
@@ -556,7 +556,7 @@ sortingMode GBasePopulation::getSortingScheme() const {
  * present. If individuals can get lost in your setting, you must add mechanisms
  * to "repair" the population.
  */
-void GBasePopulation::recombine()
+void GEvolutionaryAlgorithm::recombine()
 {
 #ifdef DEBUG
 	// We require at this stage that at least the default number of
@@ -564,7 +564,7 @@ void GBasePopulation::recombine()
 	// you must add mechanisms to "repair" the population.
 	if((data.size()-nParents_) < defaultNChildren_){
 		std::ostringstream error;
-		error << "In GBasePopulation::recombine(): Error!" << std::endl
+		error << "In GEvolutionaryAlgorithm::recombine(): Error!" << std::endl
 			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 			  << "but was expecting at least " << defaultNChildren_ << std::endl;
 
@@ -589,7 +589,7 @@ void GBasePopulation::recombine()
  * This function assigns a new value to each child individual according to the chosen
  * recombination scheme.
  */
-void GBasePopulation::doRecombine() {
+void GEvolutionaryAlgorithm::doRecombine() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	switch(recombinationMethod_){
@@ -656,7 +656,7 @@ void GBasePopulation::doRecombine() {
  *
  * @param pos The position of the individual for which a new value should be chosen
  */
-void GBasePopulation::randomRecombine(boost::shared_ptr<GIndividual>& p) {
+void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& p) {
 	std::size_t p_pos;
 
 	// Choose a parent to be used for the recombination. Note that
@@ -678,7 +678,7 @@ void GBasePopulation::randomRecombine(boost::shared_ptr<GIndividual>& p) {
  * @param pos The child individual for which a parent should be chosen
  * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
  */
-void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vector<double>& threshold) {
+void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vector<double>& threshold) {
 	bool done=false;
 	std::size_t i;
 	double randTest = gr.evenRandom(); // get the test value
@@ -694,7 +694,7 @@ void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p, const st
 
 	if(!done) {
 		std::ostringstream error;
-		error << "In GBasePopulation::valueRecombine(): Error!" << std::endl
+		error << "In GEvolutionaryAlgorithm::valueRecombine(): Error!" << std::endl
 			  << "Could not recombine." << std::endl;
 
 		// throw an exception. Add some information so that if the exception
@@ -709,7 +709,7 @@ void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p, const st
  * calculation, so this function needs to be overloaded for optimization in a
  * network context.
  */
-void GBasePopulation::mutateChildren()
+void GEvolutionaryAlgorithm::mutateChildren()
 {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
@@ -732,7 +732,7 @@ void GBasePopulation::mutateChildren()
 /**
  * Choose new parents, based on the selection scheme set by the user.
  */
-void GBasePopulation::select()
+void GEvolutionaryAlgorithm::select()
 {
 #ifdef DEBUG
 	// We require at this stage that at least the default number of
@@ -740,7 +740,7 @@ void GBasePopulation::select()
 	// you must add mechanisms to "repair" the population.
 	if((data.size()-nParents_) < defaultNChildren_){
 		std::ostringstream error;
-		error << "In GBasePopulation::select(): Error!" << std::endl
+		error << "In GEvolutionaryAlgorithm::select(): Error!" << std::endl
 			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
 			  << "but was expecting at least " << defaultNChildren_ << std::endl;
 
@@ -788,7 +788,7 @@ void GBasePopulation::select()
  * are sorted. The quality of the population can only increase, but the optimization
  * will stall more easily.
  */
-void GBasePopulation::sortMuplusnuMode() {
+void GEvolutionaryAlgorithm::sortMuplusnuMode() {
 	// Sort the entire array
 	if(getMaximize()){
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
@@ -806,7 +806,7 @@ void GBasePopulation::sortMuplusnuMode() {
  * of the population may decrease occasionally from generation to generation, but the
  * optimization is less likely to stall.
  */
-void GBasePopulation::sortMucommanuMode() {
+void GEvolutionaryAlgorithm::sortMucommanuMode() {
 	// Only sort the children
 	if(getMaximize()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
@@ -829,7 +829,7 @@ void GBasePopulation::sortMucommanuMode() {
  * mode, if only one parent is available, or if this is the first generation (so we
  * do not accidentally trigger value calculation).
  */
-void GBasePopulation::sortMunu1pretainMode() {
+void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 	if(nParents_==1 || getIteration()==0) { // Falls back to MUPLUSNU mode
 		this->sortMuplusnuMode();
 	} else {
@@ -860,7 +860,7 @@ void GBasePopulation::sortMunu1pretainMode() {
 /**
  * This helper function marks parents as parents and children as children.
  */
-void GBasePopulation::markParents() {
+void GEvolutionaryAlgorithm::markParents() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.begin()+nParents_; ++it){
 		(*it)->getEAPersonalityTraits()->setIsParent();
@@ -876,7 +876,7 @@ void GBasePopulation::markParents() {
  * This helper function lets all individuals know about their position in the
  * population.
  */
-void GBasePopulation::markIndividualPositions() {
+void GEvolutionaryAlgorithm::markIndividualPositions() {
 	std::size_t pos = 0;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->getEAPersonalityTraits()->setPopulationPosition(pos++);
@@ -891,7 +891,7 @@ void GBasePopulation::markIndividualPositions() {
  *
  * @return The defaultNChildren_ parameter
  */
-std::size_t GBasePopulation::getDefaultNChildren() const {
+std::size_t GEvolutionaryAlgorithm::getDefaultNChildren() const {
 	return defaultNChildren_;
 }
 
@@ -902,7 +902,7 @@ std::size_t GBasePopulation::getDefaultNChildren() const {
  *
  * @param recombinationMethod The desired recombination method
  */
-void GBasePopulation::setRecombinationMethod(const recoScheme& recombinationMethod) {
+void GEvolutionaryAlgorithm::setRecombinationMethod(const recoScheme& recombinationMethod) {
 	recombinationMethod_ = recombinationMethod;
 }
 
@@ -912,7 +912,7 @@ void GBasePopulation::setRecombinationMethod(const recoScheme& recombinationMeth
  *
  * @return The value of the recombinationMethod_ variable
  */
-recoScheme GBasePopulation::getRecombinationMethod() const {
+recoScheme GEvolutionaryAlgorithm::getRecombinationMethod() const {
 	return recombinationMethod_;
 }
 

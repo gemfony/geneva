@@ -5,7 +5,6 @@ SET ( GENEVASOURCES
 	GAsioTCPClient
 	GAsioTCPConsumer
 	GBaseClient
-	GBasePopulation
 	GBoolean
 	GBooleanAdaptor
 	GBooleanCollection
@@ -31,6 +30,7 @@ SET ( GENEVASOURCES
 	GDoubleObjectCollection
 	GDoubleParameter
 	GEAPersonalityTraits
+	GEvolutionaryAlgorithm
 	GGaussAdaptorT
 	GGDPersonalityTraits
 	GHelperFunctionsT
