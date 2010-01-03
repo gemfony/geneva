@@ -20,7 +20,6 @@
 - Implement a chi-square test for the randomness of our generator, as a basic means of ensuring that 
   our random number generator does the right thing.
 - When boundaries are at the maximum in GBoundedNumT<>, simply return the "in" value after the transformation
-- Make the external evaluation program read a configuration file rather than the command line
 - Network transfer of the parent rather than the child to avoid transfer of multiple, identical child items
   Local duplication AND mutation
 - Clients may ask to be sent m>n items, sending back only the n best items. Needs new command duplicate.
@@ -28,8 +27,6 @@
 - Network transfers initiated by clients in separate thread, in parallel to the calculation, thereby eliminating 
   part of the network overhead
 - It should be possible to ask individuals to take charge of the external evaluation of other individuals as well, avoiding generation of local, random copies
-- RNR in float faster ?
-- Rename GBasePopulation and/or GBrokerPopulation, e.g. to GenevaPopulation ?
 - Add GSwarm, GSteepestDescent ?
 - Catch signals in the network clients, so that we are sure that we complete network transfers before stopping
 - Use the Boost.Filesystem library to access data on the disk - makes Geneva portable to Windows.
@@ -40,8 +37,8 @@
   "createStubs.sh myIndividualClassName
 - Do checks for equality and similarity of base types through GObject::notEqual() and GObject::notSimilar(), that can 
   additionally emit information on the location of the deviation, if requested. Performance is not an issue for these functions
-- The GNeuralNetworkIndividual needs to be renovated (e.g. the isEqualTo function needs to be added).
-- Same for GNoisyParabolaIndividual and GProjectionIndividual
+- The GNeuralNetworkIndividual needs to be renovated (e.g. the isEqualTo function needs to be added). Move to "UseCases".
+- Also renovate GNoisyParabolaIndividual and GProjectionIndividual (still needed ?)
 - Separate useful individuals (neural network, external evaluation, ...) from pure examples
 - Create boost::shared_ptr<GObject> versions of load() and clone(), adapt in all places (e.g. GStdPtrVectorInterface.hpp)
 - Test that seeding works with local random number creation
@@ -50,7 +47,6 @@
 - Check in GStdPtrVectorInterface whether smart pointers actually point somewhere. Otherwise
   just copy an empty pointer (or throw ?? Different behavior in DEBUG mode ?)
 - Check all load code whether it checks for empty smart pointers. Always check in DEBUG mode.
-- Use CPack to create DEB packages (RPM already implemented)
 - Switch examples to the noisy parabola, due to its higher learning potential
 - Renovation of client / consumer infrastructure (clean base classes, separation of protocol from network implementation).
   Possibly: Network code as function objects ?
@@ -82,13 +78,8 @@
 - Hide the core-Geneva headers in a single header for easier usage
 - Create a "dlopen individual", capable of loading external libraries for the evaluation step (Boost has a plug-in framework in the making)
 - Check boost::optional for return values and indicating valid return values
-- Policy: FP-containers should always be in the front of a GIndividual and there should be an 
-  internal variable that indicates how many of the two different container types are available
-- Perform mutations locally on the server + get rid of the lazy evaluation
+- get rid of the lazy evaluation ?
 - Add an example covering the "traveling salesman" problem
- 
-Nice to have:
-- Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)
 - De-central sorting (by letting clients communicate)
 - Script that scans which files contain which license types and creates a report
 - Make individuals optionally output their information in ROOT-tree format (see http://root.cern.ch). Can
