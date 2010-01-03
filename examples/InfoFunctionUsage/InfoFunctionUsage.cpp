@@ -55,7 +55,7 @@
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GBoostThreadPopulation.hpp"
+#include "GMultiThreadedEA.hpp"
 
 // The individual that should be optimized
 // This is a "noisy" parabola
@@ -118,7 +118,7 @@ int main(int argc, char **argv){
 	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
 
 	// Create the population
-	boost::shared_ptr<GBoostThreadPopulation> pop(new GBoostThreadPopulation());
+	boost::shared_ptr<GMultiThreadedEA> pop(new GMultiThreadedEA());
 	pop->setNThreads(nPopThreads);
 
 	// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.

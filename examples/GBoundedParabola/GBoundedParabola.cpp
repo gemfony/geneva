@@ -37,8 +37,8 @@
 // GenEvA header files go here
 #include "GRandom.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
-#include "GBoostThreadPopulation.hpp"
-#include "GBrokerPopulation.hpp"
+#include "GMultiThreadedEA.hpp"
+#include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"
@@ -56,7 +56,7 @@ using namespace Gem::Util;
 /************************************************************************************************/
 /**
  * The main function. We search for the minimum of a parabola. This example demonstrates the use
- * of the GEvolutionaryAlgorithm class or (at your choice) the GBoostThreadPopulation or GBrokerPopilation
+ * of the GEvolutionaryAlgorithm class or (at your choice) the GMultiThreadedEA or GBrokerPopilation
  * class. Note that a number of command line options are available. Call the executable with the "-h"
  * switch to get an overview.
  */
@@ -246,7 +246,7 @@ int main(int argc, char **argv){
 			parabolaIndividual->push_back(gbdc_ptr);
 
 			// Now we've got our first individual and can create a simple population with parallel execution.
-			GBoostThreadPopulation pop_par;
+			GMultiThreadedEA pop_par;
 			pop_par.setNThreads(nEvaluationThreads);
 
 			pop_par.push_back(parabolaIndividual);
@@ -332,7 +332,7 @@ int main(int argc, char **argv){
 				GINDIVIDUALBROKER->enrol(gatc);
 
 				// Create the actual population
-				GBrokerPopulation pop_broker;
+				GBrokerEA pop_broker;
 
 				// Make the individual known to the population
 				pop_broker.push_back(parabolaIndividual);

@@ -78,7 +78,6 @@
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GenevaExceptions.hpp"
-#include "GBoostThreadPopulation.hpp"
 #include "GRandom.hpp"
 
 namespace Gem

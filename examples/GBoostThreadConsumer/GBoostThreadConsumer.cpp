@@ -46,7 +46,7 @@
 #include "GIndividualBroker.hpp"
 
 #include "GBoostThreadConsumer.hpp"
-#include "GBrokerPopulation.hpp"
+#include "GBrokerEA.hpp"
 
 // The individual that should be optimized
 // This is a simple parabola
@@ -103,7 +103,7 @@ int main(int argc, char **argv){
 	gbtc->setMaxThreads(nConsumerThreads);
 	GINDIVIDUALBROKER->enrol(gbtc);
 
-	GBrokerPopulation pop;
+	GBrokerEA pop;
 	pop.push_back(parabolaIndividual);
 
 	// Specify some population settings

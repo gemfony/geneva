@@ -15,7 +15,8 @@ The main changes for this release include:
    these algorithms, such as the main loop and different halt criteria.
  - Gave GIndividual knowledge about the currently best known fitness of all individuals
  - Gave GIndividual knowledge about the number of optimization cycles without improvement
- - Renamed GBasePopulation to GEvolutionaryAlgorithm
+ - Renamed GBasePopulation to GEvolutionaryAlgorithm, GBrokerPopulation to GBrokerEA and GBoostThreadPopulation
+   to GMultiThreadedEA
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009

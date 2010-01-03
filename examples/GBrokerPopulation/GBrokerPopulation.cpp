@@ -1,5 +1,5 @@
 /**
- * @file GBrokerPopulation.cpp
+ * @file GBrokerEA.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -44,7 +44,7 @@
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GBrokerPopulation.hpp"
+#include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"
@@ -111,7 +111,7 @@ int main(int argc, char **argv){
 		boost::shared_ptr<GParabolaIndividual> parabolaIndividual(new GParabolaIndividual(parabolaDimension, parabolaMin,parabolaMax,adaptionThreshold));
 
 		// Create the actual population
-		GBrokerPopulation pop;
+		GBrokerEA pop;
 
 		// Make the individual known to the population
 		pop.push_back(parabolaIndividual);

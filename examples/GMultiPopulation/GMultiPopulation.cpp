@@ -47,8 +47,8 @@
 #include "GIndividualBroker.hpp"
 
 #include "GBoostThreadConsumer.hpp"
-#include "GBrokerPopulation.hpp"
-#include "GBoostThreadPopulation.hpp" // We need two population types
+#include "GBrokerEA.hpp"
+#include "GMultiThreadedEA.hpp" // We need two population types
 
 // The individual that should be optimized
 // This is a simple parabola
@@ -67,7 +67,7 @@ using namespace Gem::Util;
  * to start searching the parameter space from various different areas. As in most other
  * examples, we use a high-dimensional parabola as (lowest level) individual. This example also
  * serves as a stress-test for the broker infrastructure, as the competing populations are
- * part of a GBoostThreadPopulation.
+ * part of a GMultiThreadedEA.
  */
 int main(int argc, char **argv){
 	 std::size_t parabolaDimension, nConsumerThreads, nSuperThreads;
@@ -108,7 +108,7 @@ int main(int argc, char **argv){
 	// Random numbers are our most valuable good. Set the number of threads
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
-	GBoostThreadPopulation super;
+	GMultiThreadedEA super;
 	super.setNThreads(nSuperThreads);
 
 	// Create a consumer and make it known to the global broker
@@ -118,7 +118,7 @@ int main(int argc, char **argv){
 
 	// Add superNParents parents
 	for(std::size_t np=0; np<superNParents; np++){
-		boost::shared_ptr<GBrokerPopulation> sub(new GBrokerPopulation());
+		boost::shared_ptr<GBrokerEA> sub(new GBrokerEA());
 
 		// Set up a new parabola individual. Each new instance will be equipped with its
 		// own set of random numbers. Hence we start searching the parameter space from different areas.

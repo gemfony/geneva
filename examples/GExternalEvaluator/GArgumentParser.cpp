@@ -182,7 +182,7 @@ bool parseConfigFile(const std::string& configFile,
 																													  ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
 																															  "Specifies whether results should be returned even if they are not better than before")
 																															  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
-																																	  "Influences the maximum waiting time of the GBrokerPopulation after the arrival of the first evaluated individuum")
+																																	  "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
 																																	  ("program",po::value<std::string>(&program)->default_value(DEFAULTPROGRAM),
 																																			  "the name of a file holding the evaluation executable")
 																																			  ("externalArguments",po::value<std::string>(&externalArguments)->default_value(DEFAULTEXTERNALARGUMENTS),

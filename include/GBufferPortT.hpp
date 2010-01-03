@@ -59,7 +59,7 @@ namespace Util {
  * A GBufferPortT<T> consists of two GBoundedBufferWithIdT<T> objects, one intended for "raw"
  * items, the other for returning, processed items. While this class could
  * be useful in many scenarios, the most common application is as a mediator
- * between GBrokerPopulation and GConsumer-derivatives. The GBrokerPopulation
+ * between GBrokerEA and GConsumer-derivatives. The GBrokerEA
  * is a source of raw items, which are processed by GConsumer-derivatives
  * (such as GBoostThreadConsumer and GAsioTCPConsumer) and then returned to the
  * population. GBrokerT-derivatives (such as GIndividualBroker) orchestrate this exchange.

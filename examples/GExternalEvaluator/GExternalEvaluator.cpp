@@ -38,8 +38,8 @@
 // GenEvA header files go here
 #include "GRandom.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
-#include "GBoostThreadPopulation.hpp"
-#include "GBrokerPopulation.hpp"
+#include "GMultiThreadedEA.hpp"
+#include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
 #include "GAsioTCPClient.hpp"
@@ -239,7 +239,7 @@ int main(int argc, char **argv){
   case 1: // Multi-threaded execution
     {
       // Create the multi-threaded population
-      boost::shared_ptr<GBoostThreadPopulation> popPar_ptr(new GBoostThreadPopulation());
+      boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
 
       // Population-specific settings
       popPar_ptr->setNThreads(nEvaluationThreads);
@@ -257,7 +257,7 @@ int main(int argc, char **argv){
       GINDIVIDUALBROKER->enrol(gatc);
 
       // Create the actual broker population
-      boost::shared_ptr<GBrokerPopulation> popBroker_ptr(new GBrokerPopulation());
+      boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
       popBroker_ptr->setWaitFactor(waitFactor);
 
       // Assignment to the base pointer

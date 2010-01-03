@@ -41,7 +41,7 @@
 #include "GDoubleCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GBoostThreadPopulation.hpp"
+#include "GMultiThreadedEA.hpp"
 
 // The individual that should be optimized
 // This is a neural network.
@@ -56,7 +56,7 @@ using namespace Gem::Util;
 /************************************************************************************************/
 /**
  * The main function. We search for the minimum of a parabola. This example demonstrates the use
- * of the GEvolutionaryAlgorithm class or (at your choice) of the GBoostThreadPopulation class. Note that
+ * of the GEvolutionaryAlgorithm class or (at your choice) of the GMultiThreadedEA class. Note that
  * a number of command line options are available. Call the executable with the "-h" switch
  * to get an overview.
  */
@@ -117,7 +117,7 @@ int main(int argc, char **argv){
 	// Now we've got our first individual and can create a population.
 	// We choose a multi-threaded population here.
 
-	GBoostThreadPopulation pop;
+	GMultiThreadedEA pop;
 	pop.setNThreads(nPopThreads);
 
 	pop.push_back(networkIndividual);
