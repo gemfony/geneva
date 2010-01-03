@@ -9,7 +9,7 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GBrokerPopulation
+	GBrokerEA
 )
 
 ADD_SUBDIRECTORY (
