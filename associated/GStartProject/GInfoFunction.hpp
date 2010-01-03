@@ -110,7 +110,7 @@ public:
 			double currentEvaluation = 0.;
 
 			// Retrieve the current generation
-			boost::uint32_t generation = gbp->getGeneration();
+			boost::uint32_t generation = gbp->getIteration();
 
 			summary_ << "  generation.push_back(" << generation << ");" << std::endl;
 

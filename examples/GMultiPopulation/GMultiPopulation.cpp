@@ -130,9 +130,9 @@ int main(int argc, char **argv){
 
 		// Specify some population settings
 		sub->setPopulationSize(subPopulationSize,subNParents);
-		sub->setMaxGeneration(subMaxGenerations);
+		sub->setMaxIteration(subMaxGenerations);
 		sub->setMaxTime(boost::posix_time::minutes(subMaxMinutes));
-		sub->setReportGeneration(subReportGeneration);
+		sub->setReportIteration(subReportGeneration);
 		sub->setRecombinationMethod(subRScheme);
 
 		// Do not time-out while waiting for children to return
@@ -144,9 +144,9 @@ int main(int argc, char **argv){
 
 	// Specify some population settings
 	super.setPopulationSize(superPopulationSize,superNParents);
-	super.setMaxGeneration(superMaxGenerations);
+	super.setMaxIteration(superMaxGenerations);
 	super.setMaxTime(boost::posix_time::minutes(superMaxMinutes));
-	super.setReportGeneration(superReportGeneration);
+	super.setReportIteration(superReportGeneration);
 	super.setRecombinationMethod(superRScheme);
 
 	// Do the actual optimization

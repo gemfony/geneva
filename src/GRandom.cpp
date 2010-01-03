@@ -58,10 +58,22 @@ GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
 	:rnrGenerationMode_(rnrGenMode),
 	 currentPackageSize_(DEFAULTARRAYSIZE),
 	 current01_(1), // position 0 holds the array size
-	 grf_(GRANDOMFACTORY),
 	 initialSeed_(GRANDOMFACTORY->getSeed()),
 	 linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
-{ /* nothing */ }
+{
+    switch(rnrGenerationMode_) {
+    case Gem::Util::RNRFACTORY:
+    	// Make sure we have a local pointer to the factory
+    	grf_ = GRANDOMFACTORY;
+    	break;
+
+    case Gem::Util::RNRLOCAL:
+    	// Reset all other random number generation modes
+    	p01_.reset();
+    	grf_.reset();
+    	break;
+    };
+}
 
 /*************************************************************************/
 /**

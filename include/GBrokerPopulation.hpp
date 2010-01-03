@@ -149,8 +149,10 @@ namespace GenEvA
 	/** @brief Checks for similarity with another GBrokerPopulation object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-    /** @brief Starts the optimization cycle */
-    virtual void optimize(const boost::uint32_t& startGeneration = 0);
+	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
+	virtual void init();
+	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
+	virtual void finalize();
 
     /** @brief Sets the wait factor */
     void setWaitFactor(const boost::uint32_t&);

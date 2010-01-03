@@ -323,9 +323,9 @@ int main(int argc, char **argv){
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Specify some general population settings
 		pop_ptr->setPopulationSize(populationSize,nParents);
-		pop_ptr->setMaxGeneration(maxGenerations);
+		pop_ptr->setMaxIteration(maxGenerations);
 		pop_ptr->setMaxTime(boost::posix_time::minutes(0));
-		pop_ptr->setReportGeneration(1); // Emit information during every generation
+		pop_ptr->setReportIteration(1); // Emit information during every generation
 		pop_ptr->setRecombinationMethod(Gem::GenEvA::DEFAULTRECOMBINE);
 		pop_ptr->setSortingScheme(Gem::GenEvA::MUCOMMANU);
 		pop_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);

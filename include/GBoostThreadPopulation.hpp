@@ -111,8 +111,10 @@ public:
 	/** @brief Checks for similarity with another GBoostThreadPopulation object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Overloaded from GBasePopulation::optimize() */
-	virtual void optimize(const boost::uint32_t& startGeneration = 0);
+	/** @brief Necessary initialization work before the start of the optimization */
+	virtual void init();
+	/** @brief Necessary clean-up work after the optimization has finished */
+	virtual void finalize();
 
 	/** @brief Sets the maximum number of threads */
 	void setNThreads(const boost::uint8_t&);
@@ -127,6 +129,8 @@ protected:
 private:
 	boost::uint8_t nThreads_; ///< The number of threads
 	boost::threadpool::pool tp_; ///< A thread pool
+
+	std::vector<bool> le_value_; ///< Internal storage for lazy-evaluation settings
 };
 
 /********************************************************************/

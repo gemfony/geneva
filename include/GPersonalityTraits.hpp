@@ -87,14 +87,13 @@ class GPersonalityTraits :public GObject
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
-	  ar & make_nvp("parentAlgIteration_", parentAlgIteration_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
 	GPersonalityTraits();
-	/** @brief The copy contructor */
+	/** @brief The copy constructor */
 	GPersonalityTraits(const GPersonalityTraits&);
 	/** @brief The standard destructor */
 	virtual ~GPersonalityTraits();
@@ -113,18 +112,10 @@ public:
 	/** @brief Loads the data of another GPersonalityTraits object */
 	virtual void load(const GObject*);
 
-	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
-	void setParentAlgIteration(const boost::uint32_t&);
-	/** @brief Gives access to the parent optimization algorithm's iteration */
-	boost::uint32_t getParentAlgIteration() const;
-
 	/** @brief Sets a command to be performed by a remote client. */
 	virtual void setCommand(const std::string&) = 0;
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const = 0;
-
-private:
-	boost::uint32_t parentAlgIteration_; ///< The iteration of the parent algorithm's optimization cycle
 };
 
 /*********************************************************************************/

@@ -177,9 +177,9 @@ int main(int argc, char **argv){
 
 			// Specify some population settings
 			pop_ser.setPopulationSize(populationSize,nParents);
-			pop_ser.setMaxGeneration(maxGenerations);
+			pop_ser.setMaxIteration(maxGenerations);
 			pop_ser.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-			pop_ser.setReportGeneration(reportGeneration); // Emit information during every generation
+			pop_ser.setReportIteration(reportGeneration); // Emit information during every generation
 			pop_ser.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
 			// Check whether random numbers should be produced locally or in the factory
@@ -253,9 +253,9 @@ int main(int argc, char **argv){
 
 			// Specify some population settings
 			pop_par.setPopulationSize(populationSize,nParents);
-			pop_par.setMaxGeneration(maxGenerations);
+			pop_par.setMaxIteration(maxGenerations);
 			pop_par.setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-			pop_par.setReportGeneration(reportGeneration); // Emit information during every generation
+			pop_par.setReportIteration(reportGeneration); // Emit information during every generation
 			pop_par.setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
 			// Check whether random numbers should be produced locally or in the factory
@@ -339,9 +339,9 @@ int main(int argc, char **argv){
 
 				// Specify some population settings
 				pop_broker.setPopulationSize(populationSize,nParents);
-				pop_broker.setMaxGeneration(maxGenerations);
+				pop_broker.setMaxIteration(maxGenerations);
 				pop_broker.setMaxTime(boost::posix_time::minutes(maxMinutes));
-				pop_broker.setReportGeneration(reportGeneration);
+				pop_broker.setReportIteration(reportGeneration);
 				pop_broker.setRecombinationMethod(rScheme);
 
 				// Check whether random numbers should be produced locally or in the factory

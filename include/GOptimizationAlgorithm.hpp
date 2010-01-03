@@ -29,6 +29,8 @@
 
 // Standard header files go here
 #include <sstream>
+#include <cmath>
+#include <cfloat>
 
 // Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
@@ -36,7 +38,15 @@
 // Boost header files go here
 
 #include <boost/cstdint.hpp>
-
+#include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/cast.hpp>
+#include <boost/date_time.hpp>
+#include <boost/date_time/gregorian/greg_serialize.hpp>
+#include <boost/date_time/posix_time/time_serialize.hpp>
+#include <boost/cast.hpp>
+#include <boost/filesystem.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHM_HPP_
 #define GOPTIMIZATIONALGORITHM_HPP_
@@ -66,7 +76,7 @@ const std::string DEFAULTCPBASENAME = "geneva.cp";
 
 /******************************************************************************************/
 /**
- * The default directory used for checkpointing. We choose a directory
+ * The default directory used for check-pointing. We choose a directory
  * that will always exist.
  */
 const std::string DEFAULTCPDIR = "./";
@@ -89,6 +99,20 @@ class GOptimizationAlgorithm
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GMutableSetT_GIndividual", boost::serialization::base_object<GMutableSetT<Gem::GenEvA::GIndividual> >(*this));
 	  ar & make_nvp("gr", gr);
+	  ar & make_nvp("iteration_", iteration_);
+	  ar & make_nvp("maxIteration_", maxIteration_);
+	  ar & make_nvp("maxStallIteration_", maxStallIteration_);
+	  ar & make_nvp("reportIteration_", reportIteration_);
+	  ar & make_nvp("defaultPopulationSize_", defaultPopulationSize_);
+	  ar & make_nvp("bestPastFitness_", bestPastFitness_);
+	  ar & make_nvp("maximize_", maximize_);
+	  ar & make_nvp("stallCounter_", stallCounter_);
+	  ar & make_nvp("cpInterval_", cpInterval_);
+	  ar & make_nvp("cpBaseName_", cpBaseName_);
+	  ar & make_nvp("cpDirectory_", cpDirectory_);
+	  ar & make_nvp("qualityThreshold_", qualityThreshold_);
+	  ar & make_nvp("hasQualityThreshold_", hasQualityThreshold_);
+	  ar & make_nvp("maxDuration_", maxDuration_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -100,10 +124,25 @@ public:
 	/** @brief The destructor */
 	virtual ~GOptimizationAlgorithm();
 
-	/** @brief Saves the state of the class to disc */
-	virtual void saveCheckpoint() const = 0;
+	/** @brief Performs the necessary administratory work of doing check-pointing */
+	void checkpoint(const bool&) const;
 	/** @brief Loads the state of the class from disc */
 	virtual void loadCheckpoint(const std::string&) = 0;
+
+	/** @brief Check whether a better solution was found and update the stall counter as necessary */
+	bool ifProgress(const double&);
+
+	/** @brief Allows to set the number of generations after which a checkpoint should be written */
+	void setCheckpointInterval(const boost::int32_t&);
+	/** @brief Allows to retrieve the number of generations after which a checkpoint should be written */
+	boost::uint32_t getCheckpointInterval() const;
+
+	/** @brief Allows to set the base name of the checkpoint file */
+	void setCheckpointBaseName(const std::string&, const std::string&);
+	/** @brief Allows to retrieve the base name of the checkpoint file */
+	std::string getCheckpointBaseName() const;
+	/** @brief Allows to retrieve the directory where checkpoint files should be stored */
+	std::string getCheckpointDirectory() const;
 
 	/** @brief Checks for equality with another GOptimizationAlgorithm object */
 	bool operator==(const GOptimizationAlgorithm&) const;
@@ -114,16 +153,72 @@ public:
 	/** @brief Checks for similarity with another GOptimizationAlgorithm object */
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
-	void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
-	/** @brief Retrieves the random number generators current generation mode. */
-	Gem::Util::rnrGenerationMode getRnrGenerationMode() const;
-
-
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone() const = 0;
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
+
+	/** @brief Triggers the business logic of the optimization algorithm */
+	virtual void optimize(const boost::uint32_t& startIteration = 0);
+
+	/** @brief Emits information in regular intervals */
+	virtual void doInfo(const infoMode& im);
+
+	/** @brief Sets the nominal size of the population */
+	virtual void setPopulationSize(const std::size_t&);
+	/** @brief Retrieves the default population size */
+	std::size_t getDefaultPopulationSize() const;
+	/** @brief Retrieve the current population size */
+	std::size_t getPopulationSize() const;
+
+	/** @brief Set the number of iterations after which the optimization should be stopped */
+	void setMaxIteration(const boost::uint32_t&);
+	/** @brief Retrieve the number of iterations after which optimization should be stopped */
+	boost::uint32_t getMaxIteration() const;
+
+	/** @brief Set the number of iterations after which sorting should be stopped */
+	void setMaxStallIteration(const boost::uint32_t&);
+	/** @brief Retrieve the number of iterations after which sorting should be stopped */
+	boost::uint32_t getMaxStallIteration() const;
+
+	/** @brief Sets the maximum allowed processing time */
+	void setMaxTime(const boost::posix_time::time_duration&);
+	/** @brief Retrieves the maximum allowed processing time */
+	boost::posix_time::time_duration getMaxTime() const;
+
+	/** @brief Sets a quality threshold beyond which optimization is expected to stop */
+	void setQualityThreshold(const double&);
+	/** @brief Retrieves the current value of the quality threshold */
+	double getQualityThreshold(bool&) const;
+	/** @brief Removes the quality threshold */
+	void unsetQualityThreshold();
+	/** @brief Checks whether a quality threshold has been set */
+	bool hasQualityThreshold() const;
+
+	/** @brief Retrieve the current iteration of the optimization run */
+	boost::uint32_t getIteration() const;
+
+	/** @brief Sets the number of iterations after which the algorithm should
+	 * report about its inner state. */
+	void setReportIteration(const boost::uint32_t&);
+	/** @brief Returns the number of iterations after which the algorithm should
+	 * report about its inner state. */
+	boost::uint32_t getReportIteration() const;
+
+	/** @brief Retrieve the current number of failed optimization attempts */
+	boost::uint32_t getStallCounter() const;
+	/** @brief Gives access to the best known fitness so far */
+	double getBestFitness() const;
+
+	/** @brief Specify whether we want to work in maximization or minimization mode */
+	void setMaximize(const bool&);
+	/** @brief Find out whether we work in maximization or minimization mode */
+	bool getMaximize() const;
+
+	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
+	void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+	/** @brief Retrieves the random number generators current generation mode. */
+	Gem::Util::rnrGenerationMode getRnrGenerationMode() const;
 
 	/**********************************************************************/
 	/**
@@ -165,6 +260,36 @@ public:
 	}
 
 protected:
+	/**********************************************************************************/
+	/** @brief Allows derived classes to set the personality type of the individuals */
+	virtual void setIndividualPersonalities() = 0;
+	/** @brief Resets the personality type of all individuals */
+	void resetIndividualPersonalities();
+
+	/** @brief Saves the state of the class to disc */
+	virtual void saveCheckpoint() const = 0;
+
+	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+	virtual double cycleLogic() = 0;
+
+	/** @brief user-defined halt-criterion for the optimization */
+	virtual bool customHalt() const;
+	/** @brief The mutation scheme for this population */
+	virtual void customMutations();
+	/** @brief The evaluation scheme for this population */
+	virtual double fitnessCalculation();
+
+	/** @brief Allows derived classes to reset the stallCounter */
+	void resetStallCounter();
+
+	/** @brief Helper function that determines whether a new value is better than an older one */
+	bool isBetter(double, const double&) const;
+
+	/** @brief Allows derived classes to perform initialization work before the optimization clycle starts */
+	virtual void init();
+	/** @brief Allows derived classes to perform any remaining work after the optimization cycle has finished */
+	virtual void finalize();
+
 	/***********************************************************************************/
     /**
      * A random number generator. Note that the actual calculation is possibly
@@ -175,8 +300,41 @@ protected:
 	Gem::Util::GRandom gr;
 
 	/**********************************************************************************/
-	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation() = 0;
+private:
+	/** @brief Emits true once a given time has passed */
+	bool timedHalt() const;
+	/** @brief Emits true once the quality is below or above a given threshold (depending on the optimization mode) */
+	bool qualityHalt() const;
+	/** @brief Determines when to stop the optimization */
+	bool halt(const boost::uint32_t&) const;
+
+	/** @brief Sets the maximization mode of all individuals */
+	void setIndividualMaxMode();
+	/** @brief Lets individuals know about the current iteration */
+	void markIteration();
+	/** @brief Marks the globally best known fitness in all individuals */
+	void markBestFitness();
+	/** @brief Marks the number of stalled optimization attempts in all individuals */
+	void markNStalls();
+
+	/** @brief Resizes the population to the desired level and does some error checks */
+	void adjustPopulation();
+
+	boost::uint32_t iteration_; ///< The current iteration
+	boost::uint32_t maxIteration_; ///< The maximum number of iterations
+	boost::uint32_t maxStallIteration_; ///< The maximum number of generations without improvement, after which optimization is stopped
+	boost::uint32_t reportIteration_; ///< The number of generations after which a report should be issued
+	std::size_t defaultPopulationSize_; ///< The nominal size of the population
+	double bestPastFitness_; ///< Records the best fitness found in past generations
+	bool maximize_; ///< The optimization mode (minimization/false vs. maximization/true)
+	boost::uint32_t stallCounter_; ///< Counts the number of iterations without improvement
+	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
+	std::string cpBaseName_; ///< The base name of the checkpoint file
+	std::string cpDirectory_; ///< The directory where checkpoint files should be stored
+	double qualityThreshold_; ///< A threshold beyond which optimization is expected to stop
+	bool hasQualityThreshold_; ///< Specifies whether a qualityThreshold has been set
+	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
+	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 };
 
 } /* namespace GenEvA */

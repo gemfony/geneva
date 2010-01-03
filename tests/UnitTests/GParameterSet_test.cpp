@@ -233,8 +233,8 @@ public:
 
 		// Do the same with the current generation
 		for(boost::uint32_t i=0; i<10000; i++) {
-			(gpi2.getPersonalityTraits())->setParentAlgIteration(i);
-			BOOST_CHECK(i==(gpi2.getPersonalityTraits())->getParentAlgIteration());
+			gpi2.setParentAlgIteration(i);
+			BOOST_CHECK(i==gpi2.getParentAlgIteration());
 		}
 
 		// The dirty flag should have been set by default
@@ -314,7 +314,7 @@ public:
 			// the object's fitness should throw in DEBUG mode in generations larger than 0
 			// (see also the GIndividual::fitness() function)
 			BOOST_CHECK(gpi.isDirty());
-			(gpi.getPersonalityTraits())->setParentAlgIteration(1);
+			gpi.setParentAlgIteration(1);
 			BOOST_CHECK_THROW(gpi.fitness(), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 		}

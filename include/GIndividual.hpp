@@ -82,6 +82,7 @@ class GIndividual
 	///////////////////////////////////////////////////////////////////////
 	// Needed so only the corresponding optimization algorithms can set the
     // personality of an individual
+	friend class GOptimizationAlgorithm;
 	friend class GBasePopulation;
 
 	///////////////////////////////////////////////////////////////////////
@@ -92,10 +93,13 @@ class GIndividual
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
 	  ar & make_nvp("currentFitness_",currentFitness_);
+	  ar & make_nvp("bestPastFitness_", bestPastFitness_);
+	  ar & make_nvp("nStalls_", nStalls_);
 	  ar & make_nvp("dirtyFlag_",dirtyFlag_);
 	  ar & make_nvp("allowLazyEvaluation_",allowLazyEvaluation_);
 	  ar & make_nvp("processingCycles_", processingCycles_);
 	  ar & make_nvp("maximize_", maximize_);
+	  ar & make_nvp("parentAlgIteration_", parentAlgIteration_);
 	  ar & make_nvp("pers_", pers_);
 	  ar & make_nvp("pt_ptr_", pt_ptr_);
 	}
@@ -155,6 +159,21 @@ public:
 	void setMaxMode(const bool& mode);
 	/** @brief Allows to retrieve the maximize_ parameter */
 	bool getMaxMode() const;
+
+	/** @brief Allows to set the current iteration of the parent optimization algorithm. */
+	void setParentAlgIteration(const boost::uint32_t&);
+	/** @brief Gives access to the parent optimization algorithm's iteration */
+	boost::uint32_t getParentAlgIteration() const;
+
+	/** @brief Allows to set the globally best known fitness */
+	void setBestKnownFitness(const double&);
+	/** @brief Retrieves the value of the globally best known fitness */
+	double getBestKnownFitness() const;
+
+	/** @brief Allows to specify the number of optimization cycles without improvement */
+	void setNStalls(const boost::uint32_t&);
+	/** @brief Allows to retrieve the number of optimization cycles without improvement */
+	boost::uint32_t getNStalls() const;
 
 	/** @brief Retrieves the current personality of this individual */
 	personality getPersonality() const;
@@ -251,6 +270,10 @@ private:
 
 	/** @brief Holds this object's internal fitness */
     double currentFitness_;
+    /** @brief Holds the globally best known fitness of all individuals */
+    double bestPastFitness_;
+    /** @brief The number of stalls in the entire set of individuals */
+    boost::uint32_t nStalls_;
     /** @brief Internal representation of the mutation status of this object */
     bool dirtyFlag_;
     /** @brief Steers whether lazy evaluation is allowed */
@@ -259,6 +282,8 @@ private:
     boost::uint32_t processingCycles_;
     /** @brief Indicates whether we are running in maximization or minimization mode */
     bool maximize_;
+    /** @brief The iteration of the parent algorithm's optimization cycle */
+    boost::uint32_t parentAlgIteration_;
     /** @brief Indicates the optimization algorithm the individual takes part in */
     personality pers_;
     /** @brief Holds the actual personality information */

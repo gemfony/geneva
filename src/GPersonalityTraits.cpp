@@ -41,16 +41,14 @@ namespace GenEvA {
 /**
  * The default constructor
  */
-GPersonalityTraits::GPersonalityTraits():
-	parentAlgIteration_(0)
+GPersonalityTraits::GPersonalityTraits()
 { /* nothing */ }
 
 /*****************************************************************************/
 /**
  * The copy constructor
  */
-GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits& cp):
-	parentAlgIteration_(cp.parentAlgIteration_)
+GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits& cp)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -99,8 +97,7 @@ bool GPersonalityTraits::isEqualTo(const GObject& cp, const boost::logic::triboo
 	// Check for equality of our parent class
 	if(!GObject::isEqualTo(*gpt_load, expected)) return  false;
 
-	// Then we take care of the local data
-	if(checkForInequality("GPersonalityTraits", parentAlgIteration_, gpt_load->parentAlgIteration_,"parentAlgIteration_", "gpt_load->parentAlgIteration_", expected)) return false;
+	// No local data
 
 	return true;
 }
@@ -122,8 +119,7 @@ bool GPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, con
 	// Check for equality of our parent class
 	if(!GObject::isSimilarTo(*gpt_load, limit, expected)) return false;
 
-	// Then we take care of the local data
-	if(checkForDissimilarity("GPersonalityTraits", parentAlgIteration_, gpt_load->parentAlgIteration_, limit, "parentAlgIteration_", "gpt_load->parentAlgIteration_", expected)) return false;
+	// No local data
 
 	return true;
 }
@@ -140,28 +136,7 @@ void GPersonalityTraits::load(const GObject *cp) {
 	// Load the parent class'es data
 	GObject::load(cp);
 
-	// Then load our local data
-	parentAlgIteration_ = gpt_load->parentAlgIteration_;
-}
-
-/*****************************************************************************/
-/**
- * Allows to set the current iteration of the parent optimization algorithm.
- *
- * @param parentAlgIteration The current iteration of the optimization algorithm
- */
-void GPersonalityTraits::setParentAlgIteration(const boost::uint32_t& parentAlgIteration) {
-	parentAlgIteration_ = parentAlgIteration;
-}
-
-/*****************************************************************************/
-/**
- * Gives access to the parent optimization algorithm's iteration
- *
- * @return The parent optimization algorithm's current iteration
- */
-boost::uint32_t GPersonalityTraits::getParentAlgIteration() const {
-	return parentAlgIteration_;
+	// No local data
 }
 
 /*****************************************************************************/

@@ -152,6 +152,7 @@ public:
 
 		// Get new id for GBoundedBufferWithIdT classes and increment
 		// the id afterwards for later use.
+		// TODO: This should later be done with Boost::UUID
 		PORTIDTYPE portId = lastId_++;
 
 		// Retrieve the processed and original queues and tag them with

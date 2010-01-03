@@ -157,14 +157,14 @@ public:
 		case INFOINIT: // extract the population constraints
 			oD_.populationSize = gbp->getDefaultPopulationSize();
 			oD_.nParents = gbp->getNParents();
-			oD_.maxGenerations = gbp->getMaxGeneration();
-			oD_.reportGeneration = gbp->getReportGeneration();
+			oD_.maxGenerations = gbp->getMaxIteration();
+			oD_.reportGeneration = gbp->getReportIteration();
 			break;
 
 		case INFOPROCESSING: // Collect information about the current population
 			{ // Scope needed, as we have local data
 				generationData genDat;
-				genDat.generation = gbp->getGeneration();
+				genDat.generation = gbp->getIteration();
 
 				boost::shared_ptr<GBasePopulation> pop(new GBasePopulation());
 				pop->load(gbp);

@@ -277,9 +277,9 @@ int main(int argc, char **argv){
  
   // Specify some general population settings
   pop_ptr->setPopulationSize(populationSize,nParents);
-  pop_ptr->setMaxGeneration(maxGenerations);
+  pop_ptr->setMaxIteration(maxGenerations);
   pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
-  pop_ptr->setReportGeneration(reportGeneration);
+  pop_ptr->setReportIteration(reportGeneration);
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
   pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));

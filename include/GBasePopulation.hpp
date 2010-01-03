@@ -118,29 +118,11 @@ class GBasePopulation
 
 		ar & make_nvp("GOptimizationAlgorithm",	boost::serialization::base_object<GOptimizationAlgorithm>(*this));
 		ar & make_nvp("nParents_", nParents_);
-		ar & make_nvp("popSize_", popSize_);
-		ar & make_nvp("generation_", generation_);
-		ar & make_nvp("maxGeneration_", maxGeneration_);
-		ar & make_nvp("maxStallGeneration_", maxStallGeneration_);
 		ar & make_nvp("microTrainingInterval_", microTrainingInterval_);
-		ar & make_nvp("stallCounter_", stallCounter_);
-		ar & make_nvp("bestPastFitness_", bestPastFitness_);
-		ar & make_nvp("reportGeneration_", reportGeneration_);
-		ar & make_nvp("cpInterval_", cpInterval_);
-		ar & make_nvp("cpBaseName_", cpBaseName_);
-		ar & make_nvp("cpDirectory_", cpDirectory_);
 		ar & make_nvp("recombinationMethod_", recombinationMethod_);
 		ar & make_nvp("smode_", smode_);
-		ar & make_nvp("maximize_", maximize_);
-		ar & make_nvp("maxDuration_", maxDuration_);
 		ar & make_nvp("defaultNChildren_", defaultNChildren_);
-		ar & make_nvp("qualityThreshold_", qualityThreshold_);
-		ar & make_nvp("hasQualityThreshold_", hasQualityThreshold_);
 		ar & make_nvp("oneTimeMuCommaNu_", oneTimeMuCommaNu_);
-
-		// Note that id and firstId_ are not serialized as we need the id
-		// to be recalculated for de-serialized objects. Likewise, startTime_
-		// doesn't need to be serialized.
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -169,24 +151,6 @@ public:
 	/** @brief Checks for similarity with another GBasePopulation object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Loads the state of the class from disc */
-	virtual void loadCheckpoint(const std::string&);
-
-	/** @brief Allows to set the number of generations after which a checkpoint should be written */
-	void setCheckpointInterval(const boost::int32_t&);
-	/** @brief Allows to retrieve the number of generations after which a checkpoint should be written */
-	boost::uint32_t getCheckpointInterval() const;
-
-	/** @brief Allows to set the base name of the checkpoint file */
-	void setCheckpointBaseName(const std::string&, const std::string&);
-	/** @brief Allows to retrieve the base name of the checkpoint file */
-	std::string getCheckpointBaseName() const;
-	/** @brief Allows to retrieve the directory where checkpoint files should be stored */
-	std::string getCheckpointDirectory() const;
-
-	/** @brief Triggers the optimization of a population. */
-	virtual void optimize(const boost::uint32_t& startGeneration = 0);
-
 	/** @brief Emits information specific to this population */
 	virtual void doInfo(const infoMode&);
 
@@ -200,69 +164,21 @@ public:
 	std::size_t getNParents() const;
 	/** @brief Retrieve the number of children in this population */
 	std::size_t getNChildren() const;
-	/** @brief Retrieve the current population size */
-	std::size_t getPopulationSize() const;
 	/** @brief Retrieves the defaultNChildren_ parameter */
 	std::size_t getDefaultNChildren() const;
-	/** @brief Retrieves the default population size */
-	std::size_t getDefaultPopulationSize() const;
 
 	/** @brief Set the sorting scheme for this population */
 	void setSortingScheme(const sortingMode&);
 	/** @brief Retrieve the current sorting scheme for this population */
 	sortingMode getSortingScheme() const;
 
-	/** @brief Set the number of generations after which sorting should be stopped */
-	void setMaxGeneration(const boost::uint32_t&);
-	/** @brief Retrieve the number of generations after which sorting should be stopped */
-	boost::uint32_t getMaxGeneration() const;
-
-	/** @brief Set the number of generations after which sorting should be stopped */
-	void setMaxStallGeneration(const boost::uint32_t&);
-	/** @brief Retrieve the number of generations after which sorting should be stopped */
-	boost::uint32_t getMaxStallGeneration() const;
-
-	/** @brief Get information about the current generation */
-	boost::uint32_t getGeneration() const;
-
-	/** @brief Sets the maximum allowed processing time */
-	void setMaxTime(const boost::posix_time::time_duration&);
-	/** @brief Retrieves the maximum allowed processing time */
-	boost::posix_time::time_duration getMaxTime();
-
-	/** @brief Sets a quality threshold beyond which optimization is expected to stop */
-	void setQualityThreshold(const double&);
-	/** @brief Retrieves the current value of the quality threshold */
-	double getQualityThreshold(bool&) const;
-	/** @brief Removes the quality threshold */
-	void unsetQualityThreshold();
-	/** @brief Checks whether a quality threshold has been set */
-	bool hasQualityThreshold() const;
-
-	/** @brief Specify whether we want to work in maximization or minimization mode */
-	void setMaximize(const bool&);
-	/** @brief Find out whether we work in maximization or minimization mode */
-	bool getMaximize() const;
-
 	/** @brief Specify, what recombination mode should be used */
 	void setRecombinationMethod(const recoScheme&);
 	/** @brief Find out, what recombination mode is being used */
 	recoScheme getRecombinationMethod() const;
 
-	/** @brief Sets the number of generations after which the population should
-	 * report about its inner state. */
-	void setReportGeneration(const boost::uint32_t&);
-	/** @brief Returns the number of generations after which the population should
-	 * report about its inner state. */
-	boost::uint32_t getReportGeneration() const;
-
-	/** @brief Retrieve the id of this class */
-	std::string getId();
-
-	/** @brief Retrieve the current number of failed optimization attempts */
-	boost::uint32_t getStallCounter() const;
-	/** @brief Retrieve the current best value found */
-	double getBestFitness() const;
+	/** @brief Loads a checkpoint from disk */
+	virtual void loadCheckpoint(const std::string&);
 
 	//------------------------------------------------------------------------------------------
 	// Settings specific to micro-training
@@ -300,13 +216,18 @@ public:
 		return p_load;
 #else
 		return boost::static_pointer_cast<individual_type>(p_base);
-#endif
+#endif /* DEBUG */
 	}
 
 	/**************************************************************************************************/
 	/**
-	 * Emits information about the population it has been given, using a simple format. This is
-	 * used in the micro training environment.
+	 * Emits information about the population it has been given, using a simple format.  This is
+	 * used in the micro training environment. Note that we are using a static member function in order
+	 * to avoid storing a local "this" pointer in this function when registering it in the
+	 * boost::function object. This might otherwise be problematic when copying the boost::function object.
+	 *
+	 * Far more sophisticated setups than this information function are possible, and in general
+	 * it is recommended to register function objects instead of this function.
 	 *
 	 * @param im Indicates the information mode
 	 * @param gbp A pointer to the population information should be emitted about
@@ -322,7 +243,7 @@ public:
 			{
 				bool isDirty = false;
 
-				information << std::setprecision(10) << "// " << gbp->getGeneration() << ": " << gbp->data.at(0)->getCurrentFitness(isDirty);
+				information << std::setprecision(10) << "In iteration "<< gbp->getIteration() << ": " << gbp->data.at(0)->getCurrentFitness(isDirty);
 
 				if(isDirty) {
 					information << " (dirty flag is set)";
@@ -340,61 +261,13 @@ public:
 	}
 
 	/**************************************************************************************************/
-	/**
-	 * Emits information about the population it has been given. This is the default
-	 * information function provided for all populations. Information is emitted in the
-	 * format of the ROOT analysis toolkit (see http://root.cern.ch). Note that we are
-	 * using a static member function in order to avoid storing a local "this" pointer in
-	 * this function when registering it in the boost::function object. This might otherwise
-	 * be problematic when copying the boost::function object.
-	 *
-	 * @param im Indicates the information mode
-	 * @param gbp A pointer to the population information should be emitted about
-	 */
-	static void defaultInfoFunction(const infoMode& im, GBasePopulation * const gbp) {
-		std::ostringstream information;
-
-		switch(im){
-		case INFOINIT:
-			information << "{" << std::endl
-						<< "  TH1F *h" << gbp << " = new TH1F(\"h"
-						<< gbp << "\",\"h" << gbp << "\"," << gbp->getMaxGeneration()+1
-						<< ",0," << gbp->getMaxGeneration() << ");" << std::endl << std::endl;
-			break;
-
-		case INFOPROCESSING:
-			{
-				bool isDirty = false;
-
-				information << std::setprecision(10) << "  h" << gbp
-							<< "->Fill(" << gbp->getGeneration() << ", "
-							<< gbp->data.at(0)->getCurrentFitness(isDirty) << ");";
-
-				if(isDirty) {
-					information << "// dirty flag is set";
-				}
-				information << std::endl;
-			}
-			break;
-
-		case INFOEND:
-			information << std::endl
-						<< "  h"<< gbp << "->Draw();" << std::endl
-						<< "}" << std::endl;
-			break;
-		}
-
-		// Let the audience know
-		std::cout << information.str();
-	}
-
-	/**************************************************************************************************/
 
 protected:
-	/** @brief user-defined halt-criterium for the optimization */
-	virtual bool customHalt();
+	/** @brief Allows to set the personality type of the individuals */
+	virtual void setIndividualPersonalities();
+
 	/** @brief user-defined recombination scheme */
-	virtual void customRecombine();
+	void doRecombine();
 
 	/** @brief Creates children from parents according to a predefined recombination scheme */
 	virtual void recombine();
@@ -403,48 +276,24 @@ protected:
 	/** @brief Selects the best children of the population */
 	virtual void select();
 
-	/** @brief The mutation scheme for this population */
-	virtual void customMutations();
-	/** @brief The evaluation scheme for this population */
-	virtual double fitnessCalculation();
-
 	/** @brief Marks parents as parents and children as children */
 	void markParents();
-	/** @brief Lets individuals know about the current generation */
-	void markGeneration();
-	/** @brief Lets individuals know whether they are part of a maximization or minimization scheme */
-	void markMaxMode();
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();
 
-private:
-	/** @brief Sets the individual's personality types to EA */
-	void setIndividualPersonalities();
-	/** @brief Resets the individual's personality types */
-	void resetIndividualPersonalities();
+	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+	virtual double cycleLogic();
+	/** @brief Does some preparatory work before the optimization starts */
+	virtual void init();
 
+private:
 	/** @brief Enforces a one-time selection policy of MUCOMMANU */
 	void setOneTimeMuCommaNu();
 	/** @brief Updates the parent's structure */
 	bool updateParentStructure();
 
-	/** @brief Performs the necessary administratory work of doing check-pointing */
-	void checkpoint(const bool&) const;
 	/** @brief Saves the state of the class to disc. Private, as we do not want to accidently trigger value calculation  */
 	virtual void saveCheckpoint() const;
-
-	/** @brief Adjusts the actual population size to the desired value */
-	void adjustPopulation();
-
-	/** @brief Emits true once a given time has passed */
-	bool timedHalt();
-	/** @brief Emits true once the quality is below or above a given threshold */
-	bool qualityHalt();
-	/** @brief Determines when to stop the optimization */
-	bool halt(const std::size_t&);
-
-	/** @brief Helper function that determines whether a new value is better than an older one */
-	bool isBetter(double, const double&) const;
 
 	/** @brief Implements the RANDOMRECOMBINE recombination scheme */
 	void randomRecombine(boost::shared_ptr<GIndividual>&);
@@ -458,31 +307,11 @@ private:
 	/** @brief Selection, MUNU1PRETAIN style */
 	void sortMunu1pretainMode();
 
-	/** @brief Check whether a better solution was found and update the stall counter as necessary */
-	bool ifProgress();
-
 	std::size_t nParents_; ///< The number of parents
-	std::size_t popSize_; ///< The size of the population. Only used in adjustPopulation()
-	boost::uint32_t generation_; ///< The current generation
-	boost::uint32_t maxGeneration_; ///< The maximum number of generations
-	boost::uint32_t stallCounter_; ///< Counts the number of generations without improvement
-	double bestPastFitness_; ///< Records the best fitness found in past generations
-	boost::uint32_t maxStallGeneration_; ///< The maximum number of generations without improvement, after which optimization is stopped
 	boost::uint32_t microTrainingInterval_; ///< The number of generations without improvements after which a micro training should be started
-	boost::uint32_t reportGeneration_; ///< Number of generations after which a report should be issued
-	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
-	std::string cpBaseName_; ///< The base name of the checkpoint file
-	std::string cpDirectory_; ///< The directory where checkpoint files should be stored
 	recoScheme recombinationMethod_; ///< The chosen recombination method
 	sortingMode smode_; ///< The chosen sorting scheme
-	bool maximize_; ///< The optimization mode (minimization/false vs. maximization/true)
-	std::string id_; ///< A unique id, used in networking contexts
-	bool firstId_; ///< Is this the first call to getId() ?
-	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
-	boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization
 	std::size_t defaultNChildren_; ///< Expected number of children
-	double qualityThreshold_; ///< A threshold beyond which optimization is expected to stop
-	bool hasQualityThreshold_; ///< Specifies whether a qualityThreshold has been set
 	bool oneTimeMuCommaNu_; ///< Specifies whether a one-time selection scheme of MUCOMMANU should be used
 
 	boost::function<void (const infoMode&, GBasePopulation * const)> infoFunction_; ///< Used to emit information with doInfo()

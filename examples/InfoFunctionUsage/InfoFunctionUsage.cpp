@@ -128,9 +128,9 @@ int main(int argc, char **argv){
 
 	// Specify some population settings
 	pop->setPopulationSize(populationSize,nParents);
-	pop->setMaxGeneration(maxGenerations);
+	pop->setMaxIteration(maxGenerations);
 	pop->setMaxTime(boost::posix_time::minutes(maxMinutes)); // Calculation should be finished after 5 minutes
-	pop->setReportGeneration(reportGeneration); // Emit information during every generation
+	pop->setReportIteration(reportGeneration); // Emit information during every generation
 	pop->setRecombinationMethod(rScheme); // The best parents have higher chances of survival
 
 	// Do the actual optimization

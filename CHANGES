@@ -12,7 +12,9 @@ The main changes for this release include:
    file instead of command line options)
  - Refactored GIndividualSet (now named GOptimizationAlgorithm) to become the base class of a hierarchy
    of iteration-based optimization algorithms. The class now encapsulates functionality common to all of 
-   these algorithms.
+   these algorithms, such as the main loop and different halt criteria.
+ - Gave GIndividual knowledge about the currently best known fitness of all individuals
+ - Gave GIndividual knowledge about the number of optimization cycles without improvement
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009

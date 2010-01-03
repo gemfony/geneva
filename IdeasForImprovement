@@ -80,12 +80,12 @@
   providing an interface to setting certain crucial parameters. Can use a map<boost::int32_t, boost::function<std::string ()> > for
   the mapping between commands and local functions.
 - Hide the core-Geneva headers in a single header for easier usage
-- Create a "dlopen individual", capable of loading external libraries for the evaluation step (Boost has a pluging framework in the making)
+- Create a "dlopen individual", capable of loading external libraries for the evaluation step (Boost has a plug-in framework in the making)
 - Check boost::optional for return values and indicating valid return values
 - Policy: FP-containers should always be in the front of a GIndividual and there should be an 
   internal variable that indicates how many of the two different container types are available
 - Perform mutations locally on the server + get rid of the lazy evaluation
-- Add an example covering the "travelling salesman" problem
+- Add an example covering the "traveling salesman" problem
  
 Nice to have:
 - Coding central routines (particularly even RNR generation and transformation to gaussian RNR) in assembler ? (Would be fun ...)

@@ -41,16 +41,19 @@ namespace GenEvA {
 /**
  * The default constructor.
  */
-GIndividual::GIndividual() :
-	GMutableI(),
-	GRateableI(),
-	GObject(),
-	currentFitness_(0.),
-	dirtyFlag_(true),
-	allowLazyEvaluation_(false),
-	processingCycles_(1),
-	maximize_(false),
-	pers_(NONE)
+GIndividual::GIndividual()
+	: GMutableI()
+	, GRateableI()
+	, GObject()
+	, currentFitness_(0.)
+	, bestPastFitness_(0.)
+	, nStalls_(0)
+	, dirtyFlag_(true)
+	, allowLazyEvaluation_(false)
+	, processingCycles_(1)
+	, maximize_(false)
+	, parentAlgIteration_(0)
+	, pers_(NONE)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -59,16 +62,19 @@ GIndividual::GIndividual() :
  *
  * @param cp A copy of another GIndividual object
  */
-GIndividual::GIndividual(const GIndividual& cp) :
-	GMutableI(cp),
-	GRateableI(cp),
-	GObject(cp),
-	currentFitness_(cp.currentFitness_),
-	dirtyFlag_(cp.dirtyFlag_),
-	allowLazyEvaluation_(cp.allowLazyEvaluation_),
-	processingCycles_(cp.processingCycles_),
-	maximize_(cp.maximize_),
-	pers_(cp.pers_)
+GIndividual::GIndividual(const GIndividual& cp)
+	: GMutableI(cp)
+	, GRateableI(cp)
+	, GObject(cp)
+	, currentFitness_(cp.currentFitness_)
+	, bestPastFitness_(cp.bestPastFitness_)
+	, nStalls_(cp.nStalls_)
+	, dirtyFlag_(cp.dirtyFlag_)
+	, allowLazyEvaluation_(cp.allowLazyEvaluation_)
+	, processingCycles_(cp.processingCycles_)
+	, maximize_(cp.maximize_)
+	, parentAlgIteration_(cp.parentAlgIteration_)
+	, pers_(cp.pers_)
 {
 	// We need to take care of the personality pointer manually
 	this->setPersonality(pers_);
@@ -121,10 +127,13 @@ bool GIndividual::isEqualTo(const GObject& cp, const boost::logic::tribool& expe
 
 	// Then we take care of the local data
 	if(checkForInequality("GIndividual", currentFitness_, gi_load->currentFitness_,"currentFitness_", "gi_load->currentFitness_", expected)) return false;
+	if(checkForInequality("GIndividual", bestPastFitness_, gi_load->bestPastFitness_,"bestPastFitness_", "gi_load->bestPastFitness_", expected)) return false;
+	if(checkForInequality("GIndividual", nStalls_, gi_load->nStalls_,"nStalls_", "gi_load->nStalls_", expected)) return false;
 	if(checkForInequality("GIndividual", dirtyFlag_, gi_load->dirtyFlag_,"dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
 	if(checkForInequality("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,"allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
 	if(checkForInequality("GIndividual", processingCycles_, gi_load->processingCycles_,"processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForInequality("GIndividual", maximize_, gi_load->maximize_,"maximize_", "gi_load->maximize_", expected)) return false;
+	if(checkForInequality("GIndividual", parentAlgIteration_, gi_load->parentAlgIteration_,"parentAlgIteration_", "gi_load->parentAlgIteration_", expected)) return false;
 	if(checkForInequality("GIndividual", pers_, gi_load->pers_,"pers_", "gi_load->pers_", expected)) return false;
 	if(pt_ptr_ && !pt_ptr_->isEqualTo(*(gi_load->pt_ptr_), expected)) return false;
 
@@ -150,10 +159,13 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boos
 
 	// Then we take care of the local data
 	if(checkForDissimilarity("GIndividual", currentFitness_, gi_load->currentFitness_, limit, "currentFitness_", "gi_load->currentFitness_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", bestPastFitness_, gi_load->bestPastFitness_, limit, "bestPastFitness_", "gi_load->bestPastFitness_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", nStalls_, gi_load->nStalls_, limit, "nStalls_", "gi_load->nStalls_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", dirtyFlag_, gi_load->dirtyFlag_, limit, "dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,limit, "allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", processingCycles_, gi_load->processingCycles_, limit, "processingCycles_", "gi_load->processingCycles_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", maximize_, gi_load->maximize_, limit, "maximize_", "gi_load->maximize_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", parentAlgIteration_, gi_load->parentAlgIteration_, limit, "parentAlgIteration_", "gi_load->parentAlgIteration_", expected)) return false;
 	if(checkForDissimilarity("GIndividual", pers_, gi_load->pers_, limit, "pers_", "gi_load->pers_", expected)) return false;
 	if(pt_ptr_ && !pt_ptr_->isSimilarTo(*(gi_load->pt_ptr_), limit, expected)) return false;
 
@@ -174,10 +186,13 @@ void GIndividual::load(const GObject* cp) {
 
 	// Then load our local data
 	currentFitness_ = gi_load->currentFitness_;
+	bestPastFitness_ = gi_load->bestPastFitness_;
+	nStalls_ = gi_load->nStalls_;
 	dirtyFlag_ = gi_load->dirtyFlag_;
 	allowLazyEvaluation_ = gi_load->allowLazyEvaluation_;
 	processingCycles_ = gi_load->processingCycles_;
 	maximize_ = gi_load->maximize_;
+	parentAlgIteration_ = gi_load->parentAlgIteration_;
 
 	this->setPersonality(gi_load->pers_);
 	if(pers_ != NONE) pt_ptr_->load((gi_load->pt_ptr_).get());
@@ -215,7 +230,7 @@ double GIndividual::fitness() {
 		// Except for iteration 0, it is an error if lazy evaluation is not allowed, but
 		// the dirty flag is set. There the fitness calculation of initial individuals happens
 		// before their modification.
-		if (!allowLazyEvaluation_ && this->getPersonalityTraits()->getParentAlgIteration() > 0) {
+		if (!allowLazyEvaluation_ && getParentAlgIteration() > 0) {
 			std::ostringstream error;
 			error << "In GIndividual::fitness(): Error!" << std::endl
 				  << "The dirty flag is set while lazy evaluation is not allowed."
@@ -501,7 +516,7 @@ bool GIndividual::process(){
 		bool gotUsefulResult = false;
 		bool previous=this->setAllowLazyEvaluation(false);
 		if(this->getPersonalityTraits()->getCommand() == "mutate") {
-			if(processingCycles_ == 1 || this->getPersonalityTraits()->getParentAlgIteration() == 0) {
+			if(processingCycles_ == 1 || getParentAlgIteration() == 0) {
 				this->mutate();
 				gotUsefulResult = true;
 			}
@@ -630,6 +645,66 @@ void GIndividual::setProcessingCycles(const boost::uint32_t& processingCycles) {
 /** @brief Retrieves the number of allowed processing cycles */
 boost::uint32_t GIndividual::getProcessingCycles() const {
 	return processingCycles_;
+}
+
+/**********************************************************************************/
+/**
+ * Allows to set the current iteration of the parent optimization algorithm.
+ *
+ * @param parentAlgIteration The current iteration of the optimization algorithm
+ */
+void GIndividual::setParentAlgIteration(const boost::uint32_t& parentAlgIteration) {
+	parentAlgIteration_ = parentAlgIteration;
+}
+
+/**********************************************************************************/
+/**
+ * Gives access to the parent optimization algorithm's iteration
+ *
+ * @return The parent optimization algorithm's current iteration
+ */
+boost::uint32_t GIndividual::getParentAlgIteration() const {
+	return parentAlgIteration_;
+}
+
+/**********************************************************************************/
+/**
+ * Allows to set the globally best known fitness
+ *
+ * @param bnf The best known fitness so far
+ */
+void GIndividual::setBestKnownFitness(const double& bnf) {
+	bestPastFitness_ = bnf;
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the value of the globally best known fitness
+ *
+ * @return The best known fitness so far
+ */
+double GIndividual::getBestKnownFitness() const {
+	return bestPastFitness_;
+}
+
+/**********************************************************************************/
+/**
+ * Allows to specify the number of optimization cycles without improvement
+ *
+ * @param nStalls The number of optimization cycles without improvement in the parent algorithm
+ */
+void GIndividual::setNStalls(const boost::uint32_t& nStalls) {
+	nStalls_ = nStalls;
+}
+
+/**********************************************************************************/
+/**
+ * Allows to retrieve the number of optimization cycles without improvement
+ *
+ * @return The number of optimization cycles without improvement in the parent algorithm
+ */
+boost::uint32_t GIndividual::getNStalls() const {
+	return nStalls_;
 }
 
 /**********************************************************************************/

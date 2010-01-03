@@ -677,7 +677,7 @@ protected:
 		}
 
 		// Make the parameters known externally
-		std::string parFile = parameterFile_ + "_" + boost::lexical_cast<std::string>(this->getPersonalityTraits()->getParentAlgIteration());
+		std::string parFile = parameterFile_ + "_" + boost::lexical_cast<std::string>(getParentAlgIteration());
 
 		if(this->getPersonality() == EA) parFile +=  ("_" +  boost::lexical_cast<std::string>( this->getEAPersonalityTraits()->getPopulationPosition()));
 

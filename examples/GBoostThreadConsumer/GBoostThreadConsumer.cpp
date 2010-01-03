@@ -108,9 +108,9 @@ int main(int argc, char **argv){
 
 	// Specify some population settings
 	pop.setPopulationSize(populationSize,nParents);
-	pop.setMaxGeneration(maxGenerations);
+	pop.setMaxIteration(maxGenerations);
 	pop.setMaxTime(boost::posix_time::minutes(maxMinutes));
-	pop.setReportGeneration(reportGeneration);
+	pop.setReportIteration(reportGeneration);
 	pop.setRecombinationMethod(rScheme);
 
 	// Do the actual optimization

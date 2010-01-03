@@ -95,7 +95,7 @@ const GBrokerPopulation& GBrokerPopulation::operator=(const GBrokerPopulation& c
  * @param cp A pointer to another GBrokerPopulation object, camouflaged as a GObject
  */
 void GBrokerPopulation::load(const GObject * cp) {
-	const GBrokerPopulation *gbp_load = this->conversion_cast(cp, this);
+	const GBrokerPopulation *gbp_load = conversion_cast(cp, this);
 
 	// Load the parent class'es data ...
 	GBasePopulation::load(cp);
@@ -300,34 +300,47 @@ boost::posix_time::time_duration GBrokerPopulation::getLoopTime() const {
 
 /******************************************************************************/
 /**
- * We provide the broker with a new GBufferPortT object. Next the standard optimization cycle
- * of the parent population is started. When it is finished, we reset the shared_ptr<GBufferPortT>.
- * The corresponding object is then deleted, and the GBoundedBufferT objects  owned by the broker are
- * orphaned. They will then be removed during the next enrollment.
- *
- * @param startGeneration The start value of the generation_ counter
+ * Performs any necessary initialization work before the start of the optimization cycle
  */
-void GBrokerPopulation::optimize(const boost::uint32_t& startGeneration) {
+void GBrokerPopulation::init() {
 	// Prevent usage of this population inside another broker population - check type of first individual
 	{
-		boost::shared_ptr<GBrokerPopulation> p = boost::dynamic_pointer_cast<GBrokerPopulation>(this->at(0));
-		if(p) { // Conversion was successful - this should not be
-			std::ostringstream error;
-			error << "In GBrokerPopulation::optimize(): Error" << std::endl
-			      << "GBrokerPopulation stored as an individual inside of" << std::endl
-			      << "a population of the same type" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			boost::shared_ptr<GBrokerPopulation> p = boost::dynamic_pointer_cast<GBrokerPopulation>(*it);
+
+			if(p) {
+				// Conversion was successful - this should not be, as there are not to supposed to be
+				// any GBrokerPopulation objects inside itself.
+				std::ostringstream error;
+				error << "In GBrokerPopulation::optimize(): Error" << std::endl
+				      << "GBrokerPopulation stored as an individual inside of" << std::endl
+				      << "a population of the same type" << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
 		}
 	}
 
+	// GBasePopulation sees exactly the environment it would when called from its own class
+	GBasePopulation::init();
+
 	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Util::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
 	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
+}
 
-	// The main optimization cycle
-	GBasePopulation::optimize(startGeneration);
-
-	// Remove the GBufferPortT object
+/******************************************************************************/
+/**
+ * Performs any necessary finalization work after the end of the optimization cycle
+ */
+void GBrokerPopulation::finalize() {
+	// Remove the GBufferPortT object. The broker only holds shared_ptr's to the
+	// two objects contained therein, which are not invalidated, but become unique.
+	// This is a selection criterion which lets the broker remove surplus buffer
+	// twins.
 	CurrentBufferPort_.reset();
+
+	// GBasePopulation sees exactly the environment it would when called from its own class
+	GBasePopulation::finalize();
 }
 
 /******************************************************************************/
@@ -344,7 +357,7 @@ void GBrokerPopulation::mutateChildren() {
 
 	std::vector<boost::shared_ptr<GIndividual> >::reverse_iterator rit;
 	std::size_t np = getNParents(), nc=data.size()-np;
-	boost::uint32_t generation=this->getGeneration();
+	boost::uint32_t generation=getIteration();
 
 	//--------------------------------------------------------------------------------
 	// First we send all individuals abroad
@@ -362,7 +375,7 @@ void GBrokerPopulation::mutateChildren() {
 	// Make sure we also evaluate the parents in the first generation, if needed.
 	// This is only applicable to the MUPLUSNU and MUNU1PRETAIN modes.
 	if(generation==0) {
-		switch(this->getSortingScheme()) {
+		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case MUPLUSNU:
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
@@ -413,7 +426,7 @@ void GBrokerPopulation::mutateChildren() {
 
 			// If it is from the current generation, break the loop.
 			// Update the number of items received.
-			if(p->getPersonalityTraits()->getParentAlgIteration() == generation){
+			if(p->getParentAlgIteration() == generation){
 				// Add the individual to our list.
 				this->push_back(p);
 
@@ -426,7 +439,7 @@ void GBrokerPopulation::mutateChildren() {
 			else {
 				if(!p->getEAPersonalityTraits()->isParent()){ // We do not accept parents from older populations
 					// Make it known to the individual that it is now part of a new generation
-					p->getPersonalityTraits()->setParentAlgIteration(generation);
+					p->setParentAlgIteration(generation);
 
 					// Add the individual to our list.
 					this->push_back(p);
@@ -470,7 +483,7 @@ void GBrokerPopulation::mutateChildren() {
 			CurrentBufferPort_->pop_back_processed(&p,loopTime_);
 
 			// Count the number of items received.
-			if(p->getPersonalityTraits()->getParentAlgIteration() == generation) {
+			if(p->getParentAlgIteration() == generation) {
 				// Add the individual to our list.
 				this->push_back(p);
 
@@ -481,7 +494,7 @@ void GBrokerPopulation::mutateChildren() {
 			else {
 				if(!p->getEAPersonalityTraits()->isParent()){  // Parents from older populations will be ignored, as there is no else clause
 					// Make it known to the individual that it is now part of a new generation
-					p->getPersonalityTraits()->setParentAlgIteration(generation);
+					p->setParentAlgIteration(generation);
 
 					// Add the individual to our list.
 					this->push_back(p);
@@ -500,21 +513,21 @@ void GBrokerPopulation::mutateChildren() {
 
 		// Break if a full set of children (and parents in generation 0 / MUPLUSNU / MUNU1PRETAIN)
 		// has returned. Older individuals may return in the next iterations (i.e. generations), unless they are parents
-		if(generation == 0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)) {
-			if(nReceivedParent+nReceivedChildCurrent==np+this->getDefaultNChildren()) {
+		if(generation == 0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)) {
+			if(nReceivedParent+nReceivedChildCurrent==np+getDefaultNChildren()) {
 				complete=true;
 				break;
 			}
 		}
 		else {
-			if(nReceivedChildCurrent>=this->getDefaultNChildren()) { // Note the >=
+			if(nReceivedChildCurrent>=getDefaultNChildren()) { // Note the >=
 				complete=true;
 				break;
 			}
 		}
 	}
 
-	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)){
+	if(generation==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
 			std::ostringstream error;
@@ -559,19 +572,19 @@ void GBrokerPopulation::mutateChildren() {
 				<< "some individuals of the current population did not return" << std::endl
 				<< "in generation " << generation << "." << std::endl;
 
-	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)){
+	if(generation==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		information << "We have received " << nReceivedParent << " parents." << std::endl
 			        << "where " << np << " parents were expected." << std::endl;
 	}
 
 	information << nReceivedChildCurrent << " children of the current population returned" << std::endl
 			    << "plus " << nReceivedChildOlder << " older children," << std::endl
-			    << "where the default number of children is " << this->getDefaultNChildren() << std::endl;
+			    << "where the default number of children is " << getDefaultNChildren() << std::endl;
 #endif /* DEBUG*/
 
 
-	if(data.size() < np+this->getDefaultNChildren()){
-		std::size_t fixSize=np+this->getDefaultNChildren() - data.size();
+	if(data.size() < np+getDefaultNChildren()){
+		std::size_t fixSize=np+getDefaultNChildren() - data.size();
 
 #ifdef DEBUG
 		information << fixSize << "individuals thus need to be added to the population." << std::endl
@@ -605,9 +618,9 @@ void GBrokerPopulation::mutateChildren() {
 
 	// Mark the first nParents_ individuals as parents, if they aren't parents yet. We want
 	// to have a "sane" population.
-	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)){
+	if(generation==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		GBasePopulation::iterator it;
-		for(it=this->begin(); it!=this->begin() + this->getNParents(); ++it) {
+		for(it=this->begin(); it!=this->begin() + getNParents(); ++it) {
 			if(!(*it)->getEAPersonalityTraits()->isParent()) {
 				(*it)->getEAPersonalityTraits()->setIsParent();
 			}
@@ -639,7 +652,7 @@ void GBrokerPopulation::select() {
 	// At this point we have a sorted list of individuals and can take care of
 	// too many members, so the next generation finds a "standard" population. This
 	// function will remove the last items.
-	data.resize(this->getNParents() + this->getDefaultNChildren());
+	data.resize(getNParents() + getDefaultNChildren());
 
 	// Everything should be back to normal ...
 }

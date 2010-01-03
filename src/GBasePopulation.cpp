@@ -46,31 +46,15 @@ namespace GenEvA {
  * to provide constructors for each and every use case. Instead, you should set
  * vital parameters, such as the population size or the parent individuals by hand.
  */
-GBasePopulation::GBasePopulation() :
-	GOptimizationAlgorithm(),
-	nParents_(0),
-	popSize_(0),
-	generation_(0),
-	maxGeneration_(DEFAULTMAXGEN),
-	stallCounter_(0),
-	bestPastFitness_(0.), // will be set appropriately in the optimize() function
-	maxStallGeneration_(DEFAULMAXTSTALLGEN),
-	microTrainingInterval_(DEFAULTMICROTRAININGINTERVAL),
-	reportGeneration_(DEFAULTREPORTGEN),
-	cpInterval_(DEFAULTCHECKPOINTGEN),
-	cpBaseName_(DEFAULTCPBASENAME), // Set in GOptimizationAlgorithm.hpp
-	cpDirectory_(DEFAULTCPDIR), // Set in GOptimizationAlgorithm.hpp
-	recombinationMethod_(DEFAULTRECOMBINE),
-	smode_(DEFAULTSMODE),
-	maximize_(DEFAULTMAXMODE),
-	id_("empty"),
-	firstId_(true), // The "real" id will be set in the GBasePopulation::optimize function
-	maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION)),
-	defaultNChildren_(0),
-	qualityThreshold_(DEFAULTQUALITYTHRESHOLD),
-	hasQualityThreshold_(false),
-	oneTimeMuCommaNu_(false),
-	infoFunction_(&GBasePopulation::defaultInfoFunction)
+GBasePopulation::GBasePopulation()
+	: GOptimizationAlgorithm()
+	, nParents_(0)
+	, microTrainingInterval_(DEFAULTMICROTRAININGINTERVAL)
+	, recombinationMethod_(DEFAULTRECOMBINE)
+	, smode_(DEFAULTSMODE)
+	, defaultNChildren_(0)
+	, oneTimeMuCommaNu_(false)
+	, infoFunction_(&GBasePopulation::simpleInfoFunction)
 { /* nothing */ }
 
 /***********************************************************************************/
@@ -81,31 +65,15 @@ GBasePopulation::GBasePopulation() :
  *
  * @param cp Another GBasePopulation object
  */
-GBasePopulation::GBasePopulation(const GBasePopulation& cp) :
-	GOptimizationAlgorithm(cp),
-	nParents_(cp.nParents_),
-	popSize_(cp.popSize_),
-	generation_(0),
-	maxGeneration_(cp.maxGeneration_),
-	stallCounter_(cp.stallCounter_),
-	bestPastFitness_(cp.bestPastFitness_),
-	maxStallGeneration_(cp.maxStallGeneration_),
-	microTrainingInterval_(cp.microTrainingInterval_),
-	reportGeneration_(cp.reportGeneration_),
-	cpInterval_(cp.cpInterval_),
-	cpBaseName_(cp.cpBaseName_),
-	cpDirectory_(cp.cpDirectory_),
-	recombinationMethod_(cp.recombinationMethod_),
-	smode_(cp.smode_),
-	maximize_(cp.maximize_),
-	id_("empty"),
-	firstId_(true), // We want the id to be re-calculated for a new object
-	maxDuration_(cp.maxDuration_),
-	defaultNChildren_(cp.defaultNChildren_),
-	qualityThreshold_(cp.qualityThreshold_),
-	hasQualityThreshold_(cp.hasQualityThreshold_),
-	oneTimeMuCommaNu_(cp.oneTimeMuCommaNu_),
-	infoFunction_(cp.infoFunction_)
+GBasePopulation::GBasePopulation(const GBasePopulation& cp)
+	: GOptimizationAlgorithm(cp)
+	, nParents_(cp.nParents_)
+	, microTrainingInterval_(cp.microTrainingInterval_)
+	, recombinationMethod_(cp.recombinationMethod_)
+	, smode_(cp.smode_)
+	, defaultNChildren_(cp.defaultNChildren_)
+	, oneTimeMuCommaNu_(cp.oneTimeMuCommaNu_)
+	, infoFunction_(cp.infoFunction_)
 { /* nothing */ }
 
 /***********************************************************************************/
@@ -142,26 +110,10 @@ void GBasePopulation::load(const GObject * cp)
 
 	// ... and then our own data
 	nParents_ = gbp_load->nParents_;
-	popSize_ = gbp_load->popSize_;
-	generation_ = 0; // We assume that this is the start of a new optimization run
-	maxGeneration_ = gbp_load->maxGeneration_;
-	stallCounter_ = gbp_load->stallCounter_;
-	bestPastFitness_ = gbp_load->bestPastFitness_;
-	maxStallGeneration_ = gbp_load->maxStallGeneration_;
 	microTrainingInterval_ = gbp_load->microTrainingInterval_;
-	reportGeneration_ = gbp_load->reportGeneration_;
-	cpInterval_ = gbp_load->cpInterval_;
-	cpBaseName_ = gbp_load->cpBaseName_;
-	cpDirectory_ = gbp_load->cpDirectory_;
 	recombinationMethod_ = gbp_load->recombinationMethod_;
 	smode_ = gbp_load->smode_;
-	maximize_ = gbp_load->maximize_;
-	id_="empty"; // We need our own id
-	firstId_=true, // We want the id to be re-calculated for a new object
-	maxDuration_ = gbp_load->maxDuration_;
 	defaultNChildren_ = gbp_load->defaultNChildren_;
-	qualityThreshold_=gbp_load->qualityThreshold_;
-	hasQualityThreshold_=gbp_load->hasQualityThreshold_;
 	oneTimeMuCommaNu_=gbp_load->oneTimeMuCommaNu_;
 	infoFunction_ = gbp_load->infoFunction_;
 }
@@ -216,27 +168,10 @@ bool GBasePopulation::isEqualTo(const GObject& cp, const boost::logic::tribool& 
 
 	// Then we take care of the local data
 	if(checkForInequality("GBasePopulation", nParents_, gbp_load->nParents_,"nParents_", "gbp_load->nParents_", expected)) return false;
-	if(checkForInequality("GBasePopulation", popSize_, gbp_load->popSize_,"popSize_", "gbp_load->popSize_", expected)) return false;
-	if(checkForInequality("GBasePopulation", generation_, gbp_load->generation_,"generation_", "gbp_load->generation_", expected)) return false;
-	if(checkForInequality("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_,"maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
-	if(checkForInequality("GBasePopulation", stallCounter_, gbp_load->stallCounter_,"stallCounter_", "gbp_load->stallCounter_", expected)) return false;
-	if(checkForInequality("GBasePopulation", bestPastFitness_, gbp_load->bestPastFitness_,"bestPastFitness_", "gbp_load->bestPastFitness_", expected)) return false;
-	if(checkForInequality("GBasePopulation", maxStallGeneration_, gbp_load->maxStallGeneration_,"maxStallGeneration_", "gbp_load->maxStallGeneration_", expected)) return false;
 	if(checkForInequality("GBasePopulation", microTrainingInterval_, gbp_load->microTrainingInterval_,"microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
-	if(checkForInequality("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_,"reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
-	if(checkForInequality("GBasePopulation", cpInterval_, gbp_load->cpInterval_,"cpInterval_", "gbp_load->cpInterval_", expected)) return false;
-	if(checkForInequality("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_,"cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
-	if(checkForInequality("GBasePopulation", cpDirectory_, gbp_load->cpDirectory_,"cpDirectory_", "gbp_load->cpDirectory_", expected)) return false;
 	if(checkForInequality("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
 	if(checkForInequality("GBasePopulation", smode_, gbp_load->smode_,"smode_", "gbp_load->smode_", expected)) return false;
-	if(checkForInequality("GBasePopulation", maximize_, gbp_load->maximize_,"maximize_", "gbp_load->maximize_", expected)) return false;
-	if(checkForInequality("GBasePopulation", id_, gbp_load->id_,"id_", "gbp_load->id_", expected)) return false;
-	if(checkForInequality("GBasePopulation", firstId_, gbp_load->firstId_,"firstId_", "gbp_load->firstId_", expected)) return false;
-	if(checkForInequality("GBasePopulation", maxDuration_, gbp_load->maxDuration_,"maxDuration_", "gbp_load->maxDuration_", expected)) return false;
-	// startTime_ Not compared, as it is used for temporary storage only.
 	if(checkForInequality("GBasePopulation", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
-	if(checkForInequality("GBasePopulation", qualityThreshold_, gbp_load->qualityThreshold_,"qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
-	if(checkForInequality("GBasePopulation", hasQualityThreshold_, gbp_load->hasQualityThreshold_,"hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
 	if(checkForInequality("GBasePopulation", oneTimeMuCommaNu_, gbp_load->oneTimeMuCommaNu_,"oneTimeMuCommaNu_", "gbp_load->oneTimeMuCommaNu_", expected)) return false;
 
 	return true;
@@ -261,40 +196,13 @@ bool GBasePopulation::isSimilarTo(const GObject& cp, const double& limit, const 
 
 	// Then we take care of the local data
 	if(checkForDissimilarity("GBasePopulation", nParents_, gbp_load->nParents_, limit, "nParents_", "gbp_load->nParents_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", popSize_, gbp_load->popSize_, limit, "popSize_", "gbp_load->popSize_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", generation_, gbp_load->generation_, limit, "generation_", "gbp_load->generation_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", maxGeneration_, gbp_load->maxGeneration_, limit, "maxGeneration_", "gbp_load->maxGeneration_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", stallCounter_, gbp_load->stallCounter_, limit, "stallCounter_", "gbp_load->stallCounter_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", bestPastFitness_, gbp_load->bestPastFitness_, limit, "bestPastFitness_", "gbp_load->bestPastFitness_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", maxStallGeneration_, gbp_load->maxStallGeneration_, limit, "maxStallGeneration_", "gbp_load->maxStallGeneration_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", microTrainingInterval_, gbp_load->microTrainingInterval_, limit, "microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", reportGeneration_, gbp_load->reportGeneration_, limit, "reportGeneration_", "gbp_load->reportGeneration_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", cpInterval_, gbp_load->cpInterval_, limit, "cpInterval_", "gbp_load->cpInterval_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", cpBaseName_, gbp_load->cpBaseName_, limit, "cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", cpDirectory_, gbp_load->cpDirectory_, limit, "cpDirectory_", "gbp_load->cpDirectory_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", smode_, gbp_load->smode_, limit, "smode_", "gbp_load->smode_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", maximize_, gbp_load->maximize_, limit, "maximize_", "gbp_load->maximize_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", id_, gbp_load->id_, limit, "id_", "gbp_load->id_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", firstId_, gbp_load->firstId_, limit, "firstId_", "gbp_load->firstId_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", maxDuration_, gbp_load->maxDuration_, limit, "maxDuration_", "gbp_load->maxDuration_", expected)) return false;
-	// startTime_ Not compared, as it is used for temporary storage only.
 	if(checkForDissimilarity("GBasePopulation", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", qualityThreshold_, gbp_load->qualityThreshold_, limit, "qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
-	if(checkForDissimilarity("GBasePopulation", hasQualityThreshold_, gbp_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
 	if(checkForDissimilarity("GBasePopulation", oneTimeMuCommaNu_, gbp_load->oneTimeMuCommaNu_, limit, "oneTimeMuCommaNu_", "gbp_load->oneTimeMuCommaNu_", expected)) return false;
 
 	return true;
-}
-
-/***********************************************************************************/
-/**
- * Performs the necessary administratory work of doing check-pointing
- */
-void GBasePopulation::checkpoint(const bool& better) const {
-	// Save checkpoints if required by the user
-	if(cpInterval_ == -1 && better) this->saveCheckpoint();
-	else if(cpInterval_ && generation_%cpInterval_ == 0) this->saveCheckpoint();
 }
 
 /***********************************************************************************/
@@ -304,15 +212,6 @@ void GBasePopulation::checkpoint(const bool& better) const {
 void GBasePopulation::setIndividualPersonalities() {
 	GBasePopulation::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(EA);
-}
-
-/***********************************************************************************/
-/**
- * Resets the individual's personality types
- */
-void GBasePopulation::resetIndividualPersonalities() {
-	GBasePopulation::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) (*it)->resetPersonality();
 }
 
 /***********************************************************************************/
@@ -346,12 +245,10 @@ bool GBasePopulation::updateParentStructure() {
 /***********************************************************************************/
 /**
  * Saves the state of the class to disc. The function adds the current generation
- * and the fitness to the base name, which is either supplied as an argument or, if
- * left empty (or "empty" is supplied, is created automatically. We do not save the
- * entire population, but only the best individuals, as these contain the "real"
- * information. Note that no real copying of the individual's data takes place here,
- * as we are dealing with boost::shared_ptr objects. Private, as we do not want to
- * accidently trigger value calculation
+ * and the fitness to the base name. We do not save the entire population, but only
+ * the best individuals, as these contain the "real" information. Note that no real
+ * copying of the individual's data takes place here, as we are dealing with
+ * boost::shared_ptr objects.
  */
 void GBasePopulation::saveCheckpoint() const {
 	// Copy the nParents best individuals to a vector
@@ -361,18 +258,18 @@ void GBasePopulation::saveCheckpoint() const {
 		bestIndividuals.push_back(*it);
 
 #ifdef DEBUG // Cross check so we do not accidently trigger value calculation
-				if(this->at(0)->isDirty()) {
-					std::ostringstream error;
-					error << "In GBasePopulation::saveCheckpoint():" << std::endl
-						  << "Error: class member has the dirty flag set" << std::endl;
-					throw(Gem::GenEvA::geneva_error_condition(error.str()));
-				}
+	if(this->at(0)->isDirty()) {
+		std::ostringstream error;
+		error << "In GBasePopulation::saveCheckpoint():" << std::endl
+			  << "Error: class member has the dirty flag set" << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
 #endif /* DEBUG */
 	double newValue = this->at(0)->fitness();
 
 	// Determine a suitable name for the output file
-	std::string outputFile = cpDirectory_ + boost::lexical_cast<std::string>(this->getGeneration()) + "_"
-		+ boost::lexical_cast<std::string>(newValue) + "_" + cpBaseName_;
+	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(this->getIteration()) + "_"
+		+ boost::lexical_cast<std::string>(newValue) + "_" + getCheckpointBaseName();
 
 	// Create the output stream and check that it is in good order
 	std::ofstream checkpointStream(outputFile.c_str());
@@ -449,157 +346,6 @@ void GBasePopulation::loadCheckpoint(const std::string& cpFile) {
 
 /***********************************************************************************/
 /**
- * Allows to set the number of generations after which a checkpoint should be written
- *
- * @param cpInterval The number of generations after which a checkpoint should be written
- */
-void GBasePopulation::setCheckpointInterval(const boost::int32_t& cpInterval) {
-	if(cpInterval < -1) {
-		std::ostringstream error;
-		error << "In GBasePopulation::setCheckpointInterval():" << std::endl
-			  << "Error: received bad checkpoint interval: " << cpInterval << std::endl;
-		throw geneva_error_condition(error.str());
-	}
-
-	cpInterval_ = cpInterval;
-}
-
-/***********************************************************************************/
-/**
- * Allows to retrieve the number of generations after which a checkpoint should be written
- *
- * @return The number of generations after which a checkpoint should be written
- */
-boost::uint32_t GBasePopulation::getCheckpointInterval() const {
-	return cpInterval_;
-}
-
-/***********************************************************************************/
-/**
- * Allows to set the base name of the checkpoint file and the directory where it
- * should be stored.
- *
- * @param cpDirectory The directory where checkpoint files should be stored
- * @param cpBaseName The base name used for the checkpoint files
- */
-void GBasePopulation::setCheckpointBaseName(const std::string& cpDirectory, const std::string& cpBaseName) {
-	// Do some basic checks
-	if(cpBaseName == "empty" || cpBaseName.empty()) {
-		std::ostringstream error;
-		error << "In GBasePopulation::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-			  << "Error: Invalid cpBaseName: " << cpBaseName << std::endl;
-		throw geneva_error_condition(error.str());
-	}
-
-	if(cpDirectory == "empty" || cpDirectory.empty()) {
-		std::ostringstream error;
-		error << "In GBasePopulation::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-			  << "Error: Invalid cpDirectory: " << cpDirectory << std::endl;
-		throw geneva_error_condition(error.str());
-	}
-
-	cpBaseName_ = cpBaseName;
-
-	// Check that the provided directory exists
-	if(!boost::filesystem::exists(cpDirectory) || !boost::filesystem::is_directory(cpDirectory)) {
-		std::ostringstream error;
-		error << "In GBasePopulation::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-			  << "Error: directory does not exist: " << cpDirectory << std::endl;
-		throw geneva_error_condition(error.str());
-	}
-
-	// Add a trailing slash to the directory name, if necessary
-    if(cpDirectory[cpDirectory.size() - 1] != '/') cpDirectory_ = cpDirectory + '/';
-    else cpDirectory_ = cpDirectory;
-}
-
-/***********************************************************************************/
-/**
- * Allows to retrieve the base name of the checkpoint file.
- *
- * @return The base name used for checkpoint files
- */
-std::string GBasePopulation::getCheckpointBaseName() const {
-	return cpBaseName_;
-}
-
-/***********************************************************************************/
-/**
- * Allows to retrieve the directory where checkpoint files should be stored
- *
- * @return The base name used for checkpoint files
- */
-std::string GBasePopulation::getCheckpointDirectory() const {
-	return cpDirectory_;
-}
-
-/***********************************************************************************/
-/**
- * This is the main optimization function and the heart of the GenEvA library.
- * Every time it is called, the number of generations is reseted. The recombination
- * scheme, type of child mutations and the selection scheme are determined in
- * other functions, namely GBasePopulation::recombine(), GBasePopulation::mutateChildren()
- * and GBasePopulation::select() (or overloaded versions in derived classes).
- *
- * @param startGeneration The start value of the generation_ counter
- */
-void GBasePopulation::optimize(const boost::uint32_t& startGeneration) {
-	// Reset the generation counter
-	generation_ = startGeneration;
-
-	// Fill up the population as needed
-	GBasePopulation::adjustPopulation();
-
-	// Emit the info header, unless we do not want any info. Note that
-	// this call needs to come after adjustPopulation(), so we have a
-	// "complete" population available.
-	if(reportGeneration_) doInfo(INFOINIT);
-
-	// Initialize the start time with the current time. Uses Boost::date_time
-	startTime_ = boost::posix_time::second_clock::local_time(); /// Hmmm - not necessarily thread-safe, if each population runs in its own thread ...
-
-	// We want to know when a better value was found.
-	bestPastFitness_ = (maximize_?(-DBL_MAX+1):DBL_MAX);
-	stallCounter_ = 0;
-
-	do {
-		this->recombine(); // create new children from parents
-		this->markGeneration(); // Let all individuals know the current generation
-		this->markIndividualPositions();
-		this->mutateChildren(); // mutate children and calculate their value
-		this->select(); // find out the best individuals of the population
-
-		// Check whether a better value was found, and do the check-pointing, if necessary
-		this->checkpoint(this->ifProgress());
-
-		// We want to provide feedback to the user in regular intervals.
-		// Set the reportGeneration_ variable to 0 in order not to emit
-		// any information.
-		if(reportGeneration_ && (generation_%reportGeneration_ == 0)) doInfo(INFOPROCESSING);
-
-		// Perform micro-training, if requested and necessary
-		if(microTrainingInterval_ && stallCounter_ && stallCounter_%microTrainingInterval_ == 0) {
-#ifdef DEBUG
-			std::cout << "Updating parents ..." << std::endl;
-#endif /* DEBUG */
-			if(this->updateParentStructure()) this->setOneTimeMuCommaNu();
-			stallCounter_ = 0;
-		}
-
-		// update the generation_ counter
-		generation_++;
-	}
-	while(!halt(startGeneration)); // allows custom halt criteria
-
-	// Finalize the info output
-	if(reportGeneration_) doInfo(INFOEND);
-
-	// Remove information particular to evolutionary algorithms from the individuals
-	resetIndividualPersonalities();
-}
-
-/***********************************************************************************/
-/**
  * Emits information specific to this population. The function can be overloaded
  * in derived classes. By default we allow the user to register a call-back function
  * using GBasePopulation::registerInfoFunction() . Please note that it is not
@@ -625,29 +371,6 @@ void GBasePopulation::registerInfoFunction(boost::function<void (const infoMode&
 
 /***********************************************************************************/
 /**
- * Sets the number of generations after which the population should
- * report about its inner state. Set to 0 if you do not want information
- * to be emitted.
- *
- * @param reportGeneration The number of generations after which information should be emitted
- */
-void GBasePopulation::setReportGeneration(const boost::uint32_t& reportGeneration) {
-	reportGeneration_ = reportGeneration;
-}
-
-/***********************************************************************************/
-/**
- * Returns the number of generations after which the population should
- * report about its inner state.
- *
- * @return The number of generations after which reporting should be done
- */
-boost::uint32_t GBasePopulation::getReportGeneration() const {
-	return reportGeneration_;
-}
-
-/***********************************************************************************/
-/**
  * Specifies the initial size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
  * see GBasePopulation::adjustPopulation() . Also, all error checking is done in
@@ -657,39 +380,62 @@ boost::uint32_t GBasePopulation::getReportGeneration() const {
  * @param nParents The desired number of parents
  */
 void GBasePopulation::setPopulationSize(const std::size_t& popSize, const std::size_t& nParents) {
-	popSize_ = popSize;
+	GOptimizationAlgorithm::setPopulationSize(popSize);
 	nParents_ = nParents;
 }
 
 /***********************************************************************************/
 /**
- * The function checks that the population size meets the requirements and resizes the
- * population to the appropriate size, if required. An obvious precondition is that at
- * least one individual has been added to the population. It is interpreted as a parent
- * and serves as the template for missing individuals (children and parents). Parents
- * that have already been added will not be replaced. This is one of the few occasions
- * where popSize_ is used directly. In most occasions we refer to the size of the vector
- * instead to allow short-term adjustments of the vector size. Note, though, that
- * GBasePopulation will enforce a minimum number of children, as implied by the initial
- * population size and the number of parents. This function is called once before the
- * optimization cycle.
+ * This function implements the logic that constitutes evolutionary algorithms. The
+ * function is called by GOptimizationAlgorithm for each cycle of the optimization,
+ *
+ * @return The value of the best individual found
  */
-void GBasePopulation::adjustPopulation() {
-	// First check that we have been given suitable values for population size
-	// and number of parents
+double GBasePopulation::cycleLogic() {
+	this->recombine(); // create new children from parents
+	this->markIndividualPositions();
+	this->mutateChildren(); // mutate children and calculate their value
+	this->select(); // find out the best individuals of the population
 
-	// Have the population size and number of parents been set at all ?
-	if(popSize_ == 0 || nParents_ == 0) {
+	boost::uint32_t stallCounter = getStallCounter();
+	if(microTrainingInterval_ && stallCounter && stallCounter%microTrainingInterval_ == 0) {
+#ifdef DEBUG
+		std::cout << "Updating parents ..." << std::endl;
+#endif /* DEBUG */
+
+		if(this->updateParentStructure()) {
+			this->setOneTimeMuCommaNu();
+		}
+	}
+
+	// Retrieve the fitness of the best individual in the collection
+	bool isDirty = false;
+	double bestFitness = this->at(0)->getCurrentFitness(isDirty);
+
+#ifdef DEBUG
+	if(isDirty) {
 		std::ostringstream error;
-		error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
-			  << "The population size and/or the number of parents have invalid values:" << std::endl
-			  << "Did you call GBasePopulation::setPopulationSize() ?" << std::endl
-			  << "population size = " << popSize_ << std::endl
-			  << "number of parents = " << nParents_ << std::endl;
+		error << "In GBasePopulation::cycleLogic(): Found dirty individual when it should not be" << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+#endif /* DEBUG */
 
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
+	return bestFitness;
+}
+
+
+/***********************************************************************************/
+/**
+ * The function checks that the population size meets the requirements and does some
+ * tagging. It is called from within GOptimizationAlgorithm::optimize(), before the
+ * actual optimization cycle starts.
+ */
+void GBasePopulation::init() {
+	// First check that we have been given a suitable value for the number of parents.
+	// Note that a number of checks (e.g. population size != 0) has already been done
+	// in the parent class.
+	if(nParents_ == 0) {
+		nParents_ = 1;
 	}
 
 	// In MUCOMMANU mode we want to have at least as many children as parents,
@@ -697,11 +443,12 @@ void GBasePopulation::adjustPopulation() {
 	// number of parents. NUNU1PRETAIN has the same requirements as MUCOMMANU,
 	// as it is theoretically possible that all children are better than the former
 	// parents, so that the first parent individual will be replaced.
-	if(((smode_==MUCOMMANU || smode_==MUNU1PRETAIN) && (popSize_ < 2*nParents_)) || (smode_==MUPLUSNU && popSize_<=nParents_))
+	std::size_t popSize = getPopulationSize();
+	if(((smode_==MUCOMMANU || smode_==MUNU1PRETAIN) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU && popSize<=nParents_))
 	{
 		std::ostringstream error;
 		error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
-			  << "Requested size of population is too small :" << popSize_ << " " << nParents_ << std::endl
+			  << "Requested size of population is too small :" << popSize << " " << nParents_ << std::endl
 		      << "Sorting scheme is ";
 
 		switch(smode_) {
@@ -721,109 +468,14 @@ void GBasePopulation::adjustPopulation() {
 		throw geneva_error_condition(error.str());
 	}
 
-	// Check how many individuals have been added already. At least one is required.
-	std::size_t this_sz = data.size();
-	if(this_sz == 0) {
-		std::ostringstream error;
-		error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
-			  << "size of population is 0. Did you add any individuals?" << std::endl
-			  << "We need at least one local individual" << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
-	}
-
-	// Do the smart pointers actually point to any objects ?
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it) {
-		if(!(*it)) { // shared_ptr can be implicitly converted to bool
-			std::ostringstream error;
-			error << "In GBasePopulation::adjustPopulation() : Error!" << std::endl
-				  << "Found empty smart pointer." << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
-		}
-	}
-
-	// Fill up as required. We are now sure we have a suitable number of individuals to do so
-	if(this_sz < popSize_) {
-		this->resize_clone(popSize_, data[0]);
-	}
-
-	// Let individuals know that they are part of an evolutionary algorithm
-	setIndividualPersonalities();
 	// Let parents know they are parents and children that they are children
 	markParents();
-	// Let all individuals know about the current generation
-	markGeneration();
-	// Let all individuals know whether they are part of a maximization or minimization scheme
-	markMaxMode();
 
 	// Make sure derived classes (such as GTransferPopulation) have a way of finding out
 	// what the desired number of children is. This is particularly important, if, in a
 	// network environment, some individuals might not return and some individuals return
 	// late. The factual size of the population then changes and we need to take action.
-	defaultNChildren_ = popSize_ - nParents_;
-}
-
-/***********************************************************************************/
-/**
- * A helper function that helps to determine whether a given value is better than
- * a given older one. As "better" means something different for maximization and minimization,
- * this function helps to make the code easier to understand.
- *
- * @param newValue The new value
- * @param oldValue The old value
- * @return true of newValue is better than oldValue, otherwise false.
- */
-bool GBasePopulation::isBetter(double newValue, const double& oldValue) const {
-	if(maximize_) {
-		if(newValue > oldValue) return true;
-		else return false;
-	}
-	else { // minimization
-		if(newValue < oldValue) return true;
-		else return false;
-	}
-}
-
-/***********************************************************************************/
-/**
- * Retrieves the id of this object. If this is the first time the function
- * is called, we additionally create the id.
- *
- * @return The value of the id_ variable
- */
-std::string GBasePopulation::getId() {
-	if(firstId_) {
-		id_ = boost::lexical_cast<std::string>(this);
-		firstId_=false;
-	}
-
-	return id_;
-}
-
-/***********************************************************************************/
-/**
- * Retrieve the current number of failed optimization attempts in succession
- *
- * @return The current number of failed optimization attempts in succession
- */
-boost::uint32_t GBasePopulation::getStallCounter() const {
-	return stallCounter_;
-}
-
-/***********************************************************************************/
-/**
- * Retrieve the current best value found
- *
- * @return The best fitness found so far
- */
-double GBasePopulation::getBestFitness() const {
-	return bestPastFitness_;
+	defaultNChildren_ = getDefaultPopulationSize() - nParents_;
 }
 
 /***********************************************************************************/
@@ -849,19 +501,6 @@ boost::uint32_t GBasePopulation::getMicroTrainingInterval() const {
 
 /***********************************************************************************/
 /**
- * Retrieves the size of the population. Note that the popSize_ parameter set in
- * setPopulationSize() is only needed in the setup phase, particularly in the adjustPopulation
- * function. In all other occasions the population size is assumed to be equal the size of the
- * vector.
- *
- * @return The current size of the population
- */
-std::size_t GBasePopulation::getPopulationSize() const {
-	return data.size();
-}
-
-/***********************************************************************************/
-/**
  * Retrieve the number of parents as set by the user. This is a fixed parameter and
  * should not be changed after it has first been set.
  *
@@ -873,7 +512,7 @@ std::size_t GBasePopulation::getNParents() const {
 
 /***********************************************************************************/
 /**
- * Calculates the number of children from the number of parents and the
+ * Calculates the current number of children from the number of parents and the
  * size of the vector.
  *
  * @return The number of children in the population
@@ -909,203 +548,48 @@ sortingMode GBasePopulation::getSortingScheme() const {
 
 /***********************************************************************************/
 /**
- * Sets the maximum number of generations allowed for an optimization run. Set
- * to 0 in order for this stop criterion to be disabled.
+ * This function is called from GOptimizationAlgorithm::optimize() and performs the
+ * actual recombination, based on the recombination schemes defined by the user.
  *
- * @param The maximum number of allowed generations
+ * Note that, in DEBUG mode, this implementation will enforce a minimum number of children,
+ * as implied by the initial sizes of the population and the number of parents
+ * present. If individuals can get lost in your setting, you must add mechanisms
+ * to "repair" the population.
  */
-void GBasePopulation::setMaxGeneration(const boost::uint32_t& maxGeneration) {
-	maxGeneration_ = maxGeneration;
-}
-
-/***********************************************************************************/
-/**
- * Retrieves the maximum number of generations allowed in an optimization run.
- *
- * @return The maximum number of generations
- */
-boost::uint32_t GBasePopulation::getMaxGeneration() const {
-	return maxGeneration_;
-}
-
-/***********************************************************************************/
-/**
- * Sets the maximum number of generations allowed without improvement of the best
- * individual. Set to 0 in order for this stop criterion to be disabled.
- *
- * @param The maximum number of allowed generations
- */
-void GBasePopulation::setMaxStallGeneration(const boost::uint32_t& maxStallGeneration) {
-	maxStallGeneration_ = maxStallGeneration;
-}
-
-/***********************************************************************************/
-/**
- * Retrieves the maximum number of generations allowed in an optimization run without
- * improvement of the best individual.
- *
- * @return The maximum number of generations
- */
-boost::uint32_t GBasePopulation::getMaxStallGeneration() const {
-	return maxStallGeneration_;
-}
-
-/***********************************************************************************/
-/**
- * Retrieves the currently active generation
- *
- * @return The currently active generation
- */
-boost::uint32_t GBasePopulation::getGeneration() const {
-	return generation_;
-}
-
-/***********************************************************************************/
-/**
- * Sets the maximum allowed processing time
- *
- * @param maxDuration The maximum allowed processing time
- */
-void GBasePopulation::setMaxTime(const boost::posix_time::time_duration& maxDuration) {
-	using namespace boost::posix_time;
-
-	// Only allow "real" values
-	if(maxDuration.is_special() || maxDuration.is_negative()) {
+void GBasePopulation::recombine()
+{
+#ifdef DEBUG
+	// We require at this stage that at least the default number of
+	// children is present. If individuals can get lost in your setting,
+	// you must add mechanisms to "repair" the population.
+	if((data.size()-nParents_) < defaultNChildren_){
 		std::ostringstream error;
-		error << "In GBasePopulation::setMaxTime() : Error!" << std::endl
-			  << "Invalid maxDuration." << std::endl;
+		error << "In GBasePopulation::recombine(): Error!" << std::endl
+			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
+			  << "but was expecting at least " << defaultNChildren_ << std::endl;
 
+		// throw an exception. Add some information so that if the exception
+		// is caught through a base object, no information is lost.
 		throw geneva_error_condition(error.str());
 	}
+#endif
 
-	maxDuration_ = maxDuration;
-}
+	// Do the actual recombination
+	this->doRecombine();
 
-/***********************************************************************************/
-/**
- * Retrieves the value of the maxDuration_ parameter.
- *
- * @return The maximum allowed processing time
- */
-boost::posix_time::time_duration GBasePopulation::getMaxTime() {
-	return maxDuration_;
-}
-
-/***********************************************************************************/
-/**
- * This function returns true once a given time (set with GBasePopulation::setMaxTime())
- * has passed. It is used in the GBasePopulation::halt() function.
- *
- * @return A boolean indicating whether a given amount of time has passed
- */
-bool GBasePopulation::timedHalt() {
-	using namespace boost::posix_time;
-	ptime currentTime = microsec_clock::local_time();
-	if((currentTime - startTime_) >= maxDuration_) return true;
-	return false;
-}
-
-/***********************************************************************************/
-/**
- * This function returns true once the quality is below or above a given threshold
- * (depending on whether we maximize or minimize).
- *
- * @return A boolean indicating whether the quality is above or below a given threshold
- */
-bool GBasePopulation::qualityHalt() {
-	bool isDirty;
-	if(maximize_) {
-		if(this->data.at(0)->getCurrentFitness(isDirty) >= qualityThreshold_) return true;
+	// Let children know they are children
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	for(it=data.begin()+nParents_; it!=data.end(); ++it){
+		(*it)->getEAPersonalityTraits()->setIsChild();
 	}
-	else { // minimization
-		if(this->data.at(0)->getCurrentFitness(isDirty) <= qualityThreshold_) return true;
-	}
-
-	return false;
 }
 
 /***********************************************************************************/
 /**
- *  Sets a quality threshold beyond which optimization is expected to stop
- *
- *  @param qualityThreshold A threshold beyond which optimization should stop
+ * This function assigns a new value to each child individual according to the chosen
+ * recombination scheme.
  */
-void GBasePopulation::setQualityThreshold(const double& qualityThreshold) {
-	qualityThreshold_ = qualityThreshold;
-	hasQualityThreshold_=true;
-}
-
-/***********************************************************************************/
-/**
- * Retrieves the current value of the quality threshold and also indicates whether
- * the threshold is active
- */
-double GBasePopulation::getQualityThreshold(bool& hasQualityThreshold) const {
-	hasQualityThreshold = hasQualityThreshold_;
-	return qualityThreshold_;
-}
-
-
-/***********************************************************************************/
-/**
- * Removes the quality threshold
- */
-void GBasePopulation::unsetQualityThreshold() {
-	hasQualityThreshold_ = false;
-}
-
-/***********************************************************************************/
-/**
- * Checks whether a quality threshold has been set
- *
- * @return A boolean indicating whether a quality threshold has been set
- */
-bool GBasePopulation::hasQualityThreshold() const {
-	return hasQualityThreshold_;
-}
-
-/***********************************************************************************/
-/**
- * Lets the user specify whether he wants to perform maximization or minimization.
- *
- * @param maximize Indicates whether we want to maximize (true) or minimize (false)
- */
-void GBasePopulation::setMaximize(const bool& maximize) {
-	maximize_ = maximize;
-}
-
-/***********************************************************************************/
-/**
- * Retrieves the maximize_ parameter. It indicates whether we are maximizing (true)
- * or minimizing (false).
- *
- * @return The value of the maximize_ parameter
- */
-bool GBasePopulation::getMaximize() const {
-	return maximize_;
-}
-
-/***********************************************************************************/
-/**
- * It is possible for users to specify in overloaded versions of this
- * function under which conditions the optimization should be stopped. The
- * function is called from GBasePopulation::halt .
- *
- * @return boolean indicating that a stop condition was reached
- */
-bool GBasePopulation::customHalt() {
-	/* nothing - specify your own criteria in derived classes */
-	return false;
-}
-
-/***********************************************************************************/
-/**
- * This function assigns a new value to each child individual
- * according to the chosen recombination scheme. It can be
- * overloaded by a user in order to implement his own recombination
- * scheme.
- */
-void GBasePopulation::customRecombine() {
+void GBasePopulation::doRecombine() {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	switch(recombinationMethod_){
@@ -1122,6 +606,8 @@ void GBasePopulation::customRecombine() {
 				(*it)->load((data.begin())->get());
 		}
 		else {
+			// TODO: Check whether it is sufficient to do this only once
+
 			// Calculate a vector of recombination likelihoods for all parents
 			std::size_t i;
 			std::vector<double> threshold(nParents_);
@@ -1154,7 +640,7 @@ void GBasePopulation::customRecombine() {
 				// calculation in this case. Hence we fall back to random
 				// recombination in generation 0. No value calculation takes
 				// place there.
-				if(generation_ == 0) randomRecombine(*it);
+				if(getIteration() == 0) randomRecombine(*it);
 				else valueRecombine(*it, threshold);
 			}
 		}
@@ -1219,46 +705,9 @@ void GBasePopulation::valueRecombine(boost::shared_ptr<GIndividual>& p, const st
 
 /***********************************************************************************/
 /**
- * This function is called from GBasePopulation::optimize() and performs the
- * actual recombination, based on the recombination schemes defined by the user.
- *
- * Note that this implementation will enforce a minimum number of children,
- * as implied by the initial sizes of the population and the number of parents
- * present. If individuals can get lost in your setting, you must add mechanisms
- * to "repair" the population.
- */
-void GBasePopulation::recombine()
-{
-	// We require at this stage that at least the default number of
-	// children is present. If individuals can get lost in your setting,
-	// you must add mechanisms to "repair" the population.
-	if((data.size()-nParents_) < defaultNChildren_){
-		std::ostringstream error;
-		error << "In GBasePopulation::recombine(): Error!" << std::endl
-			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
-			  << "but was expecting at least " << defaultNChildren_ << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
-	}
-
-	// Do the actual recombination
-	this->customRecombine();
-
-	// Let children know they are children
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin()+nParents_; it!=data.end(); ++it){
-		(*it)->getEAPersonalityTraits()->setIsChild();
-	}
-}
-
-/***********************************************************************************/
-/**
  * Mutate all children in sequence. Note that this also triggers their value
  * calculation, so this function needs to be overloaded for optimization in a
- * network context. It is here that you may fix the population size if it
- * has become too small.
+ * network context.
  */
 void GBasePopulation::mutateChildren()
 {
@@ -1268,11 +717,14 @@ void GBasePopulation::mutateChildren()
 	// triggered for all parents. Note that it may well be that at
 	// this stage we have several identical parents in the population,
 	// due to the actions of the adjustPopulation function.
-	if(generation_ == 0)
-		for(it=data.begin(); it!=data.begin()+nParents_; ++it) (*it)->fitness();
+	if(getIteration() == 0) {
+		for(it=data.begin(); it!=data.begin()+nParents_; ++it) {
+			(*it)->fitness();
+		}
+	}
 
 	// Next we perform the mutation of each child individual in
-	// sequence. Note that this could also trigger fitness calculation.
+	// sequence. Note that this can also trigger fitness calculation.
 	for(it=data.begin()+nParents_; it!=data.end(); ++it) (*it)->mutate();
 }
 
@@ -1338,7 +790,7 @@ void GBasePopulation::select()
  */
 void GBasePopulation::sortMuplusnuMode() {
 	// Sort the entire array
-	if(maximize_){
+	if(getMaximize()){
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
 				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 	}
@@ -1350,46 +802,13 @@ void GBasePopulation::sortMuplusnuMode() {
 
 /***********************************************************************************/
 /**
- * Checks whether a better solution was found and updates the stallCounter_ variable
- * as necessary.
- *
- * @return A boolean indicating whether a better solution was found
- */
-bool GBasePopulation::ifProgress() {
-#ifdef DEBUG
-	if(this->at(0)->isDirty()) {
-		std::ostringstream error;
-		error << "In GBasePopulation::checkProgress(): Error" << std::endl
-			  << "Attempt to calculate fitness of an individual" << std::endl
-			  << "whose dirty flag was set." << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
-	}
-#endif /* DEBUG */
-
-	double newFitness = this->at(0)->fitness(); // the best fitness found in this generation
-
-	// Check whether an improvement has been achieved
-	bool better = this->isBetter(newFitness, bestPastFitness_);
-	if(better) {
-		bestPastFitness_ = newFitness;
-		stallCounter_ = 0;
-	}
-	else {
-		stallCounter_++;
-	}
-
-	return better;
-}
-
-/***********************************************************************************/
-/**
  * Selection, MUCOMMANU style. New parents are selected from children only. The quality
- * of the population may decrease from generation to generation, but the optimization
- * is less likely to stall.
+ * of the population may decrease occasionally from generation to generation, but the
+ * optimization is less likely to stall.
  */
 void GBasePopulation::sortMucommanuMode() {
 	// Only sort the children
-	if(maximize_){
+	if(getMaximize()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 	}
@@ -1407,15 +826,15 @@ void GBasePopulation::sortMucommanuMode() {
  * all former parents are replaced. If no better child was found than the best
  * parent of the last generation, then this parent stays in place. All other parents
  * are replaced by the (nParents_-1) best children. The scheme falls back to MUPLUSNU
- * mode, of only one parent is available, or if this is the first generation (so we
- * do not accidentally trigger value calculation.
+ * mode, if only one parent is available, or if this is the first generation (so we
+ * do not accidentally trigger value calculation).
  */
 void GBasePopulation::sortMunu1pretainMode() {
-	if(nParents_==1 || generation_==0) { // Falls back to MUPLUSNU mode
+	if(nParents_==1 || getIteration()==0) { // Falls back to MUPLUSNU mode
 		this->sortMuplusnuMode();
 	} else {
 		// Sort the children
-		if(maximize_){
+		if(getMaximize()){
 			std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 		}
@@ -1437,43 +856,6 @@ void GBasePopulation::sortMunu1pretainMode() {
 	}
 }
 
-
-/***********************************************************************************/
-/**
- * Possible mutations of a population could involve shifting of individuals.
- * By default, no mutations are defined.
- */
-void GBasePopulation::customMutations()
-{ /* nothing */}
-
-/***********************************************************************************/
-/**
- * Fitness calculation for a population means optimization. The fitness is then determined
- * by the best individual which, after the end of the optimization cycle, can be found in
- * the first position of the array. This is true both for all sorting modes.
- *
- * @return The fitness of the best individual in the population
- */
-double GBasePopulation::fitnessCalculation() {
-	bool dirty = false;
-
-	this->optimize();
-
-	double val = data.at(0)->getCurrentFitness(dirty);
-	// is this the current fitness ? We should at this stage never
-	// run across an unevaluated individual.
-	if(dirty) {
-		std::ostringstream error;
-		error << "In GBasePopulation::fitnessCalculation(): Error!" << std::endl
-			  << "Came across dirty invididual" << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
-	}
-	return val;
-}
-
 /***********************************************************************************/
 /**
  * This helper function marks parents as parents and children as children.
@@ -1486,28 +868,6 @@ void GBasePopulation::markParents() {
 
 	for(it=data.begin()+nParents_; it!=data.end(); ++it){
 		(*it)->getEAPersonalityTraits()->setIsChild();
-	}
-}
-
-/***********************************************************************************/
-/**
- * Lets individuals know whether they are part of a maximization or minimization scheme
- */
-void GBasePopulation::markMaxMode() {
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it){
-		(*it)->setMaxMode(maximize_);
-	}
-}
-
-/***********************************************************************************/
-/**
- * This helper function lets all individuals know their current generation
- */
-void GBasePopulation::markGeneration() {
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it){
-		(*it)->getPersonalityTraits()->setParentAlgIteration(generation_);
 	}
 }
 
@@ -1533,52 +893,6 @@ void GBasePopulation::markIndividualPositions() {
  */
 std::size_t GBasePopulation::getDefaultNChildren() const {
 	return defaultNChildren_;
-}
-
-/***********************************************************************************/
-/**
- * Retrieves the default size of the population
- *
- * @return The default size of the population
- */
-std::size_t GBasePopulation::getDefaultPopulationSize() const {
-	return (defaultNChildren_ + nParents_);
-}
-
-/***********************************************************************************/
-/**
- * This function checks whether a halt criterion has been reached. The most
- * common criterion is the maximum number of generations. Set the maxGeneration_
- * counter to 0 if you want to disable this criterion. If the optimization is
- * supposed to start with a higher value of the generation counter, e.g. because
- * a checkpoint file has been loaded, then an offset can be added to the
- * generation counter.
- *
- * @param generationOffset An offset to be added to the maximum generation
- * @return A boolean indicating whether a halt criterion has been reached
- */
-bool GBasePopulation::halt(const std::size_t& generationOffset)
-{
-	// Have we exceeded the maximum number of generations and
-	// do we indeed intend to stop in this case ?
-	if(maxGeneration_ && (generation_ > (maxGeneration_ + generationOffset))) return true;
-
-	// Has the optimization stalled too often ?
-	if(maxStallGeneration_ && stallCounter_ > maxStallGeneration_) return true;
-
-	// Do we have a scheduled halt time ? The comparatively expensive
-	// timedHalt() calculation is only called if maxDuration_
-	// is at least one microsecond.
-	if(maxDuration_.total_microseconds() && timedHalt()) return true;
-
-	// Are we supposed to stop when the quality has exceeded a threshold ?
-	if(hasQualityThreshold_ && qualityHalt()) return true;
-
-	// Has the user specified an additional stop criterion ?
-	if(customHalt()) return true;
-
-	// Fine, we can continue.
-	return false;
 }
 
 /***********************************************************************************/

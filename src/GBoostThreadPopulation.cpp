@@ -52,7 +52,8 @@ GBoostThreadPopulation::GBoostThreadPopulation() :
 
 /********************************************************************/
 /**
- * A standard copy constructor.
+ * A standard copy constructor. Note that we do not copy le_value_ as
+ * it is used for internal caching only.
  *
  * @param cp Reference to another GBoostThreadPopulation object
  */
@@ -74,7 +75,7 @@ GBoostThreadPopulation::~GBoostThreadPopulation() {
 
 /********************************************************************/
 /**
- * A standard assignment operator for GBoostThreadPopulation objects
+ * A standard assignment operator for GBoostThreadPopulation objects.
  *
  * @param cp Reference to another GBoostThreadPopulation object
  * @return A constant reference to this object
@@ -101,6 +102,8 @@ void GBoostThreadPopulation::load(const GObject *cp) {
 	nThreads_ = gbp->nThreads_;
 	tp_.clear();
 	tp_.size_controller().resize(nThreads_);
+
+	// Note that we do not copy le_value_ as it is used for internal caching only
 }
 
 /********************************************************************/
@@ -182,34 +185,38 @@ bool GBoostThreadPopulation::isSimilarTo(const GObject& cp, const double& limit,
 
 /********************************************************************/
 /**
- * We want to do all fitness calculation in the threads. Hence lazy
- * evaluation is not allowed.
- *
- * @param startGeneration The start value of the generation_ counter
+ * Necessary initialization work before the start of the optimization
  */
-void GBoostThreadPopulation::optimize(const boost::uint32_t& startGeneration) {
-	std::vector<bool> le_value;
-
-	std::vector<bool>::iterator b_it;
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+void GBoostThreadPopulation::init() {
+	// GBasePopulation sees exactly the environment it would when called from its own class
+	GBasePopulation::init();
 
 	// We want to prevent lazy evaluation, as all value calculation
-	// shall take place in the threads. Simultaneously we want to be
+	// shall take place in the threads. By the same token, though, we want to be
 	// able to restore the original values.
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it){
-		le_value.push_back((*it)->setAllowLazyEvaluation(false));
+		le_value_.push_back((*it)->setAllowLazyEvaluation(false));
 	}
+}
 
-	// Do the actual optimization. Thus function will use our overloaded
-	// mutateChildren class.
-	GBasePopulation::optimize(startGeneration);
-
+/********************************************************************/
+/**
+ * Necessary clean-up work after the optimization has finished
+ */
+void GBoostThreadPopulation::finalize() {
 	// Restore the original values
-	for(it=data.begin(), b_it=le_value.begin();
-		it!=data.end(), b_it != le_value.end();
-		++it, ++b_it){
+	std::vector<bool>::iterator b_it;
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
+	for(it=data.begin(), b_it=le_value_.begin();
+		it!=data.end(), b_it != le_value_.end();
+		++it, ++b_it)
+	{
 		(*it)->setAllowLazyEvaluation(*b_it);
 	}
+
+	// GBasePopulation sees exactly the environment it would when called from its own class
+	GBasePopulation::finalize();
 }
 
 /********************************************************************/
@@ -221,7 +228,7 @@ void GBoostThreadPopulation::optimize(const boost::uint32_t& startGeneration) {
  */
 void GBoostThreadPopulation::mutateChildren() {
 	std::size_t nParents = GBasePopulation::getNParents();
-	boost::uint32_t generation = GBasePopulation::getGeneration();
+	boost::uint32_t generation = GBasePopulation::getIteration();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
 	// We start with the parents, if this is generation 0. Their
