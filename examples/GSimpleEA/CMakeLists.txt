@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GSimpleBasePopulation)
+SET (EXECUTABLENAME GSimpleEA)
 
 SET (${EXECUTABLENAME}_SRCS 
-	GSimpleBasePopulation
+	GSimpleEA
 	GCommandLineParser
 )
 
