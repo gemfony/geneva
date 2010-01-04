@@ -1,5 +1,5 @@
 /**
- * @file GSimpleBasePopulation.cpp
+ * @file GSimpleEA.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
