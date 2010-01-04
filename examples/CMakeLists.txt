@@ -37,5 +37,5 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GSimpleBasePopulation
+	GSimpleEA
 )
