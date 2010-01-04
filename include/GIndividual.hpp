@@ -84,6 +84,7 @@ class GIndividual
     // personality of an individual
 	friend class GOptimizationAlgorithm;
 	friend class GEvolutionaryAlgorithm;
+	friend class GSwarm;
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;

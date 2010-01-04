@@ -27,6 +27,7 @@
  * http://www.gemfony.com .
  */
 
+
 // Standard headers go here
 #include <string>
 #include <fstream>
@@ -74,6 +75,131 @@
 
 namespace Gem {
 namespace GenEvA {
+
+/*********************************************************************************/
+/**
+ * The GSwarm class implements a swarm optimization algorithm, based on the infrastructure
+ * provided by the GOptimizationAlgorithm class.
+ */
+class GSwarm
+	:public GOptimizationAlgorithm
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int) {
+		using boost::serialization::make_nvp;
+
+		ar & make_nvp("GOptimizationAlgorithm",	boost::serialization::base_object<GOptimizationAlgorithm>(*this));
+		// ar & make_nvp("nParents_", nParents_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GSwarm();
+	/** @brief A standard copy constructor */
+	GSwarm(const GSwarm&);
+	/** @brief The destructor */
+	virtual ~GSwarm();
+
+	/** @brief A standard assignment operator */
+	const GSwarm& operator=(const GSwarm&);
+
+	/** @brief Loads the data of another population */
+	virtual void load(const GObject *);
+	/** @brief Creates a deep clone of this object */
+	virtual GObject *clone() const;
+
+	/** @brief Checks for equality with another GSwarm object */
+	bool operator==(const GSwarm&) const;
+	/** @brief Checks for inequality with another GSwarm object */
+	bool operator!=(const GSwarm&) const;
+	/** @brief Checks for equality with another GSwarm object */
+	virtual bool isEqualTo(const GObject&,  const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GSwarm object */
+	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Emits information specific to this population */
+	virtual void doInfo(const infoMode&);
+
+	/** @brief Registers a function to be called when emitting information from doInfo */
+	void registerInfoFunction(boost::function<void (const infoMode&, GSwarm * const)>);
+
+	/** @brief Loads a checkpoint from disk */
+	virtual void loadCheckpoint(const std::string&);
+
+	/**************************************************************************************************/
+	/**
+	 * Retrieves the best individual of the population and casts it to the desired type.
+	 *
+	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
+	 */
+	template <typename individual_type>
+	inline boost::shared_ptr<individual_type> getBestIndividual(){
+		// ...
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * Emits information about the population it has been given, using a simple format. Note that we are
+	 * using a static member function in order to avoid storing a local "this" pointer in this function
+	 * when registering it in boost::function.
+	 *
+	 * Far more sophisticated setups than this information function are possible, and in general
+	 * it is recommended to register function objects instead of this function.
+	 *
+	 * @param im Indicates the information mode
+	 * @param gbp A pointer to the population information should be emitted about
+	 */
+	static void simpleInfoFunction(const infoMode& im, GSwarm * const gbp) {
+		std::ostringstream information;
+
+		switch(im){
+		case INFOINIT: // nothing
+			break;
+
+		case INFOPROCESSING:
+			{
+				bool isDirty = false;
+
+				information << std::setprecision(10) << "In iteration "<< gbp->getIteration() << ": " << gbp->data.at(0)->getCurrentFitness(isDirty);
+
+				if(isDirty) {
+					information << " (dirty flag is set)";
+				}
+				information << std::endl;
+			}
+			break;
+
+		case INFOEND: // nothing
+			break;
+		}
+
+		// Let the audience know
+		std::cout << information.str();
+	}
+
+	/**************************************************************************************************/
+
+protected:
+	/** @brief Allows to set the personality type of the individuals */
+	virtual void setIndividualPersonalities();
+	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+	virtual double cycleLogic();
+	/** @brief Does some preparatory work before the optimization starts */
+	virtual void init();
+
+private:
+	/** @brief Saves the state of the class to disc. Private, as we do not want to accidently trigger value calculation  */
+	virtual void saveCheckpoint() const;
+
+
+	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
+};
+
+/*********************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

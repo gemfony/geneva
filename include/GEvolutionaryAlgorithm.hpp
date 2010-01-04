@@ -221,10 +221,9 @@ public:
 
 	/**************************************************************************************************/
 	/**
-	 * Emits information about the population it has been given, using a simple format.  This is
-	 * used in the micro training environment. Note that we are using a static member function in order
-	 * to avoid storing a local "this" pointer in this function when registering it in the
-	 * boost::function object. This might otherwise be problematic when copying the boost::function object.
+	 * Emits information about the population it has been given, using a simple format. Note that we are
+	 * using a static member function in order to avoid storing a local "this" pointer in this function
+	 * when registering it in boost::function.
 	 *
 	 * Far more sophisticated setups than this information function are possible, and in general
 	 * it is recommended to register function objects instead of this function.
