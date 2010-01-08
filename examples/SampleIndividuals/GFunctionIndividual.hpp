@@ -296,6 +296,8 @@ protected:
 	 * @return The value of this object
 	 */
 	virtual double fitnessCalculation(){
+
+#ifdef DEBUG
 		// Check whether an evaluation function is available
 		if(!eval_) {
 			std::ostringstream error;
@@ -303,6 +305,7 @@ protected:
 				  << "No evaluation function is available." << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
+#endif /* DEBUG */
 
 		// Extract the GDoubleCollection object
 		boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
@@ -371,6 +374,7 @@ private:
 		std::size_t parameterSize = x->size();
 		double result = 0.;
 
+#ifdef DEBUG
 		// Check the size of the parameter vector -- must be at least 2
 		if(parameterSize < 2) {
 			std::ostringstream error;
@@ -378,6 +382,7 @@ private:
 				  << "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
+#endif /* DEBUG */
 
 		for(std::size_t i=0; i<(parameterSize-1); i++) {
 			double firstTerm = pow(1.-x->at(i),2.);

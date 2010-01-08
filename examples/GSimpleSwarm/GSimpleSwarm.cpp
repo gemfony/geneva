@@ -1,5 +1,5 @@
 /**
- * @file GStartProject.cpp
+ * @file GSimpleSwarm.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -37,8 +37,7 @@
 
 // GenEvA header files go here
 #include "GRandom.hpp"
-#include "GEvolutionaryAlgorithm.hpp"
-#include "GMultiThreadedEA.hpp"
+#include "GSwarm.hpp"
 #include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
 #include "GAsioTCPConsumer.hpp"
@@ -83,6 +82,8 @@ int main(int argc, char **argv){
   boost::uint32_t processingCycles;
   bool returnRegardless;
   boost::uint32_t waitFactor;
+  std::size_t nNeighborhoods;
+  std::size_t nNeighborhoodMembers;
 
   if(!parseCommandLine(argc, argv,
 		       configFile,			  
@@ -94,13 +95,11 @@ int main(int argc, char **argv){
      !parseConfigFile(configFile,
 		      nProducerThreads,
 		      nEvaluationThreads,
-		      populationSize,
-		      nParents,
+		      nNeighborhoods,
+			  nNeighborhoodMembers,
 		      maxGenerations,
 		      maxMinutes,
 		      reportGeneration,
-		      rScheme,
-		      smode,
 		      arraySize,
 		      processingCycles,
 		      returnRegardless,
@@ -131,17 +130,8 @@ int main(int argc, char **argv){
 
     return 0;
   }
+
   //***************************************************************************
-
-  // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<boost::shared_ptr<GStartIndividual> > parentIndividuals;
-  for(std::size_t p = 0 ; p<nParents; p++) {
-    boost::shared_ptr<GStartIndividual> gdii_ptr(new GStartIndividual(parDim, minVar, maxVar));
-    gdii_ptr->setProcessingCycles(processingCycles);
-
-    parentIndividuals.push_back(gdii_ptr);
-  }
-
   // Create an instance of our optimization monitor, telling it to output information in given intervals
   std::ofstream resultSummary("./result.C");
   boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(nParents, resultSummary));
@@ -150,7 +140,11 @@ int main(int argc, char **argv){
   // We can now start creating populations. We refer to them through the base class
 
   // This smart pointer will hold the different population types
-  boost::shared_ptr<GEvolutionaryAlgorithm> pop_ptr;
+  boost::shared_ptr<GSwarm> pop_ptr;
+
+  // We need to know the population size in advance. It is calculated from the number of neighborhoods and
+  // the number of individuals inside of them.
+  pop_ptr->setPopulationSize(nNeighborhoods, nNeihborhoodMembers);
 
   // Create the actual populations
   switch (parallelizationMode) {
@@ -196,17 +190,16 @@ int main(int argc, char **argv){
   // Now we have suitable populations and can fill them with data
 
   // Add individuals to the population
-  for(std::size_t p = 0 ; p<nParents; p++) {
-    pop_ptr->push_back(parentIndividuals[p]);
+  for(std::size_t p = 0 ; p<pop_ptr->getDefaultPopulationSize(); p++) {
+	  boost::shared_ptr<GStartIndividual> gdii_ptr(new GStartIndividual(parDim, minVar, maxVar));
+	  gdii_ptr->setProcessingCycles(processingCycles);
+	  pop_ptr->push_back(gdii_ptr);
   }
  
   // Specify some general population settings
-  pop_ptr->setPopulationSize(populationSize,nParents);
   pop_ptr->setMaxIteration(maxGenerations);
   pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
   pop_ptr->setReportIteration(reportGeneration);
-  pop_ptr->setRecombinationMethod(rScheme);
-  pop_ptr->setSortingScheme(smode);
   pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
   
   // Do the actual optimization

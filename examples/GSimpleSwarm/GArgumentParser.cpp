@@ -120,13 +120,11 @@ namespace Gem
     bool parseConfigFile(const std::string& configFile,
 			 boost::uint16_t& nProducerThreads,
 			 boost::uint16_t& nEvaluationThreads,
-			 std::size_t& populationSize,
-			 std::size_t& nParents,
+			 std::size_t& nNeighborhoods,
+			 std::size_t& nNeighborhoodMembers,
 			 boost::uint32_t& maxGenerations,
 			 long& maxMinutes,
 			 boost::uint32_t& reportGeneration,
-			 recoScheme& rScheme,
-			 sortingMode& smode,
 			 std::size_t& arraySize,
 			 boost::uint32_t& processingCycles,
 			 bool& returnRegardless,
@@ -152,20 +150,16 @@ namespace Gem
 	   "The amount of random number producer threads")
 	  ("nEvaluationThreads",po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
 	   "The amount of threads processing individuals simultaneously")
-	  ("populationSize",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
-	   "The size of the super-population")
-	  ("nParents",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
-	   "The number of parents in the population") // Needs to be treated separately
+	  ("nNeighborhoods", po::value<std::size_t>(&nNeighborhoods)->default_value(DEFAULTNNEIGHBORHOODS),
+	   "The number of neighborhoods in the population")
+      ("nNeighborhoodMembers", po::value<std::size_t>(&nNeighborhoodMembers)->default_value(DEFAULTNNEIGHBORHOODMEMBERS),
+       "The default number of members in each neighborhood")
 	  ("maxGenerations", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
 	   "Maximum number of generations in the population")
 	  ("maxMinutes", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
 	   "The maximum number of minutes the optimization of the population should run")
 	  ("reportGeneration",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),
 	   "The number of generations after which information should be emitted in the super-population")
-	  ("rScheme",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
-	   "The recombination scheme for the super-population")
-	  ("sortingScheme,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
-	   "Determines whether sorting is done in MUCOMMANU (0), MUPLUSNU (1)  or MUNU1PRETAIN (2) mode")
 	  ("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
 	   "The size of the buffer with random arrays in the random factory")
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
@@ -199,27 +193,6 @@ namespace Gem
 	  std::cout << config << std::endl;
 	  return false;
 	}
-	
-	// Check the number of parents in the super-population
-	if(2*nParents > populationSize){
-	  std::cout << "Error: Invalid number of parents inpopulation" << std::endl
-		    << "nParents       = " << nParents << std::endl
-		    << "populationSize = " << populationSize << std::endl;
-
-	  return false;
-	}
-
-	// Workaround for assigment problem with rScheme
-	if(recombinationScheme==(boost::uint16_t)VALUERECOMBINE)
-	  rScheme=VALUERECOMBINE;
-	else if(recombinationScheme==(boost::uint16_t)RANDOMRECOMBINE)
-	  rScheme=RANDOMRECOMBINE;
-	else if(recombinationScheme==(boost::uint16_t)DEFAULTRECOMBINE)
-	  rScheme=DEFAULTRECOMBINE;
-	else {
-	  std::cout << "Error: Invalid recombination scheme in population: " << recombinationScheme << std::endl;
-	  return false;
-	}
 
 	if(waitFactor == 0) waitFactor = DEFAULTGBTCWAITFACTOR;
 
@@ -227,17 +200,15 @@ namespace Gem
 	  std::cout << std::endl
 		    << "Running with the following options from " << configFile << ":" << std::endl
 		    << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
-		    << "populationSize = " << populationSize << std::endl
-		    << "nParents = " << nParents << std::endl
+		    << "nNeighborhoods = " << nNeighborhoods
+		    << "nNeighborhoodMembers = " << nNeighborhoodMembers
 		    << "maxGenerations = " << maxGenerations << std::endl
 		    << "maxMinutes = " << maxMinutes << std::endl
 		    << "reportGeneration = " << reportGeneration << std::endl
-		    << "rScheme = " << (boost::uint16_t)rScheme << std::endl
-		    << "sortingScheme = " << smode << std::endl
 		    << "arraySize = " << arraySize << std::endl
 		    << "processingCycles = " << processingCycles << std::endl
 		    << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
-	            << "waitFactor = " << waitFactor << std::endl
+	        << "waitFactor = " << waitFactor << std::endl
 		    << "parDim = " << parDim << std::endl
 		    << "minVar = " << minVar << std::endl
 		    << "maxVar = " << maxVar << std::endl

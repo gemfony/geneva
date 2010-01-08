@@ -65,12 +65,9 @@ namespace Gem
     // Default settings
     const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
     const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
-    const std::size_t DEFAULTPOPULATIONSIZE=100;
-    const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
     const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
     const long DEFAULTMAXMINUTES=10;
     const boost::uint32_t DEFAULTREPORTGENERATION=1;
-    const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
     const bool DEFAULTVERBOSE=true;
     const bool DEFAULTPARALLELIZATIONMODE=1;
     const std::size_t DEFAULTARRAYSIZE=1000;
@@ -78,8 +75,7 @@ namespace Gem
     const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
     const unsigned short DEFAULTPORT=10000;
     const std::string DEFAULTIP="localhost";
-    const std::string DEFAULTCONFIGFILE="./GStartProject.cfg";
-    const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
+    const std::string DEFAULTCONFIGFILE="./GSimpleSwarm.cfg";
     const boost::uint32_t DEFAULTSTARTGENERATION=0;
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
     const bool DEFAULTRETURNREGARDLESS=true;
@@ -88,6 +84,8 @@ namespace Gem
     const std::size_t DEFAULTPARDIM=100;
     const double DEFAULTMINVAR=-10.;
     const double DEFAULTMAXVAR=10.;
+    const std::size_t DEFAULTNNEIGHBORHOODS=5;
+    const std::size_t DEFAULTNNEIGHBORHOODMEMBERS=20;
 
     namespace po = boost::program_options;
 
@@ -101,13 +99,11 @@ namespace Gem
     bool parseConfigFile(const std::string& configFile,
 			 boost::uint16_t& nProducerThreads,
 			 boost::uint16_t& nEvaluationThreads,
-			 std::size_t& populationSize,
-			 std::size_t& nParents,
+			 std::size_t& nNeighborhoods,
+			 std::size_t& nNeighborhoodMembers,
 			 boost::uint32_t& maxGenerations,
 			 long& maxMinutes,
 			 boost::uint32_t& reportGeneration,
-			 recoScheme& rScheme,
-			 sortingMode& smode,
 			 std::size_t& arraySize,
 			 boost::uint32_t& processingCycles,
 			 bool& returnRegardless,
