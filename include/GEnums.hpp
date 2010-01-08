@@ -91,7 +91,7 @@ const boost::uint32_t DEFAULTMAXIT = 1000;
 /**
  * The default maximum number of iterations without improvement. 0 means: ignore
  */
-const boost::uint32_t DEFAULMAXTSTALLGEN = 0; // deprectaed
+const boost::uint32_t DEFAULMAXTSTALLGEN = 0; // deprecated
 const boost::uint32_t DEFAULMAXTSTALLIT = 0;
 
 /**********************************************************************************************/

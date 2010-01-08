@@ -164,8 +164,6 @@ public:
 	/** @brief Emits information in regular intervals */
 	virtual void doInfo(const infoMode& im);
 
-	/** @brief Sets the nominal size of the population */
-	virtual void setPopulationSize(const std::size_t&);
 	/** @brief Retrieves the default population size */
 	std::size_t getDefaultPopulationSize() const;
 	/** @brief Retrieve the current population size */
@@ -271,6 +269,9 @@ protected:
 
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
 	virtual double cycleLogic() = 0;
+
+	/** @brief Sets the nominal size of the population */
+	virtual void setPopulationSize(const std::size_t&);
 
 	/** @brief user-defined halt-criterion for the optimization */
 	virtual bool customHalt() const;

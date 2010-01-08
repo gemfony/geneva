@@ -76,6 +76,9 @@
 namespace Gem {
 namespace GenEvA {
 
+const std::size_t DEFAULTNNEIGHBORHOODS = 5;
+const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
+
 /*********************************************************************************/
 /**
  * The GSwarm class implements a swarm optimization algorithm, based on the infrastructure
@@ -92,7 +95,8 @@ class GSwarm
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("GOptimizationAlgorithm",	boost::serialization::base_object<GOptimizationAlgorithm>(*this));
-		// ar & make_nvp("nParents_", nParents_);
+		ar & make_nvp("nNeighborhoods_", nNeighborhoods_);
+		ar & make_nvp("nNeighborhoodMembers_", nNeighborhoodMembers_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -129,6 +133,33 @@ public:
 
 	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&);
+
+	/** @brief Sets the local multiplier used when calculating velocities to a fixed value in all individuals */
+	void setCLocal(const double&);
+	/** @brief Sets the local multiplier of each individual randomly within a given range */
+	void setCLocal(const double&, const double&);
+	/** @brief Sets the global multiplier used when calculating velocities to a fixed value in all individuals */
+	void setCGlobal(const double&);
+	/** @brief Sets the global multiplier of each individual randomly within a given range */
+	void setCGlobal(const double&, const double&);
+	/** @brief Sets the velocity multiplier to a fixed value for each individual */
+	void setCVelocity(const double&);
+	/** @brief Sets the velocity multiplier to a random value separately for each individual */
+	void setCVelocity(const double&, const double&);
+
+	/** @brief Retrieves the local multiplier */
+	double getCLocal() const;
+	/** @brief Retrieves the global multiplier */
+	double getCGlobal() const;
+	/** @brief Retrieves the velocity multiplier */
+	double getCVelocity() const;
+
+	/** @brief Sets the population size based on the number of neighborhoods and the number of individuals in them */
+	void setPopulationSize(const std::size_t&, const std::size_t&);
+	/** @brief Retrieves the number of neighborhoods */
+	std::size_t getNNeighborhoods() const;
+	/** @brief Retrieves the number of individuals in each neighborhood */
+	std::size_t getNNeighborhoodMembers() const;
 
 	/**************************************************************************************************/
 	/**
@@ -195,8 +226,13 @@ private:
 	/** @brief Saves the state of the class to disc. Private, as we do not want to accidently trigger value calculation  */
 	virtual void saveCheckpoint() const;
 
-
 	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
+
+	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
+	std::size_t nNeighborhoodMembers_; ///< The number of individuals belonging to each neighborhood
+
+	boost::shared_ptr<GIndividual> global_best_; ///< The globally best individual
+	std::vector<boost::shared_ptr<GIndividual> > local_bests_; ///< The collection of best individuals from each neighborhood
 };
 
 /*********************************************************************************/

@@ -49,7 +49,9 @@ namespace GenEvA {
 GSwarm::GSwarm()
 	: GOptimizationAlgorithm()
 	, infoFunction_(&GSwarm::simpleInfoFunction)
-{ /* nothing */ }
+{
+	setPopulationSize(DEFAULTNNEIGHBORHOODS, DEFAULTNNEIGHBORHOODMEMBERS);
+}
 
 /***********************************************************************************/
 /**
@@ -62,7 +64,15 @@ GSwarm::GSwarm()
 GSwarm::GSwarm(const GSwarm& cp)
 	: GOptimizationAlgorithm(cp)
 	, infoFunction_(cp.infoFunction_)
-{ /* nothing */ }
+{
+	setPopulationSize(cp.nNeighborhoods_, cp.nNeighborhoodMembers_);
+
+	global_best_ = (cp.global_best_)->clone_bptr_cast<GIndividual>();
+	std::vector<boost::shared_ptr<GIndividual> >::const_iterator cit;
+	for(cit=cp.local_bests_.begin(); cit!=cp.local_bests_.end(); ++cit) {
+		local_bests_.push_back(cit->clone_bptr_cast<GIndividual>());
+	}
+}
 
 /***********************************************************************************/
 /**
@@ -98,6 +108,9 @@ void GSwarm::load(const GObject * cp)
 
 	// ... and then our own data
 	infoFunction_ = gbp_load->infoFunction_;
+
+	nNeighborhoods_ = gbp_load->nNeighborhoods_;
+	nNeighborhoodMembers_ = gbp_load->nNeighborhoodMembers_;
 }
 
 /***********************************************************************************/
@@ -149,7 +162,8 @@ bool GSwarm::isEqualTo(const GObject& cp, const boost::logic::tribool& expected)
 	if(!GOptimizationAlgorithm::isEqualTo( *gbp_load, expected)) return  false;
 
 	// Then we take care of the local data
-	// if(checkForInequality("GSwarm", nParents_, gbp_load->nParents_,"nParents_", "gbp_load->nParents_", expected)) return false;
+	if(checkForInequality("GSwarm", nNeighborhoods_, gbp_load->nNeighborhoods_,"nNeighborhoods_", "gbp_load->nNeighborhoods_", expected)) return false;
+	if(checkForInequality("GSwarm", nNeighborhoodMembers_, gbp_load->nNeighborhoodMembers_,"nNeighborhoodMembers_", "gbp_load->nNeighborhoodMembers_", expected)) return false;
 
 	return true;
 }
@@ -172,7 +186,8 @@ bool GSwarm::isSimilarTo(const GObject& cp, const double& limit, const boost::lo
 	if(!GOptimizationAlgorithm::isSimilarTo(*gbp_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	// if(checkForDissimilarity("GSwarm", nParents_, gbp_load->nParents_, limit, "nParents_", "gbp_load->nParents_", expected)) return false;
+	if(checkForDissimilarity("GSwarm", nNeighborhoods_, gbp_load->nNeighborhoods_, limit, "nNeighborhoods_", "gbp_load->nNeighborhoods_", expected)) return false;
+	if(checkForDissimilarity("GSwarm", nNeighborhoodMembers_, gbp_load->nNeighborhoodMembers_, limit, "nNeighborhoodMembers_", "gbp_load->nNeighborhoodMembers_", expected)) return false;
 
 	return true;
 }
@@ -257,6 +272,116 @@ void GSwarm::init() {
 }
 
 /***********************************************************************************/
+/**
+ * Sets the local multiplier used when calculating velocities to a fixed value
+ * in all individuals. This function results in a fixed factor.
+ *
+ * @param c1 The multiplication factor for the difference between a local particle and and the local best
+ */
+void GSwarm::setCLocal(const double& c1) {
 
+}
+
+/***********************************************************************************/
+/**
+ * Sets the local multiplier of each individual randomly within a given range
+ */
+void GSwarm::setCLocal(const double&, const double&) {
+
+}
+
+/***********************************************************************************/
+/**
+ * Sets the global multiplier used when calculating velocities to a fixed value in
+ * all individuals
+ */
+void GSwarm::setCGlobal(const double&) {
+
+}
+
+/***********************************************************************************/
+/**
+ * Sets the global multiplier of each individual randomly within a given range
+ */
+void GSwarm::setCGlobal(const double&, const double&) {
+
+}
+
+/***********************************************************************************/
+/**
+ * Sets the velocity multiplier to a fixed value for each individual
+ */
+void GSwarm::setCVelocity(const double&) {
+
+}
+
+/***********************************************************************************/
+/**
+ * Sets the velocity multiplier to a random value separately for each individual
+ */
+void GSwarm::setCVelocity(const double&, const double&) {
+
+}
+
+/***********************************************************************************/
+/**
+ * Sets the population size based on the number of neighborhoods and the number of
+ * individuals in them
+ *
+ * @param nNeighborhoods The number of neighborhoods in the population
+ * @param nNeighborhoodMembers The number of individuals in each neighborhood
+ */
+void GSwarm::setPopulationSize(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers) {
+	nNeighborhoods_ = nNeighborhoods;
+	nNeighborhoodMembers_ = nNeighborhoodMembers;
+
+	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*nNeighborhoodMembers_);
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the number of neighborhoods
+ *
+ * @return The number of neighborhoods in the population
+ */
+std::size_t GSwarm::getNNeighborhoods() const {
+	return nNeighborhoodMembers_;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the number of individuals in each neighborhood
+ *
+ * @return The number of individuals in each neighborhood
+ */
+std::size_t GSwarm::getNNeighborhoodMembers() const {
+	return nNeighborhoodMembers_;
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the local multiplier
+ */
+double GSwarm::getCLocal() const {
+
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the global multiplier
+ */
+double GSwarm::getCGlobal() const {
+
+}
+
+/***********************************************************************************/
+/**
+ * Retrieves the velocity multiplier
+ */
+double GSwarm::getCVelocity() const {
+
+}
+
+/***********************************************************************************/
 } /* namespace GenEvA */
 } /* namespace Gem */
