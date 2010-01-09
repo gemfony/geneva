@@ -122,9 +122,9 @@ namespace Gem
 			 boost::uint16_t& nEvaluationThreads,
 			 std::size_t& nNeighborhoods,
 			 std::size_t& nNeighborhoodMembers,
-			 boost::uint32_t& maxGenerations,
+			 boost::uint32_t& maxIterations,
 			 long& maxMinutes,
-			 boost::uint32_t& reportGeneration,
+			 boost::uint32_t& reportIteration,
 			 std::size_t& arraySize,
 			 boost::uint32_t& processingCycles,
 			 bool& returnRegardless,
@@ -154,12 +154,12 @@ namespace Gem
 	   "The number of neighborhoods in the population")
       ("nNeighborhoodMembers", po::value<std::size_t>(&nNeighborhoodMembers)->default_value(DEFAULTNNEIGHBORHOODMEMBERS),
        "The default number of members in each neighborhood")
-	  ("maxGenerations", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
-	   "Maximum number of generations in the population")
+	  ("maxIterations", po::value<boost::uint32_t>(&maxIterations)->default_value(DEFAULTMAXITERATIONS),
+	   "Maximum number of iterations in the population")
 	  ("maxMinutes", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
 	   "The maximum number of minutes the optimization of the population should run")
-	  ("reportGeneration",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),
-	   "The number of generations after which information should be emitted in the super-population")
+	  ("reportIteration",po::value<boost::uint32_t>(&reportIteration)->default_value(DEFAULTREPORTITERATION),
+	   "The number of iterations after which information should be emitted in the super-population")
 	  ("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
 	   "The size of the buffer with random arrays in the random factory")
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
@@ -202,9 +202,9 @@ namespace Gem
 		    << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 		    << "nNeighborhoods = " << nNeighborhoods
 		    << "nNeighborhoodMembers = " << nNeighborhoodMembers
-		    << "maxGenerations = " << maxGenerations << std::endl
+		    << "maxIterations = " << maxIterations << std::endl
 		    << "maxMinutes = " << maxMinutes << std::endl
-		    << "reportGeneration = " << reportGeneration << std::endl
+		    << "reportIteration = " << reportIteration << std::endl
 		    << "arraySize = " << arraySize << std::endl
 		    << "processingCycles = " << processingCycles << std::endl
 		    << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl

@@ -65,9 +65,9 @@ namespace Gem
     // Default settings
     const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
     const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
-    const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
+    const boost::uint32_t DEFAULTMAXITERATIONS=2000;
     const long DEFAULTMAXMINUTES=10;
-    const boost::uint32_t DEFAULTREPORTGENERATION=1;
+    const boost::uint32_t DEFAULTREPORTITERATION=1;
     const bool DEFAULTVERBOSE=true;
     const bool DEFAULTPARALLELIZATIONMODE=1;
     const std::size_t DEFAULTARRAYSIZE=1000;
@@ -76,7 +76,7 @@ namespace Gem
     const unsigned short DEFAULTPORT=10000;
     const std::string DEFAULTIP="localhost";
     const std::string DEFAULTCONFIGFILE="./GSimpleSwarm.cfg";
-    const boost::uint32_t DEFAULTSTARTGENERATION=0;
+    const boost::uint32_t DEFAULTSTARTITERATION=0;
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
     const bool DEFAULTRETURNREGARDLESS=true;
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
@@ -101,9 +101,9 @@ namespace Gem
 			 boost::uint16_t& nEvaluationThreads,
 			 std::size_t& nNeighborhoods,
 			 std::size_t& nNeighborhoodMembers,
-			 boost::uint32_t& maxGenerations,
+			 boost::uint32_t& maxIterations,
 			 long& maxMinutes,
-			 boost::uint32_t& reportGeneration,
+			 boost::uint32_t& reportIteration,
 			 std::size_t& arraySize,
 			 boost::uint32_t& processingCycles,
 			 bool& returnRegardless,
