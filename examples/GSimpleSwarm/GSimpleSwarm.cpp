@@ -68,17 +68,13 @@ int main(int argc, char **argv){
   unsigned short port;
   boost::uint16_t nProducerThreads;
   boost::uint16_t nEvaluationThreads;
-  std::size_t populationSize;
-  std::size_t nParents;
   boost::uint32_t maxIterations;
   long maxMinutes;
   boost::uint32_t reportIteration;
-  recoScheme rScheme;
   std::size_t arraySize;
   std::size_t parDim;
   double minVar;
   double maxVar;
-  sortingMode smode;
   boost::uint32_t processingCycles;
   bool returnRegardless;
   boost::uint32_t waitFactor;

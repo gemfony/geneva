@@ -67,6 +67,14 @@
 namespace Gem {
 namespace GenEvA {
 
+/** @brief The default multiplier for velocities */
+const double DEFAULTW = 0.95;
+/** @brief The default multiplier for the difference between individual and local best */
+const double DEFAULTC1 = 2.;
+/** @brief The default multiplier for the difference between individual and global best */
+const double DEFAULTC2 = 2.;
+
+
 /*********************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
@@ -81,7 +89,14 @@ class GSwarmPersonalityTraits :public GPersonalityTraits
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GPersonalityTraits", boost::serialization::base_object<GPersonalityTraits>(*this));
+	  ar & make_nvp("popPos_", popPos_);
 	  ar & make_nvp("command_", command_);
+	  ar & make_nvp("velocity_", velocity_);
+	  ar & make_nvp("lBestParm_", lBestParm_);
+	  ar & make_nvp("gBestParm_", gBestParm_);
+	  ar & make_nvp("w_", w_);
+	  ar & make_nvp("c1_", c1_);
+	  ar & make_nvp("c2_", c2_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -112,9 +127,28 @@ public:
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const;
 
+	/** @brief Sets the position of the individual in the population */
+	void setPopulationPosition(std::size_t) ;
+	/** @brief Retrieves the position of the individual in the population */
+	std::size_t getPopulationPosition(void) const;
+
 private:
+	/** @brief Stores the current position in the population */
+	std::size_t popPos_;
 	/** @brief The command to be performed by remote clients */
 	std::string command_;
+	/** @brief A vector containing velocity information */
+	std::vector<double> velocity_;
+	/** @brief A vector containing the locally best parameters */
+	std::vector<double> lBestParm_;
+	/** @brief A vector containing the globally best parameters */
+	std::vector<double> gBestParm_;
+	/** @brief The velocity multiplier */
+	double w_;
+	/** @brief A multiplier for the difference of individual and local best */
+	double c1_;
+	/** @brief A multiplier for the difference of individual and global best */
+	double c2_;
 };
 
 } /* namespace GenEvA */

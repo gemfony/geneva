@@ -42,8 +42,15 @@ namespace GenEvA {
  * The default constructor
  */
 GSwarmPersonalityTraits::GSwarmPersonalityTraits()
-	:GPersonalityTraits(),
-	 command_("")
+	: GPersonalityTraits()
+	, popPos_(0)
+	, command_("")
+	, velocity_()
+	, lBestParm_()
+	, gBestParm_()
+	, w_(DEFAULTW)
+	, c1_(DEFAULTC1)
+	, c2_(DEFAULTC2)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -53,8 +60,15 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
  * @param cp A copy of another GSwarmPersonalityTraits object
  */
 GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits& cp)
-	:GPersonalityTraits(cp),
-	 command_(cp.command_)
+	: GPersonalityTraits(cp)
+	, popPos_(cp.popPos_)
+	, command_(cp.command_)
+	, velocity_(cp.velocity_)
+	, lBestParm_(cp.lBestParm_)
+	, gBestParm_(cp.gBestParm_)
+	, w_(cp.w_)
+	, c1_(cp.c1_)
+	, c2_(cp.c2_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -103,7 +117,14 @@ bool GSwarmPersonalityTraits::isEqualTo(const GObject& cp, const boost::logic::t
 	if(!GObject::isEqualTo(*geapt_load, expected)) return  false;
 
 	// Then we take care of the local data
+	if(checkForInequality("GSwarmPersonalityTraits", popPos_, geapt_load->popPos_,"popPos_", "geapt_load->popPos_", expected)) return false;
 	if(checkForInequality("GSwarmPersonalityTraits", command_, geapt_load->command_,"command_", "geapt_load->command_", expected)) return false;
+	if(checkForInequality("GSwarmPersonalityTraits", velocity_, geapt_load->velocity_,"velocity_", "geapt_load->velocity_", expected)) return false;
+	if(checkForInequality("GSwarmPersonalityTraits", lBestParm_, geapt_load->lBestParm_,"lBestParm_", "geapt_load->lBestParm_", expected)) return false;
+	if(checkForInequality("GSwarmPersonalityTraits", gBestParm_, geapt_load->gBestParm_,"gBestParm_", "geapt_load->gBestParm_", expected)) return false;
+	if(checkForInequality("GSwarmPersonalityTraits", w_, geapt_load->w_,"w_", "geapt_load->w_", expected)) return false;
+	if(checkForInequality("GSwarmPersonalityTraits", c1_, geapt_load->c1_,"c1_", "geapt_load->c1_", expected)) return false;
+	if(checkForInequality("GSwarmPersonalityTraits", c2_, geapt_load->c2_,"c2_", "geapt_load->c2_", expected)) return false;
 
 	return true;
 }
@@ -126,7 +147,14 @@ bool GSwarmPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit
 	if(!GObject::isSimilarTo(*geapt_load, limit, expected)) return false;
 
 	// Then we take care of the local data
+	if(checkForDissimilarity("GSwarmPersonalityTraits", popPos_, geapt_load->popPos_, limit, "popPos_", "geapt_load->popPos_", expected)) return false;
 	if(checkForDissimilarity("GSwarmPersonalityTraits", command_, geapt_load->command_, limit, "command_", "geapt_load->command_", expected)) return false;
+	if(checkForDissimilarity("GSwarmPersonalityTraits", velocity_, geapt_load->velocity_, limit, "velocity_", "geapt_load->velocity_", expected)) return false;
+	if(checkForDissimilarity("GSwarmPersonalityTraits", lBestParm_, geapt_load->lBestParm_, limit, "lBestParm_", "geapt_load->lBestParm_", expected)) return false;
+	if(checkForDissimilarity("GSwarmPersonalityTraits", gBestParm_, geapt_load->gBestParm_, limit, "gBestParm_", "geapt_load->gBestParm_", expected)) return false;
+	if(checkForDissimilarity("GSwarmPersonalityTraits", w_, geapt_load->w_, limit,"w_", "geapt_load->w_", expected)) return false;
+	if(checkForDissimilarity("GSwarmPersonalityTraits", c1_, geapt_load->c1_, limit,"c1_", "geapt_load->c1_", expected)) return false;
+	if(checkForDissimilarity("GSwarmPersonalityTraits", c2_, geapt_load->c2_, limit,"c2_", "geapt_load->c2_", expected)) return false;
 
 	return true;
 }
@@ -154,7 +182,36 @@ void GSwarmPersonalityTraits::load(const GObject* cp) {
 	GObject::load(cp);
 
 	// and then the local data
+	popPos_ = geapt_load->popPos_;
 	command_ = geapt_load->command_;
+	velocity_ = geapt_load->velocity_;
+	lBestParm_ = geapt_load->lBestParm_;
+	gBestParm_ = geapt_load->gBestParm_;
+	w_ = geapt_load->w_;
+	c1_ = geapt_load->c1_;
+	c2_ = geapt_load->c2_;
+}
+
+/*****************************************************************************/
+/**
+ * Sets the position of the individual in the population. This is needed so an
+ * individual can be re-assigned to the same neighborhood upon return from a
+ * network trip. Individuals do not change positions in swarm algorithms.
+ *
+ * @param popPos The new position of this individual in the population
+ */
+void GSwarmPersonalityTraits::setPopulationPosition(std::size_t popPos) {
+	popPos_ = popPos;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the position of the individual in the population
+ *
+ * @return The current position of this individual in the population
+ */
+std::size_t GSwarmPersonalityTraits::getPopulationPosition(void) const {
+	return popPos_;
 }
 
 /*****************************************************************************/

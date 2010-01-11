@@ -87,4 +87,4 @@
 - Recycling of partially used random number blocks. Can be done by also storing the current01-pointer in the array and 
   re-injecting the array in the random-factory's queue. Also reduces the size of the GRandom objects. Recycling should be
   triggered upon destruction of the GRandom object, or when another production mode is chosen.
-  
+- Add checkForInequality/Dissimilarity function for boost::shared_ptr<complex_type> (useful e.g. for GSwarm)

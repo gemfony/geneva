@@ -111,6 +111,9 @@ void GSwarm::load(const GObject * cp)
 
 	nNeighborhoods_ = gbp_load->nNeighborhoods_;
 	nNeighborhoodMembers_ = gbp_load->nNeighborhoodMembers_;
+
+	global_best_->load((gbp_load->global_best_).get());
+	copySmartPointerVector(gbp_load->local_bests_, local_bests_);
 }
 
 /***********************************************************************************/
@@ -164,6 +167,8 @@ bool GSwarm::isEqualTo(const GObject& cp, const boost::logic::tribool& expected)
 	// Then we take care of the local data
 	if(checkForInequality("GSwarm", nNeighborhoods_, gbp_load->nNeighborhoods_,"nNeighborhoods_", "gbp_load->nNeighborhoods_", expected)) return false;
 	if(checkForInequality("GSwarm", nNeighborhoodMembers_, gbp_load->nNeighborhoodMembers_,"nNeighborhoodMembers_", "gbp_load->nNeighborhoodMembers_", expected)) return false;
+	if(!global_best_->isEqualTo(*(gbp_load->global_best_), expected)) return false;
+	if(checkForInequality("GSwarm", local_bests_, gbp_load->local_bests_,"local_bests_", "gbp_load->local_bests_", expected)) return false;
 
 	return true;
 }
@@ -188,6 +193,8 @@ bool GSwarm::isSimilarTo(const GObject& cp, const double& limit, const boost::lo
 	// Then we take care of the local data
 	if(checkForDissimilarity("GSwarm", nNeighborhoods_, gbp_load->nNeighborhoods_, limit, "nNeighborhoods_", "gbp_load->nNeighborhoods_", expected)) return false;
 	if(checkForDissimilarity("GSwarm", nNeighborhoodMembers_, gbp_load->nNeighborhoodMembers_, limit, "nNeighborhoodMembers_", "gbp_load->nNeighborhoodMembers_", expected)) return false;
+	if(!global_best_->isSimilarTo(*(gbp_load->global_best_), limit, expected)) return false;
+	if(checkForDissimilarity("GSwarm", local_bests_, gbp_load->local_bests_, limit, "local_bests_", "gbp_load->local_bests_", expected)) return false;
 
 	return true;
 }
@@ -268,7 +275,20 @@ double GSwarm::cycleLogic() {
  * actual optimization cycle starts.
  */
 void GSwarm::init() {
-	/* nothing */
+	// To be performed before any other action
+	GOptimizationAlgorithm::init();
+
+	// Attach the relevant information to the individual's personalities
+	updatePersonalities();
+}
+
+/***********************************************************************************/
+/**
+ * Does any necessary finalization work
+ */
+void GSwarm::finalize() {
+	// Last action
+	GOptimizationAlgorithm::finalize();
 }
 
 /***********************************************************************************/
@@ -383,5 +403,38 @@ double GSwarm::getCVelocity() const {
 }
 
 /***********************************************************************************/
+/**
+ * Helper function that updates the personality information
+ */
+void GSwarm::updatePersonalities() {
+	// Check that all individuals have the same geometry (i.e. same number of doubles)
+
+	// Initialize the double vectors in the personality traits accordingly
+
+	// Set the individual's positions. This needs to be done only once, as individuals
+	// do not change position in a swarm algorithm.
+
+	// Set the local multipliers according to the user's instructions
+
+	// Loop over all individuals
+	GSwarm::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		// Extract all double parameters from the individuals
+		std::vector<boost::shared_ptr<GDouble> > gd_ptr_vec;
+		it->attachViewTo(gd_vec);
+
+		std::vector<boost::shared_ptr<GDoubleCollection> > gdc_ptr_vec;
+		it->attachViewTo(gdc_ptr_vec);
+
+		std::vector<boost::shared_ptr<GBoundedDouble> > gbd_ptr_vec;
+		it->attachViewTo(gdc_ptr_vec);
+
+		std::vector<boost::shared_ptr<GBoundedDoubleCollection> > gbdc_ptr_vec;
+		it->attachViewTo(gbdc_ptr_vec);
+	}
+}
+
+/***********************************************************************************/
+
 } /* namespace GenEvA */
 } /* namespace Gem */

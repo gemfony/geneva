@@ -97,6 +97,8 @@ class GSwarm
 		ar & make_nvp("GOptimizationAlgorithm",	boost::serialization::base_object<GOptimizationAlgorithm>(*this));
 		ar & make_nvp("nNeighborhoods_", nNeighborhoods_);
 		ar & make_nvp("nNeighborhoodMembers_", nNeighborhoodMembers_);
+		ar & make_nvp("global_best_", global_best_);
+		ar & make_nvp("local_bests_", local_bests_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -169,7 +171,33 @@ public:
 	 */
 	template <typename individual_type>
 	inline boost::shared_ptr<individual_type> getBestIndividual(){
-		// ...
+		// Check that global_best_ actually points somewhere
+		if(!global_best_) {
+			std::ostringsteam error;
+			error << "In GSwarm::getBestIndividual<>() : Error" << std::endl
+				  << "Tried to access uninitialized globally best individual." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+#ifdef DEBUG
+		// Convert to the desired target type
+		boost::shared_ptr<individual_type> p_load = boost::dynamic_pointer_cast<individual_type>(global_best_);
+
+		// Check that the conversion worked. dynamic_cast emits an empty pointer,
+		// if this was not the case.
+		if(!p_load){
+			std::ostringstream error;
+			error << "In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() : Conversion error!" << std::endl;
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw geneva_error_condition(error.str());
+		}
+
+		return p_load;
+#else
+		return boost::static_pointer_cast<individual_type>(global_best_);
+#endif /* DEBUG */
 	}
 
 	/**************************************************************************************************/
@@ -195,7 +223,7 @@ public:
 			{
 				bool isDirty = false;
 
-				information << std::setprecision(10) << "In iteration "<< gbp->getIteration() << ": " << gbp->data.at(0)->getCurrentFitness(isDirty);
+				information << std::setprecision(10) << "In iteration "<< gbp->getIteration() << ": " << global_best_->getCurrentFitness(isDirty);
 
 				if(isDirty) {
 					information << " (dirty flag is set)";
@@ -221,12 +249,18 @@ protected:
 	virtual double cycleLogic();
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual void init();
+	/** @brief Does any necessary finalization work */
+	virtual void finalize();
 
-private:
-	/** @brief Saves the state of the class to disc. Private, as we do not want to accidently trigger value calculation  */
+	/** @brief Saves the state of the class to disc. */
 	virtual void saveCheckpoint() const;
 
+	/**************************************************************************************************/
+private:
 	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
+
+	/** @brief Helper function that checks the geometries of all individuals */
+	void updatePersonalities();
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
 	std::size_t nNeighborhoodMembers_; ///< The number of individuals belonging to each neighborhood
@@ -235,7 +269,7 @@ private:
 	std::vector<boost::shared_ptr<GIndividual> > local_bests_; ///< The collection of best individuals from each neighborhood
 };
 
-/*********************************************************************************/
+/******************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

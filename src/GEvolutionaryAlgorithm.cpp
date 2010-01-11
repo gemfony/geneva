@@ -431,6 +431,9 @@ double GEvolutionaryAlgorithm::cycleLogic() {
  * actual optimization cycle starts.
  */
 void GEvolutionaryAlgorithm::init() {
+	// To be performed before any other action
+	GOptimizationAlgorithm::init();
+
 	// First check that we have been given a suitable value for the number of parents.
 	// Note that a number of checks (e.g. population size != 0) has already been done
 	// in the parent class.
@@ -476,6 +479,15 @@ void GEvolutionaryAlgorithm::init() {
 	// network environment, some individuals might not return and some individuals return
 	// late. The factual size of the population then changes and we need to take action.
 	defaultNChildren_ = getDefaultPopulationSize() - nParents_;
+}
+
+/***********************************************************************************/
+/**
+ * Does any necessary finalization work
+ */
+void GEvolutionaryAlgorithm::finalize() {
+	// Last action
+	GOptimizationAlgorithm::finalize();
 }
 
 /***********************************************************************************/

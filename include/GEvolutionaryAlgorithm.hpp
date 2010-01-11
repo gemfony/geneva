@@ -284,6 +284,8 @@ protected:
 	virtual double cycleLogic();
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual void init();
+	/** @brief Does any necessary finalization work */
+	virtual void finalize();
 
 private:
 	/** @brief Enforces a one-time selection policy of MUCOMMANU */

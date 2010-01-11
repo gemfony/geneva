@@ -42,10 +42,10 @@ namespace GenEvA {
  * The default constructor
  */
 GEAPersonalityTraits::GEAPersonalityTraits()
-	:GPersonalityTraits(),
-	 parentCounter_(0),
-	 popPos_(0),
-	 command_("")
+	: GPersonalityTraits()
+	, parentCounter_(0)
+	, popPos_(0)
+	, command_("")
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -55,10 +55,10 @@ GEAPersonalityTraits::GEAPersonalityTraits()
  * @param cp A copy of another GEAPersonalityTraits object
  */
 GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits& cp)
-	:GPersonalityTraits(cp),
-	 parentCounter_(cp.parentCounter_),
-	 popPos_(cp.popPos_),
-	 command_(cp.command_)
+	: GPersonalityTraits(cp)
+	, parentCounter_(cp.parentCounter_)
+	, popPos_(cp.popPos_)
+	, command_(cp.command_)
 { /* nothing */ }
 
 /*****************************************************************************/
