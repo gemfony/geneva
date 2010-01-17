@@ -45,6 +45,7 @@ SET ( GENEVAINCLUDES
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
 	GHelperFunctionsT.hpp
+	GIdentityAdaptorT.hpp
 	GIndividualBroker.hpp
 	GIndividual.hpp
 	GInt32.hpp

@@ -92,3 +92,6 @@
   e.g. here: http://www.boost.org/doc/libs/1_41_0/libs/serialization/doc/special.html .
 - Check the issues involved in possible differences in size of std::size_t described in 
   http://www.boost.org/doc/libs/1_41_0/libs/serialization/doc/special.html 	-> Numerics
+- Change general mutate calls (e.g. in the adaptors) to the more generic "adapt" -- a cosmetic change, but 
+  appears important in the light of the fact tha adaptions are not called mutations in optimization algorithms 
+  other than evolutionary algorithms.

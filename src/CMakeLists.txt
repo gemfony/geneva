@@ -33,6 +33,7 @@ SET ( GENEVASOURCES
 	GGaussAdaptorT
 	GGDPersonalityTraits
 	GHelperFunctionsT
+	GIdentityAdaptorT
 	GIndividual
 	GInt32
 	GInt32Collection
