@@ -381,14 +381,14 @@ public:
 	 */
 	inline void mutate(T& val)  {
 		// We only allow mutations in a certain percentage of cases
-		if(this->gr.evenRandom(0.,1.) > mutProb_) return;
+		if(mutProb_ && this->gr.evenRandom() <= mutProb_) {
+			if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
+				adaptionCounter_ = 0;
+				this->adaptMutation();
+			}
 
-		if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
-			adaptionCounter_ = 0;
-			this->adaptMutation();
+			this->customMutations(val);
 		}
-
-		this->customMutations(val);
 	}
 
 protected:

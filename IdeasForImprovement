@@ -88,3 +88,7 @@
   re-injecting the array in the random-factory's queue. Also reduces the size of the GRandom objects. Recycling should be
   triggered upon destruction of the GRandom object, or when another production mode is chosen.
 - Add checkForInequality/Dissimilarity function for boost::shared_ptr<complex_type> (useful e.g. for GSwarm)
+- Consider some optimizations for the serialization process, e.g. see the section "Class Information" discussed
+  e.g. here: http://www.boost.org/doc/libs/1_41_0/libs/serialization/doc/special.html .
+- Check the issues involved in possible differences in size of std::size_t described in 
+  http://www.boost.org/doc/libs/1_41_0/libs/serialization/doc/special.html 	-> Numerics

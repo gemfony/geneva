@@ -165,6 +165,7 @@ enum infoMode {
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
 enum adaptorId {
+	GIDENTITYADAPTOR,
 	GDOUBLEGAUSSADAPTOR,
 	GINT32GAUSSADAPTOR,
 	GBOOLEANADAPTOR,

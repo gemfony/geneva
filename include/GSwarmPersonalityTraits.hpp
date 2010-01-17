@@ -91,12 +91,6 @@ class GSwarmPersonalityTraits :public GPersonalityTraits
 	  ar & make_nvp("GPersonalityTraits", boost::serialization::base_object<GPersonalityTraits>(*this));
 	  ar & make_nvp("popPos_", popPos_);
 	  ar & make_nvp("command_", command_);
-	  ar & make_nvp("velocity_", velocity_);
-	  ar & make_nvp("lBestParm_", lBestParm_);
-	  ar & make_nvp("gBestParm_", gBestParm_);
-	  ar & make_nvp("w_", w_);
-	  ar & make_nvp("c1_", c1_);
-	  ar & make_nvp("c2_", c2_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -137,20 +131,7 @@ private:
 	std::size_t popPos_;
 	/** @brief The command to be performed by remote clients */
 	std::string command_;
-	/** @brief A vector containing velocity information */
-	std::vector<double> velocity_;
-	/** @brief A vector containing the locally best parameters */
-	std::vector<double> lBestParm_;
-	/** @brief A vector containing the globally best parameters */
-	std::vector<double> gBestParm_;
-	/** @brief The velocity multiplier */
-	double w_;
-	/** @brief A multiplier for the difference of individual and local best */
-	double c1_;
-	/** @brief A multiplier for the difference of individual and global best */
-	double c2_;
 };
-
 } /* namespace GenEvA */
 } /* namespace Gem */
 
