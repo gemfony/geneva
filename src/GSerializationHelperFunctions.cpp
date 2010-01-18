@@ -400,6 +400,43 @@ std::istream& operator>>(std::istream& i, Gem::Util::rnrGenerationMode& rnrgen){
 }
 
 /*********************************************************************/
+/**
+ * Puts a Gem::Util::triboolStates item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param tbs the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Util::triboolStates& tbs){
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(tbs);
+	o << tmp;
+	return o;
+}
+
+/*********************************************************************/
+/**
+ * Reads a Gem::Util::triboolStates item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param tbs The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Util::triboolStates& tbs){
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	tbs = boost::numeric_cast<Gem::Util::triboolStates>(tmp);
+#else
+	tbs = static_cast<Gem::Util::triboolStates>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/*********************************************************************/
+
+
 } /* namespace Util */
 
 } /* namespace Gem */

@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 ADD_SUBDIRECTORY (threadpool)
 
 SET ( THIRDPARTYBOOSTINCLUDES
+	GTriboolSerialization.hpp
 	threadpool.hpp
 )
 

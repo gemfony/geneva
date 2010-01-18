@@ -57,6 +57,7 @@ SET ( GENEVASOURCES
 	GRandomFactory
 	GSerializationHelperFunctions
 #	GSwarm
+#	GSwarmAdaptor
 	GSwarmPersonalityTraits
 	GThreadGroup
 )

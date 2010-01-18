@@ -39,6 +39,7 @@
 // Boost headers go here
 
 #include <boost/cstdint.hpp>
+#include <boost/logic/tribool.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -59,6 +60,7 @@
 
 // Geneva headers go here
 
+#include "thirdparty/boost/GTriboolSerialization.hpp"
 #include "GObject.hpp"
 #include "GRandom.hpp"
 #include "GEnums.hpp"
@@ -114,6 +116,7 @@ class GAdaptorT:
 		ar & make_nvp("adaptionCounter_", adaptionCounter_);
 		ar & make_nvp("adaptionThreshold_", adaptionThreshold_);
 		ar & make_nvp("mutProb_", mutProb_);
+		ar & make_nvp("mutationMode_", mutationMode_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -122,12 +125,13 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GAdaptorT():
-		GObject(),
-		gr(Gem::Util::DEFAULTRNRGENMODE),
-		adaptionCounter_(0),
-		adaptionThreshold_(0),
-		mutProb_(DEFAULTMUTPROB)
+	GAdaptorT()
+		: GObject()
+		, gr(Gem::Util::DEFAULTRNRGENMODE)
+		, adaptionCounter_(0)
+		, adaptionThreshold_(0)
+		, mutProb_(DEFAULTMUTPROB)
+		, mutationMode_(boost::logic::indeterminate)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -135,12 +139,13 @@ public:
 	 * This constructor allows to set the probability with which a mutation is indeed
 	 * performed.
 	 */
-	GAdaptorT(const double& prob):
-		GObject(),
-		gr(Gem::Util::DEFAULTRNRGENMODE),
-		adaptionCounter_(0),
-		adaptionThreshold_(0),
-		mutProb_(prob)
+	GAdaptorT(const double& prob)
+		: GObject()
+		, gr(Gem::Util::DEFAULTRNRGENMODE)
+		, adaptionCounter_(0)
+		, adaptionThreshold_(0)
+		, mutProb_(prob)
+		, mutationMode_(boost::logic::indeterminate)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -149,12 +154,13 @@ public:
 	 *
 	 * @param cp A copy of another GAdaptorT<T>
 	 */
-	GAdaptorT(const GAdaptorT<T>& cp):
-		GObject(cp),
-		gr(cp.gr),
-		adaptionCounter_(cp.adaptionCounter_),
-		adaptionThreshold_(cp.adaptionThreshold_),
-		mutProb_(cp.mutProb_)
+	GAdaptorT(const GAdaptorT<T>& cp)
+		: GObject(cp)
+		, gr(cp.gr)
+		, adaptionCounter_(cp.adaptionCounter_)
+		, adaptionThreshold_(cp.adaptionThreshold_)
+		, mutProb_(cp.mutProb_)
+		, mutationMode_(cp.mutationMode_)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -198,6 +204,7 @@ public:
 		adaptionCounter_ = gat->adaptionCounter_;
 		adaptionThreshold_ = gat->adaptionThreshold_;
 		mutProb_ = gat->mutProb_;
+		mutationMode_ = gat->mutationMode_;
 	}
 
 	/***********************************************************************************/
@@ -247,6 +254,7 @@ public:
 		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
 		if(checkForInequality("GAdaptorT", mutProb_, gat_load->mutProb_,"mutProb_", "gat_load->mutProb_", expected)) return false;
+		if(checkForInequality("GAdaptorT", mutationMode_, gat_load->mutationMode_,"mutationMode_", "gat_load->mutationMode_", expected)) return false;
 
 		return true;
 	}
@@ -273,6 +281,7 @@ public:
 		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", mutProb_, gat_load->mutProb_, limit, "mutProb_", "gat_load->mutProb_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", mutationMode_, gat_load->mutationMode_, limit, "mutationMode_", "gat_load->mutationMode_", expected)) return false;
 
 		return true;
 	}
@@ -373,6 +382,29 @@ public:
 
 	/***********************************************************************************/
 	/**
+	 * Allows to specify whether mutations should happen always, never, or with a given
+	 * probability. This uses the boost::logic::tribool class. The function is declared
+	 * virtual so adaptors requiring mutations to happen always or never can prevent
+	 * resetting of the mutationMode_ variable.
+	 *
+	 * @param mutationMode The desired mode (always/never/with a given probability)
+	 */
+	virtual void setMutationMode(boost::logic::tribool mutationMode) {
+		mutationMode_ = mutationMode;
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Returns the current value of the mutationMode_ variable
+	 *
+	 * @return The current value of the mutationMode_ variable
+	 */
+	boost::logic::tribool getMutationMode() const {
+		return mutationMode_;
+	}
+
+	/***********************************************************************************/
+	/**
 	 * Common interface for all adaptors to the mutation
 	 * functionality. The user specifies this functionality in the
 	 * customMutations() function.
@@ -380,15 +412,21 @@ public:
 	 * @param val The value that needs to be mutated
 	 */
 	inline void mutate(T& val)  {
-		// We only allow mutations in a certain percentage of cases
-		if(mutProb_ && this->gr.evenRandom() <= mutProb_) {
-			if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
-				adaptionCounter_ = 0;
-				this->adaptMutation();
-			}
+		if(boost::logic::indeterminate(mutationMode_)) {// The most likely case
+			// We only allow mutations in a certain percentage of cases
+			if(this->gr.evenRandom() <= mutProb_) {
+				if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
+					adaptionCounter_ = 0;
+					this->adaptMutation();
+				}
 
+				this->customMutations(val);
+			}
+		}
+		else if(mutationMode_ == true) { // always mutate
 			this->customMutations(val);
 		}
+		// No need to test for mutationMode_ == false as no action is needed in this case
 	}
 
 protected:
@@ -425,6 +463,7 @@ private:
 	boost::uint32_t adaptionCounter_; ///< A local counter
 	boost::uint32_t adaptionThreshold_; ///< Specifies after how many mutations the mutation itself should be adapted
 	double mutProb_; ///< internal representation of the mutation probability
+	boost::logic::tribool mutationMode_; ///< false == never mutate; indeterminate == mutate with mutProb_ probability; true == always mutate
 };
 
 /******************************************************************************************/

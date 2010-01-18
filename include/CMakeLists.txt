@@ -80,6 +80,7 @@ SET ( GENEVAINCLUDES
 	GStdPtrVectorInterfaceT.hpp
 	GStdSimpleVectorInterfaceT.hpp
 #	GSwarm.hpp
+	GSwarmAdaptor.hpp
 	GSwarmPersonalityTraits.hpp
 	GThreadGroup.hpp
 )

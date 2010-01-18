@@ -1,5 +1,5 @@
 /**
- * @file GIdentityAdaptorT.hpp
+ * @file GSwarmAdaptor.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -40,8 +40,8 @@
 #include <boost/limits.hpp>
 #include <boost/cast.hpp>
 
-#ifndef GIDENTITYADAPTORT_HPP_
-#define GIDENTITYADAPTORT_HPP_
+#ifndef GSWARMADAPTOR_HPP_
+#define GSWARMADAPTOR_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -50,6 +50,8 @@
 
 // GenEvA headers go here
 #include "GAdaptorT.hpp"
+#include "GBoundedDouble.hpp"
+#include "GDoubleGaussAdaptor.hpp"
 #include "GObject.hpp"
 #include "GRandom.hpp"
 #include "GenevaExceptions.hpp"
@@ -60,12 +62,11 @@ namespace GenEvA {
 
 /************************************************************************************************/
 /**
- * GIdentityAdaptorT simply returns the unchanged value. It is used as the default adaptor, when
- * no adaptor has been registered or if certain values should remain unchanged.
+ * This adaptor implements the mutations performed by swarm algorithms. Just like swarm algorithms
+ * it is specific to double values.
  */
-template<typename T>
-class GIdentityAdaptorT:
-public GAdaptorT<T>
+class GSwarmAdaptor:
+public GAdaptorT<double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -79,24 +80,24 @@ public GAdaptorT<T>
 public:
 	/********************************************************************************************/
 	/**
-	 * The standard constructor.
+	 * The standard constructor. We want to always perform mutations when this adaptor is called.
 	 */
-	GIdentityAdaptorT()
+	GSwarmAdaptor()
 	:GAdaptorT<T> ()
 	 {
-		GAdaptorT<T>::setMutationMode(false);
+		GAdaptorT<double>::setMutationMode(true);
 	 }
 
 	/********************************************************************************************/
 	/**
 	 * A standard copy constructor.
 	 *
-	 * @param cp Another GIdentityAdaptorT object
+	 * @param cp Another GSwarmAdaptor object
 	 */
-	GIdentityAdaptorT(const GIdentityAdaptorT<T>& cp)
+	GSwarmAdaptor(const GSwarmAdaptor<T>& cp)
 	:GAdaptorT<T>(cp)
 	 {
-		GAdaptorT<T>::setMutationMode(false);
+		GAdaptorT<double>::setMutationMode(true);
 	 }
 
 	/********************************************************************************************/
@@ -104,32 +105,32 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	~GIdentityAdaptorT()
+	~GSwarmAdaptor()
 	{ /* nothing */ }
 
 	/********************************************************************************************/
 	/**
-	 * A standard assignment operator for GIdentityAdaptorT objects,
+	 * A standard assignment operator for GSwarmAdaptor objects,
 	 *
-	 * @param cp A copy of another GIdentityAdaptorT object
+	 * @param cp A copy of another GSwarmAdaptor object
 	 */
-	const GIdentityAdaptorT<T>& operator=(const GIdentityAdaptorT<T>& cp)
+	const GSwarmAdaptor<T>& operator=(const GSwarmAdaptor<T>& cp)
 	{
-		GIdentityAdaptorT<T>::load(&cp);
+		GSwarmAdaptor<T>::load(&cp);
 		return *this;
 	}
 
 	/********************************************************************************************/
 	/**
-	 * This function loads the data of another GIdentityAdaptorT, camouflaged as a GObject.
+	 * This function loads the data of another GSwarmAdaptor, camouflaged as a GObject.
 	 *
-	 * @param A copy of another GIdentityAdaptorT, camouflaged as a GObject
+	 * @param A copy of another GSwarmAdaptor, camouflaged as a GObject
 	 */
 	void load(const GObject *cp)
 	{
 		// Convert GObject pointer to local format
 		// (also checks for self-assignments in DEBUG mode)
-		const GIdentityAdaptorT<T> *gifa = this->conversion_cast(cp, this);
+		const GSwarmAdaptor<T> *gifa = this->conversion_cast(cp, this);
 		// Load the data of our parent class ...
 		GAdaptorT<T>::load(cp);
 		// no local data
@@ -141,44 +142,45 @@ public:
 	 *
 	 * @return A deep copy of this object
 	 */
-	GObject *clone() const	{
-		return new GIdentityAdaptorT<T>(*this);
-	}
+	GObject *clone() const
+			{
+		return new GSwarmAdaptor<T>(*this);
+			}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GIdentityAdaptorT<T> object
+	 * Checks for equality with another GSwarmAdaptor<T> object
 	 *
-	 * @param  cp A constant reference to another GIdentityAdaptorT<T> object
+	 * @param  cp A constant reference to another GSwarmAdaptor<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GIdentityAdaptorT<T>& cp) const {
-		return GIdentityAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
+	bool operator==(const GSwarmAdaptor<T>& cp) const {
+		return GSwarmAdaptor<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for inequality with another GIdentityAdaptorT<T> object
+	 * Checks for inequality with another GSwarmAdaptor<T> object
 	 *
-	 * @param  cp A constant reference to another GIdentityAdaptorT<T> object
+	 * @param  cp A constant reference to another GSwarmAdaptor<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GIdentityAdaptorT<T>& cp) const {
-		return !GIdentityAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
+	bool operator!=(const GSwarmAdaptor<T>& cp) const {
+		return !GSwarmAdaptor<T>::isEqualTo(cp, boost::logic::indeterminate);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GIdentityAdaptorT<T> object Equality means
+	 * Checks for equality with another GSwarmAdaptor<T> object Equality means
 	 * that all individual sub-values are equal and that the parent class is equal.
 	 *
-	 * @param  cp A constant reference to another GIdentityAdaptorT<T> object
+	 * @param  cp A constant reference to another GSwarmAdaptor<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
 		using namespace Gem::Util;
-		// Check that we are indeed dealing with a GIdentityAdaptorT reference
-		const GIdentityAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
+		// Check that we are indeed dealing with a GSwarmAdaptor reference
+		const GSwarmAdaptor<T> *gifat_load = GObject::conversion_cast(&cp,  this);
 		// Check our parent class
 		if(!GAdaptorT<T>::isEqualTo(*gifat_load, expected)) return false;
 		// no local data
@@ -187,18 +189,18 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Checks for similarity with another GIdentityAdaptorT<T> object. Similarity means
+	 * Checks for similarity with another GSwarmAdaptor<T> object. Similarity means
 	 * that all double values are similar to each other within a given limit and that all other
 	 * values are equal. Also, parent classes must be similar to each other.
 	 *
-	 * @param  cp A constant reference to another GIdentityAdaptorT<T> object
+	 * @param  cp A constant reference to another GSwarmAdaptor<T> object
 	 * @param limit A double value specifying the acceptable level of differences of floating point values
 	 * @return A boolean indicating whether both objects are similar to each other
 	 */
 	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
 		using namespace Gem::Util;
-		// Check that we are indeed dealing with a GIdentityAdaptorT reference
-		const GIdentityAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
+		// Check that we are indeed dealing with a GSwarmAdaptor reference
+		const GSwarmAdaptor<T> *gifat_load = GObject::conversion_cast(&cp,  this);
 		// First check our parent class
 		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit, expected))  return false;
 		// no local data
@@ -223,7 +225,7 @@ public:
 	 */
 	virtual void setMutationMode(boost::logic::tribool mutationMode) {
 		std::ostringstream error;
-		error << "In GIdentityAdaptor::setMutationMode(): Error!" << std::endl
+		error << "In GSwarmAdaptor::setMutationMode(): Error!" << std::endl
 			  << "This function should not have been called for this adaptor" << std::endl;
 		throw(Gem::GenEvA::geneva_error_condition(error.str()));
 	}
@@ -238,14 +240,14 @@ protected:
 	virtual void customMutations(T& value) {
 #ifdef DEBUG
 		if(typeid(T) != typeid(double) &&
-		   typeid(T) != typeid(bool) &&
-		   typeid(T) != typeid(char) &&
-		   typeid(T) != typeid(boost::int32_t)) {
-				std::ostringstream error;
-				error << "In GIdentityAdaptorT::customMutations() : Error!" << std::endl
-					  << "Class was instantiated with a type it was not designed for." << std::endl
-					  << "Typeid is " << typeid(value).name() << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				typeid(T) != typeid(bool) &&
+				typeid(T) != typeid(char) &&
+				typeid(T) != typeid(boost::int32_t)) {
+			std::ostringstream error;
+			error << "In GSwarmAdaptor::customMutations() : Error!" << std::endl
+					<< "Class was instantiated with a type it was not designed for." << std::endl
+					<< "Typeid is " << typeid(value).name() << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 #endif
 
@@ -256,4 +258,4 @@ protected:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-#endif /* GIDENTITYADAPTORT_HPP_ */
+#endif /* GSWARMADAPTOR_HPP_ */

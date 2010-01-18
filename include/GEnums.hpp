@@ -231,6 +231,16 @@ enum rnrGenerationMode {
 const rnrGenerationMode DEFAULTRNRGENMODE=RNRFACTORY;
 
 /**********************************************************************************************/
+/**
+ * Needed for the serialization of boost::logic::tribool
+ */
+enum triboolStates {
+	FALSE,
+	INDETERMINATE,
+	TRUE
+};
+
+/**********************************************************************************************/
 
 } /* namespace Util */
 
