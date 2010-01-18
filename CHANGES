@@ -19,6 +19,7 @@ The main changes for this release include:
    to GMultiThreadedEA
  - Implemented a new way to select views of vectors of boost::shared_ptr<GIndividual>, including 
    automatic conversion ("attachViewTo<>() )
+ - Allowed adaptors to choose from "always mutate", "never mutate" and "mutate with a certain likelihood"
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009

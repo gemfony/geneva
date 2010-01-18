@@ -39,13 +39,22 @@
 #pragma once
 #endif
 
-/** The minimum allowed version of the Boost library */
-#define ALLOWED_BOOST_VERSION 103600
-
 #include <boost/version.hpp>
-#if BOOST_VERSION < ALLOWED_BOOST_VERSION
-#error "Error: Boost has incorrect version !"
-#endif /* BOOST_VERSION */
+
+/** The minimum allowed version of the Boost library */
+#define MIN_BOOST_VERSION 103600
+
+#if BOOST_VERSION < MIN_BOOST_VERSION
+#error "Boost version is too old !"
+#endif /* MIN_BOOST_VERSION */
+
+#if BOOST_VERSION == 103900
+#warning "Programs might segfault on exit when compiled with Boost 1.39. This will likely have no effect on program results, though."
+#endif
+
+#if BOOST_VERSION == 104100
+#warning "There seems to be a memory leak in conjunction with Boost 1.41"
+#endif /* Boost 1.41 */
 
 /** The current version of the Geneva library */
 #define GENEVAVERSION 0070
