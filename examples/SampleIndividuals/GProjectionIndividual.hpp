@@ -97,10 +97,10 @@ struct projectionData
 
 		ar.template register_type<projectionData>();
 
-		ar & make_nvp("source", source);
-		ar & make_nvp("nData", nData);
-		ar & make_nvp("nDimOrig", nDimOrig);
-		ar & make_nvp("nDimTarget", nDimTarget);
+		ar & BOOST_SERIALIZATION_NVP(source)
+		   & BOOST_SERIALIZATION_NVP(nData)
+		   & BOOST_SERIALIZATION_NVP(nDimOrig)
+		   & BOOST_SERIALIZATION_NVP(nDimTarget);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -140,11 +140,11 @@ class GProjectionIndividual
 
 		ar.template register_type<GProjectionIndividual>();
 
-		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
-		ar & make_nvp("source_", source_);
-		ar & make_nvp("nData_", nData_);
-		ar & make_nvp("nDimOrig_", nDimOrig_);
-		ar & make_nvp("nDimTarget_", nDimTarget_);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		   & BOOST_SERIALIZATION_NVP(source_)
+		   & BOOST_SERIALIZATION_NVP(nData_)
+		   & BOOST_SERIALIZATION_NVP(nDimOrig_)
+		   & BOOST_SERIALIZATION_NVP(nDimTarget_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

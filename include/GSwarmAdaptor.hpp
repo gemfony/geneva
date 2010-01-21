@@ -85,8 +85,7 @@ class GSwarmAdaptor
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		// ar & make_nvp("GAdaptorT", boost::serialization::base_object<GAdaptorT<double> >(*this));
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GAdaptorT<double>) // TODO: needs to be checked
+		ar & make_nvp("GAdaptorT_double", boost::serialization::base_object<GAdaptorT<double> >(*this))
 		   & BOOST_SERIALIZATION_NVP(omega_)
 		   & BOOST_SERIALIZATION_NVP(c1_)
 		   & BOOST_SERIALIZATION_NVP(c2_);

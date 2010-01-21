@@ -71,8 +71,12 @@ class GParameterT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this));
-	  ar & make_nvp("val_", val_);
+
+  	  // Register this class
+	  ar.template register_type<GParameterT<T> >();
+
+	  ar & make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this))
+	     & BOOST_SERIALIZATION_NVP(val_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

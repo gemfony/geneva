@@ -100,12 +100,12 @@ public:
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("dArray_", dArray_);
-		ar & make_nvp("lArray_", lArray_);
-		ar & make_nvp("bArray_", bArray_);
-		ar & make_nvp("cArray_", cArray_);
-		ar & make_nvp("value_", value_);
-		ar & make_nvp("hasValue_", hasValue_);
+		ar & BOOST_SERIALIZATION_NVP(dArray_)
+		   & BOOST_SERIALIZATION_NVP(lArray_)
+		   & BOOST_SERIALIZATION_NVP(bArray_)
+		   & BOOST_SERIALIZATION_NVP(cArray_)
+		   & BOOST_SERIALIZATION_NVP(value_)
+		   & BOOST_SERIALIZATION_NVP(hasValue_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

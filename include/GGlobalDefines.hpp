@@ -50,7 +50,7 @@
 
 #if BOOST_VERSION == 103900
 #warning "Programs might segfault on exit when compiled with Boost 1.39. This will likely have no effect on program results, though."
-#endif
+#endif /* BOOST 1.39 */
 
 #if BOOST_VERSION == 104100
 #warning "There seems to be a memory leak in conjunction with Boost 1.41"

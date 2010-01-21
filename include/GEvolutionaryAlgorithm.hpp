@@ -116,13 +116,13 @@ class GEvolutionaryAlgorithm
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GOptimizationAlgorithm",	boost::serialization::base_object<GOptimizationAlgorithm>(*this));
-		ar & make_nvp("nParents_", nParents_);
-		ar & make_nvp("microTrainingInterval_", microTrainingInterval_);
-		ar & make_nvp("recombinationMethod_", recombinationMethod_);
-		ar & make_nvp("smode_", smode_);
-		ar & make_nvp("defaultNChildren_", defaultNChildren_);
-		ar & make_nvp("oneTimeMuCommaNu_", oneTimeMuCommaNu_);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizationAlgorithm)
+		   & BOOST_SERIALIZATION_NVP(nParents_)
+		   & BOOST_SERIALIZATION_NVP(microTrainingInterval_)
+		   & BOOST_SERIALIZATION_NVP(recombinationMethod_)
+		   & BOOST_SERIALIZATION_NVP(smode_)
+		   & BOOST_SERIALIZATION_NVP(defaultNChildren_)
+		   & BOOST_SERIALIZATION_NVP(oneTimeMuCommaNu_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

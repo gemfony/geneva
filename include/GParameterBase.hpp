@@ -85,8 +85,9 @@ class GParameterBase:
     template<typename Archive>
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
-      ar & make_nvp("GObject",boost::serialization::base_object<GObject>(*this));
-      ar & make_nvp("mutationsActive_", mutationsActive_);
+
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+         & BOOST_SERIALIZATION_NVP(mutationsActive_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:

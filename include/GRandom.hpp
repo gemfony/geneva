@@ -109,14 +109,18 @@ class GRandom
     template<typename Archive>
     void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
-      ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
-      ar & make_nvp("initialSeed_", initialSeed_);
+
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+         & BOOST_SERIALIZATION_NVP(rnrGenerationMode_)
+         & BOOST_SERIALIZATION_NVP(initialSeed_);
     }
 
     template<typename Archive>
     void load(Archive & ar, const unsigned int){
         using boost::serialization::make_nvp;
-        ar & make_nvp("rnrGenerationMode_", rnrGenerationMode_);
+
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+           & BOOST_SERIALIZATION_NVP(rnrGenerationMode_);
 
         switch(rnrGenerationMode_) {
         case Gem::Util::RNRFACTORY:
@@ -131,7 +135,7 @@ class GRandom
         	break;
         };
 
-        ar & make_nvp("initialSeed_", initialSeed_);
+        ar & BOOST_SERIALIZATION_NVP(initialSeed_);
 
         // Make sure we use the correct seed
         linCongr_.seed(boost::numeric_cast<boost::uint64_t>(initialSeed_));

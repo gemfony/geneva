@@ -80,9 +80,10 @@ class GSwarmPersonalityTraits :public GPersonalityTraits
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & make_nvp("GPersonalityTraits", boost::serialization::base_object<GPersonalityTraits>(*this));
-	  ar & make_nvp("popPos_", popPos_);
-	  ar & make_nvp("command_", command_);
+
+	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+	     & BOOST_SERIALIZATION_NVP(popPos_)
+	     & BOOST_SERIALIZATION_NVP(command_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

@@ -79,12 +79,16 @@ class GFunctionIndividual: public GParameterSet
     {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
-		ar & make_nvp("demoFunction_", demoFunction_);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		   & BOOST_SERIALIZATION_NVP(demoFunction_);
+
 
 		// add all local variables here, if you want them to be serialized. E.g.:
 		// ar & make_nvp("myLocalVar_",myLocalVar_);
-		// This also works with objects, if they have a corresponding function.
+		// or
+		// ar & BOOST_SERIALIZATION_NVP(myLocalVar);
+		// This also works with objects, if they have a corresponding serialize() function.
+		// The first function can be necessary when dealing with templates
     }
 
     template<class Archive>

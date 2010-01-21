@@ -77,8 +77,9 @@ class GMutableSetT:
     template<typename Archive>
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
-      ar & make_nvp("GIndividual",boost::serialization::base_object<GIndividual>(*this));
-      ar & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
+
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GIndividual)
+         & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 

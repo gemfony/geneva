@@ -100,10 +100,10 @@ class GNumericParameterT {
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
 
-      ar & make_nvp("param_", param_);
-      ar & make_nvp("lowerBoundary_", lowerBoundary_);
-      ar & make_nvp("upperBoundary_", upperBoundary_);
-      ar & make_nvp("precision_", precision_);
+      ar & BOOST_SERIALIZATION_NVP(param_)
+         & BOOST_SERIALIZATION_NVP(lowerBoundary_)
+         & BOOST_SERIALIZATION_NVP(upperBoundary_)
+         & BOOST_SERIALIZATION_NVP(precision_);
     }
     ///////////////////////////////////////////////////////////////////////
 

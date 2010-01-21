@@ -78,13 +78,15 @@ namespace Gem
 
       template<typename Archive>
       void serialize(Archive & ar, const unsigned int) {
-	using boost::serialization::make_nvp;
+    	  using boost::serialization::make_nvp;
 
-	ar & make_nvp("GParameterSet", boost::serialization::base_object<GParameterSet>(*this));
+    	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 
-	/* Add your own class-variables here in the following way:
-	ar & make_nvp("myVar", myVar);
-	*/
+    	  /* Add your own class-variables here in the following way:
+			ar & BOOST_SERIALIZATION_NVP(myVar);
+			or
+			ar & make_nvp("myVar", myVar); // The latter form can be necessary when dealing with templates
+	       */
       }
       ///////////////////////////////////////////////////////////////////////
 

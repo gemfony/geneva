@@ -80,9 +80,9 @@ class GMultiThreadedEA
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GBTGEvolutionaryAlgorithm",
-				boost::serialization::base_object<GEvolutionaryAlgorithm>(*this));
-		ar & make_nvp("nThreads_", nThreads_);
+
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GEvolutionaryAlgorithm)
+		   & BOOST_SERIALIZATION_NVP(nThreads_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

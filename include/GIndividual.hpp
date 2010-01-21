@@ -92,17 +92,18 @@ class GIndividual
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
-	  ar & make_nvp("currentFitness_",currentFitness_);
-	  ar & make_nvp("bestPastFitness_", bestPastFitness_);
-	  ar & make_nvp("nStalls_", nStalls_);
-	  ar & make_nvp("dirtyFlag_",dirtyFlag_);
-	  ar & make_nvp("allowLazyEvaluation_",allowLazyEvaluation_);
-	  ar & make_nvp("processingCycles_", processingCycles_);
-	  ar & make_nvp("maximize_", maximize_);
-	  ar & make_nvp("parentAlgIteration_", parentAlgIteration_);
-	  ar & make_nvp("pers_", pers_);
-	  ar & make_nvp("pt_ptr_", pt_ptr_);
+
+	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+	     & BOOST_SERIALIZATION_NVP(currentFitness_)
+	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
+	     & BOOST_SERIALIZATION_NVP(nStalls_)
+	     & BOOST_SERIALIZATION_NVP(dirtyFlag_)
+	     & BOOST_SERIALIZATION_NVP(allowLazyEvaluation_)
+	     & BOOST_SERIALIZATION_NVP(processingCycles_)
+	     & BOOST_SERIALIZATION_NVP(maximize_)
+	     & BOOST_SERIALIZATION_NVP(parentAlgIteration_)
+	     & BOOST_SERIALIZATION_NVP(pers_)
+	     & BOOST_SERIALIZATION_NVP(pt_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

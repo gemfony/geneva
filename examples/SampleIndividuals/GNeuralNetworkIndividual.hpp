@@ -104,8 +104,8 @@ struct trainingSet
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("Input", Input);
-		ar & make_nvp("Output", Output);
+		ar & BOOST_SERIALIZATION_NVP(Input)
+		   & BOOST_SERIALIZATION_NVP(Output);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -129,7 +129,7 @@ struct trainingData
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("data", data);
+		ar & BOOST_SERIALIZATION_NVP(data);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -157,10 +157,10 @@ class GNeuralNetworkIndividual
     {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
-		ar & make_nvp("architecture_",architecture_);
-		ar & make_nvp("tD_", tD_);
-		ar & make_nvp("transferMode_", transferMode_);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		   & BOOST_SERIALIZATION_NVP(architecture_)
+		   & BOOST_SERIALIZATION_NVP(tD_)
+		   & BOOST_SERIALIZATION_NVP(transferMode_);
     }
 
     template<class Archive>

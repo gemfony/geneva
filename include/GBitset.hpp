@@ -70,7 +70,7 @@ class GBitset
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GParameterBaseWithAdaptorsT_bool", boost::serialization::base_object<GParameterBaseWithAdaptorsT<bool> >(*this));
-		ar & make_nvp("data", data);
+		ar & BOOST_SERIALIZATION_NVP(data);
 	}
 	///////////////////////////////////////////////////////////////////////
 

@@ -86,7 +86,8 @@ class GPersonalityTraits :public GObject
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
+
+	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject);
 	}
 	///////////////////////////////////////////////////////////////////////
 

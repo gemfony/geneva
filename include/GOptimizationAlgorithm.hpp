@@ -97,22 +97,22 @@ class GOptimizationAlgorithm
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & make_nvp("GMutableSetT_GIndividual", boost::serialization::base_object<GMutableSetT<Gem::GenEvA::GIndividual> >(*this));
-	  ar & make_nvp("gr", gr);
-	  ar & make_nvp("iteration_", iteration_);
-	  ar & make_nvp("maxIteration_", maxIteration_);
-	  ar & make_nvp("maxStallIteration_", maxStallIteration_);
-	  ar & make_nvp("reportIteration_", reportIteration_);
-	  ar & make_nvp("defaultPopulationSize_", defaultPopulationSize_);
-	  ar & make_nvp("bestPastFitness_", bestPastFitness_);
-	  ar & make_nvp("maximize_", maximize_);
-	  ar & make_nvp("stallCounter_", stallCounter_);
-	  ar & make_nvp("cpInterval_", cpInterval_);
-	  ar & make_nvp("cpBaseName_", cpBaseName_);
-	  ar & make_nvp("cpDirectory_", cpDirectory_);
-	  ar & make_nvp("qualityThreshold_", qualityThreshold_);
-	  ar & make_nvp("hasQualityThreshold_", hasQualityThreshold_);
-	  ar & make_nvp("maxDuration_", maxDuration_);
+	  ar & make_nvp("GMutableSetT_GIndividual", boost::serialization::base_object<GMutableSetT<Gem::GenEvA::GIndividual> >(*this))
+	     & BOOST_SERIALIZATION_NVP(gr)
+	     & BOOST_SERIALIZATION_NVP(iteration_)
+	     & BOOST_SERIALIZATION_NVP(maxIteration_)
+	     & BOOST_SERIALIZATION_NVP(maxStallIteration_)
+	     & BOOST_SERIALIZATION_NVP(reportIteration_)
+	     & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
+	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
+	     & BOOST_SERIALIZATION_NVP(maximize_)
+	     & BOOST_SERIALIZATION_NVP(stallCounter_)
+  	     & BOOST_SERIALIZATION_NVP(cpInterval_)
+	     & BOOST_SERIALIZATION_NVP(cpBaseName_)
+	     & BOOST_SERIALIZATION_NVP(cpDirectory_)
+	     & BOOST_SERIALIZATION_NVP(qualityThreshold_)
+	     & BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
+	     & BOOST_SERIALIZATION_NVP(maxDuration_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

@@ -80,7 +80,7 @@ class GTestIndividual1 :public GParameterSet
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GParameterSet", boost::serialization::base_object<GParameterSet>(*this));
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
 	}
 	///////////////////////////////////////////////////////////////////////
 

@@ -75,8 +75,8 @@ class GDelayIndividual: public GParameterSet
     {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
-		ar & make_nvp("sleepTime_", sleepTime_);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		   & BOOST_SERIALIZATION_NVP(sleepTime_);
     }
 	///////////////////////////////////////////////////////////////////////
 

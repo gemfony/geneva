@@ -89,9 +89,9 @@ class GBoundedNumT
 
 		// Save data
 		ar & make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T> >(*this));
-		ar & make_nvp("internalValue_", internalValue_);
-		ar & make_nvp("lowerBoundary_", lowerBoundary_);
-		ar & make_nvp("upperBoundary_", upperBoundary_);
+		ar & BOOST_SERIALIZATION_NVP(internalValue_)
+		   & BOOST_SERIALIZATION_NVP(lowerBoundary_)
+		   & BOOST_SERIALIZATION_NVP(upperBoundary_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

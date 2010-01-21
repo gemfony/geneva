@@ -94,11 +94,11 @@ class GSwarm
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GOptimizationAlgorithm",	boost::serialization::base_object<GOptimizationAlgorithm>(*this));
-		ar & make_nvp("nNeighborhoods_", nNeighborhoods_);
-		ar & make_nvp("nNeighborhoodMembers_", nNeighborhoodMembers_);
-		ar & make_nvp("global_best_", global_best_);
-		ar & make_nvp("local_bests_", local_bests_);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizationAlgorithm)
+		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
+		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
+		   & BOOST_SERIALIZATION_NVP(global_best_)
+		   & BOOST_SERIALIZATION_NVP(local_bests_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

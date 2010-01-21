@@ -71,11 +71,14 @@ class GBoundedParabolaIndividual
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GParameterSet",
-				boost::serialization::base_object<GParameterSet>(*this));
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+
 		// add all local variables here, if you want them to be serialized. E.g.:
 		// ar & make_nvp("myLocalVar_",myLocalVar_);
+		// or
+		// ar & BOOST_SERIALIZATION_NVP(myLocalVar);
 		// This also works with objects, if they have a corresponding serialize() function.
+		// The first function can be necessary when dealing with templates
 	}
 	///////////////////////////////////////////////////////////////////////
 

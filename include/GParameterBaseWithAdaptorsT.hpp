@@ -88,10 +88,12 @@ class GParameterBaseWithAdaptorsT:
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this));
-		ar & make_nvp("hasLocalAdaptor_", hasLocalAdaptor_);
+
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterBase)
+		   & BOOST_SERIALIZATION_NVP(hasLocalAdaptor_);
+
 		if(hasLocalAdaptor_) {
-			ar & make_nvp("adaptor_", adaptor_);
+			ar & BOOST_SERIALIZATION_NVP(adaptor_);
 		}
 	}
 	///////////////////////////////////////////////////////////////////////
