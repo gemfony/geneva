@@ -53,7 +53,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/limits.hpp>
 #include <boost/filesystem.hpp>

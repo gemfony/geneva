@@ -40,7 +40,6 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/bind.hpp>
-#include <boost/exception.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/condition_variable.hpp>
@@ -122,7 +121,7 @@ private:
   boost::thread thread1, thread2, thread3;
 };
 
-main(){
+int main(){
   test Test;
 
   std::cout << "Starting threads" << std::endl;

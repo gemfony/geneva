@@ -67,14 +67,6 @@
 namespace Gem {
 namespace GenEvA {
 
-/** @brief The default multiplier for velocities */
-const double DEFAULTW = 0.95;
-/** @brief The default multiplier for the difference between individual and local best */
-const double DEFAULTC1 = 2.;
-/** @brief The default multiplier for the difference between individual and global best */
-const double DEFAULTC2 = 2.;
-
-
 /*********************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific

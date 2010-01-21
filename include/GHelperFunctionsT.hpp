@@ -172,6 +172,7 @@ bool checkForInequality(const std::string& className,
 				      << y_name << " (type " << typeid(y).name() << ") = " << y << std::endl
 				      << "when equality was expected" << std::endl;
 		}
+
 		result = true;
 	}
 
@@ -596,6 +597,9 @@ bool checkForDissimilarity(const std::string& className,
  */
 template <> bool checkForDissimilarity<double>(const std::string&, const double&,	const double&, const double&, const std::string&, const std::string&, const boost::logic::tribool& expected);
 template <> bool checkForDissimilarity<double>(const std::string&,  const std::vector<double>&,  const std::vector<double>&,  const double&,  const std::string&, const std::string&, const boost::logic::tribool& expected);
+template <> bool checkForInequality<boost::logic::tribool>(const std::string&, const boost::logic::tribool&, const boost::logic::tribool&, const std::string&, const std::string&, const boost::logic::tribool& expected);
+template <> bool checkForDissimilarity<boost::logic::tribool>(const std::string&, const boost::logic::tribool&,  const boost::logic::tribool&,  const double&,  const std::string&, const std::string&, const boost::logic::tribool& expected);
+
 
 } /* namespace Util */
 } /* namespace Gem */

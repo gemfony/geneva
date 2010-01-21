@@ -111,12 +111,14 @@ class GAdaptorT:
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GObject", boost::serialization::base_object<GObject>(*this));
-		ar & make_nvp("gr",gr);
-		ar & make_nvp("adaptionCounter_", adaptionCounter_);
-		ar & make_nvp("adaptionThreshold_", adaptionThreshold_);
-		ar & make_nvp("mutProb_", mutProb_);
-		ar & make_nvp("mutationMode_", mutationMode_);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+		   & BOOST_SERIALIZATION_NVP(gr)
+		   & BOOST_SERIALIZATION_NVP(adaptionCounter_)
+		   & BOOST_SERIALIZATION_NVP(adaptionThreshold_)
+		   & BOOST_SERIALIZATION_NVP(mutProb_)
+		   & BOOST_SERIALIZATION_NVP(mutationMode_)
+		   & BOOST_SERIALIZATION_NVP(currentIndex_)
+		   & BOOST_SERIALIZATION_NVP(maxVars_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -132,6 +134,8 @@ public:
 		, adaptionThreshold_(0)
 		, mutProb_(DEFAULTMUTPROB)
 		, mutationMode_(boost::logic::indeterminate)
+		, currentIndex_(0)
+		, maxVars_(1)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -146,6 +150,8 @@ public:
 		, adaptionThreshold_(0)
 		, mutProb_(prob)
 		, mutationMode_(boost::logic::indeterminate)
+		, currentIndex_(0)
+		, maxVars_(1)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -161,7 +167,18 @@ public:
 		, adaptionThreshold_(cp.adaptionThreshold_)
 		, mutProb_(cp.mutProb_)
 		, mutationMode_(cp.mutationMode_)
-	{ /* nothing */ }
+		, currentIndex_(cp.currentIndex_)
+		, maxVars_(cp.maxVars_)
+	{
+#ifdef DEBUG
+		if(maxVars_ < 1) {
+			std::ostringstream error;
+			error << "In GAdaptorT<T>::GAdaptorT(cp):: Error!" << std::endl
+			      << "The maximum number of variables must be at least 1" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+#endif /* DEBUG */
+	}
 
 	/***********************************************************************************/
 	/**
@@ -205,6 +222,17 @@ public:
 		adaptionThreshold_ = gat->adaptionThreshold_;
 		mutProb_ = gat->mutProb_;
 		mutationMode_ = gat->mutationMode_;
+		currentIndex_ = gat->currentIndex_;
+		maxVars_ = gat->maxVars_;
+
+#ifdef DEBUG
+		if(maxVars_ < 1) {
+			std::ostringstream error;
+			error << "In GAdaptorT<T>::load(cp):: Error!" << std::endl
+			      << "The maximum number of variables must be at least 1" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+#endif /* DEBUG */
 	}
 
 	/***********************************************************************************/
@@ -251,10 +279,13 @@ public:
 
 		// then our local data
 		if(!gr.isEqualTo(gat_load->gr, expected)) return false;
+
 		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
 		if(checkForInequality("GAdaptorT", mutProb_, gat_load->mutProb_,"mutProb_", "gat_load->mutProb_", expected)) return false;
 		if(checkForInequality("GAdaptorT", mutationMode_, gat_load->mutationMode_,"mutationMode_", "gat_load->mutationMode_", expected)) return false;
+		if(checkForInequality("GAdaptorT", currentIndex_, gat_load->currentIndex_,"currentIndex_", "gat_load->currentIndex_", expected)) return false;
+		if(checkForInequality("GAdaptorT", maxVars_, gat_load->maxVars_,"maxVars_", "gat_load->maxVars_", expected)) return false;
 
 		return true;
 	}
@@ -278,10 +309,13 @@ public:
 
 		// Then our local data
 		if(!gr.isSimilarTo(gat_load->gr, limit, expected)) return false;
+
 		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", mutProb_, gat_load->mutProb_, limit, "mutProb_", "gat_load->mutProb_", expected)) return false;
 		if(checkForDissimilarity("GAdaptorT", mutationMode_, gat_load->mutationMode_, limit, "mutationMode_", "gat_load->mutationMode_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", currentIndex_, gat_load->currentIndex_, limit, "currentIndex_", "gat_load->currentIndex_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", maxVars_, gat_load->maxVars_, limit, "maxVars_", "gat_load->maxVars_", expected)) return false;
 
 		return true;
 	}
@@ -411,8 +445,8 @@ public:
 	 *
 	 * @param val The value that needs to be mutated
 	 */
-	inline void mutate(T& val)  {
-		if(boost::logic::indeterminate(mutationMode_)) {// The most likely case
+	void mutate(T& val)  {
+		if(boost::logic::indeterminate(mutationMode_)) { // The most likely case
 			// We only allow mutations in a certain percentage of cases
 			if(this->gr.evenRandom() <= mutProb_) {
 				if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
@@ -427,7 +461,55 @@ public:
 			this->customMutations(val);
 		}
 		// No need to test for mutationMode_ == false as no action is needed in this case
+
+		// Wrap index if we have reached the maximum, otherwise increment
+		if(maxVars_>1 && ++currentIndex_ >= maxVars_) currentIndex_ = 0;
 	}
+
+	/***********************************************************************************/
+	/**
+	 * Sets the maximum number of variables this adaptor can expect to mutate in a row.
+	 * The knowledge about that quantity can become important when dealing with collections
+	 * of variables, such as a GDoubleCollection or a GBoundedDoubleCollection. The function
+	 * also resets the current index counter.
+	 *
+	 * @param maxVars The maximum number of variables this adaptor can expect to mutate in a row
+	 */
+	void setMaxVars(const std::size_t maxVars) {
+#ifdef DEBUG
+		if(maxVar_ < 1) {
+			std::ostringstream error;
+			error << "In GAdaptorT<T>::setMaxVars() : Error!" << std::endl
+				  << "The maximum number of variables must be at least 1" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+#endif /* DEBUG */
+
+		maxVars_ = maxVars;
+		currentIndex_ = 0;
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Retrieves the value for the maximum number of mutations this adaptor expects
+	 * to perform in a row.
+	 *
+	 * @return The maximum number of mutations this adaptor expects
+	 */
+	std::size_t getMaxVars() const {
+		return maxVars_;
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Retrieves the current index counter
+	 *
+	 * @return The current index counter variable
+	 */
+	std::size_t getCurrentIndex() const {
+		return currentIndex_;
+	}
+
 
 protected:
 	/***********************************************************************************/
@@ -464,6 +546,8 @@ private:
 	boost::uint32_t adaptionThreshold_; ///< Specifies after how many mutations the mutation itself should be adapted
 	double mutProb_; ///< internal representation of the mutation probability
 	boost::logic::tribool mutationMode_; ///< false == never mutate; indeterminate == mutate with mutProb_ probability; true == always mutate
+	std::size_t currentIndex_; ///< The index of variable to be changed, when dealing with collections
+	std::size_t maxVars_; ///< The maximum number of variables this adaptor deals with
 };
 
 /******************************************************************************************/

@@ -84,10 +84,11 @@ class GGaussAdaptorT :public GAdaptorT<T>
 
 		// Save all necessary data
 		ar & make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<T> >(*this));
-		ar & make_nvp("sigma_", sigma_);
-		ar & make_nvp("sigmaSigma_", sigmaSigma_);
-		ar & make_nvp("minSigma_", minSigma_);
-		ar & make_nvp("maxSigma_", maxSigma_);
+
+		ar & BOOST_SERIALIZATION_NVP(sigma_)
+		   & BOOST_SERIALIZATION_NVP(sigmaSigma_)
+		   & BOOST_SERIALIZATION_NVP(minSigma_)
+		   & BOOST_SERIALIZATION_NVP(maxSigma_);
 	}
 	///////////////////////////////////////////////////////////////////////
 

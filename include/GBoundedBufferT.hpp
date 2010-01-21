@@ -84,7 +84,6 @@
 #include <boost/utility.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/date_time.hpp>
-#include <boost/exception.hpp>
 #include <boost/function.hpp>
 #include <boost/ref.hpp>
 

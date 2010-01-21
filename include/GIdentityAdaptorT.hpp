@@ -85,6 +85,19 @@ public:
 	:GAdaptorT<T> ()
 	 {
 		GAdaptorT<T>::setMutationMode(false);
+
+#ifdef DEBUG
+		if(typeid(T) != typeid(double) &&
+		   typeid(T) != typeid(bool) &&
+		   typeid(T) != typeid(char) &&
+		   typeid(T) != typeid(boost::int32_t)) {
+				std::ostringstream error;
+				error << "In GIdentityAdaptorT<T>::GIdentityAdaptorT() : Error!" << std::endl
+					  << "Class was instantiated with a type it was not designed for." << std::endl
+					  << "Typeid.name() is " << typeid(T).name() << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+#endif
 	 }
 
 	/********************************************************************************************/
@@ -231,24 +244,11 @@ public:
 protected:
 	/********************************************************************************************/
 	/**
-	 * This is a trap in case this function is called for a type the class was not designed for.
+	 * The identity adaptor does not change its arguments
 	 *
 	 * @param value The value to be mutated
 	 */
 	virtual void customMutations(T& value) {
-#ifdef DEBUG
-		if(typeid(T) != typeid(double) &&
-		   typeid(T) != typeid(bool) &&
-		   typeid(T) != typeid(char) &&
-		   typeid(T) != typeid(boost::int32_t)) {
-				std::ostringstream error;
-				error << "In GIdentityAdaptorT::customMutations() : Error!" << std::endl
-					  << "Class was instantiated with a type it was not designed for." << std::endl
-					  << "Typeid is " << typeid(value).name() << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
-		}
-#endif
-
 		return; // nothing
 	}
 };

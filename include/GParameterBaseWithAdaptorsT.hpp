@@ -411,6 +411,9 @@ protected:
 	 * @param value The parameter to be mutated
 	 */
 	void applyAdaptor(T &value) {
+		// Let the adaptor know about the number of variables to expect
+		if(hasLocalAdaptor_) adaptor_->setMaxVars(1);
+
 #ifdef DEBUG
 		if (adaptor_) {
 			adaptor_->mutate(value);
@@ -434,6 +437,10 @@ protected:
 	 * @param collection A vector of values that shall be mutated
 	 */
 	void applyAdaptor(std::vector<T> &collection) {
+		// Let the adaptor know about the number of variables to expect
+		adaptor_->setMaxVars(collection.size());
+
+		// Apply the adaptor to each data item in turn
 		typename std::vector<T>::iterator it;
 		for (it = collection.begin(); it != collection.end(); ++it)	applyAdaptor(*it);
 	}

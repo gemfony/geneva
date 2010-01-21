@@ -50,7 +50,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/exception.hpp>
 #include <boost/thread/mutex.hpp>
 
 #ifndef GCONSUMER_HPP_

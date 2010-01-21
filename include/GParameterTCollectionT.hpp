@@ -233,7 +233,9 @@ public:
 			}
 		}
 		else {
-			for(it=this->begin(); it!=this->end(); ++it) (*it)->mutate();
+			for(it=this->begin(); it!=this->end(); ++it) {
+				(*it)->mutate();
+			}
 		}
 	}
 

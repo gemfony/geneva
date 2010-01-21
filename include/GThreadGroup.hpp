@@ -70,7 +70,6 @@
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
 
 #ifndef GTHREADGROUP_HPP_

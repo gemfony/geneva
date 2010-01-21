@@ -1,5 +1,15 @@
 //------------------------------------------------------------------------------------------------------
-* Version 0.7, "Route Arago" - yet unreleased
+Roadmap:
+Version 0.8:
+ - Full documentation
+ - Revision of broker infrastructure, implementation as separate library
+ - Revision of allowed parameter object types
+ - Implementation of a GBoundedDoubleWithGaps
+ - Update of tests
+ - Update of performance figures
+
+//------------------------------------------------------------------------------------------------------
+* Version 0.7, "Route Arago" (current release) - yet unreleased
 
 The main changes for this release include:
  - Removed all direct dependencies of GIndividual objects from the optimization algorithm in order to

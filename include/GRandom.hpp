@@ -53,7 +53,6 @@
 #include <boost/shared_array.hpp>
 #include <boost/pool/detail/singleton.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/exception.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 #include <boost/function.hpp>
