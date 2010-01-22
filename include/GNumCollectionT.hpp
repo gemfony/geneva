@@ -79,6 +79,9 @@ class GNumCollectionT
 	///////////////////////////////////////////////////////////////////////
 
 public:
+	/** @brief Specifies the type of parameters stored in this collection */
+	typedef T collection_type;
+
 	/******************************************************************/
 	/**
 	 * The default constructor.
@@ -195,13 +198,12 @@ public:
 
 	/******************************************************************/
 	/**
-	 * Creates a deep copy of this object.
+	 * Creates a deep copy of this object. Purely virtual as this class
+	 * should not be instantiable.
 	 *
 	 * @return A pointer to a deep clone of this object
 	 */
-	virtual GObject *clone() const {
-		return new GNumCollectionT<T>(*this);
-	}
+	virtual GObject *clone() const = 0;
 
 	/******************************************************************/
 	/**
@@ -259,5 +261,18 @@ template<> void GNumCollectionT<boost::int32_t>::addRandomData(const std::size_t
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+/**********************************************************************/
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+
+namespace boost {
+	namespace serialization {
+		template<typename T>
+		struct is_abstract<Gem::GenEvA::GNumCollectionT<T> > : public boost::true_type {};
+		template<typename T>
+		struct is_abstract< const Gem::GenEvA::GNumCollectionT<T> > : public boost::true_type {};
+	}
+}
+/**********************************************************************/
 
 #endif /* GNUMCOLLECTIONT_HPP_ */

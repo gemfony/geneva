@@ -100,3 +100,4 @@
 - Check where register_type is really needed
 - Instead of "GBoundedInt32" etc. create classes like "template GBoundedInt<int bitSize = 32>" with a useful
   default value
+- use Boost.enable_if to check allowed template instantiations

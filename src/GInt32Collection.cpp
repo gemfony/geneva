@@ -35,3 +35,152 @@
  */
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::GenEvA::GInt32Collection)
+
+
+namespace Gem {
+namespace GenEvA {
+
+/*******************************************************************************************/
+/**
+ * The default constructor
+ */
+GInt32Collection::GInt32Collection()
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialization with a number of random values in a given range
+ *
+ * @param nval The amount of random values
+ * @param min The minimum random value
+ * @param max The maximum random value
+ */
+GInt32Collection::GInt32Collection(const std::size_t& nval, const boost::int32_t& min, const boost::int32_t& max)
+	:GNumCollectionT<boost::int32_t>(nval, min, max)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * The copy constructor
+ *
+ * @param cp A copy of another GInt32Collection object
+ */
+GInt32Collection::GInt32Collection(const GInt32Collection& cp)
+	: GNumCollectionT<boost::int32_t>(cp)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * The destructor
+ */
+GInt32Collection::~GInt32Collection()
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * A standard assignment operator.
+ *
+ * @param cp A copy of another GInt32Collection object
+ * @return A constant reference to this object
+ */
+const GInt32Collection& GInt32Collection::operator=(const GInt32Collection& cp){
+	GInt32Collection::load(&cp);
+	return *this;
+}
+
+/*******************************************************************************************/
+/**
+ * Creates a deep clone of this object.
+ *
+ * @return A copy of this object, camouflaged as a GObject
+ */
+GObject* GInt32Collection::clone() const {
+	return new GInt32Collection(*this);
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for equality with another GInt32Collection object
+ *
+ * @param  cp A constant reference to another GInt32Collection object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GInt32Collection::operator==(const GInt32Collection& cp) const {
+	return GInt32Collection::isEqualTo(cp, boost::logic::indeterminate);
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for inequality with another GInt32Collection object
+ *
+ * @param  cp A constant reference to another GInt32Collection object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GInt32Collection::operator!=(const GInt32Collection& cp) const {
+	return !GInt32Collection::isEqualTo(cp, boost::logic::indeterminate);
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for equality with another GInt32Collection object.  If T is an object type,
+ * then it must implement operator!= .
+ *
+ * @param  cp A constant reference to another GInt32Collection object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GInt32Collection::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+    using namespace Gem::Util;
+
+	// Check that we are indeed dealing with a GParamterT reference
+	const GInt32Collection *p_load = GObject::conversion_cast(&cp,  this);
+
+	// Check equality of the parent class
+	if(!GNumCollectionT<boost::int32_t>::isEqualTo(*p_load, expected)) return false;
+
+	// No local data
+
+	return true;
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for similarity with another GInt32Collection object.
+ *
+ * @param  cp A constant reference to another GInt32Collection object
+ * @param limit A double value specifying the acceptable level of differences of floating point values
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+bool GInt32Collection::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+    using namespace Gem::Util;
+
+	// Check that we are indeed dealing with a GParamterT reference
+	const GInt32Collection *p_load = GObject::conversion_cast(&cp,  this);
+
+	// Check similarity of the parent class
+	if(!GNumCollectionT<boost::int32_t>::isSimilarTo(*p_load, limit, expected)) return false;
+
+	// No local data
+
+	return true;
+}
+
+/*******************************************************************************************/
+/**
+ * Loads the data of another GObject
+ *
+ * @param cp A copy of another GInt32Collection object, camouflaged as a GObject
+ */
+void GInt32Collection::load(const GObject* cp){
+	// Convert cp into local format (also checks for the type of cp)
+	const GInt32Collection *p_load = GObject::conversion_cast(cp, this);
+
+	// Load our parent class'es data ...
+	GNumCollectionT<boost::int32_t>::load(cp);
+
+	// ... no local data
+}
+
+/*******************************************************************************************/
+
+} /* namespace GenEvA */
+} /* namespace Gem */

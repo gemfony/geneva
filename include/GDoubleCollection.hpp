@@ -55,8 +55,54 @@
 namespace Gem {
 namespace GenEvA {
 
-/** All "real" functionality is implemented in GNumCollectionT and its parent classes */
-typedef GNumCollectionT<double> GDoubleCollection;
+/*****************************************************************************************/
+/**
+ * A collection of double objects without boundaries
+ */
+class GDoubleCollection
+	:public GNumCollectionT<double>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GNumCollectionT_double", boost::serialization::base_object<GNumCollectionT<double> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GDoubleCollection();
+	/** @brief The copy constructor */
+	GDoubleCollection(const GDoubleCollection&);
+	/** @brief Initialization with a number of random values */
+	explicit GDoubleCollection(const std::size_t& nval, const double& min, const double& max);
+	/** @brief The destructor */
+	virtual ~GDoubleCollection();
+
+	/** @brief A standard assignment operator */
+	const GDoubleCollection& operator=(const GDoubleCollection&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GDoubleCollection object */
+	bool operator==(const GDoubleCollection&) const;
+	/** @brief Checks for inequality with another GDoubleCollection object */
+	bool operator!=(const GDoubleCollection&) const;
+
+	/** @brief Checks for equality with another GDoubleCollection object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GDoubleCollection object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
+
+/*****************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

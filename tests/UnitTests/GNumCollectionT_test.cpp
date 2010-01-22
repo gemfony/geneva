@@ -66,58 +66,58 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	GRandom gr;
 
 	// Construction in different modes
-	GNumCollectionT<T> gnct0; // default construction, should be empty
+	T gnct0; // default construction, should be empty
 	BOOST_CHECK(gnct0.empty());
 
 	// Check the vector interface
-	T templItem = T(0);
-	T findItem = T(1);
+	typename T::collection_type templItem = typename T::collection_type(0);
+	typename T::collection_type findItem = typename T::collection_type(1);
 	// Test the functionality of the underlying vector implementation
 	stdvectorinterfacetest(gnct0, templItem, findItem);
 
-	GNumCollectionT<T> gnct1(100, T(-10),T(10));  // 100 items in the range -10,10
-	GNumCollectionT<T> gnct2(100, T(-10), T(10));  // 100 items in the range -10,10
+	T gnct1(100, typename T::collection_type(-10),typename T::collection_type(10));  // 100 items in the range -10,10
+	T gnct2(100, typename T::collection_type(-10), typename T::collection_type(10));  // 100 items in the range -10,10
 	BOOST_CHECK(gnct1.size() == 100);
 	BOOST_CHECK(gnct2.size() == 100);
 	BOOST_CHECK(gnct1 != gnct2);
 
 	// Copy construction
-	GNumCollectionT<T> gnct3(gnct2);
+	T gnct3(gnct2);
 	BOOST_CHECK(gnct3 == gnct2);
 
 	// Assignment
-	GNumCollectionT<T> gnct4;
+	T gnct4;
 	gnct4 = gnct3;
 	BOOST_CHECK(gnct4 == gnct2);
 
 	// Cloning and loading
 	GObject *gnct5 = gnct4.clone();
-	GNumCollectionT<T> gnct6;
+	T gnct6;
 	gnct6.load(gnct5);
 	delete gnct5;
 	BOOST_CHECK(gnct6 == gnct2);
 
 	// Adding random data
-	gnct6.addRandomData(1900, T(-100), T(100));
+	gnct6.addRandomData(1900, typename T::collection_type(-100), typename T::collection_type(100));
 	BOOST_CHECK(gnct6 != gnct2);
 	BOOST_CHECK(gnct6.size() == 2000);
 
 	// Loading through the GParameterBase base pointer
-	GParameterBase *gpb = new GNumCollectionT<T>();
+	GParameterBase *gpb = new T();
 	BOOST_CHECK(!gpb->isEqualTo(gnct6));
 	gpb->load(&gnct6);
 	BOOST_CHECK(gpb->isEqualTo(gnct6));
-	GNumCollectionT<T> *gnct6_2 = static_cast<GNumCollectionT<T> *>(gpb);
-	gnct6_2->addRandomData(1900, T(-100), T(100));
+	T *gnct6_2 = static_cast<T *>(gpb);
+	gnct6_2->addRandomData(1900, typename T::collection_type(-100), typename T::collection_type(100));
 	BOOST_CHECK(!gpb->isEqualTo(gnct6));
 	delete gpb;
 
 	// Adding an adaptor with rather large gauss
-	boost::shared_ptr<GGaussAdaptorT<T> > gba(new GGaussAdaptorT<T>(10,0.1,2,100));
+	boost::shared_ptr<GGaussAdaptorT<typename T::collection_type> > gba(new GGaussAdaptorT<typename T::collection_type>(10,0.1,2,100));
 	gnct6.addAdaptor(gba);
 
 	const std::size_t NMUTATIONS=1000;
-	GNumCollectionT<T> gnct6_old(gnct6);
+	T gnct6_old(gnct6);
 	for(std::size_t i=0; i<NMUTATIONS; i++) {
 		gnct6.mutate();
 	}
@@ -127,13 +127,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	// Test serialization and loading in different serialization modes
 	{ // plain text format
 		// Copy construction of a new object
-		GNumCollectionT<T> gnct7(100, T(-100), T(100));
-		GNumCollectionT<T> gnct7_cp(gnct7);
+		T gnct7(100, typename T::collection_type(-100), typename T::collection_type(100));
+		T gnct7_cp(gnct7);
 
 		// Check equalities and inequalities
 		BOOST_CHECK(gnct7_cp == gnct7);
 		// Re-assign a new value to gnct7_cp
-		gnct7_cp.addRandomData(100, T(-100), T(100));
+		gnct7_cp.addRandomData(100, typename T::collection_type(-100), typename T::collection_type(100));
 		BOOST_CHECK(gnct7_cp.size() == 200);
 		BOOST_CHECK(gnct7_cp != gnct7);
 
@@ -144,13 +144,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 
 	{ // XML format
 		// Copy construction of a new object
-		GNumCollectionT<T> gnct7(100, T(-100), T(100));
-		GNumCollectionT<T> gnct7_cp(gnct7);
+		T gnct7(100, typename T::collection_type(-100), typename T::collection_type(100));
+		T gnct7_cp(gnct7);
 
 		// Check equalities and inequalities
 		BOOST_CHECK(gnct7_cp == gnct7);
 		// Re-assign a new value to gnct7_cp
-		gnct7_cp.addRandomData(100, T(-100), T(100));
+		gnct7_cp.addRandomData(100, typename T::collection_type(-100), typename T::collection_type(100));
 		BOOST_CHECK(gnct7_cp.size() == 200);
 		BOOST_CHECK(gnct7_cp != gnct7);
 
@@ -161,13 +161,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 
 	{ // binary test format
 		// Copy construction of a new object
-		GNumCollectionT<T> gnct7(100, T(-100), T(100));
-		GNumCollectionT<T> gnct7_cp(gnct7);
+		T gnct7(100, typename T::collection_type(-100), typename T::collection_type(100));
+		T gnct7_cp(gnct7);
 
 		// Check equalities and inequalities
 		BOOST_CHECK(gnct7_cp == gnct7);
 		// Re-assign a new value to gnct7_cp
-		gnct7_cp.addRandomData(100, T(-100), T(100));
+		gnct7_cp.addRandomData(100, typename T::collection_type(-100), typename T::collection_type(100));
 		BOOST_CHECK(gnct7_cp.size() == 200);
 		BOOST_CHECK(gnct7_cp != gnct7);
 
@@ -186,7 +186,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_failures_expected, T)
 	{
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-		GNumCollectionT<T> gnct;
+		T gnct;
 		BOOST_CHECK_THROW(gnct.load(&gnct), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 	}
@@ -195,12 +195,12 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_failures_expected, T)
 
 /***********************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GNumCollectionT class
+// by the GNumCollectionT class (or its derivatives)
 class GNumCollectionTSuite: public test_suite
 {
 public:
 	GNumCollectionTSuite() :test_suite("GNumCollectionTSuite") {
-		typedef boost::mpl::list<boost::int32_t, double> test_types;
+		typedef boost::mpl::list<GInt32Collection, GDoubleCollection> test_types;
 
 		add( BOOST_TEST_CASE_TEMPLATE( GNumCollectionT_no_failure_expected, test_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( GNumCollectionT_failures_expected, test_types ) );
