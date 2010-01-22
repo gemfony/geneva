@@ -81,6 +81,9 @@ public:
 	/** @brief The destructor */
 	virtual ~GBoolean();
 
+	/** @brief An assignment operator for the contained value type */
+	virtual const bool& operator=(const bool&);
+
 	/** @brief A standard assignment operator */
 	const GBoolean& operator=(const GBoolean&);
 	/** @brief Creates a deep clone of this object. */

@@ -82,6 +82,9 @@ public:
 	/** @brief The destructor */
 	virtual ~GChar();
 
+	/** @brief An assignment operator for the contained value type */
+	virtual const char& operator=(const char&);
+
 	/** @brief A standard assignment operator */
 	const GChar& operator=(const GChar&);
 	/** @brief Creates a deep clone of this object. */

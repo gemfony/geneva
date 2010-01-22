@@ -75,6 +75,17 @@ GInt32::~GInt32()
 
 /*******************************************************************************************/
 /**
+ * An assignment operator for the contained value type
+ *
+ * @param val The value to be assigned to this object
+ * @return The value that was just assigned to this object
+ */
+const boost::int32_t& GInt32::operator=(const boost::int32_t& val) {
+	return GParameterT<boost::int32_t>::operator=(val);
+}
+
+/*******************************************************************************************/
+/**
  * A standard assignment operator.
  *
  * @param cp A copy of another GInt32 object

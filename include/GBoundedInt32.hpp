@@ -59,15 +59,63 @@ namespace Gem
 namespace GenEvA
 {
 
-  /******************************************************************************/
+/******************************************************************************/
 /**
-   * This class has now become a simple typedef of the GBoundedNumT<T> class.
-   * See there for further explanations.
-   */
+ * The GBoundedInt32 class allows to limit the value range of a boost::int32_t value,
+ * while applying mutations to a continuous range. This is done by means of a
+ * mapping from an internal representation to an externally visible value.
+ */
+class GBoundedInt32
+  : public GBoundedNumT<boost::int32_t>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-typedef GBoundedNumT<boost::int32_t> GBoundedInt32;
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
 
-  /******************************************************************************/
+		ar & make_nvp("GBoundedNumT_int32", boost::serialization::base_object<GBoundedNumT<boost::int32_t> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GBoundedInt32();
+	/** @brief Initialization with boundaries only */
+	GBoundedInt32(const boost::int32_t&, const boost::int32_t&);
+	/** @brief Initialization with value and boundaries */
+	GBoundedInt32(const boost::int32_t&, const boost::int32_t&, const boost::int32_t&);
+	/** @brief The copy constructor */
+	GBoundedInt32(const GBoundedInt32&);
+	/** @brief Initialization by contained value */
+	explicit GBoundedInt32(const boost::int32_t&);
+	/** @brief The destructor */
+	virtual ~GBoundedInt32();
+
+	/** @brief An assignment operator for the contained value type */
+	virtual const boost::int32_t& operator=(const boost::int32_t&);
+
+	/** @brief A standard assignment operator */
+	const GBoundedInt32& operator=(const GBoundedInt32&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GBoundedInt32 object */
+	bool operator==(const GBoundedInt32&) const;
+	/** @brief Checks for inequality with another GBoundedInt32 object */
+	bool operator!=(const GBoundedInt32&) const;
+
+	/** @brief Checks for equality with another GBoundedInt32 object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GBoundedInt32 object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
+
+/******************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

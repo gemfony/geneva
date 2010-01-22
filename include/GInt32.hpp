@@ -89,6 +89,9 @@ public:
 	/** @brief The destructor */
 	virtual ~GInt32();
 
+	/** @brief An assignment operator for the contained value type */
+	virtual const boost::int32_t& operator=(const boost::int32_t&);
+
 	/** @brief A standard assignment operator */
 	const GInt32& operator=(const GInt32&);
 	/** @brief Creates a deep clone of this object. */

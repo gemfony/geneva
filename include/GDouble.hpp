@@ -82,6 +82,9 @@ public:
 	/** @brief The destructor */
 	virtual ~GDouble();
 
+	/** @brief An assignment operator for the contained value type */
+	virtual const double& operator=(const double&);
+
 	/** @brief A standard assignment operator */
 	const GDouble& operator=(const GDouble&);
 	/** @brief Creates a deep clone of this object. */

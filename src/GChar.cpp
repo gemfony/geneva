@@ -75,6 +75,18 @@ GChar::~GChar()
 
 /*******************************************************************************************/
 /**
+ * An assignment operator for the contained value type
+ *
+ * @param val The value to be assigned to this object
+ * @return The value that was just assigned to this object
+ */
+const char& GChar::operator=(const char& val) {
+	return GParameterT<char>::operator=(val);
+}
+
+
+/*******************************************************************************************/
+/**
  * A standard assignment operator.
  *
  * @param cp A copy of another GChar object

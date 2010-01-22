@@ -60,11 +60,60 @@ namespace GenEvA
 {
 
   /******************************************************************************/
-/**
-   * This class has now become a simple typedef of the GBoundedNumT<T> class.
-   * See there for further explanations.
+  /**
+   * The GBoundedDouble class allows to limit the value range of a double value,
+   * while applying mutations to a continuous range. This is done by means of a
+   * mapping from an internal representation to an externally visible value.
    */
-typedef GBoundedNumT<double> GBoundedDouble;
+class GBoundedDouble
+	:public GBoundedNumT<double>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GBoundedNumT_double", boost::serialization::base_object<GBoundedNumT<double> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GBoundedDouble();
+	/** @brief Initialization with boundaries only */
+	GBoundedDouble(const double&, const double&);
+	/** @brief Initialization with value and boundaries */
+	GBoundedDouble(const double&, const double&, const double&);
+	/** @brief The copy constructor */
+	GBoundedDouble(const GBoundedDouble&);
+	/** @brief Initialization by contained value */
+	explicit GBoundedDouble(const double&);
+	/** @brief The destructor */
+	virtual ~GBoundedDouble();
+
+	/** @brief An assignment operator for the contained value type */
+	virtual const double& operator=(const double&);
+
+	/** @brief A standard assignment operator */
+	const GBoundedDouble& operator=(const GBoundedDouble&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GBoundedDouble object */
+	bool operator==(const GBoundedDouble&) const;
+	/** @brief Checks for inequality with another GBoundedDouble object */
+	bool operator!=(const GBoundedDouble&) const;
+
+	/** @brief Checks for equality with another GBoundedDouble object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GBoundedDouble object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
 
   /******************************************************************************/
 

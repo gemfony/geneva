@@ -75,6 +75,18 @@ GBoolean::~GBoolean()
 
 /*******************************************************************************************/
 /**
+ * An assignment operator for the contained value type
+ *
+ * @param val The value to be assigned to this object
+ * @return The value that was just assigned to this object
+ */
+const bool& GBoolean::operator=(const bool& val) {
+	return GParameterT<bool>::operator=(val);
+}
+
+
+/*******************************************************************************************/
+/**
  * A standard assignment operator.
  *
  * @param cp A copy of another GBoolean object

@@ -84,9 +84,6 @@ class GBoundedNumT
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		// Register this class
-		ar.template register_type<GBoundedNumT<T> >();
-
 		// Save data
 		ar & make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T> >(*this));
 		ar & BOOST_SERIALIZATION_NVP(internalValue_)
@@ -101,11 +98,11 @@ public:
 	/** @brief Initialization with value only */
 	explicit GBoundedNumT(const T& val);
 	/** @brief Initialization with boundaries only */
-	GBoundedNumT(const T& lowerBoundary, const T& upperBoundary);
+	GBoundedNumT(const T&, const T&);
 	/** @brief Initialization with value and boundaries */
-	GBoundedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary);
+	GBoundedNumT(const T&, const T&, const T&);
 	/** @brief A standard copy constructor */
-	GBoundedNumT(const GBoundedNumT<T>& cp);
+	GBoundedNumT(const GBoundedNumT<T>&);
 	/** @brief The standard destructor */
 	virtual ~GBoundedNumT();
 
@@ -227,12 +224,11 @@ public:
 	/****************************************************************************/
 	/**
 	 * Create a deep copy of this object. Basically this is a fabric function.
+	 * Purely virtual as this class is never meant to be instantiated directly.
 	 *
 	 * @return A newly generated GBoundedNumT<T> copy of this object
 	 */
-	virtual GObject *clone() const {
-		return new GBoundedNumT<T>(*this);
-	}
+	virtual GObject *clone() const = 0;
 
 	/****************************************************************************/
     /**
@@ -532,7 +528,7 @@ GBoundedNumT<T>::GBoundedNumT(const T& lowerBoundary, const T& upperBoundary)
  * Initialize with a given value and the allowed value range. Non-inline definition
  * in order to circumvent deficiencies of g++ 3.4.6
  *
- * @param val Initialisation value
+ * @param val Initialization value
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
  */
@@ -577,5 +573,19 @@ GBoundedNumT<T>::~GBoundedNumT()
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+/******************************************************************************/
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+
+namespace boost {
+	namespace serialization {
+		template<typename T>
+		struct is_abstract<Gem::GenEvA::GBoundedNumT<T> > : public boost::true_type {};
+		template<typename T>
+		struct is_abstract< const Gem::GenEvA::GBoundedNumT<T> > : public boost::true_type {};
+	}
+}
+
+/******************************************************************************/
 
 #endif /* GBOUNDEDNUMT_HPP_ */
