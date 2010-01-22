@@ -95,8 +95,6 @@ struct projectionData
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar.template register_type<projectionData>();
-
 		ar & BOOST_SERIALIZATION_NVP(source)
 		   & BOOST_SERIALIZATION_NVP(nData)
 		   & BOOST_SERIALIZATION_NVP(nDimOrig)
@@ -137,8 +135,6 @@ class GProjectionIndividual
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
-
-		ar.template register_type<GProjectionIndividual>();
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
 		   & BOOST_SERIALIZATION_NVP(source_)
@@ -602,6 +598,7 @@ private:
 } /* namespace Gem */
 
 #include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(Gem::GenEvA::projectionData)
 BOOST_CLASS_EXPORT(Gem::GenEvA::GProjectionIndividual)
 
 #endif /* GPROJECTIONINDIVIDUAL_HPP_ */

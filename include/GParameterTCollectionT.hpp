@@ -81,9 +81,6 @@ class GParameterTCollectionT
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		// Register this object
-		ar.template register_type<GParameterTCollectionT<T> >();
-
 		// Save the data
 		ar & make_nvp("GParameterBaseWithAdaptorsT_ptype", boost::serialization::base_object<GParameterBaseWithAdaptorsT<typename T::p_type > >(*this))
 		   & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
