@@ -53,9 +53,50 @@ namespace GenEvA {
 
 /*************************************************************************/
 /**
- * A collection of GChar objects, ready for use in a GIndividual derivative.
+ * A collection of GChar objects, ready for use in a
+ * GParameterSet derivative.
  */
-typedef GParameterTCollectionT<GChar> GCharObjectCollection;
+class GCharObjectCollection
+	:public GParameterTCollectionT<GChar>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GParameterTCollectionT_gcoc",
+			  boost::serialization::base_object<GParameterTCollectionT<GChar> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GCharObjectCollection();
+	/** @brief The copy constructor */
+	GCharObjectCollection(const GCharObjectCollection&);
+	/** @brief The destructor */
+	virtual ~GCharObjectCollection();
+
+	/** @brief A standard assignment operator */
+	const GCharObjectCollection& operator=(const GCharObjectCollection&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GCharObjectCollection object */
+	bool operator==(const GCharObjectCollection&) const;
+	/** @brief Checks for inequality with another GCharObjectCollection object */
+	bool operator!=(const GCharObjectCollection&) const;
+
+	/** @brief Checks for equality with another GCharObjectCollection object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GCharObjectCollection object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
 
 /*************************************************************************/
 

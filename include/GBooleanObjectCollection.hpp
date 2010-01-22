@@ -52,9 +52,50 @@ namespace GenEvA {
 
 /*************************************************************************/
 /**
- * A collection of GBoolean objects, ready for use in a GIndividual derivative.
+ * A collection of GBoolean objects, ready for use in a
+ * GParameterSet derivative.
  */
-typedef GParameterTCollectionT<GBoolean> GBooleanObjectCollection;
+class GBooleanObjectCollection
+	:public GParameterTCollectionT<GBoolean>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GParameterTCollectionT_gbo",
+			  boost::serialization::base_object<GParameterTCollectionT<GBoolean> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GBooleanObjectCollection();
+	/** @brief The copy constructor */
+	GBooleanObjectCollection(const GBooleanObjectCollection&);
+	/** @brief The destructor */
+	virtual ~GBooleanObjectCollection();
+
+	/** @brief A standard assignment operator */
+	const GBooleanObjectCollection& operator=(const GBooleanObjectCollection&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GBooleanObjectCollection object */
+	bool operator==(const GBooleanObjectCollection&) const;
+	/** @brief Checks for inequality with another GBooleanObjectCollection object */
+	bool operator!=(const GBooleanObjectCollection&) const;
+
+	/** @brief Checks for equality with another GBooleanObjectCollection object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GBooleanObjectCollection object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
 
 /*************************************************************************/
 

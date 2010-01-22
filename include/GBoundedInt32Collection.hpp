@@ -60,9 +60,49 @@ namespace GenEvA {
 /*************************************************************************/
 /**
  * A collection of GBoundedInt32 objects, ready for use in a
- * GIndividual derivative.
+ * GParameterSet derivative.
  */
-typedef GParameterTCollectionT<GBoundedInt32> GBoundedInt32Collection;
+class GBoundedInt32Collection
+	:public GParameterTCollectionT<GBoundedInt32>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GParameterTCollectionT_gbi",
+			  boost::serialization::base_object<GParameterTCollectionT<GBoundedInt32> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GBoundedInt32Collection();
+	/** @brief The copy constructor */
+	GBoundedInt32Collection(const GBoundedInt32Collection&);
+	/** @brief The destructor */
+	virtual ~GBoundedInt32Collection();
+
+	/** @brief A standard assignment operator */
+	const GBoundedInt32Collection& operator=(const GBoundedInt32Collection&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GBoundedInt32Collection object */
+	bool operator==(const GBoundedInt32Collection&) const;
+	/** @brief Checks for inequality with another GBoundedInt32Collection object */
+	bool operator!=(const GBoundedInt32Collection&) const;
+
+	/** @brief Checks for equality with another GBoundedInt32Collection object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GBoundedInt32Collection object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
 
 /*************************************************************************/
 

@@ -60,9 +60,49 @@ namespace GenEvA {
 /*************************************************************************/
 /**
  * A collection of GBoundedDouble objects, ready for use in a
- * GIndividual derivative.
+ * GParameterSet derivative.
  */
-typedef GParameterTCollectionT<GBoundedDouble> GBoundedDoubleCollection;
+class GBoundedDoubleCollection
+	:public GParameterTCollectionT<GBoundedDouble>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GParameterTCollectionT_gbd",
+			  boost::serialization::base_object<GParameterTCollectionT<GBoundedDouble> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GBoundedDoubleCollection();
+	/** @brief The copy constructor */
+	GBoundedDoubleCollection(const GBoundedDoubleCollection&);
+	/** @brief The destructor */
+	virtual ~GBoundedDoubleCollection();
+
+	/** @brief A standard assignment operator */
+	const GBoundedDoubleCollection& operator=(const GBoundedDoubleCollection&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GBoundedDoubleCollection object */
+	bool operator==(const GBoundedDoubleCollection&) const;
+	/** @brief Checks for inequality with another GBoundedDoubleCollection object */
+	bool operator!=(const GBoundedDoubleCollection&) const;
+
+	/** @brief Checks for equality with another GBoundedDoubleCollection object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GBoundedDoubleCollection object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
 
 /*************************************************************************/
 

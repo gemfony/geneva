@@ -90,6 +90,12 @@ class GParameterTCollectionT
 public:
 	/*******************************************************************************************/
 	/**
+	 * Allows to find out which type is stored in this class
+	 */
+	typedef T collection_type;
+
+	/*******************************************************************************************/
+	/**
 	 * The default constructor
 	 */
 	GParameterTCollectionT()
@@ -209,11 +215,10 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object.
+	 * Creates a deep clone of this object. Declared purely virtual, as this class is not
+	 * intended to be used directly.
 	 */
-	virtual GObject* clone() const{
-		return new GParameterTCollectionT<T>(*this);
-	}
+	virtual GObject* clone() const = 0;
 
 	/*******************************************************************************************/
 	/**

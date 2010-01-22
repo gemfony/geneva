@@ -51,9 +51,50 @@ namespace GenEvA {
 
 /*************************************************************************/
 /**
- * A collection of GDouble objects, ready for use in a GIndividual derivative.
+ * A collection of GDouble objects, ready for use in a
+ * GParameterSet derivative.
  */
-typedef GParameterTCollectionT<GDouble> GDoubleObjectCollection;
+class GDoubleObjectCollection
+	:public GParameterTCollectionT<GDouble>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GParameterTCollectionT_gbd",
+			  boost::serialization::base_object<GParameterTCollectionT<GDouble> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GDoubleObjectCollection();
+	/** @brief The copy constructor */
+	GDoubleObjectCollection(const GDoubleObjectCollection&);
+	/** @brief The destructor */
+	virtual ~GDoubleObjectCollection();
+
+	/** @brief A standard assignment operator */
+	const GDoubleObjectCollection& operator=(const GDoubleObjectCollection&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GDoubleObjectCollection object */
+	bool operator==(const GDoubleObjectCollection&) const;
+	/** @brief Checks for inequality with another GDoubleObjectCollection object */
+	bool operator!=(const GDoubleObjectCollection&) const;
+
+	/** @brief Checks for equality with another GDoubleObjectCollection object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GDoubleObjectCollection object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
 
 /*************************************************************************/
 
