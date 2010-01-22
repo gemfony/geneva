@@ -59,16 +59,54 @@ namespace GenEvA {
  * and indeed for most applications this is not the recommended solution -
  * use the GInt32Collection instead.
  *
- * Bits are mutated by the GInt32FlipAdaptor or the GInt32GaussAdaptor in GenEvA.
+ * Integers are mutated by the GInt32FlipAdaptor or the GInt32GaussAdaptor in GenEvA.
  * The reason for this class is that there might be applications where one might want different
  * adaptor characteristics for different values. This cannot be done with a GInt32Collection.
  * Plus, having a separate integer class adds some consistency to GenEvA, as other values
  * (most notably doubles) have their own class as well (GBoundedDouble, GDouble).
- *
- * For reasons of simplicity this class is implemented as a simple typdef of the GParameterT
- * template class, which implements a specialization of the constructor.
  */
-typedef GParameterT<boost::int32_t> GInt32;
+class GInt32
+	:public GParameterT<boost::int32_t>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GParameterT_int32", boost::serialization::base_object<GParameterT<boost::int32_t> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GInt32();
+	/** @brief The copy constructor */
+	GInt32(const GInt32&);
+	/** @brief Initialization by contained value */
+	explicit GInt32(const boost::int32_t&);
+	/** @brief The destructor */
+	virtual ~GInt32();
+
+	/** @brief A standard assignment operator */
+	const GInt32& operator=(const GInt32&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GInt32 object */
+	bool operator==(const GInt32&) const;
+	/** @brief Checks for inequality with another GInt32 object */
+	bool operator!=(const GInt32&) const;
+
+	/** @brief Checks for equality with another GInt32 object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GInt32 object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
 
 /************************************************************************/
 

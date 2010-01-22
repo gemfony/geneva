@@ -53,15 +53,54 @@ namespace GenEvA {
 
 /************************************************************************/
 /**
- * This class encapsulates a char type. This might appear heavy weight,
+ * This class encapsulates a double type. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
- * use the GString class instead. char types are mutated by the GCharAdaptor
- * in GenEvA.
- *
- * As the GParameterT template class holds a suitable specialization for char,
- * this class can be implemented as a simple typedef.
+ * use the GDoubleCollection class or individual GBoundedDouble objects
+ * instead.
  */
-typedef GParameterT<double> GDouble;
+class GDouble
+	:public GParameterT<double>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GParameterT_double", boost::serialization::base_object<GParameterT<double> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GDouble();
+	/** @brief The copy constructor */
+	GDouble(const GDouble&);
+	/** @brief Initialization by contained value */
+	explicit GDouble(const double&);
+	/** @brief The destructor */
+	virtual ~GDouble();
+
+	/** @brief A standard assignment operator */
+	const GDouble& operator=(const GDouble&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GDouble object */
+	bool operator==(const GDouble&) const;
+	/** @brief Checks for inequality with another GDouble object */
+	bool operator!=(const GDouble&) const;
+
+	/** @brief Checks for equality with another GDouble object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GDouble object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
+
 
 /************************************************************************/
 
