@@ -961,7 +961,8 @@ private:
 		GCharObjectCollection::iterator gcoc_it;
 		for(pos=0, gcoc_it=gcoc->begin(); gcoc_it!=gcoc->end(); ++pos, ++gcoc_it) {
 			boost::shared_ptr<Gem::Util::GCharParameter> gcp_ptr = gde_.parameterSet_at<char>(pos);
-			**gcoc_it = gcp_ptr->value();
+			// **gcoc_it = gcp_ptr->value(); // Doesn't work for unknown reasons
+			(**gcoc_it).GParameterT<char>::operator=(gcp_ptr->value());
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------------

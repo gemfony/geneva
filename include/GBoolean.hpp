@@ -56,18 +56,49 @@ namespace GenEvA {
  * This class encapsulates a single bit, represented as a bool. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
  * use the GBooleanCollection instead.
- *
- * Bits are mutated by the GBooleanAdaptor in GenEvA. It incorporates a mutable bit-flip probability.
- * The reason for this class is that there might be applications where one might want different flip
- * probabilities for different bits. Where this is the case, separate GBooleanAdaptors must be
- * assigned to each bit value, which cannot be done with the GBooleanCollection. Plus, having
- * a separate bit class adds some consistency to GenEvA, as other values (most
- * notably doubles) have their own class as well (GDouble).
- *
- * For reasons of simplicity this class is implemented as a simple typdef of the GParameterT
- * template class, which implements a specialization of the constructor.
  */
-typedef GParameterT<bool> GBoolean;
+class GBoolean
+	:public GParameterT<bool>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GParameterT_bool", boost::serialization::base_object<GParameterT<bool> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GBoolean();
+	/** @brief The copy constructor */
+	GBoolean(const GBoolean&);
+	/** @brief Initialization by contained value */
+	explicit GBoolean(const bool&);
+	/** @brief The destructor */
+	virtual ~GBoolean();
+
+	/** @brief A standard assignment operator */
+	const GBoolean& operator=(const GBoolean&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GBoolean object */
+	bool operator==(const GBoolean&) const;
+	/** @brief Checks for inequality with another GBoolean object */
+	bool operator!=(const GBoolean&) const;
+
+	/** @brief Checks for equality with another GBoolean object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GBoolean object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
 
 /************************************************************************/
 

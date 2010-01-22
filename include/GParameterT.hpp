@@ -72,9 +72,6 @@ class GParameterT
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-  	  // Register this class
-	  ar.template register_type<GParameterT<T> >();
-
 	  ar & make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T> >(*this))
 	     & BOOST_SERIALIZATION_NVP(val_);
 	}
@@ -112,7 +109,7 @@ public:
 	 * @param val The new value for val_
 	 * @return The new value of val_
 	 */
-	virtual T operator=(const T& val){
+	virtual const T& operator=(const T& val){
 		val_ = val;
 		return val_;
 	}
@@ -137,13 +134,12 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object.
+	 * Creates a deep clone of this object. Purely virtual, needs to be implemented in derived
+	 * classes.
 	 *
 	 * @return A copy of this object, camouflaged as a GObject
 	 */
-	virtual GObject* clone() const {
-		return new GParameterT<T>(*this);
-	}
+	virtual GObject* clone() const = 0;
 
 	/*******************************************************************************************/
 	/**
@@ -308,5 +304,19 @@ GParameterT<T>:: ~GParameterT()
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+/********************************************************************************************/
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+
+namespace boost {
+	namespace serialization {
+		template<typename T>
+		struct is_abstract<Gem::GenEvA::GParameterT<T> > : public boost::true_type {};
+		template<typename T>
+		struct is_abstract< const Gem::GenEvA::GParameterT<T> > : public boost::true_type {};
+	}
+}
+
+/********************************************************************************************/
 
 #endif /* GPARAMETERT_HPP_ */

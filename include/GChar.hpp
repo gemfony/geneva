@@ -57,11 +57,50 @@ namespace GenEvA {
  * and indeed for most applications this is not the recommended solution -
  * use the GString class instead. char types are mutated by the GCharAdaptor
  * in GenEvA.
- *
- * As the GParameterT template class holds a suitable specialization for char,
- * this class can be implemented as a simple typedef.
  */
-typedef GParameterT<char> GChar;
+class GChar
+	:public GParameterT<char>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GParameterT_char", boost::serialization::base_object<GParameterT<char> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GChar();
+	/** @brief The copy constructor */
+	GChar(const GChar&);
+	/** @brief Initialization by contained value */
+	explicit GChar(const char&);
+	/** @brief The destructor */
+	virtual ~GChar();
+
+	/** @brief A standard assignment operator */
+	const GChar& operator=(const GChar&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GChar object */
+	bool operator==(const GChar&) const;
+	/** @brief Checks for inequality with another GChar object */
+	bool operator!=(const GChar&) const;
+
+	/** @brief Checks for equality with another GChar object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GChar object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+};
+
 
 /************************************************************************/
 

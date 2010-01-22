@@ -129,7 +129,7 @@ public:
 	 * @param The desired new external value
 	 * @return The new external value of this object
 	 */
-	virtual T operator=(const T& val) {
+	virtual const T& operator=(const T& val) {
 		this->setExternalValue(val);
 		return val;
 	}
