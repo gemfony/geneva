@@ -164,13 +164,13 @@ public:
 			                             boost::shared_ptr<GAdaptorT<boost::int32_t> > glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL),
 			                             boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL),
 			                             boost::shared_ptr<GAdaptorT<char> > gchar_ad_ptr = boost::shared_ptr<GAdaptorT<char> >((GAdaptorT<char> *)NULL)	)
-		:program_(program),
-		 arguments_(arguments),
-		 nEvaluations_(1),
-		 exchangeMode_(exchangeMode),
-		 maximize_(false),
-		 parameterFile_("./parameterData"),
-		 useCommonAdaptor_(useCommonAdaptor)
+		: program_(program)
+		, arguments_(arguments)
+		, nEvaluations_(1)
+		, exchangeMode_(exchangeMode)
+		, maximize_(false)
+		, parameterFile_("./parameterData")
+		, useCommonAdaptor_(useCommonAdaptor)
 	{
 		//-----------------------------------------------------------------------------------------------
 		// Create the required, empty collections.
@@ -291,14 +291,14 @@ public:
 	 * A standard copy constructor.
 	 */
 	GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual& cp)
-		:GParameterSet(cp), // copies all local collections
-		 program_(cp.program_),
-		 arguments_(cp.arguments_),
-		 nEvaluations_(cp.nEvaluations_),
-		 exchangeMode_(cp.exchangeMode_),
-		 maximize_(cp.maximize_),
-		 parameterFile_(cp.parameterFile_),
-		 useCommonAdaptor_(cp.useCommonAdaptor_)
+		: GParameterSet(cp) // copies all local collections
+		, program_(cp.program_)
+		, arguments_(cp.arguments_)
+		, nEvaluations_(cp.nEvaluations_)
+		, exchangeMode_(cp.exchangeMode_)
+		, maximize_(cp.maximize_)
+		, parameterFile_(cp.parameterFile_)
+		, useCommonAdaptor_(cp.useCommonAdaptor_)
 	{
 		 gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone_bptr_cast<GBoundedDouble>();
 		 glong_ptr_ = cp.glong_ptr_->GObject::clone_bptr_cast<GBoundedInt32>();
@@ -393,23 +393,23 @@ public:
 	 * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		const GExternalEvaluatorIndividual *gev_load = conversion_cast(cp, this);
+		const GExternalEvaluatorIndividual *p_load = conversion_cast(cp, this);
 
 		// First load the data of our parent class ...
 		GParameterSet::load(cp);
 
 		// ... and then our own
-		program_ = gev_load->program_;
-		arguments_ = gev_load->arguments_;
-		nEvaluations_ = gev_load->nEvaluations_;
-		exchangeMode_ = gev_load->exchangeMode_;
-		maximize_ = gev_load->maximize_;
-		parameterFile_ = gev_load->parameterFile_;
-		useCommonAdaptor_ = gev_load->useCommonAdaptor_;
+		program_ = p_load->program_;
+		arguments_ = p_load->arguments_;
+		nEvaluations_ = p_load->nEvaluations_;
+		exchangeMode_ = p_load->exchangeMode_;
+		maximize_ = p_load->maximize_;
+		parameterFile_ = p_load->parameterFile_;
+		useCommonAdaptor_ = p_load->useCommonAdaptor_;
 
-		gdbl_ptr_ = gev_load->gdbl_ptr_->GObject::clone_bptr_cast<GBoundedDouble>();
-		glong_ptr_ = gev_load->glong_ptr_->GObject::clone_bptr_cast<GBoundedInt32>();
-		gchar_ptr_ = gev_load->gchar_ptr_->GObject::clone_bptr_cast<GChar>();
+		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone_bptr_cast<GBoundedDouble>();
+		glong_ptr_ = p_load->glong_ptr_->GObject::clone_bptr_cast<GBoundedInt32>();
+		gchar_ptr_ = p_load->gchar_ptr_->GObject::clone_bptr_cast<GChar>();
 	}
 
 	/********************************************************************************************/
@@ -445,28 +445,28 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GNumCollectionT reference
-		const GExternalEvaluatorIndividual *gev_load = GObject::conversion_cast(&cp,  this);
+		const GExternalEvaluatorIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 		//----------------------------------------------------------------------------------------------------
 		// Check equality of the parent class
-		if(GParameterSet::isNotEqualTo(*gev_load)) return false;
+		if(GParameterSet::isNotEqualTo(*p_load)) return false;
 
 		//----------------------------------------------------------------------------------------------------
 		// Then check our local data
 
 		// First basic types
-		if(checkForInequality("GExternalEvaluatorIndividual", program_, gev_load->program_,"program_", "gev_load->program_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", arguments_, gev_load->arguments_,"arguments_", "gev_load->arguments_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", nEvaluations_, gev_load->nEvaluations_,"nEvaluations_", "gev_load->nEvaluations_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", exchangeMode_, gev_load->exchangeMode_,"exchangeMode_", "gev_load->exchangeMode_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", maximize_, gev_load->maximize_,"maximize_", "gev_load->maximize_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", parameterFile_, gev_load->parameterFile_,"parameterFile_", "gev_load->parameterFile_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", useCommonAdaptor_, gev_load->useCommonAdaptor_,"useCommonAdaptor_", "gev_load->useCommonAdaptor_", expected)) return false;
+		if(checkForInequality("GExternalEvaluatorIndividual", program_, p_load->program_,"program_", "p_load->program_", expected)) return false;
+		if(checkForInequality("GExternalEvaluatorIndividual", arguments_, p_load->arguments_,"arguments_", "p_load->arguments_", expected)) return false;
+		if(checkForInequality("GExternalEvaluatorIndividual", nEvaluations_, p_load->nEvaluations_,"nEvaluations_", "p_load->nEvaluations_", expected)) return false;
+		if(checkForInequality("GExternalEvaluatorIndividual", exchangeMode_, p_load->exchangeMode_,"exchangeMode_", "p_load->exchangeMode_", expected)) return false;
+		if(checkForInequality("GExternalEvaluatorIndividual", maximize_, p_load->maximize_,"maximize_", "p_load->maximize_", expected)) return false;
+		if(checkForInequality("GExternalEvaluatorIndividual", parameterFile_, p_load->parameterFile_,"parameterFile_", "p_load->parameterFile_", expected)) return false;
+		if(checkForInequality("GExternalEvaluatorIndividual", useCommonAdaptor_, p_load->useCommonAdaptor_,"useCommonAdaptor_", "p_load->useCommonAdaptor_", expected)) return false;
 
 		// Then objects
-		if(gdbl_ptr_->isNotEqualTo(*(gev_load->gdbl_ptr_), expected)) return false;
-		if(glong_ptr_->isNotEqualTo(*(gev_load->glong_ptr_), expected)) return false;
-		if(gchar_ptr_->isNotEqualTo(*(gev_load->gchar_ptr_), expected)) return false;
+		if(gdbl_ptr_->isNotEqualTo(*(p_load->gdbl_ptr_), expected)) return false;
+		if(glong_ptr_->isNotEqualTo(*(p_load->glong_ptr_), expected)) return false;
+		if(gchar_ptr_->isNotEqualTo(*(p_load->gchar_ptr_), expected)) return false;
 
 		return true;
 	}
@@ -484,28 +484,28 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GNumCollectionT reference
-		const GExternalEvaluatorIndividual *gev_load = GObject::conversion_cast(&cp,  this);
+		const GExternalEvaluatorIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 		//----------------------------------------------------------------------------------------------------
 		// Check similarity of the parent class
-		if(GParameterSet::isNotSimilarTo(*gev_load, limit)) return false;
+		if(GParameterSet::isNotSimilarTo(*p_load, limit)) return false;
 
 		//----------------------------------------------------------------------------------------------------
 		// Then check our local data
 
 		// First the basic types
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", program_, gev_load->program_, limit, "program_", "gev_load->program_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", arguments_, gev_load->arguments_, limit,"arguments_", "gev_load->arguments_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", nEvaluations_, gev_load->nEvaluations_, limit,"nEvaluations_", "gev_load->nEvaluations_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", exchangeMode_, gev_load->exchangeMode_, limit, "exchangeMode_", "gev_load->exchangeMode_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", maximize_, gev_load->maximize_, limit, "maximize_", "gev_load->maximize_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", parameterFile_, gev_load->parameterFile_, limit, "parameterFile_", "gev_load->parameterFile_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", useCommonAdaptor_, gev_load->useCommonAdaptor_, limit, "useCommonAdaptor_", "gev_load->useCommonAdaptor_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluatorIndividual", program_, p_load->program_, limit, "program_", "p_load->program_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluatorIndividual", arguments_, p_load->arguments_, limit,"arguments_", "p_load->arguments_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluatorIndividual", nEvaluations_, p_load->nEvaluations_, limit,"nEvaluations_", "p_load->nEvaluations_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluatorIndividual", exchangeMode_, p_load->exchangeMode_, limit, "exchangeMode_", "p_load->exchangeMode_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluatorIndividual", maximize_, p_load->maximize_, limit, "maximize_", "p_load->maximize_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluatorIndividual", parameterFile_, p_load->parameterFile_, limit, "parameterFile_", "p_load->parameterFile_", expected)) return false;
+		if(checkForDissimilarity("GExternalEvaluatorIndividual", useCommonAdaptor_, p_load->useCommonAdaptor_, limit, "useCommonAdaptor_", "p_load->useCommonAdaptor_", expected)) return false;
 
 		// Then objects
-		if(gdbl_ptr_->isNotSimilarTo(*(gev_load->gdbl_ptr_), limit, expected)) return false;
-		if(glong_ptr_->isNotSimilarTo(*(gev_load->glong_ptr_), limit, expected)) return false;
-		if(gchar_ptr_->isNotSimilarTo(*(gev_load->gchar_ptr_), limit, expected)) return false;
+		if(gdbl_ptr_->isNotSimilarTo(*(p_load->gdbl_ptr_), limit, expected)) return false;
+		if(glong_ptr_->isNotSimilarTo(*(p_load->glong_ptr_), limit, expected)) return false;
+		if(gchar_ptr_->isNotSimilarTo(*(p_load->gchar_ptr_), limit, expected)) return false;
 
 		return true;
 	}
