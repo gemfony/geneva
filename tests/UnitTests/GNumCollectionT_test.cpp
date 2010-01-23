@@ -33,6 +33,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <typeinfo>
 
 // Boost header files go here
 
@@ -49,6 +50,8 @@
 #include "GInt32Collection.hpp"
 #include "GDoubleCollection.hpp"
 #include "GGaussAdaptorT.hpp"
+#include "GDoubleGaussAdaptor.hpp"
+#include "GInt32GaussAdaptor.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
 #include "GStdVectorInterface_test.hpp"
 
@@ -58,6 +61,22 @@ using namespace Gem::GenEvA;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
+
+template <typename T>
+boost::shared_ptr<GGaussAdaptorT<typename T::collection_type> > getNumCollectionAdaptor() {
+	std::cout << "Error: Function getAdaptor<>() called for wrong type" << std::endl;
+	exit(1);
+}
+
+template <>
+boost::shared_ptr<GGaussAdaptorT<double> > getNumCollectionAdaptor<GDoubleCollection>() {
+	return boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(10,0.1,2,100));
+}
+
+template <>
+boost::shared_ptr<GGaussAdaptorT<boost::int32_t> > getNumCollectionAdaptor<GInt32Collection>() {
+	return boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(10,0.1,2,100));
+}
 
 /***********************************************************************************/
 // Test features that are expected to work
@@ -113,7 +132,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	delete gpb;
 
 	// Adding an adaptor with rather large gauss
-	boost::shared_ptr<GGaussAdaptorT<typename T::collection_type> > gba(new GGaussAdaptorT<typename T::collection_type>(10,0.1,2,100));
+	boost::shared_ptr<GGaussAdaptorT<typename T::collection_type> > gba = getNumCollectionAdaptor<T>();
 	gnct6.addAdaptor(gba);
 
 	const std::size_t NMUTATIONS=1000;

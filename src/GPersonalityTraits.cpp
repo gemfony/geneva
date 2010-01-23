@@ -92,10 +92,10 @@ bool GPersonalityTraits::isEqualTo(const GObject& cp, const boost::logic::triboo
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GPersonalityTraits reference
-	const GPersonalityTraits *gpt_load = GObject::conversion_cast(&cp,  this);
+	const GPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
 
 	// Check for equality of our parent class
-	if(!GObject::isEqualTo(*gpt_load, expected)) return  false;
+	if(!GObject::isEqualTo(*p_load, expected)) return  false;
 
 	// No local data
 
@@ -114,10 +114,10 @@ bool GPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, con
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GPersonalityTraits reference
-	const GPersonalityTraits *gpt_load = GObject::conversion_cast(&cp,  this);
+	const GPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
 
 	// Check for equality of our parent class
-	if(!GObject::isSimilarTo(*gpt_load, limit, expected)) return false;
+	if(!GObject::isSimilarTo(*p_load, limit, expected)) return false;
 
 	// No local data
 
@@ -131,7 +131,7 @@ bool GPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, con
  * @param cp A copy of another GPersonalityTraits object, camouflaged as a GObject
  */
 void GPersonalityTraits::load(const GObject *cp) {
-	const GPersonalityTraits *gpt_load = this->conversion_cast(cp, this);
+	const GPersonalityTraits *p_load = this->conversion_cast(cp, this);
 
 	// Load the parent class'es data
 	GObject::load(cp);

@@ -146,7 +146,7 @@ public:
 	{
 		// Convert GObject pointer to local format
 		// (also checks for self-assignments in DEBUG mode)
-		const GIntFlipAdaptorT<T> *gifa = this->conversion_cast(cp, this);
+		const GIntFlipAdaptorT<T> *p_load = this->conversion_cast(cp, this);
 
 		// Load the data of our parent class ...
 		GAdaptorT<T>::load(cp);
@@ -157,14 +157,12 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * This function creates a deep copy of this object
+	 * This function creates a deep copy of this object. The function is purely virtual, as we
+	 * do not want this class to be instantiated. Use the derived classes instead.
 	 *
 	 * @return A deep copy of this object
 	 */
-	GObject *clone() const
-	{
-		return new GIntFlipAdaptorT<T>(*this);
-	}
+	virtual GObject *clone() const = 0;
 
 	/********************************************************************************************/
 	/**
@@ -200,10 +198,10 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
-		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
+		const GIntFlipAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check our parent class
-		if(!GAdaptorT<T>::isEqualTo(*gifat_load, expected)) return false;
+		if(!GAdaptorT<T>::isEqualTo(*p_load, expected)) return false;
 
 		// no local data
 
@@ -224,10 +222,10 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
-		const GIntFlipAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
+		const GIntFlipAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// First check our parent class
-		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit, expected))  return false;
+		if(!GAdaptorT<T>::isSimilarTo(*p_load, limit, expected))  return false;
 
 		// no local data
 
@@ -236,16 +234,12 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Retrieves the id of the adaptor.
+	 * Retrieves the id of the adaptor. Purely virtual, as we do not want this class to be
+	 * instantiated.
 	 *
 	 * @return The id of the adaptor
 	 */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const {
-		std::ostringstream error;
-		error << "In Gem::GenEvA::adaptorId GIntFlipAdaptorT::getAdaptorId(): Error!" << std::endl
-			  << "Function used with a type it was not designed for" << std::endl;
-		throw (Gem::GenEvA::geneva_error_condition(error.str()));
-	}
+	virtual Gem::GenEvA::adaptorId getAdaptorId() const = 0;
 
 protected:
 	/********************************************************************************************/
@@ -262,16 +256,26 @@ protected:
 	virtual void customMutations(T& value) {
 		bool up = this->gr.boolRandom();
 		if(up){
-#if defined (CHECKOVERFLOWS) || defined (DEBUG)
-			if(std::numeric_limits<T>::max() == value) value -= 1;
+#if defined (CHECKOVERFLOWS)
+			if(std::numeric_limits<T>::max() == value) {
+#ifdef DEBUG
+				std::cout << "Warning: Had to change mutation due to overflow in GIntFlipAdaptorT<>::customMutations()" << std::endl;
+#endif
+				value -= 1;
+			}
 			else value += 1;
 #else
 			value += 1;
 #endif
 		}
 		else {
-#if defined (CHECKOVERFLOWS) || defined (DEBUG)
-			if(std::numeric_limits<T>::min() == value) value += 1;
+#if defined (CHECKOVERFLOWS)
+			if(std::numeric_limits<T>::min() == value) {
+#ifdef DEBUG
+				std::cout << "Warning: Had to change mutation due to underflow in GIntFlipAdaptorT<>::customMutations()" << std::endl;
+#endif
+				value += 1;
+			}
 			else value -= 1;
 #else
 			value -= 1;
@@ -281,15 +285,22 @@ protected:
 };
 
 /************************************************************************************************/
-// Declaration of some specializations
-template<> void GIntFlipAdaptorT<bool>::customMutations(bool&);
-template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<bool>::getAdaptorId() const;
-template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<boost::int32_t>::getAdaptorId() const;
-template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<char>::getAdaptorId() const;
-
-/************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+/********************************************************************************************/
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+
+namespace boost {
+	namespace serialization {
+		template<typename T>
+		struct is_abstract<Gem::GenEvA::GIntFlipAdaptorT<T> > : public boost::true_type {};
+		template<typename T>
+		struct is_abstract< const Gem::GenEvA::GIntFlipAdaptorT<T> > : public boost::true_type {};
+	}
+}
+
+/********************************************************************************************/
 
 #endif /* GINTFLIPADAPTORT_HPP_ */

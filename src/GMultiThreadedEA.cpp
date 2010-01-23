@@ -93,13 +93,13 @@ const GMultiThreadedEA& GMultiThreadedEA::operator=(const GMultiThreadedEA& cp) 
  */
 void GMultiThreadedEA::load(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GMultiThreadedEA *gbp = this->conversion_cast(cp, this);
+	const GMultiThreadedEA *p_load = this->conversion_cast(cp, this);
 
 	// First load our parent class'es data ...
 	GEvolutionaryAlgorithm::load(cp);
 
 	// ... and then our own
-	nThreads_ = gbp->nThreads_;
+	nThreads_ = p_load->nThreads_;
 	tp_.clear();
 	tp_.size_controller().resize(nThreads_);
 
@@ -149,13 +149,13 @@ bool GMultiThreadedEA::isEqualTo(const GObject& cp, const boost::logic::tribool&
    using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GMultiThreadedEA *gbtp_load = GObject::conversion_cast(&cp,  this);
+	const GMultiThreadedEA *p_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GEvolutionaryAlgorithm::isEqualTo(*gbtp_load, expected)) return  false;
+	if(!GEvolutionaryAlgorithm::isEqualTo(*p_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GMultiThreadedEA", nThreads_, gbtp_load->nThreads_,"nThreads_", "gbtp_load->nThreads_", expected)) return false;
+	if(checkForInequality("GMultiThreadedEA", nThreads_, p_load->nThreads_,"nThreads_", "p_load->nThreads_", expected)) return false;
 
 	return true;
 }
@@ -172,13 +172,13 @@ bool GMultiThreadedEA::isSimilarTo(const GObject& cp, const double& limit, const
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GMultiThreadedEA *gbtp_load = GObject::conversion_cast(&cp,  this);
+	const GMultiThreadedEA *p_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GEvolutionaryAlgorithm::isSimilarTo(*gbtp_load, limit, expected)) return  false;
+	if(!GEvolutionaryAlgorithm::isSimilarTo(*p_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GMultiThreadedEA", nThreads_, gbtp_load->nThreads_, limit, "nThreads_", "gbtp_load->nThreads_", expected)) return false;
+	if(checkForDissimilarity("GMultiThreadedEA", nThreads_, p_load->nThreads_, limit, "nThreads_", "p_load->nThreads_", expected)) return false;
 
 	return true;
 }

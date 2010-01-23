@@ -30,7 +30,6 @@ SET ( GENEVASOURCES
 	GDoubleParameter
 	GEAPersonalityTraits
 	GEvolutionaryAlgorithm
-	GGaussAdaptorT
 	GGDPersonalityTraits
 	GHelperFunctionsT
 	GIdentityAdaptorT
@@ -40,7 +39,6 @@ SET ( GENEVASOURCES
 	GInt32FlipAdaptor
 	GInt32GaussAdaptor
 	GInt32ObjectCollection
-	GIntFlipAdaptorT
 	GLongParameter
 	GMultiThreadedEA
 	GNumCollectionT

@@ -142,7 +142,7 @@ public:
 	{
 		// Convert GObject pointer to local format
 		// (also checks for self-assignments in DEBUG mode)
-		const GIdentityAdaptorT<T> *gifa = this->conversion_cast(cp, this);
+		const GIdentityAdaptorT<T> *p_load = this->conversion_cast(cp, this);
 		// Load the data of our parent class ...
 		GAdaptorT<T>::load(cp);
 		// no local data
@@ -191,9 +191,9 @@ public:
 	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
 		using namespace Gem::Util;
 		// Check that we are indeed dealing with a GIdentityAdaptorT reference
-		const GIdentityAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
+		const GIdentityAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
 		// Check our parent class
-		if(!GAdaptorT<T>::isEqualTo(*gifat_load, expected)) return false;
+		if(!GAdaptorT<T>::isEqualTo(*p_load, expected)) return false;
 		// no local data
 		return true;
 	}
@@ -211,9 +211,9 @@ public:
 	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
 		using namespace Gem::Util;
 		// Check that we are indeed dealing with a GIdentityAdaptorT reference
-		const GIdentityAdaptorT<T> *gifat_load = GObject::conversion_cast(&cp,  this);
+		const GIdentityAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
 		// First check our parent class
-		if(!GAdaptorT<T>::isSimilarTo(*gifat_load, limit, expected))  return false;
+		if(!GAdaptorT<T>::isSimilarTo(*p_load, limit, expected))  return false;
 		// no local data
 		return true;
 	}

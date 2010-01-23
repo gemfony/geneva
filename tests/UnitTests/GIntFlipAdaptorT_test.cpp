@@ -49,6 +49,9 @@
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
 #include "GIntFlipAdaptorT.hpp"
+#include "GInt32FlipAdaptor.hpp"
+#include "GBooleanAdaptor.hpp"
+#include "GCharFlipAdaptor.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -64,7 +67,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 	GRandom gr;
 
 	// Test simple instantiation
-	GIntFlipAdaptorT<T> gifat0;
+	T gifat0;
 
 	// An id should have been set automatically
 	BOOST_CHECK(gifat0.getAdaptorId() == Gem::GenEvA::GBOOLEANADAPTOR ||
@@ -72,18 +75,18 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 			gifat0.getAdaptorId() == Gem::GenEvA::GCHARFLIPADAPTOR);
 
 	// Test instantiation with a probability mutation
-	GIntFlipAdaptorT<T> gifat1(0.2);
+	T gifat1(0.2);
 
 	BOOST_CHECK(gifat1.isNotEqualTo(gifat0));
 
 	// Test copy construction
-	GIntFlipAdaptorT<T> gifat2(gifat1);
+	T gifat2(gifat1);
 
 	BOOST_CHECK(gifat2.isEqualTo(gifat1));
 	BOOST_CHECK(gifat2.isNotEqualTo(gifat0));
 
 	// Test assignment
-	GIntFlipAdaptorT<T> gifat3;
+	T gifat3;
 	gifat3 = gifat1;
 
 	BOOST_CHECK(gifat3.isEqualTo(gifat1));
@@ -98,10 +101,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 
 	// Check mutations
 	const std::size_t NMUTATIONS = 10000;
-	T mutationTarget=T(0);
+	typename T::mutant_type mutationTarget=typename T::mutant_type(0);
 	gifat3.setAdaptionThreshold(10);
 	gifat3.setMutationProbability(0.1);
-	std::vector<T> mutatedValues(NMUTATIONS+1);
+	std::vector<typename T::mutant_type> mutatedValues(NMUTATIONS+1);
 	mutatedValues[0] = mutationTarget;
 	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
 		gifat3.mutate(mutationTarget);
@@ -113,19 +116,19 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 	BOOST_CHECK(nOriginalValues < NMUTATIONS);
 
 	// Check that no mutations occur if mutProb == 0
-	mutationTarget=T(0);
+	mutationTarget=typename T::mutant_type(0);
 	gifat3.setAdaptionThreshold(0);
 	gifat3.setMutationProbability(0.);
 	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
 		gifat3.mutate(mutationTarget);
-		BOOST_CHECK(mutationTarget == T(0));
+		BOOST_CHECK(mutationTarget == typename T::mutant_type(0));
 	}
 
 	// Check that mutations always occur  if mutProb == 1
-	mutationTarget=T(0);
+	mutationTarget=typename T::mutant_type(0);
 	gifat3.setAdaptionThreshold(0);
 	gifat3.setMutationProbability(1.);
-	T oldMutationTarget = T(0);
+	typename T::mutant_type oldMutationTarget = typename T::mutant_type(0);
 	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
 		oldMutationTarget = mutationTarget;
 		gifat3.mutate(mutationTarget);
@@ -150,14 +153,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GIntFlipAdaptorT_failures_expected, T)
 
 	{
 		// Simple instantiation
-		GIntFlipAdaptorT<T> gifat0;
+		T gifat0;
 		// Assignment of an invalid mutation probability
 		BOOST_CHECK_THROW(gifat0.setMutationProbability(-0.1), Gem::GenEvA::geneva_error_condition);
 	}
 
 	{
 		// Simple instantiation
-		GIntFlipAdaptorT<T> gifat0;
+		T gifat0;
 		// Assignment of an invalid mutation probability
 		BOOST_CHECK_THROW(gifat0.setMutationProbability(1.1), Gem::GenEvA::geneva_error_condition);
 	}
@@ -165,7 +168,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GIntFlipAdaptorT_failures_expected, T)
 	{
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-		GIntFlipAdaptorT<T> gifat0;
+		T gifat0;
 		BOOST_CHECK_THROW(gifat0.load(&gifat0), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 	}
@@ -181,7 +184,7 @@ class GIntFlipAdaptorTSuite: public test_suite
 {
 public:
 	GIntFlipAdaptorTSuite() :test_suite("GIntFlipAdaptorTSuite") {
-		typedef boost::mpl::list<boost::int32_t, bool,  char> test_types;
+		typedef boost::mpl::list<GInt32FlipAdaptor, GBooleanAdaptor,  GCharFlipAdaptor> test_types;
 
 		add( BOOST_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, test_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_failures_expected, test_types ) );

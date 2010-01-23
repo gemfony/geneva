@@ -49,6 +49,9 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
 
 #ifndef GADAPTORT_HPP_
 #define GADAPTORT_HPP_
@@ -123,6 +126,12 @@ class GAdaptorT:
 	///////////////////////////////////////////////////////////////////////
 
 public:
+	/***********************************************************************************/
+	/**
+	 * Allows external callers to find out about the type stored in this object
+	 */
+	typedef T mutant_type;
+
 	/***********************************************************************************/
 	/**
 	 * The default constructor.
@@ -211,19 +220,19 @@ public:
 	 */
 	virtual void load(const GObject *cp) {
 		// Convert cp into local format
-		const GAdaptorT<T> *gat = this->conversion_cast(cp, this);
+		const GAdaptorT<T> *p_load = this->conversion_cast(cp, this);
 
 		// Load the parent class'es data
 		GObject::load(cp);
 
 		// Then our own data
-		gr.load(&(gat->gr));
-		adaptionCounter_ = gat->adaptionCounter_;
-		adaptionThreshold_ = gat->adaptionThreshold_;
-		mutProb_ = gat->mutProb_;
-		mutationMode_ = gat->mutationMode_;
-		currentIndex_ = gat->currentIndex_;
-		maxVars_ = gat->maxVars_;
+		gr.load(&(p_load->gr));
+		adaptionCounter_ = p_load->adaptionCounter_;
+		adaptionThreshold_ = p_load->adaptionThreshold_;
+		mutProb_ = p_load->mutProb_;
+		mutationMode_ = p_load->mutationMode_;
+		currentIndex_ = p_load->currentIndex_;
+		maxVars_ = p_load->maxVars_;
 
 #ifdef DEBUG
 		if(maxVars_ < 1) {
@@ -272,20 +281,20 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GAdaptorT reference
-		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
+		const GAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// First check our parent class for equality
-		if(!GObject::isEqualTo(*gat_load, expected)) return false;
+		if(!GObject::isEqualTo(*p_load, expected)) return false;
 
 		// then our local data
-		if(!gr.isEqualTo(gat_load->gr, expected)) return false;
+		if(!gr.isEqualTo(p_load->gr, expected)) return false;
 
-		if(checkForInequality("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_,"adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
-		if(checkForInequality("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_,"adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
-		if(checkForInequality("GAdaptorT", mutProb_, gat_load->mutProb_,"mutProb_", "gat_load->mutProb_", expected)) return false;
-		if(checkForInequality("GAdaptorT", mutationMode_, gat_load->mutationMode_,"mutationMode_", "gat_load->mutationMode_", expected)) return false;
-		if(checkForInequality("GAdaptorT", currentIndex_, gat_load->currentIndex_,"currentIndex_", "gat_load->currentIndex_", expected)) return false;
-		if(checkForInequality("GAdaptorT", maxVars_, gat_load->maxVars_,"maxVars_", "gat_load->maxVars_", expected)) return false;
+		if(checkForInequality("GAdaptorT", adaptionCounter_, p_load->adaptionCounter_,"adaptionCounter_", "p_load->adaptionCounter_", expected)) return false;
+		if(checkForInequality("GAdaptorT", adaptionThreshold_, p_load->adaptionThreshold_,"adaptionThreshold_", "p_load->adaptionThreshold_", expected)) return false;
+		if(checkForInequality("GAdaptorT", mutProb_, p_load->mutProb_,"mutProb_", "p_load->mutProb_", expected)) return false;
+		if(checkForInequality("GAdaptorT", mutationMode_, p_load->mutationMode_,"mutationMode_", "p_load->mutationMode_", expected)) return false;
+		if(checkForInequality("GAdaptorT", currentIndex_, p_load->currentIndex_,"currentIndex_", "p_load->currentIndex_", expected)) return false;
+		if(checkForInequality("GAdaptorT", maxVars_, p_load->maxVars_,"maxVars_", "p_load->maxVars_", expected)) return false;
 
 		return true;
 	}
@@ -302,20 +311,20 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GAdaptorT reference
-		const GAdaptorT<T> *gat_load = GObject::conversion_cast(&cp,  this);
+		const GAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// First check our parent class for dissimilarity
-		if(!GObject::isSimilarTo(*gat_load, limit, expected)) return false;
+		if(!GObject::isSimilarTo(*p_load, limit, expected)) return false;
 
 		// Then our local data
-		if(!gr.isSimilarTo(gat_load->gr, limit, expected)) return false;
+		if(!gr.isSimilarTo(p_load->gr, limit, expected)) return false;
 
-		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, gat_load->adaptionCounter_, limit, "adaptionCounter_", "gat_load->adaptionCounter_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, gat_load->adaptionThreshold_, limit, "adaptionThreshold_", "gat_load->adaptionThreshold_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", mutProb_, gat_load->mutProb_, limit, "mutProb_", "gat_load->mutProb_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", mutationMode_, gat_load->mutationMode_, limit, "mutationMode_", "gat_load->mutationMode_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", currentIndex_, gat_load->currentIndex_, limit, "currentIndex_", "gat_load->currentIndex_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", maxVars_, gat_load->maxVars_, limit, "maxVars_", "gat_load->maxVars_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, p_load->adaptionCounter_, limit, "adaptionCounter_", "p_load->adaptionCounter_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, p_load->adaptionThreshold_, limit, "adaptionThreshold_", "p_load->adaptionThreshold_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", mutProb_, p_load->mutProb_, limit, "mutProb_", "p_load->mutProb_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", mutationMode_, p_load->mutationMode_, limit, "mutationMode_", "p_load->mutationMode_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", currentIndex_, p_load->currentIndex_, limit, "currentIndex_", "p_load->currentIndex_", expected)) return false;
+		if(checkForDissimilarity("GAdaptorT", maxVars_, p_load->maxVars_, limit, "maxVars_", "p_load->maxVars_", expected)) return false;
 
 		return true;
 	}

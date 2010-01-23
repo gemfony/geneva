@@ -42,6 +42,18 @@
 #include <boost/cstdint.hpp>
 #include <boost/limits.hpp>
 #include <boost/cast.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
 
 #ifndef GGAUSSADAPTORT_HPP_
 #define GGAUSSADAPTORT_HPP_
@@ -95,11 +107,11 @@ public:
 	 * The standard constructor.
 	 */
 	GGaussAdaptorT()
-		:GAdaptorT<T> (),
-		 sigma_(DEFAULTSIGMA),
-		 sigmaSigma_(DEFAULTSIGMASIGMA),
-		 minSigma_(DEFAULTMINSIGMA),
-		 maxSigma_(DEFAULTMAXSIGMA)
+		: GAdaptorT<T> ()
+		, sigma_(DEFAULTSIGMA)
+		, sigmaSigma_(DEFAULTSIGMASIGMA)
+		, minSigma_(DEFAULTMINSIGMA)
+		, maxSigma_(DEFAULTMAXSIGMA)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -109,11 +121,11 @@ public:
 	 * @param probability The likelihood for a mutation actually taking place
 	 */
 	GGaussAdaptorT(const double& probability)
-		:GAdaptorT<T> (probability),
-		 sigma_(DEFAULTSIGMA),
-		 sigmaSigma_(DEFAULTSIGMASIGMA),
-		 minSigma_(DEFAULTMINSIGMA),
-		 maxSigma_(DEFAULTMAXSIGMA)
+		: GAdaptorT<T> (probability)
+		, sigma_(DEFAULTSIGMA)
+		, sigmaSigma_(DEFAULTSIGMASIGMA)
+		, minSigma_(DEFAULTMINSIGMA)
+		, maxSigma_(DEFAULTMAXSIGMA)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -127,11 +139,11 @@ public:
 	 */
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
-		:GAdaptorT<T> (),
-		 sigma_(DEFAULTSIGMA),
-		 sigmaSigma_(DEFAULTSIGMASIGMA),
-		 minSigma_(DEFAULTMINSIGMA),
-		 maxSigma_(DEFAULTMAXSIGMA)
+		: GAdaptorT<T> ()
+		, sigma_(DEFAULTSIGMA)
+		, sigmaSigma_(DEFAULTSIGMASIGMA)
+		, minSigma_(DEFAULTMINSIGMA)
+		, maxSigma_(DEFAULTMAXSIGMA)
 	{
 		// These functions do error checks on their values
 		setSigmaAdaptionRate(sigmaSigma);
@@ -152,11 +164,11 @@ public:
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma,
 				const double& probability)
-		:GAdaptorT<T> (probability),
-		 sigma_(DEFAULTSIGMA),
-		 sigmaSigma_(DEFAULTSIGMASIGMA),
-		 minSigma_(DEFAULTMINSIGMA),
-		 maxSigma_(DEFAULTMAXSIGMA)
+		: GAdaptorT<T> (probability)
+		, sigma_(DEFAULTSIGMA)
+		, sigmaSigma_(DEFAULTSIGMASIGMA)
+		, minSigma_(DEFAULTMINSIGMA)
+		, maxSigma_(DEFAULTMAXSIGMA)
 	{
 		// These functions do error checks on their values
 		setSigmaAdaptionRate(sigmaSigma);
@@ -172,11 +184,11 @@ public:
 	 * @param cp Another GGaussAdaptorT object
 	 */
 	GGaussAdaptorT(const GGaussAdaptorT<T>& cp)
-		:GAdaptorT<T> (cp),
-		 sigma_(cp.sigma_),
-		 sigmaSigma_(cp.sigmaSigma_),
-		 minSigma_(cp.minSigma_),
-		 maxSigma_(cp.maxSigma_)
+		: GAdaptorT<T> (cp)
+		, sigma_(cp.sigma_)
+		, sigmaSigma_(cp.sigmaSigma_)
+		, minSigma_(cp.minSigma_)
+		, maxSigma_(cp.maxSigma_)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -209,29 +221,27 @@ public:
 	void load(const GObject *cp)
 	{
 		// Convert GObject pointer to local format
-		const GGaussAdaptorT<T> *gdga = this->conversion_cast(cp, this);
+		const GGaussAdaptorT<T> *p_load = this->conversion_cast(cp, this);
 
 		// Load the data of our parent class ...
 		GAdaptorT<T>::load(cp);
 
 		// ... and then our own data
-		sigma_ = gdga->sigma_;
-		sigmaSigma_ = gdga->sigmaSigma_;
-		minSigma_ = gdga->minSigma_;
-		maxSigma_ = gdga->maxSigma_;
+		sigma_ = p_load->sigma_;
+		sigmaSigma_ = p_load->sigmaSigma_;
+		minSigma_ = p_load->minSigma_;
+		maxSigma_ = p_load->maxSigma_;
 	}
 
 
 	/********************************************************************************************/
 	/**
-	 * This function creates a deep copy of this object
+	 * This function creates a deep copy of this object. Purely virtual so this class cannot
+	 * be instantiated directly.
 	 *
 	 * @return A deep copy of this object
 	 */
-	GObject *clone() const
-	{
-		return new GGaussAdaptorT<T>(*this);
-	}
+	GObject *clone() const = 0;
 
 	/********************************************************************************************/
 	/**
@@ -267,16 +277,16 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GGaussAdaptorT reference
-		const GGaussAdaptorT<T> *ggat_load = GObject::conversion_cast(&cp,  this);
+		const GGaussAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// First take care of our parent class
-		if(!GAdaptorT<T>::isEqualTo(*ggat_load, expected)) return false;
+		if(!GAdaptorT<T>::isEqualTo(*p_load, expected)) return false;
 
 		// Then we take care of the local data
-		if(checkForInequality("GGaussAdaptorT<T>", sigma_, ggat_load->sigma_,"sigma_", "ggat_load->sigma_", expected)) return false;
-		if(checkForInequality("GGaussAdaptorT<T>", sigmaSigma_, ggat_load->sigmaSigma_,"sigmaSigma_", "ggat_load->sigmaSigma_", expected)) return false;
-		if(checkForInequality("GGaussAdaptorT<T>", minSigma_, ggat_load->minSigma_,"minSigma_", "ggat_load->minSigma_", expected)) return false;
-		if(checkForInequality("GGaussAdaptorT<T>", maxSigma_, ggat_load->maxSigma_,"maxSigma_", "ggat_load->maxSigma_", expected)) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", sigma_, p_load->sigma_,"sigma_", "p_load->sigma_", expected)) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", sigmaSigma_, p_load->sigmaSigma_,"sigmaSigma_", "p_load->sigmaSigma_", expected)) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", minSigma_, p_load->minSigma_,"minSigma_", "p_load->minSigma_", expected)) return false;
+		if(checkForInequality("GGaussAdaptorT<T>", maxSigma_, p_load->maxSigma_,"maxSigma_", "p_load->maxSigma_", expected)) return false;
 
 		return true;
 	}
@@ -295,16 +305,16 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GGaussAdaptorT reference
-		const GGaussAdaptorT<T> *ggat_load = GObject::conversion_cast(&cp,  this);
+		const GGaussAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// First take care of our parent class
-		if(!GAdaptorT<T>::isSimilarTo(*ggat_load, limit, expected)) return false;
+		if(!GAdaptorT<T>::isSimilarTo(*p_load, limit, expected)) return false;
 
 		// Then we take care of the local data
-		if(checkForDissimilarity("GGaussAdaptorT<T>", sigma_, ggat_load->sigma_, limit, "sigma_", "ggat_load->sigma_", expected)) return false;
-		if(checkForDissimilarity("GGaussAdaptorT<T>", sigmaSigma_, ggat_load->sigmaSigma_, limit, "sigmaSigma_", "ggat_load->sigmaSigma_", expected)) return false;
-		if(checkForDissimilarity("GGaussAdaptorT<T>", minSigma_, ggat_load->minSigma_, limit, "minSigma_", "ggat_load->minSigma_", expected)) return false;
-		if(checkForDissimilarity("GGaussAdaptorT<T>", maxSigma_, ggat_load->maxSigma_, limit, "maxSigma_", "ggat_load->maxSigma_", expected)) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", sigma_, p_load->sigma_, limit, "sigma_", "p_load->sigma_", expected)) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", sigmaSigma_, p_load->sigmaSigma_, limit, "sigmaSigma_", "p_load->sigmaSigma_", expected)) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", minSigma_, p_load->minSigma_, limit, "minSigma_", "p_load->minSigma_", expected)) return false;
+		if(checkForDissimilarity("GGaussAdaptorT<T>", maxSigma_, p_load->maxSigma_, limit, "maxSigma_", "p_load->maxSigma_", expected)) return false;
 
 		return true;
 	}
@@ -488,43 +498,14 @@ protected:
 
 	/********************************************************************************************/
 	/**
-	 * The actual mutation of the supplied value takes place here.
+	 * The actual mutation of the supplied value takes place here. Purely virtual, as the actual
+	 * mutations are defined in the derived classes.
 	 *
 	 * @param value The value that is going to be mutated in situ
 	 */
-	virtual void customMutations(T &value)
-	{
-		// adapt the value in situ. Note that this changes
-		// the argument of this function
-#if defined (CHECKOVERFLOWS)
+	virtual void customMutations(T&) = 0;
 
-		// Prevent over- and underflows.
-#if defined (DEBUG)
-		T addition = boost::numeric_cast<T>(this->gr.gaussRandom(0.,sigma_));
-#else
-		T addition = static_cast<T>(this->gr.gaussRandom(0.,sigma_));
-#endif /* DEBUG */
-
-		if(value >= 0){
-			if(addition >= 0 && (std::numeric_limits<T>::max()-value < addition)) addition *= -1;
-		}
-		else { // < 0
-			if(addition < 0 && (std::numeric_limits<T>::min()-value > addition)) addition *= -1;
-		}
-
-		value += addition;
-#else  /* CHECKOVERFLOWS */
-		// We do not check for over- or underflows for performance reasons.
-#if defined (DEBUG)
-		value += boost::numeric_cast<T>(this->gr.gaussRandom(0.,sigma_));
-#else
-		value += static_cast<T>(this->gr.gaussRandom(0.,sigma_));
-#endif /* DEBUG */
-
-#endif /* CHECKOVERFLOWS  */
-	}
-
-private:
+protected: // For performance reasons, so we do not have to go through access functions
 	/********************************************************************************************/
 	double sigma_; ///< The width of the gaussian used to adapt values
 	double sigmaSigma_; ///< affects sigma_ adaption
@@ -533,14 +514,19 @@ private:
 };
 
 /************************************************************************************************/
-// Declaration of some specializations
-template<> void GGaussAdaptorT<double>::customMutations(double&);
-template<> void GGaussAdaptorT<char>::customMutations(char&);
-template<> void GGaussAdaptorT<short>::customMutations(short&);
-template<> Gem::GenEvA::adaptorId GGaussAdaptorT<double>::getAdaptorId() const;
-template<> Gem::GenEvA::adaptorId GGaussAdaptorT<boost::int32_t>::getAdaptorId() const;
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+/************************************************************************************************/
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+namespace boost {
+	namespace serialization {
+		template<typename T>
+		struct is_abstract< Gem::GenEvA::GGaussAdaptorT<T> > : public boost::true_type {};
+		template<typename T>
+		struct is_abstract< const Gem::GenEvA::GGaussAdaptorT<T> > : public boost::true_type {};
+	}
+}
 
 #endif /* GGAUSSADAPTORT_HPP_ */

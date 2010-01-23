@@ -101,19 +101,19 @@ const GSwarm& GSwarm::operator=(const GSwarm& cp) {
  */
 void GSwarm::load(const GObject * cp)
 {
-	const GSwarm *gbp_load = this->conversion_cast(cp,this);
+	const GSwarm *p_load = this->conversion_cast(cp,this);
 
 	// First load the parent class'es data ...
 	GOptimizationAlgorithm::load(cp);
 
 	// ... and then our own data
-	infoFunction_ = gbp_load->infoFunction_;
+	infoFunction_ = p_load->infoFunction_;
 
-	nNeighborhoods_ = gbp_load->nNeighborhoods_;
-	nNeighborhoodMembers_ = gbp_load->nNeighborhoodMembers_;
+	nNeighborhoods_ = p_load->nNeighborhoods_;
+	nNeighborhoodMembers_ = p_load->nNeighborhoodMembers_;
 
-	global_best_->load((gbp_load->global_best_).get());
-	copySmartPointerVector(gbp_load->local_bests_, local_bests_);
+	global_best_->load((p_load->global_best_).get());
+	copySmartPointerVector(p_load->local_bests_, local_bests_);
 }
 
 /***********************************************************************************/
@@ -159,16 +159,16 @@ bool GSwarm::isEqualTo(const GObject& cp, const boost::logic::tribool& expected)
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GSwarm *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GSwarm *p_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GOptimizationAlgorithm::isEqualTo( *gbp_load, expected)) return  false;
+	if(!GOptimizationAlgorithm::isEqualTo( *p_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GSwarm", nNeighborhoods_, gbp_load->nNeighborhoods_,"nNeighborhoods_", "gbp_load->nNeighborhoods_", expected)) return false;
-	if(checkForInequality("GSwarm", nNeighborhoodMembers_, gbp_load->nNeighborhoodMembers_,"nNeighborhoodMembers_", "gbp_load->nNeighborhoodMembers_", expected)) return false;
-	if(!global_best_->isEqualTo(*(gbp_load->global_best_), expected)) return false;
-	if(checkForInequality("GSwarm", local_bests_, gbp_load->local_bests_,"local_bests_", "gbp_load->local_bests_", expected)) return false;
+	if(checkForInequality("GSwarm", nNeighborhoods_, p_load->nNeighborhoods_,"nNeighborhoods_", "p_load->nNeighborhoods_", expected)) return false;
+	if(checkForInequality("GSwarm", nNeighborhoodMembers_, p_load->nNeighborhoodMembers_,"nNeighborhoodMembers_", "p_load->nNeighborhoodMembers_", expected)) return false;
+	if(!global_best_->isEqualTo(*(p_load->global_best_), expected)) return false;
+	if(checkForInequality("GSwarm", local_bests_, p_load->local_bests_,"local_bests_", "p_load->local_bests_", expected)) return false;
 
 	return true;
 }
@@ -185,16 +185,16 @@ bool GSwarm::isSimilarTo(const GObject& cp, const double& limit, const boost::lo
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GSwarm *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GSwarm *p_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GOptimizationAlgorithm::isSimilarTo(*gbp_load, limit, expected)) return  false;
+	if(!GOptimizationAlgorithm::isSimilarTo(*p_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GSwarm", nNeighborhoods_, gbp_load->nNeighborhoods_, limit, "nNeighborhoods_", "gbp_load->nNeighborhoods_", expected)) return false;
-	if(checkForDissimilarity("GSwarm", nNeighborhoodMembers_, gbp_load->nNeighborhoodMembers_, limit, "nNeighborhoodMembers_", "gbp_load->nNeighborhoodMembers_", expected)) return false;
-	if(!global_best_->isSimilarTo(*(gbp_load->global_best_), limit, expected)) return false;
-	if(checkForDissimilarity("GSwarm", local_bests_, gbp_load->local_bests_, limit, "local_bests_", "gbp_load->local_bests_", expected)) return false;
+	if(checkForDissimilarity("GSwarm", nNeighborhoods_, p_load->nNeighborhoods_, limit, "nNeighborhoods_", "p_load->nNeighborhoods_", expected)) return false;
+	if(checkForDissimilarity("GSwarm", nNeighborhoodMembers_, p_load->nNeighborhoodMembers_, limit, "nNeighborhoodMembers_", "p_load->nNeighborhoodMembers_", expected)) return false;
+	if(!global_best_->isSimilarTo(*(p_load->global_best_), limit, expected)) return false;
+	if(checkForDissimilarity("GSwarm", local_bests_, p_load->local_bests_, limit, "local_bests_", "p_load->local_bests_", expected)) return false;
 
 	return true;
 }

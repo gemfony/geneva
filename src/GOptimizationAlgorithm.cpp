@@ -128,28 +128,28 @@ bool GOptimizationAlgorithm::isEqualTo(const GObject& cp, const boost::logic::tr
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GOptimizationAlgorithm *gis_load = GObject::conversion_cast(&cp,  this);
+	const GOptimizationAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
 
 	// Check our parent class
-	if(!GMutableSetT<Gem::GenEvA::GIndividual>::isEqualTo(*gis_load, expected)) return  false;
+	if(!GMutableSetT<Gem::GenEvA::GIndividual>::isEqualTo(*p_load, expected)) return  false;
 
 	// And then our local data
-	if(!gr.isEqualTo(gis_load->gr, expected)) return false;
+	if(!gr.isEqualTo(p_load->gr, expected)) return false;
 
-	if(checkForInequality("OptimizationAlgorithm", iteration_, gis_load->iteration_,"iteration_", "gis_load->iteration_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", maxIteration_, gis_load->maxIteration_,"maxIteration_", "gis_load->maxIteration_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", maxStallIteration_, gis_load->maxStallIteration_,"maxStallIteration_", "gis_load->maxStallIteration_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", reportIteration_, gis_load->reportIteration_,"reportIteration_", "gis_load->reportIteration_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", defaultPopulationSize_, gis_load->defaultPopulationSize_,"defaultPopulationSize_", "gis_load->defaultPopulationSize_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", bestPastFitness_, gis_load->bestPastFitness_,"bestPastFitness_", "gis_load->bestPastFitness_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", maximize_, gis_load->maximize_,"maximize_", "gis_load->maximize_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", stallCounter_, gis_load->stallCounter_,"stallCounter_", "gis_load->stallCounter_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", cpInterval_, gis_load->cpInterval_,"cpInterval_", "gis_load->cpInterval_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", cpBaseName_, gis_load->cpBaseName_,"cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", cpDirectory_, gis_load->cpDirectory_,"cpDirectory_", "gbp_load->cpDirectory_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", qualityThreshold_, gis_load->qualityThreshold_,"qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", hasQualityThreshold_, gis_load->hasQualityThreshold_,"hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", maxDuration_, gis_load->maxDuration_,"maxDuration_", "gbp_load->maxDuration_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", iteration_, p_load->iteration_,"iteration_", "p_load->iteration_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", maxIteration_, p_load->maxIteration_,"maxIteration_", "p_load->maxIteration_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", maxStallIteration_, p_load->maxStallIteration_,"maxStallIteration_", "p_load->maxStallIteration_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", reportIteration_, p_load->reportIteration_,"reportIteration_", "p_load->reportIteration_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", defaultPopulationSize_, p_load->defaultPopulationSize_,"defaultPopulationSize_", "p_load->defaultPopulationSize_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", bestPastFitness_, p_load->bestPastFitness_,"bestPastFitness_", "p_load->bestPastFitness_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", maximize_, p_load->maximize_,"maximize_", "p_load->maximize_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", stallCounter_, p_load->stallCounter_,"stallCounter_", "p_load->stallCounter_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", cpInterval_, p_load->cpInterval_,"cpInterval_", "p_load->cpInterval_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", cpBaseName_, p_load->cpBaseName_,"cpBaseName_", "p_load->cpBaseName_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", cpDirectory_, p_load->cpDirectory_,"cpDirectory_", "p_load->cpDirectory_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", qualityThreshold_, p_load->qualityThreshold_,"qualityThreshold_", "p_load->qualityThreshold_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", hasQualityThreshold_, p_load->hasQualityThreshold_,"hasQualityThreshold_", "p_load->hasQualityThreshold_", expected)) return false;
+	if(checkForInequality("OptimizationAlgorithm", maxDuration_, p_load->maxDuration_,"maxDuration_", "p_load->maxDuration_", expected)) return false;
 
 	return true;
 }
@@ -167,28 +167,28 @@ bool GOptimizationAlgorithm::isSimilarTo(const GObject& cp, const double& limit,
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GOptimizationAlgorithm *gis_load = GObject::conversion_cast(&cp,  this);
+	const GOptimizationAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
 
 	// Check our parent class
-	if(!GMutableSetT<Gem::GenEvA::GIndividual>::isSimilarTo(*gis_load, limit, expected)) return  false;
+	if(!GMutableSetT<Gem::GenEvA::GIndividual>::isSimilarTo(*p_load, limit, expected)) return  false;
 
 	// And then our local data
-	if(!gr.isSimilarTo(gis_load->gr, limit, expected)) return false;
+	if(!gr.isSimilarTo(p_load->gr, limit, expected)) return false;
 
-	if(checkForDissimilarity("OptimizationAlgorithm", iteration_, gis_load->iteration_, limit, "iteration_", "gis_load->iteration_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", maxIteration_, gis_load->maxIteration_, limit, "maxIteration_", "gis_load->maxIteration_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", maxStallIteration_, gis_load->maxStallIteration_, limit, "maxStallIteration_", "gis_load->maxStallIteration_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", reportIteration_, gis_load->reportIteration_, limit, "reportIteration_", "gis_load->reportIteration_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", defaultPopulationSize_, gis_load->defaultPopulationSize_, limit, "defaultPopulationSize_", "gis_load->defaultPopulationSize_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", bestPastFitness_, gis_load->bestPastFitness_, limit, "bestPastFitness_", "gis_load->bestPastFitness_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", maximize_, gis_load->maximize_, limit, "maximize_", "gis_load->maximize_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", stallCounter_, gis_load->stallCounter_, limit, "stallCounter_", "gis_load->stallCounter_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", cpInterval_, gis_load->cpInterval_, limit, "cpInterval_", "gbp_load->cpInterval_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", cpBaseName_, gis_load->cpBaseName_, limit, "cpBaseName_", "gbp_load->cpBaseName_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", cpDirectory_, gis_load->cpDirectory_, limit, "cpDirectory_", "gbp_load->cpDirectory_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", qualityThreshold_, gis_load->qualityThreshold_, limit, "qualityThreshold_", "gbp_load->qualityThreshold_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", hasQualityThreshold_, gis_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "gbp_load->hasQualityThreshold_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", maxDuration_, gis_load->maxDuration_, limit, "maxDuration_", "gbp_load->maxDuration_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", iteration_, p_load->iteration_, limit, "iteration_", "p_load->iteration_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", maxIteration_, p_load->maxIteration_, limit, "maxIteration_", "p_load->maxIteration_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", maxStallIteration_, p_load->maxStallIteration_, limit, "maxStallIteration_", "p_load->maxStallIteration_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", reportIteration_, p_load->reportIteration_, limit, "reportIteration_", "p_load->reportIteration_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", defaultPopulationSize_, p_load->defaultPopulationSize_, limit, "defaultPopulationSize_", "p_load->defaultPopulationSize_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", bestPastFitness_, p_load->bestPastFitness_, limit, "bestPastFitness_", "p_load->bestPastFitness_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", maximize_, p_load->maximize_, limit, "maximize_", "p_load->maximize_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", stallCounter_, p_load->stallCounter_, limit, "stallCounter_", "p_load->stallCounter_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", cpInterval_, p_load->cpInterval_, limit, "cpInterval_", "p_load->cpInterval_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", cpBaseName_, p_load->cpBaseName_, limit, "cpBaseName_", "p_load->cpBaseName_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", cpDirectory_, p_load->cpDirectory_, limit, "cpDirectory_", "p_load->cpDirectory_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", qualityThreshold_, p_load->qualityThreshold_, limit, "qualityThreshold_", "p_load->qualityThreshold_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", hasQualityThreshold_, p_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "p_load->hasQualityThreshold_", expected)) return false;
+	if(checkForDissimilarity("OptimizationAlgorithm", maxDuration_, p_load->maxDuration_, limit, "maxDuration_", "p_load->maxDuration_", expected)) return false;
 
 	return true;
 }
@@ -222,10 +222,10 @@ Gem::Util::rnrGenerationMode GOptimizationAlgorithm::getRnrGenerationMode() cons
  */
 void GOptimizationAlgorithm::load(const GObject* cp)
 {
-	const GOptimizationAlgorithm *gis_load = static_cast<const GOptimizationAlgorithm *> (cp);
+	const GOptimizationAlgorithm *p_load = static_cast<const GOptimizationAlgorithm *> (cp);
 
 	// Check that this object is not accidentally assigned to itself.
-	if (gis_load == this) {
+	if (p_load == this) {
 		std::ostringstream error;
 		error << "In GOptimizationAlgorithm::load(): Error!" << std::endl
 		<< "Tried to assign an object to itself." << std::endl;
@@ -237,22 +237,22 @@ void GOptimizationAlgorithm::load(const GObject* cp)
 	GMutableSetT<Gem::GenEvA::GIndividual>::load(cp);
 
 	// and then our local data
-	gr.load(&(gis_load->gr));
+	gr.load(&(p_load->gr));
 
-	iteration_ = gis_load->iteration_;
-	maxIteration_ = gis_load->maxIteration_;
-	maxStallIteration_ = gis_load->maxStallIteration_;
-	reportIteration_ = gis_load->reportIteration_;
-	defaultPopulationSize_ = gis_load->defaultPopulationSize_;
-	bestPastFitness_ = gis_load->bestPastFitness_;
-	maximize_ = gis_load->maximize_;
-	stallCounter_ = gis_load->stallCounter_;
-	cpInterval_ = gis_load->cpInterval_;
-	cpBaseName_ = gis_load->cpBaseName_;
-	cpDirectory_ = gis_load->cpDirectory_;
-	qualityThreshold_ = gis_load->qualityThreshold_;
-	hasQualityThreshold_ = gis_load->hasQualityThreshold_;
-	maxDuration_ = gis_load->maxDuration_;
+	iteration_ = p_load->iteration_;
+	maxIteration_ = p_load->maxIteration_;
+	maxStallIteration_ = p_load->maxStallIteration_;
+	reportIteration_ = p_load->reportIteration_;
+	defaultPopulationSize_ = p_load->defaultPopulationSize_;
+	bestPastFitness_ = p_load->bestPastFitness_;
+	maximize_ = p_load->maximize_;
+	stallCounter_ = p_load->stallCounter_;
+	cpInterval_ = p_load->cpInterval_;
+	cpBaseName_ = p_load->cpBaseName_;
+	cpDirectory_ = p_load->cpDirectory_;
+	qualityThreshold_ = p_load->qualityThreshold_;
+	hasQualityThreshold_ = p_load->hasQualityThreshold_;
+	maxDuration_ = p_load->maxDuration_;
 }
 
 /***********************************************************************************/

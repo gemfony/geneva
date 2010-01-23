@@ -120,22 +120,22 @@ bool GIndividual::isEqualTo(const GObject& cp, const boost::logic::tribool& expe
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GIndividual *gi_load = GObject::conversion_cast(&cp,  this);
+	const GIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 	// Check for equality of our parent class
-	if(!GObject::isEqualTo(*gi_load, expected)) return  false;
+	if(!GObject::isEqualTo(*p_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GIndividual", currentFitness_, gi_load->currentFitness_,"currentFitness_", "gi_load->currentFitness_", expected)) return false;
-	if(checkForInequality("GIndividual", bestPastFitness_, gi_load->bestPastFitness_,"bestPastFitness_", "gi_load->bestPastFitness_", expected)) return false;
-	if(checkForInequality("GIndividual", nStalls_, gi_load->nStalls_,"nStalls_", "gi_load->nStalls_", expected)) return false;
-	if(checkForInequality("GIndividual", dirtyFlag_, gi_load->dirtyFlag_,"dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
-	if(checkForInequality("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,"allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
-	if(checkForInequality("GIndividual", processingCycles_, gi_load->processingCycles_,"processingCycles_", "gi_load->processingCycles_", expected)) return false;
-	if(checkForInequality("GIndividual", maximize_, gi_load->maximize_,"maximize_", "gi_load->maximize_", expected)) return false;
-	if(checkForInequality("GIndividual", parentAlgIteration_, gi_load->parentAlgIteration_,"parentAlgIteration_", "gi_load->parentAlgIteration_", expected)) return false;
-	if(checkForInequality("GIndividual", pers_, gi_load->pers_,"pers_", "gi_load->pers_", expected)) return false;
-	if(pt_ptr_ && !pt_ptr_->isEqualTo(*(gi_load->pt_ptr_), expected)) return false;
+	if(checkForInequality("GIndividual", currentFitness_, p_load->currentFitness_,"currentFitness_", "p_load->currentFitness_", expected)) return false;
+	if(checkForInequality("GIndividual", bestPastFitness_, p_load->bestPastFitness_,"bestPastFitness_", "p_load->bestPastFitness_", expected)) return false;
+	if(checkForInequality("GIndividual", nStalls_, p_load->nStalls_,"nStalls_", "p_load->nStalls_", expected)) return false;
+	if(checkForInequality("GIndividual", dirtyFlag_, p_load->dirtyFlag_,"dirtyFlag_", "p_load->dirtyFlag_", expected)) return false;
+	if(checkForInequality("GIndividual", allowLazyEvaluation_, p_load->allowLazyEvaluation_,"allowLazyEvaluation_", "p_load->allowLazyEvaluation_", expected)) return false;
+	if(checkForInequality("GIndividual", processingCycles_, p_load->processingCycles_,"processingCycles_", "p_load->processingCycles_", expected)) return false;
+	if(checkForInequality("GIndividual", maximize_, p_load->maximize_,"maximize_", "p_load->maximize_", expected)) return false;
+	if(checkForInequality("GIndividual", parentAlgIteration_, p_load->parentAlgIteration_,"parentAlgIteration_", "p_load->parentAlgIteration_", expected)) return false;
+	if(checkForInequality("GIndividual", pers_, p_load->pers_,"pers_", "p_load->pers_", expected)) return false;
+	if(pt_ptr_ && !pt_ptr_->isEqualTo(*(p_load->pt_ptr_), expected)) return false;
 
 	return true;
 }
@@ -152,22 +152,22 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boos
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GIndividual *gi_load = GObject::conversion_cast(&cp,  this);
+	const GIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 	// Check for equality of our parent class
-	if(!GObject::isSimilarTo(*gi_load, limit, expected)) return false;
+	if(!GObject::isSimilarTo(*p_load, limit, expected)) return false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GIndividual", currentFitness_, gi_load->currentFitness_, limit, "currentFitness_", "gi_load->currentFitness_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", bestPastFitness_, gi_load->bestPastFitness_, limit, "bestPastFitness_", "gi_load->bestPastFitness_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", nStalls_, gi_load->nStalls_, limit, "nStalls_", "gi_load->nStalls_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", dirtyFlag_, gi_load->dirtyFlag_, limit, "dirtyFlag_", "gi_load->dirtyFlag_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", allowLazyEvaluation_, gi_load->allowLazyEvaluation_,limit, "allowLazyEvaluation_", "gi_load->allowLazyEvaluation_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", processingCycles_, gi_load->processingCycles_, limit, "processingCycles_", "gi_load->processingCycles_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", maximize_, gi_load->maximize_, limit, "maximize_", "gi_load->maximize_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", parentAlgIteration_, gi_load->parentAlgIteration_, limit, "parentAlgIteration_", "gi_load->parentAlgIteration_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", pers_, gi_load->pers_, limit, "pers_", "gi_load->pers_", expected)) return false;
-	if(pt_ptr_ && !pt_ptr_->isSimilarTo(*(gi_load->pt_ptr_), limit, expected)) return false;
+	if(checkForDissimilarity("GIndividual", currentFitness_, p_load->currentFitness_, limit, "currentFitness_", "p_load->currentFitness_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", bestPastFitness_, p_load->bestPastFitness_, limit, "bestPastFitness_", "p_load->bestPastFitness_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", nStalls_, p_load->nStalls_, limit, "nStalls_", "p_load->nStalls_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", dirtyFlag_, p_load->dirtyFlag_, limit, "dirtyFlag_", "p_load->dirtyFlag_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", allowLazyEvaluation_, p_load->allowLazyEvaluation_,limit, "allowLazyEvaluation_", "p_load->allowLazyEvaluation_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", processingCycles_, p_load->processingCycles_, limit, "processingCycles_", "p_load->processingCycles_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", maximize_, p_load->maximize_, limit, "maximize_", "p_load->maximize_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", parentAlgIteration_, p_load->parentAlgIteration_, limit, "parentAlgIteration_", "p_load->parentAlgIteration_", expected)) return false;
+	if(checkForDissimilarity("GIndividual", pers_, p_load->pers_, limit, "pers_", "p_load->pers_", expected)) return false;
+	if(pt_ptr_ && !pt_ptr_->isSimilarTo(*(p_load->pt_ptr_), limit, expected)) return false;
 
 	return true;
 }
@@ -179,23 +179,23 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boos
  * @param cp A copy of another GIndividual object, camouflaged as a GObject
  */
 void GIndividual::load(const GObject* cp) {
-	const GIndividual *gi_load = this->conversion_cast(cp, this);
+	const GIndividual *p_load = this->conversion_cast(cp, this);
 
 	// Load the parent class'es data
 	GObject::load(cp);
 
 	// Then load our local data
-	currentFitness_ = gi_load->currentFitness_;
-	bestPastFitness_ = gi_load->bestPastFitness_;
-	nStalls_ = gi_load->nStalls_;
-	dirtyFlag_ = gi_load->dirtyFlag_;
-	allowLazyEvaluation_ = gi_load->allowLazyEvaluation_;
-	processingCycles_ = gi_load->processingCycles_;
-	maximize_ = gi_load->maximize_;
-	parentAlgIteration_ = gi_load->parentAlgIteration_;
+	currentFitness_ = p_load->currentFitness_;
+	bestPastFitness_ = p_load->bestPastFitness_;
+	nStalls_ = p_load->nStalls_;
+	dirtyFlag_ = p_load->dirtyFlag_;
+	allowLazyEvaluation_ = p_load->allowLazyEvaluation_;
+	processingCycles_ = p_load->processingCycles_;
+	maximize_ = p_load->maximize_;
+	parentAlgIteration_ = p_load->parentAlgIteration_;
 
-	this->setPersonality(gi_load->pers_);
-	if(pers_ != NONE) pt_ptr_->load((gi_load->pt_ptr_).get());
+	this->setPersonality(p_load->pers_);
+	if(pers_ != NONE) pt_ptr_->load((p_load->pt_ptr_).get());
 }
 
 /**********************************************************************************/

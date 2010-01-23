@@ -101,15 +101,15 @@ bool GEAPersonalityTraits::isEqualTo(const GObject& cp, const boost::logic::trib
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GPersonalityTraits reference
-	const GEAPersonalityTraits *geapt_load = GObject::conversion_cast(&cp,  this);
+	const GEAPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
 
 	// Check for equality of our parent class
-	if(!GObject::isEqualTo(*geapt_load, expected)) return  false;
+	if(!GObject::isEqualTo(*p_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GEAPersonalityTraits", parentCounter_, geapt_load->parentCounter_,"parentCounter_", "geapt_load->parentCounter_", expected)) return false;
-	if(checkForInequality("GEAPersonalityTraits", popPos_, geapt_load->popPos_,"popPos_", "geapt_load->popPos_", expected)) return false;
-	if(checkForInequality("GEAPersonalityTraits", command_, geapt_load->command_,"command_", "geapt_load->command_", expected)) return false;
+	if(checkForInequality("GEAPersonalityTraits", parentCounter_, p_load->parentCounter_,"parentCounter_", "p_load->parentCounter_", expected)) return false;
+	if(checkForInequality("GEAPersonalityTraits", popPos_, p_load->popPos_,"popPos_", "p_load->popPos_", expected)) return false;
+	if(checkForInequality("GEAPersonalityTraits", command_, p_load->command_,"command_", "p_load->command_", expected)) return false;
 
 	return true;
 }
@@ -126,15 +126,15 @@ bool GEAPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, c
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GPersonalityTraits reference
-	const GEAPersonalityTraits *geapt_load = GObject::conversion_cast(&cp,  this);
+	const GEAPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
 
 	// Check for equality of our parent class
-	if(!GObject::isSimilarTo(*geapt_load, limit, expected)) return false;
+	if(!GObject::isSimilarTo(*p_load, limit, expected)) return false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GEAPersonalityTraits", parentCounter_, geapt_load->parentCounter_, limit, "parentCounter_", "geapt_load->parentCounter_", expected)) return false;
-	if(checkForDissimilarity("GEAPersonalityTraits", popPos_, geapt_load->popPos_, limit, "popPos_", "geapt_load->popPos_", expected)) return false;
-	if(checkForDissimilarity("GEAPersonalityTraits", command_, geapt_load->command_, limit, "command_", "geapt_load->command_", expected)) return false;
+	if(checkForDissimilarity("GEAPersonalityTraits", parentCounter_, p_load->parentCounter_, limit, "parentCounter_", "p_load->parentCounter_", expected)) return false;
+	if(checkForDissimilarity("GEAPersonalityTraits", popPos_, p_load->popPos_, limit, "popPos_", "p_load->popPos_", expected)) return false;
+	if(checkForDissimilarity("GEAPersonalityTraits", command_, p_load->command_, limit, "command_", "p_load->command_", expected)) return false;
 
 	return true;
 }
@@ -156,15 +156,15 @@ GObject* GEAPersonalityTraits::clone() const {
  * @param cp A copy of another GEAPersonalityTraits object, camouflaged as a GObject
  */
 void GEAPersonalityTraits::load(const GObject* cp) {
-	const GEAPersonalityTraits *geapt_load = this->conversion_cast(cp, this);
+	const GEAPersonalityTraits *p_load = this->conversion_cast(cp, this);
 
 	// Load the parent class'es data
 	GObject::load(cp);
 
 	// Then load our local data
-	parentCounter_ = geapt_load->parentCounter_;
-	popPos_ = geapt_load->popPos_;
-	command_ = geapt_load->command_;
+	parentCounter_ = p_load->parentCounter_;
+	popPos_ = p_load->popPos_;
+	command_ = p_load->command_;
 }
 
 /*****************************************************************************/

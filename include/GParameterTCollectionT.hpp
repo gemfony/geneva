@@ -167,11 +167,11 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GParamterCollectionT reference
-		const GParameterTCollectionT<T> *gptct_load = GObject::conversion_cast(&cp,  this);
+		const GParameterTCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent classes
-		if(!GParameterBaseWithAdaptorsT<typename T::p_type >::isEqualTo(*gptct_load, expected)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gptct_load, expected)) return false;
+		if(!GParameterBaseWithAdaptorsT<typename T::p_type >::isEqualTo(*p_load, expected)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*p_load, expected)) return false;
 
 		return true;
 	}
@@ -189,11 +189,11 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GParamterCollectionT reference
-		const GParameterTCollectionT<T> *gptct_load = GObject::conversion_cast(&cp,  this);
+		const GParameterTCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent classes
-		if(!GParameterBaseWithAdaptorsT<typename T::p_type >::isSimilarTo(*gptct_load, limit, expected))  return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gptct_load, limit, expected)) return false;
+		if(!GParameterBaseWithAdaptorsT<typename T::p_type >::isSimilarTo(*p_load, limit, expected))  return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*p_load, limit, expected)) return false;
 
 		return true;
 	}
@@ -206,11 +206,11 @@ public:
 	 */
 	virtual void load(const GObject* cp) {
 		// Convert cp into local format
-		const GParameterTCollectionT<T> *gptct = this->conversion_cast(cp, this);
+		const GParameterTCollectionT<T> *p_load = this->conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<typename T::p_type >::load(cp);
-		GStdPtrVectorInterfaceT<T>::operator=(*gptct);
+		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
 	}
 
 	/*******************************************************************************************/

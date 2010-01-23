@@ -69,13 +69,13 @@ GParameterBase::~GParameterBase()
  */
 void GParameterBase::load(const GObject* cp){
 	// Convert cp into local format
-	const GParameterBase *gpb = conversion_cast(cp, this);
+	const GParameterBase *p_load = conversion_cast(cp, this);
 
 	// Load the parent class'es data
 	GObject::load(cp);
 
 	// Load local data
-	mutationsActive_ = gpb->mutationsActive_;
+	mutationsActive_ = p_load->mutationsActive_;
 }
 
 /**********************************************************************************/
@@ -147,13 +147,13 @@ bool GParameterBase::isEqualTo(const GObject& cp, const boost::logic::tribool& e
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GParameterBase *gpb_load = GObject::conversion_cast(&cp,  this);
+	const GParameterBase *p_load_load = GObject::conversion_cast(&cp,  this);
 
 	// Check our parent class
-	if(!GObject::isEqualTo(*gpb_load, expected)) return  false;
+	if(!GObject::isEqualTo(*p_load_load, expected)) return  false;
 
 	// Check the local data
-	if(checkForInequality("GParameterBase", mutationsActive_, gpb_load->mutationsActive_,"mutationsActive_", "gpb_load->mutationsActive_", expected)) return false;
+	if(checkForInequality("GParameterBase", mutationsActive_, p_load_load->mutationsActive_,"mutationsActive_", "p_load_load->mutationsActive_", expected)) return false;
 
 	return true;
 }
@@ -171,13 +171,13 @@ bool GParameterBase::isSimilarTo(const GObject& cp, const double& limit, const b
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GParameterBase *gpb_load = GObject::conversion_cast(&cp,  this);
+	const GParameterBase *p_load_load = GObject::conversion_cast(&cp,  this);
 
 	// Check our parent class
-	if(!GObject::isSimilarTo(*gpb_load, limit, expected)) 	return false;
+	if(!GObject::isSimilarTo(*p_load_load, limit, expected)) 	return false;
 
 	// Check the local data
-	if(checkForDissimilarity("GParameterBase", mutationsActive_, gpb_load->mutationsActive_, limit, "mutationsActive_", "gpb_load->mutationsActive_", expected)) return false;
+	if(checkForDissimilarity("GParameterBase", mutationsActive_, p_load_load->mutationsActive_, limit, "mutationsActive_", "p_load_load->mutationsActive_", expected)) return false;
 
 
 	return true;

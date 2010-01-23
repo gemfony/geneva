@@ -164,5 +164,7 @@ std::size_t GThreadGroup::size() const {
 	return threads_.size();
 }
 
+/********************************************************************/
+
 } /* namespace Util*/
 } /* namespace Gem */

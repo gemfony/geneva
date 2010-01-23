@@ -48,6 +48,8 @@
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
 #include "GGaussAdaptorT.hpp"
+#include "GDoubleGaussAdaptor.hpp"
+#include "GInt32GaussAdaptor.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -65,28 +67,28 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 	GRandom gr;
 
 	// Test simple instantiation
-	GGaussAdaptorT<T> ggat0;
+	T ggat0;
 	// An id should have been set automatically
 	BOOST_CHECK(ggat0.getAdaptorId() == Gem::GenEvA::GDOUBLEGAUSSADAPTOR || ggat0.getAdaptorId() == Gem::GenEvA::GINT32GAUSSADAPTOR);
 
 	// Instantiation with an intentionally long sigma
-	GGaussAdaptorT<T> ggat1(0.202030405060708,0.001, 0., 1.); // intentionally long
+	T ggat1(0.202030405060708,0.001, 0., 1.); // intentionally long
 
 	// Instantiation with sigma, sigmaSigma, minSigma and maxSigma
-	GGaussAdaptorT<T> ggat2(0.1, 0.001, 0., 1.);
+	T ggat2(0.1, 0.001, 0., 1.);
 	BOOST_CHECK(ggat2 != ggat1);
 
 	// Copy construction
-	GGaussAdaptorT<T> ggat3(ggat2);
+	T ggat3(ggat2);
 	BOOST_CHECK(ggat3 == ggat2);
 
 	// Assignment
-	boost::shared_ptr<GGaussAdaptorT<T> > ggat4_ptr(ggat1.GObject::clone_ptr_cast<GGaussAdaptorT<T> >());
+	boost::shared_ptr<T> ggat4_ptr(ggat1.GObject::clone_ptr_cast<T>());
 	*ggat4_ptr = ggat3;
 	BOOST_CHECK(*ggat4_ptr == ggat3 && *ggat4_ptr == ggat2);
 
 	// ... and loading
-	GGaussAdaptorT<T> ggat5;
+	T ggat5;
 	ggat5.load(ggat4_ptr.get());
 	BOOST_CHECK(ggat5 == ggat3 && *ggat4_ptr == ggat2);
 
@@ -127,7 +129,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 	BOOST_CHECK(ggat5.getSigmaRange().first == DEFAULTMINSIGMA && ggat5.getSigmaRange().second == 2.);
 
 	// Perform mutations with varying mutation parameters
-	T mutationTarget = T(0);
+	typename T::mutant_type mutationTarget = typename T::mutant_type(0);
 	std::size_t NMUTATIONS=10000;
 	ggat5.setAdaptionThreshold(1);
 	for(std::size_t p=0; p<20; p++) {
@@ -144,24 +146,24 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_failures_expected, T )
 	GRandom gr;
 
 	{
-		GGaussAdaptorT<T> ggat0(0.1, 0.001, 0., 1.);
+		T ggat0(0.1, 0.001, 0., 1.);
 		BOOST_CHECK_THROW(ggat0.setSigma(1.1), Gem::GenEvA::geneva_error_condition); // outside of the allowed range
 	}
 
 	{ // not sure what state ggat0 is in after it has thrown. Hence we recreate it for the next test
-		GGaussAdaptorT<T> ggat0;
+		T ggat0;
 		BOOST_CHECK_THROW(ggat0.setSigmaRange(-1.,1.), Gem::GenEvA::geneva_error_condition); // outside of the allowed range
 	}
 
 	{ // not sure what state ggat0 is in after it has thrown. Hence we recreate it for the next test
-		GGaussAdaptorT<T> ggat0;
+		T ggat0;
 		BOOST_CHECK_THROW(ggat0.setSigmaAdaptionRate(0.), Gem::GenEvA::geneva_error_condition); // 0. is not an allowed value
 	}
 
 	{
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-		GGaussAdaptorT<T> ggat0;
+		T ggat0;
 		BOOST_CHECK_THROW(ggat0.load(&ggat0), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 	}
@@ -180,7 +182,7 @@ class GGaussAdaptorTSuite: public test_suite
 {
 public:
 	GGaussAdaptorTSuite() :test_suite("GGaussAdaptorTSuite") {
-		typedef boost::mpl::list<boost::int32_t, double> test_types;
+		typedef boost::mpl::list<GInt32GaussAdaptor, GDoubleGaussAdaptor> test_types;
 
 		add( BOOST_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, test_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, test_types ) );

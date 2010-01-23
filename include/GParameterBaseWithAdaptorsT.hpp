@@ -171,19 +171,19 @@ public:
 
 		// Check that we are indeed dealing with a GParameterBaseWithAdaptorsT reference
 		// and convert accordingly
-		const GParameterBaseWithAdaptorsT<T> *gpbwa_load = GObject::conversion_cast(&cp,  this);
+		const GParameterBaseWithAdaptorsT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterBase::isEqualTo(*gpbwa_load, expected)) return false;
+		if(!GParameterBase::isEqualTo(*p_load, expected)) return false;
 
 		// We have an adaptor, the other instance doesn't (or vice versa)
-		if((!adaptor_ && gpbwa_load->adaptor_) || (adaptor_ && !gpbwa_load->adaptor_)) return false;
+		if((!adaptor_ && p_load->adaptor_) || (adaptor_ && !p_load->adaptor_)) return false;
 
 		// Check our local adaptor
-		if((adaptor_ && gpbwa_load->adaptor_) && !adaptor_->isEqualTo(*(gpbwa_load->adaptor_), expected)) return false;
+		if((adaptor_ && p_load->adaptor_) && !adaptor_->isEqualTo(*(p_load->adaptor_), expected)) return false;
 
 		// Check other local data
-		if(checkForInequality("GParameterBaseWithAdaptorsT", hasLocalAdaptor_, gpbwa_load->hasLocalAdaptor_,"hasLocalAdaptor_", "gpbwa_load->hasLocalAdaptor_", expected)) return false;
+		if(checkForInequality("GParameterBaseWithAdaptorsT", hasLocalAdaptor_, p_load->hasLocalAdaptor_,"hasLocalAdaptor_", "p_load->hasLocalAdaptor_", expected)) return false;
 
 		return true;
 	}
@@ -201,19 +201,19 @@ public:
 
 		// Check that we are indeed dealing with a GParameterBaseWithAdaptorsT reference
 		// and convert accordingly
-		const GParameterBaseWithAdaptorsT<T> *gpbwa_load = GObject::conversion_cast(&cp,  this);
+		const GParameterBaseWithAdaptorsT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterBase::isSimilarTo(*gpbwa_load, limit, expected)) return false;
+		if(!GParameterBase::isSimilarTo(*p_load, limit, expected)) return false;
 
 		// We have an adaptor, the other instance doesn't (or vice versa)
-		if((!adaptor_ && gpbwa_load->adaptor_) || (adaptor_ && !gpbwa_load->adaptor_)) return false;
+		if((!adaptor_ && p_load->adaptor_) || (adaptor_ && !p_load->adaptor_)) return false;
 
 		// Then check the local adaptor
-		if((adaptor_ && gpbwa_load->adaptor_) && !adaptor_->isSimilarTo(*(gpbwa_load->adaptor_), limit, expected)) return false;
+		if((adaptor_ && p_load->adaptor_) && !adaptor_->isSimilarTo(*(p_load->adaptor_), limit, expected)) return false;
 
 		// Check other local data
-		if(checkForDissimilarity("GParameterBaseWithAdaptorsT", hasLocalAdaptor_, gpbwa_load->hasLocalAdaptor_, limit, "hasLocalAdaptor_", "gpbwa_load->hasLocalAdaptor_", expected)) return false;
+		if(checkForDissimilarity("GParameterBaseWithAdaptorsT", hasLocalAdaptor_, p_load->hasLocalAdaptor_, limit, "hasLocalAdaptor_", "p_load->hasLocalAdaptor_", expected)) return false;
 
 		return true;
 	}
@@ -227,23 +227,23 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
-		const  GParameterBaseWithAdaptorsT<T> *gpbwa_load = this->conversion_cast(cp, this);
+		const  GParameterBaseWithAdaptorsT<T> *p_load = this->conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBase::load(cp);
 
 		// and then our local data
-		hasLocalAdaptor_ = gpbwa_load->hasLocalAdaptor_;
+		hasLocalAdaptor_ = p_load->hasLocalAdaptor_;
 
 		// Only act if the other object actually holds a unique adaptor
-		if(hasLocalAdaptor_ && gpbwa_load->adaptor_) {
+		if(hasLocalAdaptor_ && p_load->adaptor_) {
 			// Same type: We can just load the data
-		    if (adaptor_ && (adaptor_->getAdaptorId() == gpbwa_load->adaptor_->getAdaptorId())) {
-				adaptor_->load((gpbwa_load->adaptor_).get());
+		    if (adaptor_ && (adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId())) {
+				adaptor_->load((p_load->adaptor_).get());
 			}
 			// Different type - need to convert
 			else {
-				adaptor_ = gpbwa_load->adaptor_->GObject::clone_bptr_cast<GAdaptorT<T> >();
+				adaptor_ = p_load->adaptor_->GObject::clone_bptr_cast<GAdaptorT<T> >();
 			}
 		}
 		else {

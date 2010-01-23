@@ -111,10 +111,10 @@ namespace Gem
 		    using namespace Gem::Util;
 
 			// Check that we are indeed dealing with a GIndividual reference
-			const GParameterSet *gps_load = GObject::conversion_cast(&cp,  this);
+			const GParameterSet *p_load = GObject::conversion_cast(&cp,  this);
 
 			// Check our parent class
-			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isEqualTo(*gps_load, expected)) return  false;
+			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isEqualTo(*p_load, expected)) return  false;
 			return true;
 		}
 
@@ -131,10 +131,10 @@ namespace Gem
 		    using namespace Gem::Util;
 
 			// Check that we are indeed dealing with a GIndividual reference
-			const GParameterSet *gps_load = GObject::conversion_cast(&cp,  this);
+			const GParameterSet *p_load = GObject::conversion_cast(&cp,  this);
 
 			// Check our parent class
-			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isSimilarTo(*gps_load, limit, expected)) return  false;
+			if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isSimilarTo(*p_load, limit, expected)) return  false;
 			return true;
 		}
 
@@ -156,13 +156,13 @@ namespace Gem
 		 */
 		void GParameterSet::load(const GObject* cp){
 			// Convert to local format
-			const GParameterSet *gps_load = this->conversion_cast(cp, this);
+			const GParameterSet *p_load = this->conversion_cast(cp, this);
 
 			// Load the parent class'es data
 			GMutableSetT<Gem::GenEvA::GParameterBase>::load(cp);
 
 			// Then load our local data - here the evaluation function (if any)
-			eval_ = gps_load->eval_;
+			eval_ = p_load->eval_;
 		}
 
 		/**********************************************************************************/

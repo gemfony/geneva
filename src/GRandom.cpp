@@ -159,13 +159,13 @@ bool GRandom::isEqualTo(const Gem::GenEvA::GObject& cp, const boost::logic::trib
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GAdaptorT reference
-	const GRandom *gr_load = Gem::GenEvA::GObject::conversion_cast(&cp,  this);
+	const GRandom *p_load = Gem::GenEvA::GObject::conversion_cast(&cp,  this);
 
 	// First check our parent class for equality
-	if(!Gem::GenEvA::GObject::isEqualTo(*gr_load, expected)) return false;
+	if(!Gem::GenEvA::GObject::isEqualTo(*p_load, expected)) return false;
 
 	// then our local data.
-	if(checkForInequality("GRandom", rnrGenerationMode_, gr_load->rnrGenerationMode_,"rnrGenerationMode_", "gr_load->rnrGenerationMode_", expected)) return false;
+	if(checkForInequality("GRandom", rnrGenerationMode_, p_load->rnrGenerationMode_,"rnrGenerationMode_", "p_load->rnrGenerationMode_", expected)) return false;
 
 	return true;
 }
@@ -184,13 +184,13 @@ bool GRandom::isSimilarTo(const Gem::GenEvA::GObject& cp, const double& limit, c
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GAdaptorT reference
-	const GRandom *gr_load = Gem::GenEvA::GObject::conversion_cast(&cp,  this);
+	const GRandom *p_load = Gem::GenEvA::GObject::conversion_cast(&cp,  this);
 
 	// First check our parent class for equality
-	if(!Gem::GenEvA::GObject::isSimilarTo(*gr_load, limit, expected)) return false;
+	if(!Gem::GenEvA::GObject::isSimilarTo(*p_load, limit, expected)) return false;
 
 	// then our local data.
-	if(checkForDissimilarity("GRandom", rnrGenerationMode_, gr_load->rnrGenerationMode_, limit, "rnrGenerationMode_", "gr_load->rnrGenerationMode_", expected)) return false;
+	if(checkForDissimilarity("GRandom", rnrGenerationMode_, p_load->rnrGenerationMode_, limit, "rnrGenerationMode_", "p_load->rnrGenerationMode_", expected)) return false;
 
 	return true;
 }
@@ -218,13 +218,13 @@ Gem::GenEvA::GObject* GRandom::clone() const {
  */
 void GRandom::load(const Gem::GenEvA::GObject* cp) {
 	// Convert cp into local format
-	const GRandom *gr_ptr = this->conversion_cast(cp, this);
+	const GRandom *p_load = this->conversion_cast(cp, this);
 
 	// Load the parent class'es data
 	Gem::GenEvA::GObject::load(cp);
 
 	// Then our own data
-	rnrGenerationMode_ = gr_ptr->rnrGenerationMode_;
+	rnrGenerationMode_ = p_load->rnrGenerationMode_;
 	switch(rnrGenerationMode_) {
 	case RNRFACTORY:
 		this->setRNRFactoryMode();

@@ -163,10 +163,10 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GNumCollectionT reference
-		const GNumCollectionT<T> *gnct_load = GObject::conversion_cast(&cp,  this);
+		const GNumCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterCollectionT<T>::isEqualTo(*gnct_load, expected)) return false;
+		if(!GParameterCollectionT<T>::isEqualTo(*p_load, expected)) return false;
 
 		// No local data
 
@@ -186,10 +186,10 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GNumCollectionT reference
-		const GNumCollectionT<T> *gnct_load = GObject::conversion_cast(&cp,  this);
+		const GNumCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent class
-		if(!GParameterCollectionT<T>::isSimilarTo(*gnct_load, limit, expected)) return false;
+		if(!GParameterCollectionT<T>::isSimilarTo(*p_load, limit, expected)) return false;
 
 		// No local data
 

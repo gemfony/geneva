@@ -95,16 +95,16 @@ const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
  * @param cp A pointer to another GBrokerEA object, camouflaged as a GObject
  */
 void GBrokerEA::load(const GObject * cp) {
-	const GBrokerEA *gbp_load = conversion_cast(cp, this);
+	const GBrokerEA *p_load = conversion_cast(cp, this);
 
 	// Load the parent class'es data ...
 	GEvolutionaryAlgorithm::load(cp);
 
 	// ... and then our own
-	waitFactor_=gbp_load->waitFactor_;
-	maxWaitFactor_=gbp_load->maxWaitFactor_;
-	firstTimeOut_=gbp_load->firstTimeOut_;
-	loopTime_=gbp_load->loopTime_;
+	waitFactor_=p_load->waitFactor_;
+	maxWaitFactor_=p_load->maxWaitFactor_;
+	firstTimeOut_=p_load->firstTimeOut_;
+	loopTime_=p_load->loopTime_;
 }
 
 /******************************************************************************/
@@ -150,16 +150,16 @@ bool GBrokerEA::isEqualTo(const GObject& cp, const boost::logic::tribool& expect
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GBrokerEA *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GBrokerEA *p_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GEvolutionaryAlgorithm::isEqualTo(*gbp_load, expected)) return  false;
+	if(!GEvolutionaryAlgorithm::isEqualTo(*p_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GBrokerEA", waitFactor_, gbp_load->waitFactor_,"waitFactor_", "gbp_load->waitFactor_", expected)) return false;
-	if(checkForInequality("GBrokerEA", maxWaitFactor_, gbp_load->maxWaitFactor_,"maxWaitFactor_", "gbp_load->maxWaitFactor_", expected)) return false;
-	if(checkForInequality("GBrokerEA", firstTimeOut_, gbp_load->firstTimeOut_,"firstTimeOut_", "gbp_load->firstTimeOut_", expected)) return false;
-	if(checkForInequality("GBrokerEA", loopTime_, gbp_load->loopTime_,"loopTime_", "gbp_load->loopTime_", expected)) return false;
+	if(checkForInequality("GBrokerEA", waitFactor_, p_load->waitFactor_,"waitFactor_", "p_load->waitFactor_", expected)) return false;
+	if(checkForInequality("GBrokerEA", maxWaitFactor_, p_load->maxWaitFactor_,"maxWaitFactor_", "p_load->maxWaitFactor_", expected)) return false;
+	if(checkForInequality("GBrokerEA", firstTimeOut_, p_load->firstTimeOut_,"firstTimeOut_", "p_load->firstTimeOut_", expected)) return false;
+	if(checkForInequality("GBrokerEA", loopTime_, p_load->loopTime_,"loopTime_", "p_load->loopTime_", expected)) return false;
 
 	return true;
 }
@@ -176,16 +176,16 @@ bool GBrokerEA::isSimilarTo(const GObject& cp, const double& limit, const boost:
     using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GBrokerEA *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GBrokerEA *p_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GEvolutionaryAlgorithm::isSimilarTo(*gbp_load, limit, expected)) return  false;
+	if(!GEvolutionaryAlgorithm::isSimilarTo(*p_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GBrokerEA", waitFactor_, gbp_load->waitFactor_, limit, "waitFactor_", "gbp_load->waitFactor_", expected)) return false;
-	if(checkForDissimilarity("GBrokerEA", maxWaitFactor_, gbp_load->maxWaitFactor_, limit, "maxWaitFactor_", "gbp_load->maxWaitFactor_", expected)) return false;
-	if(checkForDissimilarity("GBrokerEA", firstTimeOut_, gbp_load->firstTimeOut_, limit, "firstTimeOut_", "gbp_load->firstTimeOut_", expected)) return false;
-	if(checkForDissimilarity("GBrokerEA", loopTime_, gbp_load->loopTime_, limit, "loopTime_", "gbp_load->loopTime_", expected)) return false;
+	if(checkForDissimilarity("GBrokerEA", waitFactor_, p_load->waitFactor_, limit, "waitFactor_", "p_load->waitFactor_", expected)) return false;
+	if(checkForDissimilarity("GBrokerEA", maxWaitFactor_, p_load->maxWaitFactor_, limit, "maxWaitFactor_", "p_load->maxWaitFactor_", expected)) return false;
+	if(checkForDissimilarity("GBrokerEA", firstTimeOut_, p_load->firstTimeOut_, limit, "firstTimeOut_", "p_load->firstTimeOut_", expected)) return false;
+	if(checkForDissimilarity("GBrokerEA", loopTime_, p_load->loopTime_, limit, "loopTime_", "p_load->loopTime_", expected)) return false;
 
 	return true;
 }

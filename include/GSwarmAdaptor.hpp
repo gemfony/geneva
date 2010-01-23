@@ -151,15 +151,15 @@ public:
 	{
 		// Convert GObject pointer to local format
 		// (also checks for self-assignments in DEBUG mode)
-		const GSwarmAdaptor *gifa = this->conversion_cast(cp, this);
+		const GSwarmAdaptor *p_load = this->conversion_cast(cp, this);
 
 		// Load the data of our parent class ...
 		GAdaptorT<double>::load(cp);
 
 		// ... and then our local data
-		omega_ = gifa->omega_;
-		c1_ = gifa->c1_;
-		c2_ = gifa->c2_;
+		omega_ = p_load->omega_;
+		c1_ = p_load->c1_;
+		c2_ = p_load->c2_;
 	}
 
 	/********************************************************************************************/
@@ -206,15 +206,15 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GSwarmAdaptor reference
-		const GSwarmAdaptor *gifat_load = GObject::conversion_cast(&cp,  this);
+		const GSwarmAdaptor *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check our parent class
-		if(!GAdaptorT<double>::isEqualTo(*gifat_load, expected)) return false;
+		if(!GAdaptorT<double>::isEqualTo(*p_load, expected)) return false;
 
 		// and then our local data
-		if(checkForInequality("GSwarmAdaptor", omega_, gifat_load->omega_,"omega_", "gifat_load->omega_", expected)) return false;
-		if(checkForInequality("GSwarmAdaptor", c1_, gifat_load->c1_,"c1_", "gifat_load->c1_", expected)) return false;
-		if(checkForInequality("GSwarmAdaptor", c2_, gifat_load->c2_,"c2_", "gifat_load->c2_", expected)) return false;
+		if(checkForInequality("GSwarmAdaptor", omega_, p_load->omega_,"omega_", "p_load->omega_", expected)) return false;
+		if(checkForInequality("GSwarmAdaptor", c1_, p_load->c1_,"c1_", "p_load->c1_", expected)) return false;
+		if(checkForInequality("GSwarmAdaptor", c2_, p_load->c2_,"c2_", "p_load->c2_", expected)) return false;
 
 		return true;
 	}
@@ -233,15 +233,15 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GSwarmAdaptor reference
-		const GSwarmAdaptor *gifat_load = GObject::conversion_cast(&cp,  this);
+		const GSwarmAdaptor *p_load = GObject::conversion_cast(&cp,  this);
 
 		// First check our parent class
-		if(!GAdaptorT<double>::isSimilarTo(*gifat_load, limit, expected))  return false;
+		if(!GAdaptorT<double>::isSimilarTo(*p_load, limit, expected))  return false;
 
 		// and then our local data
-		if(checkForDissimilarity("GSwarmAdaptor", omega_, gifat_load->omega_, limit, "omega_", "gifat_load->omega_", expected)) return false;
-		if(checkForDissimilarity("GSwarmAdaptor", c1_, gifat_load->c1_, limit, "c1_", "gifat_load->c1_", expected)) return false;
-		if(checkForDissimilarity("GSwarmAdaptor", c2_, gifat_load->c2_, limit, "c2_", "gifat_load->c2_", expected)) return false;
+		if(checkForDissimilarity("GSwarmAdaptor", omega_, p_load->omega_, limit, "omega_", "p_load->omega_", expected)) return false;
+		if(checkForDissimilarity("GSwarmAdaptor", c1_, p_load->c1_, limit, "c1_", "p_load->c1_", expected)) return false;
+		if(checkForDissimilarity("GSwarmAdaptor", c2_, p_load->c2_, limit, "c2_", "p_load->c2_", expected)) return false;
 
 		return true;
 	}

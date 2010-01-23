@@ -175,13 +175,13 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GParamterT reference
-		const GParameterT<T> *gpt_load = GObject::conversion_cast(&cp,  this);
+		const GParameterT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpt_load, expected)) return false;
+		if(!GParameterBaseWithAdaptorsT<T>::isEqualTo(*p_load, expected)) return false;
 
 		// Check the local data
-		if(checkForInequality("GParameterT", val_, gpt_load->val_,"val_", "gpt_load->val_", expected)) return false;
+		if(checkForInequality("GParameterT", val_, p_load->val_,"val_", "p_load->val_", expected)) return false;
 
 		return true;
 	}
@@ -198,13 +198,13 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GParamterT reference
-		const GParameterT<T> *gpt_load = GObject::conversion_cast(&cp,  this);
+		const GParameterT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent class
-		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpt_load, limit, expected)) return false;
+		if(!GParameterBaseWithAdaptorsT<T>::isSimilarTo(*p_load, limit, expected)) return false;
 
 		// Check the local data
-		if(checkForDissimilarity("GParameterT", val_, gpt_load->val_,limit, "val_", "gpt_load->val_", expected)) return false;
+		if(checkForDissimilarity("GParameterT", val_, p_load->val_,limit, "val_", "p_load->val_", expected)) return false;
 
 		return true;
 	}
@@ -217,13 +217,13 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
-		const GParameterT<T> *gpt = conversion_cast(cp, this);
+		const GParameterT<T> *p_load = conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<T>::load(cp);
 
 		// ... and then our own data
-		val_ = gpt->val_;
+		val_ = p_load->val_;
 	}
 
 	/*******************************************************************************************/

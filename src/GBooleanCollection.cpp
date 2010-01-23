@@ -192,10 +192,10 @@ namespace GenEvA
 	  using namespace Gem::Util;
 
 	  // Check that we are indeed dealing with a GBooleanCollection reference
-	  const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
+	  const GBooleanCollection *p_load = GObject::conversion_cast(&cp,  this);
 
 	  // Check our paren class'es data
-	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isEqualTo(*gbc_load, expected)) return false;
+	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isEqualTo(*p_load, expected)) return false;
 
 	  // No local data, so we can leave
 	  return true;
@@ -214,10 +214,10 @@ namespace GenEvA
 	  using namespace Gem::Util;
 
 	  // Check that we are indeed dealing with a GBooleanCollection reference
-	  const GBooleanCollection *gbc_load = GObject::conversion_cast(&cp,  this);
+	  const GBooleanCollection *p_load = GObject::conversion_cast(&cp,  this);
 
 	  // Check our paren class'es data
-	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isSimilarTo(*gbc_load, limit, expected)) return false;
+	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isSimilarTo(*p_load, limit, expected)) return false;
 
 	  // No local data, so we can leave
 	  return true;

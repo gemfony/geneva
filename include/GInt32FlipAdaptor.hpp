@@ -56,8 +56,58 @@
 namespace Gem {
 namespace GenEvA {
 
-/** All "real" functionality is implemented in GIntFlipAdaptorT and its parent classes */
-typedef GIntFlipAdaptorT<boost::int32_t> GInt32FlipAdaptor;
+/*************************************************************************/
+/**
+ * This adaptor increases or decreases a value by 1
+ */
+class GInt32FlipAdaptor
+	:public GIntFlipAdaptorT<boost::int32_t>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GIntFlipAdaptorT_int32", boost::serialization::base_object<GIntFlipAdaptorT<boost::int32_t> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GInt32FlipAdaptor();
+	/** @brief The copy constructor */
+	GInt32FlipAdaptor(const GInt32FlipAdaptor&);
+	/** @brief Initialization with a mutation probability */
+	explicit GInt32FlipAdaptor(const double&);
+
+	/** @brief The destructor */
+	virtual ~GInt32FlipAdaptor();
+
+	/** @brief A standard assignment operator */
+	const GInt32FlipAdaptor& operator=(const GInt32FlipAdaptor&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GInt32FlipAdaptor object */
+	bool operator==(const GInt32FlipAdaptor&) const;
+	/** @brief Checks for inequality with another GInt32FlipAdaptor object */
+	bool operator!=(const GInt32FlipAdaptor&) const;
+
+	/** @brief Checks for equality with another GInt32FlipAdaptor object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GInt32FlipAdaptor object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+
+	/** @brief Retrieves the id of this adaptor */
+	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
+};
+
+/*************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

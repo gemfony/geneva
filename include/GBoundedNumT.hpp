@@ -164,15 +164,15 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GBoundedNumT<T> *gbnt_load = GObject::conversion_cast(&cp,  this);
+		const GBoundedNumT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
     	// Check the parent class'es equality
-    	if(!GParameterT<T>::isEqualTo(*gbnt_load, expected)) return false;
+    	if(!GParameterT<T>::isEqualTo(*p_load, expected)) return false;
 
     	// Check our local data
-		if(checkForInequality("GBoundedNumT<T>", lowerBoundary_, gbnt_load->lowerBoundary_,"lowerBoundary_", "gbnt_load->lowerBoundary_", expected)) return false;
-		if(checkForInequality("GBoundedNumT<T>", upperBoundary_, gbnt_load->upperBoundary_,"upperBoundary_", "gbnt_load->upperBoundary_", expected)) return false;
-		if(checkForInequality("GBoundedNumT<T>", internalValue_, gbnt_load->internalValue_,"internalValue_", "gbnt_load->internalValue_", expected)) return false;
+		if(checkForInequality("GBoundedNumT<T>", lowerBoundary_, p_load->lowerBoundary_,"lowerBoundary_", "p_load->lowerBoundary_", expected)) return false;
+		if(checkForInequality("GBoundedNumT<T>", upperBoundary_, p_load->upperBoundary_,"upperBoundary_", "p_load->upperBoundary_", expected)) return false;
+		if(checkForInequality("GBoundedNumT<T>", internalValue_, p_load->internalValue_,"internalValue_", "p_load->internalValue_", expected)) return false;
 
     	return true;
 	}
@@ -189,15 +189,15 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GBoundedNumT<T> *gbnt_load = GObject::conversion_cast(&cp,  this);
+		const GBoundedNumT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
     	// Check the parent class'es similarity
-    	if(!GParameterT<T>::isSimilarTo(*gbnt_load, limit, expected)) return false;
+    	if(!GParameterT<T>::isSimilarTo(*p_load, limit, expected)) return false;
 
     	// Check our local data
-		if(checkForDissimilarity("GBoundedNumT<T>", lowerBoundary_, gbnt_load->lowerBoundary_, limit, "lowerBoundary_", "gbnt_load->lowerBoundary_", expected)) return false;
-		if(checkForDissimilarity("GBoundedNumT<T>", upperBoundary_, gbnt_load->upperBoundary_, limit, "upperBoundary_", "gbnt_load->upperBoundary_", expected)) return false;
-		if(checkForDissimilarity("GBoundedNumT<T>", internalValue_, gbnt_load->internalValue_, limit, "internalValue_", "gbnt_load->internalValue_", expected)) return false;
+		if(checkForDissimilarity("GBoundedNumT<T>", lowerBoundary_, p_load->lowerBoundary_, limit, "lowerBoundary_", "p_load->lowerBoundary_", expected)) return false;
+		if(checkForDissimilarity("GBoundedNumT<T>", upperBoundary_, p_load->upperBoundary_, limit, "upperBoundary_", "p_load->upperBoundary_", expected)) return false;
+		if(checkForDissimilarity("GBoundedNumT<T>", internalValue_, p_load->internalValue_, limit, "internalValue_", "p_load->internalValue_", expected)) return false;
 
 		return true;
 	}
@@ -210,15 +210,15 @@ public:
 	 */
 	virtual void load(const GObject *cp) {
 		// Convert GObject pointer to local format
-		const GBoundedNumT<T> *gbnt_load	= this->conversion_cast(cp, this);
+		const GBoundedNumT<T> *p_load	= this->conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterT<T>::load(cp);
 
 		// ... and then our own
-		lowerBoundary_ = gbnt_load->lowerBoundary_;
-		upperBoundary_ = gbnt_load->upperBoundary_;
-		internalValue_ = gbnt_load->internalValue_;
+		lowerBoundary_ = p_load->lowerBoundary_;
+		upperBoundary_ = p_load->upperBoundary_;
+		internalValue_ = p_load->internalValue_;
 	}
 
 	/****************************************************************************/

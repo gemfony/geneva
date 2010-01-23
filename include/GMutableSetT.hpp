@@ -125,11 +125,11 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
-	    const GMutableSetT<T> *gms_load = this->conversion_cast(cp, this);
+	    const GMutableSetT<T> *p_load = this->conversion_cast(cp, this);
 
 	    // No local data - load the parent class'es data
 	    GIndividual::load(cp);
-		GStdPtrVectorInterfaceT<T>::operator=(*gms_load);
+		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
 	}
 
 	/**********************************************************************************/
@@ -166,11 +166,11 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GIndividual reference
-		const GMutableSetT<T> *gmst_load = GObject::conversion_cast(&cp,  this);
+		const GMutableSetT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GIndividual::isEqualTo(*gmst_load, expected)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*gmst_load, expected)) return false;
+		if(!GIndividual::isEqualTo(*p_load, expected)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*p_load, expected)) return false;
 
 		// No local data
 
@@ -190,11 +190,11 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GIndividual reference
-		const GMutableSetT<T> *gmst_load = GObject::conversion_cast(&cp,  this);
+		const GMutableSetT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent class
-		if(!GIndividual::isSimilarTo(*gmst_load, limit, expected)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*gmst_load, limit, expected)) return false;
+		if(!GIndividual::isSimilarTo(*p_load, limit, expected)) return false;
+		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*p_load, limit, expected)) return false;
 
 		// No local data
 

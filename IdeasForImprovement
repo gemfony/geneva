@@ -101,3 +101,8 @@
 - Instead of "GBoundedInt32" etc. create classes like "template GBoundedInt<int bitSize = 32>" with a useful
   default value
 - use Boost.enable_if to check allowed template instantiations
+- Check whether we can make use of http://www.taygeta.com/random/gaussian.html to create gaussian random numbers more quickly 
+  and whether we can indeed use both y1 and y2 values without fear of correlations ? Benchmark the traditional vs. the
+  method proposed in this web page
+- Check whether we can replace getAdaptorId with some typeid construct.
+- Check whether using typeid instead of dynamic_cast in some places improves performance

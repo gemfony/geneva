@@ -103,19 +103,19 @@ const GEvolutionaryAlgorithm& GEvolutionaryAlgorithm::operator=(const GEvolution
  */
 void GEvolutionaryAlgorithm::load(const GObject * cp)
 {
-	const GEvolutionaryAlgorithm *gbp_load = this->conversion_cast(cp,this);
+	const GEvolutionaryAlgorithm *p_load = this->conversion_cast(cp,this);
 
 	// First load the parent class'es data ...
 	GOptimizationAlgorithm::load(cp);
 
 	// ... and then our own data
-	nParents_ = gbp_load->nParents_;
-	microTrainingInterval_ = gbp_load->microTrainingInterval_;
-	recombinationMethod_ = gbp_load->recombinationMethod_;
-	smode_ = gbp_load->smode_;
-	defaultNChildren_ = gbp_load->defaultNChildren_;
-	oneTimeMuCommaNu_=gbp_load->oneTimeMuCommaNu_;
-	infoFunction_ = gbp_load->infoFunction_;
+	nParents_ = p_load->nParents_;
+	microTrainingInterval_ = p_load->microTrainingInterval_;
+	recombinationMethod_ = p_load->recombinationMethod_;
+	smode_ = p_load->smode_;
+	defaultNChildren_ = p_load->defaultNChildren_;
+	oneTimeMuCommaNu_=p_load->oneTimeMuCommaNu_;
+	infoFunction_ = p_load->infoFunction_;
 }
 
 /***********************************************************************************/
@@ -161,18 +161,18 @@ bool GEvolutionaryAlgorithm::isEqualTo(const GObject& cp, const boost::logic::tr
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GEvolutionaryAlgorithm *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GEvolutionaryAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GOptimizationAlgorithm::isEqualTo( *gbp_load, expected)) return  false;
+	if(!GOptimizationAlgorithm::isEqualTo( *p_load, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForInequality("GEvolutionaryAlgorithm", nParents_, gbp_load->nParents_,"nParents_", "gbp_load->nParents_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", microTrainingInterval_, gbp_load->microTrainingInterval_,"microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", recombinationMethod_, gbp_load->recombinationMethod_,"recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", smode_, gbp_load->smode_,"smode_", "gbp_load->smode_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", defaultNChildren_, gbp_load->defaultNChildren_,"defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", oneTimeMuCommaNu_, gbp_load->oneTimeMuCommaNu_,"oneTimeMuCommaNu_", "gbp_load->oneTimeMuCommaNu_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", nParents_, p_load->nParents_,"nParents_", "p_load->nParents_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", microTrainingInterval_, p_load->microTrainingInterval_,"microTrainingInterval_", "p_load->microTrainingInterval_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", recombinationMethod_, p_load->recombinationMethod_,"recombinationMethod_", "p_load->recombinationMethod_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", smode_, p_load->smode_,"smode_", "p_load->smode_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", defaultNChildren_, p_load->defaultNChildren_,"defaultNChildren_", "p_load->defaultNChildren_", expected)) return false;
+	if(checkForInequality("GEvolutionaryAlgorithm", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_,"oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", expected)) return false;
 
 	return true;
 }
@@ -189,18 +189,18 @@ bool GEvolutionaryAlgorithm::isSimilarTo(const GObject& cp, const double& limit,
 	using namespace Gem::Util;
 
 	// Check that we are indeed dealing with a GIndividual reference
-	const GEvolutionaryAlgorithm *gbp_load = GObject::conversion_cast(&cp,  this);
+	const GEvolutionaryAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
 
 	// First take care of our parent class
-	if(!GOptimizationAlgorithm::isSimilarTo(*gbp_load, limit, expected)) return  false;
+	if(!GOptimizationAlgorithm::isSimilarTo(*p_load, limit, expected)) return  false;
 
 	// Then we take care of the local data
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", nParents_, gbp_load->nParents_, limit, "nParents_", "gbp_load->nParents_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", microTrainingInterval_, gbp_load->microTrainingInterval_, limit, "microTrainingInterval_", "gbp_load->microTrainingInterval_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", recombinationMethod_, gbp_load->recombinationMethod_, limit, "recombinationMethod_", "gbp_load->recombinationMethod_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", smode_, gbp_load->smode_, limit, "smode_", "gbp_load->smode_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", defaultNChildren_, gbp_load->defaultNChildren_, limit, "defaultNChildren_", "gbp_load->defaultNChildren_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", oneTimeMuCommaNu_, gbp_load->oneTimeMuCommaNu_, limit, "oneTimeMuCommaNu_", "gbp_load->oneTimeMuCommaNu_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", nParents_, p_load->nParents_, limit, "nParents_", "p_load->nParents_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", microTrainingInterval_, p_load->microTrainingInterval_, limit, "microTrainingInterval_", "p_load->microTrainingInterval_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", recombinationMethod_, p_load->recombinationMethod_, limit, "recombinationMethod_", "p_load->recombinationMethod_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", smode_, p_load->smode_, limit, "smode_", "p_load->smode_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", defaultNChildren_, p_load->defaultNChildren_, limit, "defaultNChildren_", "p_load->defaultNChildren_", expected)) return false;
+	if(checkForDissimilarity("GEvolutionaryAlgorithm", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_, limit, "oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", expected)) return false;
 
 	return true;
 }

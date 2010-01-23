@@ -35,3 +35,159 @@
  */
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::GenEvA::GInt32FlipAdaptor)
+
+namespace Gem {
+namespace GenEvA {
+
+/*******************************************************************************************/
+/**
+ * The default constructor
+ */
+GInt32FlipAdaptor::GInt32FlipAdaptor()
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * The copy constructor
+ *
+ * @param cp A copy of another GInt32FlipAdaptor object
+ */
+GInt32FlipAdaptor::GInt32FlipAdaptor(const GInt32FlipAdaptor& cp)
+	: GIntFlipAdaptorT<boost::int32_t>(cp)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialization with a mutation probability
+ *
+ * @param mutProb The mutation probability
+ */
+GInt32FlipAdaptor::GInt32FlipAdaptor(const double& mutProb)
+	: GIntFlipAdaptorT<boost::int32_t>(mutProb)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * The destructor
+ */
+GInt32FlipAdaptor::~GInt32FlipAdaptor()
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * A standard assignment operator.
+ *
+ * @param cp A copy of another GInt32FlipAdaptor object
+ * @return A constant reference to this object
+ */
+const GInt32FlipAdaptor& GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor& cp){
+	GInt32FlipAdaptor::load(&cp);
+	return *this;
+}
+
+/*******************************************************************************************/
+/**
+ * Creates a deep clone of this object.
+ *
+ * @return A copy of this object, camouflaged as a GObject
+ */
+GObject* GInt32FlipAdaptor::clone() const {
+	return new GInt32FlipAdaptor(*this);
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for equality with another GInt32FlipAdaptor object
+ *
+ * @param  cp A constant reference to another GInt32FlipAdaptor object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GInt32FlipAdaptor::operator==(const GInt32FlipAdaptor& cp) const {
+	return GInt32FlipAdaptor::isEqualTo(cp, boost::logic::indeterminate);
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for inequality with another GInt32FlipAdaptor object
+ *
+ * @param  cp A constant reference to another GInt32FlipAdaptor object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GInt32FlipAdaptor::operator!=(const GInt32FlipAdaptor& cp) const {
+	return !GInt32FlipAdaptor::isEqualTo(cp, boost::logic::indeterminate);
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for equality with another GInt32FlipAdaptor object.  If T is an object type,
+ * then it must implement operator!= .
+ *
+ * @param  cp A constant reference to another GInt32FlipAdaptor object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GInt32FlipAdaptor::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
+    using namespace Gem::Util;
+
+	// Check that we are indeed dealing with a GParamterT reference
+	const GInt32FlipAdaptor *p_load = GObject::conversion_cast(&cp,  this);
+
+	// Check equality of the parent class
+	if(!GIntFlipAdaptorT<boost::int32_t>::isEqualTo(*p_load, expected)) return false;
+
+	// No local data
+
+	return true;
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for similarity with another GInt32FlipAdaptor object.
+ *
+ * @param  cp A constant reference to another GInt32FlipAdaptor object
+ * @param limit A double value specifying the acceptable level of differences of floating point values
+ * @return A boolean indicating whether both objects are similar to each other
+ */
+bool GInt32FlipAdaptor::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
+    using namespace Gem::Util;
+
+	// Check that we are indeed dealing with a GParamterT reference
+	const GInt32FlipAdaptor *p_load = GObject::conversion_cast(&cp,  this);
+
+	// Check similarity of the parent class
+	if(!GIntFlipAdaptorT<boost::int32_t>::isSimilarTo(*p_load, limit, expected)) return false;
+
+	// No local data
+
+	return true;
+}
+
+/*******************************************************************************************/
+/**
+ * Loads the data of another GObject
+ *
+ * @param cp A copy of another GInt32FlipAdaptor object, camouflaged as a GObject
+ */
+void GInt32FlipAdaptor::load(const GObject* cp){
+	// Convert cp into local format (also checks for the type of cp)
+	const GInt32FlipAdaptor *p_load = GObject::conversion_cast(cp, this);
+
+	// Load our parent class'es data ...
+	GIntFlipAdaptorT<boost::int32_t>::load(cp);
+
+	// ... no local data
+}
+
+/*******************************************************************************************/
+/**
+ * Retrieves the id of this adaptor
+ *
+ * @return The id of this adaptor
+ */
+Gem::GenEvA::adaptorId GInt32FlipAdaptor::getAdaptorId() const {
+	return Gem::GenEvA::GINT32FLIPADAPTOR;
+}
+
+/*******************************************************************************************/
+
+} /* namespace GenEvA */
+} /* namespace Gem */

@@ -151,11 +151,11 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GParamterCollectionT reference
-		const GParameterCollectionT<T> *gpct_load = GObject::conversion_cast(&cp,  this);
+		const GParameterCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isEqualTo(*gpct_load, expected)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsEqualTo(*gpct_load, expected)) return false;
+		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isEqualTo(*p_load, expected)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsEqualTo(*p_load, expected)) return false;
 
 		return true;
 	}
@@ -174,11 +174,11 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GParamterCollectionT reference
-		const GParameterCollectionT<T> *gpct_load = GObject::conversion_cast(&cp,  this);
+		const GParameterCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent class
-		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isSimilarTo(*gpct_load, limit, expected)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsSimilarTo(*gpct_load, limit, expected)) return false;
+		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isSimilarTo(*p_load, limit, expected)) return false;
+		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsSimilarTo(*p_load, limit, expected)) return false;
 
 		return true;
 	}
@@ -197,11 +197,11 @@ public:
 	 */
 	virtual void load(const GObject* cp) {
 		// Convert cp into local format and check for self-assignment
-		const GParameterCollectionT<T> *gpct = this->conversion_cast(cp, this);
+		const GParameterCollectionT<T> *p_load = this->conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<T>::load(cp);
-		GStdSimpleVectorInterfaceT<T>::operator=(*gpct);
+		GStdSimpleVectorInterfaceT<T>::operator=(*p_load);
 	}
 
 	/*******************************************************************************************/

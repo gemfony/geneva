@@ -149,10 +149,10 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GNumCollectionT reference
-		const GBitSet<N> *gbs_load = GObject::conversion_cast(&cp,  this);
+		const GBitSet<N> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterCollectionT<T>::isEqualTo(*gbs_load, expected)) return false;
+		if(!GParameterCollectionT<T>::isEqualTo(*p_load, expected)) return false;
 
 		return true;
 	}
@@ -170,10 +170,10 @@ public:
 	    using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GNumCollectionT reference
-		const GBitSet<N> *gnct_load = GObject::conversion_cast(&cp,  this);
+		const GBitSet<N> *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check similarity of the parent class
-		if(!GParameterCollectionT<T>::isSimilarTo(*gnct_load, limit, expected)) return false;
+		if(!GParameterCollectionT<T>::isSimilarTo(*p_load, limit, expected)) return false;
 		return true;
 	}
 
@@ -191,7 +191,7 @@ public:
 	 */
 	virtual void load(const GObject* cp) {
 		// Convert cp into local format
-		const GBitset<N> *gpct = this->conversion_cast(cp, this);
+		const GBitset<N> *p_load = this->conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterBaseWithAdaptorsT<bool>::load(cp);
@@ -200,19 +200,19 @@ public:
 		typename std::vector<T>::iterator it;
 		typename std::vector<T>::const_iterator cit;
 
-		for (cit = gpct->data.begin(), it = data.begin();
-		     cit != gpct->data.end(), it!= data.end();
+		for (cit = p_load->data.begin(), it = data.begin();
+		     cit != p_load->data.end(), it!= data.end();
 		     ++it, ++cit)
 		{ (*it) = (*cit); } // Note that this assignment assumes that T has an operator=
 
-		std::size_t gpct_sz = gpct->data.size(), this_sz = data.size();
-		if (gpct_sz == this_sz)	return; // Likely the most probable case
-		else if (gpct_sz > this_sz) {
-			for (cit = gpct->data.begin() + this_sz; cit != gpct->data.end(); ++cit) {
+		std::size_t p_load_sz = p_load->data.size(), this_sz = data.size();
+		if (p_load_sz == this_sz)	return; // Likely the most probable case
+		else if (p_load_sz > this_sz) {
+			for (cit = p_load->data.begin() + this_sz; cit != p_load->data.end(); ++cit) {
 				data.push_back(*cit);
 			}
-		} else if (this_sz > gpct_sz)
-			data.resize(gpct_sz); // get rid of the surplus elements
+		} else if (this_sz > p_load_sz)
+			data.resize(p_load_sz); // get rid of the surplus elements
 	}
 
 	/*******************************************************************************************/

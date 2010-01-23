@@ -61,10 +61,60 @@ namespace GenEvA {
 /**
  * The GBooleanAdaptor represents an adaptor used for the mutation of
  * bool values by flipping its value. See the documentation of GAdaptorT<T> for
- * further information on adaptors in the GenEvA context. All functionality is
- * currently implemented in the GIntFlipAdaptorT class.
+ * further information on adaptors in the GenEvA context. Most functionality
+ * (with the notable exception of the actual mutation logic) is currently
+ * implemented in the GIntFlipAdaptorT class.
  */
-typedef GIntFlipAdaptorT<bool> GBooleanAdaptor;
+class GBooleanAdaptor
+	:public GIntFlipAdaptorT<bool>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & make_nvp("GIntFlipAdaptorT_bool", boost::serialization::base_object<GIntFlipAdaptorT<bool> >(*this));
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The default constructor */
+	GBooleanAdaptor();
+	/** @brief The copy constructor */
+	GBooleanAdaptor(const GBooleanAdaptor&);
+	/** @brief Initialization with a mutation probability */
+	explicit GBooleanAdaptor(const double&);
+
+	/** @brief The destructor */
+	virtual ~GBooleanAdaptor();
+
+	/** @brief A standard assignment operator */
+	const GBooleanAdaptor& operator=(const GBooleanAdaptor&);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone() const;
+
+	/** @brief Checks for equality with another GBooleanAdaptor object */
+	bool operator==(const GBooleanAdaptor&) const;
+	/** @brief Checks for inequality with another GBooleanAdaptor object */
+	bool operator!=(const GBooleanAdaptor&) const;
+
+	/** @brief Checks for equality with another GBooleanAdaptor object. */
+	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+	/** @brief Checks for similarity with another GBooleanAdaptor object. */
+	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Loads the data of another GObject */
+	virtual void load(const GObject* cp);
+
+	/** @brief Retrieves the id of this adaptor */
+	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
+
+protected:
+	/** The actual mutation logic */
+	virtual void customMutations(bool&);
+};
 
 /***********************************************************************************/
 
