@@ -83,7 +83,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 	BOOST_CHECK(ggat3 == ggat2);
 
 	// Assignment
-	boost::shared_ptr<T> ggat4_ptr(ggat1.GObject::clone_ptr_cast<T>());
+	boost::shared_ptr<T> ggat4_ptr = ggat1.GObject::clone_bptr_cast<T>();
 	*ggat4_ptr = ggat3;
 	BOOST_CHECK(*ggat4_ptr == ggat3 && *ggat4_ptr == ggat2);
 

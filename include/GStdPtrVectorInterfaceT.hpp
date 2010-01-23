@@ -709,7 +709,7 @@ public:
 		cp.clear();
 		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
 		for(it=data.begin(); it!= data.end(); ++it)
-			cp.push_back(boost::shared_ptr<T>((*it)->GObject::clone_ptr_cast<T>()));
+			cp.push_back((*it)->GObject::clone_bptr_cast<T>());
 	}
 
 	/*****************************************************************************/

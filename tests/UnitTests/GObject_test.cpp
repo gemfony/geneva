@@ -92,8 +92,7 @@ public:
 			BOOST_CHECK(gba1.isEqualTo(gba0));
 		}
 
-		// Clone the object using two methods, also a clone  load into another GBooleanAdaptor.
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_clone1(gba0.clone_ptr_cast<GBooleanAdaptor>()));
+		// Clone the object, load into another GBooleanAdaptor.
 		BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_clone2 = gba0.clone_bptr_cast<GBooleanAdaptor>());
 		GBooleanAdaptor gba2;
 		GObject *gba0_clone3 = gba0.clone();

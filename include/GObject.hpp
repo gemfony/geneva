@@ -151,35 +151,6 @@ public:
 
 	/**************************************************************************************************/
 	/**
-	 * The function creates a clone of the GObject pointer and converts it to a pointer to a derived class.
-	 * This work and the corresponding error checks are centralized in this function. Conversion will be faster
-	 * if we do not compile in DEBUG mode.
-	 *
-	 * @return A converted clone of this object
-	 */
-	template <typename clone_type>
-	clone_type* clone_ptr_cast() const {
-#ifdef DEBUG
-		clone_type *result = dynamic_cast<clone_type *> (this->clone());
-
-		// dynamic_cast will emit a NULL pointer, if the conversion failed
-		if (!result) {
-			std::ostringstream error;
-			error << "In GObject::clone_ptr_cast<T>() : Conversion error!" << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
-		}
-
-		return result;
-#else
-		return static_cast<clone_type *>(this->clone());
-#endif
-	}
-
-	/**************************************************************************************************/
-	/**
 	 * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
 	 * and emits it as a boost::shared_ptr<> . This work and the corresponding error checks are centralized
 	 * in this function. Conversion will be faster if we do not compile in DEBUG mode.
@@ -188,10 +159,10 @@ public:
 	 */
 	template <typename clone_type>
 	boost::shared_ptr<clone_type> clone_bptr_cast() const {
+#ifdef DEBUG
 		// Get a clone of this object and wrap it in a boost::shared_ptr<GObject>
 		boost::shared_ptr<GObject> p_base(this->clone());
 
-#ifdef DEBUG
 		// Convert to the desired target type
 		boost::shared_ptr<clone_type> p_load = boost::dynamic_pointer_cast<clone_type>(p_base);
 
@@ -208,7 +179,7 @@ public:
 
 		return p_load;
 #else
-		return boost::static_pointer_cast<clone_type>(p_base);
+		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone()));
 #endif
 	}
 
