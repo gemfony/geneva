@@ -459,10 +459,10 @@ template <> void GBoundedNumT<boost::int32_t>::resetBoundaries();
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT()
-	:GParameterT<T>(T(0)),
-	 lowerBoundary_(T(0)),
-	 upperBoundary_(T(1)),
-	 internalValue_(T(0))
+	: GParameterT<T>(T(0))
+	, lowerBoundary_(T(0))
+	, upperBoundary_(T(1))
+	, internalValue_(T(0))
 {
 	std::ostringstream error;
 	error << "In GBoundedNumT<T>::GBoundedNumT(): Error!" << std::endl
@@ -484,10 +484,10 @@ GBoundedNumT<T>::GBoundedNumT()
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT(const T& val)
-	:GParameterT<T>(T(0)),
-	 lowerBoundary_(T(0)),
-	 upperBoundary_(T(1)),
-	 internalValue_(T(0))
+	: GParameterT<T>(T(0))
+	, lowerBoundary_(T(0))
+	, upperBoundary_(T(1))
+	, internalValue_(T(0))
 {
 	std::ostringstream error;
 	error << "In GBoundedNumT<T>::GBoundedNumT(const T&): Error!" << std::endl
@@ -510,10 +510,10 @@ GBoundedNumT<T>::GBoundedNumT(const T& val)
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT(const T& lowerBoundary, const T& upperBoundary)
-	:GParameterT<T>(T(0)),
-	 lowerBoundary_(lowerBoundary),
-	 upperBoundary_(upperBoundary),
-	 internalValue_(T(0))
+	: GParameterT<T>(T(0))
+	, lowerBoundary_(lowerBoundary)
+	, upperBoundary_(upperBoundary)
+	, internalValue_(T(0))
 {
 	std::ostringstream error;
 	error << "In GBoundedNumT<T>::GBoundedNumT(const T&, const T&): Error!" << std::endl
@@ -534,10 +534,10 @@ GBoundedNumT<T>::GBoundedNumT(const T& lowerBoundary, const T& upperBoundary)
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT(const T& val, const T& lowerBoundary, const T& upperBoundary)
-	:GParameterT<T>(T(0)),
-	 lowerBoundary_(lowerBoundary),
-	 upperBoundary_(upperBoundary),
-	 internalValue_(T(0))
+	: GParameterT<T>(T(0))
+	, lowerBoundary_(lowerBoundary)
+	, upperBoundary_(upperBoundary)
+	, internalValue_(T(0))
 {
 	setExternalValue(val);
 }
@@ -553,10 +553,10 @@ GBoundedNumT<T>::GBoundedNumT(const T& val, const T& lowerBoundary, const T& upp
  */
 template <typename T>
 GBoundedNumT<T>::GBoundedNumT(const GBoundedNumT<T>& cp)
-	:GParameterT<T>(cp),
-	 lowerBoundary_(cp.lowerBoundary_),
-	 upperBoundary_(cp.upperBoundary_),
-	 internalValue_(cp.internalValue_)
+	: GParameterT<T>(cp)
+	, lowerBoundary_(cp.lowerBoundary_)
+	, upperBoundary_(cp.upperBoundary_)
+	, internalValue_(cp.internalValue_)
 { /* nothing */ }
 
 /******************************************************************************/

@@ -65,9 +65,9 @@ public:
 	 * @param nInfoIndividuals The amount of individuals for which information should be emitted
 	 * @param summary The stream to which information should be written
 	 */
-	optimizationMonitor(const std::size_t nInfoIndividuals, std::ostream& summary):
-		nInfoIndividuals_(nInfoIndividuals),
-		summary_(summary)
+	optimizationMonitor(const std::size_t nInfoIndividuals, std::ostream& summary)
+		: nInfoIndividuals_(nInfoIndividuals)
+		, summary_(summary)
 		{ /* nothing */  }
 
 	/*********************************************************************************************/

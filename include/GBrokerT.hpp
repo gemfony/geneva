@@ -99,10 +99,10 @@ public:
 	 * The default constructor.
 	 */
 	GBrokerT()
-		:lastId_(0),
-		 currentGetPosition_(RawBuffers_.begin()),
-		 buffersPresentRaw_(false),
-		 buffersPresentProcessed_(false)
+		: lastId_(0)
+		, currentGetPosition_(RawBuffers_.begin())
+		, buffersPresentRaw_(false)
+		, buffersPresentProcessed_(false)
 	{ /* nothing */}
 
 	/**********************************************************************************/

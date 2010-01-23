@@ -37,9 +37,9 @@ namespace GenEvA {
  * The default constructor. Nothing special here.
  */
 GBoostThreadConsumer::GBoostThreadConsumer()
-	:Gem::Util::GConsumer(),
-	 maxThreads_(DEFAULTGBTCMAXTHREADS),
-	 stop_(false)
+	: Gem::Util::GConsumer()
+	, maxThreads_(DEFAULTGBTCMAXTHREADS)
+	, stop_(false)
 { /* nothing */ }
 
 /***************************************************************/

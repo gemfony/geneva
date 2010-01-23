@@ -75,7 +75,7 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& mutProb)
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigmaSigma,
 			        const double& minSigma, const double& maxSigma)
-	:GGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma)
+	: GGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -90,7 +90,7 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigm
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigmaSigma,
 			        const double& minSigma, const double& maxSigma, const double& mutProb)
-	:GGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, mutProb)
+	: GGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, mutProb)
 { /* nothing */ }
 
 /*******************************************************************************************/

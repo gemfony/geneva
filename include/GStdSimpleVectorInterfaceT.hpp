@@ -106,7 +106,9 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdSimpleVectorInterfaceT object
 	 */
-	GStdSimpleVectorInterfaceT(const GStdSimpleVectorInterfaceT<T>& cp) { data =cp.data;	}
+	GStdSimpleVectorInterfaceT(const GStdSimpleVectorInterfaceT<T>& cp)
+		: data(cp.data)
+	{ /* nothing */ }
 
 	/*****************************************************************************/
 	/**

@@ -39,17 +39,17 @@ namespace GenEvA {
  * @param server Identifies the server
  * @param port Identifies the port on the server
  */
-GAsioTCPClient::GAsioTCPClient(const std::string& server, const std::string& port) :
-	GBaseClient(),
-	maxStalls_(ASIOMAXSTALLS),
-	maxConnectionAttempts_(ASIOMAXCONNECTIONATTEMPTS),
-	stalls_(0),
-	io_service_(),
-	socket_(io_service_),
-	resolver_(io_service_),
-	query_(server, port),
-	endpoint_iterator0_(resolver_.resolve(query_)),
-	end_()
+GAsioTCPClient::GAsioTCPClient(const std::string& server, const std::string& port)
+   : GBaseClient()
+   , maxStalls_(ASIOMAXSTALLS)
+   , maxConnectionAttempts_(ASIOMAXCONNECTIONATTEMPTS)
+   , stalls_(0)
+   , io_service_()
+   , socket_(io_service_)
+   ,resolver_(io_service_)
+   , query_(server, port)
+   , endpoint_iterator0_(resolver_.resolve(query_))
+   , end_()
 { /* nothing */ }
 
 /***********************************************************************/

@@ -264,8 +264,8 @@ template <> GParameterT<char>::GParameterT();
  */
 template <typename T>
 GParameterT<T>::GParameterT()
-	:GParameterBaseWithAdaptorsT<T>(),
-	 val_(T(0))
+	: GParameterBaseWithAdaptorsT<T>()
+	, val_(T(0))
 { /* nothing */ }
 
 /*********************************************************************************************/
@@ -276,8 +276,8 @@ GParameterT<T>::GParameterT()
  */
 template <typename T>
 GParameterT<T>::GParameterT(const GParameterT<T>& cp)
-	:GParameterBaseWithAdaptorsT<T>(cp),
-	 val_(cp.val_)
+	: GParameterBaseWithAdaptorsT<T>(cp)
+	, val_(cp.val_)
 { /* nothing */	}
 
 /*********************************************************************************************/
@@ -288,8 +288,8 @@ GParameterT<T>::GParameterT(const GParameterT<T>& cp)
  */
 template <typename T>
 GParameterT<T>::GParameterT(const T& val)
-	:GParameterBaseWithAdaptorsT<T>(),
-	 val_(val)
+	: GParameterBaseWithAdaptorsT<T>()
+	, val_(val)
 { /* nothing */	}
 
 /*********************************************************************************************/

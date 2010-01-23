@@ -92,7 +92,7 @@ public:
 	 * The standard constructor.
 	 */
 	GIntFlipAdaptorT()
-		:GAdaptorT<T> (DEFAULTBITMUTPROB)
+		: GAdaptorT<T> (DEFAULTBITMUTPROB)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -103,7 +103,7 @@ public:
 	 * @param prob The probability for a flip
 	 */
 	explicit GIntFlipAdaptorT(const double& prob)
-		:GAdaptorT<T>(prob)
+		: GAdaptorT<T>(prob)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -113,7 +113,7 @@ public:
 	 * @param cp Another GIntFlipAdaptorT object
 	 */
 	GIntFlipAdaptorT(const GIntFlipAdaptorT<T>& cp)
-		:GAdaptorT<T>(cp)
+		: GAdaptorT<T>(cp)
 	{ /* nothing */	}
 
 	/********************************************************************************************/

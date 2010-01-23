@@ -105,8 +105,8 @@ public:
 	 * contain a NULL pointer (which is o.k.).
 	 */
 	GParameterBaseWithAdaptorsT()
-		:GParameterBase(),
-		 hasLocalAdaptor_(false)
+		: GParameterBase()
+		, hasLocalAdaptor_(false)
 	{ /* nothing */	}
 
 	/*******************************************************************************************/
@@ -116,8 +116,8 @@ public:
 	 * @param cp A copy of another GParameterBaseWithAdaptorsT object
 	 */
 	GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
-		:GParameterBase(cp),
-		 hasLocalAdaptor_(cp.hasLocalAdaptor_)
+		: GParameterBase(cp)
+		, hasLocalAdaptor_(cp.hasLocalAdaptor_)
 	{
 		// Copy the other adaptor's content if it holds an object
 		if(hasLocalAdaptor_ && cp.adaptor_)  adaptor_ = (cp.adaptor_)->GObject::clone_bptr_cast<GAdaptorT<T> >();

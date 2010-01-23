@@ -95,7 +95,7 @@ public:
 	 * A standard copy constructor
 	 */
 	GBoundedParabolaIndividual(const GBoundedParabolaIndividual& cp)
-		:GParameterSet(cp)
+		: GParameterSet(cp)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
@@ -168,10 +168,10 @@ public:
 	 */
 	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GBoundedParabolaIndividual *gbpi_load = GObject::conversion_cast(&cp,  this);
+		const GBoundedParabolaIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterSet::isEqualTo(*gbpi_load, expected)) return false;
+		if(!GParameterSet::isEqualTo(*p_load, expected)) return false;
 
 		return true;
 	}
@@ -187,10 +187,10 @@ public:
 	 */
 	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GBoundedParabolaIndividual *gbpi_load = GObject::conversion_cast(&cp,  this);
+		const GBoundedParabolaIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterSet::isSimilarTo(*gbpi_load, limit, expected)) return false;
+		if(!GParameterSet::isSimilarTo(*p_load, limit, expected)) return false;
 
 		return true;
 	}

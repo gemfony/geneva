@@ -81,9 +81,9 @@ public:
 	 * The default constructor.
 	 */
 	GBoundedBufferWithIdT()
-		:GBoundedBufferT<T>(),
-		 id_(0),
-		 idSet_(false)
+		: GBoundedBufferT<T>()
+		, id_(0)
+		, idSet_(false)
 	{ /* nothing */}
 
 	/***************************************************************/
@@ -94,9 +94,9 @@ public:
 	 * @param capacity The desired size of the buffer
 	 */
 	explicit GBoundedBufferWithIdT(const std::size_t& capacity)
-		:GBoundedBufferT<T>(capacity),
-		 id_(0),
-		 idSet_(false)
+		: GBoundedBufferT<T>(capacity)
+		, id_(0)
+		, idSet_(false)
 	{ /* nothing */}
 
 	/***************************************************************/

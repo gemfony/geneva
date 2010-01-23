@@ -42,8 +42,8 @@ namespace GenEvA {
  * The default constructor
  */
 GGDPersonalityTraits::GGDPersonalityTraits()
-	:GPersonalityTraits(),
-	 command_("")
+	: GPersonalityTraits()
+	, command_("")
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -53,8 +53,8 @@ GGDPersonalityTraits::GGDPersonalityTraits()
  * @param cp A copy of another GGDPersonalityTraits object
  */
 GGDPersonalityTraits::GGDPersonalityTraits(const GGDPersonalityTraits& cp)
-	:GPersonalityTraits(cp),
-	 command_(cp.command_)
+	: GPersonalityTraits(cp)
+	, command_(cp.command_)
 { /* nothing */ }
 
 /*****************************************************************************/

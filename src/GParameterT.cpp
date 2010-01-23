@@ -40,8 +40,8 @@ namespace GenEvA
   * initialize the value with a printable character.
   */
 template <> GParameterT<char>::GParameterT()
-   :GParameterBaseWithAdaptorsT<char>(),
-     val_('a')
+   : GParameterBaseWithAdaptorsT<char>()
+   , val_('a')
 { /* nothing */ }
 
 /***********************************************************************************************/

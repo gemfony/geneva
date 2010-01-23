@@ -46,11 +46,11 @@ namespace GenEvA
  * The default constructor
  */
 GBrokerEA::GBrokerEA()
-	:GEvolutionaryAlgorithm(),
-     waitFactor_(DEFAULTWAITFACTOR),
-     maxWaitFactor_(DEFAULTMAXWAITFACTOR),
-     firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT)),
-     loopTime_(boost::posix_time::milliseconds(DEFAULTLOOPMSEC))
+	: GEvolutionaryAlgorithm()
+    , waitFactor_(DEFAULTWAITFACTOR)
+    , maxWaitFactor_(DEFAULTMAXWAITFACTOR)
+    , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT))
+    , loopTime_(boost::posix_time::milliseconds(DEFAULTLOOPMSEC))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -60,11 +60,11 @@ GBrokerEA::GBrokerEA()
  * @param cp A copy of another GBrokerEA object
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
-	:GEvolutionaryAlgorithm(cp),
-	 waitFactor_(cp.waitFactor_),
-	 maxWaitFactor_(cp.maxWaitFactor_),
-	firstTimeOut_(cp.firstTimeOut_),
-	loopTime_(cp.loopTime_)
+	: GEvolutionaryAlgorithm(cp)
+	, waitFactor_(cp.waitFactor_)
+	, maxWaitFactor_(cp.maxWaitFactor_)
+	, firstTimeOut_(cp.firstTimeOut_)
+	, loopTime_(cp.loopTime_)
 { /* nothing */ }
 
 /******************************************************************************/

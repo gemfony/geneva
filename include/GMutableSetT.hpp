@@ -89,8 +89,8 @@ public:
 	 * The default constructor. No local data, hence nothing to do.
 	 */
 	GMutableSetT()
-		:GIndividual(),
-		 GStdPtrVectorInterfaceT<T>()
+		: GIndividual()
+		, GStdPtrVectorInterfaceT<T>()
 	{ /* nothing */	}
 
 	/**********************************************************************************/
@@ -100,9 +100,9 @@ public:
 	 *
 	 * @param cp A copy of another GMutableSetT<T> object
 	 */
-	GMutableSetT(const GMutableSetT<T>& cp):
-		GIndividual(cp),
-		GStdPtrVectorInterfaceT<T>(cp)
+	GMutableSetT(const GMutableSetT<T>& cp)
+		: GIndividual(cp)
+		, GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
 
 	/**********************************************************************************/

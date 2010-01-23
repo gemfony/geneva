@@ -50,8 +50,8 @@ namespace Gem
 	 * The standard constructor
 	 */
 	GParameterValuePair::GParameterValuePair()
-		:value_(0.),
-		hasValue_(false)
+		: value_(0.)
+		, hasValue_(false)
 	{ /* nothing */ }
 
 	/******************************************************************************/

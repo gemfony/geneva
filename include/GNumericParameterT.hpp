@@ -554,10 +554,10 @@ template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameter
  */
 template <typename T>
 GNumericParameterT<T>::GNumericParameterT()
-	:param_(T(0)),
-	 lowerBoundary_(T(0)),
-	 upperBoundary_(T(0)),
-	 precision_(DEFAULTPRECISION)
+	: param_(T(0))
+	, lowerBoundary_(T(0))
+	, upperBoundary_(T(0))
+	, precision_(DEFAULTPRECISION)
 { /* nothing */ }
 
 /*****************************************************************************************/
@@ -566,10 +566,10 @@ GNumericParameterT<T>::GNumericParameterT()
  */
 template <typename T>
 GNumericParameterT<T>::GNumericParameterT(const T& param)
-	:param_(param),
-	 lowerBoundary_(T(0)),
-	 upperBoundary_(T(0)),
-	 precision_(DEFAULTPRECISION)
+	: param_(param)
+	, lowerBoundary_(T(0))
+	, upperBoundary_(T(0))
+	, precision_(DEFAULTPRECISION)
 { /* nothing */	}
 
 /*****************************************************************************************/
@@ -578,10 +578,10 @@ GNumericParameterT<T>::GNumericParameterT(const T& param)
  */
 template <typename T>
 GNumericParameterT<T>::GNumericParameterT(const T& param, const T& lower, const T& upper)
-	:param_(param),
-	 lowerBoundary_(lower),
-	 upperBoundary_(upper),
-	 precision_(DEFAULTPRECISION)
+	: param_(param)
+	, lowerBoundary_(lower)
+	, upperBoundary_(upper)
+	, precision_(DEFAULTPRECISION)
 {
 	// Check the validity of the boundaries.
 	if(lowerBoundary_ != upperBoundary_ &&
@@ -603,10 +603,10 @@ GNumericParameterT<T>::GNumericParameterT(const T& param, const T& lower, const 
  */
 template <typename T>
 GNumericParameterT<T>::GNumericParameterT(const GNumericParameterT& cp)
-	:param_(cp.param_),
-	 lowerBoundary_(cp.lowerBoundary_),
-	 upperBoundary_(cp.upperBoundary_),
-	 precision_(cp.precision_)
+	: param_(cp.param_)
+	, lowerBoundary_(cp.lowerBoundary_)
+	, upperBoundary_(cp.upperBoundary_)
+	, precision_(cp.precision_)
 { /* nothing */	}
 
 /*****************************************************************************************/

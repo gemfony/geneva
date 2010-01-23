@@ -39,11 +39,11 @@ namespace GenEvA
  * The default constructor.
  */
 GBaseClient::GBaseClient()
-	:startTime_(boost::posix_time::microsec_clock::local_time()),
-	 maxDuration_(boost::posix_time::microsec(0)),
-	 processed_(0),
-	 processMax_(0),
-	 returnRegardless_(false)
+	: startTime_(boost::posix_time::microsec_clock::local_time())
+	, maxDuration_(boost::posix_time::microsec(0))
+	, processed_(0)
+	, processMax_(0)
+	, returnRegardless_(false)
 { /* nothing*/ }
 
 /*********************************************************************************/

@@ -39,10 +39,10 @@ namespace GenEvA {
  * such as the GDoubleGaussAdaptor.  Specialization for typeof(T) == typeof(double).
  */
 template <>  GBoundedNumT<double>::GBoundedNumT()
-	:GParameterT<double>(0.),
-	 lowerBoundary_(0.),
-	 upperBoundary_(1.),
-	 internalValue_(0.)
+	: GParameterT<double>(0.)
+	, lowerBoundary_(0.)
+	, upperBoundary_(1.)
+	, internalValue_(0.)
 {
 		Gem::Util::GRandom gr;
 		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
@@ -58,10 +58,10 @@ template <>  GBoundedNumT<double>::GBoundedNumT()
  * such as the GDoubleGaussAdaptor.  Specialization for typeof(T) == typeof(boost::int32_t).
  */
 template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT()
-	:GParameterT<boost::int32_t>(0),
-	 lowerBoundary_(0),
- 	 upperBoundary_(1000),
-	 internalValue_(1)
+	: GParameterT<boost::int32_t>(0)
+	, lowerBoundary_(0)
+ 	, upperBoundary_(1000)
+	, internalValue_(1)
 {
 		Gem::Util::GRandom gr;
 		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
@@ -80,10 +80,10 @@ template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT()
 	 * @param val The desired external value of this object
 	 */
 template <> GBoundedNumT<double>::GBoundedNumT(const double& val)
-	:GParameterT<double>(0.),
-	 lowerBoundary_(-0.999*0.5*std::numeric_limits<double>::max()),
-	 upperBoundary_(0.999*0.5*std::numeric_limits<double>::max()),
-	 internalValue_(0.)
+	: GParameterT<double>(0.)
+	, lowerBoundary_(-0.999*0.5*std::numeric_limits<double>::max())
+	, upperBoundary_(0.999*0.5*std::numeric_limits<double>::max())
+	, internalValue_(0.)
 {
 		// This function also sets the internalValue_ variable.
 		setExternalValue(val);
@@ -97,10 +97,10 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double& val)
  * @param val The desired external value of this object
  */
 template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& val)
-	:GParameterT<boost::int32_t>(0),
-	 lowerBoundary_(std::numeric_limits<boost::int32_t>::min()),
-	 upperBoundary_(std::numeric_limits<boost::int32_t>::max()),
-	 internalValue_(0)
+	: GParameterT<boost::int32_t>(0)
+	, lowerBoundary_(std::numeric_limits<boost::int32_t>::min())
+	, upperBoundary_(std::numeric_limits<boost::int32_t>::max())
+	, internalValue_(0)
 {
 		// This function also sets the internalValue_ variable.
 		setExternalValue(val);
@@ -115,10 +115,10 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& val
  * @param upperBoundary The upper boundary of the value range
  */
 template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, const double& upperBoundary)
-	:GParameterT<double>(0.),
-	 lowerBoundary_(0.),
-	 upperBoundary_(1.),
-	 internalValue_(0.)
+	: GParameterT<double>(0.)
+	, lowerBoundary_(0.)
+	, upperBoundary_(1.)
+	, internalValue_(0.)
 {
 		Gem::Util::GRandom gr;
 		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
@@ -157,10 +157,10 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, cons
  * @param upperBoundary The upper boundary of the value range
  */
 template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
-	:GParameterT<boost::int32_t>(0),
-	 lowerBoundary_(lowerBoundary),
-	 upperBoundary_(upperBoundary),
-	 internalValue_(0)
+	: GParameterT<boost::int32_t>(0)
+	, lowerBoundary_(lowerBoundary)
+	, upperBoundary_(upperBoundary)
+	, internalValue_(0)
 {
 		Gem::Util::GRandom gr;
 		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);

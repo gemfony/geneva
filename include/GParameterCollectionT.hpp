@@ -82,9 +82,9 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GParameterCollectionT() :
-		GParameterBaseWithAdaptorsT<T> (),
-		GStdSimpleVectorInterfaceT<T>()
+	GParameterCollectionT()
+		: GParameterBaseWithAdaptorsT<T> ()
+		, GStdSimpleVectorInterfaceT<T>()
 	{ /* nothing */ }
 
 	/*******************************************************************************************/
@@ -93,9 +93,9 @@ public:
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object
 	 */
-	GParameterCollectionT(const GParameterCollectionT<T>& cp) :
-		GParameterBaseWithAdaptorsT<T> (cp),
-		GStdSimpleVectorInterfaceT<T>(cp)
+	GParameterCollectionT(const GParameterCollectionT<T>& cp)
+		: GParameterBaseWithAdaptorsT<T> (cp)
+		, GStdSimpleVectorInterfaceT<T>(cp)
 	{  /* nothing */ }
 
 	/*******************************************************************************************/

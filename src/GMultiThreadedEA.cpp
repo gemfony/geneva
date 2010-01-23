@@ -44,10 +44,10 @@ namespace GenEvA {
  * A standard constructor. No local, dynamically allocated data,
  * hence this function is empty.
  */
-GMultiThreadedEA::GMultiThreadedEA() :
-	GEvolutionaryAlgorithm(),
-	nThreads_(DEFAULTBOOSTTHREADS),
-	tp_(nThreads_)
+GMultiThreadedEA::GMultiThreadedEA()
+   : GEvolutionaryAlgorithm()
+   , nThreads_(DEFAULTBOOSTTHREADS)
+   , tp_(nThreads_)
 { /* nothing */ }
 
 /********************************************************************/
@@ -57,10 +57,10 @@ GMultiThreadedEA::GMultiThreadedEA() :
  *
  * @param cp Reference to another GMultiThreadedEA object
  */
-GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp) :
-	GEvolutionaryAlgorithm(cp),
-	nThreads_(cp.nThreads_),
-	tp_(nThreads_)
+GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
+   : GEvolutionaryAlgorithm(cp)
+   , nThreads_(cp.nThreads_)
+   , tp_(nThreads_)
 { /* nothing */ }
 
 /********************************************************************/

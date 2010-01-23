@@ -88,7 +88,7 @@ public:
      * @param sleepTime The amount of time the fitness calculation should pause before continuing
      */
     GDelayIndividual(const boost::posix_time::time_duration sleepTime)
-		:sleepTime_(sleepTime)
+		: sleepTime_(sleepTime)
     {/* nothing */}
 
 	/********************************************************************************************/
@@ -98,8 +98,8 @@ public:
 	 * @param cp A copy of another GDelayIndividual
 	 */
 	GDelayIndividual(const GDelayIndividual& cp)
-		:GParameterSet(cp),
-		 sleepTime_(cp.sleepTime_)
+		: GParameterSet(cp)
+		, sleepTime_(cp.sleepTime_)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -138,13 +138,13 @@ public:
 	 * @param cp A copy of another GDelayIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		const GDelayIndividual *gdi_load = conversion_cast(cp, this);
+		const GDelayIndividual *p_load = conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterSet::load(cp);
 
 		// ... and then our own.
-		sleepTime_ = gdi_load->sleepTime_;
+		sleepTime_ = p_load->sleepTime_;
 	}
 
 	/*******************************************************************************************/
@@ -180,13 +180,13 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GDelayIndividual *gdi_load = GObject::conversion_cast(&cp,  this);
+		const GDelayIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterSet::isEqualTo(*gdi_load, expected)) return false;
+		if(!GParameterSet::isEqualTo(*p_load, expected)) return false;
 
 		// Check local data
-		if(checkForInequality("GDelayIndividual", sleepTime_, gdi_load->sleepTime_,"sleepTime_", "gdi_load->sleepTime_", expected)) return false;
+		if(checkForInequality("GDelayIndividual", sleepTime_, p_load->sleepTime_,"sleepTime_", "p_load->sleepTime_", expected)) return false;
 
 		return true;
 	}
@@ -203,13 +203,13 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GDelayIndividual *gdi_load = GObject::conversion_cast(&cp,  this);
+		const GDelayIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterSet::isSimilarTo(*gdi_load, limit, expected)) return false;
+		if(!GParameterSet::isSimilarTo(*p_load, limit, expected)) return false;
 
 		// Check our local data
-		if(checkForDissimilarity("GDelayIndividual", sleepTime_, gdi_load->sleepTime_, limit, "sleepTime_", "gdi_load->sleepTime_", expected)) return false;
+		if(checkForDissimilarity("GDelayIndividual", sleepTime_, p_load->sleepTime_, limit, "sleepTime_", "p_load->sleepTime_", expected)) return false;
 
 		return true;
 	}

@@ -77,9 +77,9 @@ public:
 	 * The default constructor. Note that, when using this constructor, the GBoundedBufferWithIdT
 	 * objects will assume the default sizes.
 	 */
-	GBufferPortT() :
-		original_(new Gem::Util::GBoundedBufferWithIdT<T>()),
-		processed_(new Gem::Util::GBoundedBufferWithIdT<T>())
+	GBufferPortT()
+		: original_(new Gem::Util::GBoundedBufferWithIdT<T>())
+		, processed_(new Gem::Util::GBoundedBufferWithIdT<T>())
 	{ /* nothing */	}
 
 	/*****************************************************************************/
@@ -88,9 +88,9 @@ public:
 	 *
 	 * @param size The desired capacity of the GBoundedBufferWithIdT objects
 	 */
-	explicit GBufferPortT(const std::size_t& size) :
-		original_(new Gem::Util::GBoundedBufferWithIdT<T>(size)),
-		processed_(new Gem::Util::GBoundedBufferWithIdT<T>(size))
+	explicit GBufferPortT(const std::size_t& size)
+	   : original_(new Gem::Util::GBoundedBufferWithIdT<T>(size))
+	   , processed_(new Gem::Util::GBoundedBufferWithIdT<T>(size))
 	{ /* nothing */ }
 
 	/*****************************************************************************/

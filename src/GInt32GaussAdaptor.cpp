@@ -75,7 +75,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& mutProb)
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaSigma,
 			        const double& minSigma, const double& maxSigma)
-	:GGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma)
+	: GGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -90,7 +90,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaS
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaSigma,
 			        const double& minSigma, const double& maxSigma, const double& mutProb)
-	:GGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma, mutProb)
+	: GGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma, mutProb)
 { /* nothing */ }
 
 /*******************************************************************************************/

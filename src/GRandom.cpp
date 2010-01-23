@@ -40,12 +40,12 @@ namespace Util {
  * is still needed.
  */
 GRandom::GRandom()
-	:rnrGenerationMode_(Gem::Util::RNRFACTORY),
-	 currentPackageSize_(DEFAULTARRAYSIZE),
-	 current01_(1), // position 0 holds the array size
-	 grf_(GRANDOMFACTORY),
-	 initialSeed_(GRANDOMFACTORY->getSeed()),
-	 linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
+	: rnrGenerationMode_(Gem::Util::RNRFACTORY)
+	, currentPackageSize_(DEFAULTARRAYSIZE)
+	, current01_(1) // position 0 holds the array size
+	, grf_(GRANDOMFACTORY)
+	, initialSeed_(GRANDOMFACTORY->getSeed())
+	, linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
 { /* nothing */ }
 
 /*************************************************************************/
@@ -55,11 +55,11 @@ GRandom::GRandom()
  * @param rnrGenMode The random number generation mode (local vs. factory)
  */
 GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
-	:rnrGenerationMode_(rnrGenMode),
-	 currentPackageSize_(DEFAULTARRAYSIZE),
-	 current01_(1), // position 0 holds the array size
-	 initialSeed_(GRANDOMFACTORY->getSeed()),
-	 linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
+	: rnrGenerationMode_(rnrGenMode)
+	, currentPackageSize_(DEFAULTARRAYSIZE)
+	, current01_(1) // position 0 holds the array size
+	, initialSeed_(GRANDOMFACTORY->getSeed())
+	, linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
 {
     switch(rnrGenerationMode_) {
     case Gem::Util::RNRFACTORY:
@@ -84,11 +84,11 @@ GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
  * @param cp A copy of another GRandom object
  */
 GRandom::GRandom(const GRandom& cp)
-	:rnrGenerationMode_(cp.rnrGenerationMode_),
-	 currentPackageSize_(DEFAULTARRAYSIZE),
-	 current01_(1), // position 0 holds the array size
-	 initialSeed_(GRANDOMFACTORY->getSeed()), // We do not want use the other generator's start seed
-	 linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
+	: rnrGenerationMode_(cp.rnrGenerationMode_)
+	, currentPackageSize_(DEFAULTARRAYSIZE)
+	, current01_(1) // position 0 holds the array size
+	, initialSeed_(GRANDOMFACTORY->getSeed()) // We do not want use the other generator's start seed
+	, linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
 {
     switch(rnrGenerationMode_) {
     case Gem::Util::RNRFACTORY:

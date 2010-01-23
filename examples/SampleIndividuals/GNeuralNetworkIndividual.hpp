@@ -202,8 +202,8 @@ public:
 	GNeuralNetworkIndividual(std::string trainingDataFile,
 				             const std::vector<std::size_t>& architecture,
 				             double min, double max)
-		:architecture_(architecture),
-		 transferMode_(SIGMOID)
+		: architecture_(architecture)
+		, transferMode_(SIGMOID)
 	{
 		// Check the architecture we've been given and create the layers
 		std::size_t nLayers = architecture.size();
@@ -289,9 +289,9 @@ public:
 	GNeuralNetworkIndividual(boost::shared_ptr<trainingData> tD,
 							 const std::vector<std::size_t>& architecture,
 							 double min, double max)
-		:architecture_(architecture),
-		 tD_(tD),
-		 transferMode_(SIGMOID)
+		: architecture_(architecture)
+		, tD_(tD)
+		, transferMode_(SIGMOID)
 	{
 		// Check the architecture we've been given and create the layers
 		std::size_t nLayers = architecture.size();
@@ -407,7 +407,7 @@ public:
 	 * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		const GNeuralNetworkIndividual *gpi_load = conversion_cast(cp, this);
+		const GNeuralNetworkIndividual *p_load = conversion_cast(cp, this);
 
 		// Load the parent class'es data
 		GParameterSet::load(cp);
@@ -423,7 +423,7 @@ public:
 
 			// We need to copy the training data over manually
 			std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
-			for(cit=gpi_load->tD_->data.begin(); cit!=gpi_load->tD_->data.end(); ++cit){
+			for(cit=p_load->tD_->data.begin(); cit!=p_load->tD_->data.end(); ++cit){
 				boost::shared_ptr<trainingSet> p(new trainingSet);
 
 				p->Input = (*cit)->Input;
@@ -435,10 +435,10 @@ public:
 
 		// The architecture of the hidden layers could actually be changed
 		// in later versions, hence we copy it over.
-		architecture_ = gpi_load->architecture_;
+		architecture_ = p_load->architecture_;
 
 		// Copy and set the transfer mode
-		setTransferMode(gpi_load->transferMode_);
+		setTransferMode(p_load->transferMode_);
 	}
 
 	/********************************************************************************************/

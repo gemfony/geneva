@@ -44,12 +44,12 @@ boost::mutex Gem::Util::GRandomFactory::factory_creation_mutex_;
  * The standard constructor, which seeds the random number generator and
  * creates a predefined number of threads.
  */
-GRandomFactory::GRandomFactory()  :
-	arraySize_(DEFAULTARRAYSIZE),
-	threadsHaveBeenStarted_(false),
-	n01Threads_(DEFAULT01PRODUCERTHREADS),
-	g01_ (boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Util::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE))),
-	seedManager_()
+GRandomFactory::GRandomFactory()
+	: arraySize_(DEFAULTARRAYSIZE)
+	, threadsHaveBeenStarted_(false)
+	, n01Threads_(DEFAULT01PRODUCERTHREADS)
+	, g01_ (boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Util::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
+	, seedManager_()
 {
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
 	if(multiple_call_trap_ > 0) {

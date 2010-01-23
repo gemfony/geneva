@@ -161,10 +161,10 @@ public:
 						  const std::size_t& nData,
 						  const std::size_t& nDimOrig,
 						  const std::size_t& nDimTarget)
-		:source_(source),
-		 nData_(nData),
-		 nDimOrig_(nDimOrig),
-		 nDimTarget_(nDimTarget)
+		: source_(source)
+		, nData_(nData)
+		, nDimOrig_(nDimOrig)
+		, nDimTarget_(nDimTarget)
 	{
 		// Set up a GDoubleCollection with nval values, each initialized
 		// with a random number in the range [min,max[
@@ -212,10 +212,10 @@ public:
 	 * @param filename The name of the file holding the necessary data
 	 */
 	GProjectionIndividual(const std::string& filename, double min, double max)
-		:source_(),
-		 nData_(0),
-		 nDimOrig_(0),
-		 nDimTarget_(0)
+		: source_()
+		, nData_(0)
+		, nDimOrig_(0)
+		, nDimTarget_(0)
 	{
 		projectionData pD;
 
@@ -285,11 +285,11 @@ public:
 	 * @param cp A copy of another GProjectionIndividual object
 	 */
 	GProjectionIndividual(const GProjectionIndividual& cp)
-		:GParameterSet(cp),
-		 source_(cp.source_),
-		 nData_(cp.nData_),
-		 nDimOrig_(cp.nDimOrig_),
-		 nDimTarget_(cp.nDimTarget_)
+		: GParameterSet(cp)
+		, source_(cp.source_)
+		, nData_(cp.nData_)
+		, nDimOrig_(cp.nDimOrig_)
+		, nDimTarget_(cp.nDimTarget_)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -328,16 +328,16 @@ public:
 	 * @param cp A copy of another GProjectionIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		const GProjectionIndividual *gpi_load = conversion_cast(cp, this);
+		const GProjectionIndividual *p_load = conversion_cast(cp, this);
 
 		// Load the parent class'es data
 		GParameterSet::load(cp);
 
 		// Load our local data
-		nData_ = gpi_load->nData_;
-		nDimOrig_ = gpi_load->nDimOrig_;
-		nDimTarget_ = gpi_load->nDimTarget_;
-		source_ = gpi_load->source_;
+		nData_ = p_load->nData_;
+		nDimOrig_ = p_load->nDimOrig_;
+		nDimTarget_ = p_load->nDimTarget_;
+		source_ = p_load->source_;
 	}
 
 	/********************************************************************************************/

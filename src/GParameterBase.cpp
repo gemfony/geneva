@@ -36,10 +36,10 @@ namespace GenEvA {
 /**
  * The default constructor. mutations are switched on by default.
  */
-GParameterBase::GParameterBase():
-	GMutableI(),
-	GObject(),
-	mutationsActive_(true)
+GParameterBase::GParameterBase()
+	: GMutableI()
+	, GObject()
+	, mutationsActive_(true)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -49,9 +49,9 @@ GParameterBase::GParameterBase():
  * @param cp A copy of another GParameterBase object
  */
 GParameterBase::GParameterBase(const GParameterBase& cp)
-	:GMutableI(cp),
-	 GObject(cp),
-	 mutationsActive_(cp.mutationsActive_)
+	: GMutableI(cp)
+	, GObject(cp)
+	, mutationsActive_(cp.mutationsActive_)
 { /* nothing */ }
 
 /**********************************************************************************/

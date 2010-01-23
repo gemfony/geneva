@@ -43,7 +43,7 @@ namespace Gem
 		 * The default constructor.
 		 */
 		GParameterSet::GParameterSet()
-			:GMutableSetT<Gem::GenEvA::GParameterBase>()
+			: GMutableSetT<Gem::GenEvA::GParameterBase>()
 		{ /* nothing */ }
 
 		/**********************************************************************************/
@@ -54,8 +54,8 @@ namespace Gem
 		 * @param cp A copy of another GParameterSet object
 		 */
 		GParameterSet::GParameterSet(const GParameterSet& cp)
-			:GMutableSetT<Gem::GenEvA::GParameterBase>(cp),
-			 eval_(cp.eval_)
+			: GMutableSetT<Gem::GenEvA::GParameterBase>(cp)
+			, eval_(cp.eval_)
 		{ /* nothing */ }
 
 		/**********************************************************************************/

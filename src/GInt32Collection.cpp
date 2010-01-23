@@ -56,7 +56,7 @@ GInt32Collection::GInt32Collection()
  * @param max The maximum random value
  */
 GInt32Collection::GInt32Collection(const std::size_t& nval, const boost::int32_t& min, const boost::int32_t& max)
-	:GNumCollectionT<boost::int32_t>(nval, min, max)
+	: GNumCollectionT<boost::int32_t>(nval, min, max)
 { /* nothing */ }
 
 /*******************************************************************************************/

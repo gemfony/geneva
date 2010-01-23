@@ -129,8 +129,8 @@ public:
 	 * @param cp A copy of another GFunctionIndidivual
 	 */
 	GFunctionIndividual(const GFunctionIndividual& cp)
-		:GParameterSet(cp),
-		 demoFunction_(cp.demoFunction_)
+		: GParameterSet(cp)
+		, demoFunction_(cp.demoFunction_)
 	{
 		// Register a suitable transfer function, depending on the value of transferMode_
 		switch(demoFunction_){
@@ -181,13 +181,13 @@ public:
 	 * @param cp A copy of another GFunctionIndividual, camouflaged as a GObject
 	 */
 	virtual void load(const GObject* cp){
-		const GFunctionIndividual *gfi_load = conversion_cast(cp, this);
+		const GFunctionIndividual *p_load = conversion_cast(cp, this);
 
 		// Load our parent class'es data ...
 		GParameterSet::load(cp);
 
 		// ... and then our own
-		this->setDemoFunction(gfi_load->demoFunction_);
+		this->setDemoFunction(p_load->demoFunction_);
 	}
 
 	/*******************************************************************************************/
@@ -223,13 +223,13 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GFunctionIndividual *gpi_load = GObject::conversion_cast(&cp,  this);
+		const GFunctionIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterSet::isEqualTo(*gpi_load, expected)) return false;
+		if(!GParameterSet::isEqualTo(*p_load, expected)) return false;
 
 		// Check local data
-		if(checkForInequality("GFunctionIndividual", demoFunction_, gpi_load->demoFunction_,"demoFunction_", "gpi_load->demoFunction_", expected)) return false;
+		if(checkForInequality("GFunctionIndividual", demoFunction_, p_load->demoFunction_,"demoFunction_", "p_load->demoFunction_", expected)) return false;
 
 		return true;
 	}
@@ -246,13 +246,13 @@ public:
 		using namespace Gem::Util;
 
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GFunctionIndividual *gpi_load = GObject::conversion_cast(&cp,  this);
+		const GFunctionIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
 		// Check equality of the parent class
-		if(!GParameterSet::isSimilarTo(*gpi_load, limit, expected)) return false;
+		if(!GParameterSet::isSimilarTo(*p_load, limit, expected)) return false;
 
 		// Check our local data
-		if(checkForDissimilarity("GFunctionIndividual", demoFunction_, gpi_load->demoFunction_, limit, "demoFunction_", "gpi_load->demoFunction_", expected)) return false;
+		if(checkForDissimilarity("GFunctionIndividual", demoFunction_, p_load->demoFunction_, limit, "demoFunction_", "p_load->demoFunction_", expected)) return false;
 
 		return true;
 	}

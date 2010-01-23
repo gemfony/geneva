@@ -82,7 +82,7 @@ public:
 	 * The standard constructor.
 	 */
 	GIdentityAdaptorT()
-	:GAdaptorT<T> ()
+	  : GAdaptorT<T> ()
 	 {
 		GAdaptorT<T>::setMutationMode(false);
 
@@ -107,7 +107,7 @@ public:
 	 * @param cp Another GIdentityAdaptorT object
 	 */
 	GIdentityAdaptorT(const GIdentityAdaptorT<T>& cp)
-	:GAdaptorT<T>(cp)
+	  : GAdaptorT<T>(cp)
 	 {
 		GAdaptorT<T>::setMutationMode(false);
 	 }

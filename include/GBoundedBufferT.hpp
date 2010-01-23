@@ -146,7 +146,7 @@ public:
 	 * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
 	 */
 	GBoundedBufferT()
-		:capacity_(DEFAULTBUFFERSIZE)
+		: capacity_(DEFAULTBUFFERSIZE)
 	{ /* nothing */}
 
 	/***************************************************************/
@@ -157,7 +157,7 @@ public:
 	 * @param capacity The desired size of the buffer
 	 */
 	explicit GBoundedBufferT(const std::size_t& capacity)
-		:capacity_(capacity?capacity:1)
+		: capacity_(capacity?capacity:1)
 	{ /* nothing */}
 
 	/***************************************************************/

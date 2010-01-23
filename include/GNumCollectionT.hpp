@@ -86,8 +86,8 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GNumCollectionT():
-		GParameterCollectionT<T> ()
+	GNumCollectionT()
+		: GParameterCollectionT<T> ()
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -107,7 +107,7 @@ public:
 	 * The standard copy constructor
 	 */
 	GNumCollectionT(const GNumCollectionT<T>& cp)
-		:GParameterCollectionT<T> (cp)
+		: GParameterCollectionT<T> (cp)
 	{ /* nothing */ }
 
 	/******************************************************************/

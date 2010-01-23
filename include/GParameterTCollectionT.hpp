@@ -99,7 +99,7 @@ public:
 	 * The default constructor
 	 */
 	GParameterTCollectionT()
-		:GParameterBaseWithAdaptorsT<typename T::p_type >()
+		: GParameterBaseWithAdaptorsT<typename T::p_type >()
 	{ /* nothing */ }
 
 	/*******************************************************************************************/
@@ -109,8 +109,8 @@ public:
 	 * @param cp A copy of another GParameterTCollectionT<T> object
 	 */
 	GParameterTCollectionT(const GParameterTCollectionT<T>& cp)
-		:GParameterBaseWithAdaptorsT<typename T::p_type >(cp),
-		GStdPtrVectorInterfaceT<T>(cp)
+		: GParameterBaseWithAdaptorsT<typename T::p_type >(cp)
+		, GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
 
 	/*******************************************************************************************/

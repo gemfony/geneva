@@ -89,7 +89,8 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GTestIndividual1() :GParameterSet()
+	GTestIndividual1()
+		: GParameterSet()
 	{	/* nothing */ }
 
 	/********************************************************************************************/
@@ -130,13 +131,13 @@ public:
 	virtual void load(const GObject* cp)
 	{
 		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GTestIndividual1 *gsi_load = GObject::conversion_cast(cp,  this);
+		const GTestIndividual1 *p_load = GObject::conversion_cast(cp,  this);
 
 		// Load our parent's data
 		GParameterSet::load(cp);
 
 		// Load local data here like this:
-		// myVar = gsi_load->myVar;
+		// myVar = p_load->myVar;
 	}
 
 	/********************************************************************************************/

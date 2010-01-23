@@ -44,7 +44,7 @@ namespace GenEvA
    * by the parent class.
    */
   GBooleanCollection::GBooleanCollection()
-	:GParameterCollectionT<bool>()
+	: GParameterCollectionT<bool>()
   { /* nothing */ }
 
   /**********************************************************************/
@@ -54,7 +54,7 @@ namespace GenEvA
    * @param nval The size of the collection
    */
   GBooleanCollection::GBooleanCollection(const std::size_t& nval)
-    :GParameterCollectionT<bool>()
+    : GParameterCollectionT<bool>()
   {
     this->addRandomData(nval);
   }
@@ -68,7 +68,7 @@ namespace GenEvA
    * @param probability The probability for true values in the collection
    */
   GBooleanCollection::GBooleanCollection(const std::size_t& nval, const double& probability)
-	:GParameterCollectionT<bool>()
+	: GParameterCollectionT<bool>()
   {
 	this->addRandomData(nval, probability);
   }
@@ -80,7 +80,7 @@ namespace GenEvA
    * @param cp A copy of another GBooleanCollection object
    */
   GBooleanCollection::GBooleanCollection(const GBooleanCollection& cp)
-    :GParameterCollectionT<bool>(cp)
+    : GParameterCollectionT<bool>(cp)
   { /* nothing */ }
 
   /**********************************************************************/

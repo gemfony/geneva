@@ -43,8 +43,8 @@ namespace GenEvA
  * @param io_service A reference to the server's io_service
  */
 GAsioServerSession::GAsioServerSession(boost::asio::io_service& io_service, const serializationMode& serMod)
- 	:socket_(io_service),
- 	 serializationMode_(serMod)
+ 	: socket_(io_service)
+ 	, serializationMode_(serMod)
 { /* nothing */ }
 
 /*********************************************************************/
