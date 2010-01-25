@@ -79,7 +79,7 @@ const GBoundedDoubleCollection& GBoundedDoubleCollection::operator=(const GBound
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBoundedDoubleCollection::clone() const {
+GObject* GBoundedDoubleCollection::clone_() const {
 	return new GBoundedDoubleCollection(*this);
 }
 

@@ -102,7 +102,7 @@ const GDouble& GDouble::operator=(const GDouble& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GDouble::clone() const {
+GObject* GDouble::clone_() const {
 	return new GDouble(*this);
 }
 

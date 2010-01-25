@@ -141,7 +141,7 @@ bool GSwarmPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject* GSwarmPersonalityTraits::clone() const {
+GObject* GSwarmPersonalityTraits::clone_() const {
 	return new GSwarmPersonalityTraits(*this);
 }
 

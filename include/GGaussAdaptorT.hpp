@@ -233,16 +233,6 @@ public:
 		maxSigma_ = p_load->maxSigma_;
 	}
 
-
-	/********************************************************************************************/
-	/**
-	 * This function creates a deep copy of this object. Purely virtual so this class cannot
-	 * be instantiated directly.
-	 *
-	 * @return A deep copy of this object
-	 */
-	GObject *clone() const = 0;
-
 	/********************************************************************************************/
 	/**
 	 * Checks for equality with another GGaussAdaptorT<T> object
@@ -477,6 +467,15 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * This function creates a deep copy of this object. Purely virtual so this class cannot
+	 * be instantiated directly.
+	 *
+	 * @return A deep copy of this object
+	 */
+	virtual GObject *clone_() const = 0;
+
 	/********************************************************************************************/
 	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the

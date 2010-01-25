@@ -313,16 +313,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Creates a deep clone of this object
-	 *
-	 * @return A deep clone of this object, camouflaged as a GObject
-	 */
-	virtual GObject* clone() const {
-		return new GProjectionIndividual(*this);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * Loads the data of another GProjectionIndividual, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GProjectionIndividual, camouflaged as a GObject
@@ -542,6 +532,16 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 *
+	 * @return A deep clone of this object, camouflaged as a GObject
+	 */
+	virtual GObject* clone_() const {
+		return new GProjectionIndividual(*this);
+	}
+
 	/********************************************************************************************/
 	/**
 	 * The actual fitness calculation (i.e. the projection) place here. See the explanation

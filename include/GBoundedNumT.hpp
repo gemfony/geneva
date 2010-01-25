@@ -222,15 +222,6 @@ public:
 	}
 
 	/****************************************************************************/
-	/**
-	 * Create a deep copy of this object. Basically this is a fabric function.
-	 * Purely virtual as this class is never meant to be instantiated directly.
-	 *
-	 * @return A newly generated GBoundedNumT<T> copy of this object
-	 */
-	virtual GObject *clone() const = 0;
-
-	/****************************************************************************/
     /**
      * Retrieves the lower boundary
      *
@@ -384,6 +375,16 @@ public:
 	T getInternalValue() const  {
 		return internalValue_;
 	}
+
+protected:
+	/****************************************************************************/
+	/**
+	 * Create a deep copy of this object. Basically this is a fabric function.
+	 * Purely virtual as this class is never meant to be instantiated directly.
+	 *
+	 * @return A newly generated GBoundedNumT<T> copy of this object
+	 */
+	virtual GObject *clone_() const = 0;
 
 private:
 	/****************************************************************************/

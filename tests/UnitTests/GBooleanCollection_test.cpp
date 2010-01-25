@@ -95,10 +95,11 @@ public:
 		BOOST_CHECK(gbc4 == gbc2);
 
 		// Cloning and loading
-		GObject *gbc5 = gbc4.clone();
 		GBooleanCollection gbc6;
-		gbc6.load(gbc5);
-		delete gbc5;
+		{
+		   boost::shared_ptr<GObject> gbc5 = gbc4.GObject::clone();
+		   gbc6.load(gbc5.get());
+		}
 		BOOST_CHECK(gbc6 == gbc2);
 
 		// Adding random data using two different methods

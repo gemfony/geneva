@@ -99,8 +99,6 @@ public:
 
 	/** @brief Loads data from another object */
 	virtual void load(const GObject *);
-	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone() const;
 
 	/** @brief Checks for equality with another GMultiThreadedEA object */
 	bool operator==(const GMultiThreadedEA&) const;
@@ -122,6 +120,8 @@ public:
 	uint8_t getNThreads() const ;
 
 protected:
+	/** @brief Creates a deep clone of this object */
+	virtual GObject *clone_() const;
 	/** @brief Overloaded version from GEvolutionaryAlgorithm,
 	 * core of the Boost-thread implementation */
 	virtual void mutateChildren();

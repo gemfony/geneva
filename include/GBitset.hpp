@@ -179,12 +179,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Purely virtual.
-	 */
-	virtual GObject* clone() const = 0;
-
-	/*******************************************************************************************/
-	/**
 	 * Loads the data of another GBitset<N> object, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GBitset<N> object, camouflaged as a GObject
@@ -310,6 +304,12 @@ public:
 	/*******************************************************************************************/
 
 protected:
+	/*******************************************************************************************/
+	/**
+	 * Creates a deep clone of this object. Purely virtual.
+	 */
+	virtual GObject* clone_() const = 0;
+
 	/*******************************************************************************************/
 	/**
 	 * The main data set stored in this class

@@ -103,7 +103,7 @@ const GBoolean& GBoolean::operator=(const GBoolean& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBoolean::clone() const {
+GObject* GBoolean::clone_() const {
 	return new GBoolean(*this);
 }
 

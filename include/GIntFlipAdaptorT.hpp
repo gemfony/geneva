@@ -154,16 +154,6 @@ public:
 		// no local data
 	}
 
-
-	/********************************************************************************************/
-	/**
-	 * This function creates a deep copy of this object. The function is purely virtual, as we
-	 * do not want this class to be instantiated. Use the derived classes instead.
-	 *
-	 * @return A deep copy of this object
-	 */
-	virtual GObject *clone() const = 0;
-
 	/********************************************************************************************/
 	/**
 	 * Checks for equality with another GIntFlipAdaptorT<T> object
@@ -242,6 +232,15 @@ public:
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const = 0;
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * This function creates a deep copy of this object. The function is purely virtual, as we
+	 * do not want this class to be instantiated. Use the derived classes instead.
+	 *
+	 * @return A deep copy of this object
+	 */
+	virtual GObject *clone_() const = 0;
+
 	/********************************************************************************************/
 	/**
 	 * We want to flip the value only in a given percentage of cases. Thus

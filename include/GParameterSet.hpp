@@ -96,8 +96,6 @@ public:
 	/** @brief Checks for similarity with another GParameterSet object */
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() const;
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 
@@ -147,6 +145,8 @@ public:
 
 
 protected:
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const;
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation();
 

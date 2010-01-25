@@ -116,16 +116,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Creates a deep clone of this object
-	 *
-	 * @return A deep clone of this object, camouflaged as a GObject
-	 */
-	virtual GObject* clone() const {
-		return new GBoundedParabolaIndividual(*this);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * Loads the data of another GBoundedParabolaIndividual, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GBoundedParabolaIndividual, camouflaged as a GObject
@@ -196,6 +186,16 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 *
+	 * @return A deep clone of this object, camouflaged as a GObject
+	 */
+	virtual GObject* clone_() const {
+		return new GBoundedParabolaIndividual(*this);
+	}
+
 	/********************************************************************************************/
 	/**
 	 * The actual fitness calculation takes place here

@@ -127,7 +127,7 @@ const GBoundedDouble& GBoundedDouble::operator=(const GBoundedDouble& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBoundedDouble::clone() const {
+GObject* GBoundedDouble::clone_() const {
 	return new GBoundedDouble(*this);
 }
 

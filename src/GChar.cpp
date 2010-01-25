@@ -103,7 +103,7 @@ const GChar& GChar::operator=(const GChar& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GChar::clone() const {
+GObject* GChar::clone_() const {
 	return new GChar(*this);
 }
 

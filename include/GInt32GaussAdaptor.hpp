@@ -106,8 +106,6 @@ public:
 
 	/** @brief A standard assignment operator */
 	const GInt32GaussAdaptor& operator=(const GInt32GaussAdaptor&);
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone() const;
 
 	/** @brief Checks for equality with another GInt32GaussAdaptor object */
 	bool operator==(const GInt32GaussAdaptor&) const;
@@ -126,6 +124,8 @@ public:
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
 
 protected:
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone_() const;
 	/** The actual mutation performed on the value type */
 	virtual void customMutations(boost::int32_t&);
 };

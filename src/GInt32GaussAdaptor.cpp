@@ -118,7 +118,7 @@ const GInt32GaussAdaptor& GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32GaussAdaptor::clone() const {
+GObject* GInt32GaussAdaptor::clone_() const {
 	return new GInt32GaussAdaptor(*this);
 }
 

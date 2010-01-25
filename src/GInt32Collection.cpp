@@ -94,7 +94,7 @@ const GInt32Collection& GInt32Collection::operator=(const GInt32Collection& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32Collection::clone() const {
+GObject* GInt32Collection::clone_() const {
 	return new GInt32Collection(*this);
 }
 

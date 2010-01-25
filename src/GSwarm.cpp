@@ -67,10 +67,10 @@ GSwarm::GSwarm(const GSwarm& cp)
 {
 	setPopulationSize(cp.nNeighborhoods_, cp.nNeighborhoodMembers_);
 
-	global_best_ = (cp.global_best_)->clone_bptr_cast<GIndividual>();
+	global_best_ = (cp.global_best_)->clone<GIndividual>();
 	std::vector<boost::shared_ptr<GIndividual> >::const_iterator cit;
 	for(cit=cp.local_bests_.begin(); cit!=cp.local_bests_.end(); ++cit) {
-		local_bests_.push_back(cit->clone_bptr_cast<GIndividual>());
+		local_bests_.push_back(cit->clone<GIndividual>());
 	}
 }
 
@@ -122,7 +122,7 @@ void GSwarm::load(const GObject * cp)
  *
  * @return A deep copy of this object, camouflaged as a pointer to a GObject
  */
-GObject *GSwarm::clone() const  {
+GObject *GSwarm::clone_() const  {
 	return new GSwarm(*this);
 }
 

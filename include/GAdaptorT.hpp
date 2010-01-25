@@ -245,10 +245,6 @@ public:
 	}
 
 	/***********************************************************************************/
-	/** @brief Creates a deep copy of this object */
-	virtual GObject *clone(void) const =0;
-
-	/***********************************************************************************/
 	/**
 	 * Checks for equality with another GAdaptorT<T> object
 	 *
@@ -521,6 +517,10 @@ public:
 
 
 protected:
+	/***********************************************************************************/
+	/** @brief Creates a deep copy of this object */
+	virtual GObject *clone_(void) const =0;
+
 	/***********************************************************************************/
     /**
      * A random number generator. Note that the actual calculation is possibly

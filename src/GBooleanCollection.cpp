@@ -107,7 +107,7 @@ namespace GenEvA
    *
    * @return A deep clone of this object
    */
-  GObject *GBooleanCollection::clone() const{
+  GObject *GBooleanCollection::clone_() const{
 	  return new GBooleanCollection(*this);
   }
 

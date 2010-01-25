@@ -94,7 +94,7 @@ const GDoubleCollection& GDoubleCollection::operator=(const GDoubleCollection& c
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GDoubleCollection::clone() const {
+GObject* GDoubleCollection::clone_() const {
 	return new GDoubleCollection(*this);
 }
 

@@ -85,8 +85,6 @@ public:
 
 	/** @brief A standard assignment operator */
 	const GDoubleCollection& operator=(const GDoubleCollection&);
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone() const;
 
 	/** @brief Checks for equality with another GDoubleCollection object */
 	bool operator==(const GDoubleCollection&) const;
@@ -100,6 +98,10 @@ public:
 
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject* cp);
+
+protected:
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone_() const;
 };
 
 /*****************************************************************************************/

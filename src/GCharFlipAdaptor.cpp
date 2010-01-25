@@ -91,7 +91,7 @@ const GCharFlipAdaptor& GCharFlipAdaptor::operator=(const GCharFlipAdaptor& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GCharFlipAdaptor::clone() const {
+GObject* GCharFlipAdaptor::clone_() const {
 	return new GCharFlipAdaptor(*this);
 }
 

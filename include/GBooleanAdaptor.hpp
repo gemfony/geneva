@@ -92,8 +92,6 @@ public:
 
 	/** @brief A standard assignment operator */
 	const GBooleanAdaptor& operator=(const GBooleanAdaptor&);
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone() const;
 
 	/** @brief Checks for equality with another GBooleanAdaptor object */
 	bool operator==(const GBooleanAdaptor&) const;
@@ -112,6 +110,8 @@ public:
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
 
 protected:
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone_() const;
 	/** The actual mutation logic */
 	virtual void customMutations(bool&);
 };

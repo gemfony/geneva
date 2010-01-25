@@ -93,12 +93,13 @@ public:
 		BOOST_CHECK(gbd3_2 == gbd0);
 
 		// Cloning and loading
-		GObject * gbd4;
-		BOOST_CHECK_NO_THROW(gbd4 = gbd3.clone());
 		GBoundedDouble gbd5;
-		BOOST_CHECK_NO_THROW(gbd5.load(gbd4));
-		delete gbd4;
-		BOOST_CHECK(gbd5 == gbd3);
+		{
+		   boost::shared_ptr<GObject> gbd4;
+		   BOOST_CHECK_NO_THROW(gbd4 = gbd3.GObject::clone());
+		   BOOST_CHECK_NO_THROW(gbd5.load(gbd4.get()));
+		   BOOST_CHECK(gbd5 == gbd3);
+		}
 
 		// Value assignment
 		gbd5=gbd1;

@@ -134,15 +134,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Purely virtual, needs to be implemented in derived
-	 * classes.
-	 *
-	 * @return A copy of this object, camouflaged as a GObject
-	 */
-	virtual GObject* clone() const = 0;
-
-	/*******************************************************************************************/
-	/**
 	 * Checks for equality with another GParameterT<T> object
 	 *
 	 * @param  cp A constant reference to another GParameterT<T> object
@@ -235,6 +226,15 @@ public:
 	}
 
 protected:
+	/*******************************************************************************************/
+	/**
+	 * Creates a deep clone of this object. Purely virtual, needs to be implemented in derived
+	 * classes.
+	 *
+	 * @return A copy of this object, camouflaged as a GObject
+	 */
+	virtual GObject* clone_() const = 0;
+
 	/*******************************************************************************************/
 	/**
 	 * Allows derivatives to set the internal value. Note that we assume here that T has an

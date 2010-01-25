@@ -112,7 +112,9 @@ class GRandom
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
          & BOOST_SERIALIZATION_NVP(rnrGenerationMode_)
-         & BOOST_SERIALIZATION_NVP(initialSeed_);
+         & BOOST_SERIALIZATION_NVP(initialSeed_)
+         & BOOST_SERIALIZATION_NVP(gaussCache_)
+         & BOOST_SERIALIZATION_NVP(gaussCacheAvailable_);
     }
 
     template<typename Archive>
@@ -139,6 +141,9 @@ class GRandom
 
         // Make sure we use the correct seed
         linCongr_.seed(boost::numeric_cast<boost::uint64_t>(initialSeed_));
+
+        ar & BOOST_SERIALIZATION_NVP(gaussCache_)
+           & BOOST_SERIALIZATION_NVP(gaussCacheAvailable_);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -166,17 +171,62 @@ public:
 	/** @brief Checks for similarity with another GRandom object, camouflaged as a GObject */
 	virtual bool isSimilarTo(const Gem::GenEvA::GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Creates a deep clone of this object */
-	virtual Gem::GenEvA::GObject* clone() const;
 	/** @brief Loads the data of another GRandom object, camouflaged as a GObject */
 	virtual void load(const Gem::GenEvA::GObject*);
 
 	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
-	double evenRandom();
-	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
-	double evenRandomFromFactory();
-	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
-	double evenRandomLocalProduction();
+	// inline double evenRandom();
+	/*************************************************************************/
+	/**
+	 * This function emits evenly distributed random numbers in the range [0,1[ .
+	 * These are either taken from the random number factory or are created
+	 * locally.
+	 *
+	 * @return Random numbers evenly distributed in the range [0,1[
+	 */
+	inline double evenRandom() {
+		switch(rnrGenerationMode_) {
+		case RNRFACTORY:
+			{
+				// If the object has been newly created, p01_ will be empty
+				if (!p01_ || (current01_ == currentPackageSize_+1)) {
+					getNewP01();
+					current01_ = 1; // Position 0 is the array size
+				}
+
+				return p_raw_[current01_++];
+			}
+			break;
+
+		/* Produces random numbers locally, following the linear congruential method.
+		 * See e.g. http://en.wikipedia.org/wiki/Linear_congruential_generator for further information. */
+		case RNRLOCAL:
+			return evenRandomLocalProduction();
+			break;
+		}; // no default necessary, as this switch is based on an enum
+
+		return 0.; // make the compiler happy
+	}
+	/*************************************************************************/
+	/**
+	 * Produces even random numbers locally, using the linear congruential generator.
+	 * See e.g. http://en.wikipedia.org/wiki/Linear_congruential_generator for further
+	 * information.
+	 *
+	 * @return A random number evently distributed in [0,1[
+	 */
+	inline double evenRandomLocalProduction() {
+#ifdef DEBUG
+			double value =  boost::numeric_cast<double>(linCongr_())/rnr_max; // Will be slower ...
+			assert(value>=0. && value<1.);
+			return value;
+#else
+			return static_cast<double>(static_cast<double>(linCongr_()))/rnr_max;
+#endif
+	}
+
+	/*************************************************************************/
+
 	/** @brief Emits evenly distributed random numbers in the range [0,max[ */
 	double evenRandom(const double&);
 	/** @brief Produces evenly distributed random numbers in the range [min,max[ */
@@ -215,6 +265,10 @@ public:
 	/** @brief Retrieves the current seed value */
 	boost::uint32_t getSeed();
 
+protected:
+	/** @brief Creates a deep clone of this object */
+	virtual Gem::GenEvA::GObject* clone_() const;
+
 private:
 	/** @brief Fills a random container if none could be retrieved from the factory */
 	void fillContainer01();
@@ -234,6 +288,11 @@ private:
 	boost::uint32_t initialSeed_; ///< Used as a start value for the local random number generator.  Size is 4 byte on a 64 bit system
 	/** @brief Used as a fall-back when the factory could not return a package, or for local random number generation */
 	boost::rand48 linCongr_;
+
+	/** @brief Two gaussian random numbers are produced in one go. One number can be cached here */
+	double gaussCache_;
+	/** @brief Specifies whether a valid cached gaussian is available */
+	bool gaussCacheAvailable_;
 };
 
 /****************************************************************************/
@@ -246,11 +305,11 @@ private:
 template <typename int_type>
 int_type GRandom::discreteRandom(const int_type& max) {
 #ifdef DEBUG
-	int_type result = boost::numeric_cast<int_type> (this->evenRandom(boost::numeric_cast<double> (max)));
+	int_type result = boost::numeric_cast<int_type> (evenRandom(boost::numeric_cast<double> (max)));
 	assert(result<max);
 	return result;
 #else
-	return static_cast<int_type>(this->evenRandom(static_cast<double>(max)));
+	return static_cast<int_type>(evenRandom(static_cast<double>(max)));
 #endif
 }
 

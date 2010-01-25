@@ -215,13 +215,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Declared purely virtual, as this class is not
-	 * intended to be used directly.
-	 */
-	virtual GObject* clone() const = 0;
-
-	/*******************************************************************************************/
-	/**
 	 * Allows to mutate the values stored in this class. We assume here that
 	 * each item has its own mutate function. Hence we do not need to use or
 	 * store own adaptors.
@@ -277,9 +270,15 @@ public:
 		return GStdPtrVectorInterfaceT<T>::operator=(cp_data);
 	}
 
-	/*******************************************************************************************/
-
 protected:
+	/*******************************************************************************************/
+	/**
+	 * Creates a deep clone of this object. Declared purely virtual, as this class is not
+	 * intended to be used directly.
+	 */
+	virtual GObject* clone_() const = 0;
+
+	/*******************************************************************************************/
 	/**
 	 * Re-implementation of a corresponding function in GStdPtrVectorInterface.
 	 * Making the vector wrapper purely virtual allows the compiler to perform

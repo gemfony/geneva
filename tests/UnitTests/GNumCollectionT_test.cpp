@@ -44,6 +44,7 @@
 #include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
+#include "GObject.hpp"
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
 #include "GNumCollectionT.hpp"
@@ -110,10 +111,11 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	BOOST_CHECK(gnct4 == gnct2);
 
 	// Cloning and loading
-	GObject *gnct5 = gnct4.clone();
 	T gnct6;
-	gnct6.load(gnct5);
-	delete gnct5;
+	{
+		boost::shared_ptr<GObject> gnct5_ptr = gnct4.GObject::clone();
+		gnct6.load(gnct5_ptr.get());
+	}
 	BOOST_CHECK(gnct6 == gnct2);
 
 	// Adding random data

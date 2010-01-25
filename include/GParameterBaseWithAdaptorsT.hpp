@@ -120,7 +120,7 @@ public:
 		, hasLocalAdaptor_(cp.hasLocalAdaptor_)
 	{
 		// Copy the other adaptor's content if it holds an object
-		if(hasLocalAdaptor_ && cp.adaptor_)  adaptor_ = (cp.adaptor_)->GObject::clone_bptr_cast<GAdaptorT<T> >();
+		if(hasLocalAdaptor_ && cp.adaptor_)  adaptor_ = (cp.adaptor_)->GObject::clone<GAdaptorT<T> >();
 	}
 
 	/*******************************************************************************************/
@@ -132,10 +132,6 @@ public:
 		// adaptors in the vector (if we hold the only copy)
 		adaptor_.reset();
 	}
-
-	/*******************************************************************************************/
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() const = 0;
 
 	/*******************************************************************************************/
 	/**
@@ -243,7 +239,7 @@ public:
 			}
 			// Different type - need to convert
 			else {
-				adaptor_ = p_load->adaptor_->GObject::clone_bptr_cast<GAdaptorT<T> >();
+				adaptor_ = p_load->adaptor_->GObject::clone<GAdaptorT<T> >();
 			}
 		}
 		else {
@@ -275,12 +271,12 @@ public:
 			}
 			// Different type - need to convert
 			else {
-				adaptor_ = gat_ptr->GObject::clone_bptr_cast<GAdaptorT<T> >();
+				adaptor_ = gat_ptr->GObject::clone<GAdaptorT<T> >();
 			}
 		}
 		// None there ? Clone and assign gat_ptr
 		else {
-			adaptor_ = gat_ptr->GObject::clone_bptr_cast<GAdaptorT<T> >();
+			adaptor_ = gat_ptr->GObject::clone<GAdaptorT<T> >();
 		}
 
 		hasLocalAdaptor_ = true;
@@ -405,6 +401,11 @@ public:
 	}
 
 protected:
+	/*******************************************************************************************/
+	/** @brief Creates a deep clone of this object. Purely virtual, as we do not want this
+	 * class to be instantiated directly */
+	virtual GObject* clone_() const = 0;
+
 	/*******************************************************************************************/
 	/**
 	 * This function applies our adaptor to a value. Note that the argument of

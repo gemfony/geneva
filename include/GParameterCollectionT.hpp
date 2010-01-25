@@ -185,12 +185,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
-	 */
-	virtual GObject* clone() const = 0;
-
-	/*******************************************************************************************/
-	/**
 	 * Loads the data of another GParameterCollectionT<T> object, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
@@ -230,8 +224,14 @@ public:
 protected:
 	/*******************************************************************************************/
 	/**
+	 * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
+	 */
+	virtual GObject* clone_() const = 0;
+
+	/*******************************************************************************************/
+	/**
 	 * Re-implementation of a corresponding function in GStdSimpleVectorInterface.
-	 * Make the vector wrapper purely virtual allows the compiler to perform
+	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
 	virtual void dummyFunction() { /* nothing */ }

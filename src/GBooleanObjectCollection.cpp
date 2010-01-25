@@ -79,7 +79,7 @@ const GBooleanObjectCollection& GBooleanObjectCollection::operator=(const GBoole
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBooleanObjectCollection::clone() const {
+GObject* GBooleanObjectCollection::clone_() const {
 	return new GBooleanObjectCollection(*this);
 }
 

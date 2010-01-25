@@ -80,7 +80,7 @@ const GCharObjectCollection& GCharObjectCollection::operator=(const GCharObjectC
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GCharObjectCollection::clone() const {
+GObject* GCharObjectCollection::clone_() const {
 	return new GCharObjectCollection(*this);
 }
 

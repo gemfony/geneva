@@ -98,8 +98,6 @@ public:
 
 	/** @brief A standard assignment operator */
 	const GBoundedInt32& operator=(const GBoundedInt32&);
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone() const;
 
 	/** @brief Checks for equality with another GBoundedInt32 object */
 	bool operator==(const GBoundedInt32&) const;
@@ -113,6 +111,10 @@ public:
 
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject* cp);
+
+protected:
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone_() const;
 };
 
 /******************************************************************************/

@@ -115,8 +115,6 @@ public:
 
 	/** @brief Loads the data of another population */
 	virtual void load(const GObject *);
-	/** @brief Creates a deep clone of this object */
-	virtual GObject *clone() const;
 
 	/** @brief Checks for equality with another GSwarm object */
 	bool operator==(const GSwarm&) const;
@@ -243,6 +241,8 @@ public:
 	/**************************************************************************************************/
 
 protected:
+	/** @brief Creates a deep clone of this object */
+	virtual GObject *clone_() const;
 	/** @brief Allows to set the personality type of the individuals */
 	virtual void setIndividualPersonalities();
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */

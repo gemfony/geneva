@@ -98,8 +98,6 @@ public:
 	/** @brief The standard destructor */
 	virtual ~GParameterBase();
 
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() const = 0;
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 
@@ -126,6 +124,10 @@ public:
 
 	/** @brief Convenience function so we do not need to always cast derived classes */
 	virtual bool hasAdaptor() const;
+
+protected:
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const = 0;
 
 private:
 	bool mutationsActive_; ///< Specifies whether mutations of this object should be carried out

@@ -150,16 +150,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * This function creates a deep copy of this object
-	 *
-	 * @return A deep copy of this object
-	 */
-	GObject *clone() const	{
-		return new GIdentityAdaptorT<T>(*this);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * Checks for equality with another GIdentityAdaptorT<T> object
 	 *
 	 * @param  cp A constant reference to another GIdentityAdaptorT<T> object
@@ -242,6 +232,16 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * This function creates a deep copy of this object
+	 *
+	 * @return A deep copy of this object
+	 */
+	virtual GObject *clone_() const	{
+		return new GIdentityAdaptorT<T>(*this);
+	}
+
 	/********************************************************************************************/
 	/**
 	 * The identity adaptor does not change its arguments

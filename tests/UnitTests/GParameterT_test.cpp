@@ -89,12 +89,11 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	BOOST_CHECK(gpt3 == gpt1);
 	BOOST_CHECK(gpt3 != gpt0);
 
-	// Test cloning
-	GObject *gpt3_clone = gpt3.clone();
-
-	// Test loading
-	BOOST_CHECK_NO_THROW(gpt0.load(gpt3_clone));
-	BOOST_CHECK_NO_THROW(delete gpt3_clone);
+	// Test cloning and loading
+	{
+		boost::shared_ptr<GObject> gpt3_clone = gpt3.GObject::clone();
+		BOOST_CHECK_NO_THROW(gpt0.load(gpt3_clone.get()));
+	}
 	BOOST_CHECK(gpt0 == gpt3);
 
 	// Re-assign the original value

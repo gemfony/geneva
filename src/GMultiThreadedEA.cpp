@@ -112,7 +112,7 @@ void GMultiThreadedEA::load(const GObject *cp) {
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GMultiThreadedEA::clone() const  {
+GObject *GMultiThreadedEA::clone_() const  {
 	return new GMultiThreadedEA(*this);
 }
 

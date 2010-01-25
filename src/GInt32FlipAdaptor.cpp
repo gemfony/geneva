@@ -91,7 +91,7 @@ const GInt32FlipAdaptor& GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor& c
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32FlipAdaptor::clone() const {
+GObject* GInt32FlipAdaptor::clone_() const {
 	return new GInt32FlipAdaptor(*this);
 }
 

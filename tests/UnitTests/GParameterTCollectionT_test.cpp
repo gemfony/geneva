@@ -289,9 +289,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 	BOOST_CHECK(gptct_cc.isNotEqualTo(gptct_cp2));
 
 	// Test cloning and loading
-	GObject *gptct_clone_ptr = gptct.clone();
-	BOOST_CHECK_NO_THROW(gptct_cp4.load(gptct_clone_ptr));
-	delete gptct_clone_ptr;
+	{
+		boost::shared_ptr<GObject> gptct_clone_ptr = gptct.GObject::clone();
+		BOOST_CHECK_NO_THROW(gptct_cp4.load(gptct_clone_ptr.get()));
+	}
 	BOOST_CHECK(gptct_cp4 == gptct);
 	BOOST_CHECK(gptct_cp4 == gptct_cp1);
 	BOOST_CHECK(gptct_cp4 != gptct_cp2);

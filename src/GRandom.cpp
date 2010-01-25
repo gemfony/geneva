@@ -46,6 +46,8 @@ GRandom::GRandom()
 	, grf_(GRANDOMFACTORY)
 	, initialSeed_(GRANDOMFACTORY->getSeed())
 	, linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
+	, gaussCache_(0.)
+	, gaussCacheAvailable_(false)
 { /* nothing */ }
 
 /*************************************************************************/
@@ -60,6 +62,8 @@ GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
 	, current01_(1) // position 0 holds the array size
 	, initialSeed_(GRANDOMFACTORY->getSeed())
 	, linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
+	, gaussCache_(0.)
+	, gaussCacheAvailable_(false)
 {
     switch(rnrGenerationMode_) {
     case Gem::Util::RNRFACTORY:
@@ -89,6 +93,8 @@ GRandom::GRandom(const GRandom& cp)
 	, current01_(1) // position 0 holds the array size
 	, initialSeed_(GRANDOMFACTORY->getSeed()) // We do not want use the other generator's start seed
 	, linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
+	, gaussCache_(0.)
+	, gaussCacheAvailable_(false)
 {
     switch(rnrGenerationMode_) {
     case Gem::Util::RNRFACTORY:
@@ -167,6 +173,8 @@ bool GRandom::isEqualTo(const Gem::GenEvA::GObject& cp, const boost::logic::trib
 	// then our local data.
 	if(checkForInequality("GRandom", rnrGenerationMode_, p_load->rnrGenerationMode_,"rnrGenerationMode_", "p_load->rnrGenerationMode_", expected)) return false;
 
+	// We do not check the gauss cache and the associated boolean, as it is re-generated for each GRandom object
+
 	return true;
 }
 
@@ -192,6 +200,8 @@ bool GRandom::isSimilarTo(const Gem::GenEvA::GObject& cp, const double& limit, c
 	// then our local data.
 	if(checkForDissimilarity("GRandom", rnrGenerationMode_, p_load->rnrGenerationMode_, limit, "rnrGenerationMode_", "p_load->rnrGenerationMode_", expected)) return false;
 
+	// We do not check the gauss cache and the associated boolean, as it is re-generated for each GRandom object
+
 	return true;
 }
 
@@ -201,7 +211,7 @@ bool GRandom::isSimilarTo(const Gem::GenEvA::GObject& cp, const double& limit, c
  *
  * @return A deep copy of this object, camouflaged as a pointer to a Gem::GenEvA::GObject
  */
-Gem::GenEvA::GObject* GRandom::clone() const {
+Gem::GenEvA::GObject* GRandom::clone_() const {
 	return new GRandom(*this);
 }
 
@@ -227,75 +237,12 @@ void GRandom::load(const Gem::GenEvA::GObject* cp) {
 	rnrGenerationMode_ = p_load->rnrGenerationMode_;
 	switch(rnrGenerationMode_) {
 	case RNRFACTORY:
-		this->setRNRFactoryMode();
+		setRNRFactoryMode();
 		break;
 	case RNRLOCAL:
-		this->setRNRLocalMode();
+		setRNRLocalMode();
 		break;
 	};
-}
-
-/*************************************************************************/
-/**
- * This function emits evenly distributed random numbers in the range [0,1[ .
- * These are either taken from the random number factory or are created
- * locally.
- *
- * @return Random numbers evenly distributed in the range [0,1[
- */
-double GRandom::evenRandom() {
-	switch(rnrGenerationMode_) {
-	case RNRFACTORY:
-		return evenRandomFromFactory();
-		break;
-
-	case RNRLOCAL:
-		return evenRandomLocalProduction();
-		break;
-	}; // no default necessary, as this switch is based on an enum
-
-	return 0.; // make the compiler happy
-}
-
-/*************************************************************************/
-/**
- * This function emits evenly distributed random numbers in the range [0,1[ .
- * Random numbers are not produced locally, but are taken from an array
- * provided by the the GRandomFactory class. Random numbers are only
- * produced locally if no valid array could be retrieved.
- *
- * @return Random numbers evenly distributed in the range [0,1[
- */
-double GRandom::evenRandomFromFactory() {
-	// If the object has been newly created, p01_ will be empty
-	if (!p01_ || (current01_ == currentPackageSize_+1)) {
-		getNewP01();
-		current01_ = 1; // Position 0 is the array size
-	}
-
-	return p_raw_[current01_++];
-}
-
-/*************************************************************************/
-/**
- * Produces random numbers locally, following the linear
- * congruential method. See http://en.wikipedia.org/wiki/Linear_congruential_generator
- * for further information.
- *
- * NOTE: It is not really clear whether a maximum value of 1 can be reached this way
- *
- * @return Random numbers evenly distributed in the range [0,1]
- */
-double GRandom::evenRandomLocalProduction() {
-	initialSeed_ = boost::numeric_cast<boost::uint32_t>(linCongr_());
-
-#ifdef DEBUG
-	double value =  boost::numeric_cast<double>(initialSeed_)/rnr_max; // Will be slower ...
-	assert(value>=0. && value<1.);
-	return value;
-#else
-	return static_cast<double>(initialSeed_)/rnr_max;
-#endif
 }
 
 /*************************************************************************/
@@ -332,10 +279,10 @@ boost::uint32_t GRandom::getSeed() {
 void GRandom::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
 	switch (rnrGenMode) {
 	case Gem::Util::RNRFACTORY:
-		this->setRNRFactoryMode();
+		setRNRFactoryMode();
 		break;
 	case Gem::Util::RNRLOCAL:
-		this->setRNRLocalMode();
+		setRNRLocalMode();
 		break;
 	}
 }
@@ -390,7 +337,7 @@ void  GRandom::setRNRLocalMode() {
 void  GRandom::setRNRLocalMode(const boost::uint32_t& seed) {
 	// If the mode has already been set, just reset the seed
 	if(rnrGenerationMode_ == Gem::Util::RNRLOCAL) {
-		this->setSeed(seed);
+		setSeed(seed);
 	}
 	else { // Otherwise take the required steps
 		// Reset all other random number generation modes
@@ -398,7 +345,7 @@ void  GRandom::setRNRLocalMode(const boost::uint32_t& seed) {
 		grf_.reset();
 
 		// Set the seed
-		this->setSeed(seed);
+		setSeed(seed);
 
 		// Switch the mode
 		rnrGenerationMode_ = RNRLOCAL;
@@ -447,7 +394,33 @@ double GRandom::evenRandom(const double& min, const double& max) {
  * @return double random numbers with a gaussian distribution
  */
 double GRandom::gaussRandom(const double& mean, const double& sigma) {
-	return sigma * sqrt(fabs(-2. * log(1. - evenRandom()))) * sin(2. * M_PI	* evenRandom()) + mean;
+	if(gaussCacheAvailable_) {
+		gaussCacheAvailable_ = false;
+		return sigma*gaussCache_ + mean;
+	}
+	else {
+#ifdef USEBOXMULLER
+		double y1 = 0.;
+		double rnr1 = evenRandom();
+		double rnr2 = evenRandom();
+		y1 = sigma * sqrt(fabs(-2. * log(1. - rnr1))) * sin(2. * M_PI	* rnr2) + mean;
+		gaussCache_ = sqrt(fabs(-2. * log(1. - rnr1))) * cos(2. * M_PI	* rnr2);
+		gaussCacheAvailable_ = true;
+		return y1;
+#else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
+		double q, u1, u2, y1;
+        do {
+        	u1 = 2.* evenRandom() - 1.;
+        	u2 = 2.* evenRandom() - 1.;
+        	q = u1*u1 + u2*u2;
+        } while (q > 1.0);
+        q = sqrt((-2.*log(q))/q);
+        y1 = sigma * u1 * q + mean;
+        gaussCache_ = u2 * q;
+        gaussCacheAvailable_ = true;
+		return y1;
+#endif
+	}
 }
 
 /*************************************************************************/

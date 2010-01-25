@@ -137,7 +137,7 @@ bool GGDPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, c
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject* GGDPersonalityTraits::clone() const {
+GObject* GGDPersonalityTraits::clone_() const {
 	return new GGDPersonalityTraits(*this);
 }
 

@@ -127,7 +127,7 @@ const GBoundedInt32& GBoundedInt32::operator=(const GBoundedInt32& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBoundedInt32::clone() const {
+GObject* GBoundedInt32::clone_() const {
 	return new GBoundedInt32(*this);
 }
 

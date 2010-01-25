@@ -198,15 +198,6 @@ public:
 
 	/******************************************************************/
 	/**
-	 * Creates a deep copy of this object. Purely virtual as this class
-	 * should not be instantiable.
-	 *
-	 * @return A pointer to a deep clone of this object
-	 */
-	virtual GObject *clone() const = 0;
-
-	/******************************************************************/
-	/**
 	 * Loads the data of another GNumCollectionT<T> object,
 	 * camouflaged as a GObject. We have no local data, so
 	 * all we need to do is to the standard identity check,
@@ -249,7 +240,15 @@ public:
 		throw geneva_error_condition(error.str());
 	}
 
+protected:
 	/******************************************************************/
+	/**
+	 * Creates a deep copy of this object. Purely virtual as this class
+	 * should not be instantiable.
+	 *
+	 * @return A pointer to a deep clone of this object
+	 */
+	virtual GObject *clone_() const = 0;
 };
 
 /**********************************************************************/

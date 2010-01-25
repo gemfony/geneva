@@ -164,16 +164,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * This function creates a deep copy of this object
-	 *
-	 * @return A deep copy of this object
-	 */
-	GObject *clone() const {
-		return new GSwarmAdaptor(*this);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * Checks for equality with another GSwarmAdaptor object
 	 *
 	 * @param  cp A constant reference to another GSwarmAdaptor object
@@ -340,6 +330,16 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * This function creates a deep copy of this object
+	 *
+	 * @return A deep copy of this object
+	 */
+	GObject *clone_() const {
+		return new GSwarmAdaptor(*this);
+	}
+
 	/********************************************************************************************/
 	/**
 	 * The actual mutation

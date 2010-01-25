@@ -99,12 +99,13 @@ public:
 		BOOST_CHECK(gbi3_2 == gbi0);
 
 		// Cloning and loading
-		GObject * gbi4;
-		BOOST_CHECK_NO_THROW(gbi4 = gbi3.clone());
 		GBoundedInt32 gbi5;
-		BOOST_CHECK_NO_THROW(gbi5.load(gbi4));
+		{
+			boost::shared_ptr<GObject> gbi4;
+			BOOST_CHECK_NO_THROW(gbi4 = gbi3.GObject::clone());
+			BOOST_CHECK_NO_THROW(gbi5.load(gbi4.get()));
+		}
 		BOOST_CHECK(gbi5 == gbi3);
-		delete gbi4;
 
 		// Value assignment
 		gbi5=gbi1;

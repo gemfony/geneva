@@ -104,8 +104,6 @@ public:
 	/** @brief Checks for similarity with another GEAPersonalityTraits object */
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() const;
 	/** @brief Loads the data of another GEAPersonalityTraits object */
 	virtual void load(const GObject*);
 
@@ -128,6 +126,10 @@ public:
 	virtual void setCommand(const std::string&);
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const;
+
+protected:
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const;
 
 private:
 	/** @brief Allows populations to mark members as parents or children */

@@ -332,6 +332,26 @@ void GObject::load(const GObject *cp) {
 }
 
 /**************************************************************************************************/
+/**
+ * A specialization of the general clone for cases where no conversion takes place at all
+ *
+ * @return A boost::shared_ptr<GObject> to a clone of the derived object
+ */
+template <> boost::shared_ptr<GObject> GObject::clone<GObject>() const {
+	return boost::shared_ptr<GObject>(this->clone_());
+}
+
+/**************************************************************************************************/
+/**
+ * Creates a deep clone of this object, storing it in a boost::shared_ptr<GObject>
+ *
+ * @return A boost::shared_ptr<GObject> to a clone of the derived object
+ */
+boost::shared_ptr<GObject> GObject::clone() const {
+	return boost::shared_ptr<GObject>(this->clone_());
+}
+
+/**************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

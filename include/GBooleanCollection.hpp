@@ -102,8 +102,6 @@ namespace GenEvA
 	/** @brief Checks for similarity with another GBooleanCollection object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-    /** @brief Creates a deep copy of this object */
-    virtual GObject *clone() const;
     /** @brief Loads the data of another GBooleanCollection class */
     virtual void load(const GObject *);
 
@@ -111,6 +109,10 @@ namespace GenEvA
     void addRandomData(const std::size_t&);
     /** @brief Adds random bits to the collection with a given probability structure */
     void addRandomData(const std::size_t&, const double&);
+
+  protected:
+    /** @brief Creates a deep copy of this object */
+    virtual GObject *clone_() const;
   };
 
   /**********************************************************************/

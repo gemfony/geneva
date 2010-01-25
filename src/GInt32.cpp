@@ -102,7 +102,7 @@ const GInt32& GInt32::operator=(const GInt32& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32::clone() const {
+GObject* GInt32::clone_() const {
 	return new GInt32(*this);
 }
 

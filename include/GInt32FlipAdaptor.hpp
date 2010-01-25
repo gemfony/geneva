@@ -87,8 +87,6 @@ public:
 
 	/** @brief A standard assignment operator */
 	const GInt32FlipAdaptor& operator=(const GInt32FlipAdaptor&);
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone() const;
 
 	/** @brief Checks for equality with another GInt32FlipAdaptor object */
 	bool operator==(const GInt32FlipAdaptor&) const;
@@ -105,6 +103,10 @@ public:
 
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
+
+protected:
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone_() const;
 };
 
 /*************************************************************************/

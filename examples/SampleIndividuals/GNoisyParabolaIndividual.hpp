@@ -143,16 +143,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Creates a deep clone of this object
-	 *
-	 * @return A deep clone of this object, camouflaged as a GObject
-	 */
-	virtual GObject* clone() const {
-		return new GNoisyParabolaIndividual(*this);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * Loads the data of another GNoisyParabolaIndividual, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GNoisyParabolaIndividual, camouflaged as a GObject
@@ -164,6 +154,16 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 *
+	 * @return A deep clone of this object, camouflaged as a GObject
+	 */
+	virtual GObject* clone_() const {
+		return new GNoisyParabolaIndividual(*this);
+	}
+
 	/********************************************************************************************/
 	/**
 	 * The actual fitness calculation takes place here

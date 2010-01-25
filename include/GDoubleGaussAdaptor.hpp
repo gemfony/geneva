@@ -103,8 +103,6 @@ public:
 
 	/** @brief A standard assignment operator */
 	const GDoubleGaussAdaptor& operator=(const GDoubleGaussAdaptor&);
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone() const;
 
 	/** @brief Checks for equality with another GDoubleGaussAdaptor object */
 	bool operator==(const GDoubleGaussAdaptor&) const;
@@ -123,6 +121,8 @@ public:
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
 
 protected:
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone_() const;
 	/** The actual mutation performed on the value type */
 	virtual void customMutations(double&);
 };

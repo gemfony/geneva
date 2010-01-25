@@ -114,16 +114,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Creates a deep clone of this object
-	 *
-	 * @return A deep clone of this object, camouflaged as a GObject
-	 */
-	virtual GObject* clone() const {
-		return new GTestIndividual1(*this);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * Loads the data of another GTestIndividual1, camouflaged as a GObject.
 	 *
 	 * @param cp A copy of another GTestIndividual1, camouflaged as a GObject
@@ -159,6 +149,16 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Creates a deep clone of this object
+	 *
+	 * @return A deep clone of this object, camouflaged as a GObject
+	 */
+	virtual GObject* clone_() const {
+		return new GTestIndividual1(*this);
+	}
+
 	/********************************************************************************************/
 	/**
 	 * The actual fitness calculation takes place here.

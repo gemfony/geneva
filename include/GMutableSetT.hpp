@@ -114,10 +114,6 @@ public:
 	{ /* nothing */ }
 
 	/**********************************************************************************/
-	/** @brief Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated */
-	virtual GObject* clone() const = 0;
-
-	/**********************************************************************************/
 	/**
 	 * Loads the data of another GParameterBase object, camouflaged as a GObject
 	 *
@@ -215,6 +211,10 @@ public:
 
 
 protected:
+	/**********************************************************************************/
+	/** @brief Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated */
+	virtual GObject* clone_() const = 0;
+
 	/**********************************************************************************/
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;

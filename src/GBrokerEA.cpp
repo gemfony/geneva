@@ -113,7 +113,7 @@ void GBrokerEA::load(const GObject * cp) {
  *
  * @return A deep copy of this object
  */
-GObject *GBrokerEA::clone() const {
+GObject *GBrokerEA::clone_() const {
 	return new GBrokerEA(*this);
 }
 

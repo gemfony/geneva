@@ -145,7 +145,7 @@ bool GEAPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, c
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject* GEAPersonalityTraits::clone() const {
+GObject* GEAPersonalityTraits::clone_() const {
 	return new GEAPersonalityTraits(*this);
 }
 

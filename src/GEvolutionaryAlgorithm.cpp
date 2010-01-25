@@ -124,7 +124,7 @@ void GEvolutionaryAlgorithm::load(const GObject * cp)
  *
  * @return A deep copy of this object, camouflaged as a pointer to a GObject
  */
-GObject *GEvolutionaryAlgorithm::clone() const  {
+GObject *GEvolutionaryAlgorithm::clone_() const  {
 	return new GEvolutionaryAlgorithm(*this);
 }
 

@@ -88,8 +88,6 @@ public:
 
 	/** @brief A standard assignment operator */
 	const GCharFlipAdaptor& operator=(const GCharFlipAdaptor&);
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone() const;
 
 	/** @brief Checks for equality with another GCharFlipAdaptor object */
 	bool operator==(const GCharFlipAdaptor&) const;
@@ -106,6 +104,10 @@ public:
 
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
+
+protected:
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone_() const;
 };
 
 /*************************************************************************/

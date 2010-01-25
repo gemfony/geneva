@@ -153,8 +153,6 @@ public:
 	/** @brief Checks for similarity with another GOptimizationAlgorithm object */
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() const = 0;
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 
@@ -259,6 +257,8 @@ public:
 
 protected:
 	/**********************************************************************************/
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const = 0;
 	/** @brief Allows derived classes to set the personality type of the individuals */
 	virtual void setIndividualPersonalities() = 0;
 	/** @brief Resets the personality type of all individuals */

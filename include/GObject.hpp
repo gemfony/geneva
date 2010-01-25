@@ -141,13 +141,14 @@ public:
 	/** @brief Loads a serial representation of this object from file */
 	void fromFile(const std::string&, const serializationMode&);
 
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() const = 0;
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject*);
 
 	/** @brief Returns an XML description of the derivative it is called for */
 	std::string report();
+
+	/** @brief Creates a clone of this object, storing it in a boost::shared_ptr<GObject> */
+	boost::shared_ptr<GObject> clone() const;
 
 	/**************************************************************************************************/
 	/**
@@ -158,10 +159,10 @@ public:
 	 * @return A converted clone of this object, wrapped into a boost::shared_ptr
 	 */
 	template <typename clone_type>
-	boost::shared_ptr<clone_type> clone_bptr_cast() const {
+	boost::shared_ptr<clone_type> clone() const {
 #ifdef DEBUG
 		// Get a clone of this object and wrap it in a boost::shared_ptr<GObject>
-		boost::shared_ptr<GObject> p_base(this->clone());
+		boost::shared_ptr<GObject> p_base(this->clone_());
 
 		// Convert to the desired target type
 		boost::shared_ptr<clone_type> p_load = boost::dynamic_pointer_cast<clone_type>(p_base);
@@ -170,7 +171,7 @@ public:
 		// if this was not the case.
 		if(!p_load){
 			std::ostringstream error;
-			error << "In GObject::clone_bptr_cast<clone_type>() : Conversion error!" << std::endl;
+			error << "In GObject::clone<clone_type>() : Conversion error!" << std::endl;
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -179,11 +180,16 @@ public:
 
 		return p_load;
 #else
-		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone()));
+		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
 #endif
 	}
 
+	/**************************************************************************************************/
+
 protected:
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const = 0;
+
 	/**************************************************************************************************/
 	/**
 	 * The load function takes a GObject pointer and converts it to a pointer to a derived class. This
@@ -224,6 +230,9 @@ protected:
 
 	/**************************************************************************************************/
 };
+
+/** @brief A specialization for cases for no conversion is supposed to take place */
+template <> boost::shared_ptr<GObject> GObject::clone<GObject>() const;
 
 } /* namespace GenEvA */
 } /* namespace Gem */

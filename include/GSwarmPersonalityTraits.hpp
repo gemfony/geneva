@@ -104,8 +104,6 @@ public:
 	/** @brief Checks for similarity with another GSwarmPersonalityTraits object */
 	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone() const;
 	/** @brief Loads the data of another GSwarmPersonalityTraits object */
 	virtual void load(const GObject*);
 
@@ -118,6 +116,10 @@ public:
 	void setPopulationPosition(std::size_t) ;
 	/** @brief Retrieves the position of the individual in the population */
 	std::size_t getPopulationPosition(void) const;
+
+protected:
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const;
 
 private:
 	/** @brief Stores the current position in the population */

@@ -546,7 +546,7 @@ bool GIndividual::process(){
 				// Loop until a better solution was found or the maximum number of attempts was reached
 				while(true) {
 					// Create a copy of this object
-					p = this->clone_bptr_cast<GIndividual>();
+					p = this->clone<GIndividual>();
 
 					// Mutate and check fitness. Leave if a better solution was found
 					p->mutate();

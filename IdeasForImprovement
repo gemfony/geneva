@@ -106,3 +106,4 @@
   method proposed in this web page
 - Check whether we can replace getAdaptorId with some typeid construct.
 - Check whether using typeid instead of dynamic_cast in some places improves performance
+- Make local and factory production of random numbers a template, controlled through a define

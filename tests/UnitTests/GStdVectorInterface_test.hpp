@@ -237,7 +237,7 @@ void stdvectorinterfacetestSP(vi& vectorObject,
 
 	// Attach items
 	for(std::size_t i=0; i<NITEMS; i++) {
-		BOOST_CHECK_NO_THROW(vectorObject.push_back(templItem->Gem::GenEvA::GObject::clone_bptr_cast<item>()));
+		BOOST_CHECK_NO_THROW(vectorObject.push_back(templItem->Gem::GenEvA::GObject::clone<item>()));
 	}
 
 	BOOST_CHECK(vectorObject.size() == NITEMS);

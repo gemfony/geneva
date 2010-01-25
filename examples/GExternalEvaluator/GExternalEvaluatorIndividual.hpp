@@ -184,9 +184,9 @@ public:
 		gdbl_ptr_=boost::shared_ptr<GBoundedDouble>(new GBoundedDouble());
         if(gdbl_ad_ptr) {
         	if(useCommonAdaptor)
-        		gbdc_ptr->addAdaptor(gdbl_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<double> >());
+        		gbdc_ptr->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
         	else
-        		gdbl_ptr_->addAdaptor(gdbl_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<double> >());
+        		gdbl_ptr_->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
         }
         else {
         	if(useCommonAdaptor)
@@ -199,9 +199,9 @@ public:
         glong_ptr_=boost::shared_ptr<GBoundedInt32>(new GBoundedInt32());
         if(glong_ad_ptr) {
         	if(useCommonAdaptor)
-        		gbic_ptr->addAdaptor(glong_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<boost::int32_t> >());
+        		gbic_ptr->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
         	else
-        		glong_ptr_->addAdaptor(glong_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<boost::int32_t> >());
+        		glong_ptr_->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
         }
         else {
         	if(useCommonAdaptor)
@@ -213,7 +213,7 @@ public:
         //-----------------------------------------------------------------------------------------------
         // GBooleanCollection is special in that it always directly contains adaptors
         if(gbool_ad_ptr) {
-        	gbc_ptr->addAdaptor(gbool_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<bool> >());
+        	gbc_ptr->addAdaptor(gbool_ad_ptr->GObject::clone<GAdaptorT<bool> >());
         }
         else {
         	gbc_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<bool> >(new GBooleanAdaptor())); // uses default values
@@ -223,9 +223,9 @@ public:
         gchar_ptr_=boost::shared_ptr<GChar>(new GChar());
         if(gchar_ad_ptr) {
         	if(useCommonAdaptor)
-        		gcoc_ptr->addAdaptor(gchar_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<char> >());
+        		gcoc_ptr->addAdaptor(gchar_ad_ptr->GObject::clone<GAdaptorT<char> >());
         	else
-        		gchar_ptr_->addAdaptor(gchar_ad_ptr->GObject::clone_bptr_cast<GAdaptorT<char> >());
+        		gchar_ptr_->addAdaptor(gchar_ad_ptr->GObject::clone<GAdaptorT<char> >());
         }
         else {
         	if(useCommonAdaptor)
@@ -300,9 +300,9 @@ public:
 		, parameterFile_(cp.parameterFile_)
 		, useCommonAdaptor_(cp.useCommonAdaptor_)
 	{
-		 gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone_bptr_cast<GBoundedDouble>();
-		 glong_ptr_ = cp.glong_ptr_->GObject::clone_bptr_cast<GBoundedInt32>();
-		 gchar_ptr_ = cp.gchar_ptr_->GObject::clone_bptr_cast<GChar>();
+		 gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone<GBoundedDouble>();
+		 glong_ptr_ = cp.glong_ptr_->GObject::clone<GBoundedInt32>();
+		 gchar_ptr_ = cp.gchar_ptr_->GObject::clone<GChar>();
 	}
 
 	/********************************************************************************************/
@@ -378,16 +378,6 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Creates a deep clone of this object
-	 *
-	 * @return A deep clone of this object, camouflaged as a GObject
-	 */
-	virtual GObject* clone() const{
-		return new GExternalEvaluatorIndividual(*this);
-	}
-
-	/********************************************************************************************/
-	/**
 	 * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GObject
@@ -407,9 +397,9 @@ public:
 		parameterFile_ = p_load->parameterFile_;
 		useCommonAdaptor_ = p_load->useCommonAdaptor_;
 
-		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone_bptr_cast<GBoundedDouble>();
-		glong_ptr_ = p_load->glong_ptr_->GObject::clone_bptr_cast<GBoundedInt32>();
-		gchar_ptr_ = p_load->gchar_ptr_->GObject::clone_bptr_cast<GChar>();
+		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone<GBoundedDouble>();
+		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GBoundedInt32>();
+		gchar_ptr_ = p_load->gchar_ptr_->GObject::clone<GChar>();
 	}
 
 	/********************************************************************************************/
@@ -661,6 +651,16 @@ public:
 protected:
 	/********************************************************************************************/
 	/**
+	 * Creates a deep clone of this object
+	 *
+	 * @return A deep clone of this object, camouflaged as a GObject
+	 */
+	virtual GObject* clone_() const{
+		return new GExternalEvaluatorIndividual(*this);
+	}
+
+	/********************************************************************************************/
+	/**
 	 * The actual fitness calculation takes place in an external program. Here we just
 	 * write a file with the required parameters to disk and execute the program.
 	 *
@@ -780,7 +780,7 @@ private:
 				gde_.newDataSet();
 
 				// Create a copy of this object and mutate it
-				p = this->clone_bptr_cast<GExternalEvaluatorIndividual>();
+				p = this->clone<GExternalEvaluatorIndividual>();
 				p->setAllowLazyEvaluation(true); // Prevent evaluation upon mutation
 				p->mutate(); // Make sure we do not evaluate the same parameter set
 			}

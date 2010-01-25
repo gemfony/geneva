@@ -91,7 +91,7 @@ const GBooleanAdaptor& GBooleanAdaptor::operator=(const GBooleanAdaptor& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBooleanAdaptor::clone() const {
+GObject* GBooleanAdaptor::clone_() const {
 	return new GBooleanAdaptor(*this);
 }
 

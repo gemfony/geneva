@@ -80,7 +80,7 @@ const GBoundedInt32Collection& GBoundedInt32Collection::operator=(const GBounded
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBoundedInt32Collection::clone() const {
+GObject* GBoundedInt32Collection::clone_() const {
 	return new GBoundedInt32Collection(*this);
 }
 

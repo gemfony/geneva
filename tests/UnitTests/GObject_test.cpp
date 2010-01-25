@@ -93,11 +93,12 @@ public:
 		}
 
 		// Clone the object, load into another GBooleanAdaptor.
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_clone2 = gba0.clone_bptr_cast<GBooleanAdaptor>());
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_clone2 = gba0.clone<GBooleanAdaptor>());
 		GBooleanAdaptor gba2;
-		GObject *gba0_clone3 = gba0.clone();
-		BOOST_CHECK_NO_THROW(gba2.load(gba0_clone3));
-		delete gba0_clone3;
+		{
+			boost::shared_ptr<GObject> gba0_clone3 = gba0.GObject::clone();
+			BOOST_CHECK_NO_THROW(gba2.load(gba0_clone3.get()));
+		}
 
 		std::string report =  gba0.report();
 		BOOST_CHECK(report.size() != 0);

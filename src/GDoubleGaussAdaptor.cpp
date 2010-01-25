@@ -118,7 +118,7 @@ const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(const GDoubleGaussAdap
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GDoubleGaussAdaptor::clone() const {
+GObject* GDoubleGaussAdaptor::clone_() const {
 	return new GDoubleGaussAdaptor(*this);
 }
 

@@ -95,12 +95,13 @@ public:
 		BOOST_CHECK(gpi_as.isEqualTo(gpi));
 
 		// Test cloning and loading
-		GObject *gpi_clone;
-		BOOST_CHECK_NO_THROW(gpi_clone = gpi.clone());
 		GTestIndividual1 gpi_load;
-		BOOST_CHECK_NO_THROW(gpi_load.load(gpi_clone));
+		{
+			boost::shared_ptr<GObject> gpi_clone;
+			BOOST_CHECK_NO_THROW(gpi_clone = gpi.GObject::clone());
+			BOOST_CHECK_NO_THROW(gpi_load.load(gpi_clone.get()));
+		}
 		BOOST_CHECK(gpi_load.isEqualTo(gpi));
-		delete gpi_clone;
 
 		// Test retrieval of the GDoubleCollection object. Can it be modified ?
 		boost::shared_ptr<GDoubleCollection> gpi_load_gdc = gpi_load.pc_at<GDoubleCollection>(0);
