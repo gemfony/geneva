@@ -50,6 +50,7 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/optional.hpp>
 
 #ifndef GPARAMETERBASE_HPP_
 #define GPARAMETERBASE_HPP_
@@ -64,6 +65,7 @@
 #include "GMutableI.hpp"
 #include "GObject.hpp"
 #include "GenevaExceptions.hpp"
+#include "GPODExpectationChecksT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -121,6 +123,9 @@ public:
 	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for similarity with another GParameterBase object */
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
+	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Convenience function so we do not need to always cast derived classes */
 	virtual bool hasAdaptor() const;

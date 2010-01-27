@@ -327,6 +327,49 @@ public:
 
 	/***********************************************************************************/
 	/**
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
+	 *
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+	 */
+	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
+
+		// Check that we are indeed dealing with a GParamterBase reference
+		const GAdaptorT<T>  *p_load = GObject::conversion_cast(&cp,  this);
+
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
+
+		// Check our parent class'es data ...
+		deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GAdaptorT<T>", y_name, withMessages));
+
+		// ... and then our local data
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionCounter_, p_load->adaptionCounter_, "adaptionCounter_", "p_load->adaptionCounter_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionThreshold_, p_load->adaptionThreshold_, "adaptionThreshold_", "p_load->adaptionThreshold_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", mutProb_, p_load->mutProb_, "mutProb_", "p_load->mutProb_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", mutationMode_, p_load->mutationMode_, "mutationMode_", "p_load->mutationMode_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", currentIndex_, p_load->currentIndex_, "currentIndex_", "p_load->currentIndex_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", maxVars_, p_load->maxVars_, "maxVars_", "p_load->maxVars_", e , limit));
+
+		return evaluateDiscrepancies("GAdaptorT<T>", caller, deviations, e);
+	}
+
+	/***********************************************************************************/
+	/**
 	 * Retrieves the id of the adaptor. Purely virtual, must be implemented by the
 	 * actual adaptors.
 	 *

@@ -60,6 +60,7 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/logic/tribool.hpp>
+#include <boost/optional.hpp>
 
 #ifndef GOBJECT_HPP_
 #define GOBJECT_HPP_
@@ -76,6 +77,7 @@
 #include "GenevaExceptions.hpp"
 #include "GEnums.hpp"
 #include "GHelperFunctionsT.hpp"
+#include "GPODExpectationChecksT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -103,6 +105,9 @@ class GObject
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief Needed so boost::mpl can recognize this class is having a checkRelationshipWith() function */
+    typedef bool checkRelationshipWithFunction;
+
 	/** @brief The default constructor */
 	GObject() ;
 	/** @brief The copy constructor */
@@ -125,6 +130,9 @@ public:
 	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 	/** @brief Checks for dissimilarity with another GObject object (or a derivative) */
 	virtual bool isNotSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
+
+	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
+	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Convert class to a serial representation that is then written to a stream */
 	void toStream(std::ostream&, const serializationMode&);

@@ -98,6 +98,9 @@ public:
 	/** @brief Checks for similarity with another GBoundedInt32Collection object. */
 	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
+	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
+	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+
 	/** @brief Loads the data of another GObject */
 	virtual void load(const GObject* cp);
 

@@ -88,6 +88,7 @@ public:
 		// Copy construction
 		GBooleanCollection gbc3(gbc2);
 		BOOST_CHECK(gbc3 == gbc2);
+		BOOST_CHECK(!gbc3.checkRelationshipWith(gbc2, Gem::Util::CE_EQUALITY, 0., "GBooleanCollection_test", "gbc2", Gem::Util::CE_WITH_MESSAGES));
 
 		// Assignment
 		GBooleanCollection gbc4;

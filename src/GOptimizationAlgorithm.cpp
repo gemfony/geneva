@@ -195,6 +195,57 @@ bool GOptimizationAlgorithm::isSimilarTo(const GObject& cp, const double& limit,
 
 /***********************************************************************************/
 /**
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GOptimizationAlgorithm::checkRelationshipWith(const GObject& cp,
+		const Gem::Util::expectation& e,
+		const double& limit,
+		const std::string& caller,
+		const std::string& y_name,
+		const bool& withMessages) const
+{
+    using namespace Gem::Util;
+    using namespace Gem::Util::POD;
+
+	// Check that we are indeed dealing with a GParamterBase reference
+	const GOptimizationAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
+
+	// Will hold possible deviations from the expectation, including explanations
+    std::vector<boost::optional<std::string> > deviations;
+
+	// Check our parent class'es data ...
+	deviations.push_back(GMutableSetT<Gem::GenEvA::GIndividual>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithm", y_name, withMessages));
+
+	// ... and then our local data
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", iteration_, p_load->iteration_, "iteration_", "p_load->iteration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", maxIteration_, p_load->maxIteration_, "maxIteration_", "p_load->maxIteration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", maxStallIteration_, p_load->maxStallIteration_, "maxStallIteration_", "p_load->maxStallIteration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", defaultPopulationSize_, p_load->defaultPopulationSize_, "defaultPopulationSize_", "p_load->defaultPopulationSize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", stallCounter_, p_load->stallCounter_, "stallCounter_", "p_load->stallCounter_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", cpInterval_, p_load->cpInterval_, "cpInterval_", "p_load->cpInterval_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", cpBaseName_, p_load->cpBaseName_, "cpBaseName_", "p_load->cpBaseName_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", cpDirectory_, p_load->cpDirectory_, "cpDirectory_", "p_load->cpDirectory_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", qualityThreshold_, p_load->qualityThreshold_, "qualityThreshold_", "p_load->qualityThreshold_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", hasQualityThreshold_, p_load->hasQualityThreshold_, "hasQualityThreshold_", "p_load->hasQualityThreshold_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", maxDuration_, p_load->maxDuration_, "maxDuration_", "p_load->maxDuration_", e , limit));
+
+	return evaluateDiscrepancies("GOptimizationAlgorithm", caller, deviations, e);
+}
+
+/***********************************************************************************/
+/**
  * Determines whether production of random numbers should happen remotely
  * (RNRFACTORY) or locally (RNRLOCAL)
  *

@@ -219,6 +219,13 @@ namespace Util {
 
 /**********************************************************************************************/
 /**
+ * Specification of whether checkExpectation should emit messages
+ */
+const bool CE_SILENT = false;
+const bool CE_WITH_MESSAGES = true;
+
+/**********************************************************************************************/
+/**
  * Random number generation can happen in two modes
  */
 enum rnrGenerationMode {
@@ -239,6 +246,16 @@ enum triboolStates {
 	FALSE,
 	INDETERMINATE,
 	TRUE
+};
+
+/**********************************************************************************************/
+/**
+ * Needed to express expectations in testing framework
+ */
+enum expectation {
+	CE_EQUALITY, // bitwise equality of all checked components
+	CE_INEQUALITY, // at least one checked component differs
+	CE_FP_SIMILARITY // equality for non-floating point components, similarity for floating point
 };
 
 /**********************************************************************************************/

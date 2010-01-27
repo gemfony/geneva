@@ -28,7 +28,7 @@
  */
 
 // Standard headers go here
-
+#include <iostream>
 
 // Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
@@ -82,7 +82,7 @@ public:
 		static boost::mutex creation_mutex;
 
 		// Several callers can reach the next line/ simultaneously. Hence, if
-		// p is empty, we need to ask again if it empty after we have acquired the lock
+		// p is empty, we need to ask again if it is empty after we have acquired the lock
 		if(!p) {
 			// Prevent concurrent "first" access
 			boost::mutex::scoped_lock lk(creation_mutex);

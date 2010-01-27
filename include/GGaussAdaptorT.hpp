@@ -311,6 +311,47 @@ public:
 
 	/********************************************************************************************/
 	/**
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
+	 *
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+	 */
+	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
+
+		// Check that we are indeed dealing with a GParamterBase reference
+		const GGaussAdaptorT<T>  *p_load = GObject::conversion_cast(&cp,  this);
+
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
+
+		// Check our parent class'es data ...
+		deviations.push_back(GAdaptorT<T>::checkRelationshipWith(cp, e, limit, "GGaussAdaptorT<T>", y_name, withMessages));
+
+		// ... and then our local data
+		deviations.push_back(checkExpectation(withMessages, "GGaussAdaptorT<T>", sigma_, p_load->sigma_, "sigma_", "p_load->sigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GGaussAdaptorT<T>", sigmaSigma_, p_load->sigmaSigma_, "sigmaSigma_", "p_load->sigmaSigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GGaussAdaptorT<T>", minSigma_, p_load->minSigma_, "minSigma_", "p_load->minSigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GGaussAdaptorT<T>", maxSigma_, p_load->maxSigma_, "maxSigma_", "p_load->maxSigma_", e , limit));
+
+		return POD::evaluateDiscrepancies("GGaussAdaptorT<T>", caller, deviations, e);
+	}
+
+	/********************************************************************************************/
+	/**
 	 * This function sets the value of the sigma_ parameter. Note that this function
 	 * will silently set a 0 sigma to a very small value.
 	 *

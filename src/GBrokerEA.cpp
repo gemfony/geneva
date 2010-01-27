@@ -192,6 +192,47 @@ bool GBrokerEA::isSimilarTo(const GObject& cp, const double& limit, const boost:
 
 /******************************************************************************/
 /**
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GBrokerEA::checkRelationshipWith(const GObject& cp,
+		const Gem::Util::expectation& e,
+		const double& limit,
+		const std::string& caller,
+		const std::string& y_name,
+		const bool& withMessages) const
+{
+    using namespace Gem::Util;
+    using namespace Gem::Util::POD;
+
+	// Check that we are indeed dealing with a GParamterBase reference
+	const GBrokerEA *p_load = GObject::conversion_cast(&cp,  this);
+
+	// Will hold possible deviations from the expectation, including explanations
+    std::vector<boost::optional<std::string> > deviations;
+
+	// Check our parent class'es data ...
+	deviations.push_back(GEvolutionaryAlgorithm::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
+
+	// ... and then our local data
+	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", waitFactor_, p_load->waitFactor_, "waitFactor_", "p_load->waitFactor_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", maxWaitFactor_, p_load->maxWaitFactor_, "maxWaitFactor_", "p_load->maxWaitFactor_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", firstTimeOut_, p_load->firstTimeOut_, "firstTimeOut_", "p_load->firstTimeOut_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", loopTime_, p_load->loopTime_, "loopTime_", "p_load->loopTime_", e , limit));
+
+	return evaluateDiscrepancies("GBrokerEA", caller, deviations, e);
+}
+
+/******************************************************************************/
+/**
  * Sets the waitFactor_ variable. This population measures the time until the
  * first individual has returned. This time times the waitFactor_ variable is
  * then used to check whether a timeout was reached for other individuals.

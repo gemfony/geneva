@@ -105,5 +105,7 @@
   and whether we can indeed use both y1 and y2 values without fear of correlations ? Benchmark the traditional vs. the
   method proposed in this web page
 - Check whether we can replace getAdaptorId with some typeid construct.
-- Check whether using typeid instead of dynamic_cast in some places improves performance
 - Make local and factory production of random numbers a template, controlled through a define
+- Check whether using typeid instead of dynamic_cast in some places improves performance OR
+- Use type trait is_base_of together with enable_if in order to check, whether class A can be converted to B.
+  Eliminate dynamic_cast and dynamic_pointer_cast. See also type trait "is_convertible"

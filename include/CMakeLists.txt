@@ -70,6 +70,7 @@ SET ( GENEVAINCLUDES
 	GParameterTCollectionT.hpp
 	GParameterValuePair.hpp
 	GPersonalityTraits.hpp
+	GPODExpectationChecksT.hpp
 	GRandom.hpp
 	GRandomFactory.hpp
 	GRateableI.hpp

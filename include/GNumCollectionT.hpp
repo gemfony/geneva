@@ -198,6 +198,44 @@ public:
 
 	/******************************************************************/
 	/**
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
+	 *
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+	 */
+	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
+
+		// Check that we are indeed dealing with a GParamterBase reference
+		const GNumCollectionT<T>  *p_load = GObject::conversion_cast(&cp,  this);
+
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
+
+		// Check our parent class'es data ...
+		deviations.push_back(GParameterCollectionT<T>::checkRelationshipWith(cp, e, limit, "GNumCollectionT<T>", y_name, withMessages));
+
+		// no local data ...
+
+		return evaluateDiscrepancies("GNumCollectionT<T>", caller, deviations, e);
+	}
+
+
+	/******************************************************************/
+	/**
 	 * Loads the data of another GNumCollectionT<T> object,
 	 * camouflaged as a GObject. We have no local data, so
 	 * all we need to do is to the standard identity check,

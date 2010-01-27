@@ -164,6 +164,30 @@ bool  GObject::isNotSimilarTo(const GObject& cp, const double& limit,  const boo
 
 /**************************************************************************************************/
 /**
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GObject::checkRelationshipWith(const GObject& cp,
+					                                        const Gem::Util::expectation& e,
+					                                        const double& limit,
+					                                        const std::string& caller,
+					                                        const std::string& y_name,
+					                                        const bool& withMessages) const
+{
+	// no local data, hence nothing to do
+	return boost::optional<std::string>(); // default constructor equates to "false"
+}
+
+/**************************************************************************************************/
+/**
  * Returns an XML description of the derivative it is called for
  *
  * @return An XML description of the GObject-derivative the function is called for

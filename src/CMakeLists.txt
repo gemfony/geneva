@@ -51,6 +51,7 @@ SET ( GENEVASOURCES
 	GParameterT
 	GParameterValuePair
 	GPersonalityTraits
+	GPODExpectationChecksT
 	GRandom
 	GRandomFactory
 	GSerializationHelperFunctions

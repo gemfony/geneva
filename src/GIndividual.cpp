@@ -174,6 +174,53 @@ bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boos
 
 /**********************************************************************************/
 /**
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GIndividual::checkRelationshipWith(const GObject& cp,
+		const Gem::Util::expectation& e,
+		const double& limit,
+		const std::string& caller,
+		const std::string& y_name,
+		const bool& withMessages) const
+{
+    using namespace Gem::Util;
+    using namespace Gem::Util::POD;
+
+	// Check that we are indeed dealing with a GParamterBase reference
+	const GIndividual *p_load = GObject::conversion_cast(&cp,  this);
+
+	// Will hold possible deviations from the expectation, including explanations
+    std::vector<boost::optional<std::string> > deviations;
+
+	// Check our parent class'es data ...
+	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GIndividual", y_name, withMessages));
+
+	// ... and then our local data
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", currentFitness_, p_load->currentFitness_, "currentFitness_", "p_load->currentFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", dirtyFlag_, p_load->dirtyFlag_, "dirtyFlag_", "p_load->dirtyFlag_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", allowLazyEvaluation_, p_load->allowLazyEvaluation_, "allowLazyEvaluation_", "p_load->allowLazyEvaluation_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", processingCycles_, p_load->processingCycles_, "processingCycles_", "p_load->processingCycles_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", parentAlgIteration_, p_load->parentAlgIteration_, "parentAlgIteration_", "p_load->parentAlgIteration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", pt_ptr_, p_load->pt_ptr_, "pt_ptr_", "p_load->pt_ptr_", e , limit));
+
+	return evaluateDiscrepancies("GIndividual", caller, deviations, e);
+}
+
+/**********************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GIndividual object, camouflaged as a GObject
