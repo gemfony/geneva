@@ -38,7 +38,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
-
+#include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
@@ -106,6 +106,11 @@ public:
 		// Adding random data using two different methods
 		gbc6.addRandomData(100);
 		BOOST_CHECK(gbc6 != gbc2);
+
+		boost::optional<std::string> o;
+		o = gbc6.checkRelationshipWith(gbc2, Gem::Util::CE_INEQUALITY, 0., "GBooleanCollection_test", "gbc2", Gem::Util::CE_WITH_MESSAGES);
+		BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+
 		BOOST_CHECK(gbc6.size() == 200);
 		gbc6.addRandomData(1800, 0.1);
 		BOOST_CHECK(gbc6.size() == 2000);

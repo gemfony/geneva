@@ -51,6 +51,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/mpl/has_xxx.hpp>
 #include <boost/optional.hpp>
+#include <boost/lexical_cast.hpp>
 
 #ifndef GPODEXPECTATIONCHECKST_HPP_
 #define GPODEXPECTATIONCHECKST_HPP_
@@ -518,6 +519,10 @@ boost::optional<std::string> checkExpectation (
 			}
 			break;  // The expectation was clearly not met
 		}
+		else if(!x && !y) { // No content to check. Both smart pointers can be considered equal
+			expectationMet = true;
+			break;
+		}
 
 		// Check whether the content differs
 		{
@@ -530,9 +535,41 @@ boost::optional<std::string> checkExpectation (
 				}
 				break;
 			}
+			else {
+				expectationMet = true;
+				break;
+			}
 		}
 
+		break;
+
 	case Gem::Util::CE_INEQUALITY:
+		// Check whether the pointers hold content
+		if((x && !y) || (!x && y)) {
+			expectationMet = true;
+			break;
+		}
+		else if(!x && !y) { // No content to check. Both smart pointers can be considered equal
+			break; // The expectation was not met
+		}
+
+		// Check whether the content differs
+		{
+			boost::optional<std::string> o;
+			if(o = x->checkRelationshipWith(*y, e, limit, myCaller, y_name, withMessages)) {
+				if(withMessages) {
+					message <<  "In expectation check initiated by \"" << caller << "\" : Smart pointers"
+							<< x_name << " and " << y_name << " do not differ. Analysis:\n"
+							<< *o;
+				}
+				break;
+			}
+			else {
+				expectationMet = true;
+				break;
+			}
+		}
+
 		break;
 	};
 
@@ -605,9 +642,14 @@ boost::optional<std::string> checkExpectation (
 
 			// Check individual entries
 			boost::optional<std::string> o;
-			for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++failedIndex) {
-				if(o = (*x_it)->checkRelationshipWith(**y_it, e, limit, myCaller, y_name, withMessages)) {
+			std::size_t index = 0;
+			for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
+				std::string first_name = "x[" + boost::lexical_cast<std::string>(index) + "]";
+				std::string second_name = "y[" + boost::lexical_cast<std::string>(index) + "]";
+
+				if(o = checkExpectation(withMessages, myCaller, *x_it, *y_it, first_name, second_name, e, limit)) {
 					foundDeviation = true;
+					failedIndex = index;
 					break; // Leave the for-loop, one deviation is enough
 				}
 			}
@@ -637,8 +679,12 @@ boost::optional<std::string> checkExpectation (
 
 			// Check individual entries
 			std::size_t nDeviationsFound = 0; // deviations from expectation "inequality"
-			for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
-				if((*x_it)->checkRelationshipWith(**y_it, e, limit, myCaller, y_name, withMessages)) nDeviationsFound++;
+			std::size_t index = 0;
+			for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
+				std::string first_name = "x[" + boost::lexical_cast<std::string>(index) + "]";
+				std::string second_name = "y[" + boost::lexical_cast<std::string>(index) + "]";
+
+				if(checkExpectation(withMessages, myCaller, *x_it, *y_it, first_name, second_name, e, limit)) nDeviationsFound++;
 			}
 
 			if(nDeviationsFound == x.size()) {

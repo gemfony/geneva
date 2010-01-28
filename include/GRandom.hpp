@@ -171,6 +171,9 @@ public:
 	/** @brief Checks for similarity with another GRandom object, camouflaged as a GObject */
 	virtual bool isSimilarTo(const Gem::GenEvA::GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
+	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
+	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+
 	/** @brief Loads the data of another GRandom object, camouflaged as a GObject */
 	virtual void load(const Gem::GenEvA::GObject*);
 
