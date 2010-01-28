@@ -118,19 +118,6 @@ public:
 	/** @brief A standard assignment operator */
 	const GObject& operator=(const GObject&);
 
-	/** @brief Checks for equality with another GObject object */
-	bool operator==(const GObject&) const;
-	/** @brief Checks inequality with another GObject object */
-	bool operator!=(const GObject&) const;
-	/** @brief Checks for equality with another GObject object */
-	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-	/** @brief Checks for inequality with another GObject object (or a derivative) */
-	virtual bool isNotEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-	/** @brief Checks for similarity with another GObject object */
-	virtual bool isSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-	/** @brief Checks for dissimilarity with another GObject object (or a derivative) */
-	virtual bool isNotSimilarTo(const GObject&, const double&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
@@ -237,6 +224,12 @@ protected:
 	}
 
 	/**************************************************************************************************/
+
+private:
+	/** @brief Checks for equality with another GObject object. Intentionally left undefined, as this class is abstract */
+	bool operator==(const GObject&) const;
+	/** @brief Checks inequality with another GObject object. Intentionally left undefined, as this class is abstract */
+	bool operator!=(const GObject&) const;
 };
 
 /** @brief A specialization for cases for no conversion is supposed to take place */

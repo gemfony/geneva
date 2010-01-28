@@ -241,7 +241,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GGaussAdaptorT<T>& cp) const {
-		return GGaussAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GGaussAdaptorT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/
@@ -252,61 +254,9 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GGaussAdaptorT<T>& cp) const {
-		return !GGaussAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Checks for equality with another GGaussAdaptorT<T> object. Equality means
-	 * that all individual sub-values are equal and that the parent class is equal.
-	 *
-	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GGaussAdaptorT reference
-		const GGaussAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// First take care of our parent class
-		if(!GAdaptorT<T>::isEqualTo(*p_load, expected)) return false;
-
-		// Then we take care of the local data
-		if(checkForInequality("GGaussAdaptorT<T>", sigma_, p_load->sigma_,"sigma_", "p_load->sigma_", expected)) return false;
-		if(checkForInequality("GGaussAdaptorT<T>", sigmaSigma_, p_load->sigmaSigma_,"sigmaSigma_", "p_load->sigmaSigma_", expected)) return false;
-		if(checkForInequality("GGaussAdaptorT<T>", minSigma_, p_load->minSigma_,"minSigma_", "p_load->minSigma_", expected)) return false;
-		if(checkForInequality("GGaussAdaptorT<T>", maxSigma_, p_load->maxSigma_,"maxSigma_", "p_load->maxSigma_", expected)) return false;
-
-		return true;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Checks for similarity with another GGaussAdaptorT<T> object. Similarity means
-	 * that all double values are similar to each other within a given limit and that all other
-	 * values are equal. Also, parent classes must be similar to each other.
-	 *
-	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GGaussAdaptorT reference
-		const GGaussAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// First take care of our parent class
-		if(!GAdaptorT<T>::isSimilarTo(*p_load, limit, expected)) return false;
-
-		// Then we take care of the local data
-		if(checkForDissimilarity("GGaussAdaptorT<T>", sigma_, p_load->sigma_, limit, "sigma_", "p_load->sigma_", expected)) return false;
-		if(checkForDissimilarity("GGaussAdaptorT<T>", sigmaSigma_, p_load->sigmaSigma_, limit, "sigmaSigma_", "p_load->sigmaSigma_", expected)) return false;
-		if(checkForDissimilarity("GGaussAdaptorT<T>", minSigma_, p_load->minSigma_, limit, "minSigma_", "p_load->minSigma_", expected)) return false;
-		if(checkForDissimilarity("GGaussAdaptorT<T>", maxSigma_, p_load->maxSigma_, limit, "maxSigma_", "p_load->maxSigma_", expected)) return false;
-
-		return true;
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GGaussAdaptorT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/

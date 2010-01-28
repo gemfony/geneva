@@ -125,7 +125,9 @@ GObject *GBrokerEA::clone_() const {
  * @return A boolean indicating whether both objects are equal
  */
 bool GBrokerEA::operator==(const GBrokerEA& cp) const {
-	return GBrokerEA::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerEA::operator==","cp", CE_SILENT);
 }
 
 /******************************************************************************/
@@ -136,58 +138,9 @@ bool GBrokerEA::operator==(const GBrokerEA& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GBrokerEA::operator!=(const GBrokerEA& cp) const {
-	return !GBrokerEA::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GBrokerEA object.
- *
- * @param  cp A constant reference to another GBrokerEA object
- * @return A boolean indicating whether both objects are equal
- */
-bool GBrokerEA::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GBrokerEA *p_load = GObject::conversion_cast(&cp,  this);
-
-	// First take care of our parent class
-	if(!GEvolutionaryAlgorithm::isEqualTo(*p_load, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForInequality("GBrokerEA", waitFactor_, p_load->waitFactor_,"waitFactor_", "p_load->waitFactor_", expected)) return false;
-	if(checkForInequality("GBrokerEA", maxWaitFactor_, p_load->maxWaitFactor_,"maxWaitFactor_", "p_load->maxWaitFactor_", expected)) return false;
-	if(checkForInequality("GBrokerEA", firstTimeOut_, p_load->firstTimeOut_,"firstTimeOut_", "p_load->firstTimeOut_", expected)) return false;
-	if(checkForInequality("GBrokerEA", loopTime_, p_load->loopTime_,"loopTime_", "p_load->loopTime_", expected)) return false;
-
-	return true;
-}
-
-/******************************************************************************/
-/**
- * Checks for similarity with another GBrokerEA object.
- *
- * @param  cp A constant reference to another GBrokerEA object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GBrokerEA::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GBrokerEA *p_load = GObject::conversion_cast(&cp,  this);
-
-	// First take care of our parent class
-	if(!GEvolutionaryAlgorithm::isSimilarTo(*p_load, limit, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForDissimilarity("GBrokerEA", waitFactor_, p_load->waitFactor_, limit, "waitFactor_", "p_load->waitFactor_", expected)) return false;
-	if(checkForDissimilarity("GBrokerEA", maxWaitFactor_, p_load->maxWaitFactor_, limit, "maxWaitFactor_", "p_load->maxWaitFactor_", expected)) return false;
-	if(checkForDissimilarity("GBrokerEA", firstTimeOut_, p_load->firstTimeOut_, limit, "firstTimeOut_", "p_load->firstTimeOut_", expected)) return false;
-	if(checkForDissimilarity("GBrokerEA", loopTime_, p_load->loopTime_, limit, "loopTime_", "p_load->loopTime_", expected)) return false;
-
-	return true;
+	using namespace Gem::Util;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerEA::operator!=","cp", CE_SILENT);
 }
 
 /******************************************************************************/

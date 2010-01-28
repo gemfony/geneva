@@ -136,7 +136,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GMutableSetT<T>& cp) const {
-		return GMutableSetT<T>::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMutableSetT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/**********************************************************************************/
@@ -147,54 +149,9 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GMutableSetT<T>& cp) const {
-		return !GMutableSetT<T>::isEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/**********************************************************************************/
-	/**
-	 * Checks for equality with another GMutableSetT<T> object. This function assumes
-	 * that each T has its own isEqualTo function, i.e. follows the Geneva rules.
-	 *
-	 * @param  cp A constant reference to another GMutableSetT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GIndividual reference
-		const GMutableSetT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check equality of the parent class
-		if(!GIndividual::isEqualTo(*p_load, expected)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*p_load, expected)) return false;
-
-		// No local data
-
-		return true;
-	}
-
-	/**********************************************************************************/
-	/**
-	 * Checks for similarity with another GMutableSetT<T> object.
-	 * As we have no local data, we just check for equality of the parent class.
-	 *
-	 * @param  cp A constant reference to another GMutableSetT<T> object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GIndividual reference
-		const GMutableSetT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check similarity of the parent class
-		if(!GIndividual::isSimilarTo(*p_load, limit, expected)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*p_load, limit, expected)) return false;
-
-		// No local data
-
-		return true;
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMutableSetT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/**********************************************************************************/

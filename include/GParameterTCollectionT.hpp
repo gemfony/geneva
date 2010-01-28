@@ -141,7 +141,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GParameterTCollectionT<T>& cp) const {
-		return GParameterTCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterTCollectionT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/*******************************************************************************************/
@@ -152,50 +154,9 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParameterTCollectionT<T>& cp) const {
-		return !GParameterTCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for equality with another GParameterTCollectionT<T> object. This function
-	 * assumes that T has an isEqualTo function itself.
-	 *
-	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GParamterCollectionT reference
-		const GParameterTCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check equality of the parent classes
-		if(!GParameterBaseWithAdaptorsT<typename T::p_type >::isEqualTo(*p_load, expected)) return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsEqualTo(*p_load, expected)) return false;
-
-		return true;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for similarity with another GParameterTCollectionT<T> object.  This function
-	 * assumes that T has an isSimilarTo function itself.
-	 *
-	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GParamterCollectionT reference
-		const GParameterTCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check similarity of the parent classes
-		if(!GParameterBaseWithAdaptorsT<typename T::p_type >::isSimilarTo(*p_load, limit, expected))  return false;
-		if(!GStdPtrVectorInterfaceT<T>::checkIsSimilarTo(*p_load, limit, expected)) return false;
-
-		return true;
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterTCollectionT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/*******************************************************************************************/

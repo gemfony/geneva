@@ -72,7 +72,9 @@ GGDPersonalityTraits::~GGDPersonalityTraits()
  * @return A boolean indicating whether both objects are equal
  */
 bool GGDPersonalityTraits::operator==(const GGDPersonalityTraits& cp) const {
-	return GGDPersonalityTraits::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GGDPersonalityTraits::operator==","cp", CE_SILENT);
 }
 
 /*****************************************************************************/
@@ -83,52 +85,9 @@ bool GGDPersonalityTraits::operator==(const GGDPersonalityTraits& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GGDPersonalityTraits::operator!=(const GGDPersonalityTraits& cp) const {
-	return !GGDPersonalityTraits::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/*****************************************************************************/
-/**
- * Checks for equality with another GGDPersonalityTraits object
- *
- * @param  cp A constant reference to another GPersonalityTraits object
- * @return A boolean indicating whether both objects are equal
- */
-bool GGDPersonalityTraits::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GPersonalityTraits reference
-	const GGDPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check for equality of our parent class
-	if(!GPersonalityTraits::isEqualTo(*p_load, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForInequality("GGDPersonalityTraits", command_, p_load->command_,"command_", "p_load->command_", expected)) return false;
-
-	return true;
-}
-
-/*****************************************************************************/
-/**
- * Checks for similarity with another GGDPersonalityTraits object
- *
- * @param  cp A constant reference to another GGDPersonalityTraits object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GGDPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GPersonalityTraits reference
-	const GGDPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check for equality of our parent class
-	if(!GPersonalityTraits::isSimilarTo(*p_load, limit, expected)) return false;
-
-	// Then we take care of the local data
-	if(checkForDissimilarity("GGDPersonalityTraits", command_, p_load->command_, limit, "command_", "p_load->command_", expected)) return false;
-
-	return true;
+	using namespace Gem::Util;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GGDPersonalityTraits::operator!=","cp", CE_SILENT);
 }
 
 /*****************************************************************************/

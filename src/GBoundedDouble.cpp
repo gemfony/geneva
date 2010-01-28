@@ -139,7 +139,9 @@ GObject* GBoundedDouble::clone_() const {
  * @return A boolean indicating whether both objects are equal
  */
 bool GBoundedDouble::operator==(const GBoundedDouble& cp) const {
-	return GBoundedDouble::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBoundedDouble::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -150,51 +152,9 @@ bool GBoundedDouble::operator==(const GBoundedDouble& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GBoundedDouble::operator!=(const GBoundedDouble& cp) const {
-	return !GBoundedDouble::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/*******************************************************************************************/
-/**
- * Checks for equality with another GBoundedDouble object.  If T is an object type,
- * then it must implement operator!= .
- *
- * @param  cp A constant reference to another GBoundedDouble object
- * @return A boolean indicating whether both objects are equal
- */
-bool GBoundedDouble::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GParamterT reference
-	const GBoundedDouble *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check equality of the parent class
-	if(!GBoundedNumT<double>::isEqualTo(*p_load, expected)) return false;
-
-	// No local data
-
-	return true;
-}
-
-/*******************************************************************************************/
-/**
- * Checks for similarity with another GBoundedDouble object.
- *
- * @param  cp A constant reference to another GBoundedDouble object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GBoundedDouble::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GParamterT reference
-	const GBoundedDouble *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check similarity of the parent class
-	if(!GBoundedNumT<double>::isSimilarTo(*p_load, limit, expected)) return false;
-
-	// No local data
-
-	return true;
+	using namespace Gem::Util;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBoundedDouble::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/

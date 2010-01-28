@@ -40,6 +40,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
+#include <boost/optional.hpp>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
@@ -127,6 +128,36 @@ void stdvectorinterfacetest(vi& vectorObject, const item& templItem, const item&
 		vec_cp2.push_back(*obj_cit);
 	}
 
+	// Holds possible error messages
+	boost::optional<std::string> o;
+
+	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_EQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
+	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_EQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
+	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+
+	// Assign a different value to one position
+	vectorObject.at(vectorObject.size()-1) = findItem;
+	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
+	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
+	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+
+	// Swap the data with a cp1
+	vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::GStdSimpleVectorInterfaceT<item>::swap(vec_cp1);
+	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
+	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_EQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
+	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+
+	// Swap back again
+	vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::GStdSimpleVectorInterfaceT<item>::swap(vec_cp1);
+	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
+	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
+	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+
+	/*
 	BOOST_CHECK(vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp1, false)); // No failure expected
 	BOOST_CHECK(vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp2, false));
 
@@ -146,6 +177,7 @@ void stdvectorinterfacetest(vi& vectorObject, const item& templItem, const item&
 	vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::swap(vec_cp1);
 	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp1, true)); // Failures expected
 	BOOST_CHECK(!vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp2, true));
+	 */
 
 	// Check that the front and back elements can be accessed
 	BOOST_CHECK(vectorObject[0] ==  vectorObject.front());

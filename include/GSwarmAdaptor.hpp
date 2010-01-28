@@ -170,7 +170,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GSwarmAdaptor& cp) const {
-		return GSwarmAdaptor::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarmAdaptor::operator==","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/
@@ -181,62 +183,53 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GSwarmAdaptor& cp) const {
-		return !GSwarmAdaptor::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarmAdaptor::operator!=","cp", CE_SILENT);
 	}
 
-	/********************************************************************************************/
+	/***********************************************************************************/
 	/**
-	 * Checks for equality with another GSwarmAdaptor object Equality means
-	 * that all individual sub-values are equal and that the parent class is equal.
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
 	 *
-	 * @param  cp A constant reference to another GSwarmAdaptor object
-	 * @return A boolean indicating whether both objects are equal
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
+	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GSwarmAdaptor reference
 		const GSwarmAdaptor *p_load = GObject::conversion_cast(&cp,  this);
 
-		// Check our parent class
-		if(!GAdaptorT<double>::isEqualTo(*p_load, expected)) return false;
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
 
-		// and then our local data
-		if(checkForInequality("GSwarmAdaptor", omega_, p_load->omega_,"omega_", "p_load->omega_", expected)) return false;
-		if(checkForInequality("GSwarmAdaptor", c1_, p_load->c1_,"c1_", "p_load->c1_", expected)) return false;
-		if(checkForInequality("GSwarmAdaptor", c2_, p_load->c2_,"c2_", "p_load->c2_", expected)) return false;
+		// Check our parent class'es data ...
+		deviations.push_back(GAdaptorT<double>::checkRelationshipWith(cp, e, limit, "GSwarmAdaptor", y_name, withMessages));
 
-		return true;
+		// ... and then our local data
+		deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", omega_, p_load->omega_, "omega_", "p_load->omega_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", c1_, p_load->c1_, "c1_", "p_load->c1_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", c2_, p_load->c2_, "c2_", "p_load->c2_", e , limit));
+
+		return evaluateDiscrepancies("GSwarmAdaptor", caller, deviations, e);
 	}
 
-	/********************************************************************************************/
-	/**
-	 * Checks for similarity with another GSwarmAdaptor object. Similarity means
-	 * that all double values are similar to each other within a given limit and that all other
-	 * values are equal. Also, parent classes must be similar to each other.
-	 *
-	 * @param  cp A constant reference to another GSwarmAdaptor object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
 
-		// Check that we are indeed dealing with a GSwarmAdaptor reference
-		const GSwarmAdaptor *p_load = GObject::conversion_cast(&cp,  this);
-
-		// First check our parent class
-		if(!GAdaptorT<double>::isSimilarTo(*p_load, limit, expected))  return false;
-
-		// and then our local data
-		if(checkForDissimilarity("GSwarmAdaptor", omega_, p_load->omega_, limit, "omega_", "p_load->omega_", expected)) return false;
-		if(checkForDissimilarity("GSwarmAdaptor", c1_, p_load->c1_, limit, "c1_", "p_load->c1_", expected)) return false;
-		if(checkForDissimilarity("GSwarmAdaptor", c2_, p_load->c2_, limit, "c2_", "p_load->c2_", expected)) return false;
-
-		return true;
-	}
-
-	/********************************************************************************************/
+	/***********************************************************************************/
 	/**
 	 * Retrieves the id of the adaptor.
 	 *

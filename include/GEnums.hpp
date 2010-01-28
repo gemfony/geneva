@@ -219,13 +219,6 @@ namespace Util {
 
 /**********************************************************************************************/
 /**
- * Specification of whether checkExpectation should emit messages
- */
-const bool CE_SILENT = false;
-const bool CE_WITH_MESSAGES = true;
-
-/**********************************************************************************************/
-/**
  * Random number generation can happen in two modes
  */
 enum rnrGenerationMode {
@@ -247,6 +240,13 @@ enum triboolStates {
 	INDETERMINATE,
 	TRUE
 };
+
+/**********************************************************************************************/
+/**
+ * Specification of whether checkExpectation should emit messages
+ */
+const bool CE_SILENT = false;
+const bool CE_WITH_MESSAGES = true;
 
 /**********************************************************************************************/
 /**

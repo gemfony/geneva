@@ -159,7 +159,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GParabolaIndividual& cp) const {
-		return GParabolaIndividual::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParabolaIndividual::operator==","cp", CE_SILENT);
 	}
 
 	/*******************************************************************************************/
@@ -170,44 +172,46 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParabolaIndividual& cp) const {
-		return !GParabolaIndividual::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParabolaIndividual::operator!=","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GParabolaIndividual object.  If T is an object type,
-	 * then it must implement operator!= .
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
 	 *
-	 * @param  cp A constant reference to another GParabolaIndividual object
-	 * @return A boolean indicating whether both objects are equal
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		// Check that we are indeed dealing with a GBoundedNumT<T> reference
+	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
+
+		// Check that we are indeed dealing with a GParamterBase reference
 		const GParabolaIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
-		// Check equality of the parent class
-		if(!GParameterSet::isEqualTo(*p_load, expected)) return false;
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
 
-		return true;
-	}
+		// Check our parent class'es data ...
+		deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GParabolaIndividual", y_name, withMessages));
 
-	/*******************************************************************************************/
-	/**
-	 * Checks for similarity with another GParabolaIndividual object.  As we do not know the
-	 * type of T, we need to create a specialization of this function for typeof(T)==double
-	 *
-	 * @param  cp A constant reference to another GParabolaIndividual object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GParabolaIndividual *p_load = GObject::conversion_cast(&cp,  this);
+		// no local data ...
 
-		// Check equality of the parent class
-		if(!GParameterSet::isSimilarTo(*p_load, limit, expected)) return false;
-
-		return true;
+		return evaluateDiscrepancies("GParabolaIndividual", caller, deviations, e);
 	}
 
 protected:

@@ -162,7 +162,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GIntFlipAdaptorT<T>& cp) const {
-		return GIntFlipAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GIntFlipAdaptorT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/
@@ -173,53 +175,9 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GIntFlipAdaptorT<T>& cp) const {
-		return !GIntFlipAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Checks for equality with another GIntFlipAdaptorT<T> object Equality means
-	 * that all individual sub-values are equal and that the parent class is equal.
-	 *
-	 * @param  cp A constant reference to another GIntFlipAdaptorT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
-		const GIntFlipAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check our parent class
-		if(!GAdaptorT<T>::isEqualTo(*p_load, expected)) return false;
-
-		// no local data
-
-		return true;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Checks for similarity with another GIntFlipAdaptorT<T> object. Similarity means
-	 * that all double values are similar to each other within a given limit and that all other
-	 * values are equal. Also, parent classes must be similar to each other.
-	 *
-	 * @param  cp A constant reference to another GIntFlipAdaptorT<T> object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GIntFlipAdaptorT reference
-		const GIntFlipAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// First check our parent class
-		if(!GAdaptorT<T>::isSimilarTo(*p_load, limit, expected))  return false;
-
-		// no local data
-
-		return true;
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GIntFlipAdaptorT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/

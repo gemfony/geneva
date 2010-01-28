@@ -46,6 +46,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include "boost/filesystem.hpp"
+#include <boost/optional.hpp>
+
 
 #ifndef GEXTERNALEVALUATORINDIVIDUAL_HPP_
 #define GEXTERNALEVALUATORINDIVIDUAL_HPP_
@@ -410,7 +412,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GExternalEvaluatorIndividual& cp) const {
-		return GExternalEvaluatorIndividual::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GExternalEvaluatorIndividual::operator==","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/
@@ -421,83 +425,56 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GExternalEvaluatorIndividual& cp) const {
-		return !GExternalEvaluatorIndividual::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GExternalEvaluatorIndividual::operator!=","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GExternalEvaluatorIndividual object..
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
 	 *
-	 * @param  cp A constant reference to another GExternalEvaluatorIndividual object
-	 * @return A boolean indicating whether both objects are equal
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
+	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
 
-		// Check that we are indeed dealing with a GNumCollectionT reference
+		// Check that we are indeed dealing with a GParamterBase reference
 		const GExternalEvaluatorIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
-		//----------------------------------------------------------------------------------------------------
-		// Check equality of the parent class
-		if(GParameterSet::isNotEqualTo(*p_load)) return false;
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
 
-		//----------------------------------------------------------------------------------------------------
-		// Then check our local data
+		// Check our parent class'es data ...
+		deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GExternalEvaluatorIndividual", y_name, withMessages));
 
-		// First basic types
-		if(checkForInequality("GExternalEvaluatorIndividual", program_, p_load->program_,"program_", "p_load->program_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", arguments_, p_load->arguments_,"arguments_", "p_load->arguments_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", nEvaluations_, p_load->nEvaluations_,"nEvaluations_", "p_load->nEvaluations_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", exchangeMode_, p_load->exchangeMode_,"exchangeMode_", "p_load->exchangeMode_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", maximize_, p_load->maximize_,"maximize_", "p_load->maximize_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", parameterFile_, p_load->parameterFile_,"parameterFile_", "p_load->parameterFile_", expected)) return false;
-		if(checkForInequality("GExternalEvaluatorIndividual", useCommonAdaptor_, p_load->useCommonAdaptor_,"useCommonAdaptor_", "p_load->useCommonAdaptor_", expected)) return false;
+		// ... and then our local data
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", program_, p_load->program_, "program_", "p_load->program_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", arguments_, p_load->arguments_, "arguments_", "p_load->arguments_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", nEvaluations_, p_load->nEvaluations_, "nEvaluations_", "p_load->nEvaluations_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", exchangeMode_, p_load->exchangeMode_, "exchangeMode_", "p_load->exchangeMode_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", parameterFile_, p_load->parameterFile_, "parameterFile_", "p_load->parameterFile_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", useCommonAdaptor_, p_load->useCommonAdaptor_, "useCommonAdaptor_", "p_load->useCommonAdaptor_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", gdbl_ptr_, p_load->gdbl_ptr_, "gdbl_ptr_", "p_load->gdbl_ptr_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", glong_ptr_, p_load->glong_ptr_, "waitFactor_", "p_load->glong_ptr_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", gchar_ptr_, p_load->gchar_ptr_, "waitFactor_", "p_load->gchar_ptr_", e , limit));
 
-		// Then objects
-		if(gdbl_ptr_->isNotEqualTo(*(p_load->gdbl_ptr_), expected)) return false;
-		if(glong_ptr_->isNotEqualTo(*(p_load->glong_ptr_), expected)) return false;
-		if(gchar_ptr_->isNotEqualTo(*(p_load->gchar_ptr_), expected)) return false;
-
-		return true;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Checks for similarity with another GExternalEvaluatorIndividual object.
-	 * As we have no local data, we just check for equality of the parent class.
-	 *
-	 * @param  cp A constant reference to another GExternalEvaluatorIndividual object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GNumCollectionT reference
-		const GExternalEvaluatorIndividual *p_load = GObject::conversion_cast(&cp,  this);
-
-		//----------------------------------------------------------------------------------------------------
-		// Check similarity of the parent class
-		if(GParameterSet::isNotSimilarTo(*p_load, limit)) return false;
-
-		//----------------------------------------------------------------------------------------------------
-		// Then check our local data
-
-		// First the basic types
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", program_, p_load->program_, limit, "program_", "p_load->program_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", arguments_, p_load->arguments_, limit,"arguments_", "p_load->arguments_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", nEvaluations_, p_load->nEvaluations_, limit,"nEvaluations_", "p_load->nEvaluations_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", exchangeMode_, p_load->exchangeMode_, limit, "exchangeMode_", "p_load->exchangeMode_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", maximize_, p_load->maximize_, limit, "maximize_", "p_load->maximize_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", parameterFile_, p_load->parameterFile_, limit, "parameterFile_", "p_load->parameterFile_", expected)) return false;
-		if(checkForDissimilarity("GExternalEvaluatorIndividual", useCommonAdaptor_, p_load->useCommonAdaptor_, limit, "useCommonAdaptor_", "p_load->useCommonAdaptor_", expected)) return false;
-
-		// Then objects
-		if(gdbl_ptr_->isNotSimilarTo(*(p_load->gdbl_ptr_), limit, expected)) return false;
-		if(glong_ptr_->isNotSimilarTo(*(p_load->glong_ptr_), limit, expected)) return false;
-		if(gchar_ptr_->isNotSimilarTo(*(p_load->gchar_ptr_), limit, expected)) return false;
-
-		return true;
+		return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
 	}
 
 	/********************************************************************************************/

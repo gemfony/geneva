@@ -102,7 +102,9 @@ GOptimizationAlgorithm::~GOptimizationAlgorithm()
  * @return A boolean indicating whether both objects are equal
  */
 bool GOptimizationAlgorithm::operator==(const GOptimizationAlgorithm& cp) const {
-	return GOptimizationAlgorithm::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithm::operator==","cp", CE_SILENT);
 }
 
 /***********************************************************************************/
@@ -113,85 +115,11 @@ bool GOptimizationAlgorithm::operator==(const GOptimizationAlgorithm& cp) const 
  * @return A boolean indicating whether both objects are inequal
  */
 bool GOptimizationAlgorithm::operator!=(const GOptimizationAlgorithm& cp) const {
-	return !GOptimizationAlgorithm::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/***********************************************************************************/
-/**
- * Checks for equality with another GOptimizationAlgorithm object. As we have no
- * local data, we just check for equality of the parent class-
- *
- * @param  cp A constant reference to another GOptimizationAlgorithm object
- * @return A boolean indicating whether both objects are equal
- */
-bool GOptimizationAlgorithm::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
 	using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GOptimizationAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check our parent class
-	if(!GMutableSetT<Gem::GenEvA::GIndividual>::isEqualTo(*p_load, expected)) return  false;
-
-	// And then our local data
-	if(!gr.isEqualTo(p_load->gr, expected)) return false;
-
-	if(checkForInequality("OptimizationAlgorithm", iteration_, p_load->iteration_,"iteration_", "p_load->iteration_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", maxIteration_, p_load->maxIteration_,"maxIteration_", "p_load->maxIteration_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", maxStallIteration_, p_load->maxStallIteration_,"maxStallIteration_", "p_load->maxStallIteration_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", reportIteration_, p_load->reportIteration_,"reportIteration_", "p_load->reportIteration_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", defaultPopulationSize_, p_load->defaultPopulationSize_,"defaultPopulationSize_", "p_load->defaultPopulationSize_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", bestPastFitness_, p_load->bestPastFitness_,"bestPastFitness_", "p_load->bestPastFitness_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", maximize_, p_load->maximize_,"maximize_", "p_load->maximize_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", stallCounter_, p_load->stallCounter_,"stallCounter_", "p_load->stallCounter_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", cpInterval_, p_load->cpInterval_,"cpInterval_", "p_load->cpInterval_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", cpBaseName_, p_load->cpBaseName_,"cpBaseName_", "p_load->cpBaseName_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", cpDirectory_, p_load->cpDirectory_,"cpDirectory_", "p_load->cpDirectory_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", qualityThreshold_, p_load->qualityThreshold_,"qualityThreshold_", "p_load->qualityThreshold_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", hasQualityThreshold_, p_load->hasQualityThreshold_,"hasQualityThreshold_", "p_load->hasQualityThreshold_", expected)) return false;
-	if(checkForInequality("OptimizationAlgorithm", maxDuration_, p_load->maxDuration_,"maxDuration_", "p_load->maxDuration_", expected)) return false;
-
-	return true;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithm::operator!=","cp", CE_SILENT);
 }
 
-/***********************************************************************************/
-/**
- * Checks for similarity with another GOptimizationAlgorithm object. As we have
- * no local data, we just check for similarity of the parent class.
- *
- * @param  cp A constant reference to another GOptimizationAlgorithm object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GOptimizationAlgorithm::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-	using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GOptimizationAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check our parent class
-	if(!GMutableSetT<Gem::GenEvA::GIndividual>::isSimilarTo(*p_load, limit, expected)) return  false;
-
-	// And then our local data
-	if(!gr.isSimilarTo(p_load->gr, limit, expected)) return false;
-
-	if(checkForDissimilarity("OptimizationAlgorithm", iteration_, p_load->iteration_, limit, "iteration_", "p_load->iteration_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", maxIteration_, p_load->maxIteration_, limit, "maxIteration_", "p_load->maxIteration_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", maxStallIteration_, p_load->maxStallIteration_, limit, "maxStallIteration_", "p_load->maxStallIteration_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", reportIteration_, p_load->reportIteration_, limit, "reportIteration_", "p_load->reportIteration_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", defaultPopulationSize_, p_load->defaultPopulationSize_, limit, "defaultPopulationSize_", "p_load->defaultPopulationSize_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", bestPastFitness_, p_load->bestPastFitness_, limit, "bestPastFitness_", "p_load->bestPastFitness_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", maximize_, p_load->maximize_, limit, "maximize_", "p_load->maximize_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", stallCounter_, p_load->stallCounter_, limit, "stallCounter_", "p_load->stallCounter_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", cpInterval_, p_load->cpInterval_, limit, "cpInterval_", "p_load->cpInterval_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", cpBaseName_, p_load->cpBaseName_, limit, "cpBaseName_", "p_load->cpBaseName_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", cpDirectory_, p_load->cpDirectory_, limit, "cpDirectory_", "p_load->cpDirectory_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", qualityThreshold_, p_load->qualityThreshold_, limit, "qualityThreshold_", "p_load->qualityThreshold_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", hasQualityThreshold_, p_load->hasQualityThreshold_, limit, "hasQualityThreshold_", "p_load->hasQualityThreshold_", expected)) return false;
-	if(checkForDissimilarity("OptimizationAlgorithm", maxDuration_, p_load->maxDuration_, limit, "maxDuration_", "p_load->maxDuration_", expected)) return false;
-
-	return true;
-}
 
 /***********************************************************************************/
 /**

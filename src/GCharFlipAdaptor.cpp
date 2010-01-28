@@ -103,7 +103,9 @@ GObject* GCharFlipAdaptor::clone_() const {
  * @return A boolean indicating whether both objects are equal
  */
 bool GCharFlipAdaptor::operator==(const GCharFlipAdaptor& cp) const {
-	return GCharFlipAdaptor::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GCharFlipAdaptor::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -114,52 +116,11 @@ bool GCharFlipAdaptor::operator==(const GCharFlipAdaptor& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GCharFlipAdaptor::operator!=(const GCharFlipAdaptor& cp) const {
-	return !GCharFlipAdaptor::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GCharFlipAdaptor::operator!=","cp", CE_SILENT);
 }
 
-/*******************************************************************************************/
-/**
- * Checks for equality with another GCharFlipAdaptor object.  If T is an object type,
- * then it must implement operator!= .
- *
- * @param  cp A constant reference to another GCharFlipAdaptor object
- * @return A boolean indicating whether both objects are equal
- */
-bool GCharFlipAdaptor::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GParamterT reference
-	const GCharFlipAdaptor *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check equality of the parent class
-	if(!GIntFlipAdaptorT<char>::isEqualTo(*p_load, expected)) return false;
-
-	// No local data
-
-	return true;
-}
-
-/*******************************************************************************************/
-/**
- * Checks for similarity with another GCharFlipAdaptor object.
- *
- * @param  cp A constant reference to another GCharFlipAdaptor object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GCharFlipAdaptor::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GParamterT reference
-	const GCharFlipAdaptor *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check similarity of the parent class
-	if(!GIntFlipAdaptorT<char>::isSimilarTo(*p_load, limit, expected)) return false;
-
-	// No local data
-
-	return true;
-}
 
 /*******************************************************************************************/
 /**

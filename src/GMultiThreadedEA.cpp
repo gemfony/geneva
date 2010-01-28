@@ -124,7 +124,9 @@ GObject *GMultiThreadedEA::clone_() const  {
  * @return A boolean indicating whether both objects are equal
  */
 bool GMultiThreadedEA::operator==(const GMultiThreadedEA& cp) const {
-	return GMultiThreadedEA::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedEA::operator==","cp", CE_SILENT);
 }
 
 /********************************************************************/
@@ -135,52 +137,9 @@ bool GMultiThreadedEA::operator==(const GMultiThreadedEA& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GMultiThreadedEA::operator!=(const GMultiThreadedEA& cp) const {
-	return !GMultiThreadedEA::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/********************************************************************/
-/**
- * Checks for equality with another GMultiThreadedEA object.
- *
- * @param  cp A constant reference to another GMultiThreadedEA object
- * @return A boolean indicating whether both objects are equal
- */
-bool GMultiThreadedEA::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-   using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GMultiThreadedEA *p_load = GObject::conversion_cast(&cp,  this);
-
-	// First take care of our parent class
-	if(!GEvolutionaryAlgorithm::isEqualTo(*p_load, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForInequality("GMultiThreadedEA", nThreads_, p_load->nThreads_,"nThreads_", "p_load->nThreads_", expected)) return false;
-
-	return true;
-}
-
-/********************************************************************/
-/**
- * Checks for similarity with another GMultiThreadedEA object.
- *
- * @param  cp A constant reference to another GMultiThreadedEA object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GMultiThreadedEA::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GMultiThreadedEA *p_load = GObject::conversion_cast(&cp,  this);
-
-	// First take care of our parent class
-	if(!GEvolutionaryAlgorithm::isSimilarTo(*p_load, limit, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForDissimilarity("GMultiThreadedEA", nThreads_, p_load->nThreads_, limit, "nThreads_", "p_load->nThreads_", expected)) return false;
-
-	return true;
+	using namespace Gem::Util;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedEA::operator!=","cp", CE_SILENT);
 }
 
 /********************************************************************/

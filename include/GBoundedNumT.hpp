@@ -139,7 +139,9 @@ public:
      * @return A boolean indicating whether both objects are equal
      */
 	bool operator==(const GBoundedNumT<T>& cp) const {
-    	return GBoundedNumT<T>::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBoundedNumT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/****************************************************************************/
@@ -150,56 +152,9 @@ public:
      * @return A boolean indicating whether both objects are inequal
      */
 	bool operator!=(const GBoundedNumT<T>& cp) const {
-    	return !GBoundedNumT<T>::isEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/****************************************************************************/
-    /**
-     * Checks equality of this object with another.
-     *
-     * @param cp A constant reference to another GBoundedNumT<T> object
-     * @return A boolean indicating whether both objects are equal
-     */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GBoundedNumT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-    	// Check the parent class'es equality
-    	if(!GParameterT<T>::isEqualTo(*p_load, expected)) return false;
-
-    	// Check our local data
-		if(checkForInequality("GBoundedNumT<T>", lowerBoundary_, p_load->lowerBoundary_,"lowerBoundary_", "p_load->lowerBoundary_", expected)) return false;
-		if(checkForInequality("GBoundedNumT<T>", upperBoundary_, p_load->upperBoundary_,"upperBoundary_", "p_load->upperBoundary_", expected)) return false;
-		if(checkForInequality("GBoundedNumT<T>", internalValue_, p_load->internalValue_,"internalValue_", "p_load->internalValue_", expected)) return false;
-
-    	return true;
-	}
-
-	/****************************************************************************/
-    /**
-     * Checks similarity of this object with another.
-     *
-     * @param cp A constant reference to another GBoundedNumT<T> object
-     * @param limit The acceptable different between two doubles
-     * @return A boolean indicating whether both objects are similar to each other
-     */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GBoundedNumT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-    	// Check the parent class'es similarity
-    	if(!GParameterT<T>::isSimilarTo(*p_load, limit, expected)) return false;
-
-    	// Check our local data
-		if(checkForDissimilarity("GBoundedNumT<T>", lowerBoundary_, p_load->lowerBoundary_, limit, "lowerBoundary_", "p_load->lowerBoundary_", expected)) return false;
-		if(checkForDissimilarity("GBoundedNumT<T>", upperBoundary_, p_load->upperBoundary_, limit, "upperBoundary_", "p_load->upperBoundary_", expected)) return false;
-		if(checkForDissimilarity("GBoundedNumT<T>", internalValue_, p_load->internalValue_, limit, "internalValue_", "p_load->internalValue_", expected)) return false;
-
-		return true;
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, as no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBoundedNumT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/****************************************************************************/

@@ -99,10 +99,6 @@ public:
 	bool operator==(const GSwarmPersonalityTraits&) const;
 	/** @brief Checks for inequality with another GSwarmPersonalityTraits object */
 	bool operator!=(const GSwarmPersonalityTraits&) const;
-	/** @brief Checks for equality with another GSwarmPersonalityTraits object */
-	virtual bool isEqualTo(const GObject&, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
-	/** @brief Checks for similarity with another GSwarmPersonalityTraits object */
-	virtual bool isSimilarTo(const GObject&, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;

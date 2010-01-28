@@ -197,81 +197,6 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
-	 */
-	bool operator==(const GStdPtrVectorInterfaceT<T>& cp) const {
-		return this->checkIsEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks inquality with another GStdPtrVectorInterfaceT<T> object
-	 */
-	bool operator!=(const GStdPtrVectorInterfaceT<T>& cp) const {
-		return ! this->checkIsEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * operator==, modified to check the content of the smart pointers
-	 */
-	bool operator==(const std::vector<boost::shared_ptr<T> >& cp_data) const {
-		return this->checkIsEqualTo(cp_data, boost::logic::indeterminate);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * operator!=, modified to check the content of the smart pointers
-	 */
-	bool operator!=(const std::vector<boost::shared_ptr<T> >& cp_data) const {
-		return ! this->checkIsEqualTo(cp_data, boost::logic::indeterminate);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for equality with another GStdPtrVectorInterfaceT<T> object
-	 */
-	bool checkIsEqualTo(const GStdPtrVectorInterfaceT<T>& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		return this->checkIsEqualTo(cp.data, expected);;
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for similarity with another GStdPtrVectorInterfaceT<T> object.
-	 */
-	bool checkIsSimilarTo(const GStdPtrVectorInterfaceT<T>& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		return this->checkIsSimilarTo(cp.data, limit, expected);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for equality with a  std::vector<boost::shared_ptr<T> > object
-	 */
-	bool checkIsEqualTo(const std::vector<boost::shared_ptr<T> >& cp_data, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
-
-		std::string className = std::string("GStdPtrVectorInterfaceT<") + typeid(T).name() + ">";
-		if(checkForInequality(className, this->data, cp_data,"data", "cp_data", expected)) return false;
-
-		return true;
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for similarity with another std::vector<boost::shared_ptr<T> > object.
-	 * Note that we assume here that T actually implements a isSimilarTo function.
-	 */
-	bool checkIsSimilarTo(const std::vector<boost::shared_ptr<T> >& cp_data, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
-
-		std::string className = std::string("GStdPtrVectorInterfaceT<") + typeid(T).name() + ">";
-		if(checkForDissimilarity(className, this->data, cp_data, limit, "data", "cp_data", expected)) return false;
-
-		return true;
-	}
-
-	/*****************************************************************************/
-	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
 	 *
@@ -816,6 +741,17 @@ protected:
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
+
+private:
+	/*****************************************************************************/
+	/** @brief Intentionally left undefined */
+	bool operator==(const GStdPtrVectorInterfaceT<T>&) const;
+	/** @brief Intentionally left undefined */
+	bool operator!=(const GStdPtrVectorInterfaceT<T>&) const;
+	/** @brief Intentionally left undefined */
+	bool operator==(const std::vector<boost::shared_ptr<T> >&) const;
+	/** @brief Intentionally left undefined */
+	bool operator!=(const std::vector<boost::shared_ptr<T> >&) const;
 };
 
 /********************************************************************************/

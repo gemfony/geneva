@@ -166,7 +166,9 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are equal
    */
   bool GBooleanCollection::operator==(const GBooleanCollection& cp) const {
-	  return GBooleanCollection::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBooleanCollection::operator==","cp", CE_SILENT);
   }
 
   /**********************************************************************/
@@ -177,50 +179,9 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are inequal
    */
   bool GBooleanCollection::operator!=(const GBooleanCollection& cp) const {
-	  return !this->isEqualTo(cp, boost::logic::indeterminate);
-  }
-
-  /**********************************************************************/
-  /**
-   * Checks for equality with another GBooleanCollection object. As we have
-   * no local data, we just check for equality of the parent class'es object.
-   *
-   * @param  cp A constant reference to another GBooleanCollection object
-   * @return A boolean indicating whether both objects are equal
-   */
-  bool GBooleanCollection::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-	  using namespace Gem::Util;
-
-	  // Check that we are indeed dealing with a GBooleanCollection reference
-	  const GBooleanCollection *p_load = GObject::conversion_cast(&cp,  this);
-
-	  // Check our paren class'es data
-	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isEqualTo(*p_load, expected)) return false;
-
-	  // No local data, so we can leave
-	  return true;
-  }
-
-  /**********************************************************************/
-  /**
-   * Checks for similarity with another GBooleanCollection object.  As we have
-   * no local data, we just check for similarity of the parent class'es object.
-   *
-   * @param  cp A constant reference to another GBooleanCollection object
-   * @param limit A double value specifying the acceptable level of differences of floating point values
-   * @return A boolean indicating whether both objects are similar to each other
-   */
-  bool GBooleanCollection::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-	  using namespace Gem::Util;
-
-	  // Check that we are indeed dealing with a GBooleanCollection reference
-	  const GBooleanCollection *p_load = GObject::conversion_cast(&cp,  this);
-
-	  // Check our paren class'es data
-	  if(!Gem::GenEvA::GParameterCollectionT<bool>::isSimilarTo(*p_load, limit, expected)) return false;
-
-	  // No local data, so we can leave
-	  return true;
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBooleanCollection::operator!=","cp", CE_SILENT);
   }
 
   /**********************************************************************/

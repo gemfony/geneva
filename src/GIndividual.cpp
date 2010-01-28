@@ -95,7 +95,9 @@ GIndividual::~GIndividual() { /* nothing */ }
  * @return A boolean indicating whether both objects are equal
  */
 bool GIndividual::operator==(const GIndividual& cp) const {
-	return GIndividual::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GIndividual::operator==","cp", CE_SILENT);
 }
 
 /**********************************************************************************/
@@ -106,70 +108,9 @@ bool GIndividual::operator==(const GIndividual& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GIndividual::operator!=(const GIndividual& cp) const {
-	return !GIndividual::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/**********************************************************************************/
-/**
- * Checks for equality with another GIndividual object.
- *
- * @param  cp A constant reference to another GIndividual object
- * @return A boolean indicating whether both objects are equal
- */
-bool GIndividual::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GIndividual *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check for equality of our parent class
-	if(!GObject::isEqualTo(*p_load, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForInequality("GIndividual", currentFitness_, p_load->currentFitness_,"currentFitness_", "p_load->currentFitness_", expected)) return false;
-	if(checkForInequality("GIndividual", bestPastFitness_, p_load->bestPastFitness_,"bestPastFitness_", "p_load->bestPastFitness_", expected)) return false;
-	if(checkForInequality("GIndividual", nStalls_, p_load->nStalls_,"nStalls_", "p_load->nStalls_", expected)) return false;
-	if(checkForInequality("GIndividual", dirtyFlag_, p_load->dirtyFlag_,"dirtyFlag_", "p_load->dirtyFlag_", expected)) return false;
-	if(checkForInequality("GIndividual", allowLazyEvaluation_, p_load->allowLazyEvaluation_,"allowLazyEvaluation_", "p_load->allowLazyEvaluation_", expected)) return false;
-	if(checkForInequality("GIndividual", processingCycles_, p_load->processingCycles_,"processingCycles_", "p_load->processingCycles_", expected)) return false;
-	if(checkForInequality("GIndividual", maximize_, p_load->maximize_,"maximize_", "p_load->maximize_", expected)) return false;
-	if(checkForInequality("GIndividual", parentAlgIteration_, p_load->parentAlgIteration_,"parentAlgIteration_", "p_load->parentAlgIteration_", expected)) return false;
-	if(checkForInequality("GIndividual", pers_, p_load->pers_,"pers_", "p_load->pers_", expected)) return false;
-	if(pt_ptr_ && !pt_ptr_->isEqualTo(*(p_load->pt_ptr_), expected)) return false;
-
-	return true;
-}
-
-/**********************************************************************************/
-/**
- * Checks for similarity with another GIndividual object.
- *
- * @param  cp A constant reference to another GIndividual object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GIndividual::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GIndividual *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check for equality of our parent class
-	if(!GObject::isSimilarTo(*p_load, limit, expected)) return false;
-
-	// Then we take care of the local data
-	if(checkForDissimilarity("GIndividual", currentFitness_, p_load->currentFitness_, limit, "currentFitness_", "p_load->currentFitness_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", bestPastFitness_, p_load->bestPastFitness_, limit, "bestPastFitness_", "p_load->bestPastFitness_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", nStalls_, p_load->nStalls_, limit, "nStalls_", "p_load->nStalls_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", dirtyFlag_, p_load->dirtyFlag_, limit, "dirtyFlag_", "p_load->dirtyFlag_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", allowLazyEvaluation_, p_load->allowLazyEvaluation_,limit, "allowLazyEvaluation_", "p_load->allowLazyEvaluation_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", processingCycles_, p_load->processingCycles_, limit, "processingCycles_", "p_load->processingCycles_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", maximize_, p_load->maximize_, limit, "maximize_", "p_load->maximize_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", parentAlgIteration_, p_load->parentAlgIteration_, limit, "parentAlgIteration_", "p_load->parentAlgIteration_", expected)) return false;
-	if(checkForDissimilarity("GIndividual", pers_, p_load->pers_, limit, "pers_", "p_load->pers_", expected)) return false;
-	if(pt_ptr_ && !pt_ptr_->isSimilarTo(*(p_load->pt_ptr_), limit, expected)) return false;
-
-	return true;
+	using namespace Gem::Util;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GIndividual::operator!=","cp", CE_SILENT);
 }
 
 /**********************************************************************************/

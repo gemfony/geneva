@@ -141,7 +141,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		return GParameterBaseWithAdaptorsT<T>::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/*******************************************************************************************/
@@ -152,66 +154,9 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		return !GParameterBaseWithAdaptorsT<T>::isEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GParameterBaseWithAdaptorsT reference
-		// and convert accordingly
-		const GParameterBaseWithAdaptorsT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check equality of the parent class
-		if(!GParameterBase::isEqualTo(*p_load, expected)) return false;
-
-		// We have an adaptor, the other instance doesn't (or vice versa)
-		if((!adaptor_ && p_load->adaptor_) || (adaptor_ && !p_load->adaptor_)) return false;
-
-		// Check our local adaptor
-		if((adaptor_ && p_load->adaptor_) && !adaptor_->isEqualTo(*(p_load->adaptor_), expected)) return false;
-
-		// Check other local data
-		if(checkForInequality("GParameterBaseWithAdaptorsT", hasLocalAdaptor_, p_load->hasLocalAdaptor_,"hasLocalAdaptor_", "p_load->hasLocalAdaptor_", expected)) return false;
-
-		return true;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for similarity with another GParameterBaseWithAdaptorsT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GParameterBaseWithAdaptorsT reference
-		// and convert accordingly
-		const GParameterBaseWithAdaptorsT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check equality of the parent class
-		if(!GParameterBase::isSimilarTo(*p_load, limit, expected)) return false;
-
-		// We have an adaptor, the other instance doesn't (or vice versa)
-		if((!adaptor_ && p_load->adaptor_) || (adaptor_ && !p_load->adaptor_)) return false;
-
-		// Then check the local adaptor
-		if((adaptor_ && p_load->adaptor_) && !adaptor_->isSimilarTo(*(p_load->adaptor_), limit, expected)) return false;
-
-		// Check other local data
-		if(checkForDissimilarity("GParameterBaseWithAdaptorsT", hasLocalAdaptor_, p_load->hasLocalAdaptor_, limit, "hasLocalAdaptor_", "p_load->hasLocalAdaptor_", expected)) return false;
-
-		return true;
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterBaseWithAdaptorsT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/*******************************************************************************************/

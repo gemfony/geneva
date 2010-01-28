@@ -188,7 +188,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GFunctionIndividual& cp) const {
-		return GFunctionIndividual::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFunctionIndividual::operator==","cp", CE_SILENT);
 	}
 
 	/*******************************************************************************************/
@@ -199,52 +201,47 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GFunctionIndividual& cp) const {
-		return !GFunctionIndividual::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFunctionIndividual::operator!=","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GFunctionIndividual object.
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
 	 *
-	 * @param  cp A constant reference to another GFunctionIndividual object
-	 * @return A boolean indicating whether both objects are equal
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
+	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
 
-		// Check that we are indeed dealing with a GBoundedNumT<T> reference
+		// Check that we are indeed dealing with a GParamterBase reference
 		const GFunctionIndividual *p_load = GObject::conversion_cast(&cp,  this);
 
-		// Check equality of the parent class
-		if(!GParameterSet::isEqualTo(*p_load, expected)) return false;
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
 
-		// Check local data
-		if(checkForInequality("GFunctionIndividual", demoFunction_, p_load->demoFunction_,"demoFunction_", "p_load->demoFunction_", expected)) return false;
+		// Check our parent class'es data ...
+		deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GFunctionIndividual", y_name, withMessages));
 
-		return true;
-	}
+		// ... and then our local data
+		deviations.push_back(checkExpectation(withMessages, "GFunctionIndividual", demoFunction_, p_load->demoFunction_, "demoFunction_", "p_load->demoFunction_", e , limit));
 
-	/*******************************************************************************************/
-	/**
-	 * Checks for similarity with another GFunctionIndividual object.
-	 *
-	 * @param  cp A constant reference to another GFunctionIndividual object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GFunctionIndividual *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check equality of the parent class
-		if(!GParameterSet::isSimilarTo(*p_load, limit, expected)) return false;
-
-		// Check our local data
-		if(checkForDissimilarity("GFunctionIndividual", demoFunction_, p_load->demoFunction_, limit, "demoFunction_", "p_load->demoFunction_", expected)) return false;
-
-		return true;
+		return evaluateDiscrepancies("GFunctionIndividual", caller, deviations, e);
 	}
 
 	/*******************************************************************************************/

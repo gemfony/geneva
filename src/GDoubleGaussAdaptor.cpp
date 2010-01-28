@@ -130,7 +130,9 @@ GObject* GDoubleGaussAdaptor::clone_() const {
  * @return A boolean indicating whether both objects are equal
  */
 bool GDoubleGaussAdaptor::operator==(const GDoubleGaussAdaptor& cp) const {
-	return GDoubleGaussAdaptor::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleGaussAdaptor::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -141,51 +143,9 @@ bool GDoubleGaussAdaptor::operator==(const GDoubleGaussAdaptor& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GDoubleGaussAdaptor::operator!=(const GDoubleGaussAdaptor& cp) const {
-	return !GDoubleGaussAdaptor::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/*******************************************************************************************/
-/**
- * Checks for equality with another GDoubleGaussAdaptor object.  If T is an object type,
- * then it must implement operator!= .
- *
- * @param  cp A constant reference to another GDoubleGaussAdaptor object
- * @return A boolean indicating whether both objects are equal
- */
-bool GDoubleGaussAdaptor::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GParamterT reference
-	const GDoubleGaussAdaptor *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check equality of the parent class
-	if(!GGaussAdaptorT<double>::isEqualTo(*p_load, expected)) return false;
-
-	// No local data
-
-	return true;
-}
-
-/*******************************************************************************************/
-/**
- * Checks for similarity with another GDoubleGaussAdaptor object.
- *
- * @param  cp A constant reference to another GDoubleGaussAdaptor object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GDoubleGaussAdaptor::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GParamterT reference
-	const GDoubleGaussAdaptor *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check similarity of the parent class
-	if(!GGaussAdaptorT<double>::isSimilarTo(*p_load, limit, expected)) return false;
-
-	// No local data
-
-	return true;
+	using namespace Gem::Util;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleGaussAdaptor::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/

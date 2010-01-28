@@ -281,7 +281,7 @@ boost::optional<std::string> checkExpectation (
 		switch(e) {
 		case Gem::Util::CE_FP_SIMILARITY:
 			message << "In expectation check initiated by \"" << caller << "\" : "
-			        << x_name << " and " << y_name << " where not similar as expected. "
+			        << "floating point values " << x_name << " and " << y_name << " where not similar as expected. "
 			        << "x = " << x << "; "
 			        << "y = " << y << "; "
 			        << "limit = " << boost::numeric_cast<fp_type>(limit) << "; "
@@ -290,7 +290,7 @@ boost::optional<std::string> checkExpectation (
 
 		case Gem::Util::CE_EQUALITY:
 			message << "In expectation check initiated by \"" << caller << "\" : "
-					<< x_name << " and " << y_name << " where not equal as expected. "
+					<< "floating point values " << x_name << " and " << y_name << " where not equal as expected. "
 					<< "x = " << x << "; "
 					<< "y = " << y << "; "
 					<< "limit = " << boost::numeric_cast<fp_type>(limit) << "; "
@@ -299,7 +299,7 @@ boost::optional<std::string> checkExpectation (
 
 		case Gem::Util::CE_INEQUALITY:
 			message << "In expectation check initiated by \"" << caller << "\" : "
-					<< x_name << " and " << y_name << " where not equal contrary to expectation. "
+					<< "floating point values " << x_name << " and " << y_name << " where equal contrary to expectation. "
 					<< "x = " << x << "; "
 					<< "y = " << y;
 			break;

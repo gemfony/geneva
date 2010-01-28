@@ -85,7 +85,9 @@ namespace Gem
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool GParameterSet::operator==(const GParameterSet& cp) const {
-		return GParameterSet::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterSet::operator==","cp", CE_SILENT);
 	}
 
 	/**********************************************************************************/
@@ -96,46 +98,9 @@ namespace Gem
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool GParameterSet::operator!=(const GParameterSet& cp) const {
-		return !GParameterSet::isEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/**********************************************************************************/
-	/**
-	 * Checks for equality with another GParameterSet object. As we have no
-	 * local data, we just check for equality of the parent class-
-	 *
-	 * @param  cp A constant reference to another GParameterSet object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool GParameterSet::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
 		using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GIndividual reference
-		const GParameterSet *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check our parent class
-		if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isEqualTo(*p_load, expected)) return  false;
-		return true;
-	}
-
-	/**********************************************************************************/
-	/**
-	 * Checks for similarity with another GParameterSet object. As we have
-	 * no local data, we just check for similarity of the parent class.
-	 *
-	 * @param  cp A constant reference to another GParameterSet object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	bool GParameterSet::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-		using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GIndividual reference
-		const GParameterSet *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check our parent class
-		if(!GMutableSetT<Gem::GenEvA::GParameterBase>::isSimilarTo(*p_load, limit, expected)) return  false;
-		return true;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterSet::operator!=","cp", CE_SILENT);
 	}
 
 	/**********************************************************************************/

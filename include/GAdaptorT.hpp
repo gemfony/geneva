@@ -252,7 +252,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GAdaptorT<T>& cp) const {
-		return GAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GAdaptorT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/***********************************************************************************/
@@ -263,66 +265,9 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GAdaptorT<T>& cp) const {
-		return !GAdaptorT<T>::isEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Checks for equality with another GAdaptorT<T> object
-	 *
-	 * @param  cp A constant reference to another GAdaptorT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	virtual bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
 		using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// First check our parent class for equality
-		if(!GObject::isEqualTo(*p_load, expected)) return false;
-
-		// then our local data
-		if(!gr.isEqualTo(p_load->gr, expected)) return false;
-
-		if(checkForInequality("GAdaptorT", adaptionCounter_, p_load->adaptionCounter_,"adaptionCounter_", "p_load->adaptionCounter_", expected)) return false;
-		if(checkForInequality("GAdaptorT", adaptionThreshold_, p_load->adaptionThreshold_,"adaptionThreshold_", "p_load->adaptionThreshold_", expected)) return false;
-		if(checkForInequality("GAdaptorT", mutProb_, p_load->mutProb_,"mutProb_", "p_load->mutProb_", expected)) return false;
-		if(checkForInequality("GAdaptorT", mutationMode_, p_load->mutationMode_,"mutationMode_", "p_load->mutationMode_", expected)) return false;
-		if(checkForInequality("GAdaptorT", currentIndex_, p_load->currentIndex_,"currentIndex_", "p_load->currentIndex_", expected)) return false;
-		if(checkForInequality("GAdaptorT", maxVars_, p_load->maxVars_,"maxVars_", "p_load->maxVars_", expected)) return false;
-
-		return true;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Checks for similarity with another GAdaptorT<T> object
-	 *
-	 * @param  cp A constant reference to another GAdaptorT<T> object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	virtual bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GAdaptorT reference
-		const GAdaptorT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// First check our parent class for dissimilarity
-		if(!GObject::isSimilarTo(*p_load, limit, expected)) return false;
-
-		// Then our local data
-		if(!gr.isSimilarTo(p_load->gr, limit, expected)) return false;
-
-		if(checkForDissimilarity("GAdaptorT", adaptionCounter_, p_load->adaptionCounter_, limit, "adaptionCounter_", "p_load->adaptionCounter_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", adaptionThreshold_, p_load->adaptionThreshold_, limit, "adaptionThreshold_", "p_load->adaptionThreshold_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", mutProb_, p_load->mutProb_, limit, "mutProb_", "p_load->mutProb_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", mutationMode_, p_load->mutationMode_, limit, "mutationMode_", "p_load->mutationMode_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", currentIndex_, p_load->currentIndex_, limit, "currentIndex_", "p_load->currentIndex_", expected)) return false;
-		if(checkForDissimilarity("GAdaptorT", maxVars_, p_load->maxVars_, limit, "maxVars_", "p_load->maxVars_", expected)) return false;
-
-		return true;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GAdaptorT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/***********************************************************************************/

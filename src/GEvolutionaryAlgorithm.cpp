@@ -136,7 +136,9 @@ GObject *GEvolutionaryAlgorithm::clone_() const  {
  * @return A boolean indicating whether both objects are equal
  */
 bool GEvolutionaryAlgorithm::operator==(const GEvolutionaryAlgorithm& cp) const {
-	return GEvolutionaryAlgorithm::isEqualTo(cp,  boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GEvolutionaryAlgorithm::operator==","cp", CE_SILENT);
 }
 
 /***********************************************************************************/
@@ -147,62 +149,9 @@ bool GEvolutionaryAlgorithm::operator==(const GEvolutionaryAlgorithm& cp) const 
  * @return A boolean indicating whether both objects are inequal
  */
 bool GEvolutionaryAlgorithm::operator!=(const GEvolutionaryAlgorithm& cp) const {
-	return !GEvolutionaryAlgorithm::isEqualTo(cp,  boost::logic::indeterminate);
-}
-
-/***********************************************************************************/
-/**
- * Checks for equality with another GEvolutionaryAlgorithm object.
- *
- * @param  cp A constant reference to another GEvolutionaryAlgorithm object
- * @return A boolean indicating whether both objects are equal
- */
-bool GEvolutionaryAlgorithm::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
 	using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GEvolutionaryAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
-
-	// First take care of our parent class
-	if(!GOptimizationAlgorithm::isEqualTo( *p_load, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForInequality("GEvolutionaryAlgorithm", nParents_, p_load->nParents_,"nParents_", "p_load->nParents_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", microTrainingInterval_, p_load->microTrainingInterval_,"microTrainingInterval_", "p_load->microTrainingInterval_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", recombinationMethod_, p_load->recombinationMethod_,"recombinationMethod_", "p_load->recombinationMethod_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", smode_, p_load->smode_,"smode_", "p_load->smode_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", defaultNChildren_, p_load->defaultNChildren_,"defaultNChildren_", "p_load->defaultNChildren_", expected)) return false;
-	if(checkForInequality("GEvolutionaryAlgorithm", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_,"oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", expected)) return false;
-
-	return true;
-}
-
-/***********************************************************************************/
-/**
- * Checks for similarity with another GEvolutionaryAlgorithm object.
- *
- * @param  cp A constant reference to another GEvolutionaryAlgorithm object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GEvolutionaryAlgorithm::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-	using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GEvolutionaryAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
-
-	// First take care of our parent class
-	if(!GOptimizationAlgorithm::isSimilarTo(*p_load, limit, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", nParents_, p_load->nParents_, limit, "nParents_", "p_load->nParents_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", microTrainingInterval_, p_load->microTrainingInterval_, limit, "microTrainingInterval_", "p_load->microTrainingInterval_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", recombinationMethod_, p_load->recombinationMethod_, limit, "recombinationMethod_", "p_load->recombinationMethod_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", smode_, p_load->smode_, limit, "smode_", "p_load->smode_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", defaultNChildren_, p_load->defaultNChildren_, limit, "defaultNChildren_", "p_load->defaultNChildren_", expected)) return false;
-	if(checkForDissimilarity("GEvolutionaryAlgorithm", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_, limit, "oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", expected)) return false;
-
-	return true;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GEvolutionaryAlgorithm::operator!=","cp", CE_SILENT);
 }
 
 /***********************************************************************************/

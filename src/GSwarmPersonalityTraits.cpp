@@ -74,7 +74,9 @@ GSwarmPersonalityTraits::~GSwarmPersonalityTraits()
  * @return A boolean indicating whether both objects are equal
  */
 bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits& cp) const {
-	return GSwarmPersonalityTraits::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarmPersonalityTraits::operator==","cp", CE_SILENT);
 }
 
 /*****************************************************************************/
@@ -85,54 +87,9 @@ bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits& cp) cons
  * @return A boolean indicating whether both objects are inequal
  */
 bool GSwarmPersonalityTraits::operator!=(const GSwarmPersonalityTraits& cp) const {
-	return !GSwarmPersonalityTraits::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/*****************************************************************************/
-/**
- * Checks for equality with another GSwarmPersonalityTraits object
- *
- * @param  cp A constant reference to another GPersonalityTraits object
- * @return A boolean indicating whether both objects are equal
- */
-bool GSwarmPersonalityTraits::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GPersonalityTraits reference
-	const GSwarmPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check for equality of our parent class
-	if(!GPersonalityTraits::isEqualTo(*p_load, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForInequality("GSwarmPersonalityTraits", popPos_, p_load->popPos_,"popPos_", "p_load->popPos_", expected)) return false;
-	if(checkForInequality("GSwarmPersonalityTraits", command_, p_load->command_,"command_", "p_load->command_", expected)) return false;
-
-	return true;
-}
-
-/*****************************************************************************/
-/**
- * Checks for similarity with another GSwarmPersonalityTraits object
- *
- * @param  cp A constant reference to another GSwarmPersonalityTraits object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GSwarmPersonalityTraits::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GPersonalityTraits reference
-	const GSwarmPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check for equality of our parent class
-	if(!GPersonalityTraits::isSimilarTo(*p_load, limit, expected)) return false;
-
-	// Then we take care of the local data
-	if(checkForDissimilarity("GSwarmPersonalityTraits", popPos_, p_load->popPos_, limit, "popPos_", "p_load->popPos_", expected)) return false;
-	if(checkForDissimilarity("GSwarmPersonalityTraits", command_, p_load->command_, limit, "command_", "p_load->command_", expected)) return false;
-
-	return true;
+	using namespace Gem::Util;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarmPersonalityTraits::operator!=","cp", CE_SILENT);
 }
 
 /*****************************************************************************/

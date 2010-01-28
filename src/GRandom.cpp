@@ -138,7 +138,9 @@ GRandom& GRandom::operator=(const GRandom& cp) {
  * @return A boolean indicating whether both objects are equal
  */
 bool GRandom::operator==(const GRandom& cp) const {
-	return GRandom::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GRandom::operator==","cp", CE_SILENT);
 }
 
 /*************************************************************************/
@@ -149,60 +151,9 @@ bool GRandom::operator==(const GRandom& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GRandom::operator!=(const GRandom& cp) const {
-	return !GRandom::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/*************************************************************************/
-/**
- * Checks for equality with another GRandom object. Only a small subset of
- * the data is checked. Different instances of GRandom need to produce different
- * random number sequences, so deviations a are expected and normal.
- *
- * @param  cp A constant reference to another GRandom object
- * @return A boolean indicating whether both objects are equal
- */
-bool GRandom::isEqualTo(const Gem::GenEvA::GObject& cp, const boost::logic::tribool& expected) const {
 	using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GAdaptorT reference
-	const GRandom *p_load = Gem::GenEvA::GObject::conversion_cast(&cp,  this);
-
-	// First check our parent class for equality
-	if(!Gem::GenEvA::GObject::isEqualTo(*p_load, expected)) return false;
-
-	// then our local data.
-	if(checkForInequality("GRandom", rnrGenerationMode_, p_load->rnrGenerationMode_,"rnrGenerationMode_", "p_load->rnrGenerationMode_", expected)) return false;
-
-	// We do not check the gauss cache and the associated boolean, as it is re-generated for each GRandom object
-
-	return true;
-}
-
-/*************************************************************************/
-/**
- * Checks for similarity with another GRandom object. Only a small subset of
- * the data is checked. Different instances of GRandom need to produce different
- * random number sequences, so deviations a are expected and normal.
- *
- * @param  cp A constant reference to another GRandom object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GRandom::isSimilarTo(const Gem::GenEvA::GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-	using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GAdaptorT reference
-	const GRandom *p_load = Gem::GenEvA::GObject::conversion_cast(&cp,  this);
-
-	// First check our parent class for equality
-	if(!Gem::GenEvA::GObject::isSimilarTo(*p_load, limit, expected)) return false;
-
-	// then our local data.
-	if(checkForDissimilarity("GRandom", rnrGenerationMode_, p_load->rnrGenerationMode_, limit, "rnrGenerationMode_", "p_load->rnrGenerationMode_", expected)) return false;
-
-	// We do not check the gauss cache and the associated boolean, as it is re-generated for each GRandom object
-
-	return true;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GRandom::operator!=","cp", CE_SILENT);
 }
 
 /*************************************************************************/

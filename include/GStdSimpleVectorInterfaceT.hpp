@@ -127,81 +127,6 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
-	 */
-	bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const {
-		return this->checkIsEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks inequality with another GStdSimpleVectorInterfaceT<T> object
-	 */
-	bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const {
-		return ! this->checkIsEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * operator==
-	 */
-	bool operator==(const std::vector<T>& cp_data) const {
-		return this->checkIsEqualTo(cp_data, boost::logic::indeterminate);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * operator!=
-	 */
-	bool operator!=(const std::vector<T>& cp_data)  const {
-		return ! this->checkIsEqualTo(cp_data, boost::logic::indeterminate);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for equality with another GStdSimpleVectorInterfaceT<T> object
-	 */
-	bool checkIsEqualTo(const GStdSimpleVectorInterfaceT<T>& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		return this->checkIsEqualTo(cp.data, expected);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for equality with a std::vector<T> object
-	 */
-	bool checkIsEqualTo(const std::vector<T>& cp_data, const boost::logic::tribool& expected = boost::logic::indeterminate) const{
-		using namespace Gem::Util;
-
-		std::string className = std::string("GStdSimpleVectorInterfaceT<") + typeid(T).name() + ">";
-		if(checkForInequality(className, this->data, cp_data,"data", "cp_data", expected)) return false;
-
-		return true;
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for similarity with another GStdSimpleVectorInterfaceT<T> object.
-	 */
-	bool checkIsSimilarTo(const GStdSimpleVectorInterfaceT<T>& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		return this->checkIsSimilarTo(cp.data, limit, expected);
-	}
-
-	/*****************************************************************************/
-	/**
-	 * Checks for similarity with another std::vector<T>  object. A specialized
-	 * version of this function exists for typeof(T) == typeof(double)
-	 */
-	bool checkIsSimilarTo(const std::vector<T>& cp_data, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-		using namespace Gem::Util;
-
-		std::string className = std::string("GStdSimpleVectorInterfaceT<") + typeid(T).name() + ">";
-		if(checkForDissimilarity(className, this->data, cp_data, limit, "data", "cp_data", expected)) return false;
-
-		return true;
-	}
-
-	/*****************************************************************************/
-	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
 	 *
@@ -421,6 +346,16 @@ protected:
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
+
+private:
+	/** @brief Checks for equality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
+	bool operator==(const GStdSimpleVectorInterfaceT<T>& cp) const;
+	/** @brief Checks inequality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
+	bool operator!=(const GStdSimpleVectorInterfaceT<T>& cp) const;
+	/** @brief Checks for equality with a std::vector<T> object. Intentionally left undefined */
+	bool operator==(const std::vector<T>& cp_data) const;
+	/** @brief Checks for inequality with a std::vector<T> object. Intentionally left undefined */
+	bool operator!=(const std::vector<T>& cp_data) const;
 };
 
 /********************************************************************************/

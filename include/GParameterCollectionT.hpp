@@ -126,7 +126,9 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GParameterCollectionT<T>& cp) const {
-		return GParameterCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/*******************************************************************************************/
@@ -137,50 +139,9 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GParameterCollectionT<T>& cp) const {
-		return !Gem::GenEvA::GParameterCollectionT<T>::isEqualTo(cp, boost::logic::indeterminate);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for equality with another GParameterCollectionT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterCollectionT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool isEqualTo(const GObject& cp, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GParamterCollectionT reference
-		const GParameterCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check equality of the parent class
-		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isEqualTo(*p_load, expected)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsEqualTo(*p_load, expected)) return false;
-
-		return true;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for similarity with another GParameterCollectionT<T> object. We need to
-	 * create a specialization for typeof(T) == typof(double), as we need to check for
-	 * similarity in this case. For all other types we currently just check for equality.
-	 *
-	 * @param  cp A constant reference to another GParameterCollectionT<T> object
-	 * @param limit A double value specifying the acceptable level of differences of floating point values
-	 * @return A boolean indicating whether both objects are similar to each other
-	 */
-	bool isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected = boost::logic::indeterminate) const {
-	    using namespace Gem::Util;
-
-		// Check that we are indeed dealing with a GParamterCollectionT reference
-		const GParameterCollectionT<T> *p_load = GObject::conversion_cast(&cp,  this);
-
-		// Check similarity of the parent class
-		if(!Gem::GenEvA::GParameterBaseWithAdaptorsT<T>::isSimilarTo(*p_load, limit, expected)) return false;
-		if(!Gem::GenEvA::GStdSimpleVectorInterfaceT<T>::checkIsSimilarTo(*p_load, limit, expected)) return false;
-
-		return true;
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterCollectionT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/*******************************************************************************************/

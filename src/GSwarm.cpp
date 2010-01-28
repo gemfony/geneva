@@ -134,7 +134,9 @@ GObject *GSwarm::clone_() const  {
  * @return A boolean indicating whether both objects are equal
  */
 bool GSwarm::operator==(const GSwarm& cp) const {
-	return GSwarm::isEqualTo(cp,  boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarm::operator==","cp", CE_SILENT);
 }
 
 /***********************************************************************************/
@@ -145,58 +147,9 @@ bool GSwarm::operator==(const GSwarm& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GSwarm::operator!=(const GSwarm& cp) const {
-	return !GSwarm::isEqualTo(cp,  boost::logic::indeterminate);
-}
-
-/***********************************************************************************/
-/**
- * Checks for equality with another GSwarm object.
- *
- * @param  cp A constant reference to another GSwarm object
- * @return A boolean indicating whether both objects are equal
- */
-bool GSwarm::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
 	using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GSwarm *p_load = GObject::conversion_cast(&cp,  this);
-
-	// First take care of our parent class
-	if(!GOptimizationAlgorithm::isEqualTo( *p_load, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForInequality("GSwarm", nNeighborhoods_, p_load->nNeighborhoods_,"nNeighborhoods_", "p_load->nNeighborhoods_", expected)) return false;
-	if(checkForInequality("GSwarm", nNeighborhoodMembers_, p_load->nNeighborhoodMembers_,"nNeighborhoodMembers_", "p_load->nNeighborhoodMembers_", expected)) return false;
-	if(!global_best_->isEqualTo(*(p_load->global_best_), expected)) return false;
-	if(checkForInequality("GSwarm", local_bests_, p_load->local_bests_,"local_bests_", "p_load->local_bests_", expected)) return false;
-
-	return true;
-}
-
-/***********************************************************************************/
-/**
- * Checks for similarity with another GSwarm object.
- *
- * @param  cp A constant reference to another GSwarm object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GSwarm::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-	using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GIndividual reference
-	const GSwarm *p_load = GObject::conversion_cast(&cp,  this);
-
-	// First take care of our parent class
-	if(!GOptimizationAlgorithm::isSimilarTo(*p_load, limit, expected)) return  false;
-
-	// Then we take care of the local data
-	if(checkForDissimilarity("GSwarm", nNeighborhoods_, p_load->nNeighborhoods_, limit, "nNeighborhoods_", "p_load->nNeighborhoods_", expected)) return false;
-	if(checkForDissimilarity("GSwarm", nNeighborhoodMembers_, p_load->nNeighborhoodMembers_, limit, "nNeighborhoodMembers_", "p_load->nNeighborhoodMembers_", expected)) return false;
-	if(!global_best_->isSimilarTo(*(p_load->global_best_), limit, expected)) return false;
-	if(checkForDissimilarity("GSwarm", local_bests_, p_load->local_bests_, limit, "local_bests_", "p_load->local_bests_", expected)) return false;
-
-	return true;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarm::operator!=","cp", CE_SILENT);
 }
 
 /***********************************************************************************/

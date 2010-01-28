@@ -121,7 +121,9 @@ bool GParameterBase::mutationsActive() const {
  * @return A boolean indicating whether both objects are equal
  */
 bool GParameterBase::operator==(const GParameterBase& cp) const {
-	return GParameterBase::isEqualTo(cp, boost::logic::indeterminate);
+	using namespace Gem::Util;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterBase::operator==","cp", CE_SILENT);
 }
 
 /**********************************************************************************/
@@ -132,55 +134,9 @@ bool GParameterBase::operator==(const GParameterBase& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GParameterBase::operator!=(const GParameterBase& cp) const {
-	return !GParameterBase::isEqualTo(cp, boost::logic::indeterminate);
-}
-
-/**********************************************************************************/
-/**
- * Checks for equality with another GParameterBase object. As we have no
- * local data, we just check for equality of the parent class.
- *
- * @param  cp A constant reference to another GParameterBase object
- * @return A boolean indicating whether both objects are equal
- */
-bool GParameterBase::isEqualTo(const GObject& cp, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GParameterBase *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check our parent class
-	if(!GObject::isEqualTo(*p_load, expected)) return  false;
-
-	// Check the local data
-	if(checkForInequality("GParameterBase", mutationsActive_, p_load->mutationsActive_,"mutationsActive_", "p_load->mutationsActive_", expected)) return false;
-
-	return true;
-}
-
-/**********************************************************************************/
-/**
- * Checks for similarity with another GParameterBase object. As we have
- * no local data, we just check for similarity of the parent class.
- *
- * @param  cp A constant reference to another GParameterBase object
- * @param limit A double value specifying the acceptable level of differences of floating point values
- * @return A boolean indicating whether both objects are similar to each other
- */
-bool GParameterBase::isSimilarTo(const GObject& cp, const double& limit, const boost::logic::tribool& expected) const {
-    using namespace Gem::Util;
-
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GParameterBase *p_load = GObject::conversion_cast(&cp,  this);
-
-	// Check our parent class
-	if(!GObject::isSimilarTo(*p_load, limit, expected)) return false;
-
-	// Check the local data
-	if(checkForDissimilarity("GParameterBase", mutationsActive_, p_load->mutationsActive_, limit, "mutationsActive_", "p_load->mutationsActive_", expected)) return false;
-
-
-	return true;
+	using namespace Gem::Util;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterBase::operator!=","cp", CE_SILENT);
 }
 
 /**********************************************************************************/

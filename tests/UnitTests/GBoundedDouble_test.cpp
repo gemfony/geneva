@@ -36,7 +36,7 @@
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
-
+#include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
@@ -59,6 +59,9 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
+		// Will hold possible error messages
+		boost::optional<std::string> o;
+
 		// Test instantiation in different modes
 		GBoundedDouble gbd0;
 		GBoundedDouble gbd1(-10,10);
@@ -106,7 +109,9 @@ public:
 		BOOST_CHECK(gbd5 == gbd1);
 		gbd5 = 2.;
 		BOOST_CHECK(gbd5.value() == 2.);
-		BOOST_CHECK(!gbd5.isEqualTo(gbd3));
+		o = gbd5.checkRelationshipWith(gbd3, Gem::Util::CE_INEQUALITY, 0., "GBoundedDouble_test::no_failure_expected()", "gbd3", Gem::Util::CE_WITH_MESSAGES);
+		BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+		// BOOST_CHECK(!gbd5.isEqualTo(gbd3));
 		BOOST_CHECK(gbd5.getLowerBoundary() ==  -10.);
 		BOOST_CHECK(gbd5.getUpperBoundary() ==  10.);
 
@@ -152,7 +157,9 @@ public:
 
 			// Serialize gbd6 and load into gbd6_co, check equalities and similarities
 			BOOST_CHECK_NO_THROW(gbd6_cp.fromString(gbd6.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-			BOOST_CHECK(gbd6_cp.isSimilarTo(gbd6, exp(-10)));
+			o = gbd6_cp.checkRelationshipWith(gbd6, Gem::Util::CE_FP_SIMILARITY, exp(-10), "GBoundedDouble_test::no_failure_expected()", "gbd6", Gem::Util::CE_WITH_MESSAGES);
+			BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+			// BOOST_CHECK(gbd6_cp.isSimilarTo(gbd6, exp(-10)));
 		}
 
 		{ // XML format
@@ -169,7 +176,9 @@ public:
 
 			// Serialize gbd6 and load into gbd6_co, check equalities and similarities
 			BOOST_CHECK_NO_THROW(gbd6_cp.fromString(gbd6.toString(XMLSERIALIZATION), XMLSERIALIZATION));
-			BOOST_CHECK(gbd6_cp.isSimilarTo(gbd6, exp(-10)));
+			o = gbd6_cp.checkRelationshipWith(gbd6, Gem::Util::CE_FP_SIMILARITY, exp(-10), "GBoundedDouble_test::no_failure_expected()", "gbd6", Gem::Util::CE_WITH_MESSAGES);
+			BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+			// BOOST_CHECK(gbd6_cp.isSimilarTo(gbd6, exp(-10)));
 		}
 
 		{ // binary test format
@@ -186,7 +195,9 @@ public:
 
 			// Serialize gbd6 and load into gbd6_co, check equalities and similarities
 			BOOST_CHECK_NO_THROW(gbd6_cp.fromString(gbd6.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
-			BOOST_CHECK(gbd6_cp.isEqualTo(gbd6));
+			o = gbd6_cp.checkRelationshipWith(gbd6, Gem::Util::CE_EQUALITY, 0., "GBoundedDouble_test::no_failure_expected()", "gbd6", Gem::Util::CE_WITH_MESSAGES);
+			BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+			// BOOST_CHECK(gbd6_cp.isEqualTo(gbd6));
 		}
 	}
 
