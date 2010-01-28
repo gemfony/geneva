@@ -38,6 +38,9 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/shared_ptr.hpp>
 
+#ifndef TESTTEMPLATE_HPP
+#define TESTTEMPLATE_HPP
+
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
@@ -88,3 +91,5 @@ public:
 };
 
 /********************************************************************************************/
+
+#endif /* TESTTEMPLATE_HPP */

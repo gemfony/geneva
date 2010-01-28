@@ -41,6 +41,9 @@
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 
+#ifndef GBOOLEANCOLLECTION_TEST_HPP_
+#define GBOOLEANCOLLECTION_TEST_HPP_
+
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
@@ -225,3 +228,5 @@ public:
 	  add(failures_expected_test_case);
 	}
 };
+
+#endif /* GBOOLEANCOLLECTION_TEST_HPP_ */

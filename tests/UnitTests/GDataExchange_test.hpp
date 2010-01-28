@@ -43,8 +43,10 @@
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
-
 #include <boost/shared_ptr.hpp>
+
+#ifndef GDATAEXCHANGE_TEST_HPP_
+#define GDATAEXCHANGE_TEST_HPP_
 
 // Geneva header files go here
 #include "GRandom.hpp"
@@ -556,3 +558,5 @@ public:
 	  add(gdataexchange_no_failure_expected_test_case);
 	}
 };
+
+#endif /* GDATAEXCHANGE_TEST_HPP_ */

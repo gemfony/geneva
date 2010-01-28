@@ -39,6 +39,9 @@
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 
+#ifndef GBOUNDEDDOUBLE_TEST_HPP_
+#define GBOUNDEDDOUBLE_TEST_HPP_
+
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
@@ -249,3 +252,5 @@ public:
 };
 
 /********************************************************************************************/
+
+#endif /* GBOUNDEDDOUBLE_TEST_HPP_ */

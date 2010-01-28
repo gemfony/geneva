@@ -36,8 +36,10 @@
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
-
 #include <boost/shared_ptr.hpp>
+
+#ifndef GPARAMETERSET_TEST_HPP_
+#define GPARAMETERSET_TEST_HPP_
 
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
@@ -345,3 +347,5 @@ public:
 	  add(GParameterSet_failures_expected_test_case);
 	}
 };
+
+#endif /* GPARAMETERSET_TEST_HPP_ */

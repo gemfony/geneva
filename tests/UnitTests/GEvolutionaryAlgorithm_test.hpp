@@ -37,8 +37,10 @@
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
-
 #include <boost/shared_ptr.hpp>
+
+#ifndef GEVOLUTIONARYALGORITHM_TEST_HPP_
+#define GEVOLUTIONARYALGORITHM_TEST_HPP_
 
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
@@ -92,3 +94,5 @@ public:
 };
 
 /********************************************************************************************/
+
+#endif /* GEVOLUTIONARYALGORITHM_TEST_HPP_ */

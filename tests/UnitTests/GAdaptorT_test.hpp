@@ -37,9 +37,11 @@
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
-
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
+
+#ifndef GADAPTORT_TEST_HPP_
+#define GADAPTORT_TEST_HPP_
 
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
@@ -146,3 +148,5 @@ public:
 	  add(failures_expected_test_case);
 	}
 };
+
+#endif /* GADAPTORT_TEST_HPP_ */

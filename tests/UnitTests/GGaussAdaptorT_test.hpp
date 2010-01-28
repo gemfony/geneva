@@ -44,6 +44,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 
+#ifndef GGAUSSADAPTORT_TEST_HPP_
+#define GGAUSSADAPTORT_TEST_HPP_
+
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
@@ -188,3 +191,5 @@ public:
 		add( BOOST_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, test_types ) );
 	}
 };
+
+#endif /* GGAUSSADAPTORT_TEST_HPP_ */

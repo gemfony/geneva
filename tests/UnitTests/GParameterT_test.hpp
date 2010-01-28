@@ -45,6 +45,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 
+#ifndef GPARAMETERT_TEST_HPP_
+#define GPARAMETERT_TEST_HPP_
+
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
@@ -311,3 +314,5 @@ public:
 };
 
 /********************************************************************************************/
+
+#endif /* GPARAMETERT_TEST_HPP_ */

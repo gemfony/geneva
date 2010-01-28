@@ -36,8 +36,10 @@
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
-
 #include <boost/shared_ptr.hpp>
+
+#ifndef GBOUNDEDINT32_TEST_HPP_
+#define GBOUNDEDINT32_TEST_HPP_
 
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
@@ -238,3 +240,5 @@ public:
 	  add(failures_expected_test_case);
 	}
 };
+
+#endif /* GBOUNDEDINT32_TEST_HPP_ */

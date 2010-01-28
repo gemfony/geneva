@@ -40,6 +40,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 
+#ifndef GRANDOM_TEST_HPP_
+#define GRANDOM_TEST_HPP_
+
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
@@ -183,3 +186,5 @@ public:
 };
 
 /********************************************************************************************/
+
+#endif /* GRANDOM_TEST_HPP_ */

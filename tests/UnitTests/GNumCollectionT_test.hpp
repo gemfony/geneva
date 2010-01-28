@@ -40,8 +40,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
-
 #include <boost/shared_ptr.hpp>
+
+#ifndef GNUMCOLLECTIONT_TEST_HPP_
+#define GNUMCOLLECTIONT_TEST_HPP_
 
 // Geneva header files go here
 #include "GObject.hpp"
@@ -247,3 +249,5 @@ public:
 		add( BOOST_TEST_CASE_TEMPLATE( GNumCollectionT_failures_expected, test_types ) );
 	}
 };
+
+#endif /* GNUMCOLLECTIONT_TEST_HPP_ */

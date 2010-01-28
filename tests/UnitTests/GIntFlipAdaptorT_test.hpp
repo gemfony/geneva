@@ -45,6 +45,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 
+#ifndef GINTFLIPADAPTORT_TEST_HPP_
+#define GINTFLIPADAPTORT_TEST_HPP_
+
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
@@ -190,3 +193,5 @@ public:
 		add( BOOST_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_failures_expected, test_types ) );
 	}
 };
+
+#endif /* GINTFLIPADAPTORT_TEST_HPP_ */

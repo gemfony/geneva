@@ -45,6 +45,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 
+#ifndef GPARAMETERTCOLLECTIONT_TEST_HPP_
+#define GPARAMETERTCOLLECTIONT_TEST_HPP_
+
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
@@ -384,3 +387,5 @@ public:
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterTCollectionT_failures_expected, test_types ) );
 	}
 };
+
+#endif /* GPARAMETERTCOLLECTIONT_TEST_HPP_ */

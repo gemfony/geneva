@@ -37,8 +37,10 @@
 // Boost header files go here
 
 #include <boost/test/unit_test.hpp>
-
 #include <boost/shared_ptr.hpp>
+
+#ifndef GOBJECT_TEST_HPP_
+#define GOBJECT_TEST_HPP_
 
 // Geneva header files go here
 #include "GenevaExceptions.hpp"
@@ -141,3 +143,5 @@ public:
 		  add(GObject_failures_expected_test_case);
 	}
 };
+
+#endif /* GOBJECT_TEST_HPP_ */
