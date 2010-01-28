@@ -36,23 +36,22 @@ using namespace boost::unit_test;
 #include <boost/shared_ptr.hpp>
 
 // These includes hold the actual tests
-#include "GAdaptorT_test.hpp"
-#include "GEvolutionaryAlgorithm_test.hpp"
-#include "GBooleanCollection_test.hpp"
-#include "GMultiThreadedEA_test.hpp"
-#include "GBoundedDouble_test.hpp"
-#include "GBoundedInt32_test.hpp"
-#include "GBrokerEA_test.hpp"
-#include "GDataExchange_test.hpp"
-#include "GDoubleCollection_test.hpp"
-#include "GGaussAdaptorT_test.hpp"
-#include "GInt32Collection_test.hpp"
-#include "GIntFlipAdaptorT_test.hpp"
-#include "GNumCollectionT_test.hpp"
-#include "GObject_test.hpp"
-#include "GParameterSet_test.hpp"
-#include "GParameterT_test.hpp"
-#include "GParameterTCollectionT_test.hpp"
+#include "GenevaObjectsTests/GAdaptorT_test.hpp"
+#include "GenevaObjectsTests/GEvolutionaryAlgorithm_test.hpp"
+#include "GenevaObjectsTests/GBooleanCollection_test.hpp"
+#include "GenevaObjectsTests/GMultiThreadedEA_test.hpp"
+#include "GenevaObjectsTests/GBoundedDouble_test.hpp"
+#include "GenevaObjectsTests/GBoundedInt32_test.hpp"
+#include "GenevaObjectsTests/GDoubleCollection_test.hpp"
+#include "GenevaObjectsTests/GDataExchange_test.hpp"
+#include "GenevaObjectsTests/GGaussAdaptorT_test.hpp"
+#include "GenevaObjectsTests/GInt32Collection_test.hpp"
+#include "GenevaObjectsTests/GIntFlipAdaptorT_test.hpp"
+#include "GenevaObjectsTests/GNumCollectionT_test.hpp"
+#include "GenevaObjectsTests/GObject_test.hpp"
+#include "GenevaObjectsTests/GParameterSet_test.hpp"
+#include "GenevaObjectsTests/GParameterT_test.hpp"
+#include "GenevaObjectsTests/GParameterTCollectionT_test.hpp"
 
 // test program entry point
 test_suite* init_unit_test_suite(int argc, char** argv) {
@@ -62,7 +61,6 @@ test_suite* init_unit_test_suite(int argc, char** argv) {
    framework::master_test_suite().add(new GMultiThreadedEASuite());
    framework::master_test_suite().add(new GBoundedDoubleSuite());
    framework::master_test_suite().add(new GBoundedInt32Suite());
-   framework::master_test_suite().add(new GBrokerEASuite());
    framework::master_test_suite().add(new GDataExchangeSuite());
    framework::master_test_suite().add(new GDoubleCollectionSuite());
    framework::master_test_suite().add(new GGaussAdaptorTSuite());
