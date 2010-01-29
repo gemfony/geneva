@@ -1,5 +1,5 @@
 /**
- * @file GStdVectorInterface_test.cpp
+ * @file GStdVectorInterface_test.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -41,7 +41,6 @@
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/optional.hpp>
-
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 

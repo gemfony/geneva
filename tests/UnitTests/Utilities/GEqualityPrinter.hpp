@@ -1,5 +1,5 @@
 /**
- * @file GIntFlipAdaptorT.hpp
+ * @file GEqualityPrinter.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,20 +27,31 @@
  * http://www.gemfony.com .
  */
 
+// Standard header files go here
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+
+// Boost header files go here
 
 #include <boost/test/unit_test.hpp>
-
-using boost::unit_test_framework::test_suite;
-using namespace boost::unit_test;
-
-// Boost headers go here
+#include <boost/test/test_case_template.hpp>
+#include <boost/mpl/list.hpp>
+#include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/cstdint.hpp>
 
-// This file includes hold the actual random tests
-#include "GRandom_test.hpp"
+#ifndef GEQUALITYPRINTER_HPP_
+#define GEQUALITYPRINTER_HPP_
 
-// test program entry point
-test_suite* init_unit_test_suite(int argc, char** argv) {
-   framework::master_test_suite().add(new GRandomSuite());
-   return 0;
-}
+// For Microsoft-compatible compilers
+#if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
+#pragma once
+#endif
+
+// Use boost::enable_if to limit this test to objects that implement the corresponding logic
+
+#endif /* GEQUALITYPRINTER_HPP_ */
