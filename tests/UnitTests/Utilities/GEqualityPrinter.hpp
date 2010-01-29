@@ -40,6 +40,9 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
+#include <boost/mpl/has_xxx.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
@@ -52,6 +55,90 @@
 #pragma once
 #endif
 
-// Use boost::enable_if to limit this test to objects that implement the corresponding logic
+/*************************************************************************************************/
+/**
+ * Define a check whether we are dealing with an object which has a given function.
+ * See "Beyond the C++ Standard Library" by Bjoern Karlsson, p. 99 for an explanation
+ */
+BOOST_MPL_HAS_XXX_TRAIT_DEF(checkRelationshipWithFunction)
+
+class GEqualityPrinter {
+public:
+	GEqualityPrinter (
+		  const std::string& caller
+		, const double& limit
+		, const bool& emitMessages
+	)
+		: caller_(caller)
+		, limit_(limit)
+		, emitMessages_(emitMessages)
+	{ /* nothing */ }
+
+	template <typename geneva_type>
+	bool eqCheck(
+			  const geneva_type& x
+			, const geneva_type& y
+			, typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+	) const	{
+		using namespace Gem::Util;
+
+		boost::optional<std::string> o =
+				x.checkRelationshipWith(
+						y
+					  , Gem::Util::CE_EQUALITY
+					  , 0.
+					  , caller_
+					  , "y"
+					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+
+		if(o) { // The expectation was not met
+			std::cout
+			<< "\n=========================================\n"
+			<< *o
+			<< "\n=========================================\n";
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	template <typename geneva_type>
+	bool simCheck(
+			  const geneva_type& x
+			, const geneva_type& y
+			, typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+	) const	{
+		using namespace Gem::Util;
+
+		boost::optional<std::string> o =
+				x.checkRelationshipWith(
+						y
+					  , Gem::Util::CE_FP_SIMILARITY
+					  , limit_
+					  , caller_
+					  , "y"
+					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+
+		if(o) { // The expectation was not met
+			std::cout
+			<< "\n=========================================\n"
+			<< *o
+			<< "\n=========================================\n";
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	// TODO: Inequality check, Dissimilarity check
+
+private:
+	GEqualityPrinter(); // Default constructor intentionally left undefined
+	std::string checkName_;
+	double caller_;
+	bool emitMessages_;
+};
 
 #endif /* GEQUALITYPRINTER_HPP_ */
