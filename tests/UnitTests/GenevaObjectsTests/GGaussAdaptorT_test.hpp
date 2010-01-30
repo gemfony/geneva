@@ -53,6 +53,7 @@
 #include "GGaussAdaptorT.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GInt32GaussAdaptor.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -67,6 +68,12 @@ using boost::unit_test_framework::test_case;
 // Test features that are expected to work
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 {
+	// Prepare printing of error messages in object comparisons
+	GEqualityPrinter gep("GGaussAdaptorT_no_failure_expected",
+						 exp(-10),
+						 Gem::Util::CE_WITH_MESSAGES);
+
+	// A local random number generator
 	GRandom gr;
 
 	// Test simple instantiation
@@ -97,14 +104,16 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 
 	// Check (de-)serialization in different modes
 	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(TEXTSERIALIZATION),TEXTSERIALIZATION));
-	BOOST_CHECK(ggat5.isSimilarTo(ggat1, exp(-10)));
+	BOOST_CHECK(gep.isSimilar(ggat5, ggat1));
+
 	ggat5 = ggat3; // reset
-	BOOST_CHECK(!ggat5.isEqualTo(ggat1));
+	BOOST_CHECK(gep.isInEqual(ggat5, ggat1));
+
 	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(XMLSERIALIZATION),XMLSERIALIZATION));
-	BOOST_CHECK(ggat5.isSimilarTo(ggat1, exp(-10)));
+	BOOST_CHECK(gep.isSimilar(ggat5, ggat1));
 	ggat5 = ggat3; // reset
 	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(BINARYSERIALIZATION),BINARYSERIALIZATION));
-	BOOST_CHECK(ggat5.isEqualTo(ggat1)); // no longer just similar in binary mode!
+	BOOST_CHECK(gep.isInEqual(ggat5, ggat1));
 
 	// Check that we can set and retrieve sigma
 	BOOST_CHECK_NO_THROW(ggat5.setSigma(0.5));

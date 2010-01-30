@@ -47,6 +47,7 @@
 #include "GRandom.hpp"
 #include "GObject.hpp"
 #include "GBooleanAdaptor.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -62,6 +63,12 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
+		void no_failure_expected() {
+			// Prepare printing of error messages in object comparisons
+			GEqualityPrinter gep("GObject_test::no_failure_expected()",
+								 exp(-10),
+								 Gem::Util::CE_WITH_MESSAGES);
+
 		// Default construction
 		GBooleanAdaptor gba0;
 
@@ -75,7 +82,7 @@ public:
 			stream << gba0.toString(TEXTSERIALIZATION);
 			GBooleanAdaptor gba1; // Create a new, pristine object
 			gba1.fromString(stream.str(),TEXTSERIALIZATION);
-			BOOST_CHECK(gba1.isSimilarTo(gba0,exp(-10)));
+			BOOST_CHECK(gep.isSimilar(gba1, gba0));
 		} // Explicit scope results in the destruction of the contained objects
 
 		{
@@ -83,7 +90,7 @@ public:
 			stream << gba0.toString(XMLSERIALIZATION);
 			GBooleanAdaptor gba1; // Create a new, pristine object
 			gba1.fromString(stream.str(),XMLSERIALIZATION);
-			BOOST_CHECK(gba1.isSimilarTo(gba0,exp(-10)));
+			BOOST_CHECK(gep.isSimilar(gba1, gba0));
 		}
 
 		{
@@ -91,7 +98,7 @@ public:
 			stream << gba0.toString(BINARYSERIALIZATION);
 			GBooleanAdaptor gba1; // Create a new, pristine object
 			gba1.fromString(stream.str(),BINARYSERIALIZATION); // We shpuld be able to achieve equality for this mode
-			BOOST_CHECK(gba1.isEqualTo(gba0));
+			BOOST_CHECK(gep.isEqual(gba1, gba0));
 		}
 
 		// Clone the object, load into another GBooleanAdaptor.

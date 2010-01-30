@@ -8,7 +8,6 @@ ADD_SUBDIRECTORY (
 	TestIndividuals
 )
 
-# Temporarily disabled until fixed
-# ADD_SUBDIRECTORY ( 
-#	UnitTests
-# )
+ADD_SUBDIRECTORY ( 
+	UnitTests
+)

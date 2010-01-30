@@ -51,6 +51,7 @@
 #include "GBooleanAdaptor.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
 #include "GStdVectorInterface_test.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -66,8 +67,10 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
-		// Will hold possible error messages
-		boost::optional<std::string> o;
+		// Prepare printing of error messages in object comparisons
+		GEqualityPrinter gep("GBooleanCollection_test::no_failure_expected()",
+							 exp(-10),
+							 Gem::Util::CE_WITH_MESSAGES);
 
 		// Construction in different modes
 		GBooleanCollection gbc0; // default construction, should be empty
@@ -94,8 +97,7 @@ public:
 		// Copy construction
 		GBooleanCollection gbc3(gbc2);
 		BOOST_CHECK(gbc3 == gbc2);
-		BOOST_CHECK(!gbc3.checkRelationshipWith(gbc2, Gem::Util::CE_EQUALITY, 0., "GBooleanCollection_test", "gbc2", Gem::Util::CE_WITH_MESSAGES));
-		// want G_ISEQUAL(gbc3, gbc2); and GISSIMILAR(gbc3, gbc2)
+		BOOST_CHECK(gep.isEqual(gbc3, gbc2));
 
 		// Assignment
 		GBooleanCollection gbc4;
@@ -113,9 +115,7 @@ public:
 		// Adding random data using two different methods
 		gbc6.addRandomData(100);
 		BOOST_CHECK(gbc6 != gbc2);
-
-		o = gbc6.checkRelationshipWith(gbc2, Gem::Util::CE_INEQUALITY, 0., "GBooleanCollection_test", "gbc2", Gem::Util::CE_WITH_MESSAGES);
-		BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+		BOOST_CHECK(gep.isInEqual(gbc6, gbc2));
 
 		BOOST_CHECK(gbc6.size() == 200);
 		gbc6.addRandomData(1800, 0.1);
@@ -149,9 +149,7 @@ public:
 
 			// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-			o = gbd7_cp.checkRelationshipWith(gbd7, Gem::Util::CE_FP_SIMILARITY, exp(-10), "GBooleanCollection_test::no_failure_expected()", "gbd7", Gem::Util::CE_WITH_MESSAGES);
-			BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-			// BOOST_CHECK(gbc7_cp.isSimilarTo(gbc7, exp(-10)));
+			BOOST_CHECK(gep.isSimilar(gbd7_cp, gbd7));
 		}
 
 		{ // XML format
@@ -168,9 +166,7 @@ public:
 
 			// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(XMLSERIALIZATION), XMLSERIALIZATION));
-			o = gbd7_cp.checkRelationshipWith(gbd7, Gem::Util::CE_FP_SIMILARITY, exp(-10), "GBooleanCollection_test::no_failure_expected()", "gbd7", Gem::Util::CE_WITH_MESSAGES);
-			BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-			// BOOST_CHECK(gbc7_cp.isSimilarTo(gbc7, exp(-10)));
+			BOOST_CHECK(gep.isSimilar(gbd7_cp, gbd7));
 		}
 
 		{ // binary test format
@@ -187,9 +183,7 @@ public:
 
 			// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
-			o = gbd7_cp.checkRelationshipWith(gbd7, Gem::Util::CE_EQUALITY, 0., "GBooleanCollection_test::no_failure_expected()", "gbd7", Gem::Util::CE_WITH_MESSAGES);
-			BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-			// BOOST_CHECK(gbc7_cp.isEqualTo(gbc7));
+			BOOST_CHECK(gep.isEqual(gbd7_cp, gbd7));
 		}
 	}
 

@@ -45,6 +45,7 @@
 #include "GenevaExceptions.hpp"
 #include "GRandom.hpp"
 #include "GDoubleCollection.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;

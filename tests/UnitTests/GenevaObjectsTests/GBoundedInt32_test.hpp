@@ -46,6 +46,7 @@
 #include "GRandom.hpp"
 #include "GBoundedInt32.hpp"
 #include "GInt32FlipAdaptor.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -67,6 +68,11 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
+		// Prepare printing of error messages in object comparisons
+		GEqualityPrinter gep("GBoundedInt32_test::no_failure_expected()",
+							 exp(-10),
+							 Gem::Util::CE_WITH_MESSAGES);
+
 		// Test instantiation in different modes
 		GBoundedInt32 gbi0;
 		GBoundedInt32 gbi1(-10,10);
@@ -114,7 +120,8 @@ public:
 		BOOST_CHECK(gbi5 == gbi1);
 		gbi5 = 2;
 		BOOST_CHECK(gbi5.value() == 2);
-		BOOST_CHECK(!gbi5.isEqualTo(gbi3));
+		BOOST_CHECK(gep.isInEqual(gbi5, gbi3));
+
 		BOOST_CHECK(gbi5.getLowerBoundary() ==  -10);
 		BOOST_CHECK(gbi5.getUpperBoundary() ==  10);
 
@@ -160,7 +167,7 @@ public:
 
 			// Serialize gbi6 and load into gbi6_co, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbi6_cp.fromString(gbi6.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-			BOOST_CHECK(gbi6_cp.isSimilarTo(gbi6, exp(-10)));
+			BOOST_CHECK(gep.isSimilar(gbi6_cp, gbi6));
 		}
 
 		{ // XML format
@@ -177,7 +184,7 @@ public:
 
 			// Serialize gbi6 and load into gbi6_co, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbi6_cp.fromString(gbi6.toString(XMLSERIALIZATION), XMLSERIALIZATION));
-			BOOST_CHECK(gbi6_cp.isSimilarTo(gbi6, exp(-10)));
+			BOOST_CHECK(gep.isSimilar(gbi6_cp, gbi6));
 		}
 
 		{ // binary test format
@@ -194,7 +201,7 @@ public:
 
 			// Serialize gbi6 and load into gbi6_co, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbi6_cp.fromString(gbi6.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
-			BOOST_CHECK(gbi6_cp.isEqualTo(gbi6));
+			BOOST_CHECK(gep.isEqual(gbi6_cp, gbi6));
 		}
 	}
 

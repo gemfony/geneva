@@ -55,6 +55,7 @@
 #include "GInt32FlipAdaptor.hpp"
 #include "GBooleanAdaptor.hpp"
 #include "GCharFlipAdaptor.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -67,6 +68,12 @@ using boost::unit_test_framework::test_case;
 // Test features that are expected to work
 BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 {
+	// Prepare printing of error messages in object comparisons
+	GEqualityPrinter gep("GIntFlipAdaptorT_no_failure_expected",
+						 exp(-10),
+						 Gem::Util::CE_WITH_MESSAGES);
+
+	// A local random number generator
 	GRandom gr;
 
 	// Test simple instantiation
@@ -85,22 +92,23 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 	// Test copy construction
 	T gifat2(gifat1);
 
-	BOOST_CHECK(gifat2.isEqualTo(gifat1));
-	BOOST_CHECK(gifat2.isNotEqualTo(gifat0));
+	BOOST_CHECK(gep.isEqual(gifat2, gifat1));
+	BOOST_CHECK(gep.isInEqual(gifat2, gifat0));
 
 	// Test assignment
 	T gifat3;
 	gifat3 = gifat1;
 
-	BOOST_CHECK(gifat3.isEqualTo(gifat1));
-	BOOST_CHECK(gifat3.isNotEqualTo(gifat0));
+	BOOST_CHECK(gep.isEqual(gifat3, gifat1));
+	BOOST_CHECK(gep.isInEqual(gifat3, gifat0));
 
 	// Retrieve the mutation probablilty and modify it slightly. Then check similariy and equality.
 	double mutProb = gifat3.getMutationProbability();
 	mutProb -= exp(-10);
 	gifat3.setMutationProbability(mutProb);
-	BOOST_CHECK(gifat3.isNotEqualTo(gifat1)); // May no longer be equal
-	BOOST_CHECK(gifat3.isSimilarTo(gifat1, exp(-9))); // but should be "close"
+
+	BOOST_CHECK(gep.isInEqual(gifat3, gifat1)); // May no longer be equal
+	BOOST_CHECK(gep.isSimilar(gifat3, gifat1, exp(-9))); // but should be "close"
 
 	// Check mutations
 	const std::size_t NMUTATIONS = 10000;

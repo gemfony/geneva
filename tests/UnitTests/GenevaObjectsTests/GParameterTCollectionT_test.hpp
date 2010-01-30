@@ -75,6 +75,7 @@
 #include "GCharObjectCollection.hpp"
 #include "GInt32ObjectCollection.hpp"
 #include "GStdVectorInterface_test.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -252,6 +253,12 @@ boost::shared_ptr<GChar> getFindItem<GCharObjectCollection>() {
 // Test features that are expected to work
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T )
 {
+	// Prepare printing of error messages in object comparisons
+	GEqualityPrinter gep("GParameterTCollectionT_no_failure_expected",
+						 exp(-10),
+						 Gem::Util::CE_WITH_MESSAGES);
+
+	// A local random number generator
 	GRandom gr;
 
 	// Default construction
@@ -288,8 +295,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 
 	// Test copy construction
 	T gptct_cc(gptct);
-	BOOST_CHECK(gptct_cc.isEqualTo(gptct));
-	BOOST_CHECK(gptct_cc.isNotEqualTo(gptct_cp2));
+	BOOST_CHECK(gep.isEqual(gptct_cc, gptct));
+	BOOST_CHECK(gep.isInEqual(gptct_cc, gptct_cp2));
 
 	// Test cloning and loading
 	{
@@ -313,9 +320,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 		// Serialize cp2 and load into cp3, check inequalities and similarities
 		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
 		//gptct_cp3.fromString(gptct_cp2.toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
-		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct));
-		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct_cp1));
-		BOOST_CHECK(gptct_cp3.isSimilarTo(gptct_cp2, exp(-10)));
+		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct));
+		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct_cp1));
+		BOOST_CHECK(gep.isSimilar(gptct_cp3, gptct_cp2));
 	}
 
 	{ // XML format
@@ -329,9 +336,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 
 		// Serialize cp2 and load into cp3, check inequalities and similarities
 		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(XMLSERIALIZATION), XMLSERIALIZATION));
-		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct));
-		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct_cp1));
-		BOOST_CHECK(gptct_cp3.isSimilarTo(gptct_cp2, exp(-10)));
+		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct));
+		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct_cp1));
+		BOOST_CHECK(gep.isSimilar(gptct_cp3, gptct_cp2));
 	}
 
 	{ // binary test format
@@ -345,9 +352,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 
 		// Serialize cp2 and load into cp3, check inequalities and similarities
 		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
-		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct));
-		BOOST_CHECK(!gptct_cp3.isEqualTo(gptct_cp1));
-		BOOST_CHECK(gptct_cp3.isEqualTo(gptct_cp2));
+		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct));
+		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct_cp1));
+		BOOST_CHECK(gep.isEqual(gptct_cp3, gptct_cp2));
 	}
 }
 

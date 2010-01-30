@@ -57,6 +57,7 @@
 #include "GInt32GaussAdaptor.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
 #include "GStdVectorInterface_test.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -85,8 +86,13 @@ boost::shared_ptr<GGaussAdaptorT<boost::int32_t> > getNumCollectionAdaptor<GInt3
 // Test features that are expected to work
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 {
+	// Prepare printing of error messages in object comparisons
+	GEqualityPrinter gep("GNumCollectionT_no_failure_expected",
+						 exp(-10),
+						 Gem::Util::CE_WITH_MESSAGES);
+
+	// A local random number generator
 	GRandom gr;
-	boost::optional<std::string> o;
 
 	// Construction in different modes
 	T gnct0; // default construction, should be empty
@@ -139,16 +145,6 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
 	delete gpb;
 
-	/*
-	BOOST_CHECK(!gpb->isEqualTo(gnct6));
-	gpb->load(&gnct6);
-	BOOST_CHECK(gpb->isEqualTo(gnct6));
-	T *gnct6_2 = static_cast<T *>(gpb);
-	gnct6_2->addRandomData(1900, typename T::collection_type(-100), typename T::collection_type(100));
-	BOOST_CHECK(!gpb->isEqualTo(gnct6));
-	delete gpb;
-	 */
-
 	// Adding an adaptor with rather large gauss
 	boost::shared_ptr<GGaussAdaptorT<typename T::collection_type> > gba = getNumCollectionAdaptor<T>();
 	gnct6.addAdaptor(gba);
@@ -176,9 +172,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 
 		// Serialize gnct7 and load into gnct7_co, check equalities and similarities
 		BOOST_CHECK_NO_THROW(gnct7_cp.fromString(gnct7.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-		o = gnct7_cp.checkRelationshipWith(gnct7, Gem::Util::CE_FP_SIMILARITY, exp(-10), "GNumCollectionT_no_failure_expected", "gnct7", Gem::Util::CE_WITH_MESSAGES);
-		BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-		// BOOST_CHECK(gnct7_cp.isSimilarTo(gnct7, exp(-10)));
+		BOOST_CHECK(gep.isSimilar(gnct7_cp, gnct7));
 	}
 
 	{ // XML format
@@ -195,9 +189,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 
 		// Serialize gnct7 and load into gnct7_co, check equalities and similarities
 		BOOST_CHECK_NO_THROW(gnct7_cp.fromString(gnct7.toString(XMLSERIALIZATION), XMLSERIALIZATION));
-		o = gnct7_cp.checkRelationshipWith(gnct7, Gem::Util::CE_FP_SIMILARITY, exp(-10), "GNumCollectionT_no_failure_expected", "gnct7", Gem::Util::CE_WITH_MESSAGES);
-		BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-		// BOOST_CHECK(gnct7_cp.isSimilarTo(gnct7, exp(-10)));
+		BOOST_CHECK(gep.isSimilar(gnct7_cp, gnct7));
 	}
 
 	{ // binary test format
@@ -214,9 +206,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 
 		// Serialize gnct7 and load into gnct7_co, check equalities and similarities
 		BOOST_CHECK_NO_THROW(gnct7_cp.fromString(gnct7.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
-		o = gnct7_cp.checkRelationshipWith(gnct7, Gem::Util::CE_EQUALITY, 0., "GNumCollectionT_no_failure_expected", "gnct7", Gem::Util::CE_WITH_MESSAGES);
-		BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-		// BOOST_CHECK(gnct7_cp.isEqualTo(gnct7));
+		BOOST_CHECK(gep.isEqual(gnct7_cp, gnct7));
 	}
 }
 

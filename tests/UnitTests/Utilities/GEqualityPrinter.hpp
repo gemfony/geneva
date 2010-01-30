@@ -46,6 +46,7 @@
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/utility.hpp>
 
 #ifndef GEQUALITYPRINTER_HPP_
 #define GEQUALITYPRINTER_HPP_
@@ -62,8 +63,23 @@
  */
 BOOST_MPL_HAS_XXX_TRAIT_DEF(checkRelationshipWithFunction)
 
-class GEqualityPrinter {
+
+/*************************************************************************************************/
+/**
+ * This is a simple convenience class to facilitate comparisons in Geneva's test framework.
+ */
+class GEqualityPrinter
+	: boost::noncopyable
+{
 public:
+	/*********************************************************************************************/
+	/**
+	 * The only constructor. The default constructor has been disabled.
+	 *
+	 * @param caller The name of the calling entity
+	 * @param limit Used in floating point comparisons to check similarity
+	 * @param emitMessages Determines whether messages should be emitted upon error
+	 */
 	GEqualityPrinter (
 		  const std::string& caller
 		, const double& limit
@@ -74,8 +90,17 @@ public:
 		, emitMessages_(emitMessages)
 	{ /* nothing */ }
 
+	/*********************************************************************************************/
+	/**
+	 * Checks for equality, optionally emitting a message. The compared entities must have the
+	 * Geneva interface.
+	 *
+	 * @param x The first parameter to compare
+	 * @oaram y The second parameter to compare
+	 * @return A boolean indicating whether both parameters are equal
+	 */
 	template <typename geneva_type>
-	bool eqCheck(
+	bool isEqual(
 			  const geneva_type& x
 			, const geneva_type& y
 			, typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
@@ -103,8 +128,17 @@ public:
 		}
 	}
 
+	/*********************************************************************************************/
+	/**
+	 * Checks for inequality, optionally emitting a message. The compared entities must have the
+	 * Geneva interface.
+	 *
+	 * @param x The first parameter to compare
+	 * @oaram y The second parameter to compare
+	 * @return A boolean indicating whether both parameters are inequal
+	 */
 	template <typename geneva_type>
-	bool simCheck(
+	bool isInEqual(
 			  const geneva_type& x
 			, const geneva_type& y
 			, typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
@@ -114,8 +148,8 @@ public:
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
 						y
-					  , Gem::Util::CE_FP_SIMILARITY
-					  , limit_
+					  , Gem::Util::CE_INEQUALITY
+					  , 0.
 					  , caller_
 					  , "y"
 					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
@@ -132,13 +166,56 @@ public:
 		}
 	}
 
-	// TODO: Inequality check, Dissimilarity check
+	/*********************************************************************************************/
+	/**
+	 * Checks for similarity, optionally emitting a message. The compared entities must have the
+	 * Geneva interface.
+	 *
+	 * @param x The first parameter to compare
+	 * @oaram y The second parameter to compare
+	 * @param limit A limit used to determine similarity in fp comparisons
+	 * @return A boolean indicating whether both parameters are similar
+	 */
+	template <typename geneva_type>
+	bool isSimilar(
+			  const geneva_type& x
+			, const geneva_type& y
+			, double limit = limit_
+			, typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+	) const	{
+		using namespace Gem::Util;
+
+		boost::optional<std::string> o =
+				x.checkRelationshipWith(
+						y
+					  , Gem::Util::CE_FP_SIMILARITY
+					  , limit
+					  , caller_
+					  , "y"
+					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+
+		if(o) { // The expectation was not met
+			std::cout
+			<< "\n=========================================\n"
+			<< *o
+			<< "\n=========================================\n";
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	/*********************************************************************************************/
 
 private:
-	GEqualityPrinter(); // Default constructor intentionally left undefined
-	std::string checkName_;
-	double caller_;
-	bool emitMessages_;
+	GEqualityPrinter(); ///< Default constructor intentionally left undefined
+
+	std::string caller_; ///< Holds the name of the calling entity
+	double limit_; ///< A limit used to determine similarity in fp comparisons
+	bool emitMessages_; ///< Specifies whether messages should be emitted if expectations were not met
 };
+
+/*************************************************************************************************/
 
 #endif /* GEQUALITYPRINTER_HPP_ */

@@ -50,6 +50,7 @@
 #include "GInt32Collection.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GStdVectorInterface_test.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -65,6 +66,11 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
+		// Prepare printing of error messages in object comparisons
+		GEqualityPrinter gep("GParameterSet_test::no_failure_expected()",
+							 exp(-10),
+							 Gem::Util::CE_WITH_MESSAGES);
+
 		// Default construction
 		GTestIndividual1 gpi;
 
@@ -89,12 +95,12 @@ public:
 
 		// Copy construction
 		GTestIndividual1 gpi_cc(gpi);
-		BOOST_CHECK(gpi_cc.isEqualTo(gpi));
+		BOOST_CHECK(gep.isEqual(gpi_cc, gpi));
 
 		// Assignment
 		GTestIndividual1 gpi_as;
 		gpi_as = gpi;
-		BOOST_CHECK(gpi_as.isEqualTo(gpi));
+		BOOST_CHECK(gep.isEqual(gpi_as, gpi));
 
 		// Test cloning and loading
 		GTestIndividual1 gpi_load;
@@ -103,7 +109,7 @@ public:
 			BOOST_CHECK_NO_THROW(gpi_clone = gpi.GObject::clone());
 			BOOST_CHECK_NO_THROW(gpi_load.load(gpi_clone.get()));
 		}
-		BOOST_CHECK(gpi_load.isEqualTo(gpi));
+		BOOST_CHECK(gep.isEqual(gpi_load, gpi));
 
 		// Test retrieval of the GDoubleCollection object. Can it be modified ?
 		boost::shared_ptr<GDoubleCollection> gpi_load_gdc = gpi_load.pc_at<GDoubleCollection>(0);
@@ -113,9 +119,9 @@ public:
 
 		// Test that the copied, cloned, ... objects become in-equal to the
 		// original when they are modified
-		BOOST_CHECK(gpi_load.isNotEqualTo(gpi));
-		BOOST_CHECK(gpi_cc.isNotEqualTo(gpi));
-		BOOST_CHECK(gpi_cc.isEqualTo(gpi_load));
+		BOOST_CHECK(gep.isInEqual(gpi_load, gpi));
+		BOOST_CHECK(gep.isInEqual(gpi_cc, gpi));
+		BOOST_CHECK(gep.isEqual(gpi_cc, gpi_load));
 
 		// Test mutation
 		const int NMUTATIONS=100;
@@ -148,7 +154,7 @@ public:
 
 			// Serialize gpi_ser and load into gpi_ser_cp, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-			BOOST_CHECK(gpi_ser_cp.isSimilarTo(gpi_ser, exp(-10)));
+			BOOST_CHECK(gep.isSimilar(gpi_ser_cp, gpi_ser));
 		}
 
 		{ // XML format
@@ -171,7 +177,7 @@ public:
 
 			// Serialize gpi_ser and load into gpi_ser_cp, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(XMLSERIALIZATION), XMLSERIALIZATION));
-			BOOST_CHECK(gpi_ser_cp.isSimilarTo(gpi_ser, exp(-10)));
+			BOOST_CHECK(gep.isSimilar(gpi_ser_cp, gpi_ser));
 		}
 
 		{ // binary test format
@@ -195,7 +201,7 @@ public:
 
 			// Serialize gpi_ser and load into gpi_ser_cp, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
-			BOOST_CHECK(gpi_ser_cp.isEqualTo(gpi_ser));
+			BOOST_CHECK(gep.isEqual(gpi_ser_cp, gpi_ser));
 		}
 
 		//----------------------------------------------------------------------------------------------

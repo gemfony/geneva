@@ -61,6 +61,7 @@
 #include "GInt32GaussAdaptor.hpp"
 #include "GDouble.hpp"
 #include "GDoubleGaussAdaptor.hpp"
+#include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
@@ -72,6 +73,12 @@ using boost::unit_test_framework::test_case;
 /*******************************************************************************************/
 // Test general features that are expected to work in GParameterT
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
+	// Prepare printing of error messages in object comparisons
+	GEqualityPrinter gep("GParameterT_no_failure_expected",
+						 exp(-10),
+						 Gem::Util::CE_WITH_MESSAGES);
+
+	// A local random number generator
 	GRandom gr;
 
 	// Test default construction
@@ -106,18 +113,19 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	// Test (de-)serialization in different modes
 	{ // plain text format
 		T gpt4(gpt0);
-		BOOST_CHECK(gpt4.isEqualTo(gpt0));
+		BOOST_CHECK(gep.isEqual(gpt4, gpt0));
+
 		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-		BOOST_CHECK(!gpt4.isEqualTo(gpt0));
-		BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
+		BOOST_CHECK(gep.isInEqual(gpt4, gpt0));
+		BOOST_CHECK(gep.isSimilar(gpt4, gpt1));
 	}
 
 	{ // XML format
 		T gpt4(gpt0);
-		BOOST_CHECK(gpt4.isEqualTo(gpt0));
+		BOOST_CHECK(gep.isEqual(gpt4, gpt0));
 		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(XMLSERIALIZATION), XMLSERIALIZATION));
-		BOOST_CHECK(!gpt4.isEqualTo(gpt0));
-		BOOST_CHECK(gpt4.isSimilarTo(gpt1, exp(-10)));
+		BOOST_CHECK(gep.isInEqual(gpt4, gpt0));
+		BOOST_CHECK(gep.isSimilar(gpt4, gpt1));
 	}
 
 	{ // binary test format
