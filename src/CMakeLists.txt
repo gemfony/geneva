@@ -31,7 +31,6 @@ SET ( GENEVASOURCES
 	GEAPersonalityTraits
 	GEvolutionaryAlgorithm
 	GGDPersonalityTraits
-	GHelperFunctionsT
 	GIdentityAdaptorT
 	GIndividual
 	GInt32

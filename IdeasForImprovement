@@ -37,7 +37,7 @@
   "createStubs.sh myIndividualClassName
 - Do checks for equality and similarity of base types through GObject::notEqual() and GObject::notSimilar(), that can 
   additionally emit information on the location of the deviation, if requested. Performance is not an issue for these functions
-- The GNeuralNetworkIndividual needs to be renovated (e.g. the isEqualTo function needs to be added). Move to "UseCases".
+- The GNeuralNetworkIndividual needs to be renovated (e.g. a checkRelationshipWith() function needs to be added). Move to "UseCases".
 - Also renovate GNoisyParabolaIndividual and GProjectionIndividual (still needed ?)
 - Separate useful individuals (neural network, external evaluation, ...) from pure examples
 - Create boost::shared_ptr<GObject> versions of load() and clone(), adapt in all places (e.g. GStdPtrVectorInterface.hpp)
