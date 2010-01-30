@@ -63,11 +63,10 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
-		void no_failure_expected() {
-			// Prepare printing of error messages in object comparisons
-			GEqualityPrinter gep("GObject_test::no_failure_expected()",
-								 exp(-10),
-								 Gem::Util::CE_WITH_MESSAGES);
+		// Prepare printing of error messages in object comparisons
+		GEqualityPrinter gep("GObject_test::no_failure_expected()"
+				             , exp(-10)
+				             , Gem::Util::CE_WITH_MESSAGES);
 
 		// Default construction
 		GBooleanAdaptor gba0;

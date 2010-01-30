@@ -57,6 +57,7 @@
 #include "GStdSimpleVectorInterfaceT.hpp"
 #include "GStdPtrVectorInterfaceT.hpp"
 #include "GObject.hpp"
+#include "GEqualityPrinter.hpp"
 
 /*************************************************************************************************/
 /**
@@ -65,6 +66,11 @@
  */
 template <typename vi, typename item>
 void stdvectorinterfacetest(vi& vectorObject, const item& templItem, const item& findItem) {
+	// Prepare printing of error messages in object comparisons
+	GEqualityPrinter gep("stdvectorinterfacetest()",
+						 exp(-10),
+						 Gem::Util::CE_WITH_MESSAGES);
+
 	const std::size_t NITEMS = 100;
 
 	// Make sure the object is empty
@@ -102,22 +108,23 @@ void stdvectorinterfacetest(vi& vectorObject, const item& templItem, const item&
 	BOOST_CHECK_NO_THROW(vectorObject_cp2 = vectorObject_cp1 = vectorObject);
 
 	// Check that all objects are equal
-	BOOST_CHECK(vectorObject_cp1.isEqualTo(vectorObject));
-	BOOST_CHECK(vectorObject_cp2.isEqualTo(vectorObject));
+	BOOST_CHECK(gep.isEqual(vectorObject_cp1, vectorObject));
+	BOOST_CHECK(gep.isEqual(vectorObject_cp2, vectorObject));
 
 	// Assign a different value to the first position of the first copy to create different data sets
 	vectorObject_cp1[0] = findItem;
 
 	// Check that now cp1 is different from the others
-	BOOST_CHECK(!vectorObject_cp1.isEqualTo(vectorObject));
-	BOOST_CHECK(!vectorObject_cp1.isEqualTo(vectorObject_cp2));
+	BOOST_CHECK(gep.isInEqual(vectorObject_cp1, vectorObject));
+	BOOST_CHECK(gep.isInEqual(vectorObject_cp1, vectorObject_cp2));
 
 	// Swap the data of first and second copy
 	BOOST_CHECK_NO_THROW(vectorObject_cp2.swap(vectorObject_cp1));
 
 	// Now it should be vectorObject_cp2 that is different
-	BOOST_CHECK(!vectorObject_cp2.isEqualTo(vectorObject));
-	BOOST_CHECK(!vectorObject_cp2.isEqualTo(vectorObject_cp1));
+	BOOST_CHECK(gep.isInEqual(vectorObject_cp2, vectorObject));
+	BOOST_CHECK(gep.isInEqual(vectorObject_cp2, vectorObject_cp1));
+
 
 	// Same procedure, this time with a std::vector as target
 	std::vector<item> vec_cp1, vec_cp2;
@@ -130,31 +137,43 @@ void stdvectorinterfacetest(vi& vectorObject, const item& templItem, const item&
 	// Holds possible error messages
 	boost::optional<std::string> o;
 
-	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_EQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
-	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_EQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
-	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	// o = vectorObject.GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_EQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
+	// BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	// o = vectorObject.GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_EQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
+	// BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+
+	BOOST_CHECK(gep.isEqual(vectorObject, vec_cp1));
+	BOOST_CHECK(gep.isEqual(vectorObject, vec_cp2));
 
 	// Assign a different value to one position
 	vectorObject.at(vectorObject.size()-1) = findItem;
-	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
-	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
-	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	// o = vectorObject.GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
+	// BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	// o = vectorObject.GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
+	// BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+
+	BOOST_CHECK(gep.isInEqual(vectorObject, vec_cp1));
+	BOOST_CHECK(gep.isInEqual(vectorObject, vec_cp2));
 
 	// Swap the data with a cp1
-	vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::GStdSimpleVectorInterfaceT<item>::swap(vec_cp1);
-	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
-	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_EQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
-	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	vectorObject.GStdSimpleVectorInterfaceT<item>::swap(vec_cp1);
+	// o = vectorObject.GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
+	// BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	// o = vectorObject.GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_EQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
+	// BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+
+	BOOST_CHECK(gep.isInEqual(vectorObject, vec_cp1));
+	BOOST_CHECK(gep.isEqual(vectorObject, vec_cp2));
 
 	// Swap back again
-	vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::GStdSimpleVectorInterfaceT<item>::swap(vec_cp1);
-	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
-	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-	o = vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
-	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	vectorObject.GStdSimpleVectorInterfaceT<item>::swap(vec_cp1);
+	// o = vectorObject.GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp1, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp1", Gem::Util::CE_WITH_MESSAGES);
+	// BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+	// o = vectorObject.GStdSimpleVectorInterfaceT<item>::checkRelationshipWith(vec_cp2, Gem::Util::CE_INEQUALITY, 0., "stdvectorinterfacetest", "vec_cp2", Gem::Util::CE_WITH_MESSAGES);
+	// BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
+
+	BOOST_CHECK(gep.isInEqual(vectorObject, vec_cp1));
+	BOOST_CHECK(gep.isInEqual(vectorObject, vec_cp2));
 
 	/*
 	BOOST_CHECK(vectorObject.Gem::GenEvA::GStdSimpleVectorInterfaceT<item>::checkIsEqualTo(vec_cp1, false)); // No failure expected
@@ -261,6 +280,11 @@ template <typename vi, typename item>
 void stdvectorinterfacetestSP(vi& vectorObject,
 								  boost::shared_ptr<item> templItem,
 								  boost::shared_ptr<item> findItem) {
+	// Prepare printing of error messages in object comparisons
+	GEqualityPrinter gep("stdvectorinterfacetestSP()",
+						 exp(-10),
+						 Gem::Util::CE_WITH_MESSAGES);
+
 	const std::size_t NITEMS = 100;
 
 	// Make sure the object is empty
@@ -306,8 +330,8 @@ void stdvectorinterfacetestSP(vi& vectorObject,
 	(*vectorObject_cp1[0]) = *findItem;
 
 	// Check that now cp1 is different from the others
-	BOOST_CHECK(!vectorObject_cp1.isEqualTo(vectorObject));
-	BOOST_CHECK(!vectorObject_cp1.isEqualTo(vectorObject_cp2));
+	BOOST_CHECK(gep.isInEqual(vectorObject_cp1, vectorObject));
+	BOOST_CHECK(gep.isInEqual(vectorObject_cp1, vectorObject_cp2));
 
 	// Swap the data of first and second copy
 	BOOST_CHECK_NO_THROW(vectorObject_cp2.swap(vectorObject_cp1));

@@ -149,7 +149,7 @@ public:
 
 			// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-			BOOST_CHECK(gep.isSimilar(gbd7_cp, gbd7));
+			BOOST_CHECK(gep.isSimilar(gbc7_cp, gbc7));
 		}
 
 		{ // XML format
@@ -166,7 +166,7 @@ public:
 
 			// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(XMLSERIALIZATION), XMLSERIALIZATION));
-			BOOST_CHECK(gep.isSimilar(gbd7_cp, gbd7));
+			BOOST_CHECK(gep.isSimilar(gbc7_cp, gbc7));
 		}
 
 		{ // binary test format
@@ -183,7 +183,7 @@ public:
 
 			// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
-			BOOST_CHECK(gep.isEqual(gbd7_cp, gbd7));
+			BOOST_CHECK(gep.isEqual(gbc7_cp, gbc7));
 		}
 	}
 

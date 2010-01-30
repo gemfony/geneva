@@ -134,6 +134,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 
 	// Loading through the GParameterBase base pointer
 	GParameterBase *gpb = new T();
+	boost::optional<std::string> o;
 	o = gpb->checkRelationshipWith(gnct6, Gem::Util::CE_INEQUALITY, 0., "GNumCollectionT_no_failure_expected", "gnct6", Gem::Util::CE_WITH_MESSAGES);
 	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
 	gpb->load(&gnct6);

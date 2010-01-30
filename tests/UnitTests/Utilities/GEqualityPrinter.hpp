@@ -103,7 +103,6 @@ public:
 	bool isEqual(
 			  const geneva_type& x
 			, const geneva_type& y
-			, typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -141,7 +140,6 @@ public:
 	bool isInEqual(
 			  const geneva_type& x
 			, const geneva_type& y
-			, typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -180,8 +178,46 @@ public:
 	bool isSimilar(
 			  const geneva_type& x
 			, const geneva_type& y
-			, double limit = limit_
-			, typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+	) const	{
+		using namespace Gem::Util;
+
+		boost::optional<std::string> o =
+				x.checkRelationshipWith(
+						y
+					  , Gem::Util::CE_FP_SIMILARITY
+					  , limit_
+					  , caller_
+					  , "y"
+					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+
+		if(o) { // The expectation was not met
+			std::cout
+			<< "\n=========================================\n"
+			<< *o
+			<< "\n=========================================\n";
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Checks for similarity, optionally emitting a message. The compared entities must have the
+	 * Geneva interface. This is an overloaded version of isSimilar which allows to specify an
+	 * individual limit, which will be used instead of the class-wide limit.
+	 *
+	 * @param x The first parameter to compare
+	 * @oaram y The second parameter to compare
+	 * @param limit A limit used to determine similarity in fp comparisons
+	 * @return A boolean indicating whether both parameters are similar
+	 */
+	template <typename geneva_type>
+	bool isSimilar(
+			  const geneva_type& x
+			, const geneva_type& y
+			, double limit
 	) const	{
 		using namespace Gem::Util;
 
