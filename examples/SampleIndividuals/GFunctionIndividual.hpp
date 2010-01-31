@@ -117,9 +117,8 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GFunctionIndividual():
-		eval_(&GFunctionIndividual::parabola),
-		demoFunction_(PARABOLA)
+	GFunctionIndividual()
+		: demoFunction_(PARABOLA)
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -131,20 +130,7 @@ public:
 	GFunctionIndividual(const GFunctionIndividual& cp)
 		: GParameterSet(cp)
 		, demoFunction_(cp.demoFunction_)
-	{
-		// Register a suitable transfer function, depending on the value of transferMode_
-		switch(demoFunction_){
-		case PARABOLA:
-			eval_ = &GFunctionIndividual::parabola;
-			break;
-		case NOISYPARABOLA:
-			eval_ = &GFunctionIndividual::noisyParabola;
-			break;
-		case ROSENBROCK:
-			eval_ = &GFunctionIndividual::rosenbrock;
-			break;
-		}
-	}
+	{ /* nothing */	}
 
 	/********************************************************************************************/
 	/**
@@ -177,7 +163,7 @@ public:
 		GParameterSet::load(cp);
 
 		// ... and then our own
-		this->setDemoFunction(p_load->demoFunction_);
+		demoFunction_ = p_load->demoFunction_;
 	}
 
 	/*******************************************************************************************/
@@ -251,21 +237,6 @@ public:
 	 * @param df The id of the demo function
 	 */
 	void setDemoFunction(const demoFunction& df) {
-		if(df == demoFunction_) return; // nothing to do
-
-		// Register a suitable transfer function, depending on the value of transferMode_
-		switch(demoFunction_){
-		case PARABOLA:
-			eval_ = &GFunctionIndividual::parabola;
-			break;
-		case NOISYPARABOLA:
-			eval_ = &GFunctionIndividual::noisyParabola;
-			break;
-		case ROSENBROCK:
-			eval_ = &GFunctionIndividual::rosenbrock;
-			break;
-		}
-
 		demoFunction_ = df;
 	}
 
@@ -297,22 +268,21 @@ protected:
 	 * @return The value of this object
 	 */
 	virtual double fitnessCalculation(){
-
-#ifdef DEBUG
-		// Check whether an evaluation function is available
-		if(!eval_) {
-			std::ostringstream error;
-			error << "In GFunctionIndividual::fitnessCalculation(): Error!" << std::endl
-				  << "No evaluation function is available." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
-		}
-#endif /* DEBUG */
-
 		// Extract the GDoubleCollection object
 		boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
 
-		// Do the actual calculation
-		return eval_(x);
+		// Register a suitable transfer function, depending on the value of transferMode_
+		switch(demoFunction_){
+		case PARABOLA:
+			return parabola(*x);
+			break;
+		case NOISYPARABOLA:
+			return noisyParabola(*x);
+			break;
+		case ROSENBROCK:
+			return rosenbrock(*x);
+			break;
+		}
 	}
 
 	/********************************************************************************************/
@@ -320,8 +290,6 @@ private:
 	/**
 	 * This function object gives access to the actual evaluation function
 	 */
-	boost::function<double(boost::shared_ptr<GDoubleCollection>)> eval_;
-
 	demoFunction demoFunction_; ///< Specifies which demo function should be used
 
 	/********************************************************************************************/
@@ -331,14 +299,10 @@ private:
 	 * @param x The input parameters for the function
 	 * @return The result of the calculation
 	 */
-	static double parabola(boost::shared_ptr<GDoubleCollection> x) {
+	double parabola(const GDoubleCollection& x) {
+		std::size_t parameterSize = x.size();
 		double result = 0.;
-		GDoubleCollection::const_iterator cit;
-
-		for(cit=x->begin(); cit!=x->end(); ++cit) {
-			result += *cit * *cit;
-		}
-
+		for(std::size_t i=0; i<parameterSize; i++) result += GSQUARED(x[i]);
 		return result;
 	}
 
@@ -349,17 +313,15 @@ private:
 	 * @param x The input parameters for the function
 	 * @return The result of the calculation
 	 */
-	static double noisyParabola(boost::shared_ptr<GDoubleCollection> x) {
+	double noisyParabola(const GDoubleCollection& x) {
+		std::size_t parameterSize = x.size();
 		double result = 0.;
-		GDoubleCollection::const_iterator cit;
 
 		// Great - now we can do the actual calculations. We do this the fancy way ...
-		for(cit=x->begin(); cit!=x->end(); ++cit){
-			double xsquared = *cit * *cit;
+		for(std::size_t i=0; i<parameterSize; i++){
+			double xsquared = GSQUARED(x[i]);
 			result += (cos(xsquared) + 2)*xsquared;
 		}
-
-		// std::cout << "result = " << result << std::endl;
 
 		return result;
 	}
@@ -371,8 +333,8 @@ private:
 	 * @param x The input parameters for the function
 	 * @return The result of the calculation
 	 */
-	static double rosenbrock(boost::shared_ptr<GDoubleCollection> x) {
-		std::size_t parameterSize = x->size();
+	double rosenbrock(const GDoubleCollection x) {
+		std::size_t parameterSize = x.size();
 		double result = 0.;
 
 #ifdef DEBUG
@@ -386,8 +348,8 @@ private:
 #endif /* DEBUG */
 
 		for(std::size_t i=0; i<(parameterSize-1); i++) {
-			double firstTerm = 1.-x->at(i); firstTerm *= firstTerm;
-			double secondTerm = 100.*GSQUARED(x->at(i+1)-GSQUARED(x->at(i)));
+			double firstTerm = 1.-x[i]; firstTerm *= firstTerm;
+			double secondTerm = 100.*GSQUARED(x[i+1]-GSQUARED(x[i]));
 			result += firstTerm + secondTerm;
 		}
 

@@ -792,7 +792,9 @@ bool GOptimizationAlgorithm::hasQualityThreshold() const {
  * @return boolean indicating that a stop condition was reached
  */
 bool GOptimizationAlgorithm::customHalt() const {
-	/* nothing - specify your own criteria in derived classes */
+	/* nothing - specify your own criteria in derived classes. Make sure
+	 * to emit a suitable mesage if execution was halted due to a
+	 * custom criterium */
 	return false;
 }
 
@@ -806,7 +808,10 @@ bool GOptimizationAlgorithm::customHalt() const {
 bool GOptimizationAlgorithm::timedHalt() const {
 	using namespace boost::posix_time;
 	ptime currentTime = microsec_clock::local_time();
-	if((currentTime - startTime_) >= maxDuration_) return true;
+	if((currentTime - startTime_) >= maxDuration_) {
+		std::cerr << "Terminating optimization run because maximum time frame has been exceeded" << std::endl;
+		return true;
+	}
 	return false;
 }
 
@@ -818,7 +823,10 @@ bool GOptimizationAlgorithm::timedHalt() const {
  * @return A boolean indicating whether the quality is above or below a given threshold
  */
 bool GOptimizationAlgorithm::qualityHalt() const {
-	return isBetter(bestPastFitness_, qualityThreshold_);
+	if(isBetter(bestPastFitness_, qualityThreshold_)) {
+		std::cerr << "Terminating optimization run because quality threshold has been reached" << std::endl;
+	}
+	else return false;
 }
 
 /***********************************************************************************/
@@ -837,10 +845,16 @@ bool GOptimizationAlgorithm::halt(const boost::uint32_t& iterationOffset) const
 {
 	// Have we exceeded the maximum number of iterations and
 	// do we indeed intend to stop in this case ?
-	if(maxIteration_ && (iteration_ > (maxIteration_ + iterationOffset))) return true;
+	if(maxIteration_ && (iteration_ > (maxIteration_ + iterationOffset))) {
+		std::cout << "Terminating optimization run because iteration threshold has been reached" << std::endl;
+		return true;
+	}
 
 	// Has the optimization stalled too often ?
-	if(maxStallIteration_ && stallCounter_ > maxStallIteration_) return true;
+	if(maxStallIteration_ && stallCounter_ > maxStallIteration_) {
+		std::cout << "Terminating optimization run because maximum number of stalls has been exceeded" << std::endl;
+		return true;
+	}
 
 	// Do we have a scheduled halt time ? The comparatively expensive
 	// timedHalt() calculation is only called if maxDuration_
