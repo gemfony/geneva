@@ -37,6 +37,9 @@
 #include <algorithm> // for std::sort
 #include <utility> // For std::pair
 
+// Includes check for correct Boost version(s)
+#include "GGlobalDefines.hpp"
+
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
@@ -59,6 +62,7 @@
 #include "GBoundedDouble.hpp"
 #include "GenevaExceptions.hpp"
 #include "GGlobalOptionsT.hpp"
+#include "GPODExpectationChecksT.hpp"
 #include "GEnums.hpp"
 
 namespace Gem
@@ -177,6 +181,80 @@ public:
 		// Load local data here like this:
 		// myVar = p_load->myVar;
 	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for equality with another GStartIndividual object.
+	 *
+	 * NOTE: THIS FUNCTION IS OPTIONAL AND IS MAINLY USED IN CONJUNCTION WITH UNIT TESTS.
+	 * You do not need it if you do not intend to perform unit tests.
+	 *
+	 * @param  cp A constant reference to another GStartIndividual object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GStartIndividual& cp) const {
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GStartIndividual::operator==","cp", CE_SILENT);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for inequality with another GStartIndividual object.
+	 *
+	 * NOTE: THIS FUNCTION IS OPTIONAL AND IS MAINLY USED IN CONJUNCTION WITH UNIT TESTS.
+	 * You do not need it if you do not intend to perform unit tests.
+	 *
+	 * @param  cp A constant reference to another GStartIndividual object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GStartIndividual& cp) const {
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GStartIndividual::operator!=","cp", CE_SILENT);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
+	 *
+	 * NOTE: THIS FUNCTION IS OPTIONAL AND IS MAINLY USED IN CONJUNCTION WITH UNIT TESTS.
+	 * You do not need it if you do not intend to perform unit tests.
+	 *
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+	 */
+	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
+
+		// Check that we are indeed dealing with a GParamterBase reference
+		const GStartIndividual  *p_load = GObject::conversion_cast(&cp,  this);
+
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
+
+		// Check our parent class'es data ...
+		deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GStartIndividual", y_name, withMessages));
+
+		// Check local data like this:
+		// deviations.push_back(checkExpectation(withMessages, "GStartIndividual", val_, p_load->val_, "val_", "p_load->val_", e , limit));
+
+		return evaluateDiscrepancies("GStartIndividual", caller, deviations, e);
+	}
+
 
 protected:
 	/********************************************************************************************/
