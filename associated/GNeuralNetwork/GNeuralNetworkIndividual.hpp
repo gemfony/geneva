@@ -830,7 +830,7 @@ public:
 				header << "      return 1./(1.+exp(-value));" << std::endl;
 				break;
 			case RBF:
-				header << "      return exp(-pow(value,2));" << std::endl;
+				header << "      return exp(-value*value);" << std::endl;
 				break;
 		}
 
@@ -1063,7 +1063,7 @@ protected:
 
 			// Calculate the error made and add it to the result
 			for(std::size_t nodeCounter = 0; nodeCounter<prevResults.size(); nodeCounter++){
-				result += pow(prevResults.at(nodeCounter) - tS->Output.at(nodeCounter),2);
+				result += GSQUARED(prevResults.at(nodeCounter) - tS->Output.at(nodeCounter));
 			}
 		}
 
@@ -1094,7 +1094,7 @@ private:
 	 * @param value The value to which the rbf function should be applied
 	 */
 	static double rbf(double value) {
-		return exp(-value*value);
+		return exp(-GSQUARED(value));
 	}
 
 	/********************************************************************************************/

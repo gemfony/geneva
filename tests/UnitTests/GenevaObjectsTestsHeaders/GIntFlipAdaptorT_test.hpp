@@ -87,7 +87,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 	// Test instantiation with a probability mutation
 	T gifat1(0.2);
 
-	BOOST_CHECK(gifat1.isNotEqualTo(gifat0));
+	BOOST_CHECK(gep.isInEqual(gifat1, gifat0));
 
 	// Test copy construction
 	T gifat2(gifat1);

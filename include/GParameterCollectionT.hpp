@@ -78,6 +78,9 @@ class GParameterCollectionT
 	///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief Needed so boost::mpl can recognize this class is having a checkRelationshipWith(const std::vector<T>&) function */
+    typedef bool checkRelationshipWithVectorFunction;
+
 	/*******************************************************************************************/
 	/**
 	 * The default constructor
@@ -178,6 +181,38 @@ public:
 		deviations.push_back(GStdSimpleVectorInterfaceT<T>::checkRelationshipWith(*p_load, e, limit, "GParameterCollectionT<T>", y_name, withMessages));
 
 		// no local data ...
+
+		return evaluateDiscrepancies("GParameterCollectionT<T>", caller, deviations, e);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks whether a given expectation for the relationship between this object and a vector
+	 * of base-type items is fulfilled. Only the content of the vector underlying this class
+	 * and cp is checked.
+	 *
+	 * @param cp A constant reference to a std::vector<value_type>
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+	 */
+	boost::optional<std::string> checkRelationshipWith(const std::vector<T>& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
+
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
+
+	    deviations.push_back(GStdSimpleVectorInterfaceT<T>::checkRelationshipWith(cp, e, limit, caller, y_name, withMessages));
 
 		return evaluateDiscrepancies("GParameterCollectionT<T>", caller, deviations, e);
 	}

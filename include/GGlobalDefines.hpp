@@ -31,6 +31,11 @@
  * http://www.gemfony.com .
  */
 
+/**
+ * This file holds some global definitions used in all of Geneva. In particular, checks for
+ * the Boost version being used are done here.
+ */
+
 #ifndef GGLOBALDEFINES_HPP_
 #define GGLOBALDEFINES_HPP_
 
@@ -58,5 +63,8 @@
 
 /** The current version of the Geneva library */
 #define GENEVAVERSION 0070
+
+/** std::pow(x,2) is less efficient than direct multiplication */
+#define GSQUARED(X) (X) * (X)
 
 #endif /* GGLOBALDEFINES_HPP_ */

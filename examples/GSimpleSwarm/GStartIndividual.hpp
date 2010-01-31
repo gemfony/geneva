@@ -200,8 +200,10 @@ namespace Gem
 	boost::shared_ptr<GBoundedDoubleCollection> vC = pc_at<GBoundedDoubleCollection>(0);
 
 	// Calculate the value of the parabola
-	for(std::size_t i=0; i<vC->size(); i++)  
-	  result += pow(vC->at(i)->value(), 2);     
+	for(std::size_t i=0; i<vC->size(); i++)  {
+		double value = vC->at(i)->value();
+	  result += value * value;
+	}
 
 	return result;
       }

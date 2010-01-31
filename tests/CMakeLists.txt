@@ -8,6 +8,6 @@ ADD_SUBDIRECTORY (
 	TestIndividuals
 )
 
-#ADD_SUBDIRECTORY ( 
-#	UnitTests
-#)
+ADD_SUBDIRECTORY ( 
+	UnitTests
+)

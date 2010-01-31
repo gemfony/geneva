@@ -95,9 +95,6 @@
 - Change general mutate calls (e.g. in the adaptors) to the more generic "adapt" -- a cosmetic change, but 
   appears important in the light of the fact that adaptions are not called mutations in optimization algorithms 
   other than evolutionary algorithms.
-- Unify load-functions, equality- and similarity comparisons to use p_load for the shared_ptr after conversion. 
-  This facilitates copying of code.
-- Check where register_type is really needed
 - Instead of "GBoundedInt32" etc. create classes like "template GBoundedInt<int bitSize = 32>" with a useful
   default value
 - use Boost.enable_if to check allowed template instantiations

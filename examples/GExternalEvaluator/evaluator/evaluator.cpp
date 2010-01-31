@@ -111,7 +111,10 @@ int main(int argc, char **argv)
 				double result = 0.;
 				// Loop over all double values and calculate summed squares ("a parabola")
 				std::size_t nDoubles = ge.size<double>(); // The amount of doubles in the current data set
-				for(std::size_t pos = 0; pos<nDoubles; pos++) result += pow(ge.at<double>(pos), 2);
+				for(std::size_t pos = 0; pos<nDoubles; pos++) {
+					double value = ge.at<double>(pos);
+					result += value * value;
+				}
 				ge.setValue(result);
 			}
 			while(ge.nextDataSet());

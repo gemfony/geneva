@@ -565,17 +565,17 @@ protected:
 				double origVal = 0;
 
 				for (k = 0; k < nDimTarget_; k++)
-					targetVal += pow(data_ptr->at(i*nDimTarget_ + k) - data_ptr->at(j*nDimTarget_ + k), 2);
+					targetVal += GSQUARED(data_ptr->at(i*nDimTarget_ + k) - data_ptr->at(j*nDimTarget_ + k));
 
 				for (k = 0; k < nDimOrig_; k++)
-					origVal += pow(source_[i * nDimOrig_ + k] - source_[j * nDimOrig_ + k], 2);
+					origVal += GSQUARED(source_[i * nDimOrig_ + k] - source_[j * nDimOrig_ + k]);
 
 				denominator += origVal;
 
 				targetVal = sqrt(targetVal);
 				origVal = sqrt(origVal);
 
-				enumerator += pow(targetVal - origVal, 2);
+				enumerator += GSQUARED(targetVal - origVal);
 			}
 		}
 

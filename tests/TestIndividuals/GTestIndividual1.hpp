@@ -174,7 +174,7 @@ protected:
 
 		// Calculate the value of the parabola
 		for(std::size_t i=0; i<vC->size(); i++) {
-			result += pow(vC->at(i), 2);
+			result += vC->at(i) * vC->at(i);
 		}
 
 		return result;

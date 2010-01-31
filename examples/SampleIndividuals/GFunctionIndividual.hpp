@@ -336,7 +336,7 @@ private:
 		GDoubleCollection::const_iterator cit;
 
 		for(cit=x->begin(); cit!=x->end(); ++cit) {
-			result += std::pow(*cit,2);
+			result += *cit * *cit;
 		}
 
 		return result;
@@ -355,7 +355,7 @@ private:
 
 		// Great - now we can do the actual calculations. We do this the fancy way ...
 		for(cit=x->begin(); cit!=x->end(); ++cit){
-			double xsquared = std::pow(*cit, 2);
+			double xsquared = *cit * *cit;
 			result += (cos(xsquared) + 2)*xsquared;
 		}
 
@@ -386,8 +386,8 @@ private:
 #endif /* DEBUG */
 
 		for(std::size_t i=0; i<(parameterSize-1); i++) {
-			double firstTerm = pow(1.-x->at(i),2.);
-			double secondTerm = 100.*pow(x->at(i+1)-pow(x->at(i), 2.),2.);
+			double firstTerm = 1.-x->at(i); firstTerm *= firstTerm;
+			double secondTerm = 100.*GSQUARED(x->at(i+1)-GSQUARED(x->at(i)));
 			result += firstTerm + secondTerm;
 		}
 

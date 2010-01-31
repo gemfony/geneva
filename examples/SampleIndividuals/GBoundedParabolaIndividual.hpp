@@ -219,8 +219,10 @@ protected:
 		// Note that (*it) will be of type boost::shared_ptr<GBoundedDouble> .
 		double result = 0;
 		GBoundedDoubleCollection::iterator it;
-		for(it=gbdc_load->begin(); it!=gbdc_load->end(); ++it)
-			result += std::pow((*it)->value(), 2);
+		for(it=gbdc_load->begin(); it!=gbdc_load->end(); ++it) {
+			double value = (*it)->value();
+			result += value * value;
+		}
 
 		return result;
 
@@ -238,7 +240,8 @@ protected:
 		for(v_it=v.begin(); v_it!=v.end(); ++v_it) {
 			GBoundedDoubleCollection::iterator it;
 			for(it=(*v_it)->begin(); it!=(*v_it)->end(); ++it) {
-				result += std::pow((*it)->value(), 2);
+				double value = (*it)->value();
+				result += value * value;
 			}
 		}
 		return result;

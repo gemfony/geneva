@@ -138,7 +138,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const std::vector<T>& cp_data,
+	virtual boost::optional<std::string> checkRelationshipWith(const std::vector<T>& cp_data,
 			const Gem::Util::expectation& e,
 			const double& limit,
 			const std::string& caller,
@@ -175,7 +175,7 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GStdSimpleVectorInterfaceT<T>& cp,
+	virtual boost::optional<std::string> checkRelationshipWith(const GStdSimpleVectorInterfaceT<T>& cp,
 			const Gem::Util::expectation& e,
 			const double& limit,
 			const std::string& caller,

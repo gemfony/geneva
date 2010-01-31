@@ -51,6 +51,9 @@
 #ifndef GEQUALITYPRINTER_HPP_
 #define GEQUALITYPRINTER_HPP_
 
+// Geneva headers go here
+#include "GStdSimpleVectorInterfaceT.hpp"
+
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
 #pragma once
@@ -62,7 +65,7 @@
  * See "Beyond the C++ Standard Library" by Bjoern Karlsson, p. 99 for an explanation
  */
 BOOST_MPL_HAS_XXX_TRAIT_DEF(checkRelationshipWithFunction)
-
+BOOST_MPL_HAS_XXX_TRAIT_DEF(checkRelationshipWithVectorFunction)
 
 /*************************************************************************************************/
 /**
@@ -92,8 +95,8 @@ public:
 
 	/*********************************************************************************************/
 	/**
-	 * Checks for equality, optionally emitting a message. The compared entities must have the
-	 * Geneva interface.
+	 * Checks for equality of two identical Geneva types, optionally emitting a message.
+	 * The compared entities must have the Geneva interface.
 	 *
 	 * @param x The first parameter to compare
 	 * @oaram y The second parameter to compare
@@ -108,6 +111,43 @@ public:
 
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
+						y
+					  , Gem::Util::CE_EQUALITY
+					  , 0.
+					  , caller_
+					  , "y"
+					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+
+		if(o) { // The expectation was not met
+			std::cout
+			<< "\n=========================================\n"
+			<< *o
+			<< "\n=========================================\n";
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Checks for equality of a Geneva container type with a std::vector<T> of its base types,
+	 * optionally emitting a message.
+	 *
+	 * @param x The Geneva container type to compare
+	 * @oaram y The std::vector used for the comparison
+	 * @return A boolean indicating whether both parameters are equal
+	 */
+	template <typename geneva_simplecontainer_type>
+	bool isEqual(
+			  const geneva_simplecontainer_type& x
+			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
+	) const	{
+		using namespace Gem::Util;
+
+		boost::optional<std::string> o =
+				x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::checkRelationshipWith(
 						y
 					  , Gem::Util::CE_EQUALITY
 					  , 0.
@@ -145,6 +185,43 @@ public:
 
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
+						y
+					  , Gem::Util::CE_INEQUALITY
+					  , 0.
+					  , caller_
+					  , "y"
+					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+
+		if(o) { // The expectation was not met
+			std::cout
+			<< "\n=========================================\n"
+			<< *o
+			<< "\n=========================================\n";
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Checks for inequality of a Geneva container type with a std::vector<T> of its base types,
+	 * optionally emitting a message.
+	 *
+	 * @param x The Geneva container type to compare
+	 * @oaram y The std::vector used for the comparison
+	 * @return A boolean indicating whether both parameters are equal
+	 */
+	template <typename geneva_simplecontainer_type>
+	bool isInEqual(
+			  const geneva_simplecontainer_type& x
+			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
+	) const	{
+		using namespace Gem::Util;
+
+		boost::optional<std::string> o =
+				x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::checkRelationshipWith(
 						y
 					  , Gem::Util::CE_INEQUALITY
 					  , 0.

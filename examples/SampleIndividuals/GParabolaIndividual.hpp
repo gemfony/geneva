@@ -239,7 +239,9 @@ protected:
 		boost::shared_ptr<GDoubleCollection> gdc_load = pc_at<GDoubleCollection>(0);
 
 		// Great - now we can do the actual calculations. We do this the fancy way ...
-		for(cit=gdc_load->begin(); cit!=gdc_load->end(); ++cit) 	result += std::pow(*cit, 2);
+		for(cit=gdc_load->begin(); cit!=gdc_load->end(); ++cit) {
+			result += *cit * *cit;
+		}
 
 		return result;
 	}

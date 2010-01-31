@@ -179,7 +179,7 @@ protected:
 
 		// Great - now we can do the actual calculations. We do this the fancy way ...
 		for(cit=gdc_load->begin(); cit!=gdc_load->end(); ++cit){
-			double xsquared = std::pow(*cit, 2);
+			double xsquared = *cit * *cit;
 			result += (cos(xsquared) + 2)*xsquared;
 		}
 
