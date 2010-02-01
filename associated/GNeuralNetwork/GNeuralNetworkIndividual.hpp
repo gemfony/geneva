@@ -140,10 +140,11 @@ struct trainingSet
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /************************************************************************************************/
 /**
- * This struct holds all necessary information for the training of the neural network individual.
- * We simply use serialized data generated from the struct using the Boost.Serialization library.
+ * This class holds all necessary information for the training of the neural network individual,
+ * including the network's geometry. For intermediate storage in disk, we simply use serialized
+ * data generated from the class using the Boost.Serialization library.
  */
-struct trainingData
+class trainingData
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -152,12 +153,15 @@ struct trainingData
 	void serialize(Archive & ar, const unsigned int version) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_NVP(data);
+		ar & BOOST_SERIALIZATION_NVP(data)
+		   & BOOST_SERIALIZATION_NVP(architecture);
 	}
+
+public:
 	///////////////////////////////////////////////////////////////////////
 	/** @brief Initialization with data from file */
-	trainingData(const std::string&);
-	/** @brief Initializes with data from another trainingData object */
+	explicit trainingData(const std::string&);
+	/** @brief The copy constructor */
 	trainingData(const trainingData&);
 	/** @brief A standard destructor. */
 	virtual ~trainingData();
@@ -184,15 +188,17 @@ struct trainingData
 	void loadFromDisk(const std::string&);
 
 	/********************************************************************************************/
-	/** Holds the individual data sets */
+	/** @brief Holds the individual data sets */
 	std::vector<boost::shared_ptr<trainingSet> > data;
+	/** @brief Holds the network's architecture data */
+	std::vector<std::size_t> architecture;
 };
 
 /************************************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /************************************************************************************************/
 /**
- * With this individual you can use evolutionary strategies instead of the standard
+ * With this individual you can use other optimization methods instead of the standard
  * back-propagation algorithm to train feed-forward neural networks.
  */
 template <transferFunction tF=SIGMOID>
@@ -207,8 +213,7 @@ class GNeuralNetworkIndividual
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(trainingDataFile_)
-		   & BOOST_SERIALIZATION_NVP(architecture_);
+		   & BOOST_SERIALIZATION_NVP(trainingDataFile_);
 	}
 
 	///////////////////////////////////////////////////////////////////////

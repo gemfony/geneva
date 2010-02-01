@@ -250,35 +250,35 @@ private:
 /************************************************************************************************/
 // A number of specializations of fitnessCalculation() for the three function types
 
-/********************************************************************************************/
+/************************************************************************************************/
 /**
  * A simple, multi-dimensional parabola
  *
  * @return The result of the calculation
  */
-template<> double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
+template<> inline double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
-	std::size_t parameterSize = x_ref.size();
+	std::size_t parameterSize = x->size();
 	double result = 0.;
 	for(std::size_t i=0; i<parameterSize; i++) result += GSQUARED(x_ref[i]);
 	return result;
 }
 
-/********************************************************************************************/
+/************************************************************************************************/
 /**
  * A "noisy" parabola, i.e. a parabola with a very large number of local optima
  *
  * @return The result of the calculation
  */
-template<> double GFunctionIndividual<NOISYPARABOLA>::fitnessCalculation() {
+template<> inline double GFunctionIndividual<NOISYPARABOLA>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
-	std::size_t parameterSize = x_ref.size();
+	std::size_t parameterSize = x->size();
 	double xsquared = 0.;
 	for(std::size_t i=0; i<parameterSize; i++){
 		xsquared += GSQUARED(x_ref[i]);
@@ -286,19 +286,19 @@ template<> double GFunctionIndividual<NOISYPARABOLA>::fitnessCalculation() {
 	return (cos(xsquared) + 2.) * xsquared;
 }
 
-/********************************************************************************************/
+/************************************************************************************************/
 /**
  * The generalized Rosenbrock function (see e.g. http://en.wikipedia.org/wiki/Rosenbrock_function)
  *
  * @param x The input parameters for the function
  * @return The result of the calculation
  */
-template<> double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
+template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
-	std::size_t parameterSize = x_ref.size();
+	std::size_t parameterSize = x->size();
 	double result = 0.;
 
 #ifdef DEBUG
@@ -319,6 +319,7 @@ template<> double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
 }
 
 /************************************************************************************************/
+
 } /* namespace GenEvA */
 } /* namespace Gem */
 
