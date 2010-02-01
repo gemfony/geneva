@@ -63,6 +63,7 @@
 
 // Our own headers go here
 #include "GEnums.hpp"
+#include "GMPLDefines.hpp"
 
 namespace Gem {
 namespace Util {
@@ -457,13 +458,6 @@ boost::optional<std::string> checkExpectation (
 		return boost::optional<std::string>(message.str());
 	}
 }
-
-/*************************************************************************************************/
-/**
- * Define a check whether we are dealing with an object which has a given function.
- * See "Beyond the C++ Standard Library" by Bjoern Karlsson, p. 99 for an explanation
- */
-BOOST_MPL_HAS_XXX_TRAIT_DEF(checkRelationshipWithFunction)
 
 /*************************************************************************************************/
 /**

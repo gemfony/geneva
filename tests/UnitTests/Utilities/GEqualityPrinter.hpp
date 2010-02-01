@@ -1,4 +1,4 @@
-/**
+ /**
  * @file GEqualityPrinter.hpp
  */
 
@@ -53,19 +53,12 @@
 
 // Geneva headers go here
 #include "GStdSimpleVectorInterfaceT.hpp"
+#include "GMPLDefines.hpp"
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
 #pragma once
 #endif
-
-/*************************************************************************************************/
-/**
- * Define a check whether we are dealing with an object which has a given function.
- * See "Beyond the C++ Standard Library" by Bjoern Karlsson, p. 99 for an explanation
- */
-BOOST_MPL_HAS_XXX_TRAIT_DEF(checkRelationshipWithFunction)
-BOOST_MPL_HAS_XXX_TRAIT_DEF(checkRelationshipWithVectorFunction)
 
 /*************************************************************************************************/
 /**
@@ -106,6 +99,7 @@ public:
 	bool isEqual(
 			  const geneva_type& x
 			, const geneva_type& y
+			// , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -143,6 +137,7 @@ public:
 	bool isEqual(
 			  const geneva_simplecontainer_type& x
 			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
+			// , typename boost::enable_if<has_checkRelationshipWithVectorFunction<geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -180,6 +175,7 @@ public:
 	bool isInEqual(
 			  const geneva_type& x
 			, const geneva_type& y
+			// , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -217,6 +213,7 @@ public:
 	bool isInEqual(
 			  const geneva_simplecontainer_type& x
 			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
+			// , typename boost::enable_if<has_checkRelationshipWithVectorFunction<geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -255,6 +252,7 @@ public:
 	bool isSimilar(
 			  const geneva_type& x
 			, const geneva_type& y
+			// , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -295,6 +293,7 @@ public:
 			  const geneva_type& x
 			, const geneva_type& y
 			, double limit
+			// , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 

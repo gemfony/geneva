@@ -59,6 +59,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
+#include <boost/optional.hpp>
 
 #ifndef GNEURALNETWORKINDIVIDUAL_HPP_
 #define GNEURALNETWORKINDIVIDUAL_HPP_
@@ -74,6 +75,7 @@
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GenevaExceptions.hpp"
+#include "GEqualityPrinter.hpp"
 
 namespace Gem
 {
@@ -84,7 +86,7 @@ namespace GenEvA
 /**
  * Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function
  */
-enum transferMode {SIGMOID=0,RBF=1};
+enum transferMode {SIGMOID=0, RBF=1};
 
 /************************************************************************************************/
 /**
@@ -104,10 +106,74 @@ struct trainingSet
 	}
 	///////////////////////////////////////////////////////////////////////
 
-	virtual ~trainingSet() { /* nothing */ } // Virtual destructor needed due to serialization problem in Boost 1.41
+	/********************************************************************************************/
+	/** The destructor -- empty, as there is no local, dynamically
+	 * allocated data. A virtual destructor is needed due to a
+	 * serialization problem in Boost 1.41*/
+	virtual ~trainingSet() { /* nothing */ }
 
-	std::vector<double> Input;
-	std::vector<double> Output;
+	/********************************************************************************************/
+	/**
+	 * Checks for equality with another trainingSet object
+	 *
+	 * @param  cp A constant reference to another trainingSet object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const trainingSet& cp) const {
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"trainingSet::operator==","cp", CE_SILENT);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Checks for inequality with another trainingSet object
+	 *
+	 * @param  cp A constant reference to another trainingSet object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const trainingSet& cp) const {
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"trainingSet::operator!=","cp", CE_SILENT);
+	}
+	/********************************************************************************************/
+	/**
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
+	 *
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+	 */
+	boost::optional<std::string> checkRelationshipWith(const trainingSet& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
+
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
+
+		// Check local data
+		deviations.push_back(checkExpectation(withMessages, "trainingSet", Input, cp.Input, "Input", "cp.Input", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "trainingSet", Output, cp.Output, "Output", "cp.Output", e , limit));
+
+		return evaluateDiscrepancies("trainingSet", caller, deviations, e);
+	}
+
+	/********************************************************************************************/
+	// Local data
+	std::vector<double> Input; ///< Holds the input data
+	std::vector<double> Output; ///< Holds the output data
 };
 
 /************************************************************************************************/
@@ -128,18 +194,90 @@ struct trainingData
 	}
 	///////////////////////////////////////////////////////////////////////
 
-	virtual ~trainingData() { /* nothing */ } // Virtual destructor needed due to serialization problem in Boost 1.41
+	/********************************************************************************************/
+	/**
+	 * A standard destructor. "Virtual" needed due to aserialization problem in Boost 1.41.
+	 */
+	virtual ~trainingData() { /* nothing */ }
 
+	/********************************************************************************************/
+	/**
+	 * Checks for equality with another trainingData object
+	 *
+	 * @param  cp A constant reference to another trainingData object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const trainingData& cp) const {
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"trainingData::operator==","cp", CE_SILENT);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Checks for inequality with another trainingData object
+	 *
+	 * @param  cp A constant reference to another trainingData object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const trainingData& cp) const {
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"trainingData::operator!=","cp", CE_SILENT);
+	}
+	/********************************************************************************************/
+	/**
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
+	 *
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+	 */
+	boost::optional<std::string> checkRelationshipWith(const trainingData& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
+
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
+
+	    // Check vector sizes
+	    if(data.size() != cp.data.size()) {
+	    	std::ostringstream error;
+	    	error << "Vector sizes did not match in trainingData::checkRelationshipWith(): " << data.size() << " / " << cp.data.size();
+	    	deviations.push_back(boost::optional<std::string>(error.str()));
+	    }
+	    else {
+	    	// Check local data
+	    	std::vector<boost::shared_ptr<trainingSet> >::iterator it;
+	    	std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
+	    	for(it=data.begin(), cit=cp.data.begin(); it!=data.end(); ++it, ++cit) {
+	    		deviations.push_back((*it)->checkRelationshipWith(**cit, e, limit, y_name, withMessages));
+	    	}
+	    }
+
+		return evaluateDiscrepancies("trainingData", caller, deviations, e);
+	}
+
+	/********************************************************************************************/
+	/** Holds the individual data sets */
 	std::vector<boost::shared_ptr<trainingSet> > data;
 };
 
 /************************************************************************************************/
 /**
  * With this individual you can use evolutionary strategies instead of the standard
- * back-propagation algorithm to train feed-forward neural networks. A specialty of this
- * class is the split load and save function. This is necessary as, depending on the
- * value of the "transferMode_" variable, we have to register a suitable transfer_
- * function.
+ * back-propagation algorithm to train feed-forward neural networks.
  */
 class GNeuralNetworkIndividual
 	:public GParameterSet
@@ -147,39 +285,15 @@ class GNeuralNetworkIndividual
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
-    template<class Archive>
-    void save(Archive & ar, const unsigned int version) const
-    {
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
 		   & BOOST_SERIALIZATION_NVP(architecture_)
 		   & BOOST_SERIALIZATION_NVP(tD_)
 		   & BOOST_SERIALIZATION_NVP(transferMode_);
-    }
-
-    template<class Archive>
-    void load(Archive & ar, const unsigned int version)
-    {
-		using boost::serialization::make_nvp;
-
-		ar & make_nvp("ParameterSet", boost::serialization::base_object<GParameterSet>(*this));
-		ar & make_nvp("architecture_",architecture_);
-		ar & make_nvp("tD_", tD_);
-		ar & make_nvp("transferMode_", transferMode_);
-
-		// Register a suitable transfer function, depending on the value of transferMode_
-		switch(transferMode_){
-		case SIGMOID:
-			transfer_= boost::bind(&GNeuralNetworkIndividual::sigmoid,_1);
-			break;
-		case RBF:
-			transfer_= boost::bind(&GNeuralNetworkIndividual::rbf,_1);
-			break;
-		}
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+	}
 
 	///////////////////////////////////////////////////////////////////////
 
@@ -247,9 +361,6 @@ public:
 				throw geneva_error_condition(error.str());
 			}
 		}
-
-		// Set the transfer function to sigmoidal
-		transfer_ = boost::bind(&GNeuralNetworkIndividual::sigmoid,_1);
 
 		// Load the training data from file
 		std::ifstream trDat(trainingDataFile.c_str());
@@ -335,9 +446,6 @@ public:
 				throw geneva_error_condition(error.str());
 			}
 		}
-
-		// Set the transfer function to sigmoidal
-		transfer_ = boost::bind(&GNeuralNetworkIndividual::sigmoid,_1);
 	}
 
 	/********************************************************************************************/
@@ -363,7 +471,7 @@ public:
 		}
 
 		architecture_ = cp.architecture_;
-		setTransferMode(cp.transferMode_); // Also assigns the correct function object
+		transferMode_ = cp.tansferMode_;
 	}
 
 	/********************************************************************************************/
@@ -423,8 +531,74 @@ public:
 		architecture_ = p_load->architecture_;
 
 		// Copy and set the transfer mode
-		setTransferMode(p_load->transferMode_);
+		transferMode_ = p_load->transferMode_;
 	}
+
+	/********************************************************************************************/
+	/**
+	 * Checks for equality with another GNeuralNetworkIndividual object
+	 *
+	 * @param  cp A constant reference to another GNeuralNetworkIndividual object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GNeuralNetworkIndividual& cp) const {
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNeuralNetworkIndividual::operator==","cp", CE_SILENT);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Checks for inequality with another GNeuralNetworkIndividual object
+	 *
+	 * @param  cp A constant reference to another GNeuralNetworkIndividual object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GNeuralNetworkIndividual& cp) const {
+		using namespace Gem::Util;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNeuralNetworkIndividual::operator!=","cp", CE_SILENT);
+	}
+	/********************************************************************************************/
+	/**
+	 * Checks whether a given expectation for the relationship between this object and another object
+	 * is fulfilled.
+	 *
+	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param e The expected outcome of the comparison
+	 * @param limit The maximum deviation for floating point values (important for similarity checks)
+	 * @param caller An identifier for the calling entity
+	 * @param y_name An identifier for the object that should be compared to this one
+	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+	 */
+	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+			const Gem::Util::expectation& e,
+			const double& limit,
+			const std::string& caller,
+			const std::string& y_name,
+			const bool& withMessages) const
+	{
+	    using namespace Gem::Util;
+	    using namespace Gem::Util::POD;
+
+		// Check that we are indeed dealing with a GParamterBase reference
+		const GNeuralNetworkIndividual *p_load = GObject::conversion_cast(&cp,  this);
+
+		// Will hold possible deviations from the expectation, including explanations
+	    std::vector<boost::optional<std::string> > deviations;
+
+	    // Check our parent class ....
+	    deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GNeuralNetworkIndividual", y_name, withMessages));
+
+	    // ... and then our local data
+	    deviations.push_back(tD_.checkRelationshipWith(cp.tD_, e, limit, y_name, withMessages));
+	    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", architecture_, p_load->architecture_, "architecture_", "p_load->architecture_", e , limit));
+	    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", transferMode_, p_load->transferMode_, "transferMode_", "p_load->transferMode_", e , limit));
+
+		return evaluateDiscrepancies("GNeuralNetworkIndividual", caller, deviations, e);
+	}
+
 
 	/********************************************************************************************/
 	/**
@@ -432,14 +606,6 @@ public:
 	 */
 	void setTransferMode(const transferMode& tm){
 		transferMode_=tm;
-		switch(transferMode_){
-		case SIGMOID:
-			transfer_= boost::bind(&GNeuralNetworkIndividual::sigmoid,_1);
-			break;
-		case RBF:
-			transfer_= boost::bind(&GNeuralNetworkIndividual::rbf,_1);
-			break;
-		}
 	}
 
 	/********************************************************************************************/
@@ -467,7 +633,7 @@ public:
 	 *
 	 * @param fileName of the file the result should be written to
 	 * @param nData The number of training sets to create
-	 * @param nDim The number of dimensions of the hypercube
+	 * @param nDim The number of dimensions of the hyper cube
 	 * @param edgelength The desired edge length of the cube
 	 * @return A copy of the trainingData struct that has been created, wrapped in a shared_ptr
 	 */
@@ -531,13 +697,13 @@ public:
 	 * creation of a separate helper program could be avoided in this way. We create a sphere of
 	 * radius "radius". See http://en.wikipedia.org/wiki/Hypersphere for a description of the
 	 * formulae used.  Areas outside of the sphere get an output value of 0.99, areas inside of the
-	 * cube get an output value of 0.01. The trainining data is initialized with a radius of 2*radius.
+	 * cube get an output value of 0.01. The training data is initialized with a radius of 2*radius.
 	 *
 	 * You can call this function in the following way:
 	 *
 	 * GNeuralNetworkInvididual::::createHyperSphereTrainingData("someFileName.xml", [other arguments]);
 	 *
-	 * If filename is an empty string ("") , then no serialization takes place and the data is retured as
+	 * If filename is an empty string ("") , then no serialization takes place and the data is returned as
 	 * a struct only.
 	 *
 	 * @param fileName Name of the file the result should be written to
@@ -1034,7 +1200,7 @@ protected:
 			boost::shared_ptr<GDoubleCollection> inputLayer = pc_at<GDoubleCollection>(0);
 			for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
 				nodeResult=tS->Input.at(nodeCounter) * inputLayer->at(2*nodeCounter) - inputLayer->at(2*nodeCounter+1);
-				nodeResult=transfer_(nodeResult);
+				nodeResult=transfer(nodeResult);
 				prevResults.push_back(nodeResult);
 			}
 
@@ -1052,7 +1218,7 @@ protected:
 						nodeResult += prevResults.at(prevNodeCounter) * currentLayer->at(nodeCounter*(nPrevLayerNodes+1)+prevNodeCounter);
 					}
 					nodeResult -= currentLayer->at(nodeCounter*(nPrevLayerNodes+1)+nPrevLayerNodes);
-					nodeResult=transfer_(nodeResult);
+					nodeResult=transfer(nodeResult);
 					currentResults.push_back(nodeResult);
 				}
 
@@ -1077,12 +1243,28 @@ private:
 
 	/********************************************************************************************/
 	/**
+	 * The actual transfer function, which chooses from a number of available backends, depending
+	 * on the transfer mode.
+	 */
+	inline double transfer(const double& value) {
+		switch(tansferMode_) {
+		case SIGMOID:
+			return sigmoid(value);
+			break;
+		case RBF:
+			return rbf(value);
+			break;
+		}
+	}
+
+	/********************************************************************************************/
+	/**
 	 * A sigmoidal transfer function. Declared static so we avoid storing the local "this" pointer
 	 * in a boost::function object.
 	 *
 	 * @param value The value to which the sigmoid function should be applied
 	 */
-	static double sigmoid(double value) {
+	inline double sigmoid(const double& value) {
 		return 1./(1.+exp(-value));
 	}
 
@@ -1093,7 +1275,7 @@ private:
 	 *
 	 * @param value The value to which the rbf function should be applied
 	 */
-	static double rbf(double value) {
+	inline double rbf(const double& value) {
 		return exp(-GSQUARED(value));
 	}
 
@@ -1104,12 +1286,12 @@ private:
 	boost::shared_ptr<trainingData> tD_; ///< Holds the training data
 
 	transferMode transferMode_;
-	boost::function<double(double)> transfer_;
 };
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
+/************************************************************************************************/
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::GenEvA::GNeuralNetworkIndividual)
 
