@@ -1,0 +1,2 @@
+- Make the name of the id function a template parameter, with suitable overloads,
+  thereby eliminating the need for a switch statement in transfer().

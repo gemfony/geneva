@@ -45,9 +45,9 @@ namespace GenEvA
  * This enum denotes the possible demo function types
  */
 enum demoFunction {
-					PARABOLA=0,
-					NOISYPARABOLA=1,
-					ROSENBROCK=2
+	PARABOLA=0,
+	NOISYPARABOLA=1,
+	ROSENBROCK=2
 };
 
 /************************************************************************************************/

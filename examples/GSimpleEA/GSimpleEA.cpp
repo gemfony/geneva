@@ -107,12 +107,20 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 	GRANDOMFACTORY->setArraySize(arraySize);
 
+	boost::shared_ptr<GParameterSet> functionIndividual;
 
-	// Set up a single function individual
-	boost::shared_ptr<GFunctionIndividual> functionIndividual(new GFunctionIndividual());
-
-	// Choose the demo function
-	functionIndividual->setDemoFunction(df);
+	// Set up a single function individual, depending on the expected function type
+	switch(df) {
+	case PARABOLA:
+		functionIndividual = boost::shared_ptr<GFunctionIndividual<PARABOLA> >(new GFunctionIndividual<PARABOLA>());
+		break;
+	case NOISYPARABOLA:
+		functionIndividual = boost::shared_ptr<GFunctionIndividual<NOISYPARABOLA> >(new GFunctionIndividual<NOISYPARABOLA>());
+		break;
+	case ROSENBROCK:
+		functionIndividual = boost::shared_ptr<GFunctionIndividual<ROSENBROCK> >(new GFunctionIndividual<ROSENBROCK>());
+		break;
+	}
 
 	// Set up a GDoubleCollection with dimension values, each initialized
 	// with a random number in the range [min,max[
@@ -120,7 +128,7 @@ int main(int argc, char **argv){
 
 	// Set up and register an adaptor for the collection, so it
 	// knows how to be mutated.
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1,0.5,0.000001,5));
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1,0.5,0.000001,2));
 	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	gdga_ptr->setMutationProbability(mutProb);
 	if(productionPlace) // Factory means "true"
