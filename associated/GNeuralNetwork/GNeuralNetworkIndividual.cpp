@@ -126,19 +126,19 @@ boost::optional<std::string> trainingSet::checkRelationshipWith(const trainingSe
 /**
  * Initializes the object with data from a file
  *
- * @param trainingDataFile The name of a file holding the training data
+ * @param networkDataFile The name of a file holding the training data
  */
-trainingData::trainingData(const std::string& trainingDataFile) {
-	this->loadFromDisk(trainingDataFile);
+networkData::networkData(const std::string& networkDataFile) {
+	this->loadFromDisk(networkDataFile);
 }
 
 /************************************************************************************************/
 /**
- * Initializes with data from another trainingData object
+ * Initializes with data from another networkData object
  *
- * @param cp A copy of another trainingData object
+ * @param cp A copy of another networkData object
  */
-trainingData::trainingData(const trainingData& cp) {
+networkData::networkData(const networkData& cp) {
 	Gem::Util::copySmartPointerVector(cp.data, data);
 }
 
@@ -147,46 +147,46 @@ trainingData::trainingData(const trainingData& cp) {
  * A standard destructor. Declared virtual in the header
  * due to a serialization problem in Boost 1.41.
  */
-trainingData::~trainingData()
+networkData::~networkData()
 { /* nothing */ }
 
 /************************************************************************************************/
 /**
- * Copies the data of another trainingData object into this object, using one of Gemfony's
+ * Copies the data of another networkData object into this object, using one of Gemfony's
  * utility functions.
  *
- * @param cp A copy of another trainingData object
+ * @param cp A copy of another networkData object
  * @return A constant reference to this object
  */
-const trainingData& trainingData::operator=(const trainingData& cp) {
+const networkData& networkData::operator=(const networkData& cp) {
 	Gem::Util::copySmartPointerVector(cp.data, data);
 	return *this;
 }
 
 /************************************************************************************************/
 /**
- * Checks for equality with another trainingData object
+ * Checks for equality with another networkData object
  *
- * @param  cp A constant reference to another trainingData object
+ * @param  cp A constant reference to another networkData object
  * @return A boolean indicating whether both objects are equal
  */
-bool trainingData::operator==(const trainingData& cp) const {
+bool networkData::operator==(const networkData& cp) const {
 	using namespace Gem::Util;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"trainingData::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"networkData::operator==","cp", CE_SILENT);
 }
 
 /************************************************************************************************/
 /**
- * Checks for inequality with another trainingData object
+ * Checks for inequality with another networkData object
  *
- * @param  cp A constant reference to another trainingData object
+ * @param  cp A constant reference to another networkData object
  * @return A boolean indicating whether both objects are inequal
  */
-bool trainingData::operator!=(const trainingData& cp) const {
+bool networkData::operator!=(const networkData& cp) const {
 	using namespace Gem::Util;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"trainingData::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"networkData::operator!=","cp", CE_SILENT);
 }
 /************************************************************************************************/
 /**
@@ -201,7 +201,7 @@ bool trainingData::operator!=(const trainingData& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> trainingData::checkRelationshipWith(const trainingData& cp,
+boost::optional<std::string> networkData::checkRelationshipWith(const networkData& cp,
 		const Gem::Util::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -217,7 +217,7 @@ boost::optional<std::string> trainingData::checkRelationshipWith(const trainingD
     // Check vector sizes
     if(data.size() != cp.data.size()) {
     	std::ostringstream error;
-    	error << "Vector sizes did not match in trainingData::checkRelationshipWith(): " << data.size() << " / " << cp.data.size();
+    	error << "Vector sizes did not match in networkData::checkRelationshipWith(): " << data.size() << " / " << cp.data.size();
     	deviations.push_back(boost::optional<std::string>(error.str()));
     }
     else {
@@ -229,7 +229,7 @@ boost::optional<std::string> trainingData::checkRelationshipWith(const trainingD
     	}
     }
 
-	return evaluateDiscrepancies("trainingData", caller, deviations, e);
+	return evaluateDiscrepancies("networkData", caller, deviations, e);
 }
 
 /************************************************************************************************/
@@ -238,13 +238,13 @@ boost::optional<std::string> trainingData::checkRelationshipWith(const trainingD
  *
  * @param fileName The name of the file that data should be saved to
  */
-void trainingData::saveToDisk(const std::string& trainingDataFile) const {
-	std::ofstream trDat(trainingDataFile.c_str());
+void networkData::saveToDisk(const std::string& networkDataFile) const {
+	std::ofstream trDat(networkDataFile.c_str());
 
 	if(!trDat){
 		std::ostringstream error;
-		error << "In trainingData::saveToDisk(const std::string&) : Error!" << std::endl
-			  << "Data file " << trainingDataFile << " could not be opened for writing." << std::endl;
+		error << "In networkData::saveToDisk(const std::string&) : Error!" << std::endl
+			  << "Data file " << networkDataFile << " could not be opened for writing." << std::endl;
 
 		throw geneva_error_condition(error.str());
 	}
@@ -252,7 +252,7 @@ void trainingData::saveToDisk(const std::string& trainingDataFile) const {
 	// Load the data, using the Boost.Serialization library
 	{
 		boost::archive::xml_oarchive oa(trDat);
-		oa << boost::serialization::make_nvp("trainingData", this);
+		oa << boost::serialization::make_nvp("networkData", this);
 	} // Explicit scope at this point is essential so that ia's destructor is called
 
 	trDat.close();
@@ -264,31 +264,31 @@ void trainingData::saveToDisk(const std::string& trainingDataFile) const {
  *
  * @param fileName The name of the file from which data should be loaded
  */
-void trainingData::loadFromDisk(const std::string& trainingDataFile) {
-	trainingData *tD;
-	std::ifstream trDat(trainingDataFile.c_str());
+void networkData::loadFromDisk(const std::string& networkDataFile) {
+	networkData *nD;
+	std::ifstream trDat(networkDataFile.c_str());
 
 	if(!trDat){
 		std::ostringstream error;
-		error << "In trainingData::loadFromDisk(const std::string&) : Error!" << std::endl
-			  << "Data file " << trainingDataFile << " could not be opened for reading." << std::endl;
+		error << "In networkData::loadFromDisk(const std::string&) : Error!" << std::endl
+			  << "Data file " << networkDataFile << " could not be opened for reading." << std::endl;
 
 		throw geneva_error_condition(error.str());
 	}
 
-	// Load the data into tD, using the Boost.Serialization library
+	// Load the data into nD, using the Boost.Serialization library
 	{
 		boost::archive::xml_iarchive ia(trDat);
-		ia >> boost::serialization::make_nvp("trainingData", tD);
+		ia >> boost::serialization::make_nvp("networkData", nD);
 	} // Explicit scope at this point is essential so that ia's destructor is called
 
 	trDat.close();
 
 	// Copy the data over, using our own operator=()
-	*this = *tD;
+	*this = *nD;
 
 	// Clean up
-	delete tD;
+	delete nD;
 }
 
 /************************************************************************************************/

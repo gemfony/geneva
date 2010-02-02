@@ -77,6 +77,7 @@
 #include "GenevaExceptions.hpp"
 #include "GEqualityPrinter.hpp"
 #include "GHelperFunctionsT.hpp"
+#include "GStdSimpleVectorInterfaceT.hpp"
 
 namespace Gem
 {
@@ -141,41 +142,43 @@ struct trainingSet
 /************************************************************************************************/
 /**
  * This class holds all necessary information for the training of the neural network individual,
- * including the network's geometry. For intermediate storage in disk, we simply use serialized
- * data generated from the class using the Boost.Serialization library.
+ * including the network's geometry. For intermediate storage on disk, we simply serialize the
+ * entire object using the Boost.Serialization library.
  */
-class trainingData
+class networkData
+	:public GStdSimpleVectorInterfaceT<std::size_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_NVP(data)
-		   & BOOST_SERIALIZATION_NVP(architecture);
+		ar  & make_nvp("GStdSimpleVectorInterfaceT_size_t", boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this));
+			& BOOST_SERIALIZATION_NVP(data)
+		    & BOOST_SERIALIZATION_NVP(currentIndex_);
 	}
 
 public:
 	///////////////////////////////////////////////////////////////////////
 	/** @brief Initialization with data from file */
-	explicit trainingData(const std::string&);
+	explicit networkData(const std::string&);
 	/** @brief The copy constructor */
-	trainingData(const trainingData&);
+	networkData(const networkData&);
 	/** @brief A standard destructor. */
-	virtual ~trainingData();
+	virtual ~networkData();
 
-	/** @brief Copies the data of another trainingData object */
-	const trainingData& operator=(const trainingData&);
+	/** @brief Copies the data of another networkData object */
+	const networkData& operator=(const networkData&);
 
-	/** @brief Checks for equality with another trainingData object */
-	bool operator==(const trainingData&) const;
-	/** @brief Checks for inequality with another trainingData object */
-	bool operator!=(const trainingData&) const;
+	/** @brief Checks for equality with another networkData object */
+	bool operator==(const networkData&) const;
+	/** @brief Checks for inequality with another networkData object */
+	bool operator!=(const networkData&) const;
 
 	/** @brief Checks whether a given expectation is fulfilled. */
-	boost::optional<std::string> checkRelationshipWith(const trainingData&,
+	boost::optional<std::string> checkRelationshipWith(const networkData&,
 			const Gem::Util::expectation&,
 			const double&,
 			const std::string&,
@@ -187,11 +190,19 @@ public:
 	/** @brief Loads training data from the disc */
 	void loadFromDisk(const std::string&);
 
+	/** @brief Adds a new training set to the collection, Requires for the network architecture to be defined already */
+	void addTrainingSet(boost::shared_ptr<trainingSet>);
+	/** @brief Retrieves the next training set */
+	boost::optional<boost::shared_ptr<trainingSet> > getNextTrainingSet() const;
+	/** @brief Resets the index of the current training set */
+	void resetCurrentIndex();
+
+private:
 	/********************************************************************************************/
-	/** @brief Holds the individual data sets */
-	std::vector<boost::shared_ptr<trainingSet> > data;
-	/** @brief Holds the network's architecture data */
-	std::vector<std::size_t> architecture;
+	/** @brief Holds the individual data items */
+	std::vector<boost::shared_ptr<trainingSet> > data_;
+	/** @brief The index of the current training set */
+	std::size_t currentIndex_;
 };
 
 /************************************************************************************************/
@@ -213,7 +224,7 @@ class GNeuralNetworkIndividual
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		   & BOOST_SERIALIZATION_NVP(trainingDataFile_);
+		   & BOOST_SERIALIZATION_NVP(networkDataFile_);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -224,17 +235,17 @@ public:
 	 * A constructor which initializes the individual with a suitable set of network layers. It
 	 * also loads the training data from file.
 	 *
-	 * @param trainingDataFile The name of a file holding the training data
+	 * @param networkDataFile The name of a file holding the training data
 	 * @param architecture Holds the number of nodes in the input layer, hidden(1/2) layer and output layer
 	 * @param min The minimum value of random numbers used for initialization of the network layers
 	 * @param max The maximum value of random numbers used for initialization of the network layers
 	 */
-	GNeuralNetworkIndividual(std::string trainingDataFile,
+	GNeuralNetworkIndividual(std::string networkDataFile,
 				             const std::vector<std::size_t>& architecture,
 				             double min, double max)
-		: trainingDataFile_(trainingDataFile)
+		: networkDataFile_(networkDataFile)
 		, architecture_(architecture)
-		, tD_(new trainingData(trainingDataFile_))
+		, nD_(new networkData(networkDataFile_))
 		, transferFunction_(tF)
 	{
 		// Check the architecture we've been given and create the layers
@@ -292,9 +303,9 @@ public:
 	 */
 	GNeuralNetworkIndividual(const GNeuralNetworkIndividual<tF>& cp)
 		: GParameterSet(cp)
-		, trainingDataFile_(cp.trainingDataFile_)
+		, networkDataFile_(cp.networkDataFile_)
 		, architecture_(cp.architecture_)
-		, tD_(new trainingData(*(cp.tD_)))
+		, nD_(new networkData(*(cp.nD_)))
 		, transferFunction_(tF)
 	{ /* nothing */ }
 
@@ -330,16 +341,16 @@ public:
 		GParameterSet::load(cp);
 
 		// Load our local data.
-		trainingDataFile_ = p_load->trainingDataFile_;
+		networkDataFile_ = p_load->networkDataFile_;
 
 		// The architecture of the hidden layers could actually be changed
 		// in later versions, hence we copy it over.
 		architecture_ = p_load->architecture_;
 
-		// tD_ is a shared_ptr, hence we need to copy the data itself. We do not do
+		// nD_ is a shared_ptr, hence we need to copy the data itself. We do not do
 		// this, if we already have the data present. This happens as we assume that
 		// the training data doesn't change.
-		if(!tD_) tD_ = boost::shared_ptr<trainingData>(new trainingData(*(p_load->tD_)));
+		if(!nD_) nD_ = boost::shared_ptr<networkData>(new networkData(*(p_load->nD_)));
 	}
 
 	/********************************************************************************************/
@@ -400,9 +411,9 @@ public:
 	    deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GNeuralNetworkIndividual", y_name, withMessages));
 
 	    // ... and then our local data
-	    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", trainingDataFile_, p_load->trainingDataFile_, "trainingDataFile_", "p_load->trainingDataFile_", e , limit));
+	    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", networkDataFile_, p_load->networkDataFile_, "networkDataFile_", "p_load->networkDataFile_", e , limit));
 	    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", architecture_, p_load->architecture_, "architecture_", "p_load->architecture_", e , limit));
-	    deviations.push_back(tD_.checkRelationshipWith(cp.tD_, e, limit, y_name, withMessages));
+	    deviations.push_back(nD_.checkRelationshipWith(cp.nD_, e, limit, y_name, withMessages));
 
 		return evaluateDiscrepancies("GNeuralNetworkIndividual", caller, deviations, e);
 	}
@@ -418,9 +429,9 @@ public:
 	 * @param nData The number of training sets to create
 	 * @param nDim The number of dimensions of the hyper cube
 	 * @param edgelength The desired edge length of the cube
-	 * @return A copy of the trainingData struct that has been created, wrapped in a shared_ptr
+	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<trainingData> createHyperCubeTrainingData(std::size_t nData,
+	static boost::shared_ptr<networkData> createHyperCubenetworkData(std::size_t nData,
 				                                                       std::size_t nDim,
 				                                                       double edgelength)
 	{
@@ -428,7 +439,7 @@ public:
 		Gem::Util::GRandom gr;
 
 		// Create the required data.
-		boost::shared_ptr<trainingData> tD(new trainingData());
+		boost::shared_ptr<networkData> nD(new networkData());
 		bool outside=false;
 		for(std::size_t datCounter=0; datCounter<nData; datCounter++){
 			outside=false;
@@ -447,10 +458,10 @@ public:
 			if(outside) tS->Output.push_back(0.99);
 			else tS->Output.push_back(0.01);
 
-			tD->data.push_back(tS);
+			nD->data.push_back(tS);
 		}
 
-		return tD;
+		return nD;
 	}
 
 	/********************************************************************************************/
@@ -464,9 +475,9 @@ public:
 	 * @param nData The number of training sets to create
 	 * @param nDim The number of dimensions of the hypersphere
 	 * @param radius The desired radius of the sphere
-	 * @return A copy of the trainingData struct that has been created, wrapped in a shared_ptr
+	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<trainingData> createHyperSphereTrainingData(std::size_t nData,
+	static boost::shared_ptr<networkData> createHyperSpherenetworkData(std::size_t nData,
 															             std::size_t nDim,
 															             double radius)
 	{
@@ -474,7 +485,7 @@ public:
 		Gem::Util::GRandom gr;
 
 		// Create the required data.
-		boost::shared_ptr<trainingData> tD(new trainingData());
+		boost::shared_ptr<networkData> nD(new networkData());
 		double local_radius=1.;
 
 		for(std::size_t datCounter=0; datCounter<nData; datCounter++)
@@ -540,10 +551,10 @@ public:
 				break;
 			}
 
-			tD->data.push_back(tS);
+			nD->data.push_back(tS);
 		}
 
-		return tD;
+		return nD;
 	}
 
 	/********************************************************************************************/
@@ -556,16 +567,16 @@ public:
 	 *
 	 * @param nData The number of training sets to create
 	 * @param nDim The number of dimensions of the input sample
-	 * @return A copy of the trainingData struct that has been created, wrapped in a shared_ptr
+	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<trainingData> createAxisCentricTrainingData(std::size_t nData,
+	static boost::shared_ptr<networkData> createAxisCentricnetworkData(std::size_t nData,
 																		 std::size_t nDim)
 	{
 		// Create a local random number generator.
 		Gem::Util::GRandom gr;
 
 		// Will hold the training data file
-		boost::shared_ptr<trainingData> tD(new trainingData());
+		boost::shared_ptr<networkData> nD(new networkData());
 
 		for(std::size_t datCounter=0; datCounter<nData; datCounter++)
 		{
@@ -597,10 +608,10 @@ public:
 				(tS->Output).push_back(0.99);
 			}
 
-			tD->push_back(tS);
+			nD->push_back(tS);
 		}
 
-		return tD;
+		return nD;
 	}
 
 	/********************************************************************************************/
@@ -982,7 +993,7 @@ protected:
 
 		// Now loop over all data sets
 		std::vector<boost::shared_ptr<trainingSet> >::iterator d_it;
-		for(d_it=tD_->data.begin(); d_it!=tD_->data.end(); ++d_it){
+		for(d_it=nD_->data.begin(); d_it!=nD_->data.end(); ++d_it){
 			// Retrieve a constant reference to the training data set for faster access
 			const trainingSet& tS = **d_it;
 
@@ -1050,9 +1061,9 @@ private:
 
 	/********************************************************************************************/
 	// Local variables
-	std::string trainingDataFile_; ///< Holds the name of the file with the training data
+	std::string networkDataFile_; ///< Holds the name of the file with the training data
 	std::vector<std::size_t> architecture_; ///< Holds the network's architecture data
-	boost::shared_ptr<trainingData> tD_; ///< Holds the training data
+	boost::shared_ptr<networkData> nD_; ///< Holds the training data
 	const transferFunction transferFunction_; ///< Holds the id of the transfer function
 };
 
