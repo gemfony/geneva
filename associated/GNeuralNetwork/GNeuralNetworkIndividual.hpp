@@ -142,8 +142,11 @@ struct trainingSet
 /************************************************************************************************/
 /**
  * This class holds all necessary information for the training of the neural network individual,
- * including the network's geometry. For intermediate storage on disk, we simply serialize the
- * entire object using the Boost.Serialization library.
+ * including the network's geometry. For intermediate storage on disk, we can serialize the
+ * entire object using the Boost.Serialization library. networkData objects can themselves be
+ * treated as std::vector. The idea is that the architecture is appended to the object, with
+ * the first attached number being the input layer and the last one the output layer. Inbetween
+ * numbers are hidden layers.
  */
 class networkData
 	:public GStdSimpleVectorInterfaceT<std::size_t>
@@ -217,15 +220,29 @@ class GNeuralNetworkIndividual
 	:public GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
+
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	void load(Archive & ar, const unsigned int) {
+		using boost::serialization::make_nvp;
+
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		   & BOOST_SERIALIZATION_NVP(networkDataFile_);
+
+		// Load the network data from disk
+		nD_ = boost::shared_ptr<networkData>(new networkData(networkDataFile_));
+	}
+
+	template<typename Archive>
+	void save(Archive & ar, const unsigned int) const {
 		using boost::serialization::make_nvp;
 
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
 		   & BOOST_SERIALIZATION_NVP(networkDataFile_);
 	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 	///////////////////////////////////////////////////////////////////////
 
@@ -241,30 +258,28 @@ public:
 	 * @param max The maximum value of random numbers used for initialization of the network layers
 	 */
 	GNeuralNetworkIndividual(std::string networkDataFile,
-				             const std::vector<std::size_t>& architecture,
 				             double min, double max)
 		: networkDataFile_(networkDataFile)
-		, architecture_(architecture)
 		, nD_(new networkData(networkDataFile_))
 		, transferFunction_(tF)
 	{
 		// Check the architecture we've been given and create the layers
-		std::size_t nLayers = architecture.size();
+		std::size_t nLayers = nD_.size();
 
 		if(nLayers < 2){ // Two layers are required at the minimum (3 and 4 layers are useful)
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual<tF>([...]) : Error!" << std::endl
-				  << "Invalid number of layers supplied" << std::endl;
+				  << "Invalid number of layers supplied. Did you set up the network architecture ?" << std::endl;
 			throw geneva_error_condition(error.str());
 		}
 
-		std::vector<std::size_t>::iterator layerIterator;
+		networkData::iterator layerIterator;
 		std::size_t layerNumber=0;
 		std::size_t nNodes=0;
 		std::size_t nNodesPrevious=0;
 
 		// Set up the architecture
-		for(layerIterator=architecture_.begin(); layerIterator!=architecture_.end(); ++layerIterator){
+		for(layerIterator=nD_.begin(); layerIterator!=nD_.end(); ++layerIterator){
 			if(*layerIterator){ // Add the next network layer to this class, if possible
 				nNodes = *layerIterator;
 
@@ -288,8 +303,8 @@ public:
 			else {
 				std::ostringstream error;
 				error << "In GNeuralNetworkIndividual<tF>::GNeuralNetworkIndividual([...]) : Error!" << std::endl
-					  << "Found invalid number of nodes in layer: " << *layerIterator << std::endl;
-
+					  << "Found invalid number of nodes in layer: " << *layerIterator << std::endl
+					  << "Did you set up the network architecture ?" << std::endl;
 				throw geneva_error_condition(error.str());
 			}
 		}
@@ -304,7 +319,6 @@ public:
 	GNeuralNetworkIndividual(const GNeuralNetworkIndividual<tF>& cp)
 		: GParameterSet(cp)
 		, networkDataFile_(cp.networkDataFile_)
-		, architecture_(cp.architecture_)
 		, nD_(new networkData(*(cp.nD_)))
 		, transferFunction_(tF)
 	{ /* nothing */ }
@@ -342,10 +356,6 @@ public:
 
 		// Load our local data.
 		networkDataFile_ = p_load->networkDataFile_;
-
-		// The architecture of the hidden layers could actually be changed
-		// in later versions, hence we copy it over.
-		architecture_ = p_load->architecture_;
 
 		// nD_ is a shared_ptr, hence we need to copy the data itself. We do not do
 		// this, if we already have the data present. This happens as we assume that
@@ -412,7 +422,6 @@ public:
 
 	    // ... and then our local data
 	    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", networkDataFile_, p_load->networkDataFile_, "networkDataFile_", "p_load->networkDataFile_", e , limit));
-	    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", architecture_, p_load->architecture_, "architecture_", "p_load->architecture_", e , limit));
 	    deviations.push_back(nD_.checkRelationshipWith(cp.nD_, e, limit, y_name, withMessages));
 
 		return evaluateDiscrepancies("GNeuralNetworkIndividual", caller, deviations, e);
@@ -421,27 +430,54 @@ public:
 	/********************************************************************************************/
 	/**
 	 * This static function can be called in main() in order to create a suitable set of training
-	 * data for this class. It is added here as a means of testing the neural networl individual.
+	 * data for this class. It is added here as a means of testing the neural network individual.
 	 * We use a simple hyper-cube, ranging from [-edgelength/2,edgelength/2[ in each dimension.
 	 * Areas outside of the cube get an output value of 0.99, areas inside of the cube get an output
 	 * value of 0.01. The training data is initialized in the range [-edgelength:edgelength[.
 	 *
-	 * @param nData The number of training sets to create
-	 * @param nDim The number of dimensions of the hyper cube
+	 * @param architecture The desired architecture of the network
+	 * @param nDataSets The number of training sets to create
 	 * @param edgelength The desired edge length of the cube
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<networkData> createHyperCubenetworkData(std::size_t nData,
-				                                                       std::size_t nDim,
-				                                                       double edgelength)
-	{
+	static boost::shared_ptr<networkData> createHyperCubeNetworkData (
+			const std::vector<std::size_t>& architecture
+		  , const std::size_t& nDataSets
+		  , const double& edgelength
+	) {
+		// Check the number of supplied layers
+		if(architecture.size() < 2) { // We need at least an input- and an output-layer
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::createHyperCubenetworkData(): Error!" << std::endl
+				  << "Got invalid number of layers: " << architecture.size() << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
 		// Create a local random number generator.
 		Gem::Util::GRandom gr;
 
-		// Create the required data.
+		// The dimension of the hypercube is identical to the number of input nodes
+		std::size_t nDim = architecture[0];
+
+		// Create the actual networkData object and attach the architecture
+		// Checks the architecture on the way
 		boost::shared_ptr<networkData> nD(new networkData());
+		std::vector<std::size_t>::iterator it;
+		std::size_t layerCounter = 0;
+		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
+			if(*it == 0) {
+				std::ostringstream error;
+				error << "In GNeuralNetworkIndividual::createHyperCubenetworkData(): Error!" << std::endl
+					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+
+			nD->push_back(*it);
+		}
+
+		// Create the required data.
 		bool outside=false;
-		for(std::size_t datCounter=0; datCounter<nData; datCounter++){
+		for(std::size_t datCounter=0; datCounter<nDataSets; datCounter++){
 			outside=false;
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
@@ -470,25 +506,51 @@ public:
 	 * this class. It is added here as a means of testing this neural network individual. We create
 	 * a sphere of radius "radius". See http://en.wikipedia.org/wiki/Hypersphere for a description of
 	 * the formulae used.  Areas outside of the sphere get an output value of 0.99, areas inside of the
-	 * cube get an output value of 0.01. The training data is initialized with a radius of 2*radius.
+	 * sphere get an output value of 0.01. The training data is initialized with a radius of 2*radius.
 	 *
-	 * @param nData The number of training sets to create
-	 * @param nDim The number of dimensions of the hypersphere
+	 * @param architecture The desired architecture of the network
+	 * @param nDataSets The number of training sets to create
 	 * @param radius The desired radius of the sphere
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<networkData> createHyperSpherenetworkData(std::size_t nData,
-															             std::size_t nDim,
-															             double radius)
-	{
+	static boost::shared_ptr<networkData> createHyperSphereNetworkData (
+			const std::vector<std::size_t>& architecture
+		  , const std::size_t& nDataSets
+		  , const double& radius
+	) {
+		// Check the number of supplied layers
+		if(architecture.size() < 2) { // We need at least an input- and an output-layer
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
+				  << "Got invalid number of layers: " << architecture.size() << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
 		// Create a local random number generator.
 		Gem::Util::GRandom gr;
 
-		// Create the required data.
+		// The dimension of the hypersphere is identical to the number of input nodes
+		std::size_t nDim = architecture[0];
+
+		// Create the actual networkData object and attach the architecture
+		// Checks the architecture on the way
 		boost::shared_ptr<networkData> nD(new networkData());
+		std::vector<std::size_t>::iterator it;
+		std::size_t layerCounter = 0;
+		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
+			if(*it == 0) {
+				std::ostringstream error;
+				error << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
+					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+
+			nD->push_back(*it);
+		}
+
 		double local_radius=1.;
 
-		for(std::size_t datCounter=0; datCounter<nData; datCounter++)
+		for(std::size_t datCounter=0; datCounter<nDataSets; datCounter++)
 		{
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
@@ -563,22 +625,51 @@ public:
 	 * each dimension, the other centers along the different coordinate axes. It is added here as
 	 * a means of testing this neural network individual. The even distribution gets an output
 	 * value of 0.01, the "axis-centric" data distribution gets an output value of 0.99. Note that
-	 * this function will be very inefficient for large dimensions.
+	 * the creation of training data might take a long time for large dimensions values
 	 *
-	 * @param nData The number of training sets to create
-	 * @param nDim The number of dimensions of the input sample
+	 * @param architecture The desired architecture of the network
+	 * @param nDataSets The number of training sets to create
 	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	 */
-	static boost::shared_ptr<networkData> createAxisCentricnetworkData(std::size_t nData,
-																		 std::size_t nDim)
-	{
+	static boost::shared_ptr<networkData> createAxisCentricNetworkData (
+			const std::vector<std::size_t>& architecture
+		  , const std::size_t& nDataSets
+		  , const std::size_t& nDim
+	) {
+		// Check the number of supplied layers
+		if(architecture.size() < 2) { // We need at least an input- and an output-layer
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
+				  << "Got invalid number of layers: " << architecture.size() << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
 		// Create a local random number generator.
 		Gem::Util::GRandom gr;
 
-		// Will hold the training data file
-		boost::shared_ptr<networkData> nD(new networkData());
+		// Create a local random number generator.
+		Gem::Util::GRandom gr;
 
-		for(std::size_t datCounter=0; datCounter<nData; datCounter++)
+		// The dimension of the hypersphere is identical to the number of input nodes
+		std::size_t nDim = architecture[0];
+
+		// Create the actual networkData object and attach the architecture
+		// Checks the architecture on the way
+		boost::shared_ptr<networkData> nD(new networkData());
+		std::vector<std::size_t>::iterator it;
+		std::size_t layerCounter = 0;
+		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
+			if(*it == 0) {
+				std::ostringstream error;
+				error << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
+					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+
+			nD->push_back(*it);
+		}
+
+		for(std::size_t datCounter=0; datCounter<nDataSets; datCounter++)
 		{
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
@@ -616,20 +707,24 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Creates a C++ output file for the trained network, suitable for usage in
-	 * other projects. If you just want to retrieve the C++ description of the network,
-	 * call this function with an empty string "" .
+	 * Creates a program which in turn creates a program suitable for visualization of optimization
+	 * results with the ROOT analysis framework (see http://root.cern.ch for further information).
 	 *
-	 * @param headerFile The name of the header file the network should be saved in
-	 * @return A string holding the data that was just saved to file
+	 * @param visFile The name of the file the visualization program should be saved to
 	 */
-	std::string writeTrainedNetwork(const std::string& headerFile, const std::string& testProgram) {
-		std::ostringstream header;
-		std::ostringstream testprogram;
+	void writeVisualizationFile(const std::string& visFile) {
+		if(visFile == "" || visFile.empty()) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) : Error" << std::endl
+				  << "Received empty file name." << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+
+		std::ostringstream visProgram;
 
 		// The following only makes sense if the input dimension is 2
-		if(architecture_[0] == 2){
-			testprogram << "/**" << std::endl
+		if((*nD_)[0] == 2){
+			visProgram  << "/**" << std::endl
 			            << " * @file " << testProgram << std::endl
 			            << " *" << std::endl
 			            << " * This program allows to visualize the output of the training example." << std::endl
@@ -755,6 +850,41 @@ public:
 						<< "  fstr.close();" << std::endl
 						<< "}" << std::endl;
 		}
+		else {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
+				  << "Request to create visualization program for more than two input dimensions!" << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+
+		std::ofstream fstr(visFile.c_str());
+		if(!fstr) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
+				  << "Attempt to open output file " << visFile << " for writing failed." << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+		fstr << visProgram.str() << std::endl;
+		fstr.close();
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Creates a C++ output file for the trained network, suitable for usage in
+	 * other projects. If you just want to retrieve the C++ description of the network,
+	 * call this function with an empty string "" .
+	 *
+	 * @param headerFile The name of the header file the network should be saved in
+	 */
+	void writeTrainedNetwork(const std::string& headerFile) {
+		if(headerFile == "" || headerFile.empty()) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) : Error" << std::endl
+				  << "Received empty file name." << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+
+		std::ostringstream header;
 
 		header << "/**" << std::endl
 				<< " * @file " << headerFile << std::endl
@@ -814,9 +944,9 @@ public:
 				<< "      const std::size_t nLayers = " << this->data.size() <<";" << std::endl
 				<< "      const std::size_t architecture[nLayers] = {" << std::endl;
 
-		for(std::size_t i=0; i<architecture_.size(); i++) {
-			header << "        " << architecture_.at(i);
-			if(i==architecture_.size() - 1)
+		for(std::size_t i=0; i<nD_->size(); i++) {
+			header << "        " << nD_->at(i);
+			if(i==nD_->size() - 1)
 				header << std::endl;
 			else
 				header << "," << std::endl;
@@ -828,14 +958,14 @@ public:
 				<< "      const std::size_t weightOffset[nLayers] = {" << std::endl
 				<< "        " << weightOffset << "," << std::endl;
 
-		weightOffset += 2*architecture_[0];
+		weightOffset += 2*(*nD_)[0];
 		header << "       " << weightOffset << "," << std::endl;
 
-		for(std::size_t i=1; i<architecture_.size()-1; i++) {
-			weightOffset += architecture_[i]*(architecture_[i-1]+1);
+		for(std::size_t i=1; i<nD_->size()-1; i++) {
+			weightOffset += (*nD_)[i]*((*nD_)[i-1]+1);
 			header << "        " << weightOffset;
 
-			if(i==architecture_.size() - 1)
+			if(i==nD_->size() - 1)
 				header << std::endl;
 			else
 				header << "," << std::endl;
@@ -843,21 +973,21 @@ public:
 
 		header << "      };" << std::endl;
 
-		std::size_t nWeights = 2*architecture_[0];
-		for(std::size_t i=1; i<architecture_.size(); i++) {
-			nWeights += architecture_[i]*(architecture_[i-1]+1);
+		std::size_t nWeights = 2*(*nD_)[0];
+		for(std::size_t i=1; i<nD_->size(); i++) {
+			nWeights += (*nD_)[i]*((*nD_)[i-1]+1);
 		}
 
 		header << "      const std::size_t nWeights = " << nWeights << ";" << std::endl
 				<< "      const double weights[nWeights] = {" << std::endl;
 
-		for(std::size_t i=0; i<architecture_.size(); i++) {
+		for(std::size_t i=0; i<nD_->size(); i++) {
 			boost::shared_ptr<GDoubleCollection> currentLayer = pc_at<GDoubleCollection>(i);
 
 			for(std::size_t j=0; j<currentLayer->size(); j++) {
 				header << "        " << currentLayer->at(j);
 
-				if(i==(architecture_.size()-1) && j==(currentLayer->size()-1)) header << std::endl;
+				if(i==(nD_->size()-1) && j==(currentLayer->size()-1)) header << std::endl;
 				else header << "," << std::endl;
 			}
 		}
@@ -914,40 +1044,17 @@ public:
 				<< "#endif /* GENEVANEURALNETHEADER_HPP_ */" << std::endl;
 
 		// Write header to file, if requested
-		if(headerFile != "") {
-			std::ofstream fstr(headerFile.c_str());
-			if(fstr) {
-				fstr << header.str();
-				fstr.close();
-			}
-			else {
-				std::ostringstream error;
-				error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
-				      << "Error writing output file!" << std::endl;
-
-				throw geneva_error_condition(error.str());
-			}
+		std::ofstream fstr(headerFile.c_str());
+		if(fstr) {
+			fstr << header.str();
+			fstr.close();
 		}
-
-		if(architecture_[0] == 2){
-			// Write test program to file, if requested and useful
-			if(testProgram != "") {
-				std::ofstream fstr(testProgram.c_str());
-				if(fstr) {
-					fstr << testprogram.str();
-					fstr.close();
-				}
-				else {
-					std::ostringstream error;
-					error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
-						  << "Error writing output file!" << std::endl;
-
-					throw geneva_error_condition(error.str());
-				}
-			}
+		else {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
+				  << "Error writing output file!" << std::endl;
+			throw geneva_error_condition(error.str());
 		}
-
-		return header.str();
 	}
 
 protected:
@@ -992,14 +1099,15 @@ protected:
 		double result=0;
 
 		// Now loop over all data sets
-		std::vector<boost::shared_ptr<trainingSet> >::iterator d_it;
-		for(d_it=nD_->data.begin(); d_it!=nD_->data.end(); ++d_it){
+		nD_->resetCurrentIndex();
+		boost::optional<boost::shared_ptr<trainingSet> > o;
+		while(o = nD_->getNextTrainingSet()) {
 			// Retrieve a constant reference to the training data set for faster access
-			const trainingSet& tS = **d_it;
+			const trainingSet& tS = **o;
 
 			// The input layer
 			std::vector<double> prevResults;
-			std::size_t nLayerNodes = architecture_[0];
+			std::size_t nLayerNodes = (*nD_)[0];
 			double nodeResult=0;
 			const GDoubleCollection& inputLayer = *(pc_at<GDoubleCollection>(0));
 			for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
@@ -1012,8 +1120,8 @@ protected:
 			std::size_t nLayers = this->data.size();
 			for(std::size_t layerCounter=1; layerCounter<nLayers; layerCounter++){
 				std::vector<double> currentResults;
-				nLayerNodes=architecture_[layerCounter];
-				std::size_t nPrevLayerNodes=architecture_[layerCounter-1];
+				nLayerNodes=(*nD_)[layerCounter];
+				std::size_t nPrevLayerNodes=(*nD_)[layerCounter-1];
 				const GDoubleCollection& currentLayer = *(pc_at<GDoubleCollection>(layerCounter));
 
 				for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
@@ -1062,7 +1170,6 @@ private:
 	/********************************************************************************************/
 	// Local variables
 	std::string networkDataFile_; ///< Holds the name of the file with the training data
-	std::vector<std::size_t> architecture_; ///< Holds the network's architecture data
 	boost::shared_ptr<networkData> nD_; ///< Holds the training data
 	const transferFunction transferFunction_; ///< Holds the id of the transfer function
 };

@@ -138,7 +138,9 @@ networkData::networkData(const std::string& networkDataFile) {
  *
  * @param cp A copy of another networkData object
  */
-networkData::networkData(const networkData& cp) {
+networkData::networkData(const networkData& cp)
+	: GStdSimpleVectorInterfaceT<std::size_t>(cp)
+{
 	Gem::Util::copySmartPointerVector(cp.data, data);
 }
 
@@ -221,6 +223,9 @@ boost::optional<std::string> networkData::checkRelationshipWith(const networkDat
     	deviations.push_back(boost::optional<std::string>(error.str()));
     }
     else {
+    	// Check the parent class'es data
+    	deviations.push_back(GStdSimpleVectorInterfaceT<std::size_t>::checkRelationshipWith(cp, e, limit, y_name, withMessages));
+
     	// Check local data
     	std::vector<boost::shared_ptr<trainingSet> >::iterator it;
     	std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
@@ -292,6 +297,45 @@ void networkData::loadFromDisk(const std::string& networkDataFile) {
 }
 
 /************************************************************************************************/
+/**
+ * Adds a new training set to the collection, Requires for the network architecture to be
+ * defined already
+ *
+ * @param tS A boost::shared_ptr<trainingSet> object, pointing to a training set
+ */
+void networkData::addTrainingSet(boost::shared_ptr<trainingSet> tS) {
+	data_.push_back(tS);
+}
+
+/************************************************************************************************/
+/**
+ * Retrieves the next training set
+ *
+ * @return The next training set in the list
+ */
+boost::optional<boost::shared_ptr<trainingSet> > networkData::getNextTrainingSet() const {
+	std::vector<boost::shared_ptr<trainingSet> >::iterator currentIterator = data_.begin() + currentIndex_;
+	if(currentIterator != data_.end()) {
+		boost::optional<boost::shared_ptr<trainingSet> > o = *currentIterator_;
+		currentIndex_++;
+		return o;
+	}
+	else {
+		resetCurrentIndex();
+		return boost::optional<boost::shared_ptr<trainingSet> >();
+	}
+}
+
+/************************************************************************************************/
+/**
+ * Resets the index of the current training set, so that upon next call to getNextTrainingSet()
+ * the first training set in the list is returned.
+ */
+void networkData::resetCurrentIndex() {
+	currentIndex_ = 0;
+}
+
+/************************************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /************************************************************************************************/
 /**
@@ -301,7 +345,7 @@ void networkData::loadFromDisk(const std::string& networkDataFile) {
  * @return The transferred value
  */
 template <>
-double GNeuralNetworkIndividual<SIGMOID>::transfer(const double& value) const {
+inline double GNeuralNetworkIndividual<SIGMOID>::transfer(const double& value) const {
 	return 1./(1.+exp(-value));
 }
 
@@ -313,7 +357,7 @@ double GNeuralNetworkIndividual<SIGMOID>::transfer(const double& value) const {
  * @return The transferred value
  */
 template <>
-double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
+inline double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
 	return exp(-GSQUARED(value));
 }
 
