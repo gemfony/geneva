@@ -53,6 +53,7 @@
 #include "GEnums.hpp"
 #include "GenevaExceptions.hpp"
 #include "GIntFlipAdaptorT.hpp"
+#include "GPODExpectationChecksT.hpp"
 
 namespace Gem {
 namespace GenEvA {

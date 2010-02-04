@@ -61,9 +61,9 @@
 #pragma once
 #endif
 
-// Our own headers go here
+// Geneva headers go here
+#include "GObject.hpp"
 #include "GEnums.hpp"
-#include "GMPLDefines.hpp"
 
 namespace Gem {
 namespace Util {
@@ -487,13 +487,13 @@ boost::optional<std::string> checkExpectation (
 	  , const std::string& y_name
 	  , const Gem::Util::expectation& e
 	  , const double& limit = 0
-	  , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+	  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 )
 {
 	bool expectationMet = false;
 	std::ostringstream message;
 
-	std::string myCaller = "[Gem::GenEvA::checkExpectation(), called by " + caller + "]";
+	std::string myCaller = "[Gem::Util::POD::checkExpectation(), called by " + caller + "]";
 
 	switch(e) {
 	case Gem::Util::CE_FP_SIMILARITY:
@@ -603,13 +603,13 @@ boost::optional<std::string> checkExpectation (
 	  , const std::string& y_name
 	  , const Gem::Util::expectation& e
 	  , const double& limit = 0
-	  , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+	  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 )
 {
 	bool expectationMet = false;
 	std::ostringstream message;
 
-	std::string myCaller = "[Gem::GenEvA::checkExpectation(), called by " + caller + "]";
+	std::string myCaller = "[Gem::Util::POD::checkExpectation(), called by " + caller + "]";
 
 	bool foundDeviation = false;
 	typename std::vector<boost::shared_ptr<geneva_type> >::const_iterator x_it, y_it;

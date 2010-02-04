@@ -64,6 +64,7 @@
 
 // GenEvA headers go here
 #include "GObject.hpp"
+#include "GPODExpectationChecksT.hpp"
 #include "GenevaExceptions.hpp"
 
 namespace Gem {

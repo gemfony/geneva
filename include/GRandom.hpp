@@ -83,6 +83,7 @@
 #include "GThreadGroup.hpp"
 #include "GRandomFactory.hpp"
 #include "GenevaExceptions.hpp"
+#include "GPODExpectationChecksT.hpp"
 
 /****************************************************************************/
 

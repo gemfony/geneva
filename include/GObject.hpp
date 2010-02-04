@@ -72,12 +72,11 @@
 
 
 // Geneva header files go here
-
+// #include "GPODExpectationChecksT.hpp"
 #include "GSerializableI.hpp"
 #include "GenevaExceptions.hpp"
 #include "GEnums.hpp"
 #include "GHelperFunctionsT.hpp"
-#include "GPODExpectationChecksT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -105,9 +104,6 @@ class GObject
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief Needed so boost::mpl can recognize this class is having a checkRelationshipWith() function */
-    typedef bool checkRelationshipWithFunction;
-
 	/** @brief The default constructor */
 	GObject() ;
 	/** @brief The copy constructor */

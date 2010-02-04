@@ -78,9 +78,6 @@ class GParameterCollectionT
 	///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief Needed so boost::mpl can recognize this class is having a checkRelationshipWith(const std::vector<T>&) function */
-    typedef bool checkRelationshipWithVectorFunction;
-
 	/*******************************************************************************************/
 	/**
 	 * The default constructor

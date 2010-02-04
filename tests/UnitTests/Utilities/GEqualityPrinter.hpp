@@ -37,6 +37,7 @@
 
 // Boost header files go here
 
+#include <boost/type_traits.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
@@ -52,8 +53,8 @@
 #define GEQUALITYPRINTER_HPP_
 
 // Geneva headers go here
+#include "GObject.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
-#include "GMPLDefines.hpp"
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -99,7 +100,7 @@ public:
 	bool isEqual(
 			  const geneva_type& x
 			, const geneva_type& y
-			// , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -137,7 +138,7 @@ public:
 	bool isEqual(
 			  const geneva_simplecontainer_type& x
 			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
-			// , typename boost::enable_if<has_checkRelationshipWithVectorFunction<geneva_simplecontainer_type> >::type* dummy = 0
+			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -175,7 +176,7 @@ public:
 	bool isInEqual(
 			  const geneva_type& x
 			, const geneva_type& y
-			// , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -213,7 +214,7 @@ public:
 	bool isInEqual(
 			  const geneva_simplecontainer_type& x
 			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
-			// , typename boost::enable_if<has_checkRelationshipWithVectorFunction<geneva_simplecontainer_type> >::type* dummy = 0
+			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -252,7 +253,7 @@ public:
 	bool isSimilar(
 			  const geneva_type& x
 			, const geneva_type& y
-			// , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 
@@ -293,7 +294,7 @@ public:
 			  const geneva_type& x
 			, const geneva_type& y
 			, double limit
-			// , typename boost::enable_if<has_checkRelationshipWithFunction<geneva_type> >::type* dummy = 0
+			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 	) const	{
 		using namespace Gem::Util;
 

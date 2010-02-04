@@ -1,5 +1,5 @@
 /**
- * @file GIntFlipAdaptorT.hpp
+ * @file GenevaObjectsTests.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology

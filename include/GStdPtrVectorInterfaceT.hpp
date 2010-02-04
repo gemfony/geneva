@@ -106,10 +106,6 @@ class GStdPtrVectorInterfaceT
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /*****************************************************************************/
-    /** @brief Needed so boost::mpl can recognize this class is having a checkRelationshipWith() function */
-    typedef bool checkRelationshipWithFunction;
-
 	/*****************************************************************************/
 	/**
 	 * The default constructor

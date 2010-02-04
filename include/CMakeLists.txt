@@ -55,7 +55,6 @@ SET ( GENEVAINCLUDES
 	GInt32ObjectCollection.hpp
 	GIntFlipAdaptorT.hpp
 	GLongParameter.hpp
-	GMPLDefines.hpp
 	GMultiThreadedEA.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
