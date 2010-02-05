@@ -156,7 +156,7 @@ boost::optional<std::string> GDouble::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GDouble *p_load = GObject::conversion_cast(&cp,  this);
+	const GDouble *p_load = GObject::conversion_cast<GDouble>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -177,7 +177,7 @@ boost::optional<std::string> GDouble::checkRelationshipWith(const GObject& cp,
  */
 void GDouble::load(const GObject* cp){
 	// Convert cp into local format (also checks for the type of cp)
-	const GDouble *p_load = GObject::conversion_cast(cp, this);
+	const GDouble *p_load = GObject::conversion_cast<GDouble>(cp);
 
 	// Load our parent class'es data ...
 	GParameterT<double>::load(cp);

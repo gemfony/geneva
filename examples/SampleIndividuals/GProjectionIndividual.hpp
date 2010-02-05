@@ -102,6 +102,8 @@ struct projectionData
 	}
 	///////////////////////////////////////////////////////////////////////
 
+	virtual ~projectionData() { /* nothing */ }
+
 	std::vector<double> source; ///< Holds the m-dimensional data set
 	std::size_t nData; ///< The amount of data sets
 	std::size_t nDimOrig; ///< The dimension of the original distribution
@@ -296,7 +298,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	~GProjectionIndividual()
+	virtual ~GProjectionIndividual()
 	{ /* nothing */	}
 
 	/********************************************************************************************/

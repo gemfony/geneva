@@ -133,8 +133,8 @@ boost::optional<std::string> GBoundedInt32Collection::checkRelationshipWith(cons
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GBoundedInt32Collection *p_load = GObject::conversion_cast(&cp,  this);
+	// Check for a possible self-assignment
+    GObject::selfAssignmentCheck<GBoundedInt32Collection>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -154,8 +154,8 @@ boost::optional<std::string> GBoundedInt32Collection::checkRelationshipWith(cons
  * @param cp A copy of another GBoundedInt32Collection object, camouflaged as a GObject
  */
 void GBoundedInt32Collection::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GBoundedInt32Collection *p_load = GObject::conversion_cast(cp, this);
+	// Check for a possible self-assignment
+    GObject::selfAssignmentCheck<GBoundedInt32Collection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GBoundedInt32>::load(cp);

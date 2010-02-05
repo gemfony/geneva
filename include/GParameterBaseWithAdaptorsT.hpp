@@ -183,7 +183,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GParameterBaseWithAdaptorsT<T>  *p_load = GObject::conversion_cast(&cp,  this);
+		const GParameterBaseWithAdaptorsT<T>  *p_load = GObject::conversion_cast<GParameterBaseWithAdaptorsT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -207,7 +207,7 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
-		const  GParameterBaseWithAdaptorsT<T> *p_load = this->conversion_cast(cp, this);
+		const  GParameterBaseWithAdaptorsT<T> *p_load = this->conversion_cast<GParameterBaseWithAdaptorsT<T> >(cp);
 
 		// Load our parent class'es data ...
 		GParameterBase::load(cp);

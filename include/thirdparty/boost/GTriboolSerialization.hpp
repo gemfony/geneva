@@ -63,7 +63,7 @@ namespace serialization {
 template <class Archive>
 void save(Archive& ar,
           const boost::logic::tribool& val,
-          unsigned int version)
+          unsigned int)
 {
 	Gem::Util::triboolStates tbs = Gem::Util::FALSE;
 	if(val == true)
@@ -81,7 +81,7 @@ void save(Archive& ar,
 template <class Archive>
 void load(Archive& ar,
           boost::logic::tribool& val,
-          unsigned int version)
+          unsigned int)
 {
 	Gem::Util::triboolStates tbs = Gem::Util::FALSE;
 	ar & make_nvp("tbs", tbs);

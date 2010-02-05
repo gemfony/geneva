@@ -142,7 +142,7 @@ public:
 	{
 		// Convert GObject pointer to local format
 		// (also checks for self-assignments in DEBUG mode)
-		const GIdentityAdaptorT<T> *p_load = this->conversion_cast(cp, this);
+		const GIdentityAdaptorT<T> *p_load = GObject::conversion_cast<GIdentityAdaptorT<T> >(cp);
 		// Load the data of our parent class ...
 		GAdaptorT<T>::load(cp);
 		// no local data
@@ -198,7 +198,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GIdentityAdaptorT<T>  *p_load = GObject::conversion_cast(&cp,  this);
+		const GIdentityAdaptorT<T>  *p_load = GObject::conversion_cast<GIdentityAdaptorT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;

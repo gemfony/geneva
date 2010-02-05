@@ -95,7 +95,7 @@ const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
  * @param cp A pointer to another GBrokerEA object, camouflaged as a GObject
  */
 void GBrokerEA::load(const GObject * cp) {
-	const GBrokerEA *p_load = conversion_cast(cp, this);
+	const GBrokerEA *p_load = conversion_cast<GBrokerEA>(cp);
 
 	// Load the parent class'es data ...
 	GEvolutionaryAlgorithm::load(cp);
@@ -167,7 +167,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GBrokerEA *p_load = GObject::conversion_cast(&cp,  this);
+	const GBrokerEA *p_load = GObject::conversion_cast<GBrokerEA>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;

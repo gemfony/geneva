@@ -146,7 +146,7 @@ boost::optional<std::string> GCharFlipAdaptor::checkRelationshipWith(const GObje
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GCharFlipAdaptor  *p_load = GObject::conversion_cast(&cp,  this);
+	const GCharFlipAdaptor  *p_load = GObject::conversion_cast<GCharFlipAdaptor>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -168,7 +168,7 @@ boost::optional<std::string> GCharFlipAdaptor::checkRelationshipWith(const GObje
  */
 void GCharFlipAdaptor::load(const GObject* cp){
 	// Convert cp into local format (also checks for the type of cp)
-	const GCharFlipAdaptor *p_load = GObject::conversion_cast(cp, this);
+	const GCharFlipAdaptor *p_load = GObject::conversion_cast<GCharFlipAdaptor>(cp);
 
 	// Load our parent class'es data ...
 	GIntFlipAdaptorT<char>::load(cp);

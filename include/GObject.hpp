@@ -61,6 +61,10 @@
 #include <boost/serialization/export.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/optional.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
+
+
 
 #ifndef GOBJECT_HPP_
 #define GOBJECT_HPP_
@@ -96,7 +100,7 @@ class GObject
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive & ar, const unsigned int)  {
+    void serialize(Archive &, const unsigned int)  {
       using boost::serialization::make_nvp;
 
       // No local data
@@ -183,6 +187,46 @@ protected:
 
 	/**************************************************************************************************/
 	/**
+	 * This function checks in DEBUG mode whether a load pointer points to the current object. Note
+	 * that this template will only be accessible to the compiler if GObject is a base type of load_type.
+	 * Hence we do not need to use dynamic_cast to check for possible invalid conversions. This is
+	 * due to the Boost's enable_if and type_traits magic.
+	 */
+	template <typename load_type>
+	inline void selfAssignmentCheck (
+			const GObject *load_ptr
+		  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, load_type> >::type* dummy = 0
+	) const {
+#ifdef DEBUG
+		// Check that this object is not accidentally assigned to itself.
+		if (load_ptr == this) {
+			std::ostringstream error;
+			error << "In GObject::selfAssignmentCheck<load_type>() : Error!" << std::endl
+				  << "Tried to assign an object to or compare with itself." << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+#endif
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * This function converts the GObject pointer to the target, optionally checking for self-assignment
+	 * along the ways in DEBUG mode (through selfAssignmentCheck() ).  Note that this template will
+	 * only be accessible to the compiler if GObject is a base type of load_type. Hence we do not need to
+	 * use dynamic_cast to check for possible invalid conversions. This is due to the Boost's enable_if
+	 * and type_traits magic.
+	 */
+	template <typename load_type>
+	inline const load_type* conversion_cast(
+			const GObject *load_ptr
+		  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, load_type> >::type* dummy = 0
+	) const {
+		selfAssignmentCheck<load_type>(load_ptr);
+		return static_cast<const load_type *>(load_ptr);
+	}
+
+	/**************************************************************************************************/
+	/**
 	 * The load function takes a GObject pointer and converts it to a pointer to a derived class. This
 	 * work and the corresponding error checks are centralized in this function. Conversion will be fast
 	 * if we do not compile in DEBUG mode.
@@ -190,7 +234,7 @@ protected:
 	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
 	 */
 	template <typename load_type>
-	const load_type* conversion_cast(const GObject *load_ptr, const load_type* This) const {
+	inline const load_type* conversion_cast(const GObject *load_ptr, const load_type* This) const {
 #ifdef DEBUG
 		const load_type *result = dynamic_cast<const load_type *> (load_ptr);
 

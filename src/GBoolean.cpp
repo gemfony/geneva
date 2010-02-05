@@ -156,8 +156,8 @@ boost::optional<std::string> GBoolean::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GBoolean *p_load = GObject::conversion_cast(&cp,  this);
+	// Check for a possible self-assignment
+	GObject::selfAssignmentCheck<GBoolean>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -177,8 +177,8 @@ boost::optional<std::string> GBoolean::checkRelationshipWith(const GObject& cp,
  * @param cp A copy of another GBoolean object, camouflaged as a GObject
  */
 void GBoolean::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GBoolean *p_load = GObject::conversion_cast(cp, this);
+	// Check for a possible self-assignment
+	GObject::selfAssignmentCheck<GBoolean>(cp);
 
 	// Load our parent class'es data ...
 	GParameterT<bool>::load(cp);

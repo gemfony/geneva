@@ -151,7 +151,7 @@ public:
 	{
 		// Convert GObject pointer to local format
 		// (also checks for self-assignments in DEBUG mode)
-		const GSwarmAdaptor *p_load = this->conversion_cast(cp, this);
+		const GSwarmAdaptor *p_load = conversion_cast<GSwarmAdaptor>(cp);
 
 		// Load the data of our parent class ...
 		GAdaptorT<double>::load(cp);
@@ -212,7 +212,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GSwarmAdaptor reference
-		const GSwarmAdaptor *p_load = GObject::conversion_cast(&cp,  this);
+		const GSwarmAdaptor *p_load = conversion_cast<GSwarmAdaptor>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;

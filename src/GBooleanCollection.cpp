@@ -119,16 +119,8 @@ namespace GenEvA
    * @param gb A pointer to another GBooleanCollection object, camouflaged as a GObject
    */
   void GBooleanCollection::load(const GObject * cp){
-    // Check that this object is not accidently assigned to itself.
-    // As we do not actually do any calls with this pointer, we
-    // can use the faster static_cast<>
-    if(static_cast<const GBooleanCollection *>(cp) == this){
-		std::ostringstream error;
-		error << "In GBooleanCollection::load() : Error!" << std::endl
-			  << "Tried to assign an object to itself." << std::endl;
-
-		throw geneva_error_condition(error.str());
-    }
+	// Check for a possible self-assignment
+	GObject::selfAssignmentCheck<GBooleanCollection>(cp);
 
     GParameterCollectionT<bool>::load(cp);
   }
@@ -204,21 +196,21 @@ namespace GenEvA
   		const std::string& y_name,
   		const bool& withMessages) const
   {
-      using namespace Gem::Util;
-      using namespace Gem::Util::POD;
+	  using namespace Gem::Util;
+	  using namespace Gem::Util::POD;
 
-  	// Check that we are indeed dealing with a GParamterBase reference
-  	const GBooleanCollection *p_load = GObject::conversion_cast(&cp,  this);
+	// Check for a possible self-assignment
+	GObject::selfAssignmentCheck<GBooleanCollection>(&cp);
 
-  	// Will hold possible deviations from the expectation, including explanations
-      std::vector<boost::optional<std::string> > deviations;
+	// Will hold possible deviations from the expectation, including explanations
+	  std::vector<boost::optional<std::string> > deviations;
 
-  	// Check our parent class'es data ...
-  	deviations.push_back(GParameterCollectionT<bool>::checkRelationshipWith(cp, e, limit, "GBooleanCollection", y_name, withMessages));
+	// Check our parent class'es data ...
+	deviations.push_back(GParameterCollectionT<bool>::checkRelationshipWith(cp, e, limit, "GBooleanCollection", y_name, withMessages));
 
-  	// no local data ...
+	// no local data ...
 
-  	return POD::evaluateDiscrepancies("GBooleanCollection", caller, deviations, e);
+	return POD::evaluateDiscrepancies("GBooleanCollection", caller, deviations, e);
   }
 
   /**********************************************************************/

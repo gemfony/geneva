@@ -825,6 +825,7 @@ bool GOptimizationAlgorithm::timedHalt() const {
 bool GOptimizationAlgorithm::qualityHalt() const {
 	if(isBetter(bestPastFitness_, qualityThreshold_)) {
 		std::cerr << "Terminating optimization run because quality threshold has been reached" << std::endl;
+		return true;
 	}
 	else return false;
 }

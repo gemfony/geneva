@@ -180,8 +180,8 @@ boost::optional<std::string> GBoundedInt32::checkRelationshipWith(const GObject&
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GBoundedInt32 *p_load = GObject::conversion_cast(&cp,  this);
+	// Check for a possible self-assignment
+    GObject::selfAssignmentCheck<GBoundedInt32>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -201,8 +201,8 @@ boost::optional<std::string> GBoundedInt32::checkRelationshipWith(const GObject&
  * @param cp A copy of another GBoundedInt32 object, camouflaged as a GObject
  */
 void GBoundedInt32::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GBoundedInt32 *p_load = GObject::conversion_cast(cp, this);
+	// Check for a possible self-assignment
+    GObject::selfAssignmentCheck<GBoundedInt32>(cp);
 
 	// Load our parent class'es data ...
 	GBoundedNumT<boost::int32_t>::load(cp);

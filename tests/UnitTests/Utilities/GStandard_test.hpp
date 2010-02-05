@@ -136,7 +136,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr2(new T());
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(T_ptr2->fromString(T_ptr1->toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+		// BOOST_REQUIRE_NO_THROW(T_ptr2->fromString(T_ptr1->toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+		T_ptr2->fromString(T_ptr1->toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
 		BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 	}
 

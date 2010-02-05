@@ -221,7 +221,7 @@ public:
 	 */
 	virtual void load(const GObject *cp) {
 		// Convert cp into local format
-		const GAdaptorT<T> *p_load = this->conversion_cast(cp, this);
+		const GAdaptorT<T> *p_load = conversion_cast<GAdaptorT<T> >(cp);
 
 		// Load the parent class'es data
 		GObject::load(cp);
@@ -295,7 +295,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GAdaptorT<T>  *p_load = GObject::conversion_cast(&cp,  this);
+		const GAdaptorT<T>  *p_load = conversion_cast<GAdaptorT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -442,17 +442,17 @@ public:
 	void mutate(T& val)  {
 		if(boost::logic::indeterminate(mutationMode_)) { // The most likely case
 			// We only allow mutations in a certain percentage of cases
-			if(this->gr.evenRandom() <= mutProb_) {
+			if(gr.evenRandom() <= mutProb_) {
 				if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
 					adaptionCounter_ = 0;
-					this->adaptMutation();
+					adaptMutation();
 				}
 
-				this->customMutations(val);
+				customMutations(val);
 			}
 		}
 		else if(mutationMode_ == true) { // always mutate
-			this->customMutations(val);
+			customMutations(val);
 		}
 		// No need to test for mutationMode_ == false as no action is needed in this case
 
@@ -471,7 +471,7 @@ public:
 	 */
 	void setMaxVars(const std::size_t maxVars) {
 #ifdef DEBUG
-		if(maxVar_ < 1) {
+		if(maxVars_ < 1) {
 			std::ostringstream error;
 			error << "In GAdaptorT<T>::setMaxVars() : Error!" << std::endl
 				  << "The maximum number of variables must be at least 1" << std::endl;

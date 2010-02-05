@@ -121,7 +121,7 @@ public:
 	 */
 	virtual void load(const GObject* cp){
 		// Convert cp into local format
-	    const GMutableSetT<T> *p_load = this->conversion_cast(cp, this);
+	    const GMutableSetT<T> *p_load = this->conversion_cast<GMutableSetT<T> >(cp);
 
 	    // No local data - load the parent class'es data
 	    GIndividual::load(cp);
@@ -178,7 +178,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GMutableSetT<T> *p_load = GObject::conversion_cast(&cp,  this);
+		const GMutableSetT<T> *p_load = GObject::conversion_cast<GMutableSetT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;

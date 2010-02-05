@@ -45,8 +45,8 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInf
 		# (and, according to the authors' opinion, irrelevant in this context) warnings
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 	ELSE() # e.g. g++
-		# ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
-		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread")
+		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
+		# ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread")
 	ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 	# Use this for release builds.

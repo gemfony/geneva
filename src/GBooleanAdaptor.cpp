@@ -144,8 +144,8 @@ boost::optional<std::string> GBooleanAdaptor::checkRelationshipWith(const GObjec
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GBooleanAdaptor  *p_load = GObject::conversion_cast(&cp,  this);
+	// Check for a possible self-assignment
+	GObject::selfAssignmentCheck<GBooleanAdaptor>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -165,8 +165,8 @@ boost::optional<std::string> GBooleanAdaptor::checkRelationshipWith(const GObjec
  * @param cp A copy of another GBooleanAdaptor object, camouflaged as a GObject
  */
 void GBooleanAdaptor::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GBooleanAdaptor *p_load = GObject::conversion_cast(cp, this);
+	// Check for a possible self-assignment
+	GObject::selfAssignmentCheck<GBooleanAdaptor>(cp);
 
 	// Load our parent class'es data ...
 	GIntFlipAdaptorT<bool>::load(cp);

@@ -246,18 +246,8 @@ void GObject::fromFile(const std::string& fileName, const serializationMode& ser
  * @param cp A pointer to another GObject object
  */
 void GObject::load(const GObject *cp) {
-#ifdef DEBUG
-	// Check that this object is not accidentally assigned to itself.
-	if (cp == this) {
-		// Compose an error message
-		std::ostringstream str;
-		str << "In GObject::load: Error! Object was assigned to itself";
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost
-		throw geneva_error_condition(str.str());
-	}
-#endif /* DEBUG */
+	// Checks whether we are accidently assigning the object to itself
+	selfAssignmentCheck<GObject>(cp);
 
 	// No local data, hence nothing to do
 }

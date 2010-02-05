@@ -111,7 +111,7 @@ class GRandom
     void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::GenEvA::GObject)
          & BOOST_SERIALIZATION_NVP(rnrGenerationMode_)
          & BOOST_SERIALIZATION_NVP(initialSeed_)
          & BOOST_SERIALIZATION_NVP(gaussCache_)
@@ -122,7 +122,7 @@ class GRandom
     void load(Archive & ar, const unsigned int){
         using boost::serialization::make_nvp;
 
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::GenEvA::GObject)
            & BOOST_SERIALIZATION_NVP(rnrGenerationMode_);
 
         switch(rnrGenerationMode_) {

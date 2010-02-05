@@ -134,7 +134,7 @@ boost::optional<std::string> GCharObjectCollection::checkRelationshipWith(const 
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GCharObjectCollection *p_load = GObject::conversion_cast(&cp,  this);
+	const GCharObjectCollection *p_load = GObject::conversion_cast<GCharObjectCollection>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -155,7 +155,7 @@ boost::optional<std::string> GCharObjectCollection::checkRelationshipWith(const 
  */
 void GCharObjectCollection::load(const GObject* cp){
 	// Convert cp into local format (also checks for the type of cp)
-	const GCharObjectCollection *p_load = GObject::conversion_cast(cp, this);
+	const GCharObjectCollection *p_load = GObject::conversion_cast<GCharObjectCollection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GChar>::load(cp);

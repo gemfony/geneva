@@ -179,7 +179,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GNumCollectionT<T>  *p_load = GObject::conversion_cast(&cp,  this);
+		const GNumCollectionT<T>  *p_load = GObject::conversion_cast<GNumCollectionT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -203,17 +203,8 @@ public:
 	 * @param cp A copy of another GNumCollectionT<T> object, camouflaged as a GObject
 	 */
 	virtual void load(const GObject *cp){
-		// Check that this object is not accidently assigned to itself.
-		// As we do not actually do any calls with this pointer, we
-		// can use the faster static_cast<>
-		if(static_cast<const GNumCollectionT<T> *>(cp) == this) {
-			std::ostringstream error;
-
-			error << "In GNumCollectionT<T>::load(): Error!" << std::endl
-				  << "Tried to assign an object to itself." << std::endl;
-
-			throw geneva_error_condition(error.str());
-		}
+		// Check that this object is not accidently assigned to itself
+		GObject::selfAssignmentCheck<GNumCollectionT<T> >(cp);
 
 		GParameterCollectionT<T>::load(cp);
 	}
