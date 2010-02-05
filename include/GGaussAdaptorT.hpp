@@ -207,30 +207,8 @@ public:
 	 */
 	const GGaussAdaptorT<T>& operator=(const GGaussAdaptorT<T>& cp)
 	{
-		GGaussAdaptorT<T>::load(&cp);
+		GGaussAdaptorT<T>::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * This function loads the data of another GGaussAdaptorT, camouflaged as a GObject.
-	 * We assume that the values given to us by the other object are correct and do no error checks.
-	 *
-	 * @param A copy of another GGaussAdaptorT, camouflaged as a GObject
-	 */
-	void load(const GObject *cp)
-	{
-		// Convert GObject pointer to local format
-		const GGaussAdaptorT<T> *p_load = GObject::conversion_cast<GGaussAdaptorT<T> >(cp);
-
-		// Load the data of our parent class ...
-		GAdaptorT<T>::load(cp);
-
-		// ... and then our own data
-		sigma_ = p_load->sigma_;
-		sigmaSigma_ = p_load->sigmaSigma_;
-		minSigma_ = p_load->minSigma_;
-		maxSigma_ = p_load->maxSigma_;
 	}
 
 	/********************************************************************************************/
@@ -458,6 +436,28 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * This function loads the data of another GGaussAdaptorT, camouflaged as a GObject.
+	 * We assume that the values given to us by the other object are correct and do no error checks.
+	 *
+	 * @param A copy of another GGaussAdaptorT, camouflaged as a GObject
+	 */
+	void load_(const GObject *cp)
+	{
+		// Convert GObject pointer to local format
+		const GGaussAdaptorT<T> *p_load = GObject::conversion_cast<GGaussAdaptorT<T> >(cp);
+
+		// Load the data of our parent class ...
+		GAdaptorT<T>::load_(cp);
+
+		// ... and then our own data
+		sigma_ = p_load->sigma_;
+		sigmaSigma_ = p_load->sigmaSigma_;
+		minSigma_ = p_load->minSigma_;
+		maxSigma_ = p_load->maxSigma_;
+	}
+
 	/********************************************************************************************/
 	/**
 	 * This function creates a deep copy of this object. Purely virtual so this class cannot

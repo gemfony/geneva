@@ -132,26 +132,8 @@ public:
 	 */
 	const GIntFlipAdaptorT<T>& operator=(const GIntFlipAdaptorT<T>& cp)
 	{
-		GIntFlipAdaptorT<T>::load(&cp);
+		GIntFlipAdaptorT<T>::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * This function loads the data of another GIntFlipAdaptorT, camouflaged as a GObject.
-	 *
-	 * @param A copy of another GIntFlipAdaptorT, camouflaged as a GObject
-	 */
-	void load(const GObject *cp)
-	{
-		// Convert GObject pointer to local format
-		// (also checks for self-assignments in DEBUG mode)
-		const GIntFlipAdaptorT<T> *p_load = GObject::conversion_cast<GIntFlipAdaptorT<T> >(cp);
-
-		// Load the data of our parent class ...
-		GAdaptorT<T>::load(cp);
-
-		// no local data
 	}
 
 	/********************************************************************************************/
@@ -227,6 +209,23 @@ public:
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const = 0;
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * This function loads the data of another GIntFlipAdaptorT, camouflaged as a GObject.
+	 *
+	 * @param A copy of another GIntFlipAdaptorT, camouflaged as a GObject
+	 */
+	void load_(const GObject *cp)
+	{
+		// Check that this object is not accidently assigned to itself
+		GObject::selfAssignmentCheck<GIntFlipAdaptorT<T> >(cp);
+
+		// Load the data of our parent class ...
+		GAdaptorT<T>::load_(cp);
+
+		// no local data
+	}
+
 	/********************************************************************************************/
 	/**
 	 * This function creates a deep copy of this object. The function is purely virtual, as we

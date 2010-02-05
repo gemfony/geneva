@@ -114,7 +114,7 @@ public:
 	 */
 	const GParameterCollectionT<T>& operator=(const GParameterCollectionT<T>& cp)
 	{
-		GParameterCollectionT<T>::load(cp);
+		GParameterCollectionT<T>::load_(cp);
 		return *this;
 	}
 
@@ -216,21 +216,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Loads the data of another GParameterCollectionT<T> object, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp) {
-		// Convert cp into local format and check for self-assignment
-		const GParameterCollectionT<T> *p_load = GObject::conversion_cast<GParameterCollectionT<T> >(cp);
-
-		// Load our parent class'es data ...
-		GParameterBaseWithAdaptorsT<T>::load(cp);
-		GStdSimpleVectorInterfaceT<T>::operator=(*p_load);
-	}
-
-	/*******************************************************************************************/
-	/**
 	 * Allows to mutate the values stored in this class. applyAdaptor expects a reference
 	 * to a std::vector<T>. As we are derived from a wrapper of this class, we can just pass
 	 * a reference to its data vector to the function.
@@ -253,6 +238,21 @@ public:
 
 
 protected:
+	/*******************************************************************************************/
+	/**
+	 * Loads the data of another GParameterCollectionT<T> object, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GParameterCollectionT<T> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) {
+		// Convert cp into local format and check for self-assignment
+		const GParameterCollectionT<T> *p_load = GObject::conversion_cast<GParameterCollectionT<T> >(cp);
+
+		// Load our parent class'es data ...
+		GParameterBaseWithAdaptorsT<T>::load_(cp);
+		GStdSimpleVectorInterfaceT<T>::operator=(*p_load);
+	}
+
 	/*******************************************************************************************/
 	/**
 	 * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.

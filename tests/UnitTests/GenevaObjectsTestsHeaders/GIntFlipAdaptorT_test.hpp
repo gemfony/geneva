@@ -70,7 +70,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 {
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GIntFlipAdaptorT_no_failure_expected",
-						 exp(-10),
+						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
 	// A local random number generator
@@ -104,7 +104,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 
 	// Retrieve the mutation probablilty and modify it slightly. Then check similariy and equality.
 	double mutProb = gifat3.getMutationProbability();
-	mutProb -= exp(-10);
+	mutProb -= pow(10,-10);
 	gifat3.setMutationProbability(mutProb);
 
 	BOOST_CHECK(gep.isInEqual(gifat3, gifat1)); // May no longer be equal

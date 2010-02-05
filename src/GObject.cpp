@@ -65,7 +65,7 @@ GObject::~GObject()
  * @return A constant reference to this object
  */
 const GObject& GObject::operator=(const GObject& cp){
-	load(&cp);
+	load_(&cp);
 	return *this;
 }
 
@@ -180,7 +180,7 @@ void GObject::fromStream(std::istream& istr, const serializationMode& serMod) {
  		break;
      }
 
-    this->load(local);
+    load_(local);
     if(local) delete local;
 }
 
@@ -195,7 +195,7 @@ void GObject::fromStream(std::istream& istr, const serializationMode& serMod) {
  */
 std::string GObject::toString(const serializationMode& serMod) {
 	std::ostringstream oarchive_stream;
-	this->toStream(oarchive_stream, serMod);
+	toStream(oarchive_stream, serMod);
     return oarchive_stream.str();
 }
 
@@ -211,7 +211,7 @@ std::string GObject::toString(const serializationMode& serMod) {
  */
 void GObject::fromString(const std::string& descr, const serializationMode& serMod) {
     std::istringstream istr(descr);
-    this->fromStream(istr, serMod);
+    fromStream(istr, serMod);
 }
 
 /**************************************************************************************************/
@@ -223,7 +223,7 @@ void GObject::fromString(const std::string& descr, const serializationMode& serM
  */
 void GObject::toFile(const std::string& fileName, const serializationMode& serMod) {
 	std::ofstream checkpointStream(fileName.c_str());
-	this->toStream(checkpointStream, serMod);
+	toStream(checkpointStream, serMod);
 	checkpointStream.close();
 }
 
@@ -236,7 +236,7 @@ void GObject::toFile(const std::string& fileName, const serializationMode& serMo
  */
 void GObject::fromFile(const std::string& fileName, const serializationMode& serMod) {
 	std::ifstream checkpointStream(fileName.c_str());
-	this->fromStream(checkpointStream, serMod);
+	fromStream(checkpointStream, serMod);
 }
 
 /**************************************************************************************************/
@@ -245,7 +245,7 @@ void GObject::fromFile(const std::string& fileName, const serializationMode& ser
  *
  * @param cp A pointer to another GObject object
  */
-void GObject::load(const GObject *cp) {
+void GObject::load_(const GObject *cp) {
 	// Checks whether we are accidently assigning the object to itself
 	selfAssignmentCheck<GObject>(cp);
 
@@ -258,8 +258,10 @@ void GObject::load(const GObject *cp) {
  *
  * @return A boost::shared_ptr<GObject> to a clone of the derived object
  */
-template <> boost::shared_ptr<GObject> GObject::clone<GObject>() const {
-	return boost::shared_ptr<GObject>(this->clone_());
+template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
+		boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, GObject> >::type* dummy
+) const {
+	return boost::shared_ptr<GObject>(clone_());
 }
 
 /**************************************************************************************************/
@@ -269,7 +271,7 @@ template <> boost::shared_ptr<GObject> GObject::clone<GObject>() const {
  * @return A boost::shared_ptr<GObject> to a clone of the derived object
  */
 boost::shared_ptr<GObject> GObject::clone() const {
-	return boost::shared_ptr<GObject>(this->clone_());
+	return boost::shared_ptr<GObject>(clone_());
 }
 
 /**************************************************************************************************/

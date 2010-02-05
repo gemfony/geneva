@@ -229,7 +229,7 @@ enum rnrGenerationMode {
 /**
  * The default random number generation mode
  */
-const rnrGenerationMode DEFAULTRNRGENMODE=RNRFACTORY;
+const rnrGenerationMode DEFAULTRNRGENMODE=RNRLOCAL;
 
 /**********************************************************************************************/
 /**

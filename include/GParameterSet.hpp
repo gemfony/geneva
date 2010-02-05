@@ -1,4 +1,3 @@
-
 /**
  * @file GParameterSet.hpp
  */
@@ -54,6 +53,8 @@
 #include "GMutableSetT.hpp"
 #include "GParameterBase.hpp"
 #include "GenevaExceptions.hpp"
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 namespace Gem {
 namespace GenEvA {
@@ -95,57 +96,49 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Loads the data of another GObject */
-	virtual void load(const GObject*);
-
 	/** @brief Registers an evaluation function */
 	void registerEvaluator(const boost::function<double (const GParameterSet&)>&);
 
 	/**********************************************************************/
 	/**
-	 * If compiled in debug mode, this function performs all necessary error
-	 * checks on the conversion from a GParameterBase base pointer  to the desired
-	 * parameter type (usually a collection). Note that, if compiled in debug mode, this
-	 * function will throw. Otherwise a segfault may be the result if a faulty conversion was attempted.
-	 * Hence it is suggested to test your programs in debug mode before using it in a
-	 * production environment. "pc" stands for "parameter collection".
+	 * This function returns a parameter set at a given position of the data set.
+	 * If compiled in DEBUG mode, it also checks that the accesses position matches
+	 * the size of the vector.
+	 *
+	 * Note that this function will only be accessible to the compiler if parameter_type is a derivative
+	 * of GParameterBase, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
+	 * we do not need to check convertibility using dynamic_cast<>, which makes this function really
+	 * simole.
 	 *
 	 * @param pos The position in our data array that shall be converted
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename parameter_type>
-	inline const boost::shared_ptr<parameter_type> pc_at(const std::size_t& pos)  const {
+	inline const boost::shared_ptr<parameter_type> pc_at(
+			  const std::size_t& pos
+			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
+	)  const {
 #ifdef DEBUG
-		// Extract data. at() will throw if we have tried to access a position in the
-		// vector that does not exist.
-		boost::shared_ptr<GParameterBase> data_base = data.at(pos);
-
-		// Convert to the desired target type
-		boost::shared_ptr<parameter_type> p_load = boost::dynamic_pointer_cast<parameter_type>(data_base);
-
-		// Check that the conversion worked. dynamic_cast emits an empty pointer,
-		// if this was not the case.
-		if(!p_load){
-			std::ostringstream error;
-			error << "In GParameterSet::at<parameter_type>(pos) : Conversion error!" << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
+		if(pos >= data.size()) {
+			std::ostringsteam error;
+			error << "In GParameterSet::pc_at<>() : Error" << std::endl
+				  << "Tried to access index " << pos " which is >= the size " << data.size() << " of the vector." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
-
-		return p_load;
-#else
-		return boost::static_pointer_cast<parameter_type>(data[pos]);
 #endif /* DEBUG */
+
+		return boost::static_pointer_cast<parameter_type>(data[pos]);
 	}
 
 	/**********************************************************************/
 
 
 protected:
+	/** @brief Loads the data of another GObject */
+	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const;
+
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation();
 

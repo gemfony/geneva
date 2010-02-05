@@ -29,6 +29,11 @@
 
 #include "GRandom.hpp"
 
+// Included here so no conflicts occur. See explanation at
+// http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(Gem::Util::GRandom)
+
 namespace Gem {
 namespace Util {
 
@@ -126,7 +131,7 @@ GRandom::~GRandom() {
  * @param cp A copy of another GRandom object
  */
 GRandom& GRandom::operator=(const GRandom& cp) {
-	GRandom::load(&cp);
+	GRandom::load_(&cp);
 	return *this;
 }
 
@@ -180,7 +185,7 @@ boost::optional<std::string> GRandom::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GRandom *p_load = GObject::conversion_cast(&cp,  this);
+	const GRandom *p_load = GObject::conversion_cast<GRandom>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -217,12 +222,12 @@ Gem::GenEvA::GObject* GRandom::clone_() const {
  *
  * @param gb A pointer to another GRandom, camouflaged as a GObject
  */
-void GRandom::load(const Gem::GenEvA::GObject* cp) {
+void GRandom::load_(const Gem::GenEvA::GObject* cp) {
 	// Convert cp into local format
-	const GRandom *p_load = this->conversion_cast(cp, this);
+	const GRandom *p_load = this->conversion_cast<GRandom>(cp);
 
 	// Load the parent class'es data
-	Gem::GenEvA::GObject::load(cp);
+	Gem::GenEvA::GObject::load_(cp);
 
 	// Then our own data
 	rnrGenerationMode_ = p_load->rnrGenerationMode_;

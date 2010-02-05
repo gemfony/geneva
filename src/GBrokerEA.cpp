@@ -83,7 +83,7 @@ GBrokerEA::~GBrokerEA()
  * @return A constant reference to this object
  */
 const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
-	GBrokerEA::load(&cp);
+	GBrokerEA::load_(&cp);
 	return *this;
 }
 
@@ -94,11 +94,11 @@ const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
  *
  * @param cp A pointer to another GBrokerEA object, camouflaged as a GObject
  */
-void GBrokerEA::load(const GObject * cp) {
+void GBrokerEA::load_(const GObject * cp) {
 	const GBrokerEA *p_load = conversion_cast<GBrokerEA>(cp);
 
 	// Load the parent class'es data ...
-	GEvolutionaryAlgorithm::load(cp);
+	GEvolutionaryAlgorithm::load_(cp);
 
 	// ... and then our own
 	waitFactor_=p_load->waitFactor_;

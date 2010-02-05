@@ -89,7 +89,7 @@ namespace GenEvA {
 /**
  * GObject is the parent class for the majority of GenEvA classes. Essentially, GObject gives a
  * GenEvA class the ability to carry a name and defines a number of interface functions.
- * The GObject::load(const GObject *) and  GObject::clone() member functions should be
+ * The GObject::load_(const GObject *) and  GObject::clone_() member functions should be
  * re-implemented for each derived class. Unfortunately, there is no way to enforce this in C++.
  * Further common functionality of many GenEvA classes will be implemented here over time.
  */
@@ -100,7 +100,7 @@ class GObject
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive &, const unsigned int)  {
+    void serialize(Archive & ar, const unsigned int)  {
       using boost::serialization::make_nvp;
 
       // No local data
@@ -136,9 +136,6 @@ public:
 	/** @brief Loads a serial representation of this object from file */
 	void fromFile(const std::string&, const serializationMode&);
 
-	/** @brief Loads the data of another GObject */
-	virtual void load(const GObject*);
-
 	/** @brief Returns an XML description of the derivative it is called for */
 	std::string report();
 
@@ -147,41 +144,56 @@ public:
 
 	/**************************************************************************************************/
 	/**
+	 * Loads the data of another GObject(-derivative), wrapped in a shared pointer. Note that this
+	 * function is only accessible to the compiler if load_type is a derivative of GObject.
+	 *
+	 * @param cp A copy of another GObject-derivative, wrapped into a boost::shared_ptr<>
+	 */
+	template <typename load_type>
+	inline void load(
+			  const boost::shared_ptr<load_type>& cp
+			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, load_type> >::type* dummy = 0
+	) {
+		load_(cp.get());
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * Loads the data of another GObject(-derivative), presented as a constant reference. Note that this
+	 * function is only accessible to the compiler if load_type is a derivative of GObject.
+	 *
+	 * @param cp A copy of another GObject-derivative, wrapped into a boost::shared_ptr<>
+	 */
+	template <typename load_type>
+	inline void load(
+			  const load_type& cp
+			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, load_type> >::type* dummy = 0
+	) {
+		load_(&cp);
+	}
+
+	/**************************************************************************************************/
+	/**
 	 * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
-	 * and emits it as a boost::shared_ptr<> . This work and the corresponding error checks are centralized
-	 * in this function. Conversion will be faster if we do not compile in DEBUG mode.
+	 * and emits it as a boost::shared_ptr<> . Note that this template will only be accessible to the
+	 * compiler if GObject is a base type of clone_type. Hence we do not need to use dynamic_cast to
+	 * check for possible invalid conversions. This is due to the Boost's enable_if and type_traits magic
+	 * and makes this function really simple.
 	 *
 	 * @return A converted clone of this object, wrapped into a boost::shared_ptr
 	 */
 	template <typename clone_type>
-	boost::shared_ptr<clone_type> clone() const {
-#ifdef DEBUG
-		// Get a clone of this object and wrap it in a boost::shared_ptr<GObject>
-		boost::shared_ptr<GObject> p_base(this->clone_());
-
-		// Convert to the desired target type
-		boost::shared_ptr<clone_type> p_load = boost::dynamic_pointer_cast<clone_type>(p_base);
-
-		// Check that the conversion worked. dynamic_cast emits an empty pointer,
-		// if this was not the case.
-		if(!p_load){
-			std::ostringstream error;
-			error << "In GObject::clone<clone_type>() : Conversion error!" << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
-		}
-
-		return p_load;
-#else
+	inline boost::shared_ptr<clone_type> clone(
+			typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, clone_type> >::type* dummy = 0
+	) const {
 		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
-#endif
 	}
 
 	/**************************************************************************************************/
 
 protected:
+	/** @brief Loads the data of another GObject */
+	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 
@@ -226,44 +238,6 @@ protected:
 	}
 
 	/**************************************************************************************************/
-	/**
-	 * The load function takes a GObject pointer and converts it to a pointer to a derived class. This
-	 * work and the corresponding error checks are centralized in this function. Conversion will be fast
-	 * if we do not compile in DEBUG mode.
-	 *
-	 * @param load_ptr A pointer to another T-object, camouflaged as a GObject
-	 */
-	template <typename load_type>
-	inline const load_type* conversion_cast(const GObject *load_ptr, const load_type* This) const {
-#ifdef DEBUG
-		const load_type *result = dynamic_cast<const load_type *> (load_ptr);
-
-		// dynamic_cast will emit a NULL pointer, if the conversion failed
-		if (!result) {
-			std::ostringstream error;
-			error << "In GObject::conversion_cast<T>() : Conversion error!" << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
-		}
-
-		// Check that this object is not accidentally assigned to itself.
-		if (load_ptr == This) {
-			std::ostringstream error;
-			error << "In GObject::conversion_cast<T>() : Error!" << std::endl
-					<< "Tried to assign an object to itself." << std::endl;
-
-			throw geneva_error_condition(error.str());
-		}
-
-		return result;
-#else
-		return static_cast<const load_type *>(load_ptr);
-#endif
-	}
-
-	/**************************************************************************************************/
 
 private:
 	/** @brief Checks for equality with another GObject object. Intentionally left undefined, as this class is abstract */
@@ -273,7 +247,9 @@ private:
 };
 
 /** @brief A specialization for cases for no conversion is supposed to take place */
-template <> boost::shared_ptr<GObject> GObject::clone<GObject>() const;
+template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
+		boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, GObject> >::type*
+) const;
 
 } /* namespace GenEvA */
 } /* namespace Gem */

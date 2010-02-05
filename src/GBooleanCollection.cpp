@@ -97,7 +97,7 @@ namespace GenEvA
    * @param cp A copy of another GBooleanCollection object
    */
   const GBooleanCollection& GBooleanCollection::operator=(const GBooleanCollection& cp){
-    GBooleanCollection::load(&cp);
+    GBooleanCollection::load_(&cp);
     return *this;
   }
 
@@ -118,11 +118,11 @@ namespace GenEvA
    *
    * @param gb A pointer to another GBooleanCollection object, camouflaged as a GObject
    */
-  void GBooleanCollection::load(const GObject * cp){
+  void GBooleanCollection::load_(const GObject * cp){
 	// Check for a possible self-assignment
 	GObject::selfAssignmentCheck<GBooleanCollection>(cp);
 
-    GParameterCollectionT<bool>::load(cp);
+    GParameterCollectionT<bool>::load_(cp);
   }
 
   /**********************************************************************/
@@ -132,8 +132,7 @@ namespace GenEvA
    * @param nval The number of boolean values to add to the collection
    */
   void GBooleanCollection::addRandomData(const std::size_t& nval){
-	  Gem::Util::GRandom gr;
-	  gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+	  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom());
   }
 
@@ -145,8 +144,7 @@ namespace GenEvA
    * @param probability The probability for true values in the collection
    */
   void GBooleanCollection::addRandomData(const std::size_t& nval, const double& probability){
-	  Gem::Util::GRandom gr;
-	  gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+	  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom(probability));
   }
 

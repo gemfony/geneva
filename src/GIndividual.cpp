@@ -77,8 +77,8 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, pers_(cp.pers_)
 {
 	// We need to take care of the personality pointer manually
-	this->setPersonality(pers_);
-	if(pers_ != NONE) pt_ptr_->load(cp.pt_ptr_.get());
+	setPersonality(pers_);
+	if(pers_ != NONE) pt_ptr_->GObject::load(cp.pt_ptr_);
 }
 
 /**********************************************************************************/
@@ -137,7 +137,7 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(const GObject& c
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GIndividual *p_load = GObject::conversion_cast(&cp,  this);
+	const GIndividual *p_load = GObject::conversion_cast<GIndividual>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -166,11 +166,11 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(const GObject& c
  *
  * @param cp A copy of another GIndividual object, camouflaged as a GObject
  */
-void GIndividual::load(const GObject* cp) {
-	const GIndividual *p_load = this->conversion_cast(cp, this);
+void GIndividual::load_(const GObject* cp) {
+	const GIndividual *p_load = conversion_cast<GIndividual>(cp);
 
 	// Load the parent class'es data
-	GObject::load(cp);
+	GObject::load_(cp);
 
 	// Then load our local data
 	currentFitness_ = p_load->currentFitness_;
@@ -182,8 +182,8 @@ void GIndividual::load(const GObject* cp) {
 	maximize_ = p_load->maximize_;
 	parentAlgIteration_ = p_load->parentAlgIteration_;
 
-	this->setPersonality(p_load->pers_);
-	if(pers_ != NONE) pt_ptr_->load((p_load->pt_ptr_).get());
+	setPersonality(p_load->pers_);
+	if(pers_ != NONE) pt_ptr_->GObject::load(p_load->pt_ptr_);
 }
 
 /**********************************************************************************/
@@ -320,7 +320,7 @@ bool GIndividual::getMaxMode() const {
  * @param pers The desired personality of this individual
  */
 void GIndividual::setPersonality(const personality& pers) {
-	if(this->pers_==pers && pt_ptr_)  return; // A suitable personality has already been added
+	if(pers_==pers && pt_ptr_)  return; // A suitable personality has already been added
 
 	switch(pers) {
 	case NONE:
@@ -348,7 +348,7 @@ void GIndividual::setPersonality(const personality& pers) {
  * Resets the current personality to NONE
  */
 void GIndividual::resetPersonality() {
-	this->setPersonality(NONE);
+	setPersonality(NONE);
 }
 
 /**********************************************************************************/
@@ -392,8 +392,44 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
  *
  * @return A shared pointer to the personality traits base class
  */
-boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
+inline boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
 	return pt_ptr_;
+}
+
+/**************************************************************************************************/
+/**
+ * Convenience function to make the code more readable. Gives access to the evolutionary algorithm
+ * personality. Will throw if another personality is active. Inline, as it is defined in the class
+ * declaration.
+ *
+ * @return A shared_ptr to the evolutionary algorithms personality traits
+ */
+inline boost::shared_ptr<GEAPersonalityTraits> GIndividual::getEAPersonalityTraits() {
+	return this->getPersonalityTraits<GEAPersonalityTraits>();
+}
+
+/**************************************************************************************************/
+/**
+ * Convenience function to make the code more readable. Gives access to the gradient descent
+ * personality. Will throw if another personality is active. Inline, as it is defined in the class
+ * declaration.
+ *
+ * @return A shared_ptr to the gradient descent personality traits
+ */
+inline boost::shared_ptr<GGDPersonalityTraits> GIndividual::getGDPersonalityTraits() {
+	return this->getPersonalityTraits<GGDPersonalityTraits>();
+}
+
+/**************************************************************************************************/
+/**
+ * Convenience function to make the code more readable. Gives access to the swarm algorithm
+ * personality. Will throw if another personality is active. Inline, as it is defined in the class
+ * declaration.
+ *
+ * @return A shared_ptr to the swarm algorithms personality traits
+ */
+inline boost::shared_ptr<GSwarmPersonalityTraits> GIndividual::getSwarmPersonalityTraits() {
+	return this->getPersonalityTraits<GSwarmPersonalityTraits>();
 }
 
 /**********************************************************************************/
@@ -411,7 +447,7 @@ bool GIndividual::updateOnStall() {
 	case EA:
 	{
 		// This function should only be called for parents. Check ...
-		if(!this->getEAPersonalityTraits()->isParent()) {
+		if(!getEAPersonalityTraits()->isParent()) {
 			std::ostringstream error;
 			error << "In GIndividual::updateOnStall() (called for EA personality): Error!" << std::endl
 				  << "This function should only be called for parent individuals." << std::endl;
@@ -419,9 +455,9 @@ bool GIndividual::updateOnStall() {
 		}
 
 		// Do the actual update of the individual's structure
-		bool updatePerformed = this->customUpdateOnStall();
+		bool updatePerformed = customUpdateOnStall();
 		if(updatePerformed) {
-			this->setDirtyFlag();
+			setDirtyFlag();
 			return true;
 		}
 	}
@@ -463,7 +499,7 @@ bool GIndividual::customUpdateOnStall() {
  */
 double GIndividual::checkedFitness(){
 	try{
-		return this->fitness();
+		return fitness();
 	}
 	catch(std::exception& e){
 		std::ostringstream error;
@@ -502,10 +538,10 @@ bool GIndividual::process(){
 	case EA: // Evolutionary Algorithm
 	{
 		bool gotUsefulResult = false;
-		bool previous=this->setAllowLazyEvaluation(false);
-		if(this->getPersonalityTraits()->getCommand() == "mutate") {
+		bool previous=setAllowLazyEvaluation(false);
+		if(getPersonalityTraits()->getCommand() == "mutate") {
 			if(processingCycles_ == 1 || getParentAlgIteration() == 0) {
-				this->mutate();
+				mutate();
 				gotUsefulResult = true;
 			}
 			else{
@@ -534,7 +570,7 @@ bool GIndividual::process(){
 				// Loop until a better solution was found or the maximum number of attempts was reached
 				while(true) {
 					// Create a copy of this object
-					p = this->clone<GIndividual>();
+					p = clone<GIndividual>();
 
 					// Mutate and check fitness. Leave if a better solution was found
 					p->mutate();
@@ -551,24 +587,24 @@ bool GIndividual::process(){
 				}
 
 				// Load the last tested solution into this object
-				this->load(p.get());
+				GObject::load(p);
 
 				// If a better solution was found, let the audience know
 				if(success) gotUsefulResult = true;
 			}
 		}
-		else if(this->getPersonalityTraits()->getCommand() == "evaluate") {
-			this->fitness();
+		else if(getPersonalityTraits()->getCommand() == "evaluate") {
+			fitness();
 			gotUsefulResult = true;
 		}
 		else {
 			std::ostringstream error;
 			error << "In GIndividual::process(): Unknown command: \""
-					<< this->getPersonalityTraits()->getCommand() << "\"" << std::endl;
+					<< getPersonalityTraits()->getCommand() << "\"" << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
-		this->setAllowLazyEvaluation(previous);
+		setAllowLazyEvaluation(previous);
 
 		return gotUsefulResult;
 	}
@@ -594,7 +630,7 @@ bool GIndividual::process(){
  */
 bool GIndividual::checkedProcess(){
 	try{
-		return this->process();
+		return process();
 	}
 	catch(std::exception& e){
 		std::ostringstream error;

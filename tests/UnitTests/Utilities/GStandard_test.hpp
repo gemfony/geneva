@@ -72,7 +72,7 @@ using boost::unit_test_framework::test_case;
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("StandardTests_no_failure_expected",
-						 exp(-10),
+						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
 	/**************************************************************************/
@@ -100,7 +100,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	// Loading
 	BOOST_REQUIRE_NO_THROW(T_ptr_load = boost::shared_ptr<T>(new T()));
-	BOOST_REQUIRE_NO_THROW(T_ptr_load->load(T_ptr.get()));
+	BOOST_REQUIRE_NO_THROW(T_ptr_load->GObject::load(T_ptr));
 
 	// Check for equivalence and similarity
 	BOOST_CHECK(gep.isEqual(*T_ptr_load, *T_ptr));
@@ -136,8 +136,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr2(new T());
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		// BOOST_REQUIRE_NO_THROW(T_ptr2->fromString(T_ptr1->toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-		T_ptr2->fromString(T_ptr1->toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
+		// BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+		T_ptr2->GObject::fromString(T_ptr1->GObject::toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
 		BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 	}
 
@@ -146,7 +146,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr2(new T());
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(T_ptr2->fromString(T_ptr1->toString(XMLSERIALIZATION), XMLSERIALIZATION));
+		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(XMLSERIALIZATION), XMLSERIALIZATION));
 		BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 	}
 
@@ -155,7 +155,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr2(new T());
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(T_ptr2->fromString(T_ptr1->toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
 		BOOST_CHECK(gep.isEqual(*T_ptr1, *T_ptr2));
 	}
 }
@@ -168,14 +168,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("StandardTests_failures_expected",
-						 exp(-10),
+						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
 	{
 		// Checks that self-assignment throws in DEBUG mode
 #ifdef DEBUG
 		boost::shared_ptr<T> T_ptr1(new T());
-		BOOST_CHECK_THROW(T_ptr1->load(T_ptr1.get());, Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, Gem::GenEvA::geneva_error_condition);
 #endif
 	}
 }

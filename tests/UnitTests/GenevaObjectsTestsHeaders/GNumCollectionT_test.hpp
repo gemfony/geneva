@@ -88,7 +88,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 {
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GNumCollectionT_no_failure_expected",
-						 exp(-10),
+						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
 	// A local random number generator
@@ -123,7 +123,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	T gnct6;
 	{
 		boost::shared_ptr<GObject> gnct5_ptr = gnct4.GObject::clone();
-		gnct6.load(gnct5_ptr.get());
+		gnct6.GObject::load(gnct5_ptr);
 	}
 	BOOST_CHECK(gnct6 == gnct2);
 
@@ -137,7 +137,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	boost::optional<std::string> o;
 	o = gpb->checkRelationshipWith(gnct6, Gem::Util::CE_INEQUALITY, 0., "GNumCollectionT_no_failure_expected", "gnct6", Gem::Util::CE_WITH_MESSAGES);
 	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
-	gpb->load(&gnct6);
+	gpb->GObject::load(gnct6);
 	o = gpb->checkRelationshipWith(gnct6, Gem::Util::CE_EQUALITY, 0., "GNumCollectionT_no_failure_expected", "gnct6", Gem::Util::CE_WITH_MESSAGES);
 	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
 	T *gnct6_2 = static_cast<T *>(gpb);
@@ -221,7 +221,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_failures_expected, T)
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 		T gnct;
-		BOOST_CHECK_THROW(gnct.load(&gnct), Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(gnct.GObject::load(gnct), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 	}
 }

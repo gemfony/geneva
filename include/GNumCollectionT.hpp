@@ -125,7 +125,7 @@ public:
 	 * @return A constant reference to this object
 	 */
 	const GNumCollectionT& operator=(const GNumCollectionT<T>& cp){
-		GNumCollectionT<T>::load(&cp);
+		GNumCollectionT<T>::load_(&cp);
 		return *this;
 	}
 
@@ -192,23 +192,6 @@ public:
 		return evaluateDiscrepancies("GNumCollectionT<T>", caller, deviations, e);
 	}
 
-
-	/******************************************************************/
-	/**
-	 * Loads the data of another GNumCollectionT<T> object,
-	 * camouflaged as a GObject. We have no local data, so
-	 * all we need to do is to the standard identity check,
-	 * preventing that an object is assigned to itself.
-	 *
-	 * @param cp A copy of another GNumCollectionT<T> object, camouflaged as a GObject
-	 */
-	virtual void load(const GObject *cp){
-		// Check that this object is not accidently assigned to itself
-		GObject::selfAssignmentCheck<GNumCollectionT<T> >(cp);
-
-		GParameterCollectionT<T>::load(cp);
-	}
-
 	/******************************************************************/
 	/**
 	 * In derived classes, this function appends nval random values
@@ -229,6 +212,22 @@ public:
 	}
 
 protected:
+	/******************************************************************/
+	/**
+	 * Loads the data of another GNumCollectionT<T> object,
+	 * camouflaged as a GObject. We have no local data, so
+	 * all we need to do is to the standard identity check,
+	 * preventing that an object is assigned to itself.
+	 *
+	 * @param cp A copy of another GNumCollectionT<T> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject *cp){
+		// Check that this object is not accidently assigned to itself
+		GObject::selfAssignmentCheck<GNumCollectionT<T> >(cp);
+
+		GParameterCollectionT<T>::load_(cp);
+	}
+
 	/******************************************************************/
 	/**
 	 * Creates a deep copy of this object. Purely virtual as this class

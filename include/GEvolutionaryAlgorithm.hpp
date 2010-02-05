@@ -50,6 +50,8 @@
 #include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/cast.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 /**
  * Check that we have support for threads
@@ -137,9 +139,6 @@ public:
 	/** @brief A standard assignment operator */
 	const GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm&);
 
-	/** @brief Loads the data of another population */
-	virtual void load(const GObject *);
-
 	/** @brief Checks for equality with another GEvolutionaryAlgorithm object */
 	bool operator==(const GEvolutionaryAlgorithm&) const;
 	/** @brief Checks for inequality with another GEvolutionaryAlgorithm object */
@@ -188,32 +187,27 @@ public:
 	/**
 	 * Retrieves the best individual of the population and casts it to the desired type.
 	 *
+	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
+	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
+	 * we do not need to check convertibility using dynamic_cast<>. This makes this function really easy
+	 * as it can rely on the fact that GIndividual can indeed be converted into the desired type.
+	 *
 	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
 	 */
 	template <typename individual_type>
-	inline boost::shared_ptr<individual_type> getBestIndividual(){
-		// Get a copy of the best individual
-		boost::shared_ptr<GIndividual> p_base = this->data.at(0);
-
+	inline boost::shared_ptr<individual_type> getBestIndividual(
+			typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+	){
 #ifdef DEBUG
-		// Convert to the desired target type
-		boost::shared_ptr<individual_type> p_load = boost::dynamic_pointer_cast<individual_type>(p_base);
-
-		// Check that the conversion worked. dynamic_cast emits an empty pointer,
-		// if this was not the case.
-		if(!p_load){
+		if(data.empty()) {
 			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() : Conversion error!" << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
+			error << "In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() : Error!" << std::endl
+				  << "Tried to access individual at position 0 even though population is empty." << std::endl;
 			throw geneva_error_condition(error.str());
 		}
-
-		return p_load;
-#else
-		return boost::static_pointer_cast<individual_type>(p_base);
 #endif /* DEBUG */
+
+		return boost::static_pointer_cast<individual_type>(data[0]);
 	}
 
 	/**************************************************************************************************/
@@ -259,6 +253,8 @@ public:
 	/**************************************************************************************************/
 
 protected:
+	/** @brief Loads the data of another population */
+	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 	/** @brief Allows to set the personality type of the individuals */

@@ -200,40 +200,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Loads the data of another GParameterBaseWithAdaptorsT object, which
-	 * is camouflaged as a GObject.
-	 *
-	 * @param cp A copy of another GParameterBaseWithAdaptorsT, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp){
-		// Convert cp into local format
-		const  GParameterBaseWithAdaptorsT<T> *p_load = this->conversion_cast<GParameterBaseWithAdaptorsT<T> >(cp);
-
-		// Load our parent class'es data ...
-		GParameterBase::load(cp);
-
-		// and then our local data
-		hasLocalAdaptor_ = p_load->hasLocalAdaptor_;
-
-		// Only act if the other object actually holds a unique adaptor
-		if(hasLocalAdaptor_ && p_load->adaptor_) {
-			// Same type: We can just load the data
-		    if (adaptor_ && (adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId())) {
-				adaptor_->load((p_load->adaptor_).get());
-			}
-			// Different type - need to convert
-			else {
-				adaptor_ = p_load->adaptor_->GObject::clone<GAdaptorT<T> >();
-			}
-		}
-		else {
-			// Make sure our adaptor is also empty
-			adaptor_.reset();
-		}
-	}
-
-	/*******************************************************************************************/
-	/**
 	 * Adds an adaptor to this object. Please note that this class takes ownership of the adaptor
 	 * by cloning it.
 	 *
@@ -251,7 +217,7 @@ public:
 
 		if(adaptor_) { // Is an adaptor already present ?
 			if (adaptor_->getAdaptorId() == gat_ptr->getAdaptorId()) {
-				adaptor_->load(gat_ptr.get());
+				adaptor_->GObject::load(gat_ptr);
 			}
 			// Different type - need to convert
 			else {
@@ -315,40 +281,40 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * When compiled in debug mode, performs all necessary checks of the conversion of the
-	 * adaptor to the target type. Otherwise uses a faster static cast.
+	 * Transforms the adaptor stored in this class to the desired target type. The function
+	 * will check in DEBUG mode whether an adaptor was indeed stored in this class. It will
+	 * also complain in DEBUG mode if this function was called while no local adaptor was
+	 * stored here.
+	 *
+	 * Note that this function will only be accessible to the compiler if adaptor_type is a derivative
+	 * of GAdaptorT<T>, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
+	 * we do not need to check convertability using dynamic_cast<>.
 	 *
 	 * @return The desired adaptor instance, using its "natural" type
 	 */
 	template <typename adaptor_type>
-	boost::shared_ptr<adaptor_type> adaptor_cast() const {
+	boost::shared_ptr<adaptor_type> adaptor_cast(
+			typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type> >::type* dummy = 0
+	) const {
 
 #ifdef DEBUG
 		if(!hasLocalAdaptor_) {
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Error!" << std::endl
-				  << "Tried to retrieve adaptor that is not unique" << std::endl;
+				  << "Tried to retrieve adaptor while no local adaptor is stored here." << std::endl;
 			throw geneva_error_condition(error.str());
 		}
 
-		// Convert to the desired target type
-		boost::shared_ptr<adaptor_type> p_adaptor = boost::dynamic_pointer_cast<adaptor_type>(adaptor_);
-
-		// Check that the conversion worked. dynamic_cast emits an empty pointer,
-		// if this was not the case.
-		if(!p_adaptor){
+		if(!adaptor_) {
 			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Conversion error!" << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
+			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Error!" << std::endl
+				  << "Tried to access empty adaptor pointer." << std::endl;
 			throw geneva_error_condition(error.str());
 		}
-
-		return p_adaptor;
-#else
-		return boost::static_pointer_cast<adaptor_type>(adaptor_);
 #endif /* DEBUG */
+
+		return boost::static_pointer_cast<adaptor_type>(adaptor_);
+
 	}
 
 	/*******************************************************************************************/
@@ -385,6 +351,40 @@ public:
 	}
 
 protected:
+	/*******************************************************************************************/
+	/**
+	 * Loads the data of another GParameterBaseWithAdaptorsT object, which
+	 * is camouflaged as a GObject.
+	 *
+	 * @param cp A copy of another GParameterBaseWithAdaptorsT, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		// Convert cp into local format
+		const GParameterBaseWithAdaptorsT<T> *p_load = this->conversion_cast<GParameterBaseWithAdaptorsT<T> >(cp);
+
+		// Load our parent class'es data ...
+		GParameterBase::load_(cp);
+
+		// and then our local data
+		hasLocalAdaptor_ = p_load->hasLocalAdaptor_;
+
+		// Only act if the other object actually holds a unique adaptor
+		if(hasLocalAdaptor_ && p_load->adaptor_) {
+			// Same type: We can just load the data
+		    if (adaptor_ && (adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId())) {
+				adaptor_->GObject::load(p_load->adaptor_);
+			}
+			// Different type - need to convert
+			else {
+				adaptor_ = p_load->adaptor_->GObject::clone<GAdaptorT<T> >();
+			}
+		}
+		else {
+			// Make sure our adaptor is also empty
+			adaptor_.reset();
+		}
+	}
+
 	/*******************************************************************************************/
 	/** @brief Creates a deep clone of this object. Purely virtual, as we do not want this
 	 * class to be instantiated directly */

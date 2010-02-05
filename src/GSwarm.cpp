@@ -89,7 +89,7 @@ GSwarm::~GSwarm()
  * @return A constant reference to this object
  */
 const GSwarm& GSwarm::operator=(const GSwarm& cp) {
-	GSwarm::load(&cp);
+	GSwarm::load_(&cp);
 	return *this;
 }
 
@@ -99,12 +99,12 @@ const GSwarm& GSwarm::operator=(const GSwarm& cp) {
  *
  * @param cp A pointer to another GSwarm object, camouflaged as a GObject
  */
-void GSwarm::load(const GObject * cp)
+void GSwarm::load_(const GObject * cp)
 {
-	const GSwarm *p_load = this->conversion_cast(cp,this);
+	const GSwarm *p_load = this->conversion_cast<GSwarm>(cp);
 
 	// First load the parent class'es data ...
-	GOptimizationAlgorithm::load(cp);
+	GOptimizationAlgorithm::load_(cp);
 
 	// ... and then our own data
 	infoFunction_ = p_load->infoFunction_;
@@ -112,7 +112,7 @@ void GSwarm::load(const GObject * cp)
 	nNeighborhoods_ = p_load->nNeighborhoods_;
 	nNeighborhoodMembers_ = p_load->nNeighborhoodMembers_;
 
-	global_best_->load((p_load->global_best_).get());
+	global_best_->GObject::load(p_load->global_best_);
 	copySmartPointerVector(p_load->local_bests_, local_bests_);
 }
 
@@ -176,7 +176,7 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GSwarm *p_load = GObject::conversion_cast(&cp,  this);
+	const GSwarm *p_load = GObject::conversion_cast<GSwarm>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;

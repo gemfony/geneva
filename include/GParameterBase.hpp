@@ -100,9 +100,6 @@ public:
 	/** @brief The standard destructor */
 	virtual ~GParameterBase();
 
-	/** @brief Loads the data of another GObject */
-	virtual void load(const GObject*);
-
 	/** @brief The mutate interface */
 	void mutate();
 	/** @brief The actual mutation logic */
@@ -127,6 +124,8 @@ public:
 	virtual bool hasAdaptor() const;
 
 protected:
+	/** @brief Loads the data of another GObject */
+	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 

@@ -69,7 +69,7 @@ GDoubleObjectCollection::~GDoubleObjectCollection()
  * @return A constant reference to this object
  */
 const GDoubleObjectCollection& GDoubleObjectCollection::operator=(const GDoubleObjectCollection& cp){
-	GDoubleObjectCollection::load(&cp);
+	GDoubleObjectCollection::load_(&cp);
 	return *this;
 }
 
@@ -132,8 +132,8 @@ boost::optional<std::string> GDoubleObjectCollection::checkRelationshipWith(cons
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GDoubleObjectCollection *p_load = GObject::conversion_cast(&cp,  this);
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GDoubleObjectCollection>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -152,12 +152,12 @@ boost::optional<std::string> GDoubleObjectCollection::checkRelationshipWith(cons
  *
  * @param cp A copy of another GDoubleObjectCollection object, camouflaged as a GObject
  */
-void GDoubleObjectCollection::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GDoubleObjectCollection *p_load = GObject::conversion_cast(cp, this);
+void GDoubleObjectCollection::load_(const GObject* cp){
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GDoubleObjectCollection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GDouble>::load(cp);
+	GParameterTCollectionT<GDouble>::load_(cp);
 
 	// ... no local data
 }

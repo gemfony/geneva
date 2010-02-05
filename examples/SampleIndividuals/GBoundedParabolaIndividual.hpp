@@ -110,20 +110,8 @@ public:
 	 * A standard assignment operator
 	 */
 	const GBoundedParabolaIndividual& operator=(const GBoundedParabolaIndividual& cp){
-		GBoundedParabolaIndividual::load(&cp);
+		GBoundedParabolaIndividual::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Loads the data of another GBoundedParabolaIndividual, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GBoundedParabolaIndividual, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp) {
-		// We have no local data. Hence we can just pass the pointer to our parent class.
-		// Note that we'd have to use the GObject::conversion_cast() function otherwise.
-		GParameterSet::load(cp);
 	}
 
 	/*******************************************************************************************/
@@ -175,8 +163,8 @@ public:
 	    using namespace Gem::Util;
 	    using namespace Gem::Util::POD;
 
-		// Check that we are indeed dealing with a GBoundedParabolaIndividual reference
-		const GBoundedParabolaIndividual *p_load = GObject::conversion_cast(&cp,  this);
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GBoundedParabolaIndividual>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -191,6 +179,21 @@ public:
 
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GBoundedParabolaIndividual, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GBoundedParabolaIndividual, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) {
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GBoundedParabolaIndividual>(cp);
+
+		// We have no local data. Hence we can just pass the pointer to our parent class.
+		// Note that we'd have to use the GObject::conversion_cast() function otherwise.
+		GParameterSet::load_(cp);
+	}
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

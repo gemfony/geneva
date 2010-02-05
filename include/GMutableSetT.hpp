@@ -115,21 +115,6 @@ public:
 
 	/**********************************************************************************/
 	/**
-	 * Loads the data of another GParameterBase object, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GMutableSetT object, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp){
-		// Convert cp into local format
-	    const GMutableSetT<T> *p_load = this->conversion_cast<GMutableSetT<T> >(cp);
-
-	    // No local data - load the parent class'es data
-	    GIndividual::load(cp);
-		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
-	}
-
-	/**********************************************************************************/
-	/**
 	 * Checks for equality with another GNumCollectionT<T> object
 	 *
 	 * @param  cp A constant reference to another GMutableSetT<T> object
@@ -206,6 +191,21 @@ public:
 
 
 protected:
+	/**********************************************************************************/
+	/**
+	 * Loads the data of another GParameterBase object, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GMutableSetT object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		// Convert cp into local format
+	    const GMutableSetT<T> *p_load = this->conversion_cast<GMutableSetT<T> >(cp);
+
+	    // No local data - load the parent class'es data
+	    GIndividual::load_(cp);
+		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
+	}
+
 	/**********************************************************************************/
 	/** @brief Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated */
 	virtual GObject* clone_() const = 0;

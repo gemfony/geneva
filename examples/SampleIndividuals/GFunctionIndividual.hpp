@@ -125,23 +125,8 @@ public:
  	 * @param cp A copy of another GFunctionIndividual
 	 */
 	const GFunctionIndividual<dF>& operator=(const GFunctionIndividual<dF>& cp){
-		GFunctionIndividual::load(&cp);
+		GFunctionIndividual::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Loads the data of another GFunctionIndividual, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GFunctionIndividual, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp){
-		const GFunctionIndividual<dF> *p_load = conversion_cast(cp, this);
-
-		// Load our parent class'es data ...
-		GParameterSet::load(cp);
-
-		// ... no local data
 	}
 
 	/*******************************************************************************************/
@@ -193,8 +178,8 @@ public:
 	    using namespace Gem::Util;
 	    using namespace Gem::Util::POD;
 
-		// Check that we are indeed dealing with a GParamterBase reference
-		const GFunctionIndividual<dF> *p_load = GObject::conversion_cast(&cp,  this);
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GFunctionIndividual<dF> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -218,6 +203,22 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GFunctionIndividual, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GFunctionIndividual, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GFunctionIndividual<dF> >(cp);
+
+		// Load our parent class'es data ...
+		GParameterSet::load_(cp);
+
+		// ... no local data
+	}
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

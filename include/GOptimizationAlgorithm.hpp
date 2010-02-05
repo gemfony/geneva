@@ -47,6 +47,8 @@
 #include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/cast.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHM_HPP_
 #define GOPTIMIZATIONALGORITHM_HPP_
@@ -152,9 +154,6 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Loads the data of another GObject */
-	virtual void load(const GObject*);
-
 	/** @brief Triggers the business logic of the optimization algorithm */
 	virtual void optimize(const boost::uint32_t& startIteration = 0);
 
@@ -217,47 +216,42 @@ public:
 
 	/**********************************************************************/
 	/**
-	 * If compiled in debug mode, this function performs all necessary error
-	 * checks on the conversion from GIndividual to the desired parameter type.
-	 * Note that, if compiled in debug mode, this function will throw. Otherwise
-	 * a segfault may be the result if a faulty conversion was attempted. Hence
-	 * it is suggested to test your programs in debug mode before using it in a
-	 * production environment.
+	 * This function converts an individual at a given position to the derived
+	 * type and returns it. In DEBUG mode, the function will check whether the
+	 * requested position exists.
+	 *
+	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
+	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
+	 * we do not need to check convertability using dynamic_cast<>.
 	 *
 	 * @param pos The position in our data array that shall be converted
 	 * @return A converted version of the GIndividual object, as required by the user
 	 */
-	template <typename parameter_type>
-	boost::shared_ptr<parameter_type> individual_cast(const std::size_t& pos){
+	template <typename individual_type>
+	inline boost::shared_ptr<individual_type> individual_cast(
+			 const std::size_t& pos
+		   , typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+	) {
 #ifdef DEBUG
-		// Extract data. at() will throw if we have tried to access a position in the
-		// vector that does not exist.
-		boost::shared_ptr<GIndividual> data_base = data.at(pos);
-
-		// Convert to the desired target type
-		boost::shared_ptr<parameter_type> p_load = boost::dynamic_pointer_cast<parameter_type>(data_base);
-
-		// Check that the conversion worked. dynamic_cast emits an empty pointer,
-		// if this was not the case.
-		if(!p_load){
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithm::individual_cast<parameter_type>() : Conversion error!" << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
+		if(pos >= data.size()) {
+			std::ostringsteam error;
+			error << "In GOptimizationAlgorithm::individual_cast<>() : Error" << std::endl
+				  << "Tried to access position " << pos << " which is >= array size " << data.size() << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
-
-		return p_load;
-#else
-		return boost::static_pointer_cast<parameter_type>(data[pos]);
 #endif /* DEBUG */
+
+		return boost::static_pointer_cast<individual_type>(data[pos]);
+
 	}
 
 protected:
 	/**********************************************************************************/
+	/** @brief Loads the data of another GObject */
+	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
+
 	/** @brief Allows derived classes to set the personality type of the individuals */
 	virtual void setIndividualPersonalities() = 0;
 	/** @brief Resets the personality type of all individuals */

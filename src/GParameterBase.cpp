@@ -67,12 +67,12 @@ GParameterBase::~GParameterBase()
  *
  * @param cp A copy of another GParameterBase object, camouflaged as a GObject
  */
-void GParameterBase::load(const GObject* cp){
+void GParameterBase::load_(const GObject* cp){
 	// Convert cp into local format
-	const GParameterBase *p_load = conversion_cast(cp, this);
+	const GParameterBase *p_load = conversion_cast<GParameterBase>(cp);
 
 	// Load the parent class'es data
-	GObject::load(cp);
+	GObject::load_(cp);
 
 	// Load local data
 	mutationsActive_ = p_load->mutationsActive_;
@@ -84,7 +84,7 @@ void GParameterBase::load(const GObject* cp){
  * by derived classes. Will omit mutation if the mutationsActive_ parameter is set.
  */
 void GParameterBase::mutate() {
-	if(mutationsActive_) this->mutateImpl();
+	if(mutationsActive_) mutateImpl();
 }
 
 /**********************************************************************************/
@@ -163,7 +163,7 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GParameterBase *p_load = GObject::conversion_cast(&cp,  this);
+	const GParameterBase *p_load = GObject::conversion_cast<GParameterBase>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;

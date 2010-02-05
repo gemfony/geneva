@@ -68,7 +68,7 @@ public:
 	void no_failure_expected() {
 		// Prepare printing of error messages in object comparisons
 		GEqualityPrinter gep("GParameterSet_test::no_failure_expected()",
-							 exp(-10),
+							 pow(10,-10),
 							 Gem::Util::CE_WITH_MESSAGES);
 
 		// Default construction
@@ -107,7 +107,7 @@ public:
 		{
 			boost::shared_ptr<GObject> gpi_clone;
 			BOOST_CHECK_NO_THROW(gpi_clone = gpi.GObject::clone());
-			BOOST_CHECK_NO_THROW(gpi_load.load(gpi_clone.get()));
+			BOOST_CHECK_NO_THROW(gpi_load.GObject::load(gpi_clone));
 		}
 		BOOST_CHECK(gep.isEqual(gpi_load, gpi));
 

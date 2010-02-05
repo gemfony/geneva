@@ -135,9 +135,6 @@ namespace GenEvA
     /** @brief A standard assignment operator */
     const GBrokerEA& operator=(const GBrokerEA&);
 
-    /** @brief Loads the data of another GTransfer Population */
-    virtual void load(const GObject *);
-
 	/** @brief Checks for equality with another GBrokerEA object */
 	bool operator==(const GBrokerEA&) const;
 	/** @brief Checks for inequality with another GBrokerEA object */
@@ -171,8 +168,11 @@ namespace GenEvA
     boost::posix_time::time_duration getLoopTime() const;
 
   protected:
+    /** @brief Loads the data of another GTransfer Population */
+    virtual void load_(const GObject *);
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone_() const;
+
     /** @brief Mutates all children in sequence */
     virtual void mutateChildren();
     /** @brief Selects new parents */

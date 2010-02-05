@@ -117,24 +117,8 @@ public:
 	 * @return A constant reference to the function argument
 	 */
 	const GDelayIndividual& operator=(const GDelayIndividual& cp){
-		GDelayIndividual::load(&cp);
+		GDelayIndividual::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Loads the data of another GDelayIndividual, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GDelayIndividual, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp){
-		const GDelayIndividual *p_load = conversion_cast(cp, this);
-
-		// Load our parent class'es data ...
-		GParameterSet::load(cp);
-
-		// ... and then our own.
-		sleepTime_ = p_load->sleepTime_;
 	}
 
 	/*******************************************************************************************/
@@ -187,7 +171,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GDelayIndividual *p_load = GObject::conversion_cast(&cp,  this);
+		const GDelayIndividual *p_load = GObject::conversion_cast<GDelayIndividual>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -203,6 +187,22 @@ public:
 
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GDelayIndividual, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GDelayIndividual, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		const GDelayIndividual *p_load = conversion_cast<GDelayIndividual>(cp);
+
+		// Load our parent class'es data ...
+		GParameterSet::load_(cp);
+
+		// ... and then our own.
+		sleepTime_ = p_load->sleepTime_;
+	}
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

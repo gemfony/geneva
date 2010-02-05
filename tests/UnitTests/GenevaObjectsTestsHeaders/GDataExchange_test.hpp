@@ -212,7 +212,7 @@ public:
 
 			// We cannot simply check for equality of d3 and d4 in the case of data exchange
 			// in text format, as this exchange format implies a loss in precision.
-			BOOST_CHECK(d3->isSimilarTo(*d4, exp(-10)));
+			BOOST_CHECK(d3->isSimilarTo(*d4, pow(10,-10)));
 
 			d4->reset();
 
@@ -388,7 +388,7 @@ public:
 		std::ifstream textInput("pvp.txt");
 		p2->readFromStream(textInput);
 		textInput.close();
-		BOOST_CHECK(p2->isSimilarTo(*p0, exp(-10)));
+		BOOST_CHECK(p2->isSimilarTo(*p0, pow(10,-10)));
 	}
 
 	/***********************************************************************************/
@@ -518,7 +518,7 @@ public:
 		gde->writeToFile("testFile.txt",false);
 		boost::shared_ptr<GDataExchange> gde2(new GDataExchange()); // Create second, empty object
 		gde2->readFromFile("testFile.txt",false);
-		BOOST_CHECK(gde2->isSimilarTo(*gde,exp(-10)));
+		BOOST_CHECK(gde2->isSimilarTo(*gde,pow(10,-10)));
 
 		// Put gde2 in pristine condition so we can start over with the binary mode
 		gde2->resetAll();

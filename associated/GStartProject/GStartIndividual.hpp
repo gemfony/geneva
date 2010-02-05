@@ -160,26 +160,8 @@ public:
 	 * @return A constant reference to this object
 	 */
 	const GStartIndividual& operator=(const GStartIndividual& cp){
-		GStartIndividual::load(&cp);
+		GStartIndividual::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Loads the data of another GStartIndividual, camouflaged as a GObject.
-	 *
-	 * @param cp A copy of another GStartIndividual, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp)
-	{
-		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GStartIndividual *p_load = GObject::conversion_cast(cp,  this);
-
-		// Load our parent's data
-		GParameterSet::load(cp);
-
-		// Load local data here like this:
-		// myVar = p_load->myVar;
 	}
 
 	/*******************************************************************************************/
@@ -240,8 +222,10 @@ public:
 	    using namespace Gem::Util;
 	    using namespace Gem::Util::POD;
 
-		// Check that we are indeed dealing with a GParamterBase reference
-		const GStartIndividual  *p_load = GObject::conversion_cast(&cp,  this);
+		// Check that we are not accidently assigning this object to itself
+		selfAssignmentCheck<GStartIndividual>(&cp);
+		// Use this call instead when local data needs to be loaded:
+		// const GStartIndividual *p_load = GObject::conversion_cast<GStartIndividual>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -257,6 +241,26 @@ public:
 
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GStartIndividual, camouflaged as a GObject.
+	 *
+	 * @param cp A copy of another GStartIndividual, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp)
+	{
+		// Check that we are not accidently assigning this object to itself
+		selfAssignmentCheck<GStartIndividual>(cp);
+		// Use this call instead when local data needs to be loaded:
+		// const GStartIndividual *p_load = GObject::conversion_cast<GStartIndividual>(cp);
+
+		// Load our parent's data
+		GParameterSet::load_(cp);
+
+		// Load local data here like this:
+		// myVar = p_load->myVar;
+	}
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

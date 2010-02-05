@@ -108,7 +108,7 @@ GDoubleGaussAdaptor::~GDoubleGaussAdaptor()
  * @return A constant reference to this object
  */
 const GDoubleGaussAdaptor& GDoubleGaussAdaptor::operator=(const GDoubleGaussAdaptor& cp){
-	GDoubleGaussAdaptor::load(&cp);
+	GDoubleGaussAdaptor::load_(&cp);
 	return *this;
 }
 
@@ -171,8 +171,8 @@ boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(const GO
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GDoubleGaussAdaptor  *p_load = GObject::conversion_cast(&cp,  this);
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GDoubleGaussAdaptor>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -191,12 +191,12 @@ boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(const GO
  *
  * @param cp A copy of another GDoubleGaussAdaptor object, camouflaged as a GObject
  */
-void GDoubleGaussAdaptor::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GDoubleGaussAdaptor *p_load = GObject::conversion_cast(cp, this);
+void GDoubleGaussAdaptor::load_(const GObject* cp){
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GDoubleGaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GGaussAdaptorT<double>::load(cp);
+	GGaussAdaptorT<double>::load_(cp);
 
 	// ... no local data
 }

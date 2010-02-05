@@ -41,7 +41,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/variant.hpp>
-
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GINDIVIDUAL_HPP_
 #define GINDIVIDUAL_HPP_
@@ -123,9 +124,6 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Loads the data of another GObject */
-	virtual void load(const GObject*);
-
 	/** @brief The mutate interface */
 	virtual void mutate();
 	/** @brief Calculate the fitness of this object */
@@ -177,77 +175,51 @@ public:
 	/** @brief Retrieves the current personality of this individual */
 	personality getPersonality() const;
 
-	/** @brief This function returns the current personality traits base pointer */
-	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
-
 	/**************************************************************************************************/
 	/**
 	 * The function converts the local personality to the desired type and returns it for modification
 	 * by the corresponding optimization algorithm. The base algorithms have been declared "friend" of
 	 * GIndividual and can thus access this function. External entities have no need to do so.
 	 *
+	 * Note that this function will only be accessible to the compiler of personality_type is a derivative
+	 * of GPersonalityTraits, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
+	 * we do not need to check convertability using dynamic_cast<>.
+	 *
 	 * @return A boost::shared_ptr converted to the desired target type
 	 */
 	template <typename personality_type>
-	boost::shared_ptr<personality_type> getPersonalityTraits() {
+	boost::shared_ptr<personality_type> getPersonalityTraits(
+			typename boost::enable_if<boost::is_base_of<GPersonalityTraits, personality_type> >::type* dummy = 0
+	) {
 #ifdef DEBUG
-		// Convert to the desired target type
-		boost::shared_ptr<personality_type> p_load = boost::dynamic_pointer_cast<personality_type>(pt_ptr_);
-
-		// Check that the conversion worked. dynamic_cast emits an empty pointer, if this was not the case.
-		if(!p_load){
+		// Check that pt_ptr_ actually points somewhere
+		if(!pt_ptr_) {
 			std::ostringstream error;
-			error << "In GIndividual::getPersonalityTraits<personality_type>() : Conversion error!" << std::endl;
+			error << "In GIndividual::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl;
 			throw geneva_error_condition(error.str());
 		}
+#endif /* DEBUG */
 
-		return p_load;
-#else
 		return boost::static_pointer_cast<personality_type>(pt_ptr_);
-#endif
 	}
 
 	/**************************************************************************************************/
-	/**
-	 * Convenience function to make the code more readable. Gives access to the evolutionary algorithm
-	 * personality. Will throw if another personality is active. Inline, as it is defined in the class
-	 * declaration.
-	 *
-	 * @return A shared_ptr to the evolutionary algorithms personality traits
-	 */
-	boost::shared_ptr<GEAPersonalityTraits> getEAPersonalityTraits() {
-		return this->getPersonalityTraits<GEAPersonalityTraits>();
-	}
 
-	/**************************************************************************************************/
-	/**
-	 * Convenience function to make the code more readable. Gives access to the gradient descent
-	 * personality. Will throw if another personality is active. Inline, as it is defined in the class
-	 * declaration.
-	 *
-	 * @return A shared_ptr to the gradient descent personality traits
-	 */
-	boost::shared_ptr<GGDPersonalityTraits> getGDPersonalityTraits() {
-		return this->getPersonalityTraits<GGDPersonalityTraits>();
-	}
+	/** @brief This function returns the current personality traits base pointer */
+	boost::shared_ptr<GPersonalityTraits> getPersonalityTraits();
+	/** @brief This function returns the current evolutionary algorithm personality traits pointer */
+	boost::shared_ptr<GEAPersonalityTraits> getEAPersonalityTraits();
+	/** @brief This function returns the current gradient descent personality traits pointer */
+	boost::shared_ptr<GGDPersonalityTraits> getGDPersonalityTraits();
+	/** @brief This function returns the current swarm algorithm personality traits pointer */
+	boost::shared_ptr<GSwarmPersonalityTraits> getSwarmPersonalityTraits();
 
-	/**************************************************************************************************/
-	/**
-	 * Convenience function to make the code more readable. Gives access to the swarm algorithm
-	 * personality. Will throw if another personality is active. Inline, as it is defined in the class
-	 * declaration.
-	 *
-	 * @return A shared_ptr to the swarm algorithms personality traits
-	 */
-	boost::shared_ptr<GSwarmPersonalityTraits> getSwarmPersonalityTraits() {
-		return this->getPersonalityTraits<GSwarmPersonalityTraits>();
-	}
-
-	/**************************************************************************************************/
 	/** @brief Wrapper for customUpdateOnStall that does error checking and sets the dirty flag */
 	virtual bool updateOnStall();
 
 protected:
+	/** @brief Loads the data of another GObject */
+	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 	/** @brief Updates the individual's structure and/or parameters, if the optimization has stalled */

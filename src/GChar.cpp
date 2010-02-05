@@ -93,7 +93,7 @@ const char& GChar::operator=(const char& val) {
  * @return A constant reference to this object
  */
 const GChar& GChar::operator=(const GChar& cp){
-	GChar::load(&cp);
+	GChar::load_(&cp);
 	return *this;
 }
 
@@ -176,12 +176,12 @@ boost::optional<std::string> GChar::checkRelationshipWith(const GObject& cp,
  *
  * @param cp A copy of another GChar object, camouflaged as a GObject
  */
-void GChar::load(const GObject* cp){
+void GChar::load_(const GObject* cp){
 	// Check for possible self-assignment
 	GObject::selfAssignmentCheck<GChar>(cp);
 
 	// Load our parent class'es data ...
-	GParameterT<char>::load(cp);
+	GParameterT<char>::load_(cp);
 
 	// ... no local data
 }

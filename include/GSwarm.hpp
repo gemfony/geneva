@@ -50,6 +50,8 @@
 #include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/cast.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 /**
  * Check that we have support for threads
@@ -113,9 +115,6 @@ public:
 	/** @brief A standard assignment operator */
 	const GSwarm& operator=(const GSwarm&);
 
-	/** @brief Loads the data of another population */
-	virtual void load(const GObject *);
-
 	/** @brief Checks for equality with another GSwarm object */
 	bool operator==(const GSwarm&) const;
 	/** @brief Checks for inequality with another GSwarm object */
@@ -164,10 +163,17 @@ public:
 	/**
 	 * Retrieves the best individual of the population and casts it to the desired type.
 	 *
+	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
+	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
+	 * we do not need to check convertibility using dynamic_cast<>.
+	 *
 	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
 	 */
 	template <typename individual_type>
-	inline boost::shared_ptr<individual_type> getBestIndividual(){
+	inline boost::shared_ptr<individual_type> getBestIndividual(
+			typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+	){
+#ifdef DEBUG
 		// Check that global_best_ actually points somewhere
 		if(!global_best_) {
 			std::ostringsteam error;
@@ -175,26 +181,9 @@ public:
 				  << "Tried to access uninitialized globally best individual." << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
-
-#ifdef DEBUG
-		// Convert to the desired target type
-		boost::shared_ptr<individual_type> p_load = boost::dynamic_pointer_cast<individual_type>(global_best_);
-
-		// Check that the conversion worked. dynamic_cast emits an empty pointer,
-		// if this was not the case.
-		if(!p_load){
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() : Conversion error!" << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
-		}
-
-		return p_load;
-#else
-		return boost::static_pointer_cast<individual_type>(global_best_);
 #endif /* DEBUG */
+
+		return boost::static_pointer_cast<individual_type>(global_best_);
 	}
 
 	/**************************************************************************************************/
@@ -240,6 +229,8 @@ public:
 	/**************************************************************************************************/
 
 protected:
+	/** @brief Loads the data of another population */
+	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 	/** @brief Allows to set the personality type of the individuals */

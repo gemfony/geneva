@@ -108,26 +108,8 @@ public:
 	 * @return A constant reference to this object
 	 */
 	const GTestIndividual1& operator=(const GTestIndividual1& cp){
-		GTestIndividual1::load(&cp);
+		GTestIndividual1::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Loads the data of another GTestIndividual1, camouflaged as a GObject.
-	 *
-	 * @param cp A copy of another GTestIndividual1, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp)
-	{
-		// Check that we are indeed dealing with a GBoundedNumT<T> reference
-		const GTestIndividual1 *p_load = GObject::conversion_cast(cp,  this);
-
-		// Load our parent's data
-		GParameterSet::load(cp);
-
-		// Load local data here like this:
-		// myVar = p_load->myVar;
 	}
 
 	/********************************************************************************************/
@@ -149,6 +131,24 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GTestIndividual1, camouflaged as a GObject.
+	 *
+	 * @param cp A copy of another GTestIndividual1, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp)
+	{
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GTestIndividual1>(cp);
+
+		// Load our parent's data
+		GParameterSet::load_(cp);
+
+		// Load local data here like this:
+		// myVar = p_load->myVar;
+	}
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

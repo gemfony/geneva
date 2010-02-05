@@ -58,13 +58,6 @@
 #include <boost/function.hpp>
 #include <boost/random/linear_congruential.hpp>
 
-/**
- * Check that we have support for threads. This collection of classes is useless
- * without this.
- */
-#ifndef BOOST_HAS_THREADS
-#error "Error: No support for Boost.threads available."
-#endif
 
 #ifndef GRANDOM_HPP_
 #define GRANDOM_HPP_
@@ -111,7 +104,7 @@ class GRandom
     void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
 
-      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::GenEvA::GObject)
+      ar & make_nvp("GObject", boost::serialization::base_object<Gem::GenEvA::GObject>(*this))
          & BOOST_SERIALIZATION_NVP(rnrGenerationMode_)
          & BOOST_SERIALIZATION_NVP(initialSeed_)
          & BOOST_SERIALIZATION_NVP(gaussCache_)
@@ -122,7 +115,7 @@ class GRandom
     void load(Archive & ar, const unsigned int){
         using boost::serialization::make_nvp;
 
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::GenEvA::GObject)
+        ar & make_nvp("GObject", boost::serialization::base_object<Gem::GenEvA::GObject>(*this))
            & BOOST_SERIALIZATION_NVP(rnrGenerationMode_);
 
         switch(rnrGenerationMode_) {
@@ -158,7 +151,7 @@ public:
 	/** @brief A copy constructor */
 	GRandom(const GRandom&);
 	/** @brief A standard destructor */
-	~GRandom();
+	virtual ~GRandom();
 
 	/** @brief A standard assignment operator */
 	GRandom& operator=(const GRandom&);
@@ -170,9 +163,6 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
-
-	/** @brief Loads the data of another GRandom object, camouflaged as a GObject */
-	virtual void load(const Gem::GenEvA::GObject*);
 
 	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
 	// inline double evenRandom();
@@ -266,6 +256,8 @@ public:
 	boost::uint32_t getSeed();
 
 protected:
+	/** @brief Loads the data of another GRandom object, camouflaged as a GObject */
+	virtual void load_(const Gem::GenEvA::GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual Gem::GenEvA::GObject* clone_() const;
 

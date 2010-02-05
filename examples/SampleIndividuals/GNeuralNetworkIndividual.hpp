@@ -78,7 +78,6 @@
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GenevaExceptions.hpp"
-#include "GRandom.hpp"
 
 namespace Gem
 {
@@ -386,49 +385,8 @@ public:
 	 * @return A reference to this object
 	 */
 	const GNeuralNetworkIndividual& operator=(const GNeuralNetworkIndividual& cp){
-		GNeuralNetworkIndividual::load(&cp);
+		GNeuralNetworkIndividual::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp){
-		const GNeuralNetworkIndividual *p_load = conversion_cast(cp, this);
-
-		// Load the parent class'es data
-		GParameterSet::load(cp);
-
-		// Load our local data.
-
-
-		// tD_ is a shared_ptr, hence we need to copy the data itself. We do not do
-		// this, if we already have the data present. This happens as we assume that
-		// the training data doesn't change.
-		if(!tD_){
-			tD_ = boost::shared_ptr<trainingData>(new trainingData());
-
-			// We need to copy the training data over manually
-			std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
-			for(cit=p_load->tD_->data.begin(); cit!=p_load->tD_->data.end(); ++cit){
-				boost::shared_ptr<trainingSet> p(new trainingSet);
-
-				p->Input = (*cit)->Input;
-				p->Output = (*cit)->Output;
-
-				tD_->data.push_back(p);
-			}
-		}
-
-		// The architecture of the hidden layers could actually be changed
-		// in later versions, hence we copy it over.
-		architecture_ = p_load->architecture_;
-
-		// Copy and set the transfer mode
-		setTransferMode(p_load->transferMode_);
 	}
 
 	/********************************************************************************************/
@@ -483,7 +441,7 @@ public:
 	{
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
-		Gem::Util::GRandom l_gr;
+		Gem::Util::GRandom l_gr(Gem::Util::RNRLOCAL);
 
 		// Create the required data.
 		boost::shared_ptr<trainingData> tD(new trainingData());
@@ -558,7 +516,7 @@ public:
 	{
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
-		Gem::Util::GRandom l_gr;
+		Gem::Util::GRandom l_gr(Gem::Util::RNRLOCAL);
 
 		// Create the required data.
 		boost::shared_ptr<trainingData> tD(new trainingData());
@@ -987,6 +945,46 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		const GNeuralNetworkIndividual *p_load = conversion_cast<GNeuralNetworkIndividual>(cp);
+
+		// Load the parent class'es data
+		GParameterSet::load_(cp);
+
+		// Load our local data.
+
+		// tD_ is a shared_ptr, hence we need to copy the data itself. We do not do
+		// this, if we already have the data present. This happens as we assume that
+		// the training data doesn't change.
+		if(!tD_){
+			tD_ = boost::shared_ptr<trainingData>(new trainingData());
+
+			// We need to copy the training data over manually
+			std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
+			for(cit=p_load->tD_->data.begin(); cit!=p_load->tD_->data.end(); ++cit){
+				boost::shared_ptr<trainingSet> p(new trainingSet);
+
+				p->Input = (*cit)->Input;
+				p->Output = (*cit)->Output;
+
+				tD_->data.push_back(p);
+			}
+		}
+
+		// The architecture of the hidden layers could actually be changed
+		// in later versions, hence we copy it over.
+		architecture_ = p_load->architecture_;
+
+		// Copy and set the transfer mode
+		setTransferMode(p_load->transferMode_);
+	}
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

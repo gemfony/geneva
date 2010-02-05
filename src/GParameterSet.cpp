@@ -73,7 +73,7 @@ namespace Gem
 	 * @return A constant reference to this object
 	 */
 	const GParameterSet& GParameterSet::operator=(const GParameterSet& cp){
-		GParameterSet::load(&cp);
+		GParameterSet::load_(&cp);
 		return *this;
 	}
 
@@ -122,20 +122,20 @@ namespace Gem
 			const std::string& caller,
 			const std::string& y_name,
 			const bool& withMessages) const
-	{
-	    using namespace Gem::Util;
-	    using namespace Gem::Util::POD;
+			{
+		using namespace Gem::Util;
+		using namespace Gem::Util::POD;
 
-		// Check that we are indeed dealing with a GParamterBase reference
-		const GParameterSet *p_load = GObject::conversion_cast(&cp,  this);
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GParameterSet>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
-	    std::vector<boost::optional<std::string> > deviations;
+		std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
 		deviations.push_back(GMutableSetT<Gem::GenEvA::GParameterBase>::checkRelationshipWith(cp, e, limit, "GParameterSet", y_name, withMessages));
 
-		// no local data ...
+		// ... no local data
 
 		return evaluateDiscrepancies("GParameterSet", caller, deviations, e);
 	}
@@ -156,14 +156,16 @@ namespace Gem
 	 *
 	 * @param cp A copy of another GParameterSet object, camouflaged as a GObject
 	 */
-	void GParameterSet::load(const GObject* cp){
+	void GParameterSet::load_(const GObject* cp){
 		// Convert to local format
-		const GParameterSet *p_load = this->conversion_cast(cp, this);
+		const GParameterSet *p_load = this->conversion_cast<GParameterSet>(cp);
 
 		// Load the parent class'es data
-		GMutableSetT<Gem::GenEvA::GParameterBase>::load(cp);
+		GMutableSetT<Gem::GenEvA::GParameterBase>::load_(cp);
 
 		// Then load our local data - here the evaluation function (if any)
+		// NOTE: THIS IS DANGEROUS WHEN OPERATING IN A MULTITHREADED ENVIRONMENT.
+		// IT WILL ALSO NOT WORK IN A NETWORKED ENVIRONMENT
 		eval_ = p_load->eval_;
 	}
 

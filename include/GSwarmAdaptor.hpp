@@ -137,29 +137,8 @@ public:
 	 */
 	const GSwarmAdaptor& operator=(const GSwarmAdaptor& cp)
 	{
-		GSwarmAdaptor::load(&cp);
+		GSwarmAdaptor::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * This function loads the data of another GSwarmAdaptor, camouflaged as a GObject.
-	 *
-	 * @param A copy of another GSwarmAdaptor, camouflaged as a GObject
-	 */
-	void load(const GObject *cp)
-	{
-		// Convert GObject pointer to local format
-		// (also checks for self-assignments in DEBUG mode)
-		const GSwarmAdaptor *p_load = conversion_cast<GSwarmAdaptor>(cp);
-
-		// Load the data of our parent class ...
-		GAdaptorT<double>::load(cp);
-
-		// ... and then our local data
-		omega_ = p_load->omega_;
-		c1_ = p_load->c1_;
-		c2_ = p_load->c2_;
 	}
 
 	/********************************************************************************************/
@@ -323,6 +302,27 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * This function loads the data of another GSwarmAdaptor, camouflaged as a GObject.
+	 *
+	 * @param A copy of another GSwarmAdaptor, camouflaged as a GObject
+	 */
+	void load_(const GObject *cp)
+	{
+		// Convert GObject pointer to local format
+		// (also checks for self-assignments in DEBUG mode)
+		const GSwarmAdaptor *p_load = conversion_cast<GSwarmAdaptor>(cp);
+
+		// Load the data of our parent class ...
+		GAdaptorT<double>::load_(cp);
+
+		// ... and then our local data
+		omega_ = p_load->omega_;
+		c1_ = p_load->c1_;
+		c2_ = p_load->c2_;
+	}
+
 	/********************************************************************************************/
 	/**
 	 * This function creates a deep copy of this object

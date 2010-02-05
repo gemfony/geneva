@@ -81,7 +81,7 @@ GMultiThreadedEA::~GMultiThreadedEA() {
  * @return A constant reference to this object
  */
 const GMultiThreadedEA& GMultiThreadedEA::operator=(const GMultiThreadedEA& cp) {
-	GMultiThreadedEA::load(&cp);
+	GMultiThreadedEA::load_(&cp);
 	return *this;
 }
 
@@ -91,17 +91,19 @@ const GMultiThreadedEA& GMultiThreadedEA::operator=(const GMultiThreadedEA& cp) 
  *
  * @param vp Pointer to another GMultiThreadedEA object, camouflaged as a GObject
  */
-void GMultiThreadedEA::load(const GObject *cp) {
+void GMultiThreadedEA::load_(const GObject *cp) {
 	// Convert GObject pointer to local format
-	const GMultiThreadedEA *p_load = this->conversion_cast(cp, this);
+	const GMultiThreadedEA *p_load = this->conversion_cast<GMultiThreadedEA>(cp);
 
 	// First load our parent class'es data ...
-	GEvolutionaryAlgorithm::load(cp);
+	GEvolutionaryAlgorithm::load_(cp);
 
 	// ... and then our own
-	nThreads_ = p_load->nThreads_;
-	tp_.clear();
-	tp_.size_controller().resize(nThreads_);
+	if(nThreads_ != p_load->nThreads_) {
+		nThreads_ = p_load->nThreads_;
+		tp_.clear(); // TODO: is this needed ?
+		tp_.size_controller().resize(nThreads_);
+	}
 
 	// Note that we do not copy le_value_ as it is used for internal caching only
 }
@@ -166,7 +168,7 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObje
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GMultiThreadedEA *p_load = GObject::conversion_cast(&cp,  this);
+	const GMultiThreadedEA *p_load = GObject::conversion_cast<GMultiThreadedEA>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -234,13 +236,15 @@ void GMultiThreadedEA::mutateChildren() {
 	// or MUNU1PRETAIN selection model.
 	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)) {
 		for(it=data.begin(); it!=data.begin() + nParents; ++it) {
-			tp_.schedule(boost::bind(&GIndividual::checkedFitness, it->get()));
+			// tp_.schedule(boost::bind(&GIndividual::checkedFitness, it->get()));
+			tp_.schedule(boost::bind(&GIndividual::checkedFitness, *it));
 		}
 	}
 
 	// Next we mutate the children
 	for(it=data.begin() + nParents; it!=data.end(); ++it) {
-		tp_.schedule(boost::bind(&GIndividual::checkedMutate, it->get()));
+		// tp_.schedule(boost::bind(&GIndividual::checkedMutate, it->get()));
+		tp_.schedule(boost::bind(&GIndividual::checkedMutate, *it));
 	}
 
 	// ... and wait for the pool to become empty

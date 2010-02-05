@@ -197,22 +197,6 @@ public:
 		return evaluateDiscrepancies("GParameterTCollectionT<T>", caller, deviations, e);
 	}
 
-
-	/*******************************************************************************************/
-	/**
-	 * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp) {
-		// Convert cp into local format
-		const GParameterTCollectionT<T> *p_load = GObject::conversion_cast<GParameterTCollectionT<T> >(cp);
-
-		// Load our parent class'es data ...
-		GParameterBaseWithAdaptorsT<typename T::p_type >::load(cp);
-		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
-	}
-
 	/*******************************************************************************************/
 	/**
 	 * Allows to mutate the values stored in this class. We assume here that
@@ -271,6 +255,21 @@ public:
 	}
 
 protected:
+	/*******************************************************************************************/
+	/**
+	 * Loads the data of another GParameterTCollectionT<T> object, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GParameterTCollectionT<T> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp) {
+		// Convert cp into local format
+		const GParameterTCollectionT<T> *p_load = GObject::conversion_cast<GParameterTCollectionT<T> >(cp);
+
+		// Load our parent class'es data ...
+		GParameterBaseWithAdaptorsT<typename T::p_type >::load_(cp);
+		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
+	}
+
 	/*******************************************************************************************/
 	/**
 	 * Creates a deep clone of this object. Declared purely virtual, as this class is not

@@ -92,7 +92,7 @@ const boost::int32_t& GInt32::operator=(const boost::int32_t& val) {
  * @return A constant reference to this object
  */
 const GInt32& GInt32::operator=(const GInt32& cp){
-	GInt32::load(&cp);
+	GInt32::load_(&cp);
 	return *this;
 }
 
@@ -155,8 +155,8 @@ boost::optional<std::string> GInt32::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GInt32 *p_load = GObject::conversion_cast(&cp,  this);
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GInt32>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -175,12 +175,12 @@ boost::optional<std::string> GInt32::checkRelationshipWith(const GObject& cp,
  *
  * @param cp A copy of another GInt32 object, camouflaged as a GObject
  */
-void GInt32::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GInt32 *p_load = GObject::conversion_cast(cp, this);
+void GInt32::load_(const GObject* cp){
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GInt32>(cp);
 
 	// Load our parent class'es data ...
-	GParameterT<boost::int32_t>::load(cp);
+	GParameterT<boost::int32_t>::load_(cp);
 
 	// ... no local data
 }

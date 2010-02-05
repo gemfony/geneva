@@ -69,7 +69,7 @@ GBoundedDoubleCollection::~GBoundedDoubleCollection()
  * @return A constant reference to this object
  */
 const GBoundedDoubleCollection& GBoundedDoubleCollection::operator=(const GBoundedDoubleCollection& cp){
-	GBoundedDoubleCollection::load(&cp);
+	GBoundedDoubleCollection::load_(&cp);
 	return *this;
 }
 
@@ -152,12 +152,12 @@ boost::optional<std::string> GBoundedDoubleCollection::checkRelationshipWith(con
  *
  * @param cp A copy of another GBoundedDoubleCollection object, camouflaged as a GObject
  */
-void GBoundedDoubleCollection::load(const GObject* cp){
+void GBoundedDoubleCollection::load_(const GObject* cp){
 	// Check for a possible self-assignment
     GObject::selfAssignmentCheck<GBoundedDoubleCollection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GBoundedDouble>::load(cp);
+	GParameterTCollectionT<GBoundedDouble>::load_(cp);
 
 	// ... no local data
 }

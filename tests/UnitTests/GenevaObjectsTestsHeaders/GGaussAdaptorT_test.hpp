@@ -70,7 +70,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 {
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GGaussAdaptorT_no_failure_expected",
-						 exp(-10),
+						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
 	// A local random number generator
@@ -99,7 +99,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 
 	// ... and loading
 	T ggat5;
-	ggat5.load(ggat4_ptr.get());
+	ggat5.GObject::load(ggat4_ptr);
 	BOOST_CHECK(ggat5 == ggat3 && *ggat4_ptr == ggat2);
 
 	// Check (de-)serialization in different modes

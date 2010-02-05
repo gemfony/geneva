@@ -91,7 +91,7 @@ GEvolutionaryAlgorithm::~GEvolutionaryAlgorithm()
  * @return A constant reference to this object
  */
 const GEvolutionaryAlgorithm& GEvolutionaryAlgorithm::operator=(const GEvolutionaryAlgorithm& cp) {
-	GEvolutionaryAlgorithm::load(&cp);
+	GEvolutionaryAlgorithm::load_(&cp);
 	return *this;
 }
 
@@ -101,12 +101,12 @@ const GEvolutionaryAlgorithm& GEvolutionaryAlgorithm::operator=(const GEvolution
  *
  * @param cp A pointer to another GEvolutionaryAlgorithm object, camouflaged as a GObject
  */
-void GEvolutionaryAlgorithm::load(const GObject * cp)
+void GEvolutionaryAlgorithm::load_(const GObject * cp)
 {
-	const GEvolutionaryAlgorithm *p_load = this->conversion_cast(cp,this);
+	const GEvolutionaryAlgorithm *p_load = conversion_cast<GEvolutionaryAlgorithm>(cp);
 
 	// First load the parent class'es data ...
-	GOptimizationAlgorithm::load(cp);
+	GOptimizationAlgorithm::load_(cp);
 
 	// ... and then our own data
 	nParents_ = p_load->nParents_;
@@ -178,7 +178,7 @@ boost::optional<std::string> GEvolutionaryAlgorithm::checkRelationshipWith(const
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GEvolutionaryAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
+	const GEvolutionaryAlgorithm *p_load = GObject::conversion_cast<GEvolutionaryAlgorithm>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -246,7 +246,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	// Copy the nParents best individuals to a vector
 	std::vector<boost::shared_ptr<Gem::GenEvA::GIndividual> > bestIndividuals;
 	GEvolutionaryAlgorithm::const_iterator it;
-	for(it=this->begin(); it!=this->begin() + this->getNParents(); ++it)
+	for(it=this->begin(); it!=this->begin() + getNParents(); ++it)
 		bestIndividuals.push_back(*it);
 
 #ifdef DEBUG // Cross check so we do not accidently trigger value calculation
@@ -260,7 +260,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	double newValue = this->at(0)->fitness();
 
 	// Determine a suitable name for the output file
-	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(this->getIteration()) + "_"
+	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(getIteration()) + "_"
 		+ boost::lexical_cast<std::string>(newValue) + "_" + getCheckpointBaseName();
 
 	// Create the output stream and check that it is in good order
@@ -323,12 +323,12 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 	std::size_t biSize = bestIndividuals.size();
 	if(thisSize >= biSize) { // The most likely case
 		for(std::size_t ic=0; ic<biSize; ic++) {
-			(*this)[ic]->load((bestIndividuals[ic]).get());
+			(*this)[ic]->GObject::load(bestIndividuals[ic]);
 		}
 	}
 	else if(thisSize < biSize) {
 		for(std::size_t ic=0; ic<thisSize; ic++) {
-			(*this)[ic]->load((bestIndividuals[ic]).get());
+			(*this)[ic]->GObject::load(bestIndividuals[ic]);
 		}
 		for(std::size_t ic=thisSize; ic<biSize; ic++) {
 			this->push_back(bestIndividuals[ic]);
@@ -384,10 +384,10 @@ void GEvolutionaryAlgorithm::setPopulationSize(const std::size_t& popSize, const
  * @return The value of the best individual found
  */
 double GEvolutionaryAlgorithm::cycleLogic() {
-	this->recombine(); // create new children from parents
-	this->markIndividualPositions();
-	this->mutateChildren(); // mutate children and calculate their value
-	this->select(); // find out the best individuals of the population
+	recombine(); // create new children from parents
+	markIndividualPositions();
+	mutateChildren(); // mutate children and calculate their value
+	select(); // find out the best individuals of the population
 
 	boost::uint32_t stallCounter = getStallCounter();
 	if(microTrainingInterval_ && stallCounter && stallCounter%microTrainingInterval_ == 0) {
@@ -395,8 +395,8 @@ double GEvolutionaryAlgorithm::cycleLogic() {
 		std::cout << "Updating parents ..." << std::endl;
 #endif /* DEBUG */
 
-		if(this->updateParentStructure()) {
-			this->setOneTimeMuCommaNu();
+		if(updateParentStructure()) {
+			setOneTimeMuCommaNu();
 		}
 	}
 
@@ -579,7 +579,7 @@ void GEvolutionaryAlgorithm::recombine()
 #endif
 
 	// Do the actual recombination
-	this->doRecombine();
+	doRecombine();
 
 	// Let children know they are children
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
@@ -606,8 +606,9 @@ void GEvolutionaryAlgorithm::doRecombine() {
 		// Recombination according to the parents' fitness only makes sense if
 		// we have at least 2 parents. We do the recombination manually otherwise
 		if(nParents_==1) {
-			for(it=data.begin()+1; it!= data.end(); ++it)
-				(*it)->load((data.begin())->get());
+			for(it=data.begin()+1; it!= data.end(); ++it) {
+				(*it)->GObject::load(*(data.begin()));
+			}
 		}
 		else {
 			// TODO: Check whether it is sufficient to do this only once
@@ -668,7 +669,7 @@ void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& p) 
 	// try/catch blocks would add a non-negligible overhead in this function.
 	p_pos = boost::numeric_cast<std::size_t>(gr.discreteRandom(nParents_));
 
-	p->load((data.begin() + p_pos)->get());
+	p->GObject::load(*(data.begin() + p_pos));
 }
 
 /***********************************************************************************/
@@ -689,7 +690,7 @@ void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, c
 
 	for(i=0; i<nParents_; i++) {
 		if(randTest<threshold[i]) {
-			p->load((data.begin() + i)->get());
+			p->GObject::load(*(data.begin() + i));
 			done = true;
 
 			break;
@@ -758,24 +759,24 @@ void GEvolutionaryAlgorithm::select()
 	//----------------------------------------------------------------------------
 	case MUPLUSNU:
 		if(oneTimeMuCommaNu_) {
-			this->sortMucommanuMode();
+			sortMucommanuMode();
 			oneTimeMuCommaNu_=false;
 		}
-		else this->sortMuplusnuMode();
+		else sortMuplusnuMode();
 		break;
 
 	//----------------------------------------------------------------------------
 	case MUNU1PRETAIN:
 		if(oneTimeMuCommaNu_) {
-			this->sortMucommanuMode();
+			sortMucommanuMode();
 			oneTimeMuCommaNu_=false;
 		}
-		else this->sortMunu1pretainMode();
+		else sortMunu1pretainMode();
 		break;
 
 	//----------------------------------------------------------------------------
 	case MUCOMMANU:
-		this->sortMucommanuMode();
+		sortMucommanuMode();
 		break;
 	//----------------------------------------------------------------------------
 	}
@@ -835,7 +836,7 @@ void GEvolutionaryAlgorithm::sortMucommanuMode() {
  */
 void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 	if(nParents_==1 || getIteration()==0) { // Falls back to MUPLUSNU mode
-		this->sortMuplusnuMode();
+		sortMuplusnuMode();
 	} else {
 		// Sort the children
 		if(getMaximize()){
@@ -852,7 +853,7 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 		double bestParentFitness = (*(data.begin()))->fitness();
 
 		// Leave the best parent in place, if no better child was found
-		if(!this->isBetter(bestChildFitness, bestParentFitness)) {
+		if(!isBetter(bestChildFitness, bestParentFitness)) {
 			std::swap_ranges(data.begin()+1,data.begin()+nParents_,data.begin()+nParents_);
 		} else { // A better child was found. Overwrite all parents
 			std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);

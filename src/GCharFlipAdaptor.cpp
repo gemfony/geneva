@@ -81,7 +81,7 @@ GCharFlipAdaptor::~GCharFlipAdaptor()
  * @return A constant reference to this object
  */
 const GCharFlipAdaptor& GCharFlipAdaptor::operator=(const GCharFlipAdaptor& cp){
-	GCharFlipAdaptor::load(&cp);
+	GCharFlipAdaptor::load_(&cp);
 	return *this;
 }
 
@@ -166,12 +166,12 @@ boost::optional<std::string> GCharFlipAdaptor::checkRelationshipWith(const GObje
  *
  * @param cp A copy of another GCharFlipAdaptor object, camouflaged as a GObject
  */
-void GCharFlipAdaptor::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GCharFlipAdaptor *p_load = GObject::conversion_cast<GCharFlipAdaptor>(cp);
+void GCharFlipAdaptor::load_(const GObject* cp){
+	// Check whether this object has accidently been assigned to itself
+	GObject::selfAssignmentCheck<GCharFlipAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GIntFlipAdaptorT<char>::load(cp);
+	GIntFlipAdaptorT<char>::load_(cp);
 
 	// ... no local data
 }

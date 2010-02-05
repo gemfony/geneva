@@ -73,7 +73,6 @@
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GenevaExceptions.hpp"
-#include "GRandom.hpp"
 
 namespace Gem
 {
@@ -309,27 +308,8 @@ public:
 	 * @return A reference to this object
 	 */
 	const GProjectionIndividual& operator=(const GProjectionIndividual& cp){
-		GProjectionIndividual::load(&cp);
+		GProjectionIndividual::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Loads the data of another GProjectionIndividual, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GProjectionIndividual, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp){
-		const GProjectionIndividual *p_load = conversion_cast(cp, this);
-
-		// Load the parent class'es data
-		GParameterSet::load(cp);
-
-		// Load our local data
-		nData_ = p_load->nData_;
-		nDimOrig_ = p_load->nDimOrig_;
-		nDimTarget_ = p_load->nDimTarget_;
-		source_ = p_load->source_;
 	}
 
 	/********************************************************************************************/
@@ -370,7 +350,7 @@ public:
 
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
-		Gem::Util::GRandom l_gr;
+		Gem::Util::GRandom l_gr(Gem::Util::RNRLOCAL);
 
 		// Create the required data.
 		projectionData pD;
@@ -443,7 +423,7 @@ public:
 
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
-		Gem::Util::GRandom l_gr;
+		Gem::Util::GRandom l_gr(Gem::Util::RNRLOCAL);
 
 		// Create the required data.
 		projectionData pD;
@@ -534,6 +514,25 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GProjectionIndividual, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GProjectionIndividual, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		const GProjectionIndividual *p_load = conversion_cast<GProjectionIndividual>(cp);
+
+		// Load the parent class'es data
+		GParameterSet::load_(cp);
+
+		// Load our local data
+		nData_ = p_load->nData_;
+		nDimOrig_ = p_load->nDimOrig_;
+		nDimTarget_ = p_load->nDimTarget_;
+		source_ = p_load->source_;
+	}
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

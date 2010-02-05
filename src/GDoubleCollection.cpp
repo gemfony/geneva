@@ -84,7 +84,7 @@ GDoubleCollection::~GDoubleCollection()
  * @return A constant reference to this object
  */
 const GDoubleCollection& GDoubleCollection::operator=(const GDoubleCollection& cp){
-	GDoubleCollection::load(&cp);
+	GDoubleCollection::load_(&cp);
 	return *this;
 }
 
@@ -147,8 +147,8 @@ boost::optional<std::string> GDoubleCollection::checkRelationshipWith(const GObj
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GDoubleCollection *p_load = GObject::conversion_cast(&cp,  this);
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GDoubleCollection>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -167,12 +167,12 @@ boost::optional<std::string> GDoubleCollection::checkRelationshipWith(const GObj
  *
  * @param cp A copy of another GDoubleCollection object, camouflaged as a GObject
  */
-void GDoubleCollection::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GDoubleCollection *p_load = GObject::conversion_cast(cp, this);
+void GDoubleCollection::load_(const GObject* cp){
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GDoubleCollection>(cp);
 
 	// Load our parent class'es data ...
-	GNumCollectionT<double>::load(cp);
+	GNumCollectionT<double>::load_(cp);
 
 	// ... no local data
 }

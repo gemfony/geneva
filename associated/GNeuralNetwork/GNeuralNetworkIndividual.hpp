@@ -338,29 +338,8 @@ public:
 	 * @return A reference to this object
 	 */
 	const GNeuralNetworkIndividual& operator=(const GNeuralNetworkIndividual& cp){
-		GNeuralNetworkIndividual::load(&cp);
+		GNeuralNetworkIndividual::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp){
-		const GNeuralNetworkIndividual *p_load = conversion_cast(cp, this);
-
-		// Load the parent class'es data
-		GParameterSet::load(cp);
-
-		// Load our local data.
-		networkDataFile_ = p_load->networkDataFile_;
-
-		// nD_ is a shared_ptr, hence we need to copy the data itself. We do not do
-		// this, if we already have the data present. This happens as we assume that
-		// the training data doesn't change.
-		if(!nD_) nD_ = boost::shared_ptr<networkData>(new networkData(*(p_load->nD_)));
 	}
 
 	/********************************************************************************************/
@@ -412,7 +391,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GNeuralNetworkIndividual *p_load = GObject::conversion_cast(&cp,  this);
+		const GNeuralNetworkIndividual *p_load = GObject::conversion_cast<GNeuralNetworkIndividual>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -454,7 +433,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Util::GRandom gr;
+		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
 		// The dimension of the hypercube is identical to the number of input nodes
 		std::size_t nDim = architecture[0];
@@ -527,7 +506,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Util::GRandom gr;
+		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
 		// The dimension of the hypersphere is identical to the number of input nodes
 		std::size_t nDim = architecture[0];
@@ -645,10 +624,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Util::GRandom gr;
-
-		// Create a local random number generator.
-		Gem::Util::GRandom gr;
+		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
 		// The dimension of the hypersphere is identical to the number of input nodes
 		std::size_t nDim = architecture[0];
@@ -1058,6 +1034,27 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GNeuralNetworkIndividual, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GNeuralNetworkIndividual, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		const GNeuralNetworkIndividual *p_load = conversion_cast<GNeuralNetworkIndividual>(cp);
+
+		// Load the parent class'es data
+		GParameterSet::load_(cp);
+
+		// Load our local data.
+		networkDataFile_ = p_load->networkDataFile_;
+
+		// nD_ is a shared_ptr, hence we need to copy the data itself. We do not do
+		// this, if we already have the data present. This happens as we assume that
+		// the training data doesn't change.
+		if(!nD_) nD_ = boost::shared_ptr<networkData>(new networkData(*(p_load->nD_)));
+	}
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

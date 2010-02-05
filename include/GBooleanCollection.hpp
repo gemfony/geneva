@@ -101,16 +101,14 @@ namespace GenEvA
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-
-    /** @brief Loads the data of another GBooleanCollection class */
-    virtual void load(const GObject *);
-
     /** @brief Adds random bits to the collection */
     void addRandomData(const std::size_t&);
     /** @brief Adds random bits to the collection with a given probability structure */
     void addRandomData(const std::size_t&, const double&);
 
   protected:
+    /** @brief Loads the data of another GBooleanCollection class */
+    virtual void load_(const GObject *);
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone_() const;
   };

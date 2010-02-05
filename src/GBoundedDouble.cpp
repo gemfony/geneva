@@ -117,7 +117,7 @@ const double& GBoundedDouble::operator=(const double& val) {
  * @return A constant reference to this object
  */
 const GBoundedDouble& GBoundedDouble::operator=(const GBoundedDouble& cp){
-	GBoundedDouble::load(&cp);
+	GBoundedDouble::load_(&cp);
 	return *this;
 }
 
@@ -200,12 +200,12 @@ boost::optional<std::string> GBoundedDouble::checkRelationshipWith(const GObject
  *
  * @param cp A copy of another GBoundedDouble object, camouflaged as a GObject
  */
-void GBoundedDouble::load(const GObject* cp){
+void GBoundedDouble::load_(const GObject* cp){
 	// Check for a possible self-assignment
     GObject::selfAssignmentCheck<GBoundedDouble>(cp);
 
 	// Load our parent class'es data ...
-	GBoundedNumT<double>::load(cp);
+	GBoundedNumT<double>::load_(cp);
 
 	// ... no local data
 }

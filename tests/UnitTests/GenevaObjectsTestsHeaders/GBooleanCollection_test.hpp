@@ -69,7 +69,7 @@ public:
 	void no_failure_expected() {
 		// Prepare printing of error messages in object comparisons
 		GEqualityPrinter gep("GBooleanCollection_test::no_failure_expected()",
-							 exp(-10),
+							 pow(10,-10),
 							 Gem::Util::CE_WITH_MESSAGES);
 
 		// Construction in different modes
@@ -108,7 +108,7 @@ public:
 		GBooleanCollection gbc6;
 		{
 		   boost::shared_ptr<GObject> gbc5 = gbc4.GObject::clone();
-		   gbc6.load(gbc5.get());
+		   gbc6.GObject::load(gbc5);
 		}
 		BOOST_CHECK(gbc6 == gbc2);
 
@@ -194,7 +194,7 @@ public:
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 			GBooleanCollection gbc(100);
-			BOOST_CHECK_THROW(gbc.load(&gbc), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gbc.GObject::load(gbc), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 		}
 	}

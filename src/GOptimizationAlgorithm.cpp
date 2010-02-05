@@ -31,8 +31,8 @@
 
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GOptimizationAlgorithm)
+// #include <boost/serialization/export.hpp>
+// BOOST_CLASS_EXPORT(Gem::GenEvA::GOptimizationAlgorithm)
 
 namespace Gem
 {
@@ -145,7 +145,7 @@ boost::optional<std::string> GOptimizationAlgorithm::checkRelationshipWith(const
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GOptimizationAlgorithm *p_load = GObject::conversion_cast(&cp,  this);
+	const GOptimizationAlgorithm *p_load = GObject::conversion_cast<GOptimizationAlgorithm>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -199,24 +199,15 @@ Gem::Util::rnrGenerationMode GOptimizationAlgorithm::getRnrGenerationMode() cons
  *
  * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
  */
-void GOptimizationAlgorithm::load(const GObject* cp)
+void GOptimizationAlgorithm::load_(const GObject* cp)
 {
-	const GOptimizationAlgorithm *p_load = static_cast<const GOptimizationAlgorithm *> (cp);
-
-	// Check that this object is not accidentally assigned to itself.
-	if (p_load == this) {
-		std::ostringstream error;
-		error << "In GOptimizationAlgorithm::load(): Error!" << std::endl
-		<< "Tried to assign an object to itself." << std::endl;
-
-		throw geneva_error_condition(error.str());
-	}
+	const GOptimizationAlgorithm *p_load = GObject::conversion_cast<GOptimizationAlgorithm>(cp);
 
 	// Load the parent class'es data
-	GMutableSetT<Gem::GenEvA::GIndividual>::load(cp);
+	GMutableSetT<Gem::GenEvA::GIndividual>::load_(cp);
 
 	// and then our local data
-	gr.load(&(p_load->gr));
+	gr.GObject::load(p_load->gr);
 
 	iteration_ = p_load->iteration_;
 	maxIteration_ = p_load->maxIteration_;

@@ -103,9 +103,6 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Loads the data of another GEAPersonalityTraits object */
-	virtual void load(const GObject*);
-
 	/** @brief Checks whether this is a parent individual */
 	bool isParent() const ;
 	/** @brief Retrieves the current value of the parentCounter_ variable */
@@ -127,6 +124,8 @@ public:
 	virtual std::string getCommand() const;
 
 protected:
+	/** @brief Loads the data of another GEAPersonalityTraits object */
+	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const;
 

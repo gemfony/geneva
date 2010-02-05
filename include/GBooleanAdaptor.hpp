@@ -102,15 +102,15 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Loads the data of another GObject */
-	virtual void load(const GObject* cp);
-
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
 
 protected:
+	/** @brief Loads the data of another GObject */
+	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
+
 	/** The actual mutation logic */
 	virtual void customMutations(bool&);
 };

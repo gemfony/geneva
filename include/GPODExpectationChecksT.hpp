@@ -256,7 +256,7 @@ boost::optional<std::string> checkExpectation (
 	  , const std::string& x_name
 	  , const std::string& y_name
 	  , const Gem::Util::expectation& e
-	  , const double& limit = exp(-10)
+	  , const double& limit = pow(10,-10)
 	  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 )
 {
@@ -341,7 +341,7 @@ boost::optional<std::string> checkExpectation (
 	  , const std::string& x_name
 	  , const std::string& y_name
 	  , const Gem::Util::expectation& e
-	  , const double& limit = exp(-10)
+	  , const double& limit = pow(10,-10)
 	  , typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 )
 {

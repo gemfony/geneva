@@ -103,9 +103,5 @@
   method proposed in this web page
 - Check whether we can replace getAdaptorId with some typeid construct.
 - Make local and factory production of random numbers a template, controlled through a define
-- Check whether using typeid instead of dynamic_cast in some places improves performance OR
-- Use type trait is_base_of together with enable_if in order to check, whether class A can be converted to B.
-  Eliminate dynamic_cast and dynamic_pointer_cast. See also type trait "is_convertible"
 - Add ability to lock vector wrappers, making it impossible to change the individual entries or size
 - Add a "boost::atomic<T>" wrapper around data items accessed by more than one thread. E.g., access to uint64_t is apparently not atomic on x86_32
-- Replace calls to exp(-10) in testing by something like pow(10,-10)

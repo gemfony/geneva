@@ -70,7 +70,7 @@ GCharObjectCollection::~GCharObjectCollection()
  * @return A constant reference to this object
  */
 const GCharObjectCollection& GCharObjectCollection::operator=(const GCharObjectCollection& cp){
-	GCharObjectCollection::load(&cp);
+	GCharObjectCollection::load_(&cp);
 	return *this;
 }
 
@@ -133,8 +133,8 @@ boost::optional<std::string> GCharObjectCollection::checkRelationshipWith(const 
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GCharObjectCollection *p_load = GObject::conversion_cast<GCharObjectCollection>(&cp);
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GCharObjectCollection>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -153,12 +153,12 @@ boost::optional<std::string> GCharObjectCollection::checkRelationshipWith(const 
  *
  * @param cp A copy of another GCharObjectCollection object, camouflaged as a GObject
  */
-void GCharObjectCollection::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GCharObjectCollection *p_load = GObject::conversion_cast<GCharObjectCollection>(cp);
+void GCharObjectCollection::load_(const GObject* cp){
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GCharObjectCollection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GChar>::load(cp);
+	GParameterTCollectionT<GChar>::load_(cp);
 
 	// ... no local data
 }

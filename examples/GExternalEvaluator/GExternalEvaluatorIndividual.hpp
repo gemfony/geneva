@@ -374,34 +374,8 @@ public:
 	 * A standard assignment operator
 	 */
 	const GExternalEvaluatorIndividual& operator=(const GExternalEvaluatorIndividual& cp){
-		GExternalEvaluatorIndividual::load(&cp);
+		GExternalEvaluatorIndividual::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GObject
-	 *
-	 * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp){
-		const GExternalEvaluatorIndividual *p_load = conversion_cast(cp, this);
-
-		// First load the data of our parent class ...
-		GParameterSet::load(cp);
-
-		// ... and then our own
-		program_ = p_load->program_;
-		arguments_ = p_load->arguments_;
-		nEvaluations_ = p_load->nEvaluations_;
-		exchangeMode_ = p_load->exchangeMode_;
-		maximize_ = p_load->maximize_;
-		parameterFile_ = p_load->parameterFile_;
-		useCommonAdaptor_ = p_load->useCommonAdaptor_;
-
-		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone<GBoundedDouble>();
-		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GBoundedInt32>();
-		gchar_ptr_ = p_load->gchar_ptr_->GObject::clone<GChar>();
 	}
 
 	/********************************************************************************************/
@@ -454,7 +428,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GExternalEvaluatorIndividual *p_load = GObject::conversion_cast(&cp,  this);
+		const GExternalEvaluatorIndividual *p_load = conversion_cast<GExternalEvaluatorIndividual>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -626,6 +600,33 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GObject
+	 *
+	 * @param cp A copy of another GExternalEvaluatorIndividual, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		// Convert to a local representation
+		const GExternalEvaluatorIndividual *p_load = conversion_cast<GExternalEvaluatorIndividual>(cp);
+
+		// First load the data of our parent class ...
+		GParameterSet::load_(cp);
+
+		// ... and then our own
+		program_ = p_load->program_;
+		arguments_ = p_load->arguments_;
+		nEvaluations_ = p_load->nEvaluations_;
+		exchangeMode_ = p_load->exchangeMode_;
+		maximize_ = p_load->maximize_;
+		parameterFile_ = p_load->parameterFile_;
+		useCommonAdaptor_ = p_load->useCommonAdaptor_;
+
+		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone<GBoundedDouble>();
+		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GBoundedInt32>();
+		gchar_ptr_ = p_load->gchar_ptr_->GObject::clone<GChar>();
+	}
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

@@ -44,8 +44,7 @@ template <>  GBoundedNumT<double>::GBoundedNumT()
 	, upperBoundary_(1.)
 	, internalValue_(0.)
 {
-		Gem::Util::GRandom gr;
-		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
 		// This function also sets the internalValue_ variable.
 		setExternalValue(gr.evenRandom(lowerBoundary_,upperBoundary_));
@@ -63,8 +62,7 @@ template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT()
  	, upperBoundary_(1000)
 	, internalValue_(1)
 {
-		Gem::Util::GRandom gr;
-		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
 		// This function also sets the internalValue_ variable.
 		// discreteRandom returns values in the range [lower,upper[ , i.e., the upper boundary
@@ -120,8 +118,7 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, cons
 	, upperBoundary_(1.)
 	, internalValue_(0.)
 {
-		Gem::Util::GRandom gr;
-		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
 		// Check that the boundaries make sense
 		if(lowerBoundary >= upperBoundary) {
@@ -162,8 +159,7 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& low
 	, upperBoundary_(upperBoundary)
 	, internalValue_(0)
 {
-		Gem::Util::GRandom gr;
-		gr.setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
 		// Complain if the boundaries are invalid
 		if(lowerBoundary >= upperBoundary) {

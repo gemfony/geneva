@@ -70,7 +70,7 @@ GBoundedInt32Collection::~GBoundedInt32Collection()
  * @return A constant reference to this object
  */
 const GBoundedInt32Collection& GBoundedInt32Collection::operator=(const GBoundedInt32Collection& cp){
-	GBoundedInt32Collection::load(&cp);
+	GBoundedInt32Collection::load_(&cp);
 	return *this;
 }
 
@@ -153,12 +153,12 @@ boost::optional<std::string> GBoundedInt32Collection::checkRelationshipWith(cons
  *
  * @param cp A copy of another GBoundedInt32Collection object, camouflaged as a GObject
  */
-void GBoundedInt32Collection::load(const GObject* cp){
+void GBoundedInt32Collection::load_(const GObject* cp){
 	// Check for a possible self-assignment
     GObject::selfAssignmentCheck<GBoundedInt32Collection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GBoundedInt32>::load(cp);
+	GParameterTCollectionT<GBoundedInt32>::load_(cp);
 
 	// ... no local data
 }

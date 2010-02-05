@@ -108,8 +108,8 @@ boost::optional<std::string> GPersonalityTraits::checkRelationshipWith(const GOb
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GPersonalityTraits>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -128,11 +128,12 @@ boost::optional<std::string> GPersonalityTraits::checkRelationshipWith(const GOb
  *
  * @param cp A copy of another GPersonalityTraits object, camouflaged as a GObject
  */
-void GPersonalityTraits::load(const GObject *cp) {
-	const GPersonalityTraits *p_load = this->conversion_cast(cp, this);
+void GPersonalityTraits::load_(const GObject *cp) {
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GPersonalityTraits>(cp);
 
 	// Load the parent class'es data
-	GObject::load(cp);
+	GObject::load_(cp);
 
 	// No local data
 }

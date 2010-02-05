@@ -108,15 +108,14 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Loads the data of another GPersonalityTraits object */
-	virtual void load(const GObject*);
-
 	/** @brief Sets a command to be performed by a remote client. */
 	virtual void setCommand(const std::string&) = 0;
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const = 0;
 
 protected:
+	/** @brief Loads the data of another GPersonalityTraits object */
+	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 };

@@ -198,23 +198,6 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Loads the data of another GObject
-	 *
-	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
-	 */
-	virtual void load(const GObject* cp){
-		// Convert cp into local format
-		const GParameterT<T> *p_load = GObject::conversion_cast<GParameterT<T> >(cp);
-
-		// Load our parent class'es data ...
-		GParameterBaseWithAdaptorsT<T>::load(cp);
-
-		// ... and then our own data
-		val_ = p_load->val_;
-	}
-
-	/*******************************************************************************************/
-	/**
 	 * Allows to mutate the value stored in this class.
 	 */
 	virtual void mutateImpl(){
@@ -222,6 +205,23 @@ public:
 	}
 
 protected:
+	/*******************************************************************************************/
+	/**
+	 * Loads the data of another GObject
+	 *
+	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		// Convert cp into local format
+		const GParameterT<T> *p_load = GObject::conversion_cast<GParameterT<T> >(cp);
+
+		// Load our parent class'es data ...
+		GParameterBaseWithAdaptorsT<T>::load_(cp);
+
+		// ... and then our own data
+		val_ = p_load->val_;
+	}
+
 	/*******************************************************************************************/
 	/**
 	 * Creates a deep clone of this object. Purely virtual, needs to be implemented in derived

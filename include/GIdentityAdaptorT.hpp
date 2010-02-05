@@ -128,24 +128,8 @@ public:
 	 */
 	const GIdentityAdaptorT<T>& operator=(const GIdentityAdaptorT<T>& cp)
 	{
-		GIdentityAdaptorT<T>::load(&cp);
+		GIdentityAdaptorT<T>::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * This function loads the data of another GIdentityAdaptorT, camouflaged as a GObject.
-	 *
-	 * @param A copy of another GIdentityAdaptorT, camouflaged as a GObject
-	 */
-	void load(const GObject *cp)
-	{
-		// Convert GObject pointer to local format
-		// (also checks for self-assignments in DEBUG mode)
-		const GIdentityAdaptorT<T> *p_load = GObject::conversion_cast<GIdentityAdaptorT<T> >(cp);
-		// Load the data of our parent class ...
-		GAdaptorT<T>::load(cp);
-		// no local data
 	}
 
 	/********************************************************************************************/
@@ -236,6 +220,23 @@ public:
 	}
 
 protected:
+	/********************************************************************************************/
+	/**
+	 * This function loads the data of another GIdentityAdaptorT, camouflaged as a GObject.
+	 *
+	 * @param A copy of another GIdentityAdaptorT, camouflaged as a GObject
+	 */
+	void load_(const GObject *cp)
+	{
+		// Check that this object is not accidently assigned to itself
+		GObject::selfAssignmentCheck<GIdentityAdaptorT<T> >(cp);
+
+		// Load the data of our parent class ...
+		GAdaptorT<T>::load_(cp);
+
+		// no local data
+	}
+
 	/********************************************************************************************/
 	/**
 	 * This function creates a deep copy of this object

@@ -81,7 +81,7 @@ GBooleanAdaptor::~GBooleanAdaptor()
  * @return A constant reference to this object
  */
 const GBooleanAdaptor& GBooleanAdaptor::operator=(const GBooleanAdaptor& cp){
-	GBooleanAdaptor::load(&cp);
+	GBooleanAdaptor::load_(&cp);
 	return *this;
 }
 
@@ -164,12 +164,12 @@ boost::optional<std::string> GBooleanAdaptor::checkRelationshipWith(const GObjec
  *
  * @param cp A copy of another GBooleanAdaptor object, camouflaged as a GObject
  */
-void GBooleanAdaptor::load(const GObject* cp){
+void GBooleanAdaptor::load_(const GObject* cp){
 	// Check for a possible self-assignment
 	GObject::selfAssignmentCheck<GBooleanAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GIntFlipAdaptorT<bool>::load(cp);
+	GIntFlipAdaptorT<bool>::load_(cp);
 
 	// ... no local data
 }

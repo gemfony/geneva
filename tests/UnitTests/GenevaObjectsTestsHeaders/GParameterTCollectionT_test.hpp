@@ -255,7 +255,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 {
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GParameterTCollectionT_no_failure_expected",
-						 exp(-10),
+						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
 	// A local random number generator
@@ -301,7 +301,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 	// Test cloning and loading
 	{
 		boost::shared_ptr<GObject> gptct_clone_ptr = gptct.GObject::clone();
-		BOOST_CHECK_NO_THROW(gptct_cp4.load(gptct_clone_ptr.get()));
+		BOOST_CHECK_NO_THROW(gptct_cp4.GObject::load(gptct_clone_ptr));
 	}
 	BOOST_CHECK(gptct_cp4 == gptct);
 	BOOST_CHECK(gptct_cp4 == gptct_cp1);

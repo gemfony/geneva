@@ -164,13 +164,13 @@ public:
 
 		if(cpSize == localSize) { // The most likely case
 			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(), cp_it!=cp.end(); ++it, ++cp_it) {
-				(*it)->load((*cp_it).get());
+				(*it)->GObject::load(*cp_it);
 			}
 		}
 		else if(cpSize > localSize) {
 			// First copy the initial elements
 			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(); ++it, ++cp_it) {
-				(*it)->load((*cp_it).get());
+				(*it)->GObject::load(*cp_it);
 			}
 
 			// Then attach the remaining objects from cp
@@ -184,7 +184,7 @@ public:
 
 			// Then copy the elements
 			for(it=data.begin(), cp_it=cp.begin(); it!=data.end(), cp_it!=cp.end(); ++it, ++cp_it) {
-				(*it)->load((*cp_it).get());
+				(*it)->GObject::load(*cp_it);
 			}
 		}
 

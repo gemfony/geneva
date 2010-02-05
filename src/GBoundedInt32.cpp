@@ -117,7 +117,7 @@ const boost::int32_t& GBoundedInt32::operator=(const boost::int32_t& val) {
  * @return A constant reference to this object
  */
 const GBoundedInt32& GBoundedInt32::operator=(const GBoundedInt32& cp){
-	GBoundedInt32::load(&cp);
+	GBoundedInt32::load_(&cp);
 	return *this;
 }
 
@@ -200,12 +200,12 @@ boost::optional<std::string> GBoundedInt32::checkRelationshipWith(const GObject&
  *
  * @param cp A copy of another GBoundedInt32 object, camouflaged as a GObject
  */
-void GBoundedInt32::load(const GObject* cp){
+void GBoundedInt32::load_(const GObject* cp){
 	// Check for a possible self-assignment
     GObject::selfAssignmentCheck<GBoundedInt32>(cp);
 
 	// Load our parent class'es data ...
-	GBoundedNumT<boost::int32_t>::load(cp);
+	GBoundedNumT<boost::int32_t>::load_(cp);
 
 	// ... no local data
 }

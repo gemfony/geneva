@@ -137,23 +137,27 @@ public:
 	 * A standard assignment operator
 	 */
 	const GNoisyParabolaIndividual& operator=(const GNoisyParabolaIndividual& cp){
-		GNoisyParabolaIndividual::load(&cp);
+		GNoisyParabolaIndividual::load_(&cp);
 		return *this;
 	}
 
+protected:
 	/********************************************************************************************/
 	/**
 	 * Loads the data of another GNoisyParabolaIndividual, camouflaged as a GObject
 	 *
 	 * @param cp A copy of another GNoisyParabolaIndividual, camouflaged as a GObject
 	 */
-	virtual void load(const GObject* cp){
+	virtual void load_(const GObject* cp){
+		// Check that we are not accidently assigning this object to itself
+		GObject::selfAssignmentCheck<GNoisyParabolaIndividual>(cp);
+
 		// We have no local data. Hence we can just pass the pointer to our parent class.
 		// Note that we'd have to use the GObject::conversion_cast() function otherwise.
-		GParameterSet::load(cp);
+		GParameterSet::load_(cp);
 	}
 
-protected:
+
 	/********************************************************************************************/
 	/**
 	 * Creates a deep clone of this object

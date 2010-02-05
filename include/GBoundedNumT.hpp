@@ -114,7 +114,7 @@ public:
 	 * @return A constant reference to this object
 	 */
 	const GBoundedNumT<T>& operator=(const GBoundedNumT<T>& cp) {
-		GBoundedNumT<T>::load(&cp);
+		GBoundedNumT<T>::load_(&cp);
 		return *this;
 	}
 
@@ -127,7 +127,7 @@ public:
 	 * @return The new external value of this object
 	 */
 	virtual const T& operator=(const T& val) {
-		this->setExternalValue(val);
+		setExternalValue(val);
 		return val;
 	}
 
@@ -181,7 +181,7 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GBoundedNumT<T>  *p_load = GObject::conversion_cast(&cp,  this);
+		const GBoundedNumT<T>  *p_load = GObject::conversion_cast<GBoundedNumT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -195,25 +195,6 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GBoundedNumT<T>", internalValue_, p_load->internalValue_, "internalValue_", "p_load->internalValue_", e , limit));
 
 		return evaluateDiscrepancies("GBoundedNumT<T>", caller, deviations, e);
-	}
-
-	/****************************************************************************/
-	/**
-	 * Loads the data of another GBoundedNumT<T>, camouflaged as a GObject.
-	 *
-	 * @param cp Another GBoundedNumT<T> object, camouflaged as a GObject
-	 */
-	virtual void load(const GObject *cp) {
-		// Convert GObject pointer to local format
-		const GBoundedNumT<T> *p_load	= this->conversion_cast(cp, this);
-
-		// Load our parent class'es data ...
-		GParameterT<T>::load(cp);
-
-		// ... and then our own
-		lowerBoundary_ = p_load->lowerBoundary_;
-		upperBoundary_ = p_load->upperBoundary_;
-		internalValue_ = p_load->internalValue_;
 	}
 
 	/****************************************************************************/
@@ -303,7 +284,7 @@ public:
 		upperBoundary_ = upper;
 
 		// Restore the original external value
-		this->setExternalValue(currentValue);
+		setExternalValue(currentValue);
 	}
 
 	/****************************************************************************/
@@ -323,7 +304,7 @@ public:
 	 * in GParameterT<T>, which is set accordingly.
 	 */
 	virtual void mutateImpl() {
-		this->applyAdaptor(internalValue_);
+		applyAdaptor(internalValue_);
 
 		// Then calculate the corresponding external value and set it accordingly
 		T externalValue = calculateExternalValue(internalValue_);
@@ -372,6 +353,25 @@ public:
 	}
 
 protected:
+	/****************************************************************************/
+	/**
+	 * Loads the data of another GBoundedNumT<T>, camouflaged as a GObject.
+	 *
+	 * @param cp Another GBoundedNumT<T> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject *cp) {
+		// Convert GObject pointer to local format
+		const GBoundedNumT<T> *p_load	= GObject::conversion_cast<GBoundedNumT<T> >(cp);
+
+		// Load our parent class'es data ...
+		GParameterT<T>::load_(cp);
+
+		// ... and then our own
+		lowerBoundary_ = p_load->lowerBoundary_;
+		upperBoundary_ = p_load->upperBoundary_;
+		internalValue_ = p_load->internalValue_;
+	}
+
 	/****************************************************************************/
 	/**
 	 * Create a deep copy of this object. Basically this is a fabric function.
@@ -424,7 +424,7 @@ private:
 		// The transfer function in this area is just f(x)=x, so we can just
 		// assign the external to the internal value.
 		internalValue_ = val;
-		this->setValue(val);
+		setValue(val);
 
 		return previous;
 	}

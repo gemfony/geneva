@@ -75,7 +75,7 @@ using boost::unit_test_framework::test_case;
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GParameterT_no_failure_expected",
-						 exp(-10),
+						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
 	// A local random number generator
@@ -102,7 +102,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	// Test cloning and loading
 	{
 		boost::shared_ptr<GObject> gpt3_clone = gpt3.GObject::clone();
-		BOOST_CHECK_NO_THROW(gpt0.load(gpt3_clone.get()));
+		BOOST_CHECK_NO_THROW(gpt0.GObject::load(gpt3_clone));
 	}
 	BOOST_CHECK(gpt0 == gpt3);
 

@@ -65,7 +65,7 @@ public:
 	void no_failure_expected() {
 		// Prepare printing of error messages in object comparisons
 		GEqualityPrinter gep("GBoundedDouble_test::no_failure_expected()",
-							 exp(-10),
+							 pow(10,-10),
 							 Gem::Util::CE_WITH_MESSAGES);
 
 		// Test instantiation in different modes
@@ -106,7 +106,7 @@ public:
 		{
 		   boost::shared_ptr<GObject> gbd4;
 		   BOOST_CHECK_NO_THROW(gbd4 = gbd3.GObject::clone());
-		   BOOST_CHECK_NO_THROW(gbd5.load(gbd4.get()));
+		   BOOST_CHECK_NO_THROW(gbd5.GObject::load(gbd4));
 		   BOOST_CHECK(gbd5 == gbd3);
 		}
 

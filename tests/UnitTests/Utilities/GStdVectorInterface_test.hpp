@@ -68,7 +68,7 @@ template <typename vi, typename item>
 void stdvectorinterfacetest(vi& vectorObject, const item& templItem, const item& findItem) {
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("stdvectorinterfacetest()",
-						 exp(-10),
+						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
 	const std::size_t NITEMS = 100;
@@ -282,7 +282,7 @@ void stdvectorinterfacetestSP(vi& vectorObject,
 								  boost::shared_ptr<item> findItem) {
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("stdvectorinterfacetestSP()",
-						 exp(-10),
+						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
 	const std::size_t NITEMS = 100;

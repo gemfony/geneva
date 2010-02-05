@@ -69,7 +69,7 @@ GBooleanObjectCollection::~GBooleanObjectCollection()
  * @return A constant reference to this object
  */
 const GBooleanObjectCollection& GBooleanObjectCollection::operator=(const GBooleanObjectCollection& cp){
-	GBooleanObjectCollection::load(&cp);
+	GBooleanObjectCollection::load_(&cp);
 	return *this;
 }
 
@@ -152,12 +152,12 @@ boost::optional<std::string> GBooleanObjectCollection::checkRelationshipWith(con
  *
  * @param cp A copy of another GBooleanObjectCollection object, camouflaged as a GObject
  */
-void GBooleanObjectCollection::load(const GObject* cp){
+void GBooleanObjectCollection::load_(const GObject* cp){
 	// Check for a possible self-assignment
     GObject::selfAssignmentCheck<GBooleanObjectCollection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GBoolean>::load(cp);
+	GParameterTCollectionT<GBoolean>::load_(cp);
 
 	// ... no local data
 }

@@ -108,7 +108,7 @@ GInt32GaussAdaptor::~GInt32GaussAdaptor()
  * @return A constant reference to this object
  */
 const GInt32GaussAdaptor& GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor& cp){
-	GInt32GaussAdaptor::load(&cp);
+	GInt32GaussAdaptor::load_(&cp);
 	return *this;
 }
 
@@ -171,8 +171,8 @@ boost::optional<std::string> GInt32GaussAdaptor::checkRelationshipWith(const GOb
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GInt32GaussAdaptor  *p_load = GObject::conversion_cast(&cp,  this);
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GInt32GaussAdaptor>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -191,12 +191,12 @@ boost::optional<std::string> GInt32GaussAdaptor::checkRelationshipWith(const GOb
  *
  * @param cp A copy of another GInt32GaussAdaptor object, camouflaged as a GObject
  */
-void GInt32GaussAdaptor::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GInt32GaussAdaptor *p_load = GObject::conversion_cast(cp, this);
+void GInt32GaussAdaptor::load_(const GObject* cp){
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GInt32GaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GGaussAdaptorT<boost::int32_t>::load(cp);
+	GGaussAdaptorT<boost::int32_t>::load_(cp);
 
 	// ... no local data
 }

@@ -204,45 +204,8 @@ public:
 	 * @param cp A copy of another GAdaptorT<T> object
 	 */
 	const GAdaptorT<T>& operator=(const GAdaptorT<T>& cp) {
-		GAdaptorT<T>::load(&cp);
+		GAdaptorT<T>::load_(&cp);
 		return *this;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Loads the contents of another GAdaptorT<T>. The function
-	 * is similar to a copy constructor (but with a pointer as
-	 * argument). As this function might be called in an environment
-	 * where we do not know the exact type of the class, the
-	 * GAdaptorT<T> is camouflaged as a GObject . This implies the
-	 * need for dynamic conversion.
-	 *
-	 * @param gb A pointer to another GAdaptorT<T>, camouflaged as a GObject
-	 */
-	virtual void load(const GObject *cp) {
-		// Convert cp into local format
-		const GAdaptorT<T> *p_load = conversion_cast<GAdaptorT<T> >(cp);
-
-		// Load the parent class'es data
-		GObject::load(cp);
-
-		// Then our own data
-		gr.load(&(p_load->gr));
-		adaptionCounter_ = p_load->adaptionCounter_;
-		adaptionThreshold_ = p_load->adaptionThreshold_;
-		mutProb_ = p_load->mutProb_;
-		mutationMode_ = p_load->mutationMode_;
-		currentIndex_ = p_load->currentIndex_;
-		maxVars_ = p_load->maxVars_;
-
-#ifdef DEBUG
-		if(maxVars_ < 1) {
-			std::ostringstream error;
-			error << "In GAdaptorT<T>::load(cp):: Error!" << std::endl
-			      << "The maximum number of variables must be at least 1" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
-		}
-#endif /* DEBUG */
 	}
 
 	/***********************************************************************************/
@@ -506,6 +469,43 @@ public:
 
 
 protected:
+	/***********************************************************************************/
+	/**
+	 * Loads the contents of another GAdaptorT<T>. The function
+	 * is similar to a copy constructor (but with a pointer as
+	 * argument). As this function might be called in an environment
+	 * where we do not know the exact type of the class, the
+	 * GAdaptorT<T> is camouflaged as a GObject . This implies the
+	 * need for dynamic conversion.
+	 *
+	 * @param gb A pointer to another GAdaptorT<T>, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject *cp) {
+		// Convert cp into local format
+		const GAdaptorT<T> *p_load = conversion_cast<GAdaptorT<T> >(cp);
+
+		// Load the parent class'es data
+		GObject::load_(cp);
+
+		// Then our own data
+		gr.GObject::load(p_load->gr);
+		adaptionCounter_ = p_load->adaptionCounter_;
+		adaptionThreshold_ = p_load->adaptionThreshold_;
+		mutProb_ = p_load->mutProb_;
+		mutationMode_ = p_load->mutationMode_;
+		currentIndex_ = p_load->currentIndex_;
+		maxVars_ = p_load->maxVars_;
+
+#ifdef DEBUG
+		if(maxVars_ < 1) {
+			std::ostringstream error;
+			error << "In GAdaptorT<T>::load_(cp):: Error!" << std::endl
+			      << "The maximum number of variables must be at least 1" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+#endif /* DEBUG */
+	}
+
 	/***********************************************************************************/
 	/** @brief Creates a deep copy of this object */
 	virtual GObject *clone_(void) const =0;

@@ -93,7 +93,7 @@ const bool& GBoolean::operator=(const bool& val) {
  * @return A constant reference to this object
  */
 const GBoolean& GBoolean::operator=(const GBoolean& cp){
-	GBoolean::load(&cp);
+	GBoolean::load_(&cp);
 	return *this;
 }
 
@@ -176,12 +176,12 @@ boost::optional<std::string> GBoolean::checkRelationshipWith(const GObject& cp,
  *
  * @param cp A copy of another GBoolean object, camouflaged as a GObject
  */
-void GBoolean::load(const GObject* cp){
+void GBoolean::load_(const GObject* cp){
 	// Check for a possible self-assignment
 	GObject::selfAssignmentCheck<GBoolean>(cp);
 
 	// Load our parent class'es data ...
-	GParameterT<bool>::load(cp);
+	GParameterT<bool>::load_(cp);
 
 	// ... no local data
 }

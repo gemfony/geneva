@@ -118,7 +118,7 @@ boost::optional<std::string> GEAPersonalityTraits::checkRelationshipWith(const G
     using namespace Gem::Util::POD;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GEAPersonalityTraits *p_load = GObject::conversion_cast(&cp,  this);
+	const GEAPersonalityTraits *p_load = GObject::conversion_cast<GEAPersonalityTraits>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -150,11 +150,11 @@ GObject* GEAPersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GEAPersonalityTraits object, camouflaged as a GObject
  */
-void GEAPersonalityTraits::load(const GObject* cp) {
-	const GEAPersonalityTraits *p_load = this->conversion_cast(cp, this);
+void GEAPersonalityTraits::load_(const GObject* cp) {
+	const GEAPersonalityTraits *p_load = conversion_cast<GEAPersonalityTraits>(cp);
 
 	// Load the parent class'es data
-	GObject::load(cp);
+	GObject::load_(cp);
 
 	// Then load our local data
 	parentCounter_ = p_load->parentCounter_;

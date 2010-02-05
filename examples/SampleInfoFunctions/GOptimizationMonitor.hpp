@@ -167,7 +167,7 @@ public:
 				genDat.generation = gbp->getIteration();
 
 				boost::shared_ptr<GEvolutionaryAlgorithm> pop(new GEvolutionaryAlgorithm());
-				pop->load(gbp);
+				pop->load(*gbp);
 				genDat.pop = pop;
 
 				oD_.gD.push_back(genDat);

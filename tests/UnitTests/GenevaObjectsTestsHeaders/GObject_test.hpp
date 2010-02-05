@@ -65,7 +65,7 @@ public:
 	void no_failure_expected() {
 		// Prepare printing of error messages in object comparisons
 		GEqualityPrinter gep("GObject_test::no_failure_expected()"
-				             , exp(-10)
+				             , pow(10,-10)
 				             , Gem::Util::CE_WITH_MESSAGES);
 
 		// Default construction
@@ -105,7 +105,7 @@ public:
 		GBooleanAdaptor gba2;
 		{
 			boost::shared_ptr<GObject> gba0_clone3 = gba0.GObject::clone();
-			BOOST_CHECK_NO_THROW(gba2.load(gba0_clone3.get()));
+			BOOST_CHECK_NO_THROW(gba2.GObject::load(gba0_clone3));
 		}
 
 		std::string report =  gba0.report();

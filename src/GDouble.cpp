@@ -92,7 +92,7 @@ const double& GDouble::operator=(const double& val) {
  * @return A constant reference to this object
  */
 const GDouble& GDouble::operator=(const GDouble& cp){
-	GDouble::load(&cp);
+	GDouble::load_(&cp);
 	return *this;
 }
 
@@ -155,8 +155,8 @@ boost::optional<std::string> GDouble::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Util;
     using namespace Gem::Util::POD;
 
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GDouble *p_load = GObject::conversion_cast<GDouble>(&cp);
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GDouble>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
@@ -175,12 +175,12 @@ boost::optional<std::string> GDouble::checkRelationshipWith(const GObject& cp,
  *
  * @param cp A copy of another GDouble object, camouflaged as a GObject
  */
-void GDouble::load(const GObject* cp){
-	// Convert cp into local format (also checks for the type of cp)
-	const GDouble *p_load = GObject::conversion_cast<GDouble>(cp);
+void GDouble::load_(const GObject* cp){
+    // Check that we are not accidently assigning this object to itself
+    GObject::selfAssignmentCheck<GDouble>(cp);
 
 	// Load our parent class'es data ...
-	GParameterT<double>::load(cp);
+	GParameterT<double>::load_(cp);
 
 	// ... no local data
 }
