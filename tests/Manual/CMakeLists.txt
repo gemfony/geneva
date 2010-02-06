@@ -9,10 +9,6 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GParallelisationOverhead
-)
-
-ADD_SUBDIRECTORY (
 	GRandomUsage
 )
 
