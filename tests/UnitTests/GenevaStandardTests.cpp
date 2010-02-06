@@ -28,11 +28,13 @@
  */
 
 #include <boost/test/unit_test.hpp>
+#include <boost/cstdint.hpp>
 
 using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
 // All classes that will be tested in this file
+#include "GIdentityAdaptorT.hpp"
 #include "GInt32FlipAdaptor.hpp"
 #include "GBooleanAdaptor.hpp"
 #include "GCharFlipAdaptor.hpp"
@@ -77,7 +79,8 @@ class GenevaStandardTestSuite
 public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 		typedef boost::mpl::list<
-			  GInt32FlipAdaptor
+		      GIdentityAdaptorT<boost::int32_t>
+			, GInt32FlipAdaptor
 			, GBooleanAdaptor
 			, GCharFlipAdaptor
 			, GInt32GaussAdaptor
