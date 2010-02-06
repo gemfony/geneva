@@ -530,7 +530,6 @@ private:
 // Declaration of specializations for various "allowed types
 template<> double GNumericParameterT<double>::unknownParameterTypeTrap(double);
 template<> boost::int32_t GNumericParameterT<boost::int32_t>::unknownParameterTypeTrap(boost::int32_t);
-template<> char GNumericParameterT<char>::unknownParameterTypeTrap(char);
 template<> bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool);
 
 template<> void GNumericParameterT<double>::writeToStream(std::ostream&) const;
@@ -542,9 +541,6 @@ template<> void GNumericParameterT<bool>::writeToStream(std::ostream&) const;
 template<> void GNumericParameterT<bool>::readFromStream(std::istream&);
 template<> void GNumericParameterT<bool>::binaryWriteToStream(std::ostream&) const;
 template<> void GNumericParameterT<bool>::binaryReadFromStream(std::istream&);
-
-template<> void GNumericParameterT<char>::writeToStream(std::ostream&) const;
-template<> void GNumericParameterT<char>::readFromStream(std::istream&);
 
 template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameterT<double>& cp, const double& limit) const;
 

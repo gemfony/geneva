@@ -75,7 +75,6 @@
 // Geneva headers go here
 #include "GNumericParameterT.hpp"
 #include "GBoolParameter.hpp"
-#include "GCharParameter.hpp"
 #include "GDoubleParameter.hpp"
 #include "GLongParameter.hpp"
 #include "GParameterValuePair.hpp"
@@ -293,8 +292,6 @@ public:
 	void append(boost::shared_ptr<GLongParameter>);
 	/** @brief Adds a boost::shared_ptr<GBoolParameter> object to the corresponding vector */
 	void append(boost::shared_ptr<GBoolParameter>);
-	/** @brief Adds a boost::shared_ptr<GCharParameter> object to the corresponding vector */
-	void append(boost::shared_ptr<GCharParameter>);
 
 	/**************************************************************************/
 
@@ -329,8 +326,6 @@ template <> std::size_t GDataExchange::numberOfParameterSets<double>() const;
 template <> std::size_t GDataExchange::numberOfParameterSets<boost::int32_t>() const;
 /** @brief Gives access to the number of bool parameters in the current parameter set */
 template <> std::size_t GDataExchange::numberOfParameterSets<bool>() const;
-/** @brief Gives access to the number of char parameters in the current parameter set */
-template <> std::size_t GDataExchange::numberOfParameterSets<char>() const;
 
 /** @brief Gives access to a full data set containing doubles */
 template <> boost::shared_ptr<GDoubleParameter> GDataExchange::parameterSet_at<double>(std::size_t);
@@ -338,8 +333,6 @@ template <> boost::shared_ptr<GDoubleParameter> GDataExchange::parameterSet_at<d
 template <> boost::shared_ptr<GLongParameter> GDataExchange::parameterSet_at<boost::int32_t>(std::size_t);
 /** @brief Gives access to a full data set containing bools */
 template <> boost::shared_ptr<GBoolParameter> GDataExchange::parameterSet_at<bool>(std::size_t);
-/** @brief Gives access to a full data set containing chars */
-template <> boost::shared_ptr<GCharParameter> GDataExchange::parameterSet_at<char>(std::size_t);
 
 /** @brief Gives access to a parameter of type double */
 template <> double GDataExchange::at<double>(std::size_t);
@@ -347,8 +340,6 @@ template <> double GDataExchange::at<double>(std::size_t);
 template <> boost::int32_t GDataExchange::at<boost::int32_t>(std::size_t);
 /** @brief Gives access to a parameter of type bool */
 template <> bool GDataExchange::at<bool>(std::size_t);
-/** @brief Gives access to a parameter of type char */
-template <> char GDataExchange::at<char>(std::size_t);
 
 /** @brief Gives access to the size of the dArray_ vector */
 template <> std::size_t GDataExchange::size<double>();
@@ -356,8 +347,6 @@ template <> std::size_t GDataExchange::size<double>();
 template <> std::size_t GDataExchange::size<boost::int32_t>();
 /** @brief Gives access to the size of the bArray_ vector */
 template <> std::size_t GDataExchange::size<bool>();
-/** @brief Gives access to the size of the cArray_ vector */
-template <> std::size_t GDataExchange::size<char>();
 
 /** @brief Appends a boost::shared_ptr<GDoubleParameter> object without boundaries to the corresponding vector. */
 template <> void GDataExchange::append<double>(const double&);
@@ -365,8 +354,6 @@ template <> void GDataExchange::append<double>(const double&);
 template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t&);
 /** @brief Appends a boost::shared_ptr<GBoolParameter> object without boundaries to the corresponding vector. */
 template <> void GDataExchange::append<bool>(const bool&);
-/** @brief Appends a boost::shared_ptr<GCharParameter> object without boundaries to the corresponding vector. */
-template <> void GDataExchange::append<char>(const char&);
 
 /** @brief  Adds a boost::shared_ptr<GDoubleParameter> object with boundaries to the corresponding array */
 template <> void GDataExchange::append<double>(const double&, const double&, const double&);
@@ -374,8 +361,6 @@ template <> void GDataExchange::append<double>(const double&, const double&, con
 template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t&, const boost::int32_t&, const boost::int32_t&);
 /** @brief  Adds a boost::shared_ptr<GCharParameter> object with boundaries to the corresponding array */
 template <> void GDataExchange::append<bool>(const bool&, const bool&, const bool&);
-/** @brief  Adds a boost::shared_ptr<GCharParameter> object with boundaries to the corresponding array */
-template <> void GDataExchange::append<char>(const char&, const char&, const char&);
 
 /*************************************************************************/
 // IO helper functions

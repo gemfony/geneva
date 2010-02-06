@@ -78,109 +78,91 @@ public:
 		boost::shared_ptr<GDoubleParameter> d0(new GDoubleParameter());
 		boost::shared_ptr<GLongParameter> l0(new GLongParameter());
 		boost::shared_ptr<GBoolParameter> b0(new GBoolParameter());
-		boost::shared_ptr<GCharParameter> c0(new GCharParameter());
 
 		// Reset the object and fill with values
 		d0->reset();
 		l0->reset();
 		b0->reset();
-		c0->reset();
 
 		d0->setParameter(1);
 		l0->setParameter(2);
 		b0->setParameter(false);
-		c0->setParameter('x');
 
 		// Test construction with value assignment
 		boost::shared_ptr<GDoubleParameter> d1(new GDoubleParameter(gr.evenRandom(0., 10.)));
 		boost::shared_ptr<GLongParameter> l1(new GLongParameter(gr.discreteRandom(0,10)));
 		boost::shared_ptr<GBoolParameter> b1(new GBoolParameter(gr.boolRandom()));
-		boost::shared_ptr<GCharParameter> c1(new GCharParameter(gr.charRandom()));
 
 		// Test construction with value assignment and boundaries
 		boost::shared_ptr<GDoubleParameter> d2(new GDoubleParameter(gr.evenRandom(0.,2.),0.,2.));
 		boost::shared_ptr<GLongParameter> l2(new GLongParameter(gr.discreteRandom(0,10),0,10));
 		boost::shared_ptr<GBoolParameter> b2(new GBoolParameter(gr.boolRandom(),false,true));
-		boost::shared_ptr<GCharParameter> c2(new GCharParameter(gr.charRandom(),0,127));
 
 		// Test copy construction
 		boost::shared_ptr<GDoubleParameter> d3(new GDoubleParameter(*d2));
 		boost::shared_ptr<GLongParameter> l3(new GLongParameter(*l2));
 		boost::shared_ptr<GBoolParameter> b3(new GBoolParameter(*b2));
-		boost::shared_ptr<GCharParameter> c3(new GCharParameter(*c2));
 
 		// Test assignment operators
 		*d3 = *d0;
 		*l3 = *l0;
 		*b3 = *b0;
-		*c3 = *c0;
 
 		// Check that the objects are now identical
 		BOOST_CHECK(*d3==*d0);
 		BOOST_CHECK(*l3==*l0);
 		BOOST_CHECK(*b3==*b0);
-		BOOST_CHECK(*c3==*c0);
 
 		// Check that d3 etc. have the correct values. Note that they
 		// had different values before the assignment.
 		BOOST_CHECK(d3->getParameter() == 1.);
 		BOOST_CHECK(l3->getParameter() == 2);
 		BOOST_CHECK(b3->getParameter() == false);
-		BOOST_CHECK(c3->getParameter() == 'x');
 
 		// Check that no boundaries have been assigned
 		BOOST_CHECK(!d3->hasBoundaries());
 		BOOST_CHECK(!l3->hasBoundaries());
 		BOOST_CHECK(!b3->hasBoundaries());
-		BOOST_CHECK(!c3->hasBoundaries());
 
 		// Assign new values
 		d3->setParameter(3.);
 		l3->setParameter(4);
 		b3->setParameter(true);
-		c3->setParameter('z');
 
 		// Check again values and boundaries
 		BOOST_CHECK(d3->getParameter() == 3.);
 		BOOST_CHECK(l3->getParameter() == 4);
 		BOOST_CHECK(b3->getParameter() == true);
-		BOOST_CHECK(c3->getParameter() == 'z');
 
 		// Check that no boundaries have been assigned
 		BOOST_CHECK(!d3->hasBoundaries());
 		BOOST_CHECK(!l3->hasBoundaries());
 		BOOST_CHECK(!b3->hasBoundaries());
-		BOOST_CHECK(!c3->hasBoundaries());
 
 		// Assign new values, this time with boundaries
 		d3->setParameter(4.,0.,4.);
 		l3->setParameter(5,0,5);
 		b3->setParameter(false,false,true);
-		c3->setParameter('a',0,127);
 
 		// Check again values and boundaries
 		BOOST_CHECK(d3->getParameter() == 4.);
 		BOOST_CHECK(l3->getParameter() == 5);
 		BOOST_CHECK(b3->getParameter() == false);
-		BOOST_CHECK(c3->getParameter() == 'a');
 
 		// Check that boundaries have been assigned this time
 		BOOST_CHECK(d3->hasBoundaries());
 		BOOST_CHECK(l3->hasBoundaries());
 		BOOST_CHECK(b3->hasBoundaries());
-		BOOST_CHECK(c3->hasBoundaries());
 
 		// Check the value of the lower boundaries ...
 		BOOST_CHECK(d3->getLowerBoundary() == 0.);
 		BOOST_CHECK(l3->getLowerBoundary() == 0);
 		BOOST_CHECK(b3->getLowerBoundary() == false);
-		BOOST_CHECK(c3->getLowerBoundary() == 0);
 
 		// and the value of the upper boundaries
 		BOOST_CHECK(d3->getUpperBoundary() == 4.);
 		BOOST_CHECK(l3->getUpperBoundary() == 5);
 		BOOST_CHECK(b3->getUpperBoundary() == true);
-		BOOST_CHECK(c3->getUpperBoundary() == 127);
 
 		// Write objects to file in binary and text mode repeatedly (so we can write
 		// out different, random numbers), read them back in and check equality
@@ -267,30 +249,6 @@ public:
 			b4->reset();
 
 			//***********************************************************
-			// char objects
-			boost::shared_ptr<GCharParameter> c4(new GCharParameter());
-			b3->setParameter(gr.charRandom());
-
-			std::ofstream coutputbin("cdata.bin");
-			c3->binaryWriteToStream(coutputbin);
-			coutputbin.close();
-			std::ifstream cinputbin("cdata.bin");
-			c4->binaryReadFromStream(cinputbin);
-			cinputbin.close();
-
-			BOOST_CHECK(*c3==*c4);
-			c4->reset();
-
-			std::ofstream coutputtxt("cdata.txt");
-			c3->writeToStream(coutputtxt);
-			coutputtxt.close();
-			std::ifstream cinputtxt("cdata.txt");
-			c4->readFromStream(cinputtxt);
-			cinputtxt.close();
-
-			BOOST_CHECK(*c3==*c4);
-			c4->reset();
-			//***********************************************************
 		}
 
 		// Still need to test serialization
@@ -308,7 +266,6 @@ public:
 		BOOST_CHECK(p0->dArray_.empty());
 		BOOST_CHECK(p0->lArray_.empty());
 		BOOST_CHECK(p0->bArray_.empty());
-		BOOST_CHECK(p0->cArray_.empty());
 
 		// Attach data to the vectors
 		for(std::size_t i=0; i<NPARAMETERSETS; i++) {
@@ -322,9 +279,6 @@ public:
 			boost::shared_ptr<GBoolParameter> b0(new GBoolParameter(gr.boolRandom()));
 			p0->bArray_.push_back(b0);
 
-			boost::shared_ptr<GCharParameter> c0(new GCharParameter(gr.charRandom()));
-			p0->cArray_.push_back(c0);
-
 			// And now p1
 			boost::shared_ptr<GDoubleParameter> d1(new GDoubleParameter(gr.evenRandom(0.,10.)));
 			p1->dArray_.push_back(d1);
@@ -334,9 +288,6 @@ public:
 
 			boost::shared_ptr<GBoolParameter> b1(new GBoolParameter(gr.boolRandom()));
 			p1->bArray_.push_back(b1);
-
-			boost::shared_ptr<GCharParameter> c1(new GCharParameter(gr.charRandom()));
-			p1->cArray_.push_back(c1);
 		}
 
 		// Assign A value and check for its existence
@@ -360,7 +311,6 @@ public:
 		BOOST_CHECK(p2->dArray_.empty());
 		BOOST_CHECK(p2->lArray_.empty());
 		BOOST_CHECK(p2->bArray_.empty());
-		BOOST_CHECK(p2->cArray_.empty());
 
 		// Check the assignment operator and check again equality
 		*p2 = *p0;
@@ -403,12 +353,10 @@ public:
 			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<double>(gr.evenRandom(-10.,10.));
 			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<boost::int32_t>(gr.discreteRandom(-10,10));
 			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.boolRandom());
-			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<char>(gr.charRandom());
 
 			BOOST_CHECK(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
 			BOOST_CHECK(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
 			BOOST_CHECK(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
-			BOOST_CHECK(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
 
 			if(gde_counter < NDATASETS-1) gde->newDataSet(); // Prevent an empty data set at the end
 		}
@@ -428,12 +376,10 @@ public:
 			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<double>(gr.evenRandom(-10.,10.),-11.,11.);
 			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<boost::int32_t>(gr.discreteRandom(-10,10),-11,11);
 			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.boolRandom(), false, true);
-			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<char>(gr.charRandom(false), 0, 127);
 
 			BOOST_CHECK(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
 			BOOST_CHECK(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
 			BOOST_CHECK(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
-			BOOST_CHECK(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
 
 			if(gde_counter < NDATASETS-1) gde->newDataSet(); // Prevent an empty data set at the end
 		}
@@ -459,15 +405,10 @@ public:
 				boost::shared_ptr<GBoolParameter> b(new GBoolParameter(gr.boolRandom()));
 				gde->append(b);
 			}
-			for(std::size_t i=0; i<NPARAMETERSETS; i++) {
-				boost::shared_ptr<GCharParameter> c(new GCharParameter(gr.charRandom(false)));
-				gde->append(c);
-			}
 
 			BOOST_CHECK(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
 			BOOST_CHECK(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
 			BOOST_CHECK(gde->numberOfParameterSets<bool>() == NPARAMETERSETS);
-			BOOST_CHECK(gde->numberOfParameterSets<char>() == NPARAMETERSETS);
 
 			if(gde_counter < NDATASETS-1) gde->newDataSet(); // Otherwise we will have an empty data set at the end
 		}

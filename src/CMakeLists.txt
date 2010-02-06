@@ -54,7 +54,6 @@ SET ( GENEVASOURCES
 
 SET ( DATAEXCHANGESOURCES
 	GBoolParameter
-	GCharParameter
 	GDataExchange
 	GDataExchangeException
 	GDoubleParameter

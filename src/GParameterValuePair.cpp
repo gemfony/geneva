@@ -80,13 +80,6 @@ namespace Gem
 			bArray_.push_back(p);
 		}
 
-		// Copy the char vector's content
-		std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit;
-		for(ccit=cp.cArray_.begin(); ccit!=cp.cArray_.end(); ++ccit) {
-			boost::shared_ptr<GCharParameter> p(new GCharParameter(*(ccit->get())));
-			cArray_.push_back(p);
-		}
-
 		value_ = cp.value_;
 		hasValue_ = cp.hasValue_;
 	}
@@ -99,7 +92,6 @@ namespace Gem
 		dArray_.clear();
 		lArray_.clear();
 		bArray_.clear();
-		cArray_.clear();
 	}
 
 	/******************************************************************************/
@@ -112,7 +104,6 @@ namespace Gem
 		copySmartPointerVector<GDoubleParameter>(cp.dArray_, dArray_); 		// Copy the double vector's content
 		copySmartPointerVector<GLongParameter>(cp.lArray_, lArray_); 			// Copy the long vector's content
 		copySmartPointerVector<GBoolParameter>(cp.bArray_, bArray_); 			// Copy the bool vector's content
-		copySmartPointerVector<GCharParameter>(cp.cArray_, cArray_);			// Copy the char vector's content
 
 		value_ = cp.value_;
 		hasValue_ = cp.hasValue_;
@@ -194,24 +185,6 @@ namespace Gem
 			if(**bcit != **cp_bcit) {
 #ifdef GENEVATESTING
 				std::cout << "**bcit != **cp_bcit : " << **bcit << " " << **cp_bcit << std::endl;
-#endif
-				return false;
-			}
-		}
-
-		// Check the equality of the char vector
-		if(cArray_.size() != cp.cArray_.size()) {
-#ifdef GENEVATESTING
-			std::cout << "cArray_.size() != cp.cArray_.size(): " << cArray_.size() << " " << cp.cArray_.size() << std::endl;
-#endif
-			return false;
-		}
-		std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit, cp_ccit;
-		for(ccit=cArray_.begin(), cp_ccit=cp.cArray_.begin();
-		ccit!=cArray_.end(), cp_ccit!=cp.cArray_.end(); ++ccit, ++cp_ccit) {
-			if(**ccit != **cp_ccit) {
-#ifdef GENEVATESTING
-				std::cout << "**ccit != **cp_ccit : " << **ccit << " " << **cp_ccit << std::endl;
 #endif
 				return false;
 			}
@@ -326,26 +299,6 @@ namespace Gem
 			}
 		}
 
-		// Check the equality of the char vector
-		if(cArray_.size() != cp.cArray_.size()) {
-#ifdef GENEVATESTING
-			std::cerr << "cArray_.size() != cp.cArray_.size() : " << cArray_.size() << " " << cp.cArray_.size() << std::endl;
-#endif /* GENEVATESTING */
-
-			return false;
-		}
-		std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit, cp_ccit;
-		for(ccit=cArray_.begin(), cp_ccit=cp.cArray_.begin();
-		ccit!=cArray_.end(), cp_ccit!=cp.cArray_.end(); ++ccit, ++cp_ccit) {
-			if(**ccit != **cp_ccit) {
-#ifdef GENEVATESTING
-			std::cerr << "**ccit != **cp_ccit" << std::endl;
-#endif /* GENEVATESTING */
-
-				return false;
-			}
-		}
-
 		// Now we are sure that all parameters are equal
 		return true;
 	}
@@ -358,7 +311,6 @@ namespace Gem
 		dArray_.clear();
 		lArray_.clear();
 		bArray_.clear();
-		cArray_.clear();
 
 		value_ = 0.;
 		hasValue_ = false;
@@ -394,7 +346,6 @@ namespace Gem
 		if(!dArray_.empty()) return true;
 		if(!lArray_.empty()) return true;
 		if(!bArray_.empty()) return true;
-		if(!cArray_.empty()) return true;
 
 		// Nothing found ...
 		return false;
@@ -448,13 +399,6 @@ namespace Gem
 		if(bArraySize) {
 			std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit;
 			for(bcit=bArray_.begin(); bcit!=bArray_.end(); ++bcit) stream << **bcit;
-		}
-
-		std::size_t cArraySize = cArray_.size();
-		stream << cArraySize << std::endl;
-		if(cArraySize) {
-			std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit;
-			for(ccit=cArray_.begin(); ccit!=cArray_.end(); ++ccit) stream << **ccit;
 		}
 
 		stream << value_ << std::endl;
@@ -549,28 +493,6 @@ namespace Gem
 			for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->readFromStream(stream);
 		}
 
-		// Read in char data
-		std::size_t file_cArraySize;
-		stream >> file_cArraySize;
-		std::size_t cArraySize = cArray_.size();
-		std::vector<boost::shared_ptr<GCharParameter> >::iterator cit;
-		if(file_cArraySize == cArraySize) { // The most likely case
-			for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->readFromStream(stream);
-		}
-		else if(file_cArraySize > cArraySize) {
-			for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->readFromStream(stream);
-
-			for(std::size_t i=cArraySize; i<file_cArraySize; i++){
-				boost::shared_ptr<GCharParameter> p(new GCharParameter());
-				p->readFromStream(stream);
-				cArray_.push_back(p);
-			}
-		}
-		else if(file_cArraySize < cArraySize) {
-			cArray_.resize(file_cArraySize); // Get rid of surplus items
-			for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->readFromStream(stream);
-		}
-
 		// Finally read the object's value and the flag which indicates, whether the value is valid
 		stream >> value_;
 		stream >> hasValue_;
@@ -616,14 +538,6 @@ namespace Gem
 		if(bArraySize) {
 			std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit;
 			for(bcit=bArray_.begin(); bcit!=bArray_.end(); ++bcit) (*bcit)->binaryWriteToStream(stream);
-		}
-
-		// Write the char data out in binary mode
-		std::size_t cArraySize = cArray_.size();
-		stream.write(reinterpret_cast<const char *>(&cArraySize), sizeof(cArraySize));
-		if(cArraySize) {
-			std::vector<boost::shared_ptr<GCharParameter> >::const_iterator ccit;
-			for(ccit=cArray_.begin(); ccit!=cArray_.end(); ++ccit) (*ccit)->binaryWriteToStream(stream);
 		}
 
 		stream.write(reinterpret_cast<const char *>(&value_), sizeof(value_));
@@ -715,28 +629,6 @@ namespace Gem
 		else if(file_bArraySize < bArraySize) {
 			bArray_.resize(file_bArraySize); // Get rid of surplus items
 			for(bit=bArray_.begin(); bit!=bArray_.end(); ++bit) (*bit)->binaryReadFromStream(stream);
-		}
-
-		// Read in char data
-		std::size_t file_cArraySize;
-		stream.read(reinterpret_cast<char *>(&file_cArraySize), sizeof(file_cArraySize));
-		std::size_t cArraySize = cArray_.size();
-		std::vector<boost::shared_ptr<GCharParameter> >::iterator cit;
-		if(file_cArraySize == cArraySize) { // The most likely case
-			for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->binaryReadFromStream(stream);
-		}
-		else if(file_cArraySize > cArraySize) {
-			for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->binaryReadFromStream(stream);
-
-			for(std::size_t i=cArraySize; i<file_cArraySize; i++){
-				boost::shared_ptr<GCharParameter> p(new GCharParameter());
-				p->binaryReadFromStream(stream);
-				cArray_.push_back(p);
-			}
-		}
-		else if(file_cArraySize < cArraySize) {
-			cArray_.resize(file_cArraySize); // Get rid of surplus items
-			for(cit=cArray_.begin(); cit!=cArray_.end(); ++cit) (*cit)->binaryReadFromStream(stream);
 		}
 
 		// Finally read the value and the flag indicating whether it is valid

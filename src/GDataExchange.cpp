@@ -420,15 +420,7 @@ template <> std::size_t GDataExchange::numberOfParameterSets<boost::int32_t>() c
 template <> std::size_t GDataExchange::numberOfParameterSets<bool>() const {
 	return (*current_)->bArray_.size();
 }
-/**************************************************************************/
-/**
- * Gives access to the number of char parameters in the current parameter set
- *
- * @return The number of char parameters in the current parameter set
- */
-template <> std::size_t GDataExchange::numberOfParameterSets<char>() const {
-	return (*current_)->cArray_.size();
-}
+
 
 /**************************************************************************/
 /**
@@ -492,27 +484,6 @@ template <> boost::shared_ptr<GBoolParameter> GDataExchange::parameterSet_at<boo
 
 /**************************************************************************/
 /**
- * Gives access to a parameter set of type char, including its boundaries.
- *
- * @param pos The position of the data access is sought for
- * @return The data access was sought for
- */
-template <> boost::shared_ptr<GCharParameter> GDataExchange::parameterSet_at<char>(std::size_t pos) {
-	boost::shared_ptr<GCharParameter> p = (*current_)->cArray_.at(pos);
-
-	// If a value has already been assigned, we return a copy of the original data set,
-	// so no changes of the already evaluated data can occur
-	if((*current_)->hasValue_) {
-		boost::shared_ptr<GCharParameter> p_clone(new GCharParameter(*(p.get())));
-		return p_clone;
-	}
-
-	return p;
-}
-
-
-/**************************************************************************/
-/**
  * Gives access to a parameter of type double
  *
  * @param pos The position of the data access is sought for
@@ -546,17 +517,6 @@ template <> bool GDataExchange::at<bool>(std::size_t pos) {
 
 /**************************************************************************/
 /**
- * Gives access to a parameter of type char
- *
- * @param pos The position of the data access is sought for
- * @return The data access was sought for
- */
-template <> char GDataExchange::at<char>(std::size_t pos) {
-	return (*current_)->cArray_.at(pos)->getParameter();
-}
-
-/**************************************************************************/
-/**
  * Gives access to the size of the dArray_ vector
  *
  * @return The size of the dArray_ vector
@@ -583,16 +543,6 @@ template <> std::size_t GDataExchange::size<boost::int32_t>() {
  */
 template <> std::size_t GDataExchange::size<bool>() {
 	return (*current_)->bArray_.size();
-}
-
-/**************************************************************************/
-/**
- * Gives access to the size of the cArray_ vector
- *
- * @return The size of the cArray_ vector
- */
-template <> std::size_t GDataExchange::size<char>() {
-	return (*current_)->cArray_.size();
 }
 
 /**************************************************************************/
@@ -653,26 +603,6 @@ void GDataExchange::append(boost::shared_ptr<GBoolParameter> gbp) {
 	}
 
 	(*current_)->bArray_.push_back(gbp);
-}
-
-/**************************************************************************/
-/**
- * Adds a boost::shared_ptr to a GCharParameter to the corresponding vector
- *
- * @param gcp The boost::shared_ptr to the GCharParameter to be added to the vector
- */
-void GDataExchange::append(boost::shared_ptr<GCharParameter> gcp) {
-	// Prevent any changes if a value has already been calculated
-	if((*current_)->hasValue_) {
-		std::ostringstream error;
-		error << "In GDataExchange::append(): Error!" << std::endl
-			     << "Tried to assign new data when a value has already" << std::endl
-				 << "been calculated. Leaving ..." << std::endl;
-
-		throw(GDataExchangeException(error.str()));
-	}
-
-	(*current_)->cArray_.push_back(gcp);
 }
 
 /**************************************************************************/
@@ -743,28 +673,6 @@ template <> void GDataExchange::append<bool>(const bool& x) {
 
 /**************************************************************************/
 /**
- * Creates a boost::shared_ptr<GCharParameter> object without boundaries
- * and appends it to the corresponding vector.
- *
- * @param x The initial parameter value
- */
-template <> void GDataExchange::append<char>(const char& x) {
-	// Prevent any changes if a value has already been calculated
-	if((*current_)->hasValue_) {
-		std::ostringstream error;
-		error << "In GDataExchange::append(): Error!" << std::endl
-			     << "Tried to assign new data when a value has already" << std::endl
-				 << "been calculated. Leaving ..." << std::endl;
-
-		throw(GDataExchangeException(error.str()));
-	}
-
-	boost::shared_ptr<GCharParameter> p(new GCharParameter(x));
-	(*current_)->cArray_.push_back(p);
-}
-
-/**************************************************************************/
-/**
  * Adds a boost::shared_ptr<GDoubleParameter> object to the corresponding array
  *
  * @param x The initial value of the double parameter
@@ -819,7 +727,7 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x, 
  *
  * @param x The initial value of the bool parameter
  * @param x_l The lower boundary of the bool parameter (always set to false)
- * @param x_u The upper boundary of the char parameter (always set to true)
+ * @param x_u The upper boundary of the bool parameter (always set to true)
  */
 template <> void GDataExchange::append<bool>(const bool& x, const bool& x_l, const bool& x_u) {
 	// Prevent any changes if a value has already been calculated
@@ -834,30 +742,6 @@ template <> void GDataExchange::append<bool>(const bool& x, const bool& x_l, con
 
 	boost::shared_ptr<GBoolParameter> p(new GBoolParameter(x,false,true));
 	(*current_)->bArray_.push_back(p);
-}
-
-/**************************************************************************/
-/**
- * Adds a boost::shared_ptr<GCharParameter> object to the corresponding array
- *
- * @param x The initial value of the char parameter
- * @param x_l The lower boundary of the char parameter
- * @param x_u The upper boundary of the char parameter
- */
-template <> void GDataExchange::append<char>(const char& x, const char& x_l, const char& x_u) {
-	// Prevent any changes if a value has already been calculated
-	if((*current_)->hasValue_) {
-		std::ostringstream error;
-		error << "In GDataExchange::append(): Error!" << std::endl
-			     << "Tried to assign new data when a value has already" << std::endl
-				 << "been calculated. Leaving ..." << std::endl;
-
-		throw(GDataExchangeException(error.str()));
-	}
-
-	// The GCharParameter constructor will do error checks
-	boost::shared_ptr<GCharParameter> p(new GCharParameter(x,x_l,x_u));
-	(*current_)->cArray_.push_back(p);
 }
 
 /**************************************************************************/

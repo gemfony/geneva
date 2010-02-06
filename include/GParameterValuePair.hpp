@@ -76,7 +76,6 @@
 // Geneva headers go here
 #include "GNumericParameterT.hpp"
 #include "GBoolParameter.hpp"
-#include "GCharParameter.hpp"
 #include "GDoubleParameter.hpp"
 #include "GLongParameter.hpp"
 #include "GHelperFunctionsT.hpp"
@@ -103,7 +102,6 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(dArray_)
 		   & BOOST_SERIALIZATION_NVP(lArray_)
 		   & BOOST_SERIALIZATION_NVP(bArray_)
-		   & BOOST_SERIALIZATION_NVP(cArray_)
 		   & BOOST_SERIALIZATION_NVP(value_)
 		   & BOOST_SERIALIZATION_NVP(hasValue_);
 	}
@@ -154,7 +152,6 @@ public:
 	std::vector<boost::shared_ptr<GDoubleParameter> > dArray_; ///< vector holding double parameter sets
 	std::vector<boost::shared_ptr<GLongParameter> > lArray_; ///< vector holding long parameter sets
 	std::vector<boost::shared_ptr<GBoolParameter> > bArray_; ///< vector holding boolean parameter sets
-	std::vector<boost::shared_ptr<GCharParameter> > cArray_; ///< vector holding character parameter sets
 
 	double value_; ///< The value of this particular data set, if it has already been assigned
 	bool hasValue_; ///< Indicates whether a value has been assigned to the data set

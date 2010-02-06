@@ -80,7 +80,6 @@ SET ( GENEVAINCLUDES
 
 SET ( DATAEXCHANGEINCLUDES
 	GBoolParameter.hpp
-	GCharParameter.hpp
 	GDataExchange.hpp
 	GDataExchangeException.hpp
 	GDoubleParameter.hpp

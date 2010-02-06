@@ -68,19 +68,6 @@ boost::int32_t GNumericParameterT<boost::int32_t>::unknownParameterTypeTrap(boos
 /**
  * A trap designed to catch attempts to use this class with types it was
  * not designed for. If not implemented, compilation will fail. Specialization
- * for char.
- *
- * @param unknown A dummy parameter
- */
-template<>
-char GNumericParameterT<char>::unknownParameterTypeTrap(char unknown) {
-	return unknown; // Make the compiler happy
-}
-
-/***********************************************************************************************/
-/**
- * A trap designed to catch attempts to use this class with types it was
- * not designed for. If not implemented, compilation will fail. Specialization
  * for bool.
  *
  * @param unknown A dummy parameter
@@ -312,68 +299,6 @@ template<> void GNumericParameterT<bool>::binaryReadFromStream(std::istream& str
 		// Make sure the boundaries are in a sane state
 		lowerBoundary_ = false;
 		upperBoundary_ = true;
-}
-
-/***********************************************************************************************/
-/**
- * Writes a char parameter to a stream. This specialization is needed as
- * we want to write out characters as numbers in ASCII format.
- *
- * @param stream The output stream the char value should be written to
- */
-template<> void GNumericParameterT<char>::writeToStream(std::ostream& stream) const {
-#ifdef DEBUG
-		// Check that the stream is in a valid condition
-		if(!stream.good()) {
-			std::ostringstream error;
-			error << "In GNumericParameterT<char>::writeToStream(): Error!" << std::endl
-			         << "Stream is in a bad condition. Leaving ..." << std::endl;
-
-			throw(GDataExchangeException(error.str()));
-		}
-#endif /* DEBUG*/
-
-		stream << static_cast<boost::uint16_t>(param_) << std::endl
-		            << static_cast<boost::uint16_t>(lowerBoundary_) << std::endl
-		            << static_cast<boost::uint16_t>(upperBoundary_) << std::endl;
-}
-
-/***********************************************************************************************/
-/**
- * Reads in char parameters from a stream. This specialization is needed as
- * characters are stored as numbers..
- *
- * @param stream The output stream the char value should be read from
- */
-template<> void GNumericParameterT<char>::readFromStream(std::istream& stream) {
-#ifdef DEBUG
-		// Check that the stream is in a valid condition
-		if(!stream.good()) {
-			std::ostringstream error;
-			error << "In GNumericParameterT<char>::readFromStream(): Error!" << std::endl
-			         << "Stream is in a bad condition. Leaving ..." << std::endl;
-
-			throw(GDataExchangeException(error.str()));
-		}
-#endif /* DEBUG*/
-
-		boost::uint16_t uint_param, uint_lowerBoundary, uint_upperBoundary;
-
-		// Read parameters into integers
-		stream >> uint_param;
-		stream >> uint_lowerBoundary;
-		stream >>  uint_upperBoundary;
-
-		// And convert the integers to characters
-#ifdef DEBUG
-		param_ = boost::numeric_cast<char>(uint_param);
-		lowerBoundary_ = boost::numeric_cast<char>(uint_lowerBoundary);
-		upperBoundary_ = boost::numeric_cast<char>(uint_upperBoundary);
-#else
-		param_ = static_cast<char>(uint_param);
-		lowerBoundary_ = static_cast<char>(uint_lowerBoundary);
-		upperBoundary_ = static_cast<char>(uint_upperBoundary);
-#endif /* DEBUG */
 }
 
 /***********************************************************************************************/
