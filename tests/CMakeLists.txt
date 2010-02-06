@@ -5,6 +5,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	PerformanceChecks
+)
+
+ADD_SUBDIRECTORY (
 	TestIndividuals
 )
 

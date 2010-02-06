@@ -170,26 +170,22 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
 	boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
 	boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor());
-	boost::shared_ptr<GCharFlipAdaptor> gcfa_ptr(new GCharFlipAdaptor());
 
 	// Set the adaption threshold
 	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	gifa_ptr->setAdaptionThreshold(adaptionThreshold);
 	gba_ptr->setAdaptionThreshold(adaptionThreshold);
-	gcfa_ptr->setAdaptionThreshold(adaptionThreshold);
 
 	// Check whether random numbers should be produced locally or in the factory
 	if(productionPlace) { // Factory means "true"
 		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 		gifa_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 		gba_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
-		gcfa_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 	}
 	else {
 		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
 		gifa_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
 		gba_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
-		gcfa_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
 	}
 
 	// Create an initial individual (it will get the necessary information
@@ -203,8 +199,7 @@ int main(int argc, char **argv){
 					useCommonAdaptor,
 					gdga_ptr,
 					gifa_ptr,
-					gba_ptr,
-					gcfa_ptr
+					gba_ptr
 			)
 	);
 

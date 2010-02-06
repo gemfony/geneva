@@ -62,18 +62,15 @@
 #include "GParameterSet.hpp"
 #include "GBoundedDoubleCollection.hpp"
 #include "GBoundedInt32Collection.hpp"
-#include "GCharObjectCollection.hpp"
 #include "GBooleanCollection.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GBooleanAdaptor.hpp"
 #include "GInt32FlipAdaptor.hpp"
-#include "GCharFlipAdaptor.hpp"
 #include "GDataExchange.hpp"
 #include "GEnums.hpp"
 #include "GDoubleParameter.hpp"
 #include "GLongParameter.hpp"
 #include "GBoolParameter.hpp"
-#include "GCharParameter.hpp"
 
 namespace bf = boost::filesystem; // alias for ease of use
 
@@ -87,7 +84,7 @@ namespace GenEvA
  * This individual calls an external program to evaluate a given set of parameters.
  * Data exchange happens through the GDataExchange class. The
  * structure of the individual is determined from information given by the external
- * program. Currently double-, bool-, boost::int32_t- and char-values are allowed.
+ * program. Currently double-, bool- and boost::int32_t values are allowed.
  *
  * External programs should understand the following command line arguments
  * -i / --initialize : gives the external program the opportunity to do any needed
@@ -135,7 +132,6 @@ class GExternalEvaluatorIndividual
 		ar & make_nvp("useCommonAdaptor_", useCommonAdaptor_);
 		ar & make_nvp("gdbl_ptr_", gdbl_ptr_);
 		ar & make_nvp("glong_ptr_", glong_ptr_);
-		ar & make_nvp("gchar_ptr_", gchar_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -155,7 +151,6 @@ public:
 	 * @param gdbl_ad_ptr An adaptor for double values
 	 * @param glong_ad_ptr An adaptor for boost::int32_t values
 	 * @param gbool_ad_ptr An adaptor for bool values
-	 * @param gchar_ad_ptr An adaptor for char values
 	 */
 	GExternalEvaluatorIndividual(const std::string& program,
 			                             const std::string& arguments="empty",
@@ -164,8 +159,7 @@ public:
 			                             const bool& useCommonAdaptor=false,
 			                             boost::shared_ptr<GAdaptorT<double> > gdbl_ad_ptr = boost::shared_ptr<GAdaptorT<double> >((GAdaptorT<double> *)NULL),
 			                             boost::shared_ptr<GAdaptorT<boost::int32_t> > glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL),
-			                             boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL),
-			                             boost::shared_ptr<GAdaptorT<char> > gchar_ad_ptr = boost::shared_ptr<GAdaptorT<char> >((GAdaptorT<char> *)NULL)	)
+			                             boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL))
 		: program_(program)
 		, arguments_(arguments)
 		, nEvaluations_(1)
@@ -179,7 +173,6 @@ public:
         boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
 		boost::shared_ptr<GBoundedInt32Collection> gbic_ptr(new GBoundedInt32Collection());
 		boost::shared_ptr<GBooleanCollection> gbc_ptr(new GBooleanCollection());
-		boost::shared_ptr<GCharObjectCollection> gcoc_ptr(new GCharObjectCollection());
 
 		// Set up the local adaptor templates and collection items
 		//-----------------------------------------------------------------------------------------------
@@ -222,25 +215,11 @@ public:
         }
 
 		//-----------------------------------------------------------------------------------------------
-        gchar_ptr_=boost::shared_ptr<GChar>(new GChar());
-        if(gchar_ad_ptr) {
-        	if(useCommonAdaptor)
-        		gcoc_ptr->addAdaptor(gchar_ad_ptr->GObject::clone<GAdaptorT<char> >());
-        	else
-        		gchar_ptr_->addAdaptor(gchar_ad_ptr->GObject::clone<GAdaptorT<char> >());
-        }
-        else {
-        	if(useCommonAdaptor)
-        		gcoc_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<char> >(new GCharFlipAdaptor())); // uses default values
-        	else
-        		gchar_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<char> >(new GCharFlipAdaptor())); // uses default values
-        }
 
         // Add the collections to the class
         this->push_back(gbdc_ptr);
         this->push_back(gbic_ptr);
 		this->push_back(gbc_ptr);
-		this->push_back(gcoc_ptr);
 
         //-----------------------------------------------------------------------------------------------------------------------------
 		// Tell the external program to send us a template with the structure of the individual
@@ -304,7 +283,6 @@ public:
 	{
 		 gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone<GBoundedDouble>();
 		 glong_ptr_ = cp.glong_ptr_->GObject::clone<GBoundedInt32>();
-		 gchar_ptr_ = cp.gchar_ptr_->GObject::clone<GChar>();
 	}
 
 	/********************************************************************************************/
@@ -445,8 +423,7 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", parameterFile_, p_load->parameterFile_, "parameterFile_", "p_load->parameterFile_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", useCommonAdaptor_, p_load->useCommonAdaptor_, "useCommonAdaptor_", "p_load->useCommonAdaptor_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", gdbl_ptr_, p_load->gdbl_ptr_, "gdbl_ptr_", "p_load->gdbl_ptr_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", glong_ptr_, p_load->glong_ptr_, "waitFactor_", "p_load->glong_ptr_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", gchar_ptr_, p_load->gchar_ptr_, "waitFactor_", "p_load->gchar_ptr_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", glong_ptr_, p_load->glong_ptr_, "glong_ptr_", "p_load->glong_ptr_", e , limit));
 
 		return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
 	}
@@ -624,7 +601,6 @@ protected:
 
 		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone<GBoundedDouble>();
 		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GBoundedInt32>();
-		gchar_ptr_ = p_load->gchar_ptr_->GObject::clone<GChar>();
 	}
 
 	/********************************************************************************************/
@@ -724,8 +700,7 @@ private:
 		 parameterFile_("empty"),
 		 useCommonAdaptor_(false),
          gdbl_ptr_(boost::shared_ptr<GBoundedDouble>((GBoundedDouble *)NULL)),
-         glong_ptr_(boost::shared_ptr<GBoundedInt32>((GBoundedInt32 *)NULL)),
-         gchar_ptr_(boost::shared_ptr<GChar>((GChar *)NULL))
+         glong_ptr_(boost::shared_ptr<GBoundedInt32>((GBoundedInt32 *)NULL))
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -740,7 +715,6 @@ private:
 	 * GBoundedDoubleCollection
 	 * GBoundedInt32Collection
 	 * GBooleanCollection
-	 * GCharObjectCollection
 	 *
 	 * @param fileName The name of the file to write to
 	 */
@@ -805,20 +779,6 @@ private:
 			for(gbc_it=gbc->begin(); gbc_it!=gbc->end(); ++gbc_it) {
 				boost::shared_ptr<Gem::Util::GBoolParameter> bpar(new Gem::Util::GBoolParameter(*gbc_it)); // no boundaries for booleans
 				gde_.append(bpar);
-			}
-
-
-			boost::shared_ptr<GCharObjectCollection> gcoc;
-			if(i==0) {
-				gcoc = pc_at<GCharObjectCollection>(3);
-			}
-			else {
-				gcoc = p->pc_at<GCharObjectCollection>(3);
-			}
-			GCharObjectCollection::iterator gcoc_it;
-			for(gcoc_it=gcoc->begin(); gcoc_it!=gcoc->end(); ++gcoc_it) {
-				boost::shared_ptr<Gem::Util::GCharParameter> cpar(new Gem::Util::GCharParameter((*gcoc_it)->value())); // no boundaries for characters for now
-				gde_.append(cpar);
 			}
 		}
 
@@ -925,24 +885,6 @@ private:
 		}
 
 		//--------------------------------------------------------------------------------------------------------------------------------------
-		// Retrieve our "char" collection items
-		boost::shared_ptr<GCharObjectCollection> gcoc = pc_at<GCharObjectCollection>(3);
-
-		// Get the size of the "foreign" container ...
-		exchangeSize = gde_.size<char>();
-
-		// ... and adjust the population size, as needed . This will erase items
-		// or add copies of the second argument, as needed.
-		gcoc->resize(exchangeSize, gchar_ptr_);
-
-		// Now copy the items over
-		GCharObjectCollection::iterator gcoc_it;
-		for(pos=0, gcoc_it=gcoc->begin(); gcoc_it!=gcoc->end(); ++pos, ++gcoc_it) {
-			boost::shared_ptr<Gem::Util::GCharParameter> gcp_ptr = gde_.parameterSet_at<char>(pos);
-			**gcoc_it = gcp_ptr->value();
-		}
-
-		//--------------------------------------------------------------------------------------------------------------------------------------
 
 		// Finally return the value of this data set (if any), or 0.
 		if(gde_.hasValue()) {
@@ -981,7 +923,6 @@ private:
 
     boost::shared_ptr<GBoundedDouble> gdbl_ptr_; ///< A template for GBoundedDouble objects
     boost::shared_ptr<GBoundedInt32> glong_ptr_; ///< A template for GBoundedInt32 objects
-    boost::shared_ptr<GChar> gchar_ptr_; ///< A template for collections of GChar objects
 
 	Gem::Util::GDataExchange gde_; ///< takes care of the data exchange with external programs
 };
