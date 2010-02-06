@@ -25,6 +25,10 @@ SET(VERSION_PATCH "0rc")
 # Set the build type (default value is "Release")
 # SET( CMAKE_BUILD_TYPE Debug )
 
+# The names of the two libraries that will be build by CMake
+SET ( GENEVALIBNAME geneva-opt )
+SET ( DATAEXCHANGELIBNAME geneva-extcomm )
+
 # Change this setting to install in a different directory
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 	SET(CMAKE_INSTALL_PREFIX "/opt/geneva")

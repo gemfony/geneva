@@ -12,7 +12,6 @@ SET ( GENEVAINCLUDES
 	GBooleanAdaptor.hpp
 	GBooleanCollection.hpp
 	GBooleanObjectCollection.hpp
-	GBoolParameter.hpp
 	GBoostThreadConsumer.hpp
 	GBoundedBufferT.hpp
 	GBoundedBufferWithIdT.hpp
@@ -27,15 +26,11 @@ SET ( GENEVAINCLUDES
 	GChar.hpp
 	GCharFlipAdaptor.hpp
 	GCharObjectCollection.hpp
-	GCharParameter.hpp
 	GConsumer.hpp
-	GDataExchange.hpp
-	GDataExchangeException.hpp
 	GDouble.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp
 	GDoubleObjectCollection.hpp
-	GDoubleParameter.hpp
 	GEAPersonalityTraits.hpp
 	GenevaExceptions.hpp
 	GEnums.hpp
@@ -54,12 +49,10 @@ SET ( GENEVAINCLUDES
 	GInt32GaussAdaptor.hpp
 	GInt32ObjectCollection.hpp
 	GIntFlipAdaptorT.hpp
-	GLongParameter.hpp
 	GMultiThreadedEA.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
 	GNumCollectionT.hpp
-	GNumericParameterT.hpp
 	GObject.hpp
 	GOptimizationAlgorithm.hpp
 	GParameterBase.hpp
@@ -68,7 +61,6 @@ SET ( GENEVAINCLUDES
 	GParameterSet.hpp
 	GParameterT.hpp
 	GParameterTCollectionT.hpp
-	GParameterValuePair.hpp
 	GPersonalityTraits.hpp
 	GPODExpectationChecksT.hpp
 	GRandom.hpp
@@ -86,7 +78,18 @@ SET ( GENEVAINCLUDES
 	GThreadGroup.hpp
 )
 
-INSTALL ( FILES ${GENEVAINCLUDES} DESTINATION include 
+SET ( DATAEXCHANGEINCLUDES
+	GBoolParameter.hpp
+	GCharParameter.hpp
+	GDataExchange.hpp
+	GDataExchangeException.hpp
+	GDoubleParameter.hpp
+	GLongParameter.hpp
+	GNumericParameterT.hpp
+	GParameterValuePair.hpp
+)
+
+INSTALL ( FILES ${GENEVAINCLUDES} ${DATAEXCHANGEINCLUDES} DESTINATION include 
 	PERMISSIONS
 	OWNER_READ OWNER_WRITE
 	GROUP_READ

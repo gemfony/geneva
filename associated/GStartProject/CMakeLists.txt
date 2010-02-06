@@ -20,11 +20,11 @@ SET (Boost_USE_MULTITHREADED ON)
 SET (CMAKE_BUILD_TYPE Release)
 
 FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
-        date_time
-        system
-        thread
-        serialization
-        program_options
+    date_time
+    system
+    thread
+    serialization
+    program_options
 	filesystem
 )
 

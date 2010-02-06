@@ -9,7 +9,6 @@ SET ( GENEVASOURCES
 	GBooleanAdaptor
 	GBooleanCollection
 	GBooleanObjectCollection
-	GBoolParameter
 	GBoostThreadConsumer
 	GBoundedDouble
 	GBoundedDoubleCollection
@@ -20,14 +19,10 @@ SET ( GENEVASOURCES
 	GChar
 	GCharFlipAdaptor
 	GCharObjectCollection
-	GCharParameter
-	GDataExchange
-	GDataExchangeException
 	GDouble
 	GDoubleCollection 
 	GDoubleGaussAdaptor
 	GDoubleObjectCollection
-	GDoubleParameter
 	GEAPersonalityTraits
 	GEvolutionaryAlgorithm
 	GGDPersonalityTraits
@@ -38,17 +33,14 @@ SET ( GENEVASOURCES
 	GInt32FlipAdaptor
 	GInt32GaussAdaptor
 	GInt32ObjectCollection
-	GLongParameter
 	GMultiThreadedEA
 	GNumCollectionT
-	GNumericParameterT
 	GObject
 	GOptimizationAlgorithm
 	GParameterBase
 	GParameterBaseWithAdaptorsT
 	GParameterSet
 	GParameterT
-	GParameterValuePair
 	GPersonalityTraits
 	GPODExpectationChecksT
 	GRandom
@@ -60,18 +52,31 @@ SET ( GENEVASOURCES
 	GThreadGroup
 )
 
+SET ( DATAEXCHANGESOURCES
+	GBoolParameter
+	GCharParameter
+	GDataExchange
+	GDataExchangeException
+	GDoubleParameter
+	GLongParameter
+	GNumericParameterT
+	GParameterValuePair
+)
+
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted
 IF( GENEVA_STATIC )
-	ADD_LIBRARY ( ${PROJECT_NAME} STATIC ${GENEVASOURCES} )
+	ADD_LIBRARY ( ${GENEVALIBNAME} STATIC ${GENEVASOURCES} )
+	ADD_LIBRARY ( ${DATAEXCHANGELIBNAME} STATIC ${DATAEXCHANGESOURCES} )
 ELSE()
-	ADD_LIBRARY ( ${PROJECT_NAME} SHARED ${GENEVASOURCES} )
+	ADD_LIBRARY ( ${GENEVALIBNAME} SHARED ${GENEVASOURCES} )
+	ADD_LIBRARY ( ${DATAEXCHANGELIBNAME} SHARED ${DATAEXCHANGESOURCES} )
 ENDIF( GENEVA_STATIC )
 
 SET_TARGET_PROPERTIES(${PROJECT_NAME}
 	PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
 )
 
-INSTALL ( TARGETS ${PROJECT_NAME} DESTINATION lib
+INSTALL ( TARGETS ${GENEVALIBNAME} ${DATAEXCHANGELIBNAME} DESTINATION lib
 	PERMISSIONS
 	OWNER_READ OWNER_WRITE
 	GROUP_READ
