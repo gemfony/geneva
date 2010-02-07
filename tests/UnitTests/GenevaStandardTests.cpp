@@ -33,9 +33,6 @@
 using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
-// This define enables test code in the headers
-#define GENEVASTANDARDTESTS
-
 // All classes that will be tested in this file
 #include "GIdentityAdaptorT.hpp"
 #include "GInt32FlipAdaptor.hpp"
@@ -64,9 +61,6 @@ using namespace boost::unit_test;
 #include "GGDPersonalityTraits.hpp"
 #include "GSwarmPersonalityTraits.hpp"
 #include "GRandom.hpp"
-
-// Clean up ...
-#undef GENEVASTANDARDTESTS
 
 #include "GStandard_test.hpp"
 
