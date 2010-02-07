@@ -523,7 +523,7 @@ boost::optional<std::string> checkExpectation (
 			boost::optional<std::string> o;
 			if(o = x->checkRelationshipWith(*y, e, limit, myCaller, y_name, withMessages)) {
 				if(withMessages) {
-					message <<  "In expectation check initiated by \"" << caller << "\" : Smart pointers"
+					message <<  "In expectation check initiated by \"" << caller << "\" : Smart pointers "
 							<< x_name << " and " << y_name << " differ. Analysis:\n"
 							<< *o;
 				}
