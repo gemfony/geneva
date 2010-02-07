@@ -97,6 +97,15 @@ class GStartIndividual :public GParameterSet
 public:
 	/********************************************************************************************/
 	/**
+	 * The default constructor. Use this if you want to add data and adaptors "from the
+	 * outside", e.g. from within main. GStartIndividual has most of the std::vector interface,
+	 * so you can attach e.g collections of objects.
+	 */
+	GStartIndividual() :GParameterSet()
+	{	/* nothing */ }
+
+	/********************************************************************************************/
+	/**
 	 * A simple constructor that initializes this object with a collection of bounded
 	 * double variables.
 	 *
@@ -292,14 +301,6 @@ protected:
 	}
 
 private:
-	/********************************************************************************************/
-	/**
-	 * The default constructor. It is intentionally private and empty, as it is only needed
-	 * for serialization purposes in the case of this particular individual.
-	 */
-	GStartIndividual() :GParameterSet()
-	{	/* nothing */ }
-
 	/********************************************************************************************/
 	// You can add other variables here. Do not forget to serialize them if necessary
 	// int myVar;

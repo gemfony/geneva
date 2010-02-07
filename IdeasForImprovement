@@ -105,3 +105,4 @@
 - Make local and factory production of random numbers a template, controlled through a define
 - Add ability to lock vector wrappers, making it impossible to change the individual entries or size
 - Add a "boost::atomic<T>" wrapper around data items accessed by more than one thread. E.g., access to uint64_t is apparently not atomic on x86_32
+- Renovate GStartIndividual so that it uses a view of the supplied collections to gain access to its data

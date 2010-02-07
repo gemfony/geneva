@@ -39,11 +39,6 @@ FIND_PACKAGE( Boost 1.36 COMPONENTS
 	test_exec_monitor
 )
 
-# Tests will only be compiled of the test libraries were found
-IF( Boost_TEST_EXEC_MONITOR_FOUND )
-	ADD_SUBDIRECTORY (Tests)
-ENDIF()
-
 INCLUDE_DIRECTORIES (
         ${GENEVA_ROOT}/include
         ${Boost_INCLUDE_DIRS}
@@ -79,6 +74,11 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${Boost_LIBRARIES}
 	pthread
 )
+
+# Tests will only be compiled of the test libraries were found
+IF( Boost_TEST_EXEC_MONITOR_FOUND )
+	ADD_SUBDIRECTORY (Tests)
+ENDIF()
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION bin
 	PERMISSIONS
