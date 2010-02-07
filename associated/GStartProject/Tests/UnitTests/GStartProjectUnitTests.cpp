@@ -42,6 +42,31 @@ using namespace Gem::GenEvA;
 
 /*************************************************************************************************/
 /**
+ * As the GStartProjectIndividual has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+GStartIndividual *TFactory<GStartIndividual>() {
+	return new GStartIndividual(100,-1.,1.);
+}
+
+/*************************************************************************************************/
+/**
+ * Performs specific modifications for this object. As we know that the object is filled
+ * with data, we simply call mutate().
+ *
+ * @return A boolean indicating that a modification has indeed happened
+ */
+/*
+template <>
+bool modify<GStartIndividual>(GStartIndividual& cp) {
+	cp.mutate;
+	return true;
+}
+*/
+
+/*************************************************************************************************/
+/**
  * This test suite checks as much as possible of the functionality provided by Geneva classes.
  * All instantiable core Geneva classes should be listed here.
  */

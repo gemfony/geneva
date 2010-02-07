@@ -65,6 +65,18 @@ using boost::unit_test_framework::test_case;
 
 /*************************************************************************************************/
 /**
+ * This function creates a new T object. It can be specialized by the tested objects e.g. in case
+ * they do not have a default constructor.
+ *
+ * @return A pointer to a newly created T object
+ */
+template <typename T>
+T *TFactory() {
+	return new T();
+}
+
+/*************************************************************************************************/
+/**
  * This function is called for the objects tested by this module. Specializations should be provided
  * in order for cloning/loading and (de-)serialization tests to make more sense. This function does
  * nothing by default.
@@ -115,7 +127,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{
 		// Default construction
-		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(new T()));
+		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(TFactory<T>()));
 
 		// Make sure the object is not in pristine condition
 		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
@@ -139,7 +151,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{
 		// Default construction
-		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(new T()));
+		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(TFactory<T>()));
 
 		// Make sure the object is not in pristine condition
 		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
@@ -163,13 +175,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{
 		// Default construction
-		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(new T()));
+		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(TFactory<T>()));
 
 		// Make sure the object is not in pristine condition
 		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
 
 		// Loading
-		BOOST_REQUIRE_NO_THROW(T_ptr_load = boost::shared_ptr<T>(new T()));
+		BOOST_REQUIRE_NO_THROW(T_ptr_load = boost::shared_ptr<T>(TFactory<T>()));
 		BOOST_REQUIRE_NO_THROW(T_ptr_load->GObject::load(T_ptr));
 
 		// Check for equivalence and similarity
@@ -188,13 +200,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{
 		// Default construction
-		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(new T()));
+		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(TFactory<T>()));
 
 		// Make sure the object is not in pristine condition
 		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
 
 		// Assignment
-		BOOST_REQUIRE_NO_THROW(T_ptr_assign = boost::shared_ptr<T>(new T()));
+		BOOST_REQUIRE_NO_THROW(T_ptr_assign = boost::shared_ptr<T>(TFactory<T>()));
 		BOOST_REQUIRE_NO_THROW(*T_ptr_assign = *T_ptr);
 
 		// Check for equivalence and similarity
@@ -214,8 +226,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	//---------------------------------------------------------------------------//
 	// Check (de-)serialization in different modes.
 	{ // plain text format
-		boost::shared_ptr<T> T_ptr1(new T());
-		boost::shared_ptr<T> T_ptr2(new T());
+		boost::shared_ptr<T> T_ptr1(TFactory<T>());
+		boost::shared_ptr<T> T_ptr2(TFactory<T>());
 
 		//Modify and check inequality
 		if(modify<T>(*T_ptr1)) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
@@ -227,8 +239,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	}
 
 	{ // XML format
-		boost::shared_ptr<T> T_ptr1(new T());
-		boost::shared_ptr<T> T_ptr2(new T());
+		boost::shared_ptr<T> T_ptr1(TFactory<T>());
+		boost::shared_ptr<T> T_ptr2(TFactory<T>());
 
 		//Modify and check inequality
 		if(modify<T>(*T_ptr1)) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
@@ -239,8 +251,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	}
 
 	{ // binary test format
-		boost::shared_ptr<T> T_ptr1(new T());
-		boost::shared_ptr<T> T_ptr2(new T());
+		boost::shared_ptr<T> T_ptr1(TFactory<T>());
+		boost::shared_ptr<T> T_ptr2(TFactory<T>());
 
 		//Modify and check inequality
 		if(modify<T>(*T_ptr1)) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
@@ -269,7 +281,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 	{
 		// Checks that self-assignment throws in DEBUG mode
 #ifdef DEBUG
-		boost::shared_ptr<T> T_ptr1(new T());
+		boost::shared_ptr<T> T_ptr1(TFactory<T>());
 		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, Gem::GenEvA::geneva_error_condition);
 #endif
 	}
