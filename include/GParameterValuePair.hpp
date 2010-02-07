@@ -135,9 +135,6 @@ public:
 	/** @brief Checks whether any data is available locally */
 	bool hasData();
 
-	/** @brief Sets the precision of FP IO in ASCII mode */
-	void setPrecision(const std::streamsize&);
-
 	/** @brief Writes the class'es data to a stream */
 	void writeToStream(std::ostream&) const;
 	/** @brief Reads the class'es data from a stream */

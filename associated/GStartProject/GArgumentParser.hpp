@@ -67,9 +67,9 @@ namespace Gem
     const boost::uint16_t DEFAULTNEVALUATIONTHREADS=4;
     const std::size_t DEFAULTPOPULATIONSIZE=100;
     const std::size_t DEFAULTNPARENTS=5; // Allow to explore the parameter space from many starting points
-    const boost::uint32_t DEFAULTMAXGENERATIONS=2000;
+    const boost::uint32_t DEFAULTMAXITERATIONS=2000;
     const long DEFAULTMAXMINUTES=10;
-    const boost::uint32_t DEFAULTREPORTGENERATION=1;
+    const boost::uint32_t DEFAULTREPORTITERATION=1;
     const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
     const bool DEFAULTVERBOSE=true;
     const bool DEFAULTPARALLELIZATIONMODE=1;
@@ -80,7 +80,7 @@ namespace Gem
     const std::string DEFAULTIP="localhost";
     const std::string DEFAULTCONFIGFILE="./GStartProject.cfg";
     const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
-    const boost::uint32_t DEFAULTSTARTGENERATION=0;
+    const boost::uint32_t DEFAULTSTARTITERATION=0;
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
     const bool DEFAULTRETURNREGARDLESS=true;
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
@@ -103,9 +103,9 @@ namespace Gem
 			 boost::uint16_t& nEvaluationThreads,
 			 std::size_t& populationSize,
 			 std::size_t& nParents,
-			 boost::uint32_t& maxGenerations,
+			 boost::uint32_t& maxIterations,
 			 long& maxMinutes,
-			 boost::uint32_t& reportGeneration,
+			 boost::uint32_t& reportIteration,
 			 recoScheme& rScheme,
 			 sortingMode& smode,
 			 std::size_t& arraySize,

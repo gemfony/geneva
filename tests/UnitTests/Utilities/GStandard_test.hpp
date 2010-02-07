@@ -65,6 +65,38 @@ using boost::unit_test_framework::test_case;
 
 /*************************************************************************************************/
 /**
+ * This function is called for the objects tested by this module. Specializations should be provided
+ * in order for cloning/loading and (de-)serialization tests to make more sense. This function does
+ * nothing by default.
+ *
+ * @param cp The entity to be modified
+ * @return A boolean that indicates whether a modification was done
+ */
+template <typename T>
+bool modify(T& cp) {
+	return false;
+}
+
+/*************************************************************************************************/
+/**
+ * This function can be specialized by tested objects in order to test specific functionality
+ * that is expected to work. It does nothing by default.
+ */
+template <typename T>
+void specificTestsNoFailureExpected()
+{ /* nothing */ }
+
+/*************************************************************************************************/
+/**
+ * This function can be specialized by tested objects in order to test specific functionality
+ * that is expected to fail. It does nothing by default.
+ */
+template <typename T>
+void specificTestsFailuresExpected()
+{ /* nothing */ }
+
+/*************************************************************************************************/
+/**
  * This function performs common tests that need to be passed by every core Geneva class and
  * should be passed by user individuals as well. Most notably, this includes (de-)serialization
  * in different modes.
@@ -75,65 +107,118 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 						 pow(10,-10),
 						 Gem::Util::CE_WITH_MESSAGES);
 
-	/**************************************************************************/
+	//---------------------------------------------------------------------------//
 	// Tests of construction, loading, cloning, ...
 
 	// We use boost::shared_ptr so we can refer to the objects from within BOOST_CHECK
 	boost::shared_ptr<T> T_ptr, T_ptr_cp, T_ptr_clone, T_ptr_load, T_ptr_assign;
 
-	// Default construction
-	BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(new T()));
+	{
+		// Default construction
+		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(new T()));
 
-	// Copy construction
-	BOOST_REQUIRE_NO_THROW(T_ptr_cp = boost::shared_ptr<T>(new T(*T_ptr)))
+		// Make sure the object is not in pristine condition
+		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
 
-	// Check for equivalence and similarity
-	BOOST_CHECK(gep.isEqual(*T_ptr_cp, *T_ptr));
-	BOOST_CHECK(gep.isSimilar(*T_ptr_cp, *T_ptr));
+		// Copy construction
+		BOOST_REQUIRE_NO_THROW(T_ptr_cp = boost::shared_ptr<T>(new T(*T_ptr)))
 
-	// Cloning
-	BOOST_REQUIRE_NO_THROW(T_ptr_clone = T_ptr->GObject::clone<T>());
+		// Check for equivalence and similarity
+		BOOST_CHECK(gep.isEqual(*T_ptr_cp, *T_ptr));
+		BOOST_CHECK(gep.isSimilar(*T_ptr_cp, *T_ptr));
 
-	// Check for equivalence and similarity
-	BOOST_CHECK(gep.isEqual(*T_ptr_clone, *T_ptr));
-	BOOST_CHECK(gep.isSimilar(*T_ptr_clone, *T_ptr));
+		// Check that the smart pointers are unique
+		BOOST_CHECK(T_ptr.unique());
+		BOOST_CHECK(T_ptr_cp.unique());
 
-	// Loading
-	BOOST_REQUIRE_NO_THROW(T_ptr_load = boost::shared_ptr<T>(new T()));
-	BOOST_REQUIRE_NO_THROW(T_ptr_load->GObject::load(T_ptr));
+		// Check destruction. Resetting the smart pointer will delete
+		// the stored object if it was the last remaining reference to it.
+		BOOST_REQUIRE_NO_THROW(T_ptr.reset());
+		BOOST_REQUIRE_NO_THROW(T_ptr_cp.reset());
+	}
 
-	// Check for equivalence and similarity
-	BOOST_CHECK(gep.isEqual(*T_ptr_load, *T_ptr));
-	BOOST_CHECK(gep.isSimilar(*T_ptr_load, *T_ptr));
+	{
+		// Default construction
+		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(new T()));
 
-	// Assignment
-	BOOST_REQUIRE_NO_THROW(T_ptr_assign = boost::shared_ptr<T>(new T()));
-	BOOST_REQUIRE_NO_THROW(*T_ptr_assign = *T_ptr);
+		// Make sure the object is not in pristine condition
+		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
 
-	// Check for equivalence and similarity
-	BOOST_CHECK(gep.isEqual(*T_ptr_assign, *T_ptr));
-	BOOST_CHECK(gep.isSimilar(*T_ptr_assign, *T_ptr));
+		// Cloning
+		BOOST_REQUIRE_NO_THROW(T_ptr_clone = T_ptr->GObject::clone<T>());
 
-	// Check that the four copied smart pointers are unique
-	BOOST_CHECK(T_ptr.unique());
-	BOOST_CHECK(T_ptr_cp.unique());
-	BOOST_CHECK(T_ptr_clone.unique());
-	BOOST_CHECK(T_ptr_load.unique());
-	BOOST_CHECK(T_ptr_assign.unique());
+		// Check for equivalence and similarity
+		BOOST_CHECK(gep.isEqual(*T_ptr_clone, *T_ptr));
+		BOOST_CHECK(gep.isSimilar(*T_ptr_clone, *T_ptr));
 
-	// Check destruction. Resetting the smart pointer will delete
-	// the stored object if it was the last remaining reference to it.
-	BOOST_REQUIRE_NO_THROW(T_ptr.reset());
-	BOOST_REQUIRE_NO_THROW(T_ptr_cp.reset());
-	BOOST_REQUIRE_NO_THROW(T_ptr_clone.reset());
-	BOOST_REQUIRE_NO_THROW(T_ptr_load.reset());
-	BOOST_REQUIRE_NO_THROW(T_ptr_assign.reset());
+		// Check that the smart pointers are unique
+		BOOST_CHECK(T_ptr.unique());
+		BOOST_CHECK(T_ptr_clone.unique());
 
-	/**************************************************************************/
+		// Check destruction. Resetting the smart pointer will delete
+		// the stored object if it was the last remaining reference to it.
+		BOOST_REQUIRE_NO_THROW(T_ptr.reset());
+		BOOST_REQUIRE_NO_THROW(T_ptr_clone.reset());
+	}
+
+	{
+		// Default construction
+		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(new T()));
+
+		// Make sure the object is not in pristine condition
+		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
+
+		// Loading
+		BOOST_REQUIRE_NO_THROW(T_ptr_load = boost::shared_ptr<T>(new T()));
+		BOOST_REQUIRE_NO_THROW(T_ptr_load->GObject::load(T_ptr));
+
+		// Check for equivalence and similarity
+		BOOST_CHECK(gep.isEqual(*T_ptr_load, *T_ptr));
+		BOOST_CHECK(gep.isSimilar(*T_ptr_load, *T_ptr));
+
+		// Check that the smart pointers are unique
+		BOOST_CHECK(T_ptr.unique());
+		BOOST_CHECK(T_ptr_load.unique());
+
+		// Check destruction. Resetting the smart pointer will delete
+		// the stored object if it was the last remaining reference to it.
+		BOOST_REQUIRE_NO_THROW(T_ptr.reset());
+		BOOST_REQUIRE_NO_THROW(T_ptr_load.reset());
+	}
+
+	{
+		// Default construction
+		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(new T()));
+
+		// Make sure the object is not in pristine condition
+		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
+
+		// Assignment
+		BOOST_REQUIRE_NO_THROW(T_ptr_assign = boost::shared_ptr<T>(new T()));
+		BOOST_REQUIRE_NO_THROW(*T_ptr_assign = *T_ptr);
+
+		// Check for equivalence and similarity
+		BOOST_CHECK(gep.isEqual(*T_ptr_assign, *T_ptr));
+		BOOST_CHECK(gep.isSimilar(*T_ptr_assign, *T_ptr));
+
+		// Check that the smart pointers are unique
+		BOOST_CHECK(T_ptr.unique());
+		BOOST_CHECK(T_ptr_assign.unique());
+
+		// Check destruction. Resetting the smart pointer will delete
+		// the stored object if it was the last remaining reference to it.
+		BOOST_REQUIRE_NO_THROW(T_ptr.reset());
+		BOOST_REQUIRE_NO_THROW(T_ptr_assign.reset());
+	}
+
+	//---------------------------------------------------------------------------//
 	// Check (de-)serialization in different modes.
 	{ // plain text format
 		boost::shared_ptr<T> T_ptr1(new T());
 		boost::shared_ptr<T> T_ptr2(new T());
+
+		//Modify and check inequality
+		if(modify<T>(*T_ptr1)) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 		// BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
@@ -145,6 +230,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr1(new T());
 		boost::shared_ptr<T> T_ptr2(new T());
 
+		//Modify and check inequality
+		if(modify<T>(*T_ptr1)) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(XMLSERIALIZATION), XMLSERIALIZATION));
 		BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
@@ -154,10 +242,17 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		boost::shared_ptr<T> T_ptr1(new T());
 		boost::shared_ptr<T> T_ptr2(new T());
 
+		//Modify and check inequality
+		if(modify<T>(*T_ptr1)) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
 		BOOST_CHECK(gep.isEqual(*T_ptr1, *T_ptr2));
 	}
+
+	//---------------------------------------------------------------------------//
+	// Run specific tests for the current object type
+	specificTestsNoFailureExpected<T>();
 }
 
 /*************************************************************************************************/
@@ -178,6 +273,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, Gem::GenEvA::geneva_error_condition);
 #endif
 	}
+
+	//---------------------------------------------------------------------------//
+	// Run specific tests for the current object type
+	specificTestsFailuresExpected<T>();
 }
 
 /*************************************************************************************************/

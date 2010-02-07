@@ -122,9 +122,9 @@ namespace Gem
 			 boost::uint16_t& nEvaluationThreads,
 			 std::size_t& populationSize,
 			 std::size_t& nParents,
-			 boost::uint32_t& maxGenerations,
+			 boost::uint32_t& maxIterations,
 			 long& maxMinutes,
-			 boost::uint32_t& reportGeneration,
+			 boost::uint32_t& reportIteration,
 			 recoScheme& rScheme,
 			 sortingMode& smode,
 			 std::size_t& arraySize,
@@ -156,12 +156,12 @@ namespace Gem
 	   "The size of the super-population")
 	  ("nParents",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
 	   "The number of parents in the population") // Needs to be treated separately
-	  ("maxGenerations", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
-	   "Maximum number of generations in the population")
+	  ("maxIterations", po::value<boost::uint32_t>(&maxIterations)->default_value(DEFAULTMAXITERATIONS),
+	   "Maximum number of iterations in the population")
 	  ("maxMinutes", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
 	   "The maximum number of minutes the optimization of the population should run")
-	  ("reportGeneration",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),
-	   "The number of generations after which information should be emitted in the super-population")
+	  ("reportIteration",po::value<boost::uint32_t>(&reportIteration)->default_value(DEFAULTREPORTITERATION),
+	   "The number of iterations after which information should be emitted in the super-population")
 	  ("rScheme",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 	   "The recombination scheme for the super-population")
 	  ("sortingScheme,o", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
@@ -229,9 +229,9 @@ namespace Gem
 		    << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
 		    << "populationSize = " << populationSize << std::endl
 		    << "nParents = " << nParents << std::endl
-		    << "maxGenerations = " << maxGenerations << std::endl
+		    << "maxIterations = " << maxIterations << std::endl
 		    << "maxMinutes = " << maxMinutes << std::endl
-		    << "reportGeneration = " << reportGeneration << std::endl
+		    << "reportIteration = " << reportIteration << std::endl
 		    << "rScheme = " << (boost::uint16_t)rScheme << std::endl
 		    << "sortingScheme = " << smode << std::endl
 		    << "arraySize = " << arraySize << std::endl

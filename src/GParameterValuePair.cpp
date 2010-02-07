@@ -353,17 +353,6 @@ namespace Gem
 
 	/**************************************************************************/
 	/**
-	 * Sets the precision of FP IO in ASCII mode
-	 *
-	 * @param The desired precision for FP IO
-	 */
-	void GParameterValuePair::setPrecision(const std::streamsize& precision) {
-		std::vector<boost::shared_ptr<GDoubleParameter> >::iterator it;
-		for(it=dArray_.begin(); it!=dArray_.end(); ++it) (*it)->setPrecision(precision);
-	}
-
-	/**************************************************************************/
-	/**
 	 * Writes the class'es data to a stream
 	 *
 	 * @param stream The external output stream to write to

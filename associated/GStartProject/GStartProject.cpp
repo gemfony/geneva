@@ -71,9 +71,9 @@ int main(int argc, char **argv){
   boost::uint16_t nEvaluationThreads;
   std::size_t populationSize;
   std::size_t nParents;
-  boost::uint32_t maxGenerations;
+  boost::uint32_t maxIterations;
   long maxMinutes;
-  boost::uint32_t reportGeneration;
+  boost::uint32_t reportIteration;
   recoScheme rScheme;
   std::size_t arraySize;
   std::size_t parDim;
@@ -96,9 +96,9 @@ int main(int argc, char **argv){
 		      nEvaluationThreads,
 		      populationSize,
 		      nParents,
-		      maxGenerations,
+		      maxIterations,
 		      maxMinutes,
-		      reportGeneration,
+		      reportIteration,
 		      rScheme,
 		      smode,
 		      arraySize,
@@ -202,9 +202,9 @@ int main(int argc, char **argv){
  
   // Specify some general population settings
   pop_ptr->setPopulationSize(populationSize,nParents);
-  pop_ptr->setMaxIteration(maxGenerations);
+  pop_ptr->setMaxIteration(maxIterations);
   pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
-  pop_ptr->setReportIteration(reportGeneration);
+  pop_ptr->setReportIteration(reportIteration);
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
   pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));

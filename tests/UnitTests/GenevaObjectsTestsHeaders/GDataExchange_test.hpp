@@ -183,12 +183,12 @@ public:
 			BOOST_CHECK(*d3==*d4);
 			d4->reset();
 
-			d3->setPrecision(11);
-
 			std::ofstream doutputtxt("ddata.txt");
+			doutputtxt.precision(15); // This normally happens in  the GDataExchange object
 			d3->writeToStream(doutputtxt);
 			doutputtxt.close();
 			std::ifstream dinputtxt("ddata.txt");
+			dinputtxt.precision(15);  // This normally happens in  the GDataExchange object
 			d4->readFromStream(dinputtxt);
 			dinputtxt.close();
 
@@ -331,11 +331,13 @@ public:
 
 		// Write the object out in text mode and load it back in. Then check similarity
 		std::ofstream textOutput("pvp.txt");
+		textOutput.precision(15); // This is normally done by the GDataExchange object
 		p0->writeToStream(textOutput);
 		textOutput.close();
 		p2->reset();
 		BOOST_CHECK(*p2 != *p0);
 		std::ifstream textInput("pvp.txt");
+		textInput.precision(15); // This is normally done by the GDataExchange object
 		p2->readFromStream(textInput);
 		textInput.close();
 		BOOST_CHECK(p2->isSimilarTo(*p0, pow(10,-10)));

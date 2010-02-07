@@ -80,9 +80,6 @@ namespace Gem
 namespace Util
 {
 
-// Set to the average number of decimal digits of a double number. This will likely be 15.
-const std::streamsize DEFAULTPRECISION=std::numeric_limits< double >::digits10;
-
 /*******************************************************************************/
 /**
  * This class allows to store a numeric parameter plus possible boundaries (both
@@ -102,8 +99,7 @@ class GNumericParameterT {
 
       ar & BOOST_SERIALIZATION_NVP(param_)
          & BOOST_SERIALIZATION_NVP(lowerBoundary_)
-         & BOOST_SERIALIZATION_NVP(upperBoundary_)
-         & BOOST_SERIALIZATION_NVP(precision_);
+         & BOOST_SERIALIZATION_NVP(upperBoundary_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -156,7 +152,6 @@ public:
 		param_ = cp.param_;
 		lowerBoundary_ = cp.lowerBoundary_;
 		upperBoundary_ = cp.upperBoundary_;
-		precision_ = cp.precision_;
 
 		return *this;
 	}
@@ -189,7 +184,7 @@ public:
 	/***************************************************************************/
 	/**
 	 * Checks whether this object is equal to a second object. Equality
-	 * means that all parameters, boundaries and FP IO precision  are equal.
+	 * means that all parameters and boundaries are equal.
 	 *
 	 * @param cp A constant reference to another GNumericParameter<T> object
 	 */
@@ -211,14 +206,8 @@ public:
 			std::cerr << "upperBoundary_ != cp.upperBoundary_ : " << upperBoundary_ << " " << cp.upperBoundary_ << std::endl;
 			result = false;
 		}
-
-		if(precision_ != cp.precision_) {
-			std::cerr << "precision_ != cp.precision_ : " << precision_ << " " << cp.precision_ << std::endl;
-			result = false;
-		}
 #else
-		if(param_ != cp.param_ || lowerBoundary_ != cp.lowerBoundary_ ||
-		   upperBoundary_ != cp.upperBoundary_ || precision_ != cp.precision_) {
+		if(param_ != cp.param_ || lowerBoundary_ != cp.lowerBoundary_ ||  upperBoundary_ != cp.upperBoundary_) {
 			result = false;
 		}
 #endif /* GENEVATESTING */
@@ -260,7 +249,6 @@ public:
 		param_ = T(0);
 		lowerBoundary_ = T(0);
 		upperBoundary_ = T(0);
-		precision_ = DEFAULTPRECISION;
 	}
 
 	/***************************************************************************/
@@ -372,31 +360,9 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Sets the precision of floating point IO to a new value.
-	 *
-	 * @param The new value of the precision_ variable
-	 */
-	void setPrecision(const std::streamsize& precision) {
-		precision_ = precision;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Retrieves the current precision of floating point IO.
-	 *
-	 * @return The current value of the precision_ variable
-	 */
-	std::streamsize getPrecision() {
-		return precision_;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Writes the class'es data to a stream in ASCII format. Note that
-	 * there is a specialization for typeof(T) == double, as the precision
-	 * matters in this case. It will be written out and read back in in that
-	 * mode only. Another specialization exists for typeof(T)==bool, as
-	 * boundaries do not matter for this type.
+	 * Writes the class'es data to a stream in ASCII format. A
+	 * specialization exists for typeof(T)==bool, as boundaries do
+	 * not matter for this type.
 	 *
 	 * @param stream The external output stream to write to
 	 */
@@ -419,11 +385,9 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Reads the class'es data from a stream in ASCII format. Note that
-	 * there is a specialization for typeof(T) == double, as the precision
-	 * matters in this case. It will be written out and read back in in that
-	 * mode only. Another specialization exists for typeof(T)==bool, as
-	 * boundaries do not matter for this type.
+	 * Reads the class'es data from a stream in ASCII format. A
+	 * specialization exists for typeof(T)==bool, as boundaries do
+	 * not matter for this type.
 	 *
 	 * @param stream The external input stream to read from
 	 */
@@ -446,11 +410,8 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Writes the class'es data to a stream in binary format. Note that
-	 * there is a specialization for typeof(T) == double, as the precision
-	 * matters in this case. It will be written out and read back in in that
-	 * mode only. Another specialization exists for typeof(T)==bool, as
-	 * boundaries do not matter for this type.
+	 * Writes the class'es data to a stream in binary format. A specialization
+	 * exists for typeof(T)==bool, as boundaries do not matter for this type.
 	 *
 	 * @param stream The external output stream to write to
 	 */
@@ -474,11 +435,8 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Reads the class'es data from a stream in binary format. Note that
-	 * there is a specialization for typeof(T) == double, as the precision
-	 * matters in this case. It will be written out and read back in in that
-	 * mode only. Another specialization exists for typeof(T)==bool, as
-	 * boundaries do not matter for this type.
+	 * Reads the class'es data from a stream in binary format. A specialization
+	 * exists for typeof(T)==bool, as boundaries do not matter for this type.
 	 *
 	 * @param stream The external input stream to read from
 	 */
@@ -523,19 +481,12 @@ private:
 	T param_; ///< The actual parameter value
 	T lowerBoundary_; ///< The lower boundary allowed for param_
 	T upperBoundary_; ///< The upper boundary allowed for param_
-
-	std::streamsize precision_; ///< The precision used for floating point i/o
 };
 
 // Declaration of specializations for various "allowed types
 template<> double GNumericParameterT<double>::unknownParameterTypeTrap(double);
 template<> boost::int32_t GNumericParameterT<boost::int32_t>::unknownParameterTypeTrap(boost::int32_t);
 template<> bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool);
-
-template<> void GNumericParameterT<double>::writeToStream(std::ostream&) const;
-template<> void GNumericParameterT<double>::readFromStream(std::istream&);
-template<> void GNumericParameterT<double>::binaryWriteToStream(std::ostream&) const;
-template<> void GNumericParameterT<double>::binaryReadFromStream(std::istream&);
 
 template<> void GNumericParameterT<bool>::writeToStream(std::ostream&) const;
 template<> void GNumericParameterT<bool>::readFromStream(std::istream&);
@@ -553,7 +504,6 @@ GNumericParameterT<T>::GNumericParameterT()
 	: param_(T(0))
 	, lowerBoundary_(T(0))
 	, upperBoundary_(T(0))
-	, precision_(DEFAULTPRECISION)
 { /* nothing */ }
 
 /*****************************************************************************************/
@@ -565,7 +515,6 @@ GNumericParameterT<T>::GNumericParameterT(const T& param)
 	: param_(param)
 	, lowerBoundary_(T(0))
 	, upperBoundary_(T(0))
-	, precision_(DEFAULTPRECISION)
 { /* nothing */	}
 
 /*****************************************************************************************/
@@ -577,7 +526,6 @@ GNumericParameterT<T>::GNumericParameterT(const T& param, const T& lower, const 
 	: param_(param)
 	, lowerBoundary_(lower)
 	, upperBoundary_(upper)
-	, precision_(DEFAULTPRECISION)
 {
 	// Check the validity of the boundaries.
 	if(lowerBoundary_ != upperBoundary_ &&
@@ -602,7 +550,6 @@ GNumericParameterT<T>::GNumericParameterT(const GNumericParameterT& cp)
 	: param_(cp.param_)
 	, lowerBoundary_(cp.lowerBoundary_)
 	, upperBoundary_(cp.upperBoundary_)
-	, precision_(cp.precision_)
 { /* nothing */	}
 
 /*****************************************************************************************/

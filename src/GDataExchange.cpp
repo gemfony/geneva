@@ -50,6 +50,7 @@ namespace Util
  * The default constructor. Adds a single, empty data set to the collection.
  */
 GDataExchange::GDataExchange()
+	: precision_(DEFAULTPRECISION)
 {
 	boost::shared_ptr<GParameterValuePair> p(new GParameterValuePair());
 	parameterValueSet_.push_back(p);
@@ -63,7 +64,9 @@ GDataExchange::GDataExchange()
  *
  * @param cp A constant reference to another GDataExchange object
  */
-GDataExchange::GDataExchange(const GDataExchange& cp) {
+GDataExchange::GDataExchange(const GDataExchange& cp)
+	: precision_(cp.precision_)
+{
 	std::vector<boost::shared_ptr<GParameterValuePair> >::const_iterator cit;
 	for(cit=cp.parameterValueSet_.begin(); cit!=parameterValueSet_.end(); ++cit) {
 		boost::shared_ptr<GParameterValuePair> p(new GParameterValuePair(**cit));
@@ -93,6 +96,7 @@ GDataExchange::~GDataExchange() {
 const GDataExchange& GDataExchange::operator=(const GDataExchange& cp) {
 	copySmartPointerVector<GParameterValuePair>(cp.parameterValueSet_, parameterValueSet_);
 	current_ = parameterValueSet_.begin() + (cp.current_ - cp.parameterValueSet_.begin());
+	precision_ = cp.precision_;
 
 	return cp;
 }
@@ -131,6 +135,13 @@ bool GDataExchange::operator==(const GDataExchange& cp) const {
 	if(localOffset != cpOffset) {
 #ifdef GENEVATESTING
 		std::cerr << "Found inequality: localOffset != cpOffset : " << localOffset << " " <<  cpOffset << std::endl;
+#endif /* GENEVATESTING */
+		return false;
+	}
+
+	if(precision_ != cp.precision_) {
+#ifdef GENEVATESTING
+		std::cerr << "Found inequality: precision_ != cp.precision_ : " << precision_ << " " <<  cp.precision_ << std::endl;
 #endif /* GENEVATESTING */
 		return false;
 	}
@@ -193,6 +204,13 @@ bool GDataExchange::isSimilarTo(const GDataExchange& cp, const double& limit) {
 		return false;
 	}
 
+	if(precision_ != cp.precision_) {
+#ifdef GENEVATESTING
+		std::cerr << "Found inequality: precision_ != cp.precision_ : " << precision_ << " " <<  cp.precision_ << std::endl;
+#endif /* GENEVATESTING */
+		return false;
+	}
+
 	// Now we are sure that all components are equal
 	return true;
 }
@@ -216,6 +234,7 @@ void GDataExchange::resetAll() {
 	for(it=parameterValueSet_.begin(); it!=parameterValueSet_.end(); ++it)	(*it)->reset();
 	parameterValueSet_.resize(1);
 	current_ = parameterValueSet_.begin();
+	precision_ = DEFAULTPRECISION;
 }
 
 /**************************************************************************/
@@ -268,9 +287,17 @@ void GDataExchange::switchToBestDataSet(const bool& ascending) {
  * @param precision The desired precision of FP IO in ASCII mode
  */
 void GDataExchange::setPrecision(const std::streamsize& precision) {
-	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator it;
-	for(it=parameterValueSet_.begin(); it != parameterValueSet_.end(); ++it)
-		(*it)->setPrecision(precision);
+	precision_ = precision;
+}
+
+/**************************************************************************/
+/**
+ * Retrieves the current precision of FP IO in ASCII mode
+ *
+ * @return The current precision of FP IO in ASCII mode
+ */
+std::streamsize GDataExchange::getPrecision() const {
+	return precision_;
 }
 
 /**************************************************************************/
@@ -751,6 +778,12 @@ template <> void GDataExchange::append<bool>(const bool& x, const bool& x_l, con
  * @param stream The external output stream to write to
  */
 void GDataExchange::writeToStream(std::ostream& stream) const {
+	// Back up the current precision
+	std::streamsize precisionStore = stream.precision();
+
+	// Now set the output precision to the desired value
+	stream.precision(precision_);
+
 	// Let the audience know about the number of data sets
 	stream <<  parameterValueSet_.size() << std::endl;
 
@@ -762,6 +795,9 @@ void GDataExchange::writeToStream(std::ostream& stream) const {
 	// Store the offset of the current_ iterator
 	std::size_t offset = current_ - parameterValueSet_.begin();
 	stream << offset << std::endl;
+
+	// Restore the original precision
+	stream.precision(precisionStore);
 }
 
 /**************************************************************************/
@@ -771,6 +807,12 @@ void GDataExchange::writeToStream(std::ostream& stream) const {
  * @param stream The external input stream to read from
  */
 void GDataExchange::readFromStream(std::istream& stream) {
+	// Back up the current precision
+	std::streamsize precisionStore = stream.precision();
+
+	// Now set the stream precision to the desired value
+	stream.precision(precision_);
+
 	// Find out about the number of data sets in the stream
 	std::size_t nDataSets = 0;
 	stream >> nDataSets;
@@ -805,6 +847,9 @@ void GDataExchange::readFromStream(std::istream& stream) {
 	std::size_t offset = 0;
 	stream >> offset;
 	current_ = parameterValueSet_.begin() + offset;
+
+	// Restore the stream's original precision
+	stream.precision(precisionStore);
 }
 
 /**************************************************************************/

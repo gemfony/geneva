@@ -64,6 +64,13 @@ using namespace boost::unit_test;
 
 #include "GStandard_test.hpp"
 
+// For reasons that are not understood the export statements in the
+// .cpp files do not get pulled in here. We get an error "unregistered class"
+// when these two statements are not present below.
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(Gem::Util::GRandom)
+BOOST_CLASS_EXPORT(Gem::GenEvA::GEvolutionaryAlgorithm)
+
 using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;

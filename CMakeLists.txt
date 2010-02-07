@@ -16,8 +16,8 @@ SET(VERSION_PATCH "0rc")
 #SET (BOOST_INCLUDEDIR "/opt/boost140/include/boost-1_40")
 #SET (BOOST_LIBRARYDIR "/opt/boost140/lib")
 
-# Uncomment this if you want to see compiler arguments
-#SET(CMAKE_VERBOSE_MAKEFILE ON)
+# Uncomment this if you want to see compiler options
+# SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Uncomment to compile static libs
 # SET( GENEVA_STATIC TRUE )
@@ -25,7 +25,7 @@ SET(VERSION_PATCH "0rc")
 # Set the build type (default value is "Release")
 # SET( CMAKE_BUILD_TYPE Debug )
 
-# The names of the two libraries that will be build by CMake
+# The names of the two libraries that will be built by CMake
 SET ( GENEVALIBNAME geneva-opt )
 SET ( DATAEXCHANGELIBNAME geneva-extcomm )
 
@@ -49,8 +49,8 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInf
 		# (and, according to the authors' opinion, irrelevant in this context) warnings
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 	ELSE() # e.g. g++
-		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
-		# ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread")
+		# ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
+		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread")
 	ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 	# Use this for release builds.
@@ -81,7 +81,7 @@ ELSE()
 ENDIF()
 
 SET (Boost_USE_MULTITHREAD ON)
-SET (Boost_ADDITIONAL_VERSIONS "1.39" "1.39.0" "1.40" "1.40.0" "1.41" "1.41.0" "1.42" "1.42.0")
+SET (Boost_ADDITIONAL_VERSIONS "1.39" "1.39.0" "1.40" "1.40.0" "1.41" "1.41.0" "1.42" "1.42.0" "1.43" "1.43.0")
 
 FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	date_time

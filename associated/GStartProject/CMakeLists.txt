@@ -1,4 +1,4 @@
-PROJECT (GStartProject_Demo)
+PROJECT (GStartProject)
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
@@ -11,6 +11,11 @@ IF(NOT DEFINED GENEVA_LIBRARY)
        SET (GENEVA_LIBRARY "geneva-opt")
 ENDIF()
 
+ADD_SUBDIRECTORY (CMakeModules)
+
+# Make sure we first check our local modules directory
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+
 SET (Boost_USE_STATIC_LIBS OFF)
 SET (LINK_FLAGS "-lpthread")
 SET (CMAKE_EXE_LINKER_FLAGS "-lpthread")
@@ -19,6 +24,7 @@ SET (Boost_USE_MULTITHREADED ON)
 # SET (CMAKE_BUILD_TYPE Debug)
 SET (CMAKE_BUILD_TYPE Release)
 
+# At least Boost 1.36 must be installed 
 FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
     date_time
     system
@@ -27,6 +33,16 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
     program_options
 	filesystem
 )
+
+# The test component is not necessary for the application, but needed for the tests
+FIND_PACKAGE( Boost 1.36 COMPONENTS
+	test_exec_monitor
+)
+
+# Tests will only be compiled of the test libraries were found
+IF( Boost_TEST_EXEC_MONITOR_FOUND )
+	ADD_SUBDIRECTORY (Tests)
+ENDIF()
 
 INCLUDE_DIRECTORIES (
         ${GENEVA_ROOT}/include
@@ -38,11 +54,15 @@ LINK_DIRECTORIES (
         ${Boost_LIBRARY_DIRS}
 )
 
-SET (EXECUTABLENAME GStartProject)
+SET ( EXECUTABLENAME GStartProject )
 
-SET (${EXECUTABLENAME}_SRCS
-	GArgumentParser
-	GStartProject
+SET ( ${EXECUTABLENAME}_SRCS
+	  GArgumentParser
+	  GStartProject
+)
+
+SET ( CONFIGFILE
+	GStartProject.cfg
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -65,4 +85,11 @@ INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION bin
 	OWNER_READ OWNER_WRITE OWNER_EXECUTE
 	GROUP_READ GROUP_EXECUTE
 	WORLD_READ WORLD_EXECUTE
+)
+
+INSTALL ( FILES ${CONFIGFILES} DESTINATION .
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE
+	GROUP_READ
+	WORLD_READ
 )

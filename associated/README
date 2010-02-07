@@ -1,6 +1,7 @@
-This directory contains a number of programs built on top of the Geneva library. Note that these programs 
-are not part of the normal build process but should be compiled individually. Suitable CMakeLists.txt files
-are provided, but might need some adaption to work in your environment.
+This directory contains a number of self-contained programs built on top of the Geneva library. Note that these 
+programs  are not part of the normal build process but represent independent units. Suitable CMakeLists.txt files
+are provided, but might need some adaption to work in your environment. The programs are intended as starting
+points for own work and might, in sime cases, also be used directly without adaption.
 
 - GExternalEvaluator: A framework for using external evaluation functions for the evaluation step
 - GNeuralNetwork: An implementation of feed forward neural networks, which are trained with Geneva

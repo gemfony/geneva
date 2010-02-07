@@ -86,6 +86,9 @@ namespace Gem
 namespace Util
 {
 
+/** @brief Set to the average number of decimal digits of a double number. This will likely be 15. */
+const std::streamsize DEFAULTPRECISION=std::numeric_limits< double >::digits10;
+
 /*******************************************************************************/
 /**
  * This class serves as an exchange vehicle between external programs and
@@ -107,6 +110,7 @@ class GDataExchange {
 
         std::size_t currentPosition = current_ - parameterValueSet_.begin();
         ar & make_nvp("currentPosition_", currentPosition);
+        ar & make_nvp("precision_", precision_);
     }
 
     template<typename Archive>
@@ -117,6 +121,8 @@ class GDataExchange {
     	std::size_t currentPosition;
     	ar & make_nvp("currentPosition_", currentPosition);
     	current_ = parameterValueSet_.begin() + currentPosition;
+
+        ar & make_nvp("precision_", precision_);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -155,6 +161,8 @@ public:
 
 	/** @brief Set the precision of ASCII IO of FP numbers */
 	void setPrecision(const std::streamsize&);
+	/** @brief Retrieves the current precision value */
+	std::streamsize getPrecision() const;
 
 	/** @brief Assign a value to the current data set */
 	void setValue(double);
@@ -315,6 +323,8 @@ private:
 	std::vector<boost::shared_ptr<GParameterValuePair> > parameterValueSet_;
 	/** @brief An iterator indicating the current position in the vector */
 	std::vector<boost::shared_ptr<GParameterValuePair> >::iterator current_;
+	/** @brief The precision used for text-based floating point i/o */
+	std::streamsize precision_;
 };
 
 /**************************************************************************/
