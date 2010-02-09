@@ -38,7 +38,7 @@ namespace Gem
 {
 	namespace GenEvA
 	{
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * The default constructor.
 	 */
@@ -46,7 +46,7 @@ namespace Gem
 	: GMutableSetT<Gem::GenEvA::GParameterBase>()
 	  { /* nothing */ }
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * The copy constructor. Note that we cannot rely on the operator=() of the vector
 	 * here, as we do not know the actual type of T objects.
@@ -58,14 +58,14 @@ namespace Gem
 	  , eval_(cp.eval_)
 	  { /* nothing */ }
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * The destructor
 	 */
 	GParameterSet::~GParameterSet()
 	{ /* nothing */ }
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * A Standard assignment operator
 	 *
@@ -77,7 +77,7 @@ namespace Gem
 		return *this;
 	}
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * Checks for equality with another GParameterSet object
 	 *
@@ -90,7 +90,7 @@ namespace Gem
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterSet::operator==","cp", CE_SILENT);
 	}
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * Checks for inequality with another GParameterSet object
 	 *
@@ -103,7 +103,7 @@ namespace Gem
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterSet::operator!=","cp", CE_SILENT);
 	}
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -140,7 +140,7 @@ namespace Gem
 		return evaluateDiscrepancies("GParameterSet", caller, deviations, e);
 	}
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * Creates a deep clone of this object.
 	 *
@@ -150,7 +150,7 @@ namespace Gem
 		return new GParameterSet(*this);
 	}
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * Loads the data of another GParameterSet object, camouflaged as a GObject.
 	 *
@@ -169,7 +169,7 @@ namespace Gem
 		eval_ = p_load->eval_;
 	}
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * Registers an evaluation function with this class. Note that the function object
 	 * can not be serialized. Hence, in a networked optimization run, you need to derive
@@ -187,7 +187,7 @@ namespace Gem
 		eval_ = eval;
 	}
 
-	/**********************************************************************************/
+	/************************************************************************************************************/
 	/**
 	 * The actual fitness calculation takes place here. Note that you need
 	 * to overload this function if you do not want to use the GEvaluator
@@ -207,7 +207,41 @@ namespace Gem
 		// Trigger the actual calculation
 		return eval_(*this);
 	}
-	/**********************************************************************************/
+
+	/************************************************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	bool GParameterSet::modify_GUnitTests() {
+		bool result = false;
+
+		// Call the parent class'es function
+		if(GMutableSetT<Gem::GenEvA::GParameterBase>::modify_GUnitTests()) result = true;
+
+		return result;
+	}
+
+	/************************************************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
+		// Call the parent class'es function
+		GMutableSetT<Gem::GenEvA::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
+	}
+
+	/************************************************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
+		// Call the parent class'es function
+		GMutableSetT<Gem::GenEvA::GParameterBase>::specificTestsFailuresExpected_GUnitTests();
+	}
+
+	/************************************************************************************************************/
 
 	} /* namespace GenEvA */
 } /* namespace Gem */

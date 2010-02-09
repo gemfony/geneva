@@ -57,55 +57,12 @@ using boost::unit_test_framework::test_case;
 #include "GObject.hpp"
 #include "GenevaExceptions.hpp"
 #include "GEnums.hpp"
+#include "GUnitTestFrameworkT.hpp"
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
 #pragma once
 #endif
-
-/*************************************************************************************************/
-/**
- * This function creates a new T object. It can be specialized by the tested objects e.g. in case
- * they do not have a default constructor.
- *
- * @return A pointer to a newly created T object
- */
-template <typename T>
-T *TFactory() {
-	return new T();
-}
-
-/*************************************************************************************************/
-/**
- * This function is called for the objects tested by this module. Specializations should be provided
- * in order for cloning/loading and (de-)serialization tests to make more sense. This function does
- * nothing by default.
- *
- * @param cp The entity to be modified
- * @return A boolean that indicates whether a modification was done
- */
-template <typename T>
-bool modify(T& cp) {
-	return false;
-}
-
-/*************************************************************************************************/
-/**
- * This function can be specialized by tested objects in order to test specific functionality
- * that is expected to work. It does nothing by default.
- */
-template <typename T>
-void specificTestsNoFailureExpected()
-{ /* nothing */ }
-
-/*************************************************************************************************/
-/**
- * This function can be specialized by tested objects in order to test specific functionality
- * that is expected to fail. It does nothing by default.
- */
-template <typename T>
-void specificTestsFailuresExpected()
-{ /* nothing */ }
 
 /*************************************************************************************************/
 /**
@@ -127,10 +84,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{
 		// Default construction
-		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(TFactory<T>()));
+		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 
 		// Make sure the object is not in pristine condition
-		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
+		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
 
 		// Copy construction
 		BOOST_REQUIRE_NO_THROW(T_ptr_cp = boost::shared_ptr<T>(new T(*T_ptr)))
@@ -151,10 +108,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{
 		// Default construction
-		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(TFactory<T>()));
+		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 
 		// Make sure the object is not in pristine condition
-		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
+		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
 
 		// Cloning
 		BOOST_REQUIRE_NO_THROW(T_ptr_clone = T_ptr->GObject::clone<T>());
@@ -175,13 +132,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{
 		// Default construction
-		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(TFactory<T>()));
+		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 
 		// Make sure the object is not in pristine condition
-		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
+		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
 
 		// Loading
-		BOOST_REQUIRE_NO_THROW(T_ptr_load = boost::shared_ptr<T>(TFactory<T>()));
+		BOOST_REQUIRE_NO_THROW(T_ptr_load = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE_NO_THROW(T_ptr_load->GObject::load(T_ptr));
 
 		// Check for equivalence and similarity
@@ -200,13 +157,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{
 		// Default construction
-		BOOST_REQUIRE_NO_THROW(T_ptr = boost::shared_ptr<T>(TFactory<T>()));
+		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 
 		// Make sure the object is not in pristine condition
-		BOOST_REQUIRE_NO_THROW(modify<T>(*T_ptr));
+		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
 
 		// Assignment
-		BOOST_REQUIRE_NO_THROW(T_ptr_assign = boost::shared_ptr<T>(TFactory<T>()));
+		BOOST_REQUIRE_NO_THROW(T_ptr_assign = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE_NO_THROW(*T_ptr_assign = *T_ptr);
 
 		// Check for equivalence and similarity
@@ -226,11 +183,11 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	//---------------------------------------------------------------------------//
 	// Check (de-)serialization in different modes.
 	{ // plain text format
-		boost::shared_ptr<T> T_ptr1(TFactory<T>());
-		boost::shared_ptr<T> T_ptr2(TFactory<T>());
+		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
 
 		//Modify and check inequality
-		if(modify<T>(*T_ptr1)) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 		// BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
@@ -239,11 +196,11 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	}
 
 	{ // XML format
-		boost::shared_ptr<T> T_ptr1(TFactory<T>());
-		boost::shared_ptr<T> T_ptr2(TFactory<T>());
+		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
 
 		//Modify and check inequality
-		if(modify<T>(*T_ptr1)) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(XMLSERIALIZATION), XMLSERIALIZATION));
@@ -251,11 +208,11 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	}
 
 	{ // binary test format
-		boost::shared_ptr<T> T_ptr1(TFactory<T>());
-		boost::shared_ptr<T> T_ptr2(TFactory<T>());
+		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
 
 		//Modify and check inequality
-		if(modify<T>(*T_ptr1)) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
 		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
@@ -264,7 +221,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	//---------------------------------------------------------------------------//
 	// Run specific tests for the current object type
-	specificTestsNoFailureExpected<T>();
+	{
+		boost::shared_ptr<T> T_ptr = TFactory_GUnitTests<T>();
+		BOOST_CHECK_NO_THROW(T_ptr->specificTestsNoFailureExpected_GUnitTests());
+	}
 }
 
 /*************************************************************************************************/
@@ -281,14 +241,17 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 	{
 		// Checks that self-assignment throws in DEBUG mode
 #ifdef DEBUG
-		boost::shared_ptr<T> T_ptr1(TFactory<T>());
+		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
 		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, Gem::GenEvA::geneva_error_condition);
 #endif
 	}
 
 	//---------------------------------------------------------------------------//
 	// Run specific tests for the current object type
-	specificTestsFailuresExpected<T>();
+	{
+		boost::shared_ptr<T> T_ptr = TFactory_GUnitTests<T>();
+		BOOST_CHECK_NO_THROW(T_ptr->specificTestsFailuresExpected_GUnitTests());
+	}
 }
 
 /*************************************************************************************************/

@@ -39,7 +39,7 @@ namespace Gem
 namespace GenEvA
 {
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The default constructor
  */
@@ -62,7 +62,7 @@ GOptimizationAlgorithm::GOptimizationAlgorithm()
 	 , maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
 { /* nothing */ }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The copy constructor
  *
@@ -87,14 +87,14 @@ GOptimizationAlgorithm::GOptimizationAlgorithm(const GOptimizationAlgorithm& cp)
 	 , maxDuration_(cp.maxDuration_)
 { /* nothing */ }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The destructor
  */
 GOptimizationAlgorithm::~GOptimizationAlgorithm()
 { /* nothing */ }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for equality with another GOptimizationAlgorithm object
  *
@@ -107,7 +107,7 @@ bool GOptimizationAlgorithm::operator==(const GOptimizationAlgorithm& cp) const 
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithm::operator==","cp", CE_SILENT);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for inequality with another GOptimizationAlgorithm object
  *
@@ -121,7 +121,7 @@ bool GOptimizationAlgorithm::operator!=(const GOptimizationAlgorithm& cp) const 
 }
 
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -172,7 +172,7 @@ boost::optional<std::string> GOptimizationAlgorithm::checkRelationshipWith(const
 	return evaluateDiscrepancies("GOptimizationAlgorithm", caller, deviations, e);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Determines whether production of random numbers should happen remotely
  * (RNRFACTORY) or locally (RNRLOCAL)
@@ -183,7 +183,7 @@ void GOptimizationAlgorithm::setRnrGenerationMode(const Gem::Util::rnrGeneration
 	gr.setRnrGenerationMode(rnrGenMode);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the random number generators current generation mode.
  *
@@ -193,7 +193,7 @@ Gem::Util::rnrGenerationMode GOptimizationAlgorithm::getRnrGenerationMode() cons
 	return gr.getRnrGenerationMode();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Loads the data of another GObject
  *
@@ -225,7 +225,7 @@ void GOptimizationAlgorithm::load_(const GObject* cp)
 	maxDuration_ = p_load->maxDuration_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function encapsulates some common functionality of iteration-based
  * optimization algorithms. E.g., they all need a a loop that stops if some
@@ -299,7 +299,7 @@ void GOptimizationAlgorithm::optimize(const boost::uint32_t& startIteration) {
 	resetIndividualPersonalities();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The function checks that the population size meets the requirements and resizes the
  * population to the appropriate size, if required. An obvious precondition is that at
@@ -353,7 +353,7 @@ void GOptimizationAlgorithm::adjustPopulation() {
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Emits information specific to this class. The function can be overloaded
  * in derived classes and it indeed makes sense to emit much more information
@@ -375,7 +375,7 @@ void GOptimizationAlgorithm::doInfo(const infoMode& im) {
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the nominal size of the population
  *
@@ -385,7 +385,7 @@ void GOptimizationAlgorithm::setPopulationSize(const std::size_t& popSize) {
 	defaultPopulationSize_ = popSize;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the default population size
  *
@@ -395,7 +395,7 @@ std::size_t GOptimizationAlgorithm::getDefaultPopulationSize() const {
 	return defaultPopulationSize_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieve the current population size
  *
@@ -405,7 +405,7 @@ std::size_t GOptimizationAlgorithm::getPopulationSize() const {
 	return data.size();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Lets individuals know whether they are part of a maximization or minimization scheme
  */
@@ -414,7 +414,7 @@ void GOptimizationAlgorithm::setIndividualMaxMode() {
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->setMaxMode(maximize_);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Lets individuals know about the current iteration of the optimization
  * cycle.
@@ -424,7 +424,7 @@ void GOptimizationAlgorithm::markIteration() {
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->setParentAlgIteration(iteration_);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Marks the globally best known fitness in all individuals
  */
@@ -433,7 +433,7 @@ void GOptimizationAlgorithm::markBestFitness() {
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->setBestKnownFitness(bestPastFitness_);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Marks the number of stalled optimization attempts in all individuals
  */
@@ -442,7 +442,7 @@ void GOptimizationAlgorithm::markNStalls() {
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->setNStalls(stallCounter_);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Set the number of iterations after which the optimization should
  * be stopped
@@ -453,7 +453,7 @@ void GOptimizationAlgorithm::setMaxIteration(const boost::uint32_t& maxIteration
 	maxIteration_ = maxIteration;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieve the number of iterations after which optimization should
  * be stopped
@@ -464,7 +464,7 @@ boost::uint32_t GOptimizationAlgorithm::getMaxIteration() const {
 	return maxIteration_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the maximum allowed processing time
  *
@@ -485,7 +485,7 @@ void GOptimizationAlgorithm::setMaxTime(const boost::posix_time::time_duration& 
 	maxDuration_ = maxDuration;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the value of the maxDuration_ parameter.
  *
@@ -495,7 +495,7 @@ boost::posix_time::time_duration GOptimizationAlgorithm::getMaxTime() const {
 	return maxDuration_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieve the current iteration of the optimization run
  *
@@ -505,7 +505,7 @@ boost::uint32_t GOptimizationAlgorithm::getIteration() const {
 	return iteration_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the number of iterations after which the algorithm should
  * report about its inner state.
@@ -516,7 +516,7 @@ void GOptimizationAlgorithm::setReportIteration(const boost::uint32_t& iter) {
 	reportIteration_ = iter;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Returns the number of iterations after which the algorithm should
  * report about its inner state.
@@ -527,7 +527,7 @@ boost::uint32_t GOptimizationAlgorithm::getReportIteration() const {
 	return reportIteration_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the current number of failed optimization attempts
  *
@@ -537,7 +537,7 @@ boost::uint32_t GOptimizationAlgorithm::getStallCounter() const {
 	return stallCounter_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieve the current best value found
  *
@@ -547,7 +547,7 @@ double GOptimizationAlgorithm::getBestFitness() const {
 	return bestPastFitness_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Specify whether we want to work in maximization or minimization mode
  *
@@ -557,7 +557,7 @@ void GOptimizationAlgorithm::setMaximize(const bool& maximize) {
 	maximize_ = maximize;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Find out whether we work in maximization or minimization mode
  *
@@ -567,7 +567,7 @@ bool GOptimizationAlgorithm::getMaximize() const {
 	return maximize_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks whether a better solution was found and updates the stallCounter_ variable
  * as necessary.
@@ -589,7 +589,7 @@ bool GOptimizationAlgorithm::ifProgress(const double& bestEval) {
 	return better;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * A helper function that helps to determine whether a given value is better than
  * a given older one. As "better" means something different for maximization and minimization,
@@ -610,7 +610,7 @@ bool GOptimizationAlgorithm::isBetter(double newValue, const double& oldValue) c
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Performs the necessary administratory work of doing check-pointing
  *
@@ -622,7 +622,7 @@ void GOptimizationAlgorithm::checkpoint(const bool& better) const {
 	else if(cpInterval_ && iteration_%cpInterval_ == 0) saveCheckpoint();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Allows to set the number of generations after which a checkpoint should be written
  *
@@ -639,7 +639,7 @@ void GOptimizationAlgorithm::setCheckpointInterval(const boost::int32_t& cpInter
 	cpInterval_ = cpInterval;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Allows to retrieve the number of generations after which a checkpoint should be written
  *
@@ -649,7 +649,7 @@ boost::uint32_t GOptimizationAlgorithm::getCheckpointInterval() const {
 	return cpInterval_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Allows to set the base name of the checkpoint file and the directory where it
  * should be stored.
@@ -689,7 +689,7 @@ void GOptimizationAlgorithm::setCheckpointBaseName(const std::string& cpDirector
     else cpDirectory_ = cpDirectory;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Allows to retrieve the base name of the checkpoint file.
  *
@@ -699,7 +699,7 @@ std::string GOptimizationAlgorithm::getCheckpointBaseName() const {
 	return cpBaseName_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Allows to retrieve the directory where checkpoint files should be stored
  *
@@ -709,7 +709,7 @@ std::string GOptimizationAlgorithm::getCheckpointDirectory() const {
 	return cpDirectory_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the maximum number of generations allowed without improvement of the best
  * individual. Set to 0 in order for this stop criterion to be disabled.
@@ -720,7 +720,7 @@ void GOptimizationAlgorithm::setMaxStallIteration(const boost::uint32_t& maxStal
 	maxStallIteration_ = maxStallIteration;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the maximum number of generations allowed in an optimization run without
  * improvement of the best individual.
@@ -731,7 +731,7 @@ boost::uint32_t GOptimizationAlgorithm::getMaxStallIteration() const {
 	return maxStallIteration_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  *  Sets a quality threshold beyond which optimization is expected to stop
  *
@@ -742,7 +742,7 @@ void GOptimizationAlgorithm::setQualityThreshold(const double& qualityThreshold)
 	hasQualityThreshold_=true;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the current value of the quality threshold and also indicates whether
  * the threshold is active
@@ -756,7 +756,7 @@ double GOptimizationAlgorithm::getQualityThreshold(bool& hasQualityThreshold) co
 }
 
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Removes the quality threshold
  */
@@ -764,7 +764,7 @@ void GOptimizationAlgorithm::unsetQualityThreshold() {
 	hasQualityThreshold_ = false;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks whether a quality threshold has been set
  *
@@ -774,7 +774,7 @@ bool GOptimizationAlgorithm::hasQualityThreshold() const {
 	return hasQualityThreshold_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * It is possible for derived classes to specify in overloaded versions of this
  * function under which conditions the optimization should be stopped. The
@@ -789,7 +789,7 @@ bool GOptimizationAlgorithm::customHalt() const {
 	return false;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function returns true once a given time (set with GOptimizationAlgorithm::setMaxTime())
  * has passed. It is used in the GOptimizationAlgorithm::halt() function.
@@ -806,7 +806,7 @@ bool GOptimizationAlgorithm::timedHalt() const {
 	return false;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function returns true once the quality is below or above a given threshold
  * (depending on whether we maximize or minimize).
@@ -821,7 +821,7 @@ bool GOptimizationAlgorithm::qualityHalt() const {
 	else return false;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function checks whether a halt criterion has been reached. The most
  * common criterion is the maximum number of iterations. Set the maxIteration_
@@ -863,7 +863,7 @@ bool GOptimizationAlgorithm::halt(const boost::uint32_t& iterationOffset) const
 	return false;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Resets the individual's personality types
  */
@@ -872,7 +872,7 @@ void GOptimizationAlgorithm::resetIndividualPersonalities() {
 	for(it=this->begin(); it!=this->end(); ++it) (*it)->resetPersonality();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Possible mutations of a population could involve shifting of individuals.
  * By default, no mutations are defined.
@@ -880,7 +880,7 @@ void GOptimizationAlgorithm::resetIndividualPersonalities() {
 void GOptimizationAlgorithm::customMutations()
 { /* nothing */}
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Fitness calculation for a population means optimization. The fitness is then determined
  * by the best individual which, after the end of the optimization cycle, can be found in
@@ -908,7 +908,7 @@ double GOptimizationAlgorithm::fitnessCalculation() {
 	return val;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Allows derived classes to reset the stall counter. This is e.g. used in the
  * evolutionary algorithm's micro training environment.
@@ -917,7 +917,7 @@ void GOptimizationAlgorithm::resetStallCounter() {
 	stallCounter_ = 0;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Allows derived classes to perform initialization work before the optimization
  * cycle starts
@@ -925,7 +925,7 @@ void GOptimizationAlgorithm::resetStallCounter() {
 void GOptimizationAlgorithm::init()
 { /* nothing */ }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Allows derived classes to perform any remaining work after the
  * optimization cycle has finished
@@ -933,7 +933,40 @@ void GOptimizationAlgorithm::init()
 void GOptimizationAlgorithm::finalize()
 { /* nothing */ }
 
-/***********************************************************************************/
+/************************************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GOptimizationAlgorithm::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GMutableSetT<Gem::GenEvA::GIndividual>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GOptimizationAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GMutableSetT<Gem::GenEvA::GIndividual>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GOptimizationAlgorithm::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GMutableSetT<Gem::GenEvA::GIndividual>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

@@ -186,6 +186,39 @@ void GInt32::load_(const GObject* cp){
 }
 
 /*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GInt32::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GParameterT<boost::int32_t>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GInt32::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GInt32::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

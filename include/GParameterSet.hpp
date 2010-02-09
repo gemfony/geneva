@@ -38,6 +38,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/function.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GPARAMETERSET_HPP_
 #define GPARAMETERSET_HPP_
@@ -53,8 +55,7 @@
 #include "GMutableSetT.hpp"
 #include "GParameterBase.hpp"
 #include "GenevaExceptions.hpp"
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
+#include "GUnitTestFrameworkT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -132,6 +133,13 @@ public:
 
 	/**********************************************************************/
 
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+
 
 protected:
 	/** @brief Loads the data of another GObject */
@@ -148,5 +156,22 @@ protected:
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+// Tests of this class (and parent classes)
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * As the Gem::GenEvA::Gem::GenEvA::GParameterSet has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+boost::shared_ptr<Gem::GenEvA::GParameterSet> TFactory_GUnitTests<Gem::GenEvA::GParameterSet>() {
+	return boost::shared_ptr<Gem::GenEvA::GParameterSet>(new Gem::GenEvA::GParameterSet());
+}
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
 
 #endif /* GPARAMETERSET_HPP_ */

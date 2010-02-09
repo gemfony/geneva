@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GEvolutionaryAlgorithm)
 namespace Gem {
 namespace GenEvA {
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The default constructor, As we do not have any individuals yet, we set the population
  * size, and number of parents to 0. It is the philosophy of this class not
@@ -57,7 +57,7 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
 	, infoFunction_(&GEvolutionaryAlgorithm::simpleInfoFunction)
 { /* nothing */ }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * A standard copy constructor. Note that the generation number is reset to 0 and
  * is not copied from the other object. We assume that a new optimization run will
@@ -76,14 +76,14 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 	, infoFunction_(cp.infoFunction_)
 { /* nothing */ }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The standard destructor. All work is done in the parent class.
  */
 GEvolutionaryAlgorithm::~GEvolutionaryAlgorithm()
 { /* nothing */ }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The standard assignment operator.
  *
@@ -95,7 +95,7 @@ const GEvolutionaryAlgorithm& GEvolutionaryAlgorithm::operator=(const GEvolution
 	return *this;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject.
  *
@@ -118,7 +118,7 @@ void GEvolutionaryAlgorithm::load_(const GObject * cp)
 	infoFunction_ = p_load->infoFunction_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Creates a deep copy of this object
  *
@@ -128,7 +128,7 @@ GObject *GEvolutionaryAlgorithm::clone_() const  {
 	return new GEvolutionaryAlgorithm(*this);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for equality with another GEvolutionaryAlgorithm object
  *
@@ -141,7 +141,7 @@ bool GEvolutionaryAlgorithm::operator==(const GEvolutionaryAlgorithm& cp) const 
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GEvolutionaryAlgorithm::operator==","cp", CE_SILENT);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for inequality with another GEvolutionaryAlgorithm object
  *
@@ -154,7 +154,7 @@ bool GEvolutionaryAlgorithm::operator!=(const GEvolutionaryAlgorithm& cp) const 
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GEvolutionaryAlgorithm::operator!=","cp", CE_SILENT);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -197,7 +197,7 @@ boost::optional<std::string> GEvolutionaryAlgorithm::checkRelationshipWith(const
 	return evaluateDiscrepancies("GEvolutionaryAlgorithm", caller, deviations, e);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the individual's personality types to EA
  */
@@ -206,7 +206,7 @@ void GEvolutionaryAlgorithm::setIndividualPersonalities() {
 	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(EA);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Enforces a one-time selection policy of MUCOMMANU. This is used for updates of
  * the parents' structure in the optimize() function. As the quality of updated
@@ -217,7 +217,7 @@ void GEvolutionaryAlgorithm::setOneTimeMuCommaNu() {
 	oneTimeMuCommaNu_ = true;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Updates the parents' structure, using their updateOnStall function.
  *
@@ -234,7 +234,7 @@ bool GEvolutionaryAlgorithm::updateParentStructure() {
 	return updatePerformed;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Saves the state of the class to disc. The function adds the current generation
  * and the fitness to the base name. We do not save the entire population, but only
@@ -282,7 +282,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	checkpointStream.close();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Loads the state of the class from disc. We do not load the entire population,
  * but only the best individuals of a former optimization run, as these contain the
@@ -336,7 +336,7 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Emits information specific to this population. The function can be overloaded
  * in derived classes. By default we allow the user to register a call-back function
@@ -350,7 +350,7 @@ void GEvolutionaryAlgorithm::doInfo(const infoMode& im) {
 	if(!infoFunction_.empty()) infoFunction_(im, this);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The user can specify what information should be emitted in a call-back function
  * that is registered in the setup phase. This functionality is based on boost::function .
@@ -361,7 +361,7 @@ void GEvolutionaryAlgorithm::registerInfoFunction(boost::function<void (const in
 	infoFunction_ = infoFunction;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Specifies the initial size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
@@ -376,7 +376,7 @@ void GEvolutionaryAlgorithm::setPopulationSize(const std::size_t& popSize, const
 	nParents_ = nParents;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function implements the logic that constitutes evolutionary algorithms. The
  * function is called by GOptimizationAlgorithm for each cycle of the optimization,
@@ -416,7 +416,7 @@ double GEvolutionaryAlgorithm::cycleLogic() {
 }
 
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The function checks that the population size meets the requirements and does some
  * tagging. It is called from within GOptimizationAlgorithm::optimize(), before the
@@ -473,7 +473,7 @@ void GEvolutionaryAlgorithm::init() {
 	defaultNChildren_ = getDefaultPopulationSize() - nParents_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Does any necessary finalization work
  */
@@ -482,7 +482,7 @@ void GEvolutionaryAlgorithm::finalize() {
 	GOptimizationAlgorithm::finalize();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Set the interval in which micro training should be performed. Set the
  * interval to 0 in order to prevent micro training.
@@ -493,7 +493,7 @@ void GEvolutionaryAlgorithm::setMicroTrainingInterval(const boost::uint32_t& mti
 	microTrainingInterval_ = mti;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieve the interval in which micro training should be performed
  *
@@ -503,7 +503,7 @@ boost::uint32_t GEvolutionaryAlgorithm::getMicroTrainingInterval() const {
 	return microTrainingInterval_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieve the number of parents as set by the user. This is a fixed parameter and
  * should not be changed after it has first been set.
@@ -514,7 +514,7 @@ std::size_t GEvolutionaryAlgorithm::getNParents() const {
 	return nParents_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Calculates the current number of children from the number of parents and the
  * size of the vector.
@@ -525,7 +525,7 @@ std::size_t GEvolutionaryAlgorithm::getNChildren() const {
 	return data.size() - nParents_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the sorting scheme. In MUPLUSNU, new parents will be selected from the entire
  * population, including the old parents. In MUCOMMANU new parents will be selected
@@ -539,7 +539,7 @@ void GEvolutionaryAlgorithm::setSortingScheme(const sortingMode& smode) {
 	smode_=smode;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves information about the current sorting scheme (see
  * GEvolutionaryAlgorithm::setSortingScheme() for further information).
@@ -550,7 +550,7 @@ sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
 	return smode_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function is called from GOptimizationAlgorithm::optimize() and performs the
  * actual recombination, based on the recombination schemes defined by the user.
@@ -588,7 +588,7 @@ void GEvolutionaryAlgorithm::recombine()
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function assigns a new value to each child individual according to the chosen
  * recombination scheme.
@@ -654,7 +654,7 @@ void GEvolutionaryAlgorithm::doRecombine() {
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function implements the RANDOMRECOMBINE scheme. This functions uses BOOST's
  * numeric_cast function for safe conversion between std::size_t and uint16_t.
@@ -672,7 +672,7 @@ void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& p) 
 	p->GObject::load(*(data.begin() + p_pos));
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function implements the VALUERECOMBINE scheme. The range [0.,1.[ is divided
  * into nParents_ sub-areas with different size (the largest for the first parent,
@@ -708,7 +708,7 @@ void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, c
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Mutate all children in sequence. Note that this also triggers their value
  * calculation, so this function needs to be overloaded for optimization in a
@@ -733,7 +733,7 @@ void GEvolutionaryAlgorithm::mutateChildren()
 	for(it=data.begin()+nParents_; it!=data.end(); ++it) (*it)->mutate();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Choose new parents, based on the selection scheme set by the user.
  */
@@ -787,7 +787,7 @@ void GEvolutionaryAlgorithm::select()
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Selection, MUPLUSNU style. All individuals of the population (including parents)
  * are sorted. The quality of the population can only increase, but the optimization
@@ -805,7 +805,7 @@ void GEvolutionaryAlgorithm::sortMuplusnuMode() {
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Selection, MUCOMMANU style. New parents are selected from children only. The quality
  * of the population may decrease occasionally from generation to generation, but the
@@ -824,7 +824,7 @@ void GEvolutionaryAlgorithm::sortMucommanuMode() {
 	std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Selection, MUNU1PRETAIN style. This is a hybrid between MUPLUSNU and MUCOMMANU
  * mode. If a better child was found than the best parent of the last generation,
@@ -861,7 +861,7 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This helper function marks parents as parents and children as children.
  */
@@ -876,7 +876,7 @@ void GEvolutionaryAlgorithm::markParents() {
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This helper function lets all individuals know about their position in the
  * population.
@@ -887,7 +887,7 @@ void GEvolutionaryAlgorithm::markIndividualPositions() {
 	for(it=data.begin(); it!=data.end(); ++it) (*it)->getEAPersonalityTraits()->setPopulationPosition(pos++);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the defaultNChildren_ parameter. E.g. in GTransferPopulation::mutateChildren() ,
  * this factor controls when a population is considered to be complete. The corresponding
@@ -900,7 +900,7 @@ std::size_t GEvolutionaryAlgorithm::getDefaultNChildren() const {
 	return defaultNChildren_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Lets the user set the desired recombination method. No sanity checks for the
  * values are necessary, as we use an enum.
@@ -911,7 +911,7 @@ void GEvolutionaryAlgorithm::setRecombinationMethod(const recoScheme& recombinat
 	recombinationMethod_ = recombinationMethod;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the value of the recombinationMethod_ variable
  *
@@ -921,7 +921,40 @@ recoScheme GEvolutionaryAlgorithm::getRecombinationMethod() const {
 	return recombinationMethod_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GEvolutionaryAlgorithm::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GOptimizationAlgorithm::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithm::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithm::specificTestsFailuresExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

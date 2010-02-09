@@ -250,6 +250,39 @@ void GDoubleGaussAdaptor::customMutations(double &value) {
 }
 
 /*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GDoubleGaussAdaptor::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GGaussAdaptorT<double>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

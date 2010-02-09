@@ -64,6 +64,7 @@
 #include "GGlobalOptionsT.hpp"
 #include "GPODExpectationChecksT.hpp"
 #include "GEnums.hpp"
+#include "GUnitTestFrameworkT.hpp"
 
 namespace Gem
 {
@@ -239,6 +240,59 @@ public:
 		return evaluateDiscrepancies("GStartIndividual", caller, deviations, e);
 	}
 
+	/*******************************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() {
+		bool result;
+
+		// Call the parent class'es function
+		if(GParameterSet::modify_GUnitTests()) result = true;
+
+		// Check that this individual actually contains data to be modified
+		if(this->size() != 0) {
+			mutate(); // Perform modifications
+			result = true;
+		}
+
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		const boost::uint32_t NITERATIONS=100;
+
+		// Call the parent class'es function
+		GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+
+		// Create an individual
+		boost::shared_ptr<Gem::GenEvA::GStartIndividual> p
+			= boost::shared_ptr<Gem::GenEvA::GStartIndividual>(new GStartIndividual(1000, -10, 10));
+
+		// Mutate a number of times and check that there were changes
+		double oldfitness = p->fitness();
+		for(boost::uint32_t i=0; i<NITERATIONS; i++) {
+			p->mutate();
+			double newfitness = p->fitness();
+			BOOST_CHECK_MESSAGE(newfitness != oldfitness, "Rare failures are normal for this test / " << i << "/" << NITERATIONS);
+			oldfitness = newfitness;
+		}
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() {
+		// Call the parent class'es function
+		GParameterSet::specificTestsFailuresExpected_GUnitTests();
+	}
 
 protected:
 	/********************************************************************************************/
@@ -314,4 +368,22 @@ private:
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::GenEvA::GStartIndividual)
 
+// Tests of this class (and parent classes)
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * As the Gem::GenEvA::Gem::GenEvA::GStartIndividual has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+boost::shared_ptr<Gem::GenEvA::GStartIndividual> TFactory_GUnitTests<Gem::GenEvA::GStartIndividual>() {
+	return boost::shared_ptr<Gem::GenEvA::GStartIndividual>(new Gem::GenEvA::GStartIndividual(1000,-10.,10.));
+}
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+
 #endif /* GSTARTINDIVIDUAL_HPP_ */
+

@@ -178,6 +178,39 @@ void GDoubleCollection::load_(const GObject* cp){
 }
 
 /*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GDoubleCollection::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GNumCollectionT<double>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

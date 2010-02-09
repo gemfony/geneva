@@ -188,6 +188,39 @@ bool GParameterBase::hasAdaptor() const {
 }
 
 /**********************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GParameterBase::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GObject::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/**********************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GObject::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/**********************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GObject::specificTestsFailuresExpected_GUnitTests();
+}
+
+/**********************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

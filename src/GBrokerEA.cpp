@@ -41,7 +41,7 @@ namespace Gem
 namespace GenEvA
 {
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * The default constructor
  */
@@ -53,7 +53,7 @@ GBrokerEA::GBrokerEA()
     , loopTime_(boost::posix_time::milliseconds(DEFAULTLOOPMSEC))
 { /* nothing */ }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * The standard copy constructor
  *
@@ -67,7 +67,7 @@ GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	, loopTime_(cp.loopTime_)
 { /* nothing */ }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * The standard destructor. We have no object-wide dynamically allocated data, hence
  * this function is empty.
@@ -75,7 +75,7 @@ GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 GBrokerEA::~GBrokerEA()
 { /* nothing */}
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * A standard assignment operator for GBrokerEA objects,
  *
@@ -87,7 +87,7 @@ const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
 	return *this;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Loads the data of another GBrokerEA object, camouflaged as a
  * pointer to a GObject
@@ -107,7 +107,7 @@ void GBrokerEA::load_(const GObject * cp) {
 	loopTime_=p_load->loopTime_;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Creates a deep copy of this object
  *
@@ -117,7 +117,7 @@ GObject *GBrokerEA::clone_() const {
 	return new GBrokerEA(*this);
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for equality with another GBrokerEA object
  *
@@ -130,7 +130,7 @@ bool GBrokerEA::operator==(const GBrokerEA& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBrokerEA::operator==","cp", CE_SILENT);
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for inequality with another GBrokerEA object
  *
@@ -143,7 +143,7 @@ bool GBrokerEA::operator!=(const GBrokerEA& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBrokerEA::operator!=","cp", CE_SILENT);
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -184,7 +184,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(const GObject& cp,
 	return evaluateDiscrepancies("GBrokerEA", caller, deviations, e);
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the waitFactor_ variable. This population measures the time until the
  * first individual has returned. This time times the waitFactor_ variable is
@@ -198,7 +198,7 @@ void GBrokerEA::setWaitFactor(const boost::uint32_t& waitFactor)  {
 	waitFactor_ = waitFactor;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the waitFactor_ and the maximumWaitFactor_ variable. If the latter is
  * != 0, the waitFactor_ will be automatically adapted, based on the number of
@@ -219,7 +219,7 @@ void GBrokerEA::setWaitFactor(const boost::uint32_t& waitFactor, const boost::ui
 	maxWaitFactor_ = maxWaitFactor;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the waitFactor_ variable.
  *
@@ -229,7 +229,7 @@ boost::uint32_t GBrokerEA::getWaitFactor() const  {
 	return waitFactor_;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the maxWaitFactor_ variable.
  *
@@ -239,7 +239,7 @@ boost::uint32_t GBrokerEA::getMaxWaitFactor() const  {
 	return maxWaitFactor_;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the maximum turn-around time for the first individual. When this time
  * has passed, an exception will be raised. Set the time out value to 0 if you
@@ -251,7 +251,7 @@ void GBrokerEA::setFirstTimeOut(const boost::posix_time::time_duration& firstTim
 	firstTimeOut_ = firstTimeOut;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the value of the firstTimeOut_ variable.
  *
@@ -261,7 +261,7 @@ boost::posix_time::time_duration GBrokerEA::getFirstTimeOut() const {
 	return firstTimeOut_;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * When retrieving items from the GBoundedBufferT queue (which in turn is accessed through
  * the GBroker interface), a time-out factor can be set with this function. The
@@ -282,7 +282,7 @@ void GBrokerEA::setLoopTime(const boost::posix_time::time_duration& loopTime) {
 	loopTime_ = loopTime;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the value of the loopTime_ variable
  *
@@ -292,7 +292,7 @@ boost::posix_time::time_duration GBrokerEA::getLoopTime() const {
 	return loopTime_;
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Performs any necessary initialization work before the start of the optimization cycle
  */
@@ -322,7 +322,7 @@ void GBrokerEA::init() {
 	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Performs any necessary finalization work after the end of the optimization cycle
  */
@@ -337,7 +337,7 @@ void GBrokerEA::finalize() {
 	GEvolutionaryAlgorithm::finalize();
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * Starting from the end of the children's list, we submit individuals  to the
  * broker. In the first generation, in the case of the MUPLUSNU sorting strategy,
@@ -629,7 +629,7 @@ void GBrokerEA::mutateChildren() {
 	// in this case, and new parents and children will be tagged after the select function.
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
 /**
  * We will at this point have a population with at least the default number
  * of individuals. More individuals are allowed. the population will be
@@ -651,7 +651,40 @@ void GBrokerEA::select() {
 	// Everything should be back to normal ...
 }
 
-/******************************************************************************/
+/************************************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GBrokerEA::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GEvolutionaryAlgorithm::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GBrokerEA::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GBrokerEA::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

@@ -211,6 +211,39 @@ void GBoundedDouble::load_(const GObject* cp){
 }
 
 /*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GBoundedDouble::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GBoundedNumT<double>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GBoundedDouble::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GBoundedNumT<double>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GBoundedDouble::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GBoundedNumT<double>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

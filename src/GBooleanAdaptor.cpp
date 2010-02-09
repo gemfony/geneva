@@ -195,6 +195,39 @@ void GBooleanAdaptor::customMutations(bool& value) {
 }
 
 /*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GBooleanAdaptor::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GIntFlipAdaptorT<bool>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*****************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GIntFlipAdaptorT<bool>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*****************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GIntFlipAdaptorT<bool>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*****************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

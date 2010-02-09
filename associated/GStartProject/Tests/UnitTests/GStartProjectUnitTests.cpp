@@ -29,67 +29,20 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
 
 using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
-#include "GStartIndividual.hpp" // The class to be tested
+// The class to be tested
+#include "GStartIndividual.hpp"
 
-#include "GStandard_test.hpp" // Contains the necessary tests
+// Contains the necessary tests
+#include "GStandard_test.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
 using namespace Gem::GenEvA;
-
-
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
-/**
- * As the GStartIndividual has a private default constructor, we need to provide a
- * specialization of the factory function that creates GStartProjectIndividual objects
- */
-template <>
-GStartIndividual *TFactory<GStartIndividual>() {
-	return new GStartIndividual(100,-1.,1.);
-}
-
-/*************************************************************************************************/
-/**
- * Performs specific modifications for this object. This is needed by the standard tests defined
- * by Geneva.
- * As we know that the object is filled
- * with data, we simply call mutate().
- *
- * @return A boolean indicating that a modification has indeed happened
- */
-template <>
-bool modify<GStartIndividual>(GStartIndividual& cp) {
-	cp.mutate();
-	return true;
-}
-
-/*************************************************************************************************/
-/**
- * This function performs specific tests for GStartIndividual. Add further tests here when you
- * add functionality to your individual.
- */
-template <>
-void specificTestsFailuresExpected<GStartIndividual>() {
-	const boost::uint32_t NITERATIONS=100;
-
-	// Create an individual
-	boost::shared_ptr<GStartIndividual> p(TFactory<GStartIndividual>());
-
-	// Mutate a number of times and check that there were changes
-	double oldfitness = p->fitness();
-	for(boost::uint32_t i=0; i<NITERATIONS; i++) {
-		p->mutate();
-		double newfitness = p->fitness();
-		BOOST_CHECK_MESSAGE(newfitness != oldfitness, "Rare failures are normal for this test / " << i);
-		oldfitness = newfitness;
-	}
-}
 
 /************************************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////

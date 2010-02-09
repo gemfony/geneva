@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GMultiThreadedEA)
 namespace Gem {
 namespace GenEvA {
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * A standard constructor. No local, dynamically allocated data,
  * hence this function is empty.
@@ -50,7 +50,7 @@ GMultiThreadedEA::GMultiThreadedEA()
    , tp_(nThreads_)
 { /* nothing */ }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * A standard copy constructor. Note that we do not copy le_value_ as
  * it is used for internal caching only.
@@ -63,7 +63,7 @@ GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
    , tp_(nThreads_)
 { /* nothing */ }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * The standard destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
@@ -73,7 +73,7 @@ GMultiThreadedEA::~GMultiThreadedEA() {
 	tp_.wait();
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * A standard assignment operator for GMultiThreadedEA objects.
  *
@@ -85,7 +85,7 @@ const GMultiThreadedEA& GMultiThreadedEA::operator=(const GMultiThreadedEA& cp) 
 	return *this;
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * Loads the data from another GMultiThreadedEA object.
  *
@@ -108,7 +108,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 	// Note that we do not copy le_value_ as it is used for internal caching only
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * Creates a deep clone of this object
  *
@@ -118,7 +118,7 @@ GObject *GMultiThreadedEA::clone_() const  {
 	return new GMultiThreadedEA(*this);
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for equality with another GMultiThreadedEA object
  *
@@ -131,7 +131,7 @@ bool GMultiThreadedEA::operator==(const GMultiThreadedEA& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedEA::operator==","cp", CE_SILENT);
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for inequality with another GMultiThreadedEA object
  *
@@ -144,7 +144,7 @@ bool GMultiThreadedEA::operator!=(const GMultiThreadedEA& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedEA::operator!=","cp", CE_SILENT);
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -183,7 +183,7 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObje
 }
 
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
@@ -200,7 +200,7 @@ void GMultiThreadedEA::init() {
 	}
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * Necessary clean-up work after the optimization has finished
  */
@@ -219,7 +219,7 @@ void GMultiThreadedEA::finalize() {
 	GEvolutionaryAlgorithm::finalize();
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * An overloaded version of GEvolutionaryAlgorithm::mutateChildren() . Mutation
  * and evaluation of children is handled by threads in a thread pool. The maximum
@@ -251,7 +251,7 @@ void GMultiThreadedEA::mutateChildren() {
 	tp_.wait();
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the number of threads for this population. If nThreads is set
  * to 0, an attempt will be made to set the number of threads to the
@@ -278,7 +278,7 @@ void GMultiThreadedEA::setNThreads(const boost::uint8_t& nThreads) {
 	tp_.size_controller().resize(nThreads_);
 }
 
-/********************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the number of threads this population uses.
  *
@@ -288,7 +288,40 @@ uint8_t GMultiThreadedEA::getNThreads() const  {
 	return nThreads_;
 }
 
-/********************************************************************/
+/************************************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GMultiThreadedEA::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GEvolutionaryAlgorithm::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GMultiThreadedEA::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GMultiThreadedEA::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

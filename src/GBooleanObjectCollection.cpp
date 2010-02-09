@@ -163,6 +163,39 @@ void GBooleanObjectCollection::load_(const GObject* cp){
 }
 
 /*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GBooleanObjectCollection::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GParameterTCollectionT<GBoolean>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterTCollectionT<GBoolean>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterTCollectionT<GBoolean>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

@@ -39,7 +39,7 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GSwarm)
 namespace Gem {
 namespace GenEvA {
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The default constructor, As we do not have any individuals yet, we set the population
  * size, and number of parents to 0. It is the philosophy of this class not
@@ -53,7 +53,7 @@ GSwarm::GSwarm()
 	setPopulationSize(DEFAULTNNEIGHBORHOODS, DEFAULTNNEIGHBORHOODMEMBERS);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * A standard copy constructor. Note that the generation number is reset to 0 and
  * is not copied from the other object. We assume that a new optimization run will
@@ -74,14 +74,14 @@ GSwarm::GSwarm(const GSwarm& cp)
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The standard destructor. All work is done in the parent class.
  */
 GSwarm::~GSwarm()
 { /* nothing */ }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The standard assignment operator.
  *
@@ -93,7 +93,7 @@ const GSwarm& GSwarm::operator=(const GSwarm& cp) {
 	return *this;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Loads the data of another GSwarm object, camouflaged as a GObject.
  *
@@ -116,7 +116,7 @@ void GSwarm::load_(const GObject * cp)
 	copySmartPointerVector(p_load->local_bests_, local_bests_);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Creates a deep copy of this object
  *
@@ -126,7 +126,7 @@ GObject *GSwarm::clone_() const  {
 	return new GSwarm(*this);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for equality with another GSwarm object
  *
@@ -139,7 +139,7 @@ bool GSwarm::operator==(const GSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarm::operator==","cp", CE_SILENT);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks for inequality with another GSwarm object
  *
@@ -152,7 +152,7 @@ bool GSwarm::operator!=(const GSwarm& cp) const {
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarm::operator!=","cp", CE_SILENT);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
@@ -193,7 +193,7 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
 	return evaluateDiscrepancies("GSwarm", caller, deviations, e);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the individual's personality types to EA
  */
@@ -202,7 +202,7 @@ void GSwarm::setIndividualPersonalities() {
 	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(SWARM);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Saves the state of the class to disc. The function adds the current generation
  * and the fitness to the base name. We do not save the entire population, but only
@@ -214,7 +214,7 @@ void GSwarm::saveCheckpoint() const {
 	/* nothing */
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Loads the state of the class from disc. We do not load the entire population,
  * but only the best individuals of a former optimization run, as these contain the
@@ -224,7 +224,7 @@ void GSwarm::loadCheckpoint(const std::string& cpFile) {
 	/* nothing */
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Emits information specific to this population. The function can be overloaded
  * in derived classes. By default we allow the user to register a call-back function
@@ -238,7 +238,7 @@ void GSwarm::doInfo(const infoMode& im) {
 	if(!infoFunction_.empty()) infoFunction_(im, this);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The user can specify what information should be emitted in a call-back function
  * that is registered in the setup phase. This functionality is based on boost::function .
@@ -249,7 +249,7 @@ void GSwarm::registerInfoFunction(boost::function<void (const infoMode&, GSwarm 
 	infoFunction_ = infoFunction;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * This function implements the logic that constitutes evolutionary algorithms. The
  * function is called by GOptimizationAlgorithm for each cycle of the optimization,
@@ -262,7 +262,7 @@ double GSwarm::cycleLogic() {
 }
 
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * The function checks that the population size meets the requirements and does some
  * tagging. It is called from within GOptimizationAlgorithm::optimize(), before the
@@ -276,7 +276,7 @@ void GSwarm::init() {
 	updatePersonalities();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Does any necessary finalization work
  */
@@ -285,7 +285,7 @@ void GSwarm::finalize() {
 	GOptimizationAlgorithm::finalize();
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the local multiplier used when calculating velocities to a fixed value
  * in all individuals. This function results in a fixed factor.
@@ -296,7 +296,7 @@ void GSwarm::setCLocal(const double& c1) {
 
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the local multiplier of each individual randomly within a given range
  */
@@ -304,7 +304,7 @@ void GSwarm::setCLocal(const double&, const double&) {
 
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the global multiplier used when calculating velocities to a fixed value in
  * all individuals
@@ -313,7 +313,7 @@ void GSwarm::setCGlobal(const double&) {
 
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the global multiplier of each individual randomly within a given range
  */
@@ -321,7 +321,7 @@ void GSwarm::setCGlobal(const double&, const double&) {
 
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the velocity multiplier to a fixed value for each individual
  */
@@ -329,7 +329,7 @@ void GSwarm::setCVelocity(const double&) {
 
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the velocity multiplier to a random value separately for each individual
  */
@@ -337,7 +337,7 @@ void GSwarm::setCVelocity(const double&, const double&) {
 
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Sets the population size based on the number of neighborhoods and the number of
  * individuals in them
@@ -352,7 +352,7 @@ void GSwarm::setPopulationSize(const std::size_t& nNeighborhoods, const std::siz
 	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*nNeighborhoodMembers_);
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the number of neighborhoods
  *
@@ -362,7 +362,7 @@ std::size_t GSwarm::getNNeighborhoods() const {
 	return nNeighborhoodMembers_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the number of individuals in each neighborhood
  *
@@ -372,7 +372,7 @@ std::size_t GSwarm::getNNeighborhoodMembers() const {
 	return nNeighborhoodMembers_;
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the local multiplier
  */
@@ -380,7 +380,7 @@ double GSwarm::getCLocal() const {
 
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the global multiplier
  */
@@ -388,7 +388,7 @@ double GSwarm::getCGlobal() const {
 
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Retrieves the velocity multiplier
  */
@@ -396,7 +396,7 @@ double GSwarm::getCVelocity() const {
 
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
 /**
  * Helper function that updates the personality information
  */
@@ -428,7 +428,40 @@ void GSwarm::updatePersonalities() {
 	}
 }
 
-/***********************************************************************************/
+/************************************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GSwarm::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GOptimizationAlgorithm::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GSwarm::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithm::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GSwarm::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithm::specificTestsFailuresExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

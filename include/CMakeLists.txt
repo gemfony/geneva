@@ -72,6 +72,7 @@ SET ( GENEVAINCLUDES
 	GSingletonT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GStdSimpleVectorInterfaceT.hpp
+	GUnitTestFrameworkT.hpp
 #	GSwarm.hpp
 	GSwarmAdaptor.hpp
 	GSwarmPersonalityTraits.hpp

@@ -254,6 +254,42 @@ public:
 		return GStdPtrVectorInterfaceT<T>::operator=(cp_data);
 	}
 
+	/*******************************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() {
+		bool result;
+
+		// Call the parent classes' functions
+		if(GParameterBaseWithAdaptorsT<typename T::p_type>::modify_GUnitTests()) result = true;
+		if(GStdPtrVectorInterfaceT<T>::modify_GUnitTests()) result = true;
+
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		// Call the parent classes' functions
+		GParameterBaseWithAdaptorsT<typename T::p_type>::specificTestsNoFailureExpected_GUnitTests();
+		GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() {
+		// Call the parent classes' functions
+		GParameterBaseWithAdaptorsT<typename T::p_type>::specificTestsFailuresExpected_GUnitTests();
+		GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
+	}
+
 protected:
 	/*******************************************************************************************/
 	/**

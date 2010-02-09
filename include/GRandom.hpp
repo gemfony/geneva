@@ -57,7 +57,8 @@
 #include <boost/cast.hpp>
 #include <boost/function.hpp>
 #include <boost/random/linear_congruential.hpp>
-
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GRANDOM_HPP_
 #define GRANDOM_HPP_
@@ -227,10 +228,53 @@ public:
 	/** @brief Produces two gaussians with defined distance */
 	double doubleGaussRandom(const double&, const double&, const double&);
 
-	/** @brief Produces integer random numbers in the range of [0, max[  */
-	template <typename int_type> int_type discreteRandom(const int_type&);
-	/** @brief Produces integer random numbers in the range of [min, max[ . */
-	template <typename int_type> int_type discreteRandom(const int_type&, const int_type&);
+	/****************************************************************************/
+	/**
+	 * This function produces integer random numbers in the range of [0, max[ .
+	 *
+	 * @param max The maximum (excluded) value of the range
+	 * @return Discrete random numbers evenly distributed in the range [0,max[
+	 */
+	template <typename int_type>
+	int_type discreteRandom(
+			  const int_type& max
+			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
+	) {
+	#ifdef DEBUG
+		int_type result = boost::numeric_cast<int_type> (evenRandom(boost::numeric_cast<double> (max)));
+		assert(result<max);
+		return result;
+	#else
+		return static_cast<int_type>(evenRandom(static_cast<double>(max)));
+	#endif
+	}
+
+	/*************************************************************************/
+	/**
+	 * This function produces integer random numbers in the range of [min, max[ .
+	 * Note that max may also be < 0. .
+	 *
+	 * @param min The minimum value of the range
+	 * @param max The maximum (excluded) value of the range
+	 * @return Discrete random numbers evenly distributed in the range [min,max[
+	 */
+	template <typename int_type>
+	int_type discreteRandom(
+			  const int_type& min
+			, const int_type& max
+			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
+	) {
+	#ifdef DEBUG
+		assert(min < max);
+		int_type result = boost::numeric_cast<int_type>(discreteRandom(max - min) + min);
+		assert(result>=min && result<max);
+		return result;
+	#else
+		return discreteRandom(max - min) + min;
+	#endif
+	}
+
+	/*************************************************************************/
 
 	/** @brief Produces bool values with a 50% likelihood each for true and false. */
 	bool boolRandom();
@@ -288,52 +332,6 @@ private:
 };
 
 /****************************************************************************/
-/**
- * This function produces integer random numbers in the range of [0, max[ .
- *
- * @param max The maximum (excluded) value of the range
- * @return Discrete random numbers evenly distributed in the range [0,max[
- */
-template <typename int_type>
-int_type GRandom::discreteRandom(const int_type& max) {
-#ifdef DEBUG
-	int_type result = boost::numeric_cast<int_type> (evenRandom(boost::numeric_cast<double> (max)));
-	assert(result<max);
-	return result;
-#else
-	return static_cast<int_type>(evenRandom(static_cast<double>(max)));
-#endif
-}
-
-/*************************************************************************/
-/**
- * This function produces integer random numbers in the range of [min, max[ .
- * Note that max may also be < 0. .
- *
- * @param min The minimum value of the range
- * @param max The maximum (excluded) value of the range
- * @return Discrete random numbers evenly distributed in the range [min,max[
- */
-template <typename int_type>
-int_type GRandom::discreteRandom(const int_type& min, const int_type& max) {
-#ifdef DEBUG
-	assert(min < max);
-	int_type result = boost::numeric_cast<int_type>(discreteRandom(max - min) + min);
-	assert(result>=min && result<max);
-	return result;
-#else
-	return discreteRandom(max - min) + min;
-#endif
-}
-
-/*************************************************************************/
-
-template <> double GRandom::discreteRandom(const double&); ///< Specialization for double
-template <>	double GRandom::discreteRandom(const double&, const double&); ///< Specialization for double
-template <> float GRandom::discreteRandom(const float&); ///< Specialization for float
-template <>	float GRandom::discreteRandom(const float&, const float&); ///< Specialization for float
-template <> bool GRandom::discreteRandom(const bool&); ///< Specialization for bool
-template <>	bool GRandom::discreteRandom(const bool&, const bool&); ///< Specialization for bool
 
 } /* namespace Util */
 } /* namespace Gem */

@@ -74,7 +74,7 @@
 namespace Gem {
 namespace GenEvA {
 
-/********************************************************************************/
+/******************************************************************************************************/
 /**
  * This class implements the most important functions of the std::vector
  * class. It is intended to hold boost::shared_ptr smart pointers. Hence
@@ -106,13 +106,15 @@ class GStdPtrVectorInterfaceT
     ///////////////////////////////////////////////////////////////////////
 
 public:
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * The default constructor
 	 */
 	GStdPtrVectorInterfaceT() { /* nothing */ }
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Copy construction. The content of the smart pointers is cloned (if content is
 	 * available).
@@ -126,7 +128,8 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * The destructor. Destruction of the objects will be taken care of
 	 * by boost::shared_ptr<T>.
@@ -135,7 +138,8 @@ public:
 		data.clear();
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Assginment operator
 	 *
@@ -147,7 +151,8 @@ public:
 		return cp;
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Assignment of a std::vector<boost::shared_ptr<T> > . As the vector contains smart
 	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
@@ -191,7 +196,8 @@ public:
 		return cp;
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -228,7 +234,8 @@ public:
 		return evaluateDiscrepancies(className, caller, deviations, e);
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -265,7 +272,8 @@ public:
 		return evaluateDiscrepancies(className, caller, deviations, e);
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	// Typedefs
 	typedef typename std::vector<boost::shared_ptr<T> >::value_type value_type;
 	typedef typename std::vector<boost::shared_ptr<T> >::reference reference;
@@ -279,7 +287,8 @@ public:
 	typedef typename std::vector<boost::shared_ptr<T> >::size_type size_type;
 	typedef typename std::vector<boost::shared_ptr<T> >::difference_type difference_type;
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	// Non modifying access
 	size_type size() const { return data.size(); }
 	bool empty() const { return data.empty(); }
@@ -288,7 +297,8 @@ public:
 	size_type capacity() const { return data.capacity(); }
 	void reserve(size_type amount) { data.reserve(amount); }
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * A small helper class that compares two items and checks for equality, depending on the current mode
 	 */
@@ -315,7 +325,8 @@ public:
 		}
 	};
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * A small helper class that compares two items of identical type
 	 * and checks for equality, depending on the current mode
@@ -329,7 +340,8 @@ public:
 		}
 	};
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Counts the elements whose content is equal to the content of item.
 	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
@@ -355,7 +367,8 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Searches for the content of item in the entire range of the vector. Needs to be
 	 * re-implemented here, as we are dealing with a collection of smart pointers
@@ -379,7 +392,8 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	// Modifying functions
 
 	// Exchange of two data sets
@@ -411,11 +425,13 @@ public:
 	reverse_iterator rend() { return data.rend(); }
 	const_reverse_iterator rend() const { return data.rend(); }
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	// Insertion and removal
 
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Inserts a given item at position pos. Behavior defaults
 	 * to isert_noclone(pos,item).
@@ -427,7 +443,8 @@ public:
 		return this->insert_noclone(pos, item_ptr);
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere. Note that the shared_ptr will inserted itself. Hence any Change you
@@ -448,7 +465,8 @@ public:
 		return data.insert(pos, item_ptr);
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere. This function clones the item, hence changes to the argument after
@@ -469,7 +487,8 @@ public:
 		return data.insert(pos, item_ptr->GObject::clone<T>());
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Inserts a given amount of items at position pos. Defaults to
 	 * insert_clone(pos, amount, item_ptr)
@@ -482,7 +501,8 @@ public:
 		this->insert_clone(pos, amount, item_ptr);
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Inserts a given amount of items at position pos. Will always clone.
 	 *
@@ -506,7 +526,8 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Inserts a given amount of items at position pos. Will not clone the argument.
 	 * Note that changes made to item_ptr's object after a call to this function will
@@ -535,7 +556,8 @@ public:
 		data.insert(data.begin() + iterator_pos, item_ptr);
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. The function defaults to
 	 * push_back_noclone
@@ -546,7 +568,8 @@ public:
 		this->push_back_noclone(item_ptr);
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. Note that the shared_ptr
 	 * will inserted itself. Hence any Change you might make to the object pointed
@@ -566,7 +589,8 @@ public:
 		data.push_back(item_ptr);
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. The object pointed to
 	 * will be cloned. Hence changes to it after a call to this function will not
@@ -586,7 +610,8 @@ public:
 		data.push_back(item_ptr->GObject::clone<T>());
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 
 	// Removal at a given position or in a range
 	iterator erase(iterator pos) { return data.erase(pos); }
@@ -595,7 +620,8 @@ public:
 	// Removing an element from the end of the vector
 	void pop_back(){ data.pop_back(); }
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Resizing the vector. An increase in size is only allowed if at least one item
 	 * is already stored in the collection. The first stored item will then be cloned
@@ -618,7 +644,8 @@ public:
 		this->resize_clone(amount, this->at(0));
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Resizing the vector, initialization with item. This function is a front end
 	 * to resize_clone()
@@ -630,7 +657,8 @@ public:
 		resize_clone(amount, item_ptr);
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). Note that item_ptr will become part
@@ -665,7 +693,8 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). item_ptr will be cloned. Hence
@@ -695,11 +724,13 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/** @brief Clearing the data vector */
 	void clear() { data.clear(); }
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Creates a copy of the data vector. It is assumed that cp is empty or that
 	 * all data in it can be deleted.
@@ -713,7 +744,8 @@ public:
 			cp.push_back((*it)->GObject::clone<T>());
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/**
 	 * Returns a view on the vector's content, filtering out only items of specific
 	 * type.
@@ -730,7 +762,13 @@ public:
 		}
 	}
 
-	/*****************************************************************************/
+	/**************************************************************************************************/
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */ }
 
 protected:
 	std::vector<boost::shared_ptr<T> > data;
@@ -739,7 +777,8 @@ protected:
 	virtual void dummyFunction() = 0;
 
 private:
-	/*****************************************************************************/
+	/**************************************************************************************************/
+
 	/** @brief Intentionally left undefined */
 	bool operator==(const GStdPtrVectorInterfaceT<T>&) const;
 	/** @brief Intentionally left undefined */

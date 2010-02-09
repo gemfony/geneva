@@ -185,6 +185,39 @@ Gem::GenEvA::adaptorId GInt32FlipAdaptor::getAdaptorId() const {
 }
 
 /*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GInt32FlipAdaptor::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GIntFlipAdaptorT<boost::int32_t>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*****************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GIntFlipAdaptorT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*****************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GIntFlipAdaptorT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*****************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

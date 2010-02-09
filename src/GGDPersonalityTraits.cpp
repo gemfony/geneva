@@ -182,6 +182,39 @@ std::string GGDPersonalityTraits::getCommand() const {
 }
 
 /*****************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GGDPersonalityTraits::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GPersonalityTraits::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*****************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GGDPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*****************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*****************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

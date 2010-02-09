@@ -63,8 +63,7 @@
 #include <boost/optional.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
-
-
+#include <boost/test/unit_test.hpp>
 
 #ifndef GOBJECT_HPP_
 #define GOBJECT_HPP_
@@ -81,6 +80,7 @@
 #include "GenevaExceptions.hpp"
 #include "GEnums.hpp"
 #include "GHelperFunctionsT.hpp"
+#include "GUnitTestFrameworkT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -190,6 +190,12 @@ public:
 	}
 
 	/**************************************************************************************************/
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests() { return false; }
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing - no local data */ }
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing - no local data */ }
 
 protected:
 	/** @brief Loads the data of another GObject */
@@ -254,12 +260,18 @@ template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
 } /* namespace GenEvA */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/**********************************************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GObject)
 
-/**************************************************************************************************/
+/**********************************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**********************************************************************************************************/
+// Tests for the GObject class
+
+
+
 
 #endif /* GOBJECT_HPP_ */

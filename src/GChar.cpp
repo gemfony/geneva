@@ -187,6 +187,39 @@ void GChar::load_(const GObject* cp){
 }
 
 /*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GChar::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GParameterT<char>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GChar::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterT<char>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GChar::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterT<char>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

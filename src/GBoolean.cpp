@@ -84,7 +84,6 @@ const bool& GBoolean::operator=(const bool& val) {
 	return GParameterT<bool>::operator=(val);
 }
 
-
 /*******************************************************************************************/
 /**
  * A standard assignment operator.
@@ -184,6 +183,39 @@ void GBoolean::load_(const GObject* cp){
 	GParameterT<bool>::load_(cp);
 
 	// ... no local data
+}
+
+/*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GBoolean::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GParameterT<bool>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GBoolean::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterT<bool>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GBoolean::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterT<bool>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

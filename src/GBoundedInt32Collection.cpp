@@ -164,6 +164,39 @@ void GBoundedInt32Collection::load_(const GObject* cp){
 }
 
 /*******************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GBoundedInt32Collection::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GParameterTCollectionT<GBoundedInt32>::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GBoundedInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterTCollectionT<GBoundedInt32>::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GBoundedInt32Collection::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GParameterTCollectionT<GBoundedInt32>::specificTestsFailuresExpected_GUnitTests();
+}
+
+/*******************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

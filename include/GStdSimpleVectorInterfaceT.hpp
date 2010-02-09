@@ -340,6 +340,13 @@ public:
 	void getDataCopy(std::vector<T>& cp) const {	cp=data; 	}
 
 	/*****************************************************************************/
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */  }
+
 
 protected:
 	std::vector<T> data;
