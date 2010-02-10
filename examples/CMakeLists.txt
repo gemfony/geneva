@@ -9,14 +9,6 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GBrokerEA
-)
-
-ADD_SUBDIRECTORY (
-	GExternalEvaluator
-)
-
-ADD_SUBDIRECTORY (
 	InfoFunctionUsage
 )
 

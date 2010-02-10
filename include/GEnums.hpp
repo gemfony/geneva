@@ -123,8 +123,8 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
  * The allowed modes during data exchange with external programs
  */
 enum dataExchangeMode {
-	BINARYEXCHANGE,
-	TEXTEXCHANGE
+	  BINARYEXCHANGE
+	, TEXTEXCHANGE
 };
 
 /**********************************************************************************************/
@@ -132,9 +132,9 @@ enum dataExchangeMode {
  * The serialization modes that are currently allowed
  */
 enum serializationMode {
-	TEXTSERIALIZATION,
-	XMLSERIALIZATION,
-	BINARYSERIALIZATION
+	  TEXTSERIALIZATION
+	, XMLSERIALIZATION
+	, BINARYSERIALIZATION
 };
 
 /**********************************************************************************************/
@@ -145,9 +145,9 @@ enum serializationMode {
  * - VALUERECOMBINE prefers parents with a higher fitness
  */
 enum recoScheme {
-	DEFAULTRECOMBINE,
-	RANDOMRECOMBINE,
-	VALUERECOMBINE
+	  DEFAULTRECOMBINE
+	, RANDOMRECOMBINE
+	, VALUERECOMBINE
 };
 
 /**********************************************************************************************/
@@ -155,9 +155,9 @@ enum recoScheme {
  * The info function can be called in these three modes
  */
 enum infoMode {
-	INFOINIT,
-	INFOPROCESSING,
-	INFOEND
+	  INFOINIT
+	, INFOPROCESSING
+	, INFOEND
 };
 
 /**********************************************************************************************/
@@ -165,13 +165,12 @@ enum infoMode {
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
 enum adaptorId {
-	GIDENTITYADAPTOR,
-	GSWARMADAPTOR,
-	GDOUBLEGAUSSADAPTOR,
-	GINT32GAUSSADAPTOR,
-	GBOOLEANADAPTOR,
-	GINT32FLIPADAPTOR,
-	GCHARFLIPADAPTOR
+	  GIDENTITYADAPTOR
+	, GSWARMADAPTOR
+	, GDOUBLEGAUSSADAPTOR
+	, GINT32GAUSSADAPTOR
+	, GBOOLEANADAPTOR
+	, GINT32FLIPADAPTOR
 };
 
 /**********************************************************************************************/
@@ -182,9 +181,9 @@ enum adaptorId {
  * (unless a better child was found). All other parents are selected from children only.
  */
 enum sortingMode {
-	MUPLUSNU,
-	MUCOMMANU,
-	MUNU1PRETAIN
+	  MUPLUSNU
+	, MUCOMMANU
+	, MUNU1PRETAIN
 };
 
 /**********************************************************************************************/
@@ -194,10 +193,10 @@ enum sortingMode {
  * in them (see the GPersonalityTraits classes).
  */
 enum personality {
-	NONE,
-	EA,
-	GD,
-	SWARM
+	  NONE
+	, EA
+	, GD
+	, SWARM
 };
 
 /**********************************************************************************************/
@@ -222,8 +221,8 @@ namespace Util {
  * Random number generation can happen in two modes
  */
 enum rnrGenerationMode {
-	RNRFACTORY,
-	RNRLOCAL
+	  RNRFACTORY
+	, RNRLOCAL
 };
 
 /**
@@ -236,9 +235,9 @@ const rnrGenerationMode DEFAULTRNRGENMODE=RNRLOCAL;
  * Needed for the serialization of boost::logic::tribool
  */
 enum triboolStates {
-	FALSE,
-	INDETERMINATE,
-	TRUE
+	  FALSE
+	, INDETERMINATE
+	, TRUE
 };
 
 /**********************************************************************************************/
@@ -253,9 +252,9 @@ const bool CE_WITH_MESSAGES = true;
  * Needed to express expectations in testing framework
  */
 enum expectation {
-	CE_EQUALITY, // bitwise equality of all checked components
-	CE_INEQUALITY, // at least one checked component differs
-	CE_FP_SIMILARITY // equality for non-floating point components, similarity for floating point
+	  CE_EQUALITY // bitwise equality of all checked components
+	, CE_INEQUALITY // at least one checked component differs
+	, CE_FP_SIMILARITY // equality for non-floating point components, similarity for floating point
 };
 
 /**********************************************************************************************/

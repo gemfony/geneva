@@ -54,8 +54,6 @@
 #include "GParameterT.hpp"
 #include "GBoolean.hpp"
 #include "GBooleanAdaptor.hpp"
-#include "GChar.hpp"
-#include "GCharFlipAdaptor.hpp"
 #include "GInt32.hpp"
 #include "GInt32FlipAdaptor.hpp"
 #include "GInt32GaussAdaptor.hpp"
@@ -174,35 +172,6 @@ public:
 	}
 
 	/***********************************************************************************/
-	// Test features that are expected to work: char case
-	void char_no_failure_expected() {
-		// Default construction
-		GChar gpt0;
-
-		// Adding a single adaptor
-		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor())));
-
-		// Retrieve the adaptor again, as a GAdaptorT
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<char> > gadb0_ptr = gpt0.getAdaptor());
-
-		// Retrieve the adaptor in its original form
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GCharFlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GCharFlipAdaptor>());
-
-		// Check mutations
-		const std::size_t NMUTATIONS=10000;
-		std::vector<char> mutvals(NMUTATIONS);
-		char originalValue = gpt0.value();
-		for(std::size_t i=0; i<NMUTATIONS; i++) {
-			BOOST_CHECK_NO_THROW(gpt0.mutate());
-			mutvals[i] = gpt0.value();
-		}
-
-		// Check that values do not stay the same for a larger number of mutations
-		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
-		BOOST_CHECK(nOriginalValues < NMUTATIONS);
-	}
-
-	/***********************************************************************************/
 	// Test features that are expected to work: boost::int32_t case
 	void int32_no_failure_expected() {
 		GInt32 gpt0;
@@ -274,7 +243,7 @@ public:
 			GInt32 gpt0;
 			// Extracting an adaptor of wrong type should throw in DEBUG mode
 			BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
-			BOOST_CHECK_THROW(gpt0.adaptor_cast<GCharFlipAdaptor>(), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gpt0.adaptor_cast<GBooleanAdaptor>(), Gem::GenEvA::geneva_error_condition);
 		}
 #endif /* DEBUG */
 
@@ -301,20 +270,18 @@ class GParameterTSuite: public test_suite
 {
 public:
 	GParameterTSuite() :test_suite("GParameterTSuite") {
-		typedef boost::mpl::list<GBoolean, GChar, GInt32, GDouble> test_types;
+		typedef boost::mpl::list<GBoolean, GInt32, GDouble> test_types;
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, test_types ) );
 
 		// create an instance of the test cases class
 		boost::shared_ptr<GParameterT_test> instance(new GParameterT_test());
 
 		test_case* GParameterT_bool_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::bool_no_failure_expected, instance);
-		test_case* GParameterT_char_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::char_no_failure_expected, instance);
 		test_case* GParameterT_int32_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::int32_no_failure_expected, instance);
 		test_case* GParameterT_double_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::double_no_failure_expected, instance);
 		test_case* GParameterT_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GParameterT_test::failures_expected, instance);
 
 		add(GParameterT_bool_no_failure_expected_test_case);
-		add(GParameterT_char_no_failure_expected_test_case);
 		add(GParameterT_int32_no_failure_expected_test_case);
 		add(GParameterT_double_no_failure_expected_test_case);
 		add(GParameterT_failures_expected_test_case);

@@ -54,7 +54,6 @@
 #include "GIntFlipAdaptorT.hpp"
 #include "GInt32FlipAdaptor.hpp"
 #include "GBooleanAdaptor.hpp"
-#include "GCharFlipAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;
@@ -81,8 +80,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 
 	// An id should have been set automatically
 	BOOST_CHECK(gifat0.getAdaptorId() == Gem::GenEvA::GBOOLEANADAPTOR ||
-			gifat0.getAdaptorId() == Gem::GenEvA::GINT32FLIPADAPTOR ||
-			gifat0.getAdaptorId() == Gem::GenEvA::GCHARFLIPADAPTOR);
+			gifat0.getAdaptorId() == Gem::GenEvA::GINT32FLIPADAPTOR);
 
 	// Test instantiation with a probability mutation
 	T gifat1(0.2);
@@ -195,7 +193,7 @@ class GIntFlipAdaptorTSuite: public test_suite
 {
 public:
 	GIntFlipAdaptorTSuite() :test_suite("GIntFlipAdaptorTSuite") {
-		typedef boost::mpl::list<GInt32FlipAdaptor, GBooleanAdaptor,  GCharFlipAdaptor> test_types;
+		typedef boost::mpl::list<GInt32FlipAdaptor, GBooleanAdaptor> test_types;
 
 		add( BOOST_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_no_failure_expected, test_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( GIntFlipAdaptorT_failures_expected, test_types ) );

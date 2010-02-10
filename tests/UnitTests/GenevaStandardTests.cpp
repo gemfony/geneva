@@ -37,17 +37,14 @@ using namespace boost::unit_test;
 #include "GIdentityAdaptorT.hpp"
 #include "GInt32FlipAdaptor.hpp"
 #include "GBooleanAdaptor.hpp"
-#include "GCharFlipAdaptor.hpp"
 #include "GInt32GaussAdaptor.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GCharObjectCollection.hpp"
 #include "GBooleanObjectCollection.hpp"
 #include "GInt32ObjectCollection.hpp"
 #include "GDoubleObjectCollection.hpp"
 #include "GBoundedDoubleCollection.hpp"
 #include "GBoundedInt32Collection.hpp"
 #include "GBoolean.hpp"
-#include "GChar.hpp"
 #include "GInt32.hpp"
 #include "GDouble.hpp"
 #include "GBoundedDouble.hpp"
@@ -94,21 +91,18 @@ public:
 		      GIdentityAdaptorT<boost::int32_t>
 			, GInt32FlipAdaptor
 			, GBooleanAdaptor
-			, GCharFlipAdaptor
 			, GInt32GaussAdaptor
 			, GDoubleGaussAdaptor
 		>
 		adaptor_types;
 
 		typedef boost::mpl::list<
-			  GCharObjectCollection
-			, GBooleanObjectCollection
+			  GBooleanObjectCollection
 			, GInt32ObjectCollection
 			, GDoubleObjectCollection
 			, GBoundedDoubleCollection
 			, GBoundedInt32Collection
 			, GBoolean
-			, GChar
 			, GInt32
 			, GDouble
 			, GBoundedDouble

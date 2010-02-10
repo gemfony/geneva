@@ -613,7 +613,6 @@ public:
 	static boost::shared_ptr<networkData> createAxisCentricNetworkData (
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
-		  , const std::size_t& nDim
 	) {
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer

@@ -37,4 +37,3 @@
 BOOST_CLASS_EXPORT_GUID(Gem::GenEvA::GIdentityAdaptorT<boost::int32_t>, "GIdentityAdaptorT_int32_t")
 BOOST_CLASS_EXPORT_GUID(Gem::GenEvA::GIdentityAdaptorT<double>, "GIdentityAdaptorT_double")
 BOOST_CLASS_EXPORT_GUID(Gem::GenEvA::GIdentityAdaptorT<bool>, "GIdentityAdaptorT_bool")
-BOOST_CLASS_EXPORT_GUID(Gem::GenEvA::GIdentityAdaptorT<char>, "GIdentityAdaptorT_char")

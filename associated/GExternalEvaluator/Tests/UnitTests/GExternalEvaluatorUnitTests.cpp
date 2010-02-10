@@ -35,7 +35,7 @@ using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
 // The class to be tested
-#include "GStartIndividual.hpp"
+#include "GExternalEvaluatorIndividual.hpp"
 
 // Contains the necessary tests
 #include "GStandard_test.hpp"
@@ -57,14 +57,14 @@ class GenevaStandardTestSuite
 public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 		typedef boost::mpl::list<
-		      GStartIndividual
+		      GExternalEvaluatorIndividual
 		>
-		gstartproject_types;
+		gexternalevaluator_types;
 
 		/****************************************************************************************/
 
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected,  gstartproject_types) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected,  gstartproject_types) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected,  gexternalevaluator_types) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected,  gexternalevaluator_types) );
 	}
 };
 

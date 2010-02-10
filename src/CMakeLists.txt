@@ -16,9 +16,6 @@ SET ( GENEVASOURCES
 	GBoundedInt32Collection
 	GBoundedNumT
 	GBrokerEA
-	GChar
-	GCharFlipAdaptor
-	GCharObjectCollection
 	GDouble
 	GDoubleCollection 
 	GDoubleGaussAdaptor
@@ -40,7 +37,6 @@ SET ( GENEVASOURCES
 	GParameterBase
 	GParameterBaseWithAdaptorsT
 	GParameterSet
-	GParameterT
 	GPersonalityTraits
 	GPODExpectationChecksT
 	GRandom

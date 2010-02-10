@@ -1,4 +1,4 @@
-PROJECT (GStartProject)
+PROJECT (GNeuralNetwork)
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
@@ -57,15 +57,15 @@ LINK_DIRECTORIES (
         ${Boost_LIBRARY_DIRS}
 )
 
-SET ( EXECUTABLENAME GStartProject )
+SET ( EXECUTABLENAME GNeuralNetwork )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	  GArgumentParser
-	  GStartProject
+	  GNeuralNetwork
 )
 
 SET ( CONFIGFILE
-	GStartProject.cfg
+	GNeuralNetwork.cfg
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

@@ -3,6 +3,7 @@ Roadmap:
 Version 0.8:
  - Full documentation
  - Revision of broker infrastructure, implementation as separate library
+ - Revision of Random and Random factory, implementation as separate library
  - Revision of allowed parameter object types
  - Implementation of a GBoundedDoubleWithGaps
  - Update of tests
@@ -32,9 +33,10 @@ The main changes for this release include:
  - Allowed adaptors to choose from "always mutate", "never mutate" and "mutate with a certain likelihood"
  - Added compilation warnings when using Boost 1.39 or Boost 1.41, which seem to have issues wrt. Geneva,
    possibly in the serialization library.
- - Reworked some of the test framework, including renovation of conversion_cast<> 
+ - Reworked the test framework, including renovation of conversion_cast<> 
  - Reworked the clone framework to use boost::shared_ptr instead of "raw" GObject * pointers
  - Reworked the load framework so that public accessible load functions is shared pointers
+ - Removed GChar and related classes, as these can be implemented better through integer classes
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009

@@ -55,8 +55,6 @@
 #include "GParameterTCollectionT.hpp"
 #include "GBoolean.hpp"
 #include "GBooleanAdaptor.hpp"
-#include "GChar.hpp"
-#include "GCharFlipAdaptor.hpp"
 #include "GInt32.hpp"
 #include "GInt32FlipAdaptor.hpp"
 #include "GInt32GaussAdaptor.hpp"
@@ -65,14 +63,12 @@
 #include "GBoundedDouble.hpp"
 #include "GBoundedInt32.hpp"
 #include "GDouble.hpp"
-#include "GChar.hpp"
 #include "GInt32.hpp"
 #include "GBoolean.hpp"
 #include "GBoundedDoubleCollection.hpp"
 #include "GBoundedInt32Collection.hpp"
 #include "GDoubleObjectCollection.hpp"
 #include "GBooleanObjectCollection.hpp"
-#include "GCharObjectCollection.hpp"
 #include "GInt32ObjectCollection.hpp"
 #include "GStdVectorInterface_test.hpp"
 #include "GEqualityPrinter.hpp"
@@ -179,14 +175,6 @@ boost::shared_ptr<GBoolean> getTemplateItem<GBooleanObjectCollection>() {
 	return gboolean_ptr;
 }
 
-// Specialization for GChar
-template <>
-boost::shared_ptr<GChar> getTemplateItem<GCharObjectCollection>() {
-	boost::shared_ptr<GChar> gchar_ptr(new GChar('a'));
-	gchar_ptr->addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor()));
-	return gchar_ptr;
-}
-
 // This template allows to create items different of the default item, , fully
 // equipped with adaptors. As these are different for each type, this
 // template should not be called directly. Instead, specializations should
@@ -237,14 +225,6 @@ boost::shared_ptr<GBoolean> getFindItem<GBooleanObjectCollection>() {
 	boost::shared_ptr<GBoolean> gboolean_ptr(new GBoolean(true));
 	gboolean_ptr->addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor()));
 	return gboolean_ptr;
-}
-
-// Specialization for GChar
-template <>
-boost::shared_ptr<GChar> getFindItem<GCharObjectCollection>() {
-	boost::shared_ptr<GChar> gchar_ptr(new GChar('b'));
-	gchar_ptr->addAdaptor(boost::shared_ptr<GCharFlipAdaptor>(new GCharFlipAdaptor()));
-	return gchar_ptr;
 }
 
 /********************************************************************************************/
@@ -382,9 +362,8 @@ class GParameterTCollectionTSuite: public test_suite
 public:
 	/***********************************************************************************/
 	GParameterTCollectionTSuite() :test_suite("GParameterTCollectionTSuite") {
-		// typedef boost::mpl::list<GDouble, GBoundedDouble, GChar, GInt32, GBoolean> test_types;
+		// typedef boost::mpl::list<GDouble, GBoundedDouble, GInt32, GBoolean> test_types;
 		typedef boost::mpl::list<GDoubleObjectCollection,
-						         GCharObjectCollection,
 						         GInt32ObjectCollection,
 						         GBooleanObjectCollection,
 						         GBoundedDoubleCollection,

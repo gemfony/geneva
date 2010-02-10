@@ -66,24 +66,6 @@ void GGaussAdaptorT<double>::customMutations(double& value) {
 
 /***********************************************************************************************/
 /**
- * Specialization for typeof(num_type) == typeof(char). We want to prevent the usage of
- * GGaussAdaptor for this type as its value range is so limited. There should be a
- * GIntFlipAdaptor in the Geneva library, that is better suited for the mutation of char
- * variables.
- *
- * @param value The value to be mutated
- */
-template<>
-void GGaussAdaptorT<char>::customMutations(char& value) {
-	std::ostringstream error;
-	error << "In GGaussAdaptorT<char>(): Error!" << std::endl
-		  << "This adaptor should not be used for this type" << std::endl;
-
-	throw geneva_error_condition(error.str());
-}
-
-/***********************************************************************************************/
-/**
  * Specialization for typeof(num_type) == typeof(short). We want to prevent the usage of
  * GGaussAdaptor for this type as its value range is so limited. There should be a
  * GIntFlipAdaptor in the Geneva library, that is better suited for the mutation of short

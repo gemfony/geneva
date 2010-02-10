@@ -89,7 +89,6 @@ public:
 #ifdef DEBUG
 		if(typeid(T) != typeid(double) &&
 		   typeid(T) != typeid(bool) &&
-		   typeid(T) != typeid(char) &&
 		   typeid(T) != typeid(boost::int32_t)) {
 				std::ostringstream error;
 				error << "In GIdentityAdaptorT<T>::GIdentityAdaptorT() : Error!" << std::endl

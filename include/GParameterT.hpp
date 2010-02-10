@@ -283,11 +283,6 @@ private:
 
 
 /*********************************************************************************************/
-// Declaration of specializations for various types
-/** @brief A default constructor for char, needed as it appears useful to initialize the value with a printable character */
-template <> GParameterT<char>::GParameterT();
-
-/*********************************************************************************************/
 /**
  * The default constructor. Non-inline definition in order to circumvent a g++ 3.4.6 deficiency.
  */

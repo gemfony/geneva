@@ -67,16 +67,6 @@ template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<boost::int32_t>::getAdaptorId
 }
 
 /***********************************************************************************************/
-/**
- * Specialization for typeof(T) == typeof(boost::int32_t).
- *
- * @return The id of a GCharFlipAdaptor
- */
-template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<char>::getAdaptorId() const {
-	return Gem::GenEvA::GCHARFLIPADAPTOR;
-}
-
-/***********************************************************************************************/
 
 } /* namespace GenEvA  */
 } /* namespace Gem */

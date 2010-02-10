@@ -23,9 +23,6 @@ SET ( GENEVAINCLUDES
 	GBrokerEA.hpp
 	GBrokerT.hpp
 	GBufferPortT.hpp
-	GChar.hpp
-	GCharFlipAdaptor.hpp
-	GCharObjectCollection.hpp
 	GConsumer.hpp
 	GDouble.hpp
 	GDoubleCollection.hpp

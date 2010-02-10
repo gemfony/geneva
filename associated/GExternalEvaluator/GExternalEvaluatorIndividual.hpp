@@ -113,8 +113,8 @@ namespace GenEvA
  * generations. Usage of this string by the external program is optional.
  */
 class GExternalEvaluatorIndividual
-	:public GParameterSet
-{
+:public GParameterSet
+ {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -135,7 +135,7 @@ class GExternalEvaluatorIndividual
 	}
 	///////////////////////////////////////////////////////////////////////
 
-public:
+ public:
 	/********************************************************************************************/
 	/**
 	 * A constructor which initializes the individual with the name of the external program
@@ -153,75 +153,75 @@ public:
 	 * @param gbool_ad_ptr An adaptor for bool values
 	 */
 	GExternalEvaluatorIndividual(const std::string& program,
-			                             const std::string& arguments="empty",
-			                             const bool& random=false,
-			                             const dataExchangeMode& exchangeMode = Gem::GenEvA::BINARYEXCHANGE,
-			                             const bool& useCommonAdaptor=false,
-			                             boost::shared_ptr<GAdaptorT<double> > gdbl_ad_ptr = boost::shared_ptr<GAdaptorT<double> >((GAdaptorT<double> *)NULL),
-			                             boost::shared_ptr<GAdaptorT<boost::int32_t> > glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL),
-			                             boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL))
-		: program_(program)
-		, arguments_(arguments)
-		, nEvaluations_(1)
-		, exchangeMode_(exchangeMode)
-		, maximize_(false)
-		, parameterFile_("./parameterData")
-		, useCommonAdaptor_(useCommonAdaptor)
-	{
+			const std::string& arguments="empty",
+			const bool& random=false,
+			const dataExchangeMode& exchangeMode = Gem::GenEvA::BINARYEXCHANGE,
+			const bool& useCommonAdaptor=false,
+			boost::shared_ptr<GAdaptorT<double> > gdbl_ad_ptr = boost::shared_ptr<GAdaptorT<double> >((GAdaptorT<double> *)NULL),
+			boost::shared_ptr<GAdaptorT<boost::int32_t> > glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL),
+			boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL))
+	: program_(program)
+	  , arguments_(arguments)
+	  , nEvaluations_(1)
+	  , exchangeMode_(exchangeMode)
+	  , maximize_(false)
+	  , parameterFile_("./parameterData")
+	  , useCommonAdaptor_(useCommonAdaptor)
+	  {
 		//-----------------------------------------------------------------------------------------------
 		// Create the required, empty collections.
-        boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
+		boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
 		boost::shared_ptr<GBoundedInt32Collection> gbic_ptr(new GBoundedInt32Collection());
 		boost::shared_ptr<GBooleanCollection> gbc_ptr(new GBooleanCollection());
 
 		// Set up the local adaptor templates and collection items
 		//-----------------------------------------------------------------------------------------------
 		gdbl_ptr_=boost::shared_ptr<GBoundedDouble>(new GBoundedDouble());
-        if(gdbl_ad_ptr) {
-        	if(useCommonAdaptor)
-        		gbdc_ptr->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
-        	else
-        		gdbl_ptr_->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
-        }
-        else {
-        	if(useCommonAdaptor)
-        		gbdc_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<double> >(new GDoubleGaussAdaptor())); // uses default values
-        	else
-        		gdbl_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<double> >(new GDoubleGaussAdaptor())); // uses default values
-        }
+		if(gdbl_ad_ptr) {
+			if(useCommonAdaptor)
+				gbdc_ptr->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
+			else
+				gdbl_ptr_->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
+		}
+		else {
+			if(useCommonAdaptor)
+				gbdc_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<double> >(new GDoubleGaussAdaptor())); // uses default values
+				else
+					gdbl_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<double> >(new GDoubleGaussAdaptor())); // uses default values
+		}
 
 		//-----------------------------------------------------------------------------------------------
-        glong_ptr_=boost::shared_ptr<GBoundedInt32>(new GBoundedInt32());
-        if(glong_ad_ptr) {
-        	if(useCommonAdaptor)
-        		gbic_ptr->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
-        	else
-        		glong_ptr_->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
-        }
-        else {
-        	if(useCommonAdaptor)
-        		gbic_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<boost::int32_t> >(new GInt32FlipAdaptor())); // uses default values
-        	else
-        		glong_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<boost::int32_t> >(new GInt32FlipAdaptor())); // uses default values
-        }
+		glong_ptr_=boost::shared_ptr<GBoundedInt32>(new GBoundedInt32());
+		if(glong_ad_ptr) {
+			if(useCommonAdaptor)
+				gbic_ptr->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
+			else
+				glong_ptr_->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
+		}
+		else {
+			if(useCommonAdaptor)
+				gbic_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<boost::int32_t> >(new GInt32FlipAdaptor())); // uses default values
+				else
+					glong_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<boost::int32_t> >(new GInt32FlipAdaptor())); // uses default values
+		}
 
-        //-----------------------------------------------------------------------------------------------
-        // GBooleanCollection is special in that it always directly contains adaptors
-        if(gbool_ad_ptr) {
-        	gbc_ptr->addAdaptor(gbool_ad_ptr->GObject::clone<GAdaptorT<bool> >());
-        }
-        else {
-        	gbc_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<bool> >(new GBooleanAdaptor())); // uses default values
-        }
+		//-----------------------------------------------------------------------------------------------
+		// GBooleanCollection is special in that it always directly contains adaptors
+		if(gbool_ad_ptr) {
+			gbc_ptr->addAdaptor(gbool_ad_ptr->GObject::clone<GAdaptorT<bool> >());
+		}
+		else {
+			gbc_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<bool> >(new GBooleanAdaptor())); // uses default values
+		}
 
 		//-----------------------------------------------------------------------------------------------
 
-        // Add the collections to the class
-        this->push_back(gbdc_ptr);
-        this->push_back(gbic_ptr);
+		// Add the collections to the class
+		this->push_back(gbdc_ptr);
+		this->push_back(gbic_ptr);
 		this->push_back(gbc_ptr);
 
-        //-----------------------------------------------------------------------------------------------------------------------------
+		//-----------------------------------------------------------------------------------------------------------------------------
 		// Tell the external program to send us a template with the structure of the individual
 
 		if(program_.empty() || program_ == "empty" || program_ == "unknown") {
@@ -260,30 +260,30 @@ public:
 		if(!bf::exists(p)) {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual constructor: Error!" << std::endl
-				  << "Tried to erase non-existant parameter file " << parameterFile_ << std::endl;
+					<< "Tried to erase non-existant parameter file " << parameterFile_ << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 		bf::remove(p);
-	}
+	  }
 
 	/********************************************************************************************/
 	/**
 	 * A standard copy constructor.
 	 */
 	GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual& cp)
-		: GParameterSet(cp) // copies all local collections
-		, program_(cp.program_)
-		, arguments_(cp.arguments_)
-		, nEvaluations_(cp.nEvaluations_)
-		, exchangeMode_(cp.exchangeMode_)
-		, maximize_(cp.maximize_)
-		, parameterFile_(cp.parameterFile_)
-		, useCommonAdaptor_(cp.useCommonAdaptor_)
-	{
-		 gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone<GBoundedDouble>();
-		 glong_ptr_ = cp.glong_ptr_->GObject::clone<GBoundedInt32>();
-	}
+	: GParameterSet(cp) // copies all local collections
+	  , program_(cp.program_)
+	  , arguments_(cp.arguments_)
+	  , nEvaluations_(cp.nEvaluations_)
+	  , exchangeMode_(cp.exchangeMode_)
+	  , maximize_(cp.maximize_)
+	  , parameterFile_(cp.parameterFile_)
+	  , useCommonAdaptor_(cp.useCommonAdaptor_)
+	  {
+		gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone<GBoundedDouble>();
+		glong_ptr_ = cp.glong_ptr_->GObject::clone<GBoundedInt32>();
+	  }
 
 	/********************************************************************************************/
 	/**
@@ -401,15 +401,15 @@ public:
 			const std::string& caller,
 			const std::string& y_name,
 			const bool& withMessages) const
-	{
-	    using namespace Gem::Util;
-	    using namespace Gem::Util::POD;
+			{
+		using namespace Gem::Util;
+		using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
 		const GExternalEvaluatorIndividual *p_load = conversion_cast<GExternalEvaluatorIndividual>(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
-	    std::vector<boost::optional<std::string> > deviations;
+		std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
 		deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GExternalEvaluatorIndividual", y_name, withMessages));
@@ -426,7 +426,7 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", glong_ptr_, p_load->glong_ptr_, "glong_ptr_", "p_load->glong_ptr_", e , limit));
 
 		return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
-	}
+			}
 
 	/********************************************************************************************/
 	/**
@@ -506,7 +506,7 @@ public:
 		if(parameterFile.empty() || parameterFile == "empty") {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::setExchangeFileName(): Error!" << std::endl
-				     << "Invalid file name \"" << parameterFile << "\"" << std::endl;
+					<< "Invalid file name \"" << parameterFile << "\"" << std::endl;
 			throw geneva_error_condition(error.str());
 		}
 
@@ -540,7 +540,7 @@ public:
 		if(program_.empty() || program_ == "empty" || program_=="unknown") {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::printResult(): Error!" << std::endl
-				      << "Invalid program name \"" << program_ << "\"" << std::endl;
+					<< "Invalid program name \"" << program_ << "\"" << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
@@ -551,7 +551,7 @@ public:
 		else
 			commandLine = program_ + " -m 1  -r -p " + bestParameterSetFile;;
 
-	    if(identifier != "empty" && !identifier.empty()) commandLine += (" -g \"" + identifier + "\"");
+		if(identifier != "empty" && !identifier.empty()) commandLine += (" -g \"" + identifier + "\"");
 		if(arguments_ != "empty" && !arguments_.empty()) commandLine +=  (" " + arguments_);
 
 #ifdef PRINTCOMMANDLINE
@@ -569,14 +569,14 @@ public:
 		if(!bf::exists(p)) {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::printResult(): Error!" << std::endl
-				  << "Tried to erase non-existent file " << bestParameterSetFile << std::endl;
+					<< "Tried to erase non-existent file " << bestParameterSetFile << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 		bf::remove(p);
 	}
 
-protected:
+ protected:
 	/********************************************************************************************/
 	/**
 	 * Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GObject
@@ -625,7 +625,7 @@ protected:
 		if(program_.empty() || program_ == "empty" || program_ == "unknown") {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-				     << "Invalid program name \"" << program_ << "\"" << std::endl;
+					<< "Invalid program name \"" << program_ << "\"" << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
@@ -665,7 +665,7 @@ protected:
 		if(!hasValue) {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-				     << "Received no value from the external calculation" << std::endl;
+					<< "Received no value from the external calculation" << std::endl;
 
 			throw geneva_error_condition(error.str());
 		}
@@ -676,7 +676,7 @@ protected:
 		if(!bf::exists(p)) {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-				  << "Tried to erase non-existent parameter file " << parFile << std::endl;
+					<< "Tried to erase non-existent parameter file " << parFile << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 #endif /* DEBUG */
@@ -686,22 +686,22 @@ protected:
 		return result;
 	}
 
-private:
+ private:
 	/********************************************************************************************/
 	/**
 	 * The default constructor. Only needed for serialization purposes
 	 */
 	GExternalEvaluatorIndividual()
-		:program_("unknown"),
-		 arguments_("empty"),
-		 nEvaluations_(1),
-		 exchangeMode_(Gem::GenEvA::BINARYEXCHANGE),
-		 maximize_(false),
-		 parameterFile_("empty"),
-		 useCommonAdaptor_(false),
-         gdbl_ptr_(boost::shared_ptr<GBoundedDouble>((GBoundedDouble *)NULL)),
-         glong_ptr_(boost::shared_ptr<GBoundedInt32>((GBoundedInt32 *)NULL))
-	{ /* nothing */ }
+	:program_("unknown"),
+	 arguments_("empty"),
+	 nEvaluations_(1),
+	 exchangeMode_(Gem::GenEvA::BINARYEXCHANGE),
+	 maximize_(false),
+	 parameterFile_("empty"),
+	 useCommonAdaptor_(false),
+	 gdbl_ptr_(boost::shared_ptr<GBoundedDouble>((GBoundedDouble *)NULL)),
+	 glong_ptr_(boost::shared_ptr<GBoundedInt32>((GBoundedInt32 *)NULL))
+	 { /* nothing */ }
 
 	/********************************************************************************************/
 	/**
@@ -739,7 +739,7 @@ private:
 
 			// Retrieve pointers to the four containers and add their data to the GDataExchange module
 
-			 // A GBoundedDoubleCollection can mostly be treated like a std::vector<boost::shared_ptr<GBoundedDouble> >
+			// A GBoundedDoubleCollection can mostly be treated like a std::vector<boost::shared_ptr<GBoundedDouble> >
 			boost::shared_ptr<GBoundedDoubleCollection> gbdc;
 			if(i==0) {
 				gbdc = pc_at<GBoundedDoubleCollection>(0);
@@ -831,7 +831,7 @@ private:
 			**gbdc_it = gdp_ptr->value();
 
 			if(gdp_ptr->hasBoundaries()) {
-			  (*gbdc_it)->setBoundaries(gdp_ptr->getLowerBoundary(), gdp_ptr->getUpperBoundary());
+				(*gbdc_it)->setBoundaries(gdp_ptr->getLowerBoundary(), gdp_ptr->getUpperBoundary());
 			}
 		}
 
@@ -905,8 +905,8 @@ private:
 		if(errorCode) {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::runExternalCommand(): Error" << std::endl
-				  << "Command: " << command << std::endl
-				  << "Error code: " << errorCode << std::endl;
+					<< "Command: " << command << std::endl
+					<< "Error code: " << errorCode << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 	}
@@ -921,16 +921,33 @@ private:
 	std::string parameterFile_;
 	bool useCommonAdaptor_; ///< indicates whether a common adaptor should be used for parameter collections
 
-    boost::shared_ptr<GBoundedDouble> gdbl_ptr_; ///< A template for GBoundedDouble objects
-    boost::shared_ptr<GBoundedInt32> glong_ptr_; ///< A template for GBoundedInt32 objects
+	boost::shared_ptr<GBoundedDouble> gdbl_ptr_; ///< A template for GBoundedDouble objects
+	boost::shared_ptr<GBoundedInt32> glong_ptr_; ///< A template for GBoundedInt32 objects
 
 	Gem::Util::GDataExchange gde_; ///< takes care of the data exchange with external programs
-};
+ };
 
 } /* namespace GenEvA */
 } /* namespace Gem */
 
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::GenEvA::GExternalEvaluatorIndividual)
+
+// Needed for testing purposes
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * As the Gem::GenEvA::Gem::GenEvA::GExternalEvaluatorIndividual has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+boost::shared_ptr<Gem::GenEvA::GExternalEvaluatorIndividual> TFactory_GUnitTests<Gem::GenEvA::GExternalEvaluatorIndividual>() {
+	return boost::shared_ptr<Gem::GenEvA::GExternalEvaluatorIndividual>(new Gem::GenEvA::GExternalEvaluatorIndividual("../../SampleEvaluator/sampleEvaluator"));
+}
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
 
 #endif /* GEXTERNALEVALUATORINDIVIDUAL_HPP_ */

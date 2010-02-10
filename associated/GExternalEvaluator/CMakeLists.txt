@@ -1,4 +1,4 @@
-PROJECT (GStartProject)
+PROJECT (GExternalEvaluator)
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
@@ -18,6 +18,10 @@ ENDIF()
 
 IF(NOT DEFINED GENEVA_LIBRARY)
        SET (GENEVA_LIBRARY "geneva-opt")
+ENDIF()
+
+IF(NOT DEFINED GENEVA_DATAEXCHANGE_LIBRARY)
+       SET (GENEVA_DATAEXCHANGE_LIBRARY "geneva-extcomm")
 ENDIF()
 
 SET (Boost_USE_STATIC_LIBS OFF)
@@ -57,15 +61,15 @@ LINK_DIRECTORIES (
         ${Boost_LIBRARY_DIRS}
 )
 
-SET ( EXECUTABLENAME GStartProject )
+SET ( EXECUTABLENAME GExternalEvaluator )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	  GArgumentParser
-	  GStartProject
+	  GExternalEvaluator
 )
 
 SET ( CONFIGFILE
-	GStartProject.cfg
+	GExternalEvaluator.cfg
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -79,9 +83,13 @@ INCLUDE_DIRECTORIES (AFTER
 MESSAGE( "LIBS: ${Boost_LIBRARIES}")
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${GENEVA_LIBRARY}
+	${GENEVA_DATAEXCHANGE_LIBRARY}
 	${Boost_LIBRARIES}
 	pthread
 )
+
+# Make sure the external evaluator gets compiled
+ADD_SUBDIRECTORY (SampleEvaluator)
 
 # Tests will only be compiled of the test libraries were found
 IF( Boost_TEST_EXEC_MONITOR_FOUND )

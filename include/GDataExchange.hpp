@@ -369,7 +369,7 @@ template <> void GDataExchange::append<bool>(const bool&);
 template <> void GDataExchange::append<double>(const double&, const double&, const double&);
 /** @brief  Adds a boost::shared_ptr<GLongParameter> object with boundaries to the corresponding array */
 template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t&, const boost::int32_t&, const boost::int32_t&);
-/** @brief  Adds a boost::shared_ptr<GCharParameter> object with boundaries to the corresponding array */
+/** @brief  Adds a boost::shared_ptr<GBooleanParameter> object to the corresponding array */
 template <> void GDataExchange::append<bool>(const bool&, const bool&, const bool&);
 
 /*************************************************************************/
