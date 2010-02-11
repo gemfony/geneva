@@ -5,7 +5,6 @@ SET ( SAMPLEINDIVIDUALSINCLUDES
 	GDelayIndividual.hpp
 	GFunctionIndividual.hpp
 	GFunctionIndividualDefines.hpp
-	GNeuralNetworkIndividual.hpp
 	GNoisyParabolaIndividual.hpp
 	GParabolaIndividual.hpp
 	GProjectionIndividual.hpp
