@@ -31,6 +31,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <vector>
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
@@ -67,43 +68,52 @@ using namespace Gem::Util;
  * @param nDataSets The number of data sets to be produced
  */
 void createNetworkData(
-		const std::string& type
-	  , const std::string& outputFile,
-	  , const std::vector<std::size_t> &architecture,
+		const Gem::GenEvA::trainingDataType& t
+	  , const std::string& outputFile
+	  , const std::vector<std::size_t> &architecture
 	  , const std::size_t nDataSets
 ) {
 	boost::shared_ptr<networkData> nD_ptr;
 
-	// Create the actual data Sets
-	if(type == "hyperCube") {
-		nD_ptr = createHyperCubeNetworkData (
+	switch(t) {
+	case Gem::GenEvA::HYPERCUBE:
+		nD_ptr = GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>::createHyperCubeNetworkData (
 				architecture
 			  , nDataSets
 			  , 0.5 // edgelength
 		);
-	}
-	else if(type == "hyperSphere") {
-		nD_ptr = createHyperSphereNetworkData (
+		break;
+
+	case Gem::GenEvA::HYPERSPHERE:
+		nD_ptr = GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>::createHyperSphereNetworkData (
 				architecture
 			  , nDataSets
 			  , 0.5 // radius
 		);
-	}
-	else if(type == "axisCentric") {
-		nD_ptr = createAxisCentricNetworkData (
+		break;
+
+	case Gem::GenEvA::AXISCENTRIC:
+		nD_ptr = GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>::createAxisCentricNetworkData (
 				architecture
 			  , nDataSets
 		);
-	}
-	else { // Error
-		std::ostringstream error;
-		error << "In createDataset(): Error!" << std::endl
-			  << "Received invalid data type " << type << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		break;
+
+	default:
+		{ // Error
+			std::ostringstream error;
+			error << "In createDataset(): Error!" << std::endl
+				  << "Received invalid data type " << t << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+		break;
 	}
 
 	// Write to file
-	nD->saveToDisk(outputFile);
+	nD_ptr->saveToDisk(outputFile);
+
+	// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
+	nD_ptr->toRoot(outputFile + ".C");
 }
 
 /************************************************************************************************/
@@ -129,7 +139,17 @@ int main(int argc, char **argv){
   boost::uint32_t processingCycles;
   bool returnRegardless;
   boost::uint32_t waitFactor;
+  trainingDataType tdt;
+  std::string trainingDataFile;
+  std::size_t nDataSets;
+  std::vector<std::size_t> architecture;
+  std::string trainingInputData;
+  std::string resultProgram;
+  std::string visualizationFile;
+  transferFunction tF;
 
+  //***************************************************************************
+  // Parse command line and configuration file
   if(!parseCommandLine(
 			  argc, argv
 			, configFile
@@ -137,6 +157,10 @@ int main(int argc, char **argv){
 			, serverMode
 			, ip
 			, port
+			, tdt
+			, trainingDataFile
+			, nDataSets
+			, architecture
 	 )
      ||
      !parseConfigFile(
@@ -154,17 +178,30 @@ int main(int argc, char **argv){
 		   , processingCycles
 		   , returnRegardless
 		   , waitFactor
+		   , tF
+		   , trainingInputData
+		   , resultProgram
+		   , visualizationFile
+		   , true
 	)
   )
   { exit(1); }
 
+  //***************************************************************************
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
   GRANDOMFACTORY->setArraySize(arraySize);
+
+  //***************************************************************************
+  // Produce data sets if we have been asked to do so, then leave
+  if(tdt != Gem::GenEvA::TDTNONE) {
+	  createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
+	  return 0;
+  }
   
   //***************************************************************************
   // If this is a client in networked mode, we can just start the listener and
-  // return when it has finished
+  // leave when it has finished
   if(parallelizationMode==2 && !serverMode) {
     boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip, boost::lexical_cast<std::string>(port)));
 
@@ -183,17 +220,30 @@ int main(int argc, char **argv){
   //***************************************************************************
 
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<boost::shared_ptr<GNeuralNetworkIndividual> > parentIndividuals;
-  for(std::size_t p = 0 ; p<nParents; p++) {
-    boost::shared_ptr<GNeuralNetworkIndividual> gdii_ptr(new GNeuralNetworkIndividual(parDim, minVar, maxVar));
-    gdii_ptr->setProcessingCycles(processingCycles);
+  std::vector<boost::shared_ptr<GIndividual> > parentIndividuals;
+  switch(tF) {
+  case Gem::GenEvA::SIGMOID:
+	  for(std::size_t p = 0 ; p<nParents; p++) {
+		boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > sigmoid_nn_ptr(new GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>(trainingInputData, -1., 1.));
+		sigmoid_nn_ptr->setProcessingCycles(processingCycles);
 
-    parentIndividuals.push_back(gdii_ptr);
+		parentIndividuals.push_back(sigmoid_nn_ptr);
+	  }
+	  break;
+
+  case Gem::GenEvA::RBF:
+	  for(std::size_t p = 0 ; p<nParents; p++) {
+		boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::RBF> > rbf_nn_ptr(new GNeuralNetworkIndividual<Gem::GenEvA::RBF>(trainingInputData, -1., 1.));
+		rbf_nn_ptr->setProcessingCycles(processingCycles);
+
+		parentIndividuals.push_back(rbf_nn_ptr);
+	  }
+	  break;
   }
 
   // Create an instance of our optimization monitor, telling it to output information in given intervals
   std::ofstream resultSummary("./result.C");
-  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(nParents, resultSummary));
+  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(nParents, resultSummary, tF));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // We can now start creating populations. We refer to them through the base class
@@ -266,6 +316,28 @@ int main(int argc, char **argv){
   // Make sure we close the result file
   resultSummary.close();
 
+  // Output the result- and the visualization-program (if available)
+  switch(tF) {
+  case Gem::GenEvA::SIGMOID:
+  {
+	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > best_ptr
+		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >();
+	  best_ptr->writeTrainedNetwork(resultProgram);
+	  if(architecture[0] = 2) best_ptr->writeVisualizationFile(visualizationFile);
+  }
+  break;
+
+  case Gem::GenEvA::RBF:
+  {
+	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::RBF> > best_ptr
+		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::GenEvA::RBF> >();
+	  best_ptr->writeTrainedNetwork(resultProgram);
+	  if(architecture[0] = 2) best_ptr->writeVisualizationFile(visualizationFile);
+  }
+  break;
+  }
+
+  // We are done. Leave ...
   std::cout << "Done ..." << std::endl;
   return 0;
 }

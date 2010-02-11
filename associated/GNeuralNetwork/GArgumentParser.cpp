@@ -34,17 +34,55 @@ namespace Gem
 {
   namespace GenEvA
   {
+	/************************************************************************************************/
+    /**
+     * Parses the architecture string and returns a std::vector holding the architecture
+     *
+     * @param architecture The architecture string
+     * @return A std::vector<std::size_t> holding the size of each layer
+     */
+  std::vector<std::size_t> parseArchitectureString(const std::string& architecture) {
+	  using namespace boost;
+
+	  std::vector<std::size_t> result;
+	  tokenizer<> t(architecture);
+	  tokenizer<>::const_iterator tit;
+
+	  for(tit=t.begin(); tit!=t.end();++tit){
+		  try {
+			  std::size_t nNodes = lexical_cast<std::size_t>(*tit);
+			  result.push_back(nNodes);
+		  }
+		  catch(...) {
+			  std::ostringstream error;
+			  error << "In parseArchitectureString(const std::string&):" << std::endl
+					<< "Error parsing the architecture string " << architecture << std::endl
+					<< "for token " << *tit << std::endl;
+			  throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		  }
+	  }
+
+	  return result;
+  }
+
     /************************************************************************************************/
     /**
      * A function that parses the command line for all required parameters
      */
-    bool parseCommandLine(int argc, char **argv,
-			  std::string& configFile,
-			  boost::uint16_t& parallelizationMode,
-			  bool& serverMode,
-			  std::string& ip,
-			  unsigned short& port)
-    {
+    bool parseCommandLine(
+  		  int argc, char **argv
+		, std::string& configFile
+		, boost::uint16_t& parallelizationMode
+		, bool& serverMode
+		, std::string& ip
+		, unsigned short& port
+		, trainingDataType& tdt
+		, std::string& trainingDataFile
+		, std::size_t& nDataSets
+		, std::vector<std::size_t>& architecture
+    ) {
+      std::string tmpArchitecture;
+
       try{
 	// Check the command line options. Uses the Boost program options library.
 	po::options_description desc("Usage: evaluator [options]");
@@ -57,6 +95,14 @@ namespace Gem
 	  ("serverMode,s","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")
 	  ("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
 	  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
+	  ("trainingDataType", po::value<trainingDataType>(&tdt)->default_value(DEFAULTTRAININGDATATYPE),
+	   "The type of training data to be produced: 0 (none), 1 (hyper cube), 2 (hyper sphere), 3 (axis centric)")
+	  ("trainingDataFile", po::value<std::string>(&trainingDataFile)->default_value(DEFAULTTRAININGDATAFILE),
+	   "The name of the output file for the creation of training data")
+	  ("nDataSets", po::value<std::size_t>(&nDataSets)->default_value(DEFAULTNDATASETS),
+	   "The number of data sets to create")
+	  ("architecture", po::value<std::string>(&tmpArchitecture)->default_value(DEFAULTARCHITECTURE),
+	   "The architecture of the neural network (1 input layer, 0-n hidden layers, 1 output layer")
 	  ;
 
 	po::variables_map vm;
@@ -80,7 +126,7 @@ namespace Gem
 	  if(parallelizationMode == 2) if(vm.count("serverMode")) serverMode = true;
 	}
 
-	if(parallelizationMode != DEFAULTPARALLELIZATIONMODE ||  ip != DEFAULTIP  ||  port != DEFAULTPORT){
+	if(parallelizationMode != DEFAULTPARALLELIZATIONMODE ||  ip != DEFAULTIP  ||  port != DEFAULTPORT || tdt != DEFAULTTRAININGDATATYPE){
 	  std::string parModeString;
 	  switch(parallelizationMode) {
 	  case 0:
@@ -94,14 +140,29 @@ namespace Gem
 	    break;
 	  };
 
+	  architecture = parseArchitectureString(tmpArchitecture);
+
 	  std::cout << std::endl
 		    << "Running with the following command line options:" << std::endl
 		    << "configFile = " << configFile << std::endl
 		    << "parallelizationMode = " << parModeString << std::endl
 		    << "serverMode = " << (serverMode?"true":"false") << std::endl
 		    << "ip = " << ip << std::endl
-		    << "port = " << port << std::endl
-		    << std::endl;
+		    << "port = " << port << std::endl;
+
+	  if(tdt != 0) {
+		  std::cout << "trainingDataType = " << tdt << std::endl
+				    << "trainingDataFile = " << trainingDataFile << std::endl
+				    << "nDataSets = " << nDataSets << std::endl;
+
+		  std::cout << "nNodes[input layer] = " << architecture[0] << std::endl;
+		  for(std::size_t layerCounter = 1; layerCounter<architecture.size()-1; layerCounter++) {
+			  std::cout << "nNodes[hidden layer " << layerCounter << "] = " << architecture[layerCounter] << std::endl;
+		  }
+		  std::cout << "nNodes[output layer] = " << architecture.back() << std::endl;
+	  }
+
+	  std::cout << std::endl;
 	}
       }
       catch(...){
@@ -117,24 +178,28 @@ namespace Gem
     /**
      * A function that parses a config file for further parameters
      */
-    bool parseConfigFile(const std::string& configFile,
-			 boost::uint16_t& nProducerThreads,
-			 boost::uint16_t& nEvaluationThreads,
-			 std::size_t& populationSize,
-			 std::size_t& nParents,
-			 boost::uint32_t& maxIterations,
-			 long& maxMinutes,
-			 boost::uint32_t& reportIteration,
-			 recoScheme& rScheme,
-			 sortingMode& smode,
-			 std::size_t& arraySize,
-			 boost::uint32_t& processingCycles,
-			 bool& returnRegardless,
-			 boost::uint32_t& waitFactor,
-			 bool& verbose)
-    {
+    bool parseConfigFile(
+  		  const std::string& configFile
+			, boost::uint16_t& nProducerThreads
+			, boost::uint16_t& nEvaluationThreads
+			, std::size_t& populationSize
+			, std::size_t& nParents
+			, boost::uint32_t& maxIterations
+			, long& maxMinutes
+			, boost::uint32_t& reportIteration
+			, recoScheme& rScheme
+			, sortingMode& smode
+			, std::size_t& arraySize
+			, boost::uint32_t& processingCycles
+			, bool& returnRegardless
+			, boost::uint32_t& waitFactor
+			, transferFunction& tF
+			, std::string& trainingInputData
+			, std::string& resultProgram
+			, std::string& visualizationFile
+			, const bool& verbose
+	) {
       boost::uint16_t recombinationScheme=0;
-      bool verbose;
 
       // Check the name of the configuation file
       if(configFile.empty() || configFile == "empty" || configFile == "unknown") {
@@ -172,10 +237,16 @@ namespace Gem
 	   "Specifies whether results should be returned even if they are not better than before")
 	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
 	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
-	   ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
-	   "Whether additional information should be emitted")
+	  ("transferFunction", po::value<Gem::GenEvA::transferFunction>(&tF)->default_value(DEFAULTTRANSFERFUNCTION),
+	   "The transfer function used in the network: 0 (SIGMOID), 1(RBF)")
+	  ("trainingInputData", po::value<std::string>(&trainingInputData)->default_value(DEFAULTTRAININGINPUTDATA),
+	   "The name of the file with the training data")
+	  ("resultProgram", po::value<std::string>(&resultProgram)->default_value(DEFAULTRESULTPROGRAM),
+	   "The name of the result program")
+	  ("visualizationFile", po::value<std::string>(&visualizationFile)->default_value(DEFAULTVISUALIZATIONFILE),
+	   "The name of the visualization file")
 	  ;
-	
+
 	po::variables_map vm;
 	std::ifstream ifs(configFile.c_str());
 	if(!ifs.good()) {
@@ -191,7 +262,7 @@ namespace Gem
 	  std::cout << config << std::endl;
 	  return false;
 	}
-	
+
 	// Check the number of parents in the super-population
 	if(2*nParents > populationSize){
 	  std::cout << "Error: Invalid number of parents inpopulation" << std::endl
@@ -230,6 +301,10 @@ namespace Gem
 		    << "processingCycles = " << processingCycles << std::endl
 		    << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
 		    << "waitFactor = " << waitFactor << std::endl
+		    << "transferFunction = " << tF << std::endl
+		    << "trainingInputData = " << trainingInputData << std::endl
+		    << "resultProgram = " << resultProgram << std::endl
+		    << "visualizationFile = " << visualizationFile << std::endl
 		    << std::endl;
 	}
       }

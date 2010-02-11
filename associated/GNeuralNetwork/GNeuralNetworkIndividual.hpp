@@ -60,6 +60,7 @@
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
 #include <boost/optional.hpp>
+#include "boost/filesystem.hpp"
 
 #ifndef GNEURALNETWORKINDIVIDUAL_HPP_
 #define GNEURALNETWORKINDIVIDUAL_HPP_
@@ -75,7 +76,6 @@
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GenevaExceptions.hpp"
-#include "GEqualityPrinter.hpp"
 #include "GHelperFunctionsT.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
 
@@ -83,14 +83,6 @@ namespace Gem
 {
 namespace GenEvA
 {
-
-/************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
-/************************************************************************************************/
-/**
- * Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function
- */
-enum transferFunction {SIGMOID=0, RBF=1};
 
 /************************************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,13 +150,15 @@ class networkData
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar  & make_nvp("GStdSimpleVectorInterfaceT_size_t", boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this));
-			& BOOST_SERIALIZATION_NVP(data)
+		ar  & make_nvp("GStdSimpleVectorInterfaceT_size_t", boost::serialization::base_object<GStdSimpleVectorInterfaceT<std::size_t> >(*this))
+			& BOOST_SERIALIZATION_NVP(data_)
 		    & BOOST_SERIALIZATION_NVP(currentIndex_);
 	}
 
 public:
 	///////////////////////////////////////////////////////////////////////
+	/** @brief Default constructor */
+	networkData();
 	/** @brief Initialization with data from file */
 	explicit networkData(const std::string&);
 	/** @brief The copy constructor */
@@ -198,15 +192,44 @@ public:
 	/** @brief Retrieves the next training set */
 	boost::optional<boost::shared_ptr<trainingSet> > getNextTrainingSet() const;
 	/** @brief Resets the index of the current training set */
-	void resetCurrentIndex();
+	void resetCurrentIndex() const;
+
+	/** @brief Retrieves the number of input nodes of this network */
+	std::size_t getNInputNodes() const;
+	/** @brief Retrieves the number of output nodes of this network */
+	std::size_t getNOutputNodes() const;
+
+	/** @brief Saves this data set in ROOT format for visual inspection */
+	void toRoot(const std::string&);
+protected:
+	/** @brief This function is purely virtual in our parent class*/
+	virtual void dummyFunction() { /* nothing */ };
 
 private:
 	/********************************************************************************************/
 	/** @brief Holds the individual data items */
 	std::vector<boost::shared_ptr<trainingSet> > data_;
 	/** @brief The index of the current training set */
-	std::size_t currentIndex_;
+	mutable std::size_t currentIndex_;
 };
+
+/************************************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////////////////////
+/************************************************************************************************/
+/** @brief This enum is used to specify the type of training data that should be generated */
+enum trainingDataType {TDTNONE=0, HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3};
+/** @brief Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function */
+enum transferFunction {SIGMOID=0, RBF=1};
+
+/************************************************************************************************/
+/** @brief  Reads a Gem::GenEvA::trainingDataType item from a stream */
+std::istream& operator>>(std::istream& i, Gem::GenEvA::trainingDataType& tdt);
+/** @brief Puts a Gem::GenEvA::trainingDataType item into a stream */
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::trainingDataType& tdt);
+/** @brief Reads a Gem::GenEvA::transferFunction item from a stream. */
+std::istream& operator>>(std::istream& i, Gem::GenEvA::transferFunction& tF);
+/** @brief Puts a Gem::GenEvA::transferFunction item into a stream. */
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::transferFunction& tF);
 
 /************************************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -264,7 +287,7 @@ public:
 		, transferFunction_(tF)
 	{
 		// Check the architecture we've been given and create the layers
-		std::size_t nLayers = nD_.size();
+		std::size_t nLayers = nD_->size();
 
 		if(nLayers < 2){ // Two layers are required at the minimum (3 and 4 layers are useful)
 			std::ostringstream error;
@@ -279,7 +302,7 @@ public:
 		std::size_t nNodesPrevious=0;
 
 		// Set up the architecture
-		for(layerIterator=nD_.begin(); layerIterator!=nD_.end(); ++layerIterator){
+		for(layerIterator=nD_->begin(); layerIterator!=nD_->end(); ++layerIterator){
 			if(*layerIterator){ // Add the next network layer to this class, if possible
 				nNodes = *layerIterator;
 
@@ -401,7 +424,7 @@ public:
 
 	    // ... and then our local data
 	    deviations.push_back(checkExpectation(withMessages, "GNeuralNetworkIndividual", networkDataFile_, p_load->networkDataFile_, "networkDataFile_", "p_load->networkDataFile_", e , limit));
-	    deviations.push_back(nD_.checkRelationshipWith(cp.nD_, e, limit, y_name, withMessages));
+	    deviations.push_back(nD_->checkRelationshipWith(*(p_load->nD_), e, limit, "GNeuralNetworkIndividual", y_name, withMessages));
 
 		return evaluateDiscrepancies("GNeuralNetworkIndividual", caller, deviations, e);
 	}
@@ -427,8 +450,17 @@ public:
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer
 			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createHyperCubenetworkData(): Error!" << std::endl
+			error << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
 				  << "Got invalid number of layers: " << architecture.size() << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		// Check that the output layer has exactly one node
+		if(architecture.back() != 1) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
+				  << "The output layer must have exactly one node for this training data." << std::endl
+				  << "Got " << architecture.back() << " instead." << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 
@@ -441,12 +473,12 @@ public:
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
 		boost::shared_ptr<networkData> nD(new networkData());
-		std::vector<std::size_t>::iterator it;
+		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
 			if(*it == 0) {
 				std::ostringstream error;
-				error << "In GNeuralNetworkIndividual::createHyperCubenetworkData(): Error!" << std::endl
+				error << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
 					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
 				throw(Gem::GenEvA::geneva_error_condition(error.str()));
 			}
@@ -473,7 +505,7 @@ public:
 			if(outside) tS->Output.push_back(0.99);
 			else tS->Output.push_back(0.01);
 
-			nD->data.push_back(tS);
+			nD->addTrainingSet(tS);
 		}
 
 		return nD;
@@ -505,6 +537,15 @@ public:
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 
+		// Check that the output layer has exactly one node
+		if(architecture.back() != 1) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
+				  << "The output layer must have exactly one node for this training data." << std::endl
+				  << "Got " << architecture.back() << " instead." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
 		// Create a local random number generator.
 		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
@@ -514,7 +555,7 @@ public:
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
 		boost::shared_ptr<networkData> nD(new networkData());
-		std::vector<std::size_t>::iterator it;
+		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
 			if(*it == 0) {
@@ -592,7 +633,7 @@ public:
 				break;
 			}
 
-			nD->data.push_back(tS);
+			nD->addTrainingSet(tS);
 		}
 
 		return nD;
@@ -622,6 +663,15 @@ public:
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 
+		// Check that the output layer has exactly one node
+		if(architecture.back() != 1) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
+				  << "The output layer must have exactly one node for this training data." << std::endl
+				  << "Got " << architecture.back() << " instead." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
 		// Create a local random number generator.
 		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
@@ -631,7 +681,7 @@ public:
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
 		boost::shared_ptr<networkData> nD(new networkData());
-		std::vector<std::size_t>::iterator it;
+		std::vector<std::size_t>::const_iterator it;
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
 			if(*it == 0) {
@@ -644,14 +694,14 @@ public:
 			nD->push_back(*it);
 		}
 
-		for(std::size_t datCounter=0; datCounter<nDataSets; datCounter++)
+		for(std::size_t dataCounter=0; dataCounter<nDataSets; dataCounter++)
 		{
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
 			// Create even distribution across all dimensions
 			if(dataCounter%2 == 0) {
 				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) {
-					(ts->Input).push_back(gr.evenRandom());
+					(tS->Input).push_back(gr.evenRandom());
 				}
 				(tS->Output).push_back(0.01);
 			}
@@ -665,16 +715,16 @@ public:
 				do {
 					functionValue = 0.;
 					for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) {
-						inputVector[dimCounter] = evenRandom();
-						functionValue += exp(-50.*GSQUARED(inputVector[dimCounter]));
+						inputVector[dimCounter] = gr.evenRandom();
+						functionValue += exp(-20.*GSQUARED(inputVector[dimCounter]));
 					}
 				} while(functionValue < testValue);
 
-				ts->Input = inputVector;
+				tS->Input = inputVector;
 				(tS->Output).push_back(0.99);
 			}
 
-			nD->push_back(tS);
+			nD->addTrainingSet(tS);
 		}
 
 		return nD;
@@ -700,15 +750,15 @@ public:
 		// The following only makes sense if the input dimension is 2
 		if((*nD_)[0] == 2){
 			visProgram  << "/**" << std::endl
-			            << " * @file " << testProgram << std::endl
+			            << " * @file " << visFile << std::endl
 			            << " *" << std::endl
 			            << " * This program allows to visualize the output of the training example." << std::endl
 			            << " * It has been auto-generated by the GNeuralNetworkIndividual class of" << std::endl
 			            << " * the GenEvA library" << std::endl
 			            << " */" << std::endl
 			            << std::endl
-			            << "/* Copyright (C) 2004-2008 Dr. Ruediger Berlich" << std::endl
-						<< " * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH" << std::endl
+			            << "/* Copyright (C) Dr. Ruediger Berlich" << std::endl
+						<< " * Copyright (C) Forschungszentrum Karlsruhe GmbH" << std::endl
 						<< " *" << std::endl
 						<< " * This file is part of Geneva, Gemfony scientific's optimization library." << std::endl
 						<< " *" << std::endl
@@ -727,8 +777,8 @@ public:
 						<< std::endl
 						<< "/*" << std::endl
 						<< " * Can be compiled with the command" << std::endl
-						<< " * g++ -g -o testNetwork -I/opt/boost136/include/boost-1_36/ " << testProgram << std::endl
-						<< " * on OpenSUSE 11 (assuming that Boost in installed under /opt in your" << std::endl
+						<< " * g++ -g -o testNetwork -I/opt/boost136/include/boost-1_36/ " << visFile << std::endl
+						<< " * on OpenSUSE 11 (assuming that Boost is installed under /opt in your" << std::endl
 						<< " * system." << std::endl
 						<< " */" << std::endl
 						<< std::endl
@@ -827,9 +877,9 @@ public:
 		}
 		else {
 			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
-				  << "Request to create visualization program for more than two input dimensions!" << std::endl;
-			throw geneva_error_condition(error.str());
+			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) : Warning!" << std::endl
+				  << "Request to create visualization program for more than two input dimensions!" << std::endl
+				  << "No action taken." << std::endl;
 		}
 
 		std::ofstream fstr(visFile.c_str());
@@ -869,8 +919,8 @@ public:
 				<< " * class." << std::endl
 				<< " */" << std::endl
 				<< std::endl
-				<< "/* Copyright (C) 2004-2008 Dr. Ruediger Berlich" << std::endl
-				<< " * Copyright (C) 2007-2008 Forschungszentrum Karlsruhe GmbH" << std::endl
+				<< "/* Copyright (C) Dr. Ruediger Berlich" << std::endl
+				<< " * Copyright (C) Forschungszentrum Karlsruhe GmbH" << std::endl
 				<< " *" << std::endl
 				<< " * This file is part of Geneva, Gemfony scientific's optimization library." << std::endl
 				<< " *" << std::endl
@@ -1150,13 +1200,14 @@ protected:
 	/********************************************************************************************/
 
 private:
-	GNeuralNetworkIndividual()	{ /* nothing */ } ///< Default constructor intentionally private and empty
+	/** @brief Default constructor intentionally private and empty */
+	GNeuralNetworkIndividual<tF>() :transferFunction_(tF) { /* nothing */ }
 
 	/********************************************************************************************/
 	/**
 	 * A trap transfer function to capture invalid uses of this class
 	 */
-	double transfer(const double& value) {
+	double transfer(const double& value) const {
 		std::ostringstream error;
 		error << "In GNeuralNetworkIndividual::transfer(): Error!" << std::endl
 			  << "Class was instantiated with invalid value for template parameter tF" << std::endl;
@@ -1184,5 +1235,28 @@ template <> double GNeuralNetworkIndividual<RBF>::transfer(const double&) const;
 
 } /* namespace GenEvA */
 } /* namespace Gem */
+
+// Needed for testing purposes
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * @brief As the Gem::GenEvA::Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > TFactory_GUnitTests<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >();
+
+/*************************************************************************************************/
+/**
+ * @brief As the Gem::GenEvA::Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> > TFactory_GUnitTests<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> >();
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
 
 #endif /* GNEURALNETWORKINDIVIDUAL_HPP_ */

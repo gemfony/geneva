@@ -1,9 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GExternalEvaluatorUnitTests)
+SET (EXECUTABLENAME GNeuralNetworkUnitTests)
 
 SET (${EXECUTABLENAME}_SRCS 
-	GExternalEvaluatorUnitTests
+	GNeuralNetworkUnitTests
+	../../GNeuralNetworkIndividual
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

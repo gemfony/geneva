@@ -62,6 +62,7 @@ SET ( EXECUTABLENAME GNeuralNetwork )
 SET ( ${EXECUTABLENAME}_SRCS
 	  GArgumentParser
 	  GNeuralNetwork
+	  GNeuralNetworkIndividual
 )
 
 SET ( CONFIGFILE

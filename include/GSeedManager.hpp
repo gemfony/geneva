@@ -255,8 +255,7 @@ private:
 		if(!urandom) return false;
 		// Read in the data
 		boost::uint32_t seed;
-		char *seedArray = reinterpret_cast<char *>(&seed);
-		for(std::size_t i=0; i<sizeof(seed); i++) 	urandom >> seedArray[i];
+		urandom.read(reinterpret_cast<char*>(&seed), sizeof(seed));
 		urandom.close();
 		startSeed_ = seed; // Set the seed as requested;
 		return true;

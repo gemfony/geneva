@@ -35,7 +35,7 @@ using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
 // The class to be tested
-#include "GStartIndividual.hpp"
+#include "GNeuralNetworkIndividual.hpp"
 
 // Contains the necessary tests
 #include "GStandard_test.hpp"
@@ -49,7 +49,7 @@ using namespace Gem::GenEvA;
 /************************************************************************************************/
 /**
  * This test suite checks as much as possible of the functionality provided by Geneva classes.
- * All instantiable core Geneva classes should be listed here.
+ * All those Geneva classes should be listed that should be tested here.
  */
 class GenevaStandardTestSuite
 	: public test_suite
@@ -57,14 +57,15 @@ class GenevaStandardTestSuite
 public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 		typedef boost::mpl::list<
-		      GStartIndividual
+		      GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>
+			, GNeuralNetworkIndividual<Gem::GenEvA::RBF>
 		>
-		gstartproject_types;
+		gneuralnetwork_types;
 
 		/****************************************************************************************/
 
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected,  gstartproject_types) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected,  gstartproject_types) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected,  gneuralnetwork_types) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected,  gneuralnetwork_types) );
 	}
 };
 

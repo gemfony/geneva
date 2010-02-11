@@ -161,14 +161,8 @@ protected:
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
-/**
- * As the Gem::GenEvA::Gem::GenEvA::GParameterSet has a private default constructor, we need to provide a
- * specialization of the factory function that creates GStartProjectIndividual objects
- */
-template <>
-boost::shared_ptr<Gem::GenEvA::GParameterSet> TFactory_GUnitTests<Gem::GenEvA::GParameterSet>() {
-	return boost::shared_ptr<Gem::GenEvA::GParameterSet>(new Gem::GenEvA::GParameterSet());
-}
+/** @brief We need to provide a specialization of the factory function that creates objects of this type. */
+template <> boost::shared_ptr<Gem::GenEvA::GParameterSet> TFactory_GUnitTests<Gem::GenEvA::GParameterSet>();
 
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////

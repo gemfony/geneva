@@ -124,6 +124,13 @@ boost::optional<std::string> trainingSet::checkRelationshipWith(const trainingSe
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /************************************************************************************************/
 /**
+ * The default constructor
+ */
+networkData::networkData()
+{ /* nothing */ }
+
+/************************************************************************************************/
+/**
  * Initializes the object with data from a file
  *
  * @param networkDataFile The name of a file holding the training data
@@ -140,8 +147,9 @@ networkData::networkData(const std::string& networkDataFile) {
  */
 networkData::networkData(const networkData& cp)
 	: GStdSimpleVectorInterfaceT<std::size_t>(cp)
+	, currentIndex_(cp.currentIndex_)
 {
-	Gem::Util::copySmartPointerVector(cp.data, data);
+	Gem::Util::copySmartPointerVector(cp.data_, data_);
 }
 
 /************************************************************************************************/
@@ -161,7 +169,9 @@ networkData::~networkData()
  * @return A constant reference to this object
  */
 const networkData& networkData::operator=(const networkData& cp) {
-	Gem::Util::copySmartPointerVector(cp.data, data);
+	GStdSimpleVectorInterfaceT<std::size_t>::operator=(cp);
+	Gem::Util::copySmartPointerVector(cp.data_, data_);
+	currentIndex_=cp.currentIndex_;
 	return *this;
 }
 
@@ -216,21 +226,21 @@ boost::optional<std::string> networkData::checkRelationshipWith(const networkDat
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
+	// Check the parent class'es data
+	deviations.push_back(GStdSimpleVectorInterfaceT<std::size_t>::checkRelationshipWith(cp, e, limit, "networkData", y_name, withMessages));
+
     // Check vector sizes
-    if(data.size() != cp.data.size()) {
+    if(data_.size() != cp.data_.size()) {
     	std::ostringstream error;
-    	error << "Vector sizes did not match in networkData::checkRelationshipWith(): " << data.size() << " / " << cp.data.size();
+    	error << "Vector sizes did not match in networkData::checkRelationshipWith(): " << data_.size() << " / " << cp.data_.size();
     	deviations.push_back(boost::optional<std::string>(error.str()));
     }
     else {
-    	// Check the parent class'es data
-    	deviations.push_back(GStdSimpleVectorInterfaceT<std::size_t>::checkRelationshipWith(cp, e, limit, y_name, withMessages));
-
     	// Check local data
-    	std::vector<boost::shared_ptr<trainingSet> >::iterator it;
+    	std::vector<boost::shared_ptr<trainingSet> >::const_iterator it;
     	std::vector<boost::shared_ptr<trainingSet> >::const_iterator cit;
-    	for(it=data.begin(), cit=cp.data.begin(); it!=data.end(); ++it, ++cit) {
-    		deviations.push_back((*it)->checkRelationshipWith(**cit, e, limit, y_name, withMessages));
+    	for(it=data_.begin(), cit=cp.data_.begin(); it!=data_.end(); ++it, ++cit) {
+    		deviations.push_back((*it)->checkRelationshipWith(**cit, e, limit, "networkData", y_name, withMessages));
     	}
     }
 
@@ -246,7 +256,7 @@ boost::optional<std::string> networkData::checkRelationshipWith(const networkDat
 void networkData::saveToDisk(const std::string& networkDataFile) const {
 	std::ofstream trDat(networkDataFile.c_str());
 
-	if(!trDat){
+	if(!trDat.good()){
 		std::ostringstream error;
 		error << "In networkData::saveToDisk(const std::string&) : Error!" << std::endl
 			  << "Data file " << networkDataFile << " could not be opened for writing." << std::endl;
@@ -271,12 +281,17 @@ void networkData::saveToDisk(const std::string& networkDataFile) const {
  */
 void networkData::loadFromDisk(const std::string& networkDataFile) {
 	networkData *nD;
+
 	std::ifstream trDat(networkDataFile.c_str());
 
-	if(!trDat){
+	if(!trDat.good()){
 		std::ostringstream error;
 		error << "In networkData::loadFromDisk(const std::string&) : Error!" << std::endl
 			  << "Data file " << networkDataFile << " could not be opened for reading." << std::endl;
+
+		if(!boost::filesystem::exists(networkDataFile.c_str())) {
+			error << "File does not exist." << std::endl;
+		}
 
 		throw geneva_error_condition(error.str());
 	}
@@ -314,9 +329,9 @@ void networkData::addTrainingSet(boost::shared_ptr<trainingSet> tS) {
  * @return The next training set in the list
  */
 boost::optional<boost::shared_ptr<trainingSet> > networkData::getNextTrainingSet() const {
-	std::vector<boost::shared_ptr<trainingSet> >::iterator currentIterator = data_.begin() + currentIndex_;
+	std::vector<boost::shared_ptr<trainingSet> >::const_iterator currentIterator = data_.begin() + currentIndex_;
 	if(currentIterator != data_.end()) {
-		boost::optional<boost::shared_ptr<trainingSet> > o = *currentIterator_;
+		boost::optional<boost::shared_ptr<trainingSet> > o = *currentIterator;
 		currentIndex_++;
 		return o;
 	}
@@ -331,8 +346,105 @@ boost::optional<boost::shared_ptr<trainingSet> > networkData::getNextTrainingSet
  * Resets the index of the current training set, so that upon next call to getNextTrainingSet()
  * the first training set in the list is returned.
  */
-void networkData::resetCurrentIndex() {
+void networkData::resetCurrentIndex() const {
 	currentIndex_ = 0;
+}
+
+
+/************************************************************************************************/
+/**
+ * Retrieves the number of input nodes of this network
+ *
+ * @return The number of input nodes of this network
+ */
+std::size_t networkData::getNInputNodes() const {
+	return this->front();
+}
+
+/************************************************************************************************/
+/**
+ * Retrieves the number of output nodes of this network
+ *
+ * @return The number of output nodes of this network
+ */
+std::size_t networkData::getNOutputNodes() const {
+	return this->back();
+}
+
+/************************************************************************************************/
+/**
+ * Saves this data set in ROOT format for visual inspection. It assumes that the input dimension
+ * is 2 and the output dimension is 1. It will generate two distributions that will be coloured
+ * differently -- one with output < 0.5, the other with output >= 0.5.
+ *
+ * @param outputFile The name of the file used for the visualization of the input data
+ */
+void networkData::toRoot(const std::string& outputFile) {
+	// Check that we have a matching number of input nodes
+	if(getNInputNodes() != 2 || getNOutputNodes() != 1) {
+		std::cerr << "In networkData::toRoot(): Warning!" << std::endl
+  		          << "Got inappropriate number of input and/or output nodes: " << getNInputNodes() << "/" << getNOutputNodes() << std::endl
+  		          << "We need 2/1. The function will return without further action." << std::endl;
+		return;
+	}
+
+	std::ofstream of(outputFile.c_str());
+
+	of << "{" << std::endl
+	   << "  std::vector<double> x1_vec, y1_vec, x2_vec, y2_vec;" << std::endl
+	   << std::endl
+	   << "  // Filling the data sets" << std::endl;
+
+	for(std::size_t i=0; i<data_.size(); i++) {
+		if(data_[i]->Output[0] < 0.5) {
+			of << "  x1_vec.push_back(" << data_[i]->Input[0] << ");" << std::endl
+			   << "  y1_vec.push_back(" << data_[i]->Input[1] << ");" << std::endl;
+		}
+		else {
+			of << "  x2_vec.push_back(" << data_[i]->Input[0] << ");" << std::endl
+			   << "  y2_vec.push_back(" << data_[i]->Input[1] << ");" << std::endl;
+		}
+	}
+
+	of << std::endl
+	   << "  // Transfer into arrays suitable for printing with a TGraph" << std::endl
+	   << "  std::size_t n1Entries = x1_vec.size();" << std::endl
+	   << "  std::size_t n2Entries = x2_vec.size();" << std::endl
+	   << std::endl
+	   << "  double x1[n1Entries], y1[n1Entries], x2[n2Entries], y2[n2Entries];" << std::endl
+	   << std::endl
+	   << "  for(std::size_t i=0; i<n1Entries; i++) {" << std::endl
+	   << "    x1[i] = x1_vec[i];" << std::endl
+	   << "    y1[i] = y1_vec[i];" << std::endl
+	   << "  }" << std::endl
+	   << std::endl
+	   << "  for(std::size_t i=0; i<n2Entries; i++) {" << std::endl
+	   << "    x2[i] = x2_vec[i];" << std::endl
+	   << "    y2[i] = y2_vec[i];" << std::endl
+	   << "  }" << std::endl
+	   << std::endl
+	   << "  // Creation of suitable TGraph objects" << std::endl
+	   << "  TGraph *gr1 = new TGraph(n1Entries, x1, y1);" << std::endl
+	   << "  TGraph *gr2 = new TGraph(n2Entries, x2, y2);" << std::endl
+	   << std::endl
+	   << "  gr1->SetMarkerColor(17);" << std::endl
+	   << "  gr2->SetMarkerColor(12);" << std::endl
+	   << std::endl
+	   << "gr1->SetMarkerStyle(21);" << std::endl
+	   << "gr2->SetMarkerStyle(21);" << std::endl
+	   << std::endl
+	   << "gr1->SetMarkerSize(0.3);" << std::endl
+	   << "gr2->SetMarkerSize(0.35);" << std::endl
+	   << std::endl
+	   << "  gr1->GetXaxis()->SetLimits(0.,1.0);" << std::endl
+	   << "  gr1->GetYaxis()->SetLimits(0.,1.0);" << std::endl
+	   << std::endl
+	   << "  // Do the drawing" << std::endl
+	   << "  gr1->Draw(\"AP\");" << std::endl
+	   << "  gr2->Draw(\"P,same\");" << std::endl
+	   << "}" << std::endl;
+
+	of.close();
 }
 
 /************************************************************************************************/
@@ -361,9 +473,109 @@ inline double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const
 	return exp(-GSQUARED(value));
 }
 
+
+// Needed for testing purposes
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * As the Gem::GenEvA::Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > TFactory_GUnitTests<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >() {
+	return boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >(new Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>("../../DataSets/training.dat",-1.,1.));
+}
+
+/*************************************************************************************************/
+/**
+ * As the Gem::GenEvA::Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> has a private default constructor, we need to provide a
+ * specialization of the factory function that creates GStartProjectIndividual objects
+ */
+template <>
+boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> > TFactory_GUnitTests<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> >() {
+	return boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> >(new Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF>("../../DataSets/training.dat",-1.,1.));
+}
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * Reads a Gem::GenEvA::trainingDataType item from a stream. Needed so we
+ * can use boost::program_options to read trainingDataType data.
+ *
+ * @param i The stream the item should be read from
+ * @param tdt The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::GenEvA::trainingDataType& tdt){
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	tdt = boost::numeric_cast<Gem::GenEvA::trainingDataType>(tmp);
+#else
+	tdt = static_cast<Gem::GenEvA::trainingDataType>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
 /************************************************************************************************/
-//////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Puts a Gem::GenEvA::trainingDataType item into a stream. Needed so we
+ * can use boost::program_options to output trainingDataType data.
+ *
+ * @param o The ostream the item should be added to
+ * @param tdt the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::trainingDataType& tdt){
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(tdt);
+	o << tmp;
+	return o;
+}
+
 /************************************************************************************************/
+/**
+ * Reads a Gem::GenEvA::transferFunction item from a stream. Needed so we
+ * can use boost::program_options to read transferFunction data.
+ *
+ * @param i The stream the item should be read from
+ * @param tF The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::GenEvA::transferFunction& tF){
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	tF = boost::numeric_cast<Gem::GenEvA::transferFunction>(tmp);
+#else
+	tF = static_cast<Gem::GenEvA::transferFunction>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/************************************************************************************************/
+/**
+ * Puts a Gem::GenEvA::transferFunction item into a stream. Needed so we
+ * can use boost::program_options to output transferFunction data.
+ *
+ * @param o The ostream the item should be added to
+ * @param tF the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::transferFunction& tF){
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(tF);
+	o << tmp;
+	return o;
+}
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

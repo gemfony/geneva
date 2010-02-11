@@ -28,7 +28,6 @@
  */
 
 // Standard headers go here
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -45,6 +44,8 @@
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
 
 #ifndef GARGUMENTPARSER_HPP_
 #define GARGUMENTPARSER_HPP_
@@ -57,6 +58,7 @@
 // GenEvA headers go here
 #include "GEnums.hpp"
 #include "GSerializationHelperFunctions.hpp"
+#include "GNeuralNetworkIndividual.hpp"
 
 namespace Gem
 {
@@ -78,38 +80,58 @@ namespace Gem
     const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
     const unsigned short DEFAULTPORT=10000;
     const std::string DEFAULTIP="localhost";
-    const std::string DEFAULTCONFIGFILE="./GStartProject.cfg";
+    const std::string DEFAULTCONFIGFILE="./GNeuralNetwork.cfg";
     const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
     const boost::uint32_t DEFAULTSTARTITERATION=0;
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
     const bool DEFAULTRETURNREGARDLESS=true;
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
     const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
+    const Gem::GenEvA::trainingDataType DEFAULTTRAININGDATATYPE=Gem::GenEvA::TDTNONE;
+    const std::string DEFAULTTRAININGDATAFILE="geneva_training.dat";
+    const std::size_t DEFAULTNDATASETS=2000;
+    const std::string DEFAULTARCHITECTURE="2 4 4 1";
+    const std::string DEFAULTTRAININGINPUTDATA="training.dat";
+    const std::string DEFAULTRESULTPROGRAM="trainedNetwork.hpp";
+    const std::string DEFAULTVISUALIZATIONFILE="visualization.C";
+    const transferFunction DEFAULTTRANSFERFUNCTION=Gem::GenEvA::SIGMOID;
 
     namespace po = boost::program_options;
 
-    bool parseCommandLine(int argc, char **argv,
-			  std::string& configFile,			  
-			  boost::uint16_t& parallelizationMode,
-			  bool& serverMode,
-			  std::string& ip,
-			  unsigned short& port);
+    bool parseCommandLine(
+    		  int argc, char **argv
+			, std::string& configFile
+			, boost::uint16_t& parallelizationMode
+			, bool& serverMode
+			, std::string& ip
+			, unsigned short& port
+			, trainingDataType& tdt
+			, std::string& trainingDataFile
+			, std::size_t& nDataSets
+			, std::vector<std::size_t>& architecture
+	);
 
-    bool parseConfigFile(const std::string& configFile,
-			 boost::uint16_t& nProducerThreads,
-			 boost::uint16_t& nEvaluationThreads,
-			 std::size_t& populationSize,
-			 std::size_t& nParents,
-			 boost::uint32_t& maxIterations,
-			 long& maxMinutes,
-			 boost::uint32_t& reportIteration,
-			 recoScheme& rScheme,
-			 sortingMode& smode,
-			 std::size_t& arraySize,
-			 boost::uint32_t& processingCycles,
-			 bool& returnRegardless,
-			 boost::uint32_t& waitFactor,
-			 bool& verbose);
+    bool parseConfigFile(
+    		  const std::string& configFile
+			, boost::uint16_t& nProducerThreads
+			, boost::uint16_t& nEvaluationThreads
+			, std::size_t& populationSize
+			, std::size_t& nParents
+			, boost::uint32_t& maxIterations
+			, long& maxMinutes
+			, boost::uint32_t& reportIteration
+			, recoScheme& rScheme
+			, sortingMode& smode
+			, std::size_t& arraySize
+			, boost::uint32_t& processingCycles
+			, bool& returnRegardless
+			, boost::uint32_t& waitFactor
+			, transferFunction& tF
+			, std::string& trainingInputData
+			, std::string& resultProgram
+			, std::string& visualizationFile
+			, const bool& verbose
+	);
 
   } /* namespace GenEvA */
 } /* namespace Gem */
