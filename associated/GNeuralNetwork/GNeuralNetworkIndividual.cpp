@@ -378,8 +378,14 @@ std::size_t networkData::getNOutputNodes() const {
  * differently -- one with output < 0.5, the other with output >= 0.5.
  *
  * @param outputFile The name of the file used for the visualization of the input data
+ * @param min The minimum value of the distribution to be displayed
+ * @param max The maximum value of the distribution to be displayed
  */
-void networkData::toRoot(const std::string& outputFile) {
+void networkData::toRoot(
+		  const std::string& outputFile
+		, const double& min
+		, const double& max
+) {
 	// Check that we have a matching number of input nodes
 	if(getNInputNodes() != 2 || getNOutputNodes() != 1) {
 		std::cerr << "In networkData::toRoot(): Warning!" << std::endl
@@ -392,17 +398,21 @@ void networkData::toRoot(const std::string& outputFile) {
 
 	of << "{" << std::endl
 	   << "  std::vector<double> x1_vec, y1_vec, x2_vec, y2_vec;" << std::endl
+	   << "  TH2F *h2_one = new TH2F(\"h2_one\",\"h2_one\",100," << min << ", " << max << ", 100, " << min << ", " << max << ");" << std::endl
+	   << "  TH2F *h2_two = new TH2F(\"h2_two\",\"h2_two\",100," << min << ", " << max << ", 100, " << min << ", " << max << ");" << std::endl
 	   << std::endl
 	   << "  // Filling the data sets" << std::endl;
 
 	for(std::size_t i=0; i<data_.size(); i++) {
 		if(data_[i]->Output[0] < 0.5) {
 			of << "  x1_vec.push_back(" << data_[i]->Input[0] << ");" << std::endl
-			   << "  y1_vec.push_back(" << data_[i]->Input[1] << ");" << std::endl;
+			   << "  y1_vec.push_back(" << data_[i]->Input[1] << ");" << std::endl
+			   << "  h2_one->Fill(" << data_[i]->Input[0] << ", " << data_[i]->Input[1] << ");" << std::endl;
 		}
 		else {
 			of << "  x2_vec.push_back(" << data_[i]->Input[0] << ");" << std::endl
-			   << "  y2_vec.push_back(" << data_[i]->Input[1] << ");" << std::endl;
+			   << "  y2_vec.push_back(" << data_[i]->Input[1] << ");" << std::endl
+			   << "  h2_two->Fill(" << data_[i]->Input[0] << ", " << data_[i]->Input[1] << ");" << std::endl;
 		}
 	}
 
@@ -430,18 +440,18 @@ void networkData::toRoot(const std::string& outputFile) {
 	   << "  gr1->SetMarkerColor(17);" << std::endl
 	   << "  gr2->SetMarkerColor(12);" << std::endl
 	   << std::endl
-	   << "gr1->SetMarkerStyle(21);" << std::endl
-	   << "gr2->SetMarkerStyle(21);" << std::endl
+	   << "  gr1->SetMarkerStyle(21);" << std::endl
+	   << "  gr2->SetMarkerStyle(21);" << std::endl
 	   << std::endl
-	   << "gr1->SetMarkerSize(0.3);" << std::endl
-	   << "gr2->SetMarkerSize(0.35);" << std::endl
+	   << "  gr1->SetMarkerSize(0.3);" << std::endl
+	   << "  gr2->SetMarkerSize(0.35);" << std::endl
 	   << std::endl
-	   << "  gr1->GetXaxis()->SetLimits(0.,1.0);" << std::endl
-	   << "  gr1->GetYaxis()->SetLimits(0.,1.0);" << std::endl
+	   << "  gr2->GetXaxis()->SetRangeUser(" << min << ", " << max << ");" << std::endl
+	   << "  gr2->GetYaxis()->SetRangeUser(" << min << ", " << max << ");" << std::endl
 	   << std::endl
 	   << "  // Do the drawing" << std::endl
-	   << "  gr1->Draw(\"AP\");" << std::endl
-	   << "  gr2->Draw(\"P,same\");" << std::endl
+	   << "  gr2->Draw(\"AP\");" << std::endl
+	   << "  gr1->Draw(\"P,same\");" << std::endl
 	   << "}" << std::endl;
 
 	of.close();

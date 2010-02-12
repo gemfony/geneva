@@ -96,7 +96,7 @@ namespace Gem
 	  ("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
 	  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
 	  ("trainingDataType", po::value<trainingDataType>(&tdt)->default_value(DEFAULTTRAININGDATATYPE),
-	   "The type of training data to be produced: 0 (none), 1 (hyper cube), 2 (hyper sphere), 3 (axis centric)")
+	   "The type of training data to be produced: 0 (none), 1 (hyper cube), 2 (hyper sphere), 3 (axis centric), 4 (sinus)")
 	  ("trainingDataFile", po::value<std::string>(&trainingDataFile)->default_value(DEFAULTTRAININGDATAFILE),
 	   "The name of the output file for the creation of training data")
 	  ("nDataSets", po::value<std::size_t>(&nDataSets)->default_value(DEFAULTNDATASETS),

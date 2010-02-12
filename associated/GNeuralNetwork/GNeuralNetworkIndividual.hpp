@@ -200,7 +200,7 @@ public:
 	std::size_t getNOutputNodes() const;
 
 	/** @brief Saves this data set in ROOT format for visual inspection */
-	void toRoot(const std::string&);
+	void toRoot(const std::string&, const double&, const double&);
 protected:
 	/** @brief This function is purely virtual in our parent class*/
 	virtual void dummyFunction() { /* nothing */ };
@@ -217,7 +217,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /************************************************************************************************/
 /** @brief This enum is used to specify the type of training data that should be generated */
-enum trainingDataType {TDTNONE=0, HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3};
+enum trainingDataType {TDTNONE=0, HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3, SINUS=4};
 /** @brief Allows to specify whether we want to use a sigmoidal transfer function or a radial basis function */
 enum transferFunction {SIGMOID=0, RBF=1};
 
@@ -309,7 +309,7 @@ public:
 				// Set up a GDoubleCollection
 				boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection());
 				// Set up and register an adaptor for the collection
-				boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(fabs(max), 0.5, 0.001, fabs(max)));
+				boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.2, 0.5, 0.0001, 2.));
 				gdc->addAdaptor(gdga);
 
 				// The input layer needs 2*nNodes double values
@@ -574,7 +574,7 @@ public:
 		{
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
-			local_radius = gr.evenRandom(0,2*radius);
+			local_radius = gr.evenRandom(0,3*radius);
 			if(local_radius > radius) tS->Output.push_back(0.99);
 			else tS->Output.push_back(0.01);
 
@@ -675,7 +675,7 @@ public:
 		// Create a local random number generator.
 		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
 
-		// The dimension of the hypersphere is identical to the number of input nodes
+		// The dimension of the data set is equal to the number of input nodes
 		std::size_t nDim = architecture[0];
 
 		// Create the actual networkData object and attach the architecture
@@ -708,20 +708,106 @@ public:
   		    // Create entries in a half-cylindrical "cloud" around one axis. The density of
 			// this cloud is decreasing with increasing distance from the axis.
 			else {
-				std::vector<double> inputVector(nDim);
-				double functionValue = 0.;
-				double testValue = gr.evenRandom(0.,2.);
+				// Create a test value
+				double probeValue = 0.;
+				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) probeValue += exp(-5.*gr.evenRandom());
 
+				double functionValue;
+				std::vector<double> inputVector(nDim);
 				do {
 					functionValue = 0.;
+
+					// Create the input vector
 					for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) {
 						inputVector[dimCounter] = gr.evenRandom();
-						functionValue += exp(-20.*GSQUARED(inputVector[dimCounter]));
+						functionValue += exp(-5*inputVector[dimCounter]);
 					}
-				} while(functionValue < testValue);
+					functionValue = pow(functionValue, 4.);
+
+				} while(functionValue < probeValue);
 
 				tS->Input = inputVector;
 				(tS->Output).push_back(0.99);
+			}
+
+			nD->addTrainingSet(tS);
+		}
+
+		return nD;
+	}
+
+	/********************************************************************************************/
+	/**
+	 * Creates training data where one data set is evenly distributed above a sin(x) curve, the
+	 * other evenly below it. This example only accepts two input nodes.
+	 *
+	 * @param architecture The desired architecture of the network
+	 * @param nDataSets The number of training sets to create
+	 * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
+	 */
+	static boost::shared_ptr<networkData> createSinNetworkData (
+			const std::vector<std::size_t>& architecture
+		  , const std::size_t& nDataSets
+	) {
+		// Check the number of supplied layers
+		if(architecture.size() < 2) { // We need at least an input- and an output-layer
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+				  << "Got invalid number of layers: " << architecture.size() << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		// Check that the output layer has exactly one node
+		if(architecture.back() != 1) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+				  << "The output layer must have exactly one node for this training data." << std::endl
+				  << "Got " << architecture.back() << " instead." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		// We require the input dimension to be 2
+		if(architecture.front() != 2) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+				  << "The input layer must have exactly two node for this example." << std::endl
+				  << "Got " << architecture.front() << " instead." << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+
+		// Create a local random number generator.
+		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+
+		// Create the actual networkData object and attach the architecture
+		// Checks the architecture on the way
+		boost::shared_ptr<networkData> nD(new networkData());
+		std::vector<std::size_t>::const_iterator it;
+		std::size_t layerCounter = 0;
+		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
+			if(*it == 0) {
+				std::ostringstream error;
+				error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+
+			nD->push_back(*it);
+		}
+
+		for(std::size_t dataCounter=0; dataCounter<nDataSets; dataCounter++)
+		{
+			boost::shared_ptr<trainingSet> tS(new trainingSet());
+
+			// create the two test values
+			(tS->Input).push_back(gr.evenRandom(-6., 6.)); // x
+			(tS->Input).push_back(gr.evenRandom(-6., 6.)); // y
+
+			// Check whether we are below or above the sin function and assign the output value accordingly
+			if((tS->Input)[1] > 4.*sin((tS->Input)[0])) {
+				(tS->Output).push_back(0.99);
+			}
+			else {
+				(tS->Output).push_back(0.01);
 			}
 
 			nD->addTrainingSet(tS);
@@ -745,10 +831,16 @@ public:
 			throw geneva_error_condition(error.str());
 		}
 
-		std::ostringstream visProgram;
+		std::ofstream visProgram(visFile.c_str());
+		if(!visProgram) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
+				  << "Attempt to open output file " << visFile << " for writing failed." << std::endl;
+			throw geneva_error_condition(error.str());
+		}
 
 		// The following only makes sense if the input dimension is 2
-		if((*nD_)[0] == 2){
+		if(nD_->getNInputNodes() == 2){
 			visProgram  << "/**" << std::endl
 			            << " * @file " << visFile << std::endl
 			            << " *" << std::endl
@@ -777,9 +869,10 @@ public:
 						<< std::endl
 						<< "/*" << std::endl
 						<< " * Can be compiled with the command" << std::endl
-						<< " * g++ -g -o testNetwork -I/opt/boost136/include/boost-1_36/ " << visFile << std::endl
-						<< " * on OpenSUSE 11 (assuming that Boost is installed under /opt in your" << std::endl
-						<< " * system." << std::endl
+						<< " * g++ -o visualization -I/opt/boost142/include/ visualization.C" << std::endl
+						<< " * e.g. on Ubuntu 9.10 (assuming that Boost is installed under /opt" << std::endl
+						<< " * in your system). The code should work with virtually any other" << std::endl
+						<< " * Linux distribution that supports Boost." << std::endl
 						<< " */" << std::endl
 						<< std::endl
 						<< "#include <iostream>" << std::endl
@@ -790,7 +883,7 @@ public:
 						<< "#include <boost/cstdint.hpp>" << std::endl
 						<< "#include <boost/random.hpp>" << std::endl
 						<< std::endl
-						<< "#include \"trainingResult.hpp\"" << std::endl
+						<< "#include \"trainedNetwork.hpp\"" << std::endl
 						<< std::endl
 						<< "const boost::uint32_t MAXPOINTS=10000;" << std::endl
 						<< std::endl
@@ -882,15 +975,8 @@ public:
 				  << "No action taken." << std::endl;
 		}
 
-		std::ofstream fstr(visFile.c_str());
-		if(!fstr) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
-				  << "Attempt to open output file " << visFile << " for writing failed." << std::endl;
-			throw geneva_error_condition(error.str());
-		}
-		fstr << visProgram.str() << std::endl;
-		fstr.close();
+		// Clean up
+		visProgram.close();
 	}
 
 	/********************************************************************************************/
@@ -909,7 +995,13 @@ public:
 			throw geneva_error_condition(error.str());
 		}
 
-		std::ostringstream header;
+		std::ofstream header(headerFile.c_str());
+		if(!header) {
+			std::ostringstream error;
+			error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
+				  << "Error writing output file " << headerFile << std::endl;
+			throw geneva_error_condition(error.str());
+		}
 
 		header << "/**" << std::endl
 				<< " * @file " << headerFile << std::endl
@@ -1068,18 +1160,8 @@ public:
 				<< std::endl
 				<< "#endif /* GENEVANEURALNETHEADER_HPP_ */" << std::endl;
 
-		// Write header to file, if requested
-		std::ofstream fstr(headerFile.c_str());
-		if(fstr) {
-			fstr << header.str();
-			fstr.close();
-		}
-		else {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
-				  << "Error writing output file!" << std::endl;
-			throw geneva_error_condition(error.str());
-		}
+		// Clean up
+		header.close();
 	}
 
 protected:

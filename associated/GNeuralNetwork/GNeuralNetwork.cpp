@@ -70,8 +70,8 @@ using namespace Gem::Util;
 void createNetworkData(
 		const Gem::GenEvA::trainingDataType& t
 	  , const std::string& outputFile
-	  , const std::vector<std::size_t> &architecture
-	  , const std::size_t nDataSets
+	  , const std::vector<std::size_t>& architecture
+	  , const std::size_t& nDataSets
 ) {
 	boost::shared_ptr<networkData> nD_ptr;
 
@@ -82,6 +82,10 @@ void createNetworkData(
 			  , nDataSets
 			  , 0.5 // edgelength
 		);
+
+		// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
+		nD_ptr->toRoot(outputFile + ".C", -0.5, 0.5);
+
 		break;
 
 	case Gem::GenEvA::HYPERSPHERE:
@@ -90,6 +94,10 @@ void createNetworkData(
 			  , nDataSets
 			  , 0.5 // radius
 		);
+
+		// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
+		nD_ptr->toRoot(outputFile + ".C", -1., 1.);
+
 		break;
 
 	case Gem::GenEvA::AXISCENTRIC:
@@ -97,6 +105,21 @@ void createNetworkData(
 				architecture
 			  , nDataSets
 		);
+
+		// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
+		nD_ptr->toRoot(outputFile + ".C", 0., 1.);
+
+		break;
+
+	case Gem::GenEvA::SINUS:
+		nD_ptr = GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>::createSinNetworkData (
+				architecture
+			  , nDataSets
+		);
+
+		// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
+		nD_ptr->toRoot(outputFile + ".C", -6., 6.);
+
 		break;
 
 	default:
@@ -109,11 +132,8 @@ void createNetworkData(
 		break;
 	}
 
-	// Write to file
+	// Write distribution to file
 	nD_ptr->saveToDisk(outputFile);
-
-	// Emit a visualization file, suitable for viewing with ROOT (see http://root.cern.ch)
-	nD_ptr->toRoot(outputFile + ".C");
 }
 
 /************************************************************************************************/
@@ -323,7 +343,7 @@ int main(int argc, char **argv){
 	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > best_ptr
 		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >();
 	  best_ptr->writeTrainedNetwork(resultProgram);
-	  if(architecture[0] = 2) best_ptr->writeVisualizationFile(visualizationFile);
+	  best_ptr->writeVisualizationFile(visualizationFile);
   }
   break;
 
@@ -332,7 +352,7 @@ int main(int argc, char **argv){
 	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::RBF> > best_ptr
 		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::GenEvA::RBF> >();
 	  best_ptr->writeTrainedNetwork(resultProgram);
-	  if(architecture[0] = 2) best_ptr->writeVisualizationFile(visualizationFile);
+	  best_ptr->writeVisualizationFile(visualizationFile);
   }
   break;
   }
