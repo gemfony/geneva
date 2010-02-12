@@ -197,6 +197,11 @@ namespace Gem
 			, std::string& trainingInputData
 			, std::string& resultProgram
 			, std::string& visualizationFile
+			, double& sigma
+			, double& sigmaSigma
+			, double& minSigma
+			, double& maxSigma
+			, double& mutProb
 			, const bool& verbose
 	) {
       boost::uint16_t recombinationScheme=0;
@@ -245,6 +250,16 @@ namespace Gem
 	   "The name of the result program")
 	  ("visualizationFile", po::value<std::string>(&visualizationFile)->default_value(DEFAULTVISUALIZATIONFILE),
 	   "The name of the visualization file")
+	  ("sigma", po::value<double>(&sigma)->default_value(DEFAULTNNSIGMA),
+	   "The width of the gaussian used for mutations")
+	  ("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTNNSIGMASIGMA),
+	   "The level of adaption of sigma")
+	  ("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTNNMINSIGMA),
+	   "The minimally allowed value for sigma")
+	  ("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTNNMAXSIGMA),
+	   "The maximally allowed value for sigma")
+	  ("mutProb", po::value<double>(&mutProb)->default_value(DEFAULTNNMUTPROB),
+	   "The likelihood for a parameter's mutation")
 	  ;
 
 	po::variables_map vm;
@@ -305,6 +320,11 @@ namespace Gem
 		    << "trainingInputData = " << trainingInputData << std::endl
 		    << "resultProgram = " << resultProgram << std::endl
 		    << "visualizationFile = " << visualizationFile << std::endl
+		    << "sigma = " << sigma << std::endl
+		    << "sigmaSigma = " << sigmaSigma << std::endl
+		    << "minSigma = " << minSigma << std::endl
+		    << "maxSigma = " << maxSigma << std::endl
+		    << "mutProb = " << mutProb << std::endl
 		    << std::endl;
 	}
       }

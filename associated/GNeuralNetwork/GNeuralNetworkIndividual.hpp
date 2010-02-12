@@ -72,9 +72,10 @@
 
 // GenEvA header files go here
 #include "GRandom.hpp"
-#include "GDoubleCollection.hpp"
+#include "GDoubleObjectCollection.hpp"
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
+#include "GDouble.hpp"
 #include "GenevaExceptions.hpp"
 #include "GHelperFunctionsT.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
@@ -279,13 +280,25 @@ public:
 	 * @param architecture Holds the number of nodes in the input layer, hidden(1/2) layer and output layer
 	 * @param min The minimum value of random numbers used for initialization of the network layers
 	 * @param max The maximum value of random numbers used for initialization of the network layers
+	 * @param sigma The sigma used for gauss adaptors
+	 * @param sigmaSigma Used for sigma adaption
+	 * @oaram minSigma The minimum allowed value for sigma
+	 * @param maxSigma The maximum allowed value for sigma
 	 */
-	GNeuralNetworkIndividual(std::string networkDataFile,
-				             double min, double max)
+	GNeuralNetworkIndividual(
+			  const std::string& networkDataFile
+			, const double& min, const double& max
+			, const double& sigma, const double& sigmaSigma
+			, const double& minSigma, const double& maxSigma
+			, const double& mutProb
+	)
 		: networkDataFile_(networkDataFile)
 		, nD_(new networkData(networkDataFile_))
 		, transferFunction_(tF)
 	{
+		// Create a local random number generator
+		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+
 		// Check the architecture we've been given and create the layers
 		std::size_t nLayers = nD_->size();
 
@@ -306,19 +319,27 @@ public:
 			if(*layerIterator){ // Add the next network layer to this class, if possible
 				nNodes = *layerIterator;
 
-				// Set up a GDoubleCollection
-				boost::shared_ptr<GDoubleCollection> gdc(new GDoubleCollection());
-				// Set up and register an adaptor for the collection
-				boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.2, 0.5, 0.0001, 2.));
-				gdc->addAdaptor(gdga);
+				// Set up a GDoubleObjectCollection
+				boost::shared_ptr<GDoubleObjectCollection> gdoc(new GDoubleObjectCollection());
 
-				// The input layer needs 2*nNodes double values
-				if(layerNumber==0) gdc->addRandomData(2*nNodes, min, max);
-				// We need nNodes * (nNodesPrevious + 1) double values
-				else gdc->addRandomData(nNodes*(nNodesPrevious+1), min, max);
+				// Add GDouble objects
+				for(std::size_t i=0; i<(layerNumber==0?2*nNodes:nNodes*(nNodesPrevious+1)); i++) {
+					// Set up a GDouble object, initializing it with random data
+					boost::shared_ptr<GDouble> gd_ptr(new GDouble(gr.evenRandom(min,max)));
+
+					// Set up an adaptor
+					boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
+					gdga->setMutationProbability(mutProb);
+
+					// Register it with the GDouble object
+					gd_ptr->addAdaptor(gdga);
+
+					// Register the GDouble object with the collection
+					gdoc->push_back(gd_ptr);
+				}
 
 				// Make the parameter collection known to this individual
-				this->data.push_back(gdc);
+				this->data.push_back(gdoc);
 
 				nNodesPrevious=nNodes;
 				layerNumber++;
@@ -953,9 +974,13 @@ public:
 						<< "          << \"  inside->SetMarkerStyle(21);\" << std::endl" << std::endl
 						<< "          << \"  inside->SetMarkerSize(0.2);\" << std::endl" << std::endl
 						<< "          << \"  inside->SetMarkerColor(12);\" << std::endl" << std::endl
+						<< "          << \"  inside->GetXaxis()->SetRangeUser(-1.,1.);\" << std::endl" << std::endl
+						<< "          << \"  inside->GetYaxis()->SetRangeUser(-1.,1.);\" << std::endl" << std::endl
 						<< "          << \"  outside->SetMarkerStyle(21);\" << std::endl" << std::endl
 						<< "          << \"  outside->SetMarkerSize(0.35);\" << std::endl" << std::endl
 						<< "          << \"  outside->SetMarkerColor(17);\" << std::endl" << std::endl
+						<< "          << \"  outside->GetXaxis()->SetRangeUser(-1.,1.);\" << std::endl" << std::endl
+						<< "          << \"  outside->GetYaxis()->SetRangeUser(-1.,1.);\" << std::endl" << std::endl
 						<< "          << std::endl" << std::endl
 						<< "          << \"  inside->Draw(\\\"AP\\\");\" << std::endl" << std::endl
 						<< "          << \"  outside->Draw(\\\"P\\\");\" << std::endl" << std::endl
@@ -1099,10 +1124,10 @@ public:
 				<< "      const double weights[nWeights] = {" << std::endl;
 
 		for(std::size_t i=0; i<nD_->size(); i++) {
-			boost::shared_ptr<GDoubleCollection> currentLayer = pc_at<GDoubleCollection>(i);
+			boost::shared_ptr<GDoubleObjectCollection> currentLayer = pc_at<GDoubleObjectCollection>(i);
 
 			for(std::size_t j=0; j<currentLayer->size(); j++) {
-				header << "        " << currentLayer->at(j);
+				header << "        " << currentLayer->at(j)->value();
 
 				if(i==(nD_->size()-1) && j==(currentLayer->size()-1)) header << std::endl;
 				else header << "," << std::endl;
@@ -1237,9 +1262,9 @@ protected:
 			std::vector<double> prevResults;
 			std::size_t nLayerNodes = (*nD_)[0];
 			double nodeResult=0;
-			const GDoubleCollection& inputLayer = *(pc_at<GDoubleCollection>(0));
+			const GDoubleObjectCollection& inputLayer = *(pc_at<GDoubleObjectCollection>(0));
 			for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
-				nodeResult=tS.Input[nodeCounter] * inputLayer[2*nodeCounter] - inputLayer[2*nodeCounter+1];
+				nodeResult=tS.Input[nodeCounter] * inputLayer[2*nodeCounter]->value() - inputLayer[2*nodeCounter+1]->value();
 				nodeResult=transfer(nodeResult);
 				prevResults.push_back(nodeResult);
 			}
@@ -1250,15 +1275,15 @@ protected:
 				std::vector<double> currentResults;
 				nLayerNodes=(*nD_)[layerCounter];
 				std::size_t nPrevLayerNodes=(*nD_)[layerCounter-1];
-				const GDoubleCollection& currentLayer = *(pc_at<GDoubleCollection>(layerCounter));
+				const GDoubleObjectCollection& currentLayer = *(pc_at<GDoubleObjectCollection>(layerCounter));
 
 				for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
 					// Loop over all nodes of the previous layer
 					nodeResult=0.;
 					for(std::size_t prevNodeCounter=0; prevNodeCounter<nPrevLayerNodes; prevNodeCounter++){
-						nodeResult += prevResults.at(prevNodeCounter) * currentLayer[nodeCounter*(nPrevLayerNodes+1)+prevNodeCounter];
+						nodeResult += prevResults.at(prevNodeCounter) * currentLayer[nodeCounter*(nPrevLayerNodes+1)+prevNodeCounter]->value();
 					}
-					nodeResult -= currentLayer[nodeCounter*(nPrevLayerNodes+1)+nPrevLayerNodes];
+					nodeResult -= currentLayer[nodeCounter*(nPrevLayerNodes+1)+nPrevLayerNodes]->value();
 					nodeResult=transfer(nodeResult);
 					currentResults.push_back(nodeResult);
 				}

@@ -494,7 +494,7 @@ inline double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const
  */
 template <>
 boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > TFactory_GUnitTests<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >() {
-	return boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >(new Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>("../../DataSets/training.dat",-1.,1.));
+	return boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >(new Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
 }
 
 /*************************************************************************************************/
@@ -504,7 +504,7 @@ boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > 
  */
 template <>
 boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> > TFactory_GUnitTests<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> >() {
-	return boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> >(new Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF>("../../DataSets/training.dat",-1.,1.));
+	return boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> >(new Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
 }
 
 /*************************************************************************************************/

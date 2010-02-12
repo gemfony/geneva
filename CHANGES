@@ -37,6 +37,7 @@ The main changes for this release include:
  - Reworked the clone framework to use boost::shared_ptr instead of "raw" GObject * pointers
  - Reworked the load framework so that public accessible load functions is shared pointers
  - Removed GChar and related classes, as these can be implemented better through integer classes
+ - Renovated the GNeuralNetwork program and cleaned up the example's hierarchy
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009

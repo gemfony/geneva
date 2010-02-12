@@ -167,6 +167,11 @@ int main(int argc, char **argv){
   std::string resultProgram;
   std::string visualizationFile;
   transferFunction tF;
+  double sigma;
+  double sigmaSigma;
+  double minSigma;
+  double maxSigma;
+  double mutProb;
 
   //***************************************************************************
   // Parse command line and configuration file
@@ -202,6 +207,11 @@ int main(int argc, char **argv){
 		   , trainingInputData
 		   , resultProgram
 		   , visualizationFile
+		   , sigma
+		   , sigmaSigma
+		   , minSigma
+		   , maxSigma
+		   , mutProb
 		   , true
 	)
   )
@@ -244,7 +254,18 @@ int main(int argc, char **argv){
   switch(tF) {
   case Gem::GenEvA::SIGMOID:
 	  for(std::size_t p = 0 ; p<nParents; p++) {
-		boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > sigmoid_nn_ptr(new GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>(trainingInputData, -1., 1.));
+		boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >
+			sigmoid_nn_ptr(new GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>(
+					  trainingInputData
+				    , -1.
+				    , 1.
+				    , sigma
+				    , sigmaSigma
+				    , minSigma
+				    , maxSigma
+				    , mutProb
+			)
+		);
 		sigmoid_nn_ptr->setProcessingCycles(processingCycles);
 
 		parentIndividuals.push_back(sigmoid_nn_ptr);
@@ -253,7 +274,18 @@ int main(int argc, char **argv){
 
   case Gem::GenEvA::RBF:
 	  for(std::size_t p = 0 ; p<nParents; p++) {
-		boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::RBF> > rbf_nn_ptr(new GNeuralNetworkIndividual<Gem::GenEvA::RBF>(trainingInputData, -1., 1.));
+		boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::RBF> >
+			rbf_nn_ptr(new GNeuralNetworkIndividual<Gem::GenEvA::RBF>(
+					  trainingInputData
+					, -1.
+					, 1.
+					, sigma
+					, sigmaSigma
+					, minSigma
+					, maxSigma
+					, mutProb
+			)
+		);
 		rbf_nn_ptr->setProcessingCycles(processingCycles);
 
 		parentIndividuals.push_back(rbf_nn_ptr);

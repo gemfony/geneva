@@ -95,6 +95,11 @@ namespace Gem
     const std::string DEFAULTRESULTPROGRAM="trainedNetwork.hpp";
     const std::string DEFAULTVISUALIZATIONFILE="visualization.C";
     const transferFunction DEFAULTTRANSFERFUNCTION=Gem::GenEvA::SIGMOID;
+    const double DEFAULTNNSIGMA=2;
+    const double DEFAULTNNSIGMASIGMA=0.8;
+    const double DEFAULTNNMINSIGMA=0.001;
+    const double DEFAULTNNMAXSIGMA=2.;
+    const double DEFAULTNNMUTPROB=0.05;
 
     namespace po = boost::program_options;
 
@@ -130,6 +135,11 @@ namespace Gem
 			, std::string& trainingInputData
 			, std::string& resultProgram
 			, std::string& visualizationFile
+			, double& sigma
+			, double& sigmaSigma
+			, double& minSigma
+			, double& maxSigma
+			, double& mutProb
 			, const bool& verbose
 	);
 
