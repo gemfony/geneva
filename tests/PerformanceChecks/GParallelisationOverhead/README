@@ -1,0 +1,8 @@
+This folder contains an application that, instead of performing 
+calculations in the evaluation function, waits for a predefined 
+amount of time. As this makes the run time independent of the underlying
+calculation and e.g. the load on client- and server-systems, this 
+allows us to measure the theoretically possible speedup for a given
+amount of data exchange and length of the evaluation procedure. 
+Furthermore, we can measure the overhead that is jointly introduced 
+by the broker infrastructure, serialization and network transfers.

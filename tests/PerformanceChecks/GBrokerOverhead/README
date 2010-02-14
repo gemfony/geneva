@@ -1,0 +1,5 @@
+This directory contains a simple Geneva application that searches for 
+the minimum of a function. Parallelisation can happen at your choice
+through the Boost.Thread consumer (instead of the "usual" ASIO-based
+consumer), directly through threads or in serial mode. This allows to
+measure the overhead introduced through the broker infrastructure.

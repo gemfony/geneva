@@ -1,14 +1,14 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GParallelisationOverhead)
+SET (EXECUTABLENAME GBrokerOverhead)
 
 SET (${EXECUTABLENAME}_SRCS 
-	GParallelisationOverhead
+	GBrokerOverhead
 	GArgumentParser
 )
 
 SET (CONFIGURATIONFILES
-    GParallelisationOverhead.cfg
+    GBrokerOverhead.cfg
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -16,7 +16,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 INCLUDE_DIRECTORIES (AFTER
-	${PROJECT_SOURCE_DIR}/tests/TestIndividuals
+	${PROJECT_SOURCE_DIR}/examples/SampleIndividuals
 )
 
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
