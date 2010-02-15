@@ -75,7 +75,6 @@ int main(int argc, char **argv){
 	unsigned short port;
 	boost::uint16_t nProducerThreads;
 	boost::uint16_t nEvaluationThreads;
-	std::size_t nBoostThreadConsumerThreads;
 	std::size_t populationSize;
 	std::size_t nParents;
 	boost::uint32_t maxGenerations;
@@ -99,7 +98,6 @@ int main(int argc, char **argv){
 			nParents,
 			maxGenerations,
 			processingCycles,
-			nBoostThreadConsumerThreads,
 			waitFactor,
 			nVariables))
 	{ exit(1); }

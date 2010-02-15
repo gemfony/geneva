@@ -129,7 +129,6 @@ bool parseConfigFile(const std::string& configFile,
 		std::size_t& nParents,
 		boost::uint32_t& maxGenerations,
 		boost::uint32_t& processingCycles,
-		std::size_t& nBoostThreadConsumerThreads,
 		boost::uint32_t& waitFactor,
 		std::size_t& nVariables)
 {
@@ -159,8 +158,6 @@ bool parseConfigFile(const std::string& configFile,
   	    		"Whether additional information should be emitted")
   	    ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
   	    		"The maximum number of cycles a client should perform mutations before it returns without success")
-  	    ("nBoostThreadConsumerThreads", po::value<std::size_t>(&nBoostThreadConsumerThreads)->default_value(DEFAULTNBTCONSUMERTHREADS),
-  	    		"The number of threads used in the GBoostThreadConsumer to process individuals")
   	    ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
   	    		"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
 		("nVariables", po::value<std::size_t>(&nVariables)->default_value(DEFAULTNVARIABLES),
@@ -202,7 +199,6 @@ bool parseConfigFile(const std::string& configFile,
 					<< "nParents = " << nParents << std::endl
 					<< "maxGenerations = " << maxGenerations << std::endl
 					<< "processingCycles = " << processingCycles << std::endl
-					<< "nBoostThreadConsumerThreads = " << nBoostThreadConsumerThreads << std::endl
 					<< "waitFactor = " << waitFactor << std::endl
 					<< "nVariables = " << nVariables << std::endl
 					<< std::endl;

@@ -99,7 +99,6 @@ bool parseConfigFile(const std::string& configFile,
 		std::size_t& nParents,
 		boost::uint32_t& maxGenerations,
 		boost::uint32_t& processingCycles,
-		std::size_t& nBoostThreadConsumerThreads,
 		boost::uint32_t& waitFactor,
 		std::size_t& nVariables);
 
