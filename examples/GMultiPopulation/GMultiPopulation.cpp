@@ -52,7 +52,7 @@
 
 // The individual that should be optimized
 // This is a simple parabola
-#include "GParabolaIndividual.hpp"
+#include "GFunctionIndividual.hpp"
 
 // Retrieves information from the command line
 #include "GCommandLineParser.hpp"

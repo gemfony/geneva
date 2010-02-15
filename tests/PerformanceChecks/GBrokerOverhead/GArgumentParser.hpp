@@ -76,11 +76,10 @@ namespace Gem
     const bool DEFAULTVERBOSE=true;
     const bool DEFAULTPARALLELIZATIONMODE=1;
     const std::size_t DEFAULTARRAYSIZE=1000;
-    const bool DEFAULTPRODUCTIONPLACE=true; // local production
     const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
     const unsigned short DEFAULTPORT=10000;
     const std::string DEFAULTIP="localhost";
-    const std::string DEFAULTCONFIGFILE="./GStartProject.cfg";
+    const std::string DEFAULTCONFIGFILE="./GBrokerOverhead.cfg";
     const sortingMode DEFAULTSORTINGSCHEME=MUPLUSNU;
     const boost::uint32_t DEFAULTSTARTITERATION=0;
     const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
@@ -90,11 +89,14 @@ namespace Gem
     const double DEFAULTMINVAR=-10.;
     const double DEFAULTMAXVAR=10.;
     const boost::uint16_t DEFAULTEVALFUNCTION=0;
+    const bool DEFAULTPRODUCTIONPLACE=true; // remote production
+    const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
+    const double DEFAULTGDAMUTPROB=1.0;
 
     namespace po = boost::program_options;
 
     bool parseCommandLine(
-    		int argc, char **argv,
+    		int argc, char **argv
 		  , std::string& configFile
 		  , boost::uint16_t& parallelizationMode
 	);
@@ -113,6 +115,13 @@ namespace Gem
 		  , std::size_t& arraySize
 		  , boost::uint32_t& processingCycles
 		  , boost::uint32_t& waitFactor
+		  , bool& productionPlace
+		  , double& mutProb
+		  , boost::uint32_t& adaptionThreshold
+		  , double& sigma
+		  , double& sigmaSigma
+		  , double& minSigma
+		  , double& maxSigma
 		  , std::size_t& parDim
 		  , double& minVar
 		  , double& maxVar

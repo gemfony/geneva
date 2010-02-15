@@ -1,11 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( SAMPLEINDIVIDUALSINCLUDES
-	GBoundedParabolaIndividual.hpp
 	GFunctionIndividual.hpp
 	GFunctionIndividualDefines.hpp
-	GNoisyParabolaIndividual.hpp
-	GParabolaIndividual.hpp
 	GProjectionIndividual.hpp
 )
 

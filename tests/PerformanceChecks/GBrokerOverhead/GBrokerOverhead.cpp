@@ -79,6 +79,13 @@ int main(int argc, char **argv){
   boost::uint32_t processingCycles;
   boost::uint32_t waitFactor;
   demoFunction df;
+  bool productionPlace;
+  boost::uint32_t adaptionThreshold;
+  double sigma;
+  double sigmaSigma;
+  double minSigma;
+  double maxSigma;
+  double mutProb;
 
   if(!parseCommandLine(argc, argv,
 		       configFile,			  
@@ -97,6 +104,13 @@ int main(int argc, char **argv){
 		      arraySize,
 		      processingCycles,
 		      waitFactor,
+		      productionPlace,
+		      mutProb,
+		      adaptionThreshold,
+			  sigma,
+			  sigmaSigma,
+			  minSigma,
+			  maxSigma,
 		      parDim,
 		      minVar,
 		      maxVar,
@@ -112,18 +126,18 @@ int main(int argc, char **argv){
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
   std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
   for(std::size_t p = 0 ; p<nParents; p++) {
-	  boost::shared_ptr<GParameterSet> functionIndividual;
+	  boost::shared_ptr<GParameterSet> functionIndividual_ptr;
 
 	  // Set up a single function individual, depending on the expected function type
 	  switch(df) {
 	  case PARABOLA:
-		  functionIndividual = boost::shared_ptr<GFunctionIndividual<PARABOLA> >(new GFunctionIndividual<PARABOLA>());
+		  functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<PARABOLA> >(new GFunctionIndividual<PARABOLA>());
 		  break;
 	  case NOISYPARABOLA:
-		  functionIndividual = boost::shared_ptr<GFunctionIndividual<NOISYPARABOLA> >(new GFunctionIndividual<NOISYPARABOLA>());
+		  functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<NOISYPARABOLA> >(new GFunctionIndividual<NOISYPARABOLA>());
 		  break;
 	  case ROSENBROCK:
-		  functionIndividual = boost::shared_ptr<GFunctionIndividual<ROSENBROCK> >(new GFunctionIndividual<ROSENBROCK>());
+		  functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<ROSENBROCK> >(new GFunctionIndividual<ROSENBROCK>());
 		  break;
 	  }
 
@@ -133,7 +147,7 @@ int main(int argc, char **argv){
 
 	  // Set up and register an adaptor for the collection, so it
 	  // knows how to be mutated.
-	  boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1,0.5,0.000001,2));
+	  boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
 	  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	  gdga_ptr->setMutationProbability(mutProb);
 	  if(productionPlace) // Factory means "true"
@@ -143,15 +157,11 @@ int main(int argc, char **argv){
 	  gdc_ptr->addAdaptor(gdga_ptr);
 
 	  // Make the parameter collection known to this individual
-	  functionIndividual->push_back(gdc_ptr);
-	  functionIndividual->setProcessingCycles(processingCycles);
+	  functionIndividual_ptr->push_back(gdc_ptr);
+	  functionIndividual_ptr->setProcessingCycles(processingCycles);
 
-	  parentIndividuals.push_back(gdii_ptr);
+	  parentIndividuals.push_back(functionIndividual_ptr);
   }
-
-  // Create an instance of our optimization monitor, telling it to output information in given intervals
-  std::ofstream resultSummary("./result.C");
-  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(nParents, resultSummary));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // We can now start creating populations. We refer to them through the base class
@@ -220,9 +230,6 @@ int main(int argc, char **argv){
   pop_ptr->optimize();
 
   //--------------------------------------------------------------------------------------------
-
-  // Make sure we close the result file
-  resultSummary.close();
 
   std::cout << "Done ..." << std::endl;
   return 0;

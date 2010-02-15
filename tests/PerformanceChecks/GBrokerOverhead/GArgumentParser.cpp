@@ -63,7 +63,6 @@ namespace Gem
 			  return false;
 		  }
 
-		  serverMode=false;
 		  if (vm.count("parallelizationMode")) {
 			  if(parallelizationMode > 2) {
 				  std::cout << "Error: the \"-p\" or \"--parallelizationMode\" option may only assume the"<< std::endl
@@ -89,9 +88,6 @@ namespace Gem
 				  << "Running with the following command line options:" << std::endl
 				  << "configFile = " << configFile << std::endl
 				  << "parallelizationMode = " << parModeString << std::endl
-				  << "serverMode = " << (serverMode?"true":"false") << std::endl
-				  << "ip = " << ip << std::endl
-				  << "port = " << port << std::endl
 				  << std::endl;
 	  }
 	  catch(...){
@@ -121,6 +117,13 @@ namespace Gem
 		  , std::size_t& arraySize
 		  , boost::uint32_t& processingCycles
 		  , boost::uint32_t& waitFactor
+		  , bool& productionPlace
+		  , double& mutProb
+		  , boost::uint32_t& adaptionThreshold
+		  , double& sigma
+		  , double& sigmaSigma
+		  , double& minSigma
+		  , double& maxSigma
 		  , std::size_t& parDim
 		  , double& minVar
 		  , double& maxVar
@@ -166,6 +169,20 @@ namespace Gem
 	   "The maximum number of cycles a client should perform mutations before it returns without success")
 	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
 	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
+      ("productionPlace", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
+		"Whether production of random numbers should happen locally (0) or in the random number factory (1)")
+	  ("mutProb", po::value<double>(&mutProb)->default_value(DEFAULTGDAMUTPROB),
+		"Specifies the likelihood for mutations to be actually carried out")
+	  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+		"Number of calls to mutate after which mutation parameters should be adapted")
+	  ("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
+		"The width of the gaussian used for the adaption of double values")
+	  ("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
+		"The adaption rate of sigma")
+	  ("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
+		"The minimum allowed value for sigma")
+	  ("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
+		"The maximum allowed value for sigma")
 	  ("parDim", po::value<std::size_t>(&parDim)->default_value(DEFAULTPARDIM),
 	   "The amount of variables in the parabola")
 	  ("minVar", po::value<double>(&minVar)->default_value(DEFAULTMINVAR),
@@ -250,6 +267,13 @@ namespace Gem
 		    << "arraySize = " << arraySize << std::endl
 		    << "processingCycles = " << processingCycles << std::endl
 	        << "waitFactor = " << waitFactor << std::endl
+			<< "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
+ 		    << "mutProb = " << mutProb << std::endl
+			<< "adaptionThreshold = " << adaptionThreshold << std::endl
+		    << "sigma = " << sigma << std::endl
+		    << "sigmaSigma " << sigmaSigma << std::endl
+		    << "minSigma " << minSigma << std::endl
+		    << "maxSigma " << maxSigma << std::endl
 		    << "parDim = " << parDim << std::endl
 		    << "minVar = " << minVar << std::endl
 		    << "maxVar = " << maxVar << std::endl

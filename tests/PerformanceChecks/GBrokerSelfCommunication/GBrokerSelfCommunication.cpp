@@ -61,8 +61,6 @@
 // Parses the command line for all required options
 #include "GCommandLineParser.hpp"
 
-#include "GOptimizationMonitor.hpp"
-
 using namespace Gem::GenEvA;
 using namespace Gem::Util;
 
@@ -135,17 +133,11 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GProjectionIndividual>
 		projectionIndividual(new GProjectionIndividual("sphere.xml",-radius, radius));
 
-	// Create the optimizationMonitor
-	boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor("optimization.xml"));
-
 	// Create the actual population
 	boost::shared_ptr<GBrokerEA> pop(new GBrokerEA());
 
 	// Make the individual known to the population
 	pop->push_back(projectionIndividual);
-
-	// Register the monitor with the population. boost::bind knows how to handle a shared_ptr.
-	pop->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
 
 	// Specify some population settings
 	pop->setPopulationSize(populationSize,nParents);

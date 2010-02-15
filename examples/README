@@ -1,4 +1,7 @@
-This directory contains numerous examples of how to use the Geneva library. 
+This directory contains some examples of how to use the Geneva library. 
 Please check each directory for further information. Where no README file
 is available, the main source code file (usually named similar to the 
-directory it is in) will usually have further information.
+directory it is in) will usually have further information. Note that there
+is also a complete example, including tests, under "associated/GStartProject".
+It is suggested to use that example as a starting point for your own 
+optimization programs.

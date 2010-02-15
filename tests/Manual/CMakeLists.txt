@@ -17,9 +17,5 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GBrokerSelfCommunication
-)
-
-ADD_SUBDIRECTORY (
 	GSigmaAdaption
 )
