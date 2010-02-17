@@ -220,8 +220,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_failures_expected, T)
 	{
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-		T gnct;
-		BOOST_CHECK_THROW(gnct.GObject::load(gnct), Gem::GenEvA::geneva_error_condition);
+		boost::shared_ptr<T> gnct_ptr(new T());
+		BOOST_CHECK_THROW(gnct_ptr->GObject::load(gnct_ptr), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 	}
 }

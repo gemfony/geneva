@@ -193,8 +193,8 @@ public:
 		{
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-			GBooleanCollection gbc(100);
-			BOOST_CHECK_THROW(gbc.GObject::load(gbc), Gem::GenEvA::geneva_error_condition);
+			boost::shared_ptr<GBooleanCollection> gbc_ptr(new GBooleanCollection(100));
+			BOOST_CHECK_THROW(gbc_ptr->GObject::load(gbc_ptr), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 		}
 	}

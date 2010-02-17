@@ -177,8 +177,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GIntFlipAdaptorT_failures_expected, T)
 	{
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-		T gifat0;
-		BOOST_CHECK_THROW(gifat0.load(&gifat0), Gem::GenEvA::geneva_error_condition);
+		boost::shared_ptr<T> gifat0_ptr(new T());
+		BOOST_CHECK_THROW(gifat0_ptr->load(gifat0_ptr), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 	}
 }

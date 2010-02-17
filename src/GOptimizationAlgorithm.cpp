@@ -60,6 +60,7 @@ GOptimizationAlgorithm::GOptimizationAlgorithm()
 	 , qualityThreshold_(DEFAULTQUALITYTHRESHOLD)
 	 , hasQualityThreshold_(false)
 	 , maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
+	 , emitTerminationReason_(false)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -85,6 +86,7 @@ GOptimizationAlgorithm::GOptimizationAlgorithm(const GOptimizationAlgorithm& cp)
 	 , qualityThreshold_(cp.qualityThreshold_)
 	 , hasQualityThreshold_(cp.hasQualityThreshold_)
 	 , maxDuration_(cp.maxDuration_)
+	 , emitTerminationReason_(cp.emitTerminationReason_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -168,6 +170,7 @@ boost::optional<std::string> GOptimizationAlgorithm::checkRelationshipWith(const
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", qualityThreshold_, p_load->qualityThreshold_, "qualityThreshold_", "p_load->qualityThreshold_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", hasQualityThreshold_, p_load->hasQualityThreshold_, "hasQualityThreshold_", "p_load->hasQualityThreshold_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", maxDuration_, p_load->maxDuration_, "maxDuration_", "p_load->maxDuration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", emitTerminationReason_, p_load->emitTerminationReason_, "emitTerminationReason_", "p_load->emitTerminationReason_", e , limit));
 
 	return evaluateDiscrepancies("GOptimizationAlgorithm", caller, deviations, e);
 }
@@ -223,6 +226,7 @@ void GOptimizationAlgorithm::load_(const GObject* cp)
 	qualityThreshold_ = p_load->qualityThreshold_;
 	hasQualityThreshold_ = p_load->hasQualityThreshold_;
 	maxDuration_ = p_load->maxDuration_;
+	emitTerminationReason_ = p_load->emitTerminationReason_;
 }
 
 /************************************************************************************************************/
@@ -800,7 +804,8 @@ bool GOptimizationAlgorithm::timedHalt() const {
 	using namespace boost::posix_time;
 	ptime currentTime = microsec_clock::local_time();
 	if((currentTime - startTime_) >= maxDuration_) {
-		std::cerr << "Terminating optimization run because maximum time frame has been exceeded" << std::endl;
+		if(emitTerminationReason_)
+			std::cerr << "Terminating optimization run because maximum time frame has been exceeded" << std::endl;
 		return true;
 	}
 	return false;
@@ -815,7 +820,8 @@ bool GOptimizationAlgorithm::timedHalt() const {
  */
 bool GOptimizationAlgorithm::qualityHalt() const {
 	if(isBetter(bestPastFitness_, qualityThreshold_)) {
-		std::cerr << "Terminating optimization run because quality threshold has been reached" << std::endl;
+		if(emitTerminationReason_)
+			std::cerr << "Terminating optimization run because quality threshold has been reached" << std::endl;
 		return true;
 	}
 	else return false;
@@ -838,13 +844,15 @@ bool GOptimizationAlgorithm::halt(const boost::uint32_t& iterationOffset) const
 	// Have we exceeded the maximum number of iterations and
 	// do we indeed intend to stop in this case ?
 	if(maxIteration_ && (iteration_ > (maxIteration_ + iterationOffset))) {
-		std::cout << "Terminating optimization run because iteration threshold has been reached" << std::endl;
+		if(emitTerminationReason_)
+			std::cout << "Terminating optimization run because iteration threshold has been reached" << std::endl;
 		return true;
 	}
 
 	// Has the optimization stalled too often ?
 	if(maxStallIteration_ && stallCounter_ > maxStallIteration_) {
-		std::cout << "Terminating optimization run because maximum number of stalls has been exceeded" << std::endl;
+		if(emitTerminationReason_)
+			std::cout << "Terminating optimization run because maximum number of stalls has been exceeded" << std::endl;
 		return true;
 	}
 
@@ -932,6 +940,26 @@ void GOptimizationAlgorithm::init()
  */
 void GOptimizationAlgorithm::finalize()
 { /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * Specifies whether information about termination reasons should be emitted
+ *
+ * @param etr A boolean which specifies whether reasons for the termination of the optimization run should be emitted
+ */
+void GOptimizationAlgorithm::setEmitTerminationReason(const bool& emitTerminatioReason) {
+	emitTerminationReason_ = emitTerminatioReason;
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves information on whether information about termination reasons should be emitted
+ *
+ * @return A boolean which specifies whether reasons for the termination of the optimization run will be emitted
+ */
+bool GOptimizationAlgorithm::getEmitTerminationReason() const {
+	return emitTerminationReason_;
+}
 
 /************************************************************************************************************/
 /**

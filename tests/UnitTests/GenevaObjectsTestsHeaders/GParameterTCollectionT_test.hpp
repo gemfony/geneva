@@ -348,8 +348,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_failures_expected, T )
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 		// Default construction
-		T gptct;
-		BOOST_CHECK_THROW(gptct.load(&gptct), Gem::GenEvA::geneva_error_condition);
+		boost::shared_ptr<T> gptct_ptr(new T());
+		BOOST_CHECK_THROW(gptct_ptr->load(gptct_ptr), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 	}
 }

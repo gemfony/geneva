@@ -114,7 +114,8 @@ class GOptimizationAlgorithm
 	     & BOOST_SERIALIZATION_NVP(cpDirectory_)
 	     & BOOST_SERIALIZATION_NVP(qualityThreshold_)
 	     & BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
-	     & BOOST_SERIALIZATION_NVP(maxDuration_);
+	     & BOOST_SERIALIZATION_NVP(maxDuration_)
+	     & BOOST_SERIALIZATION_NVP(emitTerminationReason_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -209,6 +210,11 @@ public:
 	/** @brief Find out whether we work in maximization or minimization mode */
 	bool getMaximize() const;
 
+	/** @brief Specifies whether information about termination reasons should be emitted */
+	void setEmitTerminationReason(const bool&);
+	/** @brief Retrieves information on whether information about termination reasons should be emitted */
+	bool getEmitTerminationReason() const;
+
 	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
 	void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
 	/** @brief Retrieves the random number generators current generation mode. */
@@ -234,7 +240,7 @@ public:
 	) {
 #ifdef DEBUG
 		if(pos >= data.size()) {
-			std::ostringsteam error;
+			std::ostringstream error;
 			error << "In GOptimizationAlgorithm::individual_cast<>() : Error" << std::endl
 				  << "Tried to access position " << pos << " which is >= array size " << data.size() << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
@@ -337,6 +343,7 @@ private:
 	bool hasQualityThreshold_; ///< Specifies whether a qualityThreshold has been set
 	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
+	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 };
 
 } /* namespace GenEvA */

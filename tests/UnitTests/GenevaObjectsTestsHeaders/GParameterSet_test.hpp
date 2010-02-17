@@ -285,8 +285,8 @@ public:
 		{
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-			GTestIndividual1 gpi;
-			BOOST_CHECK_THROW(gpi.load(&gpi), Gem::GenEvA::geneva_error_condition);
+			boost::shared_ptr<GTestIndividual1> gpi_ptr(new GTestIndividual1());
+			BOOST_CHECK_THROW(gpi_ptr->load(gpi_ptr), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 		}
 
@@ -301,6 +301,7 @@ public:
 			gdc_ptr->addAdaptor(gdga1);
 			gpi.push_back(gdc_ptr);
 
+			// TODO: The enable_if check in pc_at has crippled this test. FIXME !!!
 			// Trying to retrieve an item of wrong type should throw in DEBUG mode
 			BOOST_CHECK_THROW(gpi.pc_at<GInt32Collection>(0), Gem::GenEvA::geneva_error_condition);
 		}

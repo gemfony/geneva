@@ -359,6 +359,7 @@ int main(int argc, char **argv){
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
   pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
+  pop_ptr->setEmitTerminationReason(true);
   
   // Do the actual optimization
   pop_ptr->optimize();

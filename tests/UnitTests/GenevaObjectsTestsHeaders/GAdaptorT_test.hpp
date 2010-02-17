@@ -116,8 +116,8 @@ public:
 		{
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-			GBooleanAdaptor gba0;
-			BOOST_CHECK_THROW(gba0.load(&gba0), Gem::GenEvA::geneva_error_condition);
+			boost::shared_ptr<GBooleanAdaptor> gba0_ptr(new GBooleanAdaptor());
+			BOOST_CHECK_THROW(gba0_ptr->load(gba0_ptr), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 		}
 	}

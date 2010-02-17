@@ -175,8 +175,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_failures_expected, T )
 	{
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-		T ggat0;
-		BOOST_CHECK_THROW(ggat0.load(&ggat0), Gem::GenEvA::geneva_error_condition);
+		boost::shared_ptr<T> ggat0_ptr(new T());
+		BOOST_CHECK_THROW(ggat0_ptr->load(ggat0_ptr), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 	}
 }

@@ -218,8 +218,8 @@ public:
 #ifdef DEBUG
 		// Self assignment should throw in DEBUG mode
 		{
-			GBoundedDouble gbd(-10,10.);
-			BOOST_CHECK_THROW(gbd.load(&gbd), Gem::GenEvA::geneva_error_condition);
+			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(-10,10.));
+			BOOST_CHECK_THROW(gbd_ptr->load(gbd_ptr), Gem::GenEvA::geneva_error_condition);
 		}
 #endif /* DEBUG */
 	}

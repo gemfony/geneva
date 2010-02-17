@@ -1,0 +1,3 @@
+Geneva has the ability to treat evolutionary algorithm populations as
+individuals. This directory contains a simple Geneva application that 
+demonstrates this feature.

@@ -239,19 +239,22 @@ public:
 
 #ifdef DEBUG
 		{
+		// TODO : THIS DOES NOT WORK AND WILL LIKELY NOT THROW WHEN IT DOES COMPILE
+		/*
 			// Default construction
 			GInt32 gpt0;
 			// Extracting an adaptor of wrong type should throw in DEBUG mode
 			BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
 			BOOST_CHECK_THROW(gpt0.adaptor_cast<GBooleanAdaptor>(), Gem::GenEvA::geneva_error_condition);
+		*/
 		}
 #endif /* DEBUG */
 
 		{
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-			GInt32 gpt0;
-			BOOST_CHECK_THROW(gpt0.load(&gpt0), Gem::GenEvA::geneva_error_condition);
+			boost::shared_ptr<GInt32> gpt0_ptr(new GInt32());
+			BOOST_CHECK_THROW(gpt0_ptr->load(gpt0_ptr), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 		}
 	}

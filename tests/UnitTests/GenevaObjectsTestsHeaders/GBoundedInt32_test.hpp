@@ -217,8 +217,8 @@ public:
 		{
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-			GBoundedInt32 gbi(-10,10);
-			BOOST_CHECK_THROW(gbi.load(&gbi), Gem::GenEvA::geneva_error_condition);
+			boost::shared_ptr<GBoundedInt32> gbi_ptr(new GBoundedInt32(-10,10));
+			BOOST_CHECK_THROW(gbi_ptr->load(gbi_ptr), Gem::GenEvA::geneva_error_condition);
 #endif /* DEBUG */
 		}
 	}

@@ -121,9 +121,9 @@ public:
 	)  const {
 #ifdef DEBUG
 		if(pos >= data.size()) {
-			std::ostringsteam error;
+			std::ostringstream error;
 			error << "In GParameterSet::pc_at<>() : Error" << std::endl
-				  << "Tried to access index " << pos " which is >= the size " << data.size() << " of the vector." << std::endl;
+				  << "Tried to access index " << pos << " which is >= the size " << data.size() << " of the vector." << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 #endif /* DEBUG */
