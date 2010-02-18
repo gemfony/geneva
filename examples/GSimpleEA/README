@@ -1,0 +1,3 @@
+This directory contains a simple Geneva application that searches for 
+the minimum of a function. Parallelisation can happen at your choice
+through the ASIO consumer, via threads or in serial mode.

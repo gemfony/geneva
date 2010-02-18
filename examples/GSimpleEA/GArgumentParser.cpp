@@ -34,17 +34,17 @@ namespace Gem
 {
   namespace GenEvA
   {
-    /************************************************************************************************/
-    /**
-     * A function that parses the command line for all required parameters
-     */
-    bool parseCommandLine(int argc, char **argv,
-			  std::string& configFile,
-			  boost::uint16_t& parallelizationMode,
-			  bool& serverMode,
-			  std::string& ip,
-			  unsigned short& port)
-    {
+  /************************************************************************************************/
+  /**
+   * A function that parses the command line for all required parameters
+   */
+  bool parseCommandLine(int argc, char **argv,
+		  std::string& configFile,
+		  boost::uint16_t& parallelizationMode,
+		  bool& serverMode,
+		  std::string& ip,
+		  unsigned short& port)
+  {
       try{
 		// Check the command line options. Uses the Boost program options library.
 		po::options_description desc("Usage: evaluator [options]");
@@ -110,32 +110,42 @@ namespace Gem
       }
 
       return true;
-    }
+  }
 
     /************************************************************************************************/
     /**
      * A function that parses a config file for further parameters
      */
-    bool parseConfigFile(const std::string& configFile,
-			 boost::uint16_t& nProducerThreads,
-			 boost::uint16_t& nEvaluationThreads,
-			 std::size_t& populationSize,
-			 std::size_t& nParents,
-			 boost::uint32_t& maxIterations,
-			 long& maxMinutes,
-			 boost::uint32_t& reportIteration,
-			 recoScheme& rScheme,
-			 sortingMode& smode,
-			 std::size_t& arraySize,
-			 boost::uint32_t& processingCycles,
-			 bool& returnRegardless,
-			 boost::uint32_t& waitFactor,
-			 std::size_t& parDim,
-			 double& minVar,
-			 double& maxVar) 
-    {
+    bool parseConfigFile(
+    		const std::string& configFile
+    	  , boost::uint16_t& nProducerThreads
+		  , boost::uint16_t& nEvaluationThreads
+		  , std::size_t& populationSize
+		  , std::size_t& nParents
+		  , boost::uint32_t& maxIterations
+		  , long& maxMinutes
+		  , boost::uint32_t& reportIteration
+		  , recoScheme& rScheme
+		  , sortingMode& smode
+		  , std::size_t& arraySize
+		  , boost::uint32_t& processingCycles
+		  , bool& returnRegardless
+		  , boost::uint32_t& waitFactor
+		  , bool& productionPlace
+		  , double& mutProb
+		  , boost::uint32_t& adaptionThreshold
+		  , double& sigma
+		  , double& sigmaSigma
+		  , double& minSigma
+		  , double& maxSigma
+		  , std::size_t& parDim
+		  , double& minVar
+		  , double& maxVar
+		  , demoFunction& df
+    ) {
       boost::uint16_t recombinationScheme=0;
-      bool verbose;
+      boost::uint16_t evalFunction=0;
+      bool verbose = true;
 
       // Check the name of the configuation file
       if(configFile.empty() || configFile == "empty" || configFile == "unknown") {
@@ -175,12 +185,28 @@ namespace Gem
 	   "Specifies whether results should be returned even if they are not better than before")
 	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
 	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
+      ("productionPlace", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
+		"Whether production of random numbers should happen locally (0) or in the random number factory (1)")
+	  ("mutProb", po::value<double>(&mutProb)->default_value(DEFAULTGDAMUTPROB),
+		"Specifies the likelihood for mutations to be actually carried out")
+	  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+		"Number of calls to mutate after which mutation parameters should be adapted")
+	  ("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
+		"The width of the gaussian used for the adaption of double values")
+	  ("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
+		"The adaption rate of sigma")
+	  ("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
+		"The minimum allowed value for sigma")
+	  ("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
+		"The maximum allowed value for sigma")
 	  ("parDim", po::value<std::size_t>(&parDim)->default_value(DEFAULTPARDIM),
 	   "The amount of variables in the parabola")
 	  ("minVar", po::value<double>(&minVar)->default_value(DEFAULTMINVAR),
 	   "The lower boundary for all variables")
 	  ("maxVar", po::value<double>(&maxVar)->default_value(DEFAULTMAXVAR),
 	   "The upper boundary for all variables")
+	  ("evalFunction", po::value<boost::uint16_t>(&evalFunction),
+		"The id of the evaluation function. Allowed values: 0 (parabola), 1 (noisy parabola), 2 (rosenbrock)")
 	  ;
 	
 	po::variables_map vm;
@@ -220,9 +246,30 @@ namespace Gem
 	  return false;
 	}
 
+	if(evalFunction == (boost::uint16_t)PARABOLA) df=PARABOLA;
+	else if(evalFunction == (boost::uint16_t)NOISYPARABOLA) df=NOISYPARABOLA;
+	else if(evalFunction == (boost::uint16_t)ROSENBROCK) df=ROSENBROCK;
+	else {
+		std::cout << "Error: Invalid evaluation function: " << evalFunction << std::endl;
+		return false;
+	}
+
 	if(waitFactor == 0) waitFactor = DEFAULTGBTCWAITFACTOR;
 
 	if(verbose){
+		std::string eF;
+		switch(evalFunction) {
+		case PARABOLA:
+			eF = "PARABOLA";
+			break;
+		case NOISYPARABOLA:
+			eF = "NOISYPARABOLA";
+			break;
+		case ROSENBROCK:
+			eF = "ROSENBROCK";
+			break;
+		}
+
 	  std::cout << std::endl
 		    << "Running with the following options from " << configFile << ":" << std::endl
 		    << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
@@ -235,11 +282,18 @@ namespace Gem
 		    << "sortingScheme = " << smode << std::endl
 		    << "arraySize = " << arraySize << std::endl
 		    << "processingCycles = " << processingCycles << std::endl
-		    << "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
-			<< "waitFactor = " << waitFactor << std::endl
+	        << "waitFactor = " << waitFactor << std::endl
+			<< "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
+ 		    << "mutProb = " << mutProb << std::endl
+			<< "adaptionThreshold = " << adaptionThreshold << std::endl
+		    << "sigma = " << sigma << std::endl
+		    << "sigmaSigma " << sigmaSigma << std::endl
+		    << "minSigma " << minSigma << std::endl
+		    << "maxSigma " << maxSigma << std::endl
 		    << "parDim = " << parDim << std::endl
 		    << "minVar = " << minVar << std::endl
 		    << "maxVar = " << maxVar << std::endl
+		    << "evalFunction = " << eF << std::endl
 		    << std::endl;
 	}
       }
