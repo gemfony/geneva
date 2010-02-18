@@ -56,7 +56,7 @@
 // The individual that should be optimized.
 // Represents the projection of an m-dimensional
 // data set to an n-dimensional data set.
-#include "GProjectionIndividual.hpp"
+#include "GFunctionIndividual.hpp"
 
 // Parses the command line for all required options
 #include "GCommandLineParser.hpp"
@@ -85,10 +85,6 @@ int main(int argc, char **argv){
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Command-line parsing
 	if(!parseCommandLine(argc, argv,
-						 nData,
-				         nDimOrig,
-				         nDimTarget,
-				         radius,
 				         nClients,
 				         nProducerThreads,
 				         populationSize,
@@ -99,14 +95,6 @@ int main(int argc, char **argv){
 				         rScheme,
 				         verbose))
 		{ exit(1); }
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-	// Creation of an input file for this example
-	GProjectionIndividual::createSphereFile("sphere.xml",
-											nData,
-											nDimOrig,
-											nDimTarget,
-											radius);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Set-up of local resources
@@ -121,6 +109,9 @@ int main(int argc, char **argv){
 	ip="localhost";
 	port=10000;
 
+	std::size_t dimension=100;
+	double randMin = -10., randMax = 10.;
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Start of server
 
@@ -129,18 +120,32 @@ int main(int argc, char **argv){
 	// gatc->setSerializationMode(BINARYSERIALIZATION);
 	GINDIVIDUALBROKER->enrol(gatc);
 
-	// Set up a single projection individual
-	boost::shared_ptr<GProjectionIndividual>
-		projectionIndividual(new GProjectionIndividual("sphere.xml",-radius, radius));
+	// Set up a single function individual
+	boost::shared_ptr<GFunctionIndividual<PARABOLA> > functionIndividual(new GFunctionIndividual<PARABOLA>());
+
+	// Set up a GDoubleCollection with dimension values, each initialized
+	// with a random number in the range [min,max[
+	boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(dimension,randMin,randMax));
+
+	// Set up and register an adaptor for the collection, so it
+	// knows how to be mutated.
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(2.,0.8,0.000001,2));
+	gdga_ptr->setAdaptionThreshold(1);
+	gdga_ptr->setMutationProbability(0.05);
+	gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+	gdc_ptr->addAdaptor(gdga_ptr);
+
+	// Make the parameter collection known to this individual
+	functionIndividual->push_back(gdc_ptr);
 
 	// Create the actual population
 	boost::shared_ptr<GBrokerEA> pop(new GBrokerEA());
 
 	// Make the individual known to the population
-	pop->push_back(projectionIndividual);
+	pop->push_back(functionIndividual);
 
 	// Specify some population settings
-	pop->setPopulationSize(populationSize,nParents);
+	pop->setPopulationSize(populationSize, nParents);
 	pop->setMaxIteration(maxGenerations);
 	pop->setMaxTime(boost::posix_time::minutes(maxMinutes));
 	pop->setReportIteration(reportGeneration);

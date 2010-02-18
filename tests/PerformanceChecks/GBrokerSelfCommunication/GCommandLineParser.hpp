@@ -62,10 +62,6 @@ namespace GenEvA
 {
 
 // Default settings
-const std::size_t DEFAULTNDATA=10000;
-const std::size_t DEFAULTNDIMORIG=5;
-const std::size_t DEFAULTNDIMTARGET=2;
-const double DEFAULTRADIUS=1.;
 const std::size_t DEFAULTNCLIENTS=4;
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
 const std::size_t DEFAULTPOPULATIONSIZE=100;
@@ -79,10 +75,6 @@ const bool DEFAULTVERBOSE=true;
 namespace po = boost::program_options;
 
 bool parseCommandLine(int argc, char **argv,
-					  std::size_t& nData,
-				      std::size_t& nDimOrig,
-					  std::size_t& nDimTarget,
-				      double& radius,
 					  std::size_t& nClients,
 					  boost::uint16_t& nProducerThreads,
 					  std::size_t& populationSize,
