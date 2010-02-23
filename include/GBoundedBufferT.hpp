@@ -218,8 +218,12 @@ public:
 	void push_front(value_type item, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		if(!not_full_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_full, this)))
+		if(!not_full_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_full, this))) {
+#ifdef DEBUG
+			std::cout << "Push timeout" << std::endl;
+#endif
 			throw Gem::Util::gem_util_condition_time_out();
+		}
 		container_.push_front(item);
 		lock.unlock();
 		not_empty_.notify_one();
@@ -284,8 +288,12 @@ public:
 	void pop_back(value_type* pItem, const boost::posix_time::time_duration& timeout)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this)))
+		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
+#ifdef DEBUG
+			std::cout << "pop timeout" << std::endl;
+#endif
 			throw Gem::Util::gem_util_condition_time_out();
+		}
 		(*pItem) = container_.back();
 		container_.pop_back();
 		lock.unlock();

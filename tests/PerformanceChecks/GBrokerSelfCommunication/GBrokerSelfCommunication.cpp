@@ -109,7 +109,7 @@ int main(int argc, char **argv){
 	ip="localhost";
 	port=10000;
 
-	std::size_t dimension=100;
+	std::size_t dimension=1000;
 	double randMin = -10., randMax = 10.;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

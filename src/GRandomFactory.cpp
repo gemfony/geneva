@@ -265,10 +265,8 @@ void GRandomFactory::startProducerThreads()  {
  * The production of [0,1[ random numbers takes place here. As this function
  * is called in a thread, it may not throw under any circumstance. Exceptions
  * could otherwise go unnoticed. Hence this function has a possibly confusing
- * setup. Note that we do not use the global logger, as we do not want to risk
- * accessing a singleton past its possible destruction. The current value of the
- * arraySize_ variable is stored in the random number array, so it is possible
- * to change the size later.
+ * setup. The current value of the arraySize_ variable is stored in the random
+ * number array, so it is possible to change the size later.
  *
  * @param seed The seed for our local random number generator
  */
