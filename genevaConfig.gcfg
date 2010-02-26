@@ -33,4 +33,5 @@ BOOSTROOT="/opt/boost142"                 # Where Boost is installed
 BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
 BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
 BUILDMODE="Release"                       # Release or Debug
+VERBOSEMAKEFILE="1"                       # Whether compilation information should be emitted
 INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
