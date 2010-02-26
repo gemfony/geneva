@@ -37,16 +37,23 @@ ENDIF()
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
-# Set the build type to Release by default
-IF(NOT DEFINED CMAKE_BUILD_TYPE)
+# Set the build type to Debug by default or in case GENEVA_BUILD_TYPE
+# was set to Debug. Set it to Release if GENEVA_BUILD_TYPE was set 
+# accordingly. Complain in all other cases.
+IF(NOT DEFINED GENEVA_BUILD_TYPE OR GENEVA_BUILD_TYPE STREQUAL "Debug")
+	MESSAGE ("Setting the build type to default value Debug")
+	SET(CMAKE_BUILD_TYPE Debug)
+ELSEIF(GENEVA_BUILD_TYPE STREQUAL "Release")
 	SET(CMAKE_BUILD_TYPE Release)
+ELSE()
+	MESSAGE (FATAL_ERROR "Unkown compilation mode " ${GENEVA_BUILD_TYPE})
 ENDIF()
 
-IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	# Use this for debug builds.    
-	MESSAGE ("========================================")
-	MESSAGE ("Building in Debug or RelWithDebInfo mode")
-	MESSAGE ("========================================")
+	MESSAGE ("======================")
+	MESSAGE ("Building in Debug mode")
+	MESSAGE ("======================")
 	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
 		MESSAGE ("Using icpc or icc compiler settings")
 		# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
@@ -58,9 +65,9 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInf
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread")
 	ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
-	MESSAGE ("======================")
+	MESSAGE ("========================")
 	MESSAGE ("Building in Release mode")
-	MESSAGE ("======================")
+	MESSAGE ("========================")
 	# Use this for release builds.
 	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
 		MESSAGE ("Using icpc or icc compiler settings")
