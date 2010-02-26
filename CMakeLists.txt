@@ -44,19 +44,29 @@ ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 	# Use this for debug builds.    
+	MESSAGE ("========================================")
+	MESSAGE ("Building in Debug or RelWithDebInfo mode")
+	MESSAGE ("========================================")
 	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
+		MESSAGE ("Using icpc or icc compiler settings")
 		# Specifics for Intel compiler (tested with 10.1). Removes two rather annoying
 		# (and, according to the authors' opinion, irrelevant in this context) warnings
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 	ELSE() # e.g. g++
+	    MESSAGE ("Using g++ compiler settings")
 		# ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread")
 	ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
+	MESSAGE ("======================")
+	MESSAGE ("Building in Release mode")
+	MESSAGE ("======================")
 	# Use this for release builds.
 	IF(CMAKE_CXX_COMPILER MATCHES "icpc" OR CMAKE_CXX_COMPILER MATCHES "icc")
+		MESSAGE ("Using icpc or icc compiler settings")
 		ADD_DEFINITIONS ("-O3 -pthread")
 	ELSE() # e.g. g++
+		MESSAGE ("Using g++ compiler settings")
 		ADD_DEFINITIONS ("-O3 -pthread")
 	ENDIF()
 ENDIF()
