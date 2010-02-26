@@ -100,8 +100,8 @@ fi
 # this is the project root, as it should be.
 PROJECTROOT=`dirname $0`
 if [ ! -e ${PROJECTROOT}/CMakeLists.txt ]; then
-	echo "Error: You should call this script relative to the current directory,"
-	echo "from within the project root."
+	echo "Error: the script should reside in the project root."
+	echo "Leaving."
 	exit
 fi
 
