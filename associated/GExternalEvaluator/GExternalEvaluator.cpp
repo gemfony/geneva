@@ -93,13 +93,15 @@ int main(int argc, char **argv){
   bool productionPlace;
   bool useCommonAdaptor;
   bool randomFill;
+  serializationMode serMode;
 
   if(!parseCommandLine(argc, argv,
 		       configFile,			  
 		       parallelizationMode,
 		       serverMode,
 		       ip,
-		       port)
+		       port,
+		       serMode)
      ||
      !parseConfigFile(configFile,
 		      nProducerThreads,
@@ -249,6 +251,7 @@ int main(int argc, char **argv){
     {
       // Create a network consumer and enrol it with the broker
       boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+      gatc->setSerializationMode(serMode);
       GINDIVIDUALBROKER->enrol(gatc);
 
       // Create the actual broker population

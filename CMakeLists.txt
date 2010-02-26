@@ -12,9 +12,9 @@ SET(VERSION_PATCH "0rc")
 # it was not deployed in one of the standard system locations. Otherwise,
 # see the comments in the INSTALL file on how to set the path on the 
 # command line.
-#SET (BOOST_ROOT "/opt/boost140")
-#SET (BOOST_INCLUDEDIR "/opt/boost140/include/boost-1_40")
-#SET (BOOST_LIBRARYDIR "/opt/boost140/lib")
+#SET (BOOST_ROOT "/opt/boost142")
+#SET (BOOST_INCLUDEDIR "/opt/boost142/include/boost")
+#SET (BOOST_LIBRARYDIR "/opt/boost142/lib")
 
 # Uncomment this if you want to see compiler options
 # SET(CMAKE_VERBOSE_MAKEFILE ON)

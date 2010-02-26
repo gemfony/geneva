@@ -132,9 +132,9 @@ enum dataExchangeMode {
  * The serialization modes that are currently allowed
  */
 enum serializationMode {
-	  TEXTSERIALIZATION
-	, XMLSERIALIZATION
-	, BINARYSERIALIZATION
+	  TEXTSERIALIZATION = 0
+	, XMLSERIALIZATION = 1
+	, BINARYSERIALIZATION = 2
 };
 
 /**********************************************************************************************/

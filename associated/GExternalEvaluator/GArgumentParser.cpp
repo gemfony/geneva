@@ -38,26 +38,30 @@ namespace GenEvA
 /**
  * A function that parses the command line for all required parameters
  */
-bool parseCommandLine(int argc, char **argv,
-		std::string& configFile,
-		boost::uint16_t& parallelizationMode,
-		bool& serverMode,
-		std::string& ip,
-		unsigned short& port)
-{
+bool parseCommandLine(
+		int argc, char **argv
+	  , std::string& configFile
+	  , boost::uint16_t& parallelizationMode
+	  , bool& serverMode
+      , std::string& ip
+	  , unsigned short& port
+	  , serializationMode& serMode
+) {
 	try{
 		// Check the command line options. Uses the Boost program options library.
 		po::options_description desc("Usage: evaluator [options]");
 		desc.add_options()
 					  ("help,h", "emit help message")
 					  ("configFile,c", po::value<std::string>(&configFile)->default_value(DEFAULTCONFIGFILE),
-							  "The name of the configuration file holding further configuration options")
-							  ("parallelizationMode,p", po::value<boost::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODE),
-									  "Whether or not to run this optimization in serial mode (0), multi-threaded (1) or networked (2) mode")
-									  ("serverMode,s","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")
-									  ("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
-									  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
-									  ;
+						"The name of the configuration file holding further configuration options")
+					  ("parallelizationMode,p", po::value<boost::uint16_t>(&parallelizationMode)->default_value(DEFAULTPARALLELIZATIONMODE),
+						"Whether or not to run this optimization in serial mode (0), multi-threaded (1) or networked (2) mode")
+					  ("serverMode,s","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")
+					  ("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
+					  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
+					  ("serMode", po::value<Gem::GenEvA::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
+					   "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+					  ;
 
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -100,6 +104,7 @@ bool parseCommandLine(int argc, char **argv,
 				<< "serverMode = " << (serverMode?"true":"false") << std::endl
 				<< "ip = " << ip << std::endl
 				<< "port = " << port << std::endl
+				<< "serMode = " << serMode << std::endl
 				<< std::endl;
 	}
 	catch(...){

@@ -92,43 +92,49 @@ namespace Gem
     const bool DEFAULTPRODUCTIONPLACE=true; // local production of random numbers
     const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
     const bool DEFAULTRANDOMFILL=true; // whether template data should be filled randomly
+    const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
 
     namespace po = boost::program_options;
 
-    bool parseCommandLine(int argc, char **argv,
-			  std::string& configFile,			  
-			  boost::uint16_t& parallelizationMode,
-			  bool& serverMode,
-			  std::string& ip,
-			  unsigned short& port);
+    bool parseCommandLine(
+			int argc, char **argv
+		  , std::string& configFile
+		  , boost::uint16_t& parallelizationMode
+		  , bool& serverMode
+	      , std::string& ip
+		  , unsigned short& port
+		  , serializationMode& serMode
+	);
 
-    bool parseConfigFile(const std::string& configFile,
-			 boost::uint16_t& nProducerThreads,
-			 boost::uint16_t& nEvaluationThreads,
-			 std::size_t& populationSize,
-			 std::size_t& nParents,
-			 boost::uint32_t& maxGenerations,
-			 long& maxMinutes,
-			 boost::uint32_t& reportGeneration,
-			 recoScheme& rScheme,
-			 sortingMode& smode,
-			 std::size_t& arraySize,
-			 boost::uint32_t& processingCycles,
-			 bool& returnRegardless,
-			 boost::uint32_t& waitFactor,
-			 std::string& program,
-			 std::string& externalArguments,
-			 boost::uint32_t& adaptionThreshold,
-			 double& sigma,
-			 double& sigmaSigma,
-			 double& minSigma,
-			 double& maxSigma,
-			 boost::uint32_t& nEvaluations,
-			 Gem::GenEvA::dataExchangeMode& exchangeMode,
-			 bool& maximize,
-			 bool& productionPlace,
-			 bool& useCommonAdaptor,
-			 bool& randomFill);
+    bool parseConfigFile(
+    		const std::string& configFile
+		  , boost::uint16_t& nProducerThreads
+		  , boost::uint16_t& nEvaluationThreads
+		  , std::size_t& populationSize
+		  , std::size_t& nParents
+		  , boost::uint32_t& maxGenerations
+		  , long& maxMinutes
+		  , boost::uint32_t& reportGeneration
+		  , recoScheme& rScheme
+		  , sortingMode& smode
+		  , std::size_t& arraySize
+		  , boost::uint32_t& processingCycles
+		  , bool& returnRegardless
+		  , boost::uint32_t& waitFactor
+		  , std::string& program
+		  , std::string& externalArguments
+		  , boost::uint32_t& adaptionThreshold
+		  , double& sigma
+		  , double& sigmaSigma
+		  , double& minSigma
+		  , double& maxSigma
+		  , boost::uint32_t& nEvaluations
+		  , Gem::GenEvA::dataExchangeMode& exchangeMode
+		  , bool& maximize
+		  , bool& productionPlace
+		  , bool& useCommonAdaptor
+		  , bool& randomFill
+	);
 
   } /* namespace GenEvA */
 } /* namespace Gem */
