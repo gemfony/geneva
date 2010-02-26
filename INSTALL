@@ -11,6 +11,28 @@ library on other systems than those mentioned here.
 Building and Installing
 =======================
 
+a) The easy (but yet somewhat untested) way
+-------------------------------------------
+
+Geneva comes with a build script that facilitates the somewhat complicated call to 
+cmake. Assuming you are in $HOME/build and Geneva is in $HOME/Geneva, copy the config 
+file over:
+
+cp ../Geneva/genevaConfig.gcfg ./myGenevaConfig.gcfg
+
+Adapt the variables in the file appropriately. Then call 
+
+sh ../Geneva/build.sh ./myGenevaConfig.gcfg
+
+Installation and cleaning work with a simple
+
+"make install" and "make clean" inside of $HOME/build .
+
+Don't blame us if this procedure does not work (but do let us know!)
+
+b) Direct call to cmake
+-----------------------
+
 The build system now uses CMake in version 2.6, which is required due
 to the availability of the FindBoost macro.
 
