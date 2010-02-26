@@ -45,6 +45,7 @@ if [ $# -eq 0 ]; then
 	BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
 	BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
 	BUILDMODE="Release"                       # Release or Debug
+	VERBOSEMAKEFILE="1"                       # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
 elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
@@ -94,6 +95,12 @@ if [ ! "${BUILDMODE}" = "Release" -a ! "${BUILDMODE}" = "Debug" ]; then
 	exit
 fi
 
+if [ ! "${VERBOSEMAKEFILE}" = "1" -a ! "${VERBOSEMAKEFILE}" = "0" ]; then
+	echo "Error: Variable VERBOSEMAKEFILE must be 0 or 1. Got ${VERBOSEMAKEFILE}"
+	echo "Leaving."
+	exit
+fi
+
 ####################################################################
 # Find out where this script is located and whether there is a 
 # CMakeLists.txt file in the same directory. We then assume that
@@ -107,7 +114,7 @@ fi
 
 ####################################################################
 # Do the actual call to cmake
-COMPILE="${CMAKE} -DBOOST_ROOT=${BOOSTROOT} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DCMAKE_BUILD_TYPE=${BUILDMODE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} ${PROJECTROOT}"
+COMPILE="${CMAKE} -DBOOST_ROOT=${BOOSTROOT} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DCMAKE_BUILD_TYPE=${BUILDMODE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} ${PROJECTROOT}"
 
 echo "Compiling with command ${COMPILE}"
 ${COMPILE}
