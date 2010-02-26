@@ -392,7 +392,7 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
  *
  * @return A shared pointer to the personality traits base class
  */
-inline boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
+boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
 	return pt_ptr_;
 }
 
@@ -404,7 +404,7 @@ inline boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits()
  *
  * @return A shared_ptr to the evolutionary algorithms personality traits
  */
-inline boost::shared_ptr<GEAPersonalityTraits> GIndividual::getEAPersonalityTraits() {
+boost::shared_ptr<GEAPersonalityTraits> GIndividual::getEAPersonalityTraits() {
 	return this->getPersonalityTraits<GEAPersonalityTraits>();
 }
 
@@ -416,7 +416,7 @@ inline boost::shared_ptr<GEAPersonalityTraits> GIndividual::getEAPersonalityTrai
  *
  * @return A shared_ptr to the gradient descent personality traits
  */
-inline boost::shared_ptr<GGDPersonalityTraits> GIndividual::getGDPersonalityTraits() {
+boost::shared_ptr<GGDPersonalityTraits> GIndividual::getGDPersonalityTraits() {
 	return this->getPersonalityTraits<GGDPersonalityTraits>();
 }
 
@@ -428,7 +428,7 @@ inline boost::shared_ptr<GGDPersonalityTraits> GIndividual::getGDPersonalityTrai
  *
  * @return A shared_ptr to the swarm algorithms personality traits
  */
-inline boost::shared_ptr<GSwarmPersonalityTraits> GIndividual::getSwarmPersonalityTraits() {
+boost::shared_ptr<GSwarmPersonalityTraits> GIndividual::getSwarmPersonalityTraits() {
 	return this->getPersonalityTraits<GSwarmPersonalityTraits>();
 }
 
