@@ -71,6 +71,7 @@ const long DEFAULTMAXMINUTES=5;
 const boost::uint32_t DEFAULTREPORTGENERATION=1;
 const recoScheme DEFAULTRSCHEME=VALUERECOMBINE;
 const bool DEFAULTVERBOSE=true;
+const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
 
 namespace po = boost::program_options;
 
@@ -83,6 +84,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
+					  serializationMode& serMode,
 					  bool& verbose);
 
 } /* namespace GenEvA */

@@ -82,6 +82,7 @@ int main(int argc, char **argv){
 	boost::uint32_t processingCycles;
 	boost::uint32_t waitFactor;
 	std::size_t nVariables;
+	serializationMode serMode;
 
 	if(!parseCommandLine(argc, argv,
 			configFile,
@@ -89,6 +90,7 @@ int main(int argc, char **argv){
 			serverMode,
 			ip,
 			port,
+			serMode,
 			startGeneration)
 			||
 		!parseConfigFile(configFile,
@@ -262,6 +264,7 @@ int main(int argc, char **argv){
 			if(firstConsumer) {
 				// Create a network consumer and enrol it with the broker
 				boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+			    gatc->setSerializationMode(serMode);
 				GINDIVIDUALBROKER->enrol(gatc);
 
 				firstConsumer = false;

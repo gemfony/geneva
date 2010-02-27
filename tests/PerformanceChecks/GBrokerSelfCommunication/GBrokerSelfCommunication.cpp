@@ -81,6 +81,7 @@ int main(int argc, char **argv){
 	long maxMinutes=10;
 	bool verbose=true;
 	recoScheme rScheme=VALUERECOMBINE;
+	serializationMode serMode;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Command-line parsing
@@ -93,6 +94,7 @@ int main(int argc, char **argv){
 				         maxMinutes,
 				         reportGeneration,
 				         rScheme,
+				         serMode,
 				         verbose))
 		{ exit(1); }
 
@@ -117,7 +119,7 @@ int main(int argc, char **argv){
 
 	// Create a consumer and enrol it with the broker
 	boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
-	// gatc->setSerializationMode(BINARYSERIALIZATION);
+	gatc->setSerializationMode(serMode);
 	GINDIVIDUALBROKER->enrol(gatc);
 
 	// Set up a single function individual

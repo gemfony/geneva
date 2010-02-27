@@ -81,6 +81,7 @@ const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
 const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
 const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
 const std::size_t DEFAULTNVARIABLES=1000;
+const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
 
 namespace po = boost::program_options;
 
@@ -90,6 +91,7 @@ bool parseCommandLine(int argc, char **argv,
 		bool& serverMode,
 		std::string& ip,
 		unsigned short& port,
+		serializationMode& serMode,
 		boost::uint32_t& startGeneration);
 
 bool parseConfigFile(const std::string& configFile,

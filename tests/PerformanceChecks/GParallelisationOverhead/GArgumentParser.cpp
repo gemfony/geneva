@@ -45,6 +45,7 @@ bool parseCommandLine(int argc, char **argv,
 		bool& serverMode,
 		std::string& ip,
 		unsigned short& port,
+		serializationMode& serMode,
 		boost::uint32_t& startGeneration)
 {
 	try{
@@ -59,6 +60,8 @@ bool parseCommandLine(int argc, char **argv,
 			  ("serverMode,s","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")
 			  ("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
 			  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
+			  ("serMode", po::value<Gem::GenEvA::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
+			   "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 			  ("startGeneration", po::value<boost::uint32_t>(&startGeneration)->default_value(DEFAULTSTARTGENERATION),
 					  "The start value for the generation counter. Set this higher than the last value when starting from a checkpoint file")
 		;
@@ -106,6 +109,7 @@ bool parseCommandLine(int argc, char **argv,
 					<< "serverMode = " << (serverMode?"true":"false") << std::endl
 					<< "ip = " << ip << std::endl
 					<< "port = " << port << std::endl
+					<< "serMode = " << serMode << std::endl
 					<< std::endl;
 		}
 	}
