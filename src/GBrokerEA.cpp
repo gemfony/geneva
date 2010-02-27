@@ -476,7 +476,7 @@ void GBrokerEA::mutateChildren() {
 						throw geneva_error_condition(error.str());
 					}
 #endif /* DEBUG */
-					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_microseconds());
+					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_milliseconds());
 				}
 
 				// Update the counter.
@@ -547,7 +547,7 @@ void GBrokerEA::mutateChildren() {
 						throw geneva_error_condition(error.str());
 					}
 #endif /* DEBUG */
-					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_microseconds());
+					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_milliseconds());
 				}
 
 				// Update the counter

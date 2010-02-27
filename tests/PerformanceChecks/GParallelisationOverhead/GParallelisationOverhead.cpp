@@ -339,28 +339,24 @@ int main(int argc, char **argv){
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Output the results
-		result << "  // =========================================================" << std::endl
-			   << "  // Iteration " << iter << ":" << std::endl
+		result << std::endl
+			   << "  // =========================================================" << std::endl
+			   << "  // Iteration " << iter << " (" << sleepTime.total_milliseconds() << " milliseconds) :" << std::endl
 			   << std::endl;
 
 		// Log arrival times of individuals if this is networked mode
 		if(parallelizationMode==2) {
-			result << "  std::vector<std::vector<long> > arrivalTimes" << iter << ";" << std::endl
-				   << "  std::vector<long> nReturned" << iter << ";" << std::endl
+			result << "  TH1F *arrivalTimes" << iter << " = new TH1F(\"arrivalTimes" << iter << "\", \"arrivalTimes" << iter << "\", 100, 0., 10.);" << std::endl
+				   << "  TH1I *nReturned" << iter << " = new TH1I(\"arrivalTimes" << iter << "\", \"arrivalTimes" << iter << "\", " << maxGenerations << ", 0, " << maxGenerations-1 << ");" << std::endl
 				   << std::endl;
-		}
 
-
-		// If this is networked mode, retrieve the arrival times of individuals and output the data
-		if(parallelizationMode == 2){
 			std::vector<std::vector<boost::uint32_t> > arrivalTimes = popBroker_ptr->getLoggingResults();
 
 			for(std::size_t gen=0; gen<arrivalTimes.size(); gen++) {
-				result << "  arrivalTimes" << iter << ".push_back(std::vector<long>());" << std::endl;
 				for(std::size_t ind=0; ind<arrivalTimes[gen].size(); ind++) {
-					result << "  arrivalTimes" << iter << "[" << gen << "].push_back(" << arrivalTimes[gen][ind] << ");" << std::endl;
+					result << "  arrivalTimes" << iter << ".Fill(" << (double(arrivalTimes[gen][ind]) - sleepTime.total_milliseconds())/1000. << "); // ind = " << ind << ", gen = " << gen << std::endl;
 				}
-				result << "  nReturned" << iter << ".push_back(" << arrivalTimes.size() <<  ");" << std::endl
+				result << "  nReturned" << iter << ".Fill(" << gen << ", " << arrivalTimes[gen].size() <<  ");" << std::endl
 				       << std::endl;
 			}
 		}

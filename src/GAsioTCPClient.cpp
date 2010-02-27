@@ -254,8 +254,8 @@ bool GAsioTCPClient::retrieve(std::string& item, std::string& serMode, std::stri
 				return shutdown(false);
 			}
 
-			// We can continue. But let's wait approximately 1 second first.
-			usleep(999999);
+			// We can continue. But let's wait approximately 0.5 seconds first.
+			usleep(500000);
 
 			// Indicate that we want to continue
 			return shutdown(true);
@@ -422,7 +422,7 @@ bool GAsioTCPClient::tryConnect(){
 		if (!error)	break;
 
 		// Unsuccessful. Sleep for a second, then try again
-		usleep(999999);
+		usleep(200000);
 	}
 
 	// Still error ? Return, terminate
