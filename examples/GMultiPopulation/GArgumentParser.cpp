@@ -45,8 +45,8 @@ namespace Gem
 		  , bool& serverMode
 		  , std::string& ip
 		  , unsigned short& port
-  )
-  {
+		  , serializationMode& serMode
+  ) {
 	  try{
 		  // Check the command line options. Uses the Boost program options library.
 		  po::options_description desc("Usage: evaluator [options]");
@@ -59,6 +59,8 @@ namespace Gem
 			  ("serverMode,s","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")
 			  ("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
 			  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
+			  ("serMode", po::value<Gem::GenEvA::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
+			   "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 		  ;
 
 		  po::variables_map vm;
@@ -99,6 +101,7 @@ namespace Gem
 				  << "serverMode = " << (serverMode?"true":"false") << std::endl
 				  << "ip = " << ip << std::endl
 				  << "port = " << port << std::endl
+				  << "serMode = " << serMode << std::endl
 				  << std::endl;
 	  }
 	  catch(...){

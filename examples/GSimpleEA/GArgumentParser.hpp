@@ -93,6 +93,7 @@ namespace Gem
     const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
     const double DEFAULTGDAMUTPROB=0.05;
     const bool DEFAULTRETURNREGARDLESS=true;
+    const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
 
     namespace po = boost::program_options;
 
@@ -103,6 +104,7 @@ namespace Gem
 		  , bool& serverMode
 		  , std::string& ip
 		  , unsigned short& port
+		  , serializationMode& serMode
 	);
 
     bool parseConfigFile(
