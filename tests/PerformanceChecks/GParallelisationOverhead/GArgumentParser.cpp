@@ -45,8 +45,7 @@ bool parseCommandLine(int argc, char **argv,
 		bool& serverMode,
 		std::string& ip,
 		unsigned short& port,
-		serializationMode& serMode,
-		boost::uint32_t& startGeneration)
+		serializationMode& serMode)
 {
 	try{
 		// Check the command line options. Uses the Boost program options library.
@@ -62,8 +61,6 @@ bool parseCommandLine(int argc, char **argv,
 			  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
 			  ("serMode", po::value<Gem::GenEvA::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
 			   "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			  ("startGeneration", po::value<boost::uint32_t>(&startGeneration)->default_value(DEFAULTSTARTGENERATION),
-					  "The start value for the generation counter. Set this higher than the last value when starting from a checkpoint file")
 		;
 
 		po::variables_map vm;
@@ -104,7 +101,6 @@ bool parseCommandLine(int argc, char **argv,
 			std::cout << std::endl
 					<< "Running with the following command line options:" << std::endl
 					<< "configFile = " << configFile << std::endl
-					<< "startGeneration = " << startGeneration << std::endl
 					<< "parallelizationMode = " << parModeString << std::endl
 					<< "serverMode = " << (serverMode?"true":"false") << std::endl
 					<< "ip = " << ip << std::endl

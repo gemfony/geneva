@@ -51,6 +51,7 @@ GBrokerEA::GBrokerEA()
     , maxWaitFactor_(DEFAULTMAXWAITFACTOR)
     , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT))
     , loopTime_(boost::posix_time::milliseconds(DEFAULTLOOPMSEC))
+    , doLogging_(false)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -65,6 +66,7 @@ GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	, maxWaitFactor_(cp.maxWaitFactor_)
 	, firstTimeOut_(cp.firstTimeOut_)
 	, loopTime_(cp.loopTime_)
+	, doLogging_(cp.doLogging_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -105,6 +107,7 @@ void GBrokerEA::load_(const GObject * cp) {
 	maxWaitFactor_=p_load->maxWaitFactor_;
 	firstTimeOut_=p_load->firstTimeOut_;
 	loopTime_=p_load->loopTime_;
+	doLogging_ = p_load->doLogging_;
 }
 
 /************************************************************************************************************/
@@ -180,6 +183,7 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(const GObject& cp,
 	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", maxWaitFactor_, p_load->maxWaitFactor_, "maxWaitFactor_", "p_load->maxWaitFactor_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", firstTimeOut_, p_load->firstTimeOut_, "firstTimeOut_", "p_load->firstTimeOut_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", loopTime_, p_load->loopTime_, "loopTime_", "p_load->loopTime_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", doLogging_, p_load->doLogging_, "doLogging_", "p_load->doLogging_", e , limit));
 
 	return evaluateDiscrepancies("GBrokerEA", caller, deviations, e);
 }
@@ -294,6 +298,38 @@ boost::posix_time::time_duration GBrokerEA::getLoopTime() const {
 
 /************************************************************************************************************/
 /**
+ * Allows to specify whether logging of arrival times of individuals should be done. Note that only
+ * arrival times of individuals of the current generation are logged. This also allows to find out
+ * how many individuals did not return before the deadline.
+ *
+ * @param dl A boolean which allows to specify whether logging of arrival times of individuals should be done
+ */
+void GBrokerEA::doLogging(const bool& dl) {
+	doLogging_ = dl;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to determine whether logging of arrival times has been activated.
+ *
+ * @return A boolean indicating whether logging of arrival times has been activated
+ */
+bool GBrokerEA::loggingActivated() const {
+	return doLogging_;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the logging results
+ *
+ * @return A vector containing the logging results
+ */
+std::vector<std::vector<boost::uint32_t> > GBrokerEA::getLoggingResults() const {
+	return arrivalTimes_;
+}
+
+/************************************************************************************************************/
+/**
  * Performs any necessary initialization work before the start of the optimization cycle
  */
 void GBrokerEA::init() {
@@ -357,7 +393,7 @@ void GBrokerEA::mutateChildren() {
 	// First we send all individuals abroad
 
 	// Start with the children from the back of the population
-	// This is the same for MUPLUSNU and MUCOMMANU mode
+	// This is the same for all sorting modes
 	for(rit=data.rbegin(); rit!=data.rbegin()+nc; ++rit) {
 		(*rit)->getPersonalityTraits()->setCommand("mutate");
 		CurrentBufferPort_->push_front_orig(*rit);
@@ -395,6 +431,11 @@ void GBrokerEA::mutateChildren() {
 	}
 
 	//--------------------------------------------------------------------------------
+	// If logging is enabled, add a std::vector<boost::uint32_t> for the current generation
+	// to arrivalTimes_
+	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
+
+	//--------------------------------------------------------------------------------
 	// We can now wait for the individuals to return from their journey.
 
 	// First we wait for the first individual from the current generation to arrive,
@@ -423,6 +464,20 @@ void GBrokerEA::mutateChildren() {
 			if(p->getParentAlgIteration() == generation){
 				// Add the individual to our list.
 				this->push_back(p);
+
+				// Log arrival times if requested by the user
+				if(doLogging_) {
+#ifdef DEBUG
+					if(arrivalTimes_.size() != generation+1) {
+						std::ostringstream error;
+						error << "In GBrokerEA::mutateChildren() : Error!" << std::endl
+							  << "The arrivalTimes_ vector has the incorrect size " << arrivalTimes_.size() << std::endl
+							  << "Expected the size to be " << generation+1 << std::endl;
+						throw geneva_error_condition(error.str());
+					}
+#endif /* DEBUG */
+					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_microseconds());
+				}
 
 				// Update the counter.
 				if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
@@ -480,6 +535,20 @@ void GBrokerEA::mutateChildren() {
 			if(p->getParentAlgIteration() == generation) {
 				// Add the individual to our list.
 				this->push_back(p);
+
+				// Log arrival times if requested by the user
+				if(doLogging_) {
+#ifdef DEBUG
+					if(arrivalTimes_.size() != generation+1) {
+						std::ostringstream error;
+						error << "In GBrokerEA::mutateChildren() : Error!" << std::endl
+							  << "The arrivalTimes_ vector has the incorrect size " << arrivalTimes_.size() << std::endl
+							  << "Expected the size to be " << generation+1 << std::endl;
+						throw geneva_error_condition(error.str());
+					}
+#endif /* DEBUG */
+					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_microseconds());
+				}
 
 				// Update the counter
 				if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;

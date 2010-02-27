@@ -66,8 +66,6 @@ using namespace Gem::Util;
  * The main function. We try to measure the overhead incurred through the parallelization.
  */
 int main(int argc, char **argv){
-	bool firstConsumer = true; // Controls the start of consumers
-
 	std::string configFile;
 	boost::uint16_t parallelizationMode;
 	bool serverMode;
@@ -78,7 +76,6 @@ int main(int argc, char **argv){
 	std::size_t populationSize;
 	std::size_t nParents;
 	boost::uint32_t maxGenerations;
-	boost::uint32_t startGeneration;
 	boost::uint32_t processingCycles;
 	boost::uint32_t waitFactor;
 	std::size_t nVariables;
@@ -92,8 +89,7 @@ int main(int argc, char **argv){
 			serverMode,
 			ip,
 			port,
-			serMode,
-			startGeneration)
+			serMode)
 			||
 		!parseConfigFile(configFile,
 			nProducerThreads,
@@ -213,6 +209,12 @@ int main(int argc, char **argv){
 		break;
 	case 2:
 		resultFile = "resultNetwork.C";
+		{
+			// Create a network consumer and enrol it with the broker
+			boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+			gatc->setSerializationMode(serMode);
+			GINDIVIDUALBROKER->enrol(gatc);
+		}
 		break;
 	}
 	std::ofstream result(resultFile.c_str());
@@ -231,11 +233,19 @@ int main(int argc, char **argv){
 	std::size_t nMeasurements = sleepSeconds.size();
 
 	for(std::size_t iter=0; iter<nMeasurements; iter++) {
+		// Calculate the current sleep time
+		boost::posix_time::time_duration sleepTime =
+				boost::posix_time::seconds(sleepSeconds.at(iter)) +
+				boost::posix_time::milliseconds(sleepMilliSeconds.at(iter));
+
+		std::cout << "Starting measurement with sleep time = " << sleepTime.total_milliseconds() << std::endl;
+
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Create a population, depending on the parallelization mode. We refer to it through the base class.
 
 		// This smart pointer will hold the different population types
 		boost::shared_ptr<GEvolutionaryAlgorithm> pop_ptr;
+		boost::shared_ptr<GBrokerEA> popBroker_ptr; // We need access to the GBrokerEA population at a later time
 
 		// Create the actual populations
 		switch (parallelizationMode) {
@@ -262,18 +272,10 @@ int main(int argc, char **argv){
 		//-----------------------------------------------------------------------------------------------------
 		case 2: // Networked execution (server-side)
 		{
-			if(firstConsumer) {
-				// Create a network consumer and enrol it with the broker
-				boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
-			    gatc->setSerializationMode(serMode);
-				GINDIVIDUALBROKER->enrol(gatc);
-
-				firstConsumer = false;
-			}
-
 			// Create the actual broker population
-			boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+			popBroker_ptr = boost::shared_ptr<GBrokerEA>(new GBrokerEA());
 			popBroker_ptr->setWaitFactor(waitFactor);
+			popBroker_ptr->doLogging(); // Activate logging of arrival times of individuals
 
 			// Assignment to the base pointer
 			pop_ptr = popBroker_ptr;
@@ -283,10 +285,6 @@ int main(int argc, char **argv){
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Now we have a suitable population and can fill it with data
-
-		boost::posix_time::time_duration sleepTime =
-				boost::posix_time::seconds(sleepSeconds.at(iter)) +
-				boost::posix_time::milliseconds(sleepMilliSeconds.at(iter));
 
 		// Create the first set of parent individuals.
 		std::vector<boost::shared_ptr<GDelayIndividual> > parentIndividuals;
@@ -335,14 +333,39 @@ int main(int argc, char **argv){
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Do the actual optimization and measure the time
 		boost::posix_time::ptime startTime = boost::posix_time::microsec_clock::local_time();
-		pop_ptr->optimize(startGeneration);
+		pop_ptr->optimize();
 		boost::posix_time::ptime endTime = boost::posix_time::microsec_clock::local_time();
-
 		boost::posix_time::time_duration duration = endTime - startTime;
 
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Output the results
-		result << "  // Iteration " << iter << ":" << std::endl
-			   << "  sleepTime.push_back(" << sleepTime.total_milliseconds() << "/1000.);" << std::endl
+		result << "  // =========================================================" << std::endl
+			   << "  // Iteration " << iter << ":" << std::endl
+			   << std::endl;
+
+		// Log arrival times of individuals if this is networked mode
+		if(parallelizationMode==2) {
+			result << "  std::vector<std::vector<long> > arrivalTimes" << iter << ";" << std::endl
+				   << "  std::vector<long> nReturned" << iter << ";" << std::endl
+				   << std::endl;
+		}
+
+
+		// If this is networked mode, retrieve the arrival times of individuals and output the data
+		if(parallelizationMode == 2){
+			std::vector<std::vector<boost::uint32_t> > arrivalTimes = popBroker_ptr->getLoggingResults();
+
+			for(std::size_t gen=0; gen<arrivalTimes.size(); gen++) {
+				result << "  arrivalTimes" << iter << ".push_back(std::vector<long>());" << std::endl;
+				for(std::size_t ind=0; ind<arrivalTimes[gen].size(); ind++) {
+					result << "  arrivalTimes" << iter << "[" << gen << "].push_back(" << arrivalTimes[gen][ind] << ");" << std::endl;
+				}
+				result << "  nReturned" << iter << ".push_back(" << arrivalTimes.size() <<  ");" << std::endl
+				       << std::endl;
+			}
+		}
+
+		result << "  sleepTime.push_back(" << sleepTime.total_milliseconds() << "/1000.);" << std::endl
 			   << "  averageProcessingTime.push_back(" << double(duration.total_milliseconds())/double(maxGenerations+1) <<"/1000.);" << std::endl;
 
 		//--------------------------------------------------------------------------------------------

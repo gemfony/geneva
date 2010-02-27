@@ -174,6 +174,13 @@ namespace GenEvA
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 
+	/** @brief Allows to specify whether logging of arrival times of individuals should be done */
+	void doLogging(const bool& dl=true);
+	/** @brief Allows to determine whether logging of arrival times has been activated */
+	bool loggingActivated() const;
+	/** @brief Allows to retrieve the logging results */
+	std::vector<std::vector<boost::uint32_t> > getLoggingResults() const;
+
   protected:
     /** @brief Loads the data of another GTransfer Population */
     virtual void load_(const GObject *);
@@ -207,6 +214,9 @@ namespace GenEvA
     boost::posix_time::time_duration loopTime_;
 
     GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the optimization cycle
+
+    bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
+    std::vector<std::vector<boost::uint32_t> >  arrivalTimes_; ///< Holds the actual arrival times. Note: Neither serialized nor copied
   };
 
   /**********************************************************************************/

@@ -93,8 +93,7 @@ bool parseCommandLine(int argc, char **argv,
 		bool& serverMode,
 		std::string& ip,
 		unsigned short& port,
-		serializationMode& serMode,
-		boost::uint32_t& startGeneration);
+		serializationMode& serMode);
 
 bool parseConfigFile(const std::string& configFile,
 		boost::uint16_t& nProducerThreads,
