@@ -346,8 +346,8 @@ int main(int argc, char **argv){
 
 		// Log arrival times of individuals if this is networked mode
 		if(parallelizationMode==2) {
-			result << "  TH1F *arrivalTimes" << iter << " = new TH1F(\"arrivalTimes" << iter << "\", \"arrivalTimes" << iter << "\", 100, 0., 10.);" << std::endl
-				   << "  TH1I *nReturned" << iter << " = new TH1I(\"arrivalTimes" << iter << "\", \"arrivalTimes" << iter << "\", " << maxGenerations << ", 0, " << maxGenerations-1 << ");" << std::endl
+			result << "  TH1F *arrivalTimes" << iter << " = new TH1F(\"arrivalTimes" << iter << "\", \"arrivalTimes" << iter << "\", 500, 0., 5.);" << std::endl
+				   << "  TH1I *nReturned" << iter << " = new TH1I(\"nReturned" << iter << "\", \"nReturned" << iter << "\", " << maxGenerations+1 << ", 0, " << maxGenerations << ");" << std::endl
 				   << std::endl;
 
 			std::vector<std::vector<boost::uint32_t> > arrivalTimes = popBroker_ptr->getLoggingResults();
