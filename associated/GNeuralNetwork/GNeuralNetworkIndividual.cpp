@@ -467,7 +467,7 @@ void networkData::toRoot(
  * @return The transferred value
  */
 template <>
-inline double GNeuralNetworkIndividual<SIGMOID>::transfer(const double& value) const {
+double GNeuralNetworkIndividual<SIGMOID>::transfer(const double& value) const {
 	return 1./(1.+exp(-value));
 }
 
@@ -479,7 +479,7 @@ inline double GNeuralNetworkIndividual<SIGMOID>::transfer(const double& value) c
  * @return The transferred value
  */
 template <>
-inline double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
+double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
 	return exp(-GSQUARED(value));
 }
 

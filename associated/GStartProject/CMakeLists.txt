@@ -26,9 +26,17 @@ SET (CMAKE_EXE_LINKER_FLAGS "-lpthread")
 
 SET (Boost_USE_MULTITHREADED ON)
 
-IF(NOT DEFINED CMAKE_BUILD_TYPE)
-	SET(CMAKE_BUILD_TYPE Release) # Set build type to Release by default
-	# SET (CMAKE_BUILD_TYPE Debug) # Set build type to Debug by default
+# Set the build type to Debug by default or in case GENEVA_BUILD_TYPE
+# was set to Debug. Set it to Release if GENEVA_BUILD_TYPE was set 
+# accordingly. Complain in all other cases.
+IF(NOT DEFINED GENEVA_BUILD_TYPE OR GENEVA_BUILD_TYPE STREQUAL "Debug")
+	MESSAGE ("Setting the build type to default value Debug")
+	SET(CMAKE_BUILD_TYPE Debug)
+ELSEIF(GENEVA_BUILD_TYPE STREQUAL "Release")
+	MESSAGE ("Setting the build type to Release")
+	SET(CMAKE_BUILD_TYPE Release)
+ELSE()
+	MESSAGE (FATAL_ERROR "Unkown compilation mode " ${GENEVA_BUILD_TYPE})
 ENDIF()
 
 # At least Boost 1.36 must be installed 
