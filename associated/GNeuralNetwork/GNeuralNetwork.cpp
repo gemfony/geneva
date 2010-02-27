@@ -172,6 +172,7 @@ int main(int argc, char **argv){
   double minSigma;
   double maxSigma;
   double mutProb;
+  serializationMode serMode;
 
   //***************************************************************************
   // Parse command line and configuration file
@@ -182,6 +183,7 @@ int main(int argc, char **argv){
 			, serverMode
 			, ip
 			, port
+		    , serMode
 			, tdt
 			, trainingDataFile
 			, nDataSets
@@ -330,6 +332,7 @@ int main(int argc, char **argv){
     {
       // Create a network consumer and enrol it with the broker
       boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+      gatc->setSerializationMode(serMode);
       GINDIVIDUALBROKER->enrol(gatc);
 
       // Create the actual broker population

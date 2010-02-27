@@ -88,33 +88,39 @@ namespace Gem
     const std::size_t DEFAULTPARDIM=100;
     const double DEFAULTMINVAR=-10.;
     const double DEFAULTMAXVAR=10.;
+    const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
 
     namespace po = boost::program_options;
 
-    bool parseCommandLine(int argc, char **argv,
-			  std::string& configFile,			  
-			  boost::uint16_t& parallelizationMode,
-			  bool& serverMode,
-			  std::string& ip,
-			  unsigned short& port);
+    bool parseCommandLine(
+    		int argc, char **argv,
+		  , std::string& configFile
+		  , boost::uint16_t& parallelizationMode
+		  , bool& serverMode
+		  , std::string& ip
+		  , unsigned short& port
+		  , serializationMode& serMode
+	);
 
-    bool parseConfigFile(const std::string& configFile,
-			 boost::uint16_t& nProducerThreads,
-			 boost::uint16_t& nEvaluationThreads,
-			 std::size_t& populationSize,
-			 std::size_t& nParents,
-			 boost::uint32_t& maxIterations,
-			 long& maxMinutes,
-			 boost::uint32_t& reportIteration,
-			 recoScheme& rScheme,
-			 sortingMode& smode,
-			 std::size_t& arraySize,
-			 boost::uint32_t& processingCycles,
-			 bool& returnRegardless,
-			 boost::uint32_t& waitFactor,
-			 std::size_t& parDim,
-			 double& minVar,
-			 double& maxVar);
+    bool parseConfigFile(
+    		const std::string& configFile,
+		  , boost::uint16_t& nProducerThreads
+		  , boost::uint16_t& nEvaluationThreads
+		  , std::size_t& populationSize
+		  , std::size_t& nParents
+		  , boost::uint32_t& maxIterations
+		  , long& maxMinutes
+		  , boost::uint32_t& reportIteration
+		  , recoScheme& rScheme
+		  , sortingMode& smode
+		  , std::size_t& arraySize
+		  , boost::uint32_t& processingCycles
+		  , bool& returnRegardless
+		  , boost::uint32_t& waitFactor
+		  , std::size_t& parDim
+		  , double& minVar
+		  , double& maxVar
+	);
 
   } /* namespace GenEvA */
 } /* namespace Gem */

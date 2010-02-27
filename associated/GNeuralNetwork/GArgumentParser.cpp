@@ -76,6 +76,7 @@ namespace Gem
 		, bool& serverMode
 		, std::string& ip
 		, unsigned short& port
+	    , serializationMode& serMode
 		, trainingDataType& tdt
 		, std::string& trainingDataFile
 		, std::size_t& nDataSets
@@ -95,6 +96,8 @@ namespace Gem
 	  ("serverMode,s","Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")
 	  ("ip",po::value<std::string>(&ip)->default_value(DEFAULTIP), "The ip of the server")
 	  ("port",po::value<unsigned short>(&port)->default_value(DEFAULTPORT), "The port of the server")
+	  ("serMode", po::value<Gem::GenEvA::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
+	   "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 	  ("trainingDataType", po::value<trainingDataType>(&tdt)->default_value(DEFAULTTRAININGDATATYPE),
 	   "The type of training data to be produced: 0 (none), 1 (hyper cube), 2 (hyper sphere), 3 (axis centric), 4 (sinus)")
 	  ("trainingDataFile", po::value<std::string>(&trainingDataFile)->default_value(DEFAULTTRAININGDATAFILE),
@@ -148,7 +151,8 @@ namespace Gem
 		    << "parallelizationMode = " << parModeString << std::endl
 		    << "serverMode = " << (serverMode?"true":"false") << std::endl
 		    << "ip = " << ip << std::endl
-		    << "port = " << port << std::endl;
+		    << "port = " << port << std::endl
+			<< "serMode = " << serMode << std::endl;
 
 	  if(tdt != 0) {
 		  std::cout << "trainingDataType = " << tdt << std::endl
