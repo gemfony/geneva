@@ -82,6 +82,8 @@ const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
 const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
 const std::size_t DEFAULTNVARIABLES=1000;
 const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
+const boost::uint32_t DEFAULTMAXSTALLS=0;
+const boost::uint32_t DEFAULTMAXCONNATTEMPT=600; // equals 10 minutes
 
 namespace po = boost::program_options;
 
@@ -102,6 +104,8 @@ bool parseConfigFile(const std::string& configFile,
 		boost::uint32_t& maxGenerations,
 		boost::uint32_t& processingCycles,
 		boost::uint32_t& waitFactor,
+		boost::uint32_t& maxStalls,
+		boost::uint32_t& maxConnAttempts,
 		std::size_t& nVariables);
 
 } /* namespace GenEvA */

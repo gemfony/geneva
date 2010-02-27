@@ -134,6 +134,8 @@ bool parseConfigFile(const std::string& configFile,
 		boost::uint32_t& maxGenerations,
 		boost::uint32_t& processingCycles,
 		boost::uint32_t& waitFactor,
+		boost::uint32_t& maxStalls,
+		boost::uint32_t& maxConnAttempts,
 		std::size_t& nVariables)
 {
 	bool verbose;
@@ -163,7 +165,11 @@ bool parseConfigFile(const std::string& configFile,
   	    ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
   	    		"The maximum number of cycles a client should perform mutations before it returns without success")
   	    ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
-  	    		"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
+  	    		"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individual")
+  	    ("maxStalls", po::value<boost::uint32_t>(&maxStalls)->default_value(DEFAULTMAXSTALLS),
+  	    		"The maximum number of times a client accepts to be given no work (0 means infinite)")
+  	    ("maxConnAttempts", po::value<boost::uint32_t>(&maxConnAttempts)->default_value(DEFAULTMAXCONNATTEMPT),
+  	    		"The maximum number of times a client tries to connect to the server before terminating itself")
 		("nVariables", po::value<std::size_t>(&nVariables)->default_value(DEFAULTNVARIABLES),
 				"The amount of variables in each individual")
   	    ;
@@ -204,6 +210,8 @@ bool parseConfigFile(const std::string& configFile,
 					<< "maxGenerations = " << maxGenerations << std::endl
 					<< "processingCycles = " << processingCycles << std::endl
 					<< "waitFactor = " << waitFactor << std::endl
+					<< "maxStalls = " << maxStalls << std::endl
+					<< "maxConnAttempts = " << maxConnAttempts << std::endl
 					<< "nVariables = " << nVariables << std::endl
 					<< std::endl;
 		}

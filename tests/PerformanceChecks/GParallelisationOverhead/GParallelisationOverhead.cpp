@@ -83,6 +83,8 @@ int main(int argc, char **argv){
 	boost::uint32_t waitFactor;
 	std::size_t nVariables;
 	serializationMode serMode;
+	boost::uint32_t maxStalls;
+	boost::uint32_t maxConnAttempts;
 
 	if(!parseCommandLine(argc, argv,
 			configFile,
@@ -101,6 +103,8 @@ int main(int argc, char **argv){
 			maxGenerations,
 			processingCycles,
 			waitFactor,
+			maxStalls,
+			maxConnAttempts,
 			nVariables))
 	{ exit(1); }
 
@@ -111,8 +115,8 @@ int main(int argc, char **argv){
 	if(parallelizationMode==2 && !serverMode) {
 		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip, boost::lexical_cast<std::string>(port)));
 
-		p->setMaxStalls(0); // Loop indefinitely when receiving no work items
-		p->setMaxConnectionAttempts(200); // Try up to 200 times to connect to the server before terminating
+		p->setMaxStalls(maxStalls); // Loop maxStalls when receiving no work items before terminating. 0 means "loop indefinitely"
+		p->setMaxConnectionAttempts(maxConnAttempts); // Try up to maxConnAttempts times to connect to the server before terminating
 
 		// Return results even if no better results were found
 		p->returnResultIfUnsuccessful(true);
@@ -195,9 +199,6 @@ int main(int argc, char **argv){
 	sleepMilliSeconds.push_back(0);
 	// 120 s
 	sleepSeconds.push_back(120);
-	sleepMilliSeconds.push_back(0);
-	// 240 s
-	sleepSeconds.push_back(240);
 	sleepMilliSeconds.push_back(0);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
