@@ -37,6 +37,7 @@ The main changes for this release include:
  - Reworked the load framework so that public accessible load functions is shared pointers
  - Removed GChar and related classes, as these can be implemented better through integer classes
  - Cleaned up and renovated the example's hierarchy
+ - Added a build script to facilitate building the Geneva library
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009
