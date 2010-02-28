@@ -45,6 +45,8 @@
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
 
 #ifndef GARGUMENTPARSER_HPP_
 #define GARGUMENTPARSER_HPP_
@@ -85,6 +87,7 @@ const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
 const boost::uint32_t DEFAULTMAXSTALLS=0;
 const boost::uint32_t DEFAULTMAXCONNATTEMPT=600; // equals 10 minutes
 const std::string DEFAULTSLEEPSTRING="1/0";
+const std::string DEFAULTRESULTFILE="result.C";
 
 namespace po = boost::program_options;
 
@@ -107,6 +110,7 @@ bool parseConfigFile(const std::string& configFile,
 		boost::uint32_t& maxStalls,
 		boost::uint32_t& maxConnAttempts,
 		std::size_t& nVariables,
+		std::string& resultFile,
 		std::vector<long>& sleepSeconds,
 		std::vector<long>& sleepMilliSeconds);
 

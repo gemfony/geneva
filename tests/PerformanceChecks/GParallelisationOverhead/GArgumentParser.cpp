@@ -115,7 +115,6 @@ bool parseCommandLine(int argc, char **argv,
 	}
 
 	return true;
-
 }
 
 /************************************************************************************************/
@@ -133,6 +132,7 @@ bool parseConfigFile(const std::string& configFile,
 		boost::uint32_t& maxStalls,
 		boost::uint32_t& maxConnAttempts,
 		std::size_t& nVariables,
+		std::string& resultFile,
 		std::vector<long>& sleepSeconds,
 		std::vector<long>& sleepMilliSeconds)
 {
@@ -171,7 +171,9 @@ bool parseConfigFile(const std::string& configFile,
   	    		"The maximum number of times a client tries to connect to the server before terminating itself")
 		("nVariables", po::value<std::size_t>(&nVariables)->default_value(DEFAULTNVARIABLES),
 				"The amount of variables in each individual")
-		("delay", po::value<std::string>(&sleepString)->default_value(DEFAULTSLEEPSTRING),
+		("resultFile", po::value<std::string>(&resultFile)->default_value(resultFile),
+				"The name of the file that the result ROOT program will be written to")
+		("delays", po::value<std::string>(&sleepString)->default_value(DEFAULTSLEEPSTRING),
 				"Delays in seconds/milliseconds")
   	    ;
 
@@ -190,7 +192,6 @@ bool parseConfigFile(const std::string& configFile,
 			std::cout << config << std::endl;
 			return false;
 		}
-
 		// Check the number of parents in the super-population
 		if(2*nParents > populationSize){
 			std::cout << "Error: Invalid number of parents inpopulation" << std::endl
@@ -199,7 +200,62 @@ bool parseConfigFile(const std::string& configFile,
 
 			return false;
 		}
+		// Parse the sleep string and break it into timing values
+		std::vector<std::string> sleepTokens;
+ 	    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		boost::char_separator<char> space_sep(" ");
+		tokenizer sleepTokenizer(sleepString, space_sep);
+		tokenizer::iterator t;
+		for(t=sleepTokenizer.begin(); t!=sleepTokenizer.end(); ++t){
+			std::cout << "Sleep token is " << *t << std::endl;
+			sleepTokens.push_back(*t);
+		}
+		if(sleepTokens.empty()) { // No sleep tokens were provided
+			std::cerr << "Error: You did not provide any delay timings" << std::endl;
+			return false;
+		}
+		sleepSeconds.clear();
+		sleepMilliSeconds.clear();
 
+		for(std::vector<std::string>::iterator t=sleepTokens.begin(); t!=sleepTokens.end(); ++t) {
+			// Split the string
+			boost::char_separator<char> slash_sep("/");
+			tokenizer delayTokenizer(*t, slash_sep);
+
+			// Loop over the results (there should be exactly two) and assign to the corresponding vectors
+			tokenizer::iterator d;
+			boost::uint32_t tokenCounter=0;
+			for(d=delayTokenizer.begin(); d!=delayTokenizer.end(); ++d){
+				switch(tokenCounter++){
+				case 0:
+					try{
+						sleepSeconds.push_back(boost::lexical_cast<long>(*d));
+					}
+					catch(...) {
+						std::cerr << "Error transferring string " << *d << " to a numeric value" << std::endl;
+						return false;
+					}
+					break;
+
+				case 1:
+					try{
+						sleepMilliSeconds.push_back(boost::lexical_cast<long>(*d));
+					}
+					catch(...) {
+						std::cerr << "Error transferring string " << *d << " to a numeric value" << std::endl;
+						return false;
+					}
+					break;
+				default:
+					std::cerr << "Error: Invalid number of tokens in string" << *t << std::endl;
+					return false;
+				}
+			}
+		}
+
+		std::cout << "Here I am 4 " << sleepSeconds.size() << " " << sleepMilliSeconds.size() << std::endl;
+
+		// Let the audience know
 		if(verbose){
 			std::cout << std::endl
 					<< "Running with the following options from " << configFile << ":" << std::endl
@@ -212,7 +268,14 @@ bool parseConfigFile(const std::string& configFile,
 					<< "maxStalls = " << maxStalls << std::endl
 					<< "maxConnAttempts = " << maxConnAttempts << std::endl
 					<< "nVariables = " << nVariables << std::endl
+					<< "resultFile = " << resultFile << std::endl
 					<< std::endl;
+
+			for(std::size_t i=0; i<sleepSeconds.size(); i++) {
+				std::cout << "Delay " << i << " = " << sleepSeconds[i] << "/" << sleepMilliSeconds[i] << std::endl;
+			}
+
+			std::cout << std::endl;
 		}
 	}
 	catch(...){

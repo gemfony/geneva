@@ -83,6 +83,7 @@ int main(int argc, char **argv){
 	boost::uint32_t maxStalls;
 	boost::uint32_t maxConnAttempts;
 	std::vector<long> sleepSeconds, sleepMilliSeconds;
+	std::string resultFile;
 
 	if(!parseCommandLine(argc, argv,
 			configFile,
@@ -103,6 +104,7 @@ int main(int argc, char **argv){
 			maxStalls,
 			maxConnAttempts,
 			nVariables,
+			resultFile,
 			sleepSeconds,
 			sleepMilliSeconds))
 	{ exit(1); }
@@ -127,27 +129,17 @@ int main(int argc, char **argv){
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Prepare the output file used to record the measurements
-	std::string resultFile;
-	switch (parallelizationMode) {
-	case 0:
-		resultFile = "resultSerial.C";
-		break;
-	case 1:
-		resultFile = "resultThread.C";
-		break;
-	case 2:
-		resultFile = "resultNetwork.C";
-		{
-			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
-			gatc->setSerializationMode(serMode);
-			GINDIVIDUALBROKER->enrol(gatc);
-		}
-		break;
+	// Start the network consumer, if necessary
+	if(parallelizationMode == 2) {
+		// Create a network consumer and enrol it with the broker
+		boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+		gatc->setSerializationMode(serMode);
+		GINDIVIDUALBROKER->enrol(gatc);
 	}
-	std::ofstream result(resultFile.c_str());
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Prepare the output file used to record the measurements
+	std::ofstream result(resultFile.c_str());
 	result
 	<< "{" << std::endl
 	<< "  gStyle->SetOptTitle(0);" << std::endl
