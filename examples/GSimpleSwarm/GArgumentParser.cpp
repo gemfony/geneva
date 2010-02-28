@@ -194,8 +194,6 @@ namespace Gem
 	  return false;
 	}
 
-	if(waitFactor == 0) waitFactor = DEFAULTGBTCWAITFACTOR;
-
 	if(verbose){
 	  std::cout << std::endl
 		    << "Running with the following options from " << configFile << ":" << std::endl

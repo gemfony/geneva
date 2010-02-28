@@ -238,8 +238,6 @@ namespace Gem
 		return false;
 	}
 
-	if(waitFactor == 0) waitFactor = DEFAULTGBTCWAITFACTOR;
-
 	if(verbose){
 		std::string eF;
 		switch(evalFunction) {

@@ -82,6 +82,7 @@ int main(int argc, char **argv){
 	serializationMode serMode;
 	boost::uint32_t maxStalls;
 	boost::uint32_t maxConnAttempts;
+	std::vector<long> sleepSeconds, sleepMilliSeconds;
 
 	if(!parseCommandLine(argc, argv,
 			configFile,
@@ -101,7 +102,9 @@ int main(int argc, char **argv){
 			waitFactor,
 			maxStalls,
 			maxConnAttempts,
-			nVariables))
+			nVariables,
+			sleepSeconds,
+			sleepMilliSeconds))
 	{ exit(1); }
 
 	// Random numbers are our most valuable good. Set the number of threads
@@ -122,80 +125,6 @@ int main(int argc, char **argv){
 
 		return 0;
 	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Set up the sleeping times
-	std::vector<long> sleepSeconds, sleepMilliSeconds;
-
-	// 0.01 s
-	sleepSeconds.push_back(0);
-	sleepMilliSeconds.push_back(10);
-	// 0.1 s
-	sleepSeconds.push_back(0);
-	sleepMilliSeconds.push_back(100);
-	// 0.5 s
-	sleepSeconds.push_back(0);
-	sleepMilliSeconds.push_back(500);
-	// 1 s
-	sleepSeconds.push_back(1);
-	sleepMilliSeconds.push_back(0);
-	// 2 s
-	sleepSeconds.push_back(2);
-	sleepMilliSeconds.push_back(0);
-	// 3 s
-	sleepSeconds.push_back(3);
-	sleepMilliSeconds.push_back(0);
-	// 4 s
-	sleepSeconds.push_back(4);
-	sleepMilliSeconds.push_back(0);
-	// 5 s
-	sleepSeconds.push_back(5);
-	sleepMilliSeconds.push_back(0);
-	// 6 s
-	sleepSeconds.push_back(6);
-	sleepMilliSeconds.push_back(0);
-	// 7 s
-	sleepSeconds.push_back(7);
-	sleepMilliSeconds.push_back(0);
-	// 8 s
-	sleepSeconds.push_back(8);
-	sleepMilliSeconds.push_back(0);
-	// 9 s
-	sleepSeconds.push_back(9);
-	sleepMilliSeconds.push_back(0);
-	// 10 s
-	sleepSeconds.push_back(10);
-	sleepMilliSeconds.push_back(0);
-	// 15 s
-	sleepSeconds.push_back(15);
-	sleepMilliSeconds.push_back(0);
-	// 20 s
-	sleepSeconds.push_back(20);
-	sleepMilliSeconds.push_back(0);
-	// 25 s
-	sleepSeconds.push_back(25);
-	sleepMilliSeconds.push_back(0);
-	// 30 s
-	sleepSeconds.push_back(30);
-	sleepMilliSeconds.push_back(0);
-	// 40 s
-	sleepSeconds.push_back(40);
-	sleepMilliSeconds.push_back(0);
-	// 50 s
-	sleepSeconds.push_back(50);
-	sleepMilliSeconds.push_back(0);
-	// 60 s
-	sleepSeconds.push_back(60);
-	sleepMilliSeconds.push_back(0);
-	// 80 s
-	sleepSeconds.push_back(80);
-	sleepMilliSeconds.push_back(0);
-	// 100 s
-	sleepSeconds.push_back(100);
-	sleepMilliSeconds.push_back(0);
-	// 120 s
-	sleepSeconds.push_back(120);
-	sleepMilliSeconds.push_back(0);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Prepare the output file used to record the measurements

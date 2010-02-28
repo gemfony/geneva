@@ -132,9 +132,12 @@ bool parseConfigFile(const std::string& configFile,
 		boost::uint32_t& waitFactor,
 		boost::uint32_t& maxStalls,
 		boost::uint32_t& maxConnAttempts,
-		std::size_t& nVariables)
+		std::size_t& nVariables,
+		std::vector<long>& sleepSeconds,
+		std::vector<long>& sleepMilliSeconds)
 {
 	bool verbose;
+	std::string sleepString;
 
 	// Check the name of the configuation file
 	if(configFile.empty() || configFile == "empty" || configFile == "unknown") {
@@ -168,6 +171,8 @@ bool parseConfigFile(const std::string& configFile,
   	    		"The maximum number of times a client tries to connect to the server before terminating itself")
 		("nVariables", po::value<std::size_t>(&nVariables)->default_value(DEFAULTNVARIABLES),
 				"The amount of variables in each individual")
+		("delay", po::value<std::string>(&sleepString)->default_value(DEFAULTSLEEPSTRING),
+				"Delays in seconds/milliseconds")
   	    ;
 
 		po::variables_map vm;
@@ -194,8 +199,6 @@ bool parseConfigFile(const std::string& configFile,
 
 			return false;
 		}
-
-		if(waitFactor == 0) waitFactor = DEFAULTGBTCWAITFACTOR;
 
 		if(verbose){
 			std::cout << std::endl
