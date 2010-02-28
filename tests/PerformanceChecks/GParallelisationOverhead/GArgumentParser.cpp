@@ -253,8 +253,6 @@ bool parseConfigFile(const std::string& configFile,
 			}
 		}
 
-		std::cout << "Here I am 4 " << sleepSeconds.size() << " " << sleepMilliSeconds.size() << std::endl;
-
 		// Let the audience know
 		if(verbose){
 			std::cout << std::endl
