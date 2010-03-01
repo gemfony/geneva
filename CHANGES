@@ -9,7 +9,7 @@ Version 0.8:
  - Update of performance figures
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.7, "Route Arago" (current release) - yet unreleased
+* Version 0.7, "Route Arago" - March 1, 2010
 
 The main changes for this release include:
  - Removed all direct dependencies of GIndividual objects from the optimization algorithm in order to

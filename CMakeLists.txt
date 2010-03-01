@@ -6,7 +6,7 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 # Set the library/package version
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "7")
-SET(VERSION_PATCH "0rc")
+SET(VERSION_PATCH "")
 
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
 # it was not deployed in one of the standard system locations. Otherwise,
@@ -22,9 +22,6 @@ SET(VERSION_PATCH "0rc")
 # Uncomment to compile static libs
 # SET( GENEVA_STATIC TRUE )
 
-# Set the build type (default value is "Release")
-# SET( CMAKE_BUILD_TYPE Debug )
-
 # The names of the two libraries that will be built by CMake
 SET ( GENEVALIBNAME geneva-opt )
 SET ( DATAEXCHANGELIBNAME geneva-extcomm )
@@ -38,7 +35,7 @@ ENDIF()
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
 # Set the build type to Debug by default or in case GENEVA_BUILD_TYPE
-# was set to Debug. Set it to Release if GENEVA_BUILD_TYPE was set 
+# was set to Debug. Set it to Release if GENEVA_BUILD_TYPE was set
 # accordingly. Complain in all other cases.
 IF(NOT DEFINED GENEVA_BUILD_TYPE OR GENEVA_BUILD_TYPE STREQUAL "Debug")
 	MESSAGE ("Setting the build type to default value Debug")
@@ -90,7 +87,7 @@ IF( GENEVA_STATIC )
 	SET (BUILD_SHARED_LIBS OFF)
 	SET (Boost_USE_STATIC_LIBS ON)
 	LINK_LIBRARIES (dl)
-	LINK_LIBRARIES (z)	
+	LINK_LIBRARIES (z)
 	LINK_LIBRARIES (pthread)
 ELSE()
 	SET (BUILD_SHARED_LIBS ON)
