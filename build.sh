@@ -36,11 +36,11 @@
 ####################################################################
 # Check variables, set variable defaults if no config file was given
 if [ $# -eq 0 ]; then
- 	echo "Setting variable defaults, as no Geneva config"
- 	echo "file was provided. See the Geneva directory for"
- 	echo "an example (genevaConfig.gcfg)."
- 	
- 	CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
+	echo "Setting variable defaults, as no Geneva config"
+	echo "file was provided. See the Geneva directory for"
+	echo "an example (genevaConfig.gcfg)."
+
+	CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
 	BOOSTROOT="/opt/boost142"                 # Where Boost is installed
 	BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
 	BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
@@ -75,9 +75,9 @@ fi
 ####################################################################
 # Some checks
 if [ ! -x ${CMAKE} ]; then
-    echo "Error: Could not find cmake executable ${CMAKE}"
-    echo "Please provide the correct path"
-    exit
+	echo "Error: Could not find cmake executable ${CMAKE}"
+	echo "Please provide the correct path"
+	exit
 fi
 
 if [ ! -e ${BOOSTINCL}/version.hpp ]; then
