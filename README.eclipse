@@ -97,9 +97,9 @@ of Geneva in Eclipse, and in particular of CMake.
 
        # You can hard-code the Boost paths here, if you compiled Boost yourself and
        #   it was not deployed in one of the standard system locations
-       #SET (BOOST_ROOT "/opt/boost136")
-       #SET (BOOST_INCLUDEDIR "/opt/boost136/include/boost-1_36")
-       #SET (BOOST_LIBRARYDIR "/opt/boost136/lib")
+       #SET (BOOST_ROOT "/opt/boost142")
+       #SET (BOOST_INCLUDEDIR "/opt/boost142/include/boost-1_42")
+       #SET (BOOST_LIBRARYDIR "/opt/boost142/lib")
 
        # Set once for Eclipse to find the boost libraries, you can then comment
        #   it out again
