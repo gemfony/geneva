@@ -36,9 +36,9 @@
 ####################################################################
 # Check variables, set variable defaults if no config file was given
 if [ $# -eq 0 ]; then
-	echo "Setting variable defaults, as no Geneva config"
-	echo "file was provided. See the Geneva directory for"
-	echo "an example (genevaConfig.gcfg)."
+	echo -e "\nSetting variable defaults, as no Geneva config"
+	echo -e "file was provided. See the Geneva directory for"
+	echo -e "an example (genevaConfig.gcfg).\n"
 
 	CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
 	BOOSTROOT="/opt/boost142"                 # Where Boost is installed
@@ -63,7 +63,7 @@ elif [ $# -eq 1 ]; then
 	fi
 	
 	# Source the config file
-	echo "Using configuration file $1"
+	echo -e "\nUsing configuration file $1"
 	. $1
 else
 	echo "You should provide exactly one Geneva config file as command"
@@ -114,7 +114,16 @@ fi
 
 ####################################################################
 # Do the actual call to cmake
-COMPILE="${CMAKE} -DBOOST_ROOT=${BOOSTROOT} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} ${PROJECTROOT}"
+CONFIGURE="${CMAKE} -DBOOST_ROOT=${BOOSTROOT} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} ${PROJECTROOT}"
 
-echo "Compiling with command ${COMPILE}"
-${COMPILE}
+echo -e "\nConfiguring with command ${COMPILE}\n"
+${CONFIGURE}
+
+####################################################################
+# Finish by telling the user how to continue :-)
+echo -e "\n\nYou may now build and install Geneva in the usual way,"
+echo -e "just run:"
+echo -e "\tmake\t\t\t# Use -j2 if in a dual-core machine"
+echo -e "\tmake install\n\n"
+
+####################################################################

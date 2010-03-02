@@ -25,9 +25,12 @@ Adapt the variables in the file appropriately. Then call
 
 sh ../Geneva/build.sh ./myGenevaConfig.gcfg
 
-Installation and cleaning work with a simple
+Finally build and install in the usual way:
 
-"make install" and "make clean" inside of $HOME/build .
+make		# Use the -j2 switch if you have a dual core CPU
+make install
+
+You can clean up the build folder by running "make clean" inside of $HOME/build .
 
 Don't blame us if this procedure does not work (but do let us know!)
 
