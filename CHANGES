@@ -4,7 +4,7 @@ Roadmap for Version 0.8:
  - Revision of broker infrastructure, implementation as separate library
  - Revision of Random and Random factory, implementation as separate library
  - Implementation of a GBoundedDoubleWithGaps
- - Get rid of self-initialized singletons, in favour of a GenevaInitialize/Finalize() function
+ - Get rid of self-initialized singletons, in favor of a GenevaInitialize/Finalize() function
  - Update of performance figures
 
 //------------------------------------------------------------------------------------------------------
