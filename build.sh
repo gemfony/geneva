@@ -116,7 +116,7 @@ fi
 # Do the actual call to cmake
 CONFIGURE="${CMAKE} -DBOOST_ROOT=${BOOSTROOT} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} ${PROJECTROOT}"
 
-echo -e "\nConfiguring with command ${CONFIGURE}\n"
+echo -e "\nConfiguring with command: \"${CONFIGURE}\"\n"
 ${CONFIGURE}
 
 ####################################################################
