@@ -116,14 +116,14 @@ fi
 # Do the actual call to cmake
 CONFIGURE="${CMAKE} -DBOOST_ROOT=${BOOSTROOT} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} ${PROJECTROOT}"
 
-echo -e "\nConfiguring with command ${COMPILE}\n"
+echo -e "\nConfiguring with command ${CONFIGURE}\n"
 ${CONFIGURE}
 
 ####################################################################
 # Finish by telling the user how to continue :-)
-echo -e "\n\nYou may now build and install Geneva in the usual way,"
-echo -e "just run:"
-echo -e "\tmake\t\t\t# Use -j2 if in a dual-core machine"
+echo -e "\n\n---------------------------------------------------------------------"
+echo -e "\nYou may now build and install Geneva in the usual way:"
+echo -e "\tmake\t\t\t# Use '-j2' if in a dual-core machine"
 echo -e "\tmake install\n\n"
 
 ####################################################################
