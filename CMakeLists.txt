@@ -112,6 +112,10 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 FIND_PACKAGE( Boost 1.36 COMPONENTS
 	test_exec_monitor
 )
+IF( NOT DEFINED Boost_TEST_EXEC_MONITOR_FOUND )
+	MESSAGE ( "     WARNING: the BOOST test_exec_monitor library was not found. This is" )
+	MESSAGE ( "     not a critical issue, however the Geneva tests will not be built." )
+ENDIF()
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
