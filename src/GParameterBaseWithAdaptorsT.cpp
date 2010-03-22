@@ -40,7 +40,7 @@ namespace GenEvA {
  * Note that the parameter of this function will get changed. The check for adaptors happens
  * inside applyFirstAdaptor. This is a specialization of a generic template function.
  *
- * @param collection A vector of values that shall be mutated
+ * @param collection A vector of values that shall be adapted
  */
 template<>
 void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collection) {

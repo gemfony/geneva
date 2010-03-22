@@ -215,11 +215,11 @@ protected:
 
 	/**********************************************************************************/
 	/**
-	 * The actual mutation operations. We want to avoid spending time on mutations, as
+	 * The actual adaption operations. We want to avoid spending time on adaptions, as
 	 * all we want to do is measure the overhead of the parallelization. We thus simply
 	 * provide an empty replacement for the default behavior.
 	 */
-	virtual void customMutations(){ /* nothing */ }
+	virtual void customAdaptions(){ /* nothing */ }
 
 
 	/********************************************************************************************/

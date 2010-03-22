@@ -198,9 +198,9 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Allows to mutate the value stored in this class.
+	 * Allows to adapt the value stored in this class.
 	 */
-	virtual void mutateImpl(){
+	virtual void adaptImpl(){
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(val_);
 	}
 

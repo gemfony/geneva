@@ -82,7 +82,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 	BOOST_CHECK(gifat0.getAdaptorId() == Gem::GenEvA::GBOOLEANADAPTOR ||
 			gifat0.getAdaptorId() == Gem::GenEvA::GINT32FLIPADAPTOR);
 
-	// Test instantiation with a probability mutation
+	// Test instantiation with a probability adaption
 	T gifat1(0.2);
 
 	BOOST_CHECK(gep.isInEqual(gifat1, gifat0));
@@ -100,57 +100,57 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 	BOOST_CHECK(gep.isEqual(gifat3, gifat1));
 	BOOST_CHECK(gep.isInEqual(gifat3, gifat0));
 
-	// Retrieve the mutation probablilty and modify it slightly. Then check similariy and equality.
-	double mutProb = gifat3.getMutationProbability();
-	mutProb -= pow(10,-10);
-	gifat3.setMutationProbability(mutProb);
+	// Retrieve the adaption probablilty and modify it slightly. Then check similariy and equality.
+	double adProb = gifat3.getAdaptionProbability();
+	adProb -= pow(10,-10);
+	gifat3.setAdaptionProbability(adProb);
 
 	BOOST_CHECK(gep.isInEqual(gifat3, gifat1)); // May no longer be equal
 	BOOST_CHECK(gep.isSimilar(gifat3, gifat1, exp(-9))); // but should be "close"
 
-	// Check mutations
-	const std::size_t NMUTATIONS = 10000;
-	typename T::mutant_type mutationTarget=typename T::mutant_type(0);
+	// Check adaptions
+	const std::size_t NADAPTIONS = 10000;
+	typename T::adaption_type adaptionTarget=typename T::adaption_type(0);
 	gifat3.setAdaptionThreshold(10);
-	gifat3.setMutationProbability(0.1);
-	std::vector<typename T::mutant_type> mutatedValues(NMUTATIONS+1);
-	mutatedValues[0] = mutationTarget;
-	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
-		gifat3.mutate(mutationTarget);
-		mutatedValues[m+1] = mutationTarget;
+	gifat3.setAdaptionProbability(0.1);
+	std::vector<typename T::adaption_type> adaptedValues(NADAPTIONS+1);
+	adaptedValues[0] = adaptionTarget;
+	for(std::size_t m=0; m<NADAPTIONS; m++) {  // adaption counter
+		gifat3.adapt(adaptionTarget);
+		adaptedValues[m+1] = adaptionTarget;
 	}
 
-	// Check that values do not stay the same for a larger number of mutations
-	std::size_t nOriginalValues = std::count(mutatedValues.begin()+1, mutatedValues.end(), mutatedValues[0]);
-	BOOST_CHECK(nOriginalValues < NMUTATIONS);
+	// Check that values do not stay the same for a larger number of adaptions
+	std::size_t nOriginalValues = std::count(adaptedValues.begin()+1, adaptedValues.end(), adaptedValues[0]);
+	BOOST_CHECK(nOriginalValues < NADAPTIONS);
 
-	// Check that no mutations occur if mutProb == 0
-	mutationTarget=typename T::mutant_type(0);
+	// Check that no adaptions occur if adProb == 0
+	adaptionTarget=typename T::adaption_type(0);
 	gifat3.setAdaptionThreshold(0);
-	gifat3.setMutationProbability(0.);
-	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
-		gifat3.mutate(mutationTarget);
-		BOOST_CHECK(mutationTarget == typename T::mutant_type(0));
+	gifat3.setAdaptionProbability(0.);
+	for(std::size_t m=0; m<NADAPTIONS; m++) {  // adaption counter
+		gifat3.adapt(adaptionTarget);
+		BOOST_CHECK(adaptionTarget == typename T::adaption_type(0));
 	}
 
-	// Check that mutations always occur  if mutProb == 1
-	mutationTarget=typename T::mutant_type(0);
+	// Check that adaptions always occur  if adProb == 1
+	adaptionTarget=typename T::adaption_type(0);
 	gifat3.setAdaptionThreshold(0);
-	gifat3.setMutationProbability(1.);
-	typename T::mutant_type oldMutationTarget = typename T::mutant_type(0);
-	for(std::size_t m=0; m<NMUTATIONS; m++) {  // mutation counter
-		oldMutationTarget = mutationTarget;
-		gifat3.mutate(mutationTarget);
-		BOOST_CHECK(mutationTarget != oldMutationTarget);
+	gifat3.setAdaptionProbability(1.);
+	typename T::adaption_type oldAdaptionTarget = typename T::adaption_type(0);
+	for(std::size_t m=0; m<NADAPTIONS; m++) {  // adaption counter
+		oldAdaptionTarget = adaptionTarget;
+		gifat3.adapt(adaptionTarget);
+		BOOST_CHECK(adaptionTarget != oldAdaptionTarget);
 	}
 
-	// Do some more mutation with varying mutation parameters, just for kicks
-	gifat3.setMutationProbability(1.);
+	// Do some more adaption with varying adaption parameters, just for kicks
+	gifat3.setAdaptionProbability(1.);
 	gifat3.setAdaptionThreshold(2);
 	for(std::size_t p=0; p<10; p++) {
-		// BOOST_CHECK_NO_THROW(gifat3.setMutationParameters(gr.evenRandom(0.,0.01),0.00001,0.,0.01));
-		for(std::size_t m=0; m<NMUTATIONS; m++)
-			BOOST_CHECK_NO_THROW(gifat3.mutate(mutationTarget));
+		// BOOST_CHECK_NO_THROW(gifat3.setAdaptionParameters(gr.evenRandom(0.,0.01),0.00001,0.,0.01));
+		for(std::size_t m=0; m<NADAPTIONS; m++)
+			BOOST_CHECK_NO_THROW(gifat3.adapt(adaptionTarget));
 	}
 }
 
@@ -163,15 +163,15 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GIntFlipAdaptorT_failures_expected, T)
 	{
 		// Simple instantiation
 		T gifat0;
-		// Assignment of an invalid mutation probability
-		BOOST_CHECK_THROW(gifat0.setMutationProbability(-0.1), Gem::GenEvA::geneva_error_condition);
+		// Assignment of an invalid adaption probability
+		BOOST_CHECK_THROW(gifat0.setAdaptionProbability(-0.1), Gem::GenEvA::geneva_error_condition);
 	}
 
 	{
 		// Simple instantiation
 		T gifat0;
-		// Assignment of an invalid mutation probability
-		BOOST_CHECK_THROW(gifat0.setMutationProbability(1.1), Gem::GenEvA::geneva_error_condition);
+		// Assignment of an invalid adaption probability
+		BOOST_CHECK_THROW(gifat0.setAdaptionProbability(1.1), Gem::GenEvA::geneva_error_condition);
 	}
 
 	{

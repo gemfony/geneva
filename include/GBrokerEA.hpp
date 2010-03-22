@@ -187,8 +187,8 @@ namespace GenEvA
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone_() const;
 
-    /** @brief Mutates all children in sequence */
-    virtual void mutateChildren();
+    /** @brief Adapts all children in sequence */
+    virtual void adaptChildren();
     /** @brief Selects new parents */
     virtual void select();
 

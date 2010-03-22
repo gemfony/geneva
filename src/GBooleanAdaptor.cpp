@@ -58,12 +58,12 @@ GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor& cp)
 
 /*******************************************************************************************/
 /**
- * Initialization with a mutation probability
+ * Initialization with a adaption probability
  *
- * @param mutProb The mutation probability
+ * @param adProb The adaption probability
  */
-GBooleanAdaptor::GBooleanAdaptor(const double& mutProb)
-	: GIntFlipAdaptorT<bool>(mutProb)
+GBooleanAdaptor::GBooleanAdaptor(const double& adProb)
+	: GIntFlipAdaptorT<bool>(adProb)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -186,11 +186,11 @@ Gem::GenEvA::adaptorId GBooleanAdaptor::getAdaptorId() const {
 
 /*******************************************************************************************/
 /**
- * The actual mutation logic
+ * The actual adaption logic
  *
- * @param value The parameter to be mutated
+ * @param value The parameter to be adapted
  */
-void GBooleanAdaptor::customMutations(bool& value) {
+void GBooleanAdaptor::customAdaptions(bool& value) {
 	value==true?value=false:value=true;
 }
 

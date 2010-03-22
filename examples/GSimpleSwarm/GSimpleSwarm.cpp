@@ -118,7 +118,7 @@ int main(int argc, char **argv){
     p->setMaxStalls(0); // An infinite number of stalled data retrievals
     p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
 
-    // Prevent return of unsuccessful mutation attempts to the server
+    // Prevent return of unsuccessful adaption attempts to the server
     p->returnResultIfUnsuccessful(returnRegardless);
 
     // Start the actual processing loop

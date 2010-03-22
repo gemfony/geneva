@@ -188,11 +188,11 @@ void GIndividual::load_(const GObject* cp) {
 
 /************************************************************************************************************/
 /**
- * The mutation interface. If lazy evaluation is not allowed (the default), this
+ * The adaption interface. If lazy evaluation is not allowed (the default), this
  * function also triggers the re-calculation of the fitness.
  */
-void GIndividual::mutate() {
-	customMutations();
+void GIndividual::adapt() {
+	customAdaptions();
 	GIndividual::setDirtyFlag(true);
 
 	// In some cases we want to allow lazy evaluation. The
@@ -560,7 +560,7 @@ double GIndividual::checkedFitness(){
  * Performs all necessary processing steps for this object. Not meant to be
  * called from threads, as no exceptions are caught. Use checkedProcess() instead.
  * If the processingCycles_ variable is set to a value of 0 or higher than 1, multiple
- * mutate() calls will be performed, until the maximum number of calls is reached or
+ * adapt() calls will be performed, until the maximum number of calls is reached or
  * a better solution is found. If processingCycles_ has a value of 0, this routine
  * will loop forever, unless a better solution is found (DANGEROUS: USE WITH CARE!!!).
  *
@@ -572,9 +572,9 @@ bool GIndividual::process(){
 	{
 		bool gotUsefulResult = false;
 		bool previous=setAllowLazyEvaluation(false);
-		if(getPersonalityTraits()->getCommand() == "mutate") {
+		if(getPersonalityTraits()->getCommand() == "adapt") {
 			if(processingCycles_ == 1 || getParentAlgIteration() == 0) {
-				mutate();
+				adapt();
 				gotUsefulResult = true;
 			}
 			else{
@@ -583,7 +583,7 @@ bool GIndividual::process(){
 				double originalFitness = getCurrentFitness(isDirty);
 
 #ifdef DEBUG
-				// Individuals that arrive here for mutation should be "clean"
+				// Individuals that arrive here for adaption should be "clean"
 				if(isDirty) {
 					std::ostringstream error;
 					error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl;
@@ -605,8 +605,8 @@ bool GIndividual::process(){
 					// Create a copy of this object
 					p = clone<GIndividual>();
 
-					// Mutate and check fitness. Leave if a better solution was found
-					p->mutate();
+					// Adapt and check fitness. Leave if a better solution was found
+					p->adapt();
 					if((!maximize_ && p->fitness() < originalFitness) ||
 							(maximize_ && p->fitness() > originalFitness))
 					{

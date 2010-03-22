@@ -66,7 +66,7 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
-		GBooleanAdaptor gba0; // note - this adaptor has a mutation probability < 1
+		GBooleanAdaptor gba0; // note - this adaptor has a adaption probability < 1
 
 		// Perform tests with various settings of the adaptionThreshold.
 		BOOST_CHECK(gba0.getAdaptionThreshold() == 0); // Should have been initialized with this value
@@ -74,28 +74,28 @@ public:
 		gba0.setAdaptionThreshold(1);
 		BOOST_CHECK(gba0.getAdaptionThreshold() == 1);
 
-		BOOST_CHECK_MESSAGE(gba0.getMutationProbability() == Gem::GenEvA::DEFAULTBITMUTPROB,
-				"mutProb_ = " << gba0.getMutationProbability() << "\n"
-			<<  "Gem::GenEvA::DEFAULTBITMUTPROB = " << Gem::GenEvA::DEFAULTBITMUTPROB
+		BOOST_CHECK_MESSAGE(gba0.getAdaptionProbability() == Gem::GenEvA::DEFAULTBITADPROB,
+				"adProb_ = " << gba0.getAdaptionProbability() << "\n"
+			<<  "Gem::GenEvA::DEFAULTBITADPROB = " << Gem::GenEvA::DEFAULTBITADPROB
 		);
 
 		// Reset the probability
-		gba0.setMutationProbability(1.0);
+		gba0.setAdaptionProbability(1.0);
 
 		// Cross-check
-		BOOST_CHECK_MESSAGE(gba0.getMutationProbability() == 1.,
-				"mutProb_ = " << gba0.getMutationProbability() << "\n"
+		BOOST_CHECK_MESSAGE(gba0.getAdaptionProbability() == 1.,
+				"adProb_ = " << gba0.getAdaptionProbability() << "\n"
 		);
 
-		// Test mutation, including a test of the incrementation of the
-		// adaption counter after each mutation. This is also a good test
+		// Test adaption, including a test of the incrementation of the
+		// adaption counter after each adaption. This is also a good test
 		// of some of GBooleanAdaptor's functionality
-		bool mutationTarget=false;
+		bool adaptionTarget=false;
 		for(boost::uint32_t aT=0; aT<100; aT++) {
 			gba0.setAdaptionThreshold(aT);
 			boost::uint32_t oldAdaptionCounter=gba0.getAdaptionCounter();
-			for(boost::uint32_t m=0; m<1000; m++) { // mutation counter
-				gba0.mutate(mutationTarget);
+			for(boost::uint32_t m=0; m<1000; m++) { // adaption counter
+				gba0.adapt(adaptionTarget);
 				boost::uint32_t currentAdaptionCounter=gba0.getAdaptionCounter();
 				BOOST_CHECK(currentAdaptionCounter<=aT);
 				if(aT != 0)

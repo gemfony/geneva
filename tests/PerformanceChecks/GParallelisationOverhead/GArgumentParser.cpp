@@ -162,7 +162,7 @@ bool parseConfigFile(const std::string& configFile,
   	    ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
   	    		"Whether additional information should be emitted")
   	    ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
-  	    		"The maximum number of cycles a client should perform mutations before it returns without success")
+  	    		"The maximum number of cycles a client should perform adaptions before it returns without success")
   	    ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
   	    		"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individual")
   	    ("maxStalls", po::value<boost::uint32_t>(&maxStalls)->default_value(DEFAULTMAXSTALLS),

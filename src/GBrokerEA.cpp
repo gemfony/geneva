@@ -382,7 +382,7 @@ void GBrokerEA::finalize() {
  * then waits for the first individual to come back. The time frame for all other
  * individuals to come back is a multiple of this time frame.
  */
-void GBrokerEA::mutateChildren() {
+void GBrokerEA::adaptChildren() {
 	using namespace boost::posix_time;
 
 	std::vector<boost::shared_ptr<GIndividual> >::reverse_iterator rit;
@@ -395,7 +395,7 @@ void GBrokerEA::mutateChildren() {
 	// Start with the children from the back of the population
 	// This is the same for all sorting modes
 	for(rit=data.rbegin(); rit!=data.rbegin()+nc; ++rit) {
-		(*rit)->getPersonalityTraits()->setCommand("mutate");
+		(*rit)->getPersonalityTraits()->setCommand("adapt");
 		CurrentBufferPort_->push_front_orig(*rit);
 	}
 
@@ -411,7 +411,7 @@ void GBrokerEA::mutateChildren() {
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			// Note that we only have parents left in this generation
 			for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
-				(*rit)->getPersonalityTraits()->setCommand("mutate");
+				(*rit)->getPersonalityTraits()->setCommand("adapt");
 				CurrentBufferPort_->push_front_orig(*rit);
 			}
 
@@ -470,7 +470,7 @@ void GBrokerEA::mutateChildren() {
 #ifdef DEBUG
 					if(arrivalTimes_.size() != generation+1) {
 						std::ostringstream error;
-						error << "In GBrokerEA::mutateChildren() : Error!" << std::endl
+						error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
 							  << "The arrivalTimes_ vector has the incorrect size " << arrivalTimes_.size() << std::endl
 							  << "Expected the size to be " << generation+1 << std::endl;
 						throw geneva_error_condition(error.str());
@@ -503,7 +503,7 @@ void GBrokerEA::mutateChildren() {
 			// Find out whether we have exceeded a threshold
 			if(firstTimeOut_.total_microseconds() && ((microsec_clock::local_time()-startTime) > firstTimeOut_)){
 				std::ostringstream error;
-				error << "In GBrokerEA::mutateChildren() : Error!" << std::endl
+				error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
 					  << "Timeout for first individual reached." << std::endl
 					  << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
 					  << "You can change this value with the setFirstTimeOut() function." << std::endl;
@@ -541,7 +541,7 @@ void GBrokerEA::mutateChildren() {
 #ifdef DEBUG
 					if(arrivalTimes_.size() != generation+1) {
 						std::ostringstream error;
-						error << "In GBrokerEA::mutateChildren() : Error!" << std::endl
+						error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
 							  << "The arrivalTimes_ vector has the incorrect size " << arrivalTimes_.size() << std::endl
 							  << "Expected the size to be " << generation+1 << std::endl;
 						throw geneva_error_condition(error.str());
@@ -594,7 +594,7 @@ void GBrokerEA::mutateChildren() {
 		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
 			std::ostringstream error;
-			error << "In GBrokerEA::mutateChildren() : Error!" << std::endl
+			error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
 				  << "Population is empty when it shouldn't be." << std::endl;
 
 			throw geneva_error_condition(error.str());
@@ -631,7 +631,7 @@ void GBrokerEA::mutateChildren() {
 
 #ifdef DEBUG
 	std::ostringstream information;
-	information << "Note that in GBrokerEA::mutateChildren()" << std::endl
+	information << "Note that in GBrokerEA::adaptChildren()" << std::endl
 				<< "some individuals of the current population did not return" << std::endl
 				<< "in generation " << generation << "." << std::endl;
 

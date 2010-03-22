@@ -221,12 +221,12 @@ void GMultiThreadedEA::finalize() {
 
 /************************************************************************************************************/
 /**
- * An overloaded version of GEvolutionaryAlgorithm::mutateChildren() . Mutation
+ * An overloaded version of GEvolutionaryAlgorithm::adaptChildren() . Adaption
  * and evaluation of children is handled by threads in a thread pool. The maximum
  * number of threads is DEFAULTBOOSTTHREADS (possibly 2) and can be overridden
  * with the GMultiThreadedEA::setMaxThreads() function.
  */
-void GMultiThreadedEA::mutateChildren() {
+void GMultiThreadedEA::adaptChildren() {
 	std::size_t nParents = GEvolutionaryAlgorithm::getNParents();
 	boost::uint32_t generation = GEvolutionaryAlgorithm::getIteration();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
@@ -241,10 +241,10 @@ void GMultiThreadedEA::mutateChildren() {
 		}
 	}
 
-	// Next we mutate the children
+	// Next we adapt the children
 	for(it=data.begin() + nParents; it!=data.end(); ++it) {
-		// tp_.schedule(boost::bind(&GIndividual::checkedMutate, it->get()));
-		tp_.schedule(boost::bind(&GIndividual::checkedMutate, *it));
+		// tp_.schedule(boost::bind(&GIndividual::checkedAdaption, it->get()));
+		tp_.schedule(boost::bind(&GIndividual::checkedAdaption, *it));
 	}
 
 	// ... and wait for the pool to become empty

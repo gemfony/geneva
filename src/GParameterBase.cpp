@@ -34,12 +34,12 @@ namespace GenEvA {
 
 /**********************************************************************************/
 /**
- * The default constructor. mutations are switched on by default.
+ * The default constructor. Adaptions are switched on by default.
  */
 GParameterBase::GParameterBase()
 	: GMutableI()
 	, GObject()
-	, mutationsActive_(true)
+	, adaptionsActive_(true)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -51,7 +51,7 @@ GParameterBase::GParameterBase()
 GParameterBase::GParameterBase(const GParameterBase& cp)
 	: GMutableI(cp)
 	, GObject(cp)
-	, mutationsActive_(cp.mutationsActive_)
+	, adaptionsActive_(cp.adaptionsActive_)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -75,42 +75,42 @@ void GParameterBase::load_(const GObject* cp){
 	GObject::load_(cp);
 
 	// Load local data
-	mutationsActive_ = p_load->mutationsActive_;
+	adaptionsActive_ = p_load->adaptionsActive_;
 }
 
 /**********************************************************************************/
 /**
- * Calls the function that does the actual mutation (which is in turn implemented
- * by derived classes. Will omit mutation if the mutationsActive_ parameter is set.
+ * Calls the function that does the actual adaption (which is in turn implemented
+ * by derived classes. Will omit adaption if the adaptionsActive_ parameter is set.
  */
-void GParameterBase::mutate() {
-	if(mutationsActive_) mutateImpl();
+void GParameterBase::adapt() {
+	if(adaptionsActive_) adaptImpl();
 }
 
 /**********************************************************************************/
 /**
- * Switches on mutations for this object
+ * Switches on adaptions for this object
  */
-void GParameterBase::setMutationsActive() {
-	mutationsActive_ = true;
+void GParameterBase::setAdaptionsActive() {
+	adaptionsActive_ = true;
 }
 
 /**********************************************************************************/
 /**
- * Disables mutations for this object
+ * Disables adaptions for this object
  */
-void GParameterBase::setMutationsInactive() {
-	mutationsActive_ = false;
+void GParameterBase::setAdaptionsInactive() {
+	adaptionsActive_ = false;
 }
 
 /**********************************************************************************/
 /**
- * Determines whether mutations are performed for this object
+ * Determines whether adaptions are performed for this object
  *
- * @return A boolean indicating whether mutations are performed for this object
+ * @return A boolean indicating whether adaptions are performed for this object
  */
-bool GParameterBase::mutationsActive() const {
-	return mutationsActive_;
+bool GParameterBase::adaptionsActive() const {
+	return adaptionsActive_;
 }
 
 /**********************************************************************************/
@@ -172,7 +172,7 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
 	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GParameterBase", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GParameterBase", mutationsActive_, p_load->mutationsActive_, "mutationsActive_", "p_load->mutationsActive_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GParameterBase", adaptionsActive_, p_load->adaptionsActive_, "adaptionsActive_", "p_load->adaptionsActive_", e , limit));
 
 	return evaluateDiscrepancies("GParameterBase", caller, deviations, e);
 }

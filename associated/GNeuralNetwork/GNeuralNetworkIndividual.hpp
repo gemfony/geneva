@@ -290,7 +290,7 @@ public:
 			, const double& min, const double& max
 			, const double& sigma, const double& sigmaSigma
 			, const double& minSigma, const double& maxSigma
-			, const double& mutProb
+			, const double& adProb
 	)
 		: networkDataFile_(networkDataFile)
 		, nD_(new networkData(networkDataFile_))
@@ -329,7 +329,7 @@ public:
 
 					// Set up an adaptor
 					boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
-					gdga->setMutationProbability(mutProb);
+					gdga->setAdaptionProbability(adProb);
 
 					// Register it with the GDouble object
 					gd_ptr->addAdaptor(gdga);

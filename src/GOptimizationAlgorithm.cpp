@@ -882,10 +882,10 @@ void GOptimizationAlgorithm::resetIndividualPersonalities() {
 
 /************************************************************************************************************/
 /**
- * Possible mutations of a population could involve shifting of individuals.
- * By default, no mutations are defined.
+ * Possible adaptions of a population could involve shifting of individuals.
+ * By default, no adaptions are defined.
  */
-void GOptimizationAlgorithm::customMutations()
+void GOptimizationAlgorithm::customAdaptions()
 { /* nothing */}
 
 /************************************************************************************************************/

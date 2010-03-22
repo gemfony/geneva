@@ -136,13 +136,13 @@ public:
 		val = gbd5;
 		BOOST_CHECK(val == 2);
 
-		// Mutate a couple of times and check that the value indeed changes
-		const std::size_t NMUTATIONS=10000;
+		// Adapt a couple of times and check that the value indeed changes
+		const std::size_t NADAPTIONS=10000;
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.1,0.001,0.,1.));
 		gbd5.addAdaptor(gdga);
 		double oldValue = gbd5.value();
-		for(std::size_t i=0; i<NMUTATIONS; i++) {
-			gbd5.mutate();
+		for(std::size_t i=0; i<NADAPTIONS; i++) {
+			gbd5.adapt();
 			BOOST_CHECK(gbd5.value() != oldValue);
 			oldValue = gbd5.value();
 		}

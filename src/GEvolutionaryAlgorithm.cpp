@@ -386,7 +386,7 @@ void GEvolutionaryAlgorithm::setPopulationSize(const std::size_t& popSize, const
 double GEvolutionaryAlgorithm::cycleLogic() {
 	recombine(); // create new children from parents
 	markIndividualPositions();
-	mutateChildren(); // mutate children and calculate their value
+	adaptChildren(); // adapt children and calculate their value
 	select(); // find out the best individuals of the population
 
 	boost::uint32_t stallCounter = getStallCounter();
@@ -710,11 +710,11 @@ void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, c
 
 /************************************************************************************************************/
 /**
- * Mutate all children in sequence. Note that this also triggers their value
+ * Adapt all children in sequence. Note that this also triggers their value
  * calculation, so this function needs to be overloaded for optimization in a
  * network context.
  */
-void GEvolutionaryAlgorithm::mutateChildren()
+void GEvolutionaryAlgorithm::adaptChildren()
 {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
@@ -728,9 +728,9 @@ void GEvolutionaryAlgorithm::mutateChildren()
 		}
 	}
 
-	// Next we perform the mutation of each child individual in
+	// Next we perform the adaption of each child individual in
 	// sequence. Note that this can also trigger fitness calculation.
-	for(it=data.begin()+nParents_; it!=data.end(); ++it) (*it)->mutate();
+	for(it=data.begin()+nParents_; it!=data.end(); ++it) (*it)->adapt();
 }
 
 /************************************************************************************************************/
@@ -889,7 +889,7 @@ void GEvolutionaryAlgorithm::markIndividualPositions() {
 
 /************************************************************************************************************/
 /**
- * Retrieves the defaultNChildren_ parameter. E.g. in GTransferPopulation::mutateChildren() ,
+ * Retrieves the defaultNChildren_ parameter. E.g. in GTransferPopulation::adaptChildren() ,
  * this factor controls when a population is considered to be complete. The corresponding
  * loop which waits for new arrivals will then be stopped, which in turn allows
  * a new generation to start.

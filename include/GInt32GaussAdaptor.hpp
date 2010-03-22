@@ -67,11 +67,11 @@ namespace GenEvA {
 
 /*************************************************************************/
 /**
- * The GInt32GaussAdaptor represents an adaptor used for the mutation of
+ * The GInt32GaussAdaptor represents an adaptor used for the adaption of
  * boost::int32_t values through the addition of gaussian-distributed random numbers.
  * See the documentation of GAdaptorT<T> for further information on adaptors
  * in the GenEvA context. Most functionality is currently implemented in the
- * GGaussAdaptorT parent-class. Note that, for the purpose of mutating integer
+ * GGaussAdaptorT parent-class. Note that, for the purpose of adapting integer
  * values, it is generally not useful to choose very small sigma values. A value of
  * 1 might be a good choice. Similarly, the minSigma parameter should be set
  * accordingly, so sigma cannot get too small when being adapted.
@@ -95,11 +95,11 @@ public:
 	GInt32GaussAdaptor();
 	/** @brief The copy constructor */
 	GInt32GaussAdaptor(const GInt32GaussAdaptor&);
-	/** @brief Initialization with a mutation probability */
+	/** @brief Initialization with a adaption probability */
 	explicit GInt32GaussAdaptor(const double&);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian */
 	GInt32GaussAdaptor(const double&, const double&, const double&, const double&);
-	/** @brief Initialization with a number of values belonging to the width of the gaussian and the mutation probability */
+	/** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
 	GInt32GaussAdaptor(const double&, const double&, const double&, const double&, const double&);
 	/** @brief The destructor */
 	virtual ~GInt32GaussAdaptor();
@@ -130,8 +130,8 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
-	/** The actual mutation performed on the value type */
-	virtual void customMutations(boost::int32_t&);
+	/** The actual adaption performed on the value type */
+	virtual void customAdaptions(boost::int32_t&);
 };
 
 

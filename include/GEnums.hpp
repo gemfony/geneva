@@ -205,8 +205,8 @@ const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
 const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption
 const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for sigma_
 const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
-const double DEFAULTBITMUTPROB = 0.05; // 5 percent mutation probability for bits
-const double DEFAULTMUTPROB = 1.0; // 100 percent mutation probability for all other cases
+const double DEFAULTBITADPROB = 0.05; // 5 percent adaption probability for bits
+const double DEFAULTADPROB = 1.0; // 100 percent adaption probability for all other cases
 
 /**********************************************************************************************/
 

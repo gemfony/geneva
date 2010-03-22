@@ -74,7 +74,7 @@ const double DEFAULTC2 = 2.;
 
 /************************************************************************************************/
 /**
- * This adaptor implements the mutations performed by swarm algorithms. Just like swarm algorithms
+ * This adaptor implements the adaptions performed by swarm algorithms. Just like swarm algorithms
  * it is specific to double values.
  */
 class GSwarmAdaptor
@@ -95,7 +95,7 @@ class GSwarmAdaptor
 public:
 	/********************************************************************************************/
 	/**
-	 * The standard constructor. We want to always perform mutations when this adaptor is called.
+	 * The standard constructor. We want to always perform adaptions when this adaptor is called.
 	 */
 	GSwarmAdaptor()
 		: GAdaptorT<double> ()
@@ -103,7 +103,7 @@ public:
 		, c1_(DEFAULTC1)
 		, c2_(DEFAULTC2)
 	 {
-		GAdaptorT<double>::setMutationMode(true);
+		GAdaptorT<double>::setAdaptionMode(true);
 	 }
 
 	/********************************************************************************************/
@@ -118,7 +118,7 @@ public:
 		, c1_(cp.c1_)
 		, c2_(cp.c2_)
 	 {
-		GAdaptorT<double>::setMutationMode(true);
+		GAdaptorT<double>::setAdaptionMode(true);
 	 }
 
 	/********************************************************************************************/
@@ -220,13 +220,13 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Prevents the mutation mode to be reset. This function is a trap.
+	 * Prevents the adaption mode to be reset. This function is a trap.
 	 *
-	 * @param mutationMode The desired mode (always/never/with a given probability)
+	 * @param adaptionMode The desired mode (always/never/with a given probability)
 	 */
-	virtual void setMutationMode(boost::logic::tribool mutationMode) {
+	virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
 		std::ostringstream error;
-		error << "In GSwarmAdaptor::setMutationMode(): Error!" << std::endl
+		error << "In GSwarmAdaptor::setAdaptionMode(): Error!" << std::endl
 			  << "This function should not have been called for this adaptor." << std::endl;
 		throw(Gem::GenEvA::geneva_error_condition(error.str()));
 	}
@@ -368,11 +368,11 @@ protected:
 
 	/********************************************************************************************/
 	/**
-	 * The actual mutation
+	 * The actual adaption
 	 *
-	 * @param value The value to be mutated
+	 * @param value The value to be adapted
 	 */
-	virtual void customMutations(double& value) {
+	virtual void customAdaptions(double& value) {
 		// nothing yet
 	}
 

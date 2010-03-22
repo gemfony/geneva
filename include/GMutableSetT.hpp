@@ -64,7 +64,7 @@ namespace GenEvA {
  * of different parameter sets. User individuals can thus contain a mix of parameters of
  * different types, such as double, GenEvA::bit, long, ... . Derived classes must implement
  * a useful operator=(). It is also assumed that template arguments have the GObject and the
- * GMutableI interfaces, in particular the load(), clone() and mutate() functions.
+ * GMutableI interfaces, in particular the load(), clone() and adapt() functions.
  */
 template <typename T>
 class GMutableSetT:
@@ -251,12 +251,12 @@ protected:
 
 	/**********************************************************************************/
 	/**
-	 * The actual mutation operations. Easy, as we know that all GParameterBase objects
-	 * in this object must implement the mutate() function.
+	 * The actual adaption operations. Easy, as we know that all GParameterBase objects
+	 * in this object must implement the adapt() function.
 	 */
-	virtual void customMutations(){
+	virtual void customAdaptions(){
 		typename GMutableSetT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) (*it)->mutate();
+		for(it=this->begin(); it!=this->end(); ++it) (*it)->adapt();
 	}
 
 	/**********************************************************************************/

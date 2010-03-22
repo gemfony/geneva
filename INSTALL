@@ -23,7 +23,7 @@ cp ../Geneva/genevaConfig.gcfg ./myGenevaConfig.gcfg
 
 Adapt the variables in the file appropriately. Then call
 
-sh ../Geneva/build.sh ./myGenevaConfig.gcfg
+sh ../Geneva/prepareBuild.sh ./myGenevaConfig.gcfg
 
 Finally build and install in the usual way:
 

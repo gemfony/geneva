@@ -140,7 +140,7 @@ namespace Gem
 		  , bool& returnRegardless
 		  , boost::uint32_t& waitFactor
 		  , bool& productionPlace
-		  , double& mutProb
+		  , double& adProb
 		  , boost::uint32_t& adaptionThreshold
 		  , double& sigma
 		  , double& sigmaSigma
@@ -203,17 +203,17 @@ namespace Gem
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 	   "Whether additional information should be emitted")
 	  ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
-	   "The maximum number of cycles a client should perform mutations before it returns without success")
+	   "The maximum number of cycles a client should perform adaptions before it returns without success")
       ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
        "Specifies whether results should be returned even if they are not better than before")
 	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
 	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
       ("productionPlace", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
 		"Whether production of random numbers should happen locally (0) or in the random number factory (1)")
-	  ("mutProb", po::value<double>(&mutProb)->default_value(DEFAULTGDAMUTPROB),
-		"Specifies the likelihood for mutations to be actually carried out")
+	  ("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
+		"Specifies the likelihood for adaptions to be actually carried out")
 	  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
-		"Number of calls to mutate after which mutation parameters should be adapted")
+		"Number of calls to adapt() after which adaption parameters should be modified")
 	  ("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
 		"The width of the gaussian used for the adaption of double values")
 	  ("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
@@ -336,7 +336,7 @@ namespace Gem
 			<< "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
 	        << "waitFactor = " << waitFactor << std::endl
 			<< "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
- 		    << "mutProb = " << mutProb << std::endl
+ 		    << "adProb = " << adProb << std::endl
 			<< "adaptionThreshold = " << adaptionThreshold << std::endl
 		    << "sigma = " << sigma << std::endl
 		    << "sigmaSigma " << sigmaSigma << std::endl

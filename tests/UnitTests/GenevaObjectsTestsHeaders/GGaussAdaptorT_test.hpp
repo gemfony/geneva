@@ -140,14 +140,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 	BOOST_CHECK(ggat5.getSigmaAdaptionRate() == 0.001);
 	BOOST_CHECK(ggat5.getSigmaRange().first == DEFAULTMINSIGMA && ggat5.getSigmaRange().second == 2.);
 
-	// Perform mutations with varying mutation parameters
-	typename T::mutant_type mutationTarget = typename T::mutant_type(0);
-	std::size_t NMUTATIONS=10000;
+	// Perform adaptions with varying adaption parameters
+	typename T::adaption_type adaptionTarget = typename T::adaption_type(0);
+	std::size_t NADAPTIONS=10000;
 	ggat5.setAdaptionThreshold(1);
 	for(std::size_t p=0; p<20; p++) {
 		BOOST_CHECK_NO_THROW(ggat5.setAll(gr.evenRandom(DEFAULTMINSIGMA,2.), 0.001, 0., 2.));
-		for(std::size_t m=0; m<NMUTATIONS; m++)
-			BOOST_CHECK_NO_THROW(ggat5.mutate(mutationTarget));
+		for(std::size_t m=0; m<NADAPTIONS; m++)
+			BOOST_CHECK_NO_THROW(ggat5.adapt(adaptionTarget));
 	}
 }
 

@@ -85,7 +85,7 @@ int main(int argc, char **argv){
   double sigmaSigma;
   double minSigma;
   double maxSigma;
-  double mutProb;
+  double adProb;
 
   if(!parseCommandLine(argc, argv,
 		       configFile,			  
@@ -105,7 +105,7 @@ int main(int argc, char **argv){
 		      processingCycles,
 		      waitFactor,
 		      productionPlace,
-		      mutProb,
+		      adProb,
 		      adaptionThreshold,
 			  sigma,
 			  sigmaSigma,
@@ -146,10 +146,10 @@ int main(int argc, char **argv){
 	  boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
 
 	  // Set up and register an adaptor for the collection, so it
-	  // knows how to be mutated.
+	  // knows how to be adapted.
 	  boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
 	  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-	  gdga_ptr->setMutationProbability(mutProb);
+	  gdga_ptr->setAdaptionProbability(adProb);
 	  if(productionPlace) // Factory means "true"
 		  gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 	  else // Local means "false"

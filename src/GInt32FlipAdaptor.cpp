@@ -58,12 +58,12 @@ GInt32FlipAdaptor::GInt32FlipAdaptor(const GInt32FlipAdaptor& cp)
 
 /*******************************************************************************************/
 /**
- * Initialization with a mutation probability
+ * Initialization with a adaption probability
  *
- * @param mutProb The mutation probability
+ * @param adProb The adaption probability
  */
-GInt32FlipAdaptor::GInt32FlipAdaptor(const double& mutProb)
-	: GIntFlipAdaptorT<boost::int32_t>(mutProb)
+GInt32FlipAdaptor::GInt32FlipAdaptor(const double& adProb)
+	: GIntFlipAdaptorT<boost::int32_t>(adProb)
 { /* nothing */ }
 
 /*******************************************************************************************/

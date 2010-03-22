@@ -75,12 +75,12 @@ namespace GenEvA {
 /******************************************************************************************/
 /**
  * In GenEvA, two mechanisms exist that let the user specify the
- * type of mutation he wants to have executed on collections of
+ * type of adaption he wants to have executed on collections of
  * items (basic types or any other types).  The most basic
- * possibility is for the user to overload the GIndividual::customMutations()
- * function and manually specify the types of mutations (s)he
+ * possibility is for the user to overload the GIndividual::customAdaptions()
+ * function and manually specify the types of adaptions (s)he
  * wants. This allows great flexibility, but is not very practicable
- * for standard mutations.
+ * for standard adaptions.
  *
  * Classes derived from GParameterBaseWithAdaptorsT<T> can additionally store
  * "adaptors". These are templatized function objects that can act
@@ -91,13 +91,13 @@ namespace GenEvA {
  * The GAdaptorT class mostly acts as an interface for these
  * adaptors, but also implements some functionality of its own. E.g., it is possible
  * to specify a function that shall be called every adaptionThreshold_ calls of the
- * mutate() function. It is also possible to set a mutation probability, only a certain
- * percentage of mutations is actually performed at run-time.
+ * adapt() function. It is also possible to set a adaption probability, only a certain
+ * percentage of adaptions is actually performed at run-time.
  *
  * In order to use this class, the user must derive a class from
- * GAdaptorT<T> and specify the type of mutation he wishes to
+ * GAdaptorT<T> and specify the type of adaption he wishes to
  * have applied to items, by overloading of
- * GAdaptorT<T>::customMutations(T&) .  T will often be
+ * GAdaptorT<T>::customAdaptions(T&) .  T will often be
  * represented by a basic value (double, long, bool, ...). Where
  * this is not the case, the adaptor will only be able to access
  * public functions of T, unless T declares the adaptor as a friend.
@@ -119,8 +119,8 @@ class GAdaptorT:
 		   & BOOST_SERIALIZATION_NVP(gr)
 		   & BOOST_SERIALIZATION_NVP(adaptionCounter_)
 		   & BOOST_SERIALIZATION_NVP(adaptionThreshold_)
-		   & BOOST_SERIALIZATION_NVP(mutProb_)
-		   & BOOST_SERIALIZATION_NVP(mutationMode_)
+		   & BOOST_SERIALIZATION_NVP(adProb_)
+		   & BOOST_SERIALIZATION_NVP(adaptionMode_)
 		   & BOOST_SERIALIZATION_NVP(currentIndex_)
 		   & BOOST_SERIALIZATION_NVP(maxVars_);
 	}
@@ -131,7 +131,7 @@ public:
 	/**
 	 * Allows external callers to find out about the type stored in this object
 	 */
-	typedef T mutant_type;
+	typedef T adaption_type;
 
 	/***********************************************************************************/
 	/**
@@ -142,15 +142,15 @@ public:
 		, gr(Gem::Util::DEFAULTRNRGENMODE)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
-		, mutProb_(DEFAULTMUTPROB)
-		, mutationMode_(boost::logic::indeterminate)
+		, adProb_(DEFAULTADPROB)
+		, adaptionMode_(boost::logic::indeterminate)
 		, currentIndex_(0)
 		, maxVars_(1)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
 	/**
-	 * This constructor allows to set the probability with which a mutation is indeed
+	 * This constructor allows to set the probability with which a adaption is indeed
 	 * performed.
 	 */
 	GAdaptorT(const double& prob)
@@ -158,8 +158,8 @@ public:
 		, gr(Gem::Util::DEFAULTRNRGENMODE)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
-		, mutProb_(prob)
-		, mutationMode_(boost::logic::indeterminate)
+		, adProb_(prob)
+		, adaptionMode_(boost::logic::indeterminate)
 		, currentIndex_(0)
 		, maxVars_(1)
 	{ /* nothing */ }
@@ -175,8 +175,8 @@ public:
 		, gr(cp.gr)
 		, adaptionCounter_(cp.adaptionCounter_)
 		, adaptionThreshold_(cp.adaptionThreshold_)
-		, mutProb_(cp.mutProb_)
-		, mutationMode_(cp.mutationMode_)
+		, adProb_(cp.adProb_)
+		, adaptionMode_(cp.adaptionMode_)
 		, currentIndex_(cp.currentIndex_)
 		, maxVars_(cp.maxVars_)
 	{
@@ -269,8 +269,8 @@ public:
 		// ... and then our local data
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionCounter_, p_load->adaptionCounter_, "adaptionCounter_", "p_load->adaptionCounter_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionThreshold_, p_load->adaptionThreshold_, "adaptionThreshold_", "p_load->adaptionThreshold_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", mutProb_, p_load->mutProb_, "mutProb_", "p_load->mutProb_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", mutationMode_, p_load->mutationMode_, "mutationMode_", "p_load->mutationMode_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adProb_, p_load->adProb_, "adProb_", "p_load->adProb_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionMode_, p_load->adaptionMode_, "adaptionMode_", "p_load->adaptionMode_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", currentIndex_, p_load->currentIndex_, "currentIndex_", "p_load->currentIndex_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", maxVars_, p_load->maxVars_, "maxVars_", "p_load->maxVars_", e , limit));
 
@@ -310,16 +310,16 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Sets the mutation probability to a given value. This function will throw
+	 * Sets the adaption probability to a given value. This function will throw
 	 * if the probability is not in the allowed range.
 	 *
 	 * @param val The new value of the probability for integer flips
 	 */
-	void setMutationProbability(const double& probability) {
+	void setAdaptionProbability(const double& probability) {
 		// Check the supplied probability value
 		if(probability < 0. || probability > 1.) {
 			std::ostringstream error;
-			error << "In GAdaptorT::setMutationProbability(const double&) : Error!" << std::endl
+			error << "In GAdaptorT::setAdaptionProbability(const double&) : Error!" << std::endl
 				  << "Bad probability value given: " << probability << std::endl;
 
 			// throw an exception. Add some information so that if the exception
@@ -327,17 +327,17 @@ public:
 			throw geneva_error_condition(error.str());
 		}
 
-		mutProb_ = probability;
+		adProb_ = probability;
 	}
 
 	/***********************************************************************************/
 	/**
-	 * Retrieves the current value of the mutation probability
+	 * Retrieves the current value of the adaption probability
 	 *
-	 * @return The current value of the mutation probability
+	 * @return The current value of the adaption probability
 	 */
-	double getMutationProbability() const {
-		return mutProb_;
+	double getAdaptionProbability() const {
+		return adProb_;
 	}
 
 	/***********************************************************************************/
@@ -373,51 +373,51 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Allows to specify whether mutations should happen always, never, or with a given
+	 * Allows to specify whether adaptions should happen always, never, or with a given
 	 * probability. This uses the boost::logic::tribool class. The function is declared
-	 * virtual so adaptors requiring mutations to happen always or never can prevent
-	 * resetting of the mutationMode_ variable.
+	 * virtual so adaptors requiring adaptions to happen always or never can prevent
+	 * resetting of the adaptionMode_ variable.
 	 *
-	 * @param mutationMode The desired mode (always/never/with a given probability)
+	 * @param adaptionMode The desired mode (always/never/with a given probability)
 	 */
-	virtual void setMutationMode(boost::logic::tribool mutationMode) {
-		mutationMode_ = mutationMode;
+	virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
+		adaptionMode_ = adaptionMode;
 	}
 
 	/***********************************************************************************/
 	/**
-	 * Returns the current value of the mutationMode_ variable
+	 * Returns the current value of the adaptionMode_ variable
 	 *
-	 * @return The current value of the mutationMode_ variable
+	 * @return The current value of the adaptionMode_ variable
 	 */
-	boost::logic::tribool getMutationMode() const {
-		return mutationMode_;
+	boost::logic::tribool getAdaptionMode() const {
+		return adaptionMode_;
 	}
 
 	/***********************************************************************************/
 	/**
-	 * Common interface for all adaptors to the mutation
+	 * Common interface for all adaptors to the adaption
 	 * functionality. The user specifies this functionality in the
-	 * customMutations() function.
+	 * customAdaptions() function.
 	 *
-	 * @param val The value that needs to be mutated
+	 * @param val The value that needs to be adapted
 	 */
-	void mutate(T& val)  {
-		if(boost::logic::indeterminate(mutationMode_)) { // The most likely case
-			// We only allow mutations in a certain percentage of cases
-			if(gr.evenRandom() <= mutProb_) {
+	void adapt(T& val)  {
+		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case
+			// We only allow adaptions in a certain percentage of cases
+			if(gr.evenRandom() <= adProb_) {
 				if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
 					adaptionCounter_ = 0;
-					adaptMutation();
+					adaptAdaption();
 				}
 
-				customMutations(val);
+				customAdaptions(val);
 			}
 		}
-		else if(mutationMode_ == true) { // always mutate
-			customMutations(val);
+		else if(adaptionMode_ == true) { // always adapt
+			customAdaptions(val);
 		}
-		// No need to test for mutationMode_ == false as no action is needed in this case
+		// No need to test for adaptionMode_ == false as no action is needed in this case
 
 		// Wrap index if we have reached the maximum, otherwise increment
 		if(maxVars_>1 && ++currentIndex_ >= maxVars_) currentIndex_ = 0;
@@ -425,12 +425,12 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Sets the maximum number of variables this adaptor can expect to mutate in a row.
+	 * Sets the maximum number of variables this adaptor can expect to adapt in a row.
 	 * The knowledge about that quantity can become important when dealing with collections
 	 * of variables, such as a GDoubleCollection or a GBoundedDoubleCollection. The function
 	 * also resets the current index counter.
 	 *
-	 * @param maxVars The maximum number of variables this adaptor can expect to mutate in a row
+	 * @param maxVars The maximum number of variables this adaptor can expect to adapt in a row
 	 */
 	void setMaxVars(const std::size_t maxVars) {
 #ifdef DEBUG
@@ -448,10 +448,10 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Retrieves the value for the maximum number of mutations this adaptor expects
+	 * Retrieves the value for the maximum number of adaptions this adaptor expects
 	 * to perform in a row.
 	 *
-	 * @return The maximum number of mutations this adaptor expects
+	 * @return The maximum number of adaptions this adaptor expects
 	 */
 	std::size_t getMaxVars() const {
 		return maxVars_;
@@ -523,8 +523,8 @@ protected:
 		gr.GObject::load(p_load->gr);
 		adaptionCounter_ = p_load->adaptionCounter_;
 		adaptionThreshold_ = p_load->adaptionThreshold_;
-		mutProb_ = p_load->mutProb_;
-		mutationMode_ = p_load->mutationMode_;
+		adProb_ = p_load->adProb_;
+		adaptionMode_ = p_load->adaptionMode_;
 		currentIndex_ = p_load->currentIndex_;
 		maxVars_ = p_load->maxVars_;
 
@@ -554,28 +554,28 @@ protected:
 	/***********************************************************************************/
 	/**
 	 *  This function is re-implemented by derived classes, if they wish to
-	 *  implement special behavior upon a new mutation run. E.g., an internal
+	 *  implement special behavior upon a new adaption run. E.g., an internal
 	 *  variable could be set to a new value. The function will be called every
-	 *  adaptionThreshold_ calls of the mutate function, unless the threshold is
+	 *  adaptionThreshold_ calls of the adapt() function, unless the threshold is
 	 *  set to 0 . It is not purely virtual, as we do not force derived classes
 	 *  to re-implement this function. Note though that, if the function is
 	 *  re-implemented, this class'es function should be called as the last action,
 	 *  as later versions of this function might implement local logic. Adaption
-	 *  of mutation parameters can be switched off by setting the adaptionThreshold_
+	 *  of adaption parameters can be switched off by setting the adaptionThreshold_
 	 *  variable to 0.
 	 */
-	virtual void adaptMutation() { /* nothing */ }
+	virtual void adaptAdaption() { /* nothing */ }
 
 	/***********************************************************************************/
-	/** @brief Mutation of values as specified by the user */
-	virtual void customMutations(T& val)=0;
+	/** @brief Adaption of values as specified by the user */
+	virtual void customAdaptions(T& val)=0;
 
 private:
 	/***********************************************************************************/
 	boost::uint32_t adaptionCounter_; ///< A local counter
-	boost::uint32_t adaptionThreshold_; ///< Specifies after how many mutations the mutation itself should be adapted
-	double mutProb_; ///< internal representation of the mutation probability
-	boost::logic::tribool mutationMode_; ///< false == never mutate; indeterminate == mutate with mutProb_ probability; true == always mutate
+	boost::uint32_t adaptionThreshold_; ///< Specifies after how many adaptions the adaption itself should be adapted
+	double adProb_; ///< internal representation of the adaption probability
+	boost::logic::tribool adaptionMode_; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
 	std::size_t currentIndex_; ///< The index of variable to be changed, when dealing with collections
 	std::size_t maxVars_; ///< The maximum number of variables this adaptor deals with
 };

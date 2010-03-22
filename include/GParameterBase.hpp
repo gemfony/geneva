@@ -89,7 +89,7 @@ class GParameterBase:
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-         & BOOST_SERIALIZATION_NVP(mutationsActive_);
+         & BOOST_SERIALIZATION_NVP(adaptionsActive_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -100,17 +100,17 @@ public:
 	/** @brief The standard destructor */
 	virtual ~GParameterBase();
 
-	/** @brief The mutate interface */
-	void mutate();
-	/** @brief The actual mutation logic */
-	virtual void mutateImpl() = 0;
+	/** @brief The adaption interface */
+	void adapt();
+	/** @brief The actual adaption logic */
+	virtual void adaptImpl() = 0;
 
-	/** @brief Switches on mutations for this object */
-	void setMutationsActive();
-	/** @brief Disables mutations for this object */
-	void setMutationsInactive();
-	/** @brief Determines whether mutations are performed for this object */
-	bool mutationsActive() const;
+	/** @brief Switches on adaptions for this object */
+	void setAdaptionsActive();
+	/** @brief Disables adaptions for this object */
+	void setAdaptionsInactive();
+	/** @brief Determines whether adaptions are performed for this object */
+	bool adaptionsActive() const;
 
 	/** @brief Checks for equality with another GParameterBase object */
 	bool operator==(const GParameterBase&) const;
@@ -137,7 +137,7 @@ protected:
 	virtual GObject* clone_() const = 0;
 
 private:
-	bool mutationsActive_; ///< Specifies whether mutations of this object should be carried out
+	bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out
 };
 
 } /* namespace GenEvA */

@@ -216,11 +216,11 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Allows to mutate the values stored in this class. applyAdaptor expects a reference
+	 * Allows to adapt the values stored in this class. applyAdaptor expects a reference
 	 * to a std::vector<T>. As we are derived from a wrapper of this class, we can just pass
 	 * a reference to its data vector to the function.
 	 */
-	virtual void mutateImpl() {
+	virtual void adaptImpl() {
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(GStdSimpleVectorInterfaceT<T>::data);
 	}
 

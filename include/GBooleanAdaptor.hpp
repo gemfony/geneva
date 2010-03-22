@@ -60,10 +60,10 @@ namespace GenEvA {
 
 /*************************************************************************/
 /**
- * The GBooleanAdaptor represents an adaptor used for the mutation of
+ * The GBooleanAdaptor represents an adaptor used for the adaption of
  * bool values by flipping its value. See the documentation of GAdaptorT<T> for
  * further information on adaptors in the GenEvA context. Most functionality
- * (with the notable exception of the actual mutation logic) is currently
+ * (with the notable exception of the actual adaption logic) is currently
  * implemented in the GIntFlipAdaptorT class.
  */
 class GBooleanAdaptor
@@ -85,7 +85,7 @@ public:
 	GBooleanAdaptor();
 	/** @brief The copy constructor */
 	GBooleanAdaptor(const GBooleanAdaptor&);
-	/** @brief Initialization with a mutation probability */
+	/** @brief Initialization with a adaption probability */
 	explicit GBooleanAdaptor(const double&);
 
 	/** @brief The destructor */
@@ -118,8 +118,8 @@ protected:
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
 
-	/** The actual mutation logic */
-	virtual void customMutations(bool&);
+	/** The actual adaption logic */
+	virtual void customAdaptions(bool&);
 };
 
 /***********************************************************************************/

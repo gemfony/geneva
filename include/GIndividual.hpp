@@ -68,7 +68,7 @@ namespace GenEvA {
 /**************************************************************************************************/
 /**
  * This class acts as an interface class for all objects that can take part
- * in an evolutionary improvement. Such items must possess mutation functionality
+ * in an evolutionary improvement. Such items must possess adaption functionality
  * and must know how to calculate their fitness. They also need the basic GObject
  * interface. In particular, they absolutely need to be serializable. As this library
  * was designed with particularly expensive evaluation calculations in mind, this
@@ -124,8 +124,8 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief The mutate interface */
-	virtual void mutate();
+	/** @brief The adaption interface */
+	virtual void adapt();
 	/** @brief Calculate the fitness of this object */
 	virtual double fitness();
 	/** @brief Do the required processing for this object */
@@ -233,8 +233,8 @@ protected:
 	virtual bool customUpdateOnStall();
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;
-	/** @brief The actual mutation operations */
-	virtual void customMutations() = 0;
+	/** @brief The actual adaption operations */
+	virtual void customAdaptions() = 0;
 
 	/** @brief Sets the dirtyFlag_ */
 	void setDirtyFlag() ;
@@ -254,7 +254,7 @@ private:
     double bestPastFitness_;
     /** @brief The number of stalls in the entire set of individuals */
     boost::uint32_t nStalls_;
-    /** @brief Internal representation of the mutation status of this object */
+    /** @brief Internal representation of the adaption status of this object */
     bool dirtyFlag_;
     /** @brief Steers whether lazy evaluation is allowed */
     bool allowLazyEvaluation_;

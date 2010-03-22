@@ -66,7 +66,7 @@ namespace GenEvA {
 /**
  * This is a templatized version of the GParameterBase class. Its main
  * addition over that class is the storage of an adaptor, which allows the
- * mutation of parameters. As this functionality has to be type specific,
+ * adaption of parameters. As this functionality has to be type specific,
  * this class is also implemented as a template. Storing the adaptors in
  * the GParameterBase class would not have been possible, as it cannot be
  * templatized - it serves as a base class for the objects stored in the
@@ -76,7 +76,7 @@ namespace GenEvA {
  * if all contained GParameterT objects should use the same adaptor. Note
  * that, in all relevant functions of this class, we only copy foreign adaptors
  * if they are unique. If this is not the case, we assume that "someone else"
- * will give us an adaptor before the first call to mutate().
+ * will give us an adaptor before the first call to adapt().
  */
 template <typename T>
 class GParameterBaseWithAdaptorsT:
@@ -254,7 +254,7 @@ public:
 	 * adaptor.
 	 *
 	 * BAD: This function should be private, with a friend declaration for GParameterTCollectionT's
-	 * mutate() function, as it is not intended for public use.
+	 * adapt() function, as it is not intended for public use.
 	 *
 	 * @param gat_ptr A boost::shared_ptr to an adaptor
 	 */
@@ -335,8 +335,8 @@ public:
 	}
 
 	/*******************************************************************************************/
-	/** @brief The mutate interface */
-	virtual void mutateImpl(void) = 0;
+	/** @brief The adaption interface */
+	virtual void adaptImpl(void) = 0;
 
 	/*******************************************************************************************/
 	/**
@@ -459,7 +459,7 @@ protected:
 	 * This function applies our adaptor to a value. Note that the argument of
 	 * this function will get changed.
 	 *
-	 * @param value The parameter to be mutated
+	 * @param value The parameter to be adapted
 	 */
 	void applyAdaptor(T &value) {
 		// Let the adaptor know about the number of variables to expect
@@ -467,7 +467,7 @@ protected:
 
 #ifdef DEBUG
 		if (adaptor_) {
-			adaptor_->mutate(value);
+			adaptor_->adapt(value);
 		} else {
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(T& value):" << std::endl
@@ -476,7 +476,7 @@ protected:
 			throw geneva_error_condition(error.str());
 		}
 #else
-		adaptor_->mutate(value);
+		adaptor_->adapt(value);
 #endif /* DEBUG */
 	}
 
@@ -485,7 +485,7 @@ protected:
 	 * This function applies our adaptor to a collection of values. Note that the argument
 	 * of this function will get changed.
 	 *
-	 * @param collection A vector of values that shall be mutated
+	 * @param collection A vector of values that shall be adapted
 	 */
 	void applyAdaptor(std::vector<T> &collection) {
 		// Let the adaptor know about the number of variables to expect
@@ -499,7 +499,7 @@ protected:
 private:
 	/*******************************************************************************************/
 	/**
-	 * @brief Holds the adaptor used for mutation of the values stored in derived classes.
+	 * @brief Holds the adaptor used for adaption of the values stored in derived classes.
 	 */
 	boost::shared_ptr<GAdaptorT<T> > adaptor_;
 

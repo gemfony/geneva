@@ -130,7 +130,7 @@ protected:
 
 	/** @brief Overloaded version from GEvolutionaryAlgorithm,
 	 * core of the Boost-thread implementation */
-	virtual void mutateChildren();
+	virtual void adaptChildren();
 
 private:
 	boost::uint8_t nThreads_; ///< The number of threads

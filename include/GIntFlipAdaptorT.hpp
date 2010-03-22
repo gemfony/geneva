@@ -66,7 +66,7 @@ namespace GenEvA {
 
 /************************************************************************************************/
 /**
- * GIntFlipAdaptorT represents an adaptor used for the mutation of integer
+ * GIntFlipAdaptorT represents an adaptor used for the adaption of integer
  * types, by flipping an integer number to the next larger or smaller number.
  * The integer type used needs to be specified as a template parameter. Note
  * that a specialization of this class, as defined in GIntFlipAdaptorT.cpp,
@@ -92,13 +92,13 @@ public:
 	 * The standard constructor.
 	 */
 	GIntFlipAdaptorT()
-		: GAdaptorT<T> (DEFAULTBITMUTPROB)
+		: GAdaptorT<T> (DEFAULTBITADPROB)
 	{ /* nothing */	}
 
 	/********************************************************************************************/
 	/**
 	 * This constructor takes an argument, that specifies the (initial) probability
-	 * for the mutation of an integer or bit value
+	 * for the adaption of an integer or bit value
 	 *
 	 * @param prob The probability for a flip
 	 */
@@ -272,20 +272,20 @@ protected:
 	/**
 	 * We want to flip the value only in a given percentage of cases. Thus
 	 * we calculate a probability between 0 and 1 and compare it with the desired
-	 * mutation probability. Please note that evenRandom returns a value in the
+	 * adaption probability. Please note that evenRandom returns a value in the
 	 * range of [0,1[, so we make a tiny error here. This function assumes
 	 * an integer type. It hence flips the value up or down. A specialization
 	 * for booleans is provided in GIntFlipAdaptorT.cpp .
 	 *
-	 * @param value The bit value to be mutated
+	 * @param value The bit value to be adapted
 	 */
-	virtual void customMutations(T& value) {
+	virtual void customAdaptions(T& value) {
 		bool up = this->gr.boolRandom();
 		if(up){
 #if defined (CHECKOVERFLOWS)
 			if(std::numeric_limits<T>::max() == value) {
 #ifdef DEBUG
-				std::cout << "Warning: Had to change mutation due to overflow in GIntFlipAdaptorT<>::customMutations()" << std::endl;
+				std::cout << "Warning: Had to change adaption due to overflow in GIntFlipAdaptorT<>::customAdaptions()" << std::endl;
 #endif
 				value -= 1;
 			}
@@ -298,7 +298,7 @@ protected:
 #if defined (CHECKOVERFLOWS)
 			if(std::numeric_limits<T>::min() == value) {
 #ifdef DEBUG
-				std::cout << "Warning: Had to change mutation due to underflow in GIntFlipAdaptorT<>::customMutations()" << std::endl;
+				std::cout << "Warning: Had to change adaption due to underflow in GIntFlipAdaptorT<>::customAdaptions()" << std::endl;
 #endif
 				value += 1;
 			}

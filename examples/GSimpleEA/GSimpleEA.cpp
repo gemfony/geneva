@@ -87,7 +87,7 @@ int main(int argc, char **argv){
   double sigmaSigma;
   double minSigma;
   double maxSigma;
-  double mutProb;
+  double adProb;
   bool returnRegardless;
   serializationMode serMode;
 
@@ -114,7 +114,7 @@ int main(int argc, char **argv){
 			  returnRegardless,
 		      waitFactor,
 		      productionPlace,
-		      mutProb,
+		      adProb,
 		      adaptionThreshold,
 			  sigma,
 			  sigmaSigma,
@@ -139,7 +139,7 @@ int main(int argc, char **argv){
     p->setMaxStalls(0); // An infinite number of stalled data retrievals
     p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
 
-    // Prevent return of unsuccessful mutation attempts to the server
+    // Prevent return of unsuccessful adaption attempts to the server
     p->returnResultIfUnsuccessful(returnRegardless);
 
     // Start the actual processing loop
@@ -173,10 +173,10 @@ int main(int argc, char **argv){
 	  boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
 
 	  // Set up and register an adaptor for the collection, so it
-	  // knows how to be mutated.
+	  // knows how to be adapted.
 	  boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
 	  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-	  gdga_ptr->setMutationProbability(mutProb);
+	  gdga_ptr->setAdaptionProbability(adProb);
 	  if(productionPlace) // Factory means "true"
 		  gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 	  else // Local means "false"

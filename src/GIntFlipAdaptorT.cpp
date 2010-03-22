@@ -38,10 +38,10 @@ namespace GenEvA {
 /**
  * Specialization for typeof(T) == typeof(bool).
  *
- * @param value The value to be mutated
+ * @param value The value to be adapted
  */
 template<>
-void GIntFlipAdaptorT<bool>::customMutations(bool& value) {
+void GIntFlipAdaptorT<bool>::customAdaptions(bool& value) {
 	value==true?value=false:value=true;
 }
 

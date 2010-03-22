@@ -108,9 +108,9 @@ public:
 
 		// Create a suitable adaptor (sigma=0.1, sigma-adaption=0.5, min sigma=0, max sigma=0,5)
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 0.5));
-		gdga_ptr->setAdaptionThreshold(1); // Mutation parameters are adapted after each mutation
+		gdga_ptr->setAdaptionThreshold(1); // Adaption parameters are adapted after each adaption
 		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY); // Random number generation in the factory
-		gdga_ptr->setMutationProbability(0.05); // The likelihood for a parameter to be mutated
+		gdga_ptr->setAdaptionProbability(0.05); // The likelihood for a parameter to be adapted
 
 		// Register the adaptor with the collection. You could also add individual adaptors
 		// to the GBoundedDouble objects below.

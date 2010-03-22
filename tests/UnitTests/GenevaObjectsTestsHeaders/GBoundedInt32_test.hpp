@@ -62,7 +62,7 @@ public:
 	/***********************************************************************************/
 	// The default constructor
 	GBoundedInt32_test():
-		NMUTATIONS(10000)
+		NADAPTIONS(10000)
 	{ /* empty*/ }
 
 	/***********************************************************************************/
@@ -135,8 +135,8 @@ public:
 		GBoundedInt32 mutTest(2, 1, 5);
 		boost::shared_ptr<GInt32FlipAdaptor> gifa(new GInt32FlipAdaptor);
 		mutTest.addAdaptor(gifa);
-		for(std::size_t i=0; i<NMUTATIONS; i++) {
-			mutTest.mutate();
+		for(std::size_t i=0; i<NADAPTIONS; i++) {
+			mutTest.adapt();
 			BOOST_CHECK(mutTest.value() >= 1 && mutTest.value() <= 5);
 		}
 
@@ -226,7 +226,7 @@ public:
 	/***********************************************************************************/
 private:
 	GRandom gr;
-	const std::size_t NMUTATIONS;
+	const std::size_t NADAPTIONS;
 };
 
 /********************************************************************************************/

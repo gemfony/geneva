@@ -8,6 +8,13 @@ Roadmap for Version 0.8:
  - Update of performance figures
 
 //------------------------------------------------------------------------------------------------------
+* Version 0.8, yet unnamed, release-date unknown
+
+The main changes for this release include:
+ - Replaced all calls to mutate() (and associated functions) with calls to adapt() in order to
+   reflect different naming schemes in different optimization algorithms
+
+//------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010
 
 The main changes for this release include:

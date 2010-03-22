@@ -98,7 +98,7 @@ namespace Gem
     const boost::uint16_t DEFAULTEVALFUNCTION=0;
     const bool DEFAULTPRODUCTIONPLACE=true; // remote production
     const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
-    const double DEFAULTGDAMUTPROB=1.0;
+    const double DEFAULTGDAADPROB=1.0;
     const bool DEFAULTRETURNREGARDLESS=true;
     const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
 
@@ -137,7 +137,7 @@ namespace Gem
 		  , bool& returnRegardless
 		  , boost::uint32_t& waitFactor
 		  , bool& productionPlace
-		  , double& mutProb
+		  , double& adProb
 		  , boost::uint32_t& adaptionThreshold
 		  , double& sigma
 		  , double& sigmaSigma

@@ -123,11 +123,11 @@ public:
 		BOOST_CHECK(gep.isInEqual(gpi_cc, gpi));
 		BOOST_CHECK(gep.isEqual(gpi_cc, gpi_load));
 
-		// Test mutation
-		const int NMUTATIONS=100;
+		// Test adaption
+		const int NADAPTIONS=100;
 		double oldValue = -1., currentValue=0.;
-		for(int i=0; i<NMUTATIONS; i++) {
-			gpi.mutate();
+		for(int i=0; i<NADAPTIONS; i++) {
+			gpi.adapt();
 			currentValue = gpi.fitness();
 			BOOST_CHECK(currentValue != oldValue);
 			oldValue=currentValue;
@@ -264,16 +264,16 @@ public:
 		BOOST_CHECK(!gpi2.isDirty());
 		BOOST_CHECK(dirtyFlag == false);
 
-		// Mutate the object and check if the dirty flag was set
+		// adapt the object and check if the dirty flag was set
 		BOOST_CHECK(!gpi2.getAllowLazyEvaluation());
-		gpi2.mutate();
+		gpi2.adapt();
 		BOOST_CHECK(!gpi2.isDirty());
 		BOOST_CHECK(gpi2.fitness() != 0); // We can safely call the fitness function in this situation
 
-		// Allow lazy evaluation, mutate and check the fitness again
+		// Allow lazy evaluation, adapt and check the fitness again
 		gpi2.setAllowLazyEvaluation(true);
 		BOOST_CHECK(gpi2.getAllowLazyEvaluation() == true);
-		gpi2.mutate();
+		gpi2.adapt();
 		BOOST_CHECK(gpi2.isDirty()); // No evaluation should have taken place at this pojnt
 		BOOST_CHECK(gpi2.fitness() != 0); // Does the actual fitness calculation
 		BOOST_CHECK(!gpi2.isDirty()); // Should have been reset by the fitness function

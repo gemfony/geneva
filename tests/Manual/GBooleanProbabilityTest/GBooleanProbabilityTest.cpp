@@ -103,7 +103,7 @@ int main(int argc, char **argv){
 	for(std::size_t i=0; i<MAXFLIP; i++){
 		// GBoolean
 		A_tmp = A;
-		A.mutate(); // mutate
+		A.adapt(); // adapt
 		if(A.value() == A_tmp.value()){
 			ofs << "  singleFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
 			A_noprobadapt_notflipped += 1.;
@@ -115,7 +115,7 @@ int main(int argc, char **argv){
 
 		// GBooleanCollection
 		B_tmp = B;
-		B.mutate();
+		B.adapt();
 		for(std::size_t j=0; j<NBIT; j++){
 			if(B[j] == B_tmp[j]){
 				ofs << "  collectionFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
@@ -136,18 +136,18 @@ int main(int argc, char **argv){
 	A_adaptor->setAdaptionThreshold(10);
 	B_adaptor->setAdaptionThreshold(1);
 
-	// A_adaptor->setMutationParameters(0.1,0.01,0.00001,10); // This will result in a rather large adaption rate
-	// B_adaptor->setMutationParameters(0.1,0.01,0.00001,10);
+	// A_adaptor->setAdaptionParameters(0.1,0.01,0.00001,10); // This will result in a rather large adaption rate
+	// B_adaptor->setAdaptionParameters(0.1,0.01,0.00001,10);
 
-	A_adaptor->setMutationProbability(0.25);
-	B_adaptor->setMutationProbability(0.5);
+	A_adaptor->setAdaptionProbability(0.25);
+	B_adaptor->setAdaptionProbability(0.5);
 
 	double A_probadapt_notflipped=0., A_probadapt_flipped=0.;
 	double B_probadapt_notflipped=0., B_probadapt_flipped=0.;
 	for(std::size_t i=0; i<MAXFLIP; i++){
 		// GBoolean
 		A_tmp = A;
-		A.mutate(); // mutate
+		A.adapt(); // adapt
 		if(A.value() == A_tmp.value()){
 			ofs << "  singleFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
 			A_probadapt_notflipped += 1.;
@@ -159,7 +159,7 @@ int main(int argc, char **argv){
 
 		// GBooleanCollection
 		B_tmp = B;
-		B.mutate();
+		B.adapt();
 		for(std::size_t j=0; j<NBIT; j++){
 			if(B[j] == B_tmp[j]){
 				ofs << "  collectionFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"

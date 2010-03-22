@@ -94,12 +94,12 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
 /**
  * The GEvolutionaryAlgorithm class adds the notion of parents and children to
  * the GOptimizationAlgorithm class. The evolutionary adaptation is realized
- * through the cycle of mutation, evaluation, and sorting, as defined in this
+ * through the cycle of adaption, evaluation, and sorting, as defined in this
  * class.
  *
  * Populations are collections of individuals, which themselves are objects
  * exhibiting the GIndividual class' API, most notably the GIndividual::fitness() and
- * GIndividual::mutate() functions. Individuals can thus themselves be populations,
+ * GIndividual::adapt() functions. Individuals can thus themselves be populations,
  * which can again contain populations, and so on.
  *
  * In order to add parents to an instance of this class use the default constructor,
@@ -271,8 +271,8 @@ protected:
 
 	/** @brief Creates children from parents according to a predefined recombination scheme */
 	virtual void recombine();
-	/** @brief Mutates all children of this population */
-	virtual void mutateChildren();
+	/** @brief Adapts all children of this population */
+	virtual void adaptChildren();
 	/** @brief Selects the best children of the population */
 	virtual void select();
 

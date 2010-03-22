@@ -62,7 +62,7 @@ namespace GenEvA
 /******************************************************************************/
 /**
  * The GBoundedInt32 class allows to limit the value range of a boost::int32_t value,
- * while applying mutations to a continuous range. This is done by means of a
+ * while applying adaptions to a continuous range. This is done by means of a
  * mapping from an internal representation to an externally visible value.
  */
 class GBoundedInt32

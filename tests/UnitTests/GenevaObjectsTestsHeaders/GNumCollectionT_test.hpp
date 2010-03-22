@@ -150,10 +150,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	boost::shared_ptr<GGaussAdaptorT<typename T::collection_type> > gba = getNumCollectionAdaptor<T>();
 	gnct6.addAdaptor(gba);
 
-	const std::size_t NMUTATIONS=1000;
+	const std::size_t NADAPTIONS=1000;
 	T gnct6_old(gnct6);
-	for(std::size_t i=0; i<NMUTATIONS; i++) {
-		gnct6.mutate();
+	for(std::size_t i=0; i<NADAPTIONS; i++) {
+		gnct6.adapt();
 	}
 	BOOST_CHECK(gnct6 != gnct6_old);
 

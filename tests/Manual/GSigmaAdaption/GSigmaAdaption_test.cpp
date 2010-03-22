@@ -1,7 +1,7 @@
 /**
  * @file GSigmaAdaption_test.cpp
  *
- * This test mutates a double a given number of times and records the values of
+ * This test adapts a double a given number of times and records the values of
  * different entities of a GDoubleGaussAdaptor as a function of the iteration.
  * The output can be processed with the help of the ROOT analysis toolkit (see
  * http://root.cern.ch .
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
 		mutValOld = mutVal;
 
 		gdga->setAdaptionThreshold(adaptionThreshold);
-		gdga->mutate(mutVal);
+		gdga->adapt(mutVal);
 
 		// Store for later use
 		y_mutVal[i] = mutVal;

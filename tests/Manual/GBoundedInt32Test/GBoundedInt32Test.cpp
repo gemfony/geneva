@@ -75,7 +75,7 @@ int main(int argc, char **argv){
 	        << "  gStyle->SetOptTitle(0);" << std::endl
 	        << std::endl
 		    << "  double x13[" << NTESTS << "], y13[" << NTESTS << "];" << std::endl
-		    << "  double x13mutate[" << NTESTS << "], y13mutate[" << NTESTS << "];" << std::endl
+		    << "  double x13adapt[" << NTESTS << "], y13adapt[" << NTESTS << "];" << std::endl
 		    << "  double x02[" << NTESTS << "], y02[" << NTESTS << "];" << std::endl
 		    << std::endl;
 
@@ -96,7 +96,7 @@ int main(int argc, char **argv){
 	}
 
 	// Set up and register an adaptor for gint13, so it
-	// knows how to be mutated. We want a sigma of 0.5, sigma-adaption of 0.05 and
+	// knows how to be adaptd. We want a sigma of 0.5, sigma-adaption of 0.05 and
 	// a minimum sigma of 0.02. The adaptor will be deleted automatically by the
 	// GBoundedInt32.
 	boost::shared_ptr<GInt32GaussAdaptor> gdga(new GInt32GaussAdaptor(0.5,0.05,0.02,2.));
@@ -104,32 +104,32 @@ int main(int argc, char **argv){
 
 	gint13 = 0; // We can assign a value inside of the allowed value range
 	for(boost::uint32_t i=0; i<NTESTS; i++){
-		// mutate the value and have a look at the
+		// adapt the value and have a look at the
 		// internal and external values.
-		gint13.mutate();
+		gint13.adapt();
 
-		mapping << " x13mutate[" << i << "] = " << gint13.getInternalValue() << ";" << std::endl
-			    << " y13mutate[" << i << "] = " << gint13.value() << ";" << std::endl;
+		mapping << " x13adapt[" << i << "] = " << gint13.getInternalValue() << ";" << std::endl
+			    << " y13adapt[" << i << "] = " << gint13.value() << ";" << std::endl;
 	}
 
 	mapping << std::endl
 	        << "  TGraph *tg13 = new TGraph(" << NTESTS << ", x13, y13);" << std::endl
-	        << "  TGraph *tg13mutate = new TGraph(" << NTESTS << ", x13mutate, y13mutate);" << std::endl
+	        << "  TGraph *tg13adapt = new TGraph(" << NTESTS << ", x13adapt, y13adapt);" << std::endl
 	        << "  TGraph *tg02 = new TGraph(" << NTESTS << ", x02, y02);" << std::endl
 	        << std::endl
 	        << "  tg13->SetMarkerStyle(21);" << std::endl
 	        << "  tg13->SetMarkerSize(0.2);" << std::endl
 	        << "  tg13->SetMarkerColor(4);" << std::endl
-	        << "  tg13mutate->SetMarkerStyle(21);" << std::endl
-	        << "  tg13mutate->SetMarkerSize(0.2);" << std::endl
-	        << "  tg13mutate->SetMarkerColor(3);" << std::endl
+	        << "  tg13adapt->SetMarkerStyle(21);" << std::endl
+	        << "  tg13adapt->SetMarkerSize(0.2);" << std::endl
+	        << "  tg13adapt->SetMarkerColor(3);" << std::endl
 	        << "  tg02->SetMarkerStyle(21);" << std::endl
 	        << "  tg02->SetMarkerSize(0.2);" << std::endl
 	        << "  tg02->SetMarkerColor(2);" << std::endl
 	        << std::endl
 	        << "  tg13->Draw(\"AP\");" << std::endl
 	        << "  tg02->Draw(\"P\");" << std::endl
-	        << "  tg13mutate->Draw(\"P\");" << std::endl
+	        << "  tg13adapt->Draw(\"P\");" << std::endl
 		    << std::endl
 		    << "  TLine *xaxis = new TLine(-12.,0.,12.,0.);" << std::endl
 		    << "  TLine *yaxis = new TLine(0.,-1.4,0.,3.4);" << std::endl

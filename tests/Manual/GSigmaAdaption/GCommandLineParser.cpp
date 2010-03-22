@@ -61,7 +61,7 @@ bool parseCommandLine(int argc, char **argv,
 		("maxSigma,M",po::value<double>(&maxSigma)->default_value(CMD_DEFAULTMAXSIGMA),
 				"Maximum allowed value of sigma")
 		("adaptionThreshold,a",po::value<boost::uint32_t>(&adaptionThreshold)->default_value(CMD_DEFAULTADAPTIONTHRESHOLD),
-				"Number of calls to mutate after which the mutation should be adapted")
+				"Number of calls to adapt() after which the adaption parameters should be modified")
 		("resultFile,F",po::value<std::string>(&resultFile)->default_value(CMD_DEFAULTRESULTFILE),
 				"The file to write the result to")
 		("maxIter,I",po::value<boost::uint32_t>(&maxIter)->default_value(CMD_DEFAULTMAXITER),

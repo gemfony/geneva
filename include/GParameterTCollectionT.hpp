@@ -62,7 +62,7 @@ namespace GenEvA {
 /**
  * This class shares many similarities with the GParameterCollectionT class. Instead
  * of individual values that can be modified with adaptors, however, it assumes that
- * the objects stored in it have their own mutate() function. This class has been designed
+ * the objects stored in it have their own adapt() function. This class has been designed
  * as a collection of GParameterT objects, hence the name.  As an example, one can create a
  * collection of GBoundedDouble objects with this class rather than a simple GDoubleCollection.
  * In order to facilitate memory management, the GParameterT objects are stored
@@ -199,21 +199,21 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Allows to mutate the values stored in this class. We assume here that
-	 * each item has its own mutate function. Hence we do not need to use or
+	 * Allows to adapt the values stored in this class. We assume here that
+	 * each item has its own adapt function. Hence we do not need to use or
 	 * store own adaptors.
 	 */
-	virtual void mutateImpl() {
+	virtual void adaptImpl() {
 		typename GParameterTCollectionT<T>::iterator it;
 		if(this->hasAdaptor()) {
 			for(it=this->begin(); it!=this->end(); ++it) {
 				(*it)->addAdaptorNoClone(this->getAdaptor());
-				(*it)->mutate();
+				(*it)->adapt();
 			}
 		}
 		else {
 			for(it=this->begin(); it!=this->end(); ++it) {
-				(*it)->mutate();
+				(*it)->adapt();
 			}
 		}
 	}

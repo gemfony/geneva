@@ -99,7 +99,7 @@ namespace Gem
     const double DEFAULTNNSIGMASIGMA=0.8;
     const double DEFAULTNNMINSIGMA=0.001;
     const double DEFAULTNNMAXSIGMA=2.;
-    const double DEFAULTNNMUTPROB=0.05;
+    const double DEFAULTNNADPROB=0.05;
     const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
 
     namespace po = boost::program_options;
@@ -141,7 +141,7 @@ namespace Gem
 			, double& sigmaSigma
 			, double& minSigma
 			, double& maxSigma
-			, double& mutProb
+			, double& adProb
 			, const bool& verbose
 	);
 

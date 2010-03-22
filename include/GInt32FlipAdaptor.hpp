@@ -79,7 +79,7 @@ public:
 	GInt32FlipAdaptor();
 	/** @brief The copy constructor */
 	GInt32FlipAdaptor(const GInt32FlipAdaptor&);
-	/** @brief Initialization with a mutation probability */
+	/** @brief Initialization with a adaption probability */
 	explicit GInt32FlipAdaptor(const double&);
 
 	/** @brief The destructor */

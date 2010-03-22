@@ -84,7 +84,7 @@ public:
 	GIdentityAdaptorT()
 	  : GAdaptorT<T> ()
 	 {
-		GAdaptorT<T>::setMutationMode(false);
+		GAdaptorT<T>::setAdaptionMode(false);
 
 #ifdef DEBUG
 		if(typeid(T) != typeid(double) &&
@@ -108,7 +108,7 @@ public:
 	GIdentityAdaptorT(const GIdentityAdaptorT<T>& cp)
 	  : GAdaptorT<T>(cp)
 	 {
-		GAdaptorT<T>::setMutationMode(false);
+		GAdaptorT<T>::setAdaptionMode(false);
 	 }
 
 	/********************************************************************************************/
@@ -207,13 +207,13 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Prevents the mutation mode to be reset. This function is a trap.
+	 * Prevents the adaption mode to be reset. This function is a trap.
 	 *
-	 * @param mutationMode The desired mode (always/never/with a given probability)
+	 * @param adaptionMode The desired mode (always/never/with a given probability)
 	 */
-	virtual void setMutationMode(boost::logic::tribool mutationMode) {
+	virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
 		std::ostringstream error;
-		error << "In GIdentityAdaptor::setMutationMode(): Error!" << std::endl
+		error << "In GIdentityAdaptor::setAdaptionMode(): Error!" << std::endl
 			  << "This function should not have been called for this adaptor" << std::endl;
 		throw(Gem::GenEvA::geneva_error_condition(error.str()));
 	}
@@ -283,9 +283,9 @@ protected:
 	/**
 	 * The identity adaptor does not change its arguments
 	 *
-	 * @param value The value to be mutated
+	 * @param value The value to be adapted
 	 */
-	virtual void customMutations(T& value) {
+	virtual void customAdaptions(T& value) {
 		return; // nothing
 	}
 };

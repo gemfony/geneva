@@ -58,7 +58,7 @@ namespace GenEvA
 
   /**********************************************************************/
   /**
-   * This class represents collections of bits. They are usually mutated by
+   * This class represents collections of bits. They are usually adapted by
    * the GBooleanAdaptor, which has a mutable flip probability. One adaptor
    * is applied to all bits. If you want individual flip probabilities for
    * all bits, use GBool objects instead.

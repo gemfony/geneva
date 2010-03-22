@@ -56,12 +56,12 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor& cp)
 
 /*******************************************************************************************/
 /**
- * Initialization with a mutation probability
+ * Initialization with a adaption probability
  *
- * @param mutProb The mutation probability
+ * @param adProb The adaption probability
  */
-GInt32GaussAdaptor::GInt32GaussAdaptor(const double& mutProb)
-	: GGaussAdaptorT<boost::int32_t>(mutProb)
+GInt32GaussAdaptor::GInt32GaussAdaptor(const double& adProb)
+	: GGaussAdaptorT<boost::int32_t>(adProb)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -80,7 +80,7 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaS
 
 /********************************************************************************************/
 /**
- * This constructor lets a user set all sigma parameters, as well as the mutation
+ * This constructor lets a user set all sigma parameters, as well as the adaption
  * probability in one go.
  *
  * @param sigma The initial value for the sigma_ parameter
@@ -89,8 +89,8 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaS
  * @param maxSigma The maximal value allowed for sigma_
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const double& sigma, const double& sigmaSigma,
-			        const double& minSigma, const double& maxSigma, const double& mutProb)
-	: GGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma, mutProb)
+			        const double& minSigma, const double& maxSigma, const double& adProb)
+	: GGaussAdaptorT<boost::int32_t> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -213,11 +213,11 @@ Gem::GenEvA::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
 
 /*******************************************************************************************/
 /**
- * The actual mutation of the supplied value takes place here.
+ * The actual adaption of the supplied value takes place here.
  *
- * @param value The value that is going to be mutated in situ
+ * @param value The value that is going to be adapted in situ
  */
-void GInt32GaussAdaptor::customMutations(boost::int32_t &value) {
+void GInt32GaussAdaptor::customAdaptions(boost::int32_t &value) {
 	// adapt the value in situ. Note that this changes
 	// the argument of this function
 #if defined (CHECKOVERFLOWS)
@@ -232,7 +232,7 @@ void GInt32GaussAdaptor::customMutations(boost::int32_t &value) {
 	if(value >= 0){
 		if(addition >= 0 && (std::numeric_limits<boost::int32_t>::max()-value < addition)) {
 #ifdef DEBUG
-			std::cout << "Warning in GInt32GaussAdaptor::customMutations(): Had to change mutation due to overflow" << std::endl;
+			std::cout << "Warning in GInt32GaussAdaptor::customAdaptions(): Had to change adaption due to overflow" << std::endl;
 #endif
 			addition *= -1;
 		}
@@ -240,7 +240,7 @@ void GInt32GaussAdaptor::customMutations(boost::int32_t &value) {
 	else { // < 0
 		if(addition < 0 && (std::numeric_limits<boost::int32_t>::min()-value > addition)) {
 #ifdef DEBUG
-			std::cout << "Warning in GInt32GaussAdaptor::customMutations(): Had to change mutation due to underflow" << std::endl;
+			std::cout << "Warning in GInt32GaussAdaptor::customAdaptions(): Had to change adaption due to underflow" << std::endl;
 #endif
 			addition *= -1;
 		}

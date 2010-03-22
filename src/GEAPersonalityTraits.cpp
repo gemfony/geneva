@@ -233,7 +233,7 @@ std::size_t GEAPersonalityTraits::getPopulationPosition(void) const {
  * @param command The command to be performed by a remote client
  */
 void GEAPersonalityTraits::setCommand(const std::string& command) {
-	if(command != "evaluate" && command != "mutate") { // The allowed "grammar"
+	if(command != "evaluate" && command != "adapt") { // The allowed "grammar"
 		std::ostringstream error;
 		error << "In GEAPersonalityTraits::setCommand(): Got invalid command " << command << std::endl;
 		throw(Gem::GenEvA::geneva_error_condition(error.str()));

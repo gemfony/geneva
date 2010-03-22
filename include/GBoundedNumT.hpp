@@ -67,11 +67,11 @@ namespace GenEvA
 
 /******************************************************************************/
 /* The GBoundedNumT class represents a numeric value, such as an int or a double,
- * equipped with the ability to mutate itself. The value range can have an upper and a lower
- * limit.  Mutated values will only appear inside the given range to the user, while they are
+ * equipped with the ability to adapt itself. The value range can have an upper and a lower
+ * limit.  Adapted values will only appear inside the given range to the user, while they are
  * internally represented as a continuous range of values. Note that appropriate adaptors
  * (see e.g the GDoubleGaussAdaptor class) need to be loaded in order to benefit from the
- * mutation capabilities.
+ * adaption capabilities.
  */
 template <typename T>
 class GBoundedNumT
@@ -299,11 +299,11 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * Mutates this object. It is the internal representation of the class'es value
-	 * that gets mutated. This value is then "translated" into the external value (stored
+	 * Adaptes this object. It is the internal representation of the class'es value
+	 * that gets adapted. This value is then "translated" into the external value (stored
 	 * in GParameterT<T>, which is set accordingly.
 	 */
-	virtual void mutateImpl() {
+	virtual void adaptImpl() {
 		applyAdaptor(internalValue_);
 
 		// Then calculate the corresponding external value and set it accordingly

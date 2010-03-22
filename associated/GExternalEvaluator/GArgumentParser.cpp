@@ -160,61 +160,61 @@ bool parseConfigFile(const std::string& configFile,
 		// Check the configuration file line options. Uses the Boost program options library.
 		po::options_description config("Allowed options");
 		config.add_options()
-					  ("nProducerThreads",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
-							  "The amount of random number producer threads")
-							  ("nEvaluationThreads",po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
-									  "The amount of threads processing individuals simultaneously")
-									  ("populationSize",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
-											  "The size of the super-population")
-											  ("nParents",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
-													  "The number of parents in the population") // Needs to be treated separately
-													  ("maxGenerations", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
-															  "Maximum number of generations in the population")
-															  ("maxMinutes", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
-																	  "The maximum number of minutes the optimization of the population should run")
-																	  ("reportGeneration",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),
-																			  "The number of generations after which information should be emitted")
-																			  ("rScheme",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
-																					  "The recombination scheme for the super-population")
-																					  ("sortingScheme", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
-																							  "Determines whether sorting is done in MUCOMMANU (0), MUPLUSNU (1)  or MUNU1PRETAIN (2) mode")
-																							  ("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
-																									  "The size of the buffer with random arrays in the random factory")
-																									  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
-																											  "Whether additional information should be emitted")
-																											  ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
-																													  "The maximum number of cycles a client should perform mutations before it returns without success")
-																													  ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
-																															  "Specifies whether results should be returned even if they are not better than before")
-																															  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
-																																	  "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
-																																	  ("program",po::value<std::string>(&program)->default_value(DEFAULTPROGRAM),
-																																			  "the name of a file holding the evaluation executable")
-																																			  ("externalArguments",po::value<std::string>(&externalArguments)->default_value(DEFAULTEXTERNALARGUMENTS),
-																																					  "Arguments to be handed to programs called through the \"system()\" call")
-																																					  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
-																																							  "Number of calls to mutate after which mutation parameters should be adapted")
-																																							  ("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
-																																									  "The width of the gaussian used for the adaption of double values")
-																																									  ("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
-																																											  "The adaption rate of sigma")
-																																											  ("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
-																																													  "The minimum allowed value for sigma")
-																																													  ("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
-																																															  "The maximum allowed value for sigma")
-																																															  ("nEvaluations", po::value<boost::uint32_t>(&nEvaluations)->default_value(DEFAULTNEVALUATIONS),
-																																																	  "The amount of evaluations each external program shall perform")
-																																																	  ("exchangeMode", po::value<Gem::GenEvA::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
-																																																			  "Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
-																																																			  ("maximize", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
-																																																					  "Specifies whether the program should minimize (0) or maximize (1) evaluation function")
-																																																					  ("productionPlace", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
-																																																							  "Whether production of random numbers in individuals should happen locally (0) or in the random number factory (1)")
-																																																							  ("useCommonAdaptor", po::value<bool>(&useCommonAdaptor)->default_value(DEFAULTUSECOMMONADAPTOR),
-																																																									  "Specifies whether a common adaptor should be used for all GParameterT objects")
-																																																									  ("randomFill", po::value<bool>(&randomFill)->default_value(DEFAULTRANDOMFILL),
-																																																											  "Specifies whether template data should be filled randomly or not")
-																																																											  ;
+			("nProducerThreads",po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
+			"The amount of random number producer threads")
+			("nEvaluationThreads",po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
+			"The amount of threads processing individuals simultaneously")
+			("populationSize",po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
+			"The size of the super-population")
+			("nParents",po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
+			"The number of parents in the population") // Needs to be treated separately
+			("maxGenerations", po::value<boost::uint32_t>(&maxGenerations)->default_value(DEFAULTMAXGENERATIONS),
+			"Maximum number of generations in the population")
+			("maxMinutes", po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
+			"The maximum number of minutes the optimization of the population should run")
+			("reportGeneration",po::value<boost::uint32_t>(&reportGeneration)->default_value(DEFAULTREPORTGENERATION),
+			"The number of generations after which information should be emitted")
+			("rScheme",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
+			"The recombination scheme for the super-population")
+			("sortingScheme", po::value<sortingMode>(&smode)->default_value(DEFAULTSORTINGSCHEME),
+			"Determines whether sorting is done in MUCOMMANU (0), MUPLUSNU (1)  or MUNU1PRETAIN (2) mode")
+			("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
+			"The size of the buffer with random arrays in the random factory")
+			("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
+			"Whether additional information should be emitted")
+			("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
+			"The maximum number of cycles a client should perform adaptions before it returns without success")
+			("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
+			"Specifies whether results should be returned even if they are not better than before")
+			("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
+			"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
+			("program",po::value<std::string>(&program)->default_value(DEFAULTPROGRAM),
+			"the name of a file holding the evaluation executable")
+			("externalArguments",po::value<std::string>(&externalArguments)->default_value(DEFAULTEXTERNALARGUMENTS),
+			"Arguments to be handed to programs called through the \"system()\" call")
+			("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+			"Number of calls to adapt after which adaption parameters should be modified")
+			("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
+			"The width of the gaussian used for the adaption of double values")
+			("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
+			"The adaption rate of sigma")
+			("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
+			"The minimum allowed value for sigma")
+			("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
+			"The maximum allowed value for sigma")
+			("nEvaluations", po::value<boost::uint32_t>(&nEvaluations)->default_value(DEFAULTNEVALUATIONS),
+			"The amount of evaluations each external program shall perform")
+			("exchangeMode", po::value<Gem::GenEvA::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
+			"Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
+			("maximize", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
+			"Specifies whether the program should minimize (0) or maximize (1) evaluation function")
+			("productionPlace", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
+			"Whether production of random numbers in individuals should happen locally (0) or in the random number factory (1)")
+			("useCommonAdaptor", po::value<bool>(&useCommonAdaptor)->default_value(DEFAULTUSECOMMONADAPTOR),
+			"Specifies whether a common adaptor should be used for all GParameterT objects")
+			("randomFill", po::value<bool>(&randomFill)->default_value(DEFAULTRANDOMFILL),
+			"Specifies whether template data should be filled randomly or not")
+		;
 
 		po::variables_map vm;
 		std::ifstream ifs(configFile.c_str());

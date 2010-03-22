@@ -76,7 +76,7 @@ namespace GenEvA {
 
 /************************************************************************************************/
 /**
- * GGaussAdaptorT represents an adaptor used for the mutation of numeric
+ * GGaussAdaptorT represents an adaptor used for the adaption of numeric
  * types, by the addition of gaussian-distributed random numbers. Different numeric
  * types may be used, including Boost's integer representations.
  * The type used needs to be specified as a template parameter.
@@ -116,9 +116,9 @@ public:
 
 	/********************************************************************************************/
 	/**
-	 * Initialization of the parent class'es mutation probability.
+	 * Initialization of the parent class'es adaption probability.
 	 *
-	 * @param probability The likelihood for a mutation actually taking place
+	 * @param probability The likelihood for a adaption actually taking place
 	 */
 	GGaussAdaptorT(const double& probability)
 		: GAdaptorT<T> (probability)
@@ -159,7 +159,7 @@ public:
 	 * @param sigmaSigma The initial value for the sigmaSigma_ parameter
 	 * @param minSigma The minimal value allowed for sigma_
 	 * @param maxSigma The maximal value allowed for sigma_
-	 * @param probability The likelihood for a mutation actually taking place
+	 * @param probability The likelihood for a adaption actually taking place
 	 */
 	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma,
@@ -328,7 +328,7 @@ public:
 	/********************************************************************************************/
 	/**
 	 * Sets the allowed value range of sigma_. A minimum sigma of 0 will silently be adapted
-	 * to a very small value (DEFAULTMINSIGMA), as otherwise mutations would stop entirely,
+	 * to a very small value (DEFAULTMINSIGMA), as otherwise adaptions would stop entirely,
 	 * which does not make sense.  Using 0. as lower boundary is however allowed for practical
 	 * reasons. Note that this function will also adapt sigma itself, if it falls outside of the allowed
 	 * range.
@@ -374,8 +374,8 @@ public:
 	 * This function sets the values of the sigmaSigma_ parameter and the
 	 * minimal value allowed for sigma_. 0 is not allowed. If you do want to
 	 * prevent adaption of sigma, you can use the GAdaptorT<T>::setAdaptionThreshold()
-	 * function. It determines, after how many mutations the internal parameters
-	 * of the mutation should be adapted. If set to 0, no adaption takes place.
+	 * function. It determines, after how many adaptions the internal parameters
+	 * of the adaption should be adapted. If set to 0, no adaption takes place.
 	 *
 	 * @param sigmaSigma The new value of the sigmaSigma_ parameter
 	 */
@@ -505,7 +505,7 @@ protected:
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
 	 */
-	virtual void adaptMutation()
+	virtual void adaptAdaption()
 	{
 		// We do not want to favor the decrease or increase of sigma, hence we choose
 		// randomly whether to multiply or divide.
@@ -516,17 +516,17 @@ protected:
 		else if(sigma_ > maxSigma_) sigma_ = maxSigma_;
 
 		// Make sure that the appropriate actions are performed by the parent class
-		GAdaptorT<T>::adaptMutation();
+		GAdaptorT<T>::adaptAdaption();
 	}
 
 	/********************************************************************************************/
 	/**
-	 * The actual mutation of the supplied value takes place here. Purely virtual, as the actual
-	 * mutations are defined in the derived classes.
+	 * The actual adaption of the supplied value takes place here. Purely virtual, as the actual
+	 * adaptions are defined in the derived classes.
 	 *
-	 * @param value The value that is going to be mutated in situ
+	 * @param value The value that is going to be adapted in situ
 	 */
-	virtual void customMutations(T&) = 0;
+	virtual void customAdaptions(T&) = 0;
 
 protected: // For performance reasons, so we do not have to go through access functions
 	/********************************************************************************************/

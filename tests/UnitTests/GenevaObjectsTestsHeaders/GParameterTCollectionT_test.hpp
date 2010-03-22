@@ -84,7 +84,7 @@ using boost::unit_test_framework::test_case;
 // This template allows to create default entries for the collection
 // This template allows to create items different of the default item.
 // Note that these will not have an adaptor assigned to them and
-// can thus not be mutated.
+// can thus not be adapted.
 template <typename T>
 boost::shared_ptr<typename T::collection_type> getTemplateItemNoAdaptor() {
 	return boost::shared_ptr<typename T::collection_type>(new typename T::collection_type(0));
@@ -104,7 +104,7 @@ boost::shared_ptr<GBoundedInt32> getTemplateItemNoAdaptor<GBoundedInt32Collectio
 
 // This template allows to create items different of the default item.
 // Note that these will not have an adaptor assigned to them and
-// can thus not be mutated.
+// can thus not be adapted.
 template <typename T>
 boost::shared_ptr<typename T::collection_type> getFindItemNoAdaptor() {
 	return boost::shared_ptr<typename T::collection_type>(new typename T::collection_type(1));
@@ -265,8 +265,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 	BOOST_CHECK(gptct_cp1 == gptct);
 	BOOST_CHECK(gptct_cp2 == gptct);
 
-	// Mutate the second copy and check that it has become different from the other two collections
-	BOOST_CHECK_NO_THROW(gptct_cp2.mutate());
+	// Adapt the second copy and check that it has become different from the other two collections
+	BOOST_CHECK_NO_THROW(gptct_cp2.adapt());
 	BOOST_CHECK(gptct_cp2 != gptct);
 	BOOST_CHECK(gptct_cp2 != gptct_cp1);
 

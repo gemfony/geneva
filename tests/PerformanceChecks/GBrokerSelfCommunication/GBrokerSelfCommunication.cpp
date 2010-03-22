@@ -130,10 +130,10 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(dimension,randMin,randMax));
 
 	// Set up and register an adaptor for the collection, so it
-	// knows how to be mutated.
+	// knows how to be adapted.
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(2.,0.8,0.000001,2));
 	gdga_ptr->setAdaptionThreshold(1);
-	gdga_ptr->setMutationProbability(0.05);
+	gdga_ptr->setAdaptionProbability(0.05);
 	gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
 	gdc_ptr->addAdaptor(gdga_ptr);
 

@@ -205,7 +205,7 @@ namespace Gem
 			, double& sigmaSigma
 			, double& minSigma
 			, double& maxSigma
-			, double& mutProb
+			, double& adProb
 			, const bool& verbose
 	) {
       boost::uint16_t recombinationScheme=0;
@@ -241,7 +241,7 @@ namespace Gem
 	  ("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
 	   "The size of the buffer with random arrays in the random factory")
 	  ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
-	   "The maximum number of cycles a client should perform mutations before it returns without success")
+	   "The maximum number of cycles a client should perform adaptions before it returns without success")
 	  ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
 	   "Specifies whether results should be returned even if they are not better than before")
 	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
@@ -255,15 +255,15 @@ namespace Gem
 	  ("visualizationFile", po::value<std::string>(&visualizationFile)->default_value(DEFAULTVISUALIZATIONFILE),
 	   "The name of the visualization file")
 	  ("sigma", po::value<double>(&sigma)->default_value(DEFAULTNNSIGMA),
-	   "The width of the gaussian used for mutations")
+	   "The width of the gaussian used for adaptions")
 	  ("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTNNSIGMASIGMA),
 	   "The level of adaption of sigma")
 	  ("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTNNMINSIGMA),
 	   "The minimally allowed value for sigma")
 	  ("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTNNMAXSIGMA),
 	   "The maximally allowed value for sigma")
-	  ("mutProb", po::value<double>(&mutProb)->default_value(DEFAULTNNMUTPROB),
-	   "The likelihood for a parameter's mutation")
+	  ("adProb", po::value<double>(&adProb)->default_value(DEFAULTNNADPROB),
+	   "The likelihood for a parameter's adaption")
 	  ;
 
 	po::variables_map vm;
@@ -326,7 +326,7 @@ namespace Gem
 		    << "sigmaSigma = " << sigmaSigma << std::endl
 		    << "minSigma = " << minSigma << std::endl
 		    << "maxSigma = " << maxSigma << std::endl
-		    << "mutProb = " << mutProb << std::endl
+		    << "adProb = " << adProb << std::endl
 		    << std::endl;
 	}
       }

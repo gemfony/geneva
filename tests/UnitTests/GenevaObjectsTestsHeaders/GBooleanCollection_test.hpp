@@ -125,10 +125,10 @@ public:
 		boost::shared_ptr<GBooleanAdaptor> gba(new GBooleanAdaptor());
 		gbc6.addAdaptor(gba);
 
-		const std::size_t NMUTATIONS=1000;
+		const std::size_t NADAPTIONS=1000;
 		GBooleanCollection gbc6_old(gbc6);
-		for(std::size_t i=0; i<NMUTATIONS; i++) {
-			gbc6.mutate();
+		for(std::size_t i=0; i<NADAPTIONS; i++) {
+			gbc6.adapt();
 			BOOST_CHECK(gbc6 != gbc6_old);
 			gbc6_old = gbc6;
 		}

@@ -706,7 +706,7 @@ class GExternalEvaluatorIndividual
 	/********************************************************************************************/
 	/**
 	 * Writes the class'es data to a file. Note that, if the nEvaluations_ variable is set to a
-	 * value higher than 1, this function will create multiple, mutated copies of this
+	 * value higher than 1, this function will create multiple, adapted copies of this
 	 * individual and add them to the output file. The goal is to allow external programs
 	 * to perform more than one evaluation in sequence, so the overhead incurred through
 	 * the frequent disc i/o is reduced.
@@ -731,10 +731,10 @@ class GExternalEvaluatorIndividual
 				// Switch to a new page in the GDataExchange module
 				gde_.newDataSet();
 
-				// Create a copy of this object and mutate it
+				// Create a copy of this object and adapt it
 				p = this->clone<GExternalEvaluatorIndividual>();
-				p->setAllowLazyEvaluation(true); // Prevent evaluation upon mutation
-				p->mutate(); // Make sure we do not evaluate the same parameter set
+				p->setAllowLazyEvaluation(true); // Prevent evaluation upon adaption
+				p->adapt(); // Make sure we do not evaluate the same parameter set
 			}
 
 			// Retrieve pointers to the four containers and add their data to the GDataExchange module

@@ -39,10 +39,10 @@ namespace GenEvA {
  * Specialization for typeof(num_type) == typeof(double). Main difference to the generic version:
  * The potentially time-consuming "boost::numeric_cast" is missing -- gaussRandom emits doubles.
  *
- * @param value The value to be mutated
+ * @param value The value to be adapted
  */
 template<>
-void GGaussAdaptorT<double>::customMutations(double& value) {
+void GGaussAdaptorT<double>::customAdaptions(double& value) {
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
 #if defined (CHECKOVERFLOWS) || defined (DEBUG)
@@ -68,13 +68,13 @@ void GGaussAdaptorT<double>::customMutations(double& value) {
 /**
  * Specialization for typeof(num_type) == typeof(short). We want to prevent the usage of
  * GGaussAdaptor for this type as its value range is so limited. There should be a
- * GIntFlipAdaptor in the Geneva library, that is better suited for the mutation of short
+ * GIntFlipAdaptor in the Geneva library, that is better suited for the adaption of short
  * variables.
  *
- * @param value The value to be mutated
+ * @param value The value to be adapted
  */
 template<>
-void GGaussAdaptorT<short>::customMutations(short& value) {
+void GGaussAdaptorT<short>::customAdaptions(short& value) {
 	std::ostringstream error;
 	error << "In GGaussAdaptorT<short>(): Error!" << std::endl
 		  << "This adaptor should not be used for this type" << std::endl;

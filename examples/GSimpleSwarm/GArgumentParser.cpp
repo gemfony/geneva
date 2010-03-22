@@ -165,7 +165,7 @@ namespace Gem
 	  ("verbose",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 	   "Whether additional information should be emitted")
 	  ("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
-	   "The maximum number of cycles a client should perform mutations before it returns without success")
+	   "The maximum number of cycles a client should perform adaptions before it returns without success")
 	  ("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
 	   "Specifies whether results should be returned even if they are not better than before")
 	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),

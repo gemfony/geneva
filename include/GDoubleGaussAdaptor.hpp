@@ -66,12 +66,12 @@ namespace GenEvA {
 
 /*************************************************************************/
 /**
- * The GDoubleGaussAdaptor represents an adaptor used for the mutation of
+ * The GDoubleGaussAdaptor represents an adaptor used for the adaption of
  * double values through the addition of gaussian-distributed random numbers.
  * See the documentation of GGaussAdaptorT<T> for further information on adaptors
  * in the GenEvA context. This class is at the core of evolutionary strategies,
  * as implemented by this library. It is now implemented through a generic
- * base class that can also be used to mutate other numeric types.
+ * base class that can also be used to adapt other numeric types.
  */
 class GDoubleGaussAdaptor
 	:public GGaussAdaptorT<double>
@@ -92,11 +92,11 @@ public:
 	GDoubleGaussAdaptor();
 	/** @brief The copy constructor */
 	GDoubleGaussAdaptor(const GDoubleGaussAdaptor&);
-	/** @brief Initialization with a mutation probability */
+	/** @brief Initialization with a adaption probability */
 	explicit GDoubleGaussAdaptor(const double&);
 	/** @brief Initialization with a number of values belonging to the width of the gaussian */
 	GDoubleGaussAdaptor(const double&, const double&, const double&, const double&);
-	/** @brief Initialization with a number of values belonging to the width of the gaussian and the mutation probability */
+	/** @brief Initialization with a number of values belonging to the width of the gaussian and the adaption probability */
 	GDoubleGaussAdaptor(const double&, const double&, const double&, const double&, const double&);
 	/** @brief The destructor */
 	virtual ~GDoubleGaussAdaptor();
@@ -129,8 +129,8 @@ protected:
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
 
-	/** The actual mutation performed on the value type */
-	virtual void customMutations(double&);
+	/** The actual adaption performed on the value type */
+	virtual void customAdaptions(double&);
 };
 
 /*************************************************************************/

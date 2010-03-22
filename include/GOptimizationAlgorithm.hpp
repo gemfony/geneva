@@ -282,8 +282,8 @@ protected:
 
 	/** @brief user-defined halt-criterion for the optimization */
 	virtual bool customHalt() const;
-	/** @brief The mutation scheme for this population */
-	virtual void customMutations();
+	/** @brief The adaption scheme for this population */
+	virtual void customAdaptions();
 	/** @brief The evaluation scheme for this population */
 	virtual double fitnessCalculation();
 

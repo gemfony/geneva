@@ -64,41 +64,41 @@ public:
 	/** @brief The standard destructor */
 	virtual ~GMutableI(){ /* nothing */ }
 
-	/** @brief Allows derivatives to be mutated */
-	virtual void mutate() = 0;
+	/** @brief Allows derivatives to be adapted */
+	virtual void adapt() = 0;
 
 	/*********************************************************************************************/
 	/**
-	 * A version of the mutation functionality that also checks for
-	 * exceptions. To be used when mutate() is to become the main
+	 * A version of the adaption functionality that also checks for
+	 * exceptions. To be used when adapt() is to become the main
 	 * function to be called by a thread.
 	 */
-	void checkedMutate(){
+	void checkedAdaption(){
 #ifdef DEBUG
 		try{
-			this->mutate();
+			this->adapt();
 		}
 		catch(std::exception& e){
 			std::ostringstream error;
-			error << "In GMutableI::checkedMutate(): Caught std::exception with message" << std::endl
+			error << "In GMutableI::checkedAdaption(): Caught std::exception with message" << std::endl
 				  << e.what() << std::endl;
 			std::cerr << error.str();
 			std::terminate();
 		}
 		catch(boost::exception& e){
 			std::ostringstream error;
-			error << "In GMutableI::checkedMutate(): Caught boost::exception" << std::endl;
+			error << "In GMutableI::checkedAdaption(): Caught boost::exception" << std::endl;
 			std::cerr << error.str();
 			std::terminate();
 		}
 		catch(...){
 			std::ostringstream error;
-			error << "In GMutableI::checkedMutate(): Caught unknown exception" << std::endl;
+			error << "In GMutableI::checkedAdaption(): Caught unknown exception" << std::endl;
 			std::cerr << error.str();
 			std::terminate();
 		}
 #else
-	this->mutate();
+	this->adapt();
 #endif
 	}
 };

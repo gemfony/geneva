@@ -157,18 +157,18 @@ public:
 		// Retrieve the adaptor in its original form
 		BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_ptr = gpt0.adaptor_cast<GBooleanAdaptor>());
 
-		// Check mutations
-		const std::size_t NMUTATIONS=10000;
-		std::vector<bool> mutvals(NMUTATIONS);
+		// Check adaptions
+		const std::size_t NADAPTIONS=10000;
+		std::vector<bool> mutvals(NADAPTIONS);
 		bool originalValue = gpt0.value();
-		for(std::size_t i=0; i<NMUTATIONS; i++) {
-			BOOST_CHECK_NO_THROW(gpt0.mutate());
+		for(std::size_t i=0; i<NADAPTIONS; i++) {
+			BOOST_CHECK_NO_THROW(gpt0.adapt());
 			mutvals[i] = gpt0.value();
 		}
 
-		// Check that values do not stay the same for a larger number of mutations
+		// Check that values do not stay the same for a larger number of adaptions
 		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
-		BOOST_CHECK(nOriginalValues < NMUTATIONS);
+		BOOST_CHECK(nOriginalValues < NADAPTIONS);
 	}
 
 	/***********************************************************************************/
@@ -185,18 +185,18 @@ public:
 		// Retrieve the adaptor in its original form
 		BOOST_CHECK_NO_THROW(boost::shared_ptr<GInt32FlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GInt32FlipAdaptor>());
 
-		// Check mutations
-		const std::size_t NMUTATIONS=10000;
-		std::vector<boost::int32_t> mutvals(NMUTATIONS);
+		// Check adaptions
+		const std::size_t NADAPTIONS=10000;
+		std::vector<boost::int32_t> mutvals(NADAPTIONS);
 		boost::int32_t originalValue = gpt0.value();
-		for(std::size_t i=0; i<NMUTATIONS; i++) {
-			BOOST_CHECK_NO_THROW(gpt0.mutate());
+		for(std::size_t i=0; i<NADAPTIONS; i++) {
+			BOOST_CHECK_NO_THROW(gpt0.adapt());
 			mutvals[i] = gpt0.value();
 		}
 
-		// Check that values do not stay the same for a larger number of mutations
+		// Check that values do not stay the same for a larger number of adaptions
 		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
-		BOOST_CHECK(nOriginalValues < NMUTATIONS);
+		BOOST_CHECK(nOriginalValues < NADAPTIONS);
 	}
 
 	/***********************************************************************************/
@@ -213,18 +213,18 @@ public:
 		// Retrieve the adaptor in its original form
 		BOOST_CHECK_NO_THROW(boost::shared_ptr<GDoubleGaussAdaptor> gpt0_ptr = gpt0.adaptor_cast<GDoubleGaussAdaptor>());
 
-		// Check mutations
-		const std::size_t NMUTATIONS=10000;
-		std::vector<double> mutvals(NMUTATIONS);
+		// Check adaptions
+		const std::size_t NADAPTIONS=10000;
+		std::vector<double> mutvals(NADAPTIONS);
 		double originalValue = gpt0.value();
-		for(std::size_t i=0; i<NMUTATIONS; i++) {
-			BOOST_CHECK_NO_THROW(gpt0.mutate());
+		for(std::size_t i=0; i<NADAPTIONS; i++) {
+			BOOST_CHECK_NO_THROW(gpt0.adapt());
 			mutvals[i] = gpt0.value();
 		}
 
-		// Check that values do not stay the same for a larger number of mutations
+		// Check that values do not stay the same for a larger number of adaptions
 		std::size_t nOriginalValues = std::count(mutvals.begin(), mutvals.end(), originalValue);
-		BOOST_CHECK(nOriginalValues < NMUTATIONS);
+		BOOST_CHECK(nOriginalValues < NADAPTIONS);
 	}
 
 	/***********************************************************************************/
