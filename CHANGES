@@ -5,6 +5,8 @@ Roadmap for Version 0.8:
  - Revision of Random and Random factory, implementation as separate library
  - Implementation of a GBoundedDoubleWithGaps
  - Get rid of self-initialized singletons, in favor of a GenevaInitialize/Finalize() function
+ - Make all parameters objects and get rid of GDoubleCollection (i.e. collections of items to 
+   which a joint adaptor is assigned)
  - Update of performance figures
 
 //------------------------------------------------------------------------------------------------------
@@ -13,6 +15,8 @@ Roadmap for Version 0.8:
 The main changes for this release include:
  - Replaced all calls to mutate() (and associated functions) with calls to adapt() in order to
    reflect different naming schemes in different optimization algorithms
+ - Added an iterator to GStdPtrVectorInterface that lets users iterate only over specific 
+   derived objects of the stored base-objects.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010

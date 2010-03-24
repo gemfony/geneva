@@ -57,6 +57,7 @@
 #include <boost/logic/tribool.hpp>
 #include <boost/bind.hpp>
 #include <boost/optional.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 
 #ifndef GSTDPTRVECTORINTERFACET_HPP_
 #define GSTDPTRVECTORINTERFACET_HPP_
@@ -82,7 +83,8 @@ namespace GenEvA {
  * using this class prevents us from having to derive directly from a
  * std::vector, which has a non-virtual destructor. Note that we assume here
  * that T holds a complex type, such as a class.  T must implement
- * the interface "usual" for Geneva-GObject derivatives.
+ * the interface "usual" for Geneva-GObject derivatives, in particular T must
+ * implement the clone() function.
  *
  * Some std::vector functions can not be fully implemented, as they require
  * the data in this class to be default-constructible. As this class can hold
@@ -107,7 +109,6 @@ class GStdPtrVectorInterfaceT
 
 public:
 	/**************************************************************************************************/
-
 	/**
 	 * The default constructor
 	 */
@@ -129,7 +130,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * The destructor. Destruction of the objects will be taken care of
 	 * by boost::shared_ptr<T>.
@@ -139,7 +139,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Assginment operator
 	 *
@@ -152,7 +151,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Assignment of a std::vector<boost::shared_ptr<T> > . As the vector contains smart
 	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
@@ -197,7 +195,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -235,7 +232,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
@@ -273,7 +269,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	// Typedefs
 	typedef typename std::vector<boost::shared_ptr<T> >::value_type value_type;
 	typedef typename std::vector<boost::shared_ptr<T> >::reference reference;
@@ -288,7 +283,6 @@ public:
 	typedef typename std::vector<boost::shared_ptr<T> >::difference_type difference_type;
 
 	/**************************************************************************************************/
-
 	// Non modifying access
 	size_type size() const { return data.size(); }
 	bool empty() const { return data.empty(); }
@@ -298,7 +292,6 @@ public:
 	void reserve(size_type amount) { data.reserve(amount); }
 
 	/**************************************************************************************************/
-
 	/**
 	 * A small helper class that compares two items and checks for equality, depending on the current mode
 	 */
@@ -326,7 +319,6 @@ public:
 	};
 
 	/**************************************************************************************************/
-
 	/**
 	 * A small helper class that compares two items of identical type
 	 * and checks for equality, depending on the current mode
@@ -341,7 +333,6 @@ public:
 	};
 
 	/**************************************************************************************************/
-
 	/**
 	 * Counts the elements whose content is equal to the content of item.
 	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
@@ -368,7 +359,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Searches for the content of item in the entire range of the vector. Needs to be
 	 * re-implemented here, as we are dealing with a collection of smart pointers
@@ -393,7 +383,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	// Modifying functions
 
 	// Exchange of two data sets
@@ -426,12 +415,10 @@ public:
 	const_reverse_iterator rend() const { return data.rend(); }
 
 	/**************************************************************************************************/
-
 	// Insertion and removal
 
 
 	/**************************************************************************************************/
-
 	/**
 	 * Inserts a given item at position pos. Behavior defaults
 	 * to isert_noclone(pos,item).
@@ -444,7 +431,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere. Note that the shared_ptr will inserted itself. Hence any Change you
@@ -466,7 +452,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
 	 * somewhere. This function clones the item, hence changes to the argument after
@@ -488,7 +473,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Inserts a given amount of items at position pos. Defaults to
 	 * insert_clone(pos, amount, item_ptr)
@@ -502,7 +486,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Inserts a given amount of items at position pos. Will always clone.
 	 *
@@ -527,7 +510,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Inserts a given amount of items at position pos. Will not clone the argument.
 	 * Note that changes made to item_ptr's object after a call to this function will
@@ -557,7 +539,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. The function defaults to
 	 * push_back_noclone
@@ -569,7 +550,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. Note that the shared_ptr
 	 * will inserted itself. Hence any Change you might make to the object pointed
@@ -590,7 +570,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. The object pointed to
 	 * will be cloned. Hence changes to it after a call to this function will not
@@ -611,8 +590,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
-
 	// Removal at a given position or in a range
 	iterator erase(iterator pos) { return data.erase(pos); }
 	iterator erase(iterator from, iterator to) { return data.erase(from,to); }
@@ -621,7 +598,6 @@ public:
 	void pop_back(){ data.pop_back(); }
 
 	/**************************************************************************************************/
-
 	/**
 	 * Resizing the vector. An increase in size is only allowed if at least one item
 	 * is already stored in the collection. The first stored item will then be cloned
@@ -645,7 +621,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Resizing the vector, initialization with item. This function is a front end
 	 * to resize_clone()
@@ -658,7 +633,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). Note that item_ptr will become part
@@ -694,7 +668,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). item_ptr will be cloned. Hence
@@ -725,12 +698,10 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/** @brief Clearing the data vector */
 	void clear() { data.clear(); }
 
 	/**************************************************************************************************/
-
 	/**
 	 * Creates a copy of the data vector. It is assumed that cp is empty or that
 	 * all data in it can be deleted.
@@ -745,7 +716,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-
 	/**
 	 * Returns a view on the vector's content, filtering out only items of specific
 	 * type.
@@ -763,6 +733,140 @@ public:
 	}
 
 	/**************************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************************/
+	/** An iterator implementation that facilitates access to derived elements */
+	template <typename derivedType>
+	class conversion_iterator:
+		public boost::iterator_facade<
+		conversion_iterator<derivedType>
+		, boost::shared_ptr<T>
+		, boost::forward_traversal_tag
+		, boost::shared_ptr<derivedType>
+		>
+	{
+	public:
+		/**********************************************************************************************/
+		/**
+		 * The standard constructor. The iterator needs to know about the end of the
+		 * sequence so it can skip items not fitting the derivation pattern.
+		 *
+		 * @param end The end of the iteration sequence
+		 */
+		conversion_iterator(typename std::vector<boost::shared_ptr<T> >::iterator const& end)
+		:end_(end)
+		 { /* nothing */ }
+
+		/**********************************************************************************************/
+		/**
+		 * We need to be able to assign values to the iterator, e.g. in a for loop.
+		 *
+		 * @param current The value to assign to this iterator
+		 */
+		void operator=(typename std::vector<boost::shared_ptr<T> >::iterator const& current) {
+			current_ = current;
+			// Skip to first "good" entry
+			boost::shared_ptr<derivedType> p;
+			while(current_ != end_ &&
+					!(p = boost::dynamic_pointer_cast<derivedType>(*current_))) {
+				++current_;
+			}
+		}
+
+		/**********************************************************************************************/
+		/**
+		 * We need to test whether we have reached the end of the sequence, e.g. in a for loop.
+		 *
+		 * @param other The iterator to check for inequality
+		 * @return A boolean indicating whether this iterator's value is inequal with the other iterator
+		 */
+		bool operator!=(typename std::vector<boost::shared_ptr<T> >::iterator const& other) const {
+			return current_ != other;
+		}
+
+		/**********************************************************************************************/
+		/**
+		 * This iterator internally stores a copy of the end of the sequence it iterates over. If
+		 * the size of the sequence changes, so does the end point. Hence users need to adapt the
+		 * end-point that is stored internally in this class (and which was set with the constructor
+		 * in the first place.
+		 *
+		 * @param end The new end of the sequence
+		 */
+		void resetEndPosition(typename std::vector<boost::shared_ptr<T> >::iterator const& end) {
+			end_ = end;
+		}
+
+		/**********************************************************************************************/
+	private:
+		friend class boost::iterator_core_access; ///< Boost's iterator classes need access to the internals of this class
+
+		/**********************************************************************************************/
+		/**
+		 * The default constructor. Intentionally left undefined and private, so it cannot be
+		 * instantiated.
+		 */
+		conversion_iterator();
+
+		/**********************************************************************************************/
+		/**
+		 * This is a standard function required by boost's iterator_facade class. This is the main
+		 * function of this class.
+		 *
+		 * @return A boost::shared_ptr holding the derived object
+		 */
+		boost::shared_ptr<derivedType> dereference() const {
+			if(current_ == end_) {
+				std::ostringstream error;
+				error << "In conversion_iterator::dereference(): Error:" << std::endl
+					  << "current position at end of sequence" << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+
+			boost::shared_ptr<derivedType> p = boost::dynamic_pointer_cast<derivedType>(*current_);
+
+			if(!p) {
+				std::ostringstream error;
+				error << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl;
+				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			}
+
+			return p;
+		}
+
+		/**********************************************************************************************/
+		/**
+		 * Checks for equality with another iterator
+		 *
+		 * @param other The item that should be checked for equality
+		 * @return A boolean indicating whether equality was found
+		 */
+		bool equal(typename std::vector<boost::shared_ptr<T> >::iterator const& other) const {
+			return current_ == other;
+		}
+
+		/**********************************************************************************************/
+		/**
+		 * This function increments the iterator position, possibly skipping items, should they
+		 * not meet the derivation pattern.
+		 */
+		void increment() {
+			boost::shared_ptr<derivedType> p;
+
+			while (current_ != end_) {
+				++current_;
+				if(current_!=end_ && (p = boost::dynamic_pointer_cast<derivedType>(*current_))) break;
+			}
+		}
+
+		/**********************************************************************************************/
+		typename std::vector<boost::shared_ptr<T> >::iterator current_; ///< Marks the current position in the iteration sequence
+		typename std::vector<boost::shared_ptr<T> >::iterator end_; ///< Marks the end of the iteration sequence
+	};
+
+	/**************************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -778,7 +882,6 @@ protected:
 
 private:
 	/**************************************************************************************************/
-
 	/** @brief Intentionally left undefined */
 	bool operator==(const GStdPtrVectorInterfaceT<T>&) const;
 	/** @brief Intentionally left undefined */
