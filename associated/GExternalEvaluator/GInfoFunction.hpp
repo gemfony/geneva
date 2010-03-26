@@ -133,39 +133,27 @@ public:
 
 				std::vector<boost::shared_ptr<GBoundedDoubleCollection> >::iterator it;
 				for(it=v.begin(); it!=v.end(); ++it) {
-					// A single adaptor has been stored in the collection
-					if((*it)->hasLocalAdaptor()) {
-						// Extract the adaptor
-						boost::shared_ptr<GDoubleGaussAdaptor> ad_ptr = (*it)->adaptor_cast<GDoubleGaussAdaptor>();
+					// We need to loop over all GBoundedDouble objects to extract the desired information
+					GBoundedDoubleCollection::iterator gbdc_it;
+					for(gbdc_it=(*it)->begin(); gbdc_it!=(*it)->end(); ++gbdc_it) {
+#ifdef DEBUG
+						if(!(*gbdc_it)->hasAdaptor()) { // This should not happen
+							std::ostringstream error;
+							error << "In optimizationMonitor::informationFunction(INFOPROCESSING): Error!" << std::endl
+									<< "Expected an adaptor in GBoundedDouble object but didn't find it." << std::endl;
+							throw(Gem::GenEvA::geneva_error_condition(error.str()));
+						}
+#endif /* DEBUG */
 
-						// And retrieve the sigma as well as its minimal and maximal values
+						// Extract the adaptor
+						boost::shared_ptr<GDoubleGaussAdaptor> ad_ptr = (*gbdc_it)->adaptor_cast<GDoubleGaussAdaptor>();
+
+						// Get the sigma and sum it up
 						double sigma = ad_ptr->getSigma();
 						sigmaSum += sigma;
 						if(sigma < minSigma) minSigma = sigma;
 						if(sigma > maxSigma) maxSigma = sigma;
 						nSigmas++;
-					}
-					// We need to loop over all GBoundedDouble objects to extract the desired information
-					else {
-						GBoundedDoubleCollection::iterator gbdc_it;
-						for(gbdc_it=(*it)->begin(); gbdc_it!=(*it)->end(); ++gbdc_it) {
-							if(!(*gbdc_it)->hasLocalAdaptor()) { // This should not happen
-								std::ostringstream error;
-								error << "In optimizationMonitor::informationFunction(INFOPROCESSING): Error!" << std::endl
-										<< "Expected an adaptor in GBoundedDouble object but didn't find it." << std::endl;
-								throw(Gem::GenEvA::geneva_error_condition(error.str()));
-							}
-
-							// Extract the adaptor
-							boost::shared_ptr<GDoubleGaussAdaptor> ad_ptr = (*gbdc_it)->adaptor_cast<GDoubleGaussAdaptor>();
-
-							// Get the sigma and sum it up
-							double sigma = ad_ptr->getSigma();
-							sigmaSum += sigma;
-							if(sigma < minSigma) minSigma = sigma;
-							if(sigma > maxSigma) maxSigma = sigma;
-							nSigmas++;
-						}
 					}
 				}
 

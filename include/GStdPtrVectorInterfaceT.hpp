@@ -754,7 +754,7 @@ public:
 		 * @param end The end of the iteration sequence
 		 */
 		conversion_iterator(typename std::vector<boost::shared_ptr<T> >::iterator const& end)
-		:end_(end)
+			:end_(end)
 		 { /* nothing */ }
 
 		/**********************************************************************************************/
@@ -766,9 +766,7 @@ public:
 		void operator=(typename std::vector<boost::shared_ptr<T> >::iterator const& current) {
 			current_ = current;
 			// Skip to first "good" entry
-			boost::shared_ptr<derivedType> p;
-			while(current_ != end_ &&
-					!(p = boost::dynamic_pointer_cast<derivedType>(*current_))) {
+			while(current_ != end_ && !(p=boost::dynamic_pointer_cast<derivedType>(*current_))) {
 				++current_;
 			}
 		}
@@ -810,28 +808,31 @@ public:
 
 		/**********************************************************************************************/
 		/**
-		 * This is a standard function required by boost's iterator_facade class. This is the main
-		 * function of this class.
+		 * This is a standard function required by boost's iterator_facade class.
 		 *
 		 * @return A boost::shared_ptr holding the derived object
 		 */
 		boost::shared_ptr<derivedType> dereference() const {
+#ifdef DEBUG
 			if(current_ == end_) {
 				std::ostringstream error;
 				error << "In conversion_iterator::dereference(): Error:" << std::endl
 					  << "current position at end of sequence" << std::endl;
 				throw(Gem::GenEvA::geneva_error_condition(error.str()));
 			}
-
-			boost::shared_ptr<derivedType> p = boost::dynamic_pointer_cast<derivedType>(*current_);
-
-			if(!p) {
-				std::ostringstream error;
-				error << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
-			}
+#endif /* DEBUG */
 
 			return p;
+#ifdef DEBUG
+			if(p) return p;
+			else {
+				if(!p) {
+					std::ostringstream error;
+					error << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl;
+					throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				}
+			}
+#endif /* DEBUG*/
 		}
 
 		/**********************************************************************************************/
@@ -851,8 +852,6 @@ public:
 		 * not meet the derivation pattern.
 		 */
 		void increment() {
-			boost::shared_ptr<derivedType> p;
-
 			while (current_ != end_) {
 				++current_;
 				if(current_!=end_ && (p = boost::dynamic_pointer_cast<derivedType>(*current_))) break;
@@ -862,6 +861,7 @@ public:
 		/**********************************************************************************************/
 		typename std::vector<boost::shared_ptr<T> >::iterator current_; ///< Marks the current position in the iteration sequence
 		typename std::vector<boost::shared_ptr<T> >::iterator end_; ///< Marks the end of the iteration sequence
+		boost::shared_ptr<derivedType> p; ///< Temporary which holds the current valid pointer
 	};
 
 	/**************************************************************************************************/
@@ -892,7 +892,7 @@ private:
 	bool operator!=(const std::vector<boost::shared_ptr<T> >&) const;
 };
 
-/********************************************************************************/
+/**************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

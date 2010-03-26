@@ -36,6 +36,7 @@ SET ( GENEVASOURCES
 	GOptimizationAlgorithm
 	GParameterBase
 	GParameterBaseWithAdaptorsT
+	GParameterObjectCollection
 	GParameterSet
 	GPersonalityTraits
 	GPODExpectationChecksT

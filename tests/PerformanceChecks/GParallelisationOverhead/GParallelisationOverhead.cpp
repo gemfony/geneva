@@ -213,17 +213,18 @@ int main(int argc, char **argv){
 			boost::shared_ptr<GDelayIndividual> gdi_ptr(new GDelayIndividual(sleepTime));
 			gdi_ptr->setProcessingCycles(processingCycles);
 
-			// Set up a GBoundedDoubleCollection, including adaptor
+			// Set up a GBoundedDoubleCollection
 			boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
-			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
-			gdga_ptr->setAdaptionThreshold(1);
-			gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
-			gbdc_ptr->addAdaptor(gdga_ptr); // We use a common adaptor for all objects in the collection
 
 			// Set up nVariables GBoundedDouble objects in the desired value range,
 			// and register them with the double collection
 			for(std::size_t var=0; var<nVariables; var++) {
 				boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(0.,1.)); // range [0,1], random initialization
+
+				boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
+				gdga_ptr->setAdaptionThreshold(1);
+				gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+				gbd_ptr->addAdaptor(gdga_ptr); // We use a common adaptor for all objects in the collection
 
 				// Make the GBoundedDouble known to the collection
 				gbdc_ptr->push_back(gbd_ptr);

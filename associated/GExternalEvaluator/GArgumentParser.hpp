@@ -90,7 +90,6 @@ namespace Gem
     const Gem::GenEvA::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::GenEvA::BINARYEXCHANGE;
     const bool DEFAULTMAXIMIZE=false;
     const bool DEFAULTPRODUCTIONPLACE=true; // local production of random numbers
-    const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
     const bool DEFAULTRANDOMFILL=true; // whether template data should be filled randomly
     const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
 
@@ -132,7 +131,6 @@ namespace Gem
 		  , Gem::GenEvA::dataExchangeMode& exchangeMode
 		  , bool& maximize
 		  , bool& productionPlace
-		  , bool& useCommonAdaptor
 		  , bool& randomFill
 	);
 

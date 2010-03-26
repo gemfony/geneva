@@ -39,7 +39,7 @@ namespace Gem
      * A function that parses the command line for all required parameters
      */
     bool parseCommandLine(
-    		int argc, char **argv,
+    		int argc, char **argv
 		  , std::string& configFile
 		  , boost::uint16_t& parallelizationMode
 		  , bool& serverMode
@@ -122,7 +122,7 @@ namespace Gem
      * A function that parses a config file for further parameters
      */
     bool parseConfigFile(
-    		const std::string& configFile,
+    		const std::string& configFile
 		  , boost::uint16_t& nProducerThreads
 		  , boost::uint16_t& nEvaluationThreads
 		  , std::size_t& populationSize

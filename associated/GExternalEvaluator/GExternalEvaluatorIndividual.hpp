@@ -129,7 +129,6 @@ class GExternalEvaluatorIndividual
 		ar & make_nvp("exchangeMode_", exchangeMode_);
 		ar & make_nvp("maximize_", maximize_);
 		ar & make_nvp("parameterFile_", parameterFile_);
-		ar & make_nvp("useCommonAdaptor_", useCommonAdaptor_);
 		ar & make_nvp("gdbl_ptr_", gdbl_ptr_);
 		ar & make_nvp("glong_ptr_", glong_ptr_);
 	}
@@ -147,7 +146,6 @@ class GExternalEvaluatorIndividual
 	 * @param program The filename (including path) of the external program that should be executed
 	 * @param arguments Additional user-defined arguments to be handed to the external program
 	 * @param random A boolean indicating whether template data should be filled randomly
-	 * @param useCommonAdaptor Whether to use a common adaptor or individual adaptors for parameter collections
 	 * @param gdbl_ad_ptr An adaptor for double values
 	 * @param glong_ad_ptr An adaptor for boost::int32_t values
 	 * @param gbool_ad_ptr An adaptor for bool values
@@ -156,7 +154,6 @@ class GExternalEvaluatorIndividual
 			const std::string& arguments="empty",
 			const bool& random=false,
 			const dataExchangeMode& exchangeMode = Gem::GenEvA::BINARYEXCHANGE,
-			const bool& useCommonAdaptor=false,
 			boost::shared_ptr<GAdaptorT<double> > gdbl_ad_ptr = boost::shared_ptr<GAdaptorT<double> >((GAdaptorT<double> *)NULL),
 			boost::shared_ptr<GAdaptorT<boost::int32_t> > glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL),
 			boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL))
@@ -166,7 +163,6 @@ class GExternalEvaluatorIndividual
 	  , exchangeMode_(exchangeMode)
 	  , maximize_(false)
 	  , parameterFile_("./parameterData")
-	  , useCommonAdaptor_(useCommonAdaptor)
 	  {
 		//-----------------------------------------------------------------------------------------------
 		// Create the required, empty collections.
@@ -178,31 +174,19 @@ class GExternalEvaluatorIndividual
 		//-----------------------------------------------------------------------------------------------
 		gdbl_ptr_=boost::shared_ptr<GBoundedDouble>(new GBoundedDouble());
 		if(gdbl_ad_ptr) {
-			if(useCommonAdaptor)
-				gbdc_ptr->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
-			else
-				gdbl_ptr_->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
+			gdbl_ptr_->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
 		}
 		else {
-			if(useCommonAdaptor)
-				gbdc_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<double> >(new GDoubleGaussAdaptor())); // uses default values
-				else
-					gdbl_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<double> >(new GDoubleGaussAdaptor())); // uses default values
+			gdbl_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<double> >(new GDoubleGaussAdaptor())); // uses default values
 		}
 
 		//-----------------------------------------------------------------------------------------------
 		glong_ptr_=boost::shared_ptr<GBoundedInt32>(new GBoundedInt32());
 		if(glong_ad_ptr) {
-			if(useCommonAdaptor)
-				gbic_ptr->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
-			else
-				glong_ptr_->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
+			glong_ptr_->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
 		}
 		else {
-			if(useCommonAdaptor)
-				gbic_ptr->addAdaptor(boost::shared_ptr<GAdaptorT<boost::int32_t> >(new GInt32FlipAdaptor())); // uses default values
-				else
-					glong_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<boost::int32_t> >(new GInt32FlipAdaptor())); // uses default values
+			glong_ptr_->addAdaptor(boost::shared_ptr<GAdaptorT<boost::int32_t> >(new GInt32FlipAdaptor())); // uses default values
 		}
 
 		//-----------------------------------------------------------------------------------------------
@@ -279,7 +263,6 @@ class GExternalEvaluatorIndividual
 	  , exchangeMode_(cp.exchangeMode_)
 	  , maximize_(cp.maximize_)
 	  , parameterFile_(cp.parameterFile_)
-	  , useCommonAdaptor_(cp.useCommonAdaptor_)
 	  {
 		gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone<GBoundedDouble>();
 		glong_ptr_ = cp.glong_ptr_->GObject::clone<GBoundedInt32>();
@@ -421,7 +404,6 @@ class GExternalEvaluatorIndividual
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", exchangeMode_, p_load->exchangeMode_, "exchangeMode_", "p_load->exchangeMode_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", parameterFile_, p_load->parameterFile_, "parameterFile_", "p_load->parameterFile_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", useCommonAdaptor_, p_load->useCommonAdaptor_, "useCommonAdaptor_", "p_load->useCommonAdaptor_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", gdbl_ptr_, p_load->gdbl_ptr_, "gdbl_ptr_", "p_load->gdbl_ptr_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", glong_ptr_, p_load->glong_ptr_, "glong_ptr_", "p_load->glong_ptr_", e , limit));
 
@@ -597,7 +579,6 @@ class GExternalEvaluatorIndividual
 		exchangeMode_ = p_load->exchangeMode_;
 		maximize_ = p_load->maximize_;
 		parameterFile_ = p_load->parameterFile_;
-		useCommonAdaptor_ = p_load->useCommonAdaptor_;
 
 		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone<GBoundedDouble>();
 		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GBoundedInt32>();
@@ -698,7 +679,6 @@ class GExternalEvaluatorIndividual
 	 exchangeMode_(Gem::GenEvA::BINARYEXCHANGE),
 	 maximize_(false),
 	 parameterFile_("empty"),
-	 useCommonAdaptor_(false),
 	 gdbl_ptr_(boost::shared_ptr<GBoundedDouble>((GBoundedDouble *)NULL)),
 	 glong_ptr_(boost::shared_ptr<GBoundedInt32>((GBoundedInt32 *)NULL))
 	 { /* nothing */ }
@@ -919,7 +899,6 @@ class GExternalEvaluatorIndividual
 	dataExchangeMode exchangeMode_; ///< The desired method of data exchange
 	bool maximize_; ///< indicates whether small values of this individual are better than large values
 	std::string parameterFile_;
-	bool useCommonAdaptor_; ///< indicates whether a common adaptor should be used for parameter collections
 
 	boost::shared_ptr<GBoundedDouble> gdbl_ptr_; ///< A template for GBoundedDouble objects
 	boost::shared_ptr<GBoundedInt32> glong_ptr_; ///< A template for GBoundedInt32 objects

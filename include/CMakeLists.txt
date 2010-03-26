@@ -81,8 +81,10 @@ SET ( GENEVAINCLUDES
 	GObject.hpp
 	GOptimizationAlgorithm.hpp
 	GParameterBase.hpp
+	GParameterObjectCollection.hpp
 	GParameterBaseWithAdaptorsT.hpp
 	GParameterCollectionT.hpp
+	GParameterObjectCollection.hpp
 	GParameterSet.hpp
 	GParameterT.hpp
 	GParameterTCollectionT.hpp

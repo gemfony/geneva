@@ -17,6 +17,10 @@ The main changes for this release include:
    reflect different naming schemes in different optimization algorithms
  - Added an iterator to GStdPtrVectorInterface that lets users iterate only over specific 
    derived objects of the stored base-objects.
+ - Removed ability to assign joint adaptors to entire collections in favor of all-local adaptors,
+   in order to facilitate the inner design and usage of the library
+ - Added a GParameterObjectCollection that allows to arbitrarily mix any GParameterBase object in the
+   same collection.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010

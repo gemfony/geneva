@@ -93,7 +93,7 @@ namespace Gem
     namespace po = boost::program_options;
 
     bool parseCommandLine(
-    		int argc, char **argv,
+    		int argc, char **argv
 		  , std::string& configFile
 		  , boost::uint16_t& parallelizationMode
 		  , bool& serverMode
@@ -103,7 +103,7 @@ namespace Gem
 	);
 
     bool parseConfigFile(
-    		const std::string& configFile,
+    		const std::string& configFile
 		  , boost::uint16_t& nProducerThreads
 		  , boost::uint16_t& nEvaluationThreads
 		  , std::size_t& populationSize

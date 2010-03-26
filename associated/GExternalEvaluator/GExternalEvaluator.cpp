@@ -91,7 +91,6 @@ int main(int argc, char **argv){
   Gem::GenEvA::dataExchangeMode exchangeMode;
   bool maximize;
   bool productionPlace;
-  bool useCommonAdaptor;
   bool randomFill;
   serializationMode serMode;
 
@@ -128,7 +127,6 @@ int main(int argc, char **argv){
 		      exchangeMode,
 		      maximize,
 		      productionPlace,
-		      useCommonAdaptor,
 		      randomFill))
     {
 	  std::cout << "Error parsing the command line or the configuration file. Leaving ..." << std::endl;
@@ -198,7 +196,6 @@ int main(int argc, char **argv){
 					externalArguments,
 					p==0?randomFill:true, // Allow choice whether the first parent is filled with random data or not
 					exchangeMode,
-					useCommonAdaptor,
 					gdga_ptr,
 					gifa_ptr,
 					gba_ptr

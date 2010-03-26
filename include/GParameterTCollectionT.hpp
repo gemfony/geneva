@@ -50,7 +50,7 @@
 
 
 // GenEvA header files go here
-#include "GParameterBaseWithAdaptorsT.hpp"
+#include "GParameterBase.hpp"
 #include "GParameterT.hpp"
 #include "GHelperFunctionsT.hpp"
 #include "GStdPtrVectorInterfaceT.hpp"
@@ -66,12 +66,11 @@ namespace GenEvA {
  * as a collection of GParameterT objects, hence the name.  As an example, one can create a
  * collection of GBoundedDouble objects with this class rather than a simple GDoubleCollection.
  * In order to facilitate memory management, the GParameterT objects are stored
- * in boost::shared_ptr objects. When supplied with a local adaptor, it is used for all
- * dependent GParameterT objects.
+ * in boost::shared_ptr objects.
  */
 template<typename T>
 class GParameterTCollectionT
-	:public GParameterBaseWithAdaptorsT<typename T::p_type >,
+	:public GParameterBase,
 	 public GStdPtrVectorInterfaceT<T>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -82,7 +81,7 @@ class GParameterTCollectionT
 		using boost::serialization::make_nvp;
 
 		// Save the data
-		ar & make_nvp("GParameterBaseWithAdaptorsT_ptype", boost::serialization::base_object<GParameterBaseWithAdaptorsT<typename T::p_type > >(*this))
+		ar & make_nvp("GParameterBase", boost::serialization::base_object<GParameterBase>(*this))
 		   & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<GStdPtrVectorInterfaceT<T> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -99,7 +98,6 @@ public:
 	 * The default constructor
 	 */
 	GParameterTCollectionT()
-		: GParameterBaseWithAdaptorsT<typename T::p_type >()
 	{ /* nothing */ }
 
 	/*******************************************************************************************/
@@ -109,7 +107,7 @@ public:
 	 * @param cp A copy of another GParameterTCollectionT<T> object
 	 */
 	GParameterTCollectionT(const GParameterTCollectionT<T>& cp)
-		: GParameterBaseWithAdaptorsT<typename T::p_type >(cp)
+		: GParameterBase(cp)
 		, GStdPtrVectorInterfaceT<T>(cp)
 	{ /* nothing */ }
 
@@ -129,34 +127,8 @@ public:
 	 */
 	const GParameterTCollectionT<T>& operator=(const GParameterTCollectionT<T>& cp)
 	{
-		GParameterTCollectionT<T>::load(&cp);
+		GParameterTCollectionT<T>::load_(&cp);
 		return *this;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for equality with another GParameterTCollectionT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterTCollectionT object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GParameterTCollectionT<T>& cp) const {
-		using namespace Gem::Util;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterTCollectionT<T>::operator==","cp", CE_SILENT);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Checks for inequality with another GParameterTCollectionT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterTCollectionT object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GParameterTCollectionT<T>& cp) const {
-		using namespace Gem::Util;
-		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterTCollectionT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/*******************************************************************************************/
@@ -189,7 +161,7 @@ public:
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent classes' data ...
-		deviations.push_back(GParameterBaseWithAdaptorsT<typename T::p_type >::checkRelationshipWith(cp, e, limit, "GParameterTCollectionT<T>", y_name, withMessages));
+		deviations.push_back(GParameterBase::checkRelationshipWith(cp, e, limit, "GParameterTCollectionT<T>", y_name, withMessages));
 		deviations.push_back(GStdPtrVectorInterfaceT<T>::checkRelationshipWith(*p_load, e, limit, "GParameterTCollectionT<T>", y_name, withMessages));
 
 		// no local data ...
@@ -205,16 +177,8 @@ public:
 	 */
 	virtual void adaptImpl() {
 		typename GParameterTCollectionT<T>::iterator it;
-		if(this->hasAdaptor()) {
-			for(it=this->begin(); it!=this->end(); ++it) {
-				(*it)->addAdaptorNoClone(this->getAdaptor());
-				(*it)->adapt();
-			}
-		}
-		else {
-			for(it=this->begin(); it!=this->end(); ++it) {
-				(*it)->adapt();
-			}
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->adapt();
 		}
 	}
 
@@ -264,7 +228,7 @@ public:
 		bool result;
 
 		// Call the parent classes' functions
-		if(GParameterBaseWithAdaptorsT<typename T::p_type>::modify_GUnitTests()) result = true;
+		if(GParameterBase::modify_GUnitTests()) result = true;
 		if(GStdPtrVectorInterfaceT<T>::modify_GUnitTests()) result = true;
 
 		return result;
@@ -276,7 +240,7 @@ public:
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent classes' functions
-		GParameterBaseWithAdaptorsT<typename T::p_type>::specificTestsNoFailureExpected_GUnitTests();
+		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
@@ -286,7 +250,7 @@ public:
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent classes' functions
-		GParameterBaseWithAdaptorsT<typename T::p_type>::specificTestsFailuresExpected_GUnitTests();
+		GParameterBase::specificTestsFailuresExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
 
@@ -302,7 +266,7 @@ protected:
 		const GParameterTCollectionT<T> *p_load = GObject::conversion_cast<GParameterTCollectionT<T> >(cp);
 
 		// Load our parent class'es data ...
-		GParameterBaseWithAdaptorsT<typename T::p_type >::load_(cp);
+		GParameterBase::load_(cp);
 		GStdPtrVectorInterfaceT<T>::operator=(*p_load);
 	}
 
