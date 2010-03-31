@@ -44,10 +44,21 @@ namespace GenEvA {
  */
 template<>
 void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collection) {
+	// Let the adaptor know about the number of variables to expect
+	adaptor_->setNVars(collection.size());
+
+#ifdef DEBUG
+		if(!adaptor_) {
+			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
+				  << "Error: No adaptor was found." << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+#endif /* DEBUG */
+
 	std::vector<bool>::iterator it;
 	for (it = collection.begin(); it != collection.end(); ++it)	{
 		bool value = *it;
-		applyAdaptor(value);
+		adaptor_->adapt(value);
 		*it = value;
 	}
 }

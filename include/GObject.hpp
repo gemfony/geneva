@@ -176,9 +176,7 @@ public:
 	/**
 	 * The function creates a clone of the GObject pointer, converts it to a pointer to a derived class
 	 * and emits it as a boost::shared_ptr<> . Note that this template will only be accessible to the
-	 * compiler if GObject is a base type of clone_type. Hence we do not need to use dynamic_cast to
-	 * check for possible invalid conversions. This is due to the Boost's enable_if and type_traits magic
-	 * and makes this function really simple.
+	 * compiler if GObject is a base type of clone_type.
 	 *
 	 * @return A converted clone of this object, wrapped into a boost::shared_ptr
 	 */
@@ -186,7 +184,18 @@ public:
 	inline boost::shared_ptr<clone_type> clone(
 			typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, clone_type> >::type* dummy = 0
 	) const {
+#ifdef DEBUG
+		boost::shared_ptr<clone_type> p = boost::dynamic_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In boost::shared_ptr<clone_type> GObject::clone<load_type>() : Error!" << std::endl
+				  << "Invalid conversion" << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+#else
 		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
+#endif /* DEBUG */
 	}
 
 	/**************************************************************************************************/
@@ -207,8 +216,6 @@ protected:
 	/**
 	 * This function checks in DEBUG mode whether a load pointer points to the current object. Note
 	 * that this template will only be accessible to the compiler if GObject is a base type of load_type.
-	 * Hence we do not need to use dynamic_cast to check for possible invalid conversions. This is
-	 * due to the Boost's enable_if and type_traits magic.
 	 */
 	template <typename load_type>
 	inline void selfAssignmentCheck (
@@ -230,9 +237,7 @@ protected:
 	/**
 	 * This function converts the GObject pointer to the target, optionally checking for self-assignment
 	 * along the ways in DEBUG mode (through selfAssignmentCheck() ).  Note that this template will
-	 * only be accessible to the compiler if GObject is a base type of load_type. Hence we do not need to
-	 * use dynamic_cast to check for possible invalid conversions. This is due to the Boost's enable_if
-	 * and type_traits magic.
+	 * only be accessible to the compiler if GObject is a base type of load_type.
 	 */
 	template <typename load_type>
 	inline const load_type* conversion_cast(
@@ -240,7 +245,19 @@ protected:
 		  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, load_type> >::type* dummy = 0
 	) const {
 		selfAssignmentCheck<load_type>(load_ptr);
+
+#ifdef DEBUG
+		const load_type *p = dynamic_cast<const load_type *>(load_ptr);
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In const GObject* GObject::conversion_cast<load_type>() : Error!" << std::endl
+				  << "Invalid conversion" << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+#else
 		return static_cast<const load_type *>(load_ptr);
+#endif
 	}
 
 	/**************************************************************************************************/

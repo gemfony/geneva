@@ -861,6 +861,7 @@ public:
 		/**********************************************************************************************/
 		typename std::vector<boost::shared_ptr<T> >::iterator current_; ///< Marks the current position in the iteration sequence
 		typename std::vector<boost::shared_ptr<T> >::iterator end_; ///< Marks the end of the iteration sequence
+
 		boost::shared_ptr<derivedType> p; ///< Temporary which holds the current valid pointer
 	};
 

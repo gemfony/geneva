@@ -179,11 +179,9 @@ public:
 	/**
 	 * The function converts the local personality to the desired type and returns it for modification
 	 * by the corresponding optimization algorithm. The base algorithms have been declared "friend" of
-	 * GIndividual and can thus access this function. External entities have no need to do so.
-	 *
-	 * Note that this function will only be accessible to the compiler of personality_type is a derivative
-	 * of GPersonalityTraits, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
-	 * we do not need to check convertability using dynamic_cast<>.
+	 * GIndividual and can thus access this function. External entities have no need to do so. Note that
+	 * this function will only be accessible to the compiler of personality_type is a derivative of
+	 * GPersonalityTraits, thanks to the magic of Boost's enable_if and Type Traits libraries.
 	 *
 	 * @return A boost::shared_ptr converted to the desired target type
 	 */
@@ -198,9 +196,19 @@ public:
 			error << "In GIndividual::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl;
 			throw geneva_error_condition(error.str());
 		}
+
+		boost::shared_ptr<personality_type> p = boost::dynamic_pointer_cast<personality_type>(pt_ptr_);
+
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In GIndividual::getPersonalityTraits<personality_type>() : Conversion error" << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+#else
+		return boost::static_pointer_cast<personality_type>(pt_ptr_);
 #endif /* DEBUG */
 
-		return boost::static_pointer_cast<personality_type>(pt_ptr_);
 	}
 
 	/**************************************************************************************************/

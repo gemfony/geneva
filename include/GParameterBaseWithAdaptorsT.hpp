@@ -195,9 +195,9 @@ public:
 		// Check that we have indeed been given an adaptor
 		if(!gat_ptr){
 			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor():" << std::endl
+			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+				  << "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
 				  << "Error: Empty adaptor provided." << std::endl;
-
 			throw geneva_error_condition(error.str());
 		}
 
@@ -228,6 +228,7 @@ public:
 		if(!adaptor_) {
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT::getAdaptor() : Error!" << std::endl
+				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
 				  << "Tried to retrieve adaptor while none is present" << std::endl;
 			throw geneva_error_condition(error.str());
 		}
@@ -241,11 +242,9 @@ public:
 	 * Transforms the adaptor stored in this class to the desired target type. The function
 	 * will check in DEBUG mode whether an adaptor was indeed stored in this class. It will
 	 * also complain in DEBUG mode if this function was called while no local adaptor was
-	 * stored here.
-	 *
-	 * Note that this function will only be accessible to the compiler if adaptor_type is a derivative
-	 * of GAdaptorT<T>, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
-	 * we do not need to check convertability using dynamic_cast<>.
+	 * stored here. Note that this function will only be accessible to the compiler if adaptor_type
+	 * is a derivative of GAdaptorT<T>, thanks to the magic of Boost's enable_if and Type Traits
+	 * libraries.
 	 *
 	 * @return The desired adaptor instance, using its "natural" type
 	 */
@@ -256,13 +255,23 @@ public:
 #ifdef DEBUG
 		if(!adaptor_) {
 			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Error!" << std::endl
+			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>()" << std::endl
+				  << "with typeid(T).name() = " << typeid(T).name() << " : Error!" << std::endl
 				  << "Tried to access empty adaptor pointer." << std::endl;
 			throw geneva_error_condition(error.str());
 		}
-#endif /* DEBUG */
 
+		boost::shared_ptr<adaptor_type> p = boost::dynamic_pointer_cast<adaptor_type>(adaptor_);
+
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Conversion error!" << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+#else
 		return boost::static_pointer_cast<adaptor_type>(adaptor_);
+#endif /* DEBUG */
 	}
 
 	/*******************************************************************************************/
@@ -370,7 +379,7 @@ protected:
 	 */
 	void applyAdaptor(T &value) {
 		// Let the adaptor know about the number of variables to expect
-		if(adaptor_) adaptor_->setMaxVars(1);
+		if(adaptor_) adaptor_->setNVars(1);
 
 #ifdef DEBUG
 		if (adaptor_) {
@@ -378,6 +387,7 @@ protected:
 		} else {
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(T& value):" << std::endl
+				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
 				  << "Error: No adaptor was found." << std::endl;
 
 			throw geneva_error_condition(error.str());
@@ -396,11 +406,22 @@ protected:
 	 */
 	void applyAdaptor(std::vector<T> &collection) {
 		// Let the adaptor know about the number of variables to expect
-		adaptor_->setMaxVars(collection.size());
+		adaptor_->setNVars(collection.size());
+
+#ifdef DEBUG
+		if(!adaptor_) {
+			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<T>& collection):" << std::endl
+				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
+				  << "Error: No adaptor was found." << std::endl;
+			throw geneva_error_condition(error.str());
+		}
+#endif /* DEBUG */
 
 		// Apply the adaptor to each data item in turn
 		typename std::vector<T>::iterator it;
-		for (it = collection.begin(); it != collection.end(); ++it)	applyAdaptor(*it);
+		for (it = collection.begin(); it != collection.end(); ++it)	{
+			adaptor_->adapt(*it);
+		}
 	}
 
 private:

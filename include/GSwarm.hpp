@@ -161,11 +161,9 @@ public:
 
 	/**************************************************************************************************/
 	/**
-	 * Retrieves the best individual of the population and casts it to the desired type.
-	 *
-	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
-	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
-	 * we do not need to check convertibility using dynamic_cast<>.
+	 * Retrieves the best individual of the population and casts it to the desired type. Note that this
+	 * function will only be accessible to the compiler if individual_type is a derivative of GIndividual,
+	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
 	 *
 	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
 	 */
@@ -181,9 +179,18 @@ public:
 				  << "Tried to access uninitialized globally best individual." << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
-#endif /* DEBUG */
 
+		boost::shared_ptr<individual_type> p = boost::dynamic_pointer_cast<individual_type>(global_best_);
+
+		if(p) return p;
+		else {
+			std::ostringsteam error;
+			error << "In GSwarm::getBestIndividual<>() : Conversion error" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+#else
 		return boost::static_pointer_cast<individual_type>(global_best_);
+#endif /* DEBUG */
 	}
 
 	/**************************************************************************************************/

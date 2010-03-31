@@ -122,7 +122,7 @@ class GAdaptorT:
 		   & BOOST_SERIALIZATION_NVP(adProb_)
 		   & BOOST_SERIALIZATION_NVP(adaptionMode_)
 		   & BOOST_SERIALIZATION_NVP(currentIndex_)
-		   & BOOST_SERIALIZATION_NVP(maxVars_);
+		   & BOOST_SERIALIZATION_NVP(nVars_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -145,7 +145,7 @@ public:
 		, adProb_(DEFAULTADPROB)
 		, adaptionMode_(boost::logic::indeterminate)
 		, currentIndex_(0)
-		, maxVars_(1)
+		, nVars_(1)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -161,7 +161,7 @@ public:
 		, adProb_(prob)
 		, adaptionMode_(boost::logic::indeterminate)
 		, currentIndex_(0)
-		, maxVars_(1)
+		, nVars_(1)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -178,10 +178,10 @@ public:
 		, adProb_(cp.adProb_)
 		, adaptionMode_(cp.adaptionMode_)
 		, currentIndex_(cp.currentIndex_)
-		, maxVars_(cp.maxVars_)
+		, nVars_(cp.nVars_)
 	{
 #ifdef DEBUG
-		if(maxVars_ < 1) {
+		if(nVars_ < 1) {
 			std::ostringstream error;
 			error << "In GAdaptorT<T>::GAdaptorT(cp):: Error!" << std::endl
 			      << "The maximum number of variables must be at least 1" << std::endl;
@@ -272,7 +272,7 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adProb_, p_load->adProb_, "adProb_", "p_load->adProb_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionMode_, p_load->adaptionMode_, "adaptionMode_", "p_load->adaptionMode_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", currentIndex_, p_load->currentIndex_, "currentIndex_", "p_load->currentIndex_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", maxVars_, p_load->maxVars_, "maxVars_", "p_load->maxVars_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", nVars_, p_load->nVars_, "nVars_", "p_load->nVars_", e , limit));
 
 		return evaluateDiscrepancies("GAdaptorT<T>", caller, deviations, e);
 	}
@@ -420,7 +420,7 @@ public:
 		// No need to test for adaptionMode_ == false as no action is needed in this case
 
 		// Wrap index if we have reached the maximum, otherwise increment
-		if(maxVars_>1 && ++currentIndex_ >= maxVars_) currentIndex_ = 0;
+		if(nVars_>1 && ++currentIndex_ >= nVars_) currentIndex_ = 0;
 	}
 
 	/***********************************************************************************/
@@ -430,19 +430,19 @@ public:
 	 * of variables, such as a GDoubleCollection or a GBoundedDoubleCollection. The function
 	 * also resets the current index counter.
 	 *
-	 * @param maxVars The maximum number of variables this adaptor can expect to adapt in a row
+	 * @param nVars The maximum number of variables this adaptor can expect to adapt in a row
 	 */
-	void setMaxVars(const std::size_t maxVars) {
+	void setNVars(const std::size_t nVars) {
 #ifdef DEBUG
-		if(maxVars_ < 1) {
+		if(nVars_ < 1) {
 			std::ostringstream error;
-			error << "In GAdaptorT<T>::setMaxVars() : Error!" << std::endl
+			error << "In GAdaptorT<T>::setNVars() : Error!" << std::endl
 				  << "The maximum number of variables must be at least 1" << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 
-		maxVars_ = maxVars;
+		nVars_ = nVars;
 		currentIndex_ = 0;
 	}
 
@@ -453,8 +453,8 @@ public:
 	 *
 	 * @return The maximum number of adaptions this adaptor expects
 	 */
-	std::size_t getMaxVars() const {
-		return maxVars_;
+	std::size_t getNVars() const {
+		return nVars_;
 	}
 
 	/***********************************************************************************/
@@ -526,10 +526,10 @@ protected:
 		adProb_ = p_load->adProb_;
 		adaptionMode_ = p_load->adaptionMode_;
 		currentIndex_ = p_load->currentIndex_;
-		maxVars_ = p_load->maxVars_;
+		nVars_ = p_load->nVars_;
 
 #ifdef DEBUG
-		if(maxVars_ < 1) {
+		if(nVars_ < 1) {
 			std::ostringstream error;
 			error << "In GAdaptorT<T>::load_(cp):: Error!" << std::endl
 			      << "The maximum number of variables must be at least 1" << std::endl;
@@ -577,7 +577,7 @@ private:
 	double adProb_; ///< internal representation of the adaption probability
 	boost::logic::tribool adaptionMode_; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
 	std::size_t currentIndex_; ///< The index of variable to be changed, when dealing with collections
-	std::size_t maxVars_; ///< The maximum number of variables this adaptor deals with
+	std::size_t nVars_; ///< The number of variables this adaptor deals with in a row
 };
 
 /******************************************************************************************/

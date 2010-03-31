@@ -84,7 +84,6 @@
 namespace Gem {
 namespace Util {
 
-// const double rnr_max = static_cast<double>(std::numeric_limits<boost::uint32_t>::max());
 const double rnr_max = static_cast<double>(std::numeric_limits<boost::int32_t>::max()); // The return type of boost::rand48
 
 /****************************************************************************/

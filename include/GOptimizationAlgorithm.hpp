@@ -226,9 +226,9 @@ public:
 	 * type and returns it. In DEBUG mode, the function will check whether the
 	 * requested position exists.
 	 *
-	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
-	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
-	 * we do not need to check convertability using dynamic_cast<>.
+	 * Note that this function will only be accessible to the compiler if individual_type
+	 * is a derivative of GIndividual, thanks to the magic of Boost's enable_if and Type
+	 * Traits libraries.
 	 *
 	 * @param pos The position in our data array that shall be converted
 	 * @return A converted version of the GIndividual object, as required by the user
@@ -245,10 +245,18 @@ public:
 				  << "Tried to access position " << pos << " which is >= array size " << data.size() << std::endl;
 			throw(Gem::GenEvA::geneva_error_condition(error.str()));
 		}
-#endif /* DEBUG */
 
+		boost::shared_ptr<individual_type> p = boost::dynamic_pointer_cast<individual_type>(data[pos]);
+
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In GOptimizationAlgorithm::individual_cast<>() : Conversion error" << std::endl;
+			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		}
+#else
 		return boost::static_pointer_cast<individual_type>(data[pos]);
-
+#endif /* DEBUG */
 	}
 
 	/**********************************************************************/
