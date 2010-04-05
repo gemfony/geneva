@@ -320,6 +320,9 @@ protected:
 	/** @brief Allows derived classes to perform any remaining work after the optimization cycle has finished */
 	virtual void finalize();
 
+	/** @brief Resizes the population to the desired level and does some error checks */
+	virtual void adjustPopulation() = 0;
+
 	/***********************************************************************************/
     /**
      * A random number generator. Note that the actual calculation is possibly
@@ -346,9 +349,6 @@ private:
 	void markBestFitness();
 	/** @brief Marks the number of stalled optimization attempts in all individuals */
 	void markNStalls();
-
-	/** @brief Resizes the population to the desired level and does some error checks */
-	void adjustPopulation();
 
 	boost::uint32_t iteration_; ///< The current iteration
 	boost::uint32_t maxIteration_; ///< The maximum number of iterations

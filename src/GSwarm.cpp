@@ -41,45 +41,76 @@ namespace GenEvA {
 
 /************************************************************************************************************/
 /**
- * The default constructor, As we do not have any individuals yet, we set the population
- * size, and number of parents to 0. It is the philosophy of this class not
- * to provide constructors for each and every use case. Instead, you should set
- * vital parameters, such as the population size or the parent individuals by hand.
+ * The default constructor sets the number of neighborhoods and the number of individuals in them
+ *
+ * @param nNeighborhoods The desired number of neighborhoods (hardwired to >= 1)
+ * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 1)
  */
-GSwarm::GSwarm()
+GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
 	: GOptimizationAlgorithm()
 	, infoFunction_(&GSwarm::simpleInfoFunction)
+	, nNeighborhoods_((nNeighborhoods==0)?1:nNeighborhoods)
+	, defaultNNeighborhoodMembers_((nNeighborhoodMembers==0)?1:nNeighborhoodMembers)
+	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
+	, local_bests_(new boost::shared_ptr<GIndividual>[nNeighborhoods_])
 {
-	setPopulationSize(DEFAULTNNEIGHBORHOODS, DEFAULTNNEIGHBORHOODMEMBERS);
+	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+
+	// Initialize with the default number
+	for(std::size_t i=0; i<nNeighborhoods_; i++) nNeighborhoodMembers_[i] = defaultNNeighborhoodMembers_;
 }
 
 /************************************************************************************************************/
 /**
- * A standard copy constructor. Note that the generation number is reset to 0 and
- * is not copied from the other object. We assume that a new optimization run will
- * be started.
+ * A standard copy constructor.
  *
  * @param cp Another GSwarm object
  */
 GSwarm::GSwarm(const GSwarm& cp)
 	: GOptimizationAlgorithm(cp)
 	, infoFunction_(&GSwarm::simpleInfoFunction) // Note that we do not copy the info function
+	, nNeighborhoods_(cp.nNeighborhoods_)
+	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
+	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
+	, global_best_((cp.getIteration()>0)?(cp.global_best_)->clone<GIndividual>():boost::shared_ptr<GIndividual>())
+	, local_bests_(new boost::shared_ptr<GIndividual>[nNeighborhoods_])
 {
-	setPopulationSize(cp.nNeighborhoods_, cp.nNeighborhoodMembers_);
+	// Copy the current number of individuals in each neighborhood over
+	std::size_t nCPIndividuals = 0;
+	for(std::size_t i=0; i<nNeighborhoods_; i++) {
+		nNeighborhoodMembers_[i] = cp.nNeighborhoodMembers_[i];
 
-	global_best_ = (cp.global_best_)->clone<GIndividual>();
-	std::vector<boost::shared_ptr<GIndividual> >::const_iterator cit;
-	for(cit=cp.local_bests_.begin(); cit!=cp.local_bests_.end(); ++cit) {
-		local_bests_.push_back((*cit)->clone<GIndividual>());
+		// Calculate the total number of individuals that should be present
+		nCPIndividuals += nNeighborhoodMembers_[i];
+	}
+
+#ifdef DEBUG
+	if(nCPIndividuals != cp.size()) {
+		std::ostringstream error;
+		error << "In GSwarm::GSwarm(const GSwarm& cp): Error!" << std::endl
+			  << "Number of individuals in cp " << cp.size() << "differs from expected number " << nCPIndividuals << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+
+	// Note that this setting might differ from nCPIndividuals. adjustPopulation will take
+	// care to resize the population appropriately.
+	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+
+	// Copy the locally best individuals over
+	for(std::size_t i=0; i<nNeighborhoods_; i++) {
+		local_bests_[i] = cp.local_bests_[i]->clone<GIndividual>();
 	}
 }
 
 /************************************************************************************************************/
 /**
- * The standard destructor. All work is done in the parent class.
+ * The standard destructor. Most work is done in the parent class.
  */
-GSwarm::~GSwarm()
-{ /* nothing */ }
+GSwarm::~GSwarm() {
+	if(nNeighborhoodMembers_) delete [] nNeighborhoodMembers_;
+	if(local_bests_) delete [] local_bests_;
+}
 
 /************************************************************************************************************/
 /**
@@ -325,6 +356,46 @@ double GSwarm::cycleLogic() {
 
 	// Search for the locally and globally best individuals in all neighborhoods and
 	// update the list of locally best solutions, if necessary
+	return findBests();
+}
+
+/************************************************************************************************************/
+/**
+ * Modifies the particle positions, then triggers fitness calculation for all individuals. This function can
+ * be overloaded by derived classes so the fitness calculation can be performed in parallel.
+ */
+void GSwarm::updatePositionsAndFitness() {
+	std::size_t offset = 0;
+	GSwarm::iterator start = this->begin();
+	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+		for(std::size_t member=0; member<nNeighborhoodMembers_; member++) {
+			offset = neighborhood*nNeighborhoodMembers_ + member;
+
+			// Update the swarm positions. Note that this only makes sense
+			// once the first series of evaluations has been done and local as well
+			// as global bests are known
+			if(getIteration() > 0) {
+				// Add the local and global best to each individual
+				(*(start + offset))->getSwarmPersonalityTraits()->registerLocalBest(local_bests_[neighborhood]);
+				(*(start + offset))->getSwarmPersonalityTraits()->registerGlobalBest(global_best_);
+
+				// Make sure the individual's parameters are updated
+				(*(start + offset))->getSwarmPersonalityTraits()->updateParameters();
+			}
+
+			// Trigger the actual fitness calculation
+			(*(start + offset))->fitness();
+		}
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Updates the best individuals found
+ *
+ * @return The best evaluation found in this iteration
+ */
+double GSwarm::findBests() {
 	double bestFitnessInThisIterations = getWorstCase();
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 		boost::shared_ptr<GIndividual> neighborhoodBest = *(this->begin() + (neighborhood*nNeighborhoodMembers_));
@@ -377,41 +448,22 @@ double GSwarm::cycleLogic() {
 
 /************************************************************************************************************/
 /**
- * Modifies the particle positions, then triggers fitness calculation for all individuals. This function can
- * be overloaded by derived classes so the fitness calculation can be performed in parallel.
- */
-void GSwarm::updatePositionsAndFitness() {
-	std::size_t offset = 0;
-	GSwarm::iterator start = this->begin();
-	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
-		for(std::size_t member=0; member<nNeighborhoodMembers_; member++) {
-			offset = neighborhood*nNeighborhoods_ + member;
-
-			// Update the swarm positions. Note that this only makes sense
-			// once the first series of evaluations has been done and local as well
-			// as global bests are known
-			if(getIteration() > 0) {
-				// Add the local and global best to each individual
-				(*(start + offset))->getSwarmPersonalityTraits()->registerLocalBest(local_bests_[neighborhood]);
-				(*(start + offset))->getSwarmPersonalityTraits()->registerGlobalBest(global_best_);
-
-				// Make sure the individual's parameters are updated
-				(*(start + offset))->getSwarmPersonalityTraits()->updateParameters();
-			}
-
-			// Trigger the actual fitness calculation
-			(*(start + offset))->fitness();
-		}
-	}
-}
-
-/************************************************************************************************************/
-/**
  * Does any necessary finalization work
  */
 void GSwarm::finalize() {
 	// Last action
 	GOptimizationAlgorithm::finalize();
+}
+
+/************************************************************************************************************/
+/**
+ * Resizes the population to the desired level and does some error checks. This is an overloaded version
+ * from GOptimizationAlgorithm::adjustPopulation() which is needed to take into account varying number of
+ * individuals in each neighborhood. E.g., it will remove the worst individuals in each neighborhood instead
+ * of just removing individuals at the end, in case of surplus items.
+ */
+void GSwarm::adjustPopulation() {
+
 }
 
 /************************************************************************************************************/
@@ -490,7 +542,7 @@ void GSwarm::setPopulationSize(const std::size_t& nNeighborhoods, const std::siz
 	nNeighborhoods_ = nNeighborhoods;
 	nNeighborhoodMembers_ = nNeighborhoodMembers;
 
-	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*nNeighborhoodMembers_);
+
 }
 
 /************************************************************************************************************/
@@ -505,12 +557,22 @@ std::size_t GSwarm::getNNeighborhoods() const {
 
 /************************************************************************************************************/
 /**
- * Retrieves the number of individuals in each neighborhood
+ * Retrieves the default number of individuals in each neighborhood
  *
- * @return The number of individuals in each neighborhood
+ * @return The default number of individuals in each neighborhood
  */
-std::size_t GSwarm::getNNeighborhoodMembers() const {
-	return nNeighborhoodMembers_;
+std::size_t GSwarm::getDefaultNNeighborhoodMembers() const {
+	return defaultNNeighborhoodMembers_;
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the current number of individuals in a given neighborhood
+ *
+ * @return The current number of individuals in a given neighborhood
+ */
+std::size_t getCurrentNNeighborhoodMembers(const std::size_t& neighborhood) const {
+
 }
 
 /************************************************************************************************************/

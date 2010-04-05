@@ -309,60 +309,6 @@ void GOptimizationAlgorithm::optimize(const boost::uint32_t& startIteration) {
 
 /************************************************************************************************************/
 /**
- * The function checks that the population size meets the requirements and resizes the
- * population to the appropriate size, if required. An obvious precondition is that at
- * least one individual has been added to the population. Individuals that have already
- * been added will not be replaced. This function is called once before the optimization
- * cycle.
- */
-void GOptimizationAlgorithm::adjustPopulation() {
-	// Has the population size been set at all ?
-	if(defaultPopulationSize_ == 0) {
-		std::ostringstream error;
-		error << "In GOptimizationAlgorithm::adjustPopulation() : Error!" << std::endl
-			  << "The population size is 0." << std::endl
-			  << "Did you call GOptimizationAlgorithm::setPopulationSize() ?" << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
-	}
-
-	// Check how many individuals have been added already. At least one is required.
-	std::size_t this_sz = data.size();
-	if(this_sz == 0) {
-		std::ostringstream error;
-		error << "In GOptimizationAlgorithm::adjustPopulation() : Error!" << std::endl
-			  << "size of population is 0. Did you add any individuals?" << std::endl
-			  << "We need at least one local individual" << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
-	}
-
-	// Do the smart pointers actually point to any objects ?
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it) {
-		if(!(*it)) { // shared_ptr can be implicitly converted to bool
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithm::adjustPopulation() : Error!" << std::endl
-				  << "Found empty smart pointer." << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
-		}
-	}
-
-	// Fill up as required. We are now sure we have a suitable number of individuals to do so
-	if(this_sz < defaultPopulationSize_) {
-		this->resize_clone(defaultPopulationSize_, data[0]);
-	}
-}
-
-/************************************************************************************************************/
-/**
  * Emits information specific to this class. The function can be overloaded
  * in derived classes and it indeed makes sense to emit much more information
  * than is done in this simple implementation.

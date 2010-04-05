@@ -109,7 +109,7 @@ class GSwarm
 
 public:
 	/** @brief The default constructor */
-	GSwarm();
+	GSwarm(const std::size_t&, const std::size_t&);
 	/** @brief A standard copy constructor */
 	GSwarm(const GSwarm&);
 	/** @brief The destructor */
@@ -148,12 +148,12 @@ public:
 	/** @brief Sets the delta multiplier to a random value separately for each individual */
 	void setCDelta(const double&, const double&);
 
-	/** @brief Sets the population size based on the number of neighborhoods and the number of individuals in them */
-	void setPopulationSize(const std::size_t&, const std::size_t&);
 	/** @brief Retrieves the number of neighborhoods */
 	std::size_t getNNeighborhoods() const;
-	/** @brief Retrieves the number of individuals in each neighborhood */
-	std::size_t getNNeighborhoodMembers() const;
+	/** @brief Retrieves the default number of individuals in each neighborhood */
+	std::size_t getDefaultNNeighborhoodMembers() const;
+	/** @brief Retrieves the current number of individuals in a given neighborhood */
+	std::size_t getCurrentNNeighborhoodMembers(const std::size_t&) const;
 
 	/**************************************************************************************************/
 	/**
@@ -251,24 +251,33 @@ protected:
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
 
+	/** @brief Resizes the population to the desired level and does some error checks */
+	virtual void adjustPopulation();
+
 	/** @brief Saves the state of the class to disc. */
 	virtual void saveCheckpoint() const;
 
 	/** @brief Updates the fitness of all individuals */
 	virtual void updatePositionsAndFitness();
+	/** @brief Updates the best individuals found */
+	double findBests();
 
 	/**************************************************************************************************/
 private:
-	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
+	/** @brief The default constructor. Intentionally private and undefined */
+	GSwarm();
 
 	/** @brief Helper function that initializes the personality information */
 	void initPersonalities();
 
+	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
+
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
-	std::size_t nNeighborhoodMembers_; ///< The number of individuals belonging to each neighborhood
+	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
+	std::size_t *nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
 
 	boost::shared_ptr<GIndividual> global_best_; ///< The globally best individual
-	std::vector<boost::shared_ptr<GIndividual> > local_bests_; ///< The collection of best individuals from each neighborhood
+	boost::shared_ptr<GIndividual> *local_bests_; ///< The collection of best individuals from each neighborhood
 };
 
 /******************************************************************************************************/

@@ -87,7 +87,7 @@ class GSwarmPersonalityTraits :public GPersonalityTraits
 	  using boost::serialization::make_nvp;
 
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-	     & BOOST_SERIALIZATION_NVP(popPos_)
+	     & BOOST_SERIALIZATION_NVP(neighborhood_)
 	     & BOOST_SERIALIZATION_NVP(command_)
 	     & BOOST_SERIALIZATION_NVP(c_local_)
 	     & BOOST_SERIALIZATION_NVP(c_local_range_)
@@ -119,10 +119,10 @@ public:
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const;
 
-	/** @brief Sets the position of the individual in the population */
-	void setPopulationPosition(const std::size_t&) ;
-	/** @brief Retrieves the position of the individual in the population */
-	std::size_t getPopulationPosition(void) const;
+	/** @brief Specifies in which neighborhood the individual is at present */
+	void setNeighborhood(const std::size_t&) ;
+	/** @brief Retrieves the id of the neighborhood the individual is in at present */
+	std::size_t getNeighborhood(void) const;
 
 	/** @brief Allows to set a static multiplier for local distances */
 	void setCLocal(const double&);
@@ -177,7 +177,7 @@ protected:
 
 private:
 	/** @brief Stores the current position in the population */
-	std::size_t popPos_;
+	std::size_t neighborhood_;
 	/** @brief The command to be performed by remote clients */
 	std::string command_;
 

@@ -295,6 +295,9 @@ protected:
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
 
+	/** @brief Resizes the population to the desired level and does some error checks */
+	virtual void adjustPopulation();
+
 private:
 	/** @brief Enforces a one-time selection policy of MUCOMMANU */
 	void setOneTimeMuCommaNu();

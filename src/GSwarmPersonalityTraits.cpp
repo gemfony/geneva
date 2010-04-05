@@ -43,7 +43,7 @@ namespace GenEvA {
  */
 GSwarmPersonalityTraits::GSwarmPersonalityTraits()
 	: GPersonalityTraits()
-	, popPos_(0)
+	, neighborhood_(0)
 	, command_("")
 	, c_local_(DEFAULTCLOCAL)
 	, c_local_range_(-1.)
@@ -61,7 +61,7 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
  */
 GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits& cp)
 	: GPersonalityTraits(cp)
-	, popPos_(cp.popPos_)
+	, neighborhood_(cp.neighborhood_)
 	, command_(cp.command_)
 	, c_local_(cp.c_local_)
 	, c_local_range_(cp.c_local_range_)
@@ -137,7 +137,7 @@ boost::optional<std::string> GSwarmPersonalityTraits::checkRelationshipWith(cons
 	deviations.push_back(GPersonalityTraits::checkRelationshipWith(cp, e, limit, "GSwarmPersonalityTraits", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", popPos_, p_load->popPos_, "popPos_", "p_load->popPos_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", neighborhood_, p_load->neighborhood_, "neighborhood_", "p_load->neighborhood_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", command_, p_load->command_, "command_", "p_load->command_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_local_, p_load->c_local_, "c_local_", "p_load->c_local_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_local_range_, p_load->c_local_range_, "c_local_range_", "p_load->c_local_range_", e , limit));
@@ -304,7 +304,7 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 	GObject::load_(cp);
 
 	// and then the local data
-	popPos_ = p_load->popPos_;
+	neighborhood_ = p_load->neighborhood_;
 	command_ = p_load->command_;
 	c_local_ = p_load->c_local_;
 	c_local_range_ = p_load->c_local_range_;
@@ -316,14 +316,12 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 
 /*****************************************************************************/
 /**
- * Sets the position of the individual in the population. This is needed so an
- * individual can be re-assigned to the same neighborhood upon return from a
- * network trip. Individuals do not change positions in swarm algorithms.
+ * Specifies in which of the populations neighborhood the individual lives
  *
- * @param popPos The new position of this individual in the population
+ * @param neighborhood The current neighborhood of this individual
  */
-void GSwarmPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
-	popPos_ = popPos;
+void GSwarmPersonalityTraits::setNeighborhood(const std::size_t& neighborhood) {
+	neighborhood_ = neighborhood;
 }
 
 /*****************************************************************************/
@@ -332,8 +330,8 @@ void GSwarmPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
  *
  * @return The current position of this individual in the population
  */
-std::size_t GSwarmPersonalityTraits::getPopulationPosition(void) const {
-	return popPos_;
+std::size_t GSwarmPersonalityTraits::getNeighborhood(void) const {
+	return neighborhood_;
 }
 
 /*****************************************************************************/
