@@ -45,6 +45,12 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
 	: GPersonalityTraits()
 	, popPos_(0)
 	, command_("")
+	, c_local_(DEFAULTCLOCAL)
+	, c_local_range_(-1.)
+	, c_global_(DEFAULTCGLOBAL)
+	, c_global_range_(-1.)
+	, c_delta_(DEFAULTCDELTA)
+	, c_delta_range_(-1.)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -57,6 +63,12 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits& 
 	: GPersonalityTraits(cp)
 	, popPos_(cp.popPos_)
 	, command_(cp.command_)
+	, c_local_(cp.c_local_)
+	, c_local_range_(cp.c_local_range_)
+	, c_global_(cp.c_global_)
+	, c_global_range_(cp.c_global_range_)
+	, c_delta_(cp.c_delta_)
+	, c_delta_range_(cp.c_delta_range_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -127,8 +139,146 @@ boost::optional<std::string> GSwarmPersonalityTraits::checkRelationshipWith(cons
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", popPos_, p_load->popPos_, "popPos_", "p_load->popPos_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", command_, p_load->command_, "command_", "p_load->command_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_local_, p_load->c_local_, "c_local_", "p_load->c_local_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_local_range_, p_load->c_local_range_, "c_local_range_", "p_load->c_local_range_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_global_range_, p_load->c_global_range_, "c_global_range_", "p_load->c_global_range_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_delta_, p_load->c_delta_, "c_delta_", "p_load->c_delta_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_delta_range_, p_load->c_delta_range_, "c_delta_range_", "p_load->c_delta_range_", e , limit));
 
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
+}
+
+/*****************************************************************************/
+/**
+ * Allows to set a static multiplier for local distances.
+ */
+void GSwarmPersonalityTraits::setCLocal(const double& c_local) {
+	c_local_range_ = CLOCALRANGEDISABLED;
+	c_local_ = c_local;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to set the lower and upper boundary for random multiplier range for local distances
+ */
+void GSwarmPersonalityTraits::setCLocal(const double& cl_lower, const double& cl_upper) {
+	c_local_ = cl_lower;
+
+#ifdef DEBUG
+	if(cl_upper <= cl_lower) {
+		std::ostringstream error;
+		error << "In GSwarmPersonalityTraits::setCLocal(const double&, const double&): Error!" << std::endl
+			  << "cl_upper = " << cl_upper << " is <= cl_lower = " << cl_lower << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+#endif
+
+	c_local_range_ = cl_upper - cl_lower;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to retrieve the static multiplier for local distances or the lower boundary of a random range
+ */
+double GSwarmPersonalityTraits::getCLocal() const {
+	return c_local_;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to retrieve the random multiplier range for local distances (-1 if unset)
+ */
+double GSwarmPersonalityTraits::getCLocalRange() const {
+	return c_local_range_;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to set a static multiplier for global distances
+ */
+void GSwarmPersonalityTraits::setCGlobal(const double& c_global) {
+	c_global_range_ = CGLOBALRANGEDISABLED;
+	c_global_ = c_global;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to set the lower and upper boundary for random multiplier range for global distances
+ */
+void GSwarmPersonalityTraits::setCGlobal(const double& cg_lower, const double& cg_upper) {
+	c_global_ = cg_lower;
+
+#ifdef DEBUG
+	if(cg_upper <= cg_lower) {
+		std::ostringstream error;
+		error << "In GSwarmPersonalityTraits::setCGlobal(const double&, const double&): Error!" << std::endl
+			  << "cg_upper = " << cg_upper << " which is <= cg_lower = " << cg_lower << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+#endif
+
+	c_global_range_ = cg_upper - cg_lower;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to retrieve the static multiplier for local distances or the lower boundary of a random range
+ */
+double GSwarmPersonalityTraits::getCGlobal() const {
+	return c_global_;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to retrieve the random multiplier range for local distances (-1 if unset)
+ */
+double GSwarmPersonalityTraits::getCGlobalRange() const {
+	return c_global_range_;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to set a static multiplier for deltas
+ */
+void GSwarmPersonalityTraits::setCDelta(const double& c_delta) {
+	c_delta_range_ = CDELTARANGEDISABLED;
+	c_delta_ = c_delta;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to set the lower and upper boundary for random multiplier range for deltas
+ */
+void GSwarmPersonalityTraits::setCDelta(const double& cd_lower, const double& cd_upper) {
+	c_delta_ = cd_lower;
+
+#ifdef DEBUG
+	if(cd_upper <= cd_lower) {
+		std::ostringstream error;
+		error << "In GSwarmPersonalityTraits::setCGlobal(const double&, const double&): Error!" << std::endl
+			  << "cd_upper = " << cd_upper << " which is <= cd_lower = " << cd_lower << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+#endif
+
+	c_delta_range_ = cd_upper - cd_lower;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to retrieve the static multiplier for deltas or the lower boundary of a random range
+ */
+double GSwarmPersonalityTraits::getCDelta() const {
+	return c_delta_;
+}
+
+/*****************************************************************************/
+/**
+ * Allows to retrieve the random multiplier range for deltas (-1 if unset)
+ */
+double GSwarmPersonalityTraits::getCDeltaRange() const {
+	return c_delta_range_;
 }
 
 /*****************************************************************************/
@@ -156,6 +306,12 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 	// and then the local data
 	popPos_ = p_load->popPos_;
 	command_ = p_load->command_;
+	c_local_ = p_load->c_local_;
+	c_local_range_ = p_load->c_local_range_;
+	c_global_ = p_load->c_global_;
+	c_global_range_ = p_load->c_global_range_;
+	c_delta_ = p_load->c_delta_;
+	c_delta_range_ = p_load->c_delta_range_;
 }
 
 /*****************************************************************************/
@@ -204,6 +360,22 @@ void GSwarmPersonalityTraits::setCommand(const std::string& command) {
  */
 std::string GSwarmPersonalityTraits::getCommand() const {
 	return command_;
+}
+
+/*****************************************************************************/
+/**
+ * Makes the globally best individual known to this object
+ */
+void GSwarmPersonalityTraits::registerGlobalBest(boost::shared_ptr<Gem::GenEvA::GIndividual> gb_cp) {
+	global_best_ = gb_cp;
+}
+
+/*****************************************************************************/
+/**
+ * Makes the locally best individual known to this object
+ */
+void GSwarmPersonalityTraits::registerLocalBest(boost::shared_ptr<Gem::GenEvA::GIndividual> lb_cp) {
+	local_best_ = lb_cp;
 }
 
 /*****************************************************************************/

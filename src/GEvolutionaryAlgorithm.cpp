@@ -73,7 +73,7 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 	, smode_(cp.smode_)
 	, defaultNChildren_(cp.defaultNChildren_)
 	, oneTimeMuCommaNu_(cp.oneTimeMuCommaNu_)
-	, infoFunction_(cp.infoFunction_)
+	, infoFunction_(&GEvolutionaryAlgorithm::simpleInfoFunction) // Note that we do not copy the info function
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -115,7 +115,8 @@ void GEvolutionaryAlgorithm::load_(const GObject * cp)
 	smode_ = p_load->smode_;
 	defaultNChildren_ = p_load->defaultNChildren_;
 	oneTimeMuCommaNu_=p_load->oneTimeMuCommaNu_;
-	infoFunction_ = p_load->infoFunction_;
+
+	// Note that we do not copy the info function
 }
 
 /************************************************************************************************************/
@@ -267,16 +268,36 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	std::ofstream checkpointStream(outputFile.c_str());
 	if(!checkpointStream) {
 		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::saveCheckpoint(const std::string&)" << std::endl
+		error << "In GEvolutionaryAlgorithm::saveCheckpoint()" << std::endl
 			  << "Error: Could not open output file";
 		throw geneva_error_condition(error.str());
 	}
 
-	// Write the individuals' data to disc in binary mode
-	{
-		boost::archive::binary_oarchive oa(checkpointStream);
-		oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
-	} // note: explicit scope here is essential so the oa-destructor gets called
+	switch(getCheckpointSerializationMode()) {
+	case Gem::GenEvA::TEXTSERIALIZATION:
+		// Write the individuals' data to disc in text mode
+		{
+			boost::archive::text_oarchive oa(checkpointStream);
+			oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+		} // note: explicit scope here is essential so the oa-destructor gets called
+		break;
+
+	case Gem::GenEvA::XMLSERIALIZATION:
+		// Write the individuals' data to disc in XML mode
+		{
+			boost::archive::xml_oarchive oa(checkpointStream);
+			oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+		} // note: explicit scope here is essential so the oa-destructor gets called
+		break;
+
+	case Gem::GenEvA::BINARYSERIALIZATION:
+		// Write the individuals' data to disc in binary mode
+		{
+			boost::archive::binary_oarchive oa(checkpointStream);
+			oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+		} // note: explicit scope here is essential so the oa-destructor gets called
+		break;
+	}
 
 	// Make sure the stream is closed again
 	checkpointStream.close();
@@ -309,11 +330,31 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 		throw geneva_error_condition(error.str());
 	}
 
-	// Load the data from disc in binary mode
-	{
-		boost::archive::binary_iarchive ia(checkpointStream);
-	    ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
-	} // note: explicit scope here is essential so the ia-destructor gets called
+	switch(getCheckpointSerializationMode()) {
+	case Gem::GenEvA::TEXTSERIALIZATION:
+		// Load the data from disc in text mode
+		{
+			boost::archive::text_iarchive ia(checkpointStream);
+		    ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+		} // note: explicit scope here is essential so the ia-destructor gets called
+		break;
+
+	case Gem::GenEvA::XMLSERIALIZATION:
+		// Load the data from disc in xml mode
+		{
+			boost::archive::xml_iarchive ia(checkpointStream);
+		    ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+		} // note: explicit scope here is essential so the ia-destructor gets called
+		break;
+
+	case Gem::GenEvA::BINARYSERIALIZATION:
+		// Load the data from disc in binary mode
+		{
+			boost::archive::binary_iarchive ia(checkpointStream);
+		    ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
+		} // note: explicit scope here is essential so the ia-destructor gets called
+		break;
+	}
 
 	// Make sure the stream is closed again
 	checkpointStream.close();

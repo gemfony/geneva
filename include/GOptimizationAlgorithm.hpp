@@ -85,6 +85,12 @@ const std::string DEFAULTCPDIR = "./";
 
 /******************************************************************************************/
 /**
+ * The default serialization mode used for checkpointing
+ */
+const serializationMode DEFAULTCPSERMODE = Gem::GenEvA::BINARYSERIALIZATION;
+
+/******************************************************************************************/
+/**
  * This class implements basic operations found in iteration-based optimization algorithms.
  * E.g., one might want to stop the optimization after a given number of cycles, or after
  * a given amount of time. The class also defines the interface functions found in these
@@ -112,6 +118,7 @@ class GOptimizationAlgorithm
   	     & BOOST_SERIALIZATION_NVP(cpInterval_)
 	     & BOOST_SERIALIZATION_NVP(cpBaseName_)
 	     & BOOST_SERIALIZATION_NVP(cpDirectory_)
+	     & BOOST_SERIALIZATION_NVP(cpSerMode_)
 	     & BOOST_SERIALIZATION_NVP(qualityThreshold_)
 	     & BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
 	     & BOOST_SERIALIZATION_NVP(maxDuration_)
@@ -146,6 +153,11 @@ public:
 	std::string getCheckpointBaseName() const;
 	/** @brief Allows to retrieve the directory where checkpoint files should be stored */
 	std::string getCheckpointDirectory() const;
+
+	/** @brief Determines whether checkpointing should be done in Text-, XML- or Binary-mode */
+	void setCheckpointSerializationMode(const serializationMode&);
+	/** @brief Retrieves the current checkpointing serialization mode */
+	serializationMode getCheckpointSerializationMode() const;
 
 	/** @brief Checks for equality with another GOptimizationAlgorithm object */
 	bool operator==(const GOptimizationAlgorithm&) const;
@@ -347,6 +359,7 @@ private:
 	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file
 	std::string cpDirectory_; ///< The directory where checkpoint files should be stored
+	serializationMode cpSerMode_; ///< Determines whether checkpointing should be done in text-, XML, or binary mode
 	double qualityThreshold_; ///< A threshold beyond which optimization is expected to stop
 	bool hasQualityThreshold_; ///< Specifies whether a qualityThreshold has been set
 	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization

@@ -85,6 +85,9 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
 /**
  * The GSwarm class implements a swarm optimization algorithm, based on the infrastructure
  * provided by the GOptimizationAlgorithm class.
+ *
+ * TODO: Check getBestFitness Implementation for this object and GEA objects
+ * TODO: registerInfoFunction in die Basisklasse, mit protected boost::function Objekt
  */
 class GSwarm
 	:public GOptimizationAlgorithm
@@ -140,17 +143,10 @@ public:
 	void setCGlobal(const double&);
 	/** @brief Sets the global multiplier of each individual randomly within a given range */
 	void setCGlobal(const double&, const double&);
-	/** @brief Sets the velocity multiplier to a fixed value for each individual */
-	void setCVelocity(const double&);
-	/** @brief Sets the velocity multiplier to a random value separately for each individual */
-	void setCVelocity(const double&, const double&);
-
-	/** @brief Retrieves the local multiplier */
-	double getCLocal() const;
-	/** @brief Retrieves the global multiplier */
-	double getCGlobal() const;
-	/** @brief Retrieves the velocity multiplier */
-	double getCVelocity() const;
+	/** @brief Sets the delta multiplier to a fixed value for each individual */
+	void setCDelta(const double&);
+	/** @brief Sets the delta multiplier to a random value separately for each individual */
+	void setCDelta(const double&, const double&);
 
 	/** @brief Sets the population size based on the number of neighborhoods and the number of individuals in them */
 	void setPopulationSize(const std::size_t&, const std::size_t&);

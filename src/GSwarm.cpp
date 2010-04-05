@@ -63,14 +63,14 @@ GSwarm::GSwarm()
  */
 GSwarm::GSwarm(const GSwarm& cp)
 	: GOptimizationAlgorithm(cp)
-	, infoFunction_(cp.infoFunction_)
+	, infoFunction_(&GSwarm::simpleInfoFunction) // Note that we do not copy the info function
 {
 	setPopulationSize(cp.nNeighborhoods_, cp.nNeighborhoodMembers_);
 
 	global_best_ = (cp.global_best_)->clone<GIndividual>();
 	std::vector<boost::shared_ptr<GIndividual> >::const_iterator cit;
 	for(cit=cp.local_bests_.begin(); cit!=cp.local_bests_.end(); ++cit) {
-		local_bests_.push_back(cit->clone<GIndividual>());
+		local_bests_.push_back((*cit)->clone<GIndividual>());
 	}
 }
 
@@ -107,13 +107,23 @@ void GSwarm::load_(const GObject * cp)
 	GOptimizationAlgorithm::load_(cp);
 
 	// ... and then our own data
-	infoFunction_ = p_load->infoFunction_;
-
 	nNeighborhoods_ = p_load->nNeighborhoods_;
 	nNeighborhoodMembers_ = p_load->nNeighborhoodMembers_;
 
+#ifdef DEBUG
+	if(this->size() != nNeighborhoods_*nNeighborhoodMembers_) {
+		std::ostringstream error;
+		error << "In GSwarm::load_(): Error!" << std::endl
+			  << "nNeighborhoods_*nNeighborhoodMembers_ = " << nNeighborhoods_ << "*" << nNeighborhoodMembers_ << " = " << nNeighborhoods_*nNeighborhoodMembers_ << std::endl
+			  << "is not the same as the population size " << this->size() << std::endl;
+		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+
 	global_best_->GObject::load(p_load->global_best_);
 	copySmartPointerVector(p_load->local_bests_, local_bests_);
+
+	// Note that we do not copy the info function
 }
 
 /************************************************************************************************************/
@@ -198,30 +208,53 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
  * Sets the individual's personality types to EA
  */
 void GSwarm::setIndividualPersonalities() {
-	GSwarm::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) (*it)->setPersonality(SWARM);
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it)
+		(*it)->setPersonality(SWARM);
 }
 
 /************************************************************************************************************/
 /**
  * Saves the state of the class to disc. The function adds the current generation
- * and the fitness to the base name. We do not save the entire population, but only
- * the best individuals, as these contain the "real" information. Note that no real
- * copying of the individual's data takes place here, as we are dealing with
- * boost::shared_ptr objects.
+ * and the fitness to the base name. The entire object is saved.
  */
 void GSwarm::saveCheckpoint() const {
-	/* nothing */
+#ifdef DEBUG
+	// Check that the global best has been initialized
+	if(!global_best_) {
+		std::ostringstream error;
+		error << "In GSwarm::saveCheckpoint(): Error!" << std::endl
+			  << "global_best_ has not yet been initialized!" << std::endl;
+		throw geneva_error_condition(error.str());
+	}
+#endif /* DEBUG */
+
+	bool isDirty;
+	double newValue = global_best_->getCurrentFitness(isDirty);
+
+#ifdef DEBUG
+	if(isDirty) {
+		std::ostringstream error;
+		error << "In GSwarm::saveCheckpoint(): Error!" << std::endl
+			  << "global_best_ is dirty!" << std::endl;
+		throw geneva_error_condition(error.str());
+	}
+#endif
+
+	// Determine a suitable name for the output file
+	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(getIteration()) + "_"
+		+ boost::lexical_cast<std::string>(newValue) + "_" + getCheckpointBaseName();
+
+	toFile(outputFile, getCheckpointSerializationMode());
 }
 
 /************************************************************************************************************/
 /**
- * Loads the state of the class from disc. We do not load the entire population,
- * but only the best individuals of a former optimization run, as these contain the
- * "real" information.
+ * Loads the state of the object from disc.
+ *
+ * @param cpFile The name of the file the checkpoint should be loaded from
  */
 void GSwarm::loadCheckpoint(const std::string& cpFile) {
-	/* nothing */
+	fromFile(cpFile, getCheckpointSerializationMode());
 }
 
 /************************************************************************************************************/
@@ -251,22 +284,24 @@ void GSwarm::registerInfoFunction(boost::function<void (const infoMode&, GSwarm 
 
 /************************************************************************************************************/
 /**
- * This function implements the logic that constitutes evolutionary algorithms. The
- * function is called by GOptimizationAlgorithm for each cycle of the optimization,
+ * This function implements the logic that constitutes a swarm algorithm. The
+ * function is called by GOptimizationAlgorithm for each iteration of the optimization,
  *
  * @return The value of the best individual found
  */
 double GSwarm::cycleLogic() {
 	double bestFitness = 0.;
 	return bestFitness;
+
+
+	// yet not ready
 }
 
 
 /************************************************************************************************************/
 /**
- * The function checks that the population size meets the requirements and does some
- * tagging. It is called from within GOptimizationAlgorithm::optimize(), before the
- * actual optimization cycle starts.
+ * This function does some preparatory work and tagging required by swarm algorithms. It is called
+ * from within GOptimizationAlgorithm::optimize(), before the actual optimization cycle starts.
  */
 void GSwarm::init() {
 	// To be performed before any other action
@@ -290,18 +325,22 @@ void GSwarm::finalize() {
  * Sets the local multiplier used when calculating velocities to a fixed value
  * in all individuals. This function results in a fixed factor.
  *
- * @param c1 The multiplication factor for the difference between a local particle and and the local best
+ * @param cl The multiplication factor for the difference between a local particle and and the local best
  */
-void GSwarm::setCLocal(const double& c1) {
-
+void GSwarm::setCLocal(const double& cl) {
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+		(*it)->setCLocal(cl);
+	}
 }
 
 /************************************************************************************************************/
 /**
- * Sets the local multiplier of each individual randomly within a given range
+ * Sets the local multiplier of each individual randomly within a given range in each iteration
  */
-void GSwarm::setCLocal(const double&, const double&) {
-
+void GSwarm::setCLocal(const double& cl_lower, const double& cl_upper) {
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+		(*it)->setCLocal(cl_lower, cl_upper);
+	}
 }
 
 /************************************************************************************************************/
@@ -309,32 +348,40 @@ void GSwarm::setCLocal(const double&, const double&) {
  * Sets the global multiplier used when calculating velocities to a fixed value in
  * all individuals
  */
-void GSwarm::setCGlobal(const double&) {
-
+void GSwarm::setCGlobal(const double& cg) {
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+		(*it)->setCGlobal(cg);
+	}
 }
 
 /************************************************************************************************************/
 /**
- * Sets the global multiplier of each individual randomly within a given range
+ * Sets the global multiplier of each individual randomly within a given range in each iteration
  */
-void GSwarm::setCGlobal(const double&, const double&) {
-
+void GSwarm::setCGlobal(const double& cg_lower, const double& cg_upper) {
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+		(*it)->setCGlobal(cg_lower, cg_upper);
+	}
 }
 
 /************************************************************************************************************/
 /**
  * Sets the velocity multiplier to a fixed value for each individual
  */
-void GSwarm::setCVelocity(const double&) {
-
+void GSwarm::setCDelta(const double& cd) {
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+		(*it)->setCDelta(cd);
+	}
 }
 
 /************************************************************************************************************/
 /**
- * Sets the velocity multiplier to a random value separately for each individual
+ * Sets the velocity multiplier to a random value separately for each individual in each iteration
  */
-void GSwarm::setCVelocity(const double&, const double&) {
-
+void GSwarm::setCDelta(const double& cd_lower, const double& cd_upper) {
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
+		(*it)->setCDelta(cd_lower, cd_upper);
+	}
 }
 
 /************************************************************************************************************/
@@ -370,30 +417,6 @@ std::size_t GSwarm::getNNeighborhoods() const {
  */
 std::size_t GSwarm::getNNeighborhoodMembers() const {
 	return nNeighborhoodMembers_;
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the local multiplier
- */
-double GSwarm::getCLocal() const {
-
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the global multiplier
- */
-double GSwarm::getCGlobal() const {
-
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the velocity multiplier
- */
-double GSwarm::getCVelocity() const {
-
 }
 
 /************************************************************************************************************/

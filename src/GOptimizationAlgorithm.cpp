@@ -57,6 +57,7 @@ GOptimizationAlgorithm::GOptimizationAlgorithm()
 	 , cpInterval_(DEFAULTCHECKPOINTIT)
 	 , cpBaseName_(DEFAULTCPBASENAME)
 	 , cpDirectory_(DEFAULTCPDIR)
+	 , cpSerMode_(DEFAULTCPSERMODE)
 	 , qualityThreshold_(DEFAULTQUALITYTHRESHOLD)
 	 , hasQualityThreshold_(false)
 	 , maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
@@ -83,6 +84,7 @@ GOptimizationAlgorithm::GOptimizationAlgorithm(const GOptimizationAlgorithm& cp)
 	 , cpInterval_(cp.cpInterval_)
 	 , cpBaseName_(cp.cpBaseName_)
 	 , cpDirectory_(cp.cpDirectory_)
+	 , cpSerMode_(cp.cpSerMode_)
 	 , qualityThreshold_(cp.qualityThreshold_)
 	 , hasQualityThreshold_(cp.hasQualityThreshold_)
 	 , maxDuration_(cp.maxDuration_)
@@ -167,6 +169,7 @@ boost::optional<std::string> GOptimizationAlgorithm::checkRelationshipWith(const
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", cpInterval_, p_load->cpInterval_, "cpInterval_", "p_load->cpInterval_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", cpBaseName_, p_load->cpBaseName_, "cpBaseName_", "p_load->cpBaseName_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", cpDirectory_, p_load->cpDirectory_, "cpDirectory_", "p_load->cpDirectory_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", cpSerMode_, p_load->cpSerMode_, "cpSerMode_", "p_load->cpSerMode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", qualityThreshold_, p_load->qualityThreshold_, "qualityThreshold_", "p_load->qualityThreshold_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", hasQualityThreshold_, p_load->hasQualityThreshold_, "hasQualityThreshold_", "p_load->hasQualityThreshold_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", maxDuration_, p_load->maxDuration_, "maxDuration_", "p_load->maxDuration_", e , limit));
@@ -223,6 +226,7 @@ void GOptimizationAlgorithm::load_(const GObject* cp)
 	cpInterval_ = p_load->cpInterval_;
 	cpBaseName_ = p_load->cpBaseName_;
 	cpDirectory_ = p_load->cpDirectory_;
+	cpSerMode_ = p_load->cpSerMode_;
 	qualityThreshold_ = p_load->qualityThreshold_;
 	hasQualityThreshold_ = p_load->hasQualityThreshold_;
 	maxDuration_ = p_load->maxDuration_;
@@ -711,6 +715,26 @@ std::string GOptimizationAlgorithm::getCheckpointBaseName() const {
  */
 std::string GOptimizationAlgorithm::getCheckpointDirectory() const {
 	return cpDirectory_;
+}
+
+/************************************************************************************************************/
+/**
+ * Determines whether checkpointing should be done in Text-, XML- or Binary-mode
+ *
+ * @param cpSerMode The desired new checkpointing serialization mode
+ */
+void GOptimizationAlgorithm::setCheckpointSerializationMode(const serializationMode& cpSerMode) {
+	cpSerMode_ = cpSerMode;
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the current checkpointing serialization mode
+ *
+ * @return The current checkpointing serialization mode
+ */
+serializationMode GOptimizationAlgorithm::getCheckpointSerializationMode() const {
+	return cpSerMode_;
 }
 
 /************************************************************************************************************/
