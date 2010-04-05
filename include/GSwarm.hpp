@@ -254,12 +254,15 @@ protected:
 	/** @brief Saves the state of the class to disc. */
 	virtual void saveCheckpoint() const;
 
+	/** @brief Updates the fitness of all individuals */
+	virtual void updatePositionsAndFitness();
+
 	/**************************************************************************************************/
 private:
 	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
 
-	/** @brief Helper function that checks the geometries of all individuals */
-	void updatePersonalities();
+	/** @brief Helper function that initializes the personality information */
+	void initPersonalities();
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
 	std::size_t nNeighborhoodMembers_; ///< The number of individuals belonging to each neighborhood

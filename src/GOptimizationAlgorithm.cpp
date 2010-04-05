@@ -263,7 +263,7 @@ void GOptimizationAlgorithm::optimize(const boost::uint32_t& startIteration) {
 	if(reportIteration_) doInfo(INFOINIT);
 
 	// We want to know if no better values were found for a longer period of time
-	bestPastFitness_ = (maximize_?-DBL_MAX:DBL_MAX);
+	bestPastFitness_ = getWorstCase();
 	stallCounter_ = 0;
 
 	// Give derived classes the opportunity to perform any necessary preparatory work.
@@ -616,6 +616,16 @@ bool GOptimizationAlgorithm::isBetter(double newValue, const double& oldValue) c
 		if(newValue < oldValue) return true;
 		else return false;
 	}
+}
+
+/************************************************************************************************************/
+/**
+ * Helper function that emits the worst case value depending on whether maximization or minimization is performed.
+ *
+ * @return The worst case value, depending on maximization or minimization
+ */
+double GOptimizationAlgorithm::getWorstCase() const {
+	return (maximize_?-DBL_MAX:DBL_MAX);
 }
 
 /************************************************************************************************************/

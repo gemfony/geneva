@@ -312,6 +312,8 @@ protected:
 
 	/** @brief Helper function that determines whether a new value is better than an older one */
 	bool isBetter(double, const double&) const;
+	/** @brief Helper function that emits the worst case value depending on whether maximization or minimization is performed */
+	double getWorstCase() const;
 
 	/** @brief Allows derived classes to perform initialization work before the optimization clycle starts */
 	virtual void init();

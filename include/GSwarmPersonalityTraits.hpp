@@ -120,7 +120,7 @@ public:
 	virtual std::string getCommand() const;
 
 	/** @brief Sets the position of the individual in the population */
-	void setPopulationPosition(std::size_t) ;
+	void setPopulationPosition(const std::size_t&) ;
 	/** @brief Retrieves the position of the individual in the population */
 	std::size_t getPopulationPosition(void) const;
 
@@ -158,6 +158,9 @@ public:
 	void registerGlobalBest(boost::shared_ptr<Gem::GenEvA::GIndividual>);
 	/** @brief Makes the locally best individual known to this object */
 	void registerLocalBest(boost::shared_ptr<Gem::GenEvA::GIndividual>);
+
+	/** @brief Updates the parameters of the individual */
+	void updateParameters();
 
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();

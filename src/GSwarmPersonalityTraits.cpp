@@ -322,7 +322,7 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
  *
  * @param popPos The new position of this individual in the population
  */
-void GSwarmPersonalityTraits::setPopulationPosition(std::size_t popPos) {
+void GSwarmPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
 	popPos_ = popPos;
 }
 
@@ -376,6 +376,14 @@ void GSwarmPersonalityTraits::registerGlobalBest(boost::shared_ptr<Gem::GenEvA::
  */
 void GSwarmPersonalityTraits::registerLocalBest(boost::shared_ptr<Gem::GenEvA::GIndividual> lb_cp) {
 	local_best_ = lb_cp;
+}
+
+/*****************************************************************************/
+/**
+ * Updates the parameters of the individual
+ */
+void GSwarmPersonalityTraits::updateParameters() {
+	/* nothing yet */
 }
 
 /*****************************************************************************/

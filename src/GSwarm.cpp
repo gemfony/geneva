@@ -284,31 +284,125 @@ void GSwarm::registerInfoFunction(boost::function<void (const infoMode&, GSwarm 
 
 /************************************************************************************************************/
 /**
- * This function implements the logic that constitutes a swarm algorithm. The
- * function is called by GOptimizationAlgorithm for each iteration of the optimization,
- *
- * @return The value of the best individual found
- */
-double GSwarm::cycleLogic() {
-	double bestFitness = 0.;
-	return bestFitness;
-
-
-	// yet not ready
-}
-
-
-/************************************************************************************************************/
-/**
  * This function does some preparatory work and tagging required by swarm algorithms. It is called
- * from within GOptimizationAlgorithm::optimize(), before the actual optimization cycle starts.
+ * from within GOptimizationAlgorithm::optimize(), immediately before the actual optimization cycle starts.
  */
 void GSwarm::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithm::init();
 
 	// Attach the relevant information to the individual's personalities
-	updatePersonalities();
+	initPersonalities();
+}
+
+/************************************************************************************************************/
+/**
+ * Helper function that initializes the personality information.
+ */
+void GSwarm::initPersonalities() {
+	// Set the individual's positions and attach swarm adaptors to the individuals.
+	// Setting the position needs to be done only once before the start of the optimization
+	// cycle, as individuals do not change position in a swarm algorithm.
+	std::size_t pos=0;
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it, ++pos) {
+		// Make the position known to the individual
+		(*it)->getSwarmPersonalityTraits()->setPopulationPosition(pos);
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * This function implements the logic that constitutes each cycle of a swarm algorithm. The
+ * function is called by GOptimizationAlgorithm for each iteration of the optimization,
+ *
+ * @return The value of the best individual found
+ */
+double GSwarm::cycleLogic() {
+	// Modifies the individual's positions, then triggers the fitness calculation of all individuals.
+	// This function can be overloaded in derived classes so that part of the modification, as well as
+	// fitness calculation are performed in parallel.
+	updatePositionsAndFitness();
+
+	// Search for the locally and globally best individuals in all neighborhoods and
+	// update the list of locally best solutions, if necessary
+	double bestFitnessInThisIterations = getWorstCase();
+	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+		boost::shared_ptr<GIndividual> neighborhoodBest = *(this->begin() + (neighborhood*nNeighborhoodMembers_));
+
+		// Search in the local neighborhood for the best solution
+		for(std::size_t member=0; member<nNeighborhoodMembers_; member++) {
+			boost::shared_ptr<GIndividual> currentIndividual = *(this->begin() + (neighborhood*nNeighborhoodMembers_ + member));
+			double currentFitness = currentIndividual->fitness();
+			if(isBetter(currentFitness, neighborhoodBest->fitness())) {
+				currentIndividual = neighborhoodBest;
+			}
+
+			// Make sure we know when a better solution was found
+			if(isBetter(currentFitness, bestFitnessInThisIterations)) {
+				bestFitnessInThisIterations = currentFitness;
+			}
+		}
+
+		// Update the bests
+		if(getIteration() > 0) {
+			if(isBetter(neighborhoodBest->fitness(), local_bests_[neighborhoos]->fitness())) {
+				local_bests_[neighborhoos]->load(neighborhoodBest);
+			}
+
+			// Note that the following can result in some unnecessary loading, if more than one
+			// better solution was found
+			if(isBetter(neighborhoodBest->fitness(), global_best_->fitness())) {
+				global_best_->load(neighborhoodBest);
+			}
+		}
+		// This is the first generation, we need to attach a cloned individual to the list instead of loading it
+		else {
+			local_bests_.push_back(neighborhoodBest->clone());
+
+			// We need to initialize the global best
+			if(neighborhood == 0) {
+				global_best_ = neighborhoodBest->clone();
+			}
+			// We need to compare with the existing global best
+			else {
+				if(isBetter(neighborhoodBest->fitness(), global_best_->fitness())) {
+					global_best_->load(neighborhoodBest);
+				}
+			}
+		}
+	}
+
+	return bestFitnessInThisIterations;
+}
+
+/************************************************************************************************************/
+/**
+ * Modifies the particle positions, then triggers fitness calculation for all individuals. This function can
+ * be overloaded by derived classes so the fitness calculation can be performed in parallel.
+ */
+void GSwarm::updatePositionsAndFitness() {
+	std::size_t offset = 0;
+	GSwarm::iterator start = this->begin();
+	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+		for(std::size_t member=0; member<nNeighborhoodMembers_; member++) {
+			offset = neighborhood*nNeighborhoods_ + member;
+
+			// Update the swarm positions. Note that this only makes sense
+			// once the first series of evaluations has been done and local as well
+			// as global bests are known
+			if(getIteration() > 0) {
+				// Add the local and global best to each individual
+				(*(start + offset))->getSwarmPersonalityTraits()->registerLocalBest(local_bests_[neighborhood]);
+				(*(start + offset))->getSwarmPersonalityTraits()->registerGlobalBest(global_best_);
+
+				// Make sure the individual's parameters are updated
+				(*(start + offset))->getSwarmPersonalityTraits()->updateParameters();
+			}
+
+			// Trigger the actual fitness calculation
+			(*(start + offset))->fitness();
+		}
+	}
 }
 
 /************************************************************************************************************/
@@ -329,7 +423,7 @@ void GSwarm::finalize() {
  */
 void GSwarm::setCLocal(const double& cl) {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setCLocal(cl);
+		(*it)->getSwarmPersonalityTraits()->setCLocal(cl);
 	}
 }
 
@@ -339,7 +433,7 @@ void GSwarm::setCLocal(const double& cl) {
  */
 void GSwarm::setCLocal(const double& cl_lower, const double& cl_upper) {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setCLocal(cl_lower, cl_upper);
+		(*it)->getSwarmPersonalityTraits()->setCLocal(cl_lower, cl_upper);
 	}
 }
 
@@ -350,7 +444,7 @@ void GSwarm::setCLocal(const double& cl_lower, const double& cl_upper) {
  */
 void GSwarm::setCGlobal(const double& cg) {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setCGlobal(cg);
+		(*it)->getSwarmPersonalityTraits()->setCGlobal(cg);
 	}
 }
 
@@ -360,7 +454,7 @@ void GSwarm::setCGlobal(const double& cg) {
  */
 void GSwarm::setCGlobal(const double& cg_lower, const double& cg_upper) {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setCGlobal(cg_lower, cg_upper);
+		(*it)->getSwarmPersonalityTraits()->setCGlobal(cg_lower, cg_upper);
 	}
 }
 
@@ -370,7 +464,7 @@ void GSwarm::setCGlobal(const double& cg_lower, const double& cg_upper) {
  */
 void GSwarm::setCDelta(const double& cd) {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setCDelta(cd);
+		(*it)->getSwarmPersonalityTraits()->setCDelta(cd);
 	}
 }
 
@@ -380,7 +474,7 @@ void GSwarm::setCDelta(const double& cd) {
  */
 void GSwarm::setCDelta(const double& cd_lower, const double& cd_upper) {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->setCDelta(cd_lower, cd_upper);
+		(*it)->getSwarmPersonalityTraits()->setCDelta(cd_lower, cd_upper);
 	}
 }
 
@@ -417,38 +511,6 @@ std::size_t GSwarm::getNNeighborhoods() const {
  */
 std::size_t GSwarm::getNNeighborhoodMembers() const {
 	return nNeighborhoodMembers_;
-}
-
-/************************************************************************************************************/
-/**
- * Helper function that updates the personality information
- */
-void GSwarm::updatePersonalities() {
-	// Check that all individuals have the same geometry (i.e. same number of doubles)
-
-	// Initialize the double vectors in the personality traits accordingly
-
-	// Set the individual's positions. This needs to be done only once, as individuals
-	// do not change position in a swarm algorithm.
-
-	// Set the local multipliers according to the user's instructions
-
-	// Loop over all individuals
-	GSwarm::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		// Extract all double parameters from the individuals
-		std::vector<boost::shared_ptr<GDouble> > gd_ptr_vec;
-		it->attachViewTo(gd_vec);
-
-		std::vector<boost::shared_ptr<GDoubleCollection> > gdc_ptr_vec;
-		it->attachViewTo(gdc_ptr_vec);
-
-		std::vector<boost::shared_ptr<GBoundedDouble> > gbd_ptr_vec;
-		it->attachViewTo(gdc_ptr_vec);
-
-		std::vector<boost::shared_ptr<GBoundedDoubleCollection> > gbdc_ptr_vec;
-		it->attachViewTo(gbdc_ptr_vec);
-	}
 }
 
 /************************************************************************************************************/
