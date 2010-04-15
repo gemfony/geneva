@@ -97,9 +97,11 @@ GSwarm::GSwarm(const GSwarm& cp)
 	// care to resize the population appropriately.
 	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
-	// Copy the locally best individuals over
-	for(std::size_t i=0; i<nNeighborhoods_; i++) {
-		local_bests_[i] = cp.local_bests_[i]->clone<GIndividual>();
+	// Copy the locally best individuals over, if this is not the first iteration
+	if(cp.getIteration()>0) {
+		for(std::size_t i=0; i<nNeighborhoods_; i++) {
+			local_bests_[i] = cp.local_bests_[i]->clone<GIndividual>();
+		}
 	}
 }
 
@@ -130,7 +132,7 @@ const GSwarm& GSwarm::operator=(const GSwarm& cp) {
  *
  * @param cp A pointer to another GSwarm object, camouflaged as a GObject
  */
-void GSwarm::load_(const GObject * cp)
+void GSwarm::load_(const GObject *cp)
 {
 	const GSwarm *p_load = this->conversion_cast<GSwarm>(cp);
 
@@ -138,21 +140,41 @@ void GSwarm::load_(const GObject * cp)
 	GOptimizationAlgorithm::load_(cp);
 
 	// ... and then our own data
-	nNeighborhoods_ = p_load->nNeighborhoods_;
-	nNeighborhoodMembers_ = p_load->nNeighborhoodMembers_;
 
-#ifdef DEBUG
-	if(this->size() != nNeighborhoods_*nNeighborhoodMembers_) {
-		std::ostringstream error;
-		error << "In GSwarm::load_(): Error!" << std::endl
-			  << "nNeighborhoods_*nNeighborhoodMembers_ = " << nNeighborhoods_ << "*" << nNeighborhoodMembers_ << " = " << nNeighborhoods_*nNeighborhoodMembers_ << std::endl
-			  << "is not the same as the population size " << this->size() << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	// Make sure we are dealing with the same number of neighborhoods
+	if(nNeighborhoods_ != p_load->nNeighborhoods_) {
+		nNeighborhoods_ = p_load->nNeighborhoods_;
+
+		delete [] nNeighborhoodMembers_;
+		delete [] local_bests_;
+
+		nNeighborhoodMembers_ = new std::size_t[nNeighborhoods_];
+		local_bests_ = new boost::shared_ptr<GIndividual>[nNeighborhoods_];
+
+		if(p_load->getIteration() > 0) {
+			for(std::size_t i=0; i<nNeighborhoods_; i++) {
+				local_bests_[i] = (p_load->local_bests_)[i]->clone<GIndividual>();
+			}
+		}
 	}
-#endif /* DEBUG */
+	else {
+		if(p_load->getIteration() > 0) {
+			for(std::size_t i=0; i<nNeighborhoods_; i++) {
+				local_bests_[i]->load((p_load->local_bests_)[i]);
+			}
+		}
+	}
 
-	global_best_->GObject::load(p_load->global_best_);
-	copySmartPointerVector(p_load->local_bests_, local_bests_);
+	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
+
+	// Copy the number of individuals in each neighborhood as well as the local bests over
+	for(std::size_t i=0; i<nNeighborhoods_; i++) {
+		nNeighborhoodMembers_[i] = (p_load->nNeighborhoodMembers_)[i];
+	}
+
+	if(p_load->getIteration() > 0) {
+		global_best_->GObject::load(p_load->global_best_);
+	}
 
 	// Note that we do not copy the info function
 }
@@ -227,7 +249,13 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoods_, p_load->nNeighborhoods_, "nNeighborhoods_", "p_load->nNeighborhoods_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoodMembers_, p_load->nNeighborhoodMembers_, "nNeighborhoodMembers_", "p_load->nNeighborhoodMembers_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, "defaultNNeighborhoodMembers_", "p_load->defaultNNeighborhoodMembers_", e , limit));
+	for(std::size_t i=0; i<nNeighborhoods_; i++) {
+		std::string local = "nNeighborhoodMembers_[" + boost::lexical_cast<std::string>(i) + "]";
+		std::string remote = "(p_load->nNeighborhoodMembers_)[" + boost::lexical_cast<std::string>(i) + "]";
+		deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], local, remote, e , limit));
+	}
+
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", local_bests_, p_load->local_bests_, "local_bests_", "p_load->local_bests_", e , limit));
 
@@ -368,9 +396,7 @@ void GSwarm::updatePositionsAndFitness() {
 	std::size_t offset = 0;
 	GSwarm::iterator start = this->begin();
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
-		for(std::size_t member=0; member<nNeighborhoodMembers_; member++) {
-			offset = neighborhood*nNeighborhoodMembers_ + member;
-
+		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			// Update the swarm positions. Note that this only makes sense
 			// once the first series of evaluations has been done and local as well
 			// as global bests are known
@@ -385,6 +411,8 @@ void GSwarm::updatePositionsAndFitness() {
 
 			// Trigger the actual fitness calculation
 			(*(start + offset))->fitness();
+
+			offset++;
 		}
 	}
 }
@@ -396,7 +424,7 @@ void GSwarm::updatePositionsAndFitness() {
  * @return The best evaluation found in this iteration
  */
 double GSwarm::findBests() {
-	double bestFitnessInThisIterations = getWorstCase();
+	double bestFitnessInThisIteration = getWorstCase();
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 		boost::shared_ptr<GIndividual> neighborhoodBest = *(this->begin() + (neighborhood*nNeighborhoodMembers_));
 
@@ -409,15 +437,15 @@ double GSwarm::findBests() {
 			}
 
 			// Make sure we know when a better solution was found
-			if(isBetter(currentFitness, bestFitnessInThisIterations)) {
-				bestFitnessInThisIterations = currentFitness;
+			if(isBetter(currentFitness, bestFitnessInThisIteration)) {
+				bestFitnessInThisIteration = currentFitness;
 			}
 		}
 
 		// Update the bests
 		if(getIteration() > 0) {
-			if(isBetter(neighborhoodBest->fitness(), local_bests_[neighborhoos]->fitness())) {
-				local_bests_[neighborhoos]->load(neighborhoodBest);
+			if(isBetter(neighborhoodBest->fitness(), local_bests_[neighborhood]->fitness())) {
+				local_bests_[neighborhood]->load(neighborhoodBest);
 			}
 
 			// Note that the following can result in some unnecessary loading, if more than one
@@ -443,7 +471,7 @@ double GSwarm::findBests() {
 		}
 	}
 
-	return bestFitnessInThisIterations;
+	return bestFitnessInThisIteration;
 }
 
 /************************************************************************************************************/
