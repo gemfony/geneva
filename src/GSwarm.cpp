@@ -57,7 +57,9 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
 	// Initialize with the default number
-	for(std::size_t i=0; i<nNeighborhoods_; i++) nNeighborhoodMembers_[i] = defaultNNeighborhoodMembers_;
+	for(std::size_t i=0; i<nNeighborhoods_; i++) {
+		nNeighborhoodMembers_[i] = defaultNNeighborhoodMembers_;
+	}
 }
 
 /************************************************************************************************************/
@@ -76,12 +78,17 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, local_bests_(new boost::shared_ptr<GIndividual>[nNeighborhoods_])
 {
 	// Copy the current number of individuals in each neighborhood over
+#ifdef DEBUG
 	std::size_t nCPIndividuals = 0;
+#endif /* DEBUG */
+
 	for(std::size_t i=0; i<nNeighborhoods_; i++) {
 		nNeighborhoodMembers_[i] = cp.nNeighborhoodMembers_[i];
 
+#ifdef DEBUG
 		// Calculate the total number of individuals that should be present
 		nCPIndividuals += nNeighborhoodMembers_[i];
+#endif /* DEBUG */
 	}
 
 #ifdef DEBUG
@@ -93,11 +100,14 @@ GSwarm::GSwarm(const GSwarm& cp)
 	}
 #endif /* DEBUG */
 
-	// Note that this setting might differ from nCPIndividuals. adjustPopulation will take
-	// care to resize the population appropriately.
+	// Note that this setting might differ from nCPIndividuals, as it is not guaranteed
+	// that cp has, at the time of copying, all individuals present in each neighborhood.
+	// Differences might e.g. occur if not all individuals return from their remote
+	// evaluation. adjustPopulation will take care to resize the population appropriately
+	// inside of the "optimize()" call.
 	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
-	// Copy the locally best individuals over, if this is not the first iteration
+	// Clone cp's locally best individuals, if this is not the first iteration
 	if(cp.getIteration()>0) {
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {
 			local_bests_[i] = cp.local_bests_[i]->clone<GIndividual>();
@@ -111,7 +121,7 @@ GSwarm::GSwarm(const GSwarm& cp)
  */
 GSwarm::~GSwarm() {
 	if(nNeighborhoodMembers_) delete [] nNeighborhoodMembers_;
-	if(local_bests_) delete [] local_bests_;
+	if(local_bests_) delete [] local_bests_; // This will also get rid of the objects pointed to
 }
 
 /************************************************************************************************************/
@@ -134,6 +144,10 @@ const GSwarm& GSwarm::operator=(const GSwarm& cp) {
  */
 void GSwarm::load_(const GObject *cp)
 {
+	// Make a note of the current iteration (needed for a check below).
+	// The information would otherwise be lost after the load call below
+	boost::uint32_t currentIteration = this->getIteration();
+
 	const GSwarm *p_load = this->conversion_cast<GSwarm>(cp);
 
 	// First load the parent class'es data ...
@@ -141,7 +155,8 @@ void GSwarm::load_(const GObject *cp)
 
 	// ... and then our own data
 
-	// Make sure we are dealing with the same number of neighborhoods
+	// Make sure we are dealing with the same number of neighborhoods. If this
+	// is not the case we need to set up everything from scratch.
 	if(nNeighborhoods_ != p_load->nNeighborhoods_) {
 		nNeighborhoods_ = p_load->nNeighborhoods_;
 
@@ -153,13 +168,38 @@ void GSwarm::load_(const GObject *cp)
 
 		if(p_load->getIteration() > 0) {
 			for(std::size_t i=0; i<nNeighborhoods_; i++) {
-				local_bests_[i] = (p_load->local_bests_)[i]->clone<GIndividual>();
+				if(currentIteration == 0) {
+					local_bests_[i] = p_load->local_bests_[i]->clone<GIndividual>();
+				}
+				else {
+#ifdef DEBUG
+					if(!local_bests_[i]) {
+						std::ostringstream error;
+						error << "GSwarm::load_(): Error!" << std::endl
+							  << "Found empty local best at position " << i << std::endl
+							  << "in iteration " << this->getIteration() << std::endl;
+						throw Gem::GenEvA::geneva_error_condition(error.str());
+					}
+#endif /* DEBUG */
+
+					local_bests_[i] = (p_load->local_bests_)[i]->clone<GIndividual>();
+				}
 			}
 		}
 	}
 	else {
 		if(p_load->getIteration() > 0) {
 			for(std::size_t i=0; i<nNeighborhoods_; i++) {
+#ifdef DEBUG
+				if(!local_bests_[i]) {
+					std::ostringstream error;
+					error << "GSwarm::load_(): Error/2 !" << std::endl
+						  << "Found empty local best at position " << i << std::endl
+						  << "in iteration " << this->getIteration() << std::endl;
+					throw Gem::GenEvA::geneva_error_condition(error.str());
+				}
+#endif /* DEBUG */
+
 				local_bests_[i]->load((p_load->local_bests_)[i]);
 			}
 		}

@@ -75,7 +75,7 @@ namespace Util
  * a valid copy constructor.
  *
  * @param from The vector used as the source of the copying
- * @param to The vector used as the target of thec copying
+ * @param to The vector used as the target of the copying
  */
 template <typename T>
 void copySmartPointerVector(const std::vector<boost::shared_ptr<T> >& from,
