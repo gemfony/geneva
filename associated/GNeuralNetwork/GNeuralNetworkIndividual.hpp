@@ -60,7 +60,7 @@
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
 #include <boost/optional.hpp>
-#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
 
 #ifndef GNEURALNETWORKINDIVIDUAL_HPP_
 #define GNEURALNETWORKINDIVIDUAL_HPP_
