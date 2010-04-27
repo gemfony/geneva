@@ -2,4 +2,4 @@ This directory holds several examples that do not use the Geneva library.
 Instead, they are meant to illustrate various techniques used in Geneva.
 Short descriptions and some help on compilation can be found in the files 
 themselves. They are not really meant for public consumption, but are bundled 
-with the library as they might proove useful for someone.
+with the library as they might prove useful for someone.
