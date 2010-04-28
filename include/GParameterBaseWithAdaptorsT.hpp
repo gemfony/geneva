@@ -410,6 +410,7 @@ protected:
 
 #ifdef DEBUG
 		if(!adaptor_) {
+			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<T>& collection):" << std::endl
 				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
 				  << "Error: No adaptor was found." << std::endl;
