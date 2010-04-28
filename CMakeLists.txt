@@ -106,7 +106,7 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	serialization
 	system
 	thread
-	test_exec_monitor
+	unit_test_framework
 )
 
 INCLUDE_DIRECTORIES (
