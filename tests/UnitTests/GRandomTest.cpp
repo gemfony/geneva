@@ -36,10 +36,10 @@ using namespace boost::unit_test;
 // Boost headers go here
 #include <boost/shared_ptr.hpp>
 
-// This file includes hold the actual random tests
+// This file holds the actual random tests
 #include "GRandom_test.hpp"
 
-// test program entry point
+// Test program entry point
 test_suite* init_unit_test_suite(int argc, char** argv) {
    framework::master_test_suite().add(new GRandomSuite());
    return 0;
