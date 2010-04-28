@@ -49,6 +49,7 @@ void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collecti
 
 #ifdef DEBUG
 		if(!adaptor_) {
+			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
 				  << "Error: No adaptor was found." << std::endl;
 			throw geneva_error_condition(error.str());
