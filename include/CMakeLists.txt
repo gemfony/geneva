@@ -28,7 +28,15 @@ CONFIGURE_FILE (
 	@ONLY
 )
 
+
 ADD_SUBDIRECTORY (thirdparty)
+
+ADD_SUBDIRECTORY (dataexchange)
+
+SET ( GENEVASHAREDINCLUDES
+	GGlobalDefines.hpp
+	GHelperFunctionsT.hpp
+)
 
 SET ( GENEVAINCLUDES
 	GAsioHelperFunctions.hpp
@@ -62,9 +70,7 @@ SET ( GENEVAINCLUDES
 	GEvolutionaryAlgorithm.hpp
 	GGaussAdaptorT.hpp
 	GGDPersonalityTraits.hpp
-	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
-	GHelperFunctionsT.hpp
 	GIdentityAdaptorT.hpp
 	GIndividualBroker.hpp
 	GIndividual.hpp
@@ -106,17 +112,7 @@ SET ( GENEVAINCLUDES
 	GThreadGroup.hpp
 )
 
-SET ( DATAEXCHANGEINCLUDES
-	GBoolParameter.hpp
-	GDataExchange.hpp
-	GDataExchangeException.hpp
-	GDoubleParameter.hpp
-	GLongParameter.hpp
-	GNumericParameterT.hpp
-	GParameterValuePair.hpp
-)
-
-INSTALL ( FILES ${GENEVAINCLUDES} ${DATAEXCHANGEINCLUDES} DESTINATION include 
+INSTALL ( FILES ${GENEVASHAREDINCLUDES} ${GENEVAINCLUDES} DESTINATION include
 	PERMISSIONS
 	OWNER_READ OWNER_WRITE
 	GROUP_READ

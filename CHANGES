@@ -26,7 +26,8 @@ The main changes for this release include:
    library.
  - Added a GParameterObjectCollection that allows to arbitrarily mix any
    GParameterBase object in the same collection.
- - Update to CMake 2.8, ported to Boost 1.43
+ - Moved the dataexchange library files into their own subfolders in include/ and src/.
+ - Update to CMake 2.8, ported to Boost 1.43.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010
