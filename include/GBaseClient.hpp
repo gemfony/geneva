@@ -65,7 +65,6 @@
 #endif
 
 // GenEvA headers go here
-#include "GIndividual.hpp"
 #include "GSerializationHelperFunctions.hpp"
 #include "GEnums.hpp"
 #include "GRandom.hpp"
