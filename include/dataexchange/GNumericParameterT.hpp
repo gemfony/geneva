@@ -207,7 +207,7 @@ public:
 			result = false;
 		}
 #else
-		if(param_ != cp.param_ || lowerBoundary_ != cp.lowerBoundary_ ||  upperBoundary_ != cp.upperBoundary_) {
+		if(param_ != cp.param_ || lowerBoundary_ != cp.lowerBoundary_ || upperBoundary_ != cp.upperBoundary_) {
 			result = false;
 		}
 #endif /* GENEVATESTING */
