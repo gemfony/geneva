@@ -22,7 +22,7 @@ SET(VERSION_PATCH "0rc1")
 # Uncomment to compile static libs
 # SET( GENEVA_STATIC TRUE )
 
-# The names of the two libraries that will be built by CMake
+# The names of the libraries that will be built
 SET ( GENEVALIBNAME geneva-opt )
 SET ( DATAEXCHANGELIBNAME geneva-extcomm )
 
