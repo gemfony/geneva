@@ -1,55 +1,16 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-ADD_SUBDIRECTORY ( dataexchange )
-
 SET ( GENEVASOURCES
-	GAsioHelperFunctions
-	GAsioTCPClient
-	GAsioTCPConsumer
-	GBaseClient
-	GBoolean
-	GBooleanAdaptor
-	GBooleanCollection
-	GBooleanObjectCollection
-	GBoostThreadConsumer
-	GBoundedDouble
-	GBoundedDoubleCollection
-	GBoundedInt32
-	GBoundedInt32Collection
-	GBoundedNumT
-	GBrokerEA
-	GDouble
-	GDoubleCollection 
-	GDoubleGaussAdaptor
-	GDoubleObjectCollection
-	GEAPersonalityTraits
-	GEvolutionaryAlgorithm
-	GGDPersonalityTraits
-	GIdentityAdaptorT
-	GIndividual
-	GInt32
-	GInt32Collection
-	GInt32FlipAdaptor
-	GInt32GaussAdaptor
-	GInt32ObjectCollection
-	GMultiThreadedEA
-	GNumCollectionT
 	GObject
-	GOptimizationAlgorithm
-	GParameterBase
-	GParameterBaseWithAdaptorsT
-	GParameterObjectCollection
-	GParameterSet
-	GPersonalityTraits
 	GPODExpectationChecksT
-	GRandom
-	GRandomFactory
 	GSerializationHelperFunctions
-#	GSwarm
-	GSwarmAdaptor
-	GSwarmPersonalityTraits
 	GThreadGroup
 )
+
+ADD_SUBDIRECTORY ( dataexchange )
+ADD_SUBDIRECTORY ( random )
+ADD_SUBDIRECTORY ( communication )
+ADD_SUBDIRECTORY ( optimization )
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted
 IF( GENEVA_STATIC )
@@ -58,7 +19,7 @@ ELSE()
 	ADD_LIBRARY ( ${GENEVALIBNAME} SHARED ${GENEVASOURCES} )
 ENDIF( GENEVA_STATIC )
 
-SET_TARGET_PROPERTIES(${PROJECT_NAME}
+SET_TARGET_PROPERTIES( ${PROJECT_NAME}
 	PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
 )
 

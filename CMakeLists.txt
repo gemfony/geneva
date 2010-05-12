@@ -23,8 +23,11 @@ SET(VERSION_PATCH "0rc1")
 # SET( GENEVA_STATIC TRUE )
 
 # The names of the libraries that will be built
-SET ( GENEVALIBNAME geneva-opt )
-SET ( DATAEXCHANGELIBNAME geneva-extcomm )
+SET ( GENEVALIBNAME geneva-common )
+SET ( DATAEXCHANGELIBNAME geneva-dataex )
+SET ( RANDOMLIBNAME geneva-random )
+SET ( COMMUNICATIONNAME geneva-comm )
+SET ( OPTIMIZATIONLIBNAME geneva-opt )
 
 # Change this setting to install in a different directory
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)

@@ -1,0 +1,18 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+SET ( COMMUNICATIONINCLUDES
+	GAsioHelperFunctions.hpp
+	GAsioTCPClient.hpp
+	GAsioTCPConsumer.hpp
+	GBaseClient.hpp
+	GBoostThreadConsumer.hpp
+	GBrokerT.hpp
+	GConsumer.hpp
+)
+
+INSTALL ( FILES ${COMMUNICATIONINCLUDES} DESTINATION include/communication
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE
+	GROUP_READ
+	WORLD_READ
+)

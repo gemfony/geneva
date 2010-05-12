@@ -29,90 +29,34 @@ CONFIGURE_FILE (
 )
 
 
-ADD_SUBDIRECTORY (thirdparty)
-
-ADD_SUBDIRECTORY (dataexchange)
+ADD_SUBDIRECTORY ( thirdparty )
 
 SET ( GENEVASHAREDINCLUDES
-	GGlobalDefines.hpp
-	GHelperFunctionsT.hpp
-)
-
-SET ( GENEVAINCLUDES
-	GAsioHelperFunctions.hpp
-	GAsioTCPClient.hpp
-	GAsioTCPConsumer.hpp
-	GAdaptorT.hpp
-	GBaseClient.hpp
-	GBoolean.hpp
-	GBooleanAdaptor.hpp
-	GBooleanCollection.hpp
-	GBooleanObjectCollection.hpp
-	GBoostThreadConsumer.hpp
 	GBoundedBufferT.hpp
 	GBoundedBufferWithIdT.hpp
-	GBoundedDouble.hpp
-	GBoundedDoubleCollection.hpp
-	GBoundedInt32.hpp
-	GBoundedInt32Collection.hpp
-	GBoundedNumT.hpp
-	GBrokerEA.hpp
-	GBrokerT.hpp
 	GBufferPortT.hpp
-	GConsumer.hpp
-	GDouble.hpp
-	GDoubleCollection.hpp
-	GDoubleGaussAdaptor.hpp
-	GDoubleObjectCollection.hpp
-	GEAPersonalityTraits.hpp
 	GenevaExceptions.hpp
 	GEnums.hpp
-	GEvolutionaryAlgorithm.hpp
-	GGaussAdaptorT.hpp
-	GGDPersonalityTraits.hpp
+	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
-	GIdentityAdaptorT.hpp
-	GIndividualBroker.hpp
-	GIndividual.hpp
-	GInt32.hpp
-	GInt32Collection.hpp
-	GInt32FlipAdaptor.hpp
-	GInt32GaussAdaptor.hpp
-	GInt32ObjectCollection.hpp
-	GIntFlipAdaptorT.hpp
-	GMultiThreadedEA.hpp
-	GMutableI.hpp
-	GMutableSetT.hpp
-	GNumCollectionT.hpp
+	GHelperFunctionsT.hpp
 	GObject.hpp
-	GOptimizationAlgorithm.hpp
-	GParameterBase.hpp
-	GParameterObjectCollection.hpp
-	GParameterBaseWithAdaptorsT.hpp
-	GParameterCollectionT.hpp
-	GParameterObjectCollection.hpp
-	GParameterSet.hpp
-	GParameterT.hpp
-	GParameterTCollectionT.hpp
-	GPersonalityTraits.hpp
 	GPODExpectationChecksT.hpp
-	GRandom.hpp
-	GRandomFactory.hpp
-	GRateableI.hpp
-	GSeedManager.hpp
 	GSerializableI.hpp
 	GSerializationHelperFunctions.hpp
 	GSingletonT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GStdSimpleVectorInterfaceT.hpp
-	GUnitTestFrameworkT.hpp
-#	GSwarm.hpp
-	GSwarmAdaptor.hpp
-	GSwarmPersonalityTraits.hpp
 	GThreadGroup.hpp
+	GUnitTestFrameworkT.hpp
 )
 
-INSTALL ( FILES ${GENEVASHAREDINCLUDES} ${GENEVAINCLUDES} DESTINATION include
+ADD_SUBDIRECTORY ( dataexchange )
+ADD_SUBDIRECTORY ( random )
+ADD_SUBDIRECTORY ( communication )
+ADD_SUBDIRECTORY ( optimization )
+
+INSTALL ( FILES ${GENEVASHAREDINCLUDES} DESTINATION include
 	PERMISSIONS
 	OWNER_READ OWNER_WRITE
 	GROUP_READ
