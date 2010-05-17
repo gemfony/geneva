@@ -26,7 +26,7 @@ SET(VERSION_PATCH "0rc1")
 SET ( GENEVALIBNAME geneva-common )
 SET ( DATAEXCHANGELIBNAME geneva-dataex )
 SET ( RANDOMLIBNAME geneva-random )
-SET ( COMMUNICATIONNAME geneva-comm )
+SET ( COMMUNICATIONLIBNAME geneva-comm )
 SET ( OPTIMIZATIONLIBNAME geneva-opt )
 
 # Change this setting to install in a different directory
@@ -115,6 +115,9 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/include/dataexchange
+	${PROJECT_SOURCE_DIR}/include/random
+	${PROJECT_SOURCE_DIR}/include/communication
+	${PROJECT_SOURCE_DIR}/include/optimization
 	${PROJECT_SOURCE_DIR}/include/thirdparty
 	${Boost_INCLUDE_DIRS}
 )
@@ -122,6 +125,9 @@ INCLUDE_DIRECTORIES (
 LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src
 	${PROJECT_SOURCE_DIR}/src/dataexchange
+	${PROJECT_SOURCE_DIR}/src/random
+	${PROJECT_SOURCE_DIR}/src/communication
+	${PROJECT_SOURCE_DIR}/src/optimization
 	${Boost_LIBRARY_DIRS}
 )
 
