@@ -65,9 +65,10 @@
 #endif
 
 // GenEvA headers go here
-#include "GSerializationHelperFunctions.hpp"
+#include "GIndividualSerializationHelperFunctions.hpp"
 #include "GEnums.hpp"
 #include "GRandom.hpp"
+#include "GSerializationHelperFunctions.hpp"
 
 namespace Gem
 {

@@ -68,7 +68,6 @@
 
 // GenEvA headers go here
 
-#include "GIndividual.hpp"
 #include "GEnums.hpp"
 
 namespace Gem
@@ -77,12 +76,6 @@ namespace GenEvA
 {
 
 /***************************************************************************************************/
-
-/** @brief Convert a shared_ptr<GIndividual> into its string representation */
-std::string indptrToString(boost::shared_ptr<GIndividual>, const serializationMode&);
-
-/** @brief Load a shared_ptr<GIndividual> from its string representation */
-boost::shared_ptr<GIndividual> indptrFromString(const std::string&, const serializationMode&);
 
 /** @brief Puts a Gem::GenEvA::serializationMode into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::GenEvA::serializationMode&);
