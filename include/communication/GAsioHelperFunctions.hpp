@@ -55,6 +55,7 @@
 #include "GEnums.hpp"
 #include "GenevaExceptions.hpp"
 #include "GAsioTCPClient.hpp"
+#include "GThreadGroup.hpp"
 
 namespace Gem
 {

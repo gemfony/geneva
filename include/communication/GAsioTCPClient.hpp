@@ -62,6 +62,7 @@
 #include "GAsioHelperFunctions.hpp"
 #include "GSerializationHelperFunctions.hpp"
 #include "GBaseClient.hpp"
+#include "GRandom.hpp"
 
 
 namespace Gem
