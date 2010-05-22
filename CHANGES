@@ -26,7 +26,8 @@ The main changes for this release include:
    library.
  - Added a GParameterObjectCollection that allows to arbitrarily mix any
    GParameterBase object in the same collection.
- - Moved the dataexchange library files into their own subfolders in include/ and src/.
+ - Started the split of the library files into sublibraries: common, dataexchange,
+   random, communication, and optimization.
  - Update to CMake 2.8, ported to Boost 1.43.
 
 //------------------------------------------------------------------------------------------------------
