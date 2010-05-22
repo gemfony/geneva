@@ -102,8 +102,8 @@ public:
 	/** @brief The standard destructor. Note: Non-virtual */
 	~GAsioServerSession();
 
-    /** @brief Processes an individual request from a client */
-    void processRequest();
+	/** @brief Processes an individual request from a client */
+	void processRequest();
 
 	/** @brief Retrieves the socket */
 	boost::asio::ip::tcp::socket& socket();
