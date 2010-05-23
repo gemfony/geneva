@@ -173,7 +173,7 @@ namespace Gem
 	/**
 	 * Registers an evaluation function with this class. Note that the function object
 	 * can not be serialized. Hence, in a networked optimization run, you need to derive
-	 * your own class from GParameterSet and specifiy an evaluation function.
+	 * your own class from GParameterSet and specify an evaluation function.
 	 */
 	void GParameterSet::registerEvaluator(const boost::function<double (const GParameterSet&)>& eval){
 		if(eval.empty()){ // empty function ?
