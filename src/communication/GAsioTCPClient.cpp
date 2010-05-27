@@ -46,7 +46,7 @@ GAsioTCPClient::GAsioTCPClient(const std::string& server, const std::string& por
    , stalls_(0)
    , io_service_()
    , socket_(io_service_)
-   ,resolver_(io_service_)
+   , resolver_(io_service_)
    , query_(server, port)
    , endpoint_iterator0_(resolver_.resolve(query_))
    , end_()
