@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------------------------------
-Roadmap for Version 0.8:
+Roadmap for Version 0.8, yet unnamed, release-date unknown
  - Full documentation.
  - Revision of broker infrastructure, implementation as separate library.
  - Revision of Random and Random factory, implementation as separate library.
