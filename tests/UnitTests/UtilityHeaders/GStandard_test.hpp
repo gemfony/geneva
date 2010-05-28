@@ -55,7 +55,7 @@ using boost::unit_test_framework::test_case;
 // Geneva headers go here
 #include "GEqualityPrinter.hpp"
 #include "GObject.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GEnums.hpp"
 #include "GUnitTestFrameworkT.hpp"
 
@@ -242,7 +242,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 		// Checks that self-assignment throws in DEBUG mode
 #ifdef DEBUG
 		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
-		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, Gem::Common::gemfony_error_condition);
 #endif
 	}
 

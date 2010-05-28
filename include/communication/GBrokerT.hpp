@@ -66,7 +66,7 @@
 
 // GenEvA headers go here
 #include "GConsumer.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GBufferPortT.hpp"
 #include "GBoundedBufferT.hpp"
 #include "GThreadGroup.hpp"

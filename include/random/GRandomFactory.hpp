@@ -79,7 +79,7 @@
 #include "GBoundedBufferT.hpp"
 #include "GThreadGroup.hpp"
 #include "GSingletonT.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GSeedManager.hpp"
 
 /****************************************************************************/

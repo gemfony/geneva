@@ -47,7 +47,7 @@
 
 // Geneva header files go here
 #include "GObject.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GNumCollectionT.hpp"
 #include "GInt32Collection.hpp"
@@ -221,7 +221,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_failures_expected, T)
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 		boost::shared_ptr<T> gnct_ptr(new T());
-		BOOST_CHECK_THROW(gnct_ptr->GObject::load(gnct_ptr), Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(gnct_ptr->GObject::load(gnct_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 	}
 }

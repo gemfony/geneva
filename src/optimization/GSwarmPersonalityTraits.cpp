@@ -170,7 +170,7 @@ void GSwarmPersonalityTraits::setCLocal(const double& cl_lower, const double& cl
 		std::ostringstream error;
 		error << "In GSwarmPersonalityTraits::setCLocal(const double&, const double&): Error!" << std::endl
 			  << "cl_upper = " << cl_upper << " is <= cl_lower = " << cl_lower << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 #endif
 
@@ -214,7 +214,7 @@ void GSwarmPersonalityTraits::setCGlobal(const double& cg_lower, const double& c
 		std::ostringstream error;
 		error << "In GSwarmPersonalityTraits::setCGlobal(const double&, const double&): Error!" << std::endl
 			  << "cg_upper = " << cg_upper << " which is <= cg_lower = " << cg_lower << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 #endif
 
@@ -258,7 +258,7 @@ void GSwarmPersonalityTraits::setCDelta(const double& cd_lower, const double& cd
 		std::ostringstream error;
 		error << "In GSwarmPersonalityTraits::setCGlobal(const double&, const double&): Error!" << std::endl
 			  << "cd_upper = " << cd_upper << " which is <= cd_lower = " << cd_lower << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 #endif
 
@@ -344,7 +344,7 @@ void GSwarmPersonalityTraits::setCommand(const std::string& command) {
 	if(command != "evaluate") { // The allowed "grammar"
 		std::ostringstream error;
 		error << "In GSwarmPersonalityTraits::setCommand(): Got invalid command " << command << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	command_ = command;

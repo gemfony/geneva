@@ -49,7 +49,7 @@
 #define GINTFLIPADAPTORT_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GIntFlipAdaptorT.hpp"
 #include "GInt32FlipAdaptor.hpp"
@@ -164,21 +164,21 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GIntFlipAdaptorT_failures_expected, T)
 		// Simple instantiation
 		T gifat0;
 		// Assignment of an invalid adaption probability
-		BOOST_CHECK_THROW(gifat0.setAdaptionProbability(-0.1), Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(gifat0.setAdaptionProbability(-0.1), Gem::Common::gemfony_error_condition);
 	}
 
 	{
 		// Simple instantiation
 		T gifat0;
 		// Assignment of an invalid adaption probability
-		BOOST_CHECK_THROW(gifat0.setAdaptionProbability(1.1), Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(gifat0.setAdaptionProbability(1.1), Gem::Common::gemfony_error_condition);
 	}
 
 	{
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 		boost::shared_ptr<T> gifat0_ptr(new T());
-		BOOST_CHECK_THROW(gifat0_ptr->load(gifat0_ptr), Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(gifat0_ptr->load(gifat0_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 	}
 }

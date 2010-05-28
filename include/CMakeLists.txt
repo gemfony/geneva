@@ -35,7 +35,6 @@ SET ( GENEVASHAREDINCLUDES
 	GBoundedBufferT.hpp
 	GBoundedBufferWithIdT.hpp
 	GBufferPortT.hpp
-	GenevaExceptions.hpp
 	GEnums.hpp
 	GExceptions.hpp
 	GGlobalDefines.hpp

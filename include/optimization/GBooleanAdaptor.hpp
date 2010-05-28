@@ -51,7 +51,7 @@
 #include "GObject.hpp"
 #include "GBoundedDouble.hpp"
 #include "GEnums.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GIntFlipAdaptorT.hpp"
 #include "GPODExpectationChecksT.hpp"
 

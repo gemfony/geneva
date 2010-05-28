@@ -57,7 +57,7 @@
 #include "GParameterBase.hpp"
 #include "GObject.hpp"
 #include "GAdaptorT.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -198,7 +198,7 @@ public:
 			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
 				  << "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
 				  << "Error: Empty adaptor provided." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		if(adaptor_) { // Is an adaptor already present ?
@@ -230,7 +230,7 @@ public:
 			error << "In GParameterBaseWithAdaptorsT::getAdaptor() : Error!" << std::endl
 				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
 				  << "Tried to retrieve adaptor while none is present" << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #endif /* DEBUG */
 
@@ -258,7 +258,7 @@ public:
 			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>()" << std::endl
 				  << "with typeid(T).name() = " << typeid(T).name() << " : Error!" << std::endl
 				  << "Tried to access empty adaptor pointer." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		boost::shared_ptr<adaptor_type> p = boost::dynamic_pointer_cast<adaptor_type>(adaptor_);
@@ -267,7 +267,7 @@ public:
 		else {
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Conversion error!" << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #else
 		return boost::static_pointer_cast<adaptor_type>(adaptor_);
@@ -390,7 +390,7 @@ protected:
 				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
 				  << "Error: No adaptor was found." << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #else
 		adaptor_->adapt(value);
@@ -414,7 +414,7 @@ protected:
 			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<T>& collection):" << std::endl
 				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
 				  << "Error: No adaptor was found." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #endif /* DEBUG */
 

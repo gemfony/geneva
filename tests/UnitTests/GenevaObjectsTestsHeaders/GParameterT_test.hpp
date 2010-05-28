@@ -49,7 +49,7 @@
 #define GPARAMETERT_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GParameterT.hpp"
 #include "GBoolean.hpp"
@@ -234,7 +234,7 @@ public:
 			// Default construction
 			GInt32 gpt0;
 			// Adding an empty adaptor should throw
-			BOOST_CHECK_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>()), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>()), Gem::Common::gemfony_error_condition);
 		}
 
 #ifdef DEBUG
@@ -245,7 +245,7 @@ public:
 			GInt32 gpt0;
 			// Extracting an adaptor of wrong type should throw in DEBUG mode
 			BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
-			BOOST_CHECK_THROW(gpt0.adaptor_cast<GBooleanAdaptor>(), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gpt0.adaptor_cast<GBooleanAdaptor>(), Gem::Common::gemfony_error_condition);
 		*/
 		}
 #endif /* DEBUG */
@@ -254,7 +254,7 @@ public:
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 			boost::shared_ptr<GInt32> gpt0_ptr(new GInt32());
-			BOOST_CHECK_THROW(gpt0_ptr->load(gpt0_ptr), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gpt0_ptr->load(gpt0_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 		}
 	}

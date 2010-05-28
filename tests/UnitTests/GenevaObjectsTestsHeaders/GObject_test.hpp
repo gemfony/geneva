@@ -43,7 +43,7 @@
 #define GOBJECT_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GObject.hpp"
 #include "GBooleanAdaptor.hpp"
@@ -119,7 +119,7 @@ public:
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 			boost::shared_ptr<GBooleanAdaptor> gba0_ptr(new GBooleanAdaptor());
-			BOOST_CHECK_THROW(gba0_ptr->load(gba0_ptr), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gba0_ptr->load(gba0_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 		}
 	}

@@ -58,7 +58,7 @@ namespace Gem
 			  error << "In parseArchitectureString(const std::string&):" << std::endl
 					<< "Error parsing the architecture string " << architecture << std::endl
 					<< "for token " << *tit << std::endl;
-			  throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			  throw(Gem::Common::gemfony_error_condition(error.str()));
 		  }
 	  }
 

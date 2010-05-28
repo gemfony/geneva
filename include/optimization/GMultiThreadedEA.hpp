@@ -57,7 +57,7 @@
 #include "GEvolutionaryAlgorithm.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem {
 namespace GenEvA {

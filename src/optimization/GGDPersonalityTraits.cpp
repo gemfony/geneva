@@ -165,7 +165,7 @@ void GGDPersonalityTraits::setCommand(const std::string& command) {
 	if(command != "evaluate") { // The allowed "grammar"
 		std::ostringstream error;
 		error << "In GGDPersonalityTraits::setCommand(): Got invalid command " << command << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	command_ = command;

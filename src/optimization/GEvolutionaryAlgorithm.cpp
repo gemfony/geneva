@@ -255,7 +255,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::saveCheckpoint():" << std::endl
 			  << "Error: class member has the dirty flag set" << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 #endif /* DEBUG */
 	double newValue = this->at(0)->fitness();
@@ -270,7 +270,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::saveCheckpoint()" << std::endl
 			  << "Error: Could not open output file";
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -318,7 +318,7 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
 			  << "Got invalid checkpoint file name " << cpFile << std::endl;
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	// Create the input stream and check that it is in good order
@@ -327,7 +327,7 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
 			  << "Error: Could not open input file";
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -449,7 +449,7 @@ double GEvolutionaryAlgorithm::cycleLogic() {
 	if(isDirty) {
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::cycleLogic(): Found dirty individual when it should not be" << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 #endif /* DEBUG */
 
@@ -501,7 +501,7 @@ void GEvolutionaryAlgorithm::init() {
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	// Let parents know they are parents and children that they are children
@@ -541,7 +541,7 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	// Check how many individuals have been added already. At least one is required.
@@ -551,7 +551,7 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
 		error << "In GEvolutionaryAlgorithm::adjustPopulation() : Error!" << std::endl
 			  << "size of population is 0. Did you add any individuals?" << std::endl
 			  << "We need at least one local individual" << std::endl;
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	// Do the smart pointers actually point to any objects ?
@@ -561,7 +561,7 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
 			std::ostringstream error;
 			error << "In GEvolutionaryAlgorithm::adjustPopulation() : Error!" << std::endl
 				  << "Found empty smart pointer." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 	}
 
@@ -663,7 +663,7 @@ void GEvolutionaryAlgorithm::recombine()
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 #endif
 
@@ -793,7 +793,7 @@ void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, c
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 }
 
@@ -840,7 +840,7 @@ void GEvolutionaryAlgorithm::select()
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 #endif /* DEBUG */
 

@@ -49,7 +49,7 @@
 // GenEvA headers go here
 #include "GParameterCollectionT.hpp"
 #include "GEnums.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem
 {

@@ -67,7 +67,7 @@
 // GenEvA headers go here
 #include "GAdaptorT.hpp"
 #include "GObject.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GEnums.hpp"
 
 namespace Gem {
@@ -291,7 +291,7 @@ public:
 			error << "In GGaussAdaptorT::setSigma(const double&): Error!" << std::endl
 			  	  << "sigma is negative: " << sigma << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		double tmpSigma;
@@ -308,7 +308,7 @@ public:
 			  	  << "If you want to use these values you need to" << std::endl
 			  	  << "adapt the allowed range first." << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		sigma_ = tmpSigma;
@@ -346,7 +346,7 @@ public:
 			error << "In GGaussAdaptorT::setSigmaRange(const double&, const double&): Error!" << std::endl
 				  << "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		minSigma_ = tmpMinSigma;
@@ -387,7 +387,7 @@ public:
 			error << "In GGaussAdaptorT::setSigmaSigma(double, double): Error!" << std::endl
 				  << "Bad value for sigmaSigma given: " << sigmaSigma << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		sigmaSigma_ = sigmaSigma;
@@ -431,7 +431,7 @@ public:
 		std::ostringstream error;
 		error << "In Gem::GenEvA::adaptorId GGaussAdaptorT::getAdaptorId(): Error!" << std::endl
 			  << "Function used with a type it was not designed for" << std::endl;
-		throw (Gem::GenEvA::geneva_error_condition(error.str()));
+		throw (Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	/***********************************************************************************/

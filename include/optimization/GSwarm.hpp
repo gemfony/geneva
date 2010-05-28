@@ -72,7 +72,7 @@
 // GenEvA headers go here
 #include "GIndividual.hpp"
 #include "GOptimizationAlgorithm.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GEnums.hpp"
 
 namespace Gem {
@@ -173,7 +173,7 @@ public:
 			std::ostringsteam error;
 			error << "In GSwarm::getBestIndividual<>() : Error" << std::endl
 				  << "Tried to access uninitialized globally best individual." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		boost::shared_ptr<individual_type> p = boost::dynamic_pointer_cast<individual_type>(global_best_);
@@ -182,7 +182,7 @@ public:
 		else {
 			std::ostringsteam error;
 			error << "In GSwarm::getBestIndividual<>() : Conversion error" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #else
 		return boost::static_pointer_cast<individual_type>(global_best_);

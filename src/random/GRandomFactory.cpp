@@ -57,7 +57,7 @@ GRandomFactory::GRandomFactory()
 		error << "Error in GRandomFactory::GRandomFactory():" << std::endl
 		         << "Class has been instantiated before." << std::endl
 		         << "and may be instantiated only once" << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 	else {
 		multiple_call_trap_++;
@@ -89,7 +89,7 @@ void GRandomFactory::setArraySize(const std::size_t& arraySize) {
 		std::ostringstream error;
 		error << "In GRandomFactory::setArraySize(): Error" << std::endl
 		          << "Requested array size is 0: " << arraySize << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	{
@@ -174,7 +174,7 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 		std::ostringstream error;
 		error << "In GRandomFactory::setNProducerThreads(): Error" << std::endl
 		          << "Requested 0 threads: " << n01Threads << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	// Threads might already be running, so we need to restrict access

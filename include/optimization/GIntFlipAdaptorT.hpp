@@ -57,7 +57,7 @@
 #include "GBoundedDouble.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GObject.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GEnums.hpp"
 
 namespace Gem {

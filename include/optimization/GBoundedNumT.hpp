@@ -58,7 +58,7 @@
 #include "GObject.hpp"
 #include "GParameterBaseWithAdaptorsT.hpp"
 #include "GParameterT.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem
 {
@@ -229,7 +229,7 @@ public:
 		<< "it was not designed for:" << std::endl
 		<< "typeid(T).name() = " << typeid(T).name() << std::endl;
 
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	/****************************************************************************/
@@ -254,7 +254,7 @@ public:
 				     << "with typeid(T).name() = " << typeid(T).name() << " : Error" << std::endl
 				     << "Lower and/or upper boundary has invalid value : " << lower << " " << upper << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Check size of the boundaries
@@ -264,7 +264,7 @@ public:
 				     << "with typeid(T).name() = " << typeid(T).name() << " : Error" << std::endl
 				     << "Lower and/or upper boundaries have too high values: " << lower << " " << upper << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Check that the value is inside the allowed range
@@ -277,7 +277,7 @@ public:
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		lowerBoundary_ = lower;
@@ -438,7 +438,7 @@ private:
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		// Check that the value is inside the allowed range
@@ -451,7 +451,7 @@ private:
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		// The transfer function in this area is just f(x)=x, so we can just
@@ -499,7 +499,7 @@ GBoundedNumT<T>::GBoundedNumT()
 			 << "it was not designed for:" << std::endl
 			 << "typeid(T).name() = " << typeid(T).name() << std::endl;
 
-	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 
 /******************************************************************************/
@@ -524,7 +524,7 @@ GBoundedNumT<T>::GBoundedNumT(const T& val)
 			 << "it was not designed for:" << std::endl
 			 << "typeid(T).name() = " << typeid(T).name() << std::endl;
 
-	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 
 /******************************************************************************/
@@ -550,7 +550,7 @@ GBoundedNumT<T>::GBoundedNumT(const T& lowerBoundary, const T& upperBoundary)
 	<< "it was not designed for:" << std::endl
 	<< "typeid(T).name() = " << typeid(T).name() << std::endl;
 
-	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 /******************************************************************************/
 /**

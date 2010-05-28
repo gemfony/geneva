@@ -77,7 +77,7 @@
 // Geneva header files go here
 // #include "GPODExpectationChecksT.hpp"
 #include "GSerializableI.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GEnums.hpp"
 #include "GHelperFunctionsT.hpp"
 #include "GUnitTestFrameworkT.hpp"

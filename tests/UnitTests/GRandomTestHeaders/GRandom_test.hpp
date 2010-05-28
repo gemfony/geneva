@@ -44,7 +44,7 @@
 #define GRANDOM_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GEnums.hpp"
 
@@ -157,7 +157,7 @@ public:
 			// Test (as the very last test) that multiple creation of GRandomFactory throws.
 			// Note that one instance of GRandomFactory should already be running, simply by virtue of
 			// the inclusion of the GRandom header file.
-			BOOST_CHECK_THROW(boost::shared_ptr<GRandomFactory>(new GRandomFactory()), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(boost::shared_ptr<GRandomFactory>(new GRandomFactory()), Gem::Common::gemfony_error_condition);
 		}
 	}
 

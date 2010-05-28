@@ -64,7 +64,7 @@
 
 #include "GMutableI.hpp"
 #include "GObject.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GPODExpectationChecksT.hpp"
 
 namespace Gem {

@@ -42,7 +42,7 @@
 #define GINT32COLLECTION_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GInt32Collection.hpp"
 #include "GEqualityPrinter.hpp"

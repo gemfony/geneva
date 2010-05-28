@@ -309,7 +309,7 @@ public:
 			catch(...) {
 				std::ostringstream error;
 				error << "Unknown error in bool vi_equal_to::operator()" << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 #else
 			result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));
@@ -347,7 +347,7 @@ public:
 			error << "In GParameterTCollectionT<T>::count(item): Error!"
 				     << "Tried to count an empty smart pointer." << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		if(typeid(item_type) == typeid(T)) {
@@ -371,7 +371,7 @@ public:
 			error << "In GParameterTCollectionT<T>::find(item): Error!"
 				     << "Tried to find an empty smart pointer." << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		if(typeid(item_type) == typeid(T)) {
@@ -445,7 +445,7 @@ public:
 			error << "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		return data.insert(pos, item_ptr);
@@ -466,7 +466,7 @@ public:
 			error << "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		return data.insert(pos, item_ptr->GObject::clone<T>());
@@ -499,7 +499,7 @@ public:
 			error << "In GParameterTCollectionT<T>::insert_clone(pos, amount, item): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		std::size_t iterator_pos = pos - data.begin();
@@ -525,7 +525,7 @@ public:
 			error << "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		std::size_t iterator_pos = pos - data.begin();
@@ -563,7 +563,7 @@ public:
 			error << "In GParameterTCollectionT<T>::push_back(item): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		data.push_back(item_ptr);
@@ -583,7 +583,7 @@ public:
 			error << "In GStdPtrVectorInterface<T>::push_back_clone(item): Error!"
 				     << "Tried to insert an empty smart pointer." << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		data.push_back(item_ptr->GObject::clone<T>());
@@ -614,7 +614,7 @@ public:
 				     << "Tried to increase the size even though the vector is empty." << std::endl
 				     << "Use a resize-version that allows you to specify the objects" << std::endl
 				     << "to be added." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		this->resize_clone(amount, this->at(0));
@@ -654,7 +654,7 @@ public:
 				error << "In GParameterTCollectionT<T>::resize(amount, item): Error!"
 					     << "Tried to insert an empty smart pointer." << std::endl;
 
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 
 			// Create a (amount - dataSize -1) clones
@@ -688,7 +688,7 @@ public:
 				error << "In GParameterTCollectionT<T>::resize(amount, item): Error!"
 					     << "Tried to insert an empty smart pointer." << std::endl;
 
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 
 			for(std::size_t i=dataSize; i<amount; i++) {
@@ -818,7 +818,7 @@ public:
 				std::ostringstream error;
 				error << "In conversion_iterator::dereference(): Error:" << std::endl
 					  << "current position at end of sequence" << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 #endif /* DEBUG */
 
@@ -829,7 +829,7 @@ public:
 				if(!p) {
 					std::ostringstream error;
 					error << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl;
-					throw(Gem::GenEvA::geneva_error_condition(error.str()));
+					throw(Gem::Common::gemfony_error_condition(error.str()));
 				}
 			}
 #endif /* DEBUG*/

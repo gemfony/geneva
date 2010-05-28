@@ -49,7 +49,7 @@
 #define GPARAMETERTCOLLECTIONT_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GParameterT.hpp"
 #include "GParameterTCollectionT.hpp"
@@ -132,7 +132,7 @@ boost::shared_ptr<typename T::collection_type> getTemplateItem() {
 	// This function should never be called directly
 	std::ostringstream error;
 	error << "In getTemplateItem<T>(): The template itself should never be called!" << std::endl;
-	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 
 // Specialization for GBoundedDouble
@@ -184,7 +184,7 @@ boost::shared_ptr<typename T::collection_type> getFindItem() {
 	// This function should never be called directly
 	std::ostringstream error;
 	error << "In getFindItem<T>(): The template itself should never be called!" << std::endl;
-	throw(Gem::GenEvA::geneva_error_condition(error.str()));
+	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 
 // Specialization for GBoundedDouble
@@ -349,7 +349,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_failures_expected, T )
 #ifdef DEBUG
 		// Default construction
 		boost::shared_ptr<T> gptct_ptr(new T());
-		BOOST_CHECK_THROW(gptct_ptr->load(gptct_ptr), Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(gptct_ptr->load(gptct_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 	}
 }

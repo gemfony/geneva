@@ -127,7 +127,7 @@ void createNetworkData(
 			std::ostringstream error;
 			error << "In createDataset(): Error!" << std::endl
 				  << "Received invalid data type " << t << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 		break;
 	}
