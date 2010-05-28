@@ -213,7 +213,7 @@ void GOptimizationAlgorithm::load_(const GObject* cp)
 	GMutableSetT<Gem::GenEvA::GIndividual>::load_(cp);
 
 	// and then our local data
-	gr.GObject::load(p_load->gr);
+	gr.load(p_load->gr);
 
 	iteration_ = p_load->iteration_;
 	maxIteration_ = p_load->maxIteration_;

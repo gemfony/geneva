@@ -287,41 +287,6 @@ namespace Util {
 
 /*********************************************************************/
 /**
- * Puts a Gem::Util::rnrGenerationMode item into a stream
- *
- * @param o The ostream the item should be added to
- * @param rnrgen the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream& operator<<(std::ostream& o, const Gem::Util::rnrGenerationMode& rnrgen){
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(rnrgen);
-	o << tmp;
-	return o;
-}
-
-/*********************************************************************/
-/**
- * Reads a Gem::Util::rnrGenerationMode item from a stream
- *
- * @param i The stream the item should be read from
- * @param rnrgen The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream& operator>>(std::istream& i, Gem::Util::rnrGenerationMode& rnrgen){
-	boost::uint16_t tmp;
-	i >> tmp;
-
-#ifdef DEBUG
-	rnrgen = boost::numeric_cast<Gem::Util::rnrGenerationMode>(tmp);
-#else
-	rnrgen = static_cast<Gem::Util::rnrGenerationMode>(tmp);
-#endif /* DEBUG */
-
-	return i;
-}
-
-/*********************************************************************/
-/**
  * Puts a Gem::Util::triboolStates item into a stream
  *
  * @param o The ostream the item should be added to

@@ -520,7 +520,7 @@ protected:
 		GObject::load_(cp);
 
 		// Then our own data
-		gr.GObject::load(p_load->gr);
+		gr.load(p_load->gr);
 		adaptionCounter_ = p_load->adaptionCounter_;
 		adaptionThreshold_ = p_load->adaptionThreshold_;
 		adProb_ = p_load->adProb_;

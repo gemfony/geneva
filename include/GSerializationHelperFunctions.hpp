@@ -119,13 +119,6 @@ std::istream& operator>>(std::istream&, Gem::GenEvA::sortingMode&);
 
 namespace Util
 {
-/***************************************************************************************************/
-
-/** @brief Puts a Gem::Util::rnrGenerationMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Util::rnrGenerationMode&);
-
-/** @brief Reads a Gem::Util::rnrGenerationMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Util::rnrGenerationMode&);
 
 /** @brief Puts a Gem::Util::triboolStates into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Util::triboolStates&);
