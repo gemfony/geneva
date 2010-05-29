@@ -252,7 +252,7 @@ void GDataExchange::sort(const bool& ascending) {
 			error << "In GDataExchange::sort() : Error!" << std::endl
 			         << "A data set without proper value was found. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 	}
 
@@ -315,7 +315,7 @@ void GDataExchange::setValue(double value){
 		        << "Trying to assign a value to the current" << std::endl
 		        << "when one has already been assigned. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	(*current_)->hasValue_ = true;
@@ -335,7 +335,7 @@ double GDataExchange::value(){
 			    << "Retrieving value of a data set when" << std::endl
 			    << "no value has been set yet." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	return (*current_)->value_;
@@ -411,7 +411,7 @@ bool GDataExchange::dataIsAvailable() {
 				std::ostringstream error;
 				error << "In GDataExchange::dataIsAvailable(): Error!" << std::endl
 				<< "Multiple data sets, but no data." << std::endl;
-				throw(GDataExchangeException(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 		}
 
@@ -586,7 +586,7 @@ void GDataExchange::append(boost::shared_ptr<GDoubleParameter> gdp) {
 			     << "Tried to assign new data when a value has already" << std::endl
 				 << "been calculated. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	(*current_)->dArray_.push_back(gdp);
@@ -606,7 +606,7 @@ void GDataExchange::append(boost::shared_ptr<GLongParameter> glp) {
 			    << "Tried to assign new data when a value has already" << std::endl
 				<< "been calculated. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	(*current_)->lArray_.push_back(glp);
@@ -626,7 +626,7 @@ void GDataExchange::append(boost::shared_ptr<GBoolParameter> gbp) {
 			    << "Tried to assign new data when a value has already" << std::endl
 				<< "been calculated. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	(*current_)->bArray_.push_back(gbp);
@@ -647,7 +647,7 @@ template <> void GDataExchange::append<double>(const double& x) {
 			     << "Tried to assign new data when a value has already" << std::endl
 				 << "been calculated. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	boost::shared_ptr<GDoubleParameter> p(new GDoubleParameter(x));
@@ -669,7 +669,7 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x) 
 			     << "Tried to assign new data when a value has already" << std::endl
 				 << "been calculated. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	boost::shared_ptr<GLongParameter> p(new GLongParameter(x));
@@ -691,7 +691,7 @@ template <> void GDataExchange::append<bool>(const bool& x) {
 			    << "Tried to assign new data when a value has already" << std::endl
 				<< "been calculated. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	boost::shared_ptr<GBoolParameter> p(new GBoolParameter(x));
@@ -714,7 +714,7 @@ template <> void GDataExchange::append<double>(const double& x, const double& x_
 			     << "Tried to assign new data when a value has already" << std::endl
 				 << "been calculated. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	// The GDoubleParameter constructor will do error checks
@@ -738,7 +738,7 @@ template <> void GDataExchange::append<boost::int32_t>(const boost::int32_t& x, 
 			     << "Tried to assign new data when a value has already" << std::endl
 				 << "been calculated. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	// The GLongParameter constructor will do error checks
@@ -764,7 +764,7 @@ template <> void GDataExchange::append<bool>(const bool& x, const bool& x_l, con
 			    << "Tried to assign new data when a value has already" << std::endl
 				<< "been calculated. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	boost::shared_ptr<GBoolParameter> p(new GBoolParameter(x,false,true));
@@ -932,7 +932,7 @@ void GDataExchange::writeToFile(const std::string& fileName, const bool& binary,
 		error << "In GDataExchange::writeToFile(): Error!" << std::endl
 			          << "Output stream is in a bad state. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	// We have been asked to resize the container. For this
@@ -964,7 +964,7 @@ void GDataExchange::readFromFile(const std::string& fileName, bool binary) {
 		error << "In GDataExchange::readFromFile(): Error!" << std::endl
  			     << "Input stream is in a bad state. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	if(binary)
@@ -980,7 +980,7 @@ void GDataExchange::readFromFile(const std::string& fileName, bool binary) {
 		error << "In GDataExchange::readFromFile(): Error!" << std::endl
  			     << "Read data from file, but no data is available ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	// Make sure the iterator is at the start position

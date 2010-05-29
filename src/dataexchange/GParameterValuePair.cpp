@@ -365,7 +365,7 @@ namespace Gem
 			error << "In GParameterValuePair::writeToStream(): Error!" << std::endl
 				     << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -411,7 +411,7 @@ namespace Gem
 			error << "In GParameterValuePair::readFromStream(): Error!" << std::endl
 				     << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -501,7 +501,7 @@ namespace Gem
 			error << "In GParameterValuePair::binaryWriteToStream(): Error!" << std::endl
 				     << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -550,7 +550,7 @@ namespace Gem
 			error << "In GParameterValuePair::binaryReadFromStream(): Error!" << std::endl
 				     << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 

@@ -3,7 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( DATAEXCHANGESOURCES
 	GBoolParameter
 	GDataExchange
-	GDataExchangeException
 	GDoubleParameter
 	GLongParameter
 	GNumericParameterT

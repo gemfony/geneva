@@ -79,7 +79,7 @@
 #include "GDoubleParameter.hpp"
 #include "GLongParameter.hpp"
 #include "GHelperFunctionsT.hpp"
-#include "GDataExchangeException.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem
 {

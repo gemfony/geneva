@@ -92,7 +92,7 @@ template<> void GNumericParameterT<bool>::writeToStream(std::ostream& stream) co
 			error << "In GNumericParameterT<bool>::writeToStream(): Error!" << std::endl
 			         << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -114,7 +114,7 @@ template<> void GNumericParameterT<bool>::readFromStream(std::istream& stream) {
 			error << "In GNumericParameterT<bool>::readFromStream(): Error!" << std::endl
 			         << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -141,7 +141,7 @@ template<> void GNumericParameterT<bool>::binaryWriteToStream(std::ostream& stre
 			error << "In GNumericParameterT<bool>::binaryWriteToStream(): Error!" << std::endl
 			         << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -164,7 +164,7 @@ template<> void GNumericParameterT<bool>::binaryReadFromStream(std::istream& str
 			error << "In GNumericParameterT<bool>::binaryReadFromStream(): Error!" << std::endl
 			         << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 

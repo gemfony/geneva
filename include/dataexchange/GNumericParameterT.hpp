@@ -73,7 +73,7 @@
 
 
 // Geneva headers go here
-#include "GDataExchangeException.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem
 {
@@ -175,7 +175,7 @@ public:
 					 << "upperBoundary_ = " << upperBoundary_ << std::endl
 					 << "Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		return param_;
@@ -271,7 +271,7 @@ public:
 					<< "upperBoundary_ = " << upperBoundary_ << std::endl
 					<< "Leaving ... " << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Set the parameter- and boundary values;
@@ -298,7 +298,7 @@ public:
 				    << "upperBoundary_ = " << upperBoundary_ << std::endl
 				    << "Leaving ... " << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Set the parameter- and boundary values;
@@ -374,7 +374,7 @@ public:
 			error << "In GNumericParameterT<T>::writeToStream(): Error!" << std::endl
 			         << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -399,7 +399,7 @@ public:
 			error << "In GNumericParameterT<T>::readFromStream(): Error!" << std::endl
 			         << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -423,7 +423,7 @@ public:
 			error << "In GNumericParameterT<T>::binaryWriteToStream(): Error!" << std::endl
 				    << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -448,7 +448,7 @@ public:
 			error << "In GNumericParameterT<T>::binaryReadFromStream(): Error!" << std::endl
 				          << "Stream is in a bad condition. Leaving ..." << std::endl;
 
-			throw(GDataExchangeException(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG*/
 
@@ -473,7 +473,7 @@ protected:
 					  << "You seem to have instantiated this class with a type it was" << std::endl
 					  << "not designed for. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 private:
@@ -538,7 +538,7 @@ GNumericParameterT<T>::GNumericParameterT(const T& param, const T& lower, const 
 		        << "upperBoundary_ = " << upperBoundary_ << std::endl
 		        << "Leaving ... " << std::endl;
 
-		throw GDataExchangeException(error.str());
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 }
 /*****************************************************************************************/

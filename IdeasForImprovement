@@ -109,4 +109,3 @@
 - Add continuation criterium: "At least x percent of all child individuals must have returned" (Ariel). Should be
   rated higher than the time constraint ("waitFactor") or could replace it.
 - Add (de-)serialization tests for the new, independent GRandom lib
-- Replace GDataExchangeException by GException

@@ -79,7 +79,7 @@
 #include "GLongParameter.hpp"
 #include "GParameterValuePair.hpp"
 #include "GHelperFunctionsT.hpp"
-#include "GDataExchangeException.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem
 {
@@ -195,7 +195,7 @@ public:
 			    << "The function seems to have been called with a type" << std::endl
 			    << "it was not designed for. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 
 		// Make the compiler happy
 		return 0;
@@ -216,7 +216,7 @@ public:
 		         << "The function seems to have been called with a type" << std::endl
 		         << "it was not designed for. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 
 		// Make the compiler happy
 		return boost::shared_ptr<GNumericParameterT<T> >(new GNumericParameterT<T>());
@@ -237,7 +237,7 @@ public:
 			    << "The function seems to have been called with a type" << std::endl
 			    << "it was not designed for. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 
 		// Make the compiler happy
 		return 0.;
@@ -257,7 +257,7 @@ public:
 			     << "The function seems to have been called with a type" << std::endl
 			     << "it was not designed for. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 
 		// Make the compiler happy
 		return (std::size_t)NULL;
@@ -275,7 +275,7 @@ public:
 		        << "The function seems to have been called with a type" << std::endl
 			    << "it was not designed for. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	/**************************************************************************/
@@ -290,7 +290,7 @@ public:
 			    << "The function seems to have been called with a type" << std::endl
 			    << "it was not designed for. Leaving ..." << std::endl;
 
-		throw(GDataExchangeException(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	/**************************************************************************/
