@@ -61,7 +61,7 @@
 #include "GParameterObjectCollection.hpp"
 #include "GBoundedDoubleCollection.hpp"
 #include "GBoundedDouble.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GGlobalOptionsT.hpp"
 #include "GPODExpectationChecksT.hpp"
 #include "GEnums.hpp"
