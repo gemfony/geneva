@@ -48,7 +48,7 @@
 #define GGAUSSADAPTORT_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GGaussAdaptorT.hpp"
 #include "GDoubleGaussAdaptor.hpp"
@@ -159,24 +159,24 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_failures_expected, T )
 
 	{
 		T ggat0(0.1, 0.001, 0., 1.);
-		BOOST_CHECK_THROW(ggat0.setSigma(1.1), Gem::GenEvA::geneva_error_condition); // outside of the allowed range
+		BOOST_CHECK_THROW(ggat0.setSigma(1.1), Gem::Common::gemfony_error_condition); // outside of the allowed range
 	}
 
 	{ // not sure what state ggat0 is in after it has thrown. Hence we recreate it for the next test
 		T ggat0;
-		BOOST_CHECK_THROW(ggat0.setSigmaRange(-1.,1.), Gem::GenEvA::geneva_error_condition); // outside of the allowed range
+		BOOST_CHECK_THROW(ggat0.setSigmaRange(-1.,1.), Gem::Common::gemfony_error_condition); // outside of the allowed range
 	}
 
 	{ // not sure what state ggat0 is in after it has thrown. Hence we recreate it for the next test
 		T ggat0;
-		BOOST_CHECK_THROW(ggat0.setSigmaAdaptionRate(0.), Gem::GenEvA::geneva_error_condition); // 0. is not an allowed value
+		BOOST_CHECK_THROW(ggat0.setSigmaAdaptionRate(0.), Gem::Common::gemfony_error_condition); // 0. is not an allowed value
 	}
 
 	{
 		// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 		boost::shared_ptr<T> ggat0_ptr(new T());
-		BOOST_CHECK_THROW(ggat0_ptr->load(ggat0_ptr), Gem::GenEvA::geneva_error_condition);
+		BOOST_CHECK_THROW(ggat0_ptr->load(ggat0_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 	}
 }

@@ -57,7 +57,7 @@
 #include "GDoubleGaussAdaptor.hpp"
 #include "GBoundedDoubleCollection.hpp"
 #include "GBoundedDouble.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GGlobalOptionsT.hpp"
 #include "GEnums.hpp"
 

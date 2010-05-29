@@ -53,8 +53,7 @@
 #include "GBoundedDouble.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GObject.hpp"
-#include "GRandom.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GEnums.hpp"
 
 namespace Gem {
@@ -228,7 +227,7 @@ public:
 		std::ostringstream error;
 		error << "In GSwarmAdaptor::setAdaptionMode(): Error!" << std::endl
 			  << "This function should not have been called for this adaptor." << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	/***********************************************************************************/

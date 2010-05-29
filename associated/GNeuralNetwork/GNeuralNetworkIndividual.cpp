@@ -261,7 +261,7 @@ void networkData::saveToDisk(const std::string& networkDataFile) const {
 		error << "In networkData::saveToDisk(const std::string&) : Error!" << std::endl
 			  << "Data file " << networkDataFile << " could not be opened for writing." << std::endl;
 
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	// Load the data, using the Boost.Serialization library
@@ -293,7 +293,7 @@ void networkData::loadFromDisk(const std::string& networkDataFile) {
 			error << "File does not exist." << std::endl;
 		}
 
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	// Load the data into nD, using the Boost.Serialization library

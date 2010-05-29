@@ -54,7 +54,7 @@
 #endif
 
 // GenEvA headers go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GIndividual.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
 #include "GBufferPortT.hpp"

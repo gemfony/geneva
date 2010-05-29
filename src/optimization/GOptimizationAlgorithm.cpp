@@ -213,7 +213,7 @@ void GOptimizationAlgorithm::load_(const GObject* cp)
 	GMutableSetT<Gem::GenEvA::GIndividual>::load_(cp);
 
 	// and then our local data
-	gr.GObject::load(p_load->gr);
+	gr.load(p_load->gr);
 
 	iteration_ = p_load->iteration_;
 	maxIteration_ = p_load->maxIteration_;
@@ -433,7 +433,7 @@ void GOptimizationAlgorithm::setMaxTime(const boost::posix_time::time_duration& 
 		error << "In GOptimizationAlgorithm::setMaxTime() : Error!" << std::endl
 			  << "Invalid maxDuration." << std::endl;
 
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	maxDuration_ = maxDuration;
@@ -597,7 +597,7 @@ void GOptimizationAlgorithm::setCheckpointInterval(const boost::int32_t& cpInter
 		std::ostringstream error;
 		error << "In GOptimizationAlgorithm::setCheckpointInterval():" << std::endl
 			  << "Error: received bad checkpoint interval: " << cpInterval << std::endl;
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	cpInterval_ = cpInterval;
@@ -627,14 +627,14 @@ void GOptimizationAlgorithm::setCheckpointBaseName(const std::string& cpDirector
 		std::ostringstream error;
 		error << "In GOptimizationAlgorithm::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 			  << "Error: Invalid cpBaseName: " << cpBaseName << std::endl;
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	if(cpDirectory == "empty" || cpDirectory.empty()) {
 		std::ostringstream error;
 		error << "In GOptimizationAlgorithm::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 			  << "Error: Invalid cpDirectory: " << cpDirectory << std::endl;
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	cpBaseName_ = cpBaseName;
@@ -644,7 +644,7 @@ void GOptimizationAlgorithm::setCheckpointBaseName(const std::string& cpDirector
 		std::ostringstream error;
 		error << "In GOptimizationAlgorithm::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 			  << "Error: directory does not exist: " << cpDirectory << std::endl;
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	// Add a trailing slash to the directory name, if necessary
@@ -891,7 +891,7 @@ double GOptimizationAlgorithm::fitnessCalculation() {
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 	return val;
 }

@@ -185,7 +185,7 @@ public:
 			std::ostringstream error;
 			error << "In GAdaptorT<T>::GAdaptorT(cp):: Error!" << std::endl
 			      << "The maximum number of variables must be at least 1" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 	}
@@ -324,7 +324,7 @@ public:
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		adProb_ = probability;
@@ -438,7 +438,7 @@ public:
 			std::ostringstream error;
 			error << "In GAdaptorT<T>::setNVars() : Error!" << std::endl
 				  << "The maximum number of variables must be at least 1" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 
@@ -520,7 +520,7 @@ protected:
 		GObject::load_(cp);
 
 		// Then our own data
-		gr.GObject::load(p_load->gr);
+		gr.load(p_load->gr);
 		adaptionCounter_ = p_load->adaptionCounter_;
 		adaptionThreshold_ = p_load->adaptionThreshold_;
 		adProb_ = p_load->adProb_;
@@ -533,7 +533,7 @@ protected:
 			std::ostringstream error;
 			error << "In GAdaptorT<T>::load_(cp):: Error!" << std::endl
 			      << "The maximum number of variables must be at least 1" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 	}

@@ -131,106 +131,19 @@ GRandom::~GRandom() {
  * @param cp A copy of another GRandom object
  */
 GRandom& GRandom::operator=(const GRandom& cp) {
-	GRandom::load_(&cp);
+	GRandom::load(cp);
 	return *this;
 }
 
 /*************************************************************************/
 /**
- * Checks for equality with another GRandom object
+ * Loads the data of another GRandom object
  *
- * @param  cp A constant reference to another GRandom object
- * @return A boolean indicating whether both objects are equal
+ * @param cp A copy of another GRandom object
  */
-bool GRandom::operator==(const GRandom& cp) const {
-	using namespace Gem::Util;
-	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GRandom::operator==","cp", CE_SILENT);
-}
-
-/*************************************************************************/
-/**
- * Checks for inequality with another GRandom object
- *
- * @param  cp A constant reference to another GRandom object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GRandom::operator!=(const GRandom& cp) const {
-	using namespace Gem::Util;
-	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GRandom::operator!=","cp", CE_SILENT);
-}
-
-/*************************************************************************/
-/**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled.
- *
- * @param cp A constant reference to another object, camouflaged as a GObject
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GRandom::checkRelationshipWith(const GObject& cp,
-		const Gem::Util::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
-    using namespace Gem::Util;
-    using namespace Gem::Util::POD;
-
-	// Check that we are indeed dealing with a GParamterBase reference
-	const GRandom *p_load = GObject::conversion_cast<GRandom>(&cp);
-
-	// Will hold possible deviations from the expectation, including explanations
-    std::vector<boost::optional<std::string> > deviations;
-
-	// Check our parent class'es data ...
-	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GRandom", y_name, withMessages));
-
-	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GRandom", rnrGenerationMode_, p_load->rnrGenerationMode_, "rnrGenerationMode_", "p_load->rnrGenerationMode_", e , limit));
-
-	// We do not check the gauss cache and the associated boolean, as it is re-generated for each GRandom object
-
-	return evaluateDiscrepancies("GRandom", caller, deviations, e);
-}
-
-/*************************************************************************/
-/**
- * Creates a deep copy of this object
- *
- * @return A deep copy of this object, camouflaged as a pointer to a Gem::GenEvA::GObject
- */
-Gem::GenEvA::GObject* GRandom::clone_() const {
-	return new GRandom(*this);
-}
-
-/*************************************************************************/
-/**
- * Loads the contents of another GRandom. The function
- * is similar to a copy constructor (but with a pointer as
- * argument). As this function might be called in an environment
- * where we do not know the exact type of the class, the
- * GRandom is camouflaged as a GObject . This implies the
- * need for dynamic conversion.
- *
- * @param gb A pointer to another GRandom, camouflaged as a GObject
- */
-void GRandom::load_(const Gem::GenEvA::GObject* cp) {
-	// Convert cp into local format
-	const GRandom *p_load = this->conversion_cast<GRandom>(cp);
-
-	// Load the parent class'es data
-	Gem::GenEvA::GObject::load_(cp);
-
+void GRandom::load(const GRandom& cp) {
 	// Then our own data
-	rnrGenerationMode_ = p_load->rnrGenerationMode_;
+	rnrGenerationMode_ = cp.rnrGenerationMode_;
 	switch(rnrGenerationMode_) {
 	case RNRFACTORY:
 		setRNRFactoryMode();
@@ -239,6 +152,9 @@ void GRandom::load_(const Gem::GenEvA::GObject* cp) {
 		setRNRLocalMode();
 		break;
 	};
+
+	// Other class-local variables do not need to be loaded, as they have
+	// either been initialized at construction time or are temporary variables
 }
 
 /*************************************************************************/
@@ -518,6 +434,41 @@ void GRandom::getNewP01() {
 
 	// Extract the array size for later use
 	currentPackageSize_ = static_cast<std::size_t>(p_raw_[0]);
+}
+
+/*************************************************************************/
+/**
+ * Puts a Gem::Util::rnrGenerationMode item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param rnrgen the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Util::rnrGenerationMode& rnrgen){
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(rnrgen);
+	o << tmp;
+	return o;
+}
+
+/*************************************************************************/
+/**
+ * Reads a Gem::Util::rnrGenerationMode item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param rnrgen The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Util::rnrGenerationMode& rnrgen){
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	rnrgen = boost::numeric_cast<Gem::Util::rnrGenerationMode>(tmp);
+#else
+	rnrgen = static_cast<Gem::Util::rnrGenerationMode>(tmp);
+#endif /* DEBUG */
+
+	return i;
 }
 
 /*************************************************************************/

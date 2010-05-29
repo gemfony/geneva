@@ -51,8 +51,7 @@
 // GenEvA headers go here
 #include "GAdaptorT.hpp"
 #include "GObject.hpp"
-#include "GRandom.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GEnums.hpp"
 
 namespace Gem {
@@ -94,7 +93,7 @@ public:
 				error << "In GIdentityAdaptorT<T>::GIdentityAdaptorT() : Error!" << std::endl
 					  << "Class was instantiated with a type it was not designed for." << std::endl
 					  << "Typeid.name() is " << typeid(T).name() << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif
 	 }
@@ -215,7 +214,7 @@ public:
 		std::ostringstream error;
 		error << "In GIdentityAdaptor::setAdaptionMode(): Error!" << std::endl
 			  << "This function should not have been called for this adaptor" << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	/***********************************************************************************/

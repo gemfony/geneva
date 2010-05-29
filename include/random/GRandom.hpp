@@ -59,6 +59,20 @@
 #include <boost/random/linear_congruential.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
 
 #ifndef GRANDOM_HPP_
 #define GRANDOM_HPP_
@@ -71,18 +85,30 @@
 
 // GenEvA headers go here
 
-#include "GObject.hpp"
 #include "GBoundedBufferT.hpp"
-#include "GEnums.hpp"
 #include "GThreadGroup.hpp"
 #include "GRandomFactory.hpp"
-#include "GenevaExceptions.hpp"
-#include "GPODExpectationChecksT.hpp"
+#include "GExceptions.hpp"
 
 /****************************************************************************/
 
 namespace Gem {
 namespace Util {
+
+/****************************************************************************/
+/**
+ * Random number generation can happen in two modes
+ */
+enum rnrGenerationMode {
+	  RNRFACTORY
+	, RNRLOCAL
+};
+
+/****************************************************************************/
+/**
+ * The default random number generation mode
+ */
+const rnrGenerationMode DEFAULTRNRGENMODE=RNRLOCAL;
 
 const double rnr_max = static_cast<double>(std::numeric_limits<boost::int32_t>::max()); // The return type of boost::rand48
 
@@ -95,7 +121,6 @@ const double rnr_max = static_cast<double>(std::numeric_limits<boost::int32_t>::
  * are retrieved from the factory.
  */
 class GRandom
-	:public Gem::GenEvA::GObject
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -104,8 +129,7 @@ class GRandom
     void save(Archive & ar, const unsigned int) const {
       using boost::serialization::make_nvp;
 
-      ar & make_nvp("GObject", boost::serialization::base_object<Gem::GenEvA::GObject>(*this))
-         & BOOST_SERIALIZATION_NVP(rnrGenerationMode_)
+      ar & BOOST_SERIALIZATION_NVP(rnrGenerationMode_)
          & BOOST_SERIALIZATION_NVP(initialSeed_)
          & BOOST_SERIALIZATION_NVP(gaussCache_)
          & BOOST_SERIALIZATION_NVP(gaussCacheAvailable_);
@@ -115,8 +139,7 @@ class GRandom
     void load(Archive & ar, const unsigned int){
         using boost::serialization::make_nvp;
 
-        ar & make_nvp("GObject", boost::serialization::base_object<Gem::GenEvA::GObject>(*this))
-           & BOOST_SERIALIZATION_NVP(rnrGenerationMode_);
+        ar & BOOST_SERIALIZATION_NVP(rnrGenerationMode_);
 
         switch(rnrGenerationMode_) {
         case Gem::Util::RNRFACTORY:
@@ -155,14 +178,9 @@ public:
 
 	/** @brief A standard assignment operator */
 	GRandom& operator=(const GRandom&);
+	/** @brief Loads the data of another GRandom object */
+	void load(const GRandom&);
 
-	/** @brief Checks for equality with another GRandom object */
-	bool operator==(const GRandom&) const;
-	/** @brief Checks inequality with another GRandom object */
-	bool operator!=(const GRandom&) const;
-
-	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Emits evenly distributed random numbers in the range [0,1[ */
 	// inline double evenRandom();
@@ -298,12 +316,6 @@ public:
 	/** @brief Retrieves the current seed value */
 	boost::uint32_t getSeed();
 
-protected:
-	/** @brief Loads the data of another GRandom object, camouflaged as a GObject */
-	virtual void load_(const Gem::GenEvA::GObject*);
-	/** @brief Creates a deep clone of this object */
-	virtual Gem::GenEvA::GObject* clone_() const;
-
 private:
 	/** @brief Fills a random container if none could be retrieved from the factory */
 	void fillContainer01();
@@ -329,6 +341,15 @@ private:
 	/** @brief Specifies whether a valid cached gaussian is available */
 	bool gaussCacheAvailable_;
 };
+
+/****************************************************************************/
+// Some helper functions
+
+/** @brief Puts a Gem::Util::rnrGenerationMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Util::rnrGenerationMode&);
+
+/** @brief Reads a Gem::Util::rnrGenerationMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Util::rnrGenerationMode&);
 
 /****************************************************************************/
 

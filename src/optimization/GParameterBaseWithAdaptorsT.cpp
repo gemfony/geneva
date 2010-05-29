@@ -52,7 +52,7 @@ void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collecti
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
 				  << "Error: No adaptor was found." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #endif /* DEBUG */
 

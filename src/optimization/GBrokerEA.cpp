@@ -216,7 +216,7 @@ void GBrokerEA::setWaitFactor(const boost::uint32_t& waitFactor, const boost::ui
 		std::ostringstream error;
 		error << "In GBrokerEA::setWaitFactor(uint32_t, uint32_t) : Error!" << std::endl
 			  << "invalid maximum wait factor: " << maxWaitFactor << " / " << waitFactor << std::endl;
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	waitFactor_ = waitFactor;
@@ -280,7 +280,7 @@ void GBrokerEA::setLoopTime(const boost::posix_time::time_duration& loopTime) {
 		error << "In GBrokerEA::setLoopTime() : Error!" << std::endl
 			  << "loopTime is set to 0" << std::endl;
 
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	loopTime_ = loopTime;
@@ -346,7 +346,7 @@ void GBrokerEA::init() {
 				error << "In GBrokerEA::optimize(): Error" << std::endl
 				      << "GBrokerEA stored as an individual inside of" << std::endl
 				      << "a population of the same type" << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 		}
 	}
@@ -473,7 +473,7 @@ void GBrokerEA::adaptChildren() {
 						error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
 							  << "The arrivalTimes_ vector has the incorrect size " << arrivalTimes_.size() << std::endl
 							  << "Expected the size to be " << generation+1 << std::endl;
-						throw geneva_error_condition(error.str());
+						throw Gem::Common::gemfony_error_condition(error.str());
 					}
 #endif /* DEBUG */
 					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_milliseconds());
@@ -508,7 +508,7 @@ void GBrokerEA::adaptChildren() {
 					  << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
 					  << "You can change this value with the setFirstTimeOut() function." << std::endl;
 
-				throw geneva_error_condition(error.str());
+				throw Gem::Common::gemfony_error_condition(error.str());
 			}
 			// The loop will continue if no exception was thrown here
 			else {
@@ -544,7 +544,7 @@ void GBrokerEA::adaptChildren() {
 						error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
 							  << "The arrivalTimes_ vector has the incorrect size " << arrivalTimes_.size() << std::endl
 							  << "Expected the size to be " << generation+1 << std::endl;
-						throw geneva_error_condition(error.str());
+						throw Gem::Common::gemfony_error_condition(error.str());
 					}
 #endif /* DEBUG */
 					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_milliseconds());
@@ -597,7 +597,7 @@ void GBrokerEA::adaptChildren() {
 			error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
 				  << "Population is empty when it shouldn't be." << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		// Sort according to parent/child tag. We do not know in what order individuals have returned.

@@ -42,7 +42,7 @@
 #define GBROKEREA_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GBrokerEA.hpp"
 

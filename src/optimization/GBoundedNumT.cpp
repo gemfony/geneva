@@ -126,7 +126,7 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, cons
 			error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
 				     << "Error: Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Check size of the boundaries
@@ -135,7 +135,7 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, cons
 			error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
 				     << "Error: Lower and/or upper boundaries have too high values: " << lowerBoundary << " " << upperBoundary << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		lowerBoundary_ = lowerBoundary;
@@ -166,7 +166,7 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& low
 			std::ostringstream error;
 			error << "In GBoundedNumT<double>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&)" << std::endl
 				     << "Error: Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Check size of the boundaries
@@ -175,7 +175,7 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& low
 			error << "In GBoundedNumT<double>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&)" << std::endl
 				     << "Error: Lower and/or upper boundaries have too high values: " << lowerBoundary << " " << upperBoundary << std::endl;
 
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// This function also sets the internalValue_ variable.

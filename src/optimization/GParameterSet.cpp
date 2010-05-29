@@ -181,7 +181,7 @@ namespace Gem
 			error << "In GParameterSet::registerEvaluator(): Error" << std::endl
 					<< "Received empty function" << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		eval_ = eval;
@@ -201,7 +201,7 @@ namespace Gem
 			error << "In GParameterSet::fitnessCalculation(): Error" << std::endl
 					<< "No evaluation function present" << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		// Trigger the actual calculation
@@ -251,7 +251,7 @@ namespace Gem
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 /**
- * As the Gem::GenEvA::Gem::GenEvA::GParameterSet has a private default constructor, we need to provide a
+ * As the Gem::GenEvA::GParameterSet has a private default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
  */
 template <>

@@ -42,7 +42,7 @@
 #define GBOUNDEDINT32_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GBoundedInt32.hpp"
 #include "GInt32FlipAdaptor.hpp"
@@ -211,14 +211,14 @@ public:
 		{
 			// Assignment of value outside of the allowed range
 			GBoundedInt32 gbi(-10,10);
-			BOOST_CHECK_THROW(gbi=11, Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gbi=11, Gem::Common::gemfony_error_condition);
 		}
 
 		{
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 			boost::shared_ptr<GBoundedInt32> gbi_ptr(new GBoundedInt32(-10,10));
-			BOOST_CHECK_THROW(gbi_ptr->load(gbi_ptr), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gbi_ptr->load(gbi_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 		}
 	}

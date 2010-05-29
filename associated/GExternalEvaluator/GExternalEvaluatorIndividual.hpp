@@ -211,7 +211,7 @@ class GExternalEvaluatorIndividual
 		if(program_.empty() || program_ == "empty" || program_ == "unknown") {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(...) : received bad program name \"" << program_ << "\"." << std::endl;
-			throw (Gem::GenEvA::geneva_error_condition(error.str()));
+			throw (Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		std::string commandLine;
@@ -245,7 +245,7 @@ class GExternalEvaluatorIndividual
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual constructor: Error!" << std::endl
 					<< "Tried to erase non-existant parameter file " << parameterFile_ << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 		bf::remove(p);
@@ -288,7 +288,7 @@ class GExternalEvaluatorIndividual
 		if(program.empty() || program == "empty" || program == "unknown") {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::initialize : received bad program name \"" << program << "\"." << std::endl;
-			throw (Gem::GenEvA::geneva_error_condition(error.str()));
+			throw (Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		std::string commandLine = program + " -i ";
@@ -315,7 +315,7 @@ class GExternalEvaluatorIndividual
 		if(program.empty() || program == "empty" || program == "unknown") {
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::initialize : received bad program name \"" << program << "\"." << std::endl;
-			throw (Gem::GenEvA::geneva_error_condition(error.str()));
+			throw (Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		std::string commandLine = program + " -f ";
@@ -489,7 +489,7 @@ class GExternalEvaluatorIndividual
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::setExchangeFileName(): Error!" << std::endl
 					<< "Invalid file name \"" << parameterFile << "\"" << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		parameterFile_ = parameterFile;
@@ -524,7 +524,7 @@ class GExternalEvaluatorIndividual
 			error << "In GExternalEvaluatorIndividual::printResult(): Error!" << std::endl
 					<< "Invalid program name \"" << program_ << "\"" << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		// Assemble command line and run the external program
@@ -552,7 +552,7 @@ class GExternalEvaluatorIndividual
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::printResult(): Error!" << std::endl
 					<< "Tried to erase non-existent file " << bestParameterSetFile << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 		bf::remove(p);
@@ -608,7 +608,7 @@ class GExternalEvaluatorIndividual
 			error << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
 					<< "Invalid program name \"" << program_ << "\"" << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		// Make the parameters known externally
@@ -648,7 +648,7 @@ class GExternalEvaluatorIndividual
 			error << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
 					<< "Received no value from the external calculation" << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		// Erase the parameter file - not needed anymore.
@@ -658,7 +658,7 @@ class GExternalEvaluatorIndividual
 			std::ostringstream error;
 			error << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
 					<< "Tried to erase non-existent parameter file " << parFile << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 		bf::remove(p);
@@ -887,7 +887,7 @@ class GExternalEvaluatorIndividual
 			error << "In GExternalEvaluatorIndividual::runExternalCommand(): Error" << std::endl
 					<< "Command: " << command << std::endl
 					<< "Error code: " << errorCode << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 	}
 

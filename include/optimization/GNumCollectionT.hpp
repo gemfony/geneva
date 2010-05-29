@@ -52,7 +52,7 @@
 #include "GObject.hpp"
 #include "GParameterCollectionT.hpp"
 #include "GDoubleGaussAdaptor.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -208,7 +208,7 @@ public:
 		error << "In GNumCollectionT<T>::addRandomData(): Error!" << std::endl
 			  << "This function should never have been called direclty." << std::endl;
 
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
 	/******************************************************************/

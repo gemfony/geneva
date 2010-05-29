@@ -76,7 +76,7 @@
 #include "GParameterSet.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GDouble.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GHelperFunctionsT.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
 
@@ -306,7 +306,7 @@ public:
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual<tF>([...]) : Error!" << std::endl
 				  << "Invalid number of layers supplied. Did you set up the network architecture ?" << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		networkData::iterator layerIterator;
@@ -349,7 +349,7 @@ public:
 				error << "In GNeuralNetworkIndividual<tF>::GNeuralNetworkIndividual([...]) : Error!" << std::endl
 					  << "Found invalid number of nodes in layer: " << *layerIterator << std::endl
 					  << "Did you set up the network architecture ?" << std::endl;
-				throw geneva_error_condition(error.str());
+				throw Gem::Common::gemfony_error_condition(error.str());
 			}
 		}
 	}
@@ -473,7 +473,7 @@ public:
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
 				  << "Got invalid number of layers: " << architecture.size() << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Check that the output layer has exactly one node
@@ -482,7 +482,7 @@ public:
 			error << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
 				  << "The output layer must have exactly one node for this training data." << std::endl
 				  << "Got " << architecture.back() << " instead." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Create a local random number generator.
@@ -501,7 +501,7 @@ public:
 				std::ostringstream error;
 				error << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
 					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 
 			nD->push_back(*it);
@@ -555,7 +555,7 @@ public:
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
 				  << "Got invalid number of layers: " << architecture.size() << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Check that the output layer has exactly one node
@@ -564,7 +564,7 @@ public:
 			error << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
 				  << "The output layer must have exactly one node for this training data." << std::endl
 				  << "Got " << architecture.back() << " instead." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Create a local random number generator.
@@ -583,7 +583,7 @@ public:
 				std::ostringstream error;
 				error << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
 					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 
 			nD->push_back(*it);
@@ -681,7 +681,7 @@ public:
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
 				  << "Got invalid number of layers: " << architecture.size() << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Check that the output layer has exactly one node
@@ -690,7 +690,7 @@ public:
 			error << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
 				  << "The output layer must have exactly one node for this training data." << std::endl
 				  << "Got " << architecture.back() << " instead." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Create a local random number generator.
@@ -709,7 +709,7 @@ public:
 				std::ostringstream error;
 				error << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
 					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 
 			nD->push_back(*it);
@@ -775,7 +775,7 @@ public:
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
 				  << "Got invalid number of layers: " << architecture.size() << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Check that the output layer has exactly one node
@@ -784,7 +784,7 @@ public:
 			error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
 				  << "The output layer must have exactly one node for this training data." << std::endl
 				  << "Got " << architecture.back() << " instead." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// We require the input dimension to be 2
@@ -793,7 +793,7 @@ public:
 			error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
 				  << "The input layer must have exactly two node for this example." << std::endl
 				  << "Got " << architecture.front() << " instead." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Create a local random number generator.
@@ -809,7 +809,7 @@ public:
 				std::ostringstream error;
 				error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
 					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
-				throw(Gem::GenEvA::geneva_error_condition(error.str()));
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 
 			nD->push_back(*it);
@@ -849,7 +849,7 @@ public:
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) : Error" << std::endl
 				  << "Received empty file name." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		std::ofstream visProgram(visFile.c_str());
@@ -857,7 +857,7 @@ public:
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
 				  << "Attempt to open output file " << visFile << " for writing failed." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		// The following only makes sense if the input dimension is 2
@@ -1017,7 +1017,7 @@ public:
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) : Error" << std::endl
 				  << "Received empty file name." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		std::ofstream header(headerFile.c_str());
@@ -1025,7 +1025,7 @@ public:
 			std::ostringstream error;
 			error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
 				  << "Error writing output file " << headerFile << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		header << "/**" << std::endl
@@ -1318,7 +1318,7 @@ private:
 		std::ostringstream error;
 		error << "In GNeuralNetworkIndividual::transfer(): Error!" << std::endl
 			  << "Class was instantiated with invalid value for template parameter tF" << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	/********************************************************************************************/

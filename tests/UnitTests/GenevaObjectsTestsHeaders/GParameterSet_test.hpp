@@ -42,7 +42,7 @@
 #define GPARAMETERSET_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GParameterSet.hpp"
 #include "GTestIndividual1.hpp"
@@ -286,7 +286,7 @@ public:
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
 			boost::shared_ptr<GTestIndividual1> gpi_ptr(new GTestIndividual1());
-			BOOST_CHECK_THROW(gpi_ptr->load(gpi_ptr), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gpi_ptr->load(gpi_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 		}
 
@@ -303,7 +303,7 @@ public:
 
 			// TODO: The enable_if check in pc_at has crippled this test. FIXME !!!
 			// Trying to retrieve an item of wrong type should throw in DEBUG mode
-			BOOST_CHECK_THROW(gpi.pc_at<GInt32Collection>(0), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gpi.pc_at<GInt32Collection>(0), Gem::Common::gemfony_error_condition);
 		}
 #endif
 
@@ -325,7 +325,7 @@ public:
 			// (see also the GIndividual::fitness() function)
 			BOOST_CHECK(gpi.isDirty());
 			gpi.setParentAlgIteration(1);
-			BOOST_CHECK_THROW(gpi.fitness(), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gpi.fitness(), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 		}
 	}

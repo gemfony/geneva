@@ -141,7 +141,7 @@ public:
 							std::ostringstream error;
 							error << "In optimizationMonitor::informationFunction(INFOPROCESSING): Error!" << std::endl
 									<< "Expected an adaptor in GBoundedDouble object but didn't find it." << std::endl;
-							throw(Gem::GenEvA::geneva_error_condition(error.str()));
+							throw(Gem::Common::gemfony_error_condition(error.str()));
 						}
 #endif /* DEBUG */
 

@@ -224,7 +224,7 @@ double GIndividual::fitness() {
 				  << "The dirty flag is set while lazy evaluation is not allowed."
 				  << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #endif /* DEBUG */
 
@@ -451,7 +451,7 @@ bool GIndividual::updateOnStall() {
 			std::ostringstream error;
 			error << "In GIndividual::updateOnStall() (called for EA personality): Error!" << std::endl
 				  << "This function should only be called for parent individuals." << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// Do the actual update of the individual's structure
@@ -587,7 +587,7 @@ bool GIndividual::process(){
 				if(isDirty) {
 					std::ostringstream error;
 					error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl;
-					throw geneva_error_condition(error.str());
+					throw Gem::Common::gemfony_error_condition(error.str());
 				}
 #endif /* DEBUG */
 
@@ -635,7 +635,7 @@ bool GIndividual::process(){
 			error << "In GIndividual::process(): Unknown command: \""
 					<< getPersonalityTraits()->getCommand() << "\"" << std::endl;
 
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 		setAllowLazyEvaluation(previous);
 
@@ -648,7 +648,7 @@ bool GIndividual::process(){
 		std::ostringstream error;
 		error << "In GIndividual::process(): Error" << std::endl
 			  << "Processing for invalid algorithm requested" << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 	break;
 	}

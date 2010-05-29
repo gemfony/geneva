@@ -96,7 +96,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 		std::ostringstream error;
 		error << "In GSwarm::GSwarm(const GSwarm& cp): Error!" << std::endl
 			  << "Number of individuals in cp " << cp.size() << "differs from expected number " << nCPIndividuals << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 #endif /* DEBUG */
 
@@ -178,7 +178,7 @@ void GSwarm::load_(const GObject *cp)
 						error << "GSwarm::load_(): Error!" << std::endl
 							  << "Found empty local best at position " << i << std::endl
 							  << "in iteration " << this->getIteration() << std::endl;
-						throw Gem::GenEvA::geneva_error_condition(error.str());
+						throw Gem::Common::gemfony_error_condition(error.str());
 					}
 #endif /* DEBUG */
 
@@ -196,7 +196,7 @@ void GSwarm::load_(const GObject *cp)
 					error << "GSwarm::load_(): Error/2 !" << std::endl
 						  << "Found empty local best at position " << i << std::endl
 						  << "in iteration " << this->getIteration() << std::endl;
-					throw Gem::GenEvA::geneva_error_condition(error.str());
+					throw Gem::Common::gemfony_error_condition(error.str());
 				}
 #endif /* DEBUG */
 

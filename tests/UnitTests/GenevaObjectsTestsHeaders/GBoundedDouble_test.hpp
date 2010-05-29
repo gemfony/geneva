@@ -43,7 +43,7 @@
 #define GBOUNDEDDOUBLE_TEST_HPP_
 
 // Geneva header files go here
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GRandom.hpp"
 #include "GBoundedDouble.hpp"
 #include "GDoubleGaussAdaptor.hpp"
@@ -206,20 +206,20 @@ public:
 		// Assignment of value outside of the allowed range
 		{
 			GBoundedDouble gbd(-10,10.);
-			BOOST_CHECK_THROW(gbd=11., Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gbd=11., Gem::Common::gemfony_error_condition);
 		}
 
 		// Setting boundaries so that the value lies outside of the new boundaries should throw
 		{
 			GBoundedDouble gbd(10); // Has boundaries -DBL_MAX, DBL_MAX
-			BOOST_CHECK_THROW(gbd.setBoundaries(-7, 7), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gbd.setBoundaries(-7, 7), Gem::Common::gemfony_error_condition);
 		}
 
 #ifdef DEBUG
 		// Self assignment should throw in DEBUG mode
 		{
 			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(-10,10.));
-			BOOST_CHECK_THROW(gbd_ptr->load(gbd_ptr), Gem::GenEvA::geneva_error_condition);
+			BOOST_CHECK_THROW(gbd_ptr->load(gbd_ptr), Gem::Common::gemfony_error_condition);
 		}
 #endif /* DEBUG */
 	}

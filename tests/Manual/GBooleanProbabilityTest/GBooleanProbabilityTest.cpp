@@ -49,8 +49,6 @@
 #include "GBoolean.hpp"
 #include "GBooleanCollection.hpp"
 #include "GBooleanAdaptor.hpp"
-#include "GenevaExceptions.hpp"
-
 
 using namespace boost;
 using namespace Gem;

@@ -53,7 +53,7 @@
 
 // GenEvA headers go here
 #include "GEnums.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GAsioTCPClient.hpp"
 #include "GThreadGroup.hpp"
 

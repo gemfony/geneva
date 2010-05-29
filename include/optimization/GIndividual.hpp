@@ -60,7 +60,7 @@
 #include "GEAPersonalityTraits.hpp"
 #include "GGDPersonalityTraits.hpp"
 #include "GSwarmPersonalityTraits.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem {
 namespace GenEvA {

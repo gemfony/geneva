@@ -227,20 +227,6 @@ namespace Util {
 
 /**********************************************************************************************/
 /**
- * Random number generation can happen in two modes
- */
-enum rnrGenerationMode {
-	  RNRFACTORY
-	, RNRLOCAL
-};
-
-/**
- * The default random number generation mode
- */
-const rnrGenerationMode DEFAULTRNRGENMODE=RNRLOCAL;
-
-/**********************************************************************************************/
-/**
  * Needed for the serialization of boost::logic::tribool
  */
 enum triboolStates {

@@ -1,5 +1,5 @@
 /**
- * @file GenevaExceptions.hpp
+ * @file GExceptions.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -37,8 +37,8 @@
 
 // Boost header files go here
 
-#ifndef GENEVAEXCEPTIONS_HPP_
-#define GENEVAEXCEPTIONS_HPP_
+#ifndef GEXCEPTIONS_HPP_
+#define GEXCEPTIONS_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -49,16 +49,16 @@
 // Geneva header files go here
 
 namespace Gem {
-namespace GenEvA {
+namespace Common {
 
 /**************************************************************************************************/
 // Exceptions and related definitions
 
 /** @brief General error class to be thrown in the case of severe errors */
-class geneva_error_condition : public std::exception {
+class gemfony_error_condition : public std::exception {
 public:
-	geneva_error_condition(const std::string& description) throw() { description_ = description; }
-	virtual ~geneva_error_condition()  throw() {;}
+	gemfony_error_condition(const std::string& description) throw() { description_ = description; }
+	virtual ~gemfony_error_condition()  throw() {;}
 
 	virtual const char* what() const throw() {
 		return description_.c_str();
@@ -70,7 +70,7 @@ private:
 
 /**************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Common */
 } /* namespace Gem */
 
-#endif /* GENEVAEXCEPTIONS_HPP_ */
+#endif /* GEXCEPTIONS_HPP_ */

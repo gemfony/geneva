@@ -82,10 +82,6 @@ class GenevaStandardTestSuite
 {
 public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
-		typedef boost::mpl::list<
-			  GRandom
-		>
-		random_types;
 
 		typedef boost::mpl::list<
 		      GIdentityAdaptorT<boost::int32_t>
@@ -127,9 +123,6 @@ public:
 		trait_types;
 
 		/*****************************************************************************************/
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, random_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, random_types ) );
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, adaptor_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, adaptor_types ) );

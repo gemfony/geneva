@@ -255,7 +255,7 @@ public:
 			std::ostringstream error;
 			error << "In GOptimizationAlgorithm::individual_cast<>() : Error" << std::endl
 				  << "Tried to access position " << pos << " which is >= array size " << data.size() << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		boost::shared_ptr<individual_type> p = boost::dynamic_pointer_cast<individual_type>(data[pos]);
@@ -264,7 +264,7 @@ public:
 		else {
 			std::ostringstream error;
 			error << "In GOptimizationAlgorithm::individual_cast<>() : Conversion error" << std::endl;
-			throw(Gem::GenEvA::geneva_error_condition(error.str()));
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #else
 		return boost::static_pointer_cast<individual_type>(data[pos]);

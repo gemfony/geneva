@@ -236,7 +236,7 @@ void GEAPersonalityTraits::setCommand(const std::string& command) {
 	if(command != "evaluate" && command != "adapt") { // The allowed "grammar"
 		std::ostringstream error;
 		error << "In GEAPersonalityTraits::setCommand(): Got invalid command " << command << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
 	command_ = command;

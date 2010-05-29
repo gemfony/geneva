@@ -239,7 +239,7 @@ protected:
 		std::ostringstream error;
 		error << "In GFunctionIndividual<dF>::fitnessCalculation(): Error" << std::endl
   			  << "Class seems to have been instantiated with an invalid demo function" << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 		return 0.; // Make the compiler happy
 	}
 
@@ -308,7 +308,7 @@ template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
 		std::ostringstream error;
 		error << "In GFunctionIndividual<dF>::rosenbrock(): Error!" << std::endl
 			  << "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
-		throw(Gem::GenEvA::geneva_error_condition(error.str()));
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 #endif /* DEBUG */
 

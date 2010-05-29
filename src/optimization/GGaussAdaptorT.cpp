@@ -79,7 +79,7 @@ void GGaussAdaptorT<short>::customAdaptions(short& value) {
 	error << "In GGaussAdaptorT<short>(): Error!" << std::endl
 		  << "This adaptor should not be used for this type" << std::endl;
 
-	throw geneva_error_condition(error.str());
+	throw Gem::Common::gemfony_error_condition(error.str());
 }
 
 /***********************************************************************************************/

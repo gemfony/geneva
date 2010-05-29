@@ -72,7 +72,7 @@
 // GenEvA headers go here
 #include "GIndividual.hpp"
 #include "GOptimizationAlgorithm.hpp"
-#include "GenevaExceptions.hpp"
+#include "GExceptions.hpp"
 #include "GEnums.hpp"
 
 namespace Gem {
