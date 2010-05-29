@@ -23,7 +23,7 @@ SET(VERSION_PATCH "0rc1")
 # SET( GENEVA_STATIC TRUE )
 
 # The names of the libraries that will be built
-SET ( GENEVALIBNAME geneva-common )
+SET ( COMMONLIBNAME gemfony-common )
 SET ( DATAEXCHANGELIBNAME geneva-dataex )
 SET ( RANDOMLIBNAME geneva-random )
 SET ( COMMUNICATIONLIBNAME geneva-comm )
