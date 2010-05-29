@@ -24,10 +24,10 @@ SET(VERSION_PATCH "0rc1")
 
 # The names of the libraries that will be built
 SET ( COMMONLIBNAME gemfony-common )
-SET ( DATAEXCHANGELIBNAME geneva-dataex )
-SET ( RANDOMLIBNAME geneva-random )
-SET ( COMMUNICATIONLIBNAME geneva-comm )
-SET ( OPTIMIZATIONLIBNAME geneva-opt )
+SET ( DATAEXCHANGELIBNAME gemfony-dataexchange )
+SET ( RANDOMLIBNAME gemfony-random )
+SET ( COMMUNICATIONLIBNAME gemfony-communication )
+SET ( OPTIMIZATIONLIBNAME gemfony-optimization )
 
 # Change this setting to install in a different directory
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -137,6 +137,7 @@ ADD_SUBDIRECTORY (include)
 ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (src)
 ADD_SUBDIRECTORY (tests)
+#ADD_SUBDIRECTORY (associated)
 
 SET ( INFORMATIONFILES
 	AUTHORS
