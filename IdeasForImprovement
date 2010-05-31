@@ -106,6 +106,8 @@
 - Add ability to lock vector wrappers, making it impossible to change the individual entries or size
 - Add a "boost::atomic<T>" wrapper around data items accessed by more than one thread. E.g., access to uint64_t is apparently not atomic on x86_32
 - Renovate GStartIndividual so that it uses a view of the supplied collections to gain access to its data
-- Add continuation criterium: "At least x percent of all child individuals must have returned" (Ariel). Should be
-  rated higher than the time constraint ("waitFactor") or could replace it.
+- Add EA continuation criterium: "At least x percent of all child individuals must have returned" (Ariel). Should be
+  rated higher than the time constraint ("waitFactor") or could replace it. Note: This can be dangerous if evaluation runs
+  have a significantly different run time, as predominantly short-running evaluations will become new parents. This can be
+  a significant bias.   
 - Add (de-)serialization tests for the new, independent GRandom lib
