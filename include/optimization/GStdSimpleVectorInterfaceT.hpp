@@ -66,8 +66,6 @@
 #pragma once
 #endif
 
-
-#include "GObject.hpp"
 #include "GHelperFunctionsT.hpp"
 
 namespace Gem {
@@ -130,7 +128,7 @@ public:
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
 	 *
-	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param cp_data A vector of data to compared with our local data
 	 * @param e The expected outcome of the comparison
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 * @param caller An identifier for the calling entity
@@ -167,7 +165,7 @@ public:
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
 	 *
-	 * @param cp A constant reference to another object, camouflaged as a GObject
+	 * @param cp A constant reference to another object of type GStdSimpleVectorInterfaceT<T>
 	 * @param e The expected outcome of the comparison
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 * @param caller An identifier for the calling entity
@@ -317,10 +315,7 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Assignment of a std::vector<T> . As the vector contains smart
-	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
-	 * We assume here that T has a load() function, as is common for GObject-derivatives.
-	 * We also assume that T is copy-constructable.
+	 * Assignment of a std::vector<T>
 	 *
 	 * @param cp A constant reference to another std::vector<T>
 	 * @return The argument of this function (a std::vector<T>)

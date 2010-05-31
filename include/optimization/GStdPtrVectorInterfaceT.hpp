@@ -69,7 +69,7 @@
 
 
 #include "GObject.hpp"
-#include "GPODExpectationChecksT.hpp"
+#include "GObjectExpectationChecksT.hpp"
 #include "GHelperFunctionsT.hpp"
 
 namespace Gem {

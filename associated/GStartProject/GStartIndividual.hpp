@@ -63,7 +63,7 @@
 #include "GBoundedDouble.hpp"
 #include "GExceptions.hpp"
 #include "GGlobalOptionsT.hpp"
-#include "GPODExpectationChecksT.hpp"
+#include "GObjectExpectationChecksT.hpp"
 #include "GEnums.hpp"
 #include "GUnitTestFrameworkT.hpp"
 

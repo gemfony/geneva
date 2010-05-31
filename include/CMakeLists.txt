@@ -40,13 +40,9 @@ SET ( GENEVASHAREDINCLUDES
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
 	GHelperFunctionsT.hpp
-	GObject.hpp
 	GPODExpectationChecksT.hpp
-	GSerializableI.hpp
 	GSerializationHelperFunctions.hpp
 	GSingletonT.hpp
-	GStdPtrVectorInterfaceT.hpp
-	GStdSimpleVectorInterfaceT.hpp
 	GThreadGroup.hpp
 	GUnitTestFrameworkT.hpp
 )

@@ -34,6 +34,8 @@ SET ( OPTIMIZATIONINCLUDES
 	GMutableI.hpp
 	GMutableSetT.hpp
 	GNumCollectionT.hpp
+	GObject.hpp
+	GObjectExpectationChecksT.hpp
 	GOptimizationAlgorithm.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp
@@ -44,6 +46,9 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterTCollectionT.hpp
 	GPersonalityTraits.hpp
 	GRateableI.hpp
+	GSerializableI.hpp
+	GStdSimpleVectorInterfaceT.hpp
+	GStdPtrVectorInterfaceT.hpp
 #	GSwarm.hpp
 	GSwarmAdaptor.hpp
 	GSwarmPersonalityTraits.hpp
