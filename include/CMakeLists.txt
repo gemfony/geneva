@@ -44,8 +44,6 @@ SET ( GENEVASHAREDINCLUDES
 	GPODExpectationChecksT.hpp
 	GSerializationHelperFunctions.hpp
 	GSingletonT.hpp
-	GStdPtrVectorInterfaceT.hpp
-	GStdSimpleVectorInterfaceT.hpp
 	GThreadGroup.hpp
 	GUnitTestFrameworkT.hpp
 )
