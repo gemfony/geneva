@@ -111,3 +111,5 @@
   have a significantly different run time, as predominantly short-running evaluations will become new parents. This can be
   a significant bias.   
 - Add (de-)serialization tests for the new, independent GRandom lib
+- Change Gem::Util::POD in favour of more descriptive namespace (does not fit GObject derivatives)
+- Move GenEvA namespace to Geneva namespace

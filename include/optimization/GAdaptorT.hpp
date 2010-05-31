@@ -67,7 +67,7 @@
 #include "GObject.hpp"
 #include "GRandom.hpp"
 #include "GEnums.hpp"
-#include "GPODExpectationChecksT.hpp"
+#include "GObjectExpectationChecksT.hpp"
 
 namespace Gem {
 namespace GenEvA {
