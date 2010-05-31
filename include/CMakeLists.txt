@@ -40,7 +40,6 @@ SET ( GENEVASHAREDINCLUDES
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
 	GHelperFunctionsT.hpp
-	GObject.hpp
 	GPODExpectationChecksT.hpp
 	GSerializationHelperFunctions.hpp
 	GSingletonT.hpp

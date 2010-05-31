@@ -30,6 +30,7 @@ SET ( OPTIMIZATIONSOURCES
 	GIntFlipAdaptorT
 	GMultiThreadedEA
 	GNumCollectionT
+	GObject
 	GOptimizationAlgorithm
 	GParameterBase
 	GParameterBaseWithAdaptorsT
