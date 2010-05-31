@@ -42,7 +42,6 @@ SET ( GENEVASHAREDINCLUDES
 	GHelperFunctionsT.hpp
 	GObject.hpp
 	GPODExpectationChecksT.hpp
-	GSerializableI.hpp
 	GSerializationHelperFunctions.hpp
 	GSingletonT.hpp
 	GStdPtrVectorInterfaceT.hpp
