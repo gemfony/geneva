@@ -283,7 +283,7 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
 
 /************************************************************************************************************/
 /**
- * Sets the individual's personality types to EA
+ * Sets the individual's personality types to Swarm
  */
 void GSwarm::setIndividualPersonalities() {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it)
@@ -370,16 +370,6 @@ void GSwarm::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithm::init();
 
-	// Attach the relevant information to the individual's personalities
-	initPersonalities();
-}
-
-/************************************************************************************************************/
-/**
- * Helper function that initializes the personality information.
- */
-void GSwarm::initPersonalities() {
-	// Set the individual's positions and attach swarm adaptors to the individuals.
 	// Setting the position needs to be done only once before the start of the optimization
 	// cycle, as individuals do not change position in a swarm algorithm.
 	std::size_t pos=0;
@@ -388,7 +378,6 @@ void GSwarm::initPersonalities() {
 		(*it)->getSwarmPersonalityTraits()->setPopulationPosition(pos);
 	}
 
-	// WARNING: Personalities have not been added here yet
 }
 
 /************************************************************************************************************/

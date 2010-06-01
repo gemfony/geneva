@@ -87,7 +87,8 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
  * provided by the GOptimizationAlgorithm class.
  *
  * TODO: Check getBestFitness Implementation for this object and GEA objects
- * TODO: registerInfoFunction in die Basisklasse, mit protected boost::function Objekt
+ * TODO: registerInfoFunction into base class, with protected boost::function Object
+ * TODO: decide how adaptors can be added in the case of swarms
  */
 class GSwarm
 	:public GOptimizationAlgorithm
@@ -266,9 +267,6 @@ protected:
 private:
 	/** @brief The default constructor. Intentionally private and undefined */
 	GSwarm();
-
-	/** @brief Helper function that initializes the personality information */
-	void initPersonalities();
 
 	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
 	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
