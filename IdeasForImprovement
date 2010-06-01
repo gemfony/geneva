@@ -113,3 +113,5 @@
 - Add (de-)serialization tests for the new, independent GRandom lib
 - Change Gem::Util::POD in favour of more descriptive namespace (does not fit GObject derivatives)
 - Move GenEvA namespace to Geneva namespace
+- Add default ability for random initialization to parameter objects. Might need the ability to restrict the value range for initialization in some cases.
+  Parameter objects also need to know whether they have already been initialized.

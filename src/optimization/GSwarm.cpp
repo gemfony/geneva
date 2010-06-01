@@ -44,19 +44,20 @@ namespace GenEvA {
  * The default constructor sets the number of neighborhoods and the number of individuals in them
  *
  * @param nNeighborhoods The desired number of neighborhoods (hardwired to >= 1)
- * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 1)
+ * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 2)
  */
 GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
 	: GOptimizationAlgorithm()
 	, infoFunction_(&GSwarm::simpleInfoFunction)
 	, nNeighborhoods_((nNeighborhoods==0)?1:nNeighborhoods)
-	, defaultNNeighborhoodMembers_((nNeighborhoodMembers==0)?1:nNeighborhoodMembers)
+	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
 	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
 	, local_bests_(new boost::shared_ptr<GIndividual>[nNeighborhoods_])
 {
-	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+	GOptimizationAlgorithm::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
-	// Initialize with the default number
+	// Initialize with the default number of members in each neighborhood. adjustPopulation() will
+	// later take care to fill the population with individuals as needed.
 	for(std::size_t i=0; i<nNeighborhoods_; i++) {
 		nNeighborhoodMembers_[i] = defaultNNeighborhoodMembers_;
 	}
@@ -105,7 +106,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 	// Differences might e.g. occur if not all individuals return from their remote
 	// evaluation. adjustPopulation will take care to resize the population appropriately
 	// inside of the "optimize()" call.
-	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+	GOptimizationAlgorithm::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
 	// Clone cp's locally best individuals, if this is not the first iteration
 	if(cp.getIteration()>0) {
@@ -531,7 +532,10 @@ void GSwarm::finalize() {
  * of just removing individuals at the end, in case of surplus items.
  */
 void GSwarm::adjustPopulation() {
-
+	// Three cases:
+	// - just one individual is present
+	// - all required individuals are present
+	// - the number of individuals present equals the number of neighborhoods
 }
 
 /************************************************************************************************************/
@@ -596,21 +600,6 @@ void GSwarm::setCDelta(const double& cd_lower, const double& cd_upper) {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
 		(*it)->getSwarmPersonalityTraits()->setCDelta(cd_lower, cd_upper);
 	}
-}
-
-/************************************************************************************************************/
-/**
- * Sets the population size based on the number of neighborhoods and the number of
- * individuals in them
- *
- * @param nNeighborhoods The number of neighborhoods in the population
- * @param nNeighborhoodMembers The number of individuals in each neighborhood
- */
-void GSwarm::setPopulationSize(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers) {
-	nNeighborhoods_ = nNeighborhoods;
-	nNeighborhoodMembers_ = nNeighborhoodMembers;
-
-
 }
 
 /************************************************************************************************************/

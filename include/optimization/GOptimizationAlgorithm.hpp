@@ -297,8 +297,8 @@ protected:
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
 	virtual double cycleLogic() = 0;
 
-	/** @brief Sets the nominal size of the population */
-	virtual void setPopulationSize(const std::size_t&);
+	/** @brief Sets the default size of the population */
+	virtual void setDefaultPopulationSize(const std::size_t&);
 
 	/** @brief user-defined halt-criterion for the optimization */
 	virtual bool customHalt() const;
