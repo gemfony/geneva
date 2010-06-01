@@ -11,6 +11,10 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 INCLUDE_DIRECTORIES (
+        ${GENEVA_ROOT}/include/optimization
+        ${GENEVA_ROOT}/include/communication
+        ${GENEVA_ROOT}/include/random
+        ${GENEVA_ROOT}/include/dataexchange
         ${GENEVA_ROOT}/include
         ${GENEVA_ROOT}/tests/UnitTests/UtilityHeaders
         ${CMAKE_HOME_DIRECTORY} # The top of the source tree
@@ -18,8 +22,12 @@ INCLUDE_DIRECTORIES (
 )
 
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-	${GENEVA_LIBRARY}
-	${Boost_LIBRARIES}
+	${COMMON_LIBNAME}
+	${DATAEXCHANGE_LIBNAME}
+	${RANDOM_LIBNAME}
+	${COMMUNICATION_LIBNAME}
+	${OPTIMIZATION_LIBNAME}
+	${Boost_LIBRARY}
 	pthread
 )
 

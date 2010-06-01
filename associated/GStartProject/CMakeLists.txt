@@ -16,9 +16,22 @@ IF(NOT DEFINED GENEVA_INCLUDE_DIR)
 	SET(GENEVA_INCLUDE_DIR "${GENEVA_ROOT}/include")
 ENDIF()
 
-IF(NOT DEFINED GENEVA_LIBRARY)
-       SET (GENEVA_LIBRARY "geneva-opt")
+IF(NOT DEFINED COMMON_LIBNAME)
+	SET (COMMON_LIBNAME "gemfony-common")
 ENDIF()
+IF(NOT DEFINED DATAEXCHANGE_LIBNAME)
+	SET (DATAEXCHANGE_LIBNAME "gemfony-dataexchange")
+ENDIF()
+IF(NOT DEFINED RANDOM_LIBNAME)
+	SET (RANDOM_LIBNAME "gemfony-random")
+ENDIF()
+IF(NOT DEFINED COMMUNICATION_LIBNAME)
+	SET (COMMUNICATION_LIBNAME "gemfony-communication")
+ENDIF()
+IF(NOT DEFINED OPTIMIZATION_LIBNAME)
+	SET (OPTIMIZATION_LIBNAME "gemfony-optimization")
+ENDIF()
+
 
 SET (Boost_USE_STATIC_LIBS OFF)
 SET (LINK_FLAGS "-lpthread")
@@ -41,11 +54,11 @@ ENDIF()
 
 # At least Boost 1.36 must be installed 
 FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
-    date_time
-    system
-    thread
-    serialization
-    program_options
+	date_time
+	system
+	thread
+	serialization
+	program_options
 	filesystem
 )
 
@@ -55,21 +68,20 @@ FIND_PACKAGE( Boost 1.36 COMPONENTS
 )
 
 INCLUDE_DIRECTORIES (
-		${PROJECT_SOURCE_DIR}
-        ${GENEVA_ROOT}/include
-        ${Boost_INCLUDE_DIRS}
-)
-
-LINK_DIRECTORIES (
-        ${GENEVA_ROOT}/lib
-        ${Boost_LIBRARY_DIRS}
+#	${PROJECT_SOURCE_DIR}
+#	${GENEVA_ROOT}/include
+#	${GENEVA_ROOT}/include/dataexchange
+#	${GENEVA_ROOT}/include/random
+#	${GENEVA_ROOT}/include/communication
+#	${GENEVA_ROOT}/include/optimization
+#	${Boost_INCLUDE_DIRS}
 )
 
 SET ( EXECUTABLENAME GStartProject )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	  GArgumentParser
-	  GStartProject
+	GArgumentParser
+	GStartProject
 )
 
 SET ( CONFIGFILE
@@ -80,21 +92,21 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
-INCLUDE_DIRECTORIES (AFTER
-	${PROJECT_SOURCE_DIR}/
-)
-
 MESSAGE( "LIBS: ${Boost_LIBRARIES}")
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-	${GENEVA_LIBRARY}
+	${OPTIMIZATION_LIBNAME}
+	${COMMUNICATION_LIBNAME}
+	${DATAEXCHANGE_LIBNAME}
+	${RANDOM_LIBNAME}
+	${COMMON_LIBNAME}
 	${Boost_LIBRARIES}
 	pthread
 )
 
 # Tests will only be compiled of the test libraries were found
-IF( Boost_TEST_EXEC_MONITOR_FOUND )
-	ADD_SUBDIRECTORY (Tests)
-ENDIF()
+#IF( Boost_TEST_EXEC_MONITOR_FOUND )
+#	ADD_SUBDIRECTORY (Tests)
+#ENDIF()
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION bin
 	PERMISSIONS
