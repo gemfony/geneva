@@ -220,6 +220,8 @@ void GObject::fromString(const std::string& descr, const serializationMode& serM
  *
  * @param fileName The name of the file the object should be saved to.
  * @param serMod The desired serialization mode
+ *
+ * TODO: Error check whether the file is accessible / state of the stream
  */
 void GObject::toFile(const std::string& fileName, const serializationMode& serMod) {
 	std::ofstream checkpointStream(fileName.c_str());
@@ -233,6 +235,8 @@ void GObject::toFile(const std::string& fileName, const serializationMode& serMo
  *
  * @param fileName The name of the file the object should be loaded from
  * @param serMod The desired serialization mode
+ *
+ * TODO: Error check whether the file is accessible / state of the stream
  */
 void GObject::fromFile(const std::string& fileName, const serializationMode& serMod) {
 	std::ifstream checkpointStream(fileName.c_str());

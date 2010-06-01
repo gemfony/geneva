@@ -270,6 +270,9 @@ private:
 	/** @brief Helper function that initializes the personality information */
 	void initPersonalities();
 
+	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
+	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
+
 	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
