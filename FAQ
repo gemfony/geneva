@@ -1,3 +1,10 @@
+Q: What does "Geneva" stand for ?
+A: Geneva stands for "Grid-enabled evolutionary algorithms". The library will ultimately
+   implement a multitutde of different optimization algorithms. However, as evolutionary
+   algorithms were the first to be implemented, and as Geneva started life in comjunction
+   with Grid computing and particle physics, which in turn are closely related to CERN in 
+   Geneva/Switzerland, the name still seems to be appropriate.
+
 Q: Why do member functions of Geneva classes do not carry the "throw(...)" specifier ?
 A: In former releases, throw() specifiers were used to list the exceptions a function
    could throw. A rationale for the decision to remove these specifiers can be found

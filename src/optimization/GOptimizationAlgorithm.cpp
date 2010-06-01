@@ -331,12 +331,12 @@ void GOptimizationAlgorithm::doInfo(const infoMode& im) {
 
 /************************************************************************************************************/
 /**
- * Sets the nominal size of the population
+ * Sets the default size of the population
  *
  * @param popSize The desired size of the population
  */
-void GOptimizationAlgorithm::setPopulationSize(const std::size_t& popSize) {
-	defaultPopulationSize_ = popSize;
+void GOptimizationAlgorithm::setDefaultPopulationSize(const std::size_t& defPopSize) {
+	defaultPopulationSize_ = defPopSize;
 }
 
 /************************************************************************************************************/

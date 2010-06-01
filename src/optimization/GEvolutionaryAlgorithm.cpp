@@ -404,7 +404,7 @@ void GEvolutionaryAlgorithm::registerInfoFunction(boost::function<void (const in
 
 /************************************************************************************************************/
 /**
- * Specifies the initial size of the population plus the number of parents.
+ * Specifies the default size of the population plus the number of parents.
  * The population will be filled with additional individuals later, as required --
  * see GEvolutionaryAlgorithm::adjustPopulation() . Also, all error checking is done in
  * that function.
@@ -412,8 +412,8 @@ void GEvolutionaryAlgorithm::registerInfoFunction(boost::function<void (const in
  * @param popSize The desired size of the population
  * @param nParents The desired number of parents
  */
-void GEvolutionaryAlgorithm::setPopulationSize(const std::size_t& popSize, const std::size_t& nParents) {
-	GOptimizationAlgorithm::setPopulationSize(popSize);
+void GEvolutionaryAlgorithm::setDefaultPopulationSize(const std::size_t& popSize, const std::size_t& nParents) {
+	GOptimizationAlgorithm::setDefaultPopulationSize(popSize);
 	nParents_ = nParents;
 }
 
@@ -537,7 +537,7 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::adjustPopulation() : Error!" << std::endl
 			  << "The population size is 0." << std::endl
-			  << "Did you call GOptimizationAlgorithm:setPopulationSize() ?" << std::endl;
+			  << "Did you call GOptimizationAlgorithm:setDefaultPopulationSize() ?" << std::endl;
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.

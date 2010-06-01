@@ -147,7 +147,7 @@ int main(int argc, char **argv){
 	pop->push_back(functionIndividual);
 
 	// Specify some population settings
-	pop->setPopulationSize(populationSize, nParents);
+	pop->setDefaultPopulationSize(populationSize, nParents);
 	pop->setMaxIteration(maxGenerations);
 	pop->setMaxTime(boost::posix_time::minutes(maxMinutes));
 	pop->setReportIteration(reportGeneration);

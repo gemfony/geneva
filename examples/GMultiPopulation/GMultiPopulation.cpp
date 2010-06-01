@@ -213,7 +213,7 @@ int main(int argc, char **argv){
 	  }
 
 	  // Specify some general population settings
-	  sub_pop_ptr->setPopulationSize(populationSizeSub,nParentsSub);
+	  sub_pop_ptr->setDefaultPopulationSize(populationSizeSub,nParentsSub);
 	  sub_pop_ptr->setMaxIteration(maxIterationsSub);
 	  sub_pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutesSub));
 	  sub_pop_ptr->setReportIteration(reportIterationSub);
@@ -280,7 +280,7 @@ int main(int argc, char **argv){
   }
  
   // Specify some general population settings
-  super_pop_ptr->setPopulationSize(populationSizeSuper,nParentsSuper);
+  super_pop_ptr->setDefaultPopulationSize(populationSizeSuper,nParentsSuper);
   super_pop_ptr->setMaxIteration(maxIterationsSuper);
   super_pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutesSuper));
   super_pop_ptr->setReportIteration(reportIterationSuper);

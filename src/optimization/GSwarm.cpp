@@ -44,19 +44,20 @@ namespace GenEvA {
  * The default constructor sets the number of neighborhoods and the number of individuals in them
  *
  * @param nNeighborhoods The desired number of neighborhoods (hardwired to >= 1)
- * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 1)
+ * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 2)
  */
 GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
 	: GOptimizationAlgorithm()
 	, infoFunction_(&GSwarm::simpleInfoFunction)
 	, nNeighborhoods_((nNeighborhoods==0)?1:nNeighborhoods)
-	, defaultNNeighborhoodMembers_((nNeighborhoodMembers==0)?1:nNeighborhoodMembers)
+	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
 	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
 	, local_bests_(new boost::shared_ptr<GIndividual>[nNeighborhoods_])
 {
-	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+	GOptimizationAlgorithm::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
-	// Initialize with the default number
+	// Initialize with the default number of members in each neighborhood. adjustPopulation() will
+	// later take care to fill the population with individuals as needed.
 	for(std::size_t i=0; i<nNeighborhoods_; i++) {
 		nNeighborhoodMembers_[i] = defaultNNeighborhoodMembers_;
 	}
@@ -105,7 +106,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 	// Differences might e.g. occur if not all individuals return from their remote
 	// evaluation. adjustPopulation will take care to resize the population appropriately
 	// inside of the "optimize()" call.
-	GOptimizationAlgorithm::setPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+	GOptimizationAlgorithm::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
 	// Clone cp's locally best individuals, if this is not the first iteration
 	if(cp.getIteration()>0) {
@@ -141,6 +142,8 @@ const GSwarm& GSwarm::operator=(const GSwarm& cp) {
  * Loads the data of another GSwarm object, camouflaged as a GObject.
  *
  * @param cp A pointer to another GSwarm object, camouflaged as a GObject
+ *
+ * TODO: Add checks in DEBUG mode whether the smart pointers being cloned or copied actually point somewhere
  */
 void GSwarm::load_(const GObject *cp)
 {
@@ -150,14 +153,15 @@ void GSwarm::load_(const GObject *cp)
 
 	const GSwarm *p_load = this->conversion_cast<GSwarm>(cp);
 
-	// First load the parent class'es data ...
+	// First load the parent class'es data.
+	// This will also take care of copying all individuals.
 	GOptimizationAlgorithm::load_(cp);
 
 	// ... and then our own data
+	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
 
-	// Make sure we are dealing with the same number of neighborhoods. If this
-	// is not the case we need to set up everything from scratch.
-	if(nNeighborhoods_ != p_load->nNeighborhoods_) {
+	// We start from scratch if the number of neighborhoods or the alleged number of members in them differ
+	if(nNeighborhoods_!=p_load->nNeighborhoods_ || !nNeighborhoodMembersEqual(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_)) {
 		nNeighborhoods_ = p_load->nNeighborhoods_;
 
 		delete [] nNeighborhoodMembers_;
@@ -166,55 +170,26 @@ void GSwarm::load_(const GObject *cp)
 		nNeighborhoodMembers_ = new std::size_t[nNeighborhoods_];
 		local_bests_ = new boost::shared_ptr<GIndividual>[nNeighborhoods_];
 
-		if(p_load->getIteration() > 0) {
-			for(std::size_t i=0; i<nNeighborhoods_; i++) {
-				if(currentIteration == 0) {
-					local_bests_[i] = p_load->local_bests_[i]->clone<GIndividual>();
-				}
-				else {
-#ifdef DEBUG
-					if(!local_bests_[i]) {
-						std::ostringstream error;
-						error << "GSwarm::load_(): Error!" << std::endl
-							  << "Found empty local best at position " << i << std::endl
-							  << "in iteration " << this->getIteration() << std::endl;
-						throw Gem::Common::gemfony_error_condition(error.str());
-					}
-#endif /* DEBUG */
-
-					local_bests_[i] = (p_load->local_bests_)[i]->clone<GIndividual>();
-				}
-			}
+		// Copy the local bests and number of neighborhood members over
+		for(std::size_t i=0; i<nNeighborhoods_; i++) {
+			nNeighborhoodMembers_[i] = p_load->nNeighborhoodMembers_[i];
+			local_bests_[i] = p_load->local_bests_[i]->clone<GIndividual>();
 		}
 	}
-	else {
-		if(p_load->getIteration() > 0) {
-			for(std::size_t i=0; i<nNeighborhoods_; i++) {
-#ifdef DEBUG
-				if(!local_bests_[i]) {
-					std::ostringstream error;
-					error << "GSwarm::load_(): Error/2 !" << std::endl
-						  << "Found empty local best at position " << i << std::endl
-						  << "in iteration " << this->getIteration() << std::endl;
-					throw Gem::Common::gemfony_error_condition(error.str());
-				}
-#endif /* DEBUG */
-
-				local_bests_[i]->load((p_load->local_bests_)[i]);
-			}
+	else { // We now assume that we can just load local bests in each position
+		for(std::size_t i=0; i<nNeighborhoods_; i++) {
+			local_bests_[i]->GObject::load(p_load->local_bests_[i]);
 		}
 	}
 
-	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
-
-	// Copy the number of individuals in each neighborhood as well as the local bests over
-	for(std::size_t i=0; i<nNeighborhoods_; i++) {
-		nNeighborhoodMembers_[i] = (p_load->nNeighborhoodMembers_)[i];
-	}
-
-	if(p_load->getIteration() > 0) {
+	// Copy the global best over
+	if(currentIteration == 0 && p_load->getIteration() > 0) { // cp has a global best, we don't
 		global_best_->GObject::load(p_load->global_best_);
 	}
+	else if(currentIteration > 0 && p_load->getIteration() == 0) { // cp does not have a global best
+		global_best_.reset(); // empty the smart pointer
+	}
+	// else {} // We do not need to do anything of both iterations are 0 as there is no global best at all
 
 	// Note that we do not copy the info function
 }
@@ -285,26 +260,30 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GOptimizationAlgorithm::checkRelationshipWith(cp, e, limit, "GEvolutionaryAlgorithm", y_name, withMessages));
+	deviations.push_back(GOptimizationAlgorithm::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithm", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoods_, p_load->nNeighborhoods_, "nNeighborhoods_", "p_load->nNeighborhoods_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, "defaultNNeighborhoodMembers_", "p_load->defaultNNeighborhoodMembers_", e , limit));
-	for(std::size_t i=0; i<nNeighborhoods_; i++) {
-		std::string local = "nNeighborhoodMembers_[" + boost::lexical_cast<std::string>(i) + "]";
-		std::string remote = "(p_load->nNeighborhoodMembers_)[" + boost::lexical_cast<std::string>(i) + "]";
-		deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], local, remote, e , limit));
-	}
-
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", local_bests_, p_load->local_bests_, "local_bests_", "p_load->local_bests_", e , limit));
+
+	// The next checks only makes sense if the number of neighborhoods are equal
+	if(nNeighborhoods_ == p_load->nNeighborhoods_) {
+		for(std::size_t i=0; i<nNeighborhoods_; i++) {
+			std::string local = "nNeighborhoodMembers_[" + boost::lexical_cast<std::string>(i) + "]";
+			std::string remote = "(p_load->nNeighborhoodMembers_)[" + boost::lexical_cast<std::string>(i) + "]";
+			deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], local, remote, e , limit));
+		}
+
+		deviations.push_back(checkExpectation(withMessages, "GSwarm", local_bests_, p_load->local_bests_, "local_bests_", "p_load->local_bests_", e , limit));
+	}
 
 	return evaluateDiscrepancies("GSwarm", caller, deviations, e);
 }
 
 /************************************************************************************************************/
 /**
- * Sets the individual's personality types to EA
+ * Sets the individual's personality types to Swarm
  */
 void GSwarm::setIndividualPersonalities() {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it)
@@ -314,7 +293,8 @@ void GSwarm::setIndividualPersonalities() {
 /************************************************************************************************************/
 /**
  * Saves the state of the class to disc. The function adds the current generation
- * and the fitness to the base name. The entire object is saved.
+ * and the fitness to the base name. The entire object is saved. The function will
+ * throw if no global best has been established yet.
  */
 void GSwarm::saveCheckpoint() const {
 #ifdef DEBUG
@@ -323,7 +303,7 @@ void GSwarm::saveCheckpoint() const {
 		std::ostringstream error;
 		error << "In GSwarm::saveCheckpoint(): Error!" << std::endl
 			  << "global_best_ has not yet been initialized!" << std::endl;
-		throw geneva_error_condition(error.str());
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 #endif /* DEBUG */
 
@@ -334,8 +314,8 @@ void GSwarm::saveCheckpoint() const {
 	if(isDirty) {
 		std::ostringstream error;
 		error << "In GSwarm::saveCheckpoint(): Error!" << std::endl
-			  << "global_best_ is dirty!" << std::endl;
-		throw geneva_error_condition(error.str());
+			  << "global_best_ has dirty flag set!" << std::endl;
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 #endif
 
@@ -390,16 +370,6 @@ void GSwarm::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithm::init();
 
-	// Attach the relevant information to the individual's personalities
-	initPersonalities();
-}
-
-/************************************************************************************************************/
-/**
- * Helper function that initializes the personality information.
- */
-void GSwarm::initPersonalities() {
-	// Set the individual's positions and attach swarm adaptors to the individuals.
 	// Setting the position needs to be done only once before the start of the optimization
 	// cycle, as individuals do not change position in a swarm algorithm.
 	std::size_t pos=0;
@@ -407,6 +377,24 @@ void GSwarm::initPersonalities() {
 		// Make the position known to the individual
 		(*it)->getSwarmPersonalityTraits()->setPopulationPosition(pos);
 	}
+
+}
+
+/************************************************************************************************************/
+/**
+ * Helper function that checks the content of two nNeighborhoodMembers_ arrays. Note that this private function
+ * assumes that both arrays contain nNeighborhoods_ entries.
+ *
+ * @param one The first array used for the check
+ * @param two The second array used for the check
+ * @return A boolean indicating whether both arrays are equal
+ */
+bool GSwarm::nNeighborhoodMembersEqual(const std::size_t *one, const std::size_t two) const {
+	for(std::size_t i=0; i<nNeighborhoods_; i++) {
+		if(one[i] != two[i]) return false;
+	}
+
+	return true;
 }
 
 /************************************************************************************************************/
@@ -531,7 +519,10 @@ void GSwarm::finalize() {
  * of just removing individuals at the end, in case of surplus items.
  */
 void GSwarm::adjustPopulation() {
-
+	// Three cases:
+	// - just one individual is present
+	// - all required individuals are present
+	// - the number of individuals present equals the number of neighborhoods
 }
 
 /************************************************************************************************************/
@@ -596,21 +587,6 @@ void GSwarm::setCDelta(const double& cd_lower, const double& cd_upper) {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
 		(*it)->getSwarmPersonalityTraits()->setCDelta(cd_lower, cd_upper);
 	}
-}
-
-/************************************************************************************************************/
-/**
- * Sets the population size based on the number of neighborhoods and the number of
- * individuals in them
- *
- * @param nNeighborhoods The number of neighborhoods in the population
- * @param nNeighborhoodMembers The number of individuals in each neighborhood
- */
-void GSwarm::setPopulationSize(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers) {
-	nNeighborhoods_ = nNeighborhoods;
-	nNeighborhoodMembers_ = nNeighborhoodMembers;
-
-
 }
 
 /************************************************************************************************************/

@@ -138,16 +138,15 @@ int main(int argc, char **argv){
   // This smart pointer will hold the different population types
   boost::shared_ptr<GSwarm> pop_ptr;
 
-  // We need to know the population size in advance. It is calculated from the number of neighborhoods and
-  // the number of individuals inside of them.
-  pop_ptr->setPopulationSize(nNeighborhoods, nNeihborhoodMembers);
-
   // Create the actual populations
   switch (parallelizationMode) {
     //-----------------------------------------------------------------------------------------------------
   case 0: // Serial execution
     // Create an empty population
     pop_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
+
+    // Add a function call here that allows to set the population size (number of neighborhoods and members in them)
+
     break;
 
     //-----------------------------------------------------------------------------------------------------

@@ -103,7 +103,7 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
  * which can again contain populations, and so on.
  *
  * In order to add parents to an instance of this class use the default constructor,
- * then add at least one GIndividual to it, and call setPopulationSize(). The population
+ * then add at least one GIndividual to it, and call setDefaultPopulationSize(). The population
  * will then be "filled up" with missing individuals as required, before the optimization
  * starts. Note that this class will enforce a minimum, default number of children,
  * as implied by the population size and the number of parents set at the beginning.
@@ -153,8 +153,8 @@ public:
 	/** @brief Registers a function to be called when emitting information from doInfo */
 	void registerInfoFunction(boost::function<void (const infoMode&, GEvolutionaryAlgorithm * const)>);
 
-	/** @brief Sets population size and number of parents */
-	void setPopulationSize(const std::size_t&, const std::size_t&);
+	/** @brief Sets the default population size and number of parents */
+	void setDefaultPopulationSize(const std::size_t&, const std::size_t&);
 
 	/** @brief Retrieve the number of parents in this population */
 	std::size_t getNParents() const;
