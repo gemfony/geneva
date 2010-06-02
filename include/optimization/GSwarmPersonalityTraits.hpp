@@ -201,6 +201,9 @@ private:
 	/** @brief A pointer to the globally best individual. It will not be serialized or copied */
 	boost::shared_ptr<Gem::GenEvA::GIndividual> global_best_;
 };
+
+/*********************************************************************************/
+
 } /* namespace GenEvA */
 } /* namespace Gem */
 

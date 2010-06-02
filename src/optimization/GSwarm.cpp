@@ -189,7 +189,7 @@ void GSwarm::load_(const GObject *cp)
 	else if(currentIteration > 0 && p_load->getIteration() == 0) { // cp does not have a global best
 		global_best_.reset(); // empty the smart pointer
 	}
-	// else {} // We do not need to do anything of both iterations are 0 as there is no global best at all
+	// else {} // We do not need to do anything if both iterations are 0 as there is no global best at all
 
 	// Note that we do not copy the info function
 }
@@ -377,7 +377,6 @@ void GSwarm::init() {
 		// Make the position known to the individual
 		(*it)->getSwarmPersonalityTraits()->setPopulationPosition(pos);
 	}
-
 }
 
 /************************************************************************************************************/
@@ -389,12 +388,69 @@ void GSwarm::init() {
  * @param two The second array used for the check
  * @return A boolean indicating whether both arrays are equal
  */
-bool GSwarm::nNeighborhoodMembersEqual(const std::size_t *one, const std::size_t two) const {
+bool GSwarm::nNeighborhoodMembersEqual(const std::size_t *one, const std::size_t* two) const {
 	for(std::size_t i=0; i<nNeighborhoods_; i++) {
 		if(one[i] != two[i]) return false;
 	}
 
 	return true;
+}
+
+/************************************************************************************************************/
+/**
+ * Helper function that returns the id of the first individual of a neighborhood. "NI" stands
+ * for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0 and assuming
+ * a maximum value of (nNeighborhoods_-1).
+ *
+ * @param neighborhood The id of the neighborhood for which the id of the first individual should be calculated
+ * @return The position of the first individual of a neighborhood
+ */
+std::size_t GSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
+#ifdef DEBUG
+	if(neighborhood >= nNeighborhoods_) {
+		std::ostringstream error;
+		error << "In GSwarm::getFirstNIPos(): Error!" << std::endl
+			  << "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
+			  << "The number of neighborhoods is " << nNeighborhoods_ << "," << std::endl
+			  << "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "." << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif
+
+	if(neighborhood == 0) return 0;
+	else {	// Sum up the number of members in each neighborhood
+		std::size_t nPreviousMembers=0;
+		for(std::size_t n=0; n<neighborhood; n++) {
+			nPreviousMembers += nNeighborhoodMembers_[n];
+		}
+
+		return nPreviousMembers;
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Helper function that returns the id of the last individual of a neighborhood. "NI" stands
+ * for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0 and assuming
+ * a maximum value of (nNeighborhoods_-1). The position return is that right after the last individual,
+ * as is commong in C++ .
+ *
+ * @param neighborhood The id of the neighborhood for which the id of the last individual should be calculated
+ * @return The position of the last individual of a neighborhood
+ */
+std::size_t GSwarm::getLastNIPos(const std::size_t& neighborhood) const {
+#ifdef DEBUG
+	if(neighborhood >= nNeighborhoods_) {
+		std::ostringstream error;
+		error << "In GSwarm::getLastNIPos(): Error!" << std::endl
+			  << "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
+			  << "The number of neighborhoods is " << nNeighborhoods_ << " ." << std::endl
+			  << "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "." << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif
+
+	return getFirstNIPos(neighborhood) + nNeighborhoodMembers_[neighborhood];
 }
 
 /************************************************************************************************************/
@@ -424,6 +480,24 @@ void GSwarm::updatePositionsAndFitness() {
 	std::size_t offset = 0;
 	GSwarm::iterator start = this->begin();
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+#ifdef DEBUG
+		if(getIteration() > 0) {
+			if(!local_bests_[neighborhood]) {
+				std::ostringstream error;
+				error << "In GSwarm::updatePositionsAndFitness(): Error!" << std::endl
+					  << "local_bests[" << neighborhood << "] is empty." << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+
+			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
+				std::ostringstream error;
+				error << "In GSwarm::updatePositionsAndFitness(): Error!" << std::endl
+					  << "global_best_ is empty." << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+		}
+#endif /* DEBUG */
+
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			// Update the swarm positions. Note that this only makes sense
 			// once the first series of evaluations has been done and local as well
@@ -447,59 +521,59 @@ void GSwarm::updatePositionsAndFitness() {
 
 /************************************************************************************************************/
 /**
- * Updates the best individuals found
+ * Updates the best individuals found. This function assumes that the population already contains individuals
+ * and that the local and global bests have been initialized. This should have happened in the adjustPopulation()
+ * function.
  *
  * @return The best evaluation found in this iteration
  */
 double GSwarm::findBests() {
-	double bestFitnessInThisIteration = getWorstCase();
+	double bestCurrentLocalFitness = 0., currentFitness = 0., bestLocalFitness = 0.;
+
+	// Loop over all neighborhoods and update the local best.
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
-		boost::shared_ptr<GIndividual> neighborhoodBest = *(this->begin() + (neighborhood*nNeighborhoodMembers_));
+		// identify the first and last id of the individuals in the current neighborhood
+		std::size_t firstCounter = getFirstNIPos(neighborhood);
+		std::size_t lastCounter = getLastNIPos(neighborhood);
 
-		// Search in the local neighborhood for the best solution
-		for(std::size_t member=0; member<nNeighborhoodMembers_; member++) {
-			boost::shared_ptr<GIndividual> currentIndividual = *(this->begin() + (neighborhood*nNeighborhoodMembers_ + member));
-			double currentFitness = currentIndividual->fitness();
-			if(isBetter(currentFitness, neighborhoodBest->fitness())) {
-				currentIndividual = neighborhoodBest;
-			}
+		// attach the current best to the first individual of the range and get its fitness
+		boost::shared_ptr<GIndividual> neighborhoodBest = *(this->begin() + firstCounter);
+		bestCurrentLocalFitness = neighborhoodBest->fitness();
 
-			// Make sure we know when a better solution was found
-			if(isBetter(currentFitness, bestFitnessInThisIteration)) {
-				bestFitnessInThisIteration = currentFitness;
+		// Loop over and compare with all other remaining individuals of the neighborhood
+		for(std::size_t member=firstCounter+1; member<lastCounter; member++) {
+			currentFitness = (*(this->begin() + member))->fitness();
+			if(isBetter(currentFitness, bestCurrentLocalFitness)) {
+				bestCurrentLocalFitness = currentFitness;
+				neighborhoodBest = *(this->begin() + member);
 			}
 		}
 
-		// Update the bests
-		if(getIteration() > 0) {
-			if(isBetter(neighborhoodBest->fitness(), local_bests_[neighborhood]->fitness())) {
-				local_bests_[neighborhood]->load(neighborhoodBest);
-			}
-
-			// Note that the following can result in some unnecessary loading, if more than one
-			// better solution was found
-			if(isBetter(neighborhoodBest->fitness(), global_best_->fitness())) {
-				global_best_->load(neighborhoodBest);
-			}
-		}
-		// This is the first generation, we need to attach a cloned individual to the list instead of loading it
-		else {
-			local_bests_.push_back(neighborhoodBest->clone());
-
-			// We need to initialize the global best
-			if(neighborhood == 0) {
-				global_best_ = neighborhoodBest->clone();
-			}
-			// We need to compare with the existing global best
-			else {
-				if(isBetter(neighborhoodBest->fitness(), global_best_->fitness())) {
-					global_best_->load(neighborhoodBest);
-				}
-			}
+		// Update the local_bests_ entry, if necessary
+		bestLocalFitness = local_bests_[neighborhood]->fitness();
+		if(isBetter(bestCurrentLocalFitness, bestLocalFitness)) {
+			local_bests_[neighborhood]->load(neighborhoodBest);
 		}
 	}
 
-	return bestFitnessInThisIteration;
+	// Find the best local best
+	bestLocalFitness = getWorstCase();
+	std::size_t bestLocalPos=0;
+	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+		bestCurrentLocalFitness = local_bests_[neighborhood]->fitness();
+		if(isBetter(bestCurrentLocalFitness, bestLocalFitness)) {
+			bestLocalPos = neighborhood;
+			bestLocalFitness = bestCurrentLocalFitness;
+		}
+	}
+
+	// Compare the best local individual with the global best and update
+	// the global best, if necessary
+	if(isBetter(bestLocalFitness, global_best_->fitness())) {
+		global_best_->load(local_bests_[bestLocalPos]);
+	}
+
+	return bestLocalFitness;
 }
 
 /************************************************************************************************************/
@@ -519,10 +593,20 @@ void GSwarm::finalize() {
  * of just removing individuals at the end, in case of surplus items.
  */
 void GSwarm::adjustPopulation() {
+	// Check the actual population
+
 	// Three cases:
 	// - just one individual is present
 	// - all required individuals are present
 	// - the number of individuals present equals the number of neighborhoods
+
+	// Initialize the local and global bests
+	if(getIteration() == 0) {
+		global_best_ = (*(this->begin()))->clone();
+		for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+			local_bests_[neighborhood] = (*(this->begin()))->clone();
+		}
+	}
 }
 
 /************************************************************************************************************/
@@ -616,7 +700,7 @@ std::size_t GSwarm::getDefaultNNeighborhoodMembers() const {
  * @return The current number of individuals in a given neighborhood
  */
 std::size_t getCurrentNNeighborhoodMembers(const std::size_t& neighborhood) const {
-
+	return nNeighborhoodMembers_[neighborhood];
 }
 
 /************************************************************************************************************/

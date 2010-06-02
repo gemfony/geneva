@@ -84,7 +84,9 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
 /*********************************************************************************/
 /**
  * The GSwarm class implements a swarm optimization algorithm, based on the infrastructure
- * provided by the GOptimizationAlgorithm class.
+ * provided by the GOptimizationAlgorithm class. Its population is based on a constant number
+ * of neighborhoods, whose amount of members is allowed to vary. This happens so that late
+ * arrivals in case of networked execution can still be integrated into later iterations.
  *
  * TODO: Check getBestFitness Implementation for this object and GEA objects
  * TODO: registerInfoFunction into base class, with protected boost::function Object
@@ -270,6 +272,11 @@ private:
 
 	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
 	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
+
+	/** @brief Helper function that returns the id of the first individual of a neighborhood */
+	std::size_t getFirstNIPos(const std::size_t&) const;
+	/** @brief Helper function that returns the id of the last individual of a neighborhood */
+	std::size_t getLastNIPos(const std::size_t&) const;
 
 	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
 
