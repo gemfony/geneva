@@ -79,6 +79,7 @@ const double DEFAULTC2 = 2.;
 class GSwarmAdaptor
 	: public GAdaptorT<double>
 {
+	/********************************************************************************************/
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 	template<typename Archive>
@@ -93,287 +94,60 @@ class GSwarmAdaptor
 
 public:
 	/********************************************************************************************/
-	/**
-	 * The standard constructor. We want to always perform adaptions when this adaptor is called.
-	 */
-	GSwarmAdaptor()
-		: GAdaptorT<double> ()
-		, omega_(DEFAULTOMEGA)
-		, c1_(DEFAULTC1)
-		, c2_(DEFAULTC2)
-	 {
-		GAdaptorT<double>::setAdaptionMode(true);
-	 }
+	/** @brief The standard constructor */
+	GSwarmAdaptor();
+	/** @brief A standard copy constructor */
+	GSwarmAdaptor(const GSwarmAdaptor&);
+	/** @brief The standard destructor */
+	~GSwarmAdaptor();
 
-	/********************************************************************************************/
-	/**
-	 * A standard copy constructor.
-	 *
-	 * @param cp Another GSwarmAdaptor object
-	 */
-	GSwarmAdaptor(const GSwarmAdaptor& cp)
-		: GAdaptorT<double>(cp)
-		, omega_(cp.omega_)
-		, c1_(cp.c1_)
-		, c2_(cp.c2_)
-	 {
-		GAdaptorT<double>::setAdaptionMode(true);
-	 }
+	/** @brief A standard assignment operator for GSwarmAdaptor objects */
+	const GSwarmAdaptor& operator=(const GSwarmAdaptor&);
+	/** @brief Checks for equality with another GSwarmAdaptor object */
 
-	/********************************************************************************************/
-	/**
-	 * The standard destructor. Empty, as we have no local, dynamically
-	 * allocated data.
-	 */
-	~GSwarmAdaptor()
-	{ /* nothing */ }
+	bool operator==(const GSwarmAdaptor&) const;
+	/** @brief Checks for inequality with another GSwarmAdaptor object */
+	bool operator!=(const GSwarmAdaptor&) const;
+	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled. */
+	boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/********************************************************************************************/
-	/**
-	 * A standard assignment operator for GSwarmAdaptor objects,
-	 *
-	 * @param cp A copy of another GSwarmAdaptor object
-	 */
-	const GSwarmAdaptor& operator=(const GSwarmAdaptor& cp)
-	{
-		GSwarmAdaptor::load_(&cp);
-		return *this;
-	}
+	/** @brief Retrieves the id of the adaptor */
+	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
 
-	/********************************************************************************************/
-	/**
-	 * Checks for equality with another GSwarmAdaptor object
-	 *
-	 * @param  cp A constant reference to another GSwarmAdaptor object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GSwarmAdaptor& cp) const {
-		using namespace Gem::Util;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarmAdaptor::operator==","cp", CE_SILENT);
-	}
+	/** @brief Prevents the adaption mode to be reset. This function is a trap. */
+	virtual void setAdaptionMode(boost::logic::tribool);
 
-	/********************************************************************************************/
-	/**
-	 * Checks for inequality with another GSwarmAdaptor object
-	 *
-	 * @param  cp A constant reference to another GSwarmAdaptor object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GSwarmAdaptor& cp) const {
-		using namespace Gem::Util;
-		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarmAdaptor::operator!=","cp", CE_SILENT);
-	}
+	/** @brief Sets the \omega parameter used to multiply velocities with */
+	void setOmega(const double&);
+	/** @brief Retrieves the \omega parameter used to multiply velocities with */
+	double getOmega() const;
 
-	/***********************************************************************************/
-	/**
-	 * Checks whether a given expectation for the relationship between this object and another object
-	 * is fulfilled.
-	 *
-	 * @param cp A constant reference to another object, camouflaged as a GObject
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 * @param caller An identifier for the calling entity
-	 * @param y_name An identifier for the object that should be compared to this one
-	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Util::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
-	    using namespace Gem::Util;
-	    using namespace Gem::Util::POD;
+	/** @brief Sets the c1 parameter used as a multiplier for the direction to the local best. */
+	void setC1(const double&);
+	/** @brief Retrieves the c1 parameter used as a multiplier for the direction to the local best. */
+	double getC1() const;
 
-		// Check that we are indeed dealing with a GSwarmAdaptor reference
-		const GSwarmAdaptor *p_load = conversion_cast<GSwarmAdaptor>(&cp);
+	/** @brief Sets the c2 parameter used as a multiplier for the direction to the global best. */
+	void setC2(const double&);
+	/** @brief Retrieves the c2 parameter used as a multiplier for the direction to the global best. */
+	double getC2() const;
 
-		// Will hold possible deviations from the expectation, including explanations
-	    std::vector<boost::optional<std::string> > deviations;
-
-		// Check our parent class'es data ...
-		deviations.push_back(GAdaptorT<double>::checkRelationshipWith(cp, e, limit, "GSwarmAdaptor", y_name, withMessages));
-
-		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", omega_, p_load->omega_, "omega_", "p_load->omega_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", c1_, p_load->c1_, "c1_", "p_load->c1_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", c2_, p_load->c2_, "c2_", "p_load->c2_", e , limit));
-
-		return evaluateDiscrepancies("GSwarmAdaptor", caller, deviations, e);
-	}
-
-
-	/***********************************************************************************/
-	/**
-	 * Retrieves the id of the adaptor.
-	 *
-	 * @return The id of the adaptor
-	 */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const {
-		return GSWARMADAPTOR;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Prevents the adaption mode to be reset. This function is a trap.
-	 *
-	 * @param adaptionMode The desired mode (always/never/with a given probability)
-	 */
-	virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
-		std::ostringstream error;
-		error << "In GSwarmAdaptor::setAdaptionMode(): Error!" << std::endl
-			  << "This function should not have been called for this adaptor." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Sets the \omega parameter used to multiply velocities with. Compare the general
-	 * swarm algorithm shown e.g. in \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
-	 *
-	 * @param omega A parameter multiplied with velocity terms
-	 */
-	void setOmega(double omega) {
-		omega_ = omega;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Retrieves the \omega parameter used to multiply velocities with. Compare the general
-	 * swarm algorithm shown e.g. in \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
-	 *
-	 * @return The \omega parameter multiplied with velocity terms
-	 */
-	double getOmega() const {
-		return omega_;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Sets the c1 parameter used as a multiplier for the direction to the local best.
-	 * Compare the general swarm algorithm shown e.g. in
-	 * \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
-	 *
-	 * @param c1 A  multiplier for the direction to the local best
-	 */
-	void setC1(double c1) {
-		c1_ = c1;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Retrieves the c1 parameter used as a multiplier for the direction to the local best.
-	 * Compare the general swarm algorithm shown e.g. in
-	 * \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
-	 *
-	 * @return The c1 multiplier for the direction to the local best
-	 */
-	double getC1() const {
-		return c1_;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Sets the c2 parameter used as a multiplier for the direction to the global best.
-	 * Compare the general swarm algorithm shown e.g. in
-	 * \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
-	 *
-	 * @param c2 A  multiplier for the direction to the global best
-	 */
-	void setC2(double c2) {
-		c2_ = c2;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Retrieves the c2 parameter used as a multiplier for the direction to the global best.
-	 * Compare the general swarm algorithm shown e.g. in
-	 * \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
-	 *
-	 * @return The c2 multiplier for the direction to the global best
-	 */
-	double getC2() const {
-		return c2_;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Applies modifications to this object. This is needed for testing purposes
-	 *
-	 * @return A boolean which indicates whether modifications were made
-	 */
-	virtual bool modify_GUnitTests() {
-		bool result;
-
-		// Call the parent classes' functions
-		if(GAdaptorT<double>::modify_GUnitTests()) result = true;
-
-		return result;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Performs self tests that are expected to succeed. This is needed for testing purposes
-	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
-		// Call the parent classes' functions
-		GAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
-	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
-		// Call the parent classes' functions
-		GAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
-	}
+	/** @brief Applies modifications to this object (needed for testing purposes. */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. */
+	virtual void specificTestsFailuresExpected_GUnitTests();
 
 protected:
 	/********************************************************************************************/
-	/**
-	 * This function loads the data of another GSwarmAdaptor, camouflaged as a GObject.
-	 *
-	 * @param A copy of another GSwarmAdaptor, camouflaged as a GObject
-	 */
-	void load_(const GObject *cp)
-	{
-		// Convert GObject pointer to local format
-		// (also checks for self-assignments in DEBUG mode)
-		const GSwarmAdaptor *p_load = conversion_cast<GSwarmAdaptor>(cp);
+	/** @brief Loads the data of another GSwarmAdaptor */
+	void load_(const GObject *);
+	/** @brief Ceates a deep clone of this object */
+	GObject *clone_() const;
 
-		// Load the data of our parent class ...
-		GAdaptorT<double>::load_(cp);
-
-		// ... and then our local data
-		omega_ = p_load->omega_;
-		c1_ = p_load->c1_;
-		c2_ = p_load->c2_;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * This function creates a deep copy of this object
-	 *
-	 * @return A deep copy of this object
-	 */
-	GObject *clone_() const {
-		return new GSwarmAdaptor(*this);
-	}
-
-	/********************************************************************************************/
-	/**
-	 * The actual adaption
-	 *
-	 * @param value The value to be adapted
-	 */
-	virtual void customAdaptions(double& value) {
-		// nothing yet
-	}
+	/** @brief The actual adaption function */
+	virtual void customAdaptions(double&);
 
 private:
 	double omega_; ///< The \omega parameter used as a multiplicator to velocities in swarm algorithms
@@ -384,6 +158,8 @@ private:
 	std::vector<double> localBest_; ///< The locally best solution(s)
 	std::vector<double> globalBest_; ///< The globally best solution(s)
 };
+
+/************************************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */
