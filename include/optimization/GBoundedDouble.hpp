@@ -94,8 +94,8 @@ public:
 	/** @brief The destructor */
 	virtual ~GBoundedDouble();
 
-	/** @brief An assignment operator for the contained value type */
-	virtual const double& operator=(const double&);
+	/** @brief An assignment operator */
+	virtual double operator=(const double&);
 
 	/** @brief A standard assignment operator */
 	const GBoundedDouble& operator=(const GBoundedDouble&);
@@ -120,6 +120,9 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
+
+	/** @brief Triggers random initialization of the parameter object */
+	virtual void randomInit_();
 };
 
   /******************************************************************************/

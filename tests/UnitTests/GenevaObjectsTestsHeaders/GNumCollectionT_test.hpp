@@ -127,10 +127,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	}
 	BOOST_CHECK(gnct6 == gnct2);
 
-	// Adding random data
-	gnct6.addRandomData(1900, typename T::collection_type(-100), typename T::collection_type(100));
+	// Re-initialize
+	gnct6.setInitBoundaries(typename T::collection_type(-100), typename T::collection_type(100));
+	gnct6.randomInit();
 	BOOST_CHECK(gnct6 != gnct2);
-	BOOST_CHECK(gnct6.size() == 2000);
 
 	// Loading through the GParameterBase base pointer
 	GParameterBase *gpb = new T();
@@ -141,7 +141,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	o = gpb->checkRelationshipWith(gnct6, Gem::Util::CE_EQUALITY, 0., "GNumCollectionT_no_failure_expected", "gnct6", Gem::Util::CE_WITH_MESSAGES);
 	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
 	T *gnct6_2 = static_cast<T *>(gpb);
-	gnct6_2->addRandomData(1900, typename T::collection_type(-100), typename T::collection_type(100));
+	gnct6_2->randomInit();
 	o = gpb->checkRelationshipWith(gnct6, Gem::Util::CE_INEQUALITY, 0., "GNumCollectionT_no_failure_expected", "gnct6", Gem::Util::CE_WITH_MESSAGES);
 	BOOST_CHECK_MESSAGE(!o, std::string(o?"\n\n"+*o+"\n":""));
 	delete gpb;
@@ -167,8 +167,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 		// Check equalities and inequalities
 		BOOST_CHECK(gnct7_cp == gnct7);
 		// Re-assign a new value to gnct7_cp
-		gnct7_cp.addRandomData(100, typename T::collection_type(-100), typename T::collection_type(100));
-		BOOST_CHECK(gnct7_cp.size() == 200);
+		gnct7_cp.randomInit();
 		BOOST_CHECK(gnct7_cp != gnct7);
 
 		// Serialize gnct7 and load into gnct7_co, check equalities and similarities
@@ -184,8 +183,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 		// Check equalities and inequalities
 		BOOST_CHECK(gnct7_cp == gnct7);
 		// Re-assign a new value to gnct7_cp
-		gnct7_cp.addRandomData(100, typename T::collection_type(-100), typename T::collection_type(100));
-		BOOST_CHECK(gnct7_cp.size() == 200);
+		gnct7_cp.randomInit();
 		BOOST_CHECK(gnct7_cp != gnct7);
 
 		// Serialize gnct7 and load into gnct7_co, check equalities and similarities
@@ -201,8 +199,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 		// Check equalities and inequalities
 		BOOST_CHECK(gnct7_cp == gnct7);
 		// Re-assign a new value to gnct7_cp
-		gnct7_cp.addRandomData(100, typename T::collection_type(-100), typename T::collection_type(100));
-		BOOST_CHECK(gnct7_cp.size() == 200);
+		gnct7_cp.randomInit();
 		BOOST_CHECK(gnct7_cp != gnct7);
 
 		// Serialize gnct7 and load into gnct7_co, check equalities and similarities

@@ -29,7 +29,6 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32ObjectCollection
 	GIntFlipAdaptorT
 	GMultiThreadedEA
-	GNumCollectionT
 	GObject
 	GOptimizationAlgorithm
 	GParameterBase

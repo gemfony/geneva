@@ -56,7 +56,8 @@ namespace GenEvA
   GBooleanCollection::GBooleanCollection(const std::size_t& nval)
     : GParameterCollectionT<bool>()
   {
-    this->addRandomData(nval);
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom());
   }
 
   /**********************************************************************/
@@ -70,7 +71,8 @@ namespace GenEvA
   GBooleanCollection::GBooleanCollection(const std::size_t& nval, const double& probability)
 	: GParameterCollectionT<bool>()
   {
-	this->addRandomData(nval, probability);
+	  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom(probability));
   }
 
   /**********************************************************************/
@@ -127,25 +129,44 @@ namespace GenEvA
 
   /**********************************************************************/
   /**
-   * Adds random bits to the collection, 50% of which have the value false.
-   *
-   * @param nval The number of boolean values to add to the collection
+   * Triggers random initialization of the parameter collection. Note that this
+   * function assumes that the collection has been completely set up. Data
+   * that is added later will remain unaffected.
    */
-  void GBooleanCollection::addRandomData(const std::size_t& nval){
+  void GBooleanCollection::randomInit_() {
 	  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
-	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom());
+	  for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr.boolRandom();
   }
 
   /**********************************************************************/
   /**
-   * Adds random bits to the collection with a given probability structure.
+   * Random initialization with a given probability structure
    *
-   * @param nval The number of boolean values to add to the collection
    * @param probability The probability for true values in the collection
    */
-  void GBooleanCollection::addRandomData(const std::size_t& nval, const double& probability){
+  void GBooleanCollection::randomInit_(const double& probability) {
 	  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
-	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom(probability));
+	  for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr.boolRandom(probability);
+  }
+
+  /**********************************************************************/
+  /**
+   * Random initialization. This is a helper function, without it we'd
+   * have to say things like "myGBooleanCollectionObject.GParameterBase::randomInit();".
+   */
+  void GBooleanCollection::randomInit() {
+	  GParameterBase::randomInit();
+  }
+
+  /**********************************************************************/
+  /**
+   * Random initialization with a given probability structure,
+   * if re-initialization has not been blocked.
+   *
+   * @param probability The probability for true values in the collection
+   */
+  void GBooleanCollection::randomInit(const double& probability) {
+	  if(!GParameterBase::initializationBlocked()) randomInit_(probability);
   }
 
   /**********************************************************************/

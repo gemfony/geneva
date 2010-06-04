@@ -189,6 +189,16 @@ namespace Gem
 
 	/************************************************************************************************************/
 	/**
+	 * Allows to randomly initialize parameter members
+	 */
+	void GParameterSet::randomInit() {
+		GParameterSet::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it)
+			(*it)->randomInit();
+	}
+
+	/************************************************************************************************************/
+	/**
 	 * The actual fitness calculation takes place here. Note that you need
 	 * to overload this function if you do not want to use the GEvaluator
 	 * mechanism.

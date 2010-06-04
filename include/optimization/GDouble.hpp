@@ -46,7 +46,7 @@
 
 // GenEvA headers go here
 
-#include "GParameterT.hpp"
+#include "GNumT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -59,7 +59,7 @@ namespace GenEvA {
  * instead.
  */
 class GDouble
-	:public GParameterT<double>
+	:public GNumT<double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -68,7 +68,7 @@ class GDouble
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GParameterT_double", boost::serialization::base_object<GParameterT<double> >(*this));
+	  ar & make_nvp("GNumT_double", boost::serialization::base_object<GNumT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -79,11 +79,13 @@ public:
 	GDouble(const GDouble&);
 	/** @brief Initialization by contained value */
 	explicit GDouble(const double&);
+	/** @brief Random initialization in a given range */
+	GDouble(const double&, const double&);
 	/** @brief The destructor */
 	virtual ~GDouble();
 
 	/** @brief An assignment operator for the contained value type */
-	virtual const double& operator=(const double&);
+	virtual double operator=(const double&);
 
 	/** @brief A standard assignment operator */
 	const GDouble& operator=(const GDouble&);
@@ -108,6 +110,9 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
+
+	/** @brief Triggers random initialization of the parameter collection */
+	virtual void randomInit_();
 };
 
 

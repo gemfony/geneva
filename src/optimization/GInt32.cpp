@@ -53,7 +53,7 @@ GInt32::GInt32()
  * @param cp A copy of another GInt32 object
  */
 GInt32::GInt32(const GInt32& cp)
-	: GParameterT<boost::int32_t>(cp)
+	: GNumT<boost::int32_t>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -63,7 +63,18 @@ GInt32::GInt32(const GInt32& cp)
  * @param val A value used for the initialization
  */
 GInt32::GInt32(const boost::int32_t& val)
-	: GParameterT<boost::int32_t>(val)
+	: GNumT<boost::int32_t>(val)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialization by random number in a given range
+ *
+ * @param lowerBoundary The lower boundary for the random number used in the initialization
+ * @param upperBoundary The upper boundary for the random number used in the initialization
+ */
+GInt32::GInt32(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
+	: GNumT<boost::int32_t>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -75,13 +86,13 @@ GInt32::~GInt32()
 
 /*******************************************************************************************/
 /**
- * An assignment operator for the contained value type
+ * An assignment operator
  *
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-const boost::int32_t& GInt32::operator=(const boost::int32_t& val) {
-	return GParameterT<boost::int32_t>::operator=(val);
+boost::int32_t GInt32::operator=(const boost::int32_t& val) {
+	return GNumT<boost::int32_t>::operator=(val);
 }
 
 /*******************************************************************************************/
@@ -162,7 +173,7 @@ boost::optional<std::string> GInt32::checkRelationshipWith(const GObject& cp,
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32", y_name, withMessages));
+	deviations.push_back(GNumT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32", y_name, withMessages));
 
 	// no local data ...
 
@@ -180,9 +191,22 @@ void GInt32::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GInt32>(cp);
 
 	// Load our parent class'es data ...
-	GParameterT<boost::int32_t>::load_(cp);
+	GNumT<boost::int32_t>::load_(cp);
 
 	// ... no local data
+}
+
+/*******************************************************************************************/
+/**
+ * Triggers random initialization of the parameter.
+ */
+void GInt32::randomInit_() {
+	boost::int32_t lowerBoundary = getLowerInitBoundary();
+	boost::int32_t upperBoundary = getUpperInitBoundary()+1;
+
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+
+	setValue(gr.discreteRandom(lowerBoundary, upperBoundary));
 }
 
 /*******************************************************************************************/
@@ -195,7 +219,7 @@ bool GInt32::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GParameterT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if(GNumT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -206,7 +230,7 @@ bool GInt32::modify_GUnitTests() {
  */
 void GInt32::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GNumT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
@@ -215,7 +239,7 @@ void GInt32::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GInt32::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GNumT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

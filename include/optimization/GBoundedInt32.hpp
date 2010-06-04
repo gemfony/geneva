@@ -94,7 +94,7 @@ public:
 	virtual ~GBoundedInt32();
 
 	/** @brief An assignment operator for the contained value type */
-	virtual const boost::int32_t& operator=(const boost::int32_t&);
+	virtual boost::int32_t operator=(const boost::int32_t&);
 
 	/** @brief A standard assignment operator */
 	const GBoundedInt32& operator=(const GBoundedInt32&);
@@ -119,6 +119,9 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
+
+	/** @brief Triggers random initialization of the parameter object */
+	virtual void randomInit_();
 };
 
 /******************************************************************************/

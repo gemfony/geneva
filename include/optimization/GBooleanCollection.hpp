@@ -101,10 +101,10 @@ namespace GenEvA
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-    /** @brief Adds random bits to the collection */
-    void addRandomData(const std::size_t&);
-    /** @brief Adds random bits to the collection with a given probability structure */
-    void addRandomData(const std::size_t&, const double&);
+    /** @brief Random initialization */
+    virtual void randomInit();
+    /** @brief Random initialization with a given probability structure */
+    virtual void randomInit(const double&);
 
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
@@ -118,6 +118,11 @@ namespace GenEvA
     virtual void load_(const GObject *);
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone_() const;
+
+	/** @brief Triggers random initialization of the parameter collection */
+	virtual void randomInit_();
+	/** @brief Triggers random initialization of the parameter collection, with a given likelihood structure */
+	void randomInit_(const double&);
   };
 
   /**********************************************************************/

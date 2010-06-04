@@ -56,8 +56,11 @@ GDoubleCollection::GDoubleCollection()
  * @param max The maximum random value
  */
 GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max)
-	: GNumCollectionT<double>(nval, min, max)
-{ /* nothing */ }
+	: GNumCollectionT<double>(min, max)
+{
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.evenRandom(min,max));
+}
 
 /*******************************************************************************************/
 /**
@@ -175,6 +178,24 @@ void GDoubleCollection::load_(const GObject* cp){
 	GNumCollectionT<double>::load_(cp);
 
 	// ... no local data
+}
+
+/*******************************************************************************************/
+/**
+ * Triggers random initialization of the parameter collection. Note that this
+ * function assumes that the collection has been completely set up. Data
+ * that is added later will remain unaffected.
+ */
+void GDoubleCollection::randomInit_() {
+	double lowerBoundary = getLowerInitBoundary();
+	double upperBoundary = getUpperInitBoundary();
+
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+
+	GDoubleCollection::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)=gr.evenRandom(lowerBoundary, upperBoundary);
+	}
 }
 
 /*******************************************************************************************/

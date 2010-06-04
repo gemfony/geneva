@@ -40,6 +40,7 @@ GParameterBase::GParameterBase()
 	: GMutableI()
 	, GObject()
 	, adaptionsActive_(true)
+	, initializationBlocked_(false)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -52,6 +53,7 @@ GParameterBase::GParameterBase(const GParameterBase& cp)
 	: GMutableI(cp)
 	, GObject(cp)
 	, adaptionsActive_(cp.adaptionsActive_)
+	, initializationBlocked_(cp.initializationBlocked_)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -76,6 +78,7 @@ void GParameterBase::load_(const GObject* cp){
 
 	// Load local data
 	adaptionsActive_ = p_load->adaptionsActive_;
+	initializationBlocked_ = p_load->initializationBlocked_;
 }
 
 /**********************************************************************************/
@@ -173,6 +176,7 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GParameterBase", adaptionsActive_, p_load->adaptionsActive_, "adaptionsActive_", "p_load->adaptionsActive_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GParameterBase", initializationBlocked_, p_load->initializationBlocked_, "initializationBlocked_", "p_load->initializationBlocked_", e , limit));
 
 	return evaluateDiscrepancies("GParameterBase", caller, deviations, e);
 }
@@ -185,6 +189,30 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
  */
 bool GParameterBase::hasAdaptor() const {
 	return false;
+}
+
+/**********************************************************************************/
+/**
+ * Triggers random initialization of the parameter(-collection)
+ */
+void GParameterBase::randomInit() {
+	if(!initializationBlocked_) randomInit_();
+}
+
+/**********************************************************************************/
+/**
+ * Specifies that no random initialization should occur anymore
+ */
+void GParameterBase::blockInitialization() {
+	initializationBlocked_ = true;
+}
+
+/**********************************************************************************/
+/**
+ * Checks whether initialization has been blocked
+ */
+bool GParameterBase::initializationBlocked() const {
+	return initializationBlocked_;
 }
 
 /**********************************************************************************/

@@ -106,6 +106,9 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
+
+	/** @brief Triggers random initialization of the parameter collection */
+	virtual void randomInit_();
 };
 
 /*****************************************************************************************/

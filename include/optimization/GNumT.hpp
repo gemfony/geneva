@@ -1,5 +1,5 @@
 /**
- * @file GNumCollectionT.hpp
+ * @file GNumT.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,7 +27,8 @@
  * http://www.gemfony.com .
  */
 
-// Standard header files go here
+
+// Standard headers go here
 #include <string>
 #include <sstream>
 #include <vector>
@@ -35,12 +36,12 @@
 // Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
 
-// Boost header files go here
+// Boost headers go here
 
 #include <boost/cstdint.hpp>
 
-#ifndef GNUMCOLLECTIONT_HPP_
-#define GNUMCOLLECTIONT_HPP_
+#ifndef GNUMT_HPP_
+#define GNUMT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -48,28 +49,24 @@
 #endif
 
 
-// GenEvA header files go here
-#include "GObject.hpp"
-#include "GParameterCollectionT.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GExceptions.hpp"
+// GenEvA headers go here
+#include "GParameterT.hpp"
 
 namespace Gem {
 namespace GenEvA {
 
-const double DEFAULTLOWERINITBOUNDARYCOLLECTION=0.;
-const double DEFAULTUPPERINITBOUNDARYCOLLECTION=1.;
+const double DEFAULTLOWERINITBOUNDARYSINGLE=0.;
+const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
 
 /**********************************************************************/
 /**
- * This class represents a collection of numeric values, all modified
- * using the same algorithm. The most likely types to be stored in this
- * class are double and boost::int32_t . By using the framework provided
- * by GParameterCollectionT, this class becomes rather simple.
+ * This class represents numeric values. The most likely types to be stored
+ * in this class are double and boost::int32_t . By using the framework provided
+ * by GParameterT, this class becomes rather simple.
  */
 template <typename T>
-class GNumCollectionT
-	: public GParameterCollectionT<T>
+class GNumT
+	: public GParameterT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -77,7 +74,7 @@ class GNumCollectionT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterCollectionT",	boost::serialization::base_object<GParameterCollectionT<T> >(*this))
+		ar & make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<T> >(*this))
 		   & BOOST_SERIALIZATION_NVP(lowerInitBoundary_)
 		   & BOOST_SERIALIZATION_NVP(upperInitBoundary_);
 	}
@@ -91,31 +88,45 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GNumCollectionT()
-		: GParameterCollectionT<T> ()
-		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYCOLLECTION))
-		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYCOLLECTION))
+	GNumT()
+		: GParameterT<T> ()
+		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
+		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
+	{ /* nothing */ }
+
+	/*****************************************************************
+	/*
+	 * Initialize with a single value
+	 *
+	 * @param val The value used for the initialization
+	 */
+	explicit GNumT(const T& val)
+		: GParameterT<T>(val)
+		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
+		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
 	{ /* nothing */ }
 
 	/******************************************************************/
 	/**
-	 * Initialize with a number of random values within given boundaries
+	 * Initialize with a random value within given boundaries
 	 *
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumCollectionT(const T& min, const T& max)
-		: GParameterCollectionT<T> ()
+	GNumT(const T& min, const T& max)
+		: GParameterT<T> ()
 		, lowerInitBoundary_(min)
 		, upperInitBoundary_(max)
-	{ /* nothing */ }
+	{
+		GParameterBase::randomInit();
+	}
 
 	/******************************************************************/
 	/**
 	 * The standard copy constructor
 	 */
-	GNumCollectionT(const GNumCollectionT<T>& cp)
-		: GParameterCollectionT<T> (cp)
+	GNumT(const GNumT<T>& cp)
+		: GParameterT<T> (cp)
 		, lowerInitBoundary_(cp.lowerInitBoundary_)
 		, upperInitBoundary_(cp.upperInitBoundary_)
 	{ /* nothing */ }
@@ -124,7 +135,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GNumCollectionT()
+	virtual ~GNumT()
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -134,35 +145,43 @@ public:
 	 * @param cp A copy of another GDoubleCollection object
 	 * @return A constant reference to this object
 	 */
-	const GNumCollectionT& operator=(const GNumCollectionT<T>& cp){
-		GNumCollectionT<T>::load_(&cp);
+	const GNumT& operator=(const GNumT<T>& cp){
+		GNumT<T>::load_(&cp);
 		return *this;
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for equality with another GNumCollectionT<T> object
-	 *
-	 * @param  cp A constant reference to another GNumCollectionT<T> object
-	 * @return A boolean indicating whether both objects are equal
+	 * An assignment operator for the contained value type
 	 */
-	bool operator==(const GNumCollectionT<T>& cp) const {
-		using namespace Gem::Util;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumCollectionT<T>::operator==","cp", CE_SILENT);
+	virtual T operator=(const boost::int32_t& val) {
+		return GParameterT<T>::operator=(val);
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for inequality with another GNumCollectionT<T> object
+	 * Checks for equality with another GNumT<T> object
 	 *
-	 * @param  cp A constant reference to another GNumCollectionT<T> object
+	 * @param  cp A constant reference to another GNumT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GNumT<T>& cp) const {
+		using namespace Gem::Util;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumT<T>::operator==","cp", CE_SILENT);
+	}
+
+	/******************************************************************/
+	/**
+	 * Checks for inequality with another GNumT<T> object
+	 *
+	 * @param  cp A constant reference to another GNumT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GNumCollectionT<T>& cp) const {
+	bool operator!=(const GNumT<T>& cp) const {
 		using namespace Gem::Util;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumCollectionT<T>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/******************************************************************/
@@ -189,19 +208,19 @@ public:
 	    using namespace Gem::Util::POD;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GNumCollectionT<T>  *p_load = GObject::conversion_cast<GNumCollectionT<T> >(&cp);
+		const GNumT<T>  *p_load = GObject::conversion_cast<GNumT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GParameterCollectionT<T>::checkRelationshipWith(cp, e, limit, "GNumCollectionT<T>", y_name, withMessages));
+		deviations.push_back(GParameterT<T>::checkRelationshipWith(cp, e, limit, "GNumT<T>", y_name, withMessages));
 
 		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GNumCollectionT<T>", lowerInitBoundary_, p_load->lowerInitBoundary_, "lowerInitBoundary_", "p_load->lowerInitBoundary_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumCollectionT<T>", upperInitBoundary_, p_load->upperInitBoundary_, "upperInitBoundary_", "p_load->upperInitBoundary_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumT<T>", lowerInitBoundary_, p_load->lowerInitBoundary_, "lowerInitBoundary_", "p_load->lowerInitBoundary_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumT<T>", upperInitBoundary_, p_load->upperInitBoundary_, "upperInitBoundary_", "p_load->upperInitBoundary_", e , limit));
 
-		return evaluateDiscrepancies("GNumCollectionT<T>", caller, deviations, e);
+		return evaluateDiscrepancies("GNumT<T>", caller, deviations, e);
 	}
 
 	/******************************************************************/
@@ -246,7 +265,7 @@ public:
 		bool result;
 
 		// Call the parent classes' functions
-		if(GParameterCollectionT<T>::modify_GUnitTests()) result = true;
+		if(GParameterT<T>::modify_GUnitTests()) result = true;
 
 		return result;
 	}
@@ -257,7 +276,7 @@ public:
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent classes' functions
-		GParameterCollectionT<T>::specificTestsNoFailureExpected_GUnitTests();
+		GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
 	/******************************************************************/
@@ -266,24 +285,24 @@ public:
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent classes' functions
-		GParameterCollectionT<T>::specificTestsFailuresExpected_GUnitTests();
+		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
 
 protected:
 	/******************************************************************/
 	/**
-	 * Loads the data of another GNumCollectionT<T> object,
+	 * Loads the data of another GNumT<T> object,
 	 * camouflaged as a GObject. We have no local data, so
 	 * all we need to do is to the standard identity check,
 	 * preventing that an object is assigned to itself.
 	 *
-	 * @param cp A copy of another GNumCollectionT<T> object, camouflaged as a GObject
+	 * @param cp A copy of another GNumT<T> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp){
 		// Check that this object is not accidently assigned to itself
-		GObject::selfAssignmentCheck<GNumCollectionT<T> >(cp);
+		GObject::selfAssignmentCheck<GNumT<T> >(cp);
 
-		GParameterCollectionT<T>::load_(cp);
+		GParameterT<T>::load_(cp);
 	}
 
 	/******************************************************************/
@@ -305,8 +324,6 @@ private:
 	T upperInitBoundary_; ///< The upper boundary for random initialization
 };
 
-/**********************************************************************/
-
 } /* namespace GenEvA */
 } /* namespace Gem */
 
@@ -316,11 +333,11 @@ private:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GNumCollectionT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::GenEvA::GNumT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GNumCollectionT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::GenEvA::GNumT<T> > : public boost::true_type {};
 	}
 }
 /**********************************************************************/
 
-#endif /* GNUMCOLLECTIONT_HPP_ */
+#endif /* GNUMT_HPP_ */

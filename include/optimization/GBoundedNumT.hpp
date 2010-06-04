@@ -126,9 +126,22 @@ public:
 	 * @param The desired new external value
 	 * @return The new external value of this object
 	 */
-	virtual const T& operator=(const T& val) {
-		setExternalValue(val);
+	virtual T operator=(const T& val) {
+		GBoundedNumT<T>::setValue(val);
 		return val;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Allows to set the externally visible value. Note that we assume here that T has an
+	 * operator=() or is a basic value type, such as double or int. As the externally visible
+	 * value is different from the one stored internally in this class, the behaviour of this
+	 * function is different from the one in our parent class.
+	 *
+	 * @param val The new T value stored in this class
+	 */
+	virtual void setValue(const T& val)  {
+		setExternalValue(val);
 	}
 
 	/****************************************************************************/
@@ -414,7 +427,6 @@ protected:
 	 */
 	virtual GObject *clone_() const = 0;
 
-private:
 	/****************************************************************************/
 	/**
 	 * Sets the internal value in such a way that the user-visible
@@ -457,11 +469,16 @@ private:
 		// The transfer function in this area is just f(x)=x, so we can just
 		// assign the external to the internal value.
 		internalValue_ = val;
-		setValue(val);
+
+		// It is important that we set the parent class'es internal value
+		// instead of calling our own version. Otherwise we'd create an
+		// infinite recursion.
+		GParameterT<T>::setValue(val);
 
 		return previous;
 	}
 
+private:
 	/****************************************************************************/
 	T lowerBoundary_, upperBoundary_; ///< The upper and lower allowed boundaries for our external value
 	T internalValue_; ///< The internal representation of this class'es value

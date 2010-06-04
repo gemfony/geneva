@@ -32,6 +32,8 @@ The main changes for this release include:
    to Gem::Common::gemfony_error_condition, in order to better separate different libraries.
  - Replaced usage of GDataExchangeException by Gem::Common::gemfony_error_condition.
  - Update to CMake 2.8, ported to Boost 1.43.
+ - Gave GParameterBase-derivatives and GParameterSet objects the ability to randomly initialize
+   a given set of data elements contained in them
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010
