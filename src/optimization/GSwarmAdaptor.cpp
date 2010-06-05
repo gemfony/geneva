@@ -41,7 +41,7 @@ namespace GenEvA {
 
 /************************************************************************************************************/
 /**
- * The standard constructor. We want to always perform adaptions when this adaptor is called.
+ * The standard constructor.
  */
 GSwarmAdaptor::GSwarmAdaptor()
 	: GAdaptorT<double> ()
@@ -49,6 +49,7 @@ GSwarmAdaptor::GSwarmAdaptor()
 	, c1_(DEFAULTC1)
 	, c2_(DEFAULTC2)
  {
+	// We want to always perform adaptions when this adaptor is called.
 	GAdaptorT<double>::setAdaptionMode(true);
  }
 
@@ -64,6 +65,7 @@ GSwarmAdaptor::GSwarmAdaptor(const GSwarmAdaptor& cp)
 	, c1_(cp.c1_)
 	, c2_(cp.c2_)
  {
+	// We want to always perform adaptions when this adaptor is called.
 	GAdaptorT<double>::setAdaptionMode(true);
  }
 
