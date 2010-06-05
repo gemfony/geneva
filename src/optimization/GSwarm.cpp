@@ -588,14 +588,14 @@ void GSwarm::finalize() {
 /************************************************************************************************************/
 /**
  * Resizes the population to the desired level and does some error checks. This is an overloaded version
- * from GOptimizationAlgorithm::adjustPopulation() which is needed to take into account varying number of
- * individuals in each neighborhood. E.g., it will remove the worst individuals in each neighborhood instead
- * of just removing individuals at the end, in case of surplus items.
+ * from GOptimizationAlgorithm::adjustPopulation().
  */
 void GSwarm::adjustPopulation() {
 	// Check the actual population
 
-	// Three cases:
+	// No individuals present constitutes an error
+
+	// Three valid cases:
 	// - just one individual is present
 	// - all required individuals are present
 	// - the number of individuals present equals the number of neighborhoods

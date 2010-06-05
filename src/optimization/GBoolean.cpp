@@ -75,12 +75,12 @@ GBoolean::~GBoolean()
 
 /*******************************************************************************************/
 /**
- * An assignment operator for the contained value type
+ * An assignment operator
  *
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-const bool& GBoolean::operator=(const bool& val) {
+bool GBoolean::operator=(const bool& val) {
 	return GParameterT<bool>::operator=(val);
 }
 
@@ -130,6 +130,43 @@ bool GBoolean::operator!=(const GBoolean& cp) const {
 	using namespace Gem::Util;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBoolean::operator!=","cp", CE_SILENT);
+}
+
+/*******************************************************************************************/
+/**
+ * Random initialization. This is a helper function, without it we'd
+ * have to say things like "myGBooleanObject.GParameterBase::randomInit();".
+ */
+void GBoolean::randomInit() {
+	  GParameterBase::randomInit();
+}
+
+/*******************************************************************************************/
+/**
+ * Triggers random initialization of the parameter object, with a given likelihood structure
+ */
+void GBoolean::randomInit(const double& probability) {
+  if(!GParameterBase::initializationBlocked()) randomInit_(probability);
+}
+
+/*******************************************************************************************/
+/**
+ * Triggers random initialization of the parameter object, with a given likelihood structure.
+ * This function holds the actual initialization logic, used in the publicly accessible
+ * GBoolean::randomInit(const double& probability) function.
+ */
+void GBoolean::randomInit_(const double& probability) {
+  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+  this->setValue(gr.boolRandom(probability));
+}
+
+/*******************************************************************************************/
+/**
+ * Triggers random initialization of the parameter object
+ */
+void GBoolean::randomInit_() {
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	this->setValue(gr.boolRandom());
 }
 
 /*******************************************************************************************/

@@ -89,7 +89,8 @@ class GParameterBase
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-         & BOOST_SERIALIZATION_NVP(adaptionsActive_);
+         & BOOST_SERIALIZATION_NVP(adaptionsActive_)
+         & BOOST_SERIALIZATION_NVP(initializationBlocked_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -112,16 +113,24 @@ public:
 	/** @brief Determines whether adaptions are performed for this object */
 	bool adaptionsActive() const;
 
-	/** @brief Checks for equality with another GParameterBase object */
+	/** @brief Checks for equality with another GParameter Base object */
 	bool operator==(const GParameterBase&) const;
 	/** @brief Checks for inequality with another GParameterBase object */
 	bool operator!=(const GParameterBase&) const;
 
-	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	/** @brief Triggers random initialization of the parameter(-collection) */
+	virtual void randomInit();
+
+	/** @brief Specifies that no random initialization should occur anymore */
+	void blockInitialization();
+	/** @brief Checks whether initialization has been blocked */
+	bool initializationBlocked() const;
 
 	/** @brief Convenience function so we do not need to always cast derived classes */
 	virtual bool hasAdaptor() const;
+
+	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
+	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
@@ -136,8 +145,12 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 
+	/** @brief Triggers random initialization of the parameter(-set) */
+	virtual void randomInit_() = 0;
+
 private:
 	bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out
+	bool initializationBlocked_; ///< Specifies that this object should not be initialized again
 };
 
 } /* namespace GenEvA */

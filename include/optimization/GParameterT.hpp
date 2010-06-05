@@ -104,14 +104,27 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * An assignment operator that allows us to set val_
+	 * An assignment operator that allows us to set val_ . Note that the value is returned as
+	 * a copy, not a reference. Hence we assume here that val_ is a basic type, such as double, int, ... .
 	 *
 	 * @param val The new value for val_
 	 * @return The new value of val_
 	 */
-	virtual const T& operator=(const T& val){
-		val_ = val;
+	virtual T operator=(const T& val){
+		setValue(val);
 		return val_;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Allows to set the internal (and usually externally visible) value. Note
+	 * that we assume here that T has an operator=() or is a basic value type, such as double
+	 * or int.
+	 *
+	 * @param val The new T value stored in this class
+	 */
+	virtual void setValue(const T& val)  {
+		val_ = val;
 	}
 
 	/*******************************************************************************************/
@@ -264,21 +277,10 @@ protected:
 	 */
 	virtual GObject* clone_() const = 0;
 
-	/*******************************************************************************************/
-	/**
-	 * Allows derivatives to set the internal value. Note that we assume here that T has an
-	 * operator=() or is a basic value type, such as double or int.
-	 *
-	 * @param val The new T value stored in this class
-	 */
-	void setValue(const T& val)  {
-		val_ = val;
-	}
-
 private:
 	/*******************************************************************************************/
 
-	T val_; ///< The internal representation of our value. It is protected as it needs to accessible to derived classes.
+	T val_; ///< The internal representation of our value
 };
 
 

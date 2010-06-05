@@ -47,6 +47,7 @@
 // Geneva header files go here
 #include "GExceptions.hpp"
 #include "GRandom.hpp"
+#include "GParameterBase.hpp"
 #include "GBooleanCollection.hpp"
 #include "GBooleanAdaptor.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
@@ -112,14 +113,15 @@ public:
 		}
 		BOOST_CHECK(gbc6 == gbc2);
 
-		// Adding random data using two different methods
-		gbc6.addRandomData(100);
+		// Re-initialization in two different modes
+		gbc6.randomInit(); // equal likelihood for true/false
 		BOOST_CHECK(gbc6 != gbc2);
 		BOOST_CHECK(gep.isInEqual(gbc6, gbc2));
 
-		BOOST_CHECK(gbc6.size() == 200);
-		gbc6.addRandomData(1800, 0.1);
-		BOOST_CHECK(gbc6.size() == 2000);
+		GBooleanCollection gbc6_2(gbc6);
+		BOOST_CHECK(gbc6_2 == gbc6);
+		gbc6_2.randomInit(0.1);
+		BOOST_CHECK(gbc6_2 != gbc6);
 
 		// Adding an adaptor
 		boost::shared_ptr<GBooleanAdaptor> gba(new GBooleanAdaptor());
@@ -143,11 +145,10 @@ public:
 			// Check equalities and inequalities
 			BOOST_CHECK(gbc7_cp == gbc7);
 			// Re-assign a new value to gbc7_cp
-			gbc7_cp.addRandomData(100);
-			BOOST_CHECK(gbc7_cp.size() == 200);
+			gbc7_cp.randomInit();
 			BOOST_CHECK(gbc7_cp != gbc7);
 
-			// Serialize gbc7 and load into gbc7_co, check equalities and similarities
+			// Serialize gbc7 and load into gbc7_cp, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
 			BOOST_CHECK(gep.isSimilar(gbc7_cp, gbc7));
 		}
@@ -160,11 +161,10 @@ public:
 			// Check equalities and inequalities
 			BOOST_CHECK(gbc7_cp == gbc7);
 			// Re-assign a new value to gbc7_cp
-			gbc7_cp.addRandomData(100);
-			BOOST_CHECK(gbc7_cp.size() == 200);
+			gbc7_cp.randomInit();
 			BOOST_CHECK(gbc7_cp != gbc7);
 
-			// Serialize gbc7 and load into gbc7_co, check equalities and similarities
+			// Serialize gbc7 and load into gbc7_cp, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(XMLSERIALIZATION), XMLSERIALIZATION));
 			BOOST_CHECK(gep.isSimilar(gbc7_cp, gbc7));
 		}
@@ -177,11 +177,10 @@ public:
 			// Check equalities and inequalities
 			BOOST_CHECK(gbc7_cp == gbc7);
 			// Re-assign a new value to gbc7_cp
-			gbc7_cp.addRandomData(100);
-			BOOST_CHECK(gbc7_cp.size() == 200);
+			gbc7_cp.randomInit();
 			BOOST_CHECK(gbc7_cp != gbc7);
 
-			// Serialize gbc7 and load into gbc7_co, check equalities and similarities
+			// Serialize gbc7 and load into gbc7_cp, check equalities and similarities
 			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
 			BOOST_CHECK(gep.isEqual(gbc7_cp, gbc7));
 		}

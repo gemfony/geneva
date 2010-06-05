@@ -100,6 +100,9 @@ public:
 	/** @brief Registers an evaluation function */
 	void registerEvaluator(const boost::function<double (const GParameterSet&)>&);
 
+	/** @brief Allows to randomly initialize parameter members */
+	void randomInit();
+
 	/**********************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.

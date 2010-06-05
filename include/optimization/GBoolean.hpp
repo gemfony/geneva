@@ -81,8 +81,8 @@ public:
 	/** @brief The destructor */
 	virtual ~GBoolean();
 
-	/** @brief An assignment operator for the contained value type */
-	virtual const bool& operator=(const bool&);
+	/** @brief An assignment operator */
+	virtual bool operator=(const bool&);
 
 	/** @brief A standard assignment operator */
 	const GBoolean& operator=(const GBoolean&);
@@ -91,6 +91,11 @@ public:
 	bool operator==(const GBoolean&) const;
 	/** @brief Checks for inequality with another GBoolean object */
 	bool operator!=(const GBoolean&) const;
+
+	/** @brief Triggers random initialization of the parameter object */
+	virtual void randomInit();
+	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
+	virtual void randomInit(const double&);
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
@@ -107,6 +112,11 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
+
+	/** @brief Triggers random initialization of the parameter object */
+	virtual void randomInit_();
+	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
+	void randomInit_(const double&);
 };
 
 /************************************************************************/

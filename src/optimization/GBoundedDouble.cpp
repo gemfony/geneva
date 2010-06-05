@@ -105,7 +105,7 @@ GBoundedDouble::~GBoundedDouble()
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-const double& GBoundedDouble::operator=(const double& val) {
+double GBoundedDouble::operator=(const double& val) {
 	return GBoundedNumT<double>::operator=(val);
 }
 
@@ -208,6 +208,15 @@ void GBoundedDouble::load_(const GObject* cp){
 	GBoundedNumT<double>::load_(cp);
 
 	// ... no local data
+}
+
+/*******************************************************************************************/
+/**
+ * Triggers random initialization of the parameter object
+ */
+void GBoundedDouble::randomInit_() {
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	this->setExternalValue(gr.evenRandom(getLowerBoundary(), getUpperBoundary()));
 }
 
 /*******************************************************************************************/

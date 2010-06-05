@@ -105,7 +105,7 @@ GBoundedInt32::~GBoundedInt32()
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-const boost::int32_t& GBoundedInt32::operator=(const boost::int32_t& val) {
+boost::int32_t GBoundedInt32::operator=(const boost::int32_t& val) {
 	return GBoundedNumT<boost::int32_t>::operator=(val);
 }
 
@@ -209,6 +209,16 @@ void GBoundedInt32::load_(const GObject* cp){
 
 	// ... no local data
 }
+
+/*******************************************************************************************/
+/**
+ * Triggers random initialization of the parameter object
+ */
+void GBoundedInt32::randomInit_() {
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	this->setExternalValue(gr.discreteRandom(getLowerBoundary(), getUpperBoundary() + 1));
+}
+
 
 /*******************************************************************************************/
 /**

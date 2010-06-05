@@ -48,7 +48,7 @@
 
 // GenEvA headers go here
 
-#include "GParameterT.hpp"
+#include "GNumT.hpp"
 
 namespace Gem {
 namespace GenEvA {
@@ -66,7 +66,7 @@ namespace GenEvA {
  * (most notably doubles) have their own class as well (GBoundedDouble, GDouble).
  */
 class GInt32
-	:public GParameterT<boost::int32_t>
+	:public GNumT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -75,7 +75,7 @@ class GInt32
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GParameterT_int32", boost::serialization::base_object<GParameterT<boost::int32_t> >(*this));
+	  ar & make_nvp("GNumT_int32", boost::serialization::base_object<GNumT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -86,11 +86,13 @@ public:
 	GInt32(const GInt32&);
 	/** @brief Initialization by contained value */
 	explicit GInt32(const boost::int32_t&);
+	/** @brief Initialization by random number in a given range */
+	GInt32(const boost::int32_t&, const boost::int32_t&);
 	/** @brief The destructor */
 	virtual ~GInt32();
 
 	/** @brief An assignment operator for the contained value type */
-	virtual const boost::int32_t& operator=(const boost::int32_t&);
+	virtual boost::int32_t operator=(const boost::int32_t&);
 
 	/** @brief A standard assignment operator */
 	const GInt32& operator=(const GInt32&);
@@ -115,6 +117,9 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
+
+	/** @brief Triggers random initialization of the parameter collection */
+	virtual void randomInit_();
 };
 
 /************************************************************************/

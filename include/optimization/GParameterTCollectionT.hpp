@@ -284,6 +284,22 @@ protected:
 	 * further optimizations.
 	 */
 	virtual void dummyFunction() { /* nothing */ }
+
+	/*******************************************************************************************/
+	/**
+	 * Triggers random initialization of all parameter objects
+	 */
+	virtual void randomInit_() {
+		typename GParameterTCollectionT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			// Note that we do not call the randomInit_() function. First of all, we
+			// do not have access to it. Secondly it might be that re-initialization of
+			// a specific object is not desired.
+			(*it)->GParameterBase::randomInit();
+		}
+	}
+
+	/*******************************************************************************************/
 };
 
 

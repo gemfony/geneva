@@ -125,7 +125,6 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, cons
 			std::ostringstream error;
 			error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
 				     << "Error: Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
-
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
@@ -134,7 +133,6 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, cons
 			std::ostringstream error;
 			error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
 				     << "Error: Lower and/or upper boundaries have too high values: " << lowerBoundary << " " << upperBoundary << std::endl;
-
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 

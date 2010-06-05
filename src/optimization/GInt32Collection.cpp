@@ -56,8 +56,11 @@ GInt32Collection::GInt32Collection()
  * @param max The maximum random value
  */
 GInt32Collection::GInt32Collection(const std::size_t& nval, const boost::int32_t& min, const boost::int32_t& max)
-	: GNumCollectionT<boost::int32_t>(nval, min, max)
-{ /* nothing */ }
+	: GNumCollectionT<boost::int32_t>(min, max)
+{
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.discreteRandom(min,max));
+}
 
 /*******************************************************************************************/
 /**
@@ -122,6 +125,24 @@ bool GInt32Collection::operator!=(const GInt32Collection& cp) const {
 	using namespace Gem::Util;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32Collection::operator!=","cp", CE_SILENT);
+}
+
+/*******************************************************************************************/
+/**
+ * Triggers random initialization of the parameter collection. Note that this
+ * function assumes that the collection has been completely set up. Data
+ * that is added later will remain unaffected.
+ */
+void GInt32Collection::randomInit_() {
+	boost::int32_t lowerBoundary = getLowerInitBoundary();
+	boost::int32_t upperBoundary = getUpperInitBoundary()+1;
+
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+
+	GInt32Collection::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)=gr.discreteRandom(lowerBoundary, upperBoundary);
+	}
 }
 
 /*******************************************************************************************/

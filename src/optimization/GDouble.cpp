@@ -53,7 +53,7 @@ GDouble::GDouble()
  * @param cp A copy of another GDouble object
  */
 GDouble::GDouble(const GDouble& cp)
-	: GParameterT<double>(cp)
+	: GNumT<double>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -63,7 +63,18 @@ GDouble::GDouble(const GDouble& cp)
  * @param val A value used for the initialization
  */
 GDouble::GDouble(const double& val)
-	: GParameterT<double>(val)
+	: GNumT<double>(val)
+{ /* nothing */ }
+
+/*******************************************************************************************/
+/**
+ * Initialization by random number in a given range
+ *
+ * @param lowerBoundary The lower boundary for the random number used in the initialization
+ * @param upperBoundary The upper boundary for the random number used in the initialization
+ */
+GDouble::GDouble(const double& lowerBoundary, const double& upperBoundary)
+	: GNumT<double>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -75,13 +86,13 @@ GDouble::~GDouble()
 
 /*******************************************************************************************/
 /**
- * An assignment operator for the contained value type
+ * An assignment operator
  *
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-const double& GDouble::operator=(const double& val) {
-	return GParameterT<double>::operator=(val);
+double GDouble::operator=(const double& val) {
+	return GNumT<double>::operator=(val);
 }
 
 /*******************************************************************************************/
@@ -162,7 +173,7 @@ boost::optional<std::string> GDouble::checkRelationshipWith(const GObject& cp,
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterT<double>::checkRelationshipWith(cp, e, limit, "GDouble", y_name, withMessages));
+	deviations.push_back(GNumT<double>::checkRelationshipWith(cp, e, limit, "GDouble", y_name, withMessages));
 
 	// no local data ...
 
@@ -180,9 +191,22 @@ void GDouble::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GDouble>(cp);
 
 	// Load our parent class'es data ...
-	GParameterT<double>::load_(cp);
+	GNumT<double>::load_(cp);
 
 	// ... no local data
+}
+
+/*******************************************************************************************/
+/**
+ * Triggers random initialization of the parameter.
+ */
+void GDouble::randomInit_() {
+	double lowerBoundary = getLowerInitBoundary();
+	double upperBoundary = getUpperInitBoundary();
+
+	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+
+	setValue(gr.evenRandom(lowerBoundary, upperBoundary));
 }
 
 /*******************************************************************************************/
@@ -195,7 +219,7 @@ bool GDouble::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GParameterT<double>::modify_GUnitTests()) result = true;
+	if(GNumT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -206,7 +230,7 @@ bool GDouble::modify_GUnitTests() {
  */
 void GDouble::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GNumT<double>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
@@ -215,7 +239,7 @@ void GDouble::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GDouble::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterT<double>::specificTestsFailuresExpected_GUnitTests();
+	GNumT<double>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
