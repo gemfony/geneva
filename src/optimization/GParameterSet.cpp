@@ -192,9 +192,12 @@ namespace Gem
 	 * Allows to randomly initialize parameter members
 	 */
 	void GParameterSet::randomInit() {
+		// Trigger random initialization of all our parameter objects
 		GParameterSet::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it)
-			(*it)->randomInit();
+		for(it=this->begin(); it!=this->end(); ++it) (*it)->randomInit();
+
+		// As we have modified our internal data sets, make sure the dirty flag is set
+		GIndividual::setDirtyFlag();
 	}
 
 	/************************************************************************************************************/
