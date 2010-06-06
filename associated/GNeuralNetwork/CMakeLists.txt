@@ -68,13 +68,19 @@ FIND_PACKAGE( Boost 1.36 COMPONENTS
 )
 
 INCLUDE_DIRECTORIES (
-#	${PROJECT_SOURCE_DIR}
-#	${GENEVA_ROOT}/include
+	${PROJECT_SOURCE_DIR}
+	${GENEVA_ROOT}/include
 #	${GENEVA_ROOT}/include/dataexchange
-#	${GENEVA_ROOT}/include/random
-#	${GENEVA_ROOT}/include/communication
-#	${GENEVA_ROOT}/include/optimization
+	${GENEVA_ROOT}/include/random
+	${GENEVA_ROOT}/include/communication
+	${GENEVA_ROOT}/include/optimization
+	${GENEVA_ROOT}/include/thirdparty
 #	${Boost_INCLUDE_DIRS}
+)
+
+LINK_DIRECTORIES (
+	${GENEVA_ROOT}/lib
+	${Boost_LIBRARY_DIRS}
 )
 
 SET ( EXECUTABLENAME GNeuralNetwork )
@@ -97,17 +103,16 @@ MESSAGE( "LIBS: ${Boost_LIBRARIES}")
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${OPTIMIZATION_LIBNAME}
 	${COMMUNICATION_LIBNAME}
-	${DATAEXCHANGE_LIBNAME}
+#	${DATAEXCHANGE_LIBNAME}
 	${RANDOM_LIBNAME}
 	${COMMON_LIBNAME}
 	${Boost_LIBRARIES}
-	pthread
 )
 
 # Tests will only be compiled of the test libraries were found
-#IF( Boost_TEST_EXEC_MONITOR_FOUND )
-#	ADD_SUBDIRECTORY (Tests)
-#ENDIF()
+IF( Boost_TEST_EXEC_MONITOR_FOUND )
+	ADD_SUBDIRECTORY (Tests)
+ENDIF()
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION bin
 	PERMISSIONS
