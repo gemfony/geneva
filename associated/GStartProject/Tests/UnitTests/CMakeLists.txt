@@ -11,29 +11,28 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 INCLUDE_DIRECTORIES (
-        ${GENEVA_ROOT}/include/optimization
-        ${GENEVA_ROOT}/include/communication
-        ${GENEVA_ROOT}/include/random
-        ${GENEVA_ROOT}/include/dataexchange
-        ${GENEVA_ROOT}/include
-        ${GENEVA_ROOT}/tests/UnitTests/UtilityHeaders
-        ${CMAKE_HOME_DIRECTORY} # The top of the source tree
-        ${Boost_INCLUDE_DIRS}
-)
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-	${COMMON_LIBNAME}
-	${DATAEXCHANGE_LIBNAME}
-	${RANDOM_LIBNAME}
-	${COMMUNICATION_LIBNAME}
-	${OPTIMIZATION_LIBNAME}
-	${Boost_LIBRARY}
-	pthread
+	${PROJECT_SOURCE_DIR}
+	${GENEVA_ROOT}/include
+#	${GENEVA_ROOT}/include/dataexchange
+	${GENEVA_ROOT}/include/random
+	${GENEVA_ROOT}/include/communication
+	${GENEVA_ROOT}/include/optimization
+	${GENEVA_ROOT}/tests/UnitTests/UtilityHeaders
+#	${Boost_INCLUDE_DIRS}
 )
 
 LINK_DIRECTORIES (
-        ${GENEVA_ROOT}/lib
-        ${Boost_LIBRARY_DIRS}
+	${GENEVA_ROOT}/lib
+	${Boost_LIBRARY_DIRS}
+)
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+	${OPTIMIZATION_LIBNAME}
+	${COMMUNICATION_LIBNAME}
+#	${DATAEXCHANGE_LIBNAME}
+	${RANDOM_LIBNAME}
+	${COMMON_LIBNAME}
+	${Boost_LIBRARIES}
 )
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION .
