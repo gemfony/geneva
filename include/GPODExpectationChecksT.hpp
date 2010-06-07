@@ -97,15 +97,15 @@ namespace POD {
  */
 template <typename basic_type>
 boost::optional<std::string> checkExpectation (
-	    const bool& withMessages
-      , const std::string& caller
-	  , const basic_type& x
-	  , const basic_type& y
-	  , const std::string& x_name
-	  , const std::string& y_name
-	  , const Gem::Util::expectation& e
-	  , const double& limit = 0.
-	  , typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy = 0
+	  const bool& withMessages
+	, const std::string& caller
+	, const basic_type& x
+	, const basic_type& y
+	, const std::string& x_name
+	, const std::string& y_name
+	, const Gem::Util::expectation& e
+	, const double& limit = 0.
+	, typename boost::disable_if<boost::is_floating_point<basic_type> >::type* dummy = 0
 )
 {
 	bool expectationMet = false;
