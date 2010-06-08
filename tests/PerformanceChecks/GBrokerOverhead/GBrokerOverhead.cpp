@@ -40,8 +40,9 @@
 #include "GEvolutionaryAlgorithm.hpp"
 #include "GMultiThreadedEA.hpp"
 #include "GBrokerEA.hpp"
+#include "GIndividual.hpp"
 #include "GIndividualBroker.hpp"
-#include "GBoostThreadConsumer.hpp"
+#include "GBoostThreadConsumerT.hpp"
 
 // The individual that should be optimized
 #include "GFunctionIndividual.hpp"
@@ -58,7 +59,7 @@ using namespace Gem::Util;
  * The main function.
  */
 int main(int argc, char **argv){
-  std::string configFile;		  
+  std::string configFile;
   boost::uint16_t parallelizationMode;
   bool serverMode;
   std::string ip;
@@ -88,7 +89,7 @@ int main(int argc, char **argv){
   double adProb;
 
   if(!parseCommandLine(argc, argv,
-		       configFile,			  
+		       configFile,
 		       parallelizationMode)
      ||
      !parseConfigFile(configFile,
@@ -195,7 +196,7 @@ int main(int argc, char **argv){
   case 2: // Execution with multi-threaded consumer
     {
 		// Create a consumer and make it known to the global broker
-		boost::shared_ptr<GBoostThreadConsumer> gbtc(new GBoostThreadConsumer());
+		boost::shared_ptr< GBoostThreadConsumerT<GIndividual> > gbtc(new GBoostThreadConsumerT<GIndividual>());
 		gbtc->setMaxThreads(nEvaluationThreads);
 		GINDIVIDUALBROKER->enrol(gbtc);
 
@@ -217,7 +218,7 @@ int main(int argc, char **argv){
   for(std::size_t p = 0 ; p<nParents; p++) {
     pop_ptr->push_back(parentIndividuals[p]);
   }
- 
+
   // Specify some general population settings
   pop_ptr->setDefaultPopulationSize(populationSize, nParents);
   pop_ptr->setMaxIteration(maxIterations);
@@ -225,7 +226,7 @@ int main(int argc, char **argv){
   pop_ptr->setReportIteration(reportIteration);
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
-  
+
   // Do the actual optimization
   pop_ptr->optimize();
 

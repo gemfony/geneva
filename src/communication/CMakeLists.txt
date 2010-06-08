@@ -5,7 +5,6 @@ SET ( COMMUNICATIONSOURCES
 	GAsioTCPClient
 	GAsioTCPConsumer
 	GBaseClient
-	GBoostThreadConsumer
 )
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted

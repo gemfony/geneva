@@ -5,7 +5,7 @@ SET ( COMMUNICATIONINCLUDES
 	GAsioTCPClient.hpp
 	GAsioTCPConsumer.hpp
 	GBaseClient.hpp
-	GBoostThreadConsumer.hpp
+	GBoostThreadConsumerT.hpp
 	GBrokerT.hpp
 	GConsumer.hpp
 )
