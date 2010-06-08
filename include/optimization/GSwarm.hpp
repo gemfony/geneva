@@ -34,6 +34,7 @@
 #include <sstream>
 #include <cmath>
 #include <cfloat>
+#include <algorithm>
 
 // Includes check for correct Boost version(s)
 #include "GGlobalDefines.hpp"
@@ -263,7 +264,9 @@ protected:
 	/** @brief Updates the fitness of all individuals */
 	virtual void updatePositionsAndFitness();
 	/** @brief Updates the best individuals found */
-	double findBests();
+	virtual double findBests();
+	/** @brief Adjusts each neighborhood so it has the correct size */
+	virtual void adjustNeighborhoods();
 
 	/**************************************************************************************************/
 private:
@@ -272,6 +275,9 @@ private:
 
 	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
 	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
+
+	/** @brief Small helper function that helps to fill up a neighborhood, if there is just one entry in it */
+	void fillUpNeighborhood1();
 
 	/** @brief Helper function that returns the id of the first individual of a neighborhood */
 	std::size_t getFirstNIPos(const std::size_t&) const;

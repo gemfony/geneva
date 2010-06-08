@@ -878,12 +878,12 @@ void GEvolutionaryAlgorithm::select()
 
 /************************************************************************************************************/
 /**
- * Selection, MUPLUSNU style. All individuals of the population (including parents)
- * are sorted. The quality of the population can only increase, but the optimization
- * will stall more easily.
+ * Selection, MUPLUSNU style. Note that not all individuals of the population (including parents)
+ * are sorted -- only the nParents best individuals are identified. The quality of the population can only
+ * increase, but the optimization will stall more easily in MUPLUSNU mode.
  */
 void GEvolutionaryAlgorithm::sortMuplusnuMode() {
-	// Sort the entire array
+	// Only partially sort the arrays
 	if(getMaximize()){
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
 				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));

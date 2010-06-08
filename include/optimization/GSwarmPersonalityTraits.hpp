@@ -159,7 +159,7 @@ public:
 	/** @brief Makes the locally best individual known to this object */
 	void registerLocalBest(boost::shared_ptr<Gem::GenEvA::GIndividual>);
 
-	/** @brief Updates the parameters of the individual */
+	/** @brief Triggers the update of GParameterSet derivatives */
 	void updateParameters();
 
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
