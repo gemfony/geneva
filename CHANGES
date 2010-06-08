@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------------------------------
-Roadmap for Version 0.8, yet unnamed, release-date unknown
+Roadmap for Version 0.9, yet unnamed, release-date unknown
  - Full documentation.
  - Revision of broker infrastructure, implementation as separate library.
  - Revision of Random and Random factory, implementation as separate library.
@@ -28,12 +28,14 @@ The main changes for this release include:
    GParameterBase object in the same collection.
  - Separation of the codebase into various different, (mostly) independent libraries:
    common, dataexchange, random, communication, and optimization.
+ - Removed GBoostThreadConsumer dependency on GIndividual, making it a template class
+   GBoostThreadConsumerT.
  - Renamed GenevaExceptions file to GExceptions and renamed Gem::GenEvA::geneva_error_condition
    to Gem::Common::gemfony_error_condition, in order to better separate different libraries.
  - Replaced usage of GDataExchangeException by Gem::Common::gemfony_error_condition.
- - Update to CMake 2.8, ported to Boost 1.43.
  - Gave GParameterBase-derivatives and GParameterSet objects the ability to randomly initialize
-   a given set of data elements contained in them
+   a given set of data elements contained in them.
+ - Update to CMake 2.8, ported to Boost 1.43.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010
