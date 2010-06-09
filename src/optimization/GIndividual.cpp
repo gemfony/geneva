@@ -77,7 +77,7 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, pers_(cp.pers_)
 {
 	// We need to take care of the personality pointer manually
-	setPersonality(pers_);
+	setPersonality(pers_); // this call will also make sure that a suitable personality object is being created
 	if(pers_ != NONE) pt_ptr_->GObject::load(cp.pt_ptr_);
 }
 
@@ -181,7 +181,6 @@ void GIndividual::load_(const GObject* cp) {
 	processingCycles_ = p_load->processingCycles_;
 	maximize_ = p_load->maximize_;
 	parentAlgIteration_ = p_load->parentAlgIteration_;
-
 	setPersonality(p_load->pers_);
 	if(pers_ != NONE) pt_ptr_->GObject::load(p_load->pt_ptr_);
 }
@@ -315,6 +314,29 @@ bool GIndividual::getMaxMode() const {
 
 /************************************************************************************************************/
 /**
+ * Sets the dirtyFlag_. This is a "one way" function, accessible to the external
+ * user. Once the dirty flag has been set, the only way to reset it is to calculate
+ * the fitness of this object.
+ */
+void GIndividual::setDirtyFlag()  {
+	dirtyFlag_ = true;
+}
+
+/************************************************************************************************************/
+/**
+ * Sets the dirtyFlag_ to any desired value
+ *
+ * @param dirtyFlag The new value for the dirtyFlag_ variable
+ * @return The previous value of the dirtyFlag_ variable
+ */
+bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
+	bool previous = dirtyFlag_;
+	dirtyFlag_ = dirtyFlag;
+	return previous;
+}
+
+/************************************************************************************************************/
+/**
  * Sets the current personality of this individual
  *
  * @param pers The desired personality of this individual
@@ -363,29 +385,6 @@ personality GIndividual::getPersonality() const {
 
 /************************************************************************************************************/
 /**
- * Sets the dirtyFlag_. This is a "one way" function, accessible to the external
- * user. Once the dirty flag has been set, the only way to reset it is to calculate
- * the fitness of this object.
- */
-void GIndividual::setDirtyFlag()  {
-	dirtyFlag_ = true;
-}
-
-/************************************************************************************************************/
-/**
- * Sets the dirtyFlag_ to any desired value
- *
- * @param dirtyFlag The new value for the dirtyFlag_ variable
- * @return The previous value of the dirtyFlag_ variable
- */
-bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
-	bool previous = dirtyFlag_;
-	dirtyFlag_ = dirtyFlag;
-	return previous;
-}
-
-/************************************************************************************************************/
-/**
  * This function returns the current personality traits base pointer. Note that there
  * is another version of the same command that does on-the-fly conversion of the
  * personality traits to the derived class.
@@ -399,8 +398,7 @@ boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
 /**************************************************************************************************/
 /**
  * Convenience function to make the code more readable. Gives access to the evolutionary algorithm
- * personality. Will throw if another personality is active. Inline, as it is defined in the class
- * declaration.
+ * personality. Will throw if another personality is active.
  *
  * @return A shared_ptr to the evolutionary algorithms personality traits
  */
@@ -411,8 +409,7 @@ boost::shared_ptr<GEAPersonalityTraits> GIndividual::getEAPersonalityTraits() {
 /**************************************************************************************************/
 /**
  * Convenience function to make the code more readable. Gives access to the gradient descent
- * personality. Will throw if another personality is active. Inline, as it is defined in the class
- * declaration.
+ * personality. Will throw if another personality is active.
  *
  * @return A shared_ptr to the gradient descent personality traits
  */
@@ -423,8 +420,7 @@ boost::shared_ptr<GGDPersonalityTraits> GIndividual::getGDPersonalityTraits() {
 /**************************************************************************************************/
 /**
  * Convenience function to make the code more readable. Gives access to the swarm algorithm
- * personality. Will throw if another personality is active. Inline, as it is defined in the class
- * declaration.
+ * personality. Will throw if another personality is active.
  *
  * @return A shared_ptr to the swarm algorithms personality traits
  */
@@ -440,36 +436,29 @@ boost::shared_ptr<GSwarmPersonalityTraits> GIndividual::getSwarmPersonalityTrait
  * @return A boolean indicating whether an update was performed and the individual has changed
  */
 bool GIndividual::updateOnStall() {
-	switch (pers_) {
-	case NONE:
-		break;
-
-	case EA:
-	{
-		// This function should only be called for parents. Check ...
-		if(!getEAPersonalityTraits()->isParent()) {
-			std::ostringstream error;
-			error << "In GIndividual::updateOnStall() (called for EA personality): Error!" << std::endl
-				  << "This function should only be called for parent individuals." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-
-		// Do the actual update of the individual's structure
-		bool updatePerformed = customUpdateOnStall();
-		if(updatePerformed) {
-			setDirtyFlag();
-			return true;
-		}
+	// Do the actual update of the individual's structure
+	bool updatePerformed = customUpdateOnStall();
+	if(updatePerformed) {
+		setDirtyFlag();
+		return true;
 	}
-	break;
+}
 
-	case GD:
-		break;
-
-	case SWARM:
-		break;
-	}
-
+/************************************************************************************************************/
+/**
+ * Updates the object's structure and/or parameters, if the optimization has
+ * stalled. The quality of the object is likely to get worse. Hence it will
+ * enter a micro-training environment to improve its quality. The function can
+ * inform the caller that no action was taken, by returning false. Otherwise, if
+ * an update was made that requires micro-training, true should be returned.
+ * The actions to be taken for this update depend on the actual structure of the
+ * individual and need to be implemented for each particular case individually.
+ * Note that, as soon as the structure of this object changes, it should return
+ * true, as otherwise no value calculation takes place.
+ *
+ * @return A boolean indicating whether an update was performed and the object has changed
+ */
+bool GIndividual::customUpdateOnStall() {
 	return false;
 }
 
@@ -504,24 +493,6 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsFailuresExpected_GUnitTests();
-}
-
-/************************************************************************************************************/
-/**
- * Updates the individual's structure and/or parameters, if the optimization has
- * stalled. The quality of the individual is likely to get worse. Hence it will
- * enter a micro-training environment to improve its quality. The function can
- * inform the caller that no action was taken, by returning false. Otherwise, if
- * an update was made that requires micro-training, true should be returned.
- * The actions to be taken for this update depend on the actual structure of the
- * individual and need to be implemented for each particular case individually.
- * Note that, as soon as the structure of this object changes, it should return
- * true, as otherwise no value calculation takes place.
- *
- * @return A boolean indicating whether an update was performed and the individual has changed
- */
-bool GIndividual::customUpdateOnStall() {
-	return false;
 }
 
 /************************************************************************************************************/

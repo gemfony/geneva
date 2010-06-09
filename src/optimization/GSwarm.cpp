@@ -514,8 +514,12 @@ void GSwarm::updatePositionsAndFitness() {
 				// Let the personality know in which neighborhood it is
 				(*(start + offset))->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
 
-				// Make sure the individual's parameters are updated
-				(*(start + offset))->getSwarmPersonalityTraits()->updateParameters();
+				// Make sure the individual's parameters are updated. This only makes sense if
+				// we are not dealing with a randomly initialized item, as created in the
+				// adjustNeighborhood() function
+				if((*(start + offset))->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
+					(*(start + offset))->getSwarmPersonalityTraits()->updateParameters();
+				}
 			}
 
 			// Trigger the actual fitness calculation
@@ -595,23 +599,42 @@ double GSwarm::findBests() {
  * in the nNeighborhoodMembers_ array, i.e. the current number of individuals in each neighborhood, as
  * well as the default number of individuals in each neighborhood. The function also assumes that the
  * neighborhoods have been sorted, so that the worst individuals can be found at the end of the range. It
- * will then remove the worst items only.
+ * will then remove the worst items only. Newly added items will start randomly initialized.
  */
 void GSwarm::adjustNeighborhoods() {
 	// Loop over all neighborhoods
 	for(std::size_t n=0; n<nNeighborhoods_; neighborhood++) {
 		// We need to remove surplus items
 		if(nNeighborhoodMembers_[n] > defaultNNeighborhoodMembers_) {
+			// Find out, how many surplus items there are
+			std::size_t nSurplus = nNeighborhoodMembers_[n] - defaultNNeighborhoodMembers_;
 
+			// Remove a corresponding amount of items from the position (n+1)*defaultNNeighborhoodMembers_
+			for(std::size_t i=0; i<nSurplus; i++) {
+				std::erase(this->begin() + (n+1)*defaultNNeighborhoodMembers_);
+			}
 		}
-
 		// Some items need to be added. Note that this implies cloning
-		// one of the existing individuals, so during the next cycles both
-		// the original and the clone will be quite close together. This is
-		// an undesirable situation. Just adding a randomly initialized individual
-		// is not a good option
+		// one of the existing individuals, and random initialization.
 		else if (nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_) {
+			// Find out, how many missing items there are
+			std::size_t nMissing = nNeighborhoodMembers_[n] - defaultNNeighborhoodMembers_;
 
+#ifdef DEBUG
+			// This number shouldn't equal the default number of entries
+			if(nMissing == defaultNNeighborhoodMembers_) {
+				std::ostringstream error;
+				error << "In GSwarm::adjustNeighborhoods(): Error!" << std::endl
+					  << "Found no entries in the neighborhood." << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+#endif /* DEBUG */
+
+			// Insert items at the position n*defaultNNeighborhoodMembers_ (i.e. at the beginning of the range).
+			// We use the first item of the range as a template, then randomly initialize the data item.
+			std::insert(this->begin() + n*defaultNNeighborhoodMembers_, (*(this->begin() + n*defaultNNeighborhoodMembers_))->clone());
+			(*(this->begin() + n*defaultNNeighborhoodMembers_))->randomInit();
+			(*(this->begin() + n*defaultNNeighborhoodMembers_))->setNoPositionUpdate();
 		}
 	}
 }

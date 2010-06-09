@@ -51,6 +51,7 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
 	, c_global_range_(-1.)
 	, c_delta_(DEFAULTCDELTA)
 	, c_delta_range_(-1.)
+	, noPositionUpdate_(false)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -69,6 +70,7 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits& 
 	, c_global_range_(cp.c_global_range_)
 	, c_delta_(cp.c_delta_)
 	, c_delta_range_(cp.c_delta_range_)
+	, noPositionUpdate_(cp.noPositionUpdate_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -145,6 +147,7 @@ boost::optional<std::string> GSwarmPersonalityTraits::checkRelationshipWith(cons
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_global_range_, p_load->c_global_range_, "c_global_range_", "p_load->c_global_range_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_delta_, p_load->c_delta_, "c_delta_", "p_load->c_delta_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", c_delta_range_, p_load->c_delta_range_, "c_delta_range_", "p_load->c_delta_range_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmPersonalityTraits", noPositionUpdate_, p_load->noPositionUpdate_, "noPositionUpdate_", "p_load->noPositionUpdate_", e , limit));
 
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
 }
@@ -283,6 +286,34 @@ double GSwarmPersonalityTraits::getCDeltaRange() const {
 
 /*****************************************************************************/
 /**
+ * Sets the noPositionUpdate_ flag
+ */
+void GSwarmPersonalityTraits::setNoPositionUpdate() {
+	noPositionUpdate_ = true;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the current value of the noPositionUpdate_ flag
+ *
+ * @return The current value of the noPositionUpdate_ flag
+ */
+bool GSwarmPersonalityTraits::noPositionUpdate() const {
+	return noPositionUpdate_;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves and resets the current value of the noPositionUpdate_ flag
+ */
+bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
+	bool current = noPositionUpdate_;
+	if(noPositionUpdate_) noPositionUpdate_ = false;
+	return current;
+}
+
+/*****************************************************************************/
+/**
  * Creates a deep clone of this object
  *
  * @return A clone of this object, camouflaged as a GObject
@@ -312,6 +343,7 @@ void GSwarmPersonalityTraits::load_(const GObject* cp) {
 	c_global_range_ = p_load->c_global_range_;
 	c_delta_ = p_load->c_delta_;
 	c_delta_range_ = p_load->c_delta_range_;
+	noPositionUpdate_ = p_load->noPositionUpdate_;
 }
 
 /*****************************************************************************/

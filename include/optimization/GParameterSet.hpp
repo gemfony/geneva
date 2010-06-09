@@ -140,7 +140,9 @@ public:
 #endif /* DEBUG */
 	}
 
-	/**********************************************************************/
+	/**************************************************************************************************/
+	/** @brief Triggers updates when the optimization process has stalled */
+	virtual bool updateOnStall();
 
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
