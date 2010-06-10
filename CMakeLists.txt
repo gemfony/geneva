@@ -22,13 +22,6 @@ SET(VERSION_PATCH "0rc1")
 # Uncomment to compile static libs
 # SET( GENEVA_STATIC TRUE )
 
-# The names of the libraries that will be built
-SET ( COMMONLIBNAME gemfony-common )
-SET ( DATAEXCHANGELIBNAME gemfony-dataexchange )
-SET ( RANDOMLIBNAME gemfony-random )
-SET ( COMMUNICATIONLIBNAME gemfony-communication )
-SET ( OPTIMIZATIONLIBNAME gemfony-optimization )
-
 # Change this setting to install in a different directory
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 	SET(CMAKE_INSTALL_PREFIX "/opt/geneva")
@@ -146,6 +139,19 @@ LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src/optimization
 	${Boost_LIBRARY_DIRS}
 )
+
+# The names of the libraries that will be built
+SET ( COMMONLIBNAME gemfony-common )
+SET ( DATAEXCHANGELIBNAME gemfony-dataexchange )
+SET ( RANDOMLIBNAME gemfony-random )
+SET ( COMMUNICATIONLIBNAME gemfony-communication )
+
+# The name of the optimization lib depends on whether or not it contains test code
+IF ( BUILDTESTCODE )
+	SET ( OPTIMIZATIONLIBNAME gemfony-optimization-testing )
+ELSE()
+	SET ( OPTIMIZATIONLIBNAME gemfony-optimization )
+ENDIF()
 
 ADD_SUBDIRECTORY (CMakeModules)
 ADD_SUBDIRECTORY (examples)
