@@ -109,8 +109,24 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	serialization
 	system
 	thread
-	test_exec_monitor
 )
+
+# Check whether BUILDTESTCODE has been defined. If not, deactivate by default
+IF( NOT DEFINED BUILDTESTCODE)
+	SET( BUILDTESTCODE FALSE )
+ENDIF()
+
+# Check whether we want to activate the test code and build tests
+IF( BUILDTESTCODE )
+	ADD_DEFINITIONS ("-DGENEVATESTING")
+	MESSAGE ("=======================")
+	MESSAGE ("Building with test code")
+	MESSAGE ("=======================")
+	
+	FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
+		test_exec_monitor		
+	)
+ENDIF()
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
@@ -136,8 +152,11 @@ ADD_SUBDIRECTORY (examples)
 ADD_SUBDIRECTORY (include)
 ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (src)
-ADD_SUBDIRECTORY (tests)
 #ADD_SUBDIRECTORY (associated)
+
+IF( BUILDTESTCODE )
+	ADD_SUBDIRECTORY (tests)
+ENDIF()
 
 SET ( INFORMATIONFILES
 	AUTHORS

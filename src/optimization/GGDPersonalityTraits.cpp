@@ -181,6 +181,7 @@ std::string GGDPersonalityTraits::getCommand() const {
 	return command_;
 }
 
+#ifdef GENEVATESTING
 /*****************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -215,6 +216,7 @@ void GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*****************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

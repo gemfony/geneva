@@ -152,12 +152,14 @@ public:
 	/** @brief Sets the delta multiplier to a random value separately for each individual */
 	void setCDelta(const double&, const double&);
 
+#ifdef GENEVATESTING
 	/** @brief Retrieves the number of neighborhoods */
 	std::size_t getNNeighborhoods() const;
 	/** @brief Retrieves the default number of individuals in each neighborhood */
 	std::size_t getDefaultNNeighborhoodMembers() const;
 	/** @brief Retrieves the current number of individuals in a given neighborhood */
 	std::size_t getCurrentNNeighborhoodMembers(const std::size_t&) const;
+#endif /* GENEVATESTING */
 
 	/**************************************************************************************************/
 	/**

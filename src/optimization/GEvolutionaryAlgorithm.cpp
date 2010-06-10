@@ -1010,6 +1010,7 @@ recoScheme GEvolutionaryAlgorithm::getRecombinationMethod() const {
 	return recombinationMethod_;
 }
 
+#ifdef GENEVATESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -1044,6 +1045,7 @@ void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

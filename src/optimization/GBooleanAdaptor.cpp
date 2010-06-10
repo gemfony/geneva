@@ -194,6 +194,8 @@ void GBooleanAdaptor::customAdaptions(bool& value) {
 	value==true?value=false:value=true;
 }
 
+#ifdef GENEVATESTING
+
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -228,6 +230,8 @@ void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*****************************************************************************/
+
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

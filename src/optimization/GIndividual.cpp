@@ -464,39 +464,6 @@ bool GIndividual::customUpdateOnStall() {
 
 /************************************************************************************************************/
 /**
- * Applies modifications to this object. This is needed for testing purposes
- *
- * @return A boolean which indicates whether modifications were made
- */
-bool GIndividual::modify_GUnitTests() {
-	bool result = false;
-
-	// Call the parent class'es function
-	if(GObject::modify_GUnitTests()) result = true;
-
-	return result;
-}
-
-/************************************************************************************************************/
-/**
- * Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
-	// Call the parent class'es function
-	GObject::specificTestsNoFailureExpected_GUnitTests();
-}
-
-/************************************************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GIndividual::specificTestsFailuresExpected_GUnitTests() {
-	// Call the parent class'es function
-	GObject::specificTestsFailuresExpected_GUnitTests();
-}
-
-/************************************************************************************************************/
-/**
  * A version of the fitness framework that also checks for
  * exceptions. To be used when fitness() is to become the main
  * function to be called by a thread.
@@ -735,7 +702,44 @@ boost::uint32_t GIndividual::getNStalls() const {
 	return nStalls_;
 }
 
+#ifdef GENEVATESTING
+
 /************************************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GIndividual::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GObject::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GObject::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GIndividual::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GObject::specificTestsFailuresExpected_GUnitTests();
+}
+
+/************************************************************************************************************/
+
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

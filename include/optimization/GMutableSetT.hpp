@@ -189,6 +189,7 @@ public:
 	 */
 	inline void swap(std::vector<boost::shared_ptr<T> >& cp_data) { GStdPtrVectorInterfaceT<T>::swap(cp_data); }
 
+#ifdef GENEVATESTING
 	/**********************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
@@ -224,6 +225,8 @@ public:
 		GIndividual::specificTestsFailuresExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
+
+#endif /* GENEVATESTING */
 
 protected:
 	/**********************************************************************************/

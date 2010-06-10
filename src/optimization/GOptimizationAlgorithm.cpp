@@ -941,6 +941,7 @@ bool GOptimizationAlgorithm::getEmitTerminationReason() const {
 	return emitTerminationReason_;
 }
 
+#ifdef GENEVATESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -975,6 +976,7 @@ void GOptimizationAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

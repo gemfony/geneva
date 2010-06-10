@@ -258,6 +258,7 @@ void GInt32GaussAdaptor::customAdaptions(boost::int32_t &value) {
 #endif /* CHECKOVERFLOWS  */
 }
 
+#ifdef GENEVATESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -292,6 +293,7 @@ void GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

@@ -240,6 +240,7 @@ public:
 		GStdSimpleVectorInterfaceT<T>::swap(cp_data);
 	}
 
+#ifdef GENEVATESTING
 	/*******************************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
@@ -275,6 +276,7 @@ public:
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();
 		GStdSimpleVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
+#endif /* GENEVATESTING */
 
 protected:
 	/*******************************************************************************************/

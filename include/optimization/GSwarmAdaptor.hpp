@@ -132,12 +132,14 @@ public:
 	/** @brief Retrieves the c2 parameter used as a multiplier for the direction to the global best. */
 	double getC2() const;
 
+#ifdef GENEVATESTING
 	/** @brief Applies modifications to this object (needed for testing purposes. */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. */
 	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
 
 protected:
 	/********************************************************************************************/

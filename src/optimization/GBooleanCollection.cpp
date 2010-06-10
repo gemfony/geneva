@@ -232,6 +232,8 @@ namespace GenEvA
 	return POD::evaluateDiscrepancies("GBooleanCollection", caller, deviations, e);
   }
 
+#ifdef GENEVATESTING
+
   /**********************************************************************/
   /**
    * Applies modifications to this object. This is needed for testing purposes
@@ -266,6 +268,8 @@ namespace GenEvA
   }
 
   /*****************************************************************************/
+
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

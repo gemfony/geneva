@@ -209,6 +209,7 @@ void GDouble::randomInit_() {
 	setValue(gr.evenRandom(lowerBoundary, upperBoundary));
 }
 
+#ifdef GENEVATESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -243,6 +244,8 @@ void GDouble::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
+
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

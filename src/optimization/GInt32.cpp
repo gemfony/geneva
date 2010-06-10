@@ -209,6 +209,7 @@ void GInt32::randomInit_() {
 	setValue(gr.discreteRandom(lowerBoundary, upperBoundary));
 }
 
+#ifdef GENEVATESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -243,6 +244,7 @@ void GInt32::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

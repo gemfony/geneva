@@ -416,6 +416,7 @@ void GSwarmPersonalityTraits::updateParameters() {
 	/* nothing yet */
 }
 
+#ifdef GENEVATESTING
 /*****************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -450,6 +451,7 @@ void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*****************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

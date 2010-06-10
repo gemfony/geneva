@@ -850,6 +850,7 @@ std::size_t getCurrentNNeighborhoodMembers(const std::size_t& neighborhood) cons
 	return nNeighborhoodMembers_[neighborhood];
 }
 
+#ifdef GENEVATESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -884,6 +885,7 @@ void GSwarm::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

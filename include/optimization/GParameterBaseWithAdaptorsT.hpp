@@ -297,6 +297,7 @@ public:
 		return false;
 	}
 
+#ifdef GENEVATESTING
 	/*******************************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
@@ -329,7 +330,7 @@ public:
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();
 	}
-
+#endif /* GENEVATESTING */
 
 protected:
 	/*******************************************************************************************/

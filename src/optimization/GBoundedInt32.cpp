@@ -220,6 +220,8 @@ void GBoundedInt32::randomInit_() {
 }
 
 
+#ifdef GENEVATESTING
+
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -254,6 +256,8 @@ void GBoundedInt32::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
+
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

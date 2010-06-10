@@ -63,7 +63,10 @@
 #include <boost/optional.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
+
+#ifdef GENEVATESTING
 #include <boost/test/unit_test.hpp>
+#endif /* GENEVATESTING */
 
 #ifndef GOBJECT_HPP_
 #define GOBJECT_HPP_
@@ -79,7 +82,10 @@
 #include "GExceptions.hpp"
 #include "GEnums.hpp"
 #include "GHelperFunctionsT.hpp"
+
+#ifdef GENEVATESTING
 #include "GUnitTestFrameworkT.hpp"
+#endif /* GENEVATESTING */
 
 namespace Gem {
 namespace GenEvA {
@@ -197,6 +203,7 @@ public:
 #endif /* DEBUG */
 	}
 
+#ifdef GENEVATESTING
 	/**************************************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests() { return false; }
@@ -204,6 +211,7 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing - no local data */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing - no local data */ }
+#endif /* GENEVATESTING */
 
 protected:
 	/** @brief Loads the data of another GObject */

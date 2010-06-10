@@ -252,6 +252,7 @@ std::string GEAPersonalityTraits::getCommand() const {
 	return command_;
 }
 
+#ifdef GENEVATESTING
 /*****************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -286,6 +287,7 @@ void GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*****************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

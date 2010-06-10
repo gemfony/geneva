@@ -215,6 +215,7 @@ bool GParameterBase::initializationBlocked() const {
 	return initializationBlocked_;
 }
 
+#ifdef GENEVATESTING
 /**********************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -249,6 +250,7 @@ void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /**********************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */
