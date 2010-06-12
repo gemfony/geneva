@@ -865,6 +865,7 @@ public:
 		boost::shared_ptr<derivedType> p; ///< Temporary which holds the current valid pointer
 	};
 
+#ifdef GENEVATESTING
 	/**************************************************************************************************/
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**************************************************************************************************/
@@ -874,6 +875,7 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */ }
+#endif /* GENEVATESTING */
 
 protected:
 	std::vector<boost::shared_ptr<T> > data;

@@ -55,7 +55,10 @@
 #include "GMutableSetT.hpp"
 #include "GParameterBase.hpp"
 #include "GExceptions.hpp"
+
+#ifdef GENEVATESTING
 #include "GUnitTestFrameworkT.hpp"
+#endif /* GENEVATESTING */
 
 namespace Gem {
 namespace GenEvA {
@@ -140,15 +143,18 @@ public:
 #endif /* DEBUG */
 	}
 
-	/**********************************************************************/
+	/**************************************************************************************************/
+	/** @brief Triggers updates when the optimization process has stalled */
+	virtual bool updateOnStall();
 
+#ifdef GENEVATESTING
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
-
+#endif /* GENEVATESTING */
 
 protected:
 	/** @brief Loads the data of another GObject */
@@ -166,6 +172,7 @@ protected:
 } /* namespace GenEvA */
 } /* namespace Gem */
 
+#ifdef GENEVATESTING
 // Tests of this class (and parent classes)
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,5 +183,6 @@ template <> boost::shared_ptr<Gem::GenEvA::GParameterSet> TFactory_GUnitTests<Ge
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
+#endif /* GENEVATESTING */
 
 #endif /* GPARAMETERSET_HPP_ */

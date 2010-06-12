@@ -365,6 +365,7 @@ public:
 		return internalValue_;
 	}
 
+#ifdef GENEVATESTING
 	/****************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
@@ -397,6 +398,8 @@ public:
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
+
+#endif /* GENEVATESTING */
 
 protected:
 	/****************************************************************************/

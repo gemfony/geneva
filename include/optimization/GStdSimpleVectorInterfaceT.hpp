@@ -334,6 +334,8 @@ public:
 	 */
 	void getDataCopy(std::vector<T>& cp) const {	cp=data; 	}
 
+
+#ifdef GENEVATESTING
 	/*****************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
@@ -341,7 +343,8 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */  }
-
+	/*****************************************************************************/
+#endif /* GENEVATESTING */
 
 protected:
 	std::vector<T> data;

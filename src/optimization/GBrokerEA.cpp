@@ -720,6 +720,7 @@ void GBrokerEA::select() {
 	// Everything should be back to normal ...
 }
 
+#ifdef GENEVATESTING
 /************************************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -754,6 +755,8 @@ void GBrokerEA::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
+
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

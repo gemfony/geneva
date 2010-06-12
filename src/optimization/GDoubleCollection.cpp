@@ -198,6 +198,7 @@ void GDoubleCollection::randomInit_() {
 	}
 }
 
+#ifdef GENEVATESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -232,6 +233,8 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
+
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

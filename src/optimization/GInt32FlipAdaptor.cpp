@@ -184,6 +184,7 @@ Gem::GenEvA::adaptorId GInt32FlipAdaptor::getAdaptorId() const {
 	return Gem::GenEvA::GINT32FLIPADAPTOR;
 }
 
+#ifdef GENEVATESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -218,6 +219,7 @@ void GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*****************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

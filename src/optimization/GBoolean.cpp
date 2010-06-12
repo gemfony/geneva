@@ -222,6 +222,8 @@ void GBoolean::load_(const GObject* cp){
 	// ... no local data
 }
 
+#ifdef GENEVATESTING
+
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -256,6 +258,8 @@ void GBoolean::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
+
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

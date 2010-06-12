@@ -108,7 +108,7 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${Boost_LIBRARIES}
 )
 
-# Tests will only be compiled of the test libraries were found
+# Tests will only be compiled if the test libraries were found
 IF( Boost_TEST_EXEC_MONITOR_FOUND )
 	ADD_SUBDIRECTORY (Tests)
 ENDIF()

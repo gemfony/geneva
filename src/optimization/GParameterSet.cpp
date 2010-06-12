@@ -43,7 +43,7 @@ namespace Gem
 	 * The default constructor.
 	 */
 	GParameterSet::GParameterSet()
-	: GMutableSetT<Gem::GenEvA::GParameterBase>()
+		: GMutableSetT<Gem::GenEvA::GParameterBase>()
 	  { /* nothing */ }
 
 	/************************************************************************************************************/
@@ -54,8 +54,8 @@ namespace Gem
 	 * @param cp A copy of another GParameterSet object
 	 */
 	GParameterSet::GParameterSet(const GParameterSet& cp)
-	: GMutableSetT<Gem::GenEvA::GParameterBase>(cp)
-	  , eval_(cp.eval_)
+		: GMutableSetT<Gem::GenEvA::GParameterBase>(cp)
+		, eval_(cp.eval_)
 	  { /* nothing */ }
 
 	/************************************************************************************************************/
@@ -135,7 +135,7 @@ namespace Gem
 		// Check our parent class'es data ...
 		deviations.push_back(GMutableSetT<Gem::GenEvA::GParameterBase>::checkRelationshipWith(cp, e, limit, "GParameterSet", y_name, withMessages));
 
-		// ... no local data
+		// ... and there is no local data
 
 		return evaluateDiscrepancies("GParameterSet", caller, deviations, e);
 	}
@@ -168,6 +168,42 @@ namespace Gem
 		// IT WILL ALSO NOT WORK IN A NETWORKED ENVIRONMENT
 		eval_ = p_load->eval_;
 	}
+
+	/************************************************************************************************************/
+	/**
+	 * A wrapper for GParameterSet::customUpdateOnStall() that restricts parameter set updates to parents
+	 * in the case of evolutionary algorithms in DEBUG mode.
+	 *
+	 * @return A boolean indicating whether an update was performed and the individual has changed
+	 */
+	bool GParameterSet::updateOnStall() {
+		switch (getPersonality()) {
+		case NONE:
+		case GD:
+		case SWARM:
+			break;
+
+		case EA:
+#ifdef DEBUG
+			{
+				// This function should only be called for parents. Check ...
+				if(!getEAPersonalityTraits()->isParent()) {
+					std::ostringstream error;
+					error << "In GParameterSet::updateOnStall() (called for EA personality): Error!" << std::endl
+						  << "This function should only be called for parent individuals." << std::endl;
+					throw(Gem::Common::gemfony_error_condition(error.str()));
+				}
+			}
+#endif /* DEBUG */
+		break;
+
+		}
+
+		GIndividual::updateOnStall();
+
+		return false;
+	}
+
 
 	/************************************************************************************************************/
 	/**
@@ -221,6 +257,7 @@ namespace Gem
 		return eval_(*this);
 	}
 
+#ifdef GENEVATESTING
 	/************************************************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
@@ -255,10 +292,12 @@ namespace Gem
 	}
 
 	/************************************************************************************************************/
+#endif /* GENEVATESTING */
 
 	} /* namespace GenEvA */
 } /* namespace Gem */
 
+#ifdef GENEVATESTING
 // Tests of this class (and parent classes)
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,3 +314,4 @@ boost::shared_ptr<Gem::GenEvA::GParameterSet> TFactory_GUnitTests<Gem::GenEvA::G
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
+#endif /* GENEVATESTING */

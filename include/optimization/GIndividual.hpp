@@ -82,7 +82,7 @@ class GIndividual
 {
 	///////////////////////////////////////////////////////////////////////
 	// Needed so only the corresponding optimization algorithms can set the
-    // personality of an individual
+	// personality of an individual
 	friend class GOptimizationAlgorithm;
 	friend class GEvolutionaryAlgorithm;
 	friend class GSwarm;
@@ -172,16 +172,22 @@ public:
 	/** @brief Allows to retrieve the number of optimization cycles without improvement */
 	boost::uint32_t getNStalls() const;
 
-	/** @brief Retrieves the current personality of this individual */
+	/** @brief Triggers updates when the optimization process has stalled */
+	virtual bool updateOnStall();
+
+	/**********************************************************************/
+	/** @brief Retrieves the current personality of this object */
 	personality getPersonality() const;
 
-	/**************************************************************************************************/
+	/**********************************************************************/
 	/**
-	 * The function converts the local personality to the desired type and returns it for modification
-	 * by the corresponding optimization algorithm. The base algorithms have been declared "friend" of
-	 * GIndividual and can thus access this function. External entities have no need to do so. Note that
-	 * this function will only be accessible to the compiler of personality_type is a derivative of
-	 * GPersonalityTraits, thanks to the magic of Boost's enable_if and Type Traits libraries.
+	 * The function converts the local personality to the desired type and
+	 * returns it for modification by the corresponding optimization algorithm.
+	 * The base algorithms have been declared "friend" of GParameterSet and
+	 * can thus access this function. External entities have no need to do so. Note
+	 * that this function will only be accessible to the compiler if personality_type
+	 * is a derivative of GPersonalityTraits, thanks to the magic of Boost's
+	 * enable_if and Type Traits libraries.
 	 *
 	 * @return A boost::shared_ptr converted to the desired target type
 	 */
@@ -222,27 +228,26 @@ public:
 	/** @brief This function returns the current swarm algorithm personality traits pointer */
 	boost::shared_ptr<GSwarmPersonalityTraits> getSwarmPersonalityTraits();
 
-	/** @brief Wrapper for customUpdateOnStall that does error checking and sets the dirty flag */
-	virtual bool updateOnStall();
-
+#ifdef GENEVATESTING
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
 
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
-	/** @brief Updates the individual's structure and/or parameters, if the optimization has stalled */
-	virtual bool customUpdateOnStall();
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;
 	/** @brief The actual adaption operations */
 	virtual void customAdaptions() = 0;
+	/** @brief Updates the object's structure and/or parameters, if the optimization has stalled */
+	virtual bool customUpdateOnStall();
 
 	/** @brief Sets the dirtyFlag_ */
 	void setDirtyFlag() ;

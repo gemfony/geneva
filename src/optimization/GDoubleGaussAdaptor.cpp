@@ -249,6 +249,7 @@ void GDoubleGaussAdaptor::customAdaptions(double &value) {
 #endif /* CHECKOVERFLOWS */
 }
 
+#ifdef GENEVATESTING
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -283,6 +284,7 @@ void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

@@ -219,6 +219,8 @@ void GBoundedDouble::randomInit_() {
 	this->setExternalValue(gr.evenRandom(getLowerBoundary(), getUpperBoundary()));
 }
 
+#ifdef GENEVATESTING
+
 /*******************************************************************************************/
 /**
  * Applies modifications to this object. This is needed for testing purposes
@@ -253,6 +255,8 @@ void GBoundedDouble::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /*******************************************************************************************/
+
+#endif /* GENEVATESTING */
 
 } /* namespace GenEvA */
 } /* namespace Gem */

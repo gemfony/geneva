@@ -22,13 +22,6 @@ SET(VERSION_PATCH "0rc1")
 # Uncomment to compile static libs
 # SET( GENEVA_STATIC TRUE )
 
-# The names of the libraries that will be built
-SET ( COMMONLIBNAME gemfony-common )
-SET ( DATAEXCHANGELIBNAME gemfony-dataexchange )
-SET ( RANDOMLIBNAME gemfony-random )
-SET ( COMMUNICATIONLIBNAME gemfony-communication )
-SET ( OPTIMIZATIONLIBNAME gemfony-optimization )
-
 # Change this setting to install in a different directory
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 	SET(CMAKE_INSTALL_PREFIX "/opt/geneva")
@@ -109,8 +102,24 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	serialization
 	system
 	thread
-	test_exec_monitor
 )
+
+# Check whether BUILDTESTCODE has been defined. If not, deactivate by default
+IF( NOT DEFINED BUILDTESTCODE)
+	SET( BUILDTESTCODE FALSE )
+ENDIF()
+
+# Check whether we want to activate the test code and build tests
+IF( BUILDTESTCODE )
+	ADD_DEFINITIONS ("-DGENEVATESTING")
+	MESSAGE ("=======================")
+	MESSAGE ("Building with test code")
+	MESSAGE ("=======================")
+	
+	FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
+		test_exec_monitor		
+	)
+ENDIF()
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
@@ -131,13 +140,29 @@ LINK_DIRECTORIES (
 	${Boost_LIBRARY_DIRS}
 )
 
+# The names of the libraries that will be built
+SET ( COMMONLIBNAME gemfony-common )
+SET ( DATAEXCHANGELIBNAME gemfony-dataexchange )
+SET ( RANDOMLIBNAME gemfony-random )
+SET ( COMMUNICATIONLIBNAME gemfony-communication )
+
+# The name of the optimization lib depends on whether or not it contains test code
+IF ( BUILDTESTCODE )
+	SET ( OPTIMIZATIONLIBNAME gemfony-optimization-testing )
+ELSE()
+	SET ( OPTIMIZATIONLIBNAME gemfony-optimization )
+ENDIF()
+
 ADD_SUBDIRECTORY (CMakeModules)
 ADD_SUBDIRECTORY (examples)
 ADD_SUBDIRECTORY (include)
 ADD_SUBDIRECTORY (licenses)
 ADD_SUBDIRECTORY (src)
-ADD_SUBDIRECTORY (tests)
 #ADD_SUBDIRECTORY (associated)
+
+IF( BUILDTESTCODE )
+	ADD_SUBDIRECTORY (tests)
+ENDIF()
 
 SET ( INFORMATIONFILES
 	AUTHORS

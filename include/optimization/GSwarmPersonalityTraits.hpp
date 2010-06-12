@@ -94,7 +94,8 @@ class GSwarmPersonalityTraits :public GPersonalityTraits
 	     & BOOST_SERIALIZATION_NVP(c_global_)
 	     & BOOST_SERIALIZATION_NVP(c_global_range_)
 	     & BOOST_SERIALIZATION_NVP(c_delta_)
-	     & BOOST_SERIALIZATION_NVP(c_delta_range_);
+	     & BOOST_SERIALIZATION_NVP(c_delta_range_)
+	     & BOOST_SERIALIZATION_NVP(noPositionUpdate_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -154,6 +155,13 @@ public:
 	/** @brief Allows to retrieve the random multiplier range for deltas (-1 if unset) */
 	double getCDeltaRange() const;
 
+	/** @brief Sets the noPositionUpdate_ flag */
+	void setNoPositionUpdate();
+	/** @brief Retrieves the current value of the noPositionUpdate_ flag */
+	bool noPositionUpdate() const;
+	/** @brief Retrieves and resets the current value of the noPositionUpdate_ flag */
+	bool checkNoPositionUpdateAndReset();
+
 	/** @brief Makes the globally best individual known to this object */
 	void registerGlobalBest(boost::shared_ptr<Gem::GenEvA::GIndividual>);
 	/** @brief Makes the locally best individual known to this object */
@@ -162,12 +170,14 @@ public:
 	/** @brief Triggers the update of GParameterSet derivatives */
 	void updateParameters();
 
+#ifdef GENEVATESTING
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
 
 protected:
 	/** @brief Loads the data of another GSwarmPersonalityTraits object */
@@ -200,6 +210,9 @@ private:
 	boost::shared_ptr<Gem::GenEvA::GIndividual> local_best_;
 	/** @brief A pointer to the globally best individual. It will not be serialized or copied */
 	boost::shared_ptr<Gem::GenEvA::GIndividual> global_best_;
+
+	/** @brief Determines whether the individual has been randomly initialized */
+	bool noPositionUpdate_;
 };
 
 /*********************************************************************************/

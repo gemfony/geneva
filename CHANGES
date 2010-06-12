@@ -36,6 +36,7 @@ The main changes for this release include:
  - Gave GParameterBase-derivatives and GParameterSet objects the ability to randomly initialize
    a given set of data elements contained in them.
  - Update to CMake 2.8, ported to Boost 1.43.
+ - Made compilation of test code optional
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010

@@ -207,6 +207,7 @@ public:
 	 */
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const = 0;
 
+#ifdef GENEVATESTING
 	/*******************************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
@@ -239,6 +240,8 @@ public:
 		// Call the parent classes' functions
 		GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
+
+#endif /* GENEVATESTING */
 
 protected:
 	/********************************************************************************************/
