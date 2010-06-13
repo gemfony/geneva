@@ -506,24 +506,24 @@ void GSwarm::updatePositionsAndFitness() {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			// Update the swarm positions. Note that this only makes sense
 			// once the first series of evaluations has been done and local as well
-			// as global bests are known
-			if(getIteration() > 0) {
+			// as global bests are known. The operation also does not make sense for
+			// randomly initialized items
+			if(getIteration() > 0  && !(*(start + offset))->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
 				// Add the local and global best to each individual
 				(*(start + offset))->getSwarmPersonalityTraits()->registerLocalBest(local_bests_[neighborhood]);
 				(*(start + offset))->getSwarmPersonalityTraits()->registerGlobalBest(global_best_);
 				// Let the personality know in which neighborhood it is
 				(*(start + offset))->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
 
-				// Make sure the individual's parameters are updated. This only makes sense if
-				// we are not dealing with a randomly initialized item, as created in the
-				// adjustNeighborhood() function
-				if((*(start + offset))->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
-					(*(start + offset))->getSwarmPersonalityTraits()->updateParameters();
-				}
+				// Make sure the individuals' adaptors' parameters are updated.
+				(*(start + offset))->getSwarmPersonalityTraits()->updateParameters();
+				// Perform the actual adaption of the individuals' parameters
+				(*(start + offset))->adjust();
 			}
-
-			// Trigger the actual fitness calculation
-			(*(start + offset))->fitness();
+			else {
+				// Just trigger the fitness calculation (if necessary)
+				(*(start + offset))->fitness();
+			}
 
 			offset++;
 		}

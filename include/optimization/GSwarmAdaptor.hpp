@@ -60,18 +60,6 @@ namespace Gem {
 namespace GenEvA {
 
 /************************************************************************************************/
-/*
- * Default settings for a number of local variables
- */
-
-/** @brief The default multiplier for velocities */
-const double DEFAULTOMEGA = 0.95;
-/** @brief The default multiplier for the difference between individual and local best */
-const double DEFAULTC1 = 2.;
-/** @brief The default multiplier for the difference between individual and global best */
-const double DEFAULTC2 = 2.;
-
-/************************************************************************************************/
 /**
  * This adaptor implements the adaptions performed by swarm algorithms. Just like swarm algorithms
  * it is specific to double values.
@@ -86,9 +74,9 @@ class GSwarmAdaptor
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & make_nvp("GAdaptorT_double", boost::serialization::base_object<GAdaptorT<double> >(*this))
-		   & BOOST_SERIALIZATION_NVP(omega_)
-		   & BOOST_SERIALIZATION_NVP(c1_)
-		   & BOOST_SERIALIZATION_NVP(c2_);
+		   & BOOST_SERIALIZATION_NVP(cDelta_)
+		   & BOOST_SERIALIZATION_NVP(cLocal_)
+		   & BOOST_SERIALIZATION_NVP(cGlobal_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -118,19 +106,19 @@ public:
 	virtual void setAdaptionMode(boost::logic::tribool);
 
 	/** @brief Sets the \omega parameter used to multiply velocities with */
-	void setOmega(const double&);
+	void setCDelta(const double&);
 	/** @brief Retrieves the \omega parameter used to multiply velocities with */
-	double getOmega() const;
+	double getCDelta() const;
 
-	/** @brief Sets the c1 parameter used as a multiplier for the direction to the local best. */
-	void setC1(const double&);
-	/** @brief Retrieves the c1 parameter used as a multiplier for the direction to the local best. */
-	double getC1() const;
+	/** @brief Sets the cLocal_ parameter used as a multiplier for the direction to the local best. */
+	void setCLocal(const double&);
+	/** @brief Retrieves the cLocal parameter used as a multiplier for the direction to the local best. */
+	double getCLocal() const;
 
 	/** @brief Sets the c2 parameter used as a multiplier for the direction to the global best. */
-	void setC2(const double&);
+	void setCGlobal(const double&);
 	/** @brief Retrieves the c2 parameter used as a multiplier for the direction to the global best. */
-	double getC2() const;
+	double getCGlobal() const;
 
 #ifdef GENEVATESTING
 	/** @brief Applies modifications to this object (needed for testing purposes. */
@@ -152,9 +140,9 @@ protected:
 	virtual void customAdaptions(double&);
 
 private:
-	double omega_; ///< The \omega parameter used as a multiplicator to velocities in swarm algorithms
-	double c1_; ///< A multiplier for the directions to the local best individual
-	double c2_; ///< A multiplier for the directions to the global best individual
+	double cDelta_; ///< The \omega parameter used as a multiplicator to velocities in swarm algorithms
+	double cLocal_; ///< A multiplier for the directions to the local best individual
+	double cGlobal_; ///< A multiplier for the directions to the global best individual
 
 	std::vector<double> velocity_; ///< The velocity term used in swarm algorithms
 	std::vector<double> localBest_; ///< The locally best solution(s)
