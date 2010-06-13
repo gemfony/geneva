@@ -91,16 +91,6 @@ This command needs to be called on a single line.
 
 The commands shown here were tested on an Ubuntu 9.10 system.
 
-Compiling the OpenBabel example in <GENEVADIR>/associated/ExternalOpenBabel:
-You need a current (>= 2.2.0) installation of OpenBabel, including the development
-libraries. On OpenSUSE 11.1, these are the packages openbabel and libopenbabel-devel ,
-If you have compiled OpenBabel yourself from source and installed it in a non-standard
-location (e.g. /opt/openbabel221 for an installation of OpenBabel 2.2.1, then you
-need to manually copy the package config file /opt/openbabel221/lib/pkgconfig/openbabel-2.0.pc
-to a directory where the pkg-config executable (and with it the corresponding CMake macro)
-can find it. On OpenSUSE 11.1, 64 bit, this can be /usr/lib64/pkgconfig/ . Other Linux
-distributions will likely have similar directories configured.
-
 Recommended Software
 ====================
 
