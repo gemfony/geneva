@@ -65,7 +65,10 @@
 #include "GGlobalOptionsT.hpp"
 #include "GObjectExpectationChecksT.hpp"
 #include "GEnums.hpp"
+
+#ifdef GENEVATESTING
 #include "GUnitTestFrameworkT.hpp"
+#endif /* GENEVATESTING */
 
 namespace Gem
 {
@@ -244,6 +247,9 @@ public:
 		return evaluateDiscrepancies("GStartIndividual", caller, deviations, e);
 	}
 
+
+#ifdef GENEVATESTING
+
 	/*******************************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
@@ -297,6 +303,9 @@ public:
 		// Call the parent class'es function
 		GParameterSet::specificTestsFailuresExpected_GUnitTests();
 	}
+
+#endif /* GENEVATESTING */
+
 
 protected:
 	/********************************************************************************************/
@@ -386,6 +395,9 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GStartIndividual)
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
+
+#ifdef GENEVATESTING
+
 /**
  * As the Gem::GenEvA::Gem::GenEvA::GStartIndividual has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
@@ -395,9 +407,10 @@ boost::shared_ptr<Gem::GenEvA::GStartIndividual> TFactory_GUnitTests<Gem::GenEvA
 	return boost::shared_ptr<Gem::GenEvA::GStartIndividual>(new Gem::GenEvA::GStartIndividual(1000,-10.,10.));
 }
 
+#endif /* GENEVATESTING */
+
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 
 #endif /* GSTARTINDIVIDUAL_HPP_ */
-

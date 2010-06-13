@@ -916,6 +916,9 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GExternalEvaluatorIndividual)
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
+
+#ifdef GENEVATESTING
+
 /**
  * As the Gem::GenEvA::Gem::GenEvA::GExternalEvaluatorIndividual has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
@@ -924,6 +927,8 @@ template <>
 boost::shared_ptr<Gem::GenEvA::GExternalEvaluatorIndividual> TFactory_GUnitTests<Gem::GenEvA::GExternalEvaluatorIndividual>() {
 	return boost::shared_ptr<Gem::GenEvA::GExternalEvaluatorIndividual>(new Gem::GenEvA::GExternalEvaluatorIndividual("../../SampleEvaluator/sampleEvaluator"));
 }
+
+#endif /* GENEVATESTING */
 
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////

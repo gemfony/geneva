@@ -1,7 +1,6 @@
 PROJECT (GExternalEvaluator)
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
-SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
 # Make sure we first check our local modules directory
 ADD_SUBDIRECTORY (CMakeModules)
@@ -15,23 +14,6 @@ ENDIF()
 IF(NOT DEFINED GENEVA_INCLUDE_DIR)
 	SET(GENEVA_INCLUDE_DIR "${GENEVA_ROOT}/include")
 ENDIF()
-
-IF(NOT DEFINED COMMON_LIBNAME)
-	SET (COMMON_LIBNAME "gemfony-common")
-ENDIF()
-IF(NOT DEFINED DATAEXCHANGE_LIBNAME)
-	SET (DATAEXCHANGE_LIBNAME "gemfony-dataexchange")
-ENDIF()
-IF(NOT DEFINED RANDOM_LIBNAME)
-	SET (RANDOM_LIBNAME "gemfony-random")
-ENDIF()
-IF(NOT DEFINED COMMUNICATION_LIBNAME)
-	SET (COMMUNICATION_LIBNAME "gemfony-communication")
-ENDIF()
-IF(NOT DEFINED OPTIMIZATION_LIBNAME)
-	SET (OPTIMIZATION_LIBNAME "gemfony-optimization")
-ENDIF()
-
 
 SET (Boost_USE_STATIC_LIBS OFF)
 SET (LINK_FLAGS "-lpthread")
@@ -62,10 +44,22 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	filesystem
 )
 
-# The test component is not necessary for the application, but needed for the tests
-FIND_PACKAGE( Boost 1.36 COMPONENTS
-	test_exec_monitor
-)
+# Check whether BUILDTESTCODE has been defined. If not, deactivate by default
+IF( NOT DEFINED BUILDTESTCODE)
+	SET( BUILDTESTCODE FALSE )
+ENDIF()
+
+# Check whether we want to activate the test code and build tests
+IF( BUILDTESTCODE )
+	ADD_DEFINITIONS ("-DGENEVATESTING")
+	MESSAGE ("=======================")
+	MESSAGE ("Building with test code")
+	MESSAGE ("=======================")
+	
+	FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
+		test_exec_monitor		
+	)
+ENDIF()
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}
@@ -98,7 +92,18 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
-MESSAGE( "LIBS: ${Boost_LIBRARIES}")
+SET (COMMON_LIBNAME "gemfony-common")
+SET (DATAEXCHANGE_LIBNAME "gemfony-dataexchange")
+SET (RANDOM_LIBNAME "gemfony-random")
+SET (COMMUNICATION_LIBNAME "gemfony-communication")
+
+# The name of the optimization lib depends on whether or not it contains test code
+IF ( BUILDTESTCODE )
+	SET ( OPTIMIZATION_LIBNAME "gemfony-optimization-testing" )
+ELSE()
+	SET ( OPTIMIZATION_LIBNAME "gemfony-optimization" )
+ENDIF()
+
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${OPTIMIZATION_LIBNAME}
 	${COMMUNICATION_LIBNAME}
@@ -111,8 +116,7 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 # Make sure the external evaluator gets compiled
 ADD_SUBDIRECTORY (SampleEvaluator)
 
-# Tests will only be compiled of the test libraries were found
-IF( Boost_TEST_EXEC_MONITOR_FOUND )
+IF( BUILDTESTCODE )
 	ADD_SUBDIRECTORY (Tests)
 ENDIF()
 

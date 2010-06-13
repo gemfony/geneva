@@ -1347,6 +1347,9 @@ template <> double GNeuralNetworkIndividual<RBF>::transfer(const double&) const;
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
+
+#ifdef GENEVATESTING
+
 /**
  * @brief As the Gem::GenEvA::Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
@@ -1361,6 +1364,8 @@ boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > 
  */
 template <>
 boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> > TFactory_GUnitTests<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> >();
+
+#endif /* GENEVATESTING */
 
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
