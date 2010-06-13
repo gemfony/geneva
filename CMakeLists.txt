@@ -1,7 +1,6 @@
 PROJECT (geneva-opt)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
 # Set the library/package version
 SET(VERSION_MAJOR "0")
