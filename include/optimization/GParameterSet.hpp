@@ -106,6 +106,9 @@ public:
 	/** @brief Allows to randomly initialize parameter members */
 	void randomInit();
 
+	/** @brief Initializes double-based parameters with a given value */
+	void fixedValueInit(const double&);
+
 	/**********************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.

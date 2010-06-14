@@ -209,6 +209,16 @@ void GDouble::randomInit_() {
 	setValue(gr.evenRandom(lowerBoundary, upperBoundary));
 }
 
+/*******************************************************************************************/
+/**
+ * Initializes double-based parameters with a given value.
+ *
+ * @param val The value to use for the initialization
+ */
+void GDouble::fixedValueInit_(const double& val) {
+	setValue(val);
+}
+
 #ifdef GENEVATESTING
 /*******************************************************************************************/
 /**

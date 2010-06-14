@@ -230,7 +230,27 @@ namespace Gem
 	void GParameterSet::randomInit() {
 		// Trigger random initialization of all our parameter objects
 		GParameterSet::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) (*it)->randomInit();
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->randomInit();
+		}
+
+		// As we have modified our internal data sets, make sure the dirty flag is set
+		GIndividual::setDirtyFlag();
+	}
+
+	/************************************************************************************************************/
+	/**
+	 * Recursively initializes double-based parameters with a given value. Allows e.g. to set all floating point
+	 * parameters to 0.
+	 *
+	 * @param val The value to be assigned to the parameters
+	 */
+	void GParameterSet::fixedValueInit(const double& val) {
+		// Loop over all GParameterBase objects
+		GParameterSet::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->fixedValueInit(val);
+		}
 
 		// As we have modified our internal data sets, make sure the dirty flag is set
 		GIndividual::setDirtyFlag();

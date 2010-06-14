@@ -198,6 +198,19 @@ void GDoubleCollection::randomInit_() {
 	}
 }
 
+/*******************************************************************************************/
+/**
+ * Initializes double-based parameters with a given value.
+ *
+ * @param val The value to use for the initialization
+ */
+void GDoubleCollection::fixedValueInit_(const double& val) {
+	GDoubleCollection::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)=val;
+	}
+}
+
 #ifdef GENEVATESTING
 /*******************************************************************************************/
 /**

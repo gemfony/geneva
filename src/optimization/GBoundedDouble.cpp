@@ -219,6 +219,17 @@ void GBoundedDouble::randomInit_() {
 	this->setExternalValue(gr.evenRandom(getLowerBoundary(), getUpperBoundary()));
 }
 
+/*******************************************************************************************/
+/**
+ * Initializes double-based parameters with a given value.
+ *
+ * @param val The value to use for the initialization
+ */
+void GBoundedDouble::fixedValueInit_(const double& val) {
+	this->setExternalValue(val);
+}
+
+
 #ifdef GENEVATESTING
 
 /*******************************************************************************************/

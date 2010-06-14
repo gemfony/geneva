@@ -111,6 +111,8 @@ protected:
 
 	/** @brief Triggers random initialization of the parameter collection */
 	virtual void randomInit_();
+	/** @brief Initializes double-based parameters with a given value */
+	virtual void fixedValueInit_(const double&);
 };
 
 /*****************************************************************************************/
