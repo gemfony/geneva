@@ -258,6 +258,23 @@ namespace Gem
 
 	/************************************************************************************************************/
 	/**
+	 * Multiplies double-based parameters with a given value
+	 *
+	 * @param val The value to be multiplied with parameters
+	 */
+	void GParameterSet::multiplyBy(const double& val) {
+		// Loop over all GParameterBase objects
+		GParameterSet::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->multiplyBy(val);
+		}
+
+		// As we have modified our internal data sets, make sure the dirty flag is set
+		GIndividual::setDirtyFlag();
+	}
+
+	/************************************************************************************************************/
+	/**
 	 * The actual fitness calculation takes place here. Note that you need
 	 * to overload this function if you do not want to use the GEvaluator
 	 * mechanism.

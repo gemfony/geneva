@@ -211,6 +211,19 @@ void GDoubleCollection::fixedValueInit_(const double& val) {
 	}
 }
 
+/*******************************************************************************************/
+/**
+ * Multiplies double-based parameters with a given value
+ *
+ * @param val The value to be multiplied with the parameter
+ */
+void GDoubleCollection::multiplyBy_(const double& val) {
+	GDoubleCollection::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)=(*it)*val;
+	}
+}
+
 #ifdef GENEVATESTING
 /*******************************************************************************************/
 /**

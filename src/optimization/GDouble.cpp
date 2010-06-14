@@ -219,6 +219,16 @@ void GDouble::fixedValueInit_(const double& val) {
 	setValue(val);
 }
 
+/*******************************************************************************************/
+/**
+ * Multiplies double-based parameters with a given value
+ *
+ * @param val The value to be multiplied with the parameter
+ */
+void GDouble::multiplyBy_(const double& val) {
+	setValue(this->value() * val);
+}
+
 #ifdef GENEVATESTING
 /*******************************************************************************************/
 /**

@@ -223,12 +223,26 @@ void GBoundedDouble::randomInit_() {
 /**
  * Initializes double-based parameters with a given value.
  *
+ * TODO: Hmmm, should this set the internal instead of the external value ?? What happens
+ * with the velocity when dealing with parameters, whose value range starts > 0 ???
+ *
  * @param val The value to use for the initialization
  */
 void GBoundedDouble::fixedValueInit_(const double& val) {
 	this->setExternalValue(val);
 }
 
+/*******************************************************************************************/
+/**
+ * Multiplies double-based parameters with a given value. Note that, in contrast to the normal
+ * behaviour we multiply the internal representation of the GBoundedDouble so that, after the
+ * multiplication, the external value does not have to be the same as "this->value() * val".
+ *
+ * @param val The value to be multiplied with the parameter
+ */
+void GBoundedDouble::multiplyBy_(const double& val) {
+	setExternalValue(this->value() * val);
+}
 
 #ifdef GENEVATESTING
 

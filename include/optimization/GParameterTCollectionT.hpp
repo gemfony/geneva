@@ -309,10 +309,23 @@ protected:
 	 *
 	 * @param val The value to be assigned to the parameters
 	 */
-	void fixedValueInit_(const double& val)	{
+	virtual void fixedValueInit_(const double& val)	{
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->GParameterBase::fixedValueInit(val);
+		}
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Multiplies double-based parameters with a given value.
+	 *
+	 * @param val The value to be multiplied with the parameter
+	 */
+	virtual void multiplyBy_(const double& val) {
+		typename GParameterTCollectionT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->GParameterBase::multiplyBy(val);
 		}
 	}
 

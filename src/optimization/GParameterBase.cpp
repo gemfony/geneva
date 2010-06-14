@@ -225,6 +225,24 @@ void GParameterBase::fixedValueInit_(const double& val)
 
 /**********************************************************************************/
 /**
+ * Multiplies double-based parameters with a given value. This is the public version
+ * of this function, which only acts if initialization has not been blocked.
+ */
+void GParameterBase::multiplyBy(const double& val) {
+	if(!initializationBlocked_) multiplyBy_(val);
+}
+
+/**********************************************************************************/
+/**
+ * Multiplies double-based parameters with a given value. This is the protected
+ * version of this function, which does the actual work. It is empty by default
+ * and needs to be re-implemented by fp-based derived parameter classes.
+ */
+void GParameterBase::multiplyBy_(const double& val)
+{ /* empty */ }
+
+/**********************************************************************************/
+/**
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::blockInitialization() {
