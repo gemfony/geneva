@@ -45,9 +45,9 @@ namespace GenEvA {
  */
 GSwarmAdaptor::GSwarmAdaptor()
 	: GAdaptorT<double> ()
-	, omega_(DEFAULTOMEGA)
-	, c1_(DEFAULTC1)
-	, c2_(DEFAULTC2)
+	, cDelta_(DEFAULTCDELTA)
+	, cLocal_(DEFAULTCLOCAL)
+	, cGlobal_(DEFAULTCGLOBAL)
  {
 	// We want to always perform adaptions when this adaptor is called.
 	GAdaptorT<double>::setAdaptionMode(true);
@@ -61,9 +61,9 @@ GSwarmAdaptor::GSwarmAdaptor()
  */
 GSwarmAdaptor::GSwarmAdaptor(const GSwarmAdaptor& cp)
 	: GAdaptorT<double>(cp)
-	, omega_(cp.omega_)
-	, c1_(cp.c1_)
-	, c2_(cp.c2_)
+	, cDelta_(cp.cDelta_)
+	, cLocal_(cp.cLocal_)
+	, cGlobal_(cp.cGlobal_)
  {
 	// We want to always perform adaptions when this adaptor is called.
 	GAdaptorT<double>::setAdaptionMode(true);
@@ -148,9 +148,9 @@ boost::optional<std::string> GSwarmAdaptor::checkRelationshipWith(const GObject&
 	deviations.push_back(GAdaptorT<double>::checkRelationshipWith(cp, e, limit, "GSwarmAdaptor", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", omega_, p_load->omega_, "omega_", "p_load->omega_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", c1_, p_load->c1_, "c1_", "p_load->c1_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", c2_, p_load->c2_, "c2_", "p_load->c2_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", cDelta_, p_load->cDelta_, "cDelta_", "p_load->cDelta_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", cLocal_, p_load->cLocal_, "cLocal_", "p_load->cLocal_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarmAdaptor", cGlobal_, p_load->cGlobal_, "cGlobal_", "p_load->cGlobal_", e , limit));
 
 	return evaluateDiscrepancies("GSwarmAdaptor", caller, deviations, e);
 }
@@ -180,72 +180,72 @@ void GSwarmAdaptor::setAdaptionMode(boost::logic::tribool adaptionMode) {
 
 /************************************************************************************************************/
 /**
- * Sets the \omega parameter used to multiply velocities with. Compare the general
+ * Sets the cDelta_ parameter used to multiply velocities with. Compare the general
  * swarm algorithm shown e.g. in \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
  *
- * @param omega A parameter multiplied with velocity terms
+ * @param cDelta A parameter multiplied with velocity terms
  */
-void GSwarmAdaptor::setOmega(const double& omega) {
-	omega_ = omega;
+void GSwarmAdaptor::setCDelta(const double& cDelta) {
+	cDelta_ = cDelta;
 }
 
 /************************************************************************************************************/
 /**
- * Retrieves the \omega parameter used to multiply velocities with. Compare the general
+ * Retrieves the cDelta_ parameter used to multiply velocities with. Compare the general
  * swarm algorithm shown e.g. in \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
  *
- * @return The \omega parameter multiplied with velocity terms
+ * @return The cdelta_ parameter multiplied with velocity terms
  */
-double GSwarmAdaptor::getOmega() const {
-	return omega_;
+double GSwarmAdaptor::getCDelta() const {
+	return cDelta_;
 }
 
 /************************************************************************************************************/
 /**
- * Sets the c1 parameter used as a multiplier for the direction to the local best.
+ * Sets the cLocal_ parameter used as a multiplier for the direction to the local best.
  * Compare the general swarm algorithm shown e.g. in
  * \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
  *
- * @param c1 A  multiplier for the direction to the local best
+ * @param cLocal A  multiplier for the direction to the local best
  */
-void GSwarmAdaptor::setC1(const double& c1) {
-	c1_ = c1;
+void GSwarmAdaptor::setCLocal(const double& cLocal) {
+	cLocal_ = cLocal;
 }
 
 /************************************************************************************************************/
 /**
- * Retrieves the c1 parameter used as a multiplier for the direction to the local best.
+ * Retrieves the cLocal parameter used as a multiplier for the direction to the local best.
  * Compare the general swarm algorithm shown e.g. in
  * \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
  *
- * @return The c1 multiplier for the direction to the local best
+ * @return The cLocal multiplier for the direction to the local best
  */
-double GSwarmAdaptor::getC1() const {
-	return c1_;
+double GSwarmAdaptor::getCLocal() const {
+	return cLocal_;
 }
 
 /************************************************************************************************************/
 /**
- * Sets the c2 parameter used as a multiplier for the direction to the global best.
+ * Sets the cGlobal_ parameter used as a multiplier for the direction to the global best.
  * Compare the general swarm algorithm shown e.g. in
  * \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
  *
- * @param c2 A  multiplier for the direction to the global best
+ * @param cGlobal A  multiplier for the direction to the global best
  */
-void GSwarmAdaptor::setC2(const double& c2) {
-	c2_ = c2;
+void GSwarmAdaptor::setCGlobal(const double& cGlobal) {
+	cGlobal_ = cGlobal;
 }
 
 /************************************************************************************************************/
 /**
- * Retrieves the c2 parameter used as a multiplier for the direction to the global best.
+ * Retrieves the cGlobal parameter used as a multiplier for the direction to the global best.
  * Compare the general swarm algorithm shown e.g. in
  * \url{http://en.wikipedia.org/wiki/Particle_Swarm_Optimization} .
  *
- * @return The c2 multiplier for the direction to the global best
+ * @return The cGlobal multiplier for the direction to the global best
  */
-double GSwarmAdaptor::getC2() const {
-	return c2_;
+double GSwarmAdaptor::getCGlobal() const {
+	return cGlobal_;
 }
 
 /************************************************************************************************************/
@@ -264,9 +264,9 @@ void GSwarmAdaptor::load_(const GObject *cp)
 	GAdaptorT<double>::load_(cp);
 
 	// ... and then our local data
-	omega_ = p_load->omega_;
-	c1_ = p_load->c1_;
-	c2_ = p_load->c2_;
+	cDelta_ = p_load->cDelta_;
+	cLocal_ = p_load->cLocal_;
+	cGlobal_ = p_load->cGlobal_;
 }
 
 /************************************************************************************************************/

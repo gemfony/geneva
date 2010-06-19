@@ -120,6 +120,10 @@ public:
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
 	virtual void randomInit();
+	/** @brief Initializes double-based parameters with a given value */
+	virtual void fixedValueInit(const double&);
+	/** @brief Multiplies double-based parameters with a given value */
+	void multiplyBy(const double&);
 
 	/** @brief Specifies that no random initialization should occur anymore */
 	void blockInitialization();
@@ -147,8 +151,12 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 
-	/** @brief Triggers random initialization of the parameter(-set) */
+	/** @brief Triggers random initialization of the parameter(-collection) */
 	virtual void randomInit_() = 0;
+	/** @brief Initializes double-based parameters with a given value */
+	virtual void fixedValueInit_(const double&);
+	/** @brief Multiplies double-based parameters with a given value */
+	virtual void multiplyBy_(const double&);
 
 private:
 	bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out

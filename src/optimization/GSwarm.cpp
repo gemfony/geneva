@@ -53,6 +53,12 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
 	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
 	, local_bests_(new boost::shared_ptr<GIndividual>[nNeighborhoods_])
+	, c_local_(DEFAULTCLOCAL)
+	, c_local_range_(-1.)
+	, c_global_(DEFAULTCGLOBAL)
+	, c_global_range_(-1.)
+	, c_delta_(DEFAULTCDELTA)
+	, c_delta_range_(-1.)
 {
 	GOptimizationAlgorithm::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
@@ -77,6 +83,12 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
 	, global_best_((cp.getIteration()>0)?(cp.global_best_)->clone<GIndividual>():boost::shared_ptr<GIndividual>())
 	, local_bests_(new boost::shared_ptr<GIndividual>[nNeighborhoods_])
+	, c_local_(cp.c_local_)
+	, c_local_range_(cp.c_local_range_)
+	, c_global_(cp.c_global_)
+	, c_global_range_(cp.c_global_range_)
+	, c_delta_(cp.c_delta_)
+	, c_delta_range_(cp.c_delta_range_)
 {
 	// Copy the current number of individuals in each neighborhood over
 #ifdef DEBUG
@@ -159,6 +171,12 @@ void GSwarm::load_(const GObject *cp)
 
 	// ... and then our own data
 	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
+	c_local_ = p_load->c_local_;
+	c_local_range_ = p_load->c_local_range_;
+	c_global_ = p_load->c_global_;
+	c_global_range_ = p_load->c_global_range_;
+	c_delta_ = p_load->c_delta_;
+	c_delta_range_ = p_load->c_delta_range_;
 
 	// We start from scratch if the number of neighborhoods or the alleged number of members in them differ
 	if(nNeighborhoods_!=p_load->nNeighborhoods_ || !nNeighborhoodMembersEqual(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_)) {
@@ -266,6 +284,12 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoods_, p_load->nNeighborhoods_, "nNeighborhoods_", "p_load->nNeighborhoods_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, "defaultNNeighborhoodMembers_", "p_load->defaultNNeighborhoodMembers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_local_, p_load->c_local_, "c_local_", "p_load->c_local_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_local_range_, p_load->c_local_range_, "c_local_range_", "p_load->c_local_range_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_range_, p_load->c_global_range_, "c_global_range_", "p_load->c_global_range_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_delta_, p_load->c_delta_, "c_delta_", "p_load->c_delta_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_delta_range_, p_load->c_delta_range_, "c_delta_range_", "p_load->c_delta_range_", e , limit));
 
 	// The next checks only makes sense if the number of neighborhoods are equal
 	if(nNeighborhoods_ == p_load->nNeighborhoods_) {
@@ -506,28 +530,36 @@ void GSwarm::updatePositionsAndFitness() {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			// Update the swarm positions. Note that this only makes sense
 			// once the first series of evaluations has been done and local as well
-			// as global bests are known
-			if(getIteration() > 0) {
+			// as global bests are known. The operation also does not make sense for
+			// randomly initialized items
+			if(getIteration() > 0  && !(*(start + offset))->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
 				// Add the local and global best to each individual
 				(*(start + offset))->getSwarmPersonalityTraits()->registerLocalBest(local_bests_[neighborhood]);
 				(*(start + offset))->getSwarmPersonalityTraits()->registerGlobalBest(global_best_);
 				// Let the personality know in which neighborhood it is
 				(*(start + offset))->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
 
-				// Make sure the individual's parameters are updated. This only makes sense if
-				// we are not dealing with a randomly initialized item, as created in the
-				// adjustNeighborhood() function
-				if((*(start + offset))->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
-					(*(start + offset))->getSwarmPersonalityTraits()->updateParameters();
-				}
+				// Make sure the individual's parameters are updated
+				updateParameters(*(start + offset), neighborhood);
 			}
 
-			// Trigger the actual fitness calculation
+			// Trigger the fitness calculation (if necessary)
 			(*(start + offset))->fitness();
 
 			offset++;
 		}
 	}
+}
+
+/************************************************************************************************************/
+/**
+ * Updates an individual's parameters
+ *
+ * @param ind The individual whose parameters should be updated
+ * @param neighborhood The neighborhood the individual belongs to
+ */
+void GSwarm::updateParameters(boost::shared_ptr<GIndividual> ind, const std::size_t& neighborhood) {
+
 }
 
 /************************************************************************************************************/
@@ -758,66 +790,134 @@ void GSwarm::fillUpNeighborhood1() {
 
 /************************************************************************************************************/
 /**
- * Sets the local multiplier used when calculating velocities to a fixed value
- * in all individuals. This function results in a fixed factor.
- *
- * @param cl The multiplication factor for the difference between a local particle and and the local best
+ * Allows to set a static multiplier for local distances.
  */
-void GSwarm::setCLocal(const double& cl) {
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->getSwarmPersonalityTraits()->setCLocal(cl);
-	}
+void GSwarm::setCLocal(const double& c_local) {
+	c_local_range_ = CLOCALRANGEDISABLED;
+	c_local_ = c_local;
 }
 
 /************************************************************************************************************/
 /**
- * Sets the local multiplier of each individual randomly within a given range in each iteration
+ * Allows to set the lower and upper boundary for random multiplier range for local distances
  */
 void GSwarm::setCLocal(const double& cl_lower, const double& cl_upper) {
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->getSwarmPersonalityTraits()->setCLocal(cl_lower, cl_upper);
+	c_local_ = cl_lower;
+
+#ifdef DEBUG
+	if(cl_upper <= cl_lower) {
+		std::ostringstream error;
+		error << "In GSwarm::setCLocal(const double&, const double&): Error!" << std::endl
+			  << "cl_upper = " << cl_upper << " is <= cl_lower = " << cl_lower << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
+#endif
+
+	c_local_range_ = cl_upper - cl_lower;
 }
 
 /************************************************************************************************************/
 /**
- * Sets the global multiplier used when calculating velocities to a fixed value in
- * all individuals
+ * Allows to retrieve the static multiplier for local distances or the lower boundary of a random range
  */
-void GSwarm::setCGlobal(const double& cg) {
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->getSwarmPersonalityTraits()->setCGlobal(cg);
-	}
+double GSwarm::getCLocal() const {
+	return c_local_;
 }
 
 /************************************************************************************************************/
 /**
- * Sets the global multiplier of each individual randomly within a given range in each iteration
+ * Allows to retrieve the random multiplier range for local distances (-1 if unset)
+ */
+double GSwarm::getCLocalRange() const {
+	return c_local_range_;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to set a static multiplier for global distances
+ */
+void GSwarm::setCGlobal(const double& c_global) {
+	c_global_range_ = CGLOBALRANGEDISABLED;
+	c_global_ = c_global;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to set the lower and upper boundary for random multiplier range for global distances
  */
 void GSwarm::setCGlobal(const double& cg_lower, const double& cg_upper) {
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->getSwarmPersonalityTraits()->setCGlobal(cg_lower, cg_upper);
+	c_global_ = cg_lower;
+
+#ifdef DEBUG
+	if(cg_upper <= cg_lower) {
+		std::ostringstream error;
+		error << "In GSwarm::setCGlobal(const double&, const double&): Error!" << std::endl
+			  << "cg_upper = " << cg_upper << " which is <= cg_lower = " << cg_lower << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
+#endif
+
+	c_global_range_ = cg_upper - cg_lower;
 }
 
 /************************************************************************************************************/
 /**
- * Sets the velocity multiplier to a fixed value for each individual
+ * Allows to retrieve the static multiplier for local distances or the lower boundary of a random range
  */
-void GSwarm::setCDelta(const double& cd) {
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->getSwarmPersonalityTraits()->setCDelta(cd);
-	}
+double GSwarm::getCGlobal() const {
+	return c_global_;
 }
 
 /************************************************************************************************************/
 /**
- * Sets the velocity multiplier to a random value separately for each individual in each iteration
+ * Allows to retrieve the random multiplier range for local distances (-1 if unset)
+ */
+double GSwarm::getCGlobalRange() const {
+	return c_global_range_;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to set a static multiplier for deltas
+ */
+void GSwarm::setCDelta(const double& c_delta) {
+	c_delta_range_ = CDELTARANGEDISABLED;
+	c_delta_ = c_delta;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to set the lower and upper boundary for random multiplier range for deltas
  */
 void GSwarm::setCDelta(const double& cd_lower, const double& cd_upper) {
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
-		(*it)->getSwarmPersonalityTraits()->setCDelta(cd_lower, cd_upper);
+	c_delta_ = cd_lower;
+
+#ifdef DEBUG
+	if(cd_upper <= cd_lower) {
+		std::ostringstream error;
+		error << "In GSwarm::setCGlobal(const double&, const double&): Error!" << std::endl
+			  << "cd_upper = " << cd_upper << " which is <= cd_lower = " << cd_lower << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
+#endif
+
+	c_delta_range_ = cd_upper - cd_lower;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the static multiplier for deltas or the lower boundary of a random range
+ */
+double GSwarm::getCDelta() const {
+	return c_delta_;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the random multiplier range for deltas (-1 if unset)
+ */
+double GSwarm::getCDeltaRange() const {
+	return c_delta_range_;
 }
 
 /************************************************************************************************************/

@@ -125,6 +125,10 @@ protected:
 
 	/** @brief Triggers random initialization of the parameter object */
 	virtual void randomInit_();
+	/** @brief Initializes double-based parameters with a given value */
+	virtual void fixedValueInit_(const double&);
+	/** @brief Multiplies double-based parameters with a given value */
+	virtual void multiplyBy_(const double&);
 };
 
   /******************************************************************************/

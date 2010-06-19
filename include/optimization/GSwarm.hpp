@@ -107,7 +107,13 @@ class GSwarm
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
 		   & BOOST_SERIALIZATION_NVP(global_best_)
-		   & BOOST_SERIALIZATION_NVP(local_bests_);
+		   & BOOST_SERIALIZATION_NVP(local_bests_)
+		   & BOOST_SERIALIZATION_NVP(c_local_)
+		   & BOOST_SERIALIZATION_NVP(c_local_range_)
+		   & BOOST_SERIALIZATION_NVP(c_global_)
+		   & BOOST_SERIALIZATION_NVP(c_global_range_)
+		   & BOOST_SERIALIZATION_NVP(c_delta_)
+		   & BOOST_SERIALIZATION_NVP(c_delta_range_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -139,18 +145,35 @@ public:
 	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&);
 
-	/** @brief Sets the local multiplier used when calculating velocities to a fixed value in all individuals */
+	/** @brief Allows to set a static multiplier for local distances */
 	void setCLocal(const double&);
-	/** @brief Sets the local multiplier of each individual randomly within a given range */
+	/** @brief Allows to set the lower and upper boundary for random multiplier range for local distances */
 	void setCLocal(const double&, const double&);
-	/** @brief Sets the global multiplier used when calculating velocities to a fixed value in all individuals */
+
+	/** @brief Allows to retrieve the static multiplier for local distances or the lower boundary of a random range */
+	double getCLocal() const;
+	/** @brief Allows to retrieve the random multiplier range for local distances (-1 if unset) */
+	double getCLocalRange() const;
+
+	/** @brief Allows to set a static multiplier for global distances */
 	void setCGlobal(const double&);
-	/** @brief Sets the global multiplier of each individual randomly within a given range */
+	/** @brief Allows to set the lower and upper boundary for random multiplier range for global distances */
 	void setCGlobal(const double&, const double&);
-	/** @brief Sets the delta multiplier to a fixed value for each individual */
+
+	/** @brief Allows to retrieve the static multiplier for local distances or the lower boundary of a random range */
+	double getCGlobal() const;
+	/** @brief Allows to retrieve the random multiplier range for local distances (-1 if unset) */
+	double getCGlobalRange() const;
+
+	/** @brief Allows to set a static multiplier for deltas */
 	void setCDelta(const double&);
-	/** @brief Sets the delta multiplier to a random value separately for each individual */
+	/** @brief Allows to set the lower and upper boundary for random multiplier range for deltas */
 	void setCDelta(const double&, const double&);
+
+	/** @brief Allows to retrieve the static multiplier for deltas or the lower boundary of a random range */
+	double getCDelta() const;
+	/** @brief Allows to retrieve the random multiplier range for deltas (-1 if unset) */
+	double getCDeltaRange() const;
 
 #ifdef GENEVATESTING
 	/** @brief Retrieves the number of neighborhoods */
@@ -265,6 +288,8 @@ protected:
 
 	/** @brief Updates the fitness of all individuals */
 	virtual void updatePositionsAndFitness();
+	/** @brief Updates an individual's parameters */
+	virtual void updateParameters(boost::shared_ptr<GIndividual>, const std::size_t&);
 	/** @brief Updates the best individuals found */
 	virtual double findBests();
 	/** @brief Adjusts each neighborhood so it has the correct size */
@@ -291,6 +316,21 @@ private:
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
 	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
 	std::size_t *nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
+
+	/** @brief A factor for multiplication of local bests, or lower end of a random range */
+	double c_local_;
+	/** @brief A possible range for random multiplication of local bests. -1 if disabled */
+	double c_local_range_;
+
+	/** @brief A factor for multiplication of global bests, or lower end of a random range */
+	double c_global_;
+	/** @brief A possible range for random multiplication of global l bests. -1 if disabled */
+	double c_global_range_;
+
+	/** @brief A factor for multiplication of deltas, or lower end of a random range */
+	double c_delta_;
+	/** @brief A possible range for random multiplication of velocities. -1 if disabled */
+	double c_delta_range_;
 
 	boost::shared_ptr<GIndividual> global_best_; ///< The globally best individual
 	boost::shared_ptr<GIndividual> *local_bests_; ///< The collection of best individuals from each neighborhood
