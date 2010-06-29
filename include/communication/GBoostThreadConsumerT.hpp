@@ -64,7 +64,6 @@
 
 #include "GBrokerT.hpp"
 #include "GConsumer.hpp"
-#include "GIndividualBroker.hpp"
 #include "GThreadGroup.hpp"
 
 namespace Gem {
