@@ -302,7 +302,7 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * This function allows automatic conversion from GBoundedNumT<T> to T..
+	 * This function allows automatic conversion from GBoundedNumT<T> to T.
 	 * This allows us to define only few operators, as the bulk of the work will be
 	 * done by automatic conversions done by the C++ compiler.
 	 */
@@ -312,7 +312,7 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * Adaptes this object. It is the internal representation of the class'es value
+	 * Adapts this object. It is the internal representation of the class'es value
 	 * that gets adapted. This value is then "translated" into the external value (stored
 	 * in GParameterT<T>, which is set accordingly.
 	 */

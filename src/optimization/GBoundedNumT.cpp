@@ -71,16 +71,16 @@ template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT()
 }
 
 /***********************************************************************************************/
-	/**
-	 * A constructor that initializes the external value only. The boundaries will
-	 * be set to the maximum and minimum values of the double type.
-	 *
-	 * @param val The desired external value of this object
-	 */
+/**
+ * A constructor that initializes the external value only. The boundaries will
+ * be set to the maximum and minimum values of the double type.
+ *
+ * @param val The desired external value of this object
+ */
 template <> GBoundedNumT<double>::GBoundedNumT(const double& val)
 	: GParameterT<double>(0.)
-	, lowerBoundary_(-0.999*0.5*std::numeric_limits<double>::max())
-	, upperBoundary_(0.999*0.5*std::numeric_limits<double>::max())
+	, lowerBoundary_(-0.5*std::numeric_limits<double>::max())
+	, upperBoundary_( 0.5*std::numeric_limits<double>::max())
 	, internalValue_(0.)
 {
 		// This function also sets the internalValue_ variable.
