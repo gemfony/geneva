@@ -319,7 +319,7 @@ protected:
 	virtual GObject *clone_() const = 0;
 
 	/******************************************************************/
-	/** @brief Triggers random initialization of the parameter collection */
+	/** @brief Triggers random initialization of the parameter */
 	virtual void randomInit_() = 0;
 
 private:

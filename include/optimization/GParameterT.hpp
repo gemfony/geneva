@@ -141,7 +141,7 @@ public:
 	 *
 	 * @return The value of val_
 	 */
-	T value() const{
+	virtual T value() const{
 		return val_;
 	}
 
@@ -273,12 +273,10 @@ protected:
 
 	/*******************************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Purely virtual, needs to be implemented in derived
-	 * classes.
-	 *
-	 * @return A copy of this object, camouflaged as a GObject
-	 */
+	 * @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
+	/** @brief Triggers random initialization of the parameter(-collection) */
+	virtual void randomInit_() = 0;
 
 private:
 	/*******************************************************************************************/
