@@ -71,7 +71,7 @@ namespace GenEvA {
 class GIndividualBroker
 	:public Gem::Util::GBrokerT<boost::shared_ptr<Gem::GenEvA::GIndividual> >
 {
-public:
+private:
 	GIndividualBroker()
 		:Gem::Util::GBrokerT<boost::shared_ptr<Gem::GenEvA::GIndividual> >()
 	{ /* nothing */	}
@@ -84,7 +84,7 @@ public:
 
 /**************************************************************************************/
 /**
- * We require the global GIndividualBroker object to be a singleton. This
+ * We require the global Broker object to be a singleton. This
  * ensures that one and only one Broker object exists that is constructed
  * before main begins. All external communication should refer to GINDIVIDUALBROKER.
  */

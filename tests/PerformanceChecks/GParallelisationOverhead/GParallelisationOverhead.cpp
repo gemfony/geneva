@@ -47,7 +47,7 @@
 #include "GMultiThreadedEA.hpp"
 #include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
-#include "GAsioTCPConsumer.hpp"
+#include "GAsioTCPConsumerT.hpp"
 #include "GAsioTCPClient.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GBoundedDoubleCollection.hpp"

@@ -48,7 +48,7 @@
 #include "GDoubleGaussAdaptor.hpp"
 #include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
-#include "GAsioTCPConsumer.hpp"
+#include "GAsioTCPConsumerT.hpp"
 #include "GAsioTCPClient.hpp"
 #include "GEnums.hpp"
 #include "GThreadGroup.hpp"

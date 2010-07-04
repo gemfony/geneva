@@ -41,7 +41,7 @@
 #include "GMultiThreadedEA.hpp"
 #include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
-#include "GAsioTCPConsumer.hpp"
+#include "GAsioTCPConsumerT.hpp"
 #include "GAsioTCPClient.hpp"
 #include "GAsioHelperFunctions.hpp"
 
@@ -247,7 +247,7 @@ int main(int argc, char **argv){
   case 2: // Networked execution (server-side)
     {
       // Create a network consumer and enrol it with the broker
-      boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+      boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port, 0));
       gatc->setSerializationMode(serMode);
       GINDIVIDUALBROKER->enrol(gatc);
 
