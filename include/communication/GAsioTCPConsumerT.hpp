@@ -70,7 +70,7 @@
 // Geneva headers go here
 #include "GEnums.hpp"
 #include "GConsumer.hpp"
-#include "GIndividualBroker.hpp"
+#include "GBrokerT.hpp"
 #include "GIndividualSerializationHelperFunctions.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GSerializationHelperFunctions.hpp"
