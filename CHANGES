@@ -30,6 +30,8 @@ The main changes for this release include:
    common, dataexchange, random, communication, and optimization.
  - Removed GBoostThreadConsumer dependency on GIndividual, making it a template class
    GBoostThreadConsumerT.
+ - Removed GAsioTCPConsumer dependency on GIndividual, making it a template class
+   GAsioTCPConsumerT.
  - Renamed GenevaExceptions file to GExceptions and renamed Gem::GenEvA::geneva_error_condition
    to Gem::Common::gemfony_error_condition, in order to better separate different libraries.
  - Replaced usage of GDataExchangeException by Gem::Common::gemfony_error_condition.
