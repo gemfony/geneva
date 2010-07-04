@@ -69,6 +69,7 @@
 #include "GExceptions.hpp"
 #include "GBufferPortT.hpp"
 #include "GBoundedBufferT.hpp"
+#include "GSingletonT.hpp"
 #include "GThreadGroup.hpp"
 
 namespace Gem {
@@ -350,6 +351,14 @@ private:
 	GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
 	std::vector<boost::shared_ptr<GConsumer> > consumerCollection_;
 };
+
+/**************************************************************************************/
+/**
+ * We require GBrokerT<T> to be a singleton. This ensures that, for a given T, one
+ * and only one Broker object exists that is constructed before main begins. All
+ * external communication should refer to GBROKER(T).
+ */
+#define GBROKER(T) Gem::Util::GSingletonT<Gem::Util::GBrokerT< T > >::getInstance()
 
 /**************************************************************************************/
 

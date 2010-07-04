@@ -185,7 +185,7 @@ private:
 				}
 
 				try{
-					id = GINDIVIDUALBROKER->get(p, timeout);
+					id = GBROKER(boost::shared_ptr<processable_object>)->get(p, timeout);
 				}
 				catch(Gem::Util::gem_util_condition_time_out &) { continue; }
 
@@ -193,7 +193,7 @@ private:
 					p->process();
 
 					try{
-						GINDIVIDUALBROKER->put(id, p, timeout);
+						GBROKER(boost::shared_ptr<processable_object>)->put(id, p, timeout);
 					}
 					catch(Gem::Util::gem_util_condition_time_out &) { continue; }
 				}
