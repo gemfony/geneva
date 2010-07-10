@@ -304,7 +304,7 @@
        </UML:GeneralizableElement.generalization>
       </UML:Class>
       <UML:Generalization discriminator="" visibility="public" isSpecification="false" namespace="Logical View" child="Q5U0redhwIuJ" xmi.id="ndDEBnzjK4qw" parent="YX58cpMcQHLW" name=""/>
-      <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Qrc4KlQZxUw5" name="GAsioTCPConsumer">
+      <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Qrc4KlQZxUw5" name="GAsioTCPConsumerT">
        <UML:GeneralizableElement.generalization>
         <UML:Generalization xmi.idref="tFjq56psake9"/>
        </UML:GeneralizableElement.generalization>
