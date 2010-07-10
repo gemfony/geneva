@@ -48,6 +48,7 @@
 #include "GDoubleGaussAdaptor.hpp"
 #include "GBrokerEA.hpp"
 #include "GIndividualBroker.hpp"
+#include "GIndividual.hpp"
 #include "GAsioTCPConsumerT.hpp"
 #include "GAsioTCPClient.hpp"
 #include "GEnums.hpp"
@@ -118,7 +119,7 @@ int main(int argc, char **argv){
 	// Start of server
 
 	// Create a consumer and enrol it with the broker
-	boost::shared_ptr<GAsioTCPConsumer> gatc(new GAsioTCPConsumer(port));
+	boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
 	gatc->setSerializationMode(serMode);
 	GINDIVIDUALBROKER->enrol(gatc);
 
