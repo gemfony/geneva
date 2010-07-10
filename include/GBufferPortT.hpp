@@ -61,7 +61,7 @@ namespace Util {
  * be useful in many scenarios, the most common application is as a mediator
  * between GBrokerEA and GConsumer-derivatives. The GBrokerEA
  * is a source of raw items, which are processed by GConsumer-derivatives
- * (such as GBoostThreadConsumer and GAsioTCPConsumer) and then returned to the
+ * (such as GBoostThreadConsumer and GAsioTCPConsumerT) and then returned to the
  * population. GBrokerT instantiations orchestrate this exchange.
  * All of this happens in a multi-threaded environment. It is not possible to
  * create copies of this class, as one GBufferPortT is intended to serve one
