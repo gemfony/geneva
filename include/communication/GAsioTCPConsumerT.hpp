@@ -385,7 +385,7 @@ public:
      * @param port The port through which clients can access the server
      * @param initialThreads The number of threads used to listen for incoming connections
      */
-    GAsioTCPConsumerT(const unsigned short& port, const std::size_t& listenerThreads)
+    GAsioTCPConsumerT(const unsigned short& port, const std::size_t& listenerThreads = 0)
         :GConsumer(),
          work_(new boost::asio::io_service::work(io_service_)),
          acceptor_(work_->get_io_service(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
