@@ -61,6 +61,7 @@
 #include "GGDPersonalityTraits.hpp"
 #include "GSwarmPersonalityTraits.hpp"
 #include "GExceptions.hpp"
+#include "GBrokerT.hpp"			// Just for the GINDIVIDUALBROKER macro
 
 namespace Gem {
 namespace GenEvA {
