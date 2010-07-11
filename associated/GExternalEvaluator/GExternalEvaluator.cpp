@@ -40,7 +40,7 @@
 #include "GEvolutionaryAlgorithm.hpp"
 #include "GMultiThreadedEA.hpp"
 #include "GBrokerEA.hpp"
-#include "GIndividualBroker.hpp"
+#include "GIndividual.hpp"
 #include "GAsioTCPConsumerT.hpp"
 #include "GAsioTCPClient.hpp"
 #include "GAsioHelperFunctions.hpp"

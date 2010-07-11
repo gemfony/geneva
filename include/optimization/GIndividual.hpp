@@ -287,6 +287,15 @@ private:
 } /* namespace Gem */
 
 
+/**************************************************************************************/
+/**
+ * We require the Broker object to be a singleton. This macro creates the Broker
+ * for the particular case of GIndividuals. All external communication should
+ * refer to GINDIVIDUALBROKER.
+ */
+#define GINDIVIDUALBROKER GBROKER(boost::shared_ptr<Gem::GenEvA::GIndividual>)
+
+
 /**************************************************************************************************/
 /**
  * @brief Needed for Boost.Serialization

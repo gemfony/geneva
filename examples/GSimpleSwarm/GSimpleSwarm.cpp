@@ -39,7 +39,6 @@
 #include "GRandom.hpp"
 #include "GSwarm.hpp"
 #include "GBrokerEA.hpp"
-#include "GIndividualBroker.hpp"
 #include "GIndividual.hpp"
 #include "GAsioTCPConsumerT.hpp"
 #include "GAsioTCPClient.hpp"

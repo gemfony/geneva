@@ -58,7 +58,7 @@
 #include "GIndividual.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
 #include "GBufferPortT.hpp"
-#include "GIndividualBroker.hpp"
+#include "GIndividual.hpp"
 #include "GEAPersonalityTraits.hpp"
 
 namespace Gem

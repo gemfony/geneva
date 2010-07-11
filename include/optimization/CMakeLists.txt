@@ -23,7 +23,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GGDPersonalityTraits.hpp
 	GIdentityAdaptorT.hpp
 	GIndividual.hpp
-	GIndividualBroker.hpp
 	GIndividualSerializationHelperFunctions.hpp
 	GInt32.hpp
 	GInt32Collection.hpp

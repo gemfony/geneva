@@ -41,7 +41,6 @@
 #include "GMultiThreadedEA.hpp"
 #include "GBrokerEA.hpp"
 #include "GIndividual.hpp"
-#include "GIndividualBroker.hpp"
 #include "GBoostThreadConsumerT.hpp"
 
 // The individual that should be optimized
