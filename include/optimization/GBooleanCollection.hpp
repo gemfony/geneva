@@ -48,7 +48,7 @@
 
 // GenEvA headers go here
 #include "GParameterCollectionT.hpp"
-#include "GEnums.hpp"
+#include "GOptimizationEnums.hpp"
 #include "GExceptions.hpp"
 
 namespace Gem

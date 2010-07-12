@@ -54,7 +54,7 @@
 #endif
 
 // GenEvA headers go here
-#include "GEnums.hpp"
+#include "GOptimizationEnums.hpp"
 #include "GSerializationHelperFunctions.hpp"
 
 namespace Gem

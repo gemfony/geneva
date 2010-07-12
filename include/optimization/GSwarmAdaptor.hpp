@@ -54,7 +54,7 @@
 #include "GDoubleGaussAdaptor.hpp"
 #include "GObject.hpp"
 #include "GExceptions.hpp"
-#include "GEnums.hpp"
+#include "GOptimizationEnums.hpp"
 
 namespace Gem {
 namespace GenEvA {

@@ -75,60 +75,9 @@ namespace Gem
 namespace GenEvA
 {
 
-/***************************************************************************************************/
 
-/** @brief Puts a Gem::GenEvA::serializationMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::serializationMode&);
-
-/** @brief Reads a Gem::GenEvA::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::serializationMode&);
-
-/** @brief Puts a Gem::GenEvA::dataExchangeMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::dataExchangeMode&);
-
-/** @brief Reads a Gem::GenEvA::dataExchangeMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::dataExchangeMode&);
-
-/** @brief Puts a Gem::GenEvA::recoScheme into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::recoScheme&);
-
-/** @brief Reads a Gem::GenEvA::recoScheme item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::recoScheme&);
-
-/** @brief Puts a Gem::GenEvA::infoMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::infoMode&);
-
-/** @brief Reads a Gem::GenEvA::infoMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::infoMode&);
-
-/** @brief Puts a Gem::GenEvA::adaptorId into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::adaptorId&);
-
-/** @brief Reads a Gem::GenEvA::adaptorId item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::adaptorId&);
-
-/** @brief Puts a Gem::GenEvA::sortingMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::sortingMode&);
-
-/** @brief Reads a Gem::GenEvA::sortingMode from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::sortingMode&);
-
-/***************************************************************************************************/
 
 } /* namespace GenEvA */
-
-namespace Util
-{
-
-/** @brief Puts a Gem::Util::triboolStates into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Util::triboolStates&);
-
-/** @brief Reads a Gem::Util::triboolStates from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Util::triboolStates&);
-
-/***************************************************************************************************/
-
-} /* namespace Util */
 
 } /* namespace Gem */
 

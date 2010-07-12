@@ -30,6 +30,7 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedEA
 	GObject
 	GOptimizationAlgorithm
+	GOptimizationEnums
 	GParameterBase
 	GParameterBaseWithAdaptorsT
 	GParameterObjectCollection

@@ -66,7 +66,7 @@
 #include "GTriboolSerialization.hpp"
 #include "GObject.hpp"
 #include "GRandom.hpp"
-#include "GEnums.hpp"
+#include "GOptimizationEnums.hpp"
 #include "GObjectExpectationChecksT.hpp"
 
 namespace Gem {

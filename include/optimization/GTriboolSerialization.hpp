@@ -46,8 +46,7 @@
 #endif
 
 // Geneva headers go here
-#include "GEnums.hpp"
-#include "GSerializationHelperFunctions.hpp"
+#include "GOptimizationEnums.hpp"
 
 namespace boost {
 namespace serialization {

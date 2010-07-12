@@ -80,7 +80,7 @@
 // Geneva header files go here
 #include "GSerializableI.hpp"
 #include "GExceptions.hpp"
-#include "GEnums.hpp"
+#include "GOptimizationEnums.hpp"
 #include "GHelperFunctionsT.hpp"
 
 #ifdef GENEVATESTING
