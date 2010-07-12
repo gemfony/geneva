@@ -61,7 +61,7 @@
 
 // GenEvA headers go here
 #include "GAsioHelperFunctions.hpp"
-#include "GSerializationHelperFunctions.hpp"
+#include "GSerializationHelperFunctionsT.hpp"
 #include "GBaseClientT.hpp"
 #include "GRandom.hpp"
 

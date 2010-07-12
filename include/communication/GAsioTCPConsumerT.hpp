@@ -1,4 +1,4 @@
-/**
+ /**
  * @file GAsioTCPConsumerT.hpp
  */
 
@@ -72,7 +72,6 @@
 #include "GConsumer.hpp"
 #include "GBrokerT.hpp"
 #include "GAsioHelperFunctions.hpp"
-#include "GSerializationHelperFunctions.hpp"
 #include "GSerializationHelperFunctionsT.hpp"
 
 namespace Gem

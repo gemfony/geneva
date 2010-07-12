@@ -57,7 +57,7 @@
 
 // GenEvA headers go here
 #include "GEnums.hpp"
-#include "GSerializationHelperFunctions.hpp"
+#include "GSerializationHelperFunctionsT.hpp"
 #include "GNeuralNetworkIndividual.hpp"
 
 namespace Gem
