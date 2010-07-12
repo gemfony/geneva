@@ -71,29 +71,6 @@ std::size_t extractDataSize(const char* ds, const std::size_t& sz){
 }
 
 /**********************************************************************************/
-/**
- * Starts a number of threads with clients. Note that this function will block, until
- * the last thread has terminated. Hence it should usually be started as the last
- * function in main().
- *
- * @param nClients The number of client threads that should be started
- * @param ip The ip of the server
- * @param port The port on which the server is listening
- */
-void startNClients(unsigned short nClients, std::string ip, unsigned short port) {
-	// We create a thread group of nClients threads
-	Gem::Util::GThreadGroup gtg;
-	for(std::size_t nT=0; nT<nClients; nT++) {
-		std::cout << "Starting client nr. " << nT << std::endl;
-		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip, boost::lexical_cast<std::string>(port)));
-		gtg.create_thread(boost::bind(&GAsioTCPClient::run,p));
-	}
-
-	// Wait for all threads to terminate
-	gtg.join_all();
-}
-
-/**********************************************************************************/
 
 } /* namespace GenEvA */
 } /* namespace Gem */

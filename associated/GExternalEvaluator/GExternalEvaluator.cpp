@@ -42,7 +42,7 @@
 #include "GBrokerEA.hpp"
 #include "GIndividual.hpp"
 #include "GAsioTCPConsumerT.hpp"
-#include "GAsioTCPClient.hpp"
+#include "GAsioTCPClientT.hpp"
 #include "GAsioHelperFunctions.hpp"
 
 // The individual that should be optimized
@@ -141,7 +141,7 @@ int main(int argc, char **argv){
   // If this is a client in networked mode, we can just start the listener and
   // return when it has finished
   if(parallelizationMode==2 && !serverMode) {
-    boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip, boost::lexical_cast<std::string>(port)));
+    boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip, boost::lexical_cast<std::string>(port)));
 
     p->setMaxStalls(0); // An infinite number of stalled data retrievals
     p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts

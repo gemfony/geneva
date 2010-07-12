@@ -21,7 +21,6 @@ SET ( OPTIMIZATIONSOURCES
 	GGDPersonalityTraits
 	GIdentityAdaptorT
 	GIndividual
-	GIndividualSerializationHelperFunctions
 	GInt32
 	GInt32Collection
 	GInt32FlipAdaptor

@@ -198,7 +198,7 @@ bool GBaseClient::process(){
 
 	// unpack the data and create a new GIndividual. Note that de-serialization should
 	// generally happen through the same type that was used for serialization.
-	boost::shared_ptr<GIndividual> target = indptrFromString(istr, serMode);
+	boost::shared_ptr<GIndividual> target = Gem::Common::sharedPtrFromString<GIndividual>(istr, serMode);
 
 	// This one line is all it takes to do the processing required for this individual.
 	// GIndividual has all required functions on board. GBaseClient does not need to understand
@@ -209,7 +209,7 @@ bool GBaseClient::process(){
 
 	// transform target back into a string and submit to the server. The actual
 	// actions done by submit are defined by derived classes.
-	if(!this->submit(indptrToString(target, serMode), portId)) return false;
+	if(!this->submit(Gem::Common::sharedPtrToString(target, serMode), portId)) return false;
 
 	// Everything worked. Indicate that we want to continue
 	return true;

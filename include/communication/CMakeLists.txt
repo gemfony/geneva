@@ -3,10 +3,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( COMMUNICATIONINCLUDES
 	GAsioHelperFunctions.hpp
 	GAsioTCPClient.hpp
+	GAsioTCPClientT.hpp
 	GAsioTCPConsumerT.hpp
 	GBaseClient.hpp
+	GBaseClientT.hpp
 	GBoostThreadConsumerT.hpp
+	GBoundedBufferWithIdT.hpp
 	GBrokerT.hpp
+	GBufferPortT.hpp
 	GConsumer.hpp
 )
 
