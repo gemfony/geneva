@@ -69,7 +69,6 @@ const bool MINIMIZE = false;
  * The number of iterations after which information should be
  * emitted about the inner state of the optimization algorithm.
  */
-const boost::uint32_t DEFAULTREPORTGEN = 10; // deprecated
 const boost::uint32_t DEFAULTREPORTITER = 1;
 
 /**********************************************************************************************/
@@ -77,21 +76,18 @@ const boost::uint32_t DEFAULTREPORTITER = 1;
  * The number of iterations after which a checkpoint should be written.
  * 0 means that no checkpoints are written at all.
  */
-const boost::uint32_t DEFAULTCHECKPOINTGEN = 0; // deprecated
 const boost::uint32_t DEFAULTCHECKPOINTIT = 0;
 
 /**********************************************************************************************/
 /**
  * The default maximum number of iterations
  */
-const boost::uint32_t DEFAULTMAXGEN = 1000; // deprecated
 const boost::uint32_t DEFAULTMAXIT = 1000;
 
 /**********************************************************************************************/
 /**
  * The default maximum number of iterations without improvement. 0 means: ignore
  */
-const boost::uint32_t DEFAULMAXTSTALLGEN = 0; // deprecated
 const boost::uint32_t DEFAULMAXTSTALLIT = 0;
 
 /**********************************************************************************************/
