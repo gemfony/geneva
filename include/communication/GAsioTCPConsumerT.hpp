@@ -71,9 +71,9 @@
 #include "GEnums.hpp"
 #include "GConsumer.hpp"
 #include "GBrokerT.hpp"
-#include "GIndividualSerializationHelperFunctions.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GSerializationHelperFunctions.hpp"
+#include "GSerializationHelperFunctionsT.hpp"
 
 namespace Gem
 {
@@ -93,7 +93,7 @@ const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
  * file as the GAsioTCPConsumer in order to avoid cross referencing of
  * header files.
  */
-template <class processable_object>
+template <class processable_type>
 class GAsioServerSession
 	:private boost::noncopyable
 {
@@ -153,13 +153,13 @@ public:
 	    else if (command == "ready") {
 	        // Retrieve an item from the broker and submit it to the client.
 	        try{
-	            boost::shared_ptr<processable_object> p;
+	            boost::shared_ptr<processable_type> p;
 	            Gem::Util::PORTIDTYPE id;
 
 	            // Retrieve an item
-	            id = GBROKER( boost::shared_ptr<processable_object> )->get(p, timeout);
+	            id = GBROKER( boost::shared_ptr<processable_type> )->get(p, timeout);
 
-	            if (!this->submit(indptrToString(p, serializationMode_),
+	            if (!this->submit(Gem::Common::sharedPtrToString(p, serializationMode_),
 	                              "compute",
 	                              boost::lexical_cast<std::string>(serializationMode_),
 	                              boost::lexical_cast<std::string>(id)))
@@ -186,11 +186,11 @@ public:
 	        if (this->retrieve(itemString, portid)) {
 	            // Give the object back to the broker, so it can be sorted back
 	            // into the GBufferPortT objects.
-	            boost::shared_ptr<processable_object> p = indptrFromString(itemString, serializationMode_);
+	            boost::shared_ptr<processable_type> p = Gem::Common::sharedPtrFromString<processable_type>(itemString, serializationMode_);
 
 	            Gem::Util::PORTIDTYPE id = boost::lexical_cast<Gem::Util::PORTIDTYPE>(portid);
 	            try {
-	                GBROKER( boost::shared_ptr<processable_object> )->put(id, p, timeout);
+	                GBROKER( boost::shared_ptr<processable_type> )->put(id, p, timeout);
 	            }
 	            catch(Gem::Util::gem_util_condition_time_out &gucto){ /* nothing we can do */ }
 	        }
@@ -369,7 +369,7 @@ private:
  * It is the main responsibility of this class to start new server session
  * for each client request.
  */
-template <class processable_object>
+template <class processable_type>
 class GAsioTCPConsumerT
 	:public Gem::Util::GConsumer // note: GConsumer is non-copyable
 {
@@ -398,8 +398,8 @@ public:
             tp_.size_controller().resize(listenerThreads_);
         }
         // Start the actual processing. All real work is done in the GAsioServerSession class .
-        boost::shared_ptr<GAsioServerSession<processable_object> > newSession(new GAsioServerSession<processable_object>(work_->get_io_service() ,serializationMode_));
-        acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumerT<processable_object>::handleAccept, this, newSession, _1));
+        boost::shared_ptr<GAsioServerSession<processable_type> > newSession(new GAsioServerSession<processable_type>(work_->get_io_service() ,serializationMode_));
+        acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumerT<processable_type>::handleAccept, this, newSession, _1));
     }
 
     /*********************************************************************/
@@ -465,17 +465,17 @@ private:
      * @param currentSession A pointer to the current session
      * @param error Possible error conditions
      */
-    void handleAccept(boost::shared_ptr<GAsioServerSession<processable_object> > currentSession, const boost::system::error_code& error)
+    void handleAccept(boost::shared_ptr<GAsioServerSession<processable_type> > currentSession, const boost::system::error_code& error)
     {
         // Check whether an error occurred. This will likely indicate that we've been asked to stop.
         if(error) return;
 
         // First we make sure a new session is started asynchronously so the next request can be served
-        boost::shared_ptr<GAsioServerSession<processable_object> > newSession(new GAsioServerSession<processable_object>(work_->get_io_service(), serializationMode_));
-        acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumerT<processable_object>::handleAccept, this, newSession, _1));
+        boost::shared_ptr<GAsioServerSession<processable_type> > newSession(new GAsioServerSession<processable_type>(work_->get_io_service(), serializationMode_));
+        acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumerT<processable_type>::handleAccept, this, newSession, _1));
 
         // Now we can dispatch the actual session code to our thread pool
-        tp_.schedule(boost::bind(&GAsioServerSession<processable_object>::processRequest, currentSession));
+        tp_.schedule(boost::bind(&GAsioServerSession<processable_type>::processRequest, currentSession));
     }
 
 	/**

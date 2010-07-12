@@ -217,7 +217,43 @@ public:
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(val_);
 	}
 
+protected:
+	/*******************************************************************************************/
+	/**
+	 * Loads the data of another GObject
+	 *
+	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
+	 */
+	virtual void load_(const GObject* cp){
+		// Convert cp into local format
+		const GParameterT<T> *p_load = GObject::conversion_cast<GParameterT<T> >(cp);
+
+		// Load our parent class'es data ...
+		GParameterBaseWithAdaptorsT<T>::load_(cp);
+
+		// ... and then our own data
+		val_ = p_load->val_;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const = 0;
+	/** @brief Triggers random initialization of the parameter(-collection) */
+	virtual void randomInit_() = 0;
+
+	/*******************************************************************************************/
+	/**
+	 * The internal representation of our value. Mutability is needed as in some cases value
+	 * calculation implies resetting of the internal value. We nevertheless want to be able
+	 * to call the value() function from constant functions. Declared protected so some derived
+	 * classes can (re-)set the value from a const function without forcing us to declare
+	 * setValue() const.
+	 */
+	mutable T val_;
+
 #ifdef GENEVATESTING
+public:
 	/*******************************************************************************************/
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
@@ -252,36 +288,6 @@ public:
 	}
 
 #endif /* GENEVATESTING */
-
-protected:
-	/*******************************************************************************************/
-	/**
-	 * Loads the data of another GObject
-	 *
-	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
-	 */
-	virtual void load_(const GObject* cp){
-		// Convert cp into local format
-		const GParameterT<T> *p_load = GObject::conversion_cast<GParameterT<T> >(cp);
-
-		// Load our parent class'es data ...
-		GParameterBaseWithAdaptorsT<T>::load_(cp);
-
-		// ... and then our own data
-		val_ = p_load->val_;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const = 0;
-	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual void randomInit_() = 0;
-
-private:
-	/*******************************************************************************************/
-
-	T val_; ///< The internal representation of our value
 };
 
 

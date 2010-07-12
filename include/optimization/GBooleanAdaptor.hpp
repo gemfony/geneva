@@ -50,7 +50,7 @@
 #include "GAdaptorT.hpp"
 #include "GObject.hpp"
 #include "GBoundedDouble.hpp"
-#include "GEnums.hpp"
+#include "GOptimizationEnums.hpp"
 #include "GExceptions.hpp"
 #include "GIntFlipAdaptorT.hpp"
 #include "GObjectExpectationChecksT.hpp"

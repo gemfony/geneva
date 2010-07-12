@@ -119,3 +119,5 @@
   returns a boost::optional<std::string>, and a predefined GOptimizationAlgorithm::saveCheckpointThrow() that throws
 - Add a travelling salesman example
 - GBoundedDouble needs an overhaul -- overloading and use of internal values is odd (but seems to work o.k.)
+- Move serializationMode (and enums) into namespace Gem::Common
+- Move communication code to own namespace instead of Gem::GenEvA

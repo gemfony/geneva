@@ -49,7 +49,7 @@
 #include "GBrokerEA.hpp"
 #include "GIndividual.hpp"
 #include "GAsioTCPConsumerT.hpp"
-#include "GAsioTCPClient.hpp"
+#include "GAsioTCPClientT.hpp"
 #include "GEnums.hpp"
 #include "GThreadGroup.hpp"
 
@@ -159,8 +159,8 @@ int main(int argc, char **argv){
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Start of clients
 	for(std::size_t i=0; i<nClients; i++){
-		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip,boost::lexical_cast<std::string>(port)));
-		gtg.create_thread(boost::bind(&GAsioTCPClient::run,p));
+		boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip,boost::lexical_cast<std::string>(port)));
+		gtg.create_thread(boost::bind(&GAsioTCPClientT<GIndividual>::run,p));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

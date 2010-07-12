@@ -84,7 +84,7 @@ class GConstrainedNumT
 		using boost::serialization::make_nvp;
 
 		// Save data
-		ar & make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T> >(*this));
+		ar & make_nvp("GParameterT_T", boost::serialization::base_object<GParameterT<T> >(*this))
 		   & BOOST_SERIALIZATION_NVP(lowerBoundary_)
 		   & BOOST_SERIALIZATION_NVP(upperBoundary_);
 	}
@@ -296,10 +296,11 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * Resets the boundaries to the maximum allowed value. Needs to be reimplemented
-	 * in derived classes, as the internal value might have to be re-adjusted.
+	 * Resets the boundaries to the maximum allowed value.
 	 */
-	virtual void resetBoundaries() = 0;
+	void resetBoundaries() {
+		this->setBoundaries(-std::numeric_limits<T>::max(), std::numeric_limits<T>::max());
+	}
 
 	/****************************************************************************/
 	/**
@@ -341,6 +342,11 @@ public:
 
 		lowerBoundary_ = lower;
 		upperBoundary_ = upper;
+
+		// Re-set the internal representation of the value -- we might be in a different
+		// region of the transformation internally, and the mapping will likely depend on
+		// the boundaries.
+		GParameterT<T>::setValue(currentValue);
 	}
 
 	/****************************************************************************/
@@ -417,6 +423,11 @@ public:
 		return this->transfer(GParameterT<T>::value());
 	}
 
+	/****************************************************************************/
+	/** @brief The transfer function needed to calculate the externally visible
+	 * value. Declared public so we can do tests of the value transformation. */
+	virtual T transfer(const T&) const = 0;
+
 protected:
 	/****************************************************************************/
 	/**
@@ -439,8 +450,6 @@ protected:
 	/****************************************************************************/
 	/** @brief Create a deep copy of this object. */
 	virtual GObject *clone_() const = 0;
-	/** @brief The transfer function needed to calculate the externally visible value */
-	virtual T transfer(const T&) const = 0;
 	/** @brief Randomly initializes the parameter (within its limits) */
 	virtual void randomInit_() = 0;
 

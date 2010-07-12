@@ -48,7 +48,7 @@
 #include "GBrokerEA.hpp"
 #include "GIndividual.hpp"
 #include "GAsioTCPConsumerT.hpp"
-#include "GAsioTCPClient.hpp"
+#include "GAsioTCPClientT.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GBoundedDoubleCollection.hpp"
 
@@ -114,7 +114,7 @@ int main(int argc, char **argv){
 
 	// If this is a client in networked mode, we can just start the listener
 	if(parallelizationMode==2 && !serverMode) {
-		boost::shared_ptr<GAsioTCPClient> p(new GAsioTCPClient(ip, boost::lexical_cast<std::string>(port)));
+		boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(maxStalls); // Loop maxStalls when receiving no work items before terminating. 0 means "loop indefinitely"
 		p->setMaxConnectionAttempts(maxConnAttempts); // Try up to maxConnAttempts times to connect to the server before terminating

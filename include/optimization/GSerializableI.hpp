@@ -46,7 +46,7 @@
 
 
 // Geneva header files go here
-#include "GEnums.hpp" // For the serialization mode
+#include "GOptimizationEnums.hpp" // For the serialization mode
 
 namespace Gem {
 namespace GenEvA {

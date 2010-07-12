@@ -47,8 +47,8 @@
 #error "Error: No support for Boost.threads available."
 #endif
 
-#ifndef GSINGLETON_HPP_
-#define GSINGLETON_HPP_
+#ifndef GSINGLETONT_HPP_
+#define GSINGLETONT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -81,7 +81,7 @@ public:
 		static boost::shared_ptr<T> p;
 		static boost::mutex creation_mutex;
 
-		// Several callers can reach the next line/ simultaneously. Hence, if
+		// Several callers can reach the next line simultaneously. Hence, if
 		// p is empty, we need to ask again if it is empty after we have acquired the lock
 		if(!p) {
 			// Prevent concurrent "first" access
@@ -106,4 +106,4 @@ private:
 } /* namespace Util */
 } /* namespace Gem */
 
-#endif /* GSINGLETON_HPP_ */
+#endif /* GSINGLETONT_HPP_ */

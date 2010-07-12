@@ -1,5 +1,5 @@
 /**
- * @file GSerializationHelperFunctions.cpp
+ * @file GEnums.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,82 +27,10 @@
  * http://www.gemfony.com .
  */
 
-#include "GSerializationHelperFunctions.hpp"
+#include "GOptimizationEnums.hpp"
 
-namespace Gem
-{
-namespace GenEvA
-{
-
-/*********************************************************************/
-/**
- * Puts a Gem::GenEvA::serializationMode item into a stream
- *
- * @param o The ostream the item should be added to
- * @param serMode the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::serializationMode& serMode){
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(serMode);
-	o << tmp;
-	return o;
-}
-
-/*********************************************************************/
-/**
- * Reads a Gem::GenEvA::serializationMode item from a stream
- *
- * @param i The stream the item should be read from
- * @param serMode The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::serializationMode& serMode){
-	boost::uint16_t tmp;
-	i >> tmp;
-
-#ifdef DEBUG
-	serMode = boost::numeric_cast<Gem::GenEvA::serializationMode>(tmp);
-#else
-	serMode = static_cast<Gem::GenEvA::serializationMode>(tmp);
-#endif  /* DEBUG */
-
-	return i;
-}
-
-/*********************************************************************/
-/**
- * Puts a Gem::GenEvA::dataExchangeMode item into a stream
- *
- * @param o The ostream the item should be added to
- * @param exchMode the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::dataExchangeMode& exchMode){
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(exchMode);
-	o << tmp;
-	return o;
-}
-
-/*********************************************************************/
-/**
- * Reads a Gem::GenEvA::dataExchangeMode item from a stream
- *
- * @param i The stream the item should be read from
- * @param exchMode The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::dataExchangeMode& exchMode){
-	boost::uint16_t tmp;
-	i >> tmp;
-
-#ifdef DEBUG
-	exchMode = boost::numeric_cast<Gem::GenEvA::dataExchangeMode>(tmp);
-#else
-	exchMode = static_cast<Gem::GenEvA::dataExchangeMode>(tmp);
-#endif /* DEBUG */
-
-	return i;
-}
+namespace Gem {
+namespace GenEvA {
 
 /*********************************************************************/
 /**
@@ -112,7 +40,7 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::dataExchangeMode& exchMod
  * @param rc the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::recoScheme& rc){
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::recoScheme& rc) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(rc);
 	o << tmp;
 	return o;
@@ -126,7 +54,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::recoScheme& rc){
  * @param rc The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::recoScheme& rc){
+std::istream& operator>>(std::istream& i, Gem::GenEvA::recoScheme& rc) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -147,7 +75,7 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::recoScheme& rc){
  * @param im the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::infoMode& im){
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::infoMode& im) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(im);
 	o << tmp;
 	return o;
@@ -161,7 +89,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::infoMode& im){
  * @param im The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::infoMode& im){
+std::istream& operator>>(std::istream& i, Gem::GenEvA::infoMode& im) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -182,7 +110,7 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::infoMode& im){
  * @param aid the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::adaptorId& aid){
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::adaptorId& aid) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(aid);
 	o << tmp;
 	return o;
@@ -196,7 +124,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::adaptorId& aid){
  * @param aid The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::adaptorId& aid){
+std::istream& operator>>(std::istream& i, Gem::GenEvA::adaptorId& aid) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -217,7 +145,7 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::adaptorId& aid){
  * @param smode the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::sortingMode& smode){
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::sortingMode& smode) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(smode);
 	o << tmp;
 	return o;
@@ -231,7 +159,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::sortingMode& smode)
  * @param smode The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::sortingMode& smode){
+std::istream& operator>>(std::istream& i, Gem::GenEvA::sortingMode& smode) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
@@ -249,11 +177,11 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::sortingMode& smode){
  * Puts a Gem::GenEvA::personality item into a stream
  *
  * @param o The ostream the item should be added to
- * @param smode the item to be added to the stream
+ * @param pers the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::personality& smode){
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(smode);
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::personality& pers) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(pers);
 	o << tmp;
 	return o;
 }
@@ -263,17 +191,17 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::personality& smode)
  * Reads a Gem::GenEvA::personality item from a stream
  *
  * @param i The stream the item should be read from
- * @param smode The item read from the stream
+ * @param pers The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::personality& smode){
+std::istream& operator>>(std::istream& i, Gem::GenEvA::personality& pers) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	smode = boost::numeric_cast<Gem::GenEvA::personality>(tmp);
+	pers = boost::numeric_cast<Gem::GenEvA::personality>(tmp);
 #else
-	smode = static_cast<Gem::GenEvA::personality>(tmp);
+	pers = static_cast<Gem::GenEvA::personality>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -282,47 +210,4 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::personality& smode){
 /*********************************************************************/
 
 } /* namespace GenEvA */
-
-namespace Util {
-
-/*********************************************************************/
-/**
- * Puts a Gem::Util::triboolStates item into a stream
- *
- * @param o The ostream the item should be added to
- * @param tbs the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream& operator<<(std::ostream& o, const Gem::Util::triboolStates& tbs){
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(tbs);
-	o << tmp;
-	return o;
-}
-
-/*********************************************************************/
-/**
- * Reads a Gem::Util::triboolStates item from a stream
- *
- * @param i The stream the item should be read from
- * @param tbs The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream& operator>>(std::istream& i, Gem::Util::triboolStates& tbs){
-	boost::uint16_t tmp;
-	i >> tmp;
-
-#ifdef DEBUG
-	tbs = boost::numeric_cast<Gem::Util::triboolStates>(tmp);
-#else
-	tbs = static_cast<Gem::Util::triboolStates>(tmp);
-#endif /* DEBUG */
-
-	return i;
-}
-
-/*********************************************************************/
-
-
-} /* namespace Util */
-
 } /* namespace Gem */

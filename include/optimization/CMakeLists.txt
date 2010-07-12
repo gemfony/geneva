@@ -12,6 +12,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GBoundedInt32Collection.hpp
 	GBoundedNumT.hpp
 	GBrokerEA.hpp
+	GConstrainedIntegerT.hpp
 	GConstrainedNumT.hpp
 	GDouble.hpp
 	GDoubleCollection.hpp
@@ -23,7 +24,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GGDPersonalityTraits.hpp
 	GIdentityAdaptorT.hpp
 	GIndividual.hpp
-	GIndividualSerializationHelperFunctions.hpp
 	GInt32.hpp
 	GInt32Collection.hpp
 	GInt32FlipAdaptor.hpp
@@ -38,6 +38,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GObject.hpp
 	GObjectExpectationChecksT.hpp
 	GOptimizationAlgorithm.hpp
+	GOptimizationEnums.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp
 	GParameterCollectionT.hpp
@@ -53,6 +54,7 @@ SET ( OPTIMIZATIONINCLUDES
 #	GSwarm.hpp
 	GSwarmAdaptor.hpp
 	GSwarmPersonalityTraits.hpp
+	GTriboolSerialization.hpp
 )
 
 INSTALL ( FILES ${OPTIMIZATIONINCLUDES} DESTINATION include/optimization
