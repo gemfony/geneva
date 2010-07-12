@@ -53,6 +53,7 @@ SET ( OPTIMIZATIONINCLUDES
 #	GSwarm.hpp
 	GSwarmAdaptor.hpp
 	GSwarmPersonalityTraits.hpp
+	GTriboolSerialization.hpp
 )
 
 INSTALL ( FILES ${OPTIMIZATIONINCLUDES} DESTINATION include/optimization

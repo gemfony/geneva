@@ -63,7 +63,7 @@
 
 // Geneva headers go here
 
-#include "thirdparty/boost/GTriboolSerialization.hpp"
+#include "GTriboolSerialization.hpp"
 #include "GObject.hpp"
 #include "GRandom.hpp"
 #include "GEnums.hpp"
