@@ -100,7 +100,7 @@ namespace Gem
     const double DEFAULTNNMINSIGMA=0.001;
     const double DEFAULTNNMAXSIGMA=2.;
     const double DEFAULTNNADPROB=0.05;
-    const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
+    const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
 
     namespace po = boost::program_options;
 
@@ -111,7 +111,7 @@ namespace Gem
 			, bool& serverMode
 			, std::string& ip
 			, unsigned short& port
-		    , serializationMode& serMode
+		    , Gem::Common::serializationMode& serMode
 			, trainingDataType& tdt
 			, std::string& trainingDataFile
 			, std::size_t& nDataSets

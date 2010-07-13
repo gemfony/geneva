@@ -87,7 +87,7 @@ const std::string DEFAULTCPDIR = "./";
 /**
  * The default serialization mode used for checkpointing
  */
-const serializationMode DEFAULTCPSERMODE = Gem::GenEvA::BINARYSERIALIZATION;
+const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATIONMODE_BINARY;
 
 /******************************************************************************************/
 /**
@@ -155,9 +155,9 @@ public:
 	std::string getCheckpointDirectory() const;
 
 	/** @brief Determines whether checkpointing should be done in Text-, XML- or Binary-mode */
-	void setCheckpointSerializationMode(const serializationMode&);
+	void setCheckpointSerializationMode(const Gem::Common::serializationMode&);
 	/** @brief Retrieves the current checkpointing serialization mode */
-	serializationMode getCheckpointSerializationMode() const;
+	Gem::Common::serializationMode getCheckpointSerializationMode() const;
 
 	/** @brief Checks for equality with another GOptimizationAlgorithm object */
 	bool operator==(const GOptimizationAlgorithm&) const;
@@ -165,7 +165,7 @@ public:
 	bool operator!=(const GOptimizationAlgorithm&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Triggers the business logic of the optimization algorithm */
 	virtual void optimize(const boost::uint32_t& startIteration = 0);
@@ -363,7 +363,7 @@ private:
 	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file
 	std::string cpDirectory_; ///< The directory where checkpoint files should be stored
-	serializationMode cpSerMode_; ///< Determines whether checkpointing should be done in text-, XML, or binary mode
+	Gem::Common::serializationMode cpSerMode_; ///< Determines whether checkpointing should be done in text-, XML, or binary mode
 	double qualityThreshold_; ///< A threshold beyond which optimization is expected to stop
 	bool hasQualityThreshold_; ///< Specifies whether a qualityThreshold has been set
 	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization

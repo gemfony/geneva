@@ -137,7 +137,7 @@ GObject *GEvolutionaryAlgorithm::clone_() const  {
  * @return A boolean indicating whether both objects are equal
  */
 bool GEvolutionaryAlgorithm::operator==(const GEvolutionaryAlgorithm& cp) const {
-	using namespace Gem::Util;
+	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GEvolutionaryAlgorithm::operator==","cp", CE_SILENT);
 }
@@ -150,7 +150,7 @@ bool GEvolutionaryAlgorithm::operator==(const GEvolutionaryAlgorithm& cp) const 
  * @return A boolean indicating whether both objects are inequal
  */
 bool GEvolutionaryAlgorithm::operator!=(const GEvolutionaryAlgorithm& cp) const {
-	using namespace Gem::Util;
+	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GEvolutionaryAlgorithm::operator!=","cp", CE_SILENT);
 }
@@ -169,14 +169,13 @@ bool GEvolutionaryAlgorithm::operator!=(const GEvolutionaryAlgorithm& cp) const 
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GEvolutionaryAlgorithm::checkRelationshipWith(const GObject& cp,
-		const Gem::Util::expectation& e,
+		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
 		const std::string& y_name,
 		const bool& withMessages) const
 {
-    using namespace Gem::Util;
-    using namespace Gem::Util::POD;
+    using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GEvolutionaryAlgorithm *p_load = GObject::conversion_cast<GEvolutionaryAlgorithm>(&cp);
@@ -274,7 +273,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	}
 
 	switch(getCheckpointSerializationMode()) {
-	case Gem::GenEvA::TEXTSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_TEXT:
 		// Write the individuals' data to disc in text mode
 		{
 			boost::archive::text_oarchive oa(checkpointStream);
@@ -282,7 +281,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 		} // note: explicit scope here is essential so the oa-destructor gets called
 		break;
 
-	case Gem::GenEvA::XMLSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_XML:
 		// Write the individuals' data to disc in XML mode
 		{
 			boost::archive::xml_oarchive oa(checkpointStream);
@@ -290,7 +289,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 		} // note: explicit scope here is essential so the oa-destructor gets called
 		break;
 
-	case Gem::GenEvA::BINARYSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_BINARY:
 		// Write the individuals' data to disc in binary mode
 		{
 			boost::archive::binary_oarchive oa(checkpointStream);
@@ -331,7 +330,7 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 	}
 
 	switch(getCheckpointSerializationMode()) {
-	case Gem::GenEvA::TEXTSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_TEXT:
 		// Load the data from disc in text mode
 		{
 			boost::archive::text_iarchive ia(checkpointStream);
@@ -339,7 +338,7 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 		} // note: explicit scope here is essential so the ia-destructor gets called
 		break;
 
-	case Gem::GenEvA::XMLSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_XML:
 		// Load the data from disc in xml mode
 		{
 			boost::archive::xml_iarchive ia(checkpointStream);
@@ -347,7 +346,7 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 		} // note: explicit scope here is essential so the ia-destructor gets called
 		break;
 
-	case Gem::GenEvA::BINARYSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_BINARY:
 		// Load the data from disc in binary mode
 		{
 			boost::archive::binary_iarchive ia(checkpointStream);

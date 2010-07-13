@@ -50,73 +50,40 @@
 // GenEvA headers go here
 
 namespace Gem {
-
-namespace GenEvA {
-
-/**********************************************************************************************/
-/**
- * Needed so that server and client agree about the size of the headers and commands
- */
-const std::size_t COMMANDLENGTH=64;
-
-
-/**********************************************************************************************/
-/**
- * The allowed modes during data exchange with external programs
- */
-enum dataExchangeMode {
-	  BINARYEXCHANGE
-	, TEXTEXCHANGE
-};
-
-/**********************************************************************************************/
-/**
- * The serialization modes that are currently allowed
- */
-enum serializationMode {
-	  TEXTSERIALIZATION = 0
-	, XMLSERIALIZATION = 1
-	, BINARYSERIALIZATION = 2
-};
-
-/**********************************************************************************************/
-
-/** @brief Puts a Gem::GenEvA::serializationMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::serializationMode&);
-
-/** @brief Reads a Gem::GenEvA::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::serializationMode&);
-
-/** @brief Puts a Gem::GenEvA::dataExchangeMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::dataExchangeMode&);
-
-/** @brief Reads a Gem::GenEvA::dataExchangeMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::dataExchangeMode&);
-
-/**********************************************************************************************/
-
-} /* namespace GenEvA */
-
-//-----------------------------------------------------------------------------------------------
-
-namespace Util {
+namespace Common {
 
 /**********************************************************************************************/
 /**
  * Needed for the serialization of boost::logic::tribool
  */
 enum triboolStates {
-	  FALSE
-	, INDETERMINATE
-	, TRUE
+	  TBS_FALSE
+	, TBS_INDETERMINATE
+	, TBS_TRUE
 };
 
 /**********************************************************************************************/
 /** @brief Puts a Gem::Util::triboolStates into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Util::triboolStates&);
-
+std::ostream& operator<<(std::ostream&, const Gem::Common::triboolStates&);
 /** @brief Reads a Gem::Util::triboolStates from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Util::triboolStates&);
+std::istream& operator>>(std::istream&, Gem::Common::triboolStates&);
+
+/**********************************************************************************************/
+/**
+ * The serialization modes that are currently allowed
+ */
+enum serializationMode {
+	  SERIALIZATIONMODE_TEXT = 0
+	, SERIALIZATIONMODE_XML = 1
+	, SERIALIZATIONMODE_BINARY = 2
+};
+
+/**********************************************************************************************/
+
+/** @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Common::serializationMode&);
+/** @brief Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Common::serializationMode&);
 
 /**********************************************************************************************/
 /**
@@ -127,7 +94,7 @@ const bool CE_WITH_MESSAGES = true;
 
 /**********************************************************************************************/
 /**
- * Needed to express expectations in testing framework
+ * Needed to express expectations in testing framework. CE stands for "Check expectation".
  */
 enum expectation {
 	  CE_EQUALITY // bitwise equality of all checked components
@@ -137,10 +104,14 @@ enum expectation {
 
 /**********************************************************************************************/
 
-} /* namespace Util */
+/** @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Common::expectation&);
+/** @brief Reads a Gem::Common::expectation item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Common::expectation&);
 
+/**********************************************************************************************/
+
+} /* namespace Common */
 } /* namespace Gem */
-
-
 
 #endif /* GENUMS_HPP_ */

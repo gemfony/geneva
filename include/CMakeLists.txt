@@ -42,6 +42,7 @@ SET ( GENEVASHAREDINCLUDES
 	GSerializationHelperFunctionsT.hpp
 	GSingletonT.hpp
 	GThreadGroup.hpp
+	GTriboolSerialization.hpp
 	GUnitTestFrameworkT.hpp
 )
 

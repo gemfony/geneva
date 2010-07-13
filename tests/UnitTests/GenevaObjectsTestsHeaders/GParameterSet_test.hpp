@@ -69,7 +69,7 @@ public:
 		// Prepare printing of error messages in object comparisons
 		GEqualityPrinter gep("GParameterSet_test::no_failure_expected()",
 							 pow(10,-10),
-							 Gem::Util::CE_WITH_MESSAGES);
+							 Gem::Common::CE_WITH_MESSAGES);
 
 		// Default construction
 		GTestIndividual1 gpi;
@@ -153,7 +153,7 @@ public:
 			BOOST_CHECK(gpi_ser_cp != gpi_ser);
 
 			// Serialize gpi_ser and load into gpi_ser_cp, check equalities and similarities
-			BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+			BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
 			BOOST_CHECK(gep.isSimilar(gpi_ser_cp, gpi_ser));
 		}
 
@@ -176,7 +176,7 @@ public:
 			BOOST_CHECK(gpi_ser_cp != gpi_ser);
 
 			// Serialize gpi_ser and load into gpi_ser_cp, check equalities and similarities
-			BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(XMLSERIALIZATION), XMLSERIALIZATION));
+			BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
 			BOOST_CHECK(gep.isSimilar(gpi_ser_cp, gpi_ser));
 		}
 
@@ -200,7 +200,7 @@ public:
 			BOOST_CHECK(gpi_ser_cp != gpi_ser);
 
 			// Serialize gpi_ser and load into gpi_ser_cp, check equalities and similarities
-			BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+			BOOST_REQUIRE_NO_THROW(gpi_ser_cp.fromString(gpi_ser.toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
 			BOOST_CHECK(gep.isEqual(gpi_ser_cp, gpi_ser));
 		}
 

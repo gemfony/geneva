@@ -137,14 +137,13 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	virtual boost::optional<std::string> checkRelationshipWith(const std::vector<T>& cp_data,
-			const Gem::Util::expectation& e,
+			const Gem::Common::expectation& e,
 			const double& limit,
 			const std::string& caller,
 			const std::string& y_name,
 			const bool& withMessages) const
 	{
-	    using namespace Gem::Util;
-	    using namespace Gem::Util::POD;
+	    using namespace Gem::Common;
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
@@ -174,14 +173,13 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	virtual boost::optional<std::string> checkRelationshipWith(const GStdSimpleVectorInterfaceT<T>& cp,
-			const Gem::Util::expectation& e,
+			const Gem::Common::expectation& e,
 			const double& limit,
 			const std::string& caller,
 			const std::string& y_name,
 			const bool& withMessages) const
 	{
-	    using namespace Gem::Util;
-	    using namespace Gem::Util::POD;
+	    using namespace Gem::Common;
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;

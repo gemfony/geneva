@@ -97,7 +97,7 @@ public:
 	/** @brief Checks for inequality with another GSwarmAdaptor object */
 	bool operator!=(const GSwarmAdaptor&) const;
 	/** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled. */
-	boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Retrieves the id of the adaptor */
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const;

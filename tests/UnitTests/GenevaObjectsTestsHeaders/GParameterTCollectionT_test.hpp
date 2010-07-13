@@ -236,7 +236,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GParameterTCollectionT_no_failure_expected",
 						 pow(10,-10),
-						 Gem::Util::CE_WITH_MESSAGES);
+						 Gem::Common::CE_WITH_MESSAGES);
 
 	// A local random number generator
 	GRandom gr;
@@ -298,8 +298,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 		BOOST_CHECK(gptct_cp3 != gptct_cp2);
 
 		// Serialize cp2 and load into cp3, check inequalities and similarities
-		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-		//gptct_cp3.fromString(gptct_cp2.toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
+		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
+		//gptct_cp3.fromString(gptct_cp2.toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT);
 		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct));
 		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct_cp1));
 		BOOST_CHECK(gep.isSimilar(gptct_cp3, gptct_cp2));
@@ -315,7 +315,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 		BOOST_CHECK(gptct_cp3 != gptct_cp2);
 
 		// Serialize cp2 and load into cp3, check inequalities and similarities
-		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(XMLSERIALIZATION), XMLSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
 		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct));
 		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct_cp1));
 		BOOST_CHECK(gep.isSimilar(gptct_cp3, gptct_cp2));
@@ -331,7 +331,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 		BOOST_CHECK(gptct_cp3 != gptct_cp2);
 
 		// Serialize cp2 and load into cp3, check inequalities and similarities
-		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gptct_cp3.fromString(gptct_cp2.toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
 		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct));
 		BOOST_CHECK(gep.isInEqual(gptct_cp3, gptct_cp1));
 		BOOST_CHECK(gep.isEqual(gptct_cp3, gptct_cp2));

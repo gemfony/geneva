@@ -71,7 +71,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GGaussAdaptorT_no_failure_expected",
 						 pow(10,-10),
-						 Gem::Util::CE_WITH_MESSAGES);
+						 Gem::Common::CE_WITH_MESSAGES);
 
 	// A local random number generator
 	GRandom gr;
@@ -103,16 +103,16 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 	BOOST_CHECK(ggat5 == ggat3 && *ggat4_ptr == ggat2);
 
 	// Check (de-)serialization in different modes
-	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(TEXTSERIALIZATION),TEXTSERIALIZATION));
+	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(Gem::Common::SERIALIZATIONMODE_TEXT),Gem::Common::SERIALIZATIONMODE_TEXT));
 	BOOST_CHECK(gep.isSimilar(ggat5, ggat1));
 
 	ggat5 = ggat3; // reset
 	BOOST_CHECK(gep.isInEqual(ggat5, ggat1));
 
-	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(XMLSERIALIZATION),XMLSERIALIZATION));
+	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(Gem::Common::SERIALIZATIONMODE_XML),Gem::Common::SERIALIZATIONMODE_XML));
 	BOOST_CHECK(gep.isSimilar(ggat5, ggat1));
 	ggat5 = ggat3; // reset
-	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(BINARYSERIALIZATION),BINARYSERIALIZATION));
+	BOOST_CHECK_NO_THROW(ggat5.fromString(ggat1.toString(Gem::Common::SERIALIZATIONMODE_BINARY),Gem::Common::SERIALIZATIONMODE_BINARY));
 	BOOST_CHECK(gep.isInEqual(ggat5, ggat1));
 
 	// Check that we can set and retrieve sigma

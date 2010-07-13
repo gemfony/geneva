@@ -68,7 +68,7 @@
 
 
 // Geneva headers go here
-#include "GEnums.hpp"
+#include "GCommunicationEnums.hpp"
 #include "GConsumer.hpp"
 #include "GBrokerT.hpp"
 #include "GAsioHelperFunctions.hpp"
@@ -105,7 +105,7 @@ public:
 	 *
 	 * @param io_service A reference to the server's io_service
 	 */
-	GAsioServerSession(boost::asio::io_service& io_service, const serializationMode& serMod)
+	GAsioServerSession(boost::asio::io_service& io_service, const Gem::Common::serializationMode& serMod)
 	    : socket_(io_service)
 	    , serializationMode_(serMod)
 	{ /* nothing */ }
@@ -231,7 +231,7 @@ protected:
 	 * @return A single command that has been retrieved from a network socket
 	 */
 	std::string getSingleCommand(){
-	    char inbound_command[COMMANDLENGTH];
+	    char inbound_command[Gem::Communication::COMMANDLENGTH];
 
 	    try{
 	        // Read a command from the socket. This will remove it from the stream.
@@ -248,7 +248,7 @@ protected:
 	    }
 
 	    // Remove all leading or trailing white spaces from the command.
-	    return boost::algorithm::trim_copy(std::string(inbound_command, COMMANDLENGTH));
+	    return boost::algorithm::trim_copy(std::string(inbound_command, Gem::Communication::COMMANDLENGTH));
 	}
 
 	/*********************************************************************/
@@ -259,7 +259,7 @@ protected:
 	 */
 	void sendSingleCommand(const std::string& command){
 	    // Format the command ...
-	    std::string outbound_command = assembleQueryString(command, COMMANDLENGTH);
+	    std::string outbound_command = assembleQueryString(command, Gem::Communication::COMMANDLENGTH);
 	    // ... and tell the client
 	    try{
 	        boost::asio::write(socket_, boost::asio::buffer(outbound_command));
@@ -284,16 +284,16 @@ protected:
 	    itemString="";
 	    portid="";
 
-	    char inbound_header[COMMANDLENGTH];
+	    char inbound_header[Gem::Communication::COMMANDLENGTH];
 
 	    try{
 	        // Read the port id from the socket and translate it into a string
-	        boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
-	        portid = boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH)); // removes white spaces
+	        boost::asio::read(socket_, boost::asio::buffer(inbound_header,Gem::Communication::COMMANDLENGTH));
+	        portid = boost::algorithm::trim_copy(std::string(inbound_header, Gem::Communication::COMMANDLENGTH)); // removes white spaces
 
 	        // Read the data size from the socket and translate into a number
-	        boost::asio::read(socket_, boost::asio::buffer(inbound_header,COMMANDLENGTH));
-	        std::size_t dataSize = boost::lexical_cast<std::size_t>(boost::algorithm::trim_copy(std::string(inbound_header, COMMANDLENGTH)));
+	        boost::asio::read(socket_, boost::asio::buffer(inbound_header,Gem::Communication::COMMANDLENGTH));
+	        std::size_t dataSize = boost::lexical_cast<std::size_t>(boost::algorithm::trim_copy(std::string(inbound_header, Gem::Communication::COMMANDLENGTH)));
 
 	        // Read item data and transfer into itemString
 	        char *data_section = new char[dataSize];
@@ -320,16 +320,16 @@ protected:
 	            const std::string& serMode,
 	            const std::string& portId){
 	    // Format the command
-	    std::string outbound_command_header = assembleQueryString(command, COMMANDLENGTH);
+	    std::string outbound_command_header = assembleQueryString(command, Gem::Communication::COMMANDLENGTH);
 
 	    // Format the size header
-	    std::string outbound_size_header = assembleQueryString(boost::lexical_cast<std::string>(item.size()), COMMANDLENGTH);
+	    std::string outbound_size_header = assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Communication::COMMANDLENGTH);
 
 	    // Format a header for the serialization mode
-	    std::string serialization_header = assembleQueryString(serMode, COMMANDLENGTH);
+	    std::string serialization_header = assembleQueryString(serMode, Gem::Communication::COMMANDLENGTH);
 
 	    // Format the portId header
-	    std::string portid_header = assembleQueryString(portId, COMMANDLENGTH);
+	    std::string portid_header = assembleQueryString(portId, Gem::Communication::COMMANDLENGTH);
 
 	    // Write the serialized data to the socket. We use "gather-write" to send
 	    // command, header and data in a single write operation.
@@ -358,7 +358,7 @@ private:
 	const GAsioServerSession& operator=(const GAsioServerSession&); ///< Intentionally left undefined
 
 	boost::asio::ip::tcp::socket socket_; ///< The underlying socket
-	serializationMode serializationMode_; ///< Specifies the serialization mode
+	Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
 };
 
 /*********************************************************************/
@@ -390,7 +390,7 @@ public:
          acceptor_(work_->get_io_service(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
          listenerThreads_(listenerThreads>0?listenerThreads:boost::thread::hardware_concurrency()),
          tp_(listenerThreads_),
-         serializationMode_(TEXTSERIALIZATION)
+         serializationMode_(Gem::Common::SERIALIZATIONMODE_TEXT)
     {
         if(listenerThreads_ == 0) { // boost::thread::hardware_concurrency() has returned 0. Needs to be corrected.
             listenerThreads_ = GASIOTCPCONSUMERTHREADS;
@@ -439,19 +439,19 @@ public:
      *
      * @return The current serialization mode
      */
-    serializationMode getSerializationMode() const  {
+    Gem::Common::serializationMode getSerializationMode() const  {
         return serializationMode_;
     }
 
     /*********************************************************************/
     /**
      * Sets the serialization mode. The only allowed values of the enum serializationMode are
-     * BINARYSERIALIZATION, TEXTSERIALIZATION and XMLSERIALIZATION. The compiler does the
-     * error-checking for us.
+     * Gem::Common::SERIALIZATIONMODE_BINARY, Gem::Common::SERIALIZATIONMODE_TEXT and Gem::Common::SERIALIZATIONMODE_XML.
+     * The compiler does the error-checking for us.
      *
      * @param ser The new serialization mode
      */
-    void setSerializationMode(const serializationMode& ser)  {
+    void setSerializationMode(const Gem::Common::serializationMode& ser)  {
         serializationMode_ = ser;
     }
 
@@ -490,7 +490,7 @@ private:
 
 	boost::threadpool::pool tp_; ///< A simple threadpool, see http://threadpoo.sf.net
 
-	serializationMode serializationMode_; ///< Specifies the serialization mode
+	Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
 };
 
 /*********************************************************************/

@@ -139,7 +139,7 @@ GObject* GBoundedDouble::clone_() const {
  * @return A boolean indicating whether both objects are equal
  */
 bool GBoundedDouble::operator==(const GBoundedDouble& cp) const {
-	using namespace Gem::Util;
+	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBoundedDouble::operator==","cp", CE_SILENT);
 }
@@ -152,7 +152,7 @@ bool GBoundedDouble::operator==(const GBoundedDouble& cp) const {
  * @return A boolean indicating whether both objects are inequal
  */
 bool GBoundedDouble::operator!=(const GBoundedDouble& cp) const {
-	using namespace Gem::Util;
+	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBoundedDouble::operator!=","cp", CE_SILENT);
 }
@@ -171,14 +171,13 @@ bool GBoundedDouble::operator!=(const GBoundedDouble& cp) const {
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GBoundedDouble::checkRelationshipWith(const GObject& cp,
-		const Gem::Util::expectation& e,
+		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
 		const std::string& y_name,
 		const bool& withMessages) const
 {
-    using namespace Gem::Util;
-    using namespace Gem::Util::POD;
+    using namespace Gem::Common;
 
 	// Check for a possible self-assignment
     GObject::selfAssignmentCheck<GBoundedDouble>(&cp);

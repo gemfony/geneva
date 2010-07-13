@@ -110,7 +110,7 @@ public:
 	bool operator!=(const GDoubleGaussAdaptor&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Util::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Retrieves the id of this adaptor */
 	virtual Gem::GenEvA::adaptorId getAdaptorId() const;

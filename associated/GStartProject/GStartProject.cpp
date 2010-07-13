@@ -83,7 +83,7 @@ int main(int argc, char **argv){
   boost::uint32_t processingCycles;
   bool returnRegardless;
   boost::uint32_t waitFactor;
-  serializationMode serMode;
+  Gem::Common::serializationMode serMode;
 
   if(!parseCommandLine(argc, argv,
 		       configFile,			  

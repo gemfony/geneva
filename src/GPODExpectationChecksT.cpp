@@ -34,8 +34,7 @@
 #include "GPODExpectationChecksT.hpp"
 
 namespace Gem {
-namespace Util {
-namespace POD {
+namespace Common {
 
 /*************************************************************************************************/
 /**
@@ -58,7 +57,7 @@ boost::optional<std::string> checkExpectation (
 	  , const boost::logic::tribool& y
 	  , const std::string& x_name
 	  , const std::string& y_name
-	  , const Gem::Util::expectation& e
+	  , const Gem::Common::expectation& e
 	  , const double& limit
 )
 {
@@ -66,8 +65,8 @@ boost::optional<std::string> checkExpectation (
 	std::ostringstream message;
 
 	switch(e) {
-	case Gem::Util::CE_FP_SIMILARITY:
-	case Gem::Util::CE_EQUALITY:
+	case Gem::Common::CE_FP_SIMILARITY:
+	case Gem::Common::CE_EQUALITY:
 		if((x==true && y==true) ||
 		   (x==false && y==false) ||
 		   (boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {
@@ -75,8 +74,8 @@ boost::optional<std::string> checkExpectation (
 		}
 		break;
 
-	case Gem::Util::CE_INEQUALITY:
-		if(!Gem::Util::POD::checkExpectation(false, caller, x, y, x_name, y_name, Gem::Util::CE_EQUALITY, limit)) {
+	case Gem::Common::CE_INEQUALITY:
+		if(!checkExpectation(false, caller, x, y, x_name, y_name, Gem::Common::CE_EQUALITY, limit)) {
 			expectationMet = true;
 		}
 		break;
@@ -93,7 +92,7 @@ boost::optional<std::string> checkExpectation (
 		else if (y==false) y_string = "false";
 		else y_string = "indeterminate";
 
-		if(e==Gem::Util::CE_FP_SIMILARITY || e==Gem::Util::CE_EQUALITY) {
+		if(e==Gem::Common::CE_FP_SIMILARITY || e==Gem::Common::CE_EQUALITY) {
 			message << "In expectation check initiated by \"" << caller << "\" : "
 					<< "The two boost::logic::tribool parameters " << x_name << " " << y_name << " "
 					<< "are not equal even though this was expected. "
@@ -129,7 +128,7 @@ boost::optional<std::string> checkExpectation (
 boost::optional<std::string> evaluateDiscrepancies(const std::string& className,
 												   const std::string& caller,
 		                                           const std::vector<boost::optional<std::string> >& v,
-		                                           const Gem::Util::expectation& e)
+		                                           const Gem::Common::expectation& e)
 {
 	std::size_t nDiscrepancyChecks = v.size();
 	std::size_t nDiscrepanciesFound = 0;
@@ -139,8 +138,8 @@ boost::optional<std::string> evaluateDiscrepancies(const std::string& className,
 	boost::optional<std::string> receiver;
 
 	switch(e) {
-	case Gem::Util::CE_FP_SIMILARITY:
-	case Gem::Util::CE_EQUALITY:
+	case Gem::Common::CE_FP_SIMILARITY:
+	case Gem::Common::CE_EQUALITY:
 		for(cit=v.begin(); cit!=v.end(); ++cit) {
 			if(receiver = *cit) { // A message is held in the boost::optional<std::string> object
 				nDiscrepanciesFound++;
@@ -155,7 +154,7 @@ boost::optional<std::string> evaluateDiscrepancies(const std::string& className,
 		}
 		break;
 
-	case Gem::Util::CE_INEQUALITY:
+	case Gem::Common::CE_INEQUALITY:
 		for(cit=v.begin(); cit!=v.end(); ++cit) {
 			if(receiver = *cit) { // A message is held in the boost::optional<std::string> object
 				nDiscrepanciesFound++;
@@ -180,8 +179,5 @@ boost::optional<std::string> evaluateDiscrepancies(const std::string& className,
 
 /*************************************************************************************************/
 
-
-
-} /* namespace POD */
-} /* namespace Util */
+} /* namespace Common */
 } /* namespace Gem */

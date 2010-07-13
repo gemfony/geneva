@@ -107,11 +107,11 @@ public:
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
 						y
-					  , Gem::Util::CE_EQUALITY
+					  , Gem::Common::CE_EQUALITY
 					  , 0.
 					  , caller_
 					  , "y"
-					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
 
 		if(o) { // The expectation was not met
 			std::cout
@@ -145,11 +145,11 @@ public:
 		boost::optional<std::string> o =
 				x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::checkRelationshipWith(
 						y
-					  , Gem::Util::CE_EQUALITY
+					  , Gem::Common::CE_EQUALITY
 					  , 0.
 					  , caller_
 					  , "y"
-					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
 
 		if(o) { // The expectation was not met
 			std::cout
@@ -183,11 +183,11 @@ public:
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
 						y
-					  , Gem::Util::CE_INEQUALITY
+					  , Gem::Common::CE_INEQUALITY
 					  , 0.
 					  , caller_
 					  , "y"
-					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
 
 		if(o) { // The expectation was not met
 			std::cout
@@ -221,11 +221,11 @@ public:
 		boost::optional<std::string> o =
 				x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::checkRelationshipWith(
 						y
-					  , Gem::Util::CE_INEQUALITY
+					  , Gem::Common::CE_INEQUALITY
 					  , 0.
 					  , caller_
 					  , "y"
-					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
 
 		if(o) { // The expectation was not met
 			std::cout
@@ -260,11 +260,11 @@ public:
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
 						y
-					  , Gem::Util::CE_FP_SIMILARITY
+					  , Gem::Common::CE_FP_SIMILARITY
 					  , limit_
 					  , caller_
 					  , "y"
-					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
 
 		if(o) { // The expectation was not met
 			std::cout
@@ -301,11 +301,11 @@ public:
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
 						y
-					  , Gem::Util::CE_FP_SIMILARITY
+					  , Gem::Common::CE_FP_SIMILARITY
 					  , limit
 					  , caller_
 					  , "y"
-					  , emitMessages_?CE_WITH_MESSAGES:CE_SILENT);
+					  , emitMessages_?Gem::Common::CE_WITH_MESSAGES:Gem::Common::CE_SILENT);
 
 		if(o) { // The expectation was not met
 			std::cout

@@ -81,7 +81,7 @@ int main(int argc, char **argv){
 	long maxMinutes=10;
 	bool verbose=true;
 	recoScheme rScheme=VALUERECOMBINE;
-	serializationMode serMode;
+	Gem::Common::serializationMode serMode;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// Command-line parsing

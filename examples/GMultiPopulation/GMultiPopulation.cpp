@@ -96,7 +96,7 @@ int main(int argc, char **argv){
   double minSigma;
   double maxSigma;
   double adProb;
-  serializationMode serMode;
+  Gem::Common::serializationMode serMode;
 
   if(!parseCommandLine(argc, argv,
 		       configFile,			  
