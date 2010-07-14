@@ -92,7 +92,7 @@ int main(int argc, char **argv){
   bool maximize;
   bool productionPlace;
   bool randomFill;
-  serializationMode serMode;
+  Gem::Common::serializationMode serMode;
 
   if(!parseCommandLine(argc, argv,
 		       configFile,			  

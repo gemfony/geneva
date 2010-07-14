@@ -74,7 +74,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GParameterT_no_failure_expected",
 						 pow(10,-10),
-						 Gem::Util::CE_WITH_MESSAGES);
+						 Gem::Common::CE_WITH_MESSAGES);
 
 	// A local random number generator
 	GRandom gr;
@@ -113,7 +113,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 		T gpt4(gpt0);
 		BOOST_CHECK(gep.isEqual(gpt4, gpt0));
 
-		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
 		BOOST_CHECK(gep.isInEqual(gpt4, gpt0));
 		BOOST_CHECK(gep.isSimilar(gpt4, gpt1));
 	}
@@ -121,7 +121,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	{ // XML format
 		T gpt4(gpt0);
 		BOOST_CHECK(gep.isEqual(gpt4, gpt0));
-		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(XMLSERIALIZATION), XMLSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
 		BOOST_CHECK(gep.isInEqual(gpt4, gpt0));
 		BOOST_CHECK(gep.isSimilar(gpt4, gpt1));
 	}
@@ -129,7 +129,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 	{ // binary test format
 		T gpt4(gpt0);
 		BOOST_CHECK(gpt4 == gpt0);
-		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+		BOOST_CHECK_NO_THROW(gpt4.fromString(gpt1.toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
 		BOOST_CHECK(gpt4 != gpt0);
 		BOOST_CHECK(gpt4 == gpt1);
 	}

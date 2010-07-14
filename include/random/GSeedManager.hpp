@@ -76,7 +76,7 @@
 
 // GenEvA headers go here
 #include "GBoundedBufferT.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 #include "GExceptions.hpp"
 
 /****************************************************************************/

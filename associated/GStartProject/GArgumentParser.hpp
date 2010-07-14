@@ -55,7 +55,7 @@
 #endif
 
 // GenEvA headers go here
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 #include "GSerializationHelperFunctionsT.hpp"
 
 namespace Gem
@@ -88,7 +88,7 @@ namespace Gem
     const std::size_t DEFAULTPARDIM=100;
     const double DEFAULTMINVAR=-10.;
     const double DEFAULTMAXVAR=10.;
-    const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
+    const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
 
     namespace po = boost::program_options;
 
@@ -99,7 +99,7 @@ namespace Gem
 		  , bool& serverMode
 		  , std::string& ip
 		  , unsigned short& port
-		  , serializationMode& serMode
+		  , Gem::Common::serializationMode& serMode
 	);
 
     bool parseConfigFile(

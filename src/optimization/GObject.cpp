@@ -83,7 +83,7 @@ const GObject& GObject::operator=(const GObject& cp){
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GObject::checkRelationshipWith(const GObject& cp,
-					                                        const Gem::Util::expectation& e,
+					                                        const Gem::Common::expectation& e,
 					                                        const double& limit,
 					                                        const std::string& caller,
 					                                        const std::string& y_name,
@@ -100,7 +100,7 @@ boost::optional<std::string> GObject::checkRelationshipWith(const GObject& cp,
  * @return An XML description of the GObject-derivative the function is called for
  */
 std::string GObject::report() {
-	return toString(XMLSERIALIZATION);
+	return toString(Gem::Common::SERIALIZATIONMODE_XML);
 }
 
 /**************************************************************************************************/
@@ -110,12 +110,12 @@ std::string GObject::report() {
  * @param oarchive_stream The output stream the object should be written to
  * @param serMod The desired serialization mode
  */
-void GObject::toStream(std::ostream& oarchive_stream, const serializationMode& serMod) {
+void GObject::toStream(std::ostream& oarchive_stream, const Gem::Common::serializationMode& serMod) {
     GObject *local = this; // Serialization should happen through a base pointer
 
     switch(serMod)
     {
-    case TEXTSERIALIZATION:
+    case Gem::Common::SERIALIZATIONMODE_TEXT:
 		{
 			boost::archive::text_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
@@ -123,7 +123,7 @@ void GObject::toStream(std::ostream& oarchive_stream, const serializationMode& s
 
 		break;
 
-    case XMLSERIALIZATION:
+    case Gem::Common::SERIALIZATIONMODE_XML:
 		{
 			boost::archive::xml_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
@@ -131,7 +131,7 @@ void GObject::toStream(std::ostream& oarchive_stream, const serializationMode& s
 
 		break;
 
-    case BINARYSERIALIZATION:
+    case Gem::Common::SERIALIZATIONMODE_BINARY:
 		{
 			boost::archive::binary_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classhierarchyFromGObject", local);
@@ -149,13 +149,13 @@ void GObject::toStream(std::ostream& oarchive_stream, const serializationMode& s
  * @param serMod The desired serialization mode
  *
  */
-void GObject::fromStream(std::istream& istr, const serializationMode& serMod) {
+void GObject::fromStream(std::istream& istr, const Gem::Common::serializationMode& serMod) {
     // De-serialization and serialization should happen through a pointer to the same type.
     GObject *local = (GObject *)NULL;
 
     switch(serMod)
      {
-     case TEXTSERIALIZATION:
+     case Gem::Common::SERIALIZATIONMODE_TEXT:
  		{
 		    boost::archive::text_iarchive ia(istr);
 		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
@@ -163,7 +163,7 @@ void GObject::fromStream(std::istream& istr, const serializationMode& serMod) {
 
  		break;
 
-     case XMLSERIALIZATION:
+     case Gem::Common::SERIALIZATIONMODE_XML:
 		{
 		    boost::archive::xml_iarchive ia(istr);
 		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
@@ -171,7 +171,7 @@ void GObject::fromStream(std::istream& istr, const serializationMode& serMod) {
 
 		break;
 
-     case BINARYSERIALIZATION:
+     case Gem::Common::SERIALIZATIONMODE_BINARY:
  		{
 		    boost::archive::binary_iarchive ia(istr);
 		    ia >> boost::serialization::make_nvp("classhierarchyFromGObject", local);
@@ -193,7 +193,7 @@ void GObject::fromStream(std::istream& istr, const serializationMode& serMod) {
  * @param serMod The desired serialization mode
  * @return A text-representation of this class (or its derivative)
  */
-std::string GObject::toString(const serializationMode& serMod) {
+std::string GObject::toString(const Gem::Common::serializationMode& serMod) {
 	std::ostringstream oarchive_stream;
 	toStream(oarchive_stream, serMod);
     return oarchive_stream.str();
@@ -209,7 +209,7 @@ std::string GObject::toString(const serializationMode& serMod) {
  * @param descr A text representation of a GObject-derivative
 
  */
-void GObject::fromString(const std::string& descr, const serializationMode& serMod) {
+void GObject::fromString(const std::string& descr, const Gem::Common::serializationMode& serMod) {
     std::istringstream istr(descr);
     fromStream(istr, serMod);
 }
@@ -223,7 +223,7 @@ void GObject::fromString(const std::string& descr, const serializationMode& serM
  *
  * TODO: Error check whether the file is accessible / state of the stream
  */
-void GObject::toFile(const std::string& fileName, const serializationMode& serMod) {
+void GObject::toFile(const std::string& fileName, const Gem::Common::serializationMode& serMod) {
 	std::ofstream checkpointStream(fileName.c_str());
 	toStream(checkpointStream, serMod);
 	checkpointStream.close();
@@ -238,7 +238,7 @@ void GObject::toFile(const std::string& fileName, const serializationMode& serMo
  *
  * TODO: Error check whether the file is accessible / state of the stream
  */
-void GObject::fromFile(const std::string& fileName, const serializationMode& serMod) {
+void GObject::fromFile(const std::string& fileName, const Gem::Common::serializationMode& serMod) {
 	std::ifstream checkpointStream(fileName.c_str());
 	fromStream(checkpointStream, serMod);
 }

@@ -106,7 +106,7 @@ GOptimizationAlgorithm::~GOptimizationAlgorithm()
  * @return A boolean indicating whether both objects are equal
  */
 bool GOptimizationAlgorithm::operator==(const GOptimizationAlgorithm& cp) const {
-	using namespace Gem::Util;
+	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithm::operator==","cp", CE_SILENT);
 }
@@ -119,7 +119,7 @@ bool GOptimizationAlgorithm::operator==(const GOptimizationAlgorithm& cp) const 
  * @return A boolean indicating whether both objects are inequal
  */
 bool GOptimizationAlgorithm::operator!=(const GOptimizationAlgorithm& cp) const {
-	using namespace Gem::Util;
+	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithm::operator!=","cp", CE_SILENT);
 }
@@ -139,14 +139,13 @@ bool GOptimizationAlgorithm::operator!=(const GOptimizationAlgorithm& cp) const 
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
 boost::optional<std::string> GOptimizationAlgorithm::checkRelationshipWith(const GObject& cp,
-		const Gem::Util::expectation& e,
+		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
 		const std::string& y_name,
 		const bool& withMessages) const
 {
-    using namespace Gem::Util;
-    using namespace Gem::Util::POD;
+    using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
 	const GOptimizationAlgorithm *p_load = GObject::conversion_cast<GOptimizationAlgorithm>(&cp);
@@ -679,7 +678,7 @@ std::string GOptimizationAlgorithm::getCheckpointDirectory() const {
  *
  * @param cpSerMode The desired new checkpointing serialization mode
  */
-void GOptimizationAlgorithm::setCheckpointSerializationMode(const serializationMode& cpSerMode) {
+void GOptimizationAlgorithm::setCheckpointSerializationMode(const Gem::Common::serializationMode& cpSerMode) {
 	cpSerMode_ = cpSerMode;
 }
 
@@ -689,7 +688,7 @@ void GOptimizationAlgorithm::setCheckpointSerializationMode(const serializationM
  *
  * @return The current checkpointing serialization mode
  */
-serializationMode GOptimizationAlgorithm::getCheckpointSerializationMode() const {
+Gem::Common::serializationMode GOptimizationAlgorithm::getCheckpointSerializationMode() const {
 	return cpSerMode_;
 }
 

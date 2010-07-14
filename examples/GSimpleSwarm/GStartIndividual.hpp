@@ -59,7 +59,7 @@
 #include "GBoundedDouble.hpp"
 #include "GExceptions.hpp"
 #include "GGlobalOptionsT.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 
 namespace Gem
 {

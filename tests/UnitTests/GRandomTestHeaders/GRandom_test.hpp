@@ -46,11 +46,10 @@
 // Geneva header files go here
 #include "GExceptions.hpp"
 #include "GRandom.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;
-using namespace Gem::GenEvA;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;

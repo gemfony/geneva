@@ -65,7 +65,7 @@
 #endif
 
 // GenEvA headers go here
-#include "GEnums.hpp"
+#include "GCommunicationEnums.hpp"
 #include "GSerializationHelperFunctionsT.hpp"
 
 namespace Gem
@@ -212,7 +212,7 @@ protected:
 	 */
 	bool process(){
 		 // Store the current serialization mode
-		serializationMode serMode;
+		Gem::Common::serializationMode serMode;
 
 		// Get an item from the server
 		std::string istr, serModeStr, portId;
@@ -234,7 +234,7 @@ protected:
 			return false;
 		}
 
-		serMode = boost::lexical_cast<serializationMode>(serModeStr);
+		serMode = boost::lexical_cast<Gem::Common::serializationMode>(serModeStr);
 
 		// unpack the data and create a new object. Note that de-serialization must
 		// generally happen through the same type that was used for serialization.

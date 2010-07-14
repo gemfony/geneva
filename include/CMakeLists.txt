@@ -33,7 +33,7 @@ ADD_SUBDIRECTORY ( thirdparty )
 
 SET ( GENEVASHAREDINCLUDES
 	GBoundedBufferT.hpp
-	GEnums.hpp
+	GCommonEnums.hpp
 	GExceptions.hpp
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
@@ -42,6 +42,7 @@ SET ( GENEVASHAREDINCLUDES
 	GSerializationHelperFunctionsT.hpp
 	GSingletonT.hpp
 	GThreadGroup.hpp
+	GTriboolSerialization.hpp
 	GUnitTestFrameworkT.hpp
 )
 

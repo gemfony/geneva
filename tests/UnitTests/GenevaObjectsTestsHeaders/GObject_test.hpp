@@ -66,7 +66,7 @@ public:
 		// Prepare printing of error messages in object comparisons
 		GEqualityPrinter gep("GObject_test::no_failure_expected()"
 				             , pow(10,-10)
-				             , Gem::Util::CE_WITH_MESSAGES);
+				             , Gem::Common::CE_WITH_MESSAGES);
 
 		// Default construction
 		GBooleanAdaptor gba0;
@@ -78,25 +78,25 @@ public:
 		// text mode:
 		{ // Explicit scope results in the destruction of the contained objects
 			std::ostringstream stream;
-			stream << gba0.toString(TEXTSERIALIZATION);
+			stream << gba0.toString(Gem::Common::SERIALIZATIONMODE_TEXT);
 			GBooleanAdaptor gba1; // Create a new, pristine object
-			gba1.fromString(stream.str(),TEXTSERIALIZATION);
+			gba1.fromString(stream.str(),Gem::Common::SERIALIZATIONMODE_TEXT);
 			BOOST_CHECK(gep.isSimilar(gba1, gba0));
 		} // Explicit scope results in the destruction of the contained objects
 
 		{
 			std::ostringstream stream;
-			stream << gba0.toString(XMLSERIALIZATION);
+			stream << gba0.toString(Gem::Common::SERIALIZATIONMODE_XML);
 			GBooleanAdaptor gba1; // Create a new, pristine object
-			gba1.fromString(stream.str(),XMLSERIALIZATION);
+			gba1.fromString(stream.str(),Gem::Common::SERIALIZATIONMODE_XML);
 			BOOST_CHECK(gep.isSimilar(gba1, gba0));
 		}
 
 		{
 			std::ostringstream stream;
-			stream << gba0.toString(BINARYSERIALIZATION);
+			stream << gba0.toString(Gem::Common::SERIALIZATIONMODE_BINARY);
 			GBooleanAdaptor gba1; // Create a new, pristine object
-			gba1.fromString(stream.str(),BINARYSERIALIZATION); // We shpuld be able to achieve equality for this mode
+			gba1.fromString(stream.str(),Gem::Common::SERIALIZATIONMODE_BINARY); // We should be able to achieve equality for this mode
 			BOOST_CHECK(gep.isEqual(gba1, gba0));
 		}
 

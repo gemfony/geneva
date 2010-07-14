@@ -66,7 +66,7 @@ public:
 		// Prepare printing of error messages in object comparisons
 		GEqualityPrinter gep("GBoundedDouble_test::no_failure_expected()",
 							 pow(10,-10),
-							 Gem::Util::CE_WITH_MESSAGES);
+							 Gem::Common::CE_WITH_MESSAGES);
 
 		// Test instantiation in different modes
 		GBoundedDouble gbd0;
@@ -161,7 +161,7 @@ public:
 			BOOST_CHECK(gbd6_cp != gbd6);
 
 			// Serialize gbd6 and load into gbd6_co, check equalities and similarities
-			BOOST_CHECK_NO_THROW(gbd6_cp.fromString(gbd6.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+			BOOST_CHECK_NO_THROW(gbd6_cp.fromString(gbd6.toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
 			BOOST_CHECK(gep.isSimilar(gbd6_cp, gbd6));
 		}
 
@@ -178,7 +178,7 @@ public:
 			BOOST_CHECK(gbd6_cp != gbd6);
 
 			// Serialize gbd6 and load into gbd6_co, check equalities and similarities
-			BOOST_CHECK_NO_THROW(gbd6_cp.fromString(gbd6.toString(XMLSERIALIZATION), XMLSERIALIZATION));
+			BOOST_CHECK_NO_THROW(gbd6_cp.fromString(gbd6.toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
 			BOOST_CHECK(gep.isSimilar(gbd6_cp, gbd6));
 		}
 
@@ -195,7 +195,7 @@ public:
 			BOOST_CHECK(gbd6_cp != gbd6);
 
 			// Serialize gbd6 and load into gbd6_co, check equalities and similarities
-			BOOST_CHECK_NO_THROW(gbd6_cp.fromString(gbd6.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+			BOOST_CHECK_NO_THROW(gbd6_cp.fromString(gbd6.toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
 			BOOST_CHECK(gep.isEqual(gbd6_cp, gbd6));
 		}
 	}

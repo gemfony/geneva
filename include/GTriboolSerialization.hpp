@@ -46,7 +46,7 @@
 #endif
 
 // Geneva headers go here
-#include "GOptimizationEnums.hpp"
+#include "GCommonEnums.hpp"
 
 namespace boost {
 namespace serialization {
@@ -64,11 +64,11 @@ void save(Archive& ar,
           const boost::logic::tribool& val,
           unsigned int)
 {
-	Gem::Util::triboolStates tbs = Gem::Util::FALSE;
+	Gem::Common::triboolStates tbs = Gem::Common::TBS_FALSE;
 	if(val == true)
-		tbs = Gem::Util::TRUE;
+		tbs = Gem::Common::TBS_TRUE;
 	else if(boost::logic::indeterminate(val))
-		tbs = Gem::Util::INDETERMINATE;
+		tbs = Gem::Common::TBS_INDETERMINATE;
 
 	ar & make_nvp("tbs", tbs);
 }
@@ -82,19 +82,19 @@ void load(Archive& ar,
           boost::logic::tribool& val,
           unsigned int)
 {
-	Gem::Util::triboolStates tbs = Gem::Util::FALSE;
+	Gem::Common::triboolStates tbs = Gem::Common::TBS_FALSE;
 	ar & make_nvp("tbs", tbs);
 
 	switch(tbs) {
-	case Gem::Util::FALSE:
+	case Gem::Common::TBS_FALSE:
 		val=false;
 		break;
 
-	case Gem::Util::TRUE:
+	case Gem::Common::TBS_TRUE:
 		val=true;
 		break;
 
-	case Gem::Util::INDETERMINATE:
+	case Gem::Common::TBS_INDETERMINATE:
 		val=boost::logic::indeterminate;
 		break;
 	};

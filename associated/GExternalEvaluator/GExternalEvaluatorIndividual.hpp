@@ -41,6 +41,8 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <istream>
+#include <ostream>
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
@@ -67,7 +69,7 @@
 #include "GBooleanAdaptor.hpp"
 #include "GInt32FlipAdaptor.hpp"
 #include "GDataExchange.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 #include "GDoubleParameter.hpp"
 #include "GLongParameter.hpp"
 #include "GBoolParameter.hpp"
@@ -78,6 +80,51 @@ namespace Gem
 {
 namespace GenEvA
 {
+
+/************************************************************************************************/
+
+/**
+ * The allowed modes during data exchange with external programs
+ */
+enum dataExchangeMode {
+	  BINARYEXCHANGE
+	, TEXTEXCHANGE
+};
+
+/************************************************************************************************/
+/**
+ * Puts a Gem::GenEvA::dataExchangeMode item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param exchMode the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::dataExchangeMode& exchMode){
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(exchMode);
+	o << tmp;
+	return o;
+}
+
+/************************************************************************************************/
+/**
+ * Reads a Gem::GenEvA::dataExchangeMode item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param exchMode The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::GenEvA::dataExchangeMode& exchMode){
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	exchMode = boost::numeric_cast<Gem::GenEvA::dataExchangeMode>(tmp);
+#else
+	exchMode = static_cast<Gem::GenEvA::dataExchangeMode>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
 
 /************************************************************************************************/
 /**
@@ -347,7 +394,7 @@ class GExternalEvaluatorIndividual
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GExternalEvaluatorIndividual& cp) const {
-		using namespace Gem::Util;
+		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GExternalEvaluatorIndividual::operator==","cp", CE_SILENT);
 	}
@@ -360,7 +407,7 @@ class GExternalEvaluatorIndividual
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GExternalEvaluatorIndividual& cp) const {
-		using namespace Gem::Util;
+		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GExternalEvaluatorIndividual::operator!=","cp", CE_SILENT);
 	}
@@ -379,14 +426,13 @@ class GExternalEvaluatorIndividual
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Util::expectation& e,
+			const Gem::Common::expectation& e,
 			const double& limit,
 			const std::string& caller,
 			const std::string& y_name,
 			const bool& withMessages) const
 			{
-		using namespace Gem::Util;
-		using namespace Gem::Util::POD;
+		using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
 		const GExternalEvaluatorIndividual *p_load = conversion_cast<GExternalEvaluatorIndividual>(&cp);
@@ -408,7 +454,7 @@ class GExternalEvaluatorIndividual
 		deviations.push_back(checkExpectation(withMessages, "GExternalEvaluatorIndividual", glong_ptr_, p_load->glong_ptr_, "glong_ptr_", "p_load->glong_ptr_", e , limit));
 
 		return evaluateDiscrepancies("GExternalEvaluatorIndividual", caller, deviations, e);
-			}
+	}
 
 	/********************************************************************************************/
 	/**

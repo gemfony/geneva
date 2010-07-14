@@ -177,7 +177,7 @@ public:
 
 	/** @brief Checks whether a given expectation is fulfilled. */
 	boost::optional<std::string> checkRelationshipWith(const networkData&,
-			const Gem::Util::expectation&,
+			const Gem::Common::expectation&,
 			const double&,
 			const std::string&,
 			const std::string&,

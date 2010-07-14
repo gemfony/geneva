@@ -1,5 +1,5 @@
 /**
- * @file GAsioHelperFunctions.hpp
+ * @file GCommunicationEnums.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,24 +27,21 @@
  * http://www.gemfony.com .
  */
 
-// Standard headers go here
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
+// Standard headers go here
 #include <string>
-#include <sstream>
-#include <vector>
-#include <cmath>
-#include <cfloat>
-#include <climits>
+#include <ostream>
+#include <istream>
+
+// Includes check for correct Boost version(s)
+#include "GGlobalDefines.hpp"
 
 // Boost headers go here
-#include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
 
-#ifndef GASIOHELPERFUNCTIONS_HPP_
-#define GASIOHELPERFUNCTIONS_HPP_
+#include <boost/cstdint.hpp>
+
+#ifndef GCOMMUNICATIONENUMS_HPP_
+#define GCOMMUNICATIONENUMS_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -52,24 +49,20 @@
 #endif
 
 // GenEvA headers go here
-#include "GCommunicationEnums.hpp"
-#include "GExceptions.hpp"
+#include "GCommonEnums.hpp" // global enumerations and defines
 
-namespace Gem
-{
-namespace GenEvA
-{
+namespace Gem {
+namespace Communication {
 
-/**********************************************************************************/
-/** @brief Assembles a query string from a given command */
-std::string assembleQueryString(const std::string&, const std::size_t&);
+/**********************************************************************************************/
+/**
+ * Needed so that server and client agree about the size of the headers and commands
+ */
+const std::size_t COMMANDLENGTH=64;
 
-/** @brief Extracts the size of ASIO's data section from a C string. */
-std::size_t extractDataSize(const char*, const std::size_t&);
+/**********************************************************************************************/
 
-/**********************************************************************************/
-
-} /* namespace GenEvA */
+} /* namespace Communication */
 } /* namespace Gem */
 
-#endif /* GASIOHELPERFUNCTIONS_HPP_ */
+#endif /* GCOMMUNICATIONENUMS_HPP_ */

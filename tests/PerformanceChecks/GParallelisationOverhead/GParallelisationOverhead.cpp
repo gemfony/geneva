@@ -79,7 +79,7 @@ int main(int argc, char **argv){
 	boost::uint32_t processingCycles;
 	boost::uint32_t waitFactor;
 	std::size_t nVariables;
-	serializationMode serMode;
+	Gem::Common::serializationMode serMode;
 	boost::uint32_t maxStalls;
 	boost::uint32_t maxConnAttempts;
 	std::vector<long> sleepSeconds, sleepMilliSeconds;

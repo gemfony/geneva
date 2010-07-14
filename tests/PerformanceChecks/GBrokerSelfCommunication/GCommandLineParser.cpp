@@ -47,7 +47,7 @@ bool parseCommandLine(int argc, char **argv,
 					  long& maxMinutes,
 					  boost::uint32_t& reportGeneration,
 					  recoScheme& rScheme,
-					  serializationMode& serMode,
+					  Gem::Common::serializationMode& serMode,
 					  bool& verbose)
 {
 	boost::uint16_t recombinationScheme;
@@ -73,7 +73,7 @@ bool parseCommandLine(int argc, char **argv,
 					"The number of generations after which information should be emitted")
 			("rScheme,r",po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
 					"The recombination scheme")
-			("serMode", po::value<Gem::GenEvA::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
+			("serMode", po::value<Gem::Common::serializationMode>(&serMode)->default_value(DEFAULTSERMODE),
 					"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 			("verbose,v",po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
 					"Whether additional information should be emitted")

@@ -69,7 +69,7 @@
 
 
 // GenEvA headers go here
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 
 namespace Gem
 {
@@ -86,11 +86,11 @@ namespace Common
  * @return A string representation of gt_ptr
  */
 template <typename T>
-std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::GenEvA::serializationMode& serMod){
+std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode& serMod){
 	std::ostringstream oarchive_stream;
 
 	switch(serMod){
-	case Gem::GenEvA::TEXTSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_TEXT:
 		{
 			boost::archive::text_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
@@ -98,14 +98,14 @@ std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::GenEvA::se
 
 		break;
 
-	case Gem::GenEvA::XMLSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_XML:
 		{
 			boost::archive::xml_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
 		}
 		break;
 
-	case Gem::GenEvA::BINARYSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_BINARY:
 		{
 			boost::archive::binary_oarchive oa(oarchive_stream);
 			oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
@@ -127,12 +127,12 @@ std::string sharedPtrToString(boost::shared_ptr<T> gt_ptr, const Gem::GenEvA::se
  * @return A shared_ptr to the restored object
  */
 template <typename T>
-boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem::GenEvA::serializationMode& serMod){
+boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem::Common::serializationMode& serMod){
 	std::istringstream istr(gt_string);
 	boost::shared_ptr<T> gt_ptr;
 
 	switch(serMod){
-	case Gem::GenEvA::TEXTSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_TEXT:
 		{
 			boost::archive::text_iarchive ia(istr);
 			ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
@@ -140,7 +140,7 @@ boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem
 
 		break;
 
-	case Gem::GenEvA::XMLSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_XML:
 		{
 			boost::archive::xml_iarchive ia(istr);
 			ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
@@ -148,7 +148,7 @@ boost::shared_ptr<T> sharedPtrFromString(const std::string& gt_string, const Gem
 
 		break;
 
-	case Gem::GenEvA::BINARYSERIALIZATION:
+	case Gem::Common::SERIALIZATIONMODE_BINARY:
 		{
 			boost::archive::binary_iarchive ia(istr);
 			ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);

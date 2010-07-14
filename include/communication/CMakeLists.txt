@@ -9,6 +9,7 @@ SET ( COMMUNICATIONINCLUDES
 	GBoundedBufferWithIdT.hpp
 	GBrokerT.hpp
 	GBufferPortT.hpp
+	GCommunicationEnums.hpp
 	GConsumer.hpp
 )
 

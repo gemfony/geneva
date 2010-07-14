@@ -57,7 +57,7 @@
 #endif
 
 // GenEvA headers go here
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 #include "GSerializationHelperFunctionsT.hpp"
 
 namespace Gem
@@ -83,7 +83,7 @@ const boost::uint32_t DEFAULTPROCESSINGCYCLES=1;
 const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
 const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
 const std::size_t DEFAULTNVARIABLES=1000;
-const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
+const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
 const boost::uint32_t DEFAULTMAXSTALLS=0;
 const boost::uint32_t DEFAULTMAXCONNATTEMPT=600; // equals 10 minutes
 const std::string DEFAULTSLEEPSTRING="1/0";
@@ -97,7 +97,7 @@ bool parseCommandLine(int argc, char **argv,
 		bool& serverMode,
 		std::string& ip,
 		unsigned short& port,
-		serializationMode& serMode);
+		Gem::Common::serializationMode& serMode);
 
 bool parseConfigFile(const std::string& configFile,
 		boost::uint16_t& nProducerThreads,

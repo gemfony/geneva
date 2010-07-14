@@ -145,14 +145,13 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Util::expectation& e,
+			const Gem::Common::expectation& e,
 			const double& limit,
 			const std::string& caller,
 			const std::string& y_name,
 			const bool& withMessages) const
 	{
-	    using namespace Gem::Util;
-	    using namespace Gem::Util::POD;
+	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
 		const GParameterTCollectionT<T>  *p_load = GObject::conversion_cast<GParameterTCollectionT<T> >(&cp);
@@ -196,7 +195,9 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Compares another vector object with ours
+	 * Compares another vector object with ours.
+	 *
+	 * TODO: Attention: is GStdPtrVectorInterfaceT<T>::operator==(cp_data) defined ??
 	 */
 	bool operator==(const std::vector<boost::shared_ptr<T> >& cp_data) {
 		return GStdPtrVectorInterfaceT<T>::operator==(cp_data);

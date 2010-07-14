@@ -85,7 +85,7 @@ class GConsumer
 public:
 	/**********************************************************************************/
 	/**
-	 * The initialization of a consumer requires access to a brokero
+	 * The default constructor
 	 */
 	GConsumer()
 	{ /* nothing */ }

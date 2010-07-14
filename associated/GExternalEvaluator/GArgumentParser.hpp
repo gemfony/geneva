@@ -55,7 +55,7 @@
 #endif
 
 // GenEvA headers go here
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 #include "GSerializationHelperFunctionsT.hpp"
 
 namespace Gem
@@ -91,7 +91,7 @@ namespace Gem
     const bool DEFAULTMAXIMIZE=false;
     const bool DEFAULTPRODUCTIONPLACE=true; // local production of random numbers
     const bool DEFAULTRANDOMFILL=true; // whether template data should be filled randomly
-    const serializationMode DEFAULTSERMODE=Gem::GenEvA::TEXTSERIALIZATION;
+    const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
 
     namespace po = boost::program_options;
 
@@ -102,7 +102,7 @@ namespace Gem
 		  , bool& serverMode
 	      , std::string& ip
 		  , unsigned short& port
-		  , serializationMode& serMode
+		  , Gem::Common::serializationMode& serMode
 	);
 
     bool parseConfigFile(

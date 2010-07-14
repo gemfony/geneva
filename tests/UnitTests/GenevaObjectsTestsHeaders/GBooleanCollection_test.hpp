@@ -71,7 +71,7 @@ public:
 		// Prepare printing of error messages in object comparisons
 		GEqualityPrinter gep("GBooleanCollection_test::no_failure_expected()",
 							 pow(10,-10),
-							 Gem::Util::CE_WITH_MESSAGES);
+							 Gem::Common::CE_WITH_MESSAGES);
 
 		// Construction in different modes
 		GBooleanCollection gbc0; // default construction, should be empty
@@ -149,7 +149,7 @@ public:
 			BOOST_CHECK(gbc7_cp != gbc7);
 
 			// Serialize gbc7 and load into gbc7_cp, check equalities and similarities
-			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
+			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
 			BOOST_CHECK(gep.isSimilar(gbc7_cp, gbc7));
 		}
 
@@ -165,7 +165,7 @@ public:
 			BOOST_CHECK(gbc7_cp != gbc7);
 
 			// Serialize gbc7 and load into gbc7_cp, check equalities and similarities
-			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(XMLSERIALIZATION), XMLSERIALIZATION));
+			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
 			BOOST_CHECK(gep.isSimilar(gbc7_cp, gbc7));
 		}
 
@@ -181,7 +181,7 @@ public:
 			BOOST_CHECK(gbc7_cp != gbc7);
 
 			// Serialize gbc7 and load into gbc7_cp, check equalities and similarities
-			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+			BOOST_REQUIRE_NO_THROW(gbc7_cp.fromString(gbc7.toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
 			BOOST_CHECK(gep.isEqual(gbc7_cp, gbc7));
 		}
 	}

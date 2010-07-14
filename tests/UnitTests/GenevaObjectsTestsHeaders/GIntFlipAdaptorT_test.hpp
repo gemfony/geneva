@@ -70,7 +70,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GIntFlipAdaptorT_no_failure_expected",
 						 pow(10,-10),
-						 Gem::Util::CE_WITH_MESSAGES);
+						 Gem::Common::CE_WITH_MESSAGES);
 
 	// A local random number generator
 	GRandom gr;

@@ -56,7 +56,7 @@ using boost::unit_test_framework::test_case;
 #include "GEqualityPrinter.hpp"
 #include "GObject.hpp"
 #include "GExceptions.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 #include "GUnitTestFrameworkT.hpp"
 
 // For Microsoft-compatible compilers
@@ -74,7 +74,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("StandardTests_no_failure_expected",
 						 pow(10,-10),
-						 Gem::Util::CE_WITH_MESSAGES);
+						 Gem::Common::CE_WITH_MESSAGES);
 
 	//---------------------------------------------------------------------------//
 	// Tests of construction, loading, cloning, ...
@@ -190,8 +190,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		// BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(TEXTSERIALIZATION), TEXTSERIALIZATION));
-		T_ptr2->GObject::fromString(T_ptr1->GObject::toString(TEXTSERIALIZATION), TEXTSERIALIZATION);
+		// BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
+		T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT);
 		BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 	}
 
@@ -203,7 +203,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(XMLSERIALIZATION), XMLSERIALIZATION));
+		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
 		BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 	}
 
@@ -215,7 +215,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(BINARYSERIALIZATION), BINARYSERIALIZATION));
+		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
 		BOOST_CHECK(gep.isEqual(*T_ptr1, *T_ptr2));
 	}
 
@@ -236,7 +236,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("StandardTests_failures_expected",
 						 pow(10,-10),
-						 Gem::Util::CE_WITH_MESSAGES);
+						 Gem::Common::CE_WITH_MESSAGES);
 
 	{
 		// Checks that self-assignment throws in DEBUG mode

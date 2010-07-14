@@ -48,7 +48,7 @@
 #include "GRandom.hpp"
 #include "GAdaptorT.hpp"
 #include "GBooleanAdaptor.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;

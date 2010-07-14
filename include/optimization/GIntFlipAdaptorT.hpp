@@ -143,7 +143,7 @@ public:
 	 * @return A boolean indicating whether both objects are equal
 	 */
 	bool operator==(const GIntFlipAdaptorT<T>& cp) const {
-		using namespace Gem::Util;
+		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GIntFlipAdaptorT<T>::operator==","cp", CE_SILENT);
 	}
@@ -156,7 +156,7 @@ public:
 	 * @return A boolean indicating whether both objects are inequal
 	 */
 	bool operator!=(const GIntFlipAdaptorT<T>& cp) const {
-		using namespace Gem::Util;
+		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GIntFlipAdaptorT<T>::operator!=","cp", CE_SILENT);
 	}
@@ -175,14 +175,13 @@ public:
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
 	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Util::expectation& e,
+			const Gem::Common::expectation& e,
 			const double& limit,
 			const std::string& caller,
 			const std::string& y_name,
 			const bool& withMessages) const
 	{
-	    using namespace Gem::Util;
-	    using namespace Gem::Util::POD;
+	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
 		const GIntFlipAdaptorT<T>  *p_load = GObject::conversion_cast<GIntFlipAdaptorT<T> >(&cp);
@@ -195,7 +194,7 @@ public:
 
 		// no local data ...
 
-		return POD::evaluateDiscrepancies("GIntFlipAdaptor", caller, deviations, e);
+		return evaluateDiscrepancies("GIntFlipAdaptor", caller, deviations, e);
 	}
 
 	/********************************************************************************************/

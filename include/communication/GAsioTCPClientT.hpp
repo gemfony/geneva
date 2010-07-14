@@ -64,7 +64,7 @@
 #include "GSerializationHelperFunctionsT.hpp"
 #include "GBaseClientT.hpp"
 #include "GRandom.hpp"
-
+#include "GCommunicationEnums.hpp"
 
 namespace Gem
 {
@@ -107,15 +107,17 @@ public:
 	   , query_(server, port)
 	   , endpoint_iterator0_(resolver_.resolve(query_))
 	   , end_()
-	{ /* nothing */ }
+	{
+		tmpBuffer_ = new char[Gem::Communication::COMMANDLENGTH];
+	}
 
 	/***********************************************************************/
 	/**
-	 * A standard destructor. As we have no local, dynamically allocated
-	 * data, it is empty.
+	 * The standard destructor.
 	 */
-	virtual ~GAsioTCPClientT()
-	{ /* nothing */ }
+	virtual ~GAsioTCPClientT()	{
+		delete [] tmpBuffer_;
+	}
 
 	/**********************************************************************/
 	/**
@@ -179,13 +181,13 @@ protected:
 			}
 
 			// Let the server know we want an initial seed
-			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("getSeed", COMMANDLENGTH)));
+			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("getSeed", Gem::Communication::COMMANDLENGTH)));
 
 			// Read answer. The seed should have been sent by the server
-			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
+			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
 
 			// Remove all leading or trailing white spaces from the command
-			std::string inboundSeedString = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
+			std::string inboundSeedString = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
 			boost::uint32_t seed = boost::lexical_cast<boost::uint32_t>(inboundSeedString);
 
 			std::cout << "Received seed " << seed << " from the server" << std::endl;
@@ -258,28 +260,28 @@ protected:
 			}
 
 			// Let the server know we want work
-			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("ready", COMMANDLENGTH)));
+			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("ready", Gem::Communication::COMMANDLENGTH)));
 
 			// Read answer. First we care for the command sent by the server
-			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
+			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
 
 			// Remove all leading or trailing white spaces from the command
-			std::string inboundCommandString = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
+			std::string inboundCommandString = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
 
 			// Act on the command
 			if (inboundCommandString == "compute") {
 				// We have likely received data. Let's find out how big it is
-				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
-				std::string inboundHeader = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
+				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+				std::string inboundHeader = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
 				std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
 
 				// Now retrieve the serialization mode that was used
-				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
-				serMode = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
+				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+				serMode = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
 
 				// Retrieve the port id
-				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, COMMANDLENGTH));
-				portId = boost::algorithm::trim_copy(std::string(tmpBuffer_, COMMANDLENGTH));
+				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+				portId = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
 
 				// Create appropriately sized buffer
 				char *inboundData = new char[dataSize];
@@ -367,15 +369,15 @@ protected:
 	bool submit(const std::string& item, const std::string& portid) {
 		// Let's assemble an appropriate buffer
 		std::vector<boost::asio::const_buffer> buffers;
-		std::string result = assembleQueryString("result", COMMANDLENGTH); // The command
+		std::string result = assembleQueryString("result", Gem::Communication::COMMANDLENGTH); // The command
 		buffers.push_back(boost::asio::buffer(result));
 
 		// Assemble a buffer for the port id
-		std::string portidString = assembleQueryString(portid,COMMANDLENGTH);
+		std::string portidString = assembleQueryString(portid,Gem::Communication::COMMANDLENGTH);
 		buffers.push_back(boost::asio::buffer(portidString));
 
 		// Assemble the size header
-		std::string sizeHeader = assembleQueryString(boost::lexical_cast<std::string> (item.size()), COMMANDLENGTH);
+		std::string sizeHeader = assembleQueryString(boost::lexical_cast<std::string> (item.size()), Gem::Communication::COMMANDLENGTH);
 		buffers.push_back(boost::asio::buffer(sizeHeader));
 
 		// Finally take care of the data section.
@@ -497,7 +499,7 @@ private:
 
 	boost::uint32_t stalls_; ///< counter for stalled connection attempts
 
-	char tmpBuffer_[COMMANDLENGTH];
+	char *tmpBuffer_;
 
 	boost::asio::io_service io_service_; ///< Holds the Boost::ASIO::io_service object
 

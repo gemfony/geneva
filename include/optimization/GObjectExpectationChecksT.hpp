@@ -66,12 +66,11 @@
 #include "GPODExpectationChecksT.hpp"
 
 namespace Gem {
-namespace Util {
-namespace POD {
+namespace Common {
 
 /*
  * The functions in this file help to check whether GObject-derivatives (and collections thereof)
- * meet a given set of expections.
+ * meet a given set of expectations.
  */
 
 /*************************************************************************************************/
@@ -100,7 +99,7 @@ boost::optional<std::string> checkExpectation (
 	  , const boost::shared_ptr<geneva_type>& y
 	  , const std::string& x_name
 	  , const std::string& y_name
-	  , const Gem::Util::expectation& e
+	  , const Gem::Common::expectation& e
 	  , const double& limit = 0
 	  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 )
@@ -108,11 +107,11 @@ boost::optional<std::string> checkExpectation (
 	bool expectationMet = false;
 	std::ostringstream message;
 
-	std::string myCaller = "[Gem::Util::POD::checkExpectation(), called by " + caller + "]";
+	std::string myCaller = "[Gem::Common::checkExpectation(), called by " + caller + "]";
 
 	switch(e) {
-	case Gem::Util::CE_FP_SIMILARITY:
-	case Gem::Util::CE_EQUALITY:
+	case Gem::Common::CE_FP_SIMILARITY:
+	case Gem::Common::CE_EQUALITY:
 		// Check whether the pointers hold content
 		if(x && !y) {
 			if(withMessages) {
@@ -152,7 +151,7 @@ boost::optional<std::string> checkExpectation (
 
 		break;
 
-	case Gem::Util::CE_INEQUALITY:
+	case Gem::Common::CE_INEQUALITY:
 		// Check whether the pointers hold content
 		if((x && !y) || (!x && y)) {
 			expectationMet = true;
@@ -216,7 +215,7 @@ boost::optional<std::string> checkExpectation (
 	  , const std::vector<boost::shared_ptr<geneva_type> >& y
 	  , const std::string& x_name
 	  , const std::string& y_name
-	  , const Gem::Util::expectation& e
+	  , const Gem::Common::expectation& e
 	  , const double& limit = 0
 	  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 )
@@ -224,14 +223,14 @@ boost::optional<std::string> checkExpectation (
 	bool expectationMet = false;
 	std::ostringstream message;
 
-	std::string myCaller = "[Gem::Util::POD::checkExpectation(), called by " + caller + "]";
+	std::string myCaller = "[Gem::Common::checkExpectation(), called by " + caller + "]";
 
 	bool foundDeviation = false;
 	typename std::vector<boost::shared_ptr<geneva_type> >::const_iterator x_it, y_it;
 
 	switch(e) {
-	case Gem::Util::CE_FP_SIMILARITY:
-	case Gem::Util::CE_EQUALITY:
+	case Gem::Common::CE_FP_SIMILARITY:
+	case Gem::Common::CE_EQUALITY:
 		// Check whether all items are equal or similar
 		{
 			std::size_t failedIndex = 0;
@@ -277,7 +276,7 @@ boost::optional<std::string> checkExpectation (
 		}
 		break;
 
-	case Gem::Util::CE_INEQUALITY:
+	case Gem::Common::CE_INEQUALITY:
 		// Check whether at least one item is inequal
 		{
 			// Check sizes
@@ -320,8 +319,7 @@ boost::optional<std::string> checkExpectation (
 
 /*************************************************************************************************/
 
-} /* namespace POD */
-} /* namespace Util */
+} /* namespace Common */
 } /* namespace Gem */
 
 #endif /* GOBJECTEXPECTATIONCHECKST_HPP_ */

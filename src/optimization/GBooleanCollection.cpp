@@ -177,7 +177,7 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are equal
    */
   bool GBooleanCollection::operator==(const GBooleanCollection& cp) const {
-		using namespace Gem::Util;
+		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBooleanCollection::operator==","cp", CE_SILENT);
   }
@@ -190,7 +190,7 @@ namespace GenEvA
    * @return A boolean indicating whether both objects are inequal
    */
   bool GBooleanCollection::operator!=(const GBooleanCollection& cp) const {
-		using namespace Gem::Util;
+		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBooleanCollection::operator!=","cp", CE_SILENT);
   }
@@ -209,27 +209,26 @@ namespace GenEvA
    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
    */
   boost::optional<std::string> GBooleanCollection::checkRelationshipWith(const GObject& cp,
-  		const Gem::Util::expectation& e,
+  		const Gem::Common::expectation& e,
   		const double& limit,
   		const std::string& caller,
   		const std::string& y_name,
   		const bool& withMessages) const
   {
-	  using namespace Gem::Util;
-	  using namespace Gem::Util::POD;
+	  using namespace Gem::Common;
 
-	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GBooleanCollection>(&cp);
+	  // Check for a possible self-assignment
+	  GObject::selfAssignmentCheck<GBooleanCollection>(&cp);
 
-	// Will hold possible deviations from the expectation, including explanations
+	  // Will hold possible deviations from the expectation, including explanations
 	  std::vector<boost::optional<std::string> > deviations;
 
-	// Check our parent class'es data ...
-	deviations.push_back(GParameterCollectionT<bool>::checkRelationshipWith(cp, e, limit, "GBooleanCollection", y_name, withMessages));
+	  // Check our parent class'es data ...
+	  deviations.push_back(GParameterCollectionT<bool>::checkRelationshipWith(cp, e, limit, "GBooleanCollection", y_name, withMessages));
 
-	// no local data ...
+	  // no local data ...
 
-	return POD::evaluateDiscrepancies("GBooleanCollection", caller, deviations, e);
+	  return evaluateDiscrepancies("GBooleanCollection", caller, deviations, e);
   }
 
 #ifdef GENEVATESTING
