@@ -62,7 +62,7 @@
 #endif
 
 // Gemfony headers go here
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 
 namespace Gem {
 namespace Common {

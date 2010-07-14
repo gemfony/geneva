@@ -69,7 +69,7 @@
 #include "GBooleanAdaptor.hpp"
 #include "GInt32FlipAdaptor.hpp"
 #include "GDataExchange.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 #include "GDoubleParameter.hpp"
 #include "GLongParameter.hpp"
 #include "GBoolParameter.hpp"

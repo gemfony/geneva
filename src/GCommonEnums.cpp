@@ -1,5 +1,5 @@
 /**
- * @file GEnums.cpp
+ * @file GCommonEnums.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 
 namespace Gem
 {

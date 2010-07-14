@@ -64,7 +64,7 @@
 #include "GExceptions.hpp"
 #include "GGlobalOptionsT.hpp"
 #include "GObjectExpectationChecksT.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 
 #ifdef GENEVATESTING
 #include "GUnitTestFrameworkT.hpp"

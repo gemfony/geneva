@@ -56,7 +56,7 @@ using boost::unit_test_framework::test_case;
 #include "GEqualityPrinter.hpp"
 #include "GObject.hpp"
 #include "GExceptions.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 #include "GUnitTestFrameworkT.hpp"
 
 // For Microsoft-compatible compilers

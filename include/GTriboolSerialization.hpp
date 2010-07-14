@@ -46,7 +46,7 @@
 #endif
 
 // Geneva headers go here
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 
 namespace boost {
 namespace serialization {

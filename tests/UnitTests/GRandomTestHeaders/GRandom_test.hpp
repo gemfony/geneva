@@ -46,7 +46,7 @@
 // Geneva header files go here
 #include "GExceptions.hpp"
 #include "GRandom.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;

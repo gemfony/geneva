@@ -50,7 +50,7 @@
 #include "GIndividual.hpp"
 #include "GAsioTCPConsumerT.hpp"
 #include "GAsioTCPClientT.hpp"
-#include "GEnums.hpp"
+#include "GCommonEnums.hpp"
 #include "GThreadGroup.hpp"
 
 // The individual that should be optimized.

@@ -1,5 +1,5 @@
 /**
- * @file GEnums.hpp
+ * @file GCommonEnums.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
