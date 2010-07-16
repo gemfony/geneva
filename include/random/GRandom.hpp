@@ -221,7 +221,7 @@ public:
 	 * See e.g. http://en.wikipedia.org/wiki/Linear_congruential_generator for further
 	 * information.
 	 *
-	 * @return A random number evently distributed in [0,1[
+	 * @return A random number evenly distributed in [0,1[
 	 */
 	inline double evenRandomLocalProduction() {
 #ifdef DEBUG
