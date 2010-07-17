@@ -97,11 +97,11 @@ namespace Gem
     namespace po = boost::program_options;
 
     bool parseCommandLine(
-			int argc, char **argv
+		int argc, char **argv
 		  , std::string& configFile
 		  , boost::uint16_t& parallelizationMode
 		  , bool& serverMode
-	      , std::string& ip
+		  , std::string& ip
 		  , unsigned short& port
 		  , Gem::Common::serializationMode& serMode
 	);
