@@ -43,7 +43,7 @@ bool parseCommandLine(
 	  , std::string& configFile
 	  , boost::uint16_t& parallelizationMode
 	  , bool& serverMode
-      , std::string& ip
+	  , std::string& ip
 	  , unsigned short& port
 	  , Gem::Common::serializationMode& serMode
 ) {
