@@ -43,7 +43,7 @@
 #include "GBrokerEA.hpp"
 #include "GIndividual.hpp"
 #include "GAsioTCPConsumerT.hpp"
-#include "GAsioTCPClient.hpp"
+#include "GAsioTCPClientT.hpp"
 #include "GAsioHelperFunctions.hpp"
 
 // The individual that should be optimized
