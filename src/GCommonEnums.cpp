@@ -36,7 +36,7 @@ namespace Common
 
 /*********************************************************************/
 /**
- * Puts a Gem::Util::triboolStates item into a stream
+ * Puts a Gem::Common::triboolStates item into a stream
  *
  * @param o The ostream the item should be added to
  * @param tbs the item to be added to the stream
@@ -50,7 +50,7 @@ std::ostream& operator<<(std::ostream& o, const Gem::Common::triboolStates& tbs)
 
 /*********************************************************************/
 /**
- * Reads a Gem::Util::triboolStates item from a stream
+ * Reads a Gem::Common::triboolStates item from a stream
  *
  * @param i The stream the item should be read from
  * @param tbs The item read from the stream

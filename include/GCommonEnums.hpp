@@ -39,8 +39,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GENUMS_HPP_
-#define GENUMS_HPP_
+#ifndef GCOMMONENUMS_HPP_
+#define GCOMMONENUMS_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -114,4 +114,4 @@ std::istream& operator>>(std::istream&, Gem::Common::expectation&);
 } /* namespace Common */
 } /* namespace Gem */
 
-#endif /* GENUMS_HPP_ */
+#endif /* GCOMMONENUMS_HPP_ */
