@@ -59,6 +59,9 @@
 #include "GOptimizationEnums.hpp"
 #include "GSerializationHelperFunctionsT.hpp"
 
+// The enums
+#include "GExternalEvaluatorEnums.hpp"
+
 namespace Gem
 {
   namespace GenEvA

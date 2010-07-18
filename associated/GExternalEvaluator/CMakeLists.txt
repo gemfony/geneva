@@ -82,6 +82,7 @@ SET ( EXECUTABLENAME GExternalEvaluator )
 SET ( ${EXECUTABLENAME}_SRCS
 	GArgumentParser
 	GExternalEvaluator
+	GExternalEvaluatorEnums
 )
 
 SET ( CONFIGFILE

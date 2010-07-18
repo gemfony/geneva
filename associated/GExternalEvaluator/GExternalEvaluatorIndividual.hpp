@@ -41,8 +41,6 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include <istream>
-#include <ostream>
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
@@ -74,57 +72,16 @@
 #include "GLongParameter.hpp"
 #include "GBoolParameter.hpp"
 
+// The enums
+#include "GExternalEvaluatorEnums.hpp"
+
+
 namespace bf = boost::filesystem; // alias for ease of use
 
 namespace Gem
 {
 namespace GenEvA
 {
-
-/************************************************************************************************/
-
-/**
- * The allowed modes during data exchange with external programs
- */
-enum dataExchangeMode {
-	  BINARYEXCHANGE
-	, TEXTEXCHANGE
-};
-
-/************************************************************************************************/
-/**
- * Puts a Gem::GenEvA::dataExchangeMode item into a stream
- *
- * @param o The ostream the item should be added to
- * @param exchMode the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::dataExchangeMode& exchMode){
-	boost::uint16_t tmp = static_cast<boost::uint16_t>(exchMode);
-	o << tmp;
-	return o;
-}
-
-/************************************************************************************************/
-/**
- * Reads a Gem::GenEvA::dataExchangeMode item from a stream
- *
- * @param i The stream the item should be read from
- * @param exchMode The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::dataExchangeMode& exchMode){
-	boost::uint16_t tmp;
-	i >> tmp;
-
-#ifdef DEBUG
-	exchMode = boost::numeric_cast<Gem::GenEvA::dataExchangeMode>(tmp);
-#else
-	exchMode = static_cast<Gem::GenEvA::dataExchangeMode>(tmp);
-#endif /* DEBUG */
-
-	return i;
-}
 
 /************************************************************************************************/
 /**

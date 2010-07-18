@@ -45,6 +45,9 @@
 #include "GAsioTCPClientT.hpp"
 #include "GAsioHelperFunctions.hpp"
 
+// The enums
+#include "GExternalEvaluatorEnums.hpp"
+
 // The individual that should be optimized
 #include "GExternalEvaluatorIndividual.hpp"
 
