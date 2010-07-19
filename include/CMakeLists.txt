@@ -14,7 +14,7 @@ IF ( NOT VERSION_MINOR MATCHES "^[0-9]$" )
 	MESSAGE ( AUTHOR_WARNING "Wrong minor version number! (${VERSION_MINOR})" )
 ENDIF ( NOT VERSION_MINOR MATCHES "^[0-9]$" )
 
-# Allow additional sufixes like "rc1" in the patch number
+# Allow additional suffixes like "rc1" in the patch number
 IF ( NOT VERSION_PATCH MATCHES "^[0-9]" )
 	MESSAGE ( AUTHOR_WARNING "Wrong patch version number! (${VERSION_PATCH})" )
 ENDIF ( NOT VERSION_PATCH MATCHES "^[0-9]" )
