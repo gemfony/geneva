@@ -1,2 +1,2 @@
 RE:build/(?!README).*
-include/GGlobalDefines.hpp
+include/common/GGlobalDefines.hpp
