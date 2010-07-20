@@ -65,7 +65,7 @@
 
 namespace Gem
 {
-namespace Util
+namespace Communication
 {
 
 /**************************************************************************************/
@@ -110,7 +110,7 @@ private:
 
 /**************************************************************************************/
 
-} /* namespace Util */
+} /* namespace Communication */
 } /* namespace Gem */
 
 #endif /*GCONSUMER_HPP_*/

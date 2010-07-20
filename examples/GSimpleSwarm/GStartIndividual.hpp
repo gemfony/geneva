@@ -58,7 +58,6 @@
 #include "GBoundedDoubleCollection.hpp"
 #include "GBoundedDouble.hpp"
 #include "GExceptions.hpp"
-#include "GGlobalOptionsT.hpp"
 #include "GCommonEnums.hpp"
 
 namespace Gem

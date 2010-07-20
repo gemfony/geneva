@@ -57,7 +57,7 @@
 #include "GSingletonT.hpp"
 
 namespace Gem {
-namespace Util {
+namespace Common {
 
 /***************************************************************************/
 /**
@@ -148,11 +148,11 @@ private:
 
 /***************************************************************************/
 
-} /* namespace Util */
+} /* namespace Common */
 } /* namespace Gem */
 
 // Specialization for string options
-typedef Gem::Util::GSingletonT<Gem::Util::GGlobalOptionsT<std::string> > GStringOptions;
+typedef Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::string> > GStringOptions;
 #define GSTRINGOPTIONS GStringOptions::getInstance()
 
 #endif /* GGLOBALOPTIONST_HPP_ */

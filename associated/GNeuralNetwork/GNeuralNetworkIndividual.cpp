@@ -148,7 +148,7 @@ networkData::networkData(const networkData& cp)
 	: GStdSimpleVectorInterfaceT<std::size_t>(cp)
 	, currentIndex_(cp.currentIndex_)
 {
-	Gem::Util::copySmartPointerVector(cp.data_, data_);
+	Gem::Common::copySmartPointerVector(cp.data_, data_);
 }
 
 /************************************************************************************************/
@@ -169,7 +169,7 @@ networkData::~networkData()
  */
 const networkData& networkData::operator=(const networkData& cp) {
 	GStdSimpleVectorInterfaceT<std::size_t>::operator=(cp);
-	Gem::Util::copySmartPointerVector(cp.data_, data_);
+	Gem::Common::copySmartPointerVector(cp.data_, data_);
 	currentIndex_=cp.currentIndex_;
 	return *this;
 }

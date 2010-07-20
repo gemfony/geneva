@@ -173,10 +173,10 @@ private:
 	std::size_t arraySize_;
 	bool threadsHaveBeenStarted_;
 	boost::uint16_t n01Threads_; ///< The number of threads used to produce [0,1[ random numbers
-	GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
+	Gem::Common::GThreadGroup producer_threads_01_; ///< A thread group that holds [0,1[ producer threads
 
 	/** @brief A bounded buffer holding the [0,1[ random number packages */
-	boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > > g01_; // Note: Absolutely needs to be defined after the thread group !!!
+	boost::shared_ptr<Gem::Common::GBoundedBufferT<boost::shared_array<double> > > g01_; // Note: Absolutely needs to be defined after the thread group !!!
 
 	static boost::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
 	static boost::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
@@ -194,7 +194,7 @@ private:
 /**
  * A single, global random number factory is created as a singleton.
  */
-typedef Gem::Util::GSingletonT<Gem::Util::GRandomFactory> grfactory;
+typedef Gem::Common::GSingletonT<Gem::Util::GRandomFactory> grfactory;
 #define GRANDOMFACTORY grfactory::getInstance()
 
 #endif /* GRANDOMFACTORY_HPP_ */

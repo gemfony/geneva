@@ -57,7 +57,7 @@
 
 
 namespace Gem {
-namespace Util {
+namespace Common {
 
 /************************************************************************/
 /**
@@ -103,7 +103,7 @@ private:
 
 /************************************************************************/
 
-} /* namespace Util */
+} /* namespace Common */
 } /* namespace Gem */
 
 #endif /* GSINGLETONT_HPP_ */

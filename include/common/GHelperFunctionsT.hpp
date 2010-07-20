@@ -62,7 +62,7 @@
 
 namespace Gem
 {
-namespace Util
+namespace Common
 {
 
 
@@ -120,7 +120,7 @@ void copySmartPointerVector(const std::vector<boost::shared_ptr<T> >& from,
 
 /**************************************************************************************************/
 
-} /* namespace Util */
+} /* namespace Common */
 } /* namespace Gem */
 
 #endif /* GHELPERFUNCTIONST_HPP_ */

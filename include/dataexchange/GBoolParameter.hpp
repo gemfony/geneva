@@ -51,7 +51,7 @@
 #include "GNumericParameterT.hpp"
 
 namespace Gem {
-namespace Util {
+namespace Dataexchange {
 
 /*************************************************************************/
 /**
@@ -67,7 +67,7 @@ std::istream& operator>>(std::istream&, GBoolParameter&);
 
 /*************************************************************************/
 
-} /* namespace Util */
+} /* namespace Dataexchange */
 } /* namespace Gem */
 
 #endif /* GBOOLPARAMETER_HPP_ */

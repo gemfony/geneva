@@ -51,7 +51,7 @@
 #include "GNumericParameterT.hpp"
 
 namespace Gem {
-namespace Util {
+namespace Dataexchange {
 
 /*************************************************************************/
 /**
@@ -67,7 +67,7 @@ std::istream& operator>>(std::istream&, GDoubleParameter&);
 
 /*************************************************************************/
 
-} /* namespace Util */
+} /* namespace Dataexchange */
 } /* namespace Gem */
 
 #endif /* GDOUBLEPARAMETER_HPP_ */

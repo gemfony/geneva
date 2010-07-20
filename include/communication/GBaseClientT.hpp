@@ -70,7 +70,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Communication
 {
 
 /*********************************************************************************/
@@ -311,7 +311,7 @@ private:
 
 /*********************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Communication */
 } /* namespace Gem */
 
 #endif /* GBASECLIENTT_HPP_ */

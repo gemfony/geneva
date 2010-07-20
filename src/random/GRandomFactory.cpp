@@ -48,7 +48,7 @@ GRandomFactory::GRandomFactory()
 	: arraySize_(DEFAULTARRAYSIZE)
 	, threadsHaveBeenStarted_(false)
 	, n01Threads_(DEFAULT01PRODUCERTHREADS)
-	, g01_ (boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Util::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
+	, g01_ (boost::shared_ptr<Gem::Common::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Common::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
 	, seedManager_()
 {
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
@@ -217,7 +217,7 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 
 	try {
 		g01_->pop_back(&result, boost::posix_time::milliseconds(DEFAULTFACTORYGETWAIT));
-	} catch (Gem::Util::gem_util_condition_time_out&) {
+	} catch (Gem::Common::condition_time_out&) {
 		// nothing - our way of signaling a time out
 		// is to return an empty boost::shared_ptr
 	}
@@ -305,7 +305,7 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 			}
 
 			// Get a local copy of g01_, so its object does not get deleted involuntarily  when the singleton exits.
-			boost::shared_ptr<Gem::Util::GBoundedBufferT<boost::shared_array<double> > > g01_cp = g01_;
+			boost::shared_ptr<Gem::Common::GBoundedBufferT<boost::shared_array<double> > > g01_cp = g01_;
 			if(g01_cp) g01_cp->push_front(p);
 		}
 	} catch (boost::thread_interrupted&) { // Not an error

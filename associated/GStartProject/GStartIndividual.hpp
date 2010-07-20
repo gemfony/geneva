@@ -62,7 +62,6 @@
 #include "GBoundedDoubleCollection.hpp"
 #include "GBoundedDouble.hpp"
 #include "GExceptions.hpp"
-#include "GGlobalOptionsT.hpp"
 #include "GObjectExpectationChecksT.hpp"
 #include "GCommonEnums.hpp"
 

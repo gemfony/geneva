@@ -56,7 +56,7 @@ const double PARABOLAMAX=100.;
 
 int main(int argc, char **argv)
 {
-	Gem::Util::GDataExchange ge;
+	Gem::Dataexchange::GDataExchange ge;
 	boost::uint16_t executionMode, transferMode;
 	bool binary=true;
 	std::string paramfile;
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 		{
 			// Here we simply want PARABOLADIM double values with boundaries [PARABOLAMIN:PARABOLAMAX]
 			for(std::size_t i=0; i<PARABOLADIM; i++) {
-				ge.append(boost::shared_ptr<Gem::Util::GDoubleParameter>(new Gem::Util::GDoubleParameter(100., PARABOLAMIN, PARABOLAMAX)));
+				ge.append(boost::shared_ptr<Gem::Dataexchange::GDoubleParameter>(new Gem::Dataexchange::GDoubleParameter(100., PARABOLAMIN, PARABOLAMAX)));
 			}
 
 			ge.writeToFile(paramfile, binary);
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
 			boost::lagged_fibonacci607 lf(seed);
 
 			for(std::size_t i=0; i<PARABOLADIM; i++) {
-				ge.append(boost::shared_ptr<Gem::Util::GDoubleParameter>(new Gem::Util::GDoubleParameter(PARABOLAMIN+lf()*(PARABOLAMAX-PARABOLAMIN), PARABOLAMIN, PARABOLAMAX)));
+				ge.append(boost::shared_ptr<Gem::Dataexchange::GDoubleParameter>(new Gem::Dataexchange::GDoubleParameter(PARABOLAMIN+lf()*(PARABOLAMAX-PARABOLAMIN), PARABOLAMIN, PARABOLAMAX)));
 			}
 
 			ge.writeToFile(paramfile, binary);

@@ -99,11 +99,11 @@
 // GenEvA headers go here
 
 namespace Gem {
-namespace Util {
+namespace Common {
 
 /***********************************************************************************/
 /** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
-class gem_util_condition_time_out: public std::exception {};
+class condition_time_out: public std::exception {};
 
 /***********************************************************************************/
 /**
@@ -128,9 +128,9 @@ const std::size_t DEFAULTBUFFERSIZE = 10000;
  * timeouts for data sinks. This can be important in situations
  * where sources might permanently or temporarily go away (e.g. due
  * to network failure). The underlying data structure is a
- * std::deque. Access to it is protected by a mutex. The class works
- * with condition variables.  Note that this class assumes that an
- * operator= is available for the items stored in the buffer.
+ * std::deque. The class works with condition variables.  Note that
+ * this class assumes that an operator= is available for the items
+ * stored in the buffer.
  */
 template<typename T>
 class GBoundedBufferT
@@ -222,7 +222,7 @@ public:
 #ifdef DEBUG
 			std::cout << "Push timeout" << std::endl;
 #endif
-			throw Gem::Util::gem_util_condition_time_out();
+			throw Gem::Common::condition_time_out();
 		}
 		container_.push_front(item);
 		lock.unlock();
@@ -292,7 +292,7 @@ public:
 #ifdef DEBUG
 			std::cout << "pop timeout" << std::endl;
 #endif
-			throw Gem::Util::gem_util_condition_time_out();
+			throw Gem::Common::condition_time_out();
 		}
 		(*pItem) = container_.back();
 		container_.pop_back();
@@ -370,7 +370,7 @@ private:
 	GBoundedBufferT& operator = (const GBoundedBufferT&); ///< Disabled assign operator
 };
 
-} /* namespace Util */
+} /* namespace Common */
 } /* namespace Gem */
 
 #endif /* GBOUNDEDBUFFERT_HPP_ */

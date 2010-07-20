@@ -82,7 +82,7 @@
 
 
 namespace Gem {
-namespace Util {
+namespace Common {
 
 /******************************************************************************/
 /**
@@ -158,7 +158,7 @@ private:
 	mutable boost::mutex m_; ///< Needed to synchronize access to the vector
 };
 
-} /* namespace Util*/
+} /* namespace Common*/
 } /* namespace Gem */
 
 #endif /* GTHREADGROUP_HPP_ */

@@ -52,7 +52,7 @@
 #include "GBoundedBufferT.hpp"
 
 namespace Gem {
-namespace Util {
+namespace Communication {
 
 /**
  * These typedefs are needed as it is not clear whether we're running on a 64 or 32 bit
@@ -70,10 +70,12 @@ typedef boost::uint32_t PORTIDTYPE;
 /**
  * A small helper class that adds a unique id to the GBoundedBufferT class. Note
  * that, once it has been set, it may not be modified anymore.
+ *
+ * TODO: Move to Boost's unique identifier ?
  */
 template<typename T>
 class GBoundedBufferWithIdT
-	:public GBoundedBufferT<T>
+	:public Gem::Common::GBoundedBufferT<T>
 {
 public:
 	/***************************************************************/
@@ -81,7 +83,7 @@ public:
 	 * The default constructor.
 	 */
 	GBoundedBufferWithIdT()
-		: GBoundedBufferT<T>()
+		: Gem::Common::GBoundedBufferT<T>()
 		, id_(0)
 		, idSet_(false)
 	{ /* nothing */}
@@ -94,7 +96,7 @@ public:
 	 * @param capacity The desired size of the buffer
 	 */
 	explicit GBoundedBufferWithIdT(const std::size_t& capacity)
-		: GBoundedBufferT<T>(capacity)
+		: Gem::Common::GBoundedBufferT<T>(capacity)
 		, id_(0)
 		, idSet_(false)
 	{ /* nothing */}
@@ -137,7 +139,7 @@ private:
 };
 
 
-} /* namespace Util */
+} /* namespace Communication */
 } /* namespace Gem */
 
 #endif /* GBOUNDEDBUFFERWITHIDT_HPP_ */

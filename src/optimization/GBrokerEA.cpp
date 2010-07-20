@@ -353,7 +353,7 @@ void GBrokerEA::init() {
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::init();
 
-	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Util::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
+	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Communication::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
 	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
 }
 
@@ -498,7 +498,7 @@ void GBrokerEA::adaptChildren() {
 				else p.reset();
 			}
 		}
-		catch(Gem::Util::gem_util_condition_time_out&) {
+		catch(Gem::Common::condition_time_out&) {
 			// Find out whether we have exceeded a threshold
 			if(firstTimeOut_.total_microseconds() && ((microsec_clock::local_time()-startTime) > firstTimeOut_)){
 				std::ostringstream error;
@@ -566,7 +566,7 @@ void GBrokerEA::adaptChildren() {
 				}
 			}
 		}
-		catch(Gem::Util::gem_util_condition_time_out&) {
+		catch(Gem::Common::condition_time_out&) {
 			// Break if we have reached the timeout
 			totalElapsed = microsec_clock::local_time()-startTime;
 			if(waitFactor_ && (totalElapsed > maxAllowedElapsed)) break;

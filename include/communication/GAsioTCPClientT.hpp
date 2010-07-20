@@ -68,7 +68,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Communication
 {
 
 /***********************************************************************/
@@ -86,7 +86,7 @@ const boost::uint32_t ASIOMAXCONNECTIONATTEMPTS=10;
  */
 template <typename processable_type>
 class GAsioTCPClientT
- 	: public Gem::GenEvA::GBaseClientT<processable_type>
+ 	: public Gem::Communication::GBaseClientT<processable_type>
 {
 public:
 	/***********************************************************************/
@@ -514,7 +514,7 @@ private:
 
 /***********************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Communication */
 } /* namespace Gem */
 
 #endif /* GASIOTCPCLIENTT_HPP_ */

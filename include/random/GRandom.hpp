@@ -86,7 +86,6 @@
 // GenEvA headers go here
 
 #include "GBoundedBufferT.hpp"
-#include "GThreadGroup.hpp"
 #include "GRandomFactory.hpp"
 #include "GExceptions.hpp"
 
