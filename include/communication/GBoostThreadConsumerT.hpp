@@ -67,7 +67,7 @@
 #include "GThreadGroup.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Communication {
 
 const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
 
@@ -80,7 +80,7 @@ const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
  */
 template <class processable_object>
 class GBoostThreadConsumerT
-	:public Gem::Util::GConsumer
+	:public Gem::Communication::GConsumer
 {
 public:
 	/***************************************************************/
@@ -88,7 +88,7 @@ public:
 	 * The default constructor. Nothing special here.
 	 */
 	GBoostThreadConsumerT()
-		: Gem::Util::GConsumer()
+		: Gem::Communication::GConsumer()
 		, maxThreads_(DEFAULTGBTCMAXTHREADS)
 		, stop_(false)
 	{ /* nothing */ }
@@ -174,7 +174,7 @@ private:
 	void processItems(){
 		try{
 			boost::shared_ptr<processable_object> p;
-			Gem::Util::PORTIDTYPE id;
+			Gem::Communication::PORTIDTYPE id;
 			boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
 			while(true){
@@ -228,7 +228,7 @@ private:
 
 /***************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Communication */
 } /* namespace Gem */
 
 #endif /* GBOOSTTHREADCONSUMERT_HPP_ */

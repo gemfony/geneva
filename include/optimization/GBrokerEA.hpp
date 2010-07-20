@@ -123,7 +123,7 @@ namespace GenEvA
     ///////////////////////////////////////////////////////////////////////
 
   public:
-	typedef boost::shared_ptr<Gem::Util::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> > > GBufferPortT_ptr;
+	typedef boost::shared_ptr<Gem::Communication::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> > > GBufferPortT_ptr;
 
 	/** @brief The standard constructor */
     GBrokerEA();

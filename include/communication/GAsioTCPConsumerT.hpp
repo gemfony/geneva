@@ -76,7 +76,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Communication
 {
 
 const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
@@ -153,7 +153,7 @@ public:
 	        // Retrieve an item from the broker and submit it to the client.
 	        try{
 	            boost::shared_ptr<processable_type> p;
-	            Gem::Util::PORTIDTYPE id;
+	            Gem::Communication::PORTIDTYPE id;
 
 	            // Retrieve an item
 	            id = GBROKER( boost::shared_ptr<processable_type> )->get(p, timeout);
@@ -187,7 +187,7 @@ public:
 	            // into the GBufferPortT objects.
 	            boost::shared_ptr<processable_type> p = Gem::Common::sharedPtrFromString<processable_type>(itemString, serializationMode_);
 
-	            Gem::Util::PORTIDTYPE id = boost::lexical_cast<Gem::Util::PORTIDTYPE>(portid);
+	            Gem::Communication::PORTIDTYPE id = boost::lexical_cast<Gem::Communication::PORTIDTYPE>(portid);
 	            try {
 	                GBROKER( boost::shared_ptr<processable_type> )->put(id, p, timeout);
 	            }
@@ -370,7 +370,7 @@ private:
  */
 template <class processable_type>
 class GAsioTCPConsumerT
-	:public Gem::Util::GConsumer // note: GConsumer is non-copyable
+	:public Gem::Communication::GConsumer // note: GConsumer is non-copyable
 {
 public:
 
@@ -495,7 +495,7 @@ private:
 
 /*********************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Communication */
 } /* namespace Gem */
 
 #endif /*GASIOTCPCONSUMERT_HPP_*/

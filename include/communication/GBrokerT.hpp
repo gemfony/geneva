@@ -73,7 +73,7 @@
 #include "GThreadGroup.hpp"
 
 namespace Gem {
-namespace Util {
+namespace Communication {
 
 /**************************************************************************************/
 
@@ -358,11 +358,11 @@ private:
  * and only one Broker object exists that is constructed before main begins. All
  * external communication should refer to GBROKER(T).
  */
-#define GBROKER(T) Gem::Common::GSingletonT<Gem::Util::GBrokerT< T > >::getInstance()
+#define GBROKER(T) Gem::Common::GSingletonT<Gem::Communication::GBrokerT< T > >::getInstance()
 
 /**************************************************************************************/
 
-} /* namespace Util */
+} /* namespace Communication */
 } /* namespace Gem */
 
 #endif /* GBROKERT_HPP_ */

@@ -57,7 +57,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Communication
 {
 
 /**********************************************************************************/
@@ -69,7 +69,7 @@ std::size_t extractDataSize(const char*, const std::size_t&);
 
 /**********************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Communication */
 } /* namespace Gem */
 
 #endif /* GASIOHELPERFUNCTIONS_HPP_ */

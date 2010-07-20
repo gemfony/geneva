@@ -58,6 +58,7 @@
 #include "GInfoFunction.hpp"
 
 using namespace Gem::GenEvA;
+using namespace Gem::Communication;
 using namespace Gem::Util;
 
 /************************************************************************************************/
