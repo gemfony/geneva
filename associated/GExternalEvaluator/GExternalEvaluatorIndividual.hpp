@@ -732,7 +732,7 @@ class GExternalEvaluatorIndividual
 			}
 			GBoundedDoubleCollection::iterator gbdc_it;
 			for(gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++gbdc_it) {
-				boost::shared_ptr<Gem::Util::GDoubleParameter> dpar(new Gem::Util::GDoubleParameter((*gbdc_it)->value(), (*gbdc_it)->getLowerBoundary(), (*gbdc_it)->getUpperBoundary()));
+				boost::shared_ptr<Gem::Dataexchange::GDoubleParameter> dpar(new Gem::Dataexchange::GDoubleParameter((*gbdc_it)->value(), (*gbdc_it)->getLowerBoundary(), (*gbdc_it)->getUpperBoundary()));
 				gde_.append(dpar);
 			}
 
@@ -746,7 +746,7 @@ class GExternalEvaluatorIndividual
 			}
 			GBoundedInt32Collection::iterator gbic_it;
 			for(gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++gbic_it) {
-				boost::shared_ptr<Gem::Util::GLongParameter> ipar(new Gem::Util::GLongParameter((*gbic_it)->value(), (*gbic_it)->getLowerBoundary(), (*gbic_it)->getUpperBoundary()));
+				boost::shared_ptr<Gem::Dataexchange::GLongParameter> ipar(new Gem::Dataexchange::GLongParameter((*gbic_it)->value(), (*gbic_it)->getLowerBoundary(), (*gbic_it)->getUpperBoundary()));
 				gde_.append(ipar);
 			}
 
@@ -760,7 +760,7 @@ class GExternalEvaluatorIndividual
 			}
 			GBooleanCollection::iterator gbc_it;
 			for(gbc_it=gbc->begin(); gbc_it!=gbc->end(); ++gbc_it) {
-				boost::shared_ptr<Gem::Util::GBoolParameter> bpar(new Gem::Util::GBoolParameter(*gbc_it)); // no boundaries for booleans
+				boost::shared_ptr<Gem::Dataexchange::GBoolParameter> bpar(new Gem::Dataexchange::GBoolParameter(*gbc_it)); // no boundaries for booleans
 				gde_.append(bpar);
 			}
 		}
@@ -809,7 +809,7 @@ class GExternalEvaluatorIndividual
 		GBoundedDoubleCollection::iterator gbdc_it;
 		std::size_t pos;
 		for(pos=0, gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++pos, ++gbdc_it) {
-			boost::shared_ptr<Gem::Util::GDoubleParameter> gdp_ptr = gde_.parameterSet_at<double>(pos);
+			boost::shared_ptr<Gem::Dataexchange::GDoubleParameter> gdp_ptr = gde_.parameterSet_at<double>(pos);
 			(*gbdc_it)->resetBoundaries();
 			**gbdc_it = gdp_ptr->value();
 
@@ -840,7 +840,7 @@ class GExternalEvaluatorIndividual
 		// Now copy the items over
 		GBoundedInt32Collection::iterator gbic_it;
 		for(pos=0, gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++pos, ++gbic_it) {
-			boost::shared_ptr<Gem::Util::GLongParameter> glp_ptr = gde_.parameterSet_at<boost::int32_t>(pos);
+			boost::shared_ptr<Gem::Dataexchange::GLongParameter> glp_ptr = gde_.parameterSet_at<boost::int32_t>(pos);
 			(*gbic_it)->resetBoundaries();
 			**gbic_it = glp_ptr->value();
 
@@ -863,7 +863,7 @@ class GExternalEvaluatorIndividual
 		// Now copy the items over
 		GBooleanCollection::iterator gbc_it;
 		for(pos=0, gbc_it=gbc->begin(); gbc_it!=gbc->end(); ++pos, ++gbc_it) {
-			boost::shared_ptr<Gem::Util::GBoolParameter> gbp_ptr = gde_.parameterSet_at<bool>(pos);
+			boost::shared_ptr<Gem::Dataexchange::GBoolParameter> gbp_ptr = gde_.parameterSet_at<bool>(pos);
 			*gbc_it = gbp_ptr->value();
 		}
 
@@ -906,7 +906,7 @@ class GExternalEvaluatorIndividual
 	boost::shared_ptr<GBoundedDouble> gdbl_ptr_; ///< A template for GBoundedDouble objects
 	boost::shared_ptr<GBoundedInt32> glong_ptr_; ///< A template for GBoundedInt32 objects
 
-	Gem::Util::GDataExchange gde_; ///< takes care of the data exchange with external programs
+	Gem::Dataexchange::GDataExchange gde_; ///< takes care of the data exchange with external programs
  };
 
 } /* namespace GenEvA */

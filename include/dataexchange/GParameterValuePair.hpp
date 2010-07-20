@@ -83,7 +83,7 @@
 
 namespace Gem
 {
-namespace Util
+namespace Dataexchange
 {
 
 /********************************************************************************************/
@@ -156,7 +156,7 @@ public:
 
 /********************************************************************************************/
 
-} /* namespace Util */
+} /* namespace Dataexchange */
 } /* namespace Gem */
 
 #endif /* GPARAMETERVALUEPAIR_HPP_  */

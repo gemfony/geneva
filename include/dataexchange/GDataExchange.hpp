@@ -83,7 +83,7 @@
 
 namespace Gem
 {
-namespace Util
+namespace Dataexchange
 {
 
 /** @brief Set to the average number of decimal digits of a double number. This will likely be 15. */
@@ -382,7 +382,7 @@ std::istream& operator>>(std::istream&, GDataExchange&);
 
 /*************************************************************************/
 
-} /* namespace Util */
+} /* namespace Dataexchange */
 } /* namespace Gem */
 
 #endif /* GDATAEXCHANGE_HPP_ */

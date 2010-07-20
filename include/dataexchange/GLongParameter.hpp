@@ -53,7 +53,7 @@
 #include "GNumericParameterT.hpp"
 
 namespace Gem {
-namespace Util {
+namespace Dataexchange {
 
 /*************************************************************************/
 /**
@@ -69,7 +69,7 @@ std::istream& operator>>(std::istream&, GLongParameter&);
 
 /*************************************************************************/
 
-} /* namespace Util */
+} /* namespace Dataexchange */
 } /* namespace Gem */
 
 #endif /* GLONGPARAMETER_HPP_ */

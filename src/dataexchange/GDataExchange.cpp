@@ -38,11 +38,11 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Util::GDataExchange)
+BOOST_CLASS_EXPORT(Gem::Dataexchange::GDataExchange)
 
 namespace Gem
 {
-namespace Util
+namespace Dataexchange
 {
 
 /**************************************************************************/
@@ -1015,5 +1015,5 @@ std::istream& operator>>(std::istream& stream, GDataExchange& object) {
 
 /*************************************************************************/
 
-} /* namespace Util */
+} /* namespace Dataexchange */
 } /* namespace Gem */

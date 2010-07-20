@@ -77,7 +77,7 @@
 
 namespace Gem
 {
-namespace Util
+namespace Dataexchange
 {
 
 /*******************************************************************************/
@@ -568,7 +568,7 @@ template <> GNumericParameterT<bool>::GNumericParameterT(const bool&, const bool
 template <> GNumericParameterT<bool>::GNumericParameterT(const GNumericParameterT<bool>&);
 template <> void GNumericParameterT<bool>::setParameter(const bool&, const bool&, const bool&);
 
-} /* namespace Util */
+} /* namespace Dataexchange */
 } /* namespace Gem */
 
 #endif /* GNUMERICPARAMETERT_HPP_ */

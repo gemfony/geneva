@@ -35,7 +35,7 @@
 
 namespace Gem
 {
-namespace Util
+namespace Dataexchange
 {
 
 /***********************************************************************************************/
@@ -251,5 +251,5 @@ template <> bool GNumericParameterT<double>::isSimilarTo(const GNumericParameter
 
 /***********************************************************************************************/
 
-} /* namespace Util */
+} /* namespace Dataexchange */
 } /* namespace Gem */
