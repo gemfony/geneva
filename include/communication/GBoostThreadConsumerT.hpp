@@ -158,7 +158,7 @@ private:
 	const GBoostThreadConsumerT& operator=(const GBoostThreadConsumerT&); ///< Intentionally left undefined
 
 	std::size_t maxThreads_; ///< The maxumum number of allowed threads in the pool
-	Gem::Util::GThreadGroup gtg_; ///< Holds the processing threads
+	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
 
 	boost::mutex stopMutex_;
 	bool stop_; ///< Set to true if we are expected to stop
@@ -187,7 +187,7 @@ private:
 				try{
 					id = GBROKER(boost::shared_ptr<processable_object>)->get(p, timeout);
 				}
-				catch(Gem::Util::gem_util_condition_time_out &) { continue; }
+				catch(Gem::Common::condition_time_out &) { continue; }
 
 				if(p){
 					p->process();
@@ -195,7 +195,7 @@ private:
 					try{
 						GBROKER(boost::shared_ptr<processable_object>)->put(id, p, timeout);
 					}
-					catch(Gem::Util::gem_util_condition_time_out &) { continue; }
+					catch(Gem::Common::condition_time_out &) { continue; }
 				}
 			}
 		}

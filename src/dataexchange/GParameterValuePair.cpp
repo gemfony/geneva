@@ -101,9 +101,9 @@ namespace Gem
 	 * thus use an external helper function to carry out the procedure.
 	 */
 	const GParameterValuePair& GParameterValuePair::operator=(const GParameterValuePair& cp) {
-		copySmartPointerVector<GDoubleParameter>(cp.dArray_, dArray_); 		// Copy the double vector's content
-		copySmartPointerVector<GLongParameter>(cp.lArray_, lArray_); 			// Copy the long vector's content
-		copySmartPointerVector<GBoolParameter>(cp.bArray_, bArray_); 			// Copy the bool vector's content
+		Gem::Common::copySmartPointerVector<GDoubleParameter>(cp.dArray_, dArray_); 		// Copy the double vector's content
+		Gem::Common::copySmartPointerVector<GLongParameter>(cp.lArray_, lArray_); 			// Copy the long vector's content
+		Gem::Common::copySmartPointerVector<GBoolParameter>(cp.bArray_, bArray_); 			// Copy the bool vector's content
 
 		value_ = cp.value_;
 		hasValue_ = cp.hasValue_;

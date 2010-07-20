@@ -63,9 +63,9 @@ enum triboolStates {
 };
 
 /**********************************************************************************************/
-/** @brief Puts a Gem::Util::triboolStates into a stream. Needed also for boost::lexical_cast<> */
+/** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Common::triboolStates&);
-/** @brief Reads a Gem::Util::triboolStates from a stream. Needed also for boost::lexical_cast<> */
+/** @brief Reads a Gem::Common::triboolStates from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Common::triboolStates&);
 
 /**********************************************************************************************/

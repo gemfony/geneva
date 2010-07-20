@@ -105,7 +105,7 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	// We create a thread group of nClients threads + the server thread.
-	Gem::Util::GThreadGroup gtg;
+	Gem::Common::GThreadGroup gtg;
 
 	// Global settings
 	ip="localhost";

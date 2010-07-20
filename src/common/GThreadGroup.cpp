@@ -62,7 +62,7 @@
 #include "GThreadGroup.hpp"
 
 namespace Gem {
-namespace Util {
+namespace Common {
 
 /********************************************************************/
 /**
@@ -166,5 +166,5 @@ std::size_t GThreadGroup::size() const {
 
 /********************************************************************/
 
-} /* namespace Util*/
+} /* namespace Common*/
 } /* namespace Gem */

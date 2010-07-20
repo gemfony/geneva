@@ -68,7 +68,7 @@
 #include "GConsumer.hpp"
 #include "GExceptions.hpp"
 #include "GBufferPortT.hpp"
-#include "GBoundedBufferT.hpp"
+#include "GBoundedBufferWithIdT.hpp"
 #include "GSingletonT.hpp"
 #include "GThreadGroup.hpp"
 
@@ -348,7 +348,7 @@ private:
 	bool buffersPresentRaw_; ///< Set to true once the first "raw" bounded buffer has been enrolled
 	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled
 
-	GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
+	Gem::Common::GThreadGroup consumerThreads_; ///< Holds threads running GConsumer objects
 	std::vector<boost::shared_ptr<GConsumer> > consumerCollection_;
 };
 
@@ -358,7 +358,7 @@ private:
  * and only one Broker object exists that is constructed before main begins. All
  * external communication should refer to GBROKER(T).
  */
-#define GBROKER(T) Gem::Util::GSingletonT<Gem::Util::GBrokerT< T > >::getInstance()
+#define GBROKER(T) Gem::Common::GSingletonT<Gem::Util::GBrokerT< T > >::getInstance()
 
 /**************************************************************************************/
 

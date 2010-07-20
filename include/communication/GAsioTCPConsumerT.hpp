@@ -170,7 +170,7 @@ public:
 	                std::cout << information.str();
 	            }
 	        }
-	        catch(Gem::Util::gem_util_condition_time_out &gucto) {
+	        catch(Gem::Common::condition_time_out &gucto) {
 	            this->sendSingleCommand("timeout");
 	        }
 
@@ -191,7 +191,7 @@ public:
 	            try {
 	                GBROKER( boost::shared_ptr<processable_type> )->put(id, p, timeout);
 	            }
-	            catch(Gem::Util::gem_util_condition_time_out &gucto){ /* nothing we can do */ }
+	            catch(Gem::Common::condition_time_out &gucto){ /* nothing we can do */ }
 	        }
 	        else {
 	            std::ostringstream information;

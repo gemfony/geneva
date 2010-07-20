@@ -344,7 +344,7 @@ private:
 	std::size_t queueSize_;
 
 	/** @brief Holds a predefined number of unique seeds */
-	GBoundedBufferT<boost::uint32_t> seedQueue_;
+	Gem::Common::GBoundedBufferT<boost::uint32_t> seedQueue_;
 
 	/** The initial seed of the random seed sequence */
 	boost::uint32_t startSeed_;

@@ -132,7 +132,7 @@ INCLUDE_DIRECTORIES (
 
 LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src/common
-	${PROJECT_SOURCE_DIR}/src/dataexchange
+	${PROJECT_SOURCE_DIR}/src/dataexchange	
 	${PROJECT_SOURCE_DIR}/src/random
 	${PROJECT_SOURCE_DIR}/src/communication
 	${PROJECT_SOURCE_DIR}/src/optimization
