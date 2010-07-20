@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GGaussAdaptorT.hpp"
+#include "optimization/GGaussAdaptorT.hpp"
 
 namespace Gem {
 namespace GenEvA {

@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GInt32Collection.hpp"
+#include "optimization/GInt32Collection.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

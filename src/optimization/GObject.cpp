@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GObject.hpp"
+#include "optimization/GObject.hpp"
 
 namespace Gem {
 namespace GenEvA {

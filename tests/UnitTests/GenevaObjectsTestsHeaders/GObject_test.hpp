@@ -43,10 +43,10 @@
 #define GOBJECT_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GObject.hpp"
-#include "GBooleanAdaptor.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GObject.hpp"
+#include "optimization/GBooleanAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

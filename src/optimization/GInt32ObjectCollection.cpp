@@ -28,7 +28,7 @@
  */
 
 
-#include "GInt32ObjectCollection.hpp"
+#include "optimization/GInt32ObjectCollection.hpp"
 
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers

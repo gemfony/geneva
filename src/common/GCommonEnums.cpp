@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GCommonEnums.hpp"
+#include "common/GCommonEnums.hpp"
 
 namespace Gem
 {

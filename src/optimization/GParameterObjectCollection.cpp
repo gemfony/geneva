@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GParameterObjectCollection.hpp"
+#include "optimization/GParameterObjectCollection.hpp"
 
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers

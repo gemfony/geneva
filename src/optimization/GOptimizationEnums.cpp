@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GOptimizationEnums.hpp"
+#include "optimization/GOptimizationEnums.hpp"
 
 namespace Gem {
 namespace GenEvA {

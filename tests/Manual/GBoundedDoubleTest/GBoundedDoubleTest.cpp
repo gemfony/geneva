@@ -53,10 +53,9 @@
 #include <boost/cstdint.hpp>
 
 // GenEvA header files go here
-
-#include "GBoundedDouble.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GRandom.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GBoundedDouble.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
 
 using namespace Gem::GenEvA;
 using namespace boost;

@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GDoubleCollection.hpp"
+#include "optimization/GDoubleCollection.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

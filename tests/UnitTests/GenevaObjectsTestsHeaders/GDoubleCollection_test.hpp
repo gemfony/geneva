@@ -42,9 +42,9 @@
 #define GDOUBLECOLLECTION_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GDoubleCollection.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GDoubleCollection.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

@@ -31,7 +31,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GNumericParameterT.hpp"
+#include "dataexchange/GNumericParameterT.hpp"
 
 namespace Gem
 {

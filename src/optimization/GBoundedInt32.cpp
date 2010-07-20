@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GBoundedInt32.hpp"
+#include "optimization/GBoundedInt32.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

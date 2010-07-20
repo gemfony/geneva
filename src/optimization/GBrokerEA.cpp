@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GBrokerEA.hpp"
+#include "optimization/GBrokerEA.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

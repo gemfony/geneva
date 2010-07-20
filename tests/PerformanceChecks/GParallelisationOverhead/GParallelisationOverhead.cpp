@@ -42,15 +42,15 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 // GenEvA header files go here
-#include "GRandom.hpp"
-#include "GEvolutionaryAlgorithm.hpp"
-#include "GMultiThreadedEA.hpp"
-#include "GBrokerEA.hpp"
-#include "GIndividual.hpp"
-#include "GAsioTCPConsumerT.hpp"
-#include "GAsioTCPClientT.hpp"
-#include "GAsioHelperFunctions.hpp"
-#include "GBoundedDoubleCollection.hpp"
+#include "random/GRandom.hpp"
+#include "communication/GAsioTCPConsumerT.hpp"
+#include "communication/GAsioTCPClientT.hpp"
+#include "communication/GAsioHelperFunctions.hpp"
+#include "optimization/GEvolutionaryAlgorithm.hpp"
+#include "optimization/GMultiThreadedEA.hpp"
+#include "optimization/GBrokerEA.hpp"
+#include "optimization/GIndividual.hpp"
+#include "optimization/GBoundedDoubleCollection.hpp"
 
 // The individual that should be optimized
 #include "GDelayIndividual.hpp"

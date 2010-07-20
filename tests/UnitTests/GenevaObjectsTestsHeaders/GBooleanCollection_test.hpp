@@ -45,12 +45,12 @@
 #define GBOOLEANCOLLECTION_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GParameterBase.hpp"
-#include "GBooleanCollection.hpp"
-#include "GBooleanAdaptor.hpp"
-#include "GStdSimpleVectorInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GParameterBase.hpp"
+#include "optimization/GBooleanCollection.hpp"
+#include "optimization/GBooleanAdaptor.hpp"
+#include "optimization/GStdSimpleVectorInterfaceT.hpp"
 #include "GStdVectorInterface_test.hpp"
 #include "GEqualityPrinter.hpp"
 

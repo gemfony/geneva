@@ -49,16 +49,16 @@
 #define GPARAMETERT_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GParameterT.hpp"
-#include "GBoolean.hpp"
-#include "GBooleanAdaptor.hpp"
-#include "GInt32.hpp"
-#include "GInt32FlipAdaptor.hpp"
-#include "GInt32GaussAdaptor.hpp"
-#include "GDouble.hpp"
-#include "GDoubleGaussAdaptor.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GParameterT.hpp"
+#include "optimization/GBoolean.hpp"
+#include "optimization/GBooleanAdaptor.hpp"
+#include "optimization/GInt32.hpp"
+#include "optimization/GInt32FlipAdaptor.hpp"
+#include "optimization/GInt32GaussAdaptor.hpp"
+#include "optimization/GDouble.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

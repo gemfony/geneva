@@ -44,9 +44,9 @@
 #define GRANDOM_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GCommonEnums.hpp"
+#include "random/GRandom.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;

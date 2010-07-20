@@ -36,12 +36,12 @@
 #include <boost/lexical_cast.hpp>
 
 // GenEvA header files go here
-#include "GRandom.hpp"
-#include "GEvolutionaryAlgorithm.hpp"
-#include "GMultiThreadedEA.hpp"
-#include "GBrokerEA.hpp"
-#include "GIndividual.hpp"
-#include "GBoostThreadConsumerT.hpp"
+#include "random/GRandom.hpp"
+#include "communication/GBoostThreadConsumerT.hpp"
+#include "optimization/GEvolutionaryAlgorithm.hpp"
+#include "optimization/GMultiThreadedEA.hpp"
+#include "optimization/GBrokerEA.hpp"
+#include "optimization/GIndividual.hpp"
 
 // The individual that should be optimized
 #include "GFunctionIndividual.hpp"

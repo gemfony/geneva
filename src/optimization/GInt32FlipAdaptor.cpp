@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GInt32FlipAdaptor.hpp"
+#include "optimization/GInt32FlipAdaptor.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

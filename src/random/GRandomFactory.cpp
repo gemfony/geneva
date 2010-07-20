@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GRandomFactory.hpp"
+#include "random/GRandomFactory.hpp"
 
 namespace Gem {
 namespace Util {

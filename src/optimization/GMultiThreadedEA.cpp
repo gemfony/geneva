@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GMultiThreadedEA.hpp"
+#include "optimization/GMultiThreadedEA.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

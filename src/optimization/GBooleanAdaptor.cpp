@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GBooleanAdaptor.hpp"
+#include "optimization/GBooleanAdaptor.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

@@ -31,7 +31,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GDataExchange.hpp"
+#include "dataexchange/GDataExchange.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

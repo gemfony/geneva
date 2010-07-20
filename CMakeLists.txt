@@ -121,6 +121,7 @@ IF( BUILDTESTCODE )
 ENDIF()
 
 INCLUDE_DIRECTORIES (
+	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/include/common
 	${PROJECT_SOURCE_DIR}/include/dataexchange
 	${PROJECT_SOURCE_DIR}/include/random

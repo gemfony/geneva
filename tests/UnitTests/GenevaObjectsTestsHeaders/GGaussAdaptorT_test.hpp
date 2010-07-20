@@ -48,11 +48,11 @@
 #define GGAUSSADAPTORT_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GGaussAdaptorT.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GInt32GaussAdaptor.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GGaussAdaptorT.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "optimization/GInt32GaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

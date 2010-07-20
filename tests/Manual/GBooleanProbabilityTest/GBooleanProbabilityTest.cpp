@@ -46,9 +46,9 @@
 #include <boost/shared_ptr.hpp>
 
 // GenEvA header files go here
-#include "GBoolean.hpp"
-#include "GBooleanCollection.hpp"
-#include "GBooleanAdaptor.hpp"
+#include "optimization/GBoolean.hpp"
+#include "optimization/GBooleanCollection.hpp"
+#include "optimization/GBooleanAdaptor.hpp"
 
 using namespace boost;
 using namespace Gem;

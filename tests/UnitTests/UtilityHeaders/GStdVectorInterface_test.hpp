@@ -53,10 +53,10 @@
 #endif
 
 // Geneva headers go here
-#include "GHelperFunctionsT.hpp"
-#include "GStdSimpleVectorInterfaceT.hpp"
-#include "GStdPtrVectorInterfaceT.hpp"
-#include "GObject.hpp"
+#include "common/GHelperFunctionsT.hpp"
+#include "optimization/GStdSimpleVectorInterfaceT.hpp"
+#include "optimization/GStdPtrVectorInterfaceT.hpp"
+#include "optimization/GObject.hpp"
 #include "GEqualityPrinter.hpp"
 
 /*************************************************************************************************/

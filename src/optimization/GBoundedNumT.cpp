@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GBoundedNumT.hpp"
+#include "optimization/GBoundedNumT.hpp"
 
 namespace Gem {
 namespace GenEvA {

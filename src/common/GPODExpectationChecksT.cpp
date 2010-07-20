@@ -31,7 +31,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GPODExpectationChecksT.hpp"
+#include "common/GPODExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Common {

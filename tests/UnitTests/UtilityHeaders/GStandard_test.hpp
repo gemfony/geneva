@@ -54,10 +54,10 @@ using boost::unit_test_framework::test_case;
 
 // Geneva headers go here
 #include "GEqualityPrinter.hpp"
-#include "GObject.hpp"
-#include "GExceptions.hpp"
-#include "GCommonEnums.hpp"
-#include "GUnitTestFrameworkT.hpp"
+#include "optimization/GObject.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GUnitTestFrameworkT.hpp"
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)

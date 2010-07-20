@@ -43,9 +43,9 @@
 #define GEVOLUTIONARYALGORITHM_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GEvolutionaryAlgorithm.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GEvolutionaryAlgorithm.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GBoundedDouble.hpp"
+#include "optimization/GBoundedDouble.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

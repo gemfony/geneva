@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GParameterBaseWithAdaptorsT.hpp"
+#include "optimization/GParameterBaseWithAdaptorsT.hpp"
 
 namespace Gem {
 namespace GenEvA {

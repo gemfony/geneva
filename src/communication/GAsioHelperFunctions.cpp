@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GAsioHelperFunctions.hpp"
+#include "communication/GAsioHelperFunctions.hpp"
 
 namespace Gem
 {

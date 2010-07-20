@@ -44,7 +44,7 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
-#include "GDoubleGaussAdaptor.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
 
 // Parsing of the command line
 #include "GCommandLineParser.hpp"

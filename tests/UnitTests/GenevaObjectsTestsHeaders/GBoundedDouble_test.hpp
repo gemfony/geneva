@@ -43,10 +43,10 @@
 #define GBOUNDEDDOUBLE_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GBoundedDouble.hpp"
-#include "GDoubleGaussAdaptor.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GBoundedDouble.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

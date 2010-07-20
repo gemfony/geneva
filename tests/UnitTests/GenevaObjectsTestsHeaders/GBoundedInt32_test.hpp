@@ -42,10 +42,10 @@
 #define GBOUNDEDINT32_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GBoundedInt32.hpp"
-#include "GInt32FlipAdaptor.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GBoundedInt32.hpp"
+#include "optimization/GInt32FlipAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

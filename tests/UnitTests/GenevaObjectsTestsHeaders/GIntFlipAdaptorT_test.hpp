@@ -49,11 +49,11 @@
 #define GINTFLIPADAPTORT_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GIntFlipAdaptorT.hpp"
-#include "GInt32FlipAdaptor.hpp"
-#include "GBooleanAdaptor.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GIntFlipAdaptorT.hpp"
+#include "optimization/GInt32FlipAdaptor.hpp"
+#include "optimization/GBooleanAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

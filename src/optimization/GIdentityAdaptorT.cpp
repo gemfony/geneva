@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GIdentityAdaptorT.hpp"
+#include "optimization/GIdentityAdaptorT.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

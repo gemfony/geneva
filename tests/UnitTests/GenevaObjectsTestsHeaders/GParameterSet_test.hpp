@@ -42,13 +42,13 @@
 #define GPARAMETERSET_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GParameterSet.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GParameterSet.hpp"
+#include "optimization/GDoubleCollection.hpp"
+#include "optimization/GInt32Collection.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
 #include "GTestIndividual1.hpp"
-#include "GDoubleCollection.hpp"
-#include "GInt32Collection.hpp"
-#include "GDoubleGaussAdaptor.hpp"
 #include "GStdVectorInterface_test.hpp"
 #include "GEqualityPrinter.hpp"
 

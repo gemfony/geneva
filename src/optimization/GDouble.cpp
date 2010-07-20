@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GDouble.hpp"
+#include "optimization/GDouble.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

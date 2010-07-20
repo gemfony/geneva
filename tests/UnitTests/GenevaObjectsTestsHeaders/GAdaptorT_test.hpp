@@ -44,11 +44,11 @@
 #define GADAPTORT_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GAdaptorT.hpp"
-#include "GBooleanAdaptor.hpp"
-#include "GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GAdaptorT.hpp"
+#include "optimization/GBooleanAdaptor.hpp"
+#include "common/GCommonEnums.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;

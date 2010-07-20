@@ -51,7 +51,7 @@
 #include <boost/cast.hpp>
 
 // GenEvA header files
-#include "GRandom.hpp"
+#include "random/GRandom.hpp"
 
 // Parsing of the command line
 #include "GCommandLineParser.hpp"

@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GSwarm.hpp"
+#include "optimization/GSwarm.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GSwarmAdaptor.hpp"
+#include "optimization/GSwarmAdaptor.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

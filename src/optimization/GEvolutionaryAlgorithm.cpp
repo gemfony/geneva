@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GEvolutionaryAlgorithm.hpp"
+#include "optimization/GEvolutionaryAlgorithm.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at

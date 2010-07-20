@@ -51,9 +51,8 @@
 #include <boost/cstdint.hpp>
 
 // GenEvA header files go here
-
-#include "GBoundedInt32.hpp"
-#include "GInt32GaussAdaptor.hpp"
+#include "optimization/GBoundedInt32.hpp"
+#include "optimization/GInt32GaussAdaptor.hpp"
 
 using namespace Gem::GenEvA;
 using namespace boost;

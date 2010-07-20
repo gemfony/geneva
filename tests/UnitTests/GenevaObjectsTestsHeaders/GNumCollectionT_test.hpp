@@ -46,16 +46,16 @@
 #define GNUMCOLLECTIONT_TEST_HPP_
 
 // Geneva header files go here
-#include "GObject.hpp"
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GNumCollectionT.hpp"
-#include "GInt32Collection.hpp"
-#include "GDoubleCollection.hpp"
-#include "GGaussAdaptorT.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GInt32GaussAdaptor.hpp"
-#include "GStdSimpleVectorInterfaceT.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GObject.hpp"
+#include "optimization/GNumCollectionT.hpp"
+#include "optimization/GInt32Collection.hpp"
+#include "optimization/GDoubleCollection.hpp"
+#include "optimization/GGaussAdaptorT.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "optimization/GInt32GaussAdaptor.hpp"
+#include "optimization/GStdSimpleVectorInterfaceT.hpp"
 #include "GStdVectorInterface_test.hpp"
 #include "GEqualityPrinter.hpp"
 

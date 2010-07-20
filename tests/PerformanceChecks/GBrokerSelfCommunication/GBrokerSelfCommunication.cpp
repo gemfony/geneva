@@ -41,17 +41,17 @@
 #include <boost/shared_ptr.hpp>
 
 // GenEvA header files go here
-#include "GRandom.hpp"
-#include "GEvolutionaryAlgorithm.hpp"
-#include "GDoubleCollection.hpp"
-#include "GParameterSet.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GBrokerEA.hpp"
-#include "GIndividual.hpp"
-#include "GAsioTCPConsumerT.hpp"
-#include "GAsioTCPClientT.hpp"
-#include "GCommonEnums.hpp"
-#include "GThreadGroup.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GThreadGroup.hpp"
+#include "random/GRandom.hpp"
+#include "communication/GAsioTCPConsumerT.hpp"
+#include "communication/GAsioTCPClientT.hpp"
+#include "optimization/GEvolutionaryAlgorithm.hpp"
+#include "optimization/GDoubleCollection.hpp"
+#include "optimization/GParameterSet.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "optimization/GBrokerEA.hpp"
+#include "optimization/GIndividual.hpp"
 
 // The individual that should be optimized.
 // Represents the projection of an m-dimensional

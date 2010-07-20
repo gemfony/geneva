@@ -55,8 +55,10 @@
 #endif
 
 // GenEvA headers go here
-#include "GCommonEnums.hpp"
-#include "GSerializationHelperFunctionsT.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
+
+// The individual that should be optimized
 #include "GFunctionIndividual.hpp"
 #include "GFunctionIndividualDefines.hpp"
 

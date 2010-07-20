@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GIntFlipAdaptorT.hpp"
+#include "optimization/GIntFlipAdaptorT.hpp"
 
 namespace Gem {
 namespace GenEvA {

@@ -42,9 +42,9 @@
 #define GBROKEREA_TEST_HPP_
 
 // Geneva header files go here
-#include "GExceptions.hpp"
-#include "GRandom.hpp"
-#include "GBrokerEA.hpp"
+#include "common/GExceptions.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GBrokerEA.hpp"
 
 using namespace Gem;
 using namespace Gem::Util;

@@ -31,7 +31,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GParameterValuePair.hpp"
+#include "dataexchange/GParameterValuePair.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
