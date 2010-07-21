@@ -53,12 +53,12 @@
 #endif
 
 // GenEvA header files go here
-#include "GParameterSet.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GBoundedDoubleCollection.hpp"
-#include "GBoundedDouble.hpp"
-#include "GExceptions.hpp"
-#include "GCommonEnums.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
+#include "optimization/GBoundedDouble.hpp"
+#include "optimization/GBoundedDoubleCollection.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "optimization/GParameterSet.hpp"
 
 namespace Gem
 {

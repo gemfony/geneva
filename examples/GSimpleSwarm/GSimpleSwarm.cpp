@@ -36,13 +36,13 @@
 #include <boost/lexical_cast.hpp>
 
 // GenEvA header files go here
-#include "GRandom.hpp"
-#include "GSwarm.hpp"
-#include "GBrokerEA.hpp"
-#include "GIndividual.hpp"
-#include "GAsioTCPConsumerT.hpp"
-#include "GAsioTCPClientT.hpp"
-#include "GAsioHelperFunctions.hpp"
+#include "random/GRandom.hpp"
+#include "communication/GAsioHelperFunctions.hpp"
+#include "communication/GAsioTCPClientT.hpp"
+#include "communication/GAsioTCPConsumerT.hpp"
+#include "optimization/GBrokerEA.hpp"
+#include "optimization/GIndividual.hpp"
+#include "optimization/GSwarm.hpp"
 
 // The individual that should be optimized
 #include "GStartIndividual.hpp"
