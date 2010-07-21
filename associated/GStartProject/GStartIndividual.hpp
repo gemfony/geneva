@@ -38,7 +38,7 @@
 #include <utility> // For std::pair
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
@@ -56,14 +56,14 @@
 #endif
 
 // GenEvA header files go here
-#include "GParameterSet.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GParameterObjectCollection.hpp"
-#include "GBoundedDoubleCollection.hpp"
-#include "GBoundedDouble.hpp"
-#include "GExceptions.hpp"
-#include "GObjectExpectationChecksT.hpp"
-#include "GCommonEnums.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
+#include "optimization/GBoundedDouble.hpp"
+#include "optimization/GBoundedDoubleCollection.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "optimization/GObjectExpectationChecksT.hpp"
+#include "optimization/GParameterObjectCollection.hpp"
+#include "optimization/GParameterSet.hpp"
 
 #ifdef GENEVATESTING
 #include "GUnitTestFrameworkT.hpp"

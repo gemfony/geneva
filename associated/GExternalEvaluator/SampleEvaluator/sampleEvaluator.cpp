@@ -48,7 +48,7 @@
 
 // Geneva headers go here
 #include "commandLineParser.hpp"
-#include "GDataExchange.hpp"
+#include "dataexchange/GDataExchange.hpp"
 
 const std::size_t PARABOLADIM=1000;
 const double PARABOLAMIN=-100.;

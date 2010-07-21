@@ -71,15 +71,15 @@
 #endif
 
 // GenEvA header files go here
-#include "GCommonEnums.hpp"
-#include "GRandom.hpp"
-#include "GDoubleObjectCollection.hpp"
-#include "GParameterSet.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GDouble.hpp"
-#include "GExceptions.hpp"
-#include "GHelperFunctionsT.hpp"
-#include "GStdSimpleVectorInterfaceT.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GHelperFunctionsT.hpp"
+#include "random/GRandom.hpp"
+#include "optimization/GDouble.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "optimization/GDoubleObjectCollection.hpp"
+#include "optimization/GParameterSet.hpp"
+#include "optimization/GStdSimpleVectorInterfaceT.hpp"
 
 namespace Gem
 {

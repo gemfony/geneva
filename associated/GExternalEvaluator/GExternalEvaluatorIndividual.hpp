@@ -58,19 +58,19 @@
 #endif
 
 // GenEvA header files go here
-#include "GDoubleCollection.hpp"
-#include "GParameterSet.hpp"
-#include "GBoundedDoubleCollection.hpp"
-#include "GBoundedInt32Collection.hpp"
-#include "GBooleanCollection.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GBooleanAdaptor.hpp"
-#include "GInt32FlipAdaptor.hpp"
-#include "GDataExchange.hpp"
-#include "GCommonEnums.hpp"
-#include "GDoubleParameter.hpp"
-#include "GLongParameter.hpp"
-#include "GBoolParameter.hpp"
+#include "common/GCommonEnums.hpp"
+#include "dataexchange/GBoolParameter.hpp"
+#include "dataexchange/GDataExchange.hpp"
+#include "dataexchange/GDoubleParameter.hpp"
+#include "dataexchange/GLongParameter.hpp"
+#include "optimization/GBooleanAdaptor.hpp"
+#include "optimization/GBooleanCollection.hpp"
+#include "optimization/GBoundedDoubleCollection.hpp"
+#include "optimization/GBoundedInt32Collection.hpp"
+#include "optimization/GDoubleCollection.hpp"
+#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "optimization/GInt32FlipAdaptor.hpp"
+#include "optimization/GParameterSet.hpp"
 
 // The enums
 #include "GExternalEvaluatorEnums.hpp"

@@ -55,9 +55,9 @@
 #endif
 
 // GenEvA headers go here
-#include "GCommonEnums.hpp"
-#include "GOptimizationEnums.hpp"
-#include "GSerializationHelperFunctionsT.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
+#include "optimization/GOptimizationEnums.hpp"
 
 // The enums
 #include "GExternalEvaluatorEnums.hpp"
