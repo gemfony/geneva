@@ -1,0 +1,4 @@
+This directory contains the header files of the hap library. 
+
+Extensive tests of the random numbers created with this library should be
+possible with the dieharder library, available at http://www.phy.duke.edu/~rgb/General/dieharder.php
