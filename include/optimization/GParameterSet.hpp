@@ -51,13 +51,13 @@
 
 
 // GenEvA headers go here
+#include "common/GExceptions.hpp"
 #include "GMutableSetT.hpp"
 #include "GObject.hpp"
 #include "GParameterBase.hpp"
-#include "common/GExceptions.hpp"
 
 #ifdef GENEVATESTING
-#include "GUnitTestFrameworkT.hpp"
+#include "common/GUnitTestFrameworkT.hpp"
 #endif /* GENEVATESTING */
 
 namespace Gem {

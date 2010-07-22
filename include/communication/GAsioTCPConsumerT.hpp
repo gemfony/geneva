@@ -53,9 +53,9 @@
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
-#include <boost/threadpool.hpp>
 #include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
+#include <common/thirdparty/boost/threadpool.hpp>
 
 
 #ifndef GASIOTCPCONSUMERT_HPP_

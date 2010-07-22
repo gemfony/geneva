@@ -122,12 +122,6 @@ ENDIF()
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/include/common
-	${PROJECT_SOURCE_DIR}/include/dataexchange
-	${PROJECT_SOURCE_DIR}/include/random
-	${PROJECT_SOURCE_DIR}/include/communication
-	${PROJECT_SOURCE_DIR}/include/optimization
-	${PROJECT_SOURCE_DIR}/include/common/thirdparty
 	${Boost_INCLUDE_DIRS}
 )
 

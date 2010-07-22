@@ -66,7 +66,7 @@
 #include "optimization/GParameterSet.hpp"
 
 #ifdef GENEVATESTING
-#include "GUnitTestFrameworkT.hpp"
+#include "common/GUnitTestFrameworkT.hpp"
 #endif /* GENEVATESTING */
 
 namespace Gem

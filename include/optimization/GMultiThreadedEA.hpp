@@ -42,7 +42,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/xtime.hpp>
-#include <boost/threadpool.hpp>
+#include <common/thirdparty/boost/threadpool.hpp>
 
 #ifndef GMULTITHREADEDEA_HPP_
 #define GMULTITHREADEDEA_HPP_

@@ -55,7 +55,7 @@
 
 // GenEvA headers go here
 #include "common/GExceptions.hpp"
-#include "GBufferPortT.hpp"
+#include "communication/GBufferPortT.hpp"
 #include "GEAPersonalityTraits.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
 #include "GIndividual.hpp"

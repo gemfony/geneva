@@ -54,8 +54,8 @@
 
 
 // GenEvA headers go here
+#include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
-#include "GExceptions.hpp"
 #include "GObject.hpp"
 #include "GParameterBase.hpp"
 
