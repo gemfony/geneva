@@ -40,7 +40,8 @@ The main changes for this release include:
  - Gave GParameterBase-derivatives and GParameterSet objects the ability to randomly initialize
    a given set of data elements contained in them.
  - Update to CMake 2.8, ported to Boost 1.43.
- - Made compilation of test code optional
+ - Made compilation of test code optional.
+ - Moved the sample programs in the 'associated' folder together with the other examples.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010
@@ -62,7 +63,7 @@ The main changes for this release include:
  - Renamed GBasePopulation to GEvolutionaryAlgorithm, GBrokerPopulation to GBrokerEA and GBoostThreadPopulation
    to GMultiThreadedEA
  - Implemented a new way to select views of vectors of boost::shared_ptr<GIndividual>, including 
-   automatic conversion ("attachViewTo<>() )
+   automatic conversion ("attachViewTo<>()")
  - Allowed adaptors to choose from "always mutate", "never mutate" and "mutate with a certain likelihood"
  - Added compilation warnings when using Boost 1.39 or Boost 1.41, which seem to have issues wrt. Geneva,
    possibly in the serialization library.
