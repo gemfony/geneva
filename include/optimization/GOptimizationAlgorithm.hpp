@@ -33,7 +33,7 @@
 #include <cfloat>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 
@@ -60,10 +60,10 @@
 
 
 // GenEvA headers go here
-#include "GMutableSetT.hpp"
+#include "random/GRandom.hpp"
 #include "GIndividual.hpp"
+#include "GMutableSetT.hpp"
 #include "GObject.hpp"
-#include "GRandom.hpp"
 
 namespace Gem {
 namespace GenEvA {

@@ -33,7 +33,7 @@
 #include <typeinfo>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 
@@ -49,10 +49,11 @@
 #endif
 
 
+// GenEvA headers go here
+#include "common/GHelperFunctionsT.hpp"
 #include "GIndividual.hpp"
-#include "GParameterBase.hpp"
 #include "GObject.hpp"
-#include "GHelperFunctionsT.hpp"
+#include "GParameterBase.hpp"
 #include "GStdPtrVectorInterfaceT.hpp"
 
 namespace Gem {

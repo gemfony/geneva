@@ -31,7 +31,7 @@
 #include <sstream>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 
@@ -51,10 +51,10 @@
 
 
 // GenEvA headers go here
-#include "GObject.hpp"
 #include "GMutableSetT.hpp"
+#include "GObject.hpp"
 #include "GParameterBase.hpp"
-#include "GExceptions.hpp"
+#include "common/GExceptions.hpp"
 
 #ifdef GENEVATESTING
 #include "GUnitTestFrameworkT.hpp"

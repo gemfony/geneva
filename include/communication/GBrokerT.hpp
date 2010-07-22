@@ -38,7 +38,7 @@
 #include <limits>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -65,12 +65,12 @@
 #endif
 
 // GenEvA headers go here
+#include "common/GExceptions.hpp"
+#include "common/GSingletonT.hpp"
+#include "common/GThreadGroup.hpp"
 #include "GConsumer.hpp"
-#include "GExceptions.hpp"
-#include "GBufferPortT.hpp"
 #include "GBoundedBufferWithIdT.hpp"
-#include "GSingletonT.hpp"
-#include "GThreadGroup.hpp"
+#include "GBufferPortT.hpp"
 
 namespace Gem {
 namespace Communication {

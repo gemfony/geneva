@@ -32,7 +32,7 @@
 #include <sstream>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 
@@ -61,10 +61,9 @@
 #endif
 
 // Geneva header files go here
-
+#include "common/GExceptions.hpp"
 #include "GMutableI.hpp"
 #include "GObject.hpp"
-#include "GExceptions.hpp"
 #include "GObjectExpectationChecksT.hpp"
 
 namespace Gem {

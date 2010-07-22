@@ -36,7 +36,7 @@
 #include <sstream>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 
@@ -54,10 +54,10 @@
 
 
 // GenEvA headers go here
-#include "GParameterBase.hpp"
-#include "GObject.hpp"
 #include "GAdaptorT.hpp"
 #include "GExceptions.hpp"
+#include "GObject.hpp"
+#include "GParameterBase.hpp"
 
 namespace Gem {
 namespace GenEvA {

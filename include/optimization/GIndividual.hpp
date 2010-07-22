@@ -33,7 +33,7 @@
 #include <cmath>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 #include <boost/variant.hpp>
@@ -54,14 +54,14 @@
 
 
 // Geneva header files go here
-#include "GMutableI.hpp"
-#include "GRateableI.hpp"
-#include "GObject.hpp"
+#include "common/GExceptions.hpp"
+#include "communication/GBrokerT.hpp"         // Just for the GINDIVIDUALBROKER macro
 #include "GEAPersonalityTraits.hpp"
 #include "GGDPersonalityTraits.hpp"
+#include "GMutableI.hpp"
+#include "GObject.hpp"
+#include "GRateableI.hpp"
 #include "GSwarmPersonalityTraits.hpp"
-#include "GExceptions.hpp"
-#include "GBrokerT.hpp"			// Just for the GINDIVIDUALBROKER macro
 
 namespace Gem {
 namespace GenEvA {

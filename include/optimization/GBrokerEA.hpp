@@ -34,7 +34,7 @@
 #include <vector>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -54,12 +54,11 @@
 #endif
 
 // GenEvA headers go here
-#include "GExceptions.hpp"
-#include "GIndividual.hpp"
-#include "GEvolutionaryAlgorithm.hpp"
+#include "common/GExceptions.hpp"
 #include "GBufferPortT.hpp"
-#include "GIndividual.hpp"
 #include "GEAPersonalityTraits.hpp"
+#include "GEvolutionaryAlgorithm.hpp"
+#include "GIndividual.hpp"
 
 namespace Gem
 {

@@ -42,7 +42,7 @@
 #include <exception>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -74,12 +74,12 @@
 #endif
 
 // Geneva headers go here
+#include "common/GExceptions.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "GNumericParameterT.hpp"
 #include "GBoolParameter.hpp"
 #include "GDoubleParameter.hpp"
 #include "GLongParameter.hpp"
-#include "GHelperFunctionsT.hpp"
-#include "GExceptions.hpp"
 
 namespace Gem
 {

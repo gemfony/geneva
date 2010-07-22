@@ -36,7 +36,7 @@
 #include <cfloat>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -70,9 +70,9 @@
 
 
 // GenEvA headers go here
+#include "common/GExceptions.hpp"
 #include "GIndividual.hpp"
 #include "GOptimizationAlgorithm.hpp"
-#include "GExceptions.hpp"
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {

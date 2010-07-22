@@ -34,10 +34,9 @@
 #include <vector>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-
 #include <boost/cstdint.hpp>
 
 #ifndef GNUMT_HPP_

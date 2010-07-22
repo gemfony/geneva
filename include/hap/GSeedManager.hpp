@@ -39,7 +39,7 @@
 #include <cassert>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -78,10 +78,10 @@
 
 
 // Gemfony headers go here
+#include "common/GBoundedBufferT.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GExceptions.hpp"
 #include "GRandomDefines.hpp"
-#include "GBoundedBufferT.hpp"
-#include "GCommonEnums.hpp"
-#include "GExceptions.hpp"
 
 /****************************************************************************/
 

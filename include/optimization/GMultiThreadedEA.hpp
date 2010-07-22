@@ -30,7 +30,7 @@
 // Standard headers go here
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -54,10 +54,10 @@
 
 
 // GenEvA headers go here
+#include "common/GExceptions.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
-#include "GExceptions.hpp"
 
 namespace Gem {
 namespace GenEvA {

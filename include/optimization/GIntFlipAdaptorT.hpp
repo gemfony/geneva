@@ -35,7 +35,7 @@
 #include <utility> // For std::pair
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -52,12 +52,11 @@
 #endif
 
 // GenEvA headers go here
-
+#include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
 #include "GBoundedDouble.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GObject.hpp"
-#include "GExceptions.hpp"
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {

@@ -34,7 +34,7 @@
 #include <vector>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -63,11 +63,11 @@
 
 // Geneva headers go here
 
-#include "GTriboolSerialization.hpp"
+#include "common/GTriboolSerialization.hpp"
+#include "random/GRandom.hpp"
 #include "GObject.hpp"
-#include "GRandom.hpp"
-#include "GOptimizationEnums.hpp"
 #include "GObjectExpectationChecksT.hpp"
+#include "GOptimizationEnums.hpp"
 
 namespace Gem {
 namespace GenEvA {

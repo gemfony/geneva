@@ -41,7 +41,7 @@
 #include <typeinfo>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 #include <boost/shared_ptr.hpp>
@@ -62,8 +62,8 @@
 #endif
 
 // Geneva headers go here
+#include "common/GPODExpectationChecksT.hpp"
 #include "GObject.hpp"
-#include "GPODExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Common {

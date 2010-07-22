@@ -35,7 +35,7 @@
 #include <vector>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
@@ -68,11 +68,11 @@
 
 
 // Geneva headers go here
+#include "common/GSerializationHelperFunctionsT.hpp"
+#include "GAsioHelperFunctions.hpp"
+#include "GBrokerT.hpp"
 #include "GCommunicationEnums.hpp"
 #include "GConsumer.hpp"
-#include "GBrokerT.hpp"
-#include "GAsioHelperFunctions.hpp"
-#include "GSerializationHelperFunctionsT.hpp"
 
 namespace Gem
 {

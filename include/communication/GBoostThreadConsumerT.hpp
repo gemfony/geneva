@@ -30,7 +30,7 @@
 // Standard headers go here
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -61,10 +61,11 @@
 #pragma once
 #endif
 
+// Geneva headers go here
 
+#include "common/GThreadGroup.hpp"
 #include "GBrokerT.hpp"
 #include "GConsumer.hpp"
-#include "GThreadGroup.hpp"
 
 namespace Gem {
 namespace Communication {

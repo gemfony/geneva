@@ -32,7 +32,7 @@
 #include <cmath>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 
@@ -48,9 +48,9 @@
 
 
 // GenEvA header files go here
-#include "GParameterBaseWithAdaptorsT.hpp"
 #include "GObject.hpp"
-#include "GExceptions.hpp"
+#include "GParameterBaseWithAdaptorsT.hpp"
+#include "common/GExceptions.hpp"
 
 namespace Gem {
 namespace GenEvA {

@@ -39,7 +39,7 @@
 #include <cassert>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -77,10 +77,10 @@
 
 // GenEvA headers go here
 
-#include "GBoundedBufferT.hpp"
-#include "GThreadGroup.hpp"
-#include "GSingletonT.hpp"
-#include "GExceptions.hpp"
+#include "common/GBoundedBufferT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GSingletonT.hpp"
+#include "common/GThreadGroup.hpp"
 #include "GSeedManager.hpp"
 #include "GRandomDefines.hpp"
 

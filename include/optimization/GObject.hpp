@@ -39,7 +39,7 @@
 #include <vector>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 
@@ -78,10 +78,10 @@
 
 
 // Geneva header files go here
-#include "GSerializableI.hpp"
-#include "GExceptions.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "GOptimizationEnums.hpp"
-#include "GHelperFunctionsT.hpp"
+#include "GSerializableI.hpp"
 
 #ifdef GENEVATESTING
 #include "GUnitTestFrameworkT.hpp"

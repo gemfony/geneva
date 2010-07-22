@@ -34,7 +34,7 @@
 #include <istream>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
@@ -49,7 +49,7 @@
 #endif
 
 // GenEvA headers go here
-#include "GCommonEnums.hpp" // global enumerations and defines
+#include "common/GCommonEnums.hpp" // global enumerations and defines
 
 namespace Gem {
 namespace Communication {

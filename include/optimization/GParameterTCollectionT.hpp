@@ -33,7 +33,7 @@
 #include <algorithm>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
 
@@ -50,9 +50,9 @@
 
 
 // GenEvA header files go here
+#include "common/GHelperFunctionsT.hpp"
 #include "GParameterBase.hpp"
 #include "GParameterT.hpp"
-#include "GHelperFunctionsT.hpp"
 #include "GStdPtrVectorInterfaceT.hpp"
 
 namespace Gem {

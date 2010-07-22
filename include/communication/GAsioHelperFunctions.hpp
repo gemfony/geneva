@@ -52,8 +52,8 @@
 #endif
 
 // GenEvA headers go here
+#include "common/GExceptions.hpp"
 #include "GCommunicationEnums.hpp"
-#include "GExceptions.hpp"
 
 namespace Gem
 {
