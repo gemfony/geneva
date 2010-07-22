@@ -27,7 +27,8 @@ The main changes for this release include:
  - Added a GParameterObjectCollection that allows to arbitrarily mix any
    GParameterBase object in the same collection.
  - Separation of the codebase into various different, (mostly) independent libraries:
-   common, dataexchange, random, communication, and optimization.
+   common, dataexchange, random, communication, and optimization. Includes should
+   now be prefixed with the (sub)library name.
  - Removed GBoostThreadConsumer dependency on GIndividual, making it a template class
    GBoostThreadConsumerT.
  - Removed GAsioTCPConsumer dependency on GIndividual, making it a template class
