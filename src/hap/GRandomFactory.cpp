@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GRandomFactory.hpp"
+#include "hap/GRandomFactory.hpp"
 
 namespace Gem {
 namespace Hap {

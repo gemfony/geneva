@@ -49,7 +49,7 @@
 #endif
 
 // GenEvA headers go here
-#include "common/GCommonEnums.hpp" // global enumerations and defines
+#include "common/GCommonEnums.hpp"
 
 namespace Gem {
 namespace Communication {

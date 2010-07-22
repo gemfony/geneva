@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GHapEnums.hpp"
+#include "hap/GHapEnums.hpp"
 
 namespace Gem
 {

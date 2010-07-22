@@ -27,7 +27,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GRandomBase.hpp"
+#include "hap/GRandomBase.hpp"
 
 namespace Gem {
 namespace Hap {

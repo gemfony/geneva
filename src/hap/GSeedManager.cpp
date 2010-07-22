@@ -28,7 +28,7 @@
  */
 
 
-#include "GSeedManager.cpp"
+#include "hap/GSeedManager.cpp"
 
 namespace Gem {
 namespace Hap {
