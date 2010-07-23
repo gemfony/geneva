@@ -96,8 +96,6 @@ namespace Hap {
  * highly correlated. This can only be amended by handing out seeds randomly
  * themselves. A start seed for the seeding sequence is either taken from a
  * non deterministic generator, or provided by the user.
- *
- * TODO:
  */
 class GSeedManager:
 	private boost::noncopyable // prevents this class from being copied
