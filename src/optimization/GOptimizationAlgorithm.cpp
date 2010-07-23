@@ -45,7 +45,7 @@ namespace GenEvA
  */
 GOptimizationAlgorithm::GOptimizationAlgorithm()
 	:GMutableSetT<Gem::GenEvA::GIndividual>()
-	 , gr(Gem::Util::DEFAULTRNRGENMODE)
+	 , gr(Gem::Hap::DEFAULTRNRGENMODE)
 	 , iteration_(0)
 	 , maxIteration_(DEFAULTMAXIT)
 	 , maxStallIteration_(DEFAULMAXTSTALLIT)
@@ -184,7 +184,7 @@ boost::optional<std::string> GOptimizationAlgorithm::checkRelationshipWith(const
  *
  * @param rnrGenMode A parameter which indicates where random numbers should be produced
  */
-void GOptimizationAlgorithm::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+void GOptimizationAlgorithm::setRnrGenerationMode(const Gem::Hap::rnrGenerationMode& rnrGenMode) {
 	gr.setRnrGenerationMode(rnrGenMode);
 }
 
@@ -194,7 +194,7 @@ void GOptimizationAlgorithm::setRnrGenerationMode(const Gem::Util::rnrGeneration
  *
  * @return The current random number generation mode of the local generator
  */
-Gem::Util::rnrGenerationMode GOptimizationAlgorithm::getRnrGenerationMode() const {
+Gem::Hap::rnrGenerationMode GOptimizationAlgorithm::getRnrGenerationMode() const {
 	return gr.getRnrGenerationMode();
 }
 

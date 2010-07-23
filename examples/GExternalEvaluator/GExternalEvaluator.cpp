@@ -59,7 +59,7 @@
 
 using namespace Gem::GenEvA;
 using namespace Gem::Communication;
-using namespace Gem::Util;
+using namespace Gem::Hap;
 
 /************************************************************************************************/
 /**
@@ -182,14 +182,14 @@ int main(int argc, char **argv){
 
 	// Check whether random numbers should be produced locally or in the factory
 	if(productionPlace) { // Factory means "true"
-		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
-		gifa_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
-		gba_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+		gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY);
+		gifa_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY);
+		gba_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY);
 	}
 	else {
-		gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
-		gifa_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
-		gba_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
+		gifa_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
+		gba_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
 	}
 
 	// Create an initial individual (it will get the necessary information

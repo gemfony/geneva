@@ -30,14 +30,14 @@
 #include "random/GRandomFactory.hpp"
 
 namespace Gem {
-namespace Util {
+namespace Hap {
 
 /*************************************************************************/
 /**
  * Initialization of static data members
  */
-boost::uint16_t Gem::Util::GRandomFactory::multiple_call_trap_ = 0;
-boost::mutex Gem::Util::GRandomFactory::factory_creation_mutex_;
+boost::uint16_t Gem::Hap::GRandomFactory::multiple_call_trap_ = 0;
+boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
 
 /*************************************************************************/
 /**
@@ -340,5 +340,5 @@ void GRandomFactory::producer01(boost::uint32_t seed)  {
 
 /*************************************************************************/
 
-} /* namespace Util */
+} /* namespace Hap */
 } /* namespace Gem */

@@ -350,7 +350,7 @@ public:
 
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
-		Gem::Util::GRandom l_gr(Gem::Util::RNRLOCAL);
+		Gem::Hap::GRandom l_gr(Gem::Hap::RNRLOCAL);
 
 		// Create the required data.
 		projectionData pD;
@@ -423,7 +423,7 @@ public:
 
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
-		Gem::Util::GRandom l_gr(Gem::Util::RNRLOCAL);
+		Gem::Hap::GRandom l_gr(Gem::Hap::RNRLOCAL);
 
 		// Create the required data.
 		projectionData pD;

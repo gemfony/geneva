@@ -85,7 +85,7 @@
 /****************************************************************************/
 
 namespace Gem {
-namespace Util {
+namespace Hap {
 
 /****************************************************************************/
 // Some constants needed for the random number generation
@@ -187,14 +187,14 @@ private:
 	GSeedManager seedManager_; ///< Manages seed creation
 };
 
-} /* namespace Util */
+} /* namespace Hap */
 } /* namespace Gem */
 
 /****************************************************************************/
 /**
  * A single, global random number factory is created as a singleton.
  */
-typedef Gem::Common::GSingletonT<Gem::Util::GRandomFactory> grfactory;
+typedef Gem::Common::GSingletonT<Gem::Hap::GRandomFactory> grfactory;
 #define GRANDOMFACTORY grfactory::getInstance()
 
 #endif /* GRANDOMFACTORY_HPP_ */

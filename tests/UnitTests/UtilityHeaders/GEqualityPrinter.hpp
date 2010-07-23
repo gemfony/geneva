@@ -102,7 +102,7 @@ public:
 			, const geneva_type& y
 			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Util;
+		using namespace Gem::Hap;
 
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
@@ -140,7 +140,7 @@ public:
 			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
 			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Util;
+		using namespace Gem::Hap;
 
 		boost::optional<std::string> o =
 				x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::checkRelationshipWith(
@@ -178,7 +178,7 @@ public:
 			, const geneva_type& y
 			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Util;
+		using namespace Gem::Hap;
 
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
@@ -216,7 +216,7 @@ public:
 			, const std::vector<typename geneva_simplecontainer_type::value_type>& y
 			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Util;
+		using namespace Gem::Hap;
 
 		boost::optional<std::string> o =
 				x.GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::checkRelationshipWith(
@@ -255,7 +255,7 @@ public:
 			, const geneva_type& y
 			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Util;
+		using namespace Gem::Hap;
 
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(
@@ -296,7 +296,7 @@ public:
 			, double limit
 			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
 	) const	{
-		using namespace Gem::Util;
+		using namespace Gem::Hap;
 
 		boost::optional<std::string> o =
 				x.checkRelationshipWith(

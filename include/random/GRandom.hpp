@@ -92,7 +92,7 @@
 /****************************************************************************/
 
 namespace Gem {
-namespace Util {
+namespace Hap {
 
 /****************************************************************************/
 /**
@@ -141,12 +141,12 @@ class GRandom
         ar & BOOST_SERIALIZATION_NVP(rnrGenerationMode_);
 
         switch(rnrGenerationMode_) {
-        case Gem::Util::RNRFACTORY:
+        case Gem::Hap::RNRFACTORY:
         	// Make sure we have a local pointer to the factory
         	grf_ = GRANDOMFACTORY;
         	break;
 
-        case Gem::Util::RNRLOCAL:
+        case Gem::Hap::RNRLOCAL:
         	// Reset all other random number generation modes
         	p01_.reset();
         	grf_.reset();
@@ -169,7 +169,7 @@ public:
 	/** @brief The standard constructor */
 	GRandom();
 	/** @brief Initialization with the random number generation mode */
-	explicit GRandom(const Gem::Util::rnrGenerationMode&);
+	explicit GRandom(const Gem::Hap::rnrGenerationMode&);
 	/** @brief A copy constructor */
 	GRandom(const GRandom&);
 	/** @brief A standard destructor */
@@ -300,9 +300,9 @@ public:
 	char charRandom(const bool& printable = true);
 
 	/** @brief Sets the random number generation mode */
-	void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+	void setRnrGenerationMode(const Gem::Hap::rnrGenerationMode&);
 	/** @brief Retrieves the current random number generation mode */
-	Gem::Util::rnrGenerationMode getRnrGenerationMode () const;
+	Gem::Hap::rnrGenerationMode getRnrGenerationMode () const;
 	/** @brief Specifies a rng-proxy to be used and empties the p01_ array */
 	void setRNRFactoryMode();
 	/** @brief Switches to local production mode, using GRandomFactory::getStartSeed() for seeding */
@@ -328,7 +328,7 @@ private:
 	boost::shared_array<double> p01_; ///< Holds the container of [0,1[ random numbers  Size is 16 bytes on a 64 bit system
 	std::size_t current01_; ///< The current position in p01_.  Size is 8 byte on a 64 bit system
 	double *p_raw_; ///< A pointer to the content of p01_ for faster access.  Size is 8 byte on a 64 bit system
-	boost::shared_ptr<Gem::Util::GRandomFactory> grf_; ///< A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system (?)
+	boost::shared_ptr<Gem::Hap::GRandomFactory> grf_; ///< A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system (?)
 
 	/** @brief Used in conjunction with the local generation of random numbers */
 	boost::uint32_t initialSeed_; ///< Used as a start value for the local random number generator.  Size is 4 byte on a 64 bit system
@@ -344,15 +344,15 @@ private:
 /****************************************************************************/
 // Some helper functions
 
-/** @brief Puts a Gem::Util::rnrGenerationMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Util::rnrGenerationMode&);
+/** @brief Puts a Gem::Hap::rnrGenerationMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Hap::rnrGenerationMode&);
 
-/** @brief Reads a Gem::Util::rnrGenerationMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Util::rnrGenerationMode&);
+/** @brief Reads a Gem::Hap::rnrGenerationMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Hap::rnrGenerationMode&);
 
 /****************************************************************************/
 
-} /* namespace Util */
+} /* namespace Hap */
 } /* namespace Gem */
 
 #endif /* GRANDOM_HPP_ */

@@ -156,7 +156,7 @@ int main(int argc, char **argv){
 	// external value. The test produces 10 gaussian random number distributions,
 	// whose mean is shifted from left to right of a [-1,1] range
 
-	Gem::Util::GRandom gr;
+	Gem::Hap::GRandom gr;
 	GBoundedDouble gbd_distortion(-1.,1.);
 
 	std::ofstream distortion("distortion.C");

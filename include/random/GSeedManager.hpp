@@ -83,7 +83,7 @@
 /****************************************************************************/
 
 namespace Gem {
-namespace Util {
+namespace Hap {
 
 /**
  * This seed will be used as the global setting if the seed hasn't
@@ -357,7 +357,7 @@ private:
 	thread_ptr seedThread_;
 };
 
-} /* namespace Util */
+} /* namespace Hap */
 } /* namespace Gem */
 
 #endif /* GSEEDMANAGER_HPP_ */

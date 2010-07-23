@@ -55,7 +55,7 @@
 
 using namespace Gem::GenEvA;
 using namespace Gem::Communication;
-using namespace Gem::Util;
+using namespace Gem::Hap;
 
 /************************************************************************************************/
 /**

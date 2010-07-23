@@ -57,7 +57,7 @@
 #include "GCommandLineParser.hpp"
 
 using namespace Gem::GenEvA;
-using namespace Gem::Util;
+using namespace Gem::Hap;
 using namespace boost;
 
 enum distType {
@@ -78,7 +78,7 @@ enum distType {
 };
 
 template <class T>
-void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Util::GRandom> gr_ptr){
+void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Hap::GRandom> gr_ptr){
 	std::size_t i;
 
 	switch(dType){
@@ -154,7 +154,7 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 }
 
 int main(int argc, char **argv){
-	boost::shared_ptr<Gem::Util::GRandom> gr_ptr(new GRandom());
+	boost::shared_ptr<Gem::Hap::GRandom> gr_ptr(new GRandom());
 
 	bool verbose;
 	std::size_t nEntries;
@@ -223,8 +223,8 @@ int main(int argc, char **argv){
 		ofs << std::endl;
 
 		// In this test correlations between subsequent numbers of two proxies (with different seeds) are sought for
-		boost::shared_ptr<Gem::Util::GRandom> gr_ptr_one(new GRandom());
-		boost::shared_ptr<Gem::Util::GRandom> gr_ptr_two(new GRandom());
+		boost::shared_ptr<Gem::Hap::GRandom> gr_ptr_one(new GRandom());
+		boost::shared_ptr<Gem::Hap::GRandom> gr_ptr_two(new GRandom());
 		for(i=0; i<nEntries; i++) {
 			ofs << "  evenProxyCorrelation->Fill(" << gr_ptr_one->evenRandom() << ", " << gr_ptr_two->evenRandom()  << ");" << std::endl;
 			ofs << "  proxyDiff->Fill(" << 	i << ", " << gr_ptr_one->evenRandom()-gr_ptr_two->evenRandom() << ");" << std::endl;
@@ -234,7 +234,7 @@ int main(int argc, char **argv){
 		// initial values (after a number of calls) are asked for. There should be no
 		// correlation.
 		for(i=1; i<=10; i++) {
-			boost::shared_ptr<Gem::Util::GRandom> gr_ptr_seed(new GRandom());
+			boost::shared_ptr<Gem::Hap::GRandom> gr_ptr_seed(new GRandom());
 			switch(rnrProductionMode) {
 			case 0:
 				gr_ptr_seed->setRNRFactoryMode();

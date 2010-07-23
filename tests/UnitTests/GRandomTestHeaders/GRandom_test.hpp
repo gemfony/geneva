@@ -49,7 +49,7 @@
 #include "random/GRandom.hpp"
 
 using namespace Gem;
-using namespace Gem::Util;
+using namespace Gem::Hap;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
@@ -108,7 +108,7 @@ public:
 
 		// Check that we can set gr3's production flags and can prouce a number of random numbers
 		gr3.setRNRFactoryMode();
-		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Util::RNRFACTORY);
+		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Hap::RNRFACTORY);
 		double last = -1., now=0.;
 		for(std::size_t i=0; i<NRNR; i++) {
 			now = gr3.evenRandom();
@@ -116,7 +116,7 @@ public:
 			last = now;
 		}
 		gr3.setRNRLocalMode();
-		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Util::RNRLOCAL);
+		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Hap::RNRLOCAL);
 		last = -1., now=0.;
 		for(std::size_t i=0; i<NRNR; i++) {
 			now = gr3.evenRandom();

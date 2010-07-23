@@ -214,7 +214,7 @@ void GBoundedDouble::load_(const GObject* cp){
  * Triggers random initialization of the parameter object
  */
 void GBoundedDouble::randomInit_() {
-	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 	this->setExternalValue(gr.evenRandom(getLowerBoundary(), getUpperBoundary()));
 }
 

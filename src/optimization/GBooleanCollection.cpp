@@ -56,7 +56,7 @@ namespace GenEvA
   GBooleanCollection::GBooleanCollection(const std::size_t& nval)
     : GParameterCollectionT<bool>()
   {
-	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom());
   }
 
@@ -71,7 +71,7 @@ namespace GenEvA
   GBooleanCollection::GBooleanCollection(const std::size_t& nval, const double& probability)
 	: GParameterCollectionT<bool>()
   {
-	  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	  Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.boolRandom(probability));
   }
 
@@ -134,7 +134,7 @@ namespace GenEvA
    * that is added later will remain unaffected.
    */
   void GBooleanCollection::randomInit_() {
-	  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	  Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 	  for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr.boolRandom();
   }
 
@@ -145,7 +145,7 @@ namespace GenEvA
    * @param probability The probability for true values in the collection
    */
   void GBooleanCollection::randomInit_(const double& probability) {
-	  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	  Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 	  for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr.boolRandom(probability);
   }
 

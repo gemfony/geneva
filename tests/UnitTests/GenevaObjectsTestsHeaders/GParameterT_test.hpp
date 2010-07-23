@@ -62,7 +62,7 @@
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;
-using namespace Gem::Util;
+using namespace Gem::Hap;
 using namespace Gem::GenEvA;
 
 using boost::unit_test_framework::test_suite;
