@@ -2,6 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( RANDOMINCLUDES
 	GRandom.hpp
+	GRandomDefines.hpp
 	GRandomFactory.hpp
 	GSeedManager.hpp
 )

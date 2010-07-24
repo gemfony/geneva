@@ -109,8 +109,6 @@ enum rnrGenerationMode {
  */
 const rnrGenerationMode DEFAULTRNRGENMODE=RNRLOCAL;
 
-const double rnr_max = static_cast<double>(std::numeric_limits<boost::int32_t>::max()); // The return type of boost::rand48
-
 /****************************************************************************/
 /**
  * This class gives objects access to random numbers. It internally handles
@@ -166,6 +164,13 @@ class GRandom
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief Helps to use this object as a generator for boost's PRNR distributions */
+    typedef double result_type;
+    /** @brief The minimum value returned by evenRandom() */
+    const double min_value;
+    /** @brief The maximum value returned by evenRandom() */
+    const double max_value;
+
 	/** @brief The standard constructor */
 	GRandom();
 	/** @brief Initialization with the random number generation mode */
@@ -191,7 +196,7 @@ public:
 	 *
 	 * @return Random numbers evenly distributed in the range [0,1[
 	 */
-	inline double evenRandom() {
+	double evenRandom() {
 		switch(rnrGenerationMode_) {
 		case RNRFACTORY:
 			{
@@ -214,6 +219,7 @@ public:
 
 		return 0.; // make the compiler happy
 	}
+
 	/*************************************************************************/
 	/**
 	 * Produces even random numbers locally, using the linear congruential generator.
@@ -222,7 +228,7 @@ public:
 	 *
 	 * @return A random number evenly distributed in [0,1[
 	 */
-	inline double evenRandomLocalProduction() {
+	double evenRandomLocalProduction() {
 #ifdef DEBUG
 			double value =  boost::numeric_cast<double>(linCongr_())/rnr_max; // Will be slower ...
 			assert(value>=0. && value<1.);
@@ -230,6 +236,38 @@ public:
 #else
 			return static_cast<double>(static_cast<double>(linCongr_()))/rnr_max;
 #endif
+	}
+
+	/*************************************************************************/
+	/**
+	 * Retrieves an evenRandom item. Thus function, together with the min() and
+	 * max() functions make it possible to use GRandom objects as generators for
+	 * boost's random distributions.
+	 *
+	 * @return A random number taken from the evenRandom function
+	 */
+	double operator()() {
+		return evenRandom();
+	}
+
+	/*************************************************************************/
+	/**
+	 * Returns the minimum value returned by evenRandom()
+	 *
+	 * @return The minimum value returned by evenRandom()
+	 */
+	double min() const {
+		return min_value;
+	}
+
+	/*************************************************************************/
+	/**
+	 * Returns the maximum value returned by evenRandom()
+	 *
+	 * @return The maximum value returned by evenRandom()
+	 */
+	double max() const {
+		return max_value;
 	}
 
 	/*************************************************************************/

@@ -147,6 +147,15 @@ public:
 			BOOST_CHECK(irnr >= -10 && irnr <15); // note the "<" . We want to check that the upper boundary is not reached
 			BOOST_CHECK(drnr >= -10. && drnr <= 15.);
 		}
+
+		// Check that it is possible to use GRandom objects as producers
+		// for boost's random number distributions
+		boost::uniform_int<> dist(1, 6);
+		boost::variate_generator<Gem::Hap::GRandom&, boost::uniform_int<> > die(gr1, dist);
+		for(std::size_t i=0; i<NRNR; i++) {
+			double drnr = die();
+			BOOST_CHECK(drnr >= 1 && drnr <= 6);
+		}
 	}
 
 	/***********************************************************************************/

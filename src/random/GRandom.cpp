@@ -45,7 +45,9 @@ namespace Hap {
  * is still needed.
  */
 GRandom::GRandom()
-	: rnrGenerationMode_(Gem::Hap::RNRFACTORY)
+	: min_value(0.)
+	, max_value(1.)
+	, rnrGenerationMode_(Gem::Hap::RNRFACTORY)
 	, currentPackageSize_(DEFAULTARRAYSIZE)
 	, current01_(1) // position 0 holds the array size
 	, grf_(GRANDOMFACTORY)
@@ -62,7 +64,9 @@ GRandom::GRandom()
  * @param rnrGenMode The random number generation mode (local vs. factory)
  */
 GRandom::GRandom(const Gem::Hap::rnrGenerationMode& rnrGenMode)
-	: rnrGenerationMode_(rnrGenMode)
+	: min_value(0.)
+	, max_value(1.)
+	, rnrGenerationMode_(rnrGenMode)
 	, currentPackageSize_(DEFAULTARRAYSIZE)
 	, current01_(1) // position 0 holds the array size
 	, initialSeed_(GRANDOMFACTORY->getSeed())
@@ -93,7 +97,9 @@ GRandom::GRandom(const Gem::Hap::rnrGenerationMode& rnrGenMode)
  * @param cp A copy of another GRandom object
  */
 GRandom::GRandom(const GRandom& cp)
-	: rnrGenerationMode_(cp.rnrGenerationMode_)
+	: min_value(0.)
+	, max_value(1.)
+	, rnrGenerationMode_(cp.rnrGenerationMode_)
 	, currentPackageSize_(DEFAULTARRAYSIZE)
 	, current01_(1) // position 0 holds the array size
 	, initialSeed_(GRANDOMFACTORY->getSeed()) // We do not want to use the other generator's start seed

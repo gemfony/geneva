@@ -509,7 +509,7 @@ protected:
 	virtual void adaptAdaption()
 	{
 		// We do not want to favor the decrease or increase of sigma, hence we choose
-		// randomly whether to multiply or divide.
+		// randomly whether to multiply or divide. TODO: cross-check.
 		sigma_ *= exp(GAdaptorT<T>::gr.gaussRandom(0.,sigmaSigma_)*(GAdaptorT<T>::gr.boolRandom()?1:-1));
 
 		// make sure sigma_ doesn't get out of range

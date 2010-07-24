@@ -49,7 +49,6 @@ GRandomFactory::GRandomFactory()
 	, threadsHaveBeenStarted_(false)
 	, n01Threads_(DEFAULT01PRODUCERTHREADS)
 	, g01_ (boost::shared_ptr<Gem::Common::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Common::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
-	, seedManager_()
 {
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
 	if(multiple_call_trap_ > 0) {
@@ -88,14 +87,14 @@ void GRandomFactory::setArraySize(const std::size_t& arraySize) {
 	if(arraySize == 0) {
 		std::ostringstream error;
 		error << "In GRandomFactory::setArraySize(): Error" << std::endl
-		          << "Requested array size is 0: " << arraySize << std::endl;
+		      << "Requested array size is 0: " << arraySize << std::endl;
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
-	{
+	{ // explicit scope
 		boost::mutex::scoped_lock lk(arraySizeMutex_);
 		arraySize_ = arraySize;
-	}
+	} // mutex gets destroyed here
 }
 
 /*************************************************************************/
@@ -108,10 +107,10 @@ void GRandomFactory::setArraySize(const std::size_t& arraySize) {
 std::size_t GRandomFactory::getCurrentArraySize() const {
 	std::size_t result;
 
-	{
+	{ // explicit scope
 		boost::mutex::scoped_lock lk(arraySizeMutex_);
 		result = arraySize_;
-	}
+	} // mutex gets destroyed here
 
 	return result;
 }
@@ -131,14 +130,26 @@ std::size_t GRandomFactory::getBufferSize() const {
  * Provides users with an interface to set the initial seed for the global seed
  * generator. Note that this function will have no effect once seeding has started.
  * A boolean will be returned that indicates whether the function has had
- * an effect, i.e. whether the seed could be set. If not set by the user,
- * the seed manager will set the value upon first invocation.
+ * an effect, i.e. whether the seed could be set. The seed manager will then be
+ * started by this function. If not set by the user, the seed manager will start
+ * upon first retrieval of a seed and will then try to acquire a seed automatically.
  *
  * @param seed The desired initial value of the global seed
  * @return A boolean indicating whether the seed could be set
  */
-bool GRandomFactory::setStartSeed(const boost::uint32_t& seed) {
-	return seedManager_.setStartSeed(seed);
+bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
+	if(!seedManager_ptr_) { // double lock pattern
+		boost::mutex::scoped_lock lk(seedingMutex_);
+		if(!seedManager_ptr_) {
+			seedManager_ptr_ = boost::shared_ptr<Gem::Hap::GSeedManager>(new GSeedManager(initial_seed));
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	return false;
 }
 
 /*************************************************************************/
@@ -148,17 +159,54 @@ bool GRandomFactory::setStartSeed(const boost::uint32_t& seed) {
  * @return The value of the global start seed
  */
 boost::uint32_t GRandomFactory::getStartSeed() const {
-	return seedManager_.getStartSeed();
+	return seedManager_ptr_->getStartSeed();
 }
 
 /*************************************************************************/
 /**
  * Checks whether the seeding process has already started
  *
- * @return A boolean indicating whether the seed has already been initialized
+ * @return A boolean indicating whether seeding has already been initialized
  */
 bool GRandomFactory::checkSeedingIsInitialized() const {
-	return seedManager_.checkSeedingIsInitialized();
+	return seedManager_ptr_->checkSeedingIsInitialized();
+}
+
+/*************************************************************************/
+/**
+ * This function returns a random number from a pseudo random number generator
+ * that has been seeded from a non-deterministic source (using the facilities
+ * provided by boost.random). Note that there is no guaranty (albeit a good
+ * likelihood) that neighboring numbers differ. Values obtained from this source
+ * are intended to be used for the seeding of further generators. For the purpose
+ * at hand, it is not mandatory that all start seeds of all generators being used
+ * in an application differ. Hence there is no control whether there is a certain
+ * number of unique seeds in a row. This might be implemented at a later time,
+ * dependent on user requests. This function also checks whether seeding has already
+ * started and if not, initiates seeding.
+ *
+ * @return A seed based on the current time
+ */
+boost::uint32_t GRandomFactory::getSeed(){
+	// Initialize the generator if necessary
+	if(!seedManager_ptr_) { // double lock pattern
+		boost::mutex::scoped_lock lk(seedingMutex_);
+		if(!seedManager_ptr_) {
+			seedManager_ptr_ = boost::shared_ptr<Gem::Hap::GSeedManager>(new GSeedManager());
+		}
+	}
+
+	return seedManager_ptr_->getSeed();
+}
+
+/*************************************************************************/
+/**
+ * Allows to retrieve the size of the seeding queue
+ *
+ * @return The size of the seeding queue
+ */
+std::size_t GRandomFactory::getSeedingQueueSize() const {
+	return seedManager_ptr_->getQueueSize();
 }
 
 /*************************************************************************/
@@ -223,28 +271,6 @@ boost::shared_array<double> GRandomFactory::new01Container() {
 	}
 
 	return result;
-}
-
-/*************************************************************************/
-/**
- * This function returns a number that is guaranteed to be unique within
- * the next DEFAULTMINUNIQUESEEDS calls to this function. DEFAULTMINUNIQUESEEDS
- * is defined in GSeedManager.hpp .
- *
- * @return A seed based on the current time
- */
-boost::uint32_t GRandomFactory::getSeed(){
-	return seedManager_.getSeed();
-}
-
-/*************************************************************************/
-/**
- * Allows to retrieve the size of the seeding queue
- *
- * @return The size of the seeding queue
- */
-std::size_t GRandomFactory::getSeedingQueueSize() const {
-	return seedManager_.getQueueSize();
 }
 
 /*************************************************************************/
