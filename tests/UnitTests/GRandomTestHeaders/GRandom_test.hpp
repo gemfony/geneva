@@ -49,7 +49,7 @@
 #include "random/GRandom.hpp"
 
 using namespace Gem;
-using namespace Gem::Util;
+using namespace Gem::Hap;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
@@ -108,7 +108,7 @@ public:
 
 		// Check that we can set gr3's production flags and can prouce a number of random numbers
 		gr3.setRNRFactoryMode();
-		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Util::RNRFACTORY);
+		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Hap::RNRFACTORY);
 		double last = -1., now=0.;
 		for(std::size_t i=0; i<NRNR; i++) {
 			now = gr3.evenRandom();
@@ -116,7 +116,7 @@ public:
 			last = now;
 		}
 		gr3.setRNRLocalMode();
-		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Util::RNRLOCAL);
+		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Hap::RNRLOCAL);
 		last = -1., now=0.;
 		for(std::size_t i=0; i<NRNR; i++) {
 			now = gr3.evenRandom();
@@ -146,6 +146,15 @@ public:
 			double drnr = gr1.evenRandom(-10.,15.);
 			BOOST_CHECK(irnr >= -10 && irnr <15); // note the "<" . We want to check that the upper boundary is not reached
 			BOOST_CHECK(drnr >= -10. && drnr <= 15.);
+		}
+
+		// Check that it is possible to use GRandom objects as producers
+		// for boost's random number distributions
+		boost::uniform_int<> dist(1, 6);
+		boost::variate_generator<Gem::Hap::GRandom&, boost::uniform_int<> > die(gr1, dist);
+		for(std::size_t i=0; i<NRNR; i++) {
+			double drnr = die();
+			BOOST_CHECK(drnr >= 1 && drnr <= 6);
 		}
 	}
 

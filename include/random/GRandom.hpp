@@ -92,7 +92,7 @@
 /****************************************************************************/
 
 namespace Gem {
-namespace Util {
+namespace Hap {
 
 /****************************************************************************/
 /**
@@ -108,8 +108,6 @@ enum rnrGenerationMode {
  * The default random number generation mode
  */
 const rnrGenerationMode DEFAULTRNRGENMODE=RNRLOCAL;
-
-const double rnr_max = static_cast<double>(std::numeric_limits<boost::int32_t>::max()); // The return type of boost::rand48
 
 /****************************************************************************/
 /**
@@ -141,12 +139,12 @@ class GRandom
         ar & BOOST_SERIALIZATION_NVP(rnrGenerationMode_);
 
         switch(rnrGenerationMode_) {
-        case Gem::Util::RNRFACTORY:
+        case Gem::Hap::RNRFACTORY:
         	// Make sure we have a local pointer to the factory
         	grf_ = GRANDOMFACTORY;
         	break;
 
-        case Gem::Util::RNRLOCAL:
+        case Gem::Hap::RNRLOCAL:
         	// Reset all other random number generation modes
         	p01_.reset();
         	grf_.reset();
@@ -166,10 +164,17 @@ class GRandom
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief Helps to use this object as a generator for boost's PRNR distributions */
+    typedef double result_type;
+    /** @brief The minimum value returned by evenRandom() */
+    const double min_value;
+    /** @brief The maximum value returned by evenRandom() */
+    const double max_value;
+
 	/** @brief The standard constructor */
 	GRandom();
 	/** @brief Initialization with the random number generation mode */
-	explicit GRandom(const Gem::Util::rnrGenerationMode&);
+	explicit GRandom(const Gem::Hap::rnrGenerationMode&);
 	/** @brief A copy constructor */
 	GRandom(const GRandom&);
 	/** @brief A standard destructor */
@@ -191,7 +196,7 @@ public:
 	 *
 	 * @return Random numbers evenly distributed in the range [0,1[
 	 */
-	inline double evenRandom() {
+	double evenRandom() {
 		switch(rnrGenerationMode_) {
 		case RNRFACTORY:
 			{
@@ -214,6 +219,7 @@ public:
 
 		return 0.; // make the compiler happy
 	}
+
 	/*************************************************************************/
 	/**
 	 * Produces even random numbers locally, using the linear congruential generator.
@@ -222,7 +228,7 @@ public:
 	 *
 	 * @return A random number evenly distributed in [0,1[
 	 */
-	inline double evenRandomLocalProduction() {
+	double evenRandomLocalProduction() {
 #ifdef DEBUG
 			double value =  boost::numeric_cast<double>(linCongr_())/rnr_max; // Will be slower ...
 			assert(value>=0. && value<1.);
@@ -230,6 +236,38 @@ public:
 #else
 			return static_cast<double>(static_cast<double>(linCongr_()))/rnr_max;
 #endif
+	}
+
+	/*************************************************************************/
+	/**
+	 * Retrieves an evenRandom item. Thus function, together with the min() and
+	 * max() functions make it possible to use GRandom objects as generators for
+	 * boost's random distributions.
+	 *
+	 * @return A random number taken from the evenRandom function
+	 */
+	double operator()() {
+		return evenRandom();
+	}
+
+	/*************************************************************************/
+	/**
+	 * Returns the minimum value returned by evenRandom()
+	 *
+	 * @return The minimum value returned by evenRandom()
+	 */
+	double min() const {
+		return min_value;
+	}
+
+	/*************************************************************************/
+	/**
+	 * Returns the maximum value returned by evenRandom()
+	 *
+	 * @return The maximum value returned by evenRandom()
+	 */
+	double max() const {
+		return max_value;
 	}
 
 	/*************************************************************************/
@@ -300,9 +338,9 @@ public:
 	char charRandom(const bool& printable = true);
 
 	/** @brief Sets the random number generation mode */
-	void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+	void setRnrGenerationMode(const Gem::Hap::rnrGenerationMode&);
 	/** @brief Retrieves the current random number generation mode */
-	Gem::Util::rnrGenerationMode getRnrGenerationMode () const;
+	Gem::Hap::rnrGenerationMode getRnrGenerationMode () const;
 	/** @brief Specifies a rng-proxy to be used and empties the p01_ array */
 	void setRNRFactoryMode();
 	/** @brief Switches to local production mode, using GRandomFactory::getStartSeed() for seeding */
@@ -328,7 +366,7 @@ private:
 	boost::shared_array<double> p01_; ///< Holds the container of [0,1[ random numbers  Size is 16 bytes on a 64 bit system
 	std::size_t current01_; ///< The current position in p01_.  Size is 8 byte on a 64 bit system
 	double *p_raw_; ///< A pointer to the content of p01_ for faster access.  Size is 8 byte on a 64 bit system
-	boost::shared_ptr<Gem::Util::GRandomFactory> grf_; ///< A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system (?)
+	boost::shared_ptr<Gem::Hap::GRandomFactory> grf_; ///< A local copy of the global GRandomFactory.  Size is 16 byte on a 64 bit system (?)
 
 	/** @brief Used in conjunction with the local generation of random numbers */
 	boost::uint32_t initialSeed_; ///< Used as a start value for the local random number generator.  Size is 4 byte on a 64 bit system
@@ -344,15 +382,15 @@ private:
 /****************************************************************************/
 // Some helper functions
 
-/** @brief Puts a Gem::Util::rnrGenerationMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Util::rnrGenerationMode&);
+/** @brief Puts a Gem::Hap::rnrGenerationMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Hap::rnrGenerationMode&);
 
-/** @brief Reads a Gem::Util::rnrGenerationMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Util::rnrGenerationMode&);
+/** @brief Reads a Gem::Hap::rnrGenerationMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Hap::rnrGenerationMode&);
 
 /****************************************************************************/
 
-} /* namespace Util */
+} /* namespace Hap */
 } /* namespace Gem */
 
 #endif /* GRANDOM_HPP_ */

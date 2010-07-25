@@ -203,7 +203,7 @@ void GInt32::randomInit_() {
 	boost::int32_t lowerBoundary = getLowerInitBoundary();
 	boost::int32_t upperBoundary = getUpperInitBoundary()+1;
 
-	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 
 	setValue(gr.discreteRandom(lowerBoundary, upperBoundary));
 }

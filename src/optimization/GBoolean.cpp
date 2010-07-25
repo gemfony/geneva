@@ -156,7 +156,7 @@ void GBoolean::randomInit(const double& probability) {
  * GBoolean::randomInit(const double& probability) function.
  */
 void GBoolean::randomInit_(const double& probability) {
-  Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+  Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
   this->setValue(gr.boolRandom(probability));
 }
 
@@ -165,7 +165,7 @@ void GBoolean::randomInit_(const double& probability) {
  * Triggers random initialization of the parameter object
  */
 void GBoolean::randomInit_() {
-	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 	this->setValue(gr.boolRandom());
 }
 

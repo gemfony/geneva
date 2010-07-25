@@ -54,7 +54,7 @@
 
 using namespace Gem::GenEvA;
 using namespace Gem::Communication;
-using namespace Gem::Util;
+using namespace Gem::Hap;
 
 /************************************************************************************************/
 /**
@@ -179,9 +179,9 @@ int main(int argc, char **argv){
 	  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	  gdga_ptr->setAdaptionProbability(adProb);
 	  if(productionPlace) // Factory means "true"
-		  gdga_ptr->setRnrGenerationMode(Gem::Util::RNRFACTORY);
+		  gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY);
 	  else // Local means "false"
-		  gdga_ptr->setRnrGenerationMode(Gem::Util::RNRLOCAL);
+		  gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
 	  gdc_ptr->addAdaptor(gdga_ptr);
 
 	  // Make the parameter collection known to this individual

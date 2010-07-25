@@ -58,7 +58,7 @@ GInt32Collection::GInt32Collection()
 GInt32Collection::GInt32Collection(const std::size_t& nval, const boost::int32_t& min, const boost::int32_t& max)
 	: GNumCollectionT<boost::int32_t>(min, max)
 {
-	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.discreteRandom(min,max));
 }
 
@@ -137,7 +137,7 @@ void GInt32Collection::randomInit_() {
 	boost::int32_t lowerBoundary = getLowerInitBoundary();
 	boost::int32_t upperBoundary = getUpperInitBoundary()+1;
 
-	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 
 	GInt32Collection::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {

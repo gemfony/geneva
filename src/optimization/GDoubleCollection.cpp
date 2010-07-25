@@ -58,7 +58,7 @@ GDoubleCollection::GDoubleCollection()
 GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max)
 	: GNumCollectionT<double>(min, max)
 {
-	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.evenRandom(min,max));
 }
 
@@ -189,7 +189,7 @@ void GDoubleCollection::randomInit_() {
 	double lowerBoundary = getLowerInitBoundary();
 	double upperBoundary = getUpperInitBoundary();
 
-	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 
 	GDoubleCollection::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {

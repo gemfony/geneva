@@ -80,26 +80,12 @@
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
-#include "GSeedManager.hpp"
+#include "random/GSeedManager.hpp"
 
 /****************************************************************************/
 
 namespace Gem {
-namespace Util {
-
-/****************************************************************************/
-// Some constants needed for the random number generation
-
-const std::size_t DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
-const std::size_t DEFAULTFACTORYBUFFERSIZE = 400; ///< Default size of the underlying buffer
-const boost::uint16_t DEFAULTFACTORYPUTWAIT = 5; ///< waiting time in milliseconds
-const boost::uint16_t DEFAULTFACTORYGETWAIT = 5; ///< waiting time in milliseconds
-
-/****************************************************************************/
-/**
- * The number of threads that simultaneously produce [0,1[ random numbers
- */
-const boost::uint16_t DEFAULT01PRODUCERTHREADS = 4;
+namespace Hap {
 
 /****************************************************************************/
 /**
@@ -147,14 +133,14 @@ public:
 	std::size_t getBufferSize() const;
 
 	/** @brief Setting of an initial seed for random number generators */
-	bool setStartSeed(const boost::uint32_t&);
+	bool setStartSeed(const initial_seed_type&);
 	/** @brief Retrieval of the start-value of the global seed */
-	boost::uint32_t getStartSeed() const;
+	initial_seed_type getStartSeed() const;
 	/** @brief Checks whether seeding has already started*/
 	bool checkSeedingIsInitialized() const;
 
 	/** @brief Retrieval of a new seed for external or internal random number generators */
-	boost::uint32_t getSeed();
+	seed_type getSeed();
 
 	/** @brief Allows to retrieve the size of the seeding queue */
 	std::size_t getSeedingQueueSize() const;
@@ -183,18 +169,19 @@ private:
 
 	boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
 	mutable boost::mutex arraySizeMutex_; ///< Regulates access to the arraySize_ variable
+	boost::mutex seedingMutex_; ///< Regulates start-up of the seeding process
 
-	GSeedManager seedManager_; ///< Manages seed creation
+	boost::shared_ptr<GSeedManager> seedManager_ptr_; ///< Manages seed creation
 };
 
-} /* namespace Util */
+} /* namespace Hap */
 } /* namespace Gem */
 
 /****************************************************************************/
 /**
  * A single, global random number factory is created as a singleton.
  */
-typedef Gem::Common::GSingletonT<Gem::Util::GRandomFactory> grfactory;
+typedef Gem::Common::GSingletonT<Gem::Hap::GRandomFactory> grfactory;
 #define GRANDOMFACTORY grfactory::getInstance()
 
 #endif /* GRANDOMFACTORY_HPP_ */

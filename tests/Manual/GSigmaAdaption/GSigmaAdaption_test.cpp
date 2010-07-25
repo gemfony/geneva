@@ -51,7 +51,7 @@
 
 using namespace Gem;
 using namespace Gem::GenEvA;
-using namespace Gem::Util;
+using namespace Gem::Hap;
 
 int main(int argc, char **argv) {
 	bool verbose;

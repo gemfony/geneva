@@ -41,7 +41,7 @@ using namespace boost::unit_test;
 #include "GStandard_test.hpp"
 
 using namespace Gem;
-using namespace Gem::Util;
+using namespace Gem::Hap;
 using namespace Gem::GenEvA;
 
 /************************************************************************************************/

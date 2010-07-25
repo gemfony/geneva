@@ -32,10 +32,10 @@
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Util::GRandom)
+BOOST_CLASS_EXPORT(Gem::Hap::GRandom)
 
 namespace Gem {
-namespace Util {
+namespace Hap {
 
 /*************************************************************************/
 /**
@@ -45,7 +45,9 @@ namespace Util {
  * is still needed.
  */
 GRandom::GRandom()
-	: rnrGenerationMode_(Gem::Util::RNRFACTORY)
+	: min_value(0.)
+	, max_value(1.)
+	, rnrGenerationMode_(Gem::Hap::RNRFACTORY)
 	, currentPackageSize_(DEFAULTARRAYSIZE)
 	, current01_(1) // position 0 holds the array size
 	, grf_(GRANDOMFACTORY)
@@ -61,8 +63,10 @@ GRandom::GRandom()
  *
  * @param rnrGenMode The random number generation mode (local vs. factory)
  */
-GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
-	: rnrGenerationMode_(rnrGenMode)
+GRandom::GRandom(const Gem::Hap::rnrGenerationMode& rnrGenMode)
+	: min_value(0.)
+	, max_value(1.)
+	, rnrGenerationMode_(rnrGenMode)
 	, currentPackageSize_(DEFAULTARRAYSIZE)
 	, current01_(1) // position 0 holds the array size
 	, initialSeed_(GRANDOMFACTORY->getSeed())
@@ -71,12 +75,12 @@ GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
 	, gaussCacheAvailable_(false)
 {
     switch(rnrGenerationMode_) {
-    case Gem::Util::RNRFACTORY:
+    case Gem::Hap::RNRFACTORY:
     	// Make sure we have a local pointer to the factory
     	grf_ = GRANDOMFACTORY;
     	break;
 
-    case Gem::Util::RNRLOCAL:
+    case Gem::Hap::RNRLOCAL:
     	// Reset all other random number generation modes
     	p01_.reset();
     	grf_.reset();
@@ -93,7 +97,9 @@ GRandom::GRandom(const Gem::Util::rnrGenerationMode& rnrGenMode)
  * @param cp A copy of another GRandom object
  */
 GRandom::GRandom(const GRandom& cp)
-	: rnrGenerationMode_(cp.rnrGenerationMode_)
+	: min_value(0.)
+	, max_value(1.)
+	, rnrGenerationMode_(cp.rnrGenerationMode_)
 	, currentPackageSize_(DEFAULTARRAYSIZE)
 	, current01_(1) // position 0 holds the array size
 	, initialSeed_(GRANDOMFACTORY->getSeed()) // We do not want to use the other generator's start seed
@@ -102,12 +108,12 @@ GRandom::GRandom(const GRandom& cp)
 	, gaussCacheAvailable_(false)
 {
     switch(rnrGenerationMode_) {
-    case Gem::Util::RNRFACTORY:
+    case Gem::Hap::RNRFACTORY:
     	// Make sure we have a local pointer to the factory
     	grf_ = GRANDOMFACTORY;
     	break;
 
-    case Gem::Util::RNRLOCAL:
+    case Gem::Hap::RNRLOCAL:
     	// Reset all other random number generation modes
     	p01_.reset();
     	grf_.reset();
@@ -188,12 +194,12 @@ boost::uint32_t GRandom::getSeed() {
  * @param rnrGenMode The new desired random number generation mode
  */
 
-void GRandom::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+void GRandom::setRnrGenerationMode(const Gem::Hap::rnrGenerationMode& rnrGenMode) {
 	switch (rnrGenMode) {
-	case Gem::Util::RNRFACTORY:
+	case Gem::Hap::RNRFACTORY:
 		setRNRFactoryMode();
 		break;
-	case Gem::Util::RNRLOCAL:
+	case Gem::Hap::RNRLOCAL:
 		setRNRLocalMode();
 		break;
 	}
@@ -205,7 +211,7 @@ void GRandom::setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMod
  *
  * @return The current random number generation scheme
  */
-Gem::Util::rnrGenerationMode  GRandom::getRnrGenerationMode () const {
+Gem::Hap::rnrGenerationMode  GRandom::getRnrGenerationMode () const {
 	return rnrGenerationMode_;
 }
 
@@ -215,10 +221,10 @@ Gem::Util::rnrGenerationMode  GRandom::getRnrGenerationMode () const {
  */
 void  GRandom::setRNRFactoryMode() {
 	// Do nothing if the mode has already been set
-	if(rnrGenerationMode_ == Gem::Util::RNRFACTORY) return;
+	if(rnrGenerationMode_ == Gem::Hap::RNRFACTORY) return;
 
 	// Get access to the factory and set the mode
-	rnrGenerationMode_ = Gem::Util::RNRFACTORY;
+	rnrGenerationMode_ = Gem::Hap::RNRFACTORY;
 	grf_ = GRANDOMFACTORY;
 }
 
@@ -229,14 +235,14 @@ void  GRandom::setRNRFactoryMode() {
  */
 void  GRandom::setRNRLocalMode() {
 	// Do nothing if the mode has already been set
-	if(rnrGenerationMode_ == Gem::Util::RNRLOCAL) return;
+	if(rnrGenerationMode_ == Gem::Hap::RNRLOCAL) return;
 
 	// Reset all other random number generation modes
 	p01_.reset();
 	grf_.reset();
 
 	// Switch the mode
-	rnrGenerationMode_ = Gem::Util::RNRLOCAL;
+	rnrGenerationMode_ = Gem::Hap::RNRLOCAL;
 }
 
 /*************************************************************************/
@@ -248,7 +254,7 @@ void  GRandom::setRNRLocalMode() {
  */
 void  GRandom::setRNRLocalMode(const boost::uint32_t& seed) {
 	// If the mode has already been set, just reset the seed
-	if(rnrGenerationMode_ == Gem::Util::RNRLOCAL) {
+	if(rnrGenerationMode_ == Gem::Hap::RNRLOCAL) {
 		setSeed(seed);
 	}
 	else { // Otherwise take the required steps
@@ -438,13 +444,13 @@ void GRandom::getNewP01() {
 
 /*************************************************************************/
 /**
- * Puts a Gem::Util::rnrGenerationMode item into a stream
+ * Puts a Gem::Hap::rnrGenerationMode item into a stream
  *
  * @param o The ostream the item should be added to
  * @param rnrgen the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Util::rnrGenerationMode& rnrgen){
+std::ostream& operator<<(std::ostream& o, const Gem::Hap::rnrGenerationMode& rnrgen){
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(rnrgen);
 	o << tmp;
 	return o;
@@ -452,20 +458,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::Util::rnrGenerationMode& rn
 
 /*************************************************************************/
 /**
- * Reads a Gem::Util::rnrGenerationMode item from a stream
+ * Reads a Gem::Hap::rnrGenerationMode item from a stream
  *
  * @param i The stream the item should be read from
  * @param rnrgen The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Util::rnrGenerationMode& rnrgen){
+std::istream& operator>>(std::istream& i, Gem::Hap::rnrGenerationMode& rnrgen){
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	rnrgen = boost::numeric_cast<Gem::Util::rnrGenerationMode>(tmp);
+	rnrgen = boost::numeric_cast<Gem::Hap::rnrGenerationMode>(tmp);
 #else
-	rnrgen = static_cast<Gem::Util::rnrGenerationMode>(tmp);
+	rnrgen = static_cast<Gem::Hap::rnrGenerationMode>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -473,5 +479,5 @@ std::istream& operator>>(std::istream& i, Gem::Util::rnrGenerationMode& rnrgen){
 
 /*************************************************************************/
 
-} /* namespace Util */
+} /* namespace Hap */
 } /* namespace Gem */

@@ -298,7 +298,7 @@ public:
 		, transferFunction_(tF)
 	{
 		// Create a local random number generator
-		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 
 		// Check the architecture we've been given and create the layers
 		std::size_t nLayers = nD_->size();
@@ -486,7 +486,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 
 		// The dimension of the hypercube is identical to the number of input nodes
 		std::size_t nDim = architecture[0];
@@ -568,7 +568,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 
 		// The dimension of the hypersphere is identical to the number of input nodes
 		std::size_t nDim = architecture[0];
@@ -694,7 +694,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 
 		// The dimension of the data set is equal to the number of input nodes
 		std::size_t nDim = architecture[0];
@@ -797,7 +797,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way

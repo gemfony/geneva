@@ -139,7 +139,7 @@ public:
 	 */
 	GAdaptorT()
 		: GObject()
-		, gr(Gem::Util::DEFAULTRNRGENMODE)
+		, gr(Gem::Hap::DEFAULTRNRGENMODE)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
 		, adProb_(DEFAULTADPROB)
@@ -155,7 +155,7 @@ public:
 	 */
 	GAdaptorT(const double& prob)
 		: GObject()
-		, gr(Gem::Util::DEFAULTRNRGENMODE)
+		, gr(Gem::Hap::DEFAULTRNRGENMODE)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
 		, adProb_(prob)
@@ -292,7 +292,7 @@ public:
 	 *
 	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
 	 */
-	virtual void setRnrGenerationMode(const Gem::Util::rnrGenerationMode& rnrGenMode) {
+	virtual void setRnrGenerationMode(const Gem::Hap::rnrGenerationMode& rnrGenMode) {
 		// Set the local random number generation mode
 		gr.setRnrGenerationMode(rnrGenMode);
 	}
@@ -303,7 +303,7 @@ public:
 	 *
 	 * @return The current random number generation mode of the local generator
 	 */
-	Gem::Util::rnrGenerationMode getRnrGenerationMode() const {
+	Gem::Hap::rnrGenerationMode getRnrGenerationMode() const {
 		return gr.getRnrGenerationMode();
 	}
 
@@ -553,7 +553,7 @@ protected:
      * in case the factory is unreachable, or local storage of random
      * number containers requires too much memory.
      */
-	Gem::Util::GRandom gr;
+	Gem::Hap::GRandom gr;
 
 	/***********************************************************************************/
 	/**

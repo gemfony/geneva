@@ -203,7 +203,7 @@ void GDouble::randomInit_() {
 	double lowerBoundary = getLowerInitBoundary();
 	double upperBoundary = getUpperInitBoundary();
 
-	Gem::Util::GRandom gr(Gem::Util::RNRLOCAL);
+	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
 
 	setValue(gr.evenRandom(lowerBoundary, upperBoundary));
 }

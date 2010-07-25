@@ -228,9 +228,9 @@ public:
 	bool getEmitTerminationReason() const;
 
 	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
-	void setRnrGenerationMode(const Gem::Util::rnrGenerationMode&);
+	void setRnrGenerationMode(const Gem::Hap::rnrGenerationMode&);
 	/** @brief Retrieves the random number generators current generation mode. */
-	Gem::Util::rnrGenerationMode getRnrGenerationMode() const;
+	Gem::Hap::rnrGenerationMode getRnrGenerationMode() const;
 
 	/**********************************************************************/
 	/**
@@ -332,7 +332,7 @@ protected:
      * in case the factory is unreachable, or local storage of random
      * number containers requires too much memory.
      */
-	Gem::Util::GRandom gr;
+	Gem::Hap::GRandom gr;
 
 	/**********************************************************************************/
 private:
