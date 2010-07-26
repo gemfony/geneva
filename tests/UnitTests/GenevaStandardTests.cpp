@@ -57,7 +57,7 @@ using namespace boost::unit_test;
 #include "optimization/GEAPersonalityTraits.hpp"
 #include "optimization/GGDPersonalityTraits.hpp"
 #include "optimization/GSwarmPersonalityTraits.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 
 #include "GStandard_test.hpp"
 

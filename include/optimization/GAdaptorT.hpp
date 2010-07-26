@@ -64,7 +64,7 @@
 // Geneva headers go here
 
 #include "common/GTriboolSerialization.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "GObject.hpp"
 #include "GObjectExpectationChecksT.hpp"
 #include "GOptimizationEnums.hpp"

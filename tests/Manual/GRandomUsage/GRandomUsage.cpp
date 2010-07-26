@@ -52,7 +52,7 @@
 #include <boost/random.hpp>
 
 // GenEvA header files
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 
 // Parsing of the command line
 #include "GCommandLineParser.hpp"

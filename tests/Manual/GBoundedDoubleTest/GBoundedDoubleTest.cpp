@@ -53,7 +53,7 @@
 #include <boost/cstdint.hpp>
 
 // GenEvA header files go here
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "optimization/GBoundedDouble.hpp"
 #include "optimization/GDoubleGaussAdaptor.hpp"
 

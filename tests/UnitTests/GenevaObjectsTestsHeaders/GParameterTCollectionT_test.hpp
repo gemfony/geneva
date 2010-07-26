@@ -50,7 +50,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "optimization/GParameterT.hpp"
 #include "optimization/GParameterTCollectionT.hpp"
 #include "optimization/GBooleanAdaptor.hpp"

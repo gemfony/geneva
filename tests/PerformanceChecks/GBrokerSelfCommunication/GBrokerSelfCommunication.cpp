@@ -43,7 +43,7 @@
 // GenEvA header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GThreadGroup.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "communication/GAsioTCPConsumerT.hpp"
 #include "communication/GAsioTCPClientT.hpp"
 #include "optimization/GEvolutionaryAlgorithm.hpp"

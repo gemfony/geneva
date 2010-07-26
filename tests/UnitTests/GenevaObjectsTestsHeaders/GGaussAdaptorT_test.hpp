@@ -49,7 +49,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "optimization/GGaussAdaptorT.hpp"
 #include "optimization/GDoubleGaussAdaptor.hpp"
 #include "optimization/GInt32GaussAdaptor.hpp"

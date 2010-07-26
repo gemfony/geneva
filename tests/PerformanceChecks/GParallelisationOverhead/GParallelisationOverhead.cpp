@@ -42,7 +42,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 // GenEvA header files go here
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "communication/GAsioTCPConsumerT.hpp"
 #include "communication/GAsioTCPClientT.hpp"
 #include "communication/GAsioHelperFunctions.hpp"

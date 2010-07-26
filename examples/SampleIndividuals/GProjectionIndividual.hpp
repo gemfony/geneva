@@ -69,7 +69,7 @@
 
 // GenEvA header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "optimization/GDoubleCollection.hpp"
 #include "optimization/GDoubleGaussAdaptor.hpp"
 #include "optimization/GParameterSet.hpp"

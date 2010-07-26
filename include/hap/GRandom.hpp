@@ -87,7 +87,7 @@
 
 #include "common/GBoundedBufferT.hpp"
 #include "common/GExceptions.hpp"
-#include "GRandomFactory.hpp"
+#include "hap/GRandomFactory.hpp"
 
 /****************************************************************************/
 

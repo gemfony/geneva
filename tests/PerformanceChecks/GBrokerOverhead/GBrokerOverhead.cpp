@@ -36,7 +36,7 @@
 #include <boost/lexical_cast.hpp>
 
 // GenEvA header files go here
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "communication/GBoostThreadConsumerT.hpp"
 #include "optimization/GEvolutionaryAlgorithm.hpp"
 #include "optimization/GMultiThreadedEA.hpp"

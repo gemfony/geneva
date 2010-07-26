@@ -81,7 +81,7 @@
 #include "common/GBoundedBufferT.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "random/GRandomDefines.hpp"
+#include "hap/GRandomDefines.hpp"
 
 /****************************************************************************/
 

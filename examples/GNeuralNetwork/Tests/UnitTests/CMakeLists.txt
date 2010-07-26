@@ -15,7 +15,7 @@ INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}
 	${GENEVA_ROOT}/include
 #	${GENEVA_ROOT}/include/dataexchange
-	${GENEVA_ROOT}/include/random
+	${GENEVA_ROOT}/include/hap
 	${GENEVA_ROOT}/include/communication
 	${GENEVA_ROOT}/include/optimization
 	${GENEVA_ROOT}/tests/UnitTests/UtilityHeaders
@@ -31,7 +31,7 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${OPTIMIZATION_LIBNAME}
 	${COMMUNICATION_LIBNAME}
 #	${DATAEXCHANGE_LIBNAME}
-	${RANDOM_LIBNAME}
+	${HAP_LIBNAME}
 	${COMMON_LIBNAME}
 	${Boost_LIBRARIES}
 )

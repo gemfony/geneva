@@ -46,7 +46,7 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "common/GCommonEnums.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;

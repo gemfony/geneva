@@ -46,7 +46,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "optimization/GParameterBase.hpp"
 #include "optimization/GBooleanCollection.hpp"
 #include "optimization/GBooleanAdaptor.hpp"

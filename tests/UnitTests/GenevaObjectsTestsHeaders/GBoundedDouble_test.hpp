@@ -44,7 +44,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "optimization/GBoundedDouble.hpp"
 #include "optimization/GDoubleGaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"

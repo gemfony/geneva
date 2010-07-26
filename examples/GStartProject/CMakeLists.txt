@@ -65,7 +65,7 @@ INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}
 	${GENEVA_ROOT}/include
 #	${GENEVA_ROOT}/include/dataexchange
-	${GENEVA_ROOT}/include/random
+	${GENEVA_ROOT}/include/hap
 	${GENEVA_ROOT}/include/communication
 	${GENEVA_ROOT}/include/optimization
 	${GENEVA_ROOT}/include/thirdparty
@@ -94,7 +94,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 
 SET (COMMON_LIBNAME "gemfony-common")
 SET (DATAEXCHANGE_LIBNAME "gemfony-dataexchange")
-SET (RANDOM_LIBNAME "gemfony-random")
+SET (HAP_LIBNAME "gemfony-hap")
 SET (COMMUNICATION_LIBNAME "gemfony-communication")
 
 # The name of the optimization lib depends on whether or not it contains test code
@@ -108,7 +108,7 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${OPTIMIZATION_LIBNAME}
 	${COMMUNICATION_LIBNAME}
 #	${DATAEXCHANGE_LIBNAME}
-	${RANDOM_LIBNAME}
+	${HAP_LIBNAME}
 	${COMMON_LIBNAME}
 	${Boost_LIBRARIES}
 )

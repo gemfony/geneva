@@ -80,7 +80,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
-#include "random/GSeedManager.hpp"
+#include "hap/GSeedManager.hpp"
 
 /****************************************************************************/
 

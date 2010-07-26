@@ -74,7 +74,7 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "optimization/GDouble.hpp"
 #include "optimization/GDoubleGaussAdaptor.hpp"
 #include "optimization/GDoubleObjectCollection.hpp"

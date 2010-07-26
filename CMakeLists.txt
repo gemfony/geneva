@@ -138,7 +138,7 @@ LINK_DIRECTORIES (
 # The names of the libraries that will be built
 SET ( COMMONLIBNAME gemfony-common )
 SET ( DATAEXCHANGELIBNAME gemfony-dataexchange )
-SET ( RANDOMLIBNAME gemfony-random )
+SET ( HAPLIBNAME gemfony-hap )
 SET ( COMMUNICATIONLIBNAME gemfony-communication )
 
 # The name of the optimization lib depends on whether or not it contains test code

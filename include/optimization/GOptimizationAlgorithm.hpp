@@ -60,7 +60,7 @@
 
 
 // GenEvA headers go here
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "GIndividual.hpp"
 #include "GMutableSetT.hpp"
 #include "GObject.hpp"

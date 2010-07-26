@@ -37,7 +37,7 @@
 #include <boost/lexical_cast.hpp>
 
 // GenEvA header files go here
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "communication/GAsioHelperFunctions.hpp"
 #include "communication/GAsioTCPClientT.hpp"
 #include "communication/GAsioTCPConsumerT.hpp"

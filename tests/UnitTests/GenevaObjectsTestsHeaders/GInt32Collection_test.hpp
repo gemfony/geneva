@@ -43,7 +43,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "optimization/GInt32Collection.hpp"
 #include "GEqualityPrinter.hpp"
 
