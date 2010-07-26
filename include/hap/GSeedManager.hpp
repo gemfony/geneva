@@ -126,21 +126,90 @@ public:
 private:
 	/*************************************************************************/
 	/**
-	 * Wrapper function that performs a one-time creation of a start seed
-	 * for the seeding sequence. It uses a non-deterministic random number
-	 * generator, as provided by the boost library collection (see e.g.
-	 * here: http://www.boost.org/doc/libs/1_43_0/doc/html/boost/random_device.html).
+	 * Wrapper function that attempts to create a start seed using different methods
 	 *
-	 * @return A start seed for the seeding sequence
+	 * @return A start seed for the random seed sequence
 	 */
 	static initial_seed_type createStartSeed() {
-		initial_seed_type startSeed;
-		nondet_rng rng;
-		while(!(startSeed=rng())); // Prevent a start seed of 0
+		initial_seed_type startSeed = 0;
 
-		std::cout << "Obtained start seed of " << startSeed << std::endl;
+		if(!(startSeed = GSeedManager::createStartSeedDevURandom())) {
+			std::cerr << "Warning: Using /dev/urandom to retrieve global seed failed." << std::endl
+				      << "Using the current time instead: ";
+			startSeed = GSeedManager::createStartSeedCurrentTime();
+			std::cerr << startSeed << std::endl;
+	 	}
+		else {
+			std::cout << "Used /dev/urandom to retrieve start seed " << startSeed << std::endl;
+		}
 
 		return startSeed;
+	}
+
+	/*************************************************************************/
+	/**
+	 * A private member function that allows to set the global
+	 * seed once, using a random number taken from /dev/urandom. As enough entropy
+	 * needs to be available and reads from /dev/random will block (on Linux) if this
+	 * is not the case, this function should be called only rarely and is meant for
+	 * the initialization of the random seed sequence only.
+	 *
+	 * @return A random number obtained from /dev/urandom
+	 */
+	static initial_seed_type createStartSeedDevURandom() {
+		// Check if /dev/random exists (this might not be a Linux system after all)
+		if(!boost::filesystem::exists("/dev/urandom")) return 0;
+
+		// Open the device
+		std::ifstream devurandom("/dev/urandom");
+		if(!devurandom) return 0;
+
+		// Read in the data
+		initial_seed_type startSeed;
+		devurandom.read(reinterpret_cast<char*>(&startSeed), sizeof(startSeed));
+
+		// Clean up
+		devurandom.close();
+
+		return startSeed;
+	}
+
+	/************************************************************************/
+	/**
+	 * Allows to derive a seed from the current time. Note that, although we try to
+	 * add randomness, this might not give good results if many seeds are requested by
+	 * different entities in short succession. It should be sufficient for a one-time
+	 * retrieval of a seed for the seed random sequence, though. Remote components of
+	 * an application needing unique seeds should retrieve them out of the random
+	 * sequence instead of this function. Note also that results obtained with this
+	 * function might depend on the endianness of your machine (tested on x86_64 only).
+	 */
+	static initial_seed_type createStartSeedCurrentTime() {
+		using namespace boost::posix_time;
+		using namespace boost::gregorian;
+
+		// There might be strange systems where this is not the case
+		BOOST_STATIC_ASSERT(sizeof(long) >= sizeof(initial_seed_type));
+
+		// Retrieve the time passed since January 1, 1970 in microseconds
+		long currentMS = (microsec_clock::local_time() - ptime(date(1970, Jan, 1))).total_microseconds();
+
+		// Attach the char pointer to where the boost::uint32_t inside of the long would start
+		char *currentMSStart = reinterpret_cast<char*>(&currentMS);
+
+		// Note: whether the above will give you different values upon each invocation
+		// will likely depend on the endianness of your machine. It has been tested on
+		// x86_64 only. You might need to use something along the lines of:
+		// std::size_t nHops = sizeof(long) - sizeof(boost::uint32_t);
+		// currentMSStart+=nHops;
+		// Note: This is totally untested.
+
+		// Attach the seed to this point
+		initial_seed_type *seed_ptr = 0;
+		seed_ptr = reinterpret_cast<initial_seed_type *>(currentMSStart);
+
+		// Let the audience know
+		return *seed_ptr;
 	}
 
 	/************************************************************************/

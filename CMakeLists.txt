@@ -97,7 +97,6 @@ FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	date_time
 	filesystem
 	program_options
-	random
 	regex
 	serialization
 	system
