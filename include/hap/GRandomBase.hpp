@@ -88,6 +88,15 @@ namespace Hap {
 class GRandomBase
 {
 public:
+	/****************************************************************************/
+    /** @brief Helps to use this object as a generator for boost's PRNR distributions */
+    typedef double result_type;
+    /** @brief The minimum value returned by evenRandom() */
+    const double min_value;
+    /** @brief The maximum value returned by evenRandom() */
+    const double max_value;
+
+    /****************************************************************************/
 	/** @brief The standard constructor */
 	GRandomBase();
 	/** @brief A standard destructor */
@@ -95,6 +104,13 @@ public:
 
 	/** @brief Emits a double value in the range [0,1[ */
 	virtual double fpUniform() = 0;
+
+	/** @brief Retrieves an fpUniform item */
+	double GRandomBase::operator()();
+	/** @brief Retrieves the minimum value returned by operator() */
+	double min() const;
+	/** @brief Retrieves the maximum value returned by operator() */
+	double max() const;
 
 	/** @brief Emits evenly distributed random numbers in the range [0,max[ */
 	double fpUniform(const double&);

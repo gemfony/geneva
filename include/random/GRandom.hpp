@@ -377,6 +377,8 @@ private:
 	double gaussCache_;
 	/** @brief Specifies whether a valid cached gaussian is available */
 	bool gaussCacheAvailable_;
+
+	boost::variate_generator<Gem::Hap::GRandom&, boost::normal_distribution<> > normal_distribution;
 };
 
 /****************************************************************************/

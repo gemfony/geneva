@@ -48,6 +48,38 @@ GRandomBase::GRandomBase()
 GRandomBase::~GRandomBase()
 { /* nothing */ }
 
+/*************************************************************************/
+/**
+ * Retrieves an fpUniform item. Thus function, together with the min() and
+ * max() functions make it possible to use GRandomBase as a generator for
+ * boost's random distributions.
+ *
+ * @return A random number taken from the evenRandom function
+ */
+double GRandomBase::operator()() {
+	return fpUniform();
+}
+
+/*************************************************************************/
+/**
+ * Returns the minimum value returned by evenRandom()
+ *
+ * @return The minimum value returned by evenRandom()
+ */
+double GRandomBase::min() const {
+	return min_value;
+}
+
+/*************************************************************************/
+/**
+ * Returns the maximum value returned by evenRandom()
+ *
+ * @return The maximum value returned by evenRandom()
+ */
+double GRandomBase::max() const {
+	return max_value;
+}
+
 /****************************************************************************/
 /**
  * Emits evenly distributed random numbers in the range [0,max[

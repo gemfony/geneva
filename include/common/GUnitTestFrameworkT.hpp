@@ -36,11 +36,6 @@
 
 // Boost headers go here
 
-#include <boost/test/unit_test.hpp>
-#include <boost/test/test_case_template.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
-
 #ifndef GUNITTESTFRAMEWORKT_HPP_
 #define GUNITTESTFRAMEWORKT_HPP_
 
@@ -51,7 +46,7 @@
  * This function creates a new T object. It can be specialized by the tested objects e.g. in case
  * they do not have a default constructor.
  *
- * @return A pointer to a newly created T object
+ * @return A boost::shared_ptr to a newly created T object
  */
 template <typename T>
 boost::shared_ptr<T> TFactory_GUnitTests() {

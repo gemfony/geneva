@@ -225,7 +225,7 @@ void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
-	// Threads might already be running, so we need to restrict access
+	// Threads might already be running, so we need to regulate access
 	{
 		boost::mutex::scoped_lock lk(thread_creation_mutex_);
 		if(threadsHaveBeenStarted_) {

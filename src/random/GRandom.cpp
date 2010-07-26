@@ -55,6 +55,7 @@ GRandom::GRandom()
 	, linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
 	, gaussCache_(0.)
 	, gaussCacheAvailable_(false)
+	, normal_distribution(*this, boost::normal_distribution<>())
 { /* nothing */ }
 
 /*************************************************************************/
@@ -73,6 +74,7 @@ GRandom::GRandom(const Gem::Hap::rnrGenerationMode& rnrGenMode)
 	, linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
 	, gaussCache_(0.)
 	, gaussCacheAvailable_(false)
+	, normal_distribution(*this, boost::normal_distribution<>())
 {
     switch(rnrGenerationMode_) {
     case Gem::Hap::RNRFACTORY:
@@ -106,6 +108,7 @@ GRandom::GRandom(const GRandom& cp)
 	, linCongr_(boost::numeric_cast<boost::uint64_t>(initialSeed_))
 	, gaussCache_(0.)
 	, gaussCacheAvailable_(false)
+	, normal_distribution(*this, boost::normal_distribution<>())
 {
     switch(rnrGenerationMode_) {
     case Gem::Hap::RNRFACTORY:
@@ -312,6 +315,8 @@ double GRandom::evenRandom(const double& min, const double& max) {
  * @return double random numbers with a gaussian distribution
  */
 double GRandom::gaussRandom(const double& mean, const double& sigma) {
+	// return sigma*normal_distribution() + mean;
+
 	if(gaussCacheAvailable_) {
 		gaussCacheAvailable_ = false;
 		return sigma*gaussCache_ + mean;
@@ -344,7 +349,7 @@ double GRandom::gaussRandom(const double& mean, const double& sigma) {
 /*************************************************************************/
 /**
  * This function adds two gaussians with sigma "sigma" and a distance
- * "distance" from each other of distance, centered around mean.
+ * "distance" from each other, centered around mean.
  *
  * @param mean The mean value of the entire distribution
  * @param sigma The sigma of both gaussians
