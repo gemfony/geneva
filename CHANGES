@@ -42,6 +42,9 @@ The main changes for this release include:
  - Update to CMake 2.8, ported to Boost 1.43.
  - Made compilation of test code optional.
  - Moved the sample programs in the 'associated' folder together with the other examples.
+ - Separated code into the libraries hap (random number production), courtier (brokerage and
+   networking), geneva (optimization algorithms), dataexchange (communication with external
+   evaluation programs) and common (common code needed by all other libraries)
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010
