@@ -205,7 +205,7 @@ protected:
 		catch (boost::system::system_error& bse) {
 			{ // Make sure we do not hide the next error declaration (avoid a warning message)
 				std::ostringstream error;
-				error << "In GAsioTCPClientT<processable_type>::init:" << std::endl
+				error << "In GAsioTCPClientT<processable_type>::init():" << std::endl
 					  << "Caught boost::system::system_error exception." << std::endl
 					  << "Leaving now." << std::endl;
 
@@ -216,7 +216,7 @@ protected:
 				return shutdown(false);
 			} catch (...) {
 				std::ostringstream error;
-				error << "In GAsioTCPClientT<processable_type>::init:" << std::endl
+				error << "In GAsioTCPClientT<processable_type>::init():" << std::endl
 					  << "Cannot shutdown gracefully as shutdown command" << std::endl
 					  << "threw inside of catch statement." << std::endl;
 
@@ -251,7 +251,7 @@ protected:
 			// Try to make a connection
 			if(!tryConnect()) {
 				std::ostringstream warning;
-				warning << "In GAsioTCPClientT<processable_type>::init()::retrieve(): Warning" << std::endl
+				warning << "In GAsioTCPClientT<processable_type>::retrieve(): Warning" << std::endl
 				        << "Could not connect to server. Shutting down now." << std::endl;
 
 				std::cerr << warning.str();
@@ -305,7 +305,7 @@ protected:
 				// We will usually only allow a given number of timeouts / stalls
 				if (maxStalls_ && (stalls_++ > maxStalls_)) {
 					std::ostringstream error;
-					error << "In GAsioTCPClientT<processable_type>::init()::retrieve():" << std::endl
+					error << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
 						  << "Maximum number of consecutive stalls reached,"
 						  << std::endl << "with last command = "
 						  << inboundCommandString << std::endl
@@ -326,7 +326,7 @@ protected:
 		catch (boost::system::system_error&) {
 			{ // Make sure we do not hide the next error declaration (avoid a warning message)
 				std::ostringstream error;
-				error << "In GAsioTCPClientT<processable_type>::retrieve:" << std::endl
+				error << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
 						 << "Caught boost::system::system_error exception."
 						 << std::endl << "Leaving now." << std::endl;
 
@@ -337,7 +337,7 @@ protected:
 				return shutdown(false);
 			} catch (...) {
 				std::ostringstream error;
-				error << "In GAsioTCPClientT<processable_type>::retrieve:" << std::endl
+				error << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
 					  << "Cannot shutdown gracefully as shutdown command" << std::endl
 					  << "threw inside of catch statement." << std::endl;
 

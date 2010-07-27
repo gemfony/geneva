@@ -66,8 +66,8 @@ INCLUDE_DIRECTORIES (
 	${GENEVA_ROOT}/include
 #	${GENEVA_ROOT}/include/dataexchange
 	${GENEVA_ROOT}/include/hap
-	${GENEVA_ROOT}/include/communication
-	${GENEVA_ROOT}/include/optimization
+	${GENEVA_ROOT}/include/courtier
+	${GENEVA_ROOT}/include/geneva
 	${GENEVA_ROOT}/include/thirdparty
 #	${Boost_INCLUDE_DIRS}
 )
@@ -95,7 +95,7 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 SET (COMMON_LIBNAME "gemfony-common")
 SET (DATAEXCHANGE_LIBNAME "gemfony-dataexchange")
 SET (HAP_LIBNAME "gemfony-hap")
-SET (COMMUNICATION_LIBNAME "gemfony-communication")
+SET (COMMUNICATION_LIBNAME "gemfony-courtier")
 
 # The name of the optimization lib depends on whether or not it contains test code
 IF ( BUILDTESTCODE )

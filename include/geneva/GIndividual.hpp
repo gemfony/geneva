@@ -55,7 +55,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "communication/GBrokerT.hpp"         // Just for the GINDIVIDUALBROKER macro
+#include "courtier/GBrokerT.hpp"         // Just for the GINDIVIDUALBROKER macro
 #include "GEAPersonalityTraits.hpp"
 #include "GGDPersonalityTraits.hpp"
 #include "GMutableI.hpp"

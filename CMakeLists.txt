@@ -129,7 +129,7 @@ LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src/common
 	${PROJECT_SOURCE_DIR}/src/dataexchange
 	${PROJECT_SOURCE_DIR}/src/random
-	${PROJECT_SOURCE_DIR}/src/communication
+	${PROJECT_SOURCE_DIR}/src/courtier
 	${PROJECT_SOURCE_DIR}/src/geneva
 	${Boost_LIBRARY_DIRS}
 )
@@ -138,7 +138,7 @@ LINK_DIRECTORIES (
 SET ( COMMONLIBNAME gemfony-common )
 SET ( DATAEXCHANGELIBNAME gemfony-dataexchange )
 SET ( HAPLIBNAME gemfony-hap )
-SET ( COMMUNICATIONLIBNAME gemfony-communication )
+SET ( COMMUNICATIONLIBNAME gemfony-courtier )
 
 # The name of the optimization lib depends on whether or not it contains test code
 IF ( BUILDTESTCODE )

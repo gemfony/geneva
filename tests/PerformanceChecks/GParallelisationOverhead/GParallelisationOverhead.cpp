@@ -43,9 +43,9 @@
 
 // Geneva header files go here
 #include "hap/GRandom.hpp"
-#include "communication/GAsioTCPConsumerT.hpp"
-#include "communication/GAsioTCPClientT.hpp"
-#include "communication/GAsioHelperFunctions.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GAsioTCPClientT.hpp"
+#include "courtier/GAsioHelperFunctions.hpp"
 #include "geneva/GEvolutionaryAlgorithm.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"

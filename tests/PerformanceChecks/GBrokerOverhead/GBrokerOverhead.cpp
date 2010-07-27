@@ -37,7 +37,7 @@
 
 // Geneva header files go here
 #include "hap/GRandom.hpp"
-#include "communication/GBoostThreadConsumerT.hpp"
+#include "courtier/GBoostThreadConsumerT.hpp"
 #include "geneva/GEvolutionaryAlgorithm.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
