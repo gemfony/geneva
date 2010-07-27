@@ -47,10 +47,10 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandom.hpp"
-#include "optimization/GParameterBase.hpp"
-#include "optimization/GBooleanCollection.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
-#include "optimization/GStdSimpleVectorInterfaceT.hpp"
+#include "geneva/GParameterBase.hpp"
+#include "geneva/GBooleanCollection.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/GStdSimpleVectorInterfaceT.hpp"
 #include "GStdVectorInterface_test.hpp"
 #include "GEqualityPrinter.hpp"
 

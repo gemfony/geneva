@@ -100,7 +100,7 @@ SET (COMMUNICATION_LIBNAME "gemfony-communication")
 
 # The name of the optimization lib depends on whether or not it contains test code
 IF ( BUILDTESTCODE )
-	SET ( OPTIMIZATION_LIBNAME "gemfony-optimization-testing" )
+	SET ( OPTIMIZATION_LIBNAME "gemfony-geneva-testing" )
 ELSE()
 	SET ( OPTIMIZATION_LIBNAME "gemfony-optimization" )
 ENDIF()

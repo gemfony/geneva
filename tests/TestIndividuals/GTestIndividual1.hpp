@@ -53,10 +53,10 @@
 #endif
 
 // Geneva header files go here
-#include "optimization/GParameterSet.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GBoundedDoubleCollection.hpp"
-#include "optimization/GBoundedDouble.hpp"
+#include "geneva/GParameterSet.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GBoundedDouble.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GCommonEnums.hpp"

@@ -46,11 +46,11 @@
 #include "communication/GAsioTCPConsumerT.hpp"
 #include "communication/GAsioTCPClientT.hpp"
 #include "communication/GAsioHelperFunctions.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GMultiThreadedEA.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GIndividual.hpp"
-#include "optimization/GBoundedDoubleCollection.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GBoundedDoubleCollection.hpp"
 
 // The individual that should be optimized
 #include "GDelayIndividual.hpp"

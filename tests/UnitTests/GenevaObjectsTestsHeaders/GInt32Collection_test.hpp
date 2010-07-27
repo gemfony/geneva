@@ -44,7 +44,7 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandom.hpp"
-#include "optimization/GInt32Collection.hpp"
+#include "geneva/GInt32Collection.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

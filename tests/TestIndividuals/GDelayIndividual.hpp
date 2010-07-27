@@ -50,9 +50,9 @@
 #endif
 
 // Geneva header files go here
-#include "optimization/GDoubleCollection.hpp"
-#include "optimization/GParameterSet.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GParameterSet.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
 
 namespace Gem
 {

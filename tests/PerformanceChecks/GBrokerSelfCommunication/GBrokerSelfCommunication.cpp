@@ -46,12 +46,12 @@
 #include "hap/GRandom.hpp"
 #include "communication/GAsioTCPConsumerT.hpp"
 #include "communication/GAsioTCPClientT.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GDoubleCollection.hpp"
-#include "optimization/GParameterSet.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GIndividual.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GParameterSet.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GIndividual.hpp"
 
 // The individual that should be optimized.
 // Represents the projection of an m-dimensional

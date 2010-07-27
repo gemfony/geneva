@@ -53,8 +53,8 @@
 #define GEQUALITYPRINTER_HPP_
 
 // Geneva headers go here
-#include "optimization/GObject.hpp"
-#include "optimization/GStdSimpleVectorInterfaceT.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GStdSimpleVectorInterfaceT.hpp"
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)

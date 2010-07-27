@@ -50,9 +50,9 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandom.hpp"
-#include "optimization/GGaussAdaptorT.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GInt32GaussAdaptor.hpp"
+#include "geneva/GGaussAdaptorT.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

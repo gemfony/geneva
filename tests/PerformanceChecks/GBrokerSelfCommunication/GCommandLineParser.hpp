@@ -54,7 +54,7 @@
 #endif
 
 // Geneva headers go here
-#include "optimization/GOptimizationEnums.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 
 namespace Gem

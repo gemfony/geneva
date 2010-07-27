@@ -75,11 +75,11 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "hap/GRandom.hpp"
-#include "optimization/GDouble.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GDoubleObjectCollection.hpp"
-#include "optimization/GParameterSet.hpp"
-#include "optimization/GStdSimpleVectorInterfaceT.hpp"
+#include "geneva/GDouble.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GDoubleObjectCollection.hpp"
+#include "geneva/GParameterSet.hpp"
+#include "geneva/GStdSimpleVectorInterfaceT.hpp"
 
 namespace Gem
 {

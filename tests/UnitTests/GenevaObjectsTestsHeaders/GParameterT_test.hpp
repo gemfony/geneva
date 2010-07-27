@@ -51,14 +51,14 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandom.hpp"
-#include "optimization/GParameterT.hpp"
-#include "optimization/GBoolean.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
-#include "optimization/GInt32.hpp"
-#include "optimization/GInt32FlipAdaptor.hpp"
-#include "optimization/GInt32GaussAdaptor.hpp"
-#include "optimization/GDouble.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "geneva/GParameterT.hpp"
+#include "geneva/GBoolean.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/GInt32.hpp"
+#include "geneva/GInt32FlipAdaptor.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GDouble.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

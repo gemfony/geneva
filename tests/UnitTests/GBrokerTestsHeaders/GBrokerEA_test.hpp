@@ -44,7 +44,7 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandom.hpp"
-#include "optimization/GBrokerEA.hpp"
+#include "geneva/GBrokerEA.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;

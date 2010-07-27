@@ -51,9 +51,9 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandom.hpp"
-#include "optimization/GIntFlipAdaptorT.hpp"
-#include "optimization/GInt32FlipAdaptor.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
+#include "geneva/GIntFlipAdaptorT.hpp"
+#include "geneva/GInt32FlipAdaptor.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

@@ -58,7 +58,7 @@
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "optimization/GOptimizationEnums.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 
 // The individual that should be optimized
 #include "GNeuralNetworkIndividual.hpp"

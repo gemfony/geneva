@@ -67,7 +67,7 @@ INCLUDE_DIRECTORIES (
 	${GENEVA_ROOT}/include/dataexchange
 	${GENEVA_ROOT}/include/hap
 	${GENEVA_ROOT}/include/communication
-	${GENEVA_ROOT}/include/optimization
+	${GENEVA_ROOT}/include/geneva
 	${GENEVA_ROOT}/include/thirdparty
 #	${Boost_INCLUDE_DIRS}
 )
@@ -100,7 +100,7 @@ SET (COMMUNICATION_LIBNAME "gemfony-communication")
 
 # The name of the optimization lib depends on whether or not it contains test code
 IF ( BUILDTESTCODE )
-	SET ( OPTIMIZATION_LIBNAME "gemfony-optimization-testing" )
+	SET ( OPTIMIZATION_LIBNAME "gemfony-geneva-testing" )
 ELSE()
 	SET ( OPTIMIZATION_LIBNAME "gemfony-optimization" )
 ENDIF()

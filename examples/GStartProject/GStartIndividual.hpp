@@ -58,12 +58,12 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "optimization/GBoundedDouble.hpp"
-#include "optimization/GBoundedDoubleCollection.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GObjectExpectationChecksT.hpp"
-#include "optimization/GParameterObjectCollection.hpp"
-#include "optimization/GParameterSet.hpp"
+#include "geneva/GBoundedDouble.hpp"
+#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GObjectExpectationChecksT.hpp"
+#include "geneva/GParameterObjectCollection.hpp"
+#include "geneva/GParameterSet.hpp"
 
 #ifdef GENEVATESTING
 #include "common/GUnitTestFrameworkT.hpp"

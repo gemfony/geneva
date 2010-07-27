@@ -45,8 +45,8 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandom.hpp"
-#include "optimization/GObject.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;

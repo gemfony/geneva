@@ -54,8 +54,8 @@
 
 // Geneva header files go here
 #include "hap/GRandom.hpp"
-#include "optimization/GBoundedDouble.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "geneva/GBoundedDouble.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
 
 using namespace Gem::Geneva;
 using namespace boost;

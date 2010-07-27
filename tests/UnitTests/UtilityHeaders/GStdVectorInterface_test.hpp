@@ -54,9 +54,9 @@
 
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
-#include "optimization/GStdSimpleVectorInterfaceT.hpp"
-#include "optimization/GStdPtrVectorInterfaceT.hpp"
-#include "optimization/GObject.hpp"
+#include "geneva/GStdSimpleVectorInterfaceT.hpp"
+#include "geneva/GStdPtrVectorInterfaceT.hpp"
+#include "geneva/GObject.hpp"
 #include "GEqualityPrinter.hpp"
 
 /*************************************************************************************************/

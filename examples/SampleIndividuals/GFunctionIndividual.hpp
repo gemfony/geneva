@@ -46,9 +46,9 @@
 #endif
 
 // Geneva header files go here
-#include "optimization/GDoubleCollection.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GParameterSet.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GParameterSet.hpp"
 
 #include "GFunctionIndividualDefines.hpp"
 

@@ -40,10 +40,10 @@
 #include "communication/GAsioHelperFunctions.hpp"
 #include "communication/GAsioTCPClientT.hpp"
 #include "communication/GAsioTCPConsumerT.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GIndividual.hpp"
-#include "optimization/GMultiThreadedEA.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
 
 // The individual that should be optimized
 #include "GStartIndividual.hpp"

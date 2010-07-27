@@ -55,10 +55,10 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "optimization/GBoundedDouble.hpp"
-#include "optimization/GBoundedDoubleCollection.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GParameterSet.hpp"
+#include "geneva/GBoundedDouble.hpp"
+#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GParameterSet.hpp"
 
 namespace Gem
 {

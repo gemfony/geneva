@@ -46,9 +46,9 @@
 #include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
-#include "optimization/GBoolean.hpp"
-#include "optimization/GBooleanCollection.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
+#include "geneva/GBoolean.hpp"
+#include "geneva/GBooleanCollection.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
 
 using namespace boost;
 using namespace Gem;

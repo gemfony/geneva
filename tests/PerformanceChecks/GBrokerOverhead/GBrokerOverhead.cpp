@@ -38,10 +38,10 @@
 // Geneva header files go here
 #include "hap/GRandom.hpp"
 #include "communication/GBoostThreadConsumerT.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GMultiThreadedEA.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GIndividual.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GIndividual.hpp"
 
 // The individual that should be optimized
 #include "GFunctionIndividual.hpp"
