@@ -32,11 +32,11 @@
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 // #include <boost/serialization/export.hpp>
-// BOOST_CLASS_EXPORT(Gem::GenEvA::GOptimizationAlgorithm)
+// BOOST_CLASS_EXPORT(Gem::Geneva::GOptimizationAlgorithm)
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /************************************************************************************************************/
@@ -44,7 +44,7 @@ namespace GenEvA
  * The default constructor
  */
 GOptimizationAlgorithm::GOptimizationAlgorithm()
-	:GMutableSetT<Gem::GenEvA::GIndividual>()
+	:GMutableSetT<Gem::Geneva::GIndividual>()
 	 , gr(Gem::Hap::DEFAULTRNRGENMODE)
 	 , iteration_(0)
 	 , maxIteration_(DEFAULTMAXIT)
@@ -71,7 +71,7 @@ GOptimizationAlgorithm::GOptimizationAlgorithm()
  * @param cp A constant reference to another GOptimizationAlgorithm object
  */
 GOptimizationAlgorithm::GOptimizationAlgorithm(const GOptimizationAlgorithm& cp)
-	:GMutableSetT<Gem::GenEvA::GIndividual>(cp)
+	:GMutableSetT<Gem::Geneva::GIndividual>(cp)
 	 , gr(cp.gr)
 	 , iteration_(cp.iteration_)
 	 , maxIteration_(cp.maxIteration_)
@@ -154,7 +154,7 @@ boost::optional<std::string> GOptimizationAlgorithm::checkRelationshipWith(const
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GMutableSetT<Gem::GenEvA::GIndividual>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithm", y_name, withMessages));
+	deviations.push_back(GMutableSetT<Gem::Geneva::GIndividual>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithm", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithm", iteration_, p_load->iteration_, "iteration_", "p_load->iteration_", e , limit));
@@ -209,7 +209,7 @@ void GOptimizationAlgorithm::load_(const GObject* cp)
 	const GOptimizationAlgorithm *p_load = GObject::conversion_cast<GOptimizationAlgorithm>(cp);
 
 	// Load the parent class'es data
-	GMutableSetT<Gem::GenEvA::GIndividual>::load_(cp);
+	GMutableSetT<Gem::Geneva::GIndividual>::load_(cp);
 
 	// and then our local data
 	gr.load(p_load->gr);
@@ -951,7 +951,7 @@ bool GOptimizationAlgorithm::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GMutableSetT<Gem::GenEvA::GIndividual>::modify_GUnitTests()) result = true;
+	if(GMutableSetT<Gem::Geneva::GIndividual>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -962,7 +962,7 @@ bool GOptimizationAlgorithm::modify_GUnitTests() {
  */
 void GOptimizationAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GMutableSetT<Gem::GenEvA::GIndividual>::specificTestsNoFailureExpected_GUnitTests();
+	GMutableSetT<Gem::Geneva::GIndividual>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -971,11 +971,11 @@ void GOptimizationAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GOptimizationAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GMutableSetT<Gem::GenEvA::GIndividual>::specificTestsFailuresExpected_GUnitTests();
+	GMutableSetT<Gem::Geneva::GIndividual>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

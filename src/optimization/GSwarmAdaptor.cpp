@@ -34,10 +34,10 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GSwarmAdaptor)
+BOOST_CLASS_EXPORT(Gem::Geneva::GSwarmAdaptor)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************************/
 /**
@@ -160,7 +160,7 @@ boost::optional<std::string> GSwarmAdaptor::checkRelationshipWith(const GObject&
  *
  * @return The id of the adaptor
  */
-Gem::GenEvA::adaptorId GSwarmAdaptor::getAdaptorId() const {
+Gem::Geneva::adaptorId GSwarmAdaptor::getAdaptorId() const {
 	return GSWARMADAPTOR;
 }
 
@@ -326,5 +326,5 @@ void GSwarmAdaptor::specificTestsFailuresExpected_GUnitTests() {
 /************************************************************************************************************/
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

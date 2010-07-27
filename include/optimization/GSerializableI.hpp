@@ -49,7 +49,7 @@
 #include "GOptimizationEnums.hpp" // For the serialization mode
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**************************************************************************************************/
 /**
@@ -68,7 +68,7 @@ public:
 	virtual void fromString(const std::string&, const Gem::Common::serializationMode&) = 0;
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**************************************************************************************************/

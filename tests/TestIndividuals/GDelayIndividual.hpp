@@ -49,14 +49,14 @@
 #pragma once
 #endif
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "optimization/GDoubleCollection.hpp"
 #include "optimization/GParameterSet.hpp"
 #include "optimization/GDoubleGaussAdaptor.hpp"
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /************************************************************************************************/
@@ -249,10 +249,10 @@ private:
 };
 
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GDelayIndividual)
+BOOST_CLASS_EXPORT(Gem::Geneva::GDelayIndividual)
 
 #endif /* GDELAYINDIVIDUAL_HPP_ */

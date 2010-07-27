@@ -48,11 +48,11 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "GParameterT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 const double DEFAULTLOWERINITBOUNDARYSINGLE=0.;
 const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
@@ -326,7 +326,7 @@ private:
 	T upperInitBoundary_; ///< The upper boundary for random initialization
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**********************************************************************/
@@ -335,9 +335,9 @@ private:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GNumT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GNumT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GNumT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GNumT<T> > : public boost::true_type {};
 	}
 }
 /**********************************************************************/

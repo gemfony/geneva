@@ -53,7 +53,7 @@
 // Geneva header files go here
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**************************************************************************************************/
 /**
@@ -103,7 +103,7 @@ public:
 	}
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**************************************************************************************************/

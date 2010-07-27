@@ -51,7 +51,7 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
 #include "GBoundedDouble.hpp"
@@ -60,7 +60,7 @@
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************/
 /**
@@ -203,7 +203,7 @@ public:
 	 *
 	 * @return The id of the adaptor
 	 */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const = 0;
+	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
 #ifdef GENEVATESTING
 	/*******************************************************************************************/
@@ -312,7 +312,7 @@ protected:
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /********************************************************************************************/
@@ -321,9 +321,9 @@ protected:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GIntFlipAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GIntFlipAdaptorT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GIntFlipAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GIntFlipAdaptorT<T> > : public boost::true_type {};
 	}
 }
 

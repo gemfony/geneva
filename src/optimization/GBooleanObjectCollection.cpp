@@ -32,10 +32,10 @@
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GBooleanObjectCollection)
+BOOST_CLASS_EXPORT(Gem::Geneva::GBooleanObjectCollection)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*******************************************************************************************/
 /**
@@ -200,5 +200,5 @@ void GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

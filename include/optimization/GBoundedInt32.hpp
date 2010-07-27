@@ -51,12 +51,12 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "GBoundedNumT.hpp"
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /******************************************************************************/
@@ -128,7 +128,7 @@ protected:
 
 /******************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GBOUNDEDINT32_HPP_ */

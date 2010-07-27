@@ -32,7 +32,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 /************************************************************************************************/
 /**
@@ -141,7 +141,7 @@ bool parseConfigFile(const std::string& configFile,
 		double& minSigma,
 		double& maxSigma,
 		boost::uint32_t& nEvaluations,
-		Gem::GenEvA::dataExchangeMode& exchangeMode,
+		Gem::Geneva::dataExchangeMode& exchangeMode,
 		bool& maximize,
 		bool& productionPlace,
 		bool& randomFill)
@@ -203,7 +203,7 @@ bool parseConfigFile(const std::string& configFile,
 			"The maximum allowed value for sigma")
 			("nEvaluations", po::value<boost::uint32_t>(&nEvaluations)->default_value(DEFAULTNEVALUATIONS),
 			"The amount of evaluations each external program shall perform")
-			("exchangeMode", po::value<Gem::GenEvA::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
+			("exchangeMode", po::value<Gem::Geneva::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
 			"Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
 			("maximize", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
 			"Specifies whether the program should minimize (0) or maximize (1) evaluation function")
@@ -291,5 +291,5 @@ bool parseConfigFile(const std::string& configFile,
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

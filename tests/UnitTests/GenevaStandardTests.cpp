@@ -66,11 +66,11 @@ using namespace boost::unit_test;
 // when these two statements are not present below.
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Hap::GRandom)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GEvolutionaryAlgorithm)
+BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 /*************************************************************************************************/
 /**

@@ -34,10 +34,10 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GBooleanAdaptor)
+BOOST_CLASS_EXPORT(Gem::Geneva::GBooleanAdaptor)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*******************************************************************************************/
 /**
@@ -179,8 +179,8 @@ void GBooleanAdaptor::load_(const GObject* cp){
  *
  * @return The id of this adaptor
  */
-Gem::GenEvA::adaptorId GBooleanAdaptor::getAdaptorId() const {
-	return Gem::GenEvA::GBOOLEANADAPTOR;
+Gem::Geneva::adaptorId GBooleanAdaptor::getAdaptorId() const {
+	return Gem::Geneva::GBOOLEANADAPTOR;
 }
 
 /*******************************************************************************************/
@@ -232,5 +232,5 @@ void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
 
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

@@ -53,7 +53,7 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "GSingletonT.hpp"
 
 namespace Gem {

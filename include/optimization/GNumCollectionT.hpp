@@ -48,14 +48,14 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 #include "GObject.hpp"
 #include "GParameterCollectionT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 const double DEFAULTLOWERINITBOUNDARYCOLLECTION=0.;
 const double DEFAULTUPPERINITBOUNDARYCOLLECTION=1.;
@@ -311,7 +311,7 @@ private:
 
 /**********************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**********************************************************************/
@@ -320,9 +320,9 @@ private:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GNumCollectionT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GNumCollectionT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GNumCollectionT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GNumCollectionT<T> > : public boost::true_type {};
 	}
 }
 /**********************************************************************/

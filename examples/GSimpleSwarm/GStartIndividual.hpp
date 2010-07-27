@@ -52,7 +52,7 @@
 #pragma once
 #endif
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "optimization/GBoundedDouble.hpp"
@@ -62,7 +62,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 /************************************************************************************************/
 /**
@@ -221,11 +221,11 @@ private:
 	// int myVar;
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 // Needed for serialization purposes
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GStartIndividual)
+BOOST_CLASS_EXPORT(Gem::Geneva::GStartIndividual)
 
 #endif /* GSTARTINDIVIDUAL_HPP_ */

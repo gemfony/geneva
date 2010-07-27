@@ -47,18 +47,18 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "GObject.hpp"
 #include "GParameterBaseWithAdaptorsT.hpp"
 #include "common/GExceptions.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*******************************************************************************************/
 /**
  * A class holding a single, mutable parameter - usually just an atomic value (double, long,
- * GenEvA::bit, ...). The class is non-virtual, so that it is possible to store simple values
+ * Geneva::bit, ...). The class is non-virtual, so that it is possible to store simple values
  * in this class without too much fuss.
  */
 template <typename T>
@@ -334,7 +334,7 @@ GParameterT<T>:: ~GParameterT()
 
 /*********************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /********************************************************************************************/
@@ -343,9 +343,9 @@ GParameterT<T>:: ~GParameterT()
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GParameterT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GParameterT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GParameterT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GParameterT<T> > : public boost::true_type {};
 	}
 }
 

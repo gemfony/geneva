@@ -69,14 +69,14 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GIndividual.hpp"
 #include "GOptimizationAlgorithm.hpp"
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**
  * The default sorting mode
@@ -333,7 +333,7 @@ private:
 
 /*********************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GEVOLUTIONARYALGORITHM_HPP_ */

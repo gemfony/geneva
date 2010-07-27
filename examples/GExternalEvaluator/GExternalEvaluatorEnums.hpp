@@ -47,12 +47,12 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 
 
 namespace Gem {
 
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************/
 /**
@@ -64,13 +64,13 @@ enum dataExchangeMode {
 };
 
 /************************************************************************************************/
-/** @brief Puts a Gem::GenEvA::dataExchangeMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::dataExchangeMode&);
-/** @brief Reads a Gem::GenEvA::dataExchangeMode from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::dataExchangeMode&);
+/** @brief Puts a Gem::Geneva::dataExchangeMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::dataExchangeMode&);
+/** @brief Reads a Gem::Geneva::dataExchangeMode from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::dataExchangeMode&);
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 
 } /* namespace Gem */
 

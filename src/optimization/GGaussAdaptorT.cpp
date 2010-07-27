@@ -30,7 +30,7 @@
 #include "optimization/GGaussAdaptorT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /***********************************************************************************************/
 //////////////////////// Specialization for various numeric types ///////////////////////////////
@@ -88,8 +88,8 @@ void GGaussAdaptorT<short>::customAdaptions(short& value) {
  *
  * @return The id of a GDoubleGaussAdaptor
  */
-template<> Gem::GenEvA::adaptorId GGaussAdaptorT<double>::getAdaptorId() const {
-	return Gem::GenEvA::GDOUBLEGAUSSADAPTOR;
+template<> Gem::Geneva::adaptorId GGaussAdaptorT<double>::getAdaptorId() const {
+	return Gem::Geneva::GDOUBLEGAUSSADAPTOR;
 }
 
 /***********************************************************************************************/
@@ -98,11 +98,11 @@ template<> Gem::GenEvA::adaptorId GGaussAdaptorT<double>::getAdaptorId() const {
  *
  * @return The id of a GInt32GaussAdaptor
  */
-template<> Gem::GenEvA::adaptorId GGaussAdaptorT<boost::int32_t>::getAdaptorId() const {
-	return Gem::GenEvA::GINT32GAUSSADAPTOR;
+template<> Gem::Geneva::adaptorId GGaussAdaptorT<boost::int32_t>::getAdaptorId() const {
+	return Gem::Geneva::GINT32GAUSSADAPTOR;
 }
 
 /***********************************************************************************************/
 
-} /* namespace GenEvA  */
+} /* namespace Geneva  */
 } /* namespace Gem */

@@ -34,11 +34,11 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GInt32Collection)
+BOOST_CLASS_EXPORT(Gem::Geneva::GInt32Collection)
 
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*******************************************************************************************/
 /**
@@ -234,5 +234,5 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 /*******************************************************************************************/
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

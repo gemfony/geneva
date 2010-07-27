@@ -30,17 +30,17 @@
 #include "optimization/GOptimizationEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*********************************************************************/
 /**
- * Puts a Gem::GenEvA::recoScheme item into a stream
+ * Puts a Gem::Geneva::recoScheme item into a stream
  *
  * @param o The ostream the item should be added to
  * @param rc the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::recoScheme& rc) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::recoScheme& rc) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(rc);
 	o << tmp;
 	return o;
@@ -48,20 +48,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::recoScheme& rc) {
 
 /*********************************************************************/
 /**
- * Reads a Gem::GenEvA::recoScheme item from a stream
+ * Reads a Gem::Geneva::recoScheme item from a stream
  *
  * @param i The stream the item should be read from
  * @param rc The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::recoScheme& rc) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::recoScheme& rc) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	rc = boost::numeric_cast<Gem::GenEvA::recoScheme>(tmp);
+	rc = boost::numeric_cast<Gem::Geneva::recoScheme>(tmp);
 #else
-	rc = static_cast<Gem::GenEvA::recoScheme>(tmp);
+	rc = static_cast<Gem::Geneva::recoScheme>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -69,13 +69,13 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::recoScheme& rc) {
 
 /*********************************************************************/
 /**
- * Puts a Gem::GenEvA::infoMode item into a stream
+ * Puts a Gem::Geneva::infoMode item into a stream
  *
  * @param o The ostream the item should be added to
  * @param im the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::infoMode& im) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::infoMode& im) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(im);
 	o << tmp;
 	return o;
@@ -83,20 +83,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::infoMode& im) {
 
 /*********************************************************************/
 /**
- * Reads a Gem::GenEvA::infoMode item from a stream
+ * Reads a Gem::Geneva::infoMode item from a stream
  *
  * @param i The stream the item should be read from
  * @param im The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::infoMode& im) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::infoMode& im) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	im = boost::numeric_cast<Gem::GenEvA::infoMode>(tmp);
+	im = boost::numeric_cast<Gem::Geneva::infoMode>(tmp);
 #else
-	im = static_cast<Gem::GenEvA::infoMode>(tmp);
+	im = static_cast<Gem::Geneva::infoMode>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -104,13 +104,13 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::infoMode& im) {
 
 /*********************************************************************/
 /**
- * Puts a Gem::GenEvA::adaptorId item into a stream
+ * Puts a Gem::Geneva::adaptorId item into a stream
  *
  * @param o The ostream the item should be added to
  * @param aid the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::adaptorId& aid) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::adaptorId& aid) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(aid);
 	o << tmp;
 	return o;
@@ -118,20 +118,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::adaptorId& aid) {
 
 /*********************************************************************/
 /**
- * Reads a Gem::GenEvA::adaptorId item from a stream
+ * Reads a Gem::Geneva::adaptorId item from a stream
  *
  * @param i The stream the item should be read from
  * @param aid The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::adaptorId& aid) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::adaptorId& aid) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	aid = boost::numeric_cast<Gem::GenEvA::adaptorId>(tmp);
+	aid = boost::numeric_cast<Gem::Geneva::adaptorId>(tmp);
 #else
-	aid = static_cast<Gem::GenEvA::adaptorId>(tmp);
+	aid = static_cast<Gem::Geneva::adaptorId>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -139,13 +139,13 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::adaptorId& aid) {
 
 /*********************************************************************/
 /**
- * Puts a Gem::GenEvA::sortingMode item into a stream
+ * Puts a Gem::Geneva::sortingMode item into a stream
  *
  * @param o The ostream the item should be added to
  * @param smode the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::sortingMode& smode) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::sortingMode& smode) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(smode);
 	o << tmp;
 	return o;
@@ -153,20 +153,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::sortingMode& smode)
 
 /*********************************************************************/
 /**
- * Reads a Gem::GenEvA::sortingMode item from a stream
+ * Reads a Gem::Geneva::sortingMode item from a stream
  *
  * @param i The stream the item should be read from
  * @param smode The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::sortingMode& smode) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::sortingMode& smode) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	smode = boost::numeric_cast<Gem::GenEvA::sortingMode>(tmp);
+	smode = boost::numeric_cast<Gem::Geneva::sortingMode>(tmp);
 #else
-	smode = static_cast<Gem::GenEvA::sortingMode>(tmp);
+	smode = static_cast<Gem::Geneva::sortingMode>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -174,13 +174,13 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::sortingMode& smode) {
 
 /*********************************************************************/
 /**
- * Puts a Gem::GenEvA::personality item into a stream
+ * Puts a Gem::Geneva::personality item into a stream
  *
  * @param o The ostream the item should be added to
  * @param pers the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::personality& pers) {
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::personality& pers) {
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(pers);
 	o << tmp;
 	return o;
@@ -188,20 +188,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::personality& pers) 
 
 /*********************************************************************/
 /**
- * Reads a Gem::GenEvA::personality item from a stream
+ * Reads a Gem::Geneva::personality item from a stream
  *
  * @param i The stream the item should be read from
  * @param pers The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::personality& pers) {
+std::istream& operator>>(std::istream& i, Gem::Geneva::personality& pers) {
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	pers = boost::numeric_cast<Gem::GenEvA::personality>(tmp);
+	pers = boost::numeric_cast<Gem::Geneva::personality>(tmp);
 #else
-	pers = static_cast<Gem::GenEvA::personality>(tmp);
+	pers = static_cast<Gem::Geneva::personality>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -209,5 +209,5 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::personality& pers) {
 
 /*********************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

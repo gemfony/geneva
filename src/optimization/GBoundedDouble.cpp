@@ -34,10 +34,10 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GBoundedDouble)
+BOOST_CLASS_EXPORT(Gem::Geneva::GBoundedDouble)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*******************************************************************************************/
 /**
@@ -282,5 +282,5 @@ void GBoundedDouble::specificTestsFailuresExpected_GUnitTests() {
 
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

@@ -46,7 +46,7 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
 #include "GBoundedDouble.hpp"
@@ -56,13 +56,13 @@
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*************************************************************************/
 /**
  * The GBooleanAdaptor represents an adaptor used for the adaption of
  * bool values by flipping its value. See the documentation of GAdaptorT<T> for
- * further information on adaptors in the GenEvA context. Most functionality
+ * further information on adaptors in the Geneva context. Most functionality
  * (with the notable exception of the actual adaption logic) is currently
  * implemented in the GIntFlipAdaptorT class.
  */
@@ -103,7 +103,7 @@ public:
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
+	virtual Gem::Geneva::adaptorId getAdaptorId() const;
 
 #ifdef GENEVATESTING
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -126,7 +126,7 @@ protected:
 
 /***********************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GBOOLEANADAPTOR_HPP_ */

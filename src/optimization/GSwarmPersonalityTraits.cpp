@@ -32,10 +32,10 @@
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GSwarmPersonalityTraits)
+BOOST_CLASS_EXPORT(Gem::Geneva::GSwarmPersonalityTraits)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*****************************************************************************/
 /**
@@ -239,7 +239,7 @@ std::string GSwarmPersonalityTraits::getCommand() const {
 /**
  * Makes the globally best individual known to this object
  */
-void GSwarmPersonalityTraits::registerGlobalBest(boost::shared_ptr<Gem::GenEvA::GIndividual> gb_cp) {
+void GSwarmPersonalityTraits::registerGlobalBest(boost::shared_ptr<Gem::Geneva::GIndividual> gb_cp) {
 	global_best_ = gb_cp;
 }
 
@@ -247,7 +247,7 @@ void GSwarmPersonalityTraits::registerGlobalBest(boost::shared_ptr<Gem::GenEvA::
 /**
  * Makes the locally best individual known to this object
  */
-void GSwarmPersonalityTraits::registerLocalBest(boost::shared_ptr<Gem::GenEvA::GIndividual> lb_cp) {
+void GSwarmPersonalityTraits::registerLocalBest(boost::shared_ptr<Gem::Geneva::GIndividual> lb_cp) {
 	local_best_ = lb_cp;
 }
 
@@ -296,5 +296,5 @@ void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 /*****************************************************************************/
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

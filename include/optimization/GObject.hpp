@@ -88,15 +88,15 @@
 #endif /* GENEVATESTING */
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**************************************************************************************************/
 /**
- * GObject is the parent class for the majority of GenEvA classes. Essentially, GObject gives a
- * GenEvA class the ability to carry a name and defines a number of interface functions.
+ * GObject is the parent class for the majority of Geneva classes. Essentially, GObject gives a
+ * Geneva class the ability to carry a name and defines a number of interface functions.
  * The GObject::load_(const GObject *) and  GObject::clone_() member functions should be
  * re-implemented for each derived class. Unfortunately, there is no way to enforce this in C++.
- * Further common functionality of many GenEvA classes will be implemented here over time.
+ * Further common functionality of many Geneva classes will be implemented here over time.
  */
 class GObject
 	:public GSerializableI
@@ -157,7 +157,7 @@ public:
 	template <typename load_type>
 	inline void load(
 			  const boost::shared_ptr<load_type>& cp
-			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, load_type> >::type* dummy = 0
+			, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) {
 		load_(cp.get());
 	}
@@ -172,7 +172,7 @@ public:
 	template <typename load_type>
 	inline void load(
 			  const load_type& cp
-			, typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, load_type> >::type* dummy = 0
+			, typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) {
 		load_(&cp);
 	}
@@ -187,7 +187,7 @@ public:
 	 */
 	template <typename clone_type>
 	inline boost::shared_ptr<clone_type> clone(
-			typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, clone_type> >::type* dummy = 0
+			typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, clone_type> >::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		boost::shared_ptr<clone_type> p = boost::dynamic_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
@@ -227,7 +227,7 @@ protected:
 	template <typename load_type>
 	inline void selfAssignmentCheck (
 			const GObject *load_ptr
-		  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, load_type> >::type* dummy = 0
+		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		// Check that this object is not accidentally assigned to itself.
@@ -249,7 +249,7 @@ protected:
 	template <typename load_type>
 	inline const load_type* conversion_cast(
 			const GObject *load_ptr
-		  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, load_type> >::type* dummy = 0
+		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
 		selfAssignmentCheck<load_type>(load_ptr);
 
@@ -278,17 +278,17 @@ private:
 
 /** @brief A specialization for cases for no conversion is supposed to take place */
 template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
-		boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, GObject> >::type*
+		boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type*
 ) const;
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**********************************************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GObject)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GObject)
 
 /**********************************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "hap/GRandom.hpp"
 #include "communication/GAsioHelperFunctions.hpp"
 #include "communication/GAsioTCPClientT.hpp"
@@ -52,7 +52,7 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Communication;
 using namespace Gem::Hap;
 

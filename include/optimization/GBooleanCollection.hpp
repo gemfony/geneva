@@ -46,14 +46,14 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GOptimizationEnums.hpp"
 #include "GParameterCollectionT.hpp"
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
   /**********************************************************************/
@@ -129,7 +129,7 @@ namespace GenEvA
 
   /**********************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GBOOLEANCOLLECTION_HPP_ */

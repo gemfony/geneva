@@ -47,7 +47,7 @@
 #pragma once
 #endif
 
-// GenEvA header files go here
+// Geneva header files go here
 
 #include "GBoundedBufferWithIdT.hpp"
 

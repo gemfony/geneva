@@ -55,7 +55,7 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "optimization/GOptimizationEnums.hpp"
@@ -65,7 +65,7 @@
 
 namespace Gem
 {
-  namespace GenEvA
+  namespace Geneva
   {
     // Default settings
     const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
@@ -90,14 +90,14 @@ namespace Gem
     const bool DEFAULTRETURNREGARDLESS=true;
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
     const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
-    const Gem::GenEvA::trainingDataType DEFAULTTRAININGDATATYPE=Gem::GenEvA::TDTNONE;
+    const Gem::Geneva::trainingDataType DEFAULTTRAININGDATATYPE=Gem::Geneva::TDTNONE;
     const std::string DEFAULTTRAININGDATAFILE="geneva_training.dat";
     const std::size_t DEFAULTNDATASETS=2000;
     const std::string DEFAULTARCHITECTURE="2 4 4 1";
     const std::string DEFAULTTRAININGINPUTDATA="training.dat";
     const std::string DEFAULTRESULTPROGRAM="trainedNetwork.hpp";
     const std::string DEFAULTVISUALIZATIONFILE="visualization.C";
-    const transferFunction DEFAULTTRANSFERFUNCTION=Gem::GenEvA::SIGMOID;
+    const transferFunction DEFAULTTRANSFERFUNCTION=Gem::Geneva::SIGMOID;
     const double DEFAULTNNSIGMA=2;
     const double DEFAULTNNSIGMASIGMA=0.8;
     const double DEFAULTNNMINSIGMA=0.001;
@@ -148,7 +148,7 @@ namespace Gem
 			, const bool& verbose
 	);
 
-  } /* namespace GenEvA */
+  } /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GARGUMENTPARSER_HPP_ */

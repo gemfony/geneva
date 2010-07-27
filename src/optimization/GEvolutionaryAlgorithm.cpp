@@ -34,10 +34,10 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GEvolutionaryAlgorithm)
+BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************************/
 /**
@@ -244,7 +244,7 @@ bool GEvolutionaryAlgorithm::updateParentStructure() {
  */
 void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	// Copy the nParents best individuals to a vector
-	std::vector<boost::shared_ptr<Gem::GenEvA::GIndividual> > bestIndividuals;
+	std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > bestIndividuals;
 	GEvolutionaryAlgorithm::const_iterator it;
 	for(it=this->begin(); it!=this->begin() + getNParents(); ++it)
 		bestIndividuals.push_back(*it);
@@ -310,7 +310,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
  */
 void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 	// Create a vector to hold the best individuals
-	std::vector<boost::shared_ptr<Gem::GenEvA::GIndividual> > bestIndividuals;
+	std::vector<boost::shared_ptr<Gem::Geneva::GIndividual> > bestIndividuals;
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
@@ -1046,5 +1046,5 @@ void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 /************************************************************************************************************/
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

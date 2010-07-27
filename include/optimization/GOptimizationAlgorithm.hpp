@@ -59,14 +59,14 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "hap/GRandom.hpp"
 #include "GIndividual.hpp"
 #include "GMutableSetT.hpp"
 #include "GObject.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /******************************************************************************************/
 /**
@@ -97,7 +97,7 @@ const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATI
  * algorithms, such as a general call to "optimize()".
  */
 class GOptimizationAlgorithm
-	:public GMutableSetT<Gem::GenEvA::GIndividual>
+	:public GMutableSetT<Gem::Geneva::GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -105,7 +105,7 @@ class GOptimizationAlgorithm
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & make_nvp("GMutableSetT_GIndividual", boost::serialization::base_object<GMutableSetT<Gem::GenEvA::GIndividual> >(*this))
+	  ar & make_nvp("GMutableSetT_GIndividual", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GIndividual> >(*this))
 	     & BOOST_SERIALIZATION_NVP(gr)
 	     & BOOST_SERIALIZATION_NVP(iteration_)
 	     & BOOST_SERIALIZATION_NVP(maxIteration_)
@@ -371,14 +371,14 @@ private:
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**************************************************************************************************/
 /**
  * Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GOptimizationAlgorithm)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GOptimizationAlgorithm)
 
 /**************************************************************************************************/
 

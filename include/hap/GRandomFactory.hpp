@@ -74,7 +74,7 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 
 #include "common/GBoundedBufferT.hpp"
 #include "common/GExceptions.hpp"
@@ -98,7 +98,7 @@ namespace Hap {
  * This circumvents the necessity to seed the generator over and over again and
  * allows us to get rid of a dependency on the MersenneTwister library. We are now
  * using a generator from the boost library instead, so users need to download fewer
- * libraries to use the GenEvA library.
+ * libraries to use the Geneva library.
  *
  * This class produces packets of random numbers and stores them in bounded buffers.
  * Clients can retrieve packets of random numbers, while separate threads keep

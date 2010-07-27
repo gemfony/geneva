@@ -64,7 +64,7 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"

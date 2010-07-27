@@ -34,10 +34,10 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GMultiThreadedEA)
+BOOST_CLASS_EXPORT(Gem::Geneva::GMultiThreadedEA)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************************/
 /**
@@ -324,5 +324,5 @@ void GMultiThreadedEA::specificTestsFailuresExpected_GUnitTests() {
 /************************************************************************************************************/
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

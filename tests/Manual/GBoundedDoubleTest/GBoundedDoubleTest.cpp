@@ -52,12 +52,12 @@
 #include <boost/ref.hpp>
 #include <boost/cstdint.hpp>
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "hap/GRandom.hpp"
 #include "optimization/GBoundedDouble.hpp"
 #include "optimization/GDoubleGaussAdaptor.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace boost;
 
 const boost::uint32_t NTESTS=10000;

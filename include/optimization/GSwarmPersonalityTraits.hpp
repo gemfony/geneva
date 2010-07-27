@@ -61,11 +61,11 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "GPersonalityTraits.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*********************************************************************************/
 // Forward declaration needed as GSwarmPersonalityTraits.hpp is
@@ -127,9 +127,9 @@ public:
 	bool checkNoPositionUpdateAndReset();
 
 	/** @brief Makes the globally best individual known to this object */
-	void registerGlobalBest(boost::shared_ptr<Gem::GenEvA::GIndividual>);
+	void registerGlobalBest(boost::shared_ptr<Gem::Geneva::GIndividual>);
 	/** @brief Makes the locally best individual known to this object */
-	void registerLocalBest(boost::shared_ptr<Gem::GenEvA::GIndividual>);
+	void registerLocalBest(boost::shared_ptr<Gem::Geneva::GIndividual>);
 
 	/** @brief Triggers the update of GParameterSet derivatives */
 	void updateParameters();
@@ -156,9 +156,9 @@ private:
 	std::string command_;
 
 	/** @brief A pointer to the locally best individual. It will not be serialized or copied */
-	boost::shared_ptr<Gem::GenEvA::GIndividual> local_best_;
+	boost::shared_ptr<Gem::Geneva::GIndividual> local_best_;
 	/** @brief A pointer to the globally best individual. It will not be serialized or copied */
-	boost::shared_ptr<Gem::GenEvA::GIndividual> global_best_;
+	boost::shared_ptr<Gem::Geneva::GIndividual> global_best_;
 
 	/** @brief Determines whether the individual has been randomly initialized */
 	bool noPositionUpdate_;
@@ -166,7 +166,7 @@ private:
 
 /*********************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 

@@ -30,7 +30,7 @@
 #include "optimization/GObject.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**************************************************************************************************/
 /**
@@ -263,7 +263,7 @@ void GObject::load_(const GObject *cp) {
  * @return A boost::shared_ptr<GObject> to a clone of the derived object
  */
 template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
-		boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, GObject> >::type* dummy
+		boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
 ) const {
 	return boost::shared_ptr<GObject>(clone_());
 }
@@ -280,5 +280,5 @@ boost::shared_ptr<GObject> GObject::clone() const {
 
 /**************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

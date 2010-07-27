@@ -49,14 +49,14 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "common/GHelperFunctionsT.hpp"
 #include "GParameterBase.hpp"
 #include "GParameterT.hpp"
 #include "GStdPtrVectorInterfaceT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /***********************************************************************************************/
 /**
@@ -336,7 +336,7 @@ protected:
 
 /***********************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**************************************************************************************************/

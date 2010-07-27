@@ -40,7 +40,7 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GThreadGroup.hpp"
 #include "hap/GRandom.hpp"
@@ -61,7 +61,7 @@
 // Parses the command line for all required options
 #include "GCommandLineParser.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Communication;
 using namespace Gem::Hap;
 

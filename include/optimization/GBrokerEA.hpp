@@ -53,7 +53,7 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "communication/GBufferPortT.hpp"
 #include "GEAPersonalityTraits.hpp"
@@ -62,7 +62,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
   /**
@@ -105,7 +105,7 @@ namespace GenEvA
    * it is itself usually not shipped over a network connection.
    */
   class GBrokerEA
-    :public GenEvA::GEvolutionaryAlgorithm
+    :public Geneva::GEvolutionaryAlgorithm
   {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -122,7 +122,7 @@ namespace GenEvA
     ///////////////////////////////////////////////////////////////////////
 
   public:
-	typedef boost::shared_ptr<Gem::Communication::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> > > GBufferPortT_ptr;
+	typedef boost::shared_ptr<Gem::Communication::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> > > GBufferPortT_ptr;
 
 	/** @brief The standard constructor */
     GBrokerEA();
@@ -222,7 +222,7 @@ namespace GenEvA
 
   /**********************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GBROKEREA_HPP_ */

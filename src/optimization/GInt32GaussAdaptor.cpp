@@ -32,10 +32,10 @@
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GInt32GaussAdaptor)
+BOOST_CLASS_EXPORT(Gem::Geneva::GInt32GaussAdaptor)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*******************************************************************************************/
 /**
@@ -206,8 +206,8 @@ void GInt32GaussAdaptor::load_(const GObject* cp){
  *
  * @return The id of this adaptor
  */
-Gem::GenEvA::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
-	return Gem::GenEvA::GINT32GAUSSADAPTOR;
+Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
+	return Gem::Geneva::GINT32GAUSSADAPTOR;
 }
 
 /*******************************************************************************************/
@@ -294,5 +294,5 @@ void GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 /*******************************************************************************************/
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

@@ -53,14 +53,14 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /** @brief The default number of threads for parallelization with boost */
 const boost::uint16_t DEFAULTBOOSTTHREADS = 2;
@@ -72,7 +72,7 @@ const boost::uint16_t DEFAULTBOOSTTHREADS = 2;
  * http://threadpool.sf.net .
  */
 class GMultiThreadedEA
-	: public GenEvA::GEvolutionaryAlgorithm
+	: public Geneva::GEvolutionaryAlgorithm
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -143,7 +143,7 @@ private:
 
 /********************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GMULTITHREADEDEA_HPP_ */

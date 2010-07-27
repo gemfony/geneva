@@ -48,14 +48,14 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
 #include "GObject.hpp"
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************/
 /**
@@ -199,7 +199,7 @@ public:
 	 *
 	 * @return The id of the adaptor
 	 */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const {
+	virtual Gem::Geneva::adaptorId getAdaptorId() const {
 		return GIDENTITYADAPTOR;
 	}
 
@@ -291,7 +291,7 @@ protected:
 	}
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GIDENTITYADAPTORT_HPP_ */

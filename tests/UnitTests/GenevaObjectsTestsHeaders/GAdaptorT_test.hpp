@@ -52,7 +52,7 @@
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
@@ -74,9 +74,9 @@ public:
 		gba0.setAdaptionThreshold(1);
 		BOOST_CHECK(gba0.getAdaptionThreshold() == 1);
 
-		BOOST_CHECK_MESSAGE(gba0.getAdaptionProbability() == Gem::GenEvA::DEFAULTBITADPROB,
+		BOOST_CHECK_MESSAGE(gba0.getAdaptionProbability() == Gem::Geneva::DEFAULTBITADPROB,
 				"adProb_ = " << gba0.getAdaptionProbability() << "\n"
-			<<  "Gem::GenEvA::DEFAULTBITADPROB = " << Gem::GenEvA::DEFAULTBITADPROB
+			<<  "Gem::Geneva::DEFAULTBITADPROB = " << Gem::Geneva::DEFAULTBITADPROB
 		);
 
 		// Reset the probability

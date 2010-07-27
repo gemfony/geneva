@@ -49,7 +49,7 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
@@ -57,13 +57,13 @@
 #include "GStdPtrVectorInterfaceT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /******************************************************************************************/
 /**
  * This class forms the basis for many user-defined individuals. It acts as a collection
  * of different parameter sets. User individuals can thus contain a mix of parameters of
- * different types, such as double, GenEvA::bit, long, ... . Derived classes must implement
+ * different types, such as double, Geneva::bit, long, ... . Derived classes must implement
  * a useful operator=(). It is also assumed that template arguments have the GObject and the
  * GMutableI interfaces, in particular the load(), clone() and adapt() functions.
  */
@@ -273,7 +273,7 @@ protected:
 	/**********************************************************************************/
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**************************************************************************************************/
@@ -283,9 +283,9 @@ protected:
 namespace boost {
   namespace serialization {
     template<typename T>
-    struct is_abstract<Gem::GenEvA::GMutableSetT<T> > : public boost::true_type {};
+    struct is_abstract<Gem::Geneva::GMutableSetT<T> > : public boost::true_type {};
     template<typename T>
-    struct is_abstract< const Gem::GenEvA::GMutableSetT<T> > : public boost::true_type {};
+    struct is_abstract< const Gem::Geneva::GMutableSetT<T> > : public boost::true_type {};
   }
 }
 

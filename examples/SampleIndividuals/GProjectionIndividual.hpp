@@ -67,7 +67,7 @@
 #pragma once
 #endif
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandom.hpp"
 #include "optimization/GDoubleCollection.hpp"
@@ -76,7 +76,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /************************************************************************************************/
@@ -595,11 +595,11 @@ private:
 	std::size_t nDimTarget_; ///< The dimension of the target distribution
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::projectionData)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GProjectionIndividual)
+BOOST_CLASS_EXPORT(Gem::Geneva::projectionData)
+BOOST_CLASS_EXPORT(Gem::Geneva::GProjectionIndividual)
 
 #endif /* GPROJECTIONINDIVIDUAL_HPP_ */

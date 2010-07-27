@@ -64,7 +64,7 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "GCommunicationEnums.hpp"
 

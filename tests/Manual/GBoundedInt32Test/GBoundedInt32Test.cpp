@@ -50,11 +50,11 @@
 #include <boost/ref.hpp>
 #include <boost/cstdint.hpp>
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "optimization/GBoundedInt32.hpp"
 #include "optimization/GInt32GaussAdaptor.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace boost;
 
 const boost::uint32_t NTESTS=10000;

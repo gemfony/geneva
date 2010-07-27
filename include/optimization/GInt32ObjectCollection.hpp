@@ -44,12 +44,12 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "GInt32.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*************************************************************************/
 /**
@@ -108,7 +108,7 @@ protected:
 
 /*************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GINT32OBJECTCOLLECTION_HPP_ */

@@ -53,13 +53,13 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "optimization/GOptimizationEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 // Default settings
@@ -88,7 +88,7 @@ bool parseCommandLine(int argc, char **argv,
 					  Gem::Common::serializationMode& serMode,
 					  bool& verbose);
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GCOMMANDLINEPARSER_HPP_ */

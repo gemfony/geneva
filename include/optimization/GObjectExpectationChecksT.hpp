@@ -101,7 +101,7 @@ boost::optional<std::string> checkExpectation (
 	  , const std::string& y_name
 	  , const Gem::Common::expectation& e
 	  , const double& limit = 0
-	  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
+	  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 )
 {
 	bool expectationMet = false;
@@ -217,7 +217,7 @@ boost::optional<std::string> checkExpectation (
 	  , const std::string& y_name
 	  , const Gem::Common::expectation& e
 	  , const double& limit = 0
-	  , typename boost::enable_if<boost::is_base_of<Gem::GenEvA::GObject, geneva_type> >::type* dummy = 0
+	  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, geneva_type> >::type* dummy = 0
 )
 {
 	bool expectationMet = false;

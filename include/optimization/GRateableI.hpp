@@ -47,7 +47,7 @@
 // Geneva header files go here
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**************************************************************************************************/
 /**
@@ -65,7 +65,7 @@ public:
 	virtual double checkedFitness() = 0;
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**************************************************************************************************/

@@ -32,18 +32,18 @@
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParameterSet)
+BOOST_CLASS_EXPORT(Gem::Geneva::GParameterSet)
 
 namespace Gem
 {
-	namespace GenEvA
+	namespace Geneva
 	{
 	/************************************************************************************************************/
 	/**
 	 * The default constructor.
 	 */
 	GParameterSet::GParameterSet()
-		: GMutableSetT<Gem::GenEvA::GParameterBase>()
+		: GMutableSetT<Gem::Geneva::GParameterBase>()
 	  { /* nothing */ }
 
 	/************************************************************************************************************/
@@ -54,7 +54,7 @@ namespace Gem
 	 * @param cp A copy of another GParameterSet object
 	 */
 	GParameterSet::GParameterSet(const GParameterSet& cp)
-		: GMutableSetT<Gem::GenEvA::GParameterBase>(cp)
+		: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
 		, eval_(cp.eval_)
 	  { /* nothing */ }
 
@@ -132,7 +132,7 @@ namespace Gem
 		std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GMutableSetT<Gem::GenEvA::GParameterBase>::checkRelationshipWith(cp, e, limit, "GParameterSet", y_name, withMessages));
+		deviations.push_back(GMutableSetT<Gem::Geneva::GParameterBase>::checkRelationshipWith(cp, e, limit, "GParameterSet", y_name, withMessages));
 
 		// ... and there is no local data
 
@@ -160,7 +160,7 @@ namespace Gem
 		const GParameterSet *p_load = this->conversion_cast<GParameterSet>(cp);
 
 		// Load the parent class'es data
-		GMutableSetT<Gem::GenEvA::GParameterBase>::load_(cp);
+		GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);
 
 		// Then load our local data - here the evaluation function (if any)
 		// NOTE: THIS IS DANGEROUS WHEN OPERATING IN A MULTITHREADED ENVIRONMENT.
@@ -304,7 +304,7 @@ namespace Gem
 		bool result = false;
 
 		// Call the parent class'es function
-		if(GMutableSetT<Gem::GenEvA::GParameterBase>::modify_GUnitTests()) result = true;
+		if(GMutableSetT<Gem::Geneva::GParameterBase>::modify_GUnitTests()) result = true;
 
 		return result;
 	}
@@ -315,7 +315,7 @@ namespace Gem
 	 */
 	void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent class'es function
-		GMutableSetT<Gem::GenEvA::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
+		GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
 	/************************************************************************************************************/
@@ -324,13 +324,13 @@ namespace Gem
 	 */
 	void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent class'es function
-		GMutableSetT<Gem::GenEvA::GParameterBase>::specificTestsFailuresExpected_GUnitTests();
+		GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsFailuresExpected_GUnitTests();
 	}
 
 	/************************************************************************************************************/
 #endif /* GENEVATESTING */
 
-	} /* namespace GenEvA */
+	} /* namespace Geneva */
 } /* namespace Gem */
 
 #ifdef GENEVATESTING
@@ -339,12 +339,12 @@ namespace Gem
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 /**
- * As the Gem::GenEvA::GParameterSet has a private default constructor, we need to provide a
+ * As the Gem::Geneva::GParameterSet has a private default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-boost::shared_ptr<Gem::GenEvA::GParameterSet> TFactory_GUnitTests<Gem::GenEvA::GParameterSet>() {
-	return boost::shared_ptr<Gem::GenEvA::GParameterSet>(new Gem::GenEvA::GParameterSet());
+boost::shared_ptr<Gem::Geneva::GParameterSet> TFactory_GUnitTests<Gem::Geneva::GParameterSet>() {
+	return boost::shared_ptr<Gem::Geneva::GParameterSet>(new Gem::Geneva::GParameterSet());
 }
 
 /*************************************************************************************************/

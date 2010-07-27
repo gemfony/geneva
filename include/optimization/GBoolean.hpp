@@ -45,11 +45,11 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "GParameterT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************/
 /**
@@ -123,7 +123,7 @@ protected:
 
 /************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GBOOLEAN_HPP_ */

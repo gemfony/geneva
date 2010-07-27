@@ -110,11 +110,11 @@
   rated higher than the time constraint ("waitFactor") or could replace it. Note: This can be dangerous if evaluation runs
   have a significantly different run time, as predominantly short-running evaluations will become new parents. This can be
   a significant bias.   
-- Move GenEvA namespace to Geneva namespace
+- Move Geneva namespace to Geneva namespace
 - Add default ability for random initialization to parameter objects. Might need the ability to restrict the value range for initialization in some cases.
   Parameter objects also need to know whether they have already been initialized.
 - Make the user choose whether he wants a throwing saveCheckpoint or one that returns a boolean. Could be done by providing a purely virtual saveCheckpoint which
   returns a boost::optional<std::string>, and a predefined GOptimizationAlgorithm::saveCheckpointThrow() that throws
 - Add a travelling salesman example
 - GBoundedDouble needs an overhaul -- overloading and use of internal values is odd (but seems to work o.k.)
-- Move communication code to own namespace instead of Gem::GenEvA
+- Move communication code to own namespace instead of Gem::Geneva

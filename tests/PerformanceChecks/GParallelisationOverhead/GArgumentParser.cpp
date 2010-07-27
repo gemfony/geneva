@@ -31,7 +31,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 namespace bf = boost::filesystem; // Needed for check whether the reference image exists
 
@@ -286,5 +286,5 @@ bool parseConfigFile(const std::string& configFile,
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

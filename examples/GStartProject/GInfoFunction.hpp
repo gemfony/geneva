@@ -36,7 +36,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "hap/GRandom.hpp"
 #include "communication/GAsioHelperFunctions.hpp"
 #include "communication/GAsioTCPClientT.hpp"
@@ -50,7 +50,7 @@
 #include "GStartIndividual.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 /************************************************************************************************/
 /**
  * An information object that will also emit result information in every n-th generation,
@@ -85,7 +85,7 @@ public:
 	void informationFunction(const infoMode& im, GEvolutionaryAlgorithm * const gbp){
 		switch(im) {
 		//---------------------------------------------------------------------------
-		case Gem::GenEvA::INFOINIT:
+		case Gem::Geneva::INFOINIT:
 		{
 			// Output the header to the summary stream
 			summary_ << "{" << std::endl
@@ -104,7 +104,7 @@ public:
 		break;
 
 		//---------------------------------------------------------------------------
-		case Gem::GenEvA::INFOPROCESSING:
+		case Gem::Geneva::INFOPROCESSING:
 		{
 			bool isDirty = false;
 			double currentEvaluation = 0.;
@@ -134,7 +134,7 @@ public:
 		break;
 
 		//---------------------------------------------------------------------------
-		case Gem::GenEvA::INFOEND:
+		case Gem::Geneva::INFOEND:
 		{
 			// Output final print logic to the stream
 			summary_ << "  // Transfer the vectors into arrays" << std::endl
@@ -183,5 +183,5 @@ private:
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

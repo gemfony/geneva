@@ -67,7 +67,7 @@
 #include "GObjectExpectationChecksT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**
  * The purpose of this class is to provide a common base for all parameter classes, so
@@ -162,14 +162,14 @@ private:
 	bool initializationBlocked_; ///< Specifies that this object should not be initialized again
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**************************************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GParameterBase)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterBase)
 
 /**************************************************************************************************/
 

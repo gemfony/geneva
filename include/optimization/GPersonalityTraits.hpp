@@ -62,13 +62,13 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GObject.hpp"
 #include "GObjectExpectationChecksT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*********************************************************************************/
 /**
@@ -131,14 +131,14 @@ protected:
 
 /*********************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /*********************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GPersonalityTraits)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPersonalityTraits)
 /*********************************************************************************/
 
 #endif /* GPERSONALITYTRAITS_HPP_ */

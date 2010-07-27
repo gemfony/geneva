@@ -34,11 +34,11 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GBrokerEA)
+BOOST_CLASS_EXPORT(Gem::Geneva::GBrokerEA)
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /************************************************************************************************************/
@@ -353,7 +353,7 @@ void GBrokerEA::init() {
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::init();
 
-	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Communication::GBufferPortT<boost::shared_ptr<Gem::GenEvA::GIndividual> >());
+	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Communication::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> >());
 	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
 }
 
@@ -757,5 +757,5 @@ void GBrokerEA::specificTestsFailuresExpected_GUnitTests() {
 
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

@@ -48,7 +48,7 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "common/GBoundedBufferT.hpp"
 
 namespace Gem {

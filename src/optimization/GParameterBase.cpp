@@ -30,7 +30,7 @@
 #include "optimization/GParameterBase.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**********************************************************************************/
 /**
@@ -293,5 +293,5 @@ void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
 /**********************************************************************************/
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

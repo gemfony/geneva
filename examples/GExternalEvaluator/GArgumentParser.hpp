@@ -54,7 +54,7 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "optimization/GOptimizationEnums.hpp"
@@ -64,7 +64,7 @@
 
 namespace Gem
 {
-  namespace GenEvA
+  namespace Geneva
   {
     // Default settings
     const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
@@ -91,7 +91,7 @@ namespace Gem
     const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
     const std::string DEFAULTEXTERNALARGUMENTS="empty";
     const boost::uint32_t DEFAULTNEVALUATIONS=5;
-    const Gem::GenEvA::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::GenEvA::BINARYEXCHANGE;
+    const Gem::Geneva::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::Geneva::BINARYEXCHANGE;
     const bool DEFAULTMAXIMIZE=false;
     const bool DEFAULTPRODUCTIONPLACE=true; // local production of random numbers
     const bool DEFAULTRANDOMFILL=true; // whether template data should be filled randomly
@@ -132,13 +132,13 @@ namespace Gem
 		  , double& minSigma
 		  , double& maxSigma
 		  , boost::uint32_t& nEvaluations
-		  , Gem::GenEvA::dataExchangeMode& exchangeMode
+		  , Gem::Geneva::dataExchangeMode& exchangeMode
 		  , bool& maximize
 		  , bool& productionPlace
 		  , bool& randomFill
 	);
 
-  } /* namespace GenEvA */
+  } /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GARGUMENTPARSER_HPP_ */

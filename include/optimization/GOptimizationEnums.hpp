@@ -48,11 +48,11 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GCommonEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**********************************************************************************************/
 /**
@@ -194,39 +194,39 @@ const double CDELTARANGEDISABLED = -1.; ///< A value < 0 means that the delta ra
 
 /**********************************************************************************************/
 
-/** @brief Puts a Gem::GenEvA::recoScheme into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::recoScheme&);
+/** @brief Puts a Gem::Geneva::recoScheme into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::recoScheme&);
 
-/** @brief Reads a Gem::GenEvA::recoScheme item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::recoScheme&);
+/** @brief Reads a Gem::Geneva::recoScheme item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::recoScheme&);
 
-/** @brief Puts a Gem::GenEvA::infoMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::infoMode&);
+/** @brief Puts a Gem::Geneva::infoMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::infoMode&);
 
-/** @brief Reads a Gem::GenEvA::infoMode item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::infoMode&);
+/** @brief Reads a Gem::Geneva::infoMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::infoMode&);
 
-/** @brief Puts a Gem::GenEvA::adaptorId into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::adaptorId&);
+/** @brief Puts a Gem::Geneva::adaptorId into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::adaptorId&);
 
-/** @brief Reads a Gem::GenEvA::adaptorId item from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::adaptorId&);
+/** @brief Reads a Gem::Geneva::adaptorId item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::adaptorId&);
 
-/** @brief Puts a Gem::GenEvA::sortingMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::sortingMode&);
+/** @brief Puts a Gem::Geneva::sortingMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::sortingMode&);
 
-/** @brief Reads a Gem::GenEvA::sortingMode from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::sortingMode&);
+/** @brief Reads a Gem::Geneva::sortingMode from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::sortingMode&);
 
-/** @brief Puts a Gem::GenEvA::personality into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::GenEvA::personality&);
+/** @brief Puts a Gem::Geneva::personality into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::personality&);
 
-/** @brief Reads a Gem::GenEvA::personality from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::GenEvA::personality&);
+/** @brief Reads a Gem::Geneva::personality from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::personality&);
 
 /**********************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GOPTIMIZATIONENUMS_HPP_ */

@@ -48,13 +48,13 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 
 #include "GNumCollectionT.hpp"
 
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*****************************************************************************************/
 /**
@@ -116,7 +116,7 @@ protected:
 
 /*****************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GINT32COLLECTION_HPP_ */

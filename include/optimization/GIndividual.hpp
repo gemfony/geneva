@@ -64,7 +64,7 @@
 #include "GSwarmPersonalityTraits.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**************************************************************************************************/
 /**
@@ -284,7 +284,7 @@ private:
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 
@@ -294,14 +294,14 @@ private:
  * for the particular case of GIndividuals. All external communication should
  * refer to GINDIVIDUALBROKER.
  */
-#define GINDIVIDUALBROKER GBROKER(boost::shared_ptr<Gem::GenEvA::GIndividual>)
+#define GINDIVIDUALBROKER GBROKER(boost::shared_ptr<Gem::Geneva::GIndividual>)
 
 
 /**************************************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::GenEvA::GIndividual)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GIndividual)
 
 /**************************************************************************************************/
 

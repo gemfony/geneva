@@ -70,14 +70,14 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GIndividual.hpp"
 #include "GOptimizationAlgorithm.hpp"
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 const std::size_t DEFAULTNNEIGHBORHOODS = 5;
 const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
@@ -338,7 +338,7 @@ private:
 
 /******************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GSWARM_HPP_ */

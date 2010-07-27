@@ -50,12 +50,12 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "GBoundedInt32.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*************************************************************************/
 /**
@@ -114,7 +114,7 @@ protected:
 
 /*************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GBOUNDEDINT32COLLECTION_HPP_ */

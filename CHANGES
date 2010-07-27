@@ -34,7 +34,7 @@ The main changes for this release include:
  - Removed GAsioTCPConsumer dependency on GIndividual, making it a template class
    GAsioTCPConsumerT.
  - Removed the GIndividualBroker class, the GINDIVIDUALBROKER macro was moved to GIndividual.hpp.
- - Renamed GenevaExceptions file to GExceptions and renamed Gem::GenEvA::geneva_error_condition
+ - Renamed GenevaExceptions file to GExceptions and renamed Gem::Geneva::geneva_error_condition
    to Gem::Common::gemfony_error_condition, in order to better separate different libraries.
  - Replaced usage of GDataExchangeException by Gem::Common::gemfony_error_condition.
  - Gave GParameterBase-derivatives and GParameterSet objects the ability to randomly initialize

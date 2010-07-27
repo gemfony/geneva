@@ -46,12 +46,12 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 
 #include "GNumT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************/
 /**
@@ -59,10 +59,10 @@ namespace GenEvA {
  * and indeed for most applications this is not the recommended solution -
  * use the GInt32Collection instead.
  *
- * Integers are adapted by the GInt32FlipAdaptor or the GInt32GaussAdaptor in GenEvA.
+ * Integers are adapted by the GInt32FlipAdaptor or the GInt32GaussAdaptor in Geneva.
  * The reason for this class is that there might be applications where one might want different
  * adaptor characteristics for different values. This cannot be done with a GInt32Collection.
- * Plus, having a separate integer class adds some consistency to GenEvA, as other values
+ * Plus, having a separate integer class adds some consistency to Geneva, as other values
  * (most notably doubles) have their own class as well (GBoundedDouble, GDouble).
  */
 class GInt32
@@ -126,7 +126,7 @@ protected:
 
 /************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GINT32_HPP_ */

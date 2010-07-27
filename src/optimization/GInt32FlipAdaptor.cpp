@@ -34,10 +34,10 @@
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GInt32FlipAdaptor)
+BOOST_CLASS_EXPORT(Gem::Geneva::GInt32FlipAdaptor)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*******************************************************************************************/
 /**
@@ -179,8 +179,8 @@ void GInt32FlipAdaptor::load_(const GObject* cp){
  *
  * @return The id of this adaptor
  */
-Gem::GenEvA::adaptorId GInt32FlipAdaptor::getAdaptorId() const {
-	return Gem::GenEvA::GINT32FLIPADAPTOR;
+Gem::Geneva::adaptorId GInt32FlipAdaptor::getAdaptorId() const {
+	return Gem::Geneva::GINT32FLIPADAPTOR;
 }
 
 #ifdef GENEVATESTING
@@ -220,5 +220,5 @@ void GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests() {
 /*****************************************************************************/
 #endif /* GENEVATESTING */
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

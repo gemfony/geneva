@@ -53,14 +53,14 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
 #include "GObject.hpp"
 #include "GParameterBase.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************/
 /**
@@ -436,7 +436,7 @@ private:
 // Declaration of specializations for std::vector<bool>
 template<> void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>&);
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /********************************************************************************************/
@@ -445,9 +445,9 @@ template<> void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GParameterBaseWithAdaptorsT<T> > : public boost::true_type {};
 	}
 }
 

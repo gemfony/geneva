@@ -30,7 +30,7 @@
 #include "optimization/GIntFlipAdaptorT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /***********************************************************************************************/
 //////////////////////// Specialization for some types///////////////////////
@@ -52,8 +52,8 @@ void GIntFlipAdaptorT<bool>::customAdaptions(bool& value) {
  *
  * @return The id of a GBooleanAdaptor
  */
-template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<bool>::getAdaptorId() const {
-	return Gem::GenEvA::GBOOLEANADAPTOR;
+template<> Gem::Geneva::adaptorId GIntFlipAdaptorT<bool>::getAdaptorId() const {
+	return Gem::Geneva::GBOOLEANADAPTOR;
 }
 
 /***********************************************************************************************/
@@ -62,11 +62,11 @@ template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<bool>::getAdaptorId() const {
  *
  * @return The id of a GInt32FlipAdaptor
  */
-template<> Gem::GenEvA::adaptorId GIntFlipAdaptorT<boost::int32_t>::getAdaptorId() const {
-	return Gem::GenEvA::GINT32FLIPADAPTOR;
+template<> Gem::Geneva::adaptorId GIntFlipAdaptorT<boost::int32_t>::getAdaptorId() const {
+	return Gem::Geneva::GINT32FLIPADAPTOR;
 }
 
 /***********************************************************************************************/
 
-} /* namespace GenEvA  */
+} /* namespace Geneva  */
 } /* namespace Gem */

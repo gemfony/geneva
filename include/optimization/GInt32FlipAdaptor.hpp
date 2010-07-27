@@ -48,13 +48,13 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 
 #include "GIntFlipAdaptorT.hpp"
 
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*************************************************************************/
 /**
@@ -97,7 +97,7 @@ public:
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
+	virtual Gem::Geneva::adaptorId getAdaptorId() const;
 
 #ifdef GENEVATESTING
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -117,7 +117,7 @@ protected:
 
 /*************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GINT32FLIPADAPTOR_HPP_ */

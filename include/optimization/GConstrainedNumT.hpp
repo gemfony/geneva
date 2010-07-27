@@ -54,14 +54,14 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GObject.hpp"
 #include "GParameterT.hpp"
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /******************************************************************************/
@@ -496,7 +496,7 @@ public:
 #endif /* GENEVATESTING */
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /******************************************************************************/
@@ -505,9 +505,9 @@ public:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GConstrainedNumT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GConstrainedNumT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GConstrainedNumT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GConstrainedNumT<T> > : public boost::true_type {};
 	}
 }
 

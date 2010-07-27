@@ -30,7 +30,7 @@
 #include "optimization/GParameterBaseWithAdaptorsT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /***********************************************************************************************/
 /////////////////// Specialization for std::vector<bool> ////////////////////////////////////////
@@ -66,5 +66,5 @@ void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collecti
 
 /***********************************************************************************************/
 
-} /* namespace GenEvA  */
+} /* namespace Geneva  */
 } /* namespace Gem */

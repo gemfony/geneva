@@ -43,12 +43,12 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "GBoolean.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*************************************************************************/
 /**
@@ -107,7 +107,7 @@ protected:
 
 /*************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GBOOLEANOBJECTCOLLECTION_HPP_ */

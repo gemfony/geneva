@@ -70,11 +70,11 @@
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /******************************************************************************************/
 /**
- * In GenEvA, two mechanisms exist that let the user specify the
+ * In Geneva, two mechanisms exist that let the user specify the
  * type of adaption he wants to have executed on collections of
  * items (basic types or any other types).  The most basic
  * possibility is for the user to overload the GIndividual::customAdaptions()
@@ -103,7 +103,7 @@ namespace GenEvA {
  * public functions of T, unless T declares the adaptor as a friend.
  *
  * As a derivative of GObject, this class follows similar rules as
- * the other GenEvA classes.
+ * the other Geneva classes.
  */
 template <typename T>
 class GAdaptorT:
@@ -283,7 +283,7 @@ public:
 	 *
 	 * @return The id of the adaptor
 	 */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const = 0;
+	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
 	/***********************************************************************************/
 	/**
@@ -586,7 +586,7 @@ private:
 
 /******************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /********************************************************************************************/
@@ -595,9 +595,9 @@ private:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::GenEvA::GAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GAdaptorT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GAdaptorT<T> > : public boost::true_type {};
 	}
 }
 

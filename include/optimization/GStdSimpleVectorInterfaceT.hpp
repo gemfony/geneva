@@ -66,11 +66,11 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /********************************************************************************/
 /**
@@ -364,7 +364,7 @@ private:
 
 /********************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**************************************************************************************************/
@@ -374,9 +374,9 @@ private:
 namespace boost {
   namespace serialization {
     template<typename T>
-    struct is_abstract<Gem::GenEvA::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
+    struct is_abstract<Gem::Geneva::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
     template<typename T>
-    struct is_abstract< const Gem::GenEvA::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
+    struct is_abstract< const Gem::Geneva::GStdSimpleVectorInterfaceT<T> > : public boost::true_type {};
   }
 }
 

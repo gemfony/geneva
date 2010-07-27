@@ -30,7 +30,7 @@
 #include "optimization/GBoundedNumT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /***********************************************************************************************/
 /**
@@ -212,5 +212,5 @@ template <> void GBoundedNumT<boost::int32_t>::resetBoundaries() {
 
 /***********************************************************************************************/
 
-} /* namespace GenEvA  */
+} /* namespace Geneva  */
 } /* namespace Gem */

@@ -37,7 +37,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /************************************************************************************************/
@@ -52,7 +52,7 @@ enum demoFunction {
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GFUNCTIONINDIVIDUALDEFINES_HPP_ */

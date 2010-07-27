@@ -45,7 +45,7 @@
 #pragma once
 #endif
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "optimization/GDoubleCollection.hpp"
 #include "optimization/GDoubleGaussAdaptor.hpp"
 #include "optimization/GParameterSet.hpp"
@@ -54,7 +54,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /************************************************************************************************/
@@ -321,12 +321,12 @@ template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT_GUID(Gem::GenEvA::GFunctionIndividual<Gem::GenEvA::PARABOLA>, "GFunctionIndividual_PARABOLA")
-BOOST_CLASS_EXPORT_GUID(Gem::GenEvA::GFunctionIndividual<Gem::GenEvA::NOISYPARABOLA>, "GFunctionIndividual_NOISYPARABOLA")
-BOOST_CLASS_EXPORT_GUID(Gem::GenEvA::GFunctionIndividual<Gem::GenEvA::ROSENBROCK>, "GFunctionIndividual_ROSENBROCK")
+BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::PARABOLA>, "GFunctionIndividual_PARABOLA")
+BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::NOISYPARABOLA>, "GFunctionIndividual_NOISYPARABOLA")
+BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::ROSENBROCK>, "GFunctionIndividual_ROSENBROCK")
 
 #endif /* GFUNCTIONINDIVIDUAL_HPP_ */

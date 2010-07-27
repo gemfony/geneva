@@ -48,13 +48,13 @@
 #endif
 
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "GObject.hpp"
 #include "GParameterBaseWithAdaptorsT.hpp"
 #include "GStdSimpleVectorInterfaceT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /***********************************************************************************************/
 /**
@@ -309,7 +309,7 @@ protected:
 
 /*********************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /**************************************************************************************************/
@@ -319,9 +319,9 @@ protected:
 namespace boost {
   namespace serialization {
     template<typename T>
-    struct is_abstract<Gem::GenEvA::GParameterCollectionT<T> > : public boost::true_type {};
+    struct is_abstract<Gem::Geneva::GParameterCollectionT<T> > : public boost::true_type {};
     template<typename T>
-    struct is_abstract< const Gem::GenEvA::GParameterCollectionT<T> > : public boost::true_type {};
+    struct is_abstract< const Gem::Geneva::GParameterCollectionT<T> > : public boost::true_type {};
   }
 }
 

@@ -42,7 +42,7 @@ using namespace boost::unit_test;
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 /************************************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,8 +57,8 @@ class GenevaStandardTestSuite
 public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 		typedef boost::mpl::list<
-		      GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>
-			, GNeuralNetworkIndividual<Gem::GenEvA::RBF>
+		      GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>
+			, GNeuralNetworkIndividual<Gem::Geneva::RBF>
 		>
 		gneuralnetwork_types;
 

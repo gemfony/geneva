@@ -64,14 +64,14 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
 #include "GObject.hpp"
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************/
 /**
@@ -426,9 +426,9 @@ public:
 	 *
 	 * @return The id of the adaptor
 	 */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const {
+	virtual Gem::Geneva::adaptorId getAdaptorId() const {
 		std::ostringstream error;
-		error << "In Gem::GenEvA::adaptorId GGaussAdaptorT::getAdaptorId(): Error!" << std::endl
+		error << "In Gem::Geneva::adaptorId GGaussAdaptorT::getAdaptorId(): Error!" << std::endl
 			  << "Function used with a type it was not designed for" << std::endl;
 		throw (Gem::Common::gemfony_error_condition(error.str()));
 	}
@@ -539,7 +539,7 @@ protected: // For performance reasons, so we do not have to go through access fu
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 /************************************************************************************************/
@@ -547,9 +547,9 @@ protected: // For performance reasons, so we do not have to go through access fu
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract< Gem::GenEvA::GGaussAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract< Gem::Geneva::GGaussAdaptorT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::GenEvA::GGaussAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GGaussAdaptorT<T> > : public boost::true_type {};
 	}
 }
 

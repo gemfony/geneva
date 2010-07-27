@@ -48,7 +48,7 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
 #include "GBoundedDouble.hpp"
@@ -57,7 +57,7 @@
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************/
 /**
@@ -100,7 +100,7 @@ public:
 	boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Retrieves the id of the adaptor */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
+	virtual Gem::Geneva::adaptorId getAdaptorId() const;
 
 	/** @brief Prevents the adaption mode to be reset. This function is a trap. */
 	virtual void setAdaptionMode(boost::logic::tribool);
@@ -151,7 +151,7 @@ private:
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GSWARMADAPTOR_HPP_ */

@@ -44,12 +44,12 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 
 #include "GNumT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************/
 /**
@@ -124,7 +124,7 @@ protected:
 
 /************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GDOUBLE_HPP_ */

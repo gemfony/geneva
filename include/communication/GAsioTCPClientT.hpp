@@ -59,7 +59,7 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "hap/GRandom.hpp"
 #include "GAsioHelperFunctions.hpp"

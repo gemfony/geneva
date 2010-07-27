@@ -42,12 +42,12 @@
 #pragma once
 #endif
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "GDouble.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*************************************************************************/
 /**
@@ -106,7 +106,7 @@ protected:
 
 /*************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GDOUBLEOBJECTCOLLECTION_HPP_ */

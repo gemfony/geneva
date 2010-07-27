@@ -83,7 +83,7 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 
 #include "common/GBoundedBufferT.hpp"
 #include "common/GExceptions.hpp"

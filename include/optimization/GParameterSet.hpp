@@ -50,7 +50,7 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GMutableSetT.hpp"
 #include "GObject.hpp"
@@ -61,7 +61,7 @@
 #endif /* GENEVATESTING */
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /**************************************************************************/
 /**
@@ -69,7 +69,7 @@ namespace GenEvA {
  * will form the basis of many user-defined individuals.
  */
 class GParameterSet:
-	public GMutableSetT<Gem::GenEvA::GParameterBase>
+	public GMutableSetT<Gem::Geneva::GParameterBase>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -78,7 +78,7 @@ class GParameterSet:
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GMutableSetT_GParameterBase",
-			  boost::serialization::base_object<GMutableSetT<Gem::GenEvA::GParameterBase> >(*this));
+			  boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 public:
@@ -173,7 +173,7 @@ protected:
 	boost::function<double (const GParameterSet&)> eval_;
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #ifdef GENEVATESTING
@@ -182,7 +182,7 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 /** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::GenEvA::GParameterSet> TFactory_GUnitTests<Gem::GenEvA::GParameterSet>();
+template <> boost::shared_ptr<Gem::Geneva::GParameterSet> TFactory_GUnitTests<Gem::Geneva::GParameterSet>();
 
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////

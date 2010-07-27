@@ -96,7 +96,7 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 
 namespace Gem {
 namespace Common {
@@ -166,7 +166,7 @@ public:
 	 * class might get derived from this one. We do not want the destructor
 	 * to throw, hence we try to catch all errors locally. Any error here
 	 * means termination of the program. No logging takes place, as we want
-	 * this class to be independent of the GenEvA framework
+	 * this class to be independent of the Geneva framework
 	 */
 	virtual ~GBoundedBufferT()
 	{

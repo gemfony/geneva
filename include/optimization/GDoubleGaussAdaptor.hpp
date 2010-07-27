@@ -58,18 +58,18 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "GGaussAdaptorT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*************************************************************************/
 /**
  * The GDoubleGaussAdaptor represents an adaptor used for the adaption of
  * double values through the addition of gaussian-distributed random numbers.
  * See the documentation of GGaussAdaptorT<T> for further information on adaptors
- * in the GenEvA context. This class is at the core of evolutionary strategies,
+ * in the Geneva context. This class is at the core of evolutionary strategies,
  * as implemented by this library. It is now implemented through a generic
  * base class that can also be used to adapt other numeric types.
  */
@@ -113,7 +113,7 @@ public:
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
+	virtual Gem::Geneva::adaptorId getAdaptorId() const;
 
 #ifdef GENEVATESTING
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -136,7 +136,7 @@ protected:
 
 /*************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GDOUBLEGAUSSADAPTOR_HPP_ */

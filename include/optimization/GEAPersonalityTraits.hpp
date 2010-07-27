@@ -61,11 +61,11 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "GPersonalityTraits.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*********************************************************************************/
 /**
@@ -147,7 +147,7 @@ private:
 	std::string command_;
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 

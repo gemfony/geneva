@@ -58,19 +58,19 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 
 #include "GGaussAdaptorT.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /*************************************************************************/
 /**
  * The GInt32GaussAdaptor represents an adaptor used for the adaption of
  * boost::int32_t values through the addition of gaussian-distributed random numbers.
  * See the documentation of GAdaptorT<T> for further information on adaptors
- * in the GenEvA context. Most functionality is currently implemented in the
+ * in the Geneva context. Most functionality is currently implemented in the
  * GGaussAdaptorT parent-class. Note that, for the purpose of adapting integer
  * values, it is generally not useful to choose very small sigma values. A value of
  * 1 might be a good choice. Similarly, the minSigma parameter should be set
@@ -116,7 +116,7 @@ public:
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::GenEvA::adaptorId getAdaptorId() const;
+	virtual Gem::Geneva::adaptorId getAdaptorId() const;
 
 #ifdef GENEVATESTING
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -137,7 +137,7 @@ protected:
 };
 
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GINT32GAUSSADAPTOR_HPP_ */
