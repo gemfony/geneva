@@ -1,5 +1,5 @@
 /**
- * @file GRandomT.hpp
+ * @file GRandom.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
