@@ -53,11 +53,11 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GCommonEnums.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 // Default settings
 const double CMD_DEFAULTSIGMA = 1.;
@@ -81,7 +81,7 @@ bool parseCommandLine(int argc, char **argv,
 		boost::uint32_t& maxIter,
 		bool& verbose);
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GCOMMANDLINEPARSER_HPP_ */

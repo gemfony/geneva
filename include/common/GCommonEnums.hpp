@@ -47,7 +47,7 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 
 namespace Gem {
 namespace Common {

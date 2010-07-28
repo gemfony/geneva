@@ -51,13 +51,13 @@
 #include <boost/cast.hpp>
 #include <boost/random.hpp>
 
-// GenEvA header files
-#include "random/GRandom.hpp"
+// Geneva header files
+#include "hap/GRandom.hpp"
 
 // Parsing of the command line
 #include "GCommandLineParser.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Hap;
 using namespace boost;
 

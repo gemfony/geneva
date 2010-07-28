@@ -15,7 +15,7 @@ this into the release branch before the end of the month."
 Removing the two lines 
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GParabolaIndividual)
+BOOST_CLASS_EXPORT(Gem::Geneva::GParabolaIndividual)
 
 at the end of GParabolaIndividual.hpp makes the segfault go away. Not
 including these lines can result in problems when using serialization functionality, though.

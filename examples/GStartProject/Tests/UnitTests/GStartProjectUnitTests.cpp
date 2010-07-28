@@ -42,7 +42,7 @@ using namespace boost::unit_test;
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 /************************************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////

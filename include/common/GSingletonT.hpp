@@ -38,6 +38,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/utility.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -61,13 +62,27 @@ namespace Common {
 
 /************************************************************************/
 /**
+ * This function creates a new T object. It can be specialized by the object
+ * used inside of Gemfony's singleton, e.g. in case they do not have a default
+ * constructor or wish to perform special actions prior to initialization.
+ *
+ * @return A boost::shared_ptr to a newly created T object
+ */
+template <typename T>
+boost::shared_ptr<T> TFactory_GSingletonT() {
+	return boost::shared_ptr<T>(new T());
+}
+
+/************************************************************************/
+/**
  * This class implements a singleton pattern, augmented so that it returns
- * a boost::shared_ptr. This allows other singletons to store a copy of
+ * a boost::shared_ptr. This allows other singletons to store a shared_ptr to
  * T, so that it only gets destroyed once it is no longer needed. Note that
  * the static shared_ptr may long have vanished at that time.
  */
 template<typename T>
 class GSingletonT
+	:boost::noncopyable
 {
 public:
 	/*******************************************************************/
@@ -86,7 +101,7 @@ public:
 		if(!p) {
 			// Prevent concurrent "first" access
 			boost::mutex::scoped_lock lk(creation_mutex);
-			if(!p) p = boost::shared_ptr<T>(new T());
+			if(!p) p = Gem::Common::TFactory_GSingletonT<T>();
 		}
 
 		return p;
@@ -97,8 +112,6 @@ public:
 private:
 	GSingletonT(); ///< Intentionally left undefined
 	~GSingletonT(); ///< Intentionally left undefined
-	GSingletonT(const GSingletonT<T>&); ///< intentionally left undefined
-	const GSingletonT<T>& operator=(const GSingletonT<T>&); ///< intentionally left undefined
 };
 
 /************************************************************************/

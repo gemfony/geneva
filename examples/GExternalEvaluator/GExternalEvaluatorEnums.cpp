@@ -31,17 +31,17 @@
 
 namespace Gem {
 
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************/
 /**
- * Puts a Gem::GenEvA::dataExchangeMode item into a stream
+ * Puts a Gem::Geneva::dataExchangeMode item into a stream
  *
  * @param o The ostream the item should be added to
  * @param exchMode the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::dataExchangeMode& exchMode){
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::dataExchangeMode& exchMode){
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(exchMode);
 	o << tmp;
 	return o;
@@ -49,20 +49,20 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::dataExchangeMode& e
 
 /************************************************************************************************/
 /**
- * Reads a Gem::GenEvA::dataExchangeMode item from a stream
+ * Reads a Gem::Geneva::dataExchangeMode item from a stream
  *
  * @param i The stream the item should be read from
  * @param exchMode The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::dataExchangeMode& exchMode){
+std::istream& operator>>(std::istream& i, Gem::Geneva::dataExchangeMode& exchMode){
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	exchMode = boost::numeric_cast<Gem::GenEvA::dataExchangeMode>(tmp);
+	exchMode = boost::numeric_cast<Gem::Geneva::dataExchangeMode>(tmp);
 #else
-	exchMode = static_cast<Gem::GenEvA::dataExchangeMode>(tmp);
+	exchMode = static_cast<Gem::Geneva::dataExchangeMode>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -70,6 +70,6 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::dataExchangeMode& exchMod
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 
 } /* namespace Gem */

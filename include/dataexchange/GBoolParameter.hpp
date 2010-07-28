@@ -47,7 +47,7 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "GNumericParameterT.hpp"
 
 namespace Gem {

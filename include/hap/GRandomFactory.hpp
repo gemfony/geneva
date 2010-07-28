@@ -56,7 +56,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/limits.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/static_assert.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -75,14 +74,13 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 
 #include "common/GBoundedBufferT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
-#include "GSeedManager.hpp"
-#include "GRandomDefines.hpp"
+#include "hap/GSeedManager.hpp"
 
 /****************************************************************************/
 
@@ -91,9 +89,26 @@ namespace Hap {
 
 /****************************************************************************/
 /**
- * This class centralizes the production of floating point random numbers. It will
- * produce packages of double values, which are stored in a queue and can be retrieved
- * by GRandomT<RANDOMPROXY> objects.
+ * Past implementations of random numbers for the Geneva library showed a
+ * particular bottle neck in the random number generation. Every GObject
+ * had its own random number generator, and seeding was very expensive.
+ * We thus now produce floating point numbers in the range [0,1[ in a separate
+ * thread in this class and calculate other numbers from this in the GRandom class.
+ * A second thread is responsible for the creation of gaussian random numbers.
+ * This circumvents the necessity to seed the generator over and over again and
+ * allows us to get rid of a dependency on the MersenneTwister library. We are now
+ * using a generator from the boost library instead, so users need to download fewer
+ * libraries to use the Geneva library.
+ *
+ * This class produces packets of random numbers and stores them in bounded buffers.
+ * Clients can retrieve packets of random numbers, while separate threads keep
+ * filling the buffer up.
+ *
+ * The implementation currently uses the lagged fibonacci generator. According to
+ * http://www.boost.org/doc/libs/1_35_0/libs/random/random-performance.html this is
+ * the fastest generator amongst all of Boost's generators. It is the author's belief that
+ * the "quality" of random numbers is of less concern in evolutionary algorithms, as the
+ * geometry of the quality surface adds to the randomness.
  */
 class GRandomFactory {
 	typedef boost::lagged_fibonacci1279 lagged_fibonacci;
@@ -118,14 +133,14 @@ public:
 	std::size_t getBufferSize() const;
 
 	/** @brief Setting of an initial seed for random number generators */
-	bool setStartSeed(const boost::uint32_t&);
+	bool setStartSeed(const initial_seed_type&);
 	/** @brief Retrieval of the start-value of the global seed */
-	boost::uint32_t getStartSeed() const;
+	initial_seed_type getStartSeed() const;
 	/** @brief Checks whether seeding has already started*/
 	bool checkSeedingIsInitialized() const;
 
 	/** @brief Retrieval of a new seed for external or internal random number generators */
-	boost::uint32_t getSeed();
+	seed_type getSeed();
 
 	/** @brief Allows to retrieve the size of the seeding queue */
 	std::size_t getSeedingQueueSize() const;
@@ -154,8 +169,9 @@ private:
 
 	boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
 	mutable boost::mutex arraySizeMutex_; ///< Regulates access to the arraySize_ variable
+	boost::mutex seedingMutex_; ///< Regulates start-up of the seeding process
 
-	GSeedManager seedManager_; ///< Manages seed creation
+	boost::shared_ptr<GSeedManager> seedManager_ptr_; ///< Manages seed creation
 };
 
 } /* namespace Hap */
@@ -165,7 +181,7 @@ private:
 /**
  * A single, global random number factory is created as a singleton.
  */
-typedef Gem::Common::GSingletonT<Gem::Common::GRandomFactory> grfactory;
+typedef Gem::Common::GSingletonT<Gem::Hap::GRandomFactory> grfactory;
 #define GRANDOMFACTORY grfactory::getInstance()
 
 #endif /* GRANDOMFACTORY_HPP_ */

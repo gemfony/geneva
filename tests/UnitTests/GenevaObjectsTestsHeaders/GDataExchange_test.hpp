@@ -49,11 +49,11 @@
 #define GDATAEXCHANGE_TEST_HPP_
 
 // Geneva header files go here
-#include "random/GRandom.hpp"
+#include "hap/GRandom.hpp"
 #include "dataexchange/GDataExchange.hpp"
 
 using namespace Gem;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Dataexchange;
 
 using boost::unit_test_framework::test_suite;

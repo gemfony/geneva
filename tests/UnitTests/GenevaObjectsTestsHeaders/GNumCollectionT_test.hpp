@@ -47,21 +47,21 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
-#include "optimization/GObject.hpp"
-#include "optimization/GNumCollectionT.hpp"
-#include "optimization/GInt32Collection.hpp"
-#include "optimization/GDoubleCollection.hpp"
-#include "optimization/GGaussAdaptorT.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GInt32GaussAdaptor.hpp"
-#include "optimization/GStdSimpleVectorInterfaceT.hpp"
+#include "hap/GRandom.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GNumCollectionT.hpp"
+#include "geneva/GInt32Collection.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GGaussAdaptorT.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GStdSimpleVectorInterfaceT.hpp"
 #include "GStdVectorInterface_test.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;

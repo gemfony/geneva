@@ -36,15 +36,15 @@
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
 
-// GenEvA header files go here
-#include "random/GRandom.hpp"
-#include "communication/GAsioHelperFunctions.hpp"
-#include "communication/GAsioTCPClientT.hpp"
-#include "communication/GAsioTCPConsumerT.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GIndividual.hpp"
-#include "optimization/GMultiThreadedEA.hpp"
+// Geneva header files go here
+#include "hap/GRandom.hpp"
+#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GAsioTCPClientT.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
 
 // The individual that should be optimized
 #include "GNeuralNetworkIndividual.hpp"
@@ -55,7 +55,7 @@
 // Information retrieval and printing
 #include "GInfoFunction.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Communication;
 using namespace Gem::Hap;
 
@@ -69,7 +69,7 @@ using namespace Gem::Hap;
  * @param nDataSets The number of data sets to be produced
  */
 void createNetworkData(
-		const Gem::GenEvA::trainingDataType& t
+		const Gem::Geneva::trainingDataType& t
 	  , const std::string& outputFile
 	  , const std::vector<std::size_t>& architecture
 	  , const std::size_t& nDataSets
@@ -77,8 +77,8 @@ void createNetworkData(
 	boost::shared_ptr<networkData> nD_ptr;
 
 	switch(t) {
-	case Gem::GenEvA::HYPERCUBE:
-		nD_ptr = GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>::createHyperCubeNetworkData (
+	case Gem::Geneva::HYPERCUBE:
+		nD_ptr = GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>::createHyperCubeNetworkData (
 				architecture
 			  , nDataSets
 			  , 0.5 // edgelength
@@ -89,8 +89,8 @@ void createNetworkData(
 
 		break;
 
-	case Gem::GenEvA::HYPERSPHERE:
-		nD_ptr = GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>::createHyperSphereNetworkData (
+	case Gem::Geneva::HYPERSPHERE:
+		nD_ptr = GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>::createHyperSphereNetworkData (
 				architecture
 			  , nDataSets
 			  , 0.5 // radius
@@ -101,8 +101,8 @@ void createNetworkData(
 
 		break;
 
-	case Gem::GenEvA::AXISCENTRIC:
-		nD_ptr = GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>::createAxisCentricNetworkData (
+	case Gem::Geneva::AXISCENTRIC:
+		nD_ptr = GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>::createAxisCentricNetworkData (
 				architecture
 			  , nDataSets
 		);
@@ -112,8 +112,8 @@ void createNetworkData(
 
 		break;
 
-	case Gem::GenEvA::SINUS:
-		nD_ptr = GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>::createSinNetworkData (
+	case Gem::Geneva::SINUS:
+		nD_ptr = GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>::createSinNetworkData (
 				architecture
 			  , nDataSets
 		);
@@ -227,7 +227,7 @@ int main(int argc, char **argv){
 
   //***************************************************************************
   // Produce data sets if we have been asked to do so, then leave
-  if(tdt != Gem::GenEvA::TDTNONE) {
+  if(tdt != Gem::Geneva::TDTNONE) {
 	  createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
 	  return 0;
   }
@@ -255,10 +255,10 @@ int main(int argc, char **argv){
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
   std::vector<boost::shared_ptr<GIndividual> > parentIndividuals;
   switch(tF) {
-  case Gem::GenEvA::SIGMOID:
+  case Gem::Geneva::SIGMOID:
 	  for(std::size_t p = 0 ; p<nParents; p++) {
-		boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >
-			sigmoid_nn_ptr(new GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>(
+		boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >
+			sigmoid_nn_ptr(new GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>(
 					  trainingInputData
 				    , -1.
 				    , 1.
@@ -275,10 +275,10 @@ int main(int argc, char **argv){
 	  }
 	  break;
 
-  case Gem::GenEvA::RBF:
+  case Gem::Geneva::RBF:
 	  for(std::size_t p = 0 ; p<nParents; p++) {
-		boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::RBF> >
-			rbf_nn_ptr(new GNeuralNetworkIndividual<Gem::GenEvA::RBF>(
+		boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::RBF> >
+			rbf_nn_ptr(new GNeuralNetworkIndividual<Gem::Geneva::RBF>(
 					  trainingInputData
 					, -1.
 					, 1.
@@ -375,19 +375,19 @@ int main(int argc, char **argv){
 
   // Output the result- and the visualization-program (if available)
   switch(tF) {
-  case Gem::GenEvA::SIGMOID:
+  case Gem::Geneva::SIGMOID:
   {
-	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > best_ptr
-		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >();
+	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > best_ptr
+		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >();
 	  best_ptr->writeTrainedNetwork(resultProgram);
 	  best_ptr->writeVisualizationFile(visualizationFile);
   }
   break;
 
-  case Gem::GenEvA::RBF:
+  case Gem::Geneva::RBF:
   {
-	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::RBF> > best_ptr
-		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::GenEvA::RBF> >();
+	  boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::RBF> > best_ptr
+		  = pop_ptr->getBestIndividual<GNeuralNetworkIndividual<Gem::Geneva::RBF> >();
 	  best_ptr->writeTrainedNetwork(resultProgram);
 	  best_ptr->writeVisualizationFile(visualizationFile);
   }

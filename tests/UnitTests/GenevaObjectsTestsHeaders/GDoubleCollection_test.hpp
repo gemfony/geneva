@@ -43,13 +43,13 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
-#include "optimization/GDoubleCollection.hpp"
+#include "hap/GRandom.hpp"
+#include "geneva/GDoubleCollection.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;

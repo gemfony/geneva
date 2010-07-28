@@ -56,13 +56,13 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 // Default settings
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
@@ -114,7 +114,7 @@ bool parseConfigFile(const std::string& configFile,
 		std::vector<long>& sleepSeconds,
 		std::vector<long>& sleepMilliSeconds);
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GCOMMANDLINEPARSER_HPP_ */

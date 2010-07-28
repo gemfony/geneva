@@ -55,15 +55,15 @@
 #pragma once
 #endif
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "optimization/GBoundedDouble.hpp"
-#include "optimization/GBoundedDoubleCollection.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GObjectExpectationChecksT.hpp"
-#include "optimization/GParameterObjectCollection.hpp"
-#include "optimization/GParameterSet.hpp"
+#include "geneva/GBoundedDouble.hpp"
+#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GObjectExpectationChecksT.hpp"
+#include "geneva/GParameterObjectCollection.hpp"
+#include "geneva/GParameterSet.hpp"
 
 #ifdef GENEVATESTING
 #include "common/GUnitTestFrameworkT.hpp"
@@ -71,7 +71,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 /************************************************************************************************/
 /**
@@ -280,8 +280,8 @@ public:
 		GParameterSet::specificTestsNoFailureExpected_GUnitTests();
 
 		// Create an individual
-		boost::shared_ptr<Gem::GenEvA::GStartIndividual> p
-			= boost::shared_ptr<Gem::GenEvA::GStartIndividual>(new GStartIndividual(1000, -10, 10));
+		boost::shared_ptr<Gem::Geneva::GStartIndividual> p
+			= boost::shared_ptr<Gem::Geneva::GStartIndividual>(new GStartIndividual(1000, -10, 10));
 
 		// Adapt a number of times and check that there were changes
 		double oldfitness = p->fitness();
@@ -382,12 +382,12 @@ private:
 
 /*************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 // Needed for serialization purposes
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GStartIndividual)
+BOOST_CLASS_EXPORT(Gem::Geneva::GStartIndividual)
 
 // Needed for testing purposes
 /*************************************************************************************************/
@@ -397,12 +397,12 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GStartIndividual)
 #ifdef GENEVATESTING
 
 /**
- * As the Gem::GenEvA::Gem::GenEvA::GStartIndividual has a private default constructor, we need to provide a
+ * As the Gem::Geneva::Gem::Geneva::GStartIndividual has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
-boost::shared_ptr<Gem::GenEvA::GStartIndividual> TFactory_GUnitTests<Gem::GenEvA::GStartIndividual>() {
-	return boost::shared_ptr<Gem::GenEvA::GStartIndividual>(new Gem::GenEvA::GStartIndividual(1000,-10.,10.));
+boost::shared_ptr<Gem::Geneva::GStartIndividual> TFactory_GUnitTests<Gem::Geneva::GStartIndividual>() {
+	return boost::shared_ptr<Gem::Geneva::GStartIndividual>(new Gem::Geneva::GStartIndividual(1000,-10.,10.));
 }
 
 #endif /* GENEVATESTING */

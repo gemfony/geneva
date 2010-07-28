@@ -35,15 +35,15 @@
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
 
-// GenEvA header files go here
-#include "random/GRandom.hpp"
-#include "communication/GAsioHelperFunctions.hpp"
-#include "communication/GAsioTCPClientT.hpp"
-#include "communication/GAsioTCPConsumerT.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GIndividual.hpp"
-#include "optimization/GMultiThreadedEA.hpp"
+// Geneva header files go here
+#include "hap/GRandom.hpp"
+#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GAsioTCPClientT.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
 
 // The individual that should be optimized
 #include "GFunctionIndividual.hpp"
@@ -52,7 +52,7 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Communication;
 using namespace Gem::Hap;
 

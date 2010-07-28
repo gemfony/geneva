@@ -35,15 +35,15 @@
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
 
-// GenEvA header files go here
-#include "random/GRandom.hpp"
-#include "communication/GAsioHelperFunctions.hpp"
-#include "communication/GAsioTCPClientT.hpp"
-#include "communication/GAsioTCPConsumerT.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GIndividual.hpp"
-#include "optimization/GMultiThreadedEA.hpp"
+// Geneva header files go here
+#include "hap/GRandom.hpp"
+#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GAsioTCPClientT.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
 
 // The enums
 #include "GExternalEvaluatorEnums.hpp"
@@ -57,7 +57,7 @@
 // Information retrieval and printing
 #include "GInfoFunction.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Communication;
 using namespace Gem::Hap;
 
@@ -92,7 +92,7 @@ int main(int argc, char **argv){
   double minSigma;
   double maxSigma;
   boost::uint32_t nEvaluations;
-  Gem::GenEvA::dataExchangeMode exchangeMode;
+  Gem::Geneva::dataExchangeMode exchangeMode;
   bool maximize;
   bool productionPlace;
   bool randomFill;

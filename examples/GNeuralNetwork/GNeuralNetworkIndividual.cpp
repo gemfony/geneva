@@ -31,11 +31,11 @@
 
 // Make the class known to the boost serialization framework
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF>)
+BOOST_CLASS_EXPORT(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>)
+BOOST_CLASS_EXPORT(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>)
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 
 /************************************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -490,22 +490,22 @@ double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
 #ifdef GENEVATESTING
 
 /**
- * As the Gem::GenEvA::Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> has a private default constructor, we need to provide a
+ * As the Gem::Geneva::Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
-boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > TFactory_GUnitTests<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >() {
-	return boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >(new Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
+boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >() {
+	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >(new Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
 }
 
 /*************************************************************************************************/
 /**
- * As the Gem::GenEvA::Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> has a private default constructor, we need to provide a
+ * As the Gem::Geneva::Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
-boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> > TFactory_GUnitTests<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> >() {
-	return boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> >(new Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
+boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> > TFactory_GUnitTests<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> >() {
+	return boost::shared_ptr<Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF> >(new Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>("../../DataSets/training.dat",-1.,1., 2.,0.8,0.001, 2., 0.05));
 }
 
 #endif /* GENEVATESTING */
@@ -514,21 +514,21 @@ boost::shared_ptr<Gem::GenEvA::GNeuralNetworkIndividual<Gem::GenEvA::RBF> > TFac
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 /**
- * Reads a Gem::GenEvA::trainingDataType item from a stream. Needed so we
+ * Reads a Gem::Geneva::trainingDataType item from a stream. Needed so we
  * can use boost::program_options to read trainingDataType data.
  *
  * @param i The stream the item should be read from
  * @param tdt The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::trainingDataType& tdt){
+std::istream& operator>>(std::istream& i, Gem::Geneva::trainingDataType& tdt){
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	tdt = boost::numeric_cast<Gem::GenEvA::trainingDataType>(tmp);
+	tdt = boost::numeric_cast<Gem::Geneva::trainingDataType>(tmp);
 #else
-	tdt = static_cast<Gem::GenEvA::trainingDataType>(tmp);
+	tdt = static_cast<Gem::Geneva::trainingDataType>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -536,14 +536,14 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::trainingDataType& tdt){
 
 /************************************************************************************************/
 /**
- * Puts a Gem::GenEvA::trainingDataType item into a stream. Needed so we
+ * Puts a Gem::Geneva::trainingDataType item into a stream. Needed so we
  * can use boost::program_options to output trainingDataType data.
  *
  * @param o The ostream the item should be added to
  * @param tdt the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::trainingDataType& tdt){
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::trainingDataType& tdt){
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(tdt);
 	o << tmp;
 	return o;
@@ -551,21 +551,21 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::trainingDataType& t
 
 /************************************************************************************************/
 /**
- * Reads a Gem::GenEvA::transferFunction item from a stream. Needed so we
+ * Reads a Gem::Geneva::transferFunction item from a stream. Needed so we
  * can use boost::program_options to read transferFunction data.
  *
  * @param i The stream the item should be read from
  * @param tF The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::GenEvA::transferFunction& tF){
+std::istream& operator>>(std::istream& i, Gem::Geneva::transferFunction& tF){
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	tF = boost::numeric_cast<Gem::GenEvA::transferFunction>(tmp);
+	tF = boost::numeric_cast<Gem::Geneva::transferFunction>(tmp);
 #else
-	tF = static_cast<Gem::GenEvA::transferFunction>(tmp);
+	tF = static_cast<Gem::Geneva::transferFunction>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -573,14 +573,14 @@ std::istream& operator>>(std::istream& i, Gem::GenEvA::transferFunction& tF){
 
 /************************************************************************************************/
 /**
- * Puts a Gem::GenEvA::transferFunction item into a stream. Needed so we
+ * Puts a Gem::Geneva::transferFunction item into a stream. Needed so we
  * can use boost::program_options to output transferFunction data.
  *
  * @param o The ostream the item should be added to
  * @param tF the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::transferFunction& tF){
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::transferFunction& tF){
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(tF);
 	o << tmp;
 	return o;
@@ -590,5 +590,5 @@ std::ostream& operator<<(std::ostream& o, const Gem::GenEvA::transferFunction& t
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

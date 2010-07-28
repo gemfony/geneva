@@ -34,30 +34,30 @@ using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
 // All classes that will be tested in this file
-#include "optimization/GIdentityAdaptorT.hpp"
-#include "optimization/GInt32FlipAdaptor.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
-#include "optimization/GInt32GaussAdaptor.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GBooleanObjectCollection.hpp"
-#include "optimization/GInt32ObjectCollection.hpp"
-#include "optimization/GDoubleObjectCollection.hpp"
-#include "optimization/GBoundedDoubleCollection.hpp"
-#include "optimization/GBoundedInt32Collection.hpp"
-#include "optimization/GBoolean.hpp"
-#include "optimization/GInt32.hpp"
-#include "optimization/GDouble.hpp"
-#include "optimization/GBoundedDouble.hpp"
-#include "optimization/GBoundedInt32.hpp"
-#include "optimization/GInt32Collection.hpp"
-#include "optimization/GDoubleCollection.hpp"
-#include "optimization/GBooleanCollection.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GMultiThreadedEA.hpp"
-#include "optimization/GEAPersonalityTraits.hpp"
-#include "optimization/GGDPersonalityTraits.hpp"
-#include "optimization/GSwarmPersonalityTraits.hpp"
-#include "random/GRandom.hpp"
+#include "geneva/GIdentityAdaptorT.hpp"
+#include "geneva/GInt32FlipAdaptor.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GBooleanObjectCollection.hpp"
+#include "geneva/GInt32ObjectCollection.hpp"
+#include "geneva/GDoubleObjectCollection.hpp"
+#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GBoundedInt32Collection.hpp"
+#include "geneva/GBoolean.hpp"
+#include "geneva/GInt32.hpp"
+#include "geneva/GDouble.hpp"
+#include "geneva/GBoundedDouble.hpp"
+#include "geneva/GBoundedInt32.hpp"
+#include "geneva/GInt32Collection.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GBooleanCollection.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
+#include "geneva/GEAPersonalityTraits.hpp"
+#include "geneva/GGDPersonalityTraits.hpp"
+#include "geneva/GSwarmPersonalityTraits.hpp"
+#include "hap/GRandom.hpp"
 
 #include "GStandard_test.hpp"
 
@@ -66,11 +66,11 @@ using namespace boost::unit_test;
 // when these two statements are not present below.
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Hap::GRandom)
-BOOST_CLASS_EXPORT(Gem::GenEvA::GEvolutionaryAlgorithm)
+BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 /*************************************************************************************************/
 /**

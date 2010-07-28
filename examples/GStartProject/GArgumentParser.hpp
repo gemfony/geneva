@@ -54,14 +54,14 @@
 #pragma once
 #endif
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "optimization/GOptimizationEnums.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 
 namespace Gem
 {
-  namespace GenEvA
+  namespace Geneva
   {
     // Default settings
     const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
@@ -123,7 +123,7 @@ namespace Gem
 		  , double& maxVar
 	);
 
-  } /* namespace GenEvA */
+  } /* namespace Geneva */
 } /* namespace Gem */
 
 #endif /* GARGUMENTPARSER_HPP_ */

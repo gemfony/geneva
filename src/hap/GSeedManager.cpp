@@ -28,7 +28,7 @@
  */
 
 
-#include "hap/GSeedManager.cpp"
+#include "hap/GSeedManager.hpp"
 
 namespace Gem {
 namespace Hap {
@@ -43,6 +43,8 @@ GSeedManager::GSeedManager()
 {
 	// Start the seed thread.
 	seedThread_ = thread_ptr(new boost::thread(boost::bind(&GSeedManager::seedProducer, this)));
+
+	std::cout << "Seeding has started" << std::endl;
 }
 
 /************************************************************************/
@@ -117,8 +119,18 @@ seed_type GSeedManager::getSeed(const boost::posix_time::time_duration& timeout)
  *
  * @return The value of the initial start seed
  */
-initial_seed_type getStartSeed() const {
+initial_seed_type GSeedManager::getStartSeed() const {
 	return startSeed_;
+}
+
+/*************************************************************************/
+/**
+ * Retrieves the maximum size of the seed queue
+ *
+ * @return The size of the seed queue
+ */
+std::size_t GSeedManager::getQueueSize() const {
+	return seedQueue_.getCapacity();
 }
 
 /*************************************************************************/

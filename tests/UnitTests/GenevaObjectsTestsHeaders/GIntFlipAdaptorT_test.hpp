@@ -50,15 +50,15 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
-#include "optimization/GIntFlipAdaptorT.hpp"
-#include "optimization/GInt32FlipAdaptor.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
+#include "hap/GRandom.hpp"
+#include "geneva/GIntFlipAdaptorT.hpp"
+#include "geneva/GInt32FlipAdaptor.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
@@ -79,8 +79,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 	T gifat0;
 
 	// An id should have been set automatically
-	BOOST_CHECK(gifat0.getAdaptorId() == Gem::GenEvA::GBOOLEANADAPTOR ||
-			gifat0.getAdaptorId() == Gem::GenEvA::GINT32FLIPADAPTOR);
+	BOOST_CHECK(gifat0.getAdaptorId() == Gem::Geneva::GBOOLEANADAPTOR ||
+			gifat0.getAdaptorId() == Gem::Geneva::GINT32FLIPADAPTOR);
 
 	// Test instantiation with a probability adaption
 	T gifat1(0.2);

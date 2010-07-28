@@ -68,7 +68,7 @@
 #endif
 
 
-// GenEvA headers go here
+// Geneva headers go here
 #include "GCommonEnums.hpp"
 
 namespace Gem

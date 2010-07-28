@@ -49,15 +49,15 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
-#include "optimization/GGaussAdaptorT.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GInt32GaussAdaptor.hpp"
+#include "hap/GRandom.hpp"
+#include "geneva/GGaussAdaptorT.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
@@ -79,7 +79,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 	// Test simple instantiation
 	T ggat0;
 	// An id should have been set automatically
-	BOOST_CHECK(ggat0.getAdaptorId() == Gem::GenEvA::GDOUBLEGAUSSADAPTOR || ggat0.getAdaptorId() == Gem::GenEvA::GINT32GAUSSADAPTOR);
+	BOOST_CHECK(ggat0.getAdaptorId() == Gem::Geneva::GDOUBLEGAUSSADAPTOR || ggat0.getAdaptorId() == Gem::Geneva::GINT32GAUSSADAPTOR);
 
 	// Instantiation with an intentionally long sigma
 	T ggat1(0.202030405060708,0.001, 0., 1.); // intentionally long

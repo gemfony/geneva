@@ -44,13 +44,13 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
-#include "optimization/GDoubleGaussAdaptor.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
 
 // Parsing of the command line
 #include "GCommandLineParser.hpp"
 
 using namespace Gem;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Hap;
 
 int main(int argc, char **argv) {

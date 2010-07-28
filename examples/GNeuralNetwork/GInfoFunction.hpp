@@ -36,21 +36,21 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-// GenEvA header files go here
-#include "random/GRandom.hpp"
-#include "communication/GAsioHelperFunctions.hpp"
-#include "communication/GAsioTCPClientT.hpp"
-#include "communication/GAsioTCPConsumerT.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GIndividual.hpp"
-#include "optimization/GMultiThreadedEA.hpp"
+// Geneva header files go here
+#include "hap/GRandom.hpp"
+#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GAsioTCPClientT.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
 
 // The individual that should be optimized
 #include "GNeuralNetworkIndividual.hpp"
 
 namespace Gem {
-namespace GenEvA {
+namespace Geneva {
 /************************************************************************************************/
 /**
  * An information object that will also emit result information in every n-th generation,
@@ -65,7 +65,7 @@ public:
 	 * @param nInfoIndividuals The amount of individuals for which information should be emitted
 	 * @param summary The stream to which information should be written
 	 */
-	optimizationMonitor(const std::size_t nInfoIndividuals, std::ostream& summary, const Gem::GenEvA::transferFunction& tF)
+	optimizationMonitor(const std::size_t nInfoIndividuals, std::ostream& summary, const Gem::Geneva::transferFunction& tF)
 		: nInfoIndividuals_(nInfoIndividuals)
 		, summary_(summary)
 		, tF_(tF)
@@ -86,7 +86,7 @@ public:
 	void informationFunction(const infoMode& im, GEvolutionaryAlgorithm * const gbp){
 		switch(im) {
 		//---------------------------------------------------------------------------
-		case Gem::GenEvA::INFOINIT:
+		case Gem::Geneva::INFOINIT:
 		{
 			// Output the header to the summary stream
 			summary_ << "{" << std::endl
@@ -105,7 +105,7 @@ public:
 		break;
 
 		//---------------------------------------------------------------------------
-		case Gem::GenEvA::INFOPROCESSING:
+		case Gem::Geneva::INFOPROCESSING:
 		{
 			bool isDirty = false;
 			double currentEvaluation = 0.;
@@ -117,22 +117,22 @@ public:
 
 			for(std::size_t p=0; p<nInfoIndividuals_; p++) {
 				switch(tF_) {
-				case Gem::GenEvA::SIGMOID:
+				case Gem::Geneva::SIGMOID:
 				{
 					// Get access to the individual
-					boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> > nn_sigmoid_ptr
-						= gbp->individual_cast<GNeuralNetworkIndividual<Gem::GenEvA::SIGMOID> >(p);
+					boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> > nn_sigmoid_ptr
+						= gbp->individual_cast<GNeuralNetworkIndividual<Gem::Geneva::SIGMOID> >(p);
 
 					// Retrieve the fitness of this individual
 					currentEvaluation = nn_sigmoid_ptr->getCurrentFitness(isDirty);
 				}
 				break;
 
-				case Gem::GenEvA::RBF:
+				case Gem::Geneva::RBF:
 				{
 					// Get access to the individual
-					boost::shared_ptr<GNeuralNetworkIndividual<Gem::GenEvA::RBF> > nn_rbf_ptr
-						= gbp->individual_cast<GNeuralNetworkIndividual<Gem::GenEvA::RBF> >(p);
+					boost::shared_ptr<GNeuralNetworkIndividual<Gem::Geneva::RBF> > nn_rbf_ptr
+						= gbp->individual_cast<GNeuralNetworkIndividual<Gem::Geneva::RBF> >(p);
 
 					// Retrieve the fitness of this individual
 					currentEvaluation = nn_rbf_ptr->getCurrentFitness(isDirty);
@@ -153,7 +153,7 @@ public:
 		break;
 
 		//---------------------------------------------------------------------------
-		case Gem::GenEvA::INFOEND:
+		case Gem::Geneva::INFOEND:
 		{
 			// Output final print logic to the stream
 			summary_ << "  // Transfer the vectors into arrays" << std::endl
@@ -198,10 +198,10 @@ private:
 
 	std::size_t nInfoIndividuals_; ///< The number of individuals for which information should be gathered
 	std::ostream& summary_; ///< The stream to which information is written
-	Gem::GenEvA::transferFunction tF_; ///< Holds information regarding the network's transfer functions
+	Gem::Geneva::transferFunction tF_; ///< Holds information regarding the network's transfer functions
 };
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

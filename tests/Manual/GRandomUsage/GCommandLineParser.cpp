@@ -31,7 +31,7 @@
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /************************************************************************************************/
@@ -98,5 +98,5 @@ bool parseCommandLine(int argc, char **argv,
 
 /************************************************************************************************/
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */

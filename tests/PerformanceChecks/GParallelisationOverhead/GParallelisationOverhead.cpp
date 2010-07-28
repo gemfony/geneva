@@ -41,16 +41,16 @@
 #include <boost/date_time.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-// GenEvA header files go here
-#include "random/GRandom.hpp"
-#include "communication/GAsioTCPConsumerT.hpp"
-#include "communication/GAsioTCPClientT.hpp"
-#include "communication/GAsioHelperFunctions.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GMultiThreadedEA.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GIndividual.hpp"
-#include "optimization/GBoundedDoubleCollection.hpp"
+// Geneva header files go here
+#include "hap/GRandom.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GAsioTCPClientT.hpp"
+#include "courtier/GAsioHelperFunctions.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GMultiThreadedEA.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GBoundedDoubleCollection.hpp"
 
 // The individual that should be optimized
 #include "GDelayIndividual.hpp"
@@ -58,7 +58,7 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Communication;
 using namespace Gem::Hap;
 
@@ -249,8 +249,8 @@ int main(int argc, char **argv){
 		pop_ptr->setMaxIteration(maxGenerations);
 		pop_ptr->setMaxTime(boost::posix_time::minutes(0));
 		pop_ptr->setReportIteration(1); // Emit information during every generation
-		pop_ptr->setRecombinationMethod(Gem::GenEvA::DEFAULTRECOMBINE);
-		pop_ptr->setSortingScheme(Gem::GenEvA::MUCOMMANU);
+		pop_ptr->setRecombinationMethod(Gem::Geneva::DEFAULTRECOMBINE);
+		pop_ptr->setSortingScheme(Gem::Geneva::MUCOMMANU);
 		pop_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////

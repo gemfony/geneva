@@ -40,18 +40,18 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GThreadGroup.hpp"
-#include "random/GRandom.hpp"
-#include "communication/GAsioTCPConsumerT.hpp"
-#include "communication/GAsioTCPClientT.hpp"
-#include "optimization/GEvolutionaryAlgorithm.hpp"
-#include "optimization/GDoubleCollection.hpp"
-#include "optimization/GParameterSet.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GBrokerEA.hpp"
-#include "optimization/GIndividual.hpp"
+#include "hap/GRandom.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GAsioTCPClientT.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GParameterSet.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GBrokerEA.hpp"
+#include "geneva/GIndividual.hpp"
 
 // The individual that should be optimized.
 // Represents the projection of an m-dimensional
@@ -61,7 +61,7 @@
 // Parses the command line for all required options
 #include "GCommandLineParser.hpp"
 
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 using namespace Gem::Communication;
 using namespace Gem::Hap;
 

@@ -94,7 +94,7 @@ The commands shown here were tested on an Ubuntu 9.10 system.
 Recommended Software
 ====================
 
-By default a GenEvA population emits information suitable for the ROOT framework
+By default a Geneva population emits information suitable for the ROOT framework
 (see http://root.cern.ch). ROOT is a C++ analysis framework widely used in particle
 physics. It is built around the C++ interpreter cint. It is recommended to install
 ROOT in your system, as also some of the examples emit information in the ROOT format
@@ -105,7 +105,7 @@ Appendix: Installing Boost in Debian/Ubuntu
 ===========================================
 
 Both Debian "Squeeze" (testing) and Ubuntu 9.10 "Karmic Koala" have the required
-Boost packages to be able to compile and run GenEvA:
+Boost packages to be able to compile and run Geneva:
 
 	libboost-dev
 	libboost-date-time-dev

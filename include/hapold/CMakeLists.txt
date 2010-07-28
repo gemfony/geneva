@@ -1,0 +1,17 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+SET ( OPTIMIZATIONINCLUDES
+	GHapEnums.hpp
+	GRandomBase.hpp
+	GRandomDefines.hpp
+	GRandomFactory.hpp
+	GRandomT.hpp
+	GSeedManager.hpp
+)
+
+INSTALL ( FILES ${OPTIMIZATIONINCLUDES} DESTINATION include/hap
+	PERMISSIONS
+	OWNER_READ OWNER_WRITE
+	GROUP_READ
+	WORLD_READ
+)

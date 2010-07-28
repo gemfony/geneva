@@ -57,20 +57,20 @@
 #pragma once
 #endif
 
-// GenEvA header files go here
+// Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "dataexchange/GBoolParameter.hpp"
 #include "dataexchange/GDataExchange.hpp"
 #include "dataexchange/GDoubleParameter.hpp"
 #include "dataexchange/GLongParameter.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
-#include "optimization/GBooleanCollection.hpp"
-#include "optimization/GBoundedDoubleCollection.hpp"
-#include "optimization/GBoundedInt32Collection.hpp"
-#include "optimization/GDoubleCollection.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GInt32FlipAdaptor.hpp"
-#include "optimization/GParameterSet.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/GBooleanCollection.hpp"
+#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GBoundedInt32Collection.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GInt32FlipAdaptor.hpp"
+#include "geneva/GParameterSet.hpp"
 
 // The enums
 #include "GExternalEvaluatorEnums.hpp"
@@ -80,7 +80,7 @@ namespace bf = boost::filesystem; // alias for ease of use
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 
 /************************************************************************************************/
@@ -157,7 +157,7 @@ class GExternalEvaluatorIndividual
 	GExternalEvaluatorIndividual(const std::string& program,
 			const std::string& arguments="empty",
 			const bool& random=false,
-			const dataExchangeMode& exchangeMode = Gem::GenEvA::BINARYEXCHANGE,
+			const dataExchangeMode& exchangeMode = Gem::Geneva::BINARYEXCHANGE,
 			boost::shared_ptr<GAdaptorT<double> > gdbl_ad_ptr = boost::shared_ptr<GAdaptorT<double> >((GAdaptorT<double> *)NULL),
 			boost::shared_ptr<GAdaptorT<boost::int32_t> > glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL),
 			boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL))
@@ -219,7 +219,7 @@ class GExternalEvaluatorIndividual
 		}
 
 		std::string commandLine;
-		if(exchangeMode_ == Gem::GenEvA::BINARYEXCHANGE) {
+		if(exchangeMode_ == Gem::Geneva::BINARYEXCHANGE) {
 			commandLine = program_ + " -m 0 -t " +(random?std::string(" -R"):std::string("")) + " -p " + parameterFile_;
 		}
 		else {
@@ -531,7 +531,7 @@ class GExternalEvaluatorIndividual
 		}
 
 		// Assemble command line and run the external program
-		if(exchangeMode_ == Gem::GenEvA::BINARYEXCHANGE)
+		if(exchangeMode_ == Gem::Geneva::BINARYEXCHANGE)
 			commandLine = program_ + " -m 0  -r -p " + bestParameterSetFile;
 		else
 			commandLine = program_ + " -m 1  -r -p " + bestParameterSetFile;;
@@ -625,7 +625,7 @@ class GExternalEvaluatorIndividual
 		// Assemble command line and run the external program
 		std::string commandLine;
 
-		if(exchangeMode_ == Gem::GenEvA::BINARYEXCHANGE)
+		if(exchangeMode_ == Gem::Geneva::BINARYEXCHANGE)
 			commandLine = program_ + " -m 0  -p " + parFile;
 		else
 			commandLine = program_ + " -m 1  -p " + parFile;;
@@ -679,7 +679,7 @@ class GExternalEvaluatorIndividual
 	:program_("unknown"),
 	 arguments_("empty"),
 	 nEvaluations_(1),
-	 exchangeMode_(Gem::GenEvA::BINARYEXCHANGE),
+	 exchangeMode_(Gem::Geneva::BINARYEXCHANGE),
 	 maximize_(false),
 	 parameterFile_("empty"),
 	 gdbl_ptr_(boost::shared_ptr<GBoundedDouble>((GBoundedDouble *)NULL)),
@@ -766,7 +766,7 @@ class GExternalEvaluatorIndividual
 		}
 
 		// At this point all necessary data should have been stored in the GDataExchange module. We can now write it to file.
-		if(exchangeMode_ == Gem::GenEvA::BINARYEXCHANGE)	gde_.writeToFile(fileName, true);
+		if(exchangeMode_ == Gem::Geneva::BINARYEXCHANGE)	gde_.writeToFile(fileName, true);
 		else gde_.writeToFile(fileName, false); // TEXTEXCHANGE
 	}
 
@@ -909,11 +909,11 @@ class GExternalEvaluatorIndividual
 	Gem::Dataexchange::GDataExchange gde_; ///< takes care of the data exchange with external programs
  };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GExternalEvaluatorIndividual)
+BOOST_CLASS_EXPORT(Gem::Geneva::GExternalEvaluatorIndividual)
 
 // Needed for testing purposes
 /*************************************************************************************************/
@@ -923,12 +923,12 @@ BOOST_CLASS_EXPORT(Gem::GenEvA::GExternalEvaluatorIndividual)
 #ifdef GENEVATESTING
 
 /**
- * As the Gem::GenEvA::Gem::GenEvA::GExternalEvaluatorIndividual has a private default constructor, we need to provide a
+ * As the Gem::Geneva::Gem::Geneva::GExternalEvaluatorIndividual has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
-boost::shared_ptr<Gem::GenEvA::GExternalEvaluatorIndividual> TFactory_GUnitTests<Gem::GenEvA::GExternalEvaluatorIndividual>() {
-	return boost::shared_ptr<Gem::GenEvA::GExternalEvaluatorIndividual>(new Gem::GenEvA::GExternalEvaluatorIndividual("../../SampleEvaluator/sampleEvaluator"));
+boost::shared_ptr<Gem::Geneva::GExternalEvaluatorIndividual> TFactory_GUnitTests<Gem::Geneva::GExternalEvaluatorIndividual>() {
+	return boost::shared_ptr<Gem::Geneva::GExternalEvaluatorIndividual>(new Gem::Geneva::GExternalEvaluatorIndividual("../../SampleEvaluator/sampleEvaluator"));
 }
 
 #endif /* GENEVATESTING */

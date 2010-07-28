@@ -1,7 +1,7 @@
-Eclipse setup for GenEvA development
+Eclipse setup for Geneva development
 ====================================
 
-Follow these steps to download and setup a customized Eclipse package for GenEvA 
+Follow these steps to download and setup a customized Eclipse package for Geneva 
 development:
 
 1 - go to the "Geneva C++ development" package page on the Yoxos On Demand site:
@@ -19,13 +19,13 @@ development:
 
 3 - save the file and unpack it in your desired location of your disk, say $DIR. This
     will create a folder $DIR/eclipse containing the full Eclipse installation customized
-    for GenEvA development.
+    for Geneva development.
 
 4 - run the newly installed eclipse,
       $DIR/eclipse/eclipse (eclipse.exe on Windows)
 
 5 - choose a WorkSpace location. The workspace is the place where Eclipse will keep all
-    your projects and associated data, in particular the GenEvA source code.
+    your projects and associated data, in particular the Geneva source code.
 
 6 - if you are behind a proxy, go to
       Window / Preferences / General / Network Connections
@@ -40,7 +40,7 @@ development:
 8 - now the Yoxos Workspace Provisioning dialog should pop-up, showing a 
       "Geneva C++ development" profile. Select it and click "Apply Selected".
 
-9 - your Eclipse installation should be now ready to use, with a "GenEvA" project on
+9 - your Eclipse installation should be now ready to use, with a "Geneva" project on
     your Workspace containing the corresponding source code, and several preconfigured
     settings.
 
@@ -66,7 +66,7 @@ If something goes wrong...
 
       8.2 -- click on "Start Installation"
 
-9 - if no GenEvA project was created automatically by Workspace Provisioning, then you
+9 - if no Geneva project was created automatically by Workspace Provisioning, then you
     need to check it out by hand
 
       9.1 -- go to

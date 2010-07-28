@@ -111,7 +111,7 @@ void GThreadGroup::remove_thread(boost::thread* thrd) {
 void GThreadGroup::join_all() {
 	boost::lock_guard<boost::mutex> guard(m_);
 
-	for (thread_vector::iterator it = threads_.begin(); it!= threads_.end(); ++it){
+	for (thread_vector::iterator it = threads_.begin(); it!= threads_.end(); ++it) {
 		(*it)->join();
 	}
 }
@@ -123,8 +123,9 @@ void GThreadGroup::join_all() {
 void GThreadGroup::interrupt_all() {
 	boost::lock_guard<boost::mutex> guard(m_);
 
-	for (thread_vector::iterator it = threads_.begin(); it != threads_.end(); ++it)
+	for (thread_vector::iterator it = threads_.begin(); it != threads_.end(); ++it) {
 		(*it)->interrupt();
+	}
 }
 
 /********************************************************************/
@@ -151,7 +152,9 @@ void GThreadGroup::remove_last() {
  * @param nThreads The number of threads at the end of the group that shall be removed
  */
 void GThreadGroup::remove_last(const std::size_t& nThreads) {
-	for (std::size_t i = 0; i < nThreads; i++) remove_last();
+	for (std::size_t i = 0; i < nThreads; i++) {
+		remove_last();
+	}
 }
 
 /********************************************************************/

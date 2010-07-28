@@ -45,14 +45,14 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
-// GenEvA header files go here
-#include "optimization/GBoolean.hpp"
-#include "optimization/GBooleanCollection.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
+// Geneva header files go here
+#include "geneva/GBoolean.hpp"
+#include "geneva/GBooleanCollection.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
 
 using namespace boost;
 using namespace Gem;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 /**
  * This test checks the flip probability of GBoolean and a GBooleanCollection. Likewise this is a test

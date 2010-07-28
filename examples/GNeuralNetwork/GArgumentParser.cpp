@@ -32,7 +32,7 @@
 
 namespace Gem
 {
-  namespace GenEvA
+  namespace Geneva
   {
 	/************************************************************************************************/
     /**
@@ -246,7 +246,7 @@ namespace Gem
 	   "Specifies whether results should be returned even if they are not better than before")
 	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
 	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
-	  ("transferFunction", po::value<Gem::GenEvA::transferFunction>(&tF)->default_value(DEFAULTTRANSFERFUNCTION),
+	  ("transferFunction", po::value<Gem::Geneva::transferFunction>(&tF)->default_value(DEFAULTTRANSFERFUNCTION),
 	   "The transfer function used in the network: 0 (SIGMOID), 1(RBF)")
 	  ("trainingInputData", po::value<std::string>(&trainingInputData)->default_value(DEFAULTTRAININGINPUTDATA),
 	   "The name of the file with the training data")
@@ -340,5 +340,5 @@ namespace Gem
 
     /************************************************************************************************/
 
-  } /* namespace GenEvA */
+  } /* namespace Geneva */
 } /* namespace Gem */

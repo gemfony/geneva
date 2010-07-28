@@ -52,18 +52,18 @@
 #pragma once
 #endif
 
-// GenEvA header files go here
-#include "optimization/GParameterSet.hpp"
-#include "optimization/GDoubleGaussAdaptor.hpp"
-#include "optimization/GBoundedDoubleCollection.hpp"
-#include "optimization/GBoundedDouble.hpp"
+// Geneva header files go here
+#include "geneva/GParameterSet.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GBoundedDouble.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GCommonEnums.hpp"
 
 namespace Gem
 {
-namespace GenEvA
+namespace Geneva
 {
 /************************************************************************************************/
 /**
@@ -117,7 +117,7 @@ public:
 	 * Allows to set the individual's personality. Note that this is not a normal feature of
 	 * individuals but has been added in this particular individual in order to allow unit tests.
 	 */
-	void setPersonalityType(const Gem::GenEvA::personality& pers) {
+	void setPersonalityType(const Gem::Geneva::personality& pers) {
 		this->setPersonality(pers);
 	}
 
@@ -181,11 +181,11 @@ protected:
 	}
 };
 
-} /* namespace GenEvA */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 // Needed for serialization purposes
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::GenEvA::GTestIndividual1)
+BOOST_CLASS_EXPORT(Gem::Geneva::GTestIndividual1)
 
 #endif /* GTESTINDIVIDUAL1_HPP_ */

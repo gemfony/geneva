@@ -46,17 +46,17 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "random/GRandom.hpp"
-#include "optimization/GParameterBase.hpp"
-#include "optimization/GBooleanCollection.hpp"
-#include "optimization/GBooleanAdaptor.hpp"
-#include "optimization/GStdSimpleVectorInterfaceT.hpp"
+#include "hap/GRandom.hpp"
+#include "geneva/GParameterBase.hpp"
+#include "geneva/GBooleanCollection.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/GStdSimpleVectorInterfaceT.hpp"
 #include "GStdVectorInterface_test.hpp"
 #include "GEqualityPrinter.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;
-using namespace Gem::GenEvA;
+using namespace Gem::Geneva;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
