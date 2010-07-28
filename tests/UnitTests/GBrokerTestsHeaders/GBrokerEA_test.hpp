@@ -43,7 +43,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GBrokerEA.hpp"
 
 using namespace Gem;
@@ -71,7 +71,7 @@ public:
 
 	/***********************************************************************************/
 private:
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 };
 
 /********************************************************************************************/

@@ -43,7 +43,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GInt32Collection.hpp"
@@ -332,7 +332,7 @@ public:
 
 	/***********************************************************************************/
 private:
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 };
 
 /********************************************************************************************/

@@ -125,7 +125,6 @@ public:
 			// Create a suitable adaptor (sigma=0.1, sigma-adaption=0.5, min sigma=0, max sigma=0,5)
 			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 0.5));
 			gdga_ptr->setAdaptionThreshold(1); // Adaption parameters are modified after each adaption
-			gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL); // Local random number generation. Change to RNRFACTORY for centralized production
 			gdga_ptr->setAdaptionProbability(0.05); // The likelihood for a parameter to be adapted
 
 			// Register the adaptor with GBoundedDouble objects

@@ -58,8 +58,9 @@ GDoubleCollection::GDoubleCollection()
 GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max)
 	: GNumCollectionT<double>(min, max)
 {
-	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
-	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.evenRandom(min,max));
+	using namespace Gem::Hap;
+	GRandomT<RANDOMLOCAL> gr;
+	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.uniform_real(min,max));
 }
 
 /*******************************************************************************************/
@@ -186,14 +187,16 @@ void GDoubleCollection::load_(const GObject* cp){
  * that is added later will remain unaffected.
  */
 void GDoubleCollection::randomInit_() {
+	using namespace Gem::Hap;
+
 	double lowerBoundary = getLowerInitBoundary();
 	double upperBoundary = getUpperInitBoundary();
 
-	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+	GRandomT<RANDOMLOCAL> gr;
 
 	GDoubleCollection::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)=gr.evenRandom(lowerBoundary, upperBoundary);
+		(*it)=gr.uniform_real(lowerBoundary, upperBoundary);
 	}
 }
 

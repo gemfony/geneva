@@ -222,9 +222,9 @@ void GInt32GaussAdaptor::customAdaptions(boost::int32_t &value) {
 #if defined (CHECKOVERFLOWS)
 
 #if defined (DEBUG)
-	boost::int32_t addition = boost::numeric_cast<boost::int32_t>(this->gr.gaussRandom(0.,sigma_));
+	boost::int32_t addition = boost::numeric_cast<boost::int32_t>(this->gr.normal_distribution(sigma_));
 #else
-	boost::int32_t addition = static_cast<boost::int32_t>(this->gr.gaussRandom(0.,sigma_));
+	boost::int32_t addition = static_cast<boost::int32_t>(this->gr.normal_distribution(sigma_));
 #endif /* DEBUG */
 
 	// Prevent over- and underflows.
@@ -249,9 +249,9 @@ void GInt32GaussAdaptor::customAdaptions(boost::int32_t &value) {
 #else  /* CHECKOVERFLOWS */
 	// We do not check for over- or underflows for performance reasons.
 #if defined (DEBUG)
-	value += boost::numeric_cast<boost::int32_t>(this->gr.gaussRandom(0.,sigma_));
+	value += boost::numeric_cast<boost::int32_t>(this->gr.normal_distribution(sigma_));
 #else
-	value += static_cast<boost::int32_t>(this->gr.gaussRandom(0.,sigma_));
+	value += static_cast<boost::int32_t>(this->gr.normal_distribution(sigma_));
 #endif /* DEBUG */
 
 #endif /* CHECKOVERFLOWS  */

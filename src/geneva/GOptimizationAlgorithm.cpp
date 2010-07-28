@@ -44,24 +44,23 @@ namespace Geneva
  * The default constructor
  */
 GOptimizationAlgorithm::GOptimizationAlgorithm()
-	:GMutableSetT<Gem::Geneva::GIndividual>()
-	 , gr(Gem::Hap::DEFAULTRNRGENMODE)
-	 , iteration_(0)
-	 , maxIteration_(DEFAULTMAXIT)
-	 , maxStallIteration_(DEFAULMAXTSTALLIT)
-	 , reportIteration_(DEFAULTREPORTITER)
-	 , defaultPopulationSize_(0)
-	 , bestPastFitness_(0.) // will be set appropriately in the optimize() function
-	 , maximize_(DEFAULTMAXMODE)
-	 , stallCounter_(0)
-	 , cpInterval_(DEFAULTCHECKPOINTIT)
-	 , cpBaseName_(DEFAULTCPBASENAME)
-	 , cpDirectory_(DEFAULTCPDIR)
-	 , cpSerMode_(DEFAULTCPSERMODE)
-	 , qualityThreshold_(DEFAULTQUALITYTHRESHOLD)
-	 , hasQualityThreshold_(false)
-	 , maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
-	 , emitTerminationReason_(false)
+	: GMutableSetT<Gem::Geneva::GIndividual>()
+	, iteration_(0)
+	, maxIteration_(DEFAULTMAXIT)
+	, maxStallIteration_(DEFAULMAXTSTALLIT)
+	, reportIteration_(DEFAULTREPORTITER)
+	, defaultPopulationSize_(0)
+	, bestPastFitness_(0.) // will be set appropriately in the optimize() function
+	, maximize_(DEFAULTMAXMODE)
+	, stallCounter_(0)
+	, cpInterval_(DEFAULTCHECKPOINTIT)
+	, cpBaseName_(DEFAULTCPBASENAME)
+	, cpDirectory_(DEFAULTCPDIR)
+	, cpSerMode_(DEFAULTCPSERMODE)
+	, qualityThreshold_(DEFAULTQUALITYTHRESHOLD)
+	, hasQualityThreshold_(false)
+	, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
+	, emitTerminationReason_(false)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -71,24 +70,23 @@ GOptimizationAlgorithm::GOptimizationAlgorithm()
  * @param cp A constant reference to another GOptimizationAlgorithm object
  */
 GOptimizationAlgorithm::GOptimizationAlgorithm(const GOptimizationAlgorithm& cp)
-	:GMutableSetT<Gem::Geneva::GIndividual>(cp)
-	 , gr(cp.gr)
-	 , iteration_(cp.iteration_)
-	 , maxIteration_(cp.maxIteration_)
-	 , maxStallIteration_(cp.maxStallIteration_)
-	 , reportIteration_(cp.reportIteration_)
-	 , defaultPopulationSize_(cp.defaultPopulationSize_)
-	 , bestPastFitness_(cp.bestPastFitness_)
-	 , maximize_(cp.maximize_)
-	 , stallCounter_(cp.stallCounter_)
-	 , cpInterval_(cp.cpInterval_)
-	 , cpBaseName_(cp.cpBaseName_)
-	 , cpDirectory_(cp.cpDirectory_)
-	 , cpSerMode_(cp.cpSerMode_)
-	 , qualityThreshold_(cp.qualityThreshold_)
-	 , hasQualityThreshold_(cp.hasQualityThreshold_)
-	 , maxDuration_(cp.maxDuration_)
-	 , emitTerminationReason_(cp.emitTerminationReason_)
+	: GMutableSetT<Gem::Geneva::GIndividual>(cp)
+	, iteration_(cp.iteration_)
+	, maxIteration_(cp.maxIteration_)
+	, maxStallIteration_(cp.maxStallIteration_)
+	, reportIteration_(cp.reportIteration_)
+	, defaultPopulationSize_(cp.defaultPopulationSize_)
+	, bestPastFitness_(cp.bestPastFitness_)
+	, maximize_(cp.maximize_)
+	, stallCounter_(cp.stallCounter_)
+	, cpInterval_(cp.cpInterval_)
+	, cpBaseName_(cp.cpBaseName_)
+	, cpDirectory_(cp.cpDirectory_)
+	, cpSerMode_(cp.cpSerMode_)
+	, qualityThreshold_(cp.qualityThreshold_)
+	, hasQualityThreshold_(cp.hasQualityThreshold_)
+	, maxDuration_(cp.maxDuration_)
+	, emitTerminationReason_(cp.emitTerminationReason_)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -179,27 +177,6 @@ boost::optional<std::string> GOptimizationAlgorithm::checkRelationshipWith(const
 
 /************************************************************************************************************/
 /**
- * Determines whether production of random numbers should happen remotely
- * (RNRFACTORY) or locally (RNRLOCAL)
- *
- * @param rnrGenMode A parameter which indicates where random numbers should be produced
- */
-void GOptimizationAlgorithm::setRnrGenerationMode(const Gem::Hap::rnrGenerationMode& rnrGenMode) {
-	gr.setRnrGenerationMode(rnrGenMode);
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the random number generators current generation mode.
- *
- * @return The current random number generation mode of the local generator
- */
-Gem::Hap::rnrGenerationMode GOptimizationAlgorithm::getRnrGenerationMode() const {
-	return gr.getRnrGenerationMode();
-}
-
-/************************************************************************************************************/
-/**
  * Loads the data of another GObject
  *
  * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
@@ -212,8 +189,6 @@ void GOptimizationAlgorithm::load_(const GObject* cp)
 	GMutableSetT<Gem::Geneva::GIndividual>::load_(cp);
 
 	// and then our local data
-	gr.load(p_load->gr);
-
 	iteration_ = p_load->iteration_;
 	maxIteration_ = p_load->maxIteration_;
 	maxStallIteration_ = p_load->maxStallIteration_;

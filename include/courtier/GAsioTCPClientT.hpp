@@ -61,7 +61,7 @@
 
 // Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GBaseClientT.hpp"
 #include "GCommunicationEnums.hpp"

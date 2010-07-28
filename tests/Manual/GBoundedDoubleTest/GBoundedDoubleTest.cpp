@@ -53,7 +53,7 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GBoundedDouble.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
@@ -156,7 +156,7 @@ int main(int argc, char **argv){
 	// external value. The test produces 10 gaussian random number distributions,
 	// whose mean is shifted from left to right of a [-1,1] range
 
-	Gem::Hap::GRandom gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
 	GBoundedDouble gbd_distortion(-1.,1.);
 
 	std::ofstream distortion("distortion.C");
@@ -199,7 +199,7 @@ int main(int argc, char **argv){
 			   << std::endl;
 
 	for(std::size_t i=0; i<NTESTS; i++) {
-		internalValue = gr.gaussRandom(0.,0.1);
+		internalValue = gr.normal_distribution(0.1);
 
 		distortion << "  external0->Fill(" << gbd_distortion.calculateExternalValue(internalValue - 1.1) << ");" << std::endl
 				   << "  external1->Fill(" << gbd_distortion.calculateExternalValue(internalValue - 1.0) << ");" << std::endl

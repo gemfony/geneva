@@ -755,7 +755,7 @@ void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& p) 
 	// Choose a parent to be used for the recombination. Note that
 	// numeric_cat may throw. Exceptions need to be caught in surrounding functions.
 	// try/catch blocks would add a non-negligible overhead in this function.
-	p_pos = boost::numeric_cast<std::size_t>(gr.discreteRandom(nParents_));
+	p_pos = boost::numeric_cast<std::size_t>(gr.uniform_int(nParents_));
 
 	p->GObject::load(*(data.begin() + p_pos));
 }
@@ -774,7 +774,7 @@ void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& p) 
 void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vector<double>& threshold) {
 	bool done=false;
 	std::size_t i;
-	double randTest = gr.evenRandom(); // get the test value
+	double randTest = gr.uniform_01(); // get the test value
 
 	for(i=0; i<nParents_; i++) {
 		if(randTest<threshold[i]) {

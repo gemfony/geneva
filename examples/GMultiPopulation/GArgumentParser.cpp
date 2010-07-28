@@ -139,7 +139,6 @@ namespace Gem
 		  , boost::uint32_t& processingCycles
 		  , bool& returnRegardless
 		  , boost::uint32_t& waitFactor
-		  , bool& productionPlace
 		  , double& adProb
 		  , boost::uint32_t& adaptionThreshold
 		  , double& sigma
@@ -208,8 +207,6 @@ namespace Gem
        "Specifies whether results should be returned even if they are not better than before")
 	  ("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
 	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
-      ("productionPlace", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
-		"Whether production of random numbers should happen locally (0) or in the random number factory (1)")
 	  ("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
 		"Specifies the likelihood for adaptions to be actually carried out")
 	  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
@@ -335,7 +332,6 @@ namespace Gem
 		    << "processingCycles = " << processingCycles << std::endl
 			<< "returnRegardless = " << (returnRegardless?"true":"false") << std::endl
 	        << "waitFactor = " << waitFactor << std::endl
-			<< "productionPlace = " << (productionPlace?"factory":"locally") << std::endl
  		    << "adProb = " << adProb << std::endl
 			<< "adaptionThreshold = " << adaptionThreshold << std::endl
 		    << "sigma = " << sigma << std::endl

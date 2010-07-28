@@ -69,7 +69,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -350,7 +350,7 @@ public:
 
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
-		Gem::Hap::GRandom l_gr(Gem::Hap::RNRLOCAL);
+		Gem::Hap::GRandomT<RANDOMLOCAL> l_gr;
 
 		// Create the required data.
 		projectionData pD;
@@ -360,7 +360,7 @@ public:
 		pD.nDimTarget = nDimTarget;
 
 		for(std::size_t i=0; i<nDimOrig*nData; i++)
-			pD.source.push_back(l_gr.evenRandom(-edgelength/2.,edgelength/2.));
+			pD.source.push_back(l_gr.uniform_real(-edgelength/2.,edgelength/2.));
 
 		if(fileName != ""){ // Serialize and write to a file, if requested.
 			std::ofstream fileStream(fileName.c_str());
@@ -423,7 +423,7 @@ public:
 
 		// Create a local random number generator. We cannot access the
 		// class'es generator, as this function is static.
-		Gem::Hap::GRandom l_gr(Gem::Hap::RNRLOCAL);
+		Gem::Hap::GRandomT<RANDOMLOCAL> l_gr;
 
 		// Create the required data.
 		projectionData pD;
@@ -435,7 +435,7 @@ public:
 		double local_radius=1.;
 
 		for(std::size_t i=0; i<nData; i++){
-			local_radius = l_gr.evenRandom(0,radius);
+			local_radius = l_gr.uniform_real(radius);
 
 			//////////////////////////////////////////////////////////////////
 			// Special cases
@@ -446,7 +446,7 @@ public:
 
 			case 2:
 				{
-					double phi = l_gr.evenRandom(0,2*M_PI);
+					double phi = l_gr.uniform_real(2*M_PI);
 					pD.source.push_back(local_radius*sin(phi)); // x
 					pD.source.push_back(local_radius*cos(phi)); // y
 				}
@@ -460,9 +460,9 @@ public:
 					std::size_t nAngles = nDimOrig - 1;
 					std::vector<double> angle_collection(nAngles);
 					for(std::size_t j=0; j<(nAngles-1); j++){ // Angles in range [0,Pi[
-						angle_collection[j]=l_gr.evenRandom(0., M_PI);
+						angle_collection[j]=l_gr.uniform_real(M_PI);
 					}
-					angle_collection[nAngles-1]=l_gr.evenRandom(0., 2.*M_PI); // Range of last angle is [0,2*Pi[
+					angle_collection[nAngles-1]=l_gr.uniform_real(2.*M_PI); // Range of last angle is [0,2*Pi[
 
 					//////////////////////////////////////////////////////////////////
 					// Now we can fill the source-vector itself

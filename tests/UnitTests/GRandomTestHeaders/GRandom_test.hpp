@@ -46,7 +46,7 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "common/GCommonEnums.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;
@@ -67,6 +67,8 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
+		using namespace Gem::Hap;
+
 		const boost::uint32_t startSeed = 41;
 		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == false);
 
@@ -93,8 +95,9 @@ public:
 			BOOST_CHECK(seedVec.at(i) > seedVec.at(i-1));
 		}
 
-		GRandom gr1, gr2, gr3;
-		boost::shared_ptr<GRandom> gr4_ptr(new GRandom());
+		/*
+		GRandomT<RANDOMLOCAL> gr1, gr2, gr3;
+		boost::shared_ptr<GRandomBase> gr4_ptr(new GRandom());
 
 		// Make gr1 and gr2 use the random factory
 		BOOST_CHECK_NO_THROW(gr1.setRNRFactoryMode());
@@ -156,6 +159,7 @@ public:
 			double drnr = die();
 			BOOST_CHECK(drnr >= 1 && drnr <= 6);
 		}
+		*/
 	}
 
 	/***********************************************************************************/

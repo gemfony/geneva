@@ -214,8 +214,9 @@ void GBoundedInt32::load_(const GObject* cp){
  * Triggers random initialization of the parameter object
  */
 void GBoundedInt32::randomInit_() {
-	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
-	this->setExternalValue(gr.discreteRandom(getLowerBoundary(), getUpperBoundary() + 1));
+	using namespace Gem::Hap;
+	GRandomT<RANDOMLOCAL> gr;
+	this->setExternalValue(gr.uniform_int(getLowerBoundary(), getUpperBoundary() + 1));
 }
 
 

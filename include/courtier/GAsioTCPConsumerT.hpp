@@ -73,6 +73,7 @@
 #include "GBrokerT.hpp"
 #include "GCommunicationEnums.hpp"
 #include "GConsumer.hpp"
+#include "hap/GRandomT.hpp"
 
 namespace Gem
 {

@@ -73,6 +73,7 @@
 // Hap headers go here
 #include "GHapEnums.hpp"
 #include "GRandomDefines.hpp"
+#include "GRandomFactory.hpp"
 
 /****************************************************************************/
 
@@ -111,7 +112,6 @@ public:
 		, initialSeed_(GRANDOMFACTORY->getSeed())
 		, gaussCache_(0.)
 	    , gaussCacheAvailable_(false)
-		, boost_uniform_int_(*this)
 	{ /* nothing */ }
 
 	/************************************************************************/
@@ -135,7 +135,7 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Retrieves an fpUniform item. Thus function, together with the min() and
+	 * Retrieves an uniform_01 item. Thus function, together with the min() and
 	 * max() functions make it possible to use GRandomBase as a generator for
 	 * boost's random distributions.
 	 *
@@ -207,6 +207,8 @@ public:
 	/**
 	 * Produces gaussian-distributed random numbers with sigma 1 and mean 0
 	 *
+	 * TODO: This function needs to be specialized for long double and float types
+	 *
 	 * @return floating point random numbers with a gaussian distribution
 	 */
 	fp_type normal_distribution(
@@ -218,19 +220,19 @@ public:
 		}
 		else {
 #ifdef USEBOXMULLER
-			fp_type rnr1 = fpUniform();
-			fp_type rnr2 = fpUniform();
-			gaussCache_ = sqrt(fabs(-2. * log(1. - rnr1))) * cos(2. * M_PI	* rnr2);
+			fp_type rnr1 = uniform_01();
+			fp_type rnr2 = uniform_01();
+			gaussCache_ = sqrt(fabs(-2. * std::log(1. - rnr1))) * cos(2. * M_PI	* rnr2);
 			gaussCacheAvailable_ = true;
-			return sqrt(fabs(-2. * log(1. - rnr1))) * sin(2. * M_PI	* rnr2);
+			return sqrt(fabs(-2. * std::log(1. - rnr1))) * sin(2. * M_PI	* rnr2);
 #else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
 			fp_type q, u1, u2;
 	        do {
-	        	u1 = 2.* fpUniform() - 1.;
-	        	u2 = 2.* fpUniform() - 1.;
+	        	u1 = 2.* uniform_01() - 1.;
+	        	u2 = 2.* uniform_01() - 1.;
 	        	q = u1*u1 + u2*u2;
 	        } while (q > 1.0);
-	        q = sqrt((-2.*log(q))/q);
+	        q = sqrt((-2.*std::log(q))/q);
 	        gaussCache_ = u2 * q;
 	        gaussCacheAvailable_ = true;
 			return u1 * q;
@@ -349,7 +351,7 @@ public:
 		boost::uniform_int<int_type> ui(min, max-1);
 
 		// A generator that binds together our own random number generator and a uniform_int distribution
-		boost::variate_generator<Gem::Hap::GRandomBaseT<s, fp_type, int_type>&, boost::uniform_int<int_type> > boost_uniform_int(*this, ui);
+		boost::variate_generator<Gem::Hap::GRandomBaseT<fp_type, int_type>&, boost::uniform_int<int_type> > boost_uniform_int(*this, ui);
 
 		return boost_uniform_int();
 	}
@@ -392,7 +394,7 @@ public:
 		boost::uniform_smallint<int_type> ui(min, max-1);
 
 		// A generator that binds together our own random number generator and a uniform_int distribution
-		boost::variate_generator<Gem::Hap::GRandomBaseT<s, fp_type, int_type>&, boost::uniform_smallint<int_type> > boost_uniform_smallint(*this, ui);
+		boost::variate_generator<Gem::Hap::GRandomBaseT<fp_type, int_type>&, boost::uniform_smallint<int_type> > boost_uniform_smallint(*this, ui);
 
 		return boost_uniform_smallint();
 	}

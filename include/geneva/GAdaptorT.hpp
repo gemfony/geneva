@@ -64,7 +64,7 @@
 // Geneva headers go here
 
 #include "common/GTriboolSerialization.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "GObject.hpp"
 #include "GObjectExpectationChecksT.hpp"
 #include "GOptimizationEnums.hpp"
@@ -116,7 +116,6 @@ class GAdaptorT:
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-		   & BOOST_SERIALIZATION_NVP(gr)
 		   & BOOST_SERIALIZATION_NVP(adaptionCounter_)
 		   & BOOST_SERIALIZATION_NVP(adaptionThreshold_)
 		   & BOOST_SERIALIZATION_NVP(adProb_)
@@ -139,7 +138,6 @@ public:
 	 */
 	GAdaptorT()
 		: GObject()
-		, gr(Gem::Hap::DEFAULTRNRGENMODE)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
 		, adProb_(DEFAULTADPROB)
@@ -155,7 +153,6 @@ public:
 	 */
 	GAdaptorT(const double& prob)
 		: GObject()
-		, gr(Gem::Hap::DEFAULTRNRGENMODE)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
 		, adProb_(prob)
@@ -172,7 +169,6 @@ public:
 	 */
 	GAdaptorT(const GAdaptorT<T>& cp)
 		: GObject(cp)
-		, gr(cp.gr)
 		, adaptionCounter_(cp.adaptionCounter_)
 		, adaptionThreshold_(cp.adaptionThreshold_)
 		, adProb_(cp.adProb_)
@@ -287,28 +283,6 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Determines whether production of random numbers should happen remotely
-	 * (RNRFACTORY) or locally (RNRLOCAL) in the local random number generator.
-	 *
-	 * @param rnrGenMode A parameter which indicates where random numbers should be produced
-	 */
-	virtual void setRnrGenerationMode(const Gem::Hap::rnrGenerationMode& rnrGenMode) {
-		// Set the local random number generation mode
-		gr.setRnrGenerationMode(rnrGenMode);
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Retrieves the random number generators current generation mode.
-	 *
-	 * @return The current random number generation mode of the local generator
-	 */
-	Gem::Hap::rnrGenerationMode getRnrGenerationMode() const {
-		return gr.getRnrGenerationMode();
-	}
-
-	/***********************************************************************************/
-	/**
 	 * Sets the adaption probability to a given value. This function will throw
 	 * if the probability is not in the allowed range.
 	 *
@@ -404,7 +378,7 @@ public:
 	void adapt(T& val)  {
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case
 			// We only allow adaptions in a certain percentage of cases
-			if(gr.evenRandom() <= adProb_) {
+			if(gr.uniform_01() <= adProb_) {
 				if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
 					adaptionCounter_ = 0;
 					adaptAdaption();
@@ -524,7 +498,6 @@ protected:
 		GObject::load_(cp);
 
 		// Then our own data
-		gr.load(p_load->gr);
 		adaptionCounter_ = p_load->adaptionCounter_;
 		adaptionThreshold_ = p_load->adaptionThreshold_;
 		adProb_ = p_load->adProb_;
@@ -549,11 +522,13 @@ protected:
 	/***********************************************************************************/
     /**
      * A random number generator. Note that the actual calculation is possibly
-     * done in a random number server. GRandom also has a local generator
-     * in case the factory is unreachable, or local storage of random
-     * number containers requires too much memory.
+     * done in a random number server, depending on the defines you have chosen.
      */
-	Gem::Hap::GRandom gr;
+#ifdef USELOCALRANDOMADAPTION /* produce random numbers locally */
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> gr;
+#else /* act as a proxy, take random numbers from a factory */
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> gr;
+#endif /* USEPROXYRANDOM */
 
 	/***********************************************************************************/
 	/**

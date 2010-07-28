@@ -42,7 +42,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 // Geneva header files go here
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
 #include "courtier/GAsioTCPClientT.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
@@ -224,7 +224,6 @@ int main(int argc, char **argv){
 
 				boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
 				gdga_ptr->setAdaptionThreshold(1);
-				gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
 				gbd_ptr->addAdaptor(gdga_ptr); // We use a common adaptor for all objects in the collection
 
 				// Make the GBoundedDouble known to the collection
@@ -251,7 +250,6 @@ int main(int argc, char **argv){
 		pop_ptr->setReportIteration(1); // Emit information during every generation
 		pop_ptr->setRecombinationMethod(Gem::Geneva::DEFAULTRECOMBINE);
 		pop_ptr->setSortingScheme(Gem::Geneva::MUCOMMANU);
-		pop_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Do the actual optimization and measure the time

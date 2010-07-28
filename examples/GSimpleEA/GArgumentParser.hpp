@@ -91,7 +91,6 @@ namespace Gem
     const double DEFAULTMINVAR=-10.;
     const double DEFAULTMAXVAR=10.;
     const boost::uint16_t DEFAULTEVALFUNCTION=0;
-    const bool DEFAULTPRODUCTIONPLACE=true; // remote production
     const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
     const double DEFAULTGDAADPROB=0.05;
     const bool DEFAULTRETURNREGARDLESS=true;
@@ -124,7 +123,6 @@ namespace Gem
 		  , boost::uint32_t& processingCycles
 		  , bool& returnRegardless
 		  , boost::uint32_t& waitFactor
-		  , bool& productionPlace
 		  , double& adProb
 		  , boost::uint32_t& adaptionThreshold
 		  , double& sigma

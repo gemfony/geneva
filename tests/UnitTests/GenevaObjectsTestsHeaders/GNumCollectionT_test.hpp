@@ -47,7 +47,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GNumCollectionT.hpp"
 #include "geneva/GInt32Collection.hpp"
@@ -92,7 +92,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 						 Gem::Common::CE_WITH_MESSAGES);
 
 	// A local random number generator
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 
 	// Construction in different modes
 	T gnct0; // default construction, should be empty
@@ -212,7 +212,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 // Test features that are expected to fail
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_failures_expected, T)
 {
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 
 	{
 		// Self assignment should throw in DEBUG mode

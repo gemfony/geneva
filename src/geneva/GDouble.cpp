@@ -200,12 +200,14 @@ void GDouble::load_(const GObject* cp){
  * Triggers random initialization of the parameter.
  */
 void GDouble::randomInit_() {
+	using namespace Gem::Hap;
+
 	double lowerBoundary = getLowerInitBoundary();
 	double upperBoundary = getUpperInitBoundary();
 
-	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+	GRandomT<RANDOMLOCAL> gr;
 
-	setValue(gr.evenRandom(lowerBoundary, upperBoundary));
+	setValue(gr.uniform_real(lowerBoundary, upperBoundary));
 }
 
 /*******************************************************************************************/

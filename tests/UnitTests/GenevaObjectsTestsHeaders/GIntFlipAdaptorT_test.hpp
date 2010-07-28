@@ -50,7 +50,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GIntFlipAdaptorT.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
@@ -73,7 +73,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 						 Gem::Common::CE_WITH_MESSAGES);
 
 	// A local random number generator
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 
 	// Test simple instantiation
 	T gifat0;
@@ -158,7 +158,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION ( GIntFlipAdaptorT_no_failure_expected, T)
 // Test features that are expected to fail
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GIntFlipAdaptorT_failures_expected, T)
 {
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 
 	{
 		// Simple instantiation

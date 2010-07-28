@@ -72,7 +72,6 @@
 
 // Hap headers go here
 #include "GRandomBaseT.hpp"
-#include "GRandomFactory.hpp"
 
 /****************************************************************************/
 
@@ -118,8 +117,8 @@ public:
  * objects or use copy constructors.
  */
 template <
-	typename fp_type = double
-  , typename int_type = boost::uint32_t
+	typename fp_type
+  , typename int_type
 >
 class GRandomT<Gem::Hap::RANDOMPROXY, fp_type, int_type>
 	: public Gem::Hap::GRandomBaseT<fp_type, int_type>
@@ -251,8 +250,8 @@ typedef GRandomT<Gem::Hap::RANDOMPROXY, double, boost::uint32_t> GRandom;
  * case the default constructor is used.
  */
 template <
-	typename fp_type = double
-  , typename int_type = boost::uint32_t
+	typename fp_type
+  , typename int_type
 >
 class GRandomT<Gem::Hap::RANDOMLOCAL, fp_type, int_type>
 	: public Gem::Hap::GRandomBaseT<fp_type, int_type>
@@ -289,7 +288,7 @@ public:
 	/**
 	 * This function produces uniform random numbers locally.
 	 */
-	virtual virtual fp_type uniform_01() {
+	virtual fp_type uniform_01() {
 #ifdef DEBUG
 		fp_type value =  boost::numeric_cast<fp_type>(linCongr_() - linCongr_.min()) / boost::numeric_cast<fp_type>(linCongr_.max() - linCongr_.min());
 		assert(value>=fp_type(0.) && value<fp_type(1.));

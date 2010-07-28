@@ -510,7 +510,7 @@ protected:
 	{
 		// We do not want to favor the decrease or increase of sigma, hence we choose
 		// randomly whether to multiply or divide. TODO: cross-check.
-		sigma_ *= exp(GAdaptorT<T>::gr.gaussRandom(0.,sigmaSigma_)*(GAdaptorT<T>::gr.boolRandom()?1:-1));
+		sigma_ *= exp(GAdaptorT<T>::gr.normal_distribution(sigmaSigma_)*(GAdaptorT<T>::gr.uniform_bool()?1:-1));
 
 		// make sure sigma_ doesn't get out of range
 		if(sigma_ < minSigma_) sigma_ = minSigma_;
