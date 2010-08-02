@@ -200,12 +200,14 @@ void GInt32::load_(const GObject* cp){
  * Triggers random initialization of the parameter.
  */
 void GInt32::randomInit_() {
+	using namespace Gem::Hap;
+
 	boost::int32_t lowerBoundary = getLowerInitBoundary();
 	boost::int32_t upperBoundary = getUpperInitBoundary()+1;
 
-	Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+	GRandomT<RANDOMLOCAL> gr;
 
-	setValue(gr.discreteRandom(lowerBoundary, upperBoundary));
+	setValue(gr.uniform_int(lowerBoundary, upperBoundary));
 }
 
 #ifdef GENEVATESTING

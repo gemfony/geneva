@@ -36,7 +36,6 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "hap/GRandom.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GAsioTCPClientT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
@@ -82,7 +81,6 @@ int main(int argc, char **argv){
   boost::uint32_t processingCycles;
   boost::uint32_t waitFactor;
   demoFunction df;
-  bool productionPlace;
   boost::uint32_t adaptionThreshold;
   double sigma;
   double sigmaSigma;
@@ -114,7 +112,6 @@ int main(int argc, char **argv){
 		      processingCycles,
 			  returnRegardless,
 		      waitFactor,
-		      productionPlace,
 		      adProb,
 		      adaptionThreshold,
 			  sigma,
@@ -178,10 +175,6 @@ int main(int argc, char **argv){
 	  boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
 	  gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	  gdga_ptr->setAdaptionProbability(adProb);
-	  if(productionPlace) // Factory means "true"
-		  gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY);
-	  else // Local means "false"
-		  gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
 	  gdc_ptr->addAdaptor(gdga_ptr);
 
 	  // Make the parameter collection known to this individual

@@ -74,7 +74,7 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GDouble.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
@@ -297,8 +297,10 @@ public:
 		, nD_(new networkData(networkDataFile_))
 		, transferFunction_(tF)
 	{
+		using namespace Gem::Hap;
+
 		// Create a local random number generator
-		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+		GRandomT<RANDOMLOCAL> gr;
 
 		// Check the architecture we've been given and create the layers
 		std::size_t nLayers = nD_->size();
@@ -326,7 +328,7 @@ public:
 				// Add GDouble objects
 				for(std::size_t i=0; i<(layerNumber==0?2*nNodes:nNodes*(nNodesPrevious+1)); i++) {
 					// Set up a GDouble object, initializing it with random data
-					boost::shared_ptr<GDouble> gd_ptr(new GDouble(gr.evenRandom(min,max)));
+					boost::shared_ptr<GDouble> gd_ptr(new GDouble(gr.uniform_real(min,max)));
 
 					// Set up an adaptor
 					boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
@@ -468,6 +470,8 @@ public:
 		  , const std::size_t& nDataSets
 		  , const double& edgelength
 	) {
+		using namespace Gem::Hap;
+
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer
 			std::ostringstream error;
@@ -486,7 +490,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+		GRandomT<RANDOMLOCAL> gr;
 
 		// The dimension of the hypercube is identical to the number of input nodes
 		std::size_t nDim = architecture[0];
@@ -514,7 +518,7 @@ public:
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
 			for(std::size_t i=0; i<nDim; i++){
-				double oneDimRnd = gr.evenRandom(-edgelength,edgelength);
+				double oneDimRnd = gr.uniform_real(-edgelength,edgelength);
 
 				// Need to find at least one dimension outside of the perimeter
 				// in order to set the outside flag to true.
@@ -550,6 +554,8 @@ public:
 		  , const std::size_t& nDataSets
 		  , const double& radius
 	) {
+		using namespace Gem::Hap;
+
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer
 			std::ostringstream error;
@@ -568,7 +574,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+		GRandomT<RANDOMLOCAL> gr;
 
 		// The dimension of the hypersphere is identical to the number of input nodes
 		std::size_t nDim = architecture[0];
@@ -595,7 +601,7 @@ public:
 		{
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
-			local_radius = gr.evenRandom(0,3*radius);
+			local_radius = gr.uniform_real(3*radius);
 			if(local_radius > radius) tS->Output.push_back(0.99);
 			else tS->Output.push_back(0.01);
 
@@ -611,7 +617,7 @@ public:
 
 			case 2:
 				{
-					double phi = gr.evenRandom(0,2*M_PI);
+					double phi = gr.uniform_real(2*M_PI);
 					tS->Input.push_back(local_radius*sin(phi)); // x
 					tS->Input.push_back(local_radius*cos(phi)); // y
 				}
@@ -625,9 +631,9 @@ public:
 					std::size_t nAngles = nDim - 1;
 					std::vector<double> angle_collection(nAngles);
 					for(std::size_t i=0; i<(nAngles-1); i++){ // Angles in range [0,Pi[
-						angle_collection[i]=gr.evenRandom(0., M_PI);
+						angle_collection[i]=gr.uniform_real(M_PI);
 					}
-					angle_collection[nAngles-1]=gr.evenRandom(0., 2.*M_PI); // Range of last angle is [0, 2.*Pi[
+					angle_collection[nAngles-1]=gr.uniform_real(2.*M_PI); // Range of last angle is [0, 2.*Pi[
 
 					//////////////////////////////////////////////////////////////////
 					// Now we can fill the source-vector itself
@@ -676,6 +682,8 @@ public:
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 	) {
+		using namespace Gem::Hap;
+
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer
 			std::ostringstream error;
@@ -694,7 +702,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+		GRandomT<RANDOMLOCAL> gr;
 
 		// The dimension of the data set is equal to the number of input nodes
 		std::size_t nDim = architecture[0];
@@ -722,7 +730,7 @@ public:
 			// Create even distribution across all dimensions
 			if(dataCounter%2 == 0) {
 				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) {
-					(tS->Input).push_back(gr.evenRandom());
+					(tS->Input).push_back(gr.uniform_01());
 				}
 				(tS->Output).push_back(0.01);
 			}
@@ -731,7 +739,7 @@ public:
 			else {
 				// Create a test value
 				double probeValue = 0.;
-				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) probeValue += exp(-5.*gr.evenRandom());
+				for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) probeValue += exp(-5.*gr.uniform_01());
 
 				double functionValue;
 				std::vector<double> inputVector(nDim);
@@ -740,7 +748,7 @@ public:
 
 					// Create the input vector
 					for(std::size_t dimCounter=0; dimCounter<nDim; dimCounter++) {
-						inputVector[dimCounter] = gr.evenRandom();
+						inputVector[dimCounter] = gr.uniform_01();
 						functionValue += exp(-5*inputVector[dimCounter]);
 					}
 					functionValue = pow(functionValue, 4.);
@@ -770,6 +778,8 @@ public:
 			const std::vector<std::size_t>& architecture
 		  , const std::size_t& nDataSets
 	) {
+		using namespace Gem::Hap;
+
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer
 			std::ostringstream error;
@@ -797,7 +807,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+		GRandomT<RANDOMLOCAL> gr;
 
 		// Create the actual networkData object and attach the architecture
 		// Checks the architecture on the way
@@ -820,8 +830,8 @@ public:
 			boost::shared_ptr<trainingSet> tS(new trainingSet());
 
 			// create the two test values
-			(tS->Input).push_back(gr.evenRandom(-6., 6.)); // x
-			(tS->Input).push_back(gr.evenRandom(-6., 6.)); // y
+			(tS->Input).push_back(gr.uniform_real(-6., 6.)); // x
+			(tS->Input).push_back(gr.uniform_real(-6., 6.)); // y
 
 			// Check whether we are below or above the sin function and assign the output value accordingly
 			if((tS->Input)[1] > 4.*sin((tS->Input)[0])) {

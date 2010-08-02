@@ -50,7 +50,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GParameterT.hpp"
 #include "geneva/GParameterTCollectionT.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
@@ -238,7 +238,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 						 Gem::Common::CE_WITH_MESSAGES);
 
 	// A local random number generator
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 
 	// Default construction
 	T gptct;
@@ -341,7 +341,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_no_failure_expected, T
 // Test features that are expected to fail. Test with one derived class only.
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterTCollectionT_failures_expected, T )
 {
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 
 	{
 		// Self assignment should throw in DEBUG mode

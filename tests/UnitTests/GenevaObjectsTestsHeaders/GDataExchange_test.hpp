@@ -49,7 +49,7 @@
 #define GDATAEXCHANGE_TEST_HPP_
 
 // Geneva header files go here
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "dataexchange/GDataExchange.hpp"
 
 using namespace Gem;
@@ -89,14 +89,14 @@ public:
 		b0->setParameter(false);
 
 		// Test construction with value assignment
-		boost::shared_ptr<GDoubleParameter> d1(new GDoubleParameter(gr.evenRandom(0., 10.)));
-		boost::shared_ptr<GLongParameter> l1(new GLongParameter(gr.discreteRandom(0,10)));
-		boost::shared_ptr<GBoolParameter> b1(new GBoolParameter(gr.boolRandom()));
+		boost::shared_ptr<GDoubleParameter> d1(new GDoubleParameter(gr.uniform_real(10.)));
+		boost::shared_ptr<GLongParameter> l1(new GLongParameter(gr.uniform_smallint(10)));
+		boost::shared_ptr<GBoolParameter> b1(new GBoolParameter(gr.uniform_bool()));
 
 		// Test construction with value assignment and boundaries
-		boost::shared_ptr<GDoubleParameter> d2(new GDoubleParameter(gr.evenRandom(0.,2.),0.,2.));
-		boost::shared_ptr<GLongParameter> l2(new GLongParameter(gr.discreteRandom(0,10),0,10));
-		boost::shared_ptr<GBoolParameter> b2(new GBoolParameter(gr.boolRandom(),false,true));
+		boost::shared_ptr<GDoubleParameter> d2(new GDoubleParameter(gr.uniform_real(2.),0.,2.));
+		boost::shared_ptr<GLongParameter> l2(new GLongParameter(gr.uniform_smallint(10),0,10));
+		boost::shared_ptr<GBoolParameter> b2(new GBoolParameter(gr.uniform_bool(),false,true));
 
 		// Test copy construction
 		boost::shared_ptr<GDoubleParameter> d3(new GDoubleParameter(*d2));
@@ -171,7 +171,7 @@ public:
 			//***********************************************************
 			// double objects:
 			boost::shared_ptr<GDoubleParameter> d4(new GDoubleParameter());
-			d3->setParameter(gr.evenRandom(0.,4.));
+			d3->setParameter(gr.uniform_real(4.));
 
 			std::ofstream doutputbin("ddata.bin");
 			d3->binaryWriteToStream(doutputbin);
@@ -201,7 +201,7 @@ public:
 			//***********************************************************
 			// long objects
 			boost::shared_ptr<GLongParameter> l4(new GLongParameter());
-			l3->setParameter(gr.discreteRandom(0,5));
+			l3->setParameter(gr.uniform_smallint(5));
 
 			std::ofstream loutputbin("ldata.bin");
 			l3->binaryWriteToStream(loutputbin);
@@ -226,7 +226,7 @@ public:
 			//***********************************************************
 			// bool objects
 			boost::shared_ptr<GBoolParameter> b4(new GBoolParameter());
-			b3->setParameter(gr.boolRandom());
+			b3->setParameter(gr.uniform_bool());
 
 			std::ofstream boutputbin("bdata.bin");
 			b3->binaryWriteToStream(boutputbin);
@@ -270,23 +270,23 @@ public:
 		// Attach data to the vectors
 		for(std::size_t i=0; i<NPARAMETERSETS; i++) {
 			// Deal with p0
-			boost::shared_ptr<GDoubleParameter> d0(new GDoubleParameter(gr.evenRandom(0.,10.)));
+			boost::shared_ptr<GDoubleParameter> d0(new GDoubleParameter(gr.uniform_real(10.)));
 			p0->dArray_.push_back(d0);
 
-			boost::shared_ptr<GLongParameter> l0(new GLongParameter(gr.discreteRandom(0,10)));
+			boost::shared_ptr<GLongParameter> l0(new GLongParameter(gr.uniform_smallint(10)));
 			p0->lArray_.push_back(l0);
 
-			boost::shared_ptr<GBoolParameter> b0(new GBoolParameter(gr.boolRandom()));
+			boost::shared_ptr<GBoolParameter> b0(new GBoolParameter(gr.uniform_bool()));
 			p0->bArray_.push_back(b0);
 
 			// And now p1
-			boost::shared_ptr<GDoubleParameter> d1(new GDoubleParameter(gr.evenRandom(0.,10.)));
+			boost::shared_ptr<GDoubleParameter> d1(new GDoubleParameter(gr.uniform_real(10.)));
 			p1->dArray_.push_back(d1);
 
-			boost::shared_ptr<GLongParameter> l1(new GLongParameter(gr.discreteRandom(0,10)));
+			boost::shared_ptr<GLongParameter> l1(new GLongParameter(gr.uniform_smallint(10)));
 			p1->lArray_.push_back(l1);
 
-			boost::shared_ptr<GBoolParameter> b1(new GBoolParameter(gr.boolRandom()));
+			boost::shared_ptr<GBoolParameter> b1(new GBoolParameter(gr.uniform_bool()));
 			p1->bArray_.push_back(b1);
 		}
 
@@ -352,9 +352,9 @@ public:
 
 		// Fill with individual value items
 		for(std::size_t gde_counter=0; gde_counter < NDATASETS; gde_counter++) {
-			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<double>(gr.evenRandom(-10.,10.));
-			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<boost::int32_t>(gr.discreteRandom(-10,10));
-			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.boolRandom());
+			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<double>(gr.uniform_real(-10.,10.));
+			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<boost::int32_t>(gr.uniform_smallint(-10,10));
+			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.uniform_bool());
 
 			BOOST_CHECK(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
 			BOOST_CHECK(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
@@ -375,9 +375,9 @@ public:
 
 		// Fill with values including boundaries
 		for(std::size_t gde_counter=0; gde_counter < 10; gde_counter++) {
-			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<double>(gr.evenRandom(-10.,10.),-11.,11.);
-			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<boost::int32_t>(gr.discreteRandom(-10,10),-11,11);
-			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.boolRandom(), false, true);
+			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<double>(gr.uniform_real(-10.,10.),-11.,11.);
+			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<boost::int32_t>(gr.uniform_smallint(-10,10),-11,11);
+			for(std::size_t i=0; i<NPARAMETERSETS; i++) gde->append<bool>(gr.uniform_bool(), false, true);
 
 			BOOST_CHECK(gde->numberOfParameterSets<double>() == NPARAMETERSETS);
 			BOOST_CHECK(gde->numberOfParameterSets<boost::int32_t>() == NPARAMETERSETS);
@@ -394,17 +394,17 @@ public:
 		// Fill directly with GParameter objects
 		for(std::size_t gde_counter=0; gde_counter < NDATASETS; gde_counter++) {
 			for(std::size_t i=0; i<NPARAMETERSETS; i++) {
-				boost::shared_ptr<GDoubleParameter> d(new GDoubleParameter(gr.evenRandom(-10.,10.)));
+				boost::shared_ptr<GDoubleParameter> d(new GDoubleParameter(gr.uniform_real(-10.,10.)));
 				gde->append(d);
 			}
 
 			for(std::size_t i=0; i<NPARAMETERSETS; i++) {
-				boost::shared_ptr<GLongParameter> l(new GLongParameter(gr.discreteRandom(-10,10)));
+				boost::shared_ptr<GLongParameter> l(new GLongParameter(gr.uniform_smallint(-10,10)));
 				gde->append(l);
 			}
 
 			for(std::size_t i=0; i<NPARAMETERSETS; i++) {
-				boost::shared_ptr<GBoolParameter> b(new GBoolParameter(gr.boolRandom()));
+				boost::shared_ptr<GBoolParameter> b(new GBoolParameter(gr.uniform_bool()));
 				gde->append(b);
 			}
 
@@ -420,7 +420,7 @@ public:
 		gde->gotoStart();
 		do {
 			BOOST_CHECK(!gde->hasValue()); // No value has been assigned so far
-			double value = gr.evenRandom(0.,10.);
+			double value = gr.uniform_real(10.);
 			gde->setValue(value);
 			BOOST_CHECK(gde->hasValue()); // Value should have been set at this point
 			BOOST_CHECK(value == gde->value());
@@ -477,7 +477,7 @@ public:
 
 	/***********************************************************************************/
 private:
-	GRandom gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL> gr;
 	const std::size_t NPARAMETERSETS;
 	const std::size_t NDATASETS;
 };

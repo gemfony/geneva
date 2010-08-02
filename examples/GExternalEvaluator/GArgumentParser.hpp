@@ -93,7 +93,6 @@ namespace Gem
     const boost::uint32_t DEFAULTNEVALUATIONS=5;
     const Gem::Geneva::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::Geneva::BINARYEXCHANGE;
     const bool DEFAULTMAXIMIZE=false;
-    const bool DEFAULTPRODUCTIONPLACE=true; // local production of random numbers
     const bool DEFAULTRANDOMFILL=true; // whether template data should be filled randomly
     const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
 
@@ -134,7 +133,6 @@ namespace Gem
 		  , boost::uint32_t& nEvaluations
 		  , Gem::Geneva::dataExchangeMode& exchangeMode
 		  , bool& maximize
-		  , bool& productionPlace
 		  , bool& randomFill
 	);
 

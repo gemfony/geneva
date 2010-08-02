@@ -1,5 +1,5 @@
 /**
- * @file GRandomT.hpp
+ * @file GRandom.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -59,7 +59,7 @@
 #include <boost/random/linear_congruential.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
-
+#include <boost/static_assert.hpp>
 
 #ifndef GRANDOMT_HPP_
 #define GRANDOMT_HPP_
@@ -71,10 +71,7 @@
 
 
 // Hap headers go here
-#include "GHapEnums.hpp"
-#include "GRandomDefines.hpp"
-#include "GRandomBase.hpp"
-#include "GRandomFactory.hpp"
+#include "GRandomBaseT.hpp"
 
 /****************************************************************************/
 
@@ -82,44 +79,31 @@ namespace Gem {
 namespace Hap {
 
 /****************************************************************************/
+//////////////////////////////////////////////////////////////////////////////
+/****************************************************************************/
 /**
- * In its specializations, this class describes different ways of obtaining "raw"
- * random numbers, e.g. in batches received from the GRandomFactory, or produced
- * locally. As the class derives from boost::noncopyable, it is not possible to
- * assign other objects or use copy constructors.
+ * Access to different random number distributions, whose "raw" material is
+ * produced in different ways. We only define the interface here. The actual
+ * implementation can be found in the (partial) specializations of this class.
  */
-template <Gem::Hap::gRandomTSpecialization s = Gem::Hap::RANDOMPROXY>
+template <
+	Gem::Hap::gRandomTSpecialization s = Gem::Hap::RANDOMPROXY
+  , typename fp_type = double
+  , typename int_type = boost::uint32_t
+>
 class GRandomT
-	: public Gem::Hap::GRandomBase
-	, private boost::noncopyable
+	: public Gem::Hap::GRandomBaseT<fp_type, int_type>
 {
 public:
-	/************************************************************************/
-	/** @brief The standard constructor */
-	GRandomT()
-	{ /* nothing */ }
-
-	/************************************************************************/
+	/** @brief The default constructor */
+	GRandomT();
 	/** @brief Initialization by seed */
-	explicit GRandomT(const boost::uint32_t&)
-	{ /* nothing */ }
+	explicit GRandomT(const seed_type&);
+	/** @brief The destructor */
+	~GRandomT();
 
-	/************************************************************************/
-	/** @brief A standard destructor */
-	virtual ~GRandomT()
-	{ /* nothing */ }
-
-	/************************************************************************/
-	/**
-	 * This function is a trap to catch erroneous usage of this class.
-	 * TODO: Use Gemfony's exceptions once this code has been integrated
-	 * into the source tree
-	 */
-	virtual double fpUniform() {
-		throw;
-	}
-
-	/************************************************************************/
+	/** @brief Production of uniformly distributed floating point numbers in [0,1[ */
+	virtual fp_type uniform_01();
 };
 
 /****************************************************************************/
@@ -132,10 +116,12 @@ public:
  * As the class derives from boost::noncopyable, it is not possible to assign other
  * objects or use copy constructors.
  */
-template <>
-class GRandomT<Gem::Hap::RANDOMPROXY>
-	: public Gem::Hap::GRandomBase
-	, private boost::noncopyable
+template <
+	typename fp_type
+  , typename int_type
+>
+class GRandomT<Gem::Hap::RANDOMPROXY, fp_type, int_type>
+	: public Gem::Hap::GRandomBaseT<fp_type, int_type>
 {
 public:
 	/************************************************************************/
@@ -143,7 +129,8 @@ public:
 	 * The standard constructor
 	 */
 	GRandomT()
-		: grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+		: Gem::Hap::GRandomBaseT<fp_type, int_type>()
+		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 		, currentPackageSize_(DEFAULTARRAYSIZE)
 		, current01_(1) // position 0 holds the array size
 	{
@@ -156,8 +143,9 @@ public:
 	 * Initialization by seed. In the case of RANDOMPROXY this seed is not
 	 * used, so this function behaves identical to the default constructor.
 	 */
-	explicit GRandomT(const boost::uint32_t& seed)
-		: grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+	explicit GRandomT(const seed_type& seed)
+		: Gem::Hap::GRandomBaseT<fp_type, int_type>(seed)
+		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 		, currentPackageSize_(DEFAULTARRAYSIZE)
 		, current01_(1) // position 0 holds the array size
 	{
@@ -184,7 +172,7 @@ public:
 	 * caller it appears as if random numbers are created locally. This function
 	 * assumes that a valid container is already available.
 	 */
-	virtual double fpUniform() {
+	virtual fp_type uniform_01() {
 		if (current01_ > currentPackageSize_) getNewP01();
 		return p_raw_[current01_++];
 	}
@@ -220,7 +208,10 @@ private:
 			current01_ = 1; // Position 0 is the array size
 		}
 		else {
-			throw;
+			std::ostringstream error;
+			error << "In GRandomT<RANDOMPROXY, fp_type, int_type>::getNewP01(): Error!" << std::endl
+				  << "No connection to GRandomFactory object." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
 		// We should now have a valid p01_ in any case
@@ -233,9 +224,9 @@ private:
 
 	/************************************************************************/
 	/** @brief Holds the container of uniform random numbers  Size is 16 bytes on a 64 bit system */
-	boost::shared_array<double> p01_;
+	boost::shared_array<fp_type> p01_;
 	/** @brief A pointer to the content of p01_ for faster access.  Size is 8 byte on a 64 bit system */
-	double *p_raw_;
+	fp_type *p_raw_;
 	/** @brief The package size, as obtained from the factory.  Size is 8 byte on a 64 bit system */
 	std::size_t currentPackageSize_;
 	/** @brief The current position in p01_.  Size is 8 byte on a 64 bit system */
@@ -246,23 +237,24 @@ private:
 };
 
 /** @brief Convenience typedef */
-typedef GRandomT<Gem::Hap::RANDOMPROXY> GRandom;
+typedef GRandomT<Gem::Hap::RANDOMPROXY, double, boost::uint32_t> GRandom;
 
 /****************************************************************************/
 //////////////////////////////////////////////////////////////////////////////
 /****************************************************************************/
 /**
  * This specialization of the general GRandomT<> class produces random numbers
- * locally. The functions provided by GRandomBase then produce different types
+ * locally. The functions provided by GRandomBaseT<> then produce different types
  * of random numbers from this raw material. A seed can be provided either to
  * the constructor, or is taken from the global seed manager (recommended) in
- * case the default constructor is used.  As the class derives from boost::noncopyable,
- * it is not possible to assign other objects or use copy constructors.
+ * case the default constructor is used.
  */
-template <>
-class GRandomT<Gem::Hap::RANDOMLOCAL>
-	: public Gem::Hap::GRandomBase
-	, boost::noncopyable
+template <
+	typename fp_type
+  , typename int_type
+>
+class GRandomT<Gem::Hap::RANDOMLOCAL, fp_type, int_type>
+	: public Gem::Hap::GRandomBaseT<fp_type, int_type>
 {
 public:
 	/************************************************************************/
@@ -270,7 +262,8 @@ public:
 	 * The standard constructor
 	 */
 	GRandomT()
-		: linCongr_(GRANDOMFACTORY->getSeed())
+		: Gem::Hap::GRandomBaseT<fp_type, int_type>()
+		, linCongr_(GRANDOMFACTORY->getSeed())
 	{ /* nothing */ }
 
 	/************************************************************************/
@@ -279,8 +272,9 @@ public:
 	 * GRandomT<RANDOMLOCAL> objects do not use the same seed, when using
 	 * this constructor.
 	 */
-	explicit GRandomT(const boost::uint32_t& seed)
-		: linCongr_(seed)
+	explicit GRandomT(const seed_type& seed)
+		: Gem::Hap::GRandomBaseT<fp_type, int_type>(seed)
+		, linCongr_(seed)
 	{ /* nothing */ }
 
 	/************************************************************************/
@@ -294,13 +288,13 @@ public:
 	/**
 	 * This function produces uniform random numbers locally.
 	 */
-	virtual double fpUniform() {
+	virtual fp_type uniform_01() {
 #ifdef DEBUG
-		double value =  boost::numeric_cast<double>(linCongr_())/rnr_max;
-		assert(value>=0. && value<1.);
+		fp_type value =  boost::numeric_cast<fp_type>(linCongr_() - linCongr_.min()) / boost::numeric_cast<fp_type>(linCongr_.max() - linCongr_.min());
+		assert(value>=fp_type(0.) && value<fp_type(1.));
 		return value;
 #else
-		return static_cast<double>(linCongr_())/rnr_max;
+		return static_cast<fp_type>(linCongr_() - linCongr_.min()) / static_cast<fp_type>(linCongr_.max() - linCongr_.min());
 #endif
 	}
 
@@ -309,10 +303,6 @@ private:
 	/** @brief The actual generator for local random number creation */
 	boost::rand48 linCongr_;
 };
-
-/****************************************************************************/
-//////////////////////////////////////////////////////////////////////////////
-/****************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */

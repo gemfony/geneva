@@ -37,7 +37,6 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "hap/GRandom.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GAsioTCPClientT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"

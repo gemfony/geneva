@@ -36,7 +36,6 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "hap/GRandom.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GAsioTCPClientT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
@@ -94,7 +93,6 @@ int main(int argc, char **argv){
   boost::uint32_t nEvaluations;
   Gem::Geneva::dataExchangeMode exchangeMode;
   bool maximize;
-  bool productionPlace;
   bool randomFill;
   Gem::Common::serializationMode serMode;
 
@@ -130,7 +128,6 @@ int main(int argc, char **argv){
 		      nEvaluations,
 		      exchangeMode,
 		      maximize,
-		      productionPlace,
 		      randomFill))
     {
 	  std::cout << "Error parsing the command line or the configuration file. Leaving ..." << std::endl;
@@ -179,18 +176,6 @@ int main(int argc, char **argv){
 	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
 	gifa_ptr->setAdaptionThreshold(adaptionThreshold);
 	gba_ptr->setAdaptionThreshold(adaptionThreshold);
-
-	// Check whether random numbers should be produced locally or in the factory
-	if(productionPlace) { // Factory means "true"
-		gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY);
-		gifa_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY);
-		gba_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY);
-	}
-	else {
-		gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
-		gifa_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
-		gba_ptr->setRnrGenerationMode(Gem::Hap::RNRLOCAL);
-	}
 
 	// Create an initial individual (it will get the necessary information
 	// from the external executable)

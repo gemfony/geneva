@@ -43,7 +43,7 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GThreadGroup.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
 #include "courtier/GAsioTCPClientT.hpp"
 #include "geneva/GEvolutionaryAlgorithm.hpp"
@@ -135,7 +135,6 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(2.,0.8,0.000001,2));
 	gdga_ptr->setAdaptionThreshold(1);
 	gdga_ptr->setAdaptionProbability(0.05);
-	gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY);
 	gdc_ptr->addAdaptor(gdga_ptr);
 
 	// Make the parameter collection known to this individual

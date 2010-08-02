@@ -60,7 +60,7 @@
 
 
 // Geneva headers go here
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "GIndividual.hpp"
 #include "GMutableSetT.hpp"
 #include "GObject.hpp"
@@ -106,7 +106,6 @@ class GOptimizationAlgorithm
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GMutableSetT_GIndividual", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GIndividual> >(*this))
-	     & BOOST_SERIALIZATION_NVP(gr)
 	     & BOOST_SERIALIZATION_NVP(iteration_)
 	     & BOOST_SERIALIZATION_NVP(maxIteration_)
 	     & BOOST_SERIALIZATION_NVP(maxStallIteration_)
@@ -227,11 +226,6 @@ public:
 	/** @brief Retrieves information on whether information about termination reasons should be emitted */
 	bool getEmitTerminationReason() const;
 
-	/** @brief Determines whether production of random numbers should happen remotely (RNRFACTORY) or locally (RNRLOCAL) */
-	void setRnrGenerationMode(const Gem::Hap::rnrGenerationMode&);
-	/** @brief Retrieves the random number generators current generation mode. */
-	Gem::Hap::rnrGenerationMode getRnrGenerationMode() const;
-
 	/**********************************************************************/
 	/**
 	 * This function converts an individual at a given position to the derived
@@ -328,11 +322,13 @@ protected:
 	/***********************************************************************************/
     /**
      * A random number generator. Note that the actual calculation is possibly
-     * done in a random number server. GRandom also has a local generator
-     * in case the factory is unreachable, or local storage of random
-     * number containers requires too much memory.
+     * done in a random number server, depending on the defines you have chosen.
      */
-	Gem::Hap::GRandom gr;
+#ifdef USELOCALRANDOMADAPTION /* produce random numbers locally */
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> gr;
+#else /* act as a proxy, take random numbers from a factory */
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> gr;
+#endif /* USEPROXYRANDOM */
 
 	/**********************************************************************************/
 private:

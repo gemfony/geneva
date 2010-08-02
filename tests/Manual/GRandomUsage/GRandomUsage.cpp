@@ -30,9 +30,9 @@
 /**
  * This test creates NENTRIES random numbers each for numbers and items with
  * different characteristics. Each set is created in its own thread.
- * Note that the random numbers are usually not created in the GRandom
+ * Note that the random numbers are usually not created in the GRandomT
  * object, but by the GRandomFactory class in a different thread.
- * GRandom just acts as a user-interface.
+ * GRandomT just acts as a proxy.
  *
  * The results of the test are output in the ROOT format. See
  * http://root.cern.ch for further information.
@@ -52,7 +52,7 @@
 #include <boost/random.hpp>
 
 // Geneva header files
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 
 // Parsing of the command line
 #include "GCommandLineParser.hpp"
@@ -70,7 +70,6 @@ enum distType {
 	DISCRETEBOUND,
 	BITPROB,
 	BITSIMPLE,
-	CHARRND,
 	EXPGAUSS01,
 	EXPGAUSS02,
 	EXPGAUSS04,
@@ -79,37 +78,37 @@ enum distType {
 };
 
 template <class T>
-void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Hap::GRandom> gr_ptr){
+void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std::size_t& nEntries, boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr){
 	std::size_t i;
 
 	switch(dType){
 	case GAUSSIAN: // standard distribution
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->gaussRandom(-3.,1.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->normal_distribution(-3.,1.)));
 		break;
 
 	case DOUBLEGAUSSIAN:
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->doubleGaussRandom(-3.,0.5,3.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->bi_normal_distribution(-3.,0.5,3.)));
 		break;
 
 	case EVEN: // double in the range [0,1[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->evenRandom()));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_01()));
 		break;
 
 	case EVENWITHBOUNDARIES: // double in the range [-3,2[
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->evenRandom(-3.,2.)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(gr_ptr->uniform_real(-3.,2.)));
 		break;
 
 	case DISCRETE:
-		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->discreteRandom(10)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->uniform_int(10)));
 		break;
 
 	case DISCRETEBOUND:
-		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->discreteRandom(-3,10)));
+		for(i=0; i<nEntries; i++) vec_t.push_back(boost::numeric_cast<boost::int32_t>(gr_ptr->uniform_int(-3,10)));
 		break;
 
 	case BITPROB:
 		for(i=0; i<nEntries; i++){
-			if(gr_ptr->boolRandom(0.7))
+			if(gr_ptr->weighted_bool(0.7))
 				vec_t.push_back(1);
 			else
 				vec_t.push_back(0);
@@ -118,44 +117,37 @@ void createRandomVector(std::vector<T>& vec_t, const distType& dType, const std:
 
 	case BITSIMPLE:
 		for(i=0; i<nEntries; i++){
-			if(gr_ptr->boolRandom())
+			if(gr_ptr->uniform_bool())
 				vec_t.push_back(1);
 			else
 				vec_t.push_back(0);
 		}
 		break;
 
-	case CHARRND:
-		for(i=0; i<nEntries; i++){
-			char tmp = gr_ptr->charRandom(false); // also non-printable ASCII characters
-			vec_t.push_back((int16_t)tmp);
-		}
-		break;
-
 	case EXPGAUSS01:
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,0.1))));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(0.1))));
 		break;
 
 	case EXPGAUSS02:
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,0.2))));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(0.2))));
 		break;
 
 	case EXPGAUSS04:
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,0.4))));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(0.4))));
 		break;
 
 	case EXPGAUSS08:
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,0.8))));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(0.8))));
 		break;
 
 	case EXPGAUSS16:
-		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->gaussRandom(0.,1.6))));
+		for(i=0; i<nEntries; i++) vec_t.push_back(T(exp(gr_ptr->normal_distribution(1.6))));
 		break;
 	}
 }
 
 int main(int argc, char **argv){
-	boost::shared_ptr<Gem::Hap::GRandom> gr_ptr(new GRandom());
+	boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr;
 
 	bool verbose;
 	std::size_t nEntries;
@@ -180,11 +172,11 @@ int main(int argc, char **argv){
 	// Set the random number generation mode as requested
 	switch(rnrProductionMode) {
 	case 0:
-		gr_ptr->setRNRFactoryMode();
+		gr_ptr = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
 		break;
 
 	case 1:
-		gr_ptr->setRNRLocalMode();
+		gr_ptr = boost::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
 		break;
 	};
 
@@ -216,46 +208,59 @@ int main(int argc, char **argv){
 		<< "  TH2F *evenSelfCorrelation = new TH2F(\"evenSelfCorrelation\",\"evenSelfCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
 		<< "  TH1F *initCorrelation = new TH1F(\"initCorrelation\",\"initCorrelation\",10,0.5,10.5);" << std::endl
 		<< "  TH1F *initLFCorrelation = new TH1F(\"initLFCorrelation\",\"initLFCorrelation\",10,0.5,10.5);" << std::endl // Lagged Fibonacci
-		<< "  TH2F *evenProxyCorrelation = new TH2F(\"evenProxyCorrelation\",\"evenProxyCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
-		<< "  TH1F *proxyDiff = new TH1F(\"proxyDiff\",\"proxyDiff\"," << nEntries << ", " << 0.5 << "," << 100.5 << ");" << std::endl
+		<< "  TH2F *evenRNGCorrelation = new TH2F(\"evenRNGCorrelation\",\"evenRNGCorrelation\",100, 0.,1.,100, 0.,1.);" << std::endl
+		<< "  TH1F *rngDiff = new TH1F(\"rngDiff\",\"rngDiff\"," << nEntries << ", " << 0.5 << "," << 100.5 << ");" << std::endl
 		<< std::endl;
 
 	// In this test correlations between sequential random numbers (with same proxy/seed) are sought for
 	for(i=0; i<nEntries; i++){
-		ofs << "  evenSelfCorrelation->Fill(" << gr_ptr->evenRandom() << ", " << gr_ptr->evenRandom()  << ");" << std::endl;
+		ofs << "  evenSelfCorrelation->Fill(" << gr_ptr->uniform_01() << ", " << gr_ptr->uniform_01()  << ");" << std::endl;
 	}
 	ofs << std::endl;
 
-	// In this test correlations between subsequent numbers of two proxies (with different seeds) are sought for
-	boost::shared_ptr<Gem::Hap::GRandom> gr_ptr_one(new GRandom());
-	boost::shared_ptr<Gem::Hap::GRandom> gr_ptr_two(new GRandom());
+	// In this test correlations between subsequent numbers of two generators (with different seeds) are sought for
+	boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr_one;
+	boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr_two;
+
+	switch(rnrProductionMode) {
+	case 0:
+		gr_ptr_one = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
+		gr_ptr_two = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
+		break;
+
+	case 1:
+		gr_ptr_one = boost::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
+		gr_ptr_two = boost::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
+		break;
+	};
+
 	for(i=0; i<nEntries; i++) {
-		ofs << "  evenProxyCorrelation->Fill(" << gr_ptr_one->evenRandom() << ", " << gr_ptr_two->evenRandom()  << ");" << std::endl;
-		ofs << "  proxyDiff->Fill(" << 	i << ", " << gr_ptr_one->evenRandom()-gr_ptr_two->evenRandom() << ");" << std::endl;
+		ofs << "  evenRNGCorrelation->Fill(" << gr_ptr_one->uniform_01() << ", " << gr_ptr_two->uniform_01()  << ");" << std::endl;
+		ofs << "  rngDiff->Fill(" << 	i << ", " << gr_ptr_one->uniform_01()-gr_ptr_two->uniform_01() << ");" << std::endl;
 	}
 
-	// In this test, a number of random number proxies are instantiated and their
+	// In this test, a number of GRandomT objects are instantiated and their
 	// initial values (after a number of calls) are asked for. There should be no
 	// correlation.
 	for(i=1; i<=10; i++) {
-		boost::shared_ptr<Gem::Hap::GRandom> gr_ptr_seed(new GRandom());
+		boost::shared_ptr<Gem::Hap::GRandomBaseT<> > gr_ptr_seed;
 		switch(rnrProductionMode) {
 		case 0:
-			gr_ptr_seed->setRNRFactoryMode();
+			gr_ptr_seed = boost::shared_ptr<GRandomT<RANDOMPROXY> >(new GRandomT<RANDOMPROXY>());
 			break;
 
 		case 1:
-			gr_ptr_seed->setRNRLocalMode();
+			gr_ptr_seed = boost::shared_ptr<GRandomT<RANDOMLOCAL> >(new GRandomT<RANDOMLOCAL>());
 			break;
 		};
 
-		for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->evenRandom(0.,1.);
-		initCorr.push_back(gr_ptr_seed->evenRandom(0.,1.));
+		for(std::size_t j=0; j<5; j++) double tmp=gr_ptr_seed->uniform_real(1.);
+		initCorr.push_back(gr_ptr_seed->uniform_real(1.));
 	}
 
 	// In this test, a number of lagged fibonacci generators are instantiated with
-	// different seeds, and their initial values (after a number of calls) are asked
-	// for. There should be no correlation.
+	// different, sequential seeds, and their initial values (after a number of calls)
+	// are asked for. There should be no correlation.
 	for(i=1; i<=10; i++) {
 		boost::lagged_fibonacci607 lf(boost::numeric_cast<boost::uint32_t>(i));
 		initLFCorr.push_back(lf());
@@ -269,7 +274,6 @@ int main(int argc, char **argv){
 	createRandomVector<boost::int32_t>(discretebound, DISCRETEBOUND, nEntries, gr_ptr);
 	createRandomVector<boost::int32_t>(bitprob, BITPROB, nEntries, gr_ptr);
 	createRandomVector<boost::int32_t>(bitsimple, BITSIMPLE, nEntries, gr_ptr);
-	createRandomVector<boost::int32_t>(charrnd, CHARRND, nEntries, gr_ptr);
 	createRandomVector<double>(expgauss01, EXPGAUSS01, nEntries, gr_ptr);
 	createRandomVector<double>(expgauss02, EXPGAUSS02, nEntries, gr_ptr);
 	createRandomVector<double>(expgauss04, EXPGAUSS04, nEntries, gr_ptr);
@@ -284,7 +288,6 @@ int main(int argc, char **argv){
 	   discretebound.size() != nEntries ||
 	   bitprob.size() != nEntries ||
 	   bitsimple.size() != nEntries ||
-	   charrnd.size() != nEntries ||
 	   expgauss01.size() != nEntries ||
 	   expgauss02.size() != nEntries ||
 	   expgauss04.size() != nEntries ||
@@ -359,11 +362,6 @@ int main(int argc, char **argv){
 	}
 	ofs << std::endl;
 
-	for(i=0; i<nEntries; i++){
-		ofs << "  charrnd->Fill(" << charrnd.at(i) << ");" << std::endl;
-	}
-	ofs << std::endl;
-
 	for(i=1; i<=10; i++){
 		ofs << "  initCorrelation->Fill(" << i << ", " << initCorr.at(i-1) << ");" << std::endl;
 	}
@@ -396,8 +394,6 @@ int main(int argc, char **argv){
 		<< "  bitprob->Draw();" << std::endl
 		<< "  cc->cd(9);" << std::endl
 		<< "  bitsimple->Draw();" << std::endl
-		<< "  cc->cd(10);" << std::endl
-		<< "  charrnd->Draw();" << std::endl
 		<< "  cc->cd(11);" << std::endl
 		<< "  evenSelfCorrelation->Draw(\"contour\");" << std::endl
 		<< "  cc->cd(12);" << std::endl
@@ -405,9 +401,9 @@ int main(int argc, char **argv){
 		<< "  cc->cd(13);" << std::endl
 		<< "  initLFCorrelation->Draw();" << std::endl
 		<< "  cc->cd(14);" << std::endl
-		<< "  evenProxyCorrelation->Draw(\"contour\");" << std::endl
+		<< "  evenRNGCorrelation->Draw(\"contour\");" << std::endl
 		<< "  cc->cd(15);" << std::endl
-		<< "  proxyDiff->Draw();" << std::endl
+		<< "  rngDiff->Draw();" << std::endl
 		<< "  cc->cd();" << std::endl;
 	ofs	<< "}" << std::endl;
 

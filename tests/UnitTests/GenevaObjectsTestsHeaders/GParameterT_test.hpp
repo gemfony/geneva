@@ -50,7 +50,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GParameterT.hpp"
 #include "geneva/GBoolean.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
@@ -77,7 +77,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GParameterT_no_failure_expected, T ) {
 						 Gem::Common::CE_WITH_MESSAGES);
 
 	// A local random number generator
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 
 	// Test default construction
 	BOOST_CHECK_NO_THROW(T gpt);
@@ -261,7 +261,7 @@ public:
 
 	/***********************************************************************************/
 private:
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 };
 
 

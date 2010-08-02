@@ -49,7 +49,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GGaussAdaptorT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
@@ -68,13 +68,15 @@ using boost::unit_test_framework::test_case;
 // Test features that are expected to work
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 {
+	using namespace Gem::Hap;
+
 	// Prepare printing of error messages in object comparisons
 	GEqualityPrinter gep("GGaussAdaptorT_no_failure_expected",
 						 pow(10,-10),
 						 Gem::Common::CE_WITH_MESSAGES);
 
 	// A local random number generator
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 
 	// Test simple instantiation
 	T ggat0;
@@ -145,7 +147,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 	std::size_t NADAPTIONS=10000;
 	ggat5.setAdaptionThreshold(1);
 	for(std::size_t p=0; p<20; p++) {
-		BOOST_CHECK_NO_THROW(ggat5.setAll(gr.evenRandom(DEFAULTMINSIGMA,2.), 0.001, 0., 2.));
+		BOOST_CHECK_NO_THROW(ggat5.setAll(gr.uniform_real(DEFAULTMINSIGMA,2.), 0.001, 0., 2.));
 		for(std::size_t m=0; m<NADAPTIONS; m++)
 			BOOST_CHECK_NO_THROW(ggat5.adapt(adaptionTarget));
 	}
@@ -155,7 +157,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 // Test features that are expected to fail
 BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_failures_expected, T )
 {
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 
 	{
 		T ggat0(0.1, 0.001, 0., 1.);

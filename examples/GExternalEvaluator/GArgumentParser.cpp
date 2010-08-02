@@ -143,7 +143,6 @@ bool parseConfigFile(const std::string& configFile,
 		boost::uint32_t& nEvaluations,
 		Gem::Geneva::dataExchangeMode& exchangeMode,
 		bool& maximize,
-		bool& productionPlace,
 		bool& randomFill)
 {
 	boost::uint16_t recombinationScheme=0;
@@ -207,8 +206,6 @@ bool parseConfigFile(const std::string& configFile,
 			"Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
 			("maximize", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
 			"Specifies whether the program should minimize (0) or maximize (1) evaluation function")
-			("productionPlace", po::value<bool>(&productionPlace)->default_value(DEFAULTPRODUCTIONPLACE),
-			"Whether production of random numbers in individuals should happen locally (0) or in the random number factory (1)")
 			("randomFill", po::value<bool>(&randomFill)->default_value(DEFAULTRANDOMFILL),
 			"Specifies whether template data should be filled randomly or not")
 		;
@@ -276,7 +273,6 @@ bool parseConfigFile(const std::string& configFile,
 					<< "nEvaluations = " << nEvaluations << std::endl
 					<< "exchangeMode = " << exchangeMode << std::endl
 					<< "maximize = " << maximize << std::endl
-					<< "productionPlace = " << (productionPlace?"local":"factory") << std::endl
 					<< "randomFill = " << randomFill << std::endl
 					<< std::endl;
 		}

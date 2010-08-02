@@ -44,10 +44,11 @@ template <>  GBoundedNumT<double>::GBoundedNumT()
 	, upperBoundary_(1.)
 	, internalValue_(0.)
 {
-		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+	using namespace Gem::Hap;
+	GRandomT<RANDOMLOCAL> gr;
 
-		// This function also sets the internalValue_ variable.
-		setExternalValue(gr.evenRandom(lowerBoundary_,upperBoundary_));
+	// This function also sets the internalValue_ variable.
+	setExternalValue(gr.uniform_real(lowerBoundary_,upperBoundary_));
 }
 
 /***********************************************************************************************/
@@ -62,12 +63,13 @@ template <>  GBoundedNumT<boost::int32_t>::GBoundedNumT()
  	, upperBoundary_(1000)
 	, internalValue_(1)
 {
-		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+	using namespace Gem::Hap;
+	GRandomT<RANDOMLOCAL> gr;
 
-		// This function also sets the internalValue_ variable.
-		// discreteRandom returns values in the range [lower,upper[ , i.e., the upper boundary
-		// is not included. Needs to be checked in the testing code!!!
-		setExternalValue(gr.discreteRandom(lowerBoundary_,upperBoundary_+1));
+	// This function also sets the internalValue_ variable.
+	// discreteRandom returns values in the range [lower,upper[ , i.e., the upper boundary
+	// is not included. Needs to be checked in the testing code!!!
+	setExternalValue(gr.uniform_int(lowerBoundary_,upperBoundary_+1));
 }
 
 /***********************************************************************************************/
@@ -118,29 +120,30 @@ template <> GBoundedNumT<double>::GBoundedNumT(const double& lowerBoundary, cons
 	, upperBoundary_(1.)
 	, internalValue_(0.)
 {
-		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+	using namespace Gem::Hap;
+	GRandomT<RANDOMLOCAL> gr;
 
-		// Check that the boundaries make sense
-		if(lowerBoundary >= upperBoundary) {
-			std::ostringstream error;
-			error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
-				     << "Error: Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
+	// Check that the boundaries make sense
+	if(lowerBoundary >= upperBoundary) {
+		std::ostringstream error;
+		error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
+				 << "Error: Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
 
-		// Check size of the boundaries
-		if(lowerBoundary <= -0.5*std::numeric_limits<double>::max() || upperBoundary >= 0.5*std::numeric_limits<double>::max()) {
-			std::ostringstream error;
-			error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
-				     << "Error: Lower and/or upper boundaries have too high values: " << lowerBoundary << " " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
+	// Check size of the boundaries
+	if(lowerBoundary <= -0.5*std::numeric_limits<double>::max() || upperBoundary >= 0.5*std::numeric_limits<double>::max()) {
+		std::ostringstream error;
+		error << "In GBoundedNumT<double>::GBoundedNumT(const double&, const double&)" << std::endl
+				 << "Error: Lower and/or upper boundaries have too high values: " << lowerBoundary << " " << upperBoundary << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
 
-		lowerBoundary_ = lowerBoundary;
-		upperBoundary_ = upperBoundary;
+	lowerBoundary_ = lowerBoundary;
+	upperBoundary_ = upperBoundary;
 
-		// This function also sets the internalValue_ variable.
-		setExternalValue(gr.evenRandom(lowerBoundary_,upperBoundary_));
+	// This function also sets the internalValue_ variable.
+	setExternalValue(gr.uniform_real(lowerBoundary_,upperBoundary_));
 }
 
 /***********************************************************************************************/
@@ -157,29 +160,30 @@ template <> GBoundedNumT<boost::int32_t>::GBoundedNumT(const boost::int32_t& low
 	, upperBoundary_(upperBoundary)
 	, internalValue_(0)
 {
-		Gem::Hap::GRandom gr(Gem::Hap::RNRLOCAL);
+	using namespace Gem::Hap;
+	GRandomT<RANDOMLOCAL> gr;
 
-		// Complain if the boundaries are invalid
-		if(lowerBoundary >= upperBoundary) {
-			std::ostringstream error;
-			error << "In GBoundedNumT<double>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&)" << std::endl
-				     << "Error: Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
+	// Complain if the boundaries are invalid
+	if(lowerBoundary >= upperBoundary) {
+		std::ostringstream error;
+		error << "In GBoundedNumT<double>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&)" << std::endl
+				 << "Error: Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
 
-		// Check size of the boundaries
-		if(lowerBoundary <= -std::numeric_limits<boost::int32_t>::max()/2 || upperBoundary >= std::numeric_limits<boost::int32_t>::max()/2) {
-			std::ostringstream error;
-			error << "In GBoundedNumT<double>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&)" << std::endl
-				     << "Error: Lower and/or upper boundaries have too high values: " << lowerBoundary << " " << upperBoundary << std::endl;
+	// Check size of the boundaries
+	if(lowerBoundary <= -std::numeric_limits<boost::int32_t>::max()/2 || upperBoundary >= std::numeric_limits<boost::int32_t>::max()/2) {
+		std::ostringstream error;
+		error << "In GBoundedNumT<double>::GBoundedNumT(const boost::int32_t&, const boost::int32_t&)" << std::endl
+				 << "Error: Lower and/or upper boundaries have too high values: " << lowerBoundary << " " << upperBoundary << std::endl;
 
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
 
-		// This function also sets the internalValue_ variable.
-		// discreteRandom returns values in the range [lower,upper[ , i.e., the upper boundary
-		// is not included. Needs to be checked in the testing code!!!
-		setExternalValue(gr.discreteRandom(lowerBoundary_,upperBoundary_+1));
+	// This function also sets the internalValue_ variable.
+	// discreteRandom returns values in the range [lower,upper[ , i.e., the upper boundary
+	// is not included. Needs to be checked in the testing code!!!
+	setExternalValue(gr.uniform_int(lowerBoundary_,upperBoundary_+1));
 }
 
 /***********************************************************************************************/

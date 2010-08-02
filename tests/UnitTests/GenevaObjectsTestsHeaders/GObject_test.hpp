@@ -44,7 +44,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "hap/GRandom.hpp"
+#include "hap/GRandomT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
@@ -126,7 +126,7 @@ public:
 
 	/***********************************************************************************/
 private:
-	GRandom gr;
+	GRandomT<RANDOMLOCAL> gr;
 };
 
 /********************************************************************************************/

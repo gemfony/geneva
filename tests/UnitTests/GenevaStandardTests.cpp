@@ -57,7 +57,6 @@ using namespace boost::unit_test;
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
-#include "hap/GRandom.hpp"
 
 #include "GStandard_test.hpp"
 
@@ -65,7 +64,6 @@ using namespace boost::unit_test;
 // .cpp files do not get pulled in here. We get an error "unregistered class"
 // when these two statements are not present below.
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Hap::GRandom)
 BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
 
 using namespace Gem;
