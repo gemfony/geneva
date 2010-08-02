@@ -57,7 +57,7 @@
 
 namespace Gem
 {
-namespace Communication
+namespace Courtier
 {
 
 /**********************************************************************************/
@@ -69,7 +69,7 @@ std::size_t extractDataSize(const char*, const std::size_t&);
 
 /**********************************************************************************/
 
-} /* namespace Communication */
+} /* namespace Courtier */
 } /* namespace Gem */
 
 #endif /* GASIOHELPERFUNCTIONS_HPP_ */

@@ -68,7 +68,7 @@
 
 namespace Gem
 {
-namespace Communication
+namespace Courtier
 {
 
 /***********************************************************************/
@@ -86,7 +86,7 @@ const boost::uint32_t ASIOMAXCONNECTIONATTEMPTS=10;
  */
 template <typename processable_type>
 class GAsioTCPClientT
- 	: public Gem::Communication::GBaseClientT<processable_type>
+ 	: public Gem::Courtier::GBaseClientT<processable_type>
 {
 public:
 	/***********************************************************************/
@@ -108,7 +108,7 @@ public:
 	   , endpoint_iterator0_(resolver_.resolve(query_))
 	   , end_()
 	{
-		tmpBuffer_ = new char[Gem::Communication::COMMANDLENGTH];
+		tmpBuffer_ = new char[Gem::Courtier::COMMANDLENGTH];
 	}
 
 	/***********************************************************************/
@@ -181,13 +181,13 @@ protected:
 			}
 
 			// Let the server know we want an initial seed
-			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("getSeed", Gem::Communication::COMMANDLENGTH)));
+			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("getSeed", Gem::Courtier::COMMANDLENGTH)));
 
 			// Read answer. The seed should have been sent by the server
-			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
 
 			// Remove all leading or trailing white spaces from the command
-			std::string inboundSeedString = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+			std::string inboundSeedString = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
 			boost::uint32_t seed = boost::lexical_cast<boost::uint32_t>(inboundSeedString);
 
 			std::cout << "Received seed " << seed << " from the server" << std::endl;
@@ -260,28 +260,28 @@ protected:
 			}
 
 			// Let the server know we want work
-			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("ready", Gem::Communication::COMMANDLENGTH)));
+			boost::asio::write(socket_, boost::asio::buffer(assembleQueryString("ready", Gem::Courtier::COMMANDLENGTH)));
 
 			// Read answer. First we care for the command sent by the server
-			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+			boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
 
 			// Remove all leading or trailing white spaces from the command
-			std::string inboundCommandString = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+			std::string inboundCommandString = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
 
 			// Act on the command
 			if (inboundCommandString == "compute") {
 				// We have likely received data. Let's find out how big it is
-				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
-				std::string inboundHeader = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+				std::string inboundHeader = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
 				std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
 
 				// Now retrieve the serialization mode that was used
-				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
-				serMode = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+				serMode = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
 
 				// Retrieve the port id
-				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
-				portId = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Communication::COMMANDLENGTH));
+				boost::asio::read(socket_, boost::asio::buffer(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
+				portId = boost::algorithm::trim_copy(std::string(tmpBuffer_, Gem::Courtier::COMMANDLENGTH));
 
 				// Create appropriately sized buffer
 				char *inboundData = new char[dataSize];
@@ -369,15 +369,15 @@ protected:
 	bool submit(const std::string& item, const std::string& portid) {
 		// Let's assemble an appropriate buffer
 		std::vector<boost::asio::const_buffer> buffers;
-		std::string result = assembleQueryString("result", Gem::Communication::COMMANDLENGTH); // The command
+		std::string result = assembleQueryString("result", Gem::Courtier::COMMANDLENGTH); // The command
 		buffers.push_back(boost::asio::buffer(result));
 
 		// Assemble a buffer for the port id
-		std::string portidString = assembleQueryString(portid,Gem::Communication::COMMANDLENGTH);
+		std::string portidString = assembleQueryString(portid,Gem::Courtier::COMMANDLENGTH);
 		buffers.push_back(boost::asio::buffer(portidString));
 
 		// Assemble the size header
-		std::string sizeHeader = assembleQueryString(boost::lexical_cast<std::string> (item.size()), Gem::Communication::COMMANDLENGTH);
+		std::string sizeHeader = assembleQueryString(boost::lexical_cast<std::string> (item.size()), Gem::Courtier::COMMANDLENGTH);
 		buffers.push_back(boost::asio::buffer(sizeHeader));
 
 		// Finally take care of the data section.
@@ -514,7 +514,7 @@ private:
 
 /***********************************************************************/
 
-} /* namespace Communication */
+} /* namespace Courtier */
 } /* namespace Gem */
 
 #endif /* GASIOTCPCLIENTT_HPP_ */

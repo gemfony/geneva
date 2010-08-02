@@ -52,7 +52,7 @@
 #include "common/GCommonEnums.hpp"
 
 namespace Gem {
-namespace Communication {
+namespace Courtier {
 
 /**********************************************************************************************/
 /**
@@ -62,7 +62,7 @@ const std::size_t COMMANDLENGTH=64;
 
 /**********************************************************************************************/
 
-} /* namespace Communication */
+} /* namespace Courtier */
 } /* namespace Gem */
 
 #endif /* GCOMMUNICATIONENUMS_HPP_ */

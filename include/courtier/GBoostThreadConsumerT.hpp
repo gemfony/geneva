@@ -68,7 +68,7 @@
 #include "GConsumer.hpp"
 
 namespace Gem {
-namespace Communication {
+namespace Courtier {
 
 const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
 
@@ -81,7 +81,7 @@ const boost::uint16_t DEFAULTGBTCMAXTHREADS = 4;
  */
 template <class processable_object>
 class GBoostThreadConsumerT
-	:public Gem::Communication::GConsumer
+	:public Gem::Courtier::GConsumer
 {
 public:
 	/***************************************************************/
@@ -89,7 +89,7 @@ public:
 	 * The default constructor. Nothing special here.
 	 */
 	GBoostThreadConsumerT()
-		: Gem::Communication::GConsumer()
+		: Gem::Courtier::GConsumer()
 		, maxThreads_(DEFAULTGBTCMAXTHREADS)
 		, stop_(false)
 	{ /* nothing */ }
@@ -175,7 +175,7 @@ private:
 	void processItems(){
 		try{
 			boost::shared_ptr<processable_object> p;
-			Gem::Communication::PORTIDTYPE id;
+			Gem::Courtier::PORTIDTYPE id;
 			boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
 			while(true){
@@ -229,7 +229,7 @@ private:
 
 /***************************************************************/
 
-} /* namespace Communication */
+} /* namespace Courtier */
 } /* namespace Gem */
 
 #endif /* GBOOSTTHREADCONSUMERT_HPP_ */

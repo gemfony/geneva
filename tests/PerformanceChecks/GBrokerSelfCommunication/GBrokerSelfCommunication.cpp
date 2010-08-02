@@ -62,7 +62,7 @@
 #include "GCommandLineParser.hpp"
 
 using namespace Gem::Geneva;
-using namespace Gem::Communication;
+using namespace Gem::Courtier;
 using namespace Gem::Hap;
 
 /************************************************************************************************/

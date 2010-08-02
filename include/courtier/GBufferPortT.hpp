@@ -52,7 +52,7 @@
 #include "GBoundedBufferWithIdT.hpp"
 
 namespace Gem {
-namespace Communication {
+namespace Courtier {
 
 /*****************************************************************************/
 /**
@@ -78,8 +78,8 @@ public:
 	 * objects will assume the default sizes.
 	 */
 	GBufferPortT()
-		: original_(new Gem::Communication::GBoundedBufferWithIdT<T>())
-		, processed_(new Gem::Communication::GBoundedBufferWithIdT<T>())
+		: original_(new Gem::Courtier::GBoundedBufferWithIdT<T>())
+		, processed_(new Gem::Courtier::GBoundedBufferWithIdT<T>())
 	{ /* nothing */	}
 
 	/*****************************************************************************/
@@ -89,8 +89,8 @@ public:
 	 * @param size The desired capacity of the GBoundedBufferWithIdT objects
 	 */
 	explicit GBufferPortT(const std::size_t& size)
-	   : original_(new Gem::Communication::GBoundedBufferWithIdT<T>(size))
-	   , processed_(new Gem::Communication::GBoundedBufferWithIdT<T>(size))
+	   : original_(new Gem::Courtier::GBoundedBufferWithIdT<T>(size))
+	   , processed_(new Gem::Courtier::GBoundedBufferWithIdT<T>(size))
 	{ /* nothing */ }
 
 	/*****************************************************************************/
@@ -99,7 +99,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "original" queue
 	 */
-	boost::shared_ptr<Gem::Communication::GBoundedBufferWithIdT<T> > getOriginal() {
+	boost::shared_ptr<Gem::Courtier::GBoundedBufferWithIdT<T> > getOriginal() {
 		return original_;
 	}
 
@@ -109,7 +109,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "processed" queue
 	 */
-	boost::shared_ptr<Gem::Communication::GBoundedBufferWithIdT<T> > getProcessed() {
+	boost::shared_ptr<Gem::Courtier::GBoundedBufferWithIdT<T> > getProcessed() {
 		return processed_;
 	}
 
@@ -207,13 +207,13 @@ public:
 	/*****************************************************************************/
 
 private:
-	boost::shared_ptr<Gem::Communication::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
-	boost::shared_ptr<Gem::Communication::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects
+	boost::shared_ptr<Gem::Courtier::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
+	boost::shared_ptr<Gem::Courtier::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects
 };
 
 /*****************************************************************************/
 
-} /* namespace Communication */
+} /* namespace Courtier */
 } /* namespace Gem */
 
 #endif /* GBUFFERPORTT_HPP_ */

@@ -31,7 +31,7 @@
 
 namespace Gem
 {
-namespace Communication
+namespace Courtier
 {
 
 /**********************************************************************************/
@@ -72,5 +72,5 @@ std::size_t extractDataSize(const char* ds, const std::size_t& sz){
 
 /**********************************************************************************/
 
-} /* namespace Communication */
+} /* namespace Courtier */
 } /* namespace Gem */

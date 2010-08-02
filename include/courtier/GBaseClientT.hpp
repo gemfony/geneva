@@ -70,7 +70,7 @@
 
 namespace Gem
 {
-namespace Communication
+namespace Courtier
 {
 
 /*********************************************************************************/
@@ -311,7 +311,7 @@ private:
 
 /*********************************************************************************/
 
-} /* namespace Communication */
+} /* namespace Courtier */
 } /* namespace Gem */
 
 #endif /* GBASECLIENTT_HPP_ */

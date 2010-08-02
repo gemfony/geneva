@@ -122,7 +122,7 @@ namespace Geneva
     ///////////////////////////////////////////////////////////////////////
 
   public:
-	typedef boost::shared_ptr<Gem::Communication::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> > > GBufferPortT_ptr;
+	typedef boost::shared_ptr<Gem::Courtier::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> > > GBufferPortT_ptr;
 
 	/** @brief The standard constructor */
     GBrokerEA();

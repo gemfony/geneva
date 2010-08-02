@@ -353,7 +353,7 @@ void GBrokerEA::init() {
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::init();
 
-	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Communication::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> >());
+	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> >());
 	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
 }
 

@@ -77,7 +77,7 @@
 
 namespace Gem
 {
-namespace Communication
+namespace Courtier
 {
 
 const boost::uint16_t GASIOTCPCONSUMERTHREADS = 4;
@@ -154,7 +154,7 @@ public:
 	        // Retrieve an item from the broker and submit it to the client.
 	        try{
 	            boost::shared_ptr<processable_type> p;
-	            Gem::Communication::PORTIDTYPE id;
+	            Gem::Courtier::PORTIDTYPE id;
 
 	            // Retrieve an item
 	            id = GBROKER( boost::shared_ptr<processable_type> )->get(p, timeout);
@@ -188,7 +188,7 @@ public:
 	            // into the GBufferPortT objects.
 	            boost::shared_ptr<processable_type> p = Gem::Common::sharedPtrFromString<processable_type>(itemString, serializationMode_);
 
-	            Gem::Communication::PORTIDTYPE id = boost::lexical_cast<Gem::Communication::PORTIDTYPE>(portid);
+	            Gem::Courtier::PORTIDTYPE id = boost::lexical_cast<Gem::Courtier::PORTIDTYPE>(portid);
 	            try {
 	                GBROKER( boost::shared_ptr<processable_type> )->put(id, p, timeout);
 	            }
@@ -232,7 +232,7 @@ protected:
 	 * @return A single command that has been retrieved from a network socket
 	 */
 	std::string getSingleCommand(){
-	    char inbound_command[Gem::Communication::COMMANDLENGTH];
+	    char inbound_command[Gem::Courtier::COMMANDLENGTH];
 
 	    try{
 	        // Read a command from the socket. This will remove it from the stream.
@@ -249,7 +249,7 @@ protected:
 	    }
 
 	    // Remove all leading or trailing white spaces from the command.
-	    return boost::algorithm::trim_copy(std::string(inbound_command, Gem::Communication::COMMANDLENGTH));
+	    return boost::algorithm::trim_copy(std::string(inbound_command, Gem::Courtier::COMMANDLENGTH));
 	}
 
 	/*********************************************************************/
@@ -260,7 +260,7 @@ protected:
 	 */
 	void sendSingleCommand(const std::string& command){
 	    // Format the command ...
-	    std::string outbound_command = assembleQueryString(command, Gem::Communication::COMMANDLENGTH);
+	    std::string outbound_command = assembleQueryString(command, Gem::Courtier::COMMANDLENGTH);
 	    // ... and tell the client
 	    try{
 	        boost::asio::write(socket_, boost::asio::buffer(outbound_command));
@@ -285,16 +285,16 @@ protected:
 	    itemString="";
 	    portid="";
 
-	    char inbound_header[Gem::Communication::COMMANDLENGTH];
+	    char inbound_header[Gem::Courtier::COMMANDLENGTH];
 
 	    try{
 	        // Read the port id from the socket and translate it into a string
-	        boost::asio::read(socket_, boost::asio::buffer(inbound_header,Gem::Communication::COMMANDLENGTH));
-	        portid = boost::algorithm::trim_copy(std::string(inbound_header, Gem::Communication::COMMANDLENGTH)); // removes white spaces
+	        boost::asio::read(socket_, boost::asio::buffer(inbound_header,Gem::Courtier::COMMANDLENGTH));
+	        portid = boost::algorithm::trim_copy(std::string(inbound_header, Gem::Courtier::COMMANDLENGTH)); // removes white spaces
 
 	        // Read the data size from the socket and translate into a number
-	        boost::asio::read(socket_, boost::asio::buffer(inbound_header,Gem::Communication::COMMANDLENGTH));
-	        std::size_t dataSize = boost::lexical_cast<std::size_t>(boost::algorithm::trim_copy(std::string(inbound_header, Gem::Communication::COMMANDLENGTH)));
+	        boost::asio::read(socket_, boost::asio::buffer(inbound_header,Gem::Courtier::COMMANDLENGTH));
+	        std::size_t dataSize = boost::lexical_cast<std::size_t>(boost::algorithm::trim_copy(std::string(inbound_header, Gem::Courtier::COMMANDLENGTH)));
 
 	        // Read item data and transfer into itemString
 	        char *data_section = new char[dataSize];
@@ -321,16 +321,16 @@ protected:
 	            const std::string& serMode,
 	            const std::string& portId){
 	    // Format the command
-	    std::string outbound_command_header = assembleQueryString(command, Gem::Communication::COMMANDLENGTH);
+	    std::string outbound_command_header = assembleQueryString(command, Gem::Courtier::COMMANDLENGTH);
 
 	    // Format the size header
-	    std::string outbound_size_header = assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Communication::COMMANDLENGTH);
+	    std::string outbound_size_header = assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Courtier::COMMANDLENGTH);
 
 	    // Format a header for the serialization mode
-	    std::string serialization_header = assembleQueryString(serMode, Gem::Communication::COMMANDLENGTH);
+	    std::string serialization_header = assembleQueryString(serMode, Gem::Courtier::COMMANDLENGTH);
 
 	    // Format the portId header
-	    std::string portid_header = assembleQueryString(portId, Gem::Communication::COMMANDLENGTH);
+	    std::string portid_header = assembleQueryString(portId, Gem::Courtier::COMMANDLENGTH);
 
 	    // Write the serialized data to the socket. We use "gather-write" to send
 	    // command, header and data in a single write operation.
@@ -371,7 +371,7 @@ private:
  */
 template <class processable_type>
 class GAsioTCPConsumerT
-	:public Gem::Communication::GConsumer // note: GConsumer is non-copyable
+	:public Gem::Courtier::GConsumer // note: GConsumer is non-copyable
 {
 public:
 
@@ -496,7 +496,7 @@ private:
 
 /*********************************************************************/
 
-} /* namespace Communication */
+} /* namespace Courtier */
 } /* namespace Gem */
 
 #endif /*GASIOTCPCONSUMERT_HPP_*/

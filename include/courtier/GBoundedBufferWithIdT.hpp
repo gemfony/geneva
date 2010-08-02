@@ -52,7 +52,7 @@
 #include "common/GBoundedBufferT.hpp"
 
 namespace Gem {
-namespace Communication {
+namespace Courtier {
 
 /**
  * These typedefs are needed as it is not clear whether we're running on a 64 or 32 bit
@@ -139,7 +139,7 @@ private:
 };
 
 
-} /* namespace Communication */
+} /* namespace Courtier */
 } /* namespace Gem */
 
 #endif /* GBOUNDEDBUFFERWITHIDT_HPP_ */
