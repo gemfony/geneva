@@ -58,6 +58,7 @@
 #include "common/GExceptions.hpp"
 #include "GObject.hpp"
 #include "GParameterT.hpp"
+#include "GRandomT.hpp"
 
 namespace Gem
 {
@@ -70,7 +71,8 @@ namespace Geneva
  * limit.  Adapted values will only appear inside the given range to the user, while they are
  * internally represented as a continuous range of values. Note that appropriate adaptors
  * (see e.g the GDoubleGaussAdaptor class) need to be loaded in order to benefit from the
- * adaption capabilities. Both boundaries are inclusive, i.e. [lower:upper]
+ * adaption capabilities. It depends on the implementation of derived classes whether boundaries
+ * are inclusive or exclusive.
  */
 template <typename T>
 class GConstrainedNumT
@@ -154,7 +156,7 @@ public:
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		if(val < lowerBoundary_ || val > upperBoundary_) {
+		if(!valIsCompatibleWithLower(val, lowerBoundary_) || !valIsCompatibleWithUpper(val, upperBoundary_)) {
 			std::ostringstream error;
 			error << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper): Error!" << std::endl
 				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
@@ -248,13 +250,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
+	boost::optional<std::string> checkRelationshipWith(
+			const GObject& cp,
 			const Gem::Common::expectation& e,
 			const double& limit,
 			const std::string& caller,
 			const std::string& y_name,
-			const bool& withMessages) const
-	{
+			const bool& withMessages
+	) const	{
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
@@ -279,7 +282,7 @@ public:
      *
      * @return The value of the lower boundary
      */
-	T getLowerBoundary() const  {
+	T getLowerBoundary() const {
     	return lowerBoundary_;
 	}
 
@@ -289,7 +292,7 @@ public:
      *
      * @return The value of the upper boundary
      */
-	T getUpperBoundary() const  {
+	T getUpperBoundary() const {
     	return upperBoundary_;
 	}
 
@@ -327,7 +330,7 @@ public:
 		}
 
 		// Check that the value is inside the allowed range
-		if(currentValue < lower || currentValue > upper){
+		if(!valIsCompatibleWithLower(currentValue, lower) || !valIsCompatibleWithUpper(currentValue, upper)){
 			std::ostringstream error;
 			error << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) : Error!" << std::endl
 				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
@@ -350,16 +353,15 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * Allows to set the value. Note that we assume here that T has an operator=()
-	 * or is a basic value type, such as double or int. This function will throw if
-	 * val is not in the currently assigned value range. Use the corresponding
-	 * overload if you want to set the value together with its boundaries instead.
+	 * Allows to set the value. This function will throw if val is not in the currently
+	 * assigned value range. Use the corresponding overload if you want to set the value
+	 * together with its boundaries instead.
 	 *
 	 * @param val The new T value stored in this class
 	 */
 	virtual void setValue(const T& val)  {
 		// Do some error checking
-		if(val < lowerBoundary_ || val > upperBoundary_) {
+		if(!valIsCompatibleWithLower(val, lowerBoundary_) || !valIsCompatibleWithUpper(val, upperBoundary_)) {
 			std::ostringstream error;
 			error << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper): Error!" << std::endl
 				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
@@ -397,7 +399,7 @@ public:
 		upperBoundary_ = upperBoundary;
 
 		// Is the desired new value in the allowed range ?
-		if(val < lowerBoundary_ || val > upperBoundary_) {
+		if(!valIsCompatibleWithLower(val, lowerBoundary_) || !valIsCompatibleWithUpper(val, upperBoundary_)) {
 			std::ostringstream error;
 			error << "In GConstrainedNumT<T>::setValue(val,lower,upper): Error!" << std::endl
 				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
@@ -444,6 +446,30 @@ protected:
 		// ... and then our own
 		lowerBoundary_ = p_load->lowerBoundary_;
 		upperBoundary_ = p_load->upperBoundary_;
+	}
+
+	/****************************************************************************/
+	/**
+	 * Checks whether a given value is compatible with the lower boundary.
+	 *
+	 * @param value The value to check against the lower boundary
+	 * @return A boolean which indicates whether the value is compatible with the lower boundary
+	 */
+	virtual bool valIsCompatibleWithLower(const T& value, const T& lowerBoundary) {
+		return (value >= lowerBoundary);
+	}
+
+	/****************************************************************************/
+	/**
+	 * Checks whether a given value is compatible with the upper boundary. E.g.
+	 * for floating-point values it may be useful to use < instead of <= for the
+	 * comparison.
+	 *
+	 * @param value The value to check against the upper boundary
+	 * @return A boolean which indicates whether the value is compatible with the upper boundary
+	 */
+	virtual bool valIsCompatibleWithUpper(const T& value, const T& upperBoundary) {
+		return (value <= upperBoundary);
 	}
 
 	/****************************************************************************/

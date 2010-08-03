@@ -330,7 +330,7 @@ public:
 
 	/*************************************************************************/
 	/**
-	 * This function produces integer random numbers in the range of [min, max[ .
+	 * This function produces integer random numbers in the range of [min, max] .
 	 * Note that max may also be < 0. .
 	 *
 	 * @param min The minimum value of the range
@@ -358,7 +358,7 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * This function produces integer random numbers in the range of [0, max[ .
+	 * This function produces integer random numbers in the range of [0, max] .
 	 *
 	 * @param max The maximum (excluded) value of the range
 	 * @return Discrete random numbers evenly distributed in the range [0,max[
@@ -372,13 +372,13 @@ public:
 
 	/*************************************************************************/
 	/**
-	 * This function produces integer random numbers in the range of [min, max[ .
+	 * This function produces integer random numbers in the range of [min, max] .
 	 * Note that max may also be < 0. . The size of the integers is assumed to be
 	 * small compared to int_type's value range.
 	 *
 	 * @param min The minimum value of the range
 	 * @param max The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [min,max[
+	 * @return Discrete random numbers evenly distributed in the range [min,max]
 	 */
 	int_type uniform_smallint (
 			  const int_type& min
@@ -401,12 +401,12 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * This function produces integer random numbers in the range of [0, max[ .
+	 * This function produces integer random numbers in the range of [0, max] .
 	 * The size of the integers is assumed to be small compared to int_type's value
 	 * range.
 	 *
 	 * @param max The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [0,max[
+	 * @return Discrete random numbers evenly distributed in the range [0,max]
 	 */
 	int_type uniform_smallint (
 			  const int_type& max
