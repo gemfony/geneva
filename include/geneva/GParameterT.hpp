@@ -58,8 +58,7 @@ namespace Geneva {
 /*******************************************************************************************/
 /**
  * A class holding a single, mutable parameter - usually just an atomic value (double, long,
- * Geneva::bit, ...). The class is non-virtual, so that it is possible to store simple values
- * in this class without too much fuss.
+ * boolean, ...).
  */
 template <typename T>
 class GParameterT
