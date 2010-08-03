@@ -85,7 +85,7 @@ class GConstrainedIntegerT
 		using boost::serialization::make_nvp;
 
 		// Save data
-		ar & make_nvp("GParameterT_T", boost::serialization::base_object<GConstrainedNumT<T> >(*this));
+		ar & make_nvp("GConstrainedNumT_T", boost::serialization::base_object<GConstrainedNumT<T> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -241,13 +241,58 @@ public:
 		if(val >= getLowerBoundary() && val <= getUpperBoundary()) {
 			return val;
 		}
-		else if(val < getLowerBoundary()) {
-			// Find out how many full value ranges val is
-			// below the lower boundary
-		}
-		else { // val > getUpperBoundary()
-			// Find out how many full value ranges val is
-			// above the upper boundary
+		else {
+			// The result
+			std::size_t mapping = 0;
+
+			// Find out the size of the value range. Note that both boundaries
+			// are included, so that we need to add 1 to the difference.
+			std::size_t value_range = getUpperBoundary() - getLowerBoundary() + 1;
+
+			if(val < getLowerBoundary()) {
+				// Find out how many full value ranges val is below the lower boundary.
+				// We use integer division here, so 13/4 would be 3.
+				std::size_t nBelowLowerBoundary = (lowerBoundary_ - (val + 1)) / value_range;
+
+				// We are dealing with descending (nBelowLowerBoundary is even) and
+				// ascending ranges (nBelowLowerBoundary is odd), which need to be treated differently
+				if(nBelowLowerBoundary%2 == 0) { // nBelowLowerBoundary is even
+					// Transfer the value into the allowed region
+					mapping = val + (value_range * (nBelowLowerBoundary + 1));
+				}
+				else { // nBelowLowerBoundary is odd
+					// Transfer the value into the allowed region
+					mapping = val + (value_range * (nBelowLowerBoundary + 1));
+
+					// Revert the value to a descending sequence
+					mapping = revert(mapping);
+				}
+			}
+			else { // val > getUpperBoundary()
+				// Find out how many full value ranges val is above the upper boundary.
+				// We use integer division here, so 13/4 would be 3.
+				std::size_t nAboveUpperBoundary = (val - upperBoundary - 1) / value_range;
+
+				// We are dealing with descending (nAboveUpperBoundary is even) and
+				// ascending ranges (nAboveUpperBoundary is odd), which need to be treated differently
+				if(nAboveUpperBoundary%2 == 0) { // nAboveUpperBoundary is even
+					// Transfer into the allowed region
+					mapping = val - (value_range * (nAboveUpperBoundary + 1));
+
+					// Revert, as we are dealing with a descending value range
+					mapping = revert(mapping);
+				}
+				else { // nAboveUpperBoundary is odd
+					// Transfer into the allowed region
+					mapping = val - (value_range * (nAboveUpperBoundary + 1));
+				}
+			}
+
+			// Reset internal value -- possible because it is declared mutable in
+			// GParameterT<T>. Resetting the internal value prevents divergence through
+			// extensive mutation and also speeds up the previous part of the transfer
+			// function
+			GConstrainedNumT<T>::setValue(mapping);
 		}
 	}
 
@@ -260,7 +305,7 @@ protected:
 	 */
 	virtual void load_(const GObject *cp) {
 		// Convert GObject pointer to local format
-		const GConstrainedIntegerT<T> *p_load	= GObject::conversion_cast<GConstrainedIntegerT<T> >(cp);
+		const GConstrainedIntegerT<T> *p_load = GObject::conversion_cast<GConstrainedIntegerT<T> >(cp);
 
 		// Load our parent class'es data ...
 		GConstrainedNumT<T>::load_(cp);
@@ -269,7 +314,7 @@ protected:
 	}
 
 	/****************************************************************************/
-	/** @brief Create a deep copy of this object -- Re-implement this in derived classes */
+	/** Create a deep copy of this object -- Re-implement this in derived classes */
 	virtual GObject *clone_() const = 0;
 
 	/****************************************************************************/
@@ -277,10 +322,23 @@ protected:
 	 * Randomly initializes the parameter (within its limits)
 	 */
 	virtual void randomInit_() {
-
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL> gr;
+		setValue(gr.uniform_int(lowerBoundary_, upperBoundary_));
 	}
 
 private:
+	/****************************************************************************/
+	/**
+	 * Reverts the value to descending order. Note: No check is made whether the value
+	 * is indeed in the allowed region.
+	 *
+	 * @param value The value to be reverted
+	 * @return The reverted value
+	 */
+	T revert(const T& value) {
+		return upperBoundary_ - value + 1;
+	}
 
 #ifdef GENEVATESTING
 public:

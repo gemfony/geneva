@@ -96,7 +96,7 @@ public:
 	 * @param cp A copy of another GParameterT object
 	 * @return A constant reference to this object
 	 */
-	const GParameterT<T>& operator=(const GParameterT<T>& cp){
+	const GParameterT<T>& operator=(const GParameterT<T>& cp) {
 		GParameterT<T>::load(&cp);
 		return *this;
 	}
@@ -109,7 +109,7 @@ public:
 	 * @param val The new value for val_
 	 * @return The new value of val_
 	 */
-	virtual T operator=(const T& val){
+	virtual T operator=(const T& val) {
 		setValue(val);
 		return val_;
 	}
@@ -130,7 +130,7 @@ public:
 	/**
 	 * Automatic conversion to the target type
 	 */
-	operator T() const{
+	operator T() const {
 		return this->value();
 	}
 
@@ -140,7 +140,7 @@ public:
 	 *
 	 * @return The value of val_
 	 */
-	virtual T value() const{
+	virtual T value() const {
 		return val_;
 	}
 
@@ -211,7 +211,7 @@ public:
 	/**
 	 * Allows to adapt the value stored in this class.
 	 */
-	virtual void adaptImpl(){
+	virtual void adaptImpl() {
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(val_);
 	}
 
@@ -222,7 +222,7 @@ protected:
 	 *
 	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
 	 */
-	virtual void load_(const GObject* cp){
+	virtual void load_(const GObject* cp) {
 		// Convert cp into local format
 		const GParameterT<T> *p_load = GObject::conversion_cast<GParameterT<T> >(cp);
 
