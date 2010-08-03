@@ -59,8 +59,10 @@
 
 namespace Gem
 {
-namespace Geneva
+namespace Tests
 {
+
+using namespace Gem::Geneva;
 
 // Default settings
 const std::size_t DEFAULTNCLIENTS=4;
@@ -88,7 +90,7 @@ bool parseCommandLine(int argc, char **argv,
 					  Gem::Common::serializationMode& serMode,
 					  bool& verbose);
 
-} /* namespace Geneva */
+} /* namespace Tests */
 } /* namespace Gem */
 
 #endif /* GCOMMANDLINEPARSER_HPP_ */

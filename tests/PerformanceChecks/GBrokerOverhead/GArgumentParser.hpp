@@ -62,9 +62,11 @@
 #include "GFunctionIndividual.hpp"
 #include "GFunctionIndividualDefines.hpp"
 
+using namespace Gem::Geneva;
+
 namespace Gem
 {
-  namespace Geneva
+  namespace Tests
   {
     // Default settings
     const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
@@ -128,7 +130,7 @@ namespace Gem
 		  , demoFunction& df
 	);
 
-  } /* namespace Geneva */
+  } /* namespace Tests */
 } /* namespace Gem */
 
 #endif /* GARGUMENTPARSER_HPP_ */

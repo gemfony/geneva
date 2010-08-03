@@ -30,9 +30,11 @@
 
 #include "GArgumentParser.hpp"
 
+using namespace Gem::Geneva;
+
 namespace Gem
 {
-  namespace Geneva
+  namespace Tests
   {
   /************************************************************************************************/
   /**
@@ -285,5 +287,5 @@ namespace Gem
 
     /************************************************************************************************/
 
-  } /* namespace Geneva */
+  } /* namespace Tests */
 } /* namespace Gem */

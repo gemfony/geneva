@@ -61,6 +61,7 @@
 // Parses the command line for all required options
 #include "GCommandLineParser.hpp"
 
+using namespace Gem::Tests;
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;

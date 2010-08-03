@@ -62,7 +62,7 @@
 
 namespace Gem
 {
-namespace Geneva
+namespace Tests
 {
 // Default settings
 const boost::uint16_t DEFAULTNPRODUCERTHREADS=10;
@@ -114,7 +114,7 @@ bool parseConfigFile(const std::string& configFile,
 		std::vector<long>& sleepSeconds,
 		std::vector<long>& sleepMilliSeconds);
 
-} /* namespace Geneva */
+} /* namespace Tests */
 } /* namespace Gem */
 
 #endif /* GCOMMANDLINEPARSER_HPP_ */
