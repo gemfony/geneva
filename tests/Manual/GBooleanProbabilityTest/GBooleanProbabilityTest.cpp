@@ -51,7 +51,6 @@
 #include "geneva/GBooleanAdaptor.hpp"
 
 using namespace boost;
-using namespace Gem;
 using namespace Gem::Geneva;
 
 /**

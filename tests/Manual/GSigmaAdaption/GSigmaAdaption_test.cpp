@@ -49,7 +49,6 @@
 // Parsing of the command line
 #include "GCommandLineParser.hpp"
 
-using namespace Gem;
 using namespace Gem::Geneva;
 using namespace Gem::Hap;
 
