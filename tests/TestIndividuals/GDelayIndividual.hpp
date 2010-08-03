@@ -56,8 +56,10 @@
 
 namespace Gem
 {
-namespace Geneva
+namespace Tests
 {
+
+using namespace Gem::Geneva;
 
 /************************************************************************************************/
 /**
@@ -249,10 +251,10 @@ private:
 };
 
 
-} /* namespace Geneva */
+} /* namespace Tests */
 } /* namespace Gem */
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GDelayIndividual)
+BOOST_CLASS_EXPORT(Gem::Tests::GDelayIndividual)
 
 #endif /* GDELAYINDIVIDUAL_HPP_ */

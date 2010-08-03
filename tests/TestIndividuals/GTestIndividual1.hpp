@@ -63,7 +63,7 @@
 
 namespace Gem
 {
-namespace Geneva
+namespace Tests
 {
 /************************************************************************************************/
 /**
@@ -181,11 +181,11 @@ protected:
 	}
 };
 
-} /* namespace Geneva */
+} /* namespace Tests */
 } /* namespace Gem */
 
 // Needed for serialization purposes
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GTestIndividual1)
+BOOST_CLASS_EXPORT(Gem::Tests::GTestIndividual1)
 
 #endif /* GTESTINDIVIDUAL1_HPP_ */
