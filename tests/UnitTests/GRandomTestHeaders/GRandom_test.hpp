@@ -48,7 +48,6 @@
 #include "common/GCommonEnums.hpp"
 #include "hap/GRandomT.hpp"
 
-using namespace Gem;
 using namespace Gem::Hap;
 
 using boost::unit_test_framework::test_suite;

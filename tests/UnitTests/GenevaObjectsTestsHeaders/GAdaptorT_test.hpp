@@ -50,7 +50,6 @@
 #include "geneva/GBooleanAdaptor.hpp"
 #include "common/GCommonEnums.hpp"
 
-using namespace Gem;
 using namespace Gem::Hap;
 using namespace Gem::Geneva;
 

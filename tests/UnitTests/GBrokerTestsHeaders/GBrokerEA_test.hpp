@@ -46,7 +46,6 @@
 #include "hap/GRandomT.hpp"
 #include "geneva/GBrokerEA.hpp"
 
-using namespace Gem;
 using namespace Gem::Hap;
 using namespace Gem::Geneva;
 

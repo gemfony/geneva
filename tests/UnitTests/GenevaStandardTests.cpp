@@ -66,7 +66,6 @@ using namespace boost::unit_test;
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
 
-using namespace Gem;
 using namespace Gem::Hap;
 using namespace Gem::Geneva;
 

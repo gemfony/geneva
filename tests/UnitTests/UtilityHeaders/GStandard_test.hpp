@@ -42,7 +42,6 @@
 #include <boost/mpl/list.hpp>
 #include <boost/shared_ptr.hpp>
 
-using namespace Gem;
 using namespace Gem::Hap;
 using namespace Gem::Geneva;
 

@@ -48,7 +48,6 @@
 #include "geneva/GEvolutionaryAlgorithm.hpp"
 #include "GEqualityPrinter.hpp"
 
-using namespace Gem;
 using namespace Gem::Hap;
 using namespace Gem::Geneva;
 
