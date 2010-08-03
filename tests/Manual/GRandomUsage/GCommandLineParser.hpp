@@ -58,7 +58,7 @@
 
 namespace Gem
 {
-namespace Examples
+namespace Tests
 {
 
 // Default settings
@@ -75,7 +75,7 @@ bool parseCommandLine(int argc, char **argv,
 					  boost::uint16_t& rnrProductionMode,
 					  bool& verbose);
 
-} /* namespace Examples */
+} /* namespace Tests */
 } /* namespace Gem */
 
 #endif /* GCOMMANDLINEPARSER_HPP_ */

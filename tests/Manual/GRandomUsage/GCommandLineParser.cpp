@@ -31,7 +31,7 @@
 
 namespace Gem
 {
-namespace Examples
+namespace Tests
 {
 
 /************************************************************************************************/
@@ -98,5 +98,5 @@ bool parseCommandLine(int argc, char **argv,
 
 /************************************************************************************************/
 
-} /* namespace Examples */
+} /* namespace Tests */
 } /* namespace Gem */
