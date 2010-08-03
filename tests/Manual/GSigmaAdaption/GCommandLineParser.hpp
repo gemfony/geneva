@@ -57,7 +57,7 @@
 #include "common/GCommonEnums.hpp"
 
 namespace Gem {
-namespace Geneva {
+namespace Examples {
 
 // Default settings
 const double CMD_DEFAULTSIGMA = 1.;
@@ -81,7 +81,7 @@ bool parseCommandLine(int argc, char **argv,
 		boost::uint32_t& maxIter,
 		bool& verbose);
 
-} /* namespace Geneva */
+} /* namespace Examples */
 } /* namespace Gem */
 
 #endif /* GCOMMANDLINEPARSER_HPP_ */

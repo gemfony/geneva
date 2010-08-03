@@ -50,8 +50,8 @@
 #include "geneva/GBooleanCollection.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 
-using namespace boost;
 using namespace Gem::Geneva;
+using namespace boost;
 
 /**
  * This test checks the flip probability of GBoolean and a GBooleanCollection. Likewise this is a test

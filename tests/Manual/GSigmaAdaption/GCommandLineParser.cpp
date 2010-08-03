@@ -30,7 +30,7 @@
 #include "GCommandLineParser.hpp"
 
 namespace Gem {
-namespace Geneva {
+namespace Examples {
 
 /************************************************************************************************/
 /**
@@ -103,5 +103,5 @@ bool parseCommandLine(int argc, char **argv,
 
 /************************************************************************************************/
 
-} /* namespace Geneva */
+} /* namespace Examples */
 } /* namespace Gem */
