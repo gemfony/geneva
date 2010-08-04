@@ -60,6 +60,7 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/concept_check.hpp>
 
 #ifndef GRANDOMBASET_HPP_
 #define GRANDOMBASET_HPP_
@@ -90,11 +91,13 @@ namespace Hap {
  */
 template <
 	  typename fp_type = double
-	, typename int_type = boost::uint32_t
+	, typename int_type = boost::int32_t
 >
 class GRandomBaseT
 	: private boost::noncopyable
 {
+	BOOST_CONCEPT_ASSERT((boost::SignedInteger<int_type>));
+
 public:
 	/****************************************************************************/
 	/** @brief Helps to use this object as a generator for boost's PRNR distributions */

@@ -293,6 +293,8 @@ public:
 			// extensive mutation and also speeds up the previous part of the transfer
 			// function
 			GParameterT<T>::setValue_(mapping);
+
+			return mapping;
 		}
 	}
 

@@ -60,6 +60,7 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/concept_check.hpp>
 
 #ifndef GRANDOMT_HPP_
 #define GRANDOMT_HPP_
@@ -89,11 +90,13 @@ namespace Hap {
 template <
 	Gem::Hap::gRandomTSpecialization s = Gem::Hap::RANDOMPROXY
   , typename fp_type = double
-  , typename int_type = boost::uint32_t
+  , typename int_type = boost::int32_t
 >
 class GRandomT
 	: public Gem::Hap::GRandomBaseT<fp_type, int_type>
 {
+	BOOST_CONCEPT_ASSERT((boost::SignedInteger<int_type>));
+
 public:
 	/** @brief The default constructor */
 	GRandomT();

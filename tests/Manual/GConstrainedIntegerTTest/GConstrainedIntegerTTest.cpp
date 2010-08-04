@@ -98,8 +98,22 @@ int main(int argc, char **argv){
 	boost::shared_ptr<GInt32GaussAdaptor> gdga(new GInt32GaussAdaptor(0.5,0.8,0.02,2.));
 	gint13.addAdaptor(gdga);
 
-	gint13 = 0; // We can assign a value inside of the allowed value range
+	// Check that an adaptor is actually present
+	if(!gint13.hasAdaptor()) {
+		std::cout << "Error: No adaptor present!" << std::endl;
+		std::terminate();
+	}
+
+	// TODO: Check, warum geht operator=(0) nicht ???
+	gint13.setValue(0); // We can assign a value inside of the allowed value range
+
 	for(boost::uint32_t i=0; i<NTESTS; i++){
+		// Check that an adaptor is actually present
+		if(!gint13.hasAdaptor()) {
+			std::cout << "Error: No adaptor present in iteration " << i << "!" << std::endl;
+			std::terminate();
+		}
+
 		// adapt the value and have a look at the
 		// internal and external values.
 		gint13.adapt();
