@@ -1,5 +1,5 @@
 /**
- * @file GBoundedInt32Collection.hpp
+ * @file GConstrainedInt32Collection.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -41,8 +41,8 @@
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 
-#ifndef GBOUNDEDINT32COLLECTION_HPP_
-#define GBOUNDEDINT32COLLECTION_HPP_
+#ifndef GCONSTRAINEDINT32COLLECTION_HPP_
+#define GCONSTRAINEDINT32COLLECTION_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -51,7 +51,7 @@
 
 
 // Geneva header files go here
-#include "GBoundedInt32.hpp"
+#include "GConstrainedInt32.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
@@ -59,11 +59,11 @@ namespace Geneva {
 
 /*************************************************************************/
 /**
- * A collection of GBoundedInt32 objects, ready for use in a
+ * A collection of GConstrainedInt32 objects, ready for use in a
  * GParameterSet derivative.
  */
-class GBoundedInt32Collection
-	:public GParameterTCollectionT<GBoundedInt32>
+class GConstrainedInt32Collection
+	:public GParameterTCollectionT<GConstrainedInt32>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -73,25 +73,25 @@ class GBoundedInt32Collection
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GParameterTCollectionT_gbi",
-			  boost::serialization::base_object<GParameterTCollectionT<GBoundedInt32> >(*this));
+			  boost::serialization::base_object<GParameterTCollectionT<GConstrainedInt32> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GBoundedInt32Collection();
+	GConstrainedInt32Collection();
 	/** @brief The copy constructor */
-	GBoundedInt32Collection(const GBoundedInt32Collection&);
+	GConstrainedInt32Collection(const GConstrainedInt32Collection&);
 	/** @brief The destructor */
-	virtual ~GBoundedInt32Collection();
+	virtual ~GConstrainedInt32Collection();
 
 	/** @brief A standard assignment operator */
-	const GBoundedInt32Collection& operator=(const GBoundedInt32Collection&);
+	const GConstrainedInt32Collection& operator=(const GConstrainedInt32Collection&);
 
-	/** @brief Checks for equality with another GBoundedInt32Collection object */
-	bool operator==(const GBoundedInt32Collection&) const;
-	/** @brief Checks for inequality with another GBoundedInt32Collection object */
-	bool operator!=(const GBoundedInt32Collection&) const;
+	/** @brief Checks for equality with another GConstrainedInt32Collection object */
+	bool operator==(const GConstrainedInt32Collection&) const;
+	/** @brief Checks for inequality with another GConstrainedInt32Collection object */
+	bool operator!=(const GConstrainedInt32Collection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
@@ -117,4 +117,4 @@ protected:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GBOUNDEDINT32COLLECTION_HPP_ */
+#endif /* GCONSTRAINEDINT32COLLECTION_HPP_ */

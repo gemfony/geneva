@@ -8,10 +8,10 @@ SET ( OPTIMIZATIONSOURCES
 	GBoundedDouble
 	GBoundedDoubleCollection
 	GBoundedInt32
-	GBoundedInt32Collection
 	GBoundedNumT
 	GBrokerEA
 	GConstrainedInt32
+	GConstrainedInt32Collection
 	GDouble
 	GDoubleCollection
 	GDoubleGaussAdaptor

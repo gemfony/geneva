@@ -60,12 +60,12 @@
 #include "geneva/GDouble.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GBoundedDouble.hpp"
-#include "geneva/GBoundedInt32.hpp"
+#include "geneva/GConstrainedInt32.hpp"
 #include "geneva/GDouble.hpp"
 #include "geneva/GInt32.hpp"
 #include "geneva/GBoolean.hpp"
 #include "geneva/GBoundedDoubleCollection.hpp"
-#include "geneva/GBoundedInt32Collection.hpp"
+#include "geneva/GConstrainedInt32Collection.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GBooleanObjectCollection.hpp"
 #include "geneva/GInt32ObjectCollection.hpp"
@@ -94,10 +94,10 @@ boost::shared_ptr<GBoundedDouble> getTemplateItemNoAdaptor<GBoundedDoubleCollect
 	return boost::shared_ptr<GBoundedDouble>(new GBoundedDouble(0.,0.,1.));
 }
 
-// Specialization for GBoundedInt32
+// Specialization for GConstrainedInt32
 template <>
-boost::shared_ptr<GBoundedInt32> getTemplateItemNoAdaptor<GBoundedInt32Collection>() {
-	return boost::shared_ptr<GBoundedInt32>(new GBoundedInt32(0,0,100));
+boost::shared_ptr<GConstrainedInt32> getTemplateItemNoAdaptor<GConstrainedInt32Collection>() {
+	return boost::shared_ptr<GConstrainedInt32>(new GConstrainedInt32(0,0,100));
 }
 
 // This template allows to create items different of the default item.
@@ -114,10 +114,10 @@ boost::shared_ptr<GBoundedDouble> getFindItemNoAdaptor<GBoundedDoubleCollection>
 	return boost::shared_ptr<GBoundedDouble>(new GBoundedDouble(1.,0.,1.));
 }
 
-// Specialization for GBoundedInt32
+// Specialization for GConstrainedInt32
 template <>
-boost::shared_ptr<GBoundedInt32> getFindItemNoAdaptor<GBoundedInt32Collection>() {
-	return boost::shared_ptr<GBoundedInt32>(new GBoundedInt32(1,0,100));
+boost::shared_ptr<GConstrainedInt32> getFindItemNoAdaptor<GConstrainedInt32Collection>() {
+	return boost::shared_ptr<GConstrainedInt32>(new GConstrainedInt32(1,0,100));
 }
 
 /***********************************************************************************/
@@ -141,10 +141,10 @@ boost::shared_ptr<GBoundedDouble> getTemplateItem<GBoundedDoubleCollection>() {
 	return gbd_ptr;
 }
 
-// Specialization for GBoundedInt32
+// Specialization for GConstrainedInt32
 template <>
-boost::shared_ptr<GBoundedInt32> getTemplateItem<GBoundedInt32Collection>() {
-	boost::shared_ptr<GBoundedInt32> gbi_ptr(new GBoundedInt32(0,0,100));
+boost::shared_ptr<GConstrainedInt32> getTemplateItem<GConstrainedInt32Collection>() {
+	boost::shared_ptr<GConstrainedInt32> gbi_ptr(new GConstrainedInt32(0,0,100));
 	gbi_ptr->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
 	return gbi_ptr;
 }
@@ -193,10 +193,10 @@ boost::shared_ptr<GBoundedDouble> getFindItem<GBoundedDoubleCollection>() {
 	return gbd_ptr;
 }
 
-// Specialization for GBoundedInt32
+// Specialization for GConstrainedInt32
 template <>
-boost::shared_ptr<GBoundedInt32> getFindItem<GBoundedInt32Collection>() {
-	boost::shared_ptr<GBoundedInt32> gbi_ptr(new GBoundedInt32(1,0,100));
+boost::shared_ptr<GConstrainedInt32> getFindItem<GConstrainedInt32Collection>() {
+	boost::shared_ptr<GConstrainedInt32> gbi_ptr(new GConstrainedInt32(1,0,100));
 	gbi_ptr->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
 	return gbi_ptr;
 }
@@ -365,7 +365,7 @@ public:
 						         GInt32ObjectCollection,
 						         GBooleanObjectCollection,
 						         GBoundedDoubleCollection,
-						         GBoundedInt32Collection> test_types;
+						         GConstrainedInt32Collection> test_types;
 
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, test_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterTCollectionT_failures_expected, test_types ) );

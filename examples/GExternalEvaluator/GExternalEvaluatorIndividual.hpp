@@ -66,7 +66,7 @@
 #include "geneva/GBooleanAdaptor.hpp"
 #include "geneva/GBooleanCollection.hpp"
 #include "geneva/GBoundedDoubleCollection.hpp"
-#include "geneva/GBoundedInt32Collection.hpp"
+#include "geneva/GConstrainedInt32Collection.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
@@ -171,7 +171,7 @@ class GExternalEvaluatorIndividual
 		//-----------------------------------------------------------------------------------------------
 		// Create the required, empty collections.
 		boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
-		boost::shared_ptr<GBoundedInt32Collection> gbic_ptr(new GBoundedInt32Collection());
+		boost::shared_ptr<GConstrainedInt32Collection> gbic_ptr(new GConstrainedInt32Collection());
 		boost::shared_ptr<GBooleanCollection> gbc_ptr(new GBooleanCollection());
 
 		// Set up the local adaptor templates and collection items
@@ -185,7 +185,7 @@ class GExternalEvaluatorIndividual
 		}
 
 		//-----------------------------------------------------------------------------------------------
-		glong_ptr_=boost::shared_ptr<GBoundedInt32>(new GBoundedInt32());
+		glong_ptr_=boost::shared_ptr<GConstrainedInt32>(new GConstrainedInt32());
 		if(glong_ad_ptr) {
 			glong_ptr_->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
 		}
@@ -269,7 +269,7 @@ class GExternalEvaluatorIndividual
 	  , parameterFile_(cp.parameterFile_)
 	  {
 		gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone<GBoundedDouble>();
-		glong_ptr_ = cp.glong_ptr_->GObject::clone<GBoundedInt32>();
+		glong_ptr_ = cp.glong_ptr_->GObject::clone<GConstrainedInt32>();
 	  }
 
 	/********************************************************************************************/
@@ -584,7 +584,7 @@ class GExternalEvaluatorIndividual
 		parameterFile_ = p_load->parameterFile_;
 
 		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone<GBoundedDouble>();
-		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GBoundedInt32>();
+		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GConstrainedInt32>();
 	}
 
 	/********************************************************************************************/
@@ -683,7 +683,7 @@ class GExternalEvaluatorIndividual
 	 maximize_(false),
 	 parameterFile_("empty"),
 	 gdbl_ptr_(boost::shared_ptr<GBoundedDouble>((GBoundedDouble *)NULL)),
-	 glong_ptr_(boost::shared_ptr<GBoundedInt32>((GBoundedInt32 *)NULL))
+	 glong_ptr_(boost::shared_ptr<GConstrainedInt32>((GConstrainedInt32 *)NULL))
 	 { /* nothing */ }
 
 	/********************************************************************************************/
@@ -696,7 +696,7 @@ class GExternalEvaluatorIndividual
 	 *
 	 * The structure of this individual is:
 	 * GBoundedDoubleCollection
-	 * GBoundedInt32Collection
+	 * GConstrainedInt32Collection
 	 * GBooleanCollection
 	 *
 	 * @param fileName The name of the file to write to
@@ -737,14 +737,14 @@ class GExternalEvaluatorIndividual
 			}
 
 
-			boost::shared_ptr<GBoundedInt32Collection> gbic;
+			boost::shared_ptr<GConstrainedInt32Collection> gbic;
 			if(i==0) {
-				gbic = pc_at<GBoundedInt32Collection>(1);
+				gbic = pc_at<GConstrainedInt32Collection>(1);
 			}
 			else {
-				gbic = p->pc_at<GBoundedInt32Collection>(1);
+				gbic = p->pc_at<GConstrainedInt32Collection>(1);
 			}
-			GBoundedInt32Collection::iterator gbic_it;
+			GConstrainedInt32Collection::iterator gbic_it;
 			for(gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++gbic_it) {
 				boost::shared_ptr<Gem::Dataexchange::GLongParameter> ipar(new Gem::Dataexchange::GLongParameter((*gbic_it)->value(), (*gbic_it)->getLowerBoundary(), (*gbic_it)->getUpperBoundary()));
 				gde_.append(ipar);
@@ -820,11 +820,11 @@ class GExternalEvaluatorIndividual
 
 		//--------------------------------------------------------------------------------------------------------------------------------------
 		// Retrieve our "long" collection items
-		boost::shared_ptr<GBoundedInt32Collection> gbic = pc_at<GBoundedInt32Collection>(1);
+		boost::shared_ptr<GConstrainedInt32Collection> gbic = pc_at<GConstrainedInt32Collection>(1);
 
 		// Make sure we have (template-)items in the local collection
 		if(gbic->empty()) {
-			boost::shared_ptr<GBoundedInt32> gbi_templ(new GBoundedInt32());
+			boost::shared_ptr<GConstrainedInt32> gbi_templ(new GConstrainedInt32());
 			boost::shared_ptr<GInt32FlipAdaptor> gifa_templ(new GInt32FlipAdaptor());
 			gbi_templ->addAdaptor(gifa_templ);
 			gbic->push_back(gbi_templ);
@@ -838,7 +838,7 @@ class GExternalEvaluatorIndividual
 		gbic->resize(exchangeSize, glong_ptr_);
 
 		// Now copy the items over
-		GBoundedInt32Collection::iterator gbic_it;
+		GConstrainedInt32Collection::iterator gbic_it;
 		for(pos=0, gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++pos, ++gbic_it) {
 			boost::shared_ptr<Gem::Dataexchange::GLongParameter> glp_ptr = gde_.parameterSet_at<boost::int32_t>(pos);
 			(*gbic_it)->resetBoundaries();
@@ -904,7 +904,7 @@ class GExternalEvaluatorIndividual
 	std::string parameterFile_;
 
 	boost::shared_ptr<GBoundedDouble> gdbl_ptr_; ///< A template for GBoundedDouble objects
-	boost::shared_ptr<GBoundedInt32> glong_ptr_; ///< A template for GBoundedInt32 objects
+	boost::shared_ptr<GConstrainedInt32> glong_ptr_; ///< A template for GConstrainedInt32 objects
 
 	Gem::Dataexchange::GDataExchange gde_; ///< takes care of the data exchange with external programs
  };

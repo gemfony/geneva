@@ -9,10 +9,10 @@ SET ( OPTIMIZATIONINCLUDES
 	GBoundedDouble.hpp
 	GBoundedDoubleCollection.hpp
 	GBoundedInt32.hpp
-	GBoundedInt32Collection.hpp
 	GBoundedNumT.hpp
 	GBrokerEA.hpp
 	GConstrainedInt32.hpp
+	GConstrainedInt32Collection.hpp
 	GConstrainedIntegerT.hpp
 	GConstrainedNumT.hpp
 	GDouble.hpp
