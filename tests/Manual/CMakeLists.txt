@@ -5,10 +5,6 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	GBoundedInt32Test
-)
-
-ADD_SUBDIRECTORY (
 	GConstrainedIntegerTTest
 )
 
