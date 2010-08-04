@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedIntegerT.hpp
+ * @file GConstrainedFPT.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -45,10 +45,11 @@
 #include <boost/bind.hpp>
 #include <boost/cast.hpp> // For boost::numeric_cast<>
 #include <boost/limits.hpp>
-#include <boost/concept_check.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
-#ifndef GCONSTRAINEDINTEGERT_HPP_
-#define GCONSTRAINEDINTEGERT_HPP_
+#ifndef GCONSTRAINEDFPT_HPP_
+#define GCONSTRAINEDFPT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -57,6 +58,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GMathHelperFunctions.hpp"
 #include "hap/GRandomT.hpp"
 #include "GConstrainedNumT.hpp"
 #include "GObject.hpp"
@@ -67,7 +69,7 @@ namespace Geneva
 {
 
 /******************************************************************************/
-/* The GConstrainedIntegerT class represents an integer type, such as an int or a long,
+/* The GConstrainedFPT class represents an integer type, such as an int or a long,
  * equipped with the ability to adapt itself. The value range can have an upper and a lower
  * limit.  Adapted values will only appear inside the given range to the user. Note that
  * appropriate adaptors (see e.g the GInt32FlipAdaptor class) need to be loaded in order
@@ -75,7 +77,7 @@ namespace Geneva
  * [lower:upper]. We currently only allow signed integers.
  */
 template <typename T>
-class GConstrainedIntegerT
+class GConstrainedFPT
 	:public GConstrainedNumT<T>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -90,15 +92,12 @@ class GConstrainedIntegerT
 	}
 	///////////////////////////////////////////////////////////////////////
 
-	// Make sure this class can only be instantiated if T has an integer type
-	BOOST_CONCEPT_ASSERT((boost::SignedInteger<T>));
-
 public:
 	/****************************************************************************/
 	/**
 	 * The default constructor
 	 */
-	GConstrainedIntegerT()
+	GConstrainedFPT()
 		: GConstrainedNumT<T>()
     { /* nothing */ }
 
@@ -109,7 +108,7 @@ public:
 	 *
 	 * @param val The desired external value of this object
 	 */
-	explicit GConstrainedIntegerT(const T& val)
+	explicit GConstrainedFPT (const T& val)
 		: GConstrainedNumT<T>(val)
 	{ /* nothing */	}
 
@@ -120,21 +119,40 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedIntegerT(const T& lowerBoundary, const T& upperBoundary)
+	GConstrainedFPT (
+			const T& lowerBoundary
+		  , const T& upperBoundary
+	)
 		: GConstrainedNumT<T>(lowerBoundary, upperBoundary)
 	{ /* nothing */	}
 
 	/****************************************************************************/
 	/**
-	 * Initialization with value and boundaries.
+	 * Initialization with value and boundaries. We need somewhat tighter
+	 * constraints for the allowed value range than implemented in the
+	 * parent class.
 	 *
 	 * @param val The desired value of this object
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedIntegerT(const T& val, const T& lowerBoundary, const T& upperBoundary)
+	GConstrainedFPT (
+			const T& val
+		  , const T& lowerBoundary
+		  , const T& upperBoundary
+	)
 		: GConstrainedNumT<T>(val, lowerBoundary, upperBoundary)
-	{ /* nothing */	}
+	{
+		// The upper boundary is not included for floating point values
+		if(val >= upperBoundary) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<T>::GConstrainedFPT(val,lower,upper): Error!" << std::endl
+				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+				  << "lowerBoundary = " << lowerBoundary << std::endl
+				  << "upperBoundary = " << upperBoundary << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+	}
 
 	/****************************************************************************/
 	/**
@@ -143,7 +161,7 @@ public:
 	 *
 	 * @param cp Another GConstrainedNumT<T> object
 	 */
-	GConstrainedIntegerT(const GConstrainedIntegerT<T>& cp)
+	GConstrainedFPT (const GConstrainedFPT<T>& cp)
 		: GConstrainedNumT<T>(cp)
 	{ /* nothing */ }
 
@@ -151,18 +169,18 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GConstrainedIntegerT()
+	virtual ~GConstrainedFPT()
 	{ /* nothing */	}
 
 	/****************************************************************************/
 	/**
-	 * A standard assignment operator for GConstrainedIntegerT<T> objects
+	 * A standard assignment operator for GConstrainedFPT<T> objects
 	 *
-	 * @param cp A constant reference to another GConstrainedIntegerT<T> object
+	 * @param cp A constant reference to another GConstrainedFPT<T> object
 	 * @return A constant reference to this object
 	 */
-	const GConstrainedIntegerT<T>& operator=(const GConstrainedIntegerT<T>& cp) {
-		GConstrainedIntegerT<T>::load_(&cp);
+	const GConstrainedFPT<T>& operator= (const GConstrainedFPT<T>& cp) {
+		GConstrainedFPT<T>::load_(&cp);
 		return *this;
 	}
 
@@ -175,6 +193,18 @@ public:
 	 * @return The new external value of this object
 	 */
 	virtual T operator=(const T& val) {
+		// The upper boundary is not included for fp values. Hence
+		// we need to enforce a more stringent check than is used
+		// in GConstrainedNumT.
+		if(val >= GConstrainedNumT<T>::getUpperBoundary()) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<T>::operator=(val): Error!" << std::endl
+				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+				  << "lowerBoundary = " << GConstrainedNumT<T>::getLowerBoundary() << std::endl
+				  << "upperBoundary = " << GConstrainedNumT<T>::getUpperBoundary() << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
 		return GConstrainedNumT<T>::operator=(val);
 	}
 
@@ -182,26 +212,26 @@ public:
     /**
      * Checks equality of this object with another.
      *
-     * @param cp A constant reference to another GConstrainedIntegerT<T> object
+     * @param cp A constant reference to another GConstrainedFPT<T> object
      * @return A boolean indicating whether both objects are equal
      */
-	bool operator==(const GConstrainedIntegerT<T>& cp) const {
+	bool operator==(const GConstrainedFPT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedIntegerT<T>::operator==","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFPT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/****************************************************************************/
     /**
      * Checks inequality of this object with another.
      *
-     * @param cp A constant reference to another GConstrainedIntegerT<T> object
+     * @param cp A constant reference to another GConstrainedFPT<T> object
      * @return A boolean indicating whether both objects are inequal
      */
-	bool operator!=(const GConstrainedIntegerT<T>& cp) const {
+	bool operator!= (const GConstrainedFPT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, as no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedIntegerT<T>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFPT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/****************************************************************************/
@@ -217,28 +247,108 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith (
+			const GObject& cp
+		  , const Gem::Common::expectation& e
+		  , const double& limit
+		  , const std::string& caller
+		  , const std::string& y_name
+		  , const bool& withMessages
+	) const	{
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GConstrainedIntegerT<T>  *p_load = GObject::conversion_cast<GConstrainedIntegerT<T> >(&cp);
+		const GConstrainedFPT<T>  *p_load = GObject::conversion_cast<GConstrainedFPT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GConstrainedNumT<T>::checkRelationshipWith(cp, e, limit, "GConstrainedIntegerT<T>", y_name, withMessages));
+		deviations.push_back(GConstrainedNumT<T>::checkRelationshipWith(cp, e, limit, "GConstrainedFPT<T>", y_name, withMessages));
 
 		// ... no local data
 
-		return evaluateDiscrepancies("GConstrainedIntegerT<T>", caller, deviations, e);
+		return evaluateDiscrepancies("GConstrainedFPT<T>", caller, deviations, e);
 	}
+
+	/****************************************************************************/
+	/**
+	 * Sets the boundaries of this object and does corresponding
+	 * error checks. This is an overloaded function from the parent
+	 * class, which enforces a more stringent check, as the upper
+	 * boundary is not included for fp values.
+	 *
+	 * @param lower The new lower boundary for this object
+	 * @param upper The new upper boundary for this object
+	 */
+	virtual void setBoundaries(const T& lower, const T& upper) {
+		const T currentValue = GParameterT<T>::value();
+
+		// Check that the value is inside the allowed range
+		if(currentValue < lower || currentValue >= upper){
+			std::ostringstream error;
+			error << "In GConstrainedFPT<T>::setBoundaries(const T&, const T&) : Error!" << std::endl
+				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
+				  << "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
+				  << "with existing value  " << currentValue << " outside of this range." << std::endl;
+
+			// throw an exception.
+			throw Gem::Common::gemfony_error_condition(error.str());
+		}
+
+		GConstrainedNumT<T>::setBoundaries(lower, upper);
+	}
+
+	/****************************************************************************/
+	/**
+	 * Allows to set the value. Sets the boundaries of this object and does corresponding
+	 * error checks. This is an overloaded function from the parent
+	 * class, which enforces a more stringent check, as the upper
+	 * boundary is not included for fp values.
+	 *
+	 * @param val The new T value stored in this class
+	 */
+	virtual void setValue(const T& val)  {
+		// Do some error checking
+		if(val < GConstrainedNumT<T>::getLowerBoundary() || val >= GConstrainedNumT<T>::getUpperBoundary()) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<T>::setValue(val): Error!" << std::endl
+				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+				  << "lowerBoundary = " << GConstrainedNumT<T>::getLowerBoundary() << std::endl
+				  << "upperBoundary = " << GConstrainedNumT<T>::getUpperBoundary() << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// O.k., set the value
+		GConstrainedNumT<T>::setValue(val);
+	}
+
+	/****************************************************************************/
+	/**
+	 * Allows to set the value of this object together with its boundaries.
+	 * Sets the boundaries of this object and does corresponding error checks.
+	 * This is an overloaded function from the parent class, which enforces a
+	 * more stringent check, as the upper boundary is not included for fp values.
+	 *
+	 * @param val The desired value of this object
+	 * @param lowerBoundary The lower boundary of the value range
+	 * @param upperBoundary The upper boundary of the value range
+	 */
+	virtual void setValue(const T& val, const T& lowerBoundary, const T& upperBoundary) {
+		// Is the desired new value in the allowed range ?
+		if(val < lowerBoundary || val >= upperBoundary) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<T>::setValue(val,lower,upper): Error!" << std::endl
+				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+				  << "lowerBoundary = " << lowerBoundary << std::endl
+				  << "upperBoundary = " << upperBoundary << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// O.k., set the value
+		GConstrainedNumT<T>::setValue(val);
+	}
+
 
 	/****************************************************************************/
 	/**
@@ -250,54 +360,27 @@ public:
 	virtual T transfer(const T& val) const {
 		// Find out the size of the confined area
 
-		if(val >= GConstrainedNumT<T>::getLowerBoundary() && val <= GConstrainedNumT<T>::getUpperBoundary()) {
+		if(val >= GConstrainedNumT<T>::getLowerBoundary() && val < GConstrainedNumT<T>::getUpperBoundary()) {
 			return val;
 		}
 		else {
-			// The result
-			std::size_t mapping = 0;
+			// Find out which region the value is in (compare figure transferFunction.pdf
+			// that should have been delivered with this software). Note that boost::numeric_cast<>
+			// may throw - exceptions must be caught in surrounding functions.
+			boost::int32_t region = 0.;
+#ifdef DEBUG
+			region = boost::numeric_cast<boost::int32_t>(Gem::Common::GFloor(T(val - GConstrainedNumT<T>::getLowerBoundary())) / T(GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary()));
+#else
+			region = static_cast<boost::int32_t>(Gem::Common::GFloor(T(val - GConstrainedNumT<T>::getLowerBoundary())) / T(GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary()));
+#endif
 
-			// Find out the size of the value range. Note that both boundaries
-			// are included, so that we need to add 1 to the difference.
-			std::size_t value_range = GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary() + 1;
-
-			if(val < GConstrainedNumT<T>::getLowerBoundary()) {
-				// Find out how many full value ranges val is below the lower boundary.
-				// We use integer division here, so 13/4 would be 3.
-				std::size_t nBelowLowerBoundary = (GConstrainedNumT<T>::getLowerBoundary() - (val + 1)) / value_range;
-
-				// We are dealing with descending (nBelowLowerBoundary is even) and
-				// ascending ranges (nBelowLowerBoundary is odd), which need to be treated differently
-				if(nBelowLowerBoundary%2 == 0) { // nBelowLowerBoundary is even
-					// Transfer the value into the allowed region
-					mapping = val + (value_range * (nBelowLowerBoundary + 1));
-				}
-				else { // nBelowLowerBoundary is odd
-					// Transfer the value into the allowed region
-					mapping = val + (value_range * (nBelowLowerBoundary + 1));
-
-					// Revert the value to a descending sequence
-					mapping = revert(mapping);
-				}
-			}
-			else { // val > getUpperBoundary()
-				// Find out how many full value ranges val is above the upper boundary.
-				// We use integer division here, so 13/4 would be 3.
-				std::size_t nAboveUpperBoundary = (val - GConstrainedNumT<T>::getUpperBoundary() - 1) / value_range;
-
-				// We are dealing with descending (nAboveUpperBoundary is even) and
-				// ascending ranges (nAboveUpperBoundary is odd), which need to be treated differently
-				if(nAboveUpperBoundary%2 == 0) { // nAboveUpperBoundary is even
-					// Transfer into the allowed region
-					mapping = val - (value_range * (nAboveUpperBoundary + 1));
-
-					// Revert, as we are dealing with a descending value range
-					mapping = revert(mapping);
-				}
-				else { // nAboveUpperBoundary is odd
-					// Transfer into the allowed region
-					mapping = val - (value_range * (nAboveUpperBoundary + 1));
-				}
+			// Check whether we are in an odd or an even range and calculate the
+			// external value accordingly
+			T mapping = T(0.);
+			if(region%2 == 0) { // can it be divided by 2 ? Region 0,2,... or a negative even range
+				mapping = val - T(region) * (GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary());
+			} else { // Range 1,3,... or a negative odd range
+				mapping = -val + (T(region-1)*(GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary()) + 2*GConstrainedNumT<T>::getUpperBoundary());
 			}
 
 			// Reset internal value -- possible because it is declared mutable in
@@ -308,18 +391,21 @@ public:
 
 			return mapping;
 		}
+
+		// Make the compiler happy
+		return T(0.);
 	}
 
 protected:
 	/****************************************************************************/
 	/**
-	 * Loads the data of another GConstrainedIntegerT<T>, camouflaged as a GObject.
+	 * Loads the data of another GConstrainedFPT<T>, camouflaged as a GObject.
 	 *
-	 * @param cp Another GConstrainedIntegerT<T> object, camouflaged as a GObject
+	 * @param cp Another GConstrainedFPT<T> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) {
 		// Convert GObject pointer to local format
-		const GConstrainedIntegerT<T> *p_load = GObject::conversion_cast<GConstrainedIntegerT<T> >(cp);
+		const GConstrainedFPT<T> *p_load = GObject::conversion_cast<GConstrainedFPT<T> >(cp);
 
 		// Load our parent class'es data ...
 		GConstrainedNumT<T>::load_(cp);
@@ -337,24 +423,11 @@ protected:
 	 */
 	virtual void randomInit_() {
 		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL> gr;
-		setValue(gr.uniform_int(GConstrainedNumT<T>::getLowerBoundary(), GConstrainedNumT<T>::getUpperBoundary()));
+		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
+		setValue(gr.uniform_real(GConstrainedNumT<T>::getLowerBoundary(), GConstrainedNumT<T>::getUpperBoundary()));
 	}
 
 private:
-	/****************************************************************************/
-	/**
-	 * Reverts the value to descending order. Note: No check is made whether the value
-	 * is indeed in the allowed region.
-	 *
-	 * @param value The value to be reverted
-	 * @return The reverted value
-	 */
-	T revert(const T& value) const {
-		T position = value - GConstrainedNumT<T>::getLowerBoundary();
-		T reverted = GConstrainedNumT<T>::getUpperBoundary() - position;
-		return reverted;
-	}
 
 #ifdef GENEVATESTING
 public:
@@ -378,43 +451,8 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL, double, T> gr;
-
 		// Call the parent classes' functions
 		GConstrainedNumT<T>::specificTestsNoFailureExpected_GUnitTests();
-
-		// Clone the current object, so we can always recover from failures
-		boost::shared_ptr<GConstrainedIntegerT<T> > p = this->GObject::clone<GConstrainedIntegerT<T> >();
-
-		// Make sure we start with the maximum range
-		p->resetBoundaries();
-
-		const T minLower = -50;
-		const T maxLower =  50;
-		const T minUpper =  25; // Allow some overlap
-		const T maxUpper = 125;
-
-		// Check a number of times that the transfer function only returns items
-		// in the allowed value range
-		for(std::size_t i=0; i<100; i++) {
-			T lowerBoundary = gr.uniform_int(minLower, maxLower);
-			T upperBoundary;
-			while((upperBoundary = gr.uniform_int(minUpper, maxUpper)) <= lowerBoundary);
-
-			p->setValue(lowerBoundary);
-			p->setBoundaries(lowerBoundary, upperBoundary);
-
-			// Check that there are no values outside of the allowed range
-			for(std::size_t j=0; j<1000; j++) {
-				T probe = gr.uniform_int(-10000, 10000);
-				T mapping = p->transfer(probe);
-				BOOST_CHECK(mapping >= lowerBoundary && mapping <= upperBoundary);
-			}
-
-			// Make sure we start again with the maximum range
-			p->resetBoundaries();
-		}
 	}
 
 	/****************************************************************************/
@@ -438,10 +476,10 @@ public:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::Geneva::GConstrainedIntegerT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GConstrainedFPT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::Geneva::GConstrainedIntegerT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GConstrainedFPT<T> > : public boost::true_type {};
 	}
 }
 
-#endif /* GCONSTRAINEDINTEGERT_HPP_ */
+#endif /* GCONSTRAINEDFPT_HPP_ */

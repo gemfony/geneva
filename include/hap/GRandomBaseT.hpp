@@ -72,6 +72,7 @@
 
 
 // Hap headers go here
+#include "common/GMathHelperFunctions.hpp"
 #include "GHapEnums.hpp"
 #include "GRandomDefines.hpp"
 #include "GRandomFactory.hpp"
@@ -217,6 +218,8 @@ public:
 	fp_type normal_distribution(
 			typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	) {
+		using namespace Gem::Common;
+
 		if(gaussCacheAvailable_) {
 			gaussCacheAvailable_ = false;
 			return gaussCache_;
@@ -225,9 +228,9 @@ public:
 #ifdef USEBOXMULLER
 			fp_type rnr1 = uniform_01();
 			fp_type rnr2 = uniform_01();
-			gaussCache_ = sqrt(fabs(-2. * std::log(1. - rnr1))) * cos(2. * M_PI	* rnr2);
+			gaussCache_ = GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GCos(2. * M_PI	* rnr2);
 			gaussCacheAvailable_ = true;
-			return sqrt(fabs(-2. * std::log(1. - rnr1))) * sin(2. * M_PI	* rnr2);
+			return GSqrt(GFabs(-2. * GLog(1. - rnr1))) * GSin(2. * M_PI	* rnr2);
 #else // USEBOXMULLERPOLAR, see here: http://de.wikipedia.org/wiki/Normalverteilung#Polar-Methode ; faster than USEBOXMULLER
 			fp_type q, u1, u2;
 	        do {
@@ -235,7 +238,7 @@ public:
 	        	u2 = 2.* uniform_01() - 1.;
 	        	q = u1*u1 + u2*u2;
 	        } while (q > 1.0);
-	        q = sqrt((-2.*std::log(q))/q);
+	        q = GSqrt((-2.*GLog(q))/q);
 	        gaussCache_ = u2 * q;
 	        gaussCacheAvailable_ = true;
 			return u1 * q;

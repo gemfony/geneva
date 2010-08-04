@@ -38,6 +38,7 @@ SET ( GENEVACOMMONINCLUDES
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
 	GHelperFunctionsT.hpp
+	GMathHelperFunctions.hpp
 	GPODExpectationChecksT.hpp
 	GSerializationHelperFunctionsT.hpp
 	GSingletonT.hpp

@@ -152,7 +152,7 @@ public:
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		if(!valIsCompatibleWithLower(val, lowerBoundary_) || !valIsCompatibleWithUpper(val, upperBoundary_)) {
+		if(val < lowerBoundary_ || val > upperBoundary_) {
 			std::ostringstream error;
 			error << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper): Error!" << std::endl
 				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
@@ -326,7 +326,7 @@ public:
 		}
 
 		// Check that the value is inside the allowed range
-		if(!valIsCompatibleWithLower(currentValue, lower) || !valIsCompatibleWithUpper(currentValue, upper)){
+		if(currentValue < lower || currentValue > upper){
 			std::ostringstream error;
 			error << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) : Error!" << std::endl
 				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
@@ -357,9 +357,9 @@ public:
 	 */
 	virtual void setValue(const T& val)  {
 		// Do some error checking
-		if(!valIsCompatibleWithLower(val, lowerBoundary_) || !valIsCompatibleWithUpper(val, upperBoundary_)) {
+		if(val < lowerBoundary_ || val > upperBoundary_) {
 			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper): Error!" << std::endl
+			error << "In GConstrainedNumT<T>::setValue(val): Error!" << std::endl
 				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
 				  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
 				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
@@ -395,7 +395,7 @@ public:
 		upperBoundary_ = upperBoundary;
 
 		// Is the desired new value in the allowed range ?
-		if(!valIsCompatibleWithLower(val, lowerBoundary_) || !valIsCompatibleWithUpper(val, upperBoundary_)) {
+		if(val < lowerBoundary_ || val > upperBoundary_) {
 			std::ostringstream error;
 			error << "In GConstrainedNumT<T>::setValue(val,lower,upper): Error!" << std::endl
 				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
@@ -451,30 +451,6 @@ protected:
 		// ... and then our own
 		lowerBoundary_ = p_load->lowerBoundary_;
 		upperBoundary_ = p_load->upperBoundary_;
-	}
-
-	/****************************************************************************/
-	/**
-	 * Checks whether a given value is compatible with the lower boundary.
-	 *
-	 * @param value The value to check against the lower boundary
-	 * @return A boolean which indicates whether the value is compatible with the lower boundary
-	 */
-	virtual bool valIsCompatibleWithLower(const T& value, const T& lowerBoundary) const {
-		return (value >= lowerBoundary);
-	}
-
-	/****************************************************************************/
-	/**
-	 * Checks whether a given value is compatible with the upper boundary. E.g.
-	 * for floating-point values it may be useful to use < instead of <= for the
-	 * comparison.
-	 *
-	 * @param value The value to check against the upper boundary
-	 * @return A boolean which indicates whether the value is compatible with the upper boundary
-	 */
-	virtual bool valIsCompatibleWithUpper(const T& value, const T& upperBoundary) const {
-		return (value <= upperBoundary);
 	}
 
 	/****************************************************************************/

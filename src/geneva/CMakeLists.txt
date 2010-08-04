@@ -9,6 +9,7 @@ SET ( OPTIMIZATIONSOURCES
 	GBoundedDoubleCollection
 	GBoundedNumT
 	GBrokerEA
+	GConstrainedDouble
 	GConstrainedInt32
 	GConstrainedInt32Collection
 	GDouble

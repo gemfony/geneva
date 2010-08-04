@@ -1,10 +1,19 @@
 //------------------------------------------------------------------------------------------------------
-Roadmap for Version 0.9, yet unnamed, release-date unknown
- - Full documentation.
- - Revision of broker infrastructure.
- - Implementation of a GBoundedDoubleWithGaps.
- - Get rid of self-initialized singletons, in favor of a GenevaInitialize/Finalize()
-   function.
+Wishlist for Version 0.9, yet unnamed, release-date unknown
+ - Full documentation
+ - Full test coverage
+ - Revision of broker infrastructure
+ - Implementation of swarm algorithms
+ - Implementation of a GBoundedDoubleWithGaps
+ - Get rid of self-initialized singletons, in favor of a GenevaInitialize/Finalize() function
+
+//------------------------------------------------------------------------------------------------------
+* Version 0.81, yet unnamed, release-date unknown
+
+The main changes for this release include:
+ - Renovated the GBoundedDouble and GBoundedInt32 classes, which are now named
+   GConstrainedDouble and GConstrainedInt32 and are based on generic fp and integer-aware
+   classes.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8, "Prevessin" - August 4, 2010
