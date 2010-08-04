@@ -37,7 +37,7 @@
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
-
+#include <boost/cast.hpp>
 
 #ifndef GEXTERNALEVALUATORENUMS_HPP_
 #define GEXTERNALEVALUATORENUMS_HPP_

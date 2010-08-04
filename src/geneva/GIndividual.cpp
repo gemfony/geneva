@@ -439,8 +439,9 @@ bool GIndividual::updateOnStall() {
 	bool updatePerformed = customUpdateOnStall();
 	if(updatePerformed) {
 		setDirtyFlag();
-		return true;
 	}
+
+	return updatePerformed;
 }
 
 /************************************************************************************************************/
