@@ -111,7 +111,7 @@ public:
 	 *
 	 * @param val The desired external value of this object
 	 */
-	GConstrainedNumT(const T& val)
+	explicit GConstrainedNumT(const T& val)
 		: GParameterT<T>(val)
 		, lowerBoundary_(-std::numeric_limits<T>::max())
 		, upperBoundary_( std::numeric_limits<T>::max())

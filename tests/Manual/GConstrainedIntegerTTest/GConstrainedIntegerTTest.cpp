@@ -48,7 +48,7 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
-#include "geneva/GConstrainedIntegerT.hpp"
+#include "geneva/GConstrainedInt32.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 
 using namespace Gem::Geneva;
@@ -57,8 +57,8 @@ using namespace boost;
 const boost::uint32_t NTESTS=10000;
 
 int main(int argc, char **argv){
-	GConstrainedIntegerT<boost::int32_t> gint13(-1, 3); // lower boundary -1, upper Boundary 3
-	GConstrainedIntegerT<boost::int32_t> gint02(0, 2); // lower boundary 0.5, upper Boundary 2
+	GConstrainedInt32 gint13(-1, 3); // lower boundary -1, upper Boundary 3
+	GConstrainedInt32 gint02(0, 2); // lower boundary 0.5, upper Boundary 2
 
 	double internalValue = 0., externalValue = 0.;
 
@@ -104,8 +104,9 @@ int main(int argc, char **argv){
 		std::terminate();
 	}
 
-	// TODO: Check, warum geht operator=(0) nicht ???
-	gint13.setValue(0); // We can assign a value inside of the allowed value range
+	// TODO: Check, warum geht operator=(0) nicht ??? Danach ist der Adaptor weg ...
+	// gint13.setValue(0); // We can assign a value inside of the allowed value range
+	gint13 = 0;
 
 	for(boost::uint32_t i=0; i<NTESTS; i++){
 		// Check that an adaptor is actually present
@@ -150,7 +151,7 @@ int main(int argc, char **argv){
 		    << "  TPaveText *pt = new TPaveText(0.349138,0.872881,0.637931,0.963983,\"blNDC\");" << std::endl
 		    << "  pt->SetBorderSize(2);" << std::endl
 		    << "  pt->SetFillColor(19);" << std::endl
-		    << "  pt->AddText(\"Test of the GConstrainedIntegerT<boost::int32_t> class\");" << std::endl
+		    << "  pt->AddText(\"Test of the GConstrainedInt32 class\");" << std::endl
 		    << "  pt->Draw();" << std::endl
 	        << "}" << std::endl;
 

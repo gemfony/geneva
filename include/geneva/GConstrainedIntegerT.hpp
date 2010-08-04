@@ -108,7 +108,7 @@ public:
 	 *
 	 * @param val The desired external value of this object
 	 */
-	GConstrainedIntegerT(const T& val)
+	explicit GConstrainedIntegerT(const T& val)
 		: GConstrainedNumT<T>(val)
 	{ /* nothing */	}
 
@@ -164,6 +164,18 @@ public:
 	const GConstrainedIntegerT<T>& operator=(const GConstrainedIntegerT<T>& cp) {
 		GConstrainedIntegerT<T>::load_(&cp);
 		return *this;
+	}
+
+	/****************************************************************************/
+	/**
+	 * A standard assignment operator for T values. Note that this function
+	 * will throw an exception if the new value is not in the allowed value range.
+	 *
+	 * @param The desired new external value
+	 * @return The new external value of this object
+	 */
+	virtual T operator=(const T& val) {
+		return GConstrainedNumT<T>::operator=(val);
 	}
 
 	/****************************************************************************/
@@ -316,12 +328,8 @@ protected:
 	}
 
 	/****************************************************************************/
-	/**
-	 * Create a deep copy of this object
-	 */
-	virtual GObject *clone_() const {
-		return new GConstrainedIntegerT<T>(*this);
-	}
+	/** @brief Create a deep copy of this object */
+	virtual GObject *clone_() const = 0;
 
 	/****************************************************************************/
 	/**

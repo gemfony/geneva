@@ -11,6 +11,7 @@ SET ( OPTIMIZATIONSOURCES
 	GBoundedInt32Collection
 	GBoundedNumT
 	GBrokerEA
+	GConstrainedInt32
 	GDouble
 	GDoubleCollection
 	GDoubleGaussAdaptor

@@ -12,6 +12,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GBoundedInt32Collection.hpp
 	GBoundedNumT.hpp
 	GBrokerEA.hpp
+	GConstrainedInt32.hpp
 	GConstrainedIntegerT.hpp
 	GConstrainedNumT.hpp
 	GDouble.hpp
