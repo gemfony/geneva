@@ -33,7 +33,7 @@
  * argument of the iterator, only derived1 or derived2 objects are returned
  * (converted from the base object). The intention is to use this technique
  * to select different GParameterBase-derivatives in individuals
- * (e.g. "give me all GBoundedDoubleCollection objects!").
+ * (e.g. "give me all GConstrainedDoubleCollection objects!").
  *
  * Compile with a command line similar to
  * g++ -g -I/opt/boost141/include/ -o conversionIterator conversionIterator.cpp

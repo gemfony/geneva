@@ -55,10 +55,11 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "geneva/GBoundedDouble.hpp"
-#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GConstrainedDouble.hpp"
+#include "geneva/GConstrainedDoubleCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "hap/GRandomT.hpp"
 
 namespace Gem
 {
@@ -70,7 +71,8 @@ namespace Geneva
  * It is part of a complete example that lets users adapt their optimization
  * problems more easily to the Geneva conventions.
  */
-class GStartIndividual :public GParameterSet
+class GStartIndividual
+	:public GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -99,28 +101,29 @@ public:
 	 */
 	GStartIndividual(const std::size_t& dim,
 			const double& min,
-			const double& max)
-	:GParameterSet()
+			const double& max) :GParameterSet()
 	 {
-		// Set up a GBoundedDoubleCollection
-		boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL> gr;
+
+		// Set up a GConstrainedDoubleCollection
+		boost::shared_ptr<GConstrainedDoubleCollection> gbdc_ptr(new GConstrainedDoubleCollection());
 
 		// Create a suitable adaptor (sigma=0.1, sigma-adaption=0.5, min sigma=0, max sigma=0,5)
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 0.5));
 		gdga_ptr->setAdaptionThreshold(1); // Adaption parameters are adapted after each adaption
-		gdga_ptr->setRnrGenerationMode(Gem::Hap::RNRFACTORY); // Random number generation in the factory
 		gdga_ptr->setAdaptionProbability(0.05); // The likelihood for a parameter to be adapted
 
 		// Register the adaptor with the collection. You could also add individual adaptors
-		// to the GBoundedDouble objects below.
+		// to the GConstrainedDouble objects below.
 		gbdc_ptr->addAdaptor(gdga_ptr);
 
 		// Add bounded double objects
 		for(std::size_t i=0; i<dim; i++) {
-			// GBoundedDouble will start with random values in the range [min:max]
-			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(min, max) );
+			// GConstrainedDouble will start with random values in the range [min:max]
+			boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(gr.uniform_real(min, max), min, max) );
 
-			// Add a GBoundedDouble object to the collection
+			// Add a GConstrainedDouble object to the collection
 			gbdc_ptr->push_back(gbd_ptr);
 		}
 
@@ -175,7 +178,7 @@ protected:
 	 */
 	virtual void load_(const GObject* cp)
 	{
-		// Check that we are indeed dealing with a GBoundedNumT<T> reference
+		// Check that we are indeed dealing with a GStartIndividual reference
 		const GStartIndividual *p_load = GObject::conversion_cast<GStartIndividual>(cp);
 
 		// Load our parent's data
@@ -196,7 +199,7 @@ protected:
 
 		// Extract the GDoubleCollection object. In a realistic scenario, you might want
 		// to add error checks here upon first invocation.
-		boost::shared_ptr<GBoundedDoubleCollection> vC = pc_at<GBoundedDoubleCollection>(0);
+		boost::shared_ptr<GConstrainedDoubleCollection> vC = pc_at<GConstrainedDoubleCollection>(0);
 
 		// Calculate the value of the parabola
 		for(std::size_t i=0; i<vC->size(); i++)  {

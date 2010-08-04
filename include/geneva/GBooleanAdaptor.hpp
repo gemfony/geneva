@@ -49,7 +49,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GAdaptorT.hpp"
-#include "GBoundedDouble.hpp"
+#include "GConstrainedDouble.hpp"
 #include "GIntFlipAdaptorT.hpp"
 #include "GObject.hpp"
 #include "GObjectExpectationChecksT.hpp"

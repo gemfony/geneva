@@ -423,7 +423,7 @@ public:
 	/****************************************************************************/
 	/**
 	 * Retrieves GParameterT<T>'s internal value. Added here for compatibility
-	 * with GBoundedNumT<T>.
+	 * reasons.
 	 */
 	T getInternalValue() const {
 		return GParameterT<T>::value();

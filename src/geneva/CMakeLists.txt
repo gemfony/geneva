@@ -5,11 +5,9 @@ SET ( OPTIMIZATIONSOURCES
 	GBoolean
 	GBooleanCollection
 	GBooleanObjectCollection
-	GBoundedDouble
-	GBoundedDoubleCollection
-	GBoundedNumT
 	GBrokerEA
 	GConstrainedDouble
+	GConstrainedDoubleCollection
 	GConstrainedInt32
 	GConstrainedInt32Collection
 	GDouble

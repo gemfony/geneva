@@ -63,7 +63,7 @@ namespace Geneva {
  * The reason for this class is that there might be applications where one might want different
  * adaptor characteristics for different values. This cannot be done with a GInt32Collection.
  * Plus, having a separate integer class adds some consistency to Geneva, as other values
- * (most notably doubles) have their own class as well (GBoundedDouble, GDouble).
+ * (most notably doubles) have their own class as well (GConstrainedDouble, GDouble).
  */
 class GInt32
 	:public GNumT<boost::int32_t>

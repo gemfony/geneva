@@ -1,5 +1,5 @@
 /**
- * @file GBoundedDouble.hpp
+ * @file GConstrainedDoubleCollection.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,24 +27,22 @@
  * http://www.gemfony.com .
  */
 
-// Standard headers go here
-#include <vector>
+
+// Standard header files go here
 #include <sstream>
-#include <cmath>
+#include <vector>
+#include <algorithm>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
 
-// Boost headers go here
+// Boost header files go here
 
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
-#include <boost/cast.hpp> // For boost::numeric_cast<>
-#include <boost/optional.hpp>
 
-#ifndef GBOUNDEDDOUBLE_HPP_
-#define GBOUNDEDDOUBLE_HPP_
+#ifndef GCONSTRAINEDDOUBLECOLLECTION_HPP_
+#define GCONSTRAINEDDOUBLECOLLECTION_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -52,22 +50,20 @@
 #endif
 
 
-// Geneva headers go here
-#include "GBoundedNumT.hpp"
+// Geneva header files go here
+#include "GConstrainedDouble.hpp"
+#include "GParameterTCollectionT.hpp"
 
-namespace Gem
-{
-namespace Geneva
-{
+namespace Gem {
+namespace Geneva {
 
-  /******************************************************************************/
-  /**
-   * The GBoundedDouble class allows to limit the value range of a double value,
-   * while applying adaptions to a continuous range. This is done by means of a
-   * mapping from an internal representation to an externally visible value.
-   */
-class GBoundedDouble
-	:public GBoundedNumT<double>
+/*************************************************************************/
+/**
+ * A collection of GConstrainedDouble objects, ready for use in a
+ * GParameterSet derivative.
+ */
+class GConstrainedDoubleCollection
+	:public GParameterTCollectionT<GConstrainedDouble>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -76,34 +72,26 @@ class GBoundedDouble
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GBoundedNumT_double", boost::serialization::base_object<GBoundedNumT<double> >(*this));
+	  ar & make_nvp("GParameterTCollectionT_gbd",
+			  boost::serialization::base_object<GParameterTCollectionT<GConstrainedDouble> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GBoundedDouble();
-	/** @brief Initialization with boundaries only */
-	GBoundedDouble(const double&, const double&);
-	/** @brief Initialization with value and boundaries */
-	GBoundedDouble(const double&, const double&, const double&);
+	GConstrainedDoubleCollection();
 	/** @brief The copy constructor */
-	GBoundedDouble(const GBoundedDouble&);
-	/** @brief Initialization by contained value */
-	explicit GBoundedDouble(const double&);
+	GConstrainedDoubleCollection(const GConstrainedDoubleCollection&);
 	/** @brief The destructor */
-	virtual ~GBoundedDouble();
-
-	/** @brief An assignment operator */
-	virtual double operator=(const double&);
+	virtual ~GConstrainedDoubleCollection();
 
 	/** @brief A standard assignment operator */
-	const GBoundedDouble& operator=(const GBoundedDouble&);
+	const GConstrainedDoubleCollection& operator=(const GConstrainedDoubleCollection&);
 
-	/** @brief Checks for equality with another GBoundedDouble object */
-	bool operator==(const GBoundedDouble&) const;
-	/** @brief Checks for inequality with another GBoundedDouble object */
-	bool operator!=(const GBoundedDouble&) const;
+	/** @brief Checks for equality with another GConstrainedDoubleCollection object */
+	bool operator==(const GConstrainedDoubleCollection&) const;
+	/** @brief Checks for inequality with another GConstrainedDoubleCollection object */
+	bool operator!=(const GConstrainedDoubleCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
@@ -122,18 +110,11 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
-
-	/** @brief Triggers random initialization of the parameter object */
-	virtual void randomInit_();
-	/** @brief Initializes double-based parameters with a given value */
-	virtual void fixedValueInit_(const double&);
-	/** @brief Multiplies double-based parameters with a given value */
-	virtual void multiplyBy_(const double&);
 };
 
-  /******************************************************************************/
+/*************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GBOUNDEDDOUBLE_HPP_ */
+#endif /* GCONSTRAINEDDOUBLECOLLECTION_HPP_ */

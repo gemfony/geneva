@@ -64,7 +64,7 @@ namespace Geneva {
  * of individual values that can be modified with adaptors, however, it assumes that
  * the objects stored in it have their own adapt() function. This class has been designed
  * as a collection of GParameterT objects, hence the name.  As an example, one can create a
- * collection of GBoundedDouble objects with this class rather than a simple GDoubleCollection.
+ * collection of GConstrainedDouble objects with this class rather than a simple GDoubleCollection.
  * In order to facilitate memory management, the GParameterT objects are stored
  * in boost::shared_ptr objects.
  */

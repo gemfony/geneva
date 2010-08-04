@@ -59,12 +59,12 @@
 #include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GDouble.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GBoundedDouble.hpp"
+#include "geneva/GConstrainedDouble.hpp"
 #include "geneva/GConstrainedInt32.hpp"
 #include "geneva/GDouble.hpp"
 #include "geneva/GInt32.hpp"
 #include "geneva/GBoolean.hpp"
-#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GConstrainedDoubleCollection.hpp"
 #include "geneva/GConstrainedInt32Collection.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GBooleanObjectCollection.hpp"
@@ -88,10 +88,10 @@ boost::shared_ptr<typename T::collection_type> getTemplateItemNoAdaptor() {
 	return boost::shared_ptr<typename T::collection_type>(new typename T::collection_type(0));
 }
 
-// Specialization for GBoundedDouble
+// Specialization for GConstrainedDouble
 template <>
-boost::shared_ptr<GBoundedDouble> getTemplateItemNoAdaptor<GBoundedDoubleCollection>() {
-	return boost::shared_ptr<GBoundedDouble>(new GBoundedDouble(0.,0.,1.));
+boost::shared_ptr<GConstrainedDouble> getTemplateItemNoAdaptor<GConstrainedDoubleCollection>() {
+	return boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(0.,0.,1.));
 }
 
 // Specialization for GConstrainedInt32
@@ -108,10 +108,10 @@ boost::shared_ptr<typename T::collection_type> getFindItemNoAdaptor() {
 	return boost::shared_ptr<typename T::collection_type>(new typename T::collection_type(1));
 }
 
-// Specialization for GBoundedDouble
+// Specialization for GConstrainedDouble
 template <>
-boost::shared_ptr<GBoundedDouble> getFindItemNoAdaptor<GBoundedDoubleCollection>() {
-	return boost::shared_ptr<GBoundedDouble>(new GBoundedDouble(1.,0.,1.));
+boost::shared_ptr<GConstrainedDouble> getFindItemNoAdaptor<GConstrainedDoubleCollection>() {
+	return boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(1.,0.,1.));
 }
 
 // Specialization for GConstrainedInt32
@@ -133,10 +133,10 @@ boost::shared_ptr<typename T::collection_type> getTemplateItem() {
 	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 
-// Specialization for GBoundedDouble
+// Specialization for GConstrainedDouble
 template <>
-boost::shared_ptr<GBoundedDouble> getTemplateItem<GBoundedDoubleCollection>() {
-	boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(0.,0.,1.));
+boost::shared_ptr<GConstrainedDouble> getTemplateItem<GConstrainedDoubleCollection>() {
+	boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(0.,0.,1.));
 	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
 	return gbd_ptr;
 }
@@ -185,10 +185,10 @@ boost::shared_ptr<typename T::collection_type> getFindItem() {
 	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 
-// Specialization for GBoundedDouble
+// Specialization for GConstrainedDouble
 template <>
-boost::shared_ptr<GBoundedDouble> getFindItem<GBoundedDoubleCollection>() {
-	boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(1.,0.,1.));
+boost::shared_ptr<GConstrainedDouble> getFindItem<GConstrainedDoubleCollection>() {
+	boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(1.,0.,1.));
 	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
 	return gbd_ptr;
 }
@@ -360,11 +360,11 @@ class GParameterTCollectionTSuite: public test_suite
 public:
 	/***********************************************************************************/
 	GParameterTCollectionTSuite() :test_suite("GParameterTCollectionTSuite") {
-		// typedef boost::mpl::list<GDouble, GBoundedDouble, GInt32, GBoolean> test_types;
+		// typedef boost::mpl::list<GDouble, GConstrainedDouble, GInt32, GBoolean> test_types;
 		typedef boost::mpl::list<GDoubleObjectCollection,
 						         GInt32ObjectCollection,
 						         GBooleanObjectCollection,
-						         GBoundedDoubleCollection,
+						         GConstrainedDoubleCollection,
 						         GConstrainedInt32Collection> test_types;
 
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, test_types ) );

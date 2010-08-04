@@ -1,5 +1,5 @@
 /**
- * @file GBoundedDouble_test.cpp
+ * @file GConstrainedDouble_test.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -45,7 +45,7 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
-#include "geneva/GBoundedDouble.hpp"
+#include "geneva/GConstrainedDouble.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
@@ -57,22 +57,22 @@ using boost::unit_test_framework::test_case;
 
 /********************************************************************************************/
 // The actual unit tests for this class
-class GBoundedDouble_test {
+class GConstrainedDouble_test {
 public:
 	/***********************************************************************************/
 	// Test features that are expected to work
 	void no_failure_expected() {
 		// Prepare printing of error messages in object comparisons
-		GEqualityPrinter gep("GBoundedDouble_test::no_failure_expected()",
+		GEqualityPrinter gep("GConstrainedDouble_test::no_failure_expected()",
 							 pow(10,-10),
 							 Gem::Common::CE_WITH_MESSAGES);
 
 		// Test instantiation in different modes
-		GBoundedDouble gbd0;
-		GBoundedDouble gbd1(-10,10);
-		GBoundedDouble gbd2(1.,-10,10);
-		GBoundedDouble gbd7(3); // has maximum boundaries
-		GBoundedDouble gbd3(gbd2);
+		GConstrainedDouble gbd0;
+		GConstrainedDouble gbd1(-10,10);
+		GConstrainedDouble gbd2(1.,-10,10);
+		GConstrainedDouble gbd7(3); // has maximum boundaries
+		GConstrainedDouble gbd3(gbd2);
 
 		BOOST_CHECK(gbd3 == gbd2);
 		BOOST_CHECK(gbd2 != gbd1);
@@ -84,7 +84,7 @@ public:
 		const std::size_t NCHECKS=10000;
 		for(std::size_t i=0; i<NCHECKS; i++) {
 			double in=-5000.+10000.*double(i)/double(NCHECKS), out = 0.;
-			BOOST_CHECK_NO_THROW(out = gbd7.calculateExternalValue(in));
+			BOOST_CHECK_NO_THROW(out = gbd7.transfer(in));
 			BOOST_CHECK(in==out);
 		}
 		// Try resetting the boundaries to a finite value (which includes the current external value)
@@ -93,7 +93,7 @@ public:
 		BOOST_CHECK_NO_THROW(gbd7.setBoundaries(-10.,10.));
 
 		// (Repeated) assignment
-		GBoundedDouble gbd3_2;
+		GConstrainedDouble gbd3_2;
 		gbd3_2 = gbd3 = gbd0;
 		BOOST_CHECK(gbd3 != gbd2);
 		BOOST_CHECK(gbd3 == gbd0);
@@ -101,7 +101,7 @@ public:
 		BOOST_CHECK(gbd3_2 == gbd0);
 
 		// Cloning and loading
-		GBoundedDouble gbd5;
+		GConstrainedDouble gbd5;
 		{
 		   boost::shared_ptr<GObject> gbd4;
 		   BOOST_CHECK_NO_THROW(gbd4 = gbd3.GObject::clone());
@@ -149,8 +149,8 @@ public:
 		// Test serialization and loading in different serialization modes
 		{ // plain text format
 			// Copy construction of a new object
-			GBoundedDouble gbd6(0.,-10.,10.);
-			GBoundedDouble gbd6_cp(gbd6);
+			GConstrainedDouble gbd6(0.,-10.,10.);
+			GConstrainedDouble gbd6_cp(gbd6);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gbd6_cp == gbd6);
@@ -166,8 +166,8 @@ public:
 
 		{ // XML format
 			// Copy construction of a new object
-			GBoundedDouble gbd6(0.,-10.,10.);
-			GBoundedDouble gbd6_cp(gbd6);
+			GConstrainedDouble gbd6(0.,-10.,10.);
+			GConstrainedDouble gbd6_cp(gbd6);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gbd6_cp == gbd6);
@@ -183,8 +183,8 @@ public:
 
 		{ // binary test format
 			// Copy construction of a new object
-			GBoundedDouble gbd6(0.,-10.,10.);
-			GBoundedDouble gbd6_cp(gbd6);
+			GConstrainedDouble gbd6(0.,-10.,10.);
+			GConstrainedDouble gbd6_cp(gbd6);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gbd6_cp == gbd6);
@@ -204,20 +204,20 @@ public:
 	void failures_expected() {
 		// Assignment of value outside of the allowed range
 		{
-			GBoundedDouble gbd(-10,10.);
+			GConstrainedDouble gbd(-10,10.);
 			BOOST_CHECK_THROW(gbd=11., Gem::Common::gemfony_error_condition);
 		}
 
 		// Setting boundaries so that the value lies outside of the new boundaries should throw
 		{
-			GBoundedDouble gbd(10); // Has boundaries -DBL_MAX, DBL_MAX
+			GConstrainedDouble gbd(10); // Has boundaries -DBL_MAX, DBL_MAX
 			BOOST_CHECK_THROW(gbd.setBoundaries(-7, 7), Gem::Common::gemfony_error_condition);
 		}
 
 #ifdef DEBUG
 		// Self assignment should throw in DEBUG mode
 		{
-			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(-10,10.));
+			boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(-10,10.));
 			BOOST_CHECK_THROW(gbd_ptr->load(gbd_ptr), Gem::Common::gemfony_error_condition);
 		}
 #endif /* DEBUG */
@@ -229,17 +229,17 @@ private:
 };
 
 /********************************************************************************************/
-// Test features of the the GBoundedDouble class. Please also have a look at the manual test,
+// Test features of the the GConstrainedDouble class. Please also have a look at the manual test,
 // as it gives a graphical representation of the mapping.
-class GBoundedDoubleSuite: public test_suite
+class GConstrainedDoubleSuite: public test_suite
 {
 public:
-	GBoundedDoubleSuite() :test_suite("GBoundedDoubleSuite") {
+	GConstrainedDoubleSuite() :test_suite("GConstrainedDoubleSuite") {
 	  // create an instance of the test cases class
-	  boost::shared_ptr<GBoundedDouble_test> instance(new GBoundedDouble_test());
+	  boost::shared_ptr<GConstrainedDouble_test> instance(new GConstrainedDouble_test());
 
-	  test_case* no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GBoundedDouble_test::no_failure_expected, instance);
-	  test_case* failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GBoundedDouble_test::failures_expected, instance);
+	  test_case* no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GConstrainedDouble_test::no_failure_expected, instance);
+	  test_case* failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GConstrainedDouble_test::failures_expected, instance);
 
 	  add(no_failure_expected_test_case);
 	  add(failures_expected_test_case);

@@ -108,7 +108,7 @@ public:
 		seed2 = gr2.getSeed();
 		BOOST_CHECK_MESSAGE(seed1 != seed2, "Error: Found equal seeds: " << seed1 << " " << seed2);
 
-		// Check that we can set gr3's production flags and can prouce a number of random numbers
+		// Check that we can set gr3's production flags and can produce a number of random numbers
 		gr3.setRNRFactoryMode();
 		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Hap::RNRFACTORY);
 		double last = -1., now=0.;

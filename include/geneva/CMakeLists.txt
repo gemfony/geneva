@@ -6,11 +6,9 @@ SET ( OPTIMIZATIONINCLUDES
 	GBoolean.hpp
 	GBooleanCollection.hpp
 	GBooleanObjectCollection.hpp
-	GBoundedDouble.hpp
-	GBoundedDoubleCollection.hpp
-	GBoundedNumT.hpp
 	GBrokerEA.hpp
 	GConstrainedDouble.hpp
+	GConstrainedDoubleCollection.hpp
 	GConstrainedFPT.hpp
 	GConstrainedInt32.hpp
 	GConstrainedInt32Collection.hpp

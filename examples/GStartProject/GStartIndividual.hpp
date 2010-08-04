@@ -56,10 +56,11 @@
 #endif
 
 // Geneva header files go here
+#include "hap/GRandomT.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "geneva/GBoundedDouble.hpp"
-#include "geneva/GBoundedDoubleCollection.hpp"
+#include "geneva/GConstrainedDouble.hpp"
+#include "geneva/GConstrainedDoubleCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GObjectExpectationChecksT.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
@@ -113,24 +114,27 @@ public:
 			const double& max)
 		: GParameterSet()
 	  {
-		// Set up a GBoundedDoubleCollection
-		// boost::shared_ptr<GBoundedDoubleCollection> gbdc_ptr(new GBoundedDoubleCollection());
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL> gr;
+
+		// Set up a GConstrainedDoubleCollection
+		// boost::shared_ptr<GConstrainedDoubleCollection> gbdc_ptr(new GConstrainedDoubleCollection());
 		// boost::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());
 
 		// Add bounded double objects
 		for(std::size_t i=0; i<dim; i++) {
-			// GBoundedDouble will start with random values in the range [min:max]
-			boost::shared_ptr<GBoundedDouble> gbd_ptr(new GBoundedDouble(min, max) );
+			// GConstrainedDouble will start with random values in the range [min:max]
+			boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(gr.uniform_real(min, max), min, max) );
 
 			// Create a suitable adaptor (sigma=0.1, sigma-adaption=0.5, min sigma=0, max sigma=0,5)
 			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 0.5));
 			gdga_ptr->setAdaptionThreshold(1); // Adaption parameters are modified after each adaption
 			gdga_ptr->setAdaptionProbability(0.05); // The likelihood for a parameter to be adapted
 
-			// Register the adaptor with GBoundedDouble objects
+			// Register the adaptor with GConstrainedDouble objects
 			gbd_ptr->addAdaptor(gdga_ptr);
 
-			// Add a GBoundedDouble object to the collection
+			// Add a GConstrainedDouble object to the collection
 			// gbdc_ptr->push_back(gbd_ptr);
 			// gpoc_ptr->push_back(gbd_ptr);
 			this->push_back(gbd_ptr);
@@ -344,10 +348,10 @@ protected:
 	virtual double fitnessCalculation(){
 		double result = 0.;
 
-		// Extract the GBoundedDoubleCollection object. In a realistic scenario, you might want
+		// Extract the GConstrainedDoubleCollection object. In a realistic scenario, you might want
 		// to add error checks here upon first invocation.
 		/*
-		boost::shared_ptr<GBoundedDoubleCollection> vC = pc_at<GBoundedDoubleCollection>(0);
+		boost::shared_ptr<GConstrainedDoubleCollection> vC = pc_at<GConstrainedDoubleCollection>(0);
 
 		// Calculate the value of the parabola
 		for(std::size_t i=0; i<vC->size(); i++)
@@ -355,8 +359,8 @@ protected:
 		 */
 
 		// boost::shared_ptr<GParameterObjectCollection> vC = pc_at<GParameterObjectCollection>(0);
-		// GParameterObjectCollection::conversion_iterator<GBoundedDouble> it(vC->end());
-		GStartIndividual::conversion_iterator<GBoundedDouble> it(this->end());
+		// GParameterObjectCollection::conversion_iterator<GConstrainedDouble> it(vC->end());
+		GStartIndividual::conversion_iterator<GConstrainedDouble> it(this->end());
 		// for(it=vC->begin(); it!=vC->end(); ++it) {
 		for(it=this->begin(); it!=this->end(); ++it) {
 			result += (*it)->value() * (*it)->value();
