@@ -101,7 +101,7 @@ SET (COMMUNICATION_LIBNAME "gemfony-courtier")
 IF ( BUILDTESTCODE )
 	SET ( OPTIMIZATION_LIBNAME "gemfony-geneva-testing" )
 ELSE()
-	SET ( OPTIMIZATION_LIBNAME "gemfony-optimization" )
+	SET ( OPTIMIZATION_LIBNAME "gemfony-geneva" )
 ENDIF()
 
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}

@@ -38,6 +38,7 @@
 // Boost headers go here
 
 #include <boost/cstdint.hpp>
+#include <boost/cast.hpp>
 
 #ifndef GCOMMONENUMS_HPP_
 #define GCOMMONENUMS_HPP_

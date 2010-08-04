@@ -201,7 +201,7 @@ public:
 		if(!pt_ptr_) {
 			std::ostringstream error;
 			error << "In GIndividual::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		boost::shared_ptr<personality_type> p = boost::dynamic_pointer_cast<personality_type>(pt_ptr_);
@@ -210,7 +210,7 @@ public:
 		else {
 			std::ostringstream error;
 			error << "In GIndividual::getPersonalityTraits<personality_type>() : Conversion error" << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #else
 		return boost::static_pointer_cast<personality_type>(pt_ptr_);

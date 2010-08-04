@@ -238,7 +238,7 @@ public:
 	virtual T transfer(const T& val) const {
 		// Find out the size of the confined area
 
-		if(val >= getLowerBoundary() && val <= getUpperBoundary()) {
+		if(val >= GConstrainedNumT<T>::getLowerBoundary() && val <= GConstrainedNumT<T>::getUpperBoundary()) {
 			return val;
 		}
 		else {
@@ -247,12 +247,12 @@ public:
 
 			// Find out the size of the value range. Note that both boundaries
 			// are included, so that we need to add 1 to the difference.
-			std::size_t value_range = getUpperBoundary() - getLowerBoundary() + 1;
+			std::size_t value_range = GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary() + 1;
 
-			if(val < getLowerBoundary()) {
+			if(val < GConstrainedNumT<T>::getLowerBoundary()) {
 				// Find out how many full value ranges val is below the lower boundary.
 				// We use integer division here, so 13/4 would be 3.
-				std::size_t nBelowLowerBoundary = (lowerBoundary_ - (val + 1)) / value_range;
+				std::size_t nBelowLowerBoundary = (GConstrainedNumT<T>::getLowerBoundary() - (val + 1)) / value_range;
 
 				// We are dealing with descending (nBelowLowerBoundary is even) and
 				// ascending ranges (nBelowLowerBoundary is odd), which need to be treated differently
@@ -271,7 +271,7 @@ public:
 			else { // val > getUpperBoundary()
 				// Find out how many full value ranges val is above the upper boundary.
 				// We use integer division here, so 13/4 would be 3.
-				std::size_t nAboveUpperBoundary = (val - upperBoundary - 1) / value_range;
+				std::size_t nAboveUpperBoundary = (val - GConstrainedNumT<T>::getUpperBoundary() - 1) / value_range;
 
 				// We are dealing with descending (nAboveUpperBoundary is even) and
 				// ascending ranges (nAboveUpperBoundary is odd), which need to be treated differently
@@ -292,7 +292,7 @@ public:
 			// GParameterT<T>. Resetting the internal value prevents divergence through
 			// extensive mutation and also speeds up the previous part of the transfer
 			// function
-			GConstrainedNumT<T>::setValue(mapping);
+			GParameterT<T>::setValue_(mapping);
 		}
 	}
 
@@ -314,8 +314,12 @@ protected:
 	}
 
 	/****************************************************************************/
-	/** Create a deep copy of this object -- Re-implement this in derived classes */
-	virtual GObject *clone_() const = 0;
+	/**
+	 * Create a deep copy of this object
+	 */
+	virtual GObject *clone_() const {
+		return new GConstrainedIntegerT<T>(*this);
+	}
 
 	/****************************************************************************/
 	/**
@@ -324,7 +328,7 @@ protected:
 	virtual void randomInit_() {
 		using namespace Gem::Hap;
 		GRandomT<RANDOMLOCAL> gr;
-		setValue(gr.uniform_int(lowerBoundary_, upperBoundary_));
+		setValue(gr.uniform_int(GConstrainedNumT<T>::getLowerBoundary(), GConstrainedNumT<T>::getUpperBoundary()));
 	}
 
 private:
@@ -336,8 +340,8 @@ private:
 	 * @param value The value to be reverted
 	 * @return The reverted value
 	 */
-	T revert(const T& value) {
-		return upperBoundary_ - value + 1;
+	T revert(const T& value) const {
+		return GConstrainedNumT<T>::getUpperBoundary() - value + 1;
 	}
 
 #ifdef GENEVATESTING

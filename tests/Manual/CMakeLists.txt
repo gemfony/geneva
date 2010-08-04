@@ -9,6 +9,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GConstrainedIntegerTTest
+)
+
+ADD_SUBDIRECTORY (
 	GRandomUsage
 )
 

@@ -201,7 +201,7 @@ public:
 			std::ostringstream error;
 			error << "In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() : Error!" << std::endl
 				  << "Tried to access individual at position 0 even though population is empty." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		boost::shared_ptr<individual_type> p = boost::dynamic_pointer_cast<individual_type>(data[0]);
@@ -210,7 +210,7 @@ public:
 		else {
 			std::ostringstream error;
 			error << "In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() : Conversion error!" << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #else
 		return boost::static_pointer_cast<individual_type>(data[0]);

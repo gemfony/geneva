@@ -1,5 +1,5 @@
 /**
- * @file GBoundedInt32Test.cpp
+ * @file GConstrainedIntegerTTest.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -28,11 +28,8 @@
  */
 
 /**
- * This test takes a GBoundedInt32 object and examines the mapping
- * from internal to external representation of its value. Further tests of
- * the underlying classes have been implemented through the GBoundedDouble
- * class as part of the unit tests. GBoundedInt32 and GBoundedDouble are
- * just typedefs of the same template class.
+ * This test takes a GConstrainedIntegerT<boost::int32_t> object and examines the mapping
+ * from internal to external representation of its value.
  *
  * In order to see the results of this test, you need the Root toolkit from http://root.cern.ch.
  * Once installed call "root -l mapping.C" .
@@ -51,7 +48,7 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
-#include "geneva/GBoundedInt32.hpp"
+#include "geneva/GConstrainedIntegerT.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 
 using namespace Gem::Geneva;
@@ -60,8 +57,8 @@ using namespace boost;
 const boost::uint32_t NTESTS=10000;
 
 int main(int argc, char **argv){
-	GBoundedInt32 gint13(-1, 3); // lower boundary -1, upper Boundary 3
-	GBoundedInt32 gint02(0, 2); // lower boundary 0.5, upper Boundary 2
+	GConstrainedIntegerT<boost::int32_t> gint13(-1, 3); // lower boundary -1, upper Boundary 3
+	GConstrainedIntegerT<boost::int32_t> gint02(0, 2); // lower boundary 0.5, upper Boundary 2
 
 	double internalValue = 0., externalValue = 0.;
 
@@ -81,7 +78,7 @@ int main(int argc, char **argv){
 	for(boost::uint32_t i=0; i<NTESTS; i++){
 		internalValue=-10.+20.*double(i)/double(NTESTS);
 
-		externalValue = double(gint13.calculateExternalValue(boost::int32_t(internalValue)));
+		externalValue = double(gint13.transfer(boost::int32_t(internalValue)));
 		mapping << "  x13[" << i << "] = " << internalValue << ";" << std::endl
 		        << "  y13[" << i << "] = " << externalValue << ";" << std::endl;
 	}
@@ -89,7 +86,7 @@ int main(int argc, char **argv){
 	for(boost::uint32_t i=0; i<NTESTS; i++){
 		internalValue=-10.+20.*double(i)/double(NTESTS);
 
-		externalValue = double(gint02.calculateExternalValue(boost::int32_t(internalValue)));
+		externalValue = double(gint02.transfer(boost::int32_t(internalValue)));
 		mapping << "  x02[" << i << "] = " << internalValue << ";" << std::endl
 		        << "  y02[" << i << "] = " << externalValue << ";" << std::endl;
 	}
@@ -97,7 +94,7 @@ int main(int argc, char **argv){
 	// Set up and register an adaptor for gint13, so it
 	// knows how to be adapted. We want a sigma of 0.5, sigma-adaption of 0.8 and
 	// a minimum sigma of 0.02. The adaptor will be deleted automatically by the
-	// GBoundedInt32.
+	// GConstrainedIntegerT<boost::int32_t>.
 	boost::shared_ptr<GInt32GaussAdaptor> gdga(new GInt32GaussAdaptor(0.5,0.8,0.02,2.));
 	gint13.addAdaptor(gdga);
 
@@ -139,7 +136,7 @@ int main(int argc, char **argv){
 		    << "  TPaveText *pt = new TPaveText(0.349138,0.872881,0.637931,0.963983,\"blNDC\");" << std::endl
 		    << "  pt->SetBorderSize(2);" << std::endl
 		    << "  pt->SetFillColor(19);" << std::endl
-		    << "  pt->AddText(\"Test of the GBoundedInt32 class\");" << std::endl
+		    << "  pt->AddText(\"Test of the GConstrainedIntegerT<boost::int32_t> class\");" << std::endl
 		    << "  pt->Draw();" << std::endl
 	        << "}" << std::endl;
 

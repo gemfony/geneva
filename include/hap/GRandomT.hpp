@@ -130,9 +130,9 @@ public:
 	 */
 	GRandomT()
 		: Gem::Hap::GRandomBaseT<fp_type, int_type>()
-		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 		, currentPackageSize_(DEFAULTARRAYSIZE)
 		, current01_(1) // position 0 holds the array size
+		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
 		// Make sure we have a first random number package available
 		getNewP01();
@@ -145,9 +145,9 @@ public:
 	 */
 	explicit GRandomT(const seed_type& seed)
 		: Gem::Hap::GRandomBaseT<fp_type, int_type>(seed)
-		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 		, currentPackageSize_(DEFAULTARRAYSIZE)
 		, current01_(1) // position 0 holds the array size
+		, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
 		// Make sure we have a first random number package available
 		getNewP01();

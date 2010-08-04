@@ -61,7 +61,7 @@ enum gRandomTSpecialization {
   , RANDOMLOCAL = 1 // random numbers are produced locally, using a seed taken from the seed manager or provided to the constructor
 };
 
-/**********************************************************************************************
+/**********************************************************************************************/
 
 /** @brief Puts a Gem::Hap::gRandomTSpecialization into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Hap::gRandomTSpecialization&);

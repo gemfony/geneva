@@ -218,6 +218,19 @@ public:
 protected:
 	/*******************************************************************************************/
 	/**
+	 * Gives derived classes access to the internal value. A constant function is needed to
+	 * allow resetting the value in the GConstrained family of classes from within the value()
+	 * function (which by design should be constant). Still, users should be aware that generally
+	 * setting of values is not a "const" action, so this function is protected.
+	 *
+	 * @param val The new T value stored in this class
+	 */
+	void setValue_(const T& val) const {
+		val_ = val;
+	}
+
+	/*******************************************************************************************/
+	/**
 	 * Loads the data of another GObject
 	 *
 	 * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject

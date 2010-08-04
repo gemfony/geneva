@@ -93,7 +93,7 @@ public:
 		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
 	{ /* nothing */ }
 
-	/*****************************************************************
+	/*****************************************************************/
 	/*
 	 * Initialize with a single value
 	 *

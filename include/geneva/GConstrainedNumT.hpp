@@ -56,9 +56,9 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "hap/GRandomT.hpp"
 #include "GObject.hpp"
 #include "GParameterT.hpp"
-#include "GRandomT.hpp"
 
 namespace Gem
 {
@@ -119,20 +119,16 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * Initializes the boundaries and sets the value to a random number. randomInit_()
-	 * needs to be re-implemented in derived classes to make sure initialization happens
-	 * inside of the allowed boundaries only.
+	 * Initializes the boundaries and sets the value to the lower boundary.
 	 *
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedNumT(const T& lowerBoundary, const T& upperBoundary)
-		: GParameterT<T>()
+		: GParameterT<T>(lowerBoundary)
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
-	{
-		this->randomInit_();
-	}
+	{ /* nothing */ }
 
 	/****************************************************************************/
 	/**
@@ -425,6 +421,15 @@ public:
 	}
 
 	/****************************************************************************/
+	/**
+	 * Retrieves GParameterT<T>'s internal value. Added here for compatibility
+	 * with GBoundedNumT<T>.
+	 */
+	T getInternalValue() const {
+		return GParameterT<T>::value();
+	}
+
+	/****************************************************************************/
 	/** @brief The transfer function needed to calculate the externally visible
 	 * value. Declared public so we can do tests of the value transformation. */
 	virtual T transfer(const T&) const = 0;
@@ -455,7 +460,7 @@ protected:
 	 * @param value The value to check against the lower boundary
 	 * @return A boolean which indicates whether the value is compatible with the lower boundary
 	 */
-	virtual bool valIsCompatibleWithLower(const T& value, const T& lowerBoundary) {
+	virtual bool valIsCompatibleWithLower(const T& value, const T& lowerBoundary) const {
 		return (value >= lowerBoundary);
 	}
 
@@ -468,7 +473,7 @@ protected:
 	 * @param value The value to check against the upper boundary
 	 * @return A boolean which indicates whether the value is compatible with the upper boundary
 	 */
-	virtual bool valIsCompatibleWithUpper(const T& value, const T& upperBoundary) {
+	virtual bool valIsCompatibleWithUpper(const T& value, const T& upperBoundary) const {
 		return (value <= upperBoundary);
 	}
 

@@ -196,7 +196,7 @@ public:
 			std::ostringstream error;
 			error << "In boost::shared_ptr<clone_type> GObject::clone<load_type>() : Error!" << std::endl
 				  << "Invalid conversion" << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #else
 		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
@@ -235,7 +235,7 @@ protected:
 			std::ostringstream error;
 			error << "In GObject::selfAssignmentCheck<load_type>() : Error!" << std::endl
 				  << "Tried to assign an object to or compare with itself." << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #endif
 	}
@@ -260,7 +260,7 @@ protected:
 			std::ostringstream error;
 			error << "In const GObject* GObject::conversion_cast<load_type>() : Error!" << std::endl
 				  << "Invalid conversion" << std::endl;
-			throw geneva_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #else
 		return static_cast<const load_type *>(load_ptr);
