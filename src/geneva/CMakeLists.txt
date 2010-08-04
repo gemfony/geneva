@@ -7,7 +7,6 @@ SET ( OPTIMIZATIONSOURCES
 	GBooleanObjectCollection
 	GBoundedDouble
 	GBoundedDoubleCollection
-	GBoundedInt32
 	GBoundedNumT
 	GBrokerEA
 	GConstrainedInt32
