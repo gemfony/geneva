@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------------------------------
 Roadmap for Version 0.9, yet unnamed, release-date unknown
  - Full documentation.
- - Revision of broker infrastructure, implementation as separate library.
+ - Revision of broker infrastructure.
  - Implementation of a GBoundedDoubleWithGaps.
  - Get rid of self-initialized singletons, in favor of a GenevaInitialize/Finalize()
    function.
@@ -10,9 +10,13 @@ Roadmap for Version 0.9, yet unnamed, release-date unknown
  - Update of performance figures.
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.8, yet unnamed, release-date unknown
+* Version 0.8, "Prevessin" - August 4, 2010
 
 The main changes for this release include:
+ - Separated code into the libraries Hap (random number production), Courtier (brokerage and
+   networking), Geneva (optimization algorithms), Dataexchange (communication with external
+   evaluation programs) and Common (common code needed by all other libraries), each
+   with its own namespace. Includes should now be prefixed with the (sub)library name.
  - Reworked the test framework implementing the tests directly inside the
    tested classes. This allows for better testing of private members and virtual
    classes, and at the same time simplifies the code maintenance.
@@ -38,10 +42,6 @@ The main changes for this release include:
  - Update to CMake 2.8, ported to Boost 1.43.
  - Made compilation of test code optional.
  - Moved the sample programs in the 'associated' folder together with the other examples.
- - Separated code into the libraries Hap (random number production), Courtier (brokerage and
-   networking), Geneva (optimization algorithms), Dataexchange (communication with external
-   evaluation programs) and Common (common code needed by all other libraries), each
-   with its own namespace. Includes should now be prefixed with the (sub)library name.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010
@@ -137,7 +137,7 @@ The main changes for this release include:
  - Added ability to GBasePopulation to checkpoint the nParents' best individuals in regular intervals
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.5.2 "Building 38" - April 20, 2009
+* Version 0.5.2, "Building 38" - April 20, 2009
 
 The main changes for this release include:
  - Created a unit test framework for most classes in Geneva.
@@ -148,7 +148,7 @@ The main changes for this release include:
    interface from a common vector wrapper base class.
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.5.1 "Ferney-Voltaire" - March 20, 2009
+* Version 0.5.1, "Ferney-Voltaire" - March 20, 2009
 
 Again a long list of changes, too long to mention here. Check the SVN
 pages for details. Development is still very dynamic.
@@ -162,12 +162,12 @@ aim at listing major changes in the code here in the future, as they
 occur.
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.5 "Meyrin" - September 15, 2008
+* Version 0.5, "Meyrin" - September 15, 2008
 
 Complete revision of the entire project. Also moved from GNU autotools 
 to CMake. Directory structure of SVN repository has been revised.
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.4 "CERN-barracks" - July 7, 2008
+* Version 0.4, "CERN-barracks" - July 7, 2008
 
 Initial public release
