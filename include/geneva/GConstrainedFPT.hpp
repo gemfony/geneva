@@ -368,10 +368,13 @@ public:
 			// that should have been delivered with this software). Note that boost::numeric_cast<>
 			// may throw - exceptions must be caught in surrounding functions.
 			boost::int32_t region = 0.;
+			T lowerBoundary = GConstrainedNumT<T>::getLowerBoundary();
+			T upperBoundary = GConstrainedNumT<T>::getUpperBoundary();
+
 #ifdef DEBUG
-			region = boost::numeric_cast<boost::int32_t>(Gem::Common::GFloor(T(val - GConstrainedNumT<T>::getLowerBoundary())) / T(GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary()));
+			region =	boost::numeric_cast<boost::int32_t>(Gem::Common::GFloor((T(val) - T(lowerBoundary)) / (T(upperBoundary) - T(lowerBoundary))));
 #else
-			region = static_cast<boost::int32_t>(Gem::Common::GFloor(T(val - GConstrainedNumT<T>::getLowerBoundary())) / T(GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary()));
+			region =	static_cast<boost::int32_t>(Gem::Common::GFloor((T(val) - T(lowerBoundary)) / (T(upperBoundary) - T(lowerBoundary))));
 #endif
 
 			// Check whether we are in an odd or an even range and calculate the

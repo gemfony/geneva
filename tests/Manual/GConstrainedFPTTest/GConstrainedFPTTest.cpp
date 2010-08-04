@@ -1,5 +1,5 @@
 /**
- * @file GBoundedDoubleTest.cpp
+ * @file GConstrainedFPTTest.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -28,12 +28,12 @@
  */
 
 /**
- * This test takes a GBoundedDouble object:
+ * This test takes a GConstrainedDouble object:
  * a) It examines the mapping from internal to external representation of its value.
  * b) It tests the "distortion" of a gaussian when going through the mapping from
  *    internal to external value.
  *
- * Additional tests (including error handling) of the GBoundedDouble class have been
+ * Additional tests (including error handling) of the GConstrainedDouble class have been
  * implemented as part of the unit tests.
  *
  * In order to see the results of this test, you need the Root toolkit from http://root.cern.ch.
@@ -54,7 +54,7 @@
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"
-#include "geneva/GBoundedDouble.hpp"
+#include "geneva/GConstrainedDouble.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
 using namespace Gem::Geneva;
@@ -66,8 +66,8 @@ int main(int argc, char **argv){
 	//***************************************************************************
 	// Test a: Mapping from internal to external value
 
-	GBoundedDouble gbd13(-1.,3.); // lower boundary -1, upper Boundary 3
-	GBoundedDouble gbd052(0.5,2.); // lower boundary 0.5, upper Boundary 2
+	GConstrainedDouble gbd13(-1.,3.); // lower boundary -1, upper Boundary 3
+	GConstrainedDouble gbd052(0.5,2.); // lower boundary 0.5, upper Boundary 2
 
 	double internalValue = 0., externalValue = 0.;
 
@@ -87,7 +87,7 @@ int main(int argc, char **argv){
 	for(boost::uint32_t i=0; i<NTESTS; i++){
 		internalValue=-10.+20.*double(i)/double(NTESTS);
 
-		externalValue = gbd13.calculateExternalValue(internalValue);
+		externalValue = gbd13.transfer(internalValue);
 		mapping << "  x13[" << i << "] = " << internalValue << ";" << std::endl
 		        << "  y13[" << i << "] = " << externalValue << ";" << std::endl;
 	}
@@ -95,7 +95,7 @@ int main(int argc, char **argv){
 	for(boost::uint32_t i=0; i<NTESTS; i++){
 		internalValue=-10.+20.*double(i)/double(NTESTS);
 
-		externalValue = gbd052.calculateExternalValue(internalValue);
+		externalValue = gbd052.transfer(internalValue);
 		mapping << "  x052[" << i << "] = " << internalValue << ";" << std::endl
 		        << "  y052[" << i << "] = " << externalValue << ";" << std::endl;
 	}
@@ -103,7 +103,7 @@ int main(int argc, char **argv){
 	// Set up and register an adaptor for gbd13, so it
 	// knows how to be adaptd. We want a sigma of 0.5, sigma-adaption of 0.05 and
 	// a minimum sigma of 0.02. The adaptor will be deleted automatically by the
-	// GBoundedDouble.
+	// GConstrainedDouble.
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.5,0.05,0.02,2.));
 	gbd13.addAdaptor(gdga);
 
@@ -145,7 +145,7 @@ int main(int argc, char **argv){
 		    << "  TPaveText *pt = new TPaveText(0.349138,0.872881,0.637931,0.963983,\"blNDC\");" << std::endl
 		    << "  pt->SetBorderSize(2);" << std::endl
 		    << "  pt->SetFillColor(19);" << std::endl
-		    << "  pt->AddText(\"Test of the GBoundedDouble class\");" << std::endl
+		    << "  pt->AddText(\"Test of the GConstrainedDouble class\");" << std::endl
 		    << "  pt->Draw();" << std::endl
 	        << "}" << std::endl;
 
@@ -157,7 +157,7 @@ int main(int argc, char **argv){
 	// whose mean is shifted from left to right of a [-1,1] range
 
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
-	GBoundedDouble gbd_distortion(-1.,1.);
+	GConstrainedDouble gbd_distortion(-1.,1.);
 
 	std::ofstream distortion("distortion.C");
 
@@ -201,20 +201,20 @@ int main(int argc, char **argv){
 	for(std::size_t i=0; i<NTESTS; i++) {
 		internalValue = gr.normal_distribution(0.1);
 
-		distortion << "  external0->Fill(" << gbd_distortion.calculateExternalValue(internalValue - 1.1) << ");" << std::endl
-				   << "  external1->Fill(" << gbd_distortion.calculateExternalValue(internalValue - 1.0) << ");" << std::endl
-			       << "  external2->Fill(" << gbd_distortion.calculateExternalValue(internalValue - 0.9) << ");" << std::endl
-				   << "  external3->Fill(" << gbd_distortion.calculateExternalValue(internalValue - 0.7) << ");" << std::endl
-				   << "  external4->Fill(" << gbd_distortion.calculateExternalValue(internalValue - 0.5) << ");" << std::endl
-				   << "  external5->Fill(" << gbd_distortion.calculateExternalValue(internalValue - 0.3) << ");" << std::endl
-				   << "  external6->Fill(" << gbd_distortion.calculateExternalValue(internalValue - 0.1) << ");" << std::endl
-				   << "  external7->Fill(" << gbd_distortion.calculateExternalValue(internalValue + 0.1) << ");" << std::endl
-				   << "  external8->Fill(" << gbd_distortion.calculateExternalValue(internalValue + 0.3) << ");" << std::endl
-				   << "  external9->Fill(" << gbd_distortion.calculateExternalValue(internalValue + 0.5) << ");" << std::endl
-				   << "  external10->Fill(" << gbd_distortion.calculateExternalValue(internalValue + 0.7) << ");" << std::endl
-				   << "  external11->Fill(" << gbd_distortion.calculateExternalValue(internalValue + 0.9) << ");" << std::endl
-				   << "  external12->Fill(" << gbd_distortion.calculateExternalValue(internalValue + 1.0) << ");" << std::endl
-				   << "  external13->Fill(" << gbd_distortion.calculateExternalValue(internalValue + 1.1) << ");" << std::endl
+		distortion << "  external0->Fill(" << gbd_distortion.transfer(internalValue - 1.1) << ");" << std::endl
+				   << "  external1->Fill(" << gbd_distortion.transfer(internalValue - 1.0) << ");" << std::endl
+			       << "  external2->Fill(" << gbd_distortion.transfer(internalValue - 0.9) << ");" << std::endl
+				   << "  external3->Fill(" << gbd_distortion.transfer(internalValue - 0.7) << ");" << std::endl
+				   << "  external4->Fill(" << gbd_distortion.transfer(internalValue - 0.5) << ");" << std::endl
+				   << "  external5->Fill(" << gbd_distortion.transfer(internalValue - 0.3) << ");" << std::endl
+				   << "  external6->Fill(" << gbd_distortion.transfer(internalValue - 0.1) << ");" << std::endl
+				   << "  external7->Fill(" << gbd_distortion.transfer(internalValue + 0.1) << ");" << std::endl
+				   << "  external8->Fill(" << gbd_distortion.transfer(internalValue + 0.3) << ");" << std::endl
+				   << "  external9->Fill(" << gbd_distortion.transfer(internalValue + 0.5) << ");" << std::endl
+				   << "  external10->Fill(" << gbd_distortion.transfer(internalValue + 0.7) << ");" << std::endl
+				   << "  external11->Fill(" << gbd_distortion.transfer(internalValue + 0.9) << ");" << std::endl
+				   << "  external12->Fill(" << gbd_distortion.transfer(internalValue + 1.0) << ");" << std::endl
+				   << "  external13->Fill(" << gbd_distortion.transfer(internalValue + 1.1) << ");" << std::endl
 				   << "  internal0->Fill(" << internalValue - 1.1 << ");" << std::endl
 				   << "  internal1->Fill(" << internalValue - 1.0 << ");" << std::endl
 				   << "  internal2->Fill(" << internalValue - 0.9 << ");" << std::endl
