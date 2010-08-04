@@ -45,6 +45,7 @@ using namespace boost::unit_test;
 #include "geneva/GBoundedDoubleCollection.hpp"
 #include "geneva/GBoundedInt32Collection.hpp"
 #include "geneva/GBoolean.hpp"
+#include "geneva/GConstrainedInt32.hpp"
 #include "geneva/GInt32.hpp"
 #include "geneva/GDouble.hpp"
 #include "geneva/GBoundedDouble.hpp"
@@ -96,6 +97,7 @@ public:
 			, GBoundedDoubleCollection
 			, GBoundedInt32Collection
 			, GBoolean
+			, GConstrainedInt32
 			, GInt32
 			, GDouble
 			, GBoundedDouble

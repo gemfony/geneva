@@ -513,6 +513,19 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
+
+		// Clone the current object, so we can always recover from failures
+		boost::shared_ptr<GConstrainedNumT<T> > p = this->GObject::clone<GConstrainedNumT<T> >();
+
+		// Make sure we can freely assign values
+		p->resetBoundaries();
+		BOOST_CHECK(p->getLowerBoundary() == -std::numeric_limits<T>::max());
+		BOOST_CHECK(p->getUpperBoundary() ==  std::numeric_limits<T>::max());
+
+		// Assign a value and check whether it has been set correctly
+
+		// Assign boundaries and check whether they have been set correctly
+		// and that the value of the class has remained the same
 	}
 
 	/****************************************************************************/

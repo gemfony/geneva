@@ -57,6 +57,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "hap/GRandomT.hpp"
 #include "GConstrainedNumT.hpp"
 #include "GObject.hpp"
 
@@ -351,7 +352,9 @@ private:
 	 * @return The reverted value
 	 */
 	T revert(const T& value) const {
-		return GConstrainedNumT<T>::getUpperBoundary() - value + 1;
+		T position = value - GConstrainedNumT<T>::getLowerBoundary();
+		T reverted = GConstrainedNumT<T>::getUpperBoundary() - position;
+		return reverted;
 	}
 
 #ifdef GENEVATESTING
@@ -366,7 +369,7 @@ public:
 		bool result;
 
 		// Call the parent classes' functions
-		if(GParameterT<T>::modify_GUnitTests()) result = true;
+		if(GConstrainedNumT<T>::modify_GUnitTests()) result = true;
 
 		return result;
 	}
@@ -376,8 +379,43 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL, double, T> gr;
+
 		// Call the parent classes' functions
-		GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
+		GConstrainedNumT<T>::specificTestsNoFailureExpected_GUnitTests();
+
+		// Clone the current object, so we can always recover from failures
+		boost::shared_ptr<GConstrainedIntegerT<T> > p = this->GObject::clone<GConstrainedIntegerT<T> >();
+
+		// Make sure we start with the maximum range
+		p->resetBoundaries();
+
+		const T minLower = -50;
+		const T maxLower =  50;
+		const T minUpper =  25; // Allow some overlap
+		const T maxUpper = 125;
+
+		// Check a number of times that the transfer function only returns items
+		// in the allowed value range
+		for(std::size_t i=0; i<100; i++) {
+			T lowerBoundary = gr.uniform_int(minLower, maxLower);
+			T upperBoundary;
+			while((upperBoundary = gr.uniform_int(minUpper, maxUpper)) <= lowerBoundary);
+
+			p->setValue(lowerBoundary);
+			p->setBoundaries(lowerBoundary, upperBoundary);
+
+			// Check that there are no values outside of the allowed range
+			for(std::size_t j=0; j<1000; j++) {
+				T probe = gr.uniform_int(-10000, 10000);
+				T mapping = p->transfer(probe);
+				BOOST_CHECK(mapping >= lowerBoundary && mapping <= upperBoundary);
+			}
+
+			// Make sure we start again with the maximum range
+			p->resetBoundaries();
+		}
 	}
 
 	/****************************************************************************/
@@ -386,7 +424,7 @@ public:
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent classes' functions
-		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();
+		GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
 
 #endif /* GENEVATESTING */
