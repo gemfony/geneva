@@ -5,9 +5,6 @@ Roadmap for Version 0.9, yet unnamed, release-date unknown
  - Implementation of a GBoundedDoubleWithGaps.
  - Get rid of self-initialized singletons, in favor of a GenevaInitialize/Finalize()
    function.
- - Make all parameters objects and get rid of GDoubleCollection (i.e. collections
-   of items to which a joint adaptor is assigned).
- - Update of performance figures.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8, "Prevessin" - August 4, 2010
