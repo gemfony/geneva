@@ -107,15 +107,6 @@ public:
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const;
 
-#ifdef GENEVATESTING
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
-
 protected:
 	/** @brief Loads the data of another GGDPersonalityTraits object */
 	virtual void load_(const GObject*);
@@ -125,6 +116,16 @@ protected:
 private:
 	/** @brief The command to be performed by remote clients */
 	std::string command_;
+
+#ifdef GENEVATESTING
+public:
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
 };
 
 } /* namespace Geneva */

@@ -106,15 +106,6 @@ namespace Geneva
     /** @brief Random initialization with a given probability structure */
     virtual void randomInit(const double&);
 
-#ifdef GENEVATESTING
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
-
   protected:
     /** @brief Loads the data of another GBooleanCollection class */
     virtual void load_(const GObject *);
@@ -125,6 +116,16 @@ namespace Geneva
 	virtual void randomInit_();
 	/** @brief Triggers random initialization of the parameter collection, with a given likelihood structure */
 	void randomInit_(const double&);
+
+#ifdef GENEVATESTING
+  public:
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
   };
 
   /**********************************************************************/

@@ -205,42 +205,6 @@ public:
 	 */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
-#ifdef GENEVATESTING
-	/*******************************************************************************************/
-	/**
-	 * Applies modifications to this object. This is needed for testing purposes
-	 *
-	 * @return A boolean which indicates whether modifications were made
-	 */
-	virtual bool modify_GUnitTests() {
-		bool result;
-
-		// Call the parent classes' functions
-		if(GAdaptorT<T>::modify_GUnitTests()) result = true;
-
-		return result;
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Performs self tests that are expected to succeed. This is needed for testing purposes
-	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
-		// Call the parent classes' functions
-		GAdaptorT<T>::specificTestsNoFailureExpected_GUnitTests();
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
-	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
-		// Call the parent classes' functions
-		GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests();
-	}
-
-#endif /* GENEVATESTING */
-
 protected:
 	/********************************************************************************************/
 	/**
@@ -308,6 +272,43 @@ protected:
 #endif
 		}
 	}
+
+#ifdef GENEVATESTING
+public:
+	/*******************************************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() {
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GAdaptorT<T>::modify_GUnitTests()) result = true;
+
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		// Call the parent classes' functions
+		GAdaptorT<T>::specificTestsNoFailureExpected_GUnitTests();
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() {
+		// Call the parent classes' functions
+		GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests();
+	}
+
+#endif /* GENEVATESTING */
 };
 
 /************************************************************************************************/

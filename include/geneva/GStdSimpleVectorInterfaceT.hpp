@@ -333,18 +333,6 @@ public:
 	 */
 	void getDataCopy(std::vector<T>& cp) const {	cp=data; 	}
 
-
-#ifdef GENEVATESTING
-	/*****************************************************************************/
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */  }
-	/*****************************************************************************/
-#endif /* GENEVATESTING */
-
 protected:
 	std::vector<T> data;
 
@@ -360,6 +348,18 @@ private:
 	bool operator==(const std::vector<T>& cp_data) const;
 	/** @brief Checks for inequality with a std::vector<T> object. Intentionally left undefined */
 	bool operator!=(const std::vector<T>& cp_data) const;
+
+#ifdef GENEVATESTING
+public:
+	/*****************************************************************************/
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */  }
+	/*****************************************************************************/
+#endif /* GENEVATESTING */
 };
 
 /********************************************************************************/

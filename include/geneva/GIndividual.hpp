@@ -229,15 +229,6 @@ public:
 	/** @brief This function returns the current swarm algorithm personality traits pointer */
 	boost::shared_ptr<GSwarmPersonalityTraits> getSwarmPersonalityTraits();
 
-#ifdef GENEVATESTING
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
-
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
@@ -282,6 +273,16 @@ private:
     personality pers_;
     /** @brief Holds the actual personality information */
     boost::shared_ptr<GPersonalityTraits> pt_ptr_;
+
+#ifdef GENEVATESTING
+public:
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
 };
 
 } /* namespace Geneva */

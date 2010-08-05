@@ -297,7 +297,7 @@ void GSwarmAdaptor::customAdaptions(double& value) {
  * @return A boolean which indicates whether modifications were made
  */
 bool GSwarmAdaptor::modify_GUnitTests() {
-	bool result;
+	bool result = false;
 
 	// Call the parent classes' functions
 	if(GAdaptorT<double>::modify_GUnitTests()) result = true;

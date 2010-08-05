@@ -150,15 +150,6 @@ public:
 	/** @brief Triggers updates when the optimization process has stalled */
 	virtual bool updateOnStall();
 
-#ifdef GENEVATESTING
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
-
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
@@ -170,6 +161,16 @@ protected:
 
 	/** @brief Allows to store an evaluation function for this object */
 	boost::function<double (const GParameterSet&)> eval_;
+
+#ifdef GENEVATESTING
+public:
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
 };
 
 } /* namespace Geneva */

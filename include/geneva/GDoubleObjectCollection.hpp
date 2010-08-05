@@ -88,7 +88,14 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
+protected:
+	/** @brief Loads the data of another GObject */
+	virtual void load_(const GObject*);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone_() const;
+
 #ifdef GENEVATESTING
+public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -96,12 +103,6 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
-
-protected:
-	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*);
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const;
 };
 
 /*************************************************************************/

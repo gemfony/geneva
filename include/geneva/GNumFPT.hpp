@@ -278,7 +278,7 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
-		bool result;
+		bool result = false;
 
 		// Call the parent classes' functions
 		if(GNumT<T>::modify_GUnitTests()) result = true;

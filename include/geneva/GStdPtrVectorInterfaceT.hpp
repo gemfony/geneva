@@ -863,18 +863,6 @@ public:
 		boost::shared_ptr<derivedType> p; ///< Temporary which holds the current valid pointer
 	};
 
-#ifdef GENEVATESTING
-	/**************************************************************************************************/
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**************************************************************************************************/
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */ }
-#endif /* GENEVATESTING */
-
 protected:
 	std::vector<boost::shared_ptr<T> > data;
 
@@ -891,6 +879,16 @@ private:
 	bool operator==(const std::vector<boost::shared_ptr<T> >&) const;
 	/** @brief Intentionally left undefined */
 	bool operator!=(const std::vector<boost::shared_ptr<T> >&) const;
+
+#ifdef GENEVATESTING
+public:
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing here yet */ }
+#endif /* GENEVATESTING */
 };
 
 /**************************************************************************************************/

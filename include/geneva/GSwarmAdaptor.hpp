@@ -120,15 +120,6 @@ public:
 	/** @brief Retrieves the c2 parameter used as a multiplier for the direction to the global best. */
 	double getCGlobal() const;
 
-#ifdef GENEVATESTING
-	/** @brief Applies modifications to this object (needed for testing purposes. */
-	virtual bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. */
-	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
-
 protected:
 	/********************************************************************************************/
 	/** @brief Loads the data of another GSwarmAdaptor */
@@ -147,6 +138,16 @@ private:
 	std::vector<double> velocity_; ///< The velocity term used in swarm algorithms
 	std::vector<double> localBest_; ///< The locally best solution(s)
 	std::vector<double> globalBest_; ///< The globally best solution(s)
+
+#ifdef GENEVATESTING
+public:
+	/** @brief Applies modifications to this object (needed for testing purposes. */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
 };
 
 /************************************************************************************************/

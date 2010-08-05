@@ -134,15 +134,6 @@ public:
 	/** @brief Triggers the update of GParameterSet derivatives */
 	void updateParameters();
 
-#ifdef GENEVATESTING
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
-
 protected:
 	/** @brief Loads the data of another GSwarmPersonalityTraits object */
 	virtual void load_(const GObject*);
@@ -162,6 +153,16 @@ private:
 
 	/** @brief Determines whether the individual has been randomly initialized */
 	bool noPositionUpdate_;
+
+#ifdef GENEVATESTING
+public:
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
 };
 
 /*********************************************************************************/

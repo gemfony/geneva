@@ -173,15 +173,6 @@ namespace Geneva
 	/** @brief Allows to retrieve the logging results */
 	std::vector<std::vector<boost::uint32_t> > getLoggingResults() const;
 
-#ifdef GENEVATESTING
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
-#endif /* GENEVATESTING */
-
   protected:
     /** @brief Loads the data of another GTransfer Population */
     virtual void load_(const GObject *);
@@ -218,6 +209,16 @@ namespace Geneva
 
     bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
     std::vector<std::vector<boost::uint32_t> >  arrivalTimes_; ///< Holds the actual arrival times. Note: Neither serialized nor copied
+
+#ifdef GENEVATESTING
+  public:
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
   };
 
   /**********************************************************************************/

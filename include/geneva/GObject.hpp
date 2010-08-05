@@ -203,16 +203,6 @@ public:
 #endif /* DEBUG */
 	}
 
-#ifdef GENEVATESTING
-	/**************************************************************************************************/
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() { return false; }
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing - no local data */ }
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing - no local data */ }
-#endif /* GENEVATESTING */
-
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
@@ -274,6 +264,17 @@ private:
 	bool operator==(const GObject&) const;
 	/** @brief Checks inequality with another GObject object. Intentionally left undefined, as this class is abstract */
 	bool operator!=(const GObject&) const;
+
+#ifdef GENEVATESTING
+public:
+	/**************************************************************************************************/
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests() { return false; }
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing - no local data */ }
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing - no local data */ }
+#endif /* GENEVATESTING */
 };
 
 /** @brief A specialization for cases for no conversion is supposed to take place */

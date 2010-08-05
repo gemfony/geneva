@@ -235,44 +235,6 @@ public:
 		return upperInitBoundary_;
 	}
 
-
-#ifdef GENEVATESTING
-
-	/******************************************************************/
-	/**
-	 * Applies modifications to this object. This is needed for testing purposes
-	 *
-	 * @return A boolean which indicates whether modifications were made
-	 */
-	virtual bool modify_GUnitTests() {
-		bool result;
-
-		// Call the parent classes' functions
-		if(GParameterCollectionT<T>::modify_GUnitTests()) result = true;
-
-		return result;
-	}
-
-	/******************************************************************/
-	/**
-	 * Performs self tests that are expected to succeed. This is needed for testing purposes
-	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() {
-		// Call the parent classes' functions
-		GParameterCollectionT<T>::specificTestsNoFailureExpected_GUnitTests();
-	}
-
-	/******************************************************************/
-	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
-	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() {
-		// Call the parent classes' functions
-		GParameterCollectionT<T>::specificTestsFailuresExpected_GUnitTests();
-	}
-
-#endif /* GENEVATESTING */
-
 protected:
 	/******************************************************************/
 	/**
@@ -312,6 +274,44 @@ private:
 	/******************************************************************/
 	T lowerInitBoundary_; ///< The lower boundary for random initialization
 	T upperInitBoundary_; ///< The upper boundary for random initialization
+
+#ifdef GENEVATESTING
+public:
+	/******************************************************************/
+	/**
+	 * Applies modifications to this object. This is needed for testing purposes
+	 *
+	 * @return A boolean which indicates whether modifications were made
+	 */
+	virtual bool modify_GUnitTests() {
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GParameterCollectionT<T>::modify_GUnitTests()) result = true;
+
+		return result;
+	}
+
+	/******************************************************************/
+	/**
+	 * Performs self tests that are expected to succeed. This is needed for testing purposes
+	 */
+	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		// Call the parent classes' functions
+		GParameterCollectionT<T>::specificTestsNoFailureExpected_GUnitTests();
+	}
+
+	/******************************************************************/
+	/**
+	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 */
+	virtual void specificTestsFailuresExpected_GUnitTests() {
+		// Call the parent classes' functions
+		GParameterCollectionT<T>::specificTestsFailuresExpected_GUnitTests();
+	}
+
+#endif /* GENEVATESTING */
+
 };
 
 /**********************************************************************/

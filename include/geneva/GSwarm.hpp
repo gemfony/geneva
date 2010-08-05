@@ -258,14 +258,6 @@ public:
 		std::cout << information.str();
 	}
 
-	/**************************************************************************************************/
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests();
-
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
@@ -334,6 +326,17 @@ private:
 
 	boost::shared_ptr<GIndividual> global_best_; ///< The globally best individual
 	boost::shared_ptr<GIndividual> *local_bests_; ///< The collection of best individuals from each neighborhood
+
+#ifdef GENEVATESTING
+public:
+	/**************************************************************************************************/
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
 };
 
 /******************************************************************************************************/
