@@ -14,6 +14,7 @@ The main changes for this release include:
  - Refactored the GBoundedDouble and GBoundedInt32 classes, which are now named
    GConstrainedDouble and GConstrainedInt32 and are based on generic floating-point-
    and integer-aware classes.
+ - Organized the tests in subfolders corresponding to each tested library.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8, "Prevessin" - August 4, 2010
