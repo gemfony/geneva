@@ -8,14 +8,6 @@ ADD_SUBDIRECTORY (
 	geneva
 )
 
-ADD_SUBDIRECTORY (
-	PerformanceChecks
-)
-
-ADD_SUBDIRECTORY (
-	TestIndividuals
-)
-
 ADD_SUBDIRECTORY ( 
 	UnitTests
 )
