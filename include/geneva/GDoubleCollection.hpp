@@ -49,7 +49,7 @@
 
 
 // Geneva header files go here
-#include "GNumCollectionT.hpp"
+#include "GNumCollectionFPT.hpp"
 
 
 namespace Gem {
@@ -60,7 +60,7 @@ namespace Geneva {
  * A collection of double objects without boundaries
  */
 class GDoubleCollection
-	:public GNumCollectionT<double>
+	:public GNumCollectionFPT<double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -69,7 +69,7 @@ class GDoubleCollection
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumCollectionT_double", boost::serialization::base_object<GNumCollectionT<double> >(*this));
+	  ar & make_nvp("GNumCollectionFPT_double", boost::serialization::base_object<GNumCollectionFPT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -94,7 +94,14 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
+protected:
+	/** @brief Loads the data of another GObject */
+	virtual void load_(const GObject*);
+	/** @brief Creates a deep clone of this object. */
+	virtual GObject* clone_() const;
+
 #ifdef GENEVATESTING
+public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -102,19 +109,6 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
-
-protected:
-	/** @brief Loads the data of another GObject */
-	virtual void load_(const GObject*);
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const;
-
-	/** @brief Triggers random initialization of the parameter collection */
-	virtual void randomInit_();
-	/** @brief Initializes double-based parameters with a given value */
-	virtual void fixedValueInit_(const double&);
-	/** @brief Multiplies double-based parameters with a given value */
-	virtual void multiplyBy_(const double&);
 };
 
 /*****************************************************************************************/

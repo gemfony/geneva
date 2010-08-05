@@ -56,7 +56,7 @@ GDoubleCollection::GDoubleCollection()
  * @param max The maximum random value
  */
 GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max)
-	: GNumCollectionT<double>(min, max)
+	: GNumCollectionFPT<double>(min, max)
 {
 	using namespace Gem::Hap;
 	GRandomT<RANDOMLOCAL> gr;
@@ -70,7 +70,7 @@ GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min,
  * @param cp A copy of another GDoubleCollection object
  */
 GDoubleCollection::GDoubleCollection(const GDoubleCollection& cp)
-	: GNumCollectionT<double>(cp)
+	: GNumCollectionFPT<double>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -175,55 +175,9 @@ void GDoubleCollection::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GDoubleCollection>(cp);
 
 	// Load our parent class'es data ...
-	GNumCollectionT<double>::load_(cp);
+	GNumCollectionFPT<double>::load_(cp);
 
 	// ... no local data
-}
-
-/*******************************************************************************************/
-/**
- * Triggers random initialization of the parameter collection. Note that this
- * function assumes that the collection has been completely set up. Data
- * that is added later will remain unaffected.
- */
-void GDoubleCollection::randomInit_() {
-	using namespace Gem::Hap;
-
-	double lowerBoundary = getLowerInitBoundary();
-	double upperBoundary = getUpperInitBoundary();
-
-	GRandomT<RANDOMLOCAL> gr;
-
-	GDoubleCollection::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)=gr.uniform_real(lowerBoundary, upperBoundary);
-	}
-}
-
-/*******************************************************************************************/
-/**
- * Initializes double-based parameters with a given value.
- *
- * @param val The value to use for the initialization
- */
-void GDoubleCollection::fixedValueInit_(const double& val) {
-	GDoubleCollection::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)=val;
-	}
-}
-
-/*******************************************************************************************/
-/**
- * Multiplies double-based parameters with a given value
- *
- * @param val The value to be multiplied with the parameter
- */
-void GDoubleCollection::multiplyBy_(const double& val) {
-	GDoubleCollection::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)=(*it)*val;
-	}
 }
 
 #ifdef GENEVATESTING
@@ -237,7 +191,7 @@ bool GDoubleCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumCollectionT<double>::modify_GUnitTests()) result = true;
+	if(GNumCollectionFPT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -248,7 +202,7 @@ bool GDoubleCollection::modify_GUnitTests() {
  */
 void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GNumCollectionFPT<double>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
@@ -257,7 +211,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests();
+	GNumCollectionFPT<double>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

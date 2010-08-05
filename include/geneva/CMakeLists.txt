@@ -33,6 +33,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GMultiThreadedEA.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
+	GNumCollectionFPT.hpp
 	GNumCollectionT.hpp
 	GNumFPT.hpp
 	GNumT.hpp
