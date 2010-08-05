@@ -175,14 +175,12 @@ public:
 	/** @brief Allows to retrieve the random multiplier range for deltas (-1 if unset) */
 	double getCDeltaRange() const;
 
-#ifdef GENEVATESTING
 	/** @brief Retrieves the number of neighborhoods */
 	std::size_t getNNeighborhoods() const;
 	/** @brief Retrieves the default number of individuals in each neighborhood */
 	std::size_t getDefaultNNeighborhoodMembers() const;
 	/** @brief Retrieves the current number of individuals in a given neighborhood */
 	std::size_t getCurrentNNeighborhoodMembers(const std::size_t&) const;
-#endif /* GENEVATESTING */
 
 	/**************************************************************************************************/
 	/**
