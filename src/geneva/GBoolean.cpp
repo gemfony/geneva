@@ -146,7 +146,7 @@ void GBoolean::randomInit() {
  * Triggers random initialization of the parameter object, with a given likelihood structure
  */
 void GBoolean::randomInit(const double& probability) {
-  if(!GParameterBase::initializationBlocked()) randomInit_(probability);
+  if(!GParameterBase::randomInitializationBlocked()) randomInit_(probability);
 }
 
 /*******************************************************************************************/

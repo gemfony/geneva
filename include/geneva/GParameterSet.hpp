@@ -38,8 +38,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/function.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
 
 #ifndef GPARAMETERSET_HPP_
 #define GPARAMETERSET_HPP_
@@ -105,10 +103,11 @@ public:
 
 	/** @brief Allows to randomly initialize parameter members */
 	void randomInit();
-	/** @brief Initializes double-based parameters with a given value */
-	void fixedValueInit(const double&);
-	/** @brief Multiplies double-based parameters with a given value */
-	void multiplyBy(const double&);
+
+	/** @brief Initializes floating-point parameters with a given value */
+	void fpFixedValueInit(const float&);
+	/** @brief Multiplies floating-point parameters with a given value */
+	void fpMultiplyBy(const float& val);
 
 	/**********************************************************************/
 	/**

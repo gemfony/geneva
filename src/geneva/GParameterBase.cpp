@@ -40,7 +40,7 @@ GParameterBase::GParameterBase()
 	: GMutableI()
 	, GObject()
 	, adaptionsActive_(true)
-	, initializationBlocked_(false)
+	, randomInitializationBlocked_(false)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -53,7 +53,7 @@ GParameterBase::GParameterBase(const GParameterBase& cp)
 	: GMutableI(cp)
 	, GObject(cp)
 	, adaptionsActive_(cp.adaptionsActive_)
-	, initializationBlocked_(cp.initializationBlocked_)
+	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
 { /* nothing */ }
 
 /**********************************************************************************/
@@ -78,7 +78,7 @@ void GParameterBase::load_(const GObject* cp){
 
 	// Load local data
 	adaptionsActive_ = p_load->adaptionsActive_;
-	initializationBlocked_ = p_load->initializationBlocked_;
+	randomInitializationBlocked_ = p_load->randomInitializationBlocked_;
 }
 
 /**********************************************************************************/
@@ -175,7 +175,7 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GParameterBase", adaptionsActive_, p_load->adaptionsActive_, "adaptionsActive_", "p_load->adaptionsActive_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GParameterBase", initializationBlocked_, p_load->initializationBlocked_, "initializationBlocked_", "p_load->initializationBlocked_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GParameterBase", randomInitializationBlocked_, p_load->randomInitializationBlocked_, "randomInitializationBlocked_", "p_load->randomInitializationBlocked_", e , limit));
 
 	return evaluateDiscrepancies("GParameterBase", caller, deviations, e);
 }
@@ -192,68 +192,52 @@ bool GParameterBase::hasAdaptor() const {
 
 /**********************************************************************************/
 /**
- * Triggers random initialization of the parameter(-collection)
+ * Triggers random initialization of the parameter(-collection). This is the public
+ * version of this function, which only acts if initialization has not been blocked.
  */
 void GParameterBase::randomInit() {
-	if(!initializationBlocked_) randomInit_();
+	if(!randomInitializationBlocked_) randomInit_();
 }
 
 /**********************************************************************************/
 /**
  * Initializes double-based parameters with a given value. Allows e.g. to set all
- * floating point parameters to 0. This is the public version of this function,
- * which only acts if initialization has not been blocked.
+ * floating point parameters to 0.
  *
  * @param val The value to be assigned to the parameters
  */
-void GParameterBase::fixedValueInit(const double& val) {
-	if(!initializationBlocked_) fixedValueInit_(val);
-}
+void GParameterBase::fpFixedValueInit(const float& val)
+{ /* do nothing by default */ }
 
 /**********************************************************************************/
 /**
- * Initializes double-based parameters with a given value. Allows e.g. to set all
- * floating point parameters to 0. This is the protected version of this function,
- * which does the actual initialization. It is empty by default and needs to be
- * re-implemented by fp-based derived parameter classes.
- *
- * @param val The value to be assigned to the parameters
+ * Multiplies double-based parameters with a given value.
  */
-void GParameterBase::fixedValueInit_(const double& val)
-{ /* empty */ }
-
-/**********************************************************************************/
-/**
- * Multiplies double-based parameters with a given value. This is the public version
- * of this function, which only acts if initialization has not been blocked.
- */
-void GParameterBase::multiplyBy(const double& val) {
-	if(!initializationBlocked_) multiplyBy_(val);
-}
-
-/**********************************************************************************/
-/**
- * Multiplies double-based parameters with a given value. This is the protected
- * version of this function, which does the actual work. It is empty by default
- * and needs to be re-implemented by fp-based derived parameter classes.
- */
-void GParameterBase::multiplyBy_(const double& val)
-{ /* empty */ }
+void GParameterBase::fpMultiplyBy(const float& val)
+{ /* do nothing by default */ }
 
 /**********************************************************************************/
 /**
  * Specifies that no random initialization should occur anymore
  */
-void GParameterBase::blockInitialization() {
-	initializationBlocked_ = true;
+void GParameterBase::blockRandomInitialization() {
+	randomInitializationBlocked_ = true;
+}
+
+/**********************************************************************************/
+/**
+ * Specifies that no random initialization should occur anymore
+ */
+void GParameterBase::allowRandomInitialization() {
+	randomInitializationBlocked_ = false;
 }
 
 /**********************************************************************************/
 /**
  * Checks whether initialization has been blocked
  */
-bool GParameterBase::initializationBlocked() const {
-	return initializationBlocked_;
+bool GParameterBase::randomInitializationBlocked() const {
+	return randomInitializationBlocked_;
 }
 
 #ifdef GENEVATESTING

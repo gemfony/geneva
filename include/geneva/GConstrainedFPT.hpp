@@ -386,17 +386,37 @@ public:
 				mapping = -val + (T(region-1)*(GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary()) + 2*GConstrainedNumT<T>::getUpperBoundary());
 			}
 
-			// Reset internal value -- possible because it is declared mutable in
-			// GParameterT<T>. Resetting the internal value prevents divergence through
-			// extensive mutation and also speeds up the previous part of the transfer
-			// function
-			GParameterT<T>::setValue_(mapping);
-
 			return mapping;
 		}
 
 		// Make the compiler happy
 		return T(0.);
+	}
+
+	/****************************************************************************/
+	/**
+	 * Initializes double-based parameters with a given value. Allows e.g. to set all
+	 * floating point parameters to 0. Note that, contrary to the usual behavior,
+	 * we accept initialization outside of the allowed boundaries. However, the internal
+	 * representation will then be transferred back to an external value in the allowed
+	 * value range.
+	 *
+	 * @param val The value to be assigned to the parameters
+	 */
+	void fpFixedValueInit(const float& val)
+	{
+		GParameterT<T>::setValue(transfer(T(val)));
+	}
+
+	/****************************************************************************/
+	/**
+	 * Multiplies double-based parameters with a given value. Note that the resulting
+	 * internal value may well be outside of the allowed boundaries. However, the internal
+	 * representation will then be transferred back to an external value in the allowed
+	 * value range.
+	 */
+	void fpMultiplyBy(const float& val) {
+		GParameterT<T>::setValue(transfer(T(val) * GParameterT<T>::value()));
 	}
 
 protected:

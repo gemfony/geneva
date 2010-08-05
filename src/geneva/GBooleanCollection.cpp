@@ -170,7 +170,7 @@ namespace Geneva
    * @param probability The probability for true values in the collection
    */
   void GBooleanCollection::randomInit(const double& probability) {
-	  if(!GParameterBase::initializationBlocked()) randomInit_(probability);
+	  if(!GParameterBase::randomInitializationBlocked()) randomInit_(probability);
   }
 
   /**********************************************************************/
@@ -212,13 +212,14 @@ namespace Geneva
    * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
    * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
    */
-  boost::optional<std::string> GBooleanCollection::checkRelationshipWith(const GObject& cp,
-  		const Gem::Common::expectation& e,
-  		const double& limit,
-  		const std::string& caller,
-  		const std::string& y_name,
-  		const bool& withMessages) const
-  {
+  boost::optional<std::string> GBooleanCollection::checkRelationshipWith (
+		  const GObject& cp
+  		, const Gem::Common::expectation& e
+  		, const double& limit
+  		, const std::string& caller
+  		, const std::string& y_name
+  		, const bool& withMessages
+  ) const {
 	  using namespace Gem::Common;
 
 	  // Check for a possible self-assignment

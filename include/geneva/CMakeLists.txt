@@ -34,6 +34,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GMutableI.hpp
 	GMutableSetT.hpp
 	GNumCollectionT.hpp
+	GNumFPT.hpp
 	GNumT.hpp
 	GObject.hpp
 	GObjectExpectationChecksT.hpp

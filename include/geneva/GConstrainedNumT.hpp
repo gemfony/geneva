@@ -417,7 +417,15 @@ public:
 	 * @return The transformed value of val_
 	 */
 	virtual T value() const {
-		return this->transfer(GParameterT<T>::value());
+		T mapping = transfer(GParameterT<T>::value());
+
+		// Reset internal value -- possible because it is declared mutable in
+		// GParameterT<T>. Resetting the internal value prevents divergence through
+		// extensive mutation and also speeds up the previous part of the transfer
+		// function
+		GParameterT<T>::setValue_(mapping);
+
+		return mapping;
 	}
 
 	/****************************************************************************/

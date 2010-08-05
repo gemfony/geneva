@@ -89,7 +89,7 @@ class GParameterBase
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
          & BOOST_SERIALIZATION_NVP(adaptionsActive_)
-         & BOOST_SERIALIZATION_NVP(initializationBlocked_);
+         & BOOST_SERIALIZATION_NVP(randomInitializationBlocked_);
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -119,15 +119,18 @@ public:
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
 	virtual void randomInit();
+
 	/** @brief Initializes double-based parameters with a given value */
-	virtual void fixedValueInit(const double&);
+	virtual void fpFixedValueInit(const float& val);
 	/** @brief Multiplies double-based parameters with a given value */
-	void multiplyBy(const double&);
+	virtual void fpMultiplyBy(const float& val);
 
 	/** @brief Specifies that no random initialization should occur anymore */
-	void blockInitialization();
+	void blockRandomInitialization();
+	/** @brief Makes random initialization possible */
+	void allowRandomInitialization();
 	/** @brief Checks whether initialization has been blocked */
-	bool initializationBlocked() const;
+	bool randomInitializationBlocked() const;
 
 	/** @brief Convenience function so we do not need to always cast derived classes */
 	virtual bool hasAdaptor() const;
@@ -152,14 +155,10 @@ protected:
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
 	virtual void randomInit_() = 0;
-	/** @brief Initializes double-based parameters with a given value */
-	virtual void fixedValueInit_(const double&);
-	/** @brief Multiplies double-based parameters with a given value */
-	virtual void multiplyBy_(const double&);
 
 private:
 	bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out
-	bool initializationBlocked_; ///< Specifies that this object should not be initialized again
+	bool randomInitializationBlocked_; ///< Specifies that this object should not be initialized again
 };
 
 } /* namespace Geneva */

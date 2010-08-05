@@ -53,7 +53,7 @@ GDouble::GDouble()
  * @param cp A copy of another GDouble object
  */
 GDouble::GDouble(const GDouble& cp)
-	: GNumT<double>(cp)
+	: GNumFPT<double>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -63,7 +63,7 @@ GDouble::GDouble(const GDouble& cp)
  * @param val A value used for the initialization
  */
 GDouble::GDouble(const double& val)
-	: GNumT<double>(val)
+	: GNumFPT<double>(val)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -74,7 +74,7 @@ GDouble::GDouble(const double& val)
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GDouble::GDouble(const double& lowerBoundary, const double& upperBoundary)
-	: GNumT<double>(lowerBoundary, upperBoundary)
+	: GNumFPT<double>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -92,7 +92,7 @@ GDouble::~GDouble()
  * @return The value that was just assigned to this object
  */
 double GDouble::operator=(const double& val) {
-	return GNumT<double>::operator=(val);
+	return GNumFPT<double>::operator=(val);
 }
 
 /*******************************************************************************************/
@@ -172,7 +172,7 @@ boost::optional<std::string> GDouble::checkRelationshipWith(const GObject& cp,
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GNumT<double>::checkRelationshipWith(cp, e, limit, "GDouble", y_name, withMessages));
+	deviations.push_back(GNumFPT<double>::checkRelationshipWith(cp, e, limit, "GDouble", y_name, withMessages));
 
 	// no local data ...
 
@@ -190,44 +190,9 @@ void GDouble::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GDouble>(cp);
 
 	// Load our parent class'es data ...
-	GNumT<double>::load_(cp);
+	GNumFPT<double>::load_(cp);
 
 	// ... no local data
-}
-
-/*******************************************************************************************/
-/**
- * Triggers random initialization of the parameter.
- */
-void GDouble::randomInit_() {
-	using namespace Gem::Hap;
-
-	double lowerBoundary = getLowerInitBoundary();
-	double upperBoundary = getUpperInitBoundary();
-
-	GRandomT<RANDOMLOCAL> gr;
-
-	setValue(gr.uniform_real(lowerBoundary, upperBoundary));
-}
-
-/*******************************************************************************************/
-/**
- * Initializes double-based parameters with a given value.
- *
- * @param val The value to use for the initialization
- */
-void GDouble::fixedValueInit_(const double& val) {
-	setValue(val);
-}
-
-/*******************************************************************************************/
-/**
- * Multiplies double-based parameters with a given value
- *
- * @param val The value to be multiplied with the parameter
- */
-void GDouble::multiplyBy_(const double& val) {
-	setValue(this->value() * val);
 }
 
 #ifdef GENEVATESTING
@@ -241,7 +206,7 @@ bool GDouble::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumT<double>::modify_GUnitTests()) result = true;
+	if(GNumFPT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -252,7 +217,7 @@ bool GDouble::modify_GUnitTests() {
  */
 void GDouble::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GNumT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GNumFPT<double>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
@@ -261,7 +226,7 @@ void GDouble::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GDouble::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GNumT<double>::specificTestsFailuresExpected_GUnitTests();
+	GNumFPT<double>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

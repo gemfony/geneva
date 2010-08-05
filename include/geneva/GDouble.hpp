@@ -46,7 +46,7 @@
 
 // Geneva headers go here
 
-#include "GNumT.hpp"
+#include "GNumFPT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -59,7 +59,7 @@ namespace Geneva {
  * instead.
  */
 class GDouble
-	:public GNumT<double>
+	:public GNumFPT<double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -68,7 +68,7 @@ class GDouble
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumT_double", boost::serialization::base_object<GNumT<double> >(*this));
+	  ar & make_nvp("GNumFPT_double", boost::serialization::base_object<GNumFPT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -112,13 +112,6 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
-
-	/** @brief Triggers random initialization of the parameter collection */
-	virtual void randomInit_();
-	/** @brief Initializes double-based parameters with a given value */
-	virtual void fixedValueInit_(const double&);
-	/** @brief Multiplies double-based parameters with a given value */
-	virtual void multiplyBy_(const double&);
 };
 
 

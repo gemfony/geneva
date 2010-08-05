@@ -1,5 +1,5 @@
 /**
- * @file GNumT.hpp
+ * @file GNumFPT.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -39,8 +39,8 @@
 // Boost headers go here
 #include <boost/cstdint.hpp>
 
-#ifndef GNUMT_HPP_
-#define GNUMT_HPP_
+#ifndef GNUMFPT_HPP_
+#define GNUMFPT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -49,23 +49,20 @@
 
 
 // Geneva headers go here
-#include "GParameterT.hpp"
+#include "GNumT.hpp"
 
 namespace Gem {
 namespace Geneva {
 
-const double DEFAULTLOWERINITBOUNDARYSINGLE=0.;
-const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
-
 /**********************************************************************/
 /**
- * This class represents numeric values. The most likely types to be stored
- * in this class are double and boost::int32_t . By using the framework provided
- * by GParameterT, this class becomes rather simple.
+ * This class represents floating point values. The most likely type to be stored
+ * in this class is a double. It adds floating point initialization and multiplication
+ * to GNumT
  */
 template <typename T>
-class GNumT
-	: public GParameterT<T>
+class GNumFPT
+	: public GNumT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -73,9 +70,7 @@ class GNumT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<T> >(*this))
-		   & BOOST_SERIALIZATION_NVP(lowerInitBoundary_)
-		   & BOOST_SERIALIZATION_NVP(upperInitBoundary_);
+		ar & make_nvp("GNumT",	boost::serialization::base_object<GNumT<T> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -87,10 +82,8 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GNumT()
-		: GParameterT<T> ()
-		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
-		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
+	GNumFPT()
+		: GNumT<T> ()
 	{ /* nothing */ }
 
 	/*****************************************************************/
@@ -99,10 +92,8 @@ public:
 	 *
 	 * @param val The value used for the initialization
 	 */
-	explicit GNumT(const T& val)
-		: GParameterT<T>(val)
-		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
-		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
+	explicit GNumFPT(const T& val)
+		: GNumT<T>(val)
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -112,29 +103,23 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumT(const T& min, const T& max)
-		: GParameterT<T> ()
-		, lowerInitBoundary_(min)
-		, upperInitBoundary_(max)
-	{
-		GParameterBase::randomInit();
-	}
+	GNumFPT(const T& min, const T& max)
+		: GNumT<T> (min, max)
+	{ /* nothing */ }
 
 	/******************************************************************/
 	/**
 	 * The standard copy constructor
 	 */
-	GNumT(const GNumT<T>& cp)
-		: GParameterT<T> (cp)
-		, lowerInitBoundary_(cp.lowerInitBoundary_)
-		, upperInitBoundary_(cp.upperInitBoundary_)
+	GNumFPT(const GNumFPT<T>& cp)
+		: GNumT<T> (cp)
 	{ /* nothing */ }
 
 	/******************************************************************/
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GNumT()
+	virtual ~GNumFPT()
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -144,8 +129,8 @@ public:
 	 * @param cp A copy of another GDoubleCollection object
 	 * @return A constant reference to this object
 	 */
-	const GNumT& operator=(const GNumT<T>& cp){
-		GNumT<T>::load_(&cp);
+	const GNumFPT& operator=(const GNumFPT<T>& cp){
+		GNumFPT<T>::load_(&cp);
 		return *this;
 	}
 
@@ -154,33 +139,33 @@ public:
 	 * An assignment operator for the contained value type
 	 */
 	virtual T operator=(const T& val) {
-		return GParameterT<T>::operator=(val);
+		return GNumT<T>::operator=(val);
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for equality with another GNumT<T> object
+	 * Checks for equality with another GNumFPT<T> object
 	 *
-	 * @param  cp A constant reference to another GNumT<T> object
+	 * @param  cp A constant reference to another GNumFPT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GNumT<T>& cp) const {
+	bool operator==(const GNumFPT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumT<T>::operator==","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumFPT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for inequality with another GNumT<T> object
+	 * Checks for inequality with another GNumFPT<T> object
 	 *
-	 * @param  cp A constant reference to another GNumT<T> object
+	 * @param  cp A constant reference to another GNumFPT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GNumT<T>& cp) const {
+	bool operator!=(const GNumFPT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumT<T>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumFPT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/******************************************************************/
@@ -206,73 +191,57 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GNumT<T>  *p_load = GObject::conversion_cast<GNumT<T> >(&cp);
+		const GNumFPT<T>  *p_load = GObject::conversion_cast<GNumFPT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GParameterT<T>::checkRelationshipWith(cp, e, limit, "GNumT<T>", y_name, withMessages));
+		deviations.push_back(GNumT<T>::checkRelationshipWith(cp, e, limit, "GNumFPT<T>", y_name, withMessages));
 
-		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GNumT<T>", lowerInitBoundary_, p_load->lowerInitBoundary_, "lowerInitBoundary_", "p_load->lowerInitBoundary_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GNumT<T>", upperInitBoundary_, p_load->upperInitBoundary_, "upperInitBoundary_", "p_load->upperInitBoundary_", e , limit));
+		// no local data
 
-		return evaluateDiscrepancies("GNumT<T>", caller, deviations, e);
+		return evaluateDiscrepancies("GNumFPT<T>", caller, deviations, e);
 	}
 
-	/******************************************************************/
+	/*******************************************************************************************/
 	/**
-	 * Sets the initialization boundaries
+	 * Initializes floating-point-based parameters with a given value.
 	 *
-	 * @param lowerInitBoundary The lower boundary for random initialization
-	 * @param upperInitBoundary The upper boundary for random initialization
+	 * @param val The value to use for the initialization
 	 */
-	void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
-		lowerInitBoundary_ = lowerInitBoundary;
-		upperInitBoundary_ = upperInitBoundary;
+	virtual void fpFixedValueInit(const float& val) {
+		setValue(T(val));
 	}
 
-	/******************************************************************/
+	/*******************************************************************************************/
 	/**
-	 * Retrieves the value of the lower initialization boundary
+	 * Multiplies floating-point-based parameters with a given value
 	 *
-	 * @return The value of the lower initialization boundary
+	 * @param val The value to be multiplied with the parameter
 	 */
-	T getLowerInitBoundary() const {
-		return lowerInitBoundary_;
-	}
-
-	/******************************************************************/
-	/**
-	 * Retrieves the value of the upper initialization boundary
-	 *
-	 * @return The value of the upper initialization boundary
-	 */
-	T getUpperInitBoundary() const {
-		return upperInitBoundary_;
+	virtual void fpMultiplyBy(const float& val) {
+		setValue(GParameterT<T>::value() * T(val));
 	}
 
 protected:
 	/******************************************************************/
 	/**
-	 * Loads the data of another GNumT<T> object,
+	 * Loads the data of another GNumFPT<T> object,
 	 * camouflaged as a GObject. We have no local data, so
 	 * all we need to do is to the standard identity check,
 	 * preventing that an object is assigned to itself.
 	 *
-	 * @param cp A copy of another GNumT<T> object, camouflaged as a GObject
+	 * @param cp A copy of another GNumFPT<T> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp){
 		// Convert cp into local format
-		const GNumT<T> *p_load = GObject::conversion_cast<GNumT<T> >(cp);
+		const GNumFPT<T> *p_load = GObject::conversion_cast<GNumFPT<T> >(cp);
 
 		// Load our parent class'es data ...
-		GParameterT<T>::load_(cp);
+		GNumT<T>::load_(cp);
 
-		// ... and then our local data
-		lowerInitBoundary_ = p_load->lowerInitBoundary_;
-		upperInitBoundary_ = p_load->upperInitBoundary_;
+		// no local data ...
 	}
 
 	/******************************************************************/
@@ -285,13 +254,19 @@ protected:
 	virtual GObject *clone_() const = 0;
 
 	/******************************************************************/
-	/** @brief Triggers random initialization of the parameter */
-	virtual void randomInit_() = 0;
+	/**
+	 * Triggers random initialization of the parameter
+	 */
+	virtual void randomInit_() {
+		using namespace Gem::Hap;
 
-private:
-	/******************************************************************/
-	T lowerInitBoundary_; ///< The lower boundary for random initialization
-	T upperInitBoundary_; ///< The upper boundary for random initialization
+		T lowerBoundary = GNumT<T>::getLowerInitBoundary();
+		T upperBoundary = GNumT<T>::getUpperInitBoundary();
+
+		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
+
+		GParameterT<T>::setValue(gr.uniform_real(lowerBoundary, upperBoundary));
+	}
 
 #ifdef GENEVATESTING
 public:
@@ -306,7 +281,7 @@ public:
 		bool result;
 
 		// Call the parent classes' functions
-		if(GParameterT<T>::modify_GUnitTests()) result = true;
+		if(GNumT<T>::modify_GUnitTests()) result = true;
 
 		return result;
 	}
@@ -317,7 +292,7 @@ public:
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent classes' functions
-		GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
+		GNumT<T>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
 	/******************************************************************/
@@ -326,7 +301,7 @@ public:
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent classes' functions
-		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();
+		GNumT<T>::specificTestsFailuresExpected_GUnitTests();
 	}
 
 #endif /* GENEVATESTING */
@@ -341,11 +316,11 @@ public:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::Geneva::GNumT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GNumFPT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::Geneva::GNumT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GNumFPT<T> > : public boost::true_type {};
 	}
 }
 /**********************************************************************/
 
-#endif /* GNUMT_HPP_ */
+#endif /* GNUMFPT_HPP_ */
