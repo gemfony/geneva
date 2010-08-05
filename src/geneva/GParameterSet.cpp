@@ -34,303 +34,302 @@
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GParameterSet)
 
-namespace Gem
+namespace Gem {
+namespace Geneva {
+
+/************************************************************************************************************/
+/**
+ * The default constructor.
+ */
+GParameterSet::GParameterSet()
+: GMutableSetT<Gem::Geneva::GParameterBase>()
+  { /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * The copy constructor. Note that we cannot rely on the operator=() of the vector
+ * here, as we do not know the actual type of T objects.
+ *
+ * @param cp A copy of another GParameterSet object
+ */
+GParameterSet::GParameterSet(const GParameterSet& cp)
+: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
+  , eval_(cp.eval_)
+  { /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * The destructor
+ */
+GParameterSet::~GParameterSet()
+{ /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * A Standard assignment operator
+ *
+ * @param cp A copy of another GParameterSet object
+ * @return A constant reference to this object
+ */
+const GParameterSet& GParameterSet::operator=(const GParameterSet& cp){
+	GParameterSet::load_(&cp);
+	return *this;
+}
+
+/************************************************************************************************************/
+/**
+ * Checks for equality with another GParameterSet object
+ *
+ * @param  cp A constant reference to another GParameterSet object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GParameterSet::operator==(const GParameterSet& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterSet::operator==","cp", CE_SILENT);
+}
+
+/************************************************************************************************************/
+/**
+ * Checks for inequality with another GParameterSet object
+ *
+ * @param  cp A constant reference to another GParameterSet object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GParameterSet::operator!=(const GParameterSet& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterSet::operator!=","cp", CE_SILENT);
+}
+
+/************************************************************************************************************/
+/**
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GParameterSet::checkRelationshipWith(const GObject& cp,
+		const Gem::Common::expectation& e,
+		const double& limit,
+		const std::string& caller,
+		const std::string& y_name,
+		const bool& withMessages) const
 {
-	namespace Geneva
-	{
-	/************************************************************************************************************/
-	/**
-	 * The default constructor.
-	 */
-	GParameterSet::GParameterSet()
-		: GMutableSetT<Gem::Geneva::GParameterBase>()
-	  { /* nothing */ }
+	using namespace Gem::Common;
 
-	/************************************************************************************************************/
-	/**
-	 * The copy constructor. Note that we cannot rely on the operator=() of the vector
-	 * here, as we do not know the actual type of T objects.
-	 *
-	 * @param cp A copy of another GParameterSet object
-	 */
-	GParameterSet::GParameterSet(const GParameterSet& cp)
-		: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
-		, eval_(cp.eval_)
-	  { /* nothing */ }
+	// Check that we are not accidently assigning this object to itself
+	GObject::selfAssignmentCheck<GParameterSet>(&cp);
 
-	/************************************************************************************************************/
-	/**
-	 * The destructor
-	 */
-	GParameterSet::~GParameterSet()
-	{ /* nothing */ }
+	// Will hold possible deviations from the expectation, including explanations
+	std::vector<boost::optional<std::string> > deviations;
 
-	/************************************************************************************************************/
-	/**
-	 * A Standard assignment operator
-	 *
-	 * @param cp A copy of another GParameterSet object
-	 * @return A constant reference to this object
-	 */
-	const GParameterSet& GParameterSet::operator=(const GParameterSet& cp){
-		GParameterSet::load_(&cp);
-		return *this;
-	}
+	// Check our parent class'es data ...
+	deviations.push_back(GMutableSetT<Gem::Geneva::GParameterBase>::checkRelationshipWith(cp, e, limit, "GParameterSet", y_name, withMessages));
 
-	/************************************************************************************************************/
-	/**
-	 * Checks for equality with another GParameterSet object
-	 *
-	 * @param  cp A constant reference to another GParameterSet object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool GParameterSet::operator==(const GParameterSet& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterSet::operator==","cp", CE_SILENT);
-	}
+	// ... and there is no local data
 
-	/************************************************************************************************************/
-	/**
-	 * Checks for inequality with another GParameterSet object
-	 *
-	 * @param  cp A constant reference to another GParameterSet object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool GParameterSet::operator!=(const GParameterSet& cp) const {
-		using namespace Gem::Common;
-		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterSet::operator!=","cp", CE_SILENT);
-	}
+	return evaluateDiscrepancies("GParameterSet", caller, deviations, e);
+}
 
-	/************************************************************************************************************/
-	/**
-	 * Checks whether a given expectation for the relationship between this object and another object
-	 * is fulfilled.
-	 *
-	 * @param cp A constant reference to another object, camouflaged as a GObject
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 * @param caller An identifier for the calling entity
-	 * @param y_name An identifier for the object that should be compared to this one
-	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
-	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
-	 */
-	boost::optional<std::string> GParameterSet::checkRelationshipWith(const GObject& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-			{
-		using namespace Gem::Common;
+/************************************************************************************************************/
+/**
+ * Creates a deep clone of this object.
+ *
+ * @return A deep clone of this object
+ */
+GObject * GParameterSet::clone_() const {
+	return new GParameterSet(*this);
+}
 
-		// Check that we are not accidently assigning this object to itself
-		GObject::selfAssignmentCheck<GParameterSet>(&cp);
+/************************************************************************************************************/
+/**
+ * Loads the data of another GParameterSet object, camouflaged as a GObject.
+ *
+ * @param cp A copy of another GParameterSet object, camouflaged as a GObject
+ */
+void GParameterSet::load_(const GObject* cp){
+	// Convert to local format
+	const GParameterSet *p_load = this->conversion_cast<GParameterSet>(cp);
 
-		// Will hold possible deviations from the expectation, including explanations
-		std::vector<boost::optional<std::string> > deviations;
+	// Load the parent class'es data
+	GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);
 
-		// Check our parent class'es data ...
-		deviations.push_back(GMutableSetT<Gem::Geneva::GParameterBase>::checkRelationshipWith(cp, e, limit, "GParameterSet", y_name, withMessages));
+	// Then load our local data - here the evaluation function (if any)
+	// NOTE: THIS IS DANGEROUS WHEN OPERATING IN A MULTITHREADED ENVIRONMENT.
+	// IT WILL ALSO NOT WORK IN A NETWORKED ENVIRONMENT
+	eval_ = p_load->eval_;
+}
 
-		// ... and there is no local data
-
-		return evaluateDiscrepancies("GParameterSet", caller, deviations, e);
-	}
-
-	/************************************************************************************************************/
-	/**
-	 * Creates a deep clone of this object.
-	 *
-	 * @return A deep clone of this object
-	 */
-	GObject * GParameterSet::clone_() const {
-		return new GParameterSet(*this);
-	}
-
-	/************************************************************************************************************/
-	/**
-	 * Loads the data of another GParameterSet object, camouflaged as a GObject.
-	 *
-	 * @param cp A copy of another GParameterSet object, camouflaged as a GObject
-	 */
-	void GParameterSet::load_(const GObject* cp){
-		// Convert to local format
-		const GParameterSet *p_load = this->conversion_cast<GParameterSet>(cp);
-
-		// Load the parent class'es data
-		GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);
-
-		// Then load our local data - here the evaluation function (if any)
-		// NOTE: THIS IS DANGEROUS WHEN OPERATING IN A MULTITHREADED ENVIRONMENT.
-		// IT WILL ALSO NOT WORK IN A NETWORKED ENVIRONMENT
-		eval_ = p_load->eval_;
-	}
-
-	/************************************************************************************************************/
-	/**
-	 * A wrapper for GParameterSet::customUpdateOnStall() that restricts parameter set updates to parents
-	 * in the case of evolutionary algorithms in DEBUG mode.
-	 *
-	 * @return A boolean indicating whether an update was performed and the individual has changed
-	 */
-	bool GParameterSet::updateOnStall() {
-		switch (getPersonality()) {
-		case NONE:
-		case GD:
-		case SWARM:
-			break;
-
-		case EA:
-#ifdef DEBUG
-			{
-				// This function should only be called for parents. Check ...
-				if(!getEAPersonalityTraits()->isParent()) {
-					std::ostringstream error;
-					error << "In GParameterSet::updateOnStall() (called for EA personality): Error!" << std::endl
-						  << "This function should only be called for parent individuals." << std::endl;
-					throw(Gem::Common::gemfony_error_condition(error.str()));
-				}
-			}
-#endif /* DEBUG */
+/************************************************************************************************************/
+/**
+ * A wrapper for GParameterSet::customUpdateOnStall() that restricts parameter set updates to parents
+ * in the case of evolutionary algorithms in DEBUG mode.
+ *
+ * @return A boolean indicating whether an update was performed and the individual has changed
+ */
+bool GParameterSet::updateOnStall() {
+	switch (getPersonality()) {
+	case NONE:
+	case GD:
+	case SWARM:
 		break;
 
-		}
-
-		GIndividual::updateOnStall();
-
-		return false;
-	}
-
-
-	/************************************************************************************************************/
-	/**
-	 * Registers an evaluation function with this class. Note that the function object
-	 * can not be serialized. Hence, in a networked optimization run, you need to derive
-	 * your own class from GParameterSet and specify an evaluation function.
-	 */
-	void GParameterSet::registerEvaluator(const boost::function<double (const GParameterSet&)>& eval){
-		if(eval.empty()){ // empty function ?
+	case EA:
+#ifdef DEBUG
+	{
+		// This function should only be called for parents. Check ...
+		if(!getEAPersonalityTraits()->isParent()) {
 			std::ostringstream error;
-			error << "In GParameterSet::registerEvaluator(): Error" << std::endl
-					<< "Received empty function" << std::endl;
-
-			throw Gem::Common::gemfony_error_condition(error.str());
+			error << "In GParameterSet::updateOnStall() (called for EA personality): Error!" << std::endl
+					<< "This function should only be called for parent individuals." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
+	}
+#endif /* DEBUG */
+	break;
 
-		eval_ = eval;
 	}
 
-	/************************************************************************************************************/
-	/**
-	 * Allows to randomly initialize parameter members
-	 */
-	void GParameterSet::randomInit() {
-		// Trigger random initialization of all our parameter objects
-		GParameterSet::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->randomInit();
-		}
+	GIndividual::updateOnStall();
 
-		// As we have modified our internal data sets, make sure the dirty flag is set
-		GIndividual::setDirtyFlag();
+	return false;
+}
+
+
+/************************************************************************************************************/
+/**
+ * Registers an evaluation function with this class. Note that the function object
+ * can not be serialized. Hence, in a networked optimization run, you need to derive
+ * your own class from GParameterSet and specify an evaluation function.
+ */
+void GParameterSet::registerEvaluator(const boost::function<double (const GParameterSet&)>& eval){
+	if(eval.empty()){ // empty function ?
+		std::ostringstream error;
+		error << "In GParameterSet::registerEvaluator(): Error" << std::endl
+				<< "Received empty function" << std::endl;
+
+		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
-	/************************************************************************************************************/
-	/**
-	 * Recursively initializes double-based parameters with a given value. Allows e.g. to set all floating point
-	 * parameters to 0.
-	 *
-	 * @param val The value to be assigned to the parameters
-	 */
-	void GParameterSet::fixedValueInit(const double& val) {
-		// Loop over all GParameterBase objects
-		GParameterSet::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->fixedValueInit(val);
-		}
+	eval_ = eval;
+}
 
-		// As we have modified our internal data sets, make sure the dirty flag is set
-		GIndividual::setDirtyFlag();
+/************************************************************************************************************/
+/**
+ * Allows to randomly initialize parameter members
+ */
+void GParameterSet::randomInit() {
+	// Trigger random initialization of all our parameter objects
+	GParameterSet::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->randomInit();
 	}
 
-	/************************************************************************************************************/
-	/**
-	 * Multiplies double-based parameters with a given value
-	 *
-	 * @param val The value to be multiplied with parameters
-	 */
-	void GParameterSet::multiplyBy(const double& val) {
-		// Loop over all GParameterBase objects
-		GParameterSet::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->multiplyBy(val);
-		}
+	// As we have modified our internal data sets, make sure the dirty flag is set
+	GIndividual::setDirtyFlag();
+}
 
-		// As we have modified our internal data sets, make sure the dirty flag is set
-		GIndividual::setDirtyFlag();
+/************************************************************************************************************/
+/**
+ * Recursively initializes double-based parameters with a given value. Allows e.g. to set all floating point
+ * parameters to 0.
+ *
+ * @param val The value to be assigned to the parameters
+ */
+void GParameterSet::fixedValueInit(const double& val) {
+	// Loop over all GParameterBase objects
+	GParameterSet::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->fixedValueInit(val);
 	}
 
-	/************************************************************************************************************/
-	/**
-	 * The actual fitness calculation takes place here. Note that you need
-	 * to overload this function if you do not want to use the GEvaluator
-	 * mechanism.
-	 *
-	 * @return The newly calculated fitness of this object
-	 */
-	double GParameterSet::fitnessCalculation(){
-		if(eval_.empty()){ // Has an evaluator been stored in this class ?
-			std::ostringstream error;
-			error << "In GParameterSet::fitnessCalculation(): Error" << std::endl
-					<< "No evaluation function present" << std::endl;
+	// As we have modified our internal data sets, make sure the dirty flag is set
+	GIndividual::setDirtyFlag();
+}
 
-			throw Gem::Common::gemfony_error_condition(error.str());
-		}
-
-		// Trigger the actual calculation
-		return eval_(*this);
+/************************************************************************************************************/
+/**
+ * Multiplies double-based parameters with a given value
+ *
+ * @param val The value to be multiplied with parameters
+ */
+void GParameterSet::multiplyBy(const double& val) {
+	// Loop over all GParameterBase objects
+	GParameterSet::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->multiplyBy(val);
 	}
+
+	// As we have modified our internal data sets, make sure the dirty flag is set
+	GIndividual::setDirtyFlag();
+}
+
+/************************************************************************************************************/
+/**
+ * The actual fitness calculation takes place here. Note that you need
+ * to overload this function if you do not want to use the GEvaluator
+ * mechanism.
+ *
+ * @return The newly calculated fitness of this object
+ */
+double GParameterSet::fitnessCalculation(){
+	if(eval_.empty()){ // Has an evaluator been stored in this class ?
+		std::ostringstream error;
+		error << "In GParameterSet::fitnessCalculation(): Error" << std::endl
+				<< "No evaluation function present" << std::endl;
+
+		throw Gem::Common::gemfony_error_condition(error.str());
+	}
+
+	// Trigger the actual calculation
+	return eval_(*this);
+}
 
 #ifdef GENEVATESTING
-	/************************************************************************************************************/
-	/**
-	 * Applies modifications to this object. This is needed for testing purposes
-	 *
-	 * @return A boolean which indicates whether modifications were made
-	 */
-	bool GParameterSet::modify_GUnitTests() {
-		bool result = false;
+/************************************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GParameterSet::modify_GUnitTests() {
+	bool result = false;
 
-		// Call the parent class'es function
-		if(GMutableSetT<Gem::Geneva::GParameterBase>::modify_GUnitTests()) result = true;
+	// Call the parent class'es function
+	if(GMutableSetT<Gem::Geneva::GParameterBase>::modify_GUnitTests()) result = true;
 
-		return result;
-	}
+	return result;
+}
 
-	/************************************************************************************************************/
-	/**
-	 * Performs self tests that are expected to succeed. This is needed for testing purposes
-	 */
-	void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
-		// Call the parent class'es function
-		GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
-	}
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
+}
 
-	/************************************************************************************************************/
-	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
-	 */
-	void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
-		// Call the parent class'es function
-		GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsFailuresExpected_GUnitTests();
-	}
+/************************************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsFailuresExpected_GUnitTests();
+}
 
-	/************************************************************************************************************/
+/************************************************************************************************************/
 #endif /* GENEVATESTING */
 
-	} /* namespace Geneva */
+} /* namespace Geneva */
 } /* namespace Gem */
 
 #ifdef GENEVATESTING
