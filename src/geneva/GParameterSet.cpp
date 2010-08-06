@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor.
  */
 GParameterSet::GParameterSet()
-: GMutableSetT<Gem::Geneva::GParameterBase>()
+	: GMutableSetT<Gem::Geneva::GParameterBase>()
   { /* nothing */ }
 
 /************************************************************************************************************/
@@ -53,8 +53,8 @@ GParameterSet::GParameterSet()
  * @param cp A copy of another GParameterSet object
  */
 GParameterSet::GParameterSet(const GParameterSet& cp)
-: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
-  , eval_(cp.eval_)
+	: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
+	, eval_(cp.eval_)
   { /* nothing */ }
 
 /************************************************************************************************************/
@@ -356,6 +356,33 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
 	for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
 		(*it)->fpSubtract(*cit);
 	}
+}
+
+/************************************************************************************************************/
+/**
+ * Small convenience function that helps to multiply GParameterSet objects with floating point values in
+ * more transparent ways.
+ */
+void GParameterSet::operator*=(const float& val) {
+	fpMultiplyBy(val);
+}
+
+/************************************************************************************************************/
+/**
+ * Small convenience function that helps to add a GParameterSet objects to this one in
+ * more transparent ways.
+ */
+void GParameterSet::operator+=(boost::shared_ptr<GParameterSet> p) {
+	fpAdd(p);
+}
+
+/************************************************************************************************************/
+/**
+ * Small convenience function that helps to subtract a GParameterSet objects from this one in
+ * more transparent ways.
+ */
+void GParameterSet::operator-=(boost::shared_ptr<GParameterSet> p) {
+	fpSubtract(p);
 }
 
 /************************************************************************************************************/

@@ -101,21 +101,33 @@ public:
 	/** @brief Registers an evaluation function */
 	void registerEvaluator(const boost::function<double (const GParameterSet&)>&);
 
+	/** @brief Triggers updates when the optimization process has stalled */
+	virtual bool updateOnStall();
+
 	/** @brief Allows to randomly initialize parameter members */
 	void randomInit();
 
 	/** @brief Initializes floating-point parameters with a given value */
 	void fpFixedValueInit(const float&);
-	/** @brief Multiplies floating-point parameters with a given value */
-	void fpMultiplyBy(const float& val);
 	/** @brief Multiplies with a random floating point number in a given range */
 	void fpRandomMultiplyBy(const float&, const float&);
 	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
 	void fpRandomMultiplyBy();
+
 	/** @brief Adds the floating point parameters of another GParameterSet object to this one */
 	void fpAdd(boost::shared_ptr<GParameterSet>);
+	/** @brief Small convenience function */
+	void operator+=(boost::shared_ptr<GParameterSet>);
+
 	/** @brief Subtracts the floating point parameters of another GParameterSet object from this one */
 	void fpSubtract(boost::shared_ptr<GParameterSet>);
+	/** @brief Small convenience function */
+	void operator-=(boost::shared_ptr<GParameterSet>);
+
+	/** @brief Multiplies floating-point parameters with a given value */
+	void fpMultiplyBy(const float& val);
+	/** @brief Small convenience function */
+	void operator*=(const float&);
 
 	/**********************************************************************/
 	/**
@@ -155,8 +167,6 @@ public:
 	}
 
 	/**************************************************************************************************/
-	/** @brief Triggers updates when the optimization process has stalled */
-	virtual bool updateOnStall();
 
 protected:
 	/** @brief Loads the data of another GObject */

@@ -109,11 +109,8 @@ class GSwarm
 		   & BOOST_SERIALIZATION_NVP(global_best_)
 		   & BOOST_SERIALIZATION_NVP(local_bests_)
 		   & BOOST_SERIALIZATION_NVP(c_local_)
-		   & BOOST_SERIALIZATION_NVP(c_local_range_)
 		   & BOOST_SERIALIZATION_NVP(c_global_)
-		   & BOOST_SERIALIZATION_NVP(c_global_range_)
-		   & BOOST_SERIALIZATION_NVP(c_delta_)
-		   & BOOST_SERIALIZATION_NVP(c_delta_range_);
+		   & BOOST_SERIALIZATION_NVP(c_delta_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -147,33 +144,18 @@ public:
 
 	/** @brief Allows to set a static multiplier for local distances */
 	void setCLocal(const double&);
-	/** @brief Allows to set the lower and upper boundary for random multiplier range for local distances */
-	void setCLocal(const double&, const double&);
-
 	/** @brief Allows to retrieve the static multiplier for local distances or the lower boundary of a random range */
 	double getCLocal() const;
-	/** @brief Allows to retrieve the random multiplier range for local distances (-1 if unset) */
-	double getCLocalRange() const;
 
 	/** @brief Allows to set a static multiplier for global distances */
 	void setCGlobal(const double&);
-	/** @brief Allows to set the lower and upper boundary for random multiplier range for global distances */
-	void setCGlobal(const double&, const double&);
-
 	/** @brief Allows to retrieve the static multiplier for local distances or the lower boundary of a random range */
 	double getCGlobal() const;
-	/** @brief Allows to retrieve the random multiplier range for local distances (-1 if unset) */
-	double getCGlobalRange() const;
 
 	/** @brief Allows to set a static multiplier for deltas */
 	void setCDelta(const double&);
-	/** @brief Allows to set the lower and upper boundary for random multiplier range for deltas */
-	void setCDelta(const double&, const double&);
-
 	/** @brief Allows to retrieve the static multiplier for deltas or the lower boundary of a random range */
 	double getCDelta() const;
-	/** @brief Allows to retrieve the random multiplier range for deltas (-1 if unset) */
-	double getCDeltaRange() const;
 
 	/** @brief Retrieves the number of neighborhoods */
 	std::size_t getNNeighborhoods() const;
@@ -309,21 +291,15 @@ private:
 
 	/** @brief A factor for multiplication of local bests, or lower end of a random range */
 	double c_local_;
-	/** @brief A possible range for random multiplication of local bests. -1 if disabled */
-	double c_local_range_;
-
 	/** @brief A factor for multiplication of global bests, or lower end of a random range */
 	double c_global_;
-	/** @brief A possible range for random multiplication of global l bests. -1 if disabled */
-	double c_global_range_;
-
 	/** @brief A factor for multiplication of deltas, or lower end of a random range */
 	double c_delta_;
-	/** @brief A possible range for random multiplication of velocities. -1 if disabled */
-	double c_delta_range_;
 
 	boost::shared_ptr<GIndividual> global_best_; ///< The globally best individual
 	boost::shared_ptr<GIndividual> *local_bests_; ///< The collection of best individuals from each neighborhood
+
+	std::vector<boost::shared_ptr<GIndividual> > velocities_; ///< Holds velocities, as calculated in the previous iteration
 
 #ifdef GENEVATESTING
 public:
