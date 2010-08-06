@@ -37,16 +37,16 @@ using namespace boost::unit_test;
 
 // These includes hold the actual tests
 #include "GAdaptorT_test.hpp"
-#include "GEvolutionaryAlgorithm_test.hpp"
 #include "GBooleanCollection_test.hpp"
-#include "GMultiThreadedEA_test.hpp"
 #include "GConstrainedDouble_test.hpp"
 #include "GConstrainedInt32_test.hpp"
 #include "GDoubleCollection_test.hpp"
 #include "GDataExchange_test.hpp"
+#include "GEvolutionaryAlgorithm_test.hpp"
 #include "GGaussAdaptorT_test.hpp"
 #include "GInt32Collection_test.hpp"
 #include "GIntFlipAdaptorT_test.hpp"
+#include "GMultiThreadedEA_test.hpp"
 #include "GNumCollectionT_test.hpp"
 #include "GObject_test.hpp"
 #include "GParameterSet_test.hpp"
@@ -56,16 +56,16 @@ using namespace boost::unit_test;
 // test program entry point
 test_suite* init_unit_test_suite(int argc, char** argv) {
    framework::master_test_suite().add(new GAdaptorTSuite());
-   framework::master_test_suite().add(new GEvolutionaryAlgorithmSuite());
    framework::master_test_suite().add(new GBooleanCollectionSuite());
-   framework::master_test_suite().add(new GMultiThreadedEASuite());
    framework::master_test_suite().add(new GConstrainedDoubleSuite());
    framework::master_test_suite().add(new GConstrainedInt32Suite());
    framework::master_test_suite().add(new GDataExchangeSuite());
    framework::master_test_suite().add(new GDoubleCollectionSuite());
+   framework::master_test_suite().add(new GEvolutionaryAlgorithmSuite());
    framework::master_test_suite().add(new GGaussAdaptorTSuite());
    framework::master_test_suite().add(new GInt32CollectionSuite());
    framework::master_test_suite().add(new GIntFlipAdaptorTSuite());
+   framework::master_test_suite().add(new GMultiThreadedEASuite());
    framework::master_test_suite().add(new GNumCollectionTSuite());
    framework::master_test_suite().add(new GObjectSuite());
    framework::master_test_suite().add(new GParameterSetSuite());
