@@ -40,7 +40,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumT.hpp
 	GObject.hpp
 	GObjectExpectationChecksT.hpp
-	GOptimizationAlgorithm.hpp
 	GOptimizationAlgorithmT.hpp
 	GOptimizationEnums.hpp
 	GParameterBase.hpp

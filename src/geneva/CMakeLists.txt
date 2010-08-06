@@ -28,7 +28,6 @@ SET ( OPTIMIZATIONSOURCES
 	GIntFlipAdaptorT
 	GMultiThreadedEA
 	GObject
-	GOptimizationAlgorithm
 	GOptimizationEnums
 	GParameterBase
 	GParameterBaseWithAdaptorsT
