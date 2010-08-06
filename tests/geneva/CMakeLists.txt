@@ -1,6 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 ADD_SUBDIRECTORY (
+	TestIndividuals
+)
+
+ADD_SUBDIRECTORY (
 	Manual
 )
 
@@ -9,5 +13,5 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	TestIndividuals
+	UnitTests
 )

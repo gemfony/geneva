@@ -1,13 +1,13 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 ADD_SUBDIRECTORY (
+	dataexchange
+)
+
+ADD_SUBDIRECTORY (
 	hap
 )
 
 ADD_SUBDIRECTORY (
 	geneva
-)
-
-ADD_SUBDIRECTORY ( 
-	UnitTests
 )

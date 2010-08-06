@@ -17,7 +17,7 @@ INCLUDE_DIRECTORIES (
 	${GENEVA_ROOT}/include/hap
 	${GENEVA_ROOT}/include/courtier
 	${GENEVA_ROOT}/include/geneva
-	${GENEVA_ROOT}/tests/UnitTests/UtilityHeaders
+	${GENEVA_ROOT}/tests/geneva/UnitTests/UtilityHeaders
 #	${Boost_INCLUDE_DIRS}
 )
 
