@@ -56,7 +56,7 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GConstrainedDouble.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "hap/GRandomT.hpp"
@@ -106,8 +106,8 @@ public:
 		using namespace Gem::Hap;
 		GRandomT<RANDOMLOCAL> gr;
 
-		// Set up a GConstrainedDoubleCollection
-		boost::shared_ptr<GConstrainedDoubleCollection> gbdc_ptr(new GConstrainedDoubleCollection());
+		// Set up a GConstrainedDoubleObjectCollection
+		boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc_ptr(new GConstrainedDoubleObjectCollection());
 
 		// Create a suitable adaptor (sigma=0.1, sigma-adaption=0.5, min sigma=0, max sigma=0,5)
 		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 0.5));
@@ -199,7 +199,7 @@ protected:
 
 		// Extract the GDoubleCollection object. In a realistic scenario, you might want
 		// to add error checks here upon first invocation.
-		boost::shared_ptr<GConstrainedDoubleCollection> vC = pc_at<GConstrainedDoubleCollection>(0);
+		boost::shared_ptr<GConstrainedDoubleObjectCollection> vC = pc_at<GConstrainedDoubleObjectCollection>(0);
 
 		// Calculate the value of the parabola
 		for(std::size_t i=0; i<vC->size(); i++)  {

@@ -50,7 +50,7 @@
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
 #include "geneva/GIndividual.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
 
 // The individual that should be optimized
 #include "GDelayIndividual.hpp"
@@ -215,8 +215,8 @@ int main(int argc, char **argv){
 			boost::shared_ptr<GDelayIndividual> gdi_ptr(new GDelayIndividual(sleepTime));
 			gdi_ptr->setProcessingCycles(processingCycles);
 
-			// Set up a GConstrainedDoubleCollection
-			boost::shared_ptr<GConstrainedDoubleCollection> gbdc_ptr(new GConstrainedDoubleCollection());
+			// Set up a GConstrainedDoubleObjectCollection
+			boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc_ptr(new GConstrainedDoubleObjectCollection());
 
 			// Set up nVariables GConstrainedDouble objects in the desired value range,
 			// and register them with the double collection
@@ -231,7 +231,7 @@ int main(int argc, char **argv){
 				gbdc_ptr->push_back(gbd_ptr);
 			}
 
-			// Make the GConstrainedDoubleCollection known to the individual
+			// Make the GConstrainedDoubleObjectCollection known to the individual
 			gdi_ptr->push_back(gbdc_ptr);
 
 			parentIndividuals.push_back(gdi_ptr);

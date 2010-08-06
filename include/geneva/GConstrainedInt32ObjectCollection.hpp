@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedInt32Collection.hpp
+ * @file GConstrainedInt32ObjectCollection.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -62,7 +62,7 @@ namespace Geneva {
  * A collection of GConstrainedInt32 objects, ready for use in a
  * GParameterSet derivative.
  */
-class GConstrainedInt32Collection
+class GConstrainedInt32ObjectCollection
 	:public GParameterTCollectionT<GConstrainedInt32>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -79,19 +79,19 @@ class GConstrainedInt32Collection
 
 public:
 	/** @brief The default constructor */
-	GConstrainedInt32Collection();
+	GConstrainedInt32ObjectCollection();
 	/** @brief The copy constructor */
-	GConstrainedInt32Collection(const GConstrainedInt32Collection&);
+	GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection&);
 	/** @brief The destructor */
-	virtual ~GConstrainedInt32Collection();
+	virtual ~GConstrainedInt32ObjectCollection();
 
 	/** @brief A standard assignment operator */
-	const GConstrainedInt32Collection& operator=(const GConstrainedInt32Collection&);
+	const GConstrainedInt32ObjectCollection& operator=(const GConstrainedInt32ObjectCollection&);
 
-	/** @brief Checks for equality with another GConstrainedInt32Collection object */
-	bool operator==(const GConstrainedInt32Collection&) const;
-	/** @brief Checks for inequality with another GConstrainedInt32Collection object */
-	bool operator!=(const GConstrainedInt32Collection&) const;
+	/** @brief Checks for equality with another GConstrainedInt32ObjectCollection object */
+	bool operator==(const GConstrainedInt32ObjectCollection&) const;
+	/** @brief Checks for inequality with another GConstrainedInt32ObjectCollection object */
+	bool operator!=(const GConstrainedInt32ObjectCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;

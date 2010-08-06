@@ -7,9 +7,9 @@ SET ( OPTIMIZATIONSOURCES
 	GBooleanObjectCollection
 	GBrokerEA
 	GConstrainedDouble
-	GConstrainedDoubleCollection
+	GConstrainedDoubleObjectCollection
 	GConstrainedInt32
-	GConstrainedInt32Collection
+	GConstrainedInt32ObjectCollection
 	GDouble
 	GDoubleCollection
 	GDoubleGaussAdaptor

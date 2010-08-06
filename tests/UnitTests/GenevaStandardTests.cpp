@@ -42,8 +42,8 @@ using namespace boost::unit_test;
 #include "geneva/GBooleanObjectCollection.hpp"
 #include "geneva/GInt32ObjectCollection.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedInt32Collection.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/GConstrainedInt32ObjectCollection.hpp"
 #include "geneva/GBoolean.hpp"
 #include "geneva/GConstrainedInt32.hpp"
 #include "geneva/GInt32.hpp"
@@ -95,11 +95,11 @@ public:
 			  GBooleanObjectCollection
 			, GInt32ObjectCollection
 			, GDoubleObjectCollection
-			, GConstrainedDoubleCollection
+			, GConstrainedDoubleObjectCollection
 			, GBoolean
 			, GConstrainedDouble
 			, GConstrainedInt32
-			, GConstrainedInt32Collection
+			, GConstrainedInt32ObjectCollection
 			, GDouble
 			, GInt32
 			, GInt32Collection

@@ -121,8 +121,8 @@ public:
 				// Get access to the inidividual
 				boost::shared_ptr<GExternalEvaluatorIndividual> gdii_ptr = gbp->individual_cast<GExternalEvaluatorIndividual>(p);
 
-				// Extract the GConstrainedDoubleCollection object, so we can get information about sigma
-				std::vector<boost::shared_ptr<GConstrainedDoubleCollection> > v;
+				// Extract the GConstrainedDoubleObjectCollection object, so we can get information about sigma
+				std::vector<boost::shared_ptr<GConstrainedDoubleObjectCollection> > v;
 				gdii_ptr->attachViewTo(v);
 
 				std::size_t nSigmas = 0;
@@ -130,10 +130,10 @@ public:
 				double minSigma=std::numeric_limits<double>::max();
 				double maxSigma=-std::numeric_limits<double>::max();
 
-				std::vector<boost::shared_ptr<GConstrainedDoubleCollection> >::iterator it;
+				std::vector<boost::shared_ptr<GConstrainedDoubleObjectCollection> >::iterator it;
 				for(it=v.begin(); it!=v.end(); ++it) {
 					// We need to loop over all GConstrainedDouble objects to extract the desired information
-					GConstrainedDoubleCollection::iterator gbdc_it;
+					GConstrainedDoubleObjectCollection::iterator gbdc_it;
 					for(gbdc_it=(*it)->begin(); gbdc_it!=(*it)->end(); ++gbdc_it) {
 #ifdef DEBUG
 						if(!(*gbdc_it)->hasAdaptor()) { // This should not happen

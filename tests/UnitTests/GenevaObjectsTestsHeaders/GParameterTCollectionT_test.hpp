@@ -64,8 +64,8 @@
 #include "geneva/GDouble.hpp"
 #include "geneva/GInt32.hpp"
 #include "geneva/GBoolean.hpp"
-#include "geneva/GConstrainedDoubleCollection.hpp"
-#include "geneva/GConstrainedInt32Collection.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/GConstrainedInt32ObjectCollection.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GBooleanObjectCollection.hpp"
 #include "geneva/GInt32ObjectCollection.hpp"
@@ -90,13 +90,13 @@ boost::shared_ptr<typename T::collection_type> getTemplateItemNoAdaptor() {
 
 // Specialization for GConstrainedDouble
 template <>
-boost::shared_ptr<GConstrainedDouble> getTemplateItemNoAdaptor<GConstrainedDoubleCollection>() {
+boost::shared_ptr<GConstrainedDouble> getTemplateItemNoAdaptor<GConstrainedDoubleObjectCollection>() {
 	return boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(0.,0.,1.));
 }
 
 // Specialization for GConstrainedInt32
 template <>
-boost::shared_ptr<GConstrainedInt32> getTemplateItemNoAdaptor<GConstrainedInt32Collection>() {
+boost::shared_ptr<GConstrainedInt32> getTemplateItemNoAdaptor<GConstrainedInt32ObjectCollection>() {
 	return boost::shared_ptr<GConstrainedInt32>(new GConstrainedInt32(0,0,100));
 }
 
@@ -110,13 +110,13 @@ boost::shared_ptr<typename T::collection_type> getFindItemNoAdaptor() {
 
 // Specialization for GConstrainedDouble
 template <>
-boost::shared_ptr<GConstrainedDouble> getFindItemNoAdaptor<GConstrainedDoubleCollection>() {
+boost::shared_ptr<GConstrainedDouble> getFindItemNoAdaptor<GConstrainedDoubleObjectCollection>() {
 	return boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(1.,0.,1.));
 }
 
 // Specialization for GConstrainedInt32
 template <>
-boost::shared_ptr<GConstrainedInt32> getFindItemNoAdaptor<GConstrainedInt32Collection>() {
+boost::shared_ptr<GConstrainedInt32> getFindItemNoAdaptor<GConstrainedInt32ObjectCollection>() {
 	return boost::shared_ptr<GConstrainedInt32>(new GConstrainedInt32(1,0,100));
 }
 
@@ -135,7 +135,7 @@ boost::shared_ptr<typename T::collection_type> getTemplateItem() {
 
 // Specialization for GConstrainedDouble
 template <>
-boost::shared_ptr<GConstrainedDouble> getTemplateItem<GConstrainedDoubleCollection>() {
+boost::shared_ptr<GConstrainedDouble> getTemplateItem<GConstrainedDoubleObjectCollection>() {
 	boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(0.,0.,1.));
 	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
 	return gbd_ptr;
@@ -143,7 +143,7 @@ boost::shared_ptr<GConstrainedDouble> getTemplateItem<GConstrainedDoubleCollecti
 
 // Specialization for GConstrainedInt32
 template <>
-boost::shared_ptr<GConstrainedInt32> getTemplateItem<GConstrainedInt32Collection>() {
+boost::shared_ptr<GConstrainedInt32> getTemplateItem<GConstrainedInt32ObjectCollection>() {
 	boost::shared_ptr<GConstrainedInt32> gbi_ptr(new GConstrainedInt32(0,0,100));
 	gbi_ptr->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
 	return gbi_ptr;
@@ -187,7 +187,7 @@ boost::shared_ptr<typename T::collection_type> getFindItem() {
 
 // Specialization for GConstrainedDouble
 template <>
-boost::shared_ptr<GConstrainedDouble> getFindItem<GConstrainedDoubleCollection>() {
+boost::shared_ptr<GConstrainedDouble> getFindItem<GConstrainedDoubleObjectCollection>() {
 	boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(1.,0.,1.));
 	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
 	return gbd_ptr;
@@ -195,7 +195,7 @@ boost::shared_ptr<GConstrainedDouble> getFindItem<GConstrainedDoubleCollection>(
 
 // Specialization for GConstrainedInt32
 template <>
-boost::shared_ptr<GConstrainedInt32> getFindItem<GConstrainedInt32Collection>() {
+boost::shared_ptr<GConstrainedInt32> getFindItem<GConstrainedInt32ObjectCollection>() {
 	boost::shared_ptr<GConstrainedInt32> gbi_ptr(new GConstrainedInt32(1,0,100));
 	gbi_ptr->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor()));
 	return gbi_ptr;
@@ -364,8 +364,8 @@ public:
 		typedef boost::mpl::list<GDoubleObjectCollection,
 						         GInt32ObjectCollection,
 						         GBooleanObjectCollection,
-						         GConstrainedDoubleCollection,
-						         GConstrainedInt32Collection> test_types;
+						         GConstrainedDoubleObjectCollection,
+						         GConstrainedInt32ObjectCollection> test_types;
 
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterTCollectionT_no_failure_expected, test_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterTCollectionT_failures_expected, test_types ) );

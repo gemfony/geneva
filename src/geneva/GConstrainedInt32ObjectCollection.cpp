@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedInt32Collection.cpp
+ * @file GConstrainedInt32ObjectCollection.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,12 +27,12 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GConstrainedInt32Collection.hpp"
+#include "geneva/GConstrainedInt32ObjectCollection.hpp"
 
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GConstrainedInt32Collection)
+BOOST_CLASS_EXPORT(Gem::Geneva::GConstrainedInt32ObjectCollection)
 
 
 namespace Gem {
@@ -42,16 +42,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GConstrainedInt32Collection::GConstrainedInt32Collection()
+GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection()
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * The copy constructor
  *
- * @param cp A copy of another GConstrainedInt32Collection object
+ * @param cp A copy of another GConstrainedInt32ObjectCollection object
  */
-GConstrainedInt32Collection::GConstrainedInt32Collection(const GConstrainedInt32Collection& cp)
+GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection& cp)
 	: GParameterTCollectionT<GConstrainedInt32>(cp)
 { /* nothing */ }
 
@@ -59,18 +59,18 @@ GConstrainedInt32Collection::GConstrainedInt32Collection(const GConstrainedInt32
 /**
  * The destructor
  */
-GConstrainedInt32Collection::~GConstrainedInt32Collection()
+GConstrainedInt32ObjectCollection::~GConstrainedInt32ObjectCollection()
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * A standard assignment operator.
  *
- * @param cp A copy of another GConstrainedInt32Collection object
+ * @param cp A copy of another GConstrainedInt32ObjectCollection object
  * @return A constant reference to this object
  */
-const GConstrainedInt32Collection& GConstrainedInt32Collection::operator=(const GConstrainedInt32Collection& cp){
-	GConstrainedInt32Collection::load_(&cp);
+const GConstrainedInt32ObjectCollection& GConstrainedInt32ObjectCollection::operator=(const GConstrainedInt32ObjectCollection& cp){
+	GConstrainedInt32ObjectCollection::load_(&cp);
 	return *this;
 }
 
@@ -80,34 +80,34 @@ const GConstrainedInt32Collection& GConstrainedInt32Collection::operator=(const 
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GConstrainedInt32Collection::clone_() const {
-	return new GConstrainedInt32Collection(*this);
+GObject* GConstrainedInt32ObjectCollection::clone_() const {
+	return new GConstrainedInt32ObjectCollection(*this);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for equality with another GConstrainedInt32Collection object
+ * Checks for equality with another GConstrainedInt32ObjectCollection object
  *
- * @param  cp A constant reference to another GConstrainedInt32Collection object
+ * @param  cp A constant reference to another GConstrainedInt32ObjectCollection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GConstrainedInt32Collection::operator==(const GConstrainedInt32Collection& cp) const {
+bool GConstrainedInt32ObjectCollection::operator==(const GConstrainedInt32ObjectCollection& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedInt32Collection::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedInt32ObjectCollection::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for inequality with another GConstrainedInt32Collection object
+ * Checks for inequality with another GConstrainedInt32ObjectCollection object
  *
- * @param  cp A constant reference to another GConstrainedInt32Collection object
+ * @param  cp A constant reference to another GConstrainedInt32ObjectCollection object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GConstrainedInt32Collection::operator!=(const GConstrainedInt32Collection& cp) const {
+bool GConstrainedInt32ObjectCollection::operator!=(const GConstrainedInt32ObjectCollection& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedInt32Collection::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedInt32ObjectCollection::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -123,7 +123,7 @@ bool GConstrainedInt32Collection::operator!=(const GConstrainedInt32Collection& 
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GConstrainedInt32Collection::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GConstrainedInt32ObjectCollection::checkRelationshipWith(const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -133,28 +133,28 @@ boost::optional<std::string> GConstrainedInt32Collection::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedInt32Collection>(&cp);
+    GObject::selfAssignmentCheck<GConstrainedInt32ObjectCollection>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterTCollectionT<GConstrainedInt32>::checkRelationshipWith(cp, e, limit, "GConstrainedInt32Collection", y_name, withMessages));
+	deviations.push_back(GParameterTCollectionT<GConstrainedInt32>::checkRelationshipWith(cp, e, limit, "GConstrainedInt32ObjectCollection", y_name, withMessages));
 
 	// no local data ...
 
-	return evaluateDiscrepancies("GConstrainedInt32Collection", caller, deviations, e);
+	return evaluateDiscrepancies("GConstrainedInt32ObjectCollection", caller, deviations, e);
 }
 
 /*******************************************************************************************/
 /**
  * Loads the data of another GObject
  *
- * @param cp A copy of another GConstrainedInt32Collection object, camouflaged as a GObject
+ * @param cp A copy of another GConstrainedInt32ObjectCollection object, camouflaged as a GObject
  */
-void GConstrainedInt32Collection::load_(const GObject* cp){
+void GConstrainedInt32ObjectCollection::load_(const GObject* cp){
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedInt32Collection>(cp);
+    GObject::selfAssignmentCheck<GConstrainedInt32ObjectCollection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GConstrainedInt32>::load_(cp);
@@ -169,7 +169,7 @@ void GConstrainedInt32Collection::load_(const GObject* cp){
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GConstrainedInt32Collection::modify_GUnitTests() {
+bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -182,7 +182,7 @@ bool GConstrainedInt32Collection::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GConstrainedInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
+void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterTCollectionT<GConstrainedInt32>::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -191,7 +191,7 @@ void GConstrainedInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GConstrainedInt32Collection::specificTestsFailuresExpected_GUnitTests() {
+void GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterTCollectionT<GConstrainedInt32>::specificTestsFailuresExpected_GUnitTests();
 }

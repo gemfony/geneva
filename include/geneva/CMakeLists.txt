@@ -8,10 +8,10 @@ SET ( OPTIMIZATIONINCLUDES
 	GBooleanObjectCollection.hpp
 	GBrokerEA.hpp
 	GConstrainedDouble.hpp
-	GConstrainedDoubleCollection.hpp
+	GConstrainedDoubleObjectCollection.hpp
 	GConstrainedFPT.hpp
 	GConstrainedInt32.hpp
-	GConstrainedInt32Collection.hpp
+	GConstrainedInt32ObjectCollection.hpp
 	GConstrainedIntegerT.hpp
 	GConstrainedNumT.hpp
 	GDouble.hpp

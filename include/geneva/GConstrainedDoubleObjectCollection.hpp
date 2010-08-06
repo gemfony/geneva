@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedDoubleCollection.hpp
+ * @file GConstrainedDoubleObjectCollection.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -62,7 +62,7 @@ namespace Geneva {
  * A collection of GConstrainedDouble objects, ready for use in a
  * GParameterSet derivative.
  */
-class GConstrainedDoubleCollection
+class GConstrainedDoubleObjectCollection
 	:public GParameterTCollectionT<GConstrainedDouble>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -79,19 +79,19 @@ class GConstrainedDoubleCollection
 
 public:
 	/** @brief The default constructor */
-	GConstrainedDoubleCollection();
+	GConstrainedDoubleObjectCollection();
 	/** @brief The copy constructor */
-	GConstrainedDoubleCollection(const GConstrainedDoubleCollection&);
+	GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection&);
 	/** @brief The destructor */
-	virtual ~GConstrainedDoubleCollection();
+	virtual ~GConstrainedDoubleObjectCollection();
 
 	/** @brief A standard assignment operator */
-	const GConstrainedDoubleCollection& operator=(const GConstrainedDoubleCollection&);
+	const GConstrainedDoubleObjectCollection& operator=(const GConstrainedDoubleObjectCollection&);
 
-	/** @brief Checks for equality with another GConstrainedDoubleCollection object */
-	bool operator==(const GConstrainedDoubleCollection&) const;
-	/** @brief Checks for inequality with another GConstrainedDoubleCollection object */
-	bool operator!=(const GConstrainedDoubleCollection&) const;
+	/** @brief Checks for equality with another GConstrainedDoubleObjectCollection object */
+	bool operator==(const GConstrainedDoubleObjectCollection&) const;
+	/** @brief Checks for inequality with another GConstrainedDoubleObjectCollection object */
+	bool operator!=(const GConstrainedDoubleObjectCollection&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;

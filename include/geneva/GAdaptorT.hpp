@@ -400,8 +400,8 @@ public:
 	/**
 	 * Sets the maximum number of variables this adaptor can expect to adapt in a row.
 	 * The knowledge about that quantity can become important when dealing with collections
-	 * of variables, such as a GDoubleCollection or a GConstrainedDoubleCollection. The function
-	 * also resets the current index counter.
+	 * of variables, such as a GDoubleCollection or a GConstrainedDoubleObjectCollection.
+	 * The function also resets the current index counter.
 	 *
 	 * @param nVars The maximum number of variables this adaptor can expect to adapt in a row
 	 */

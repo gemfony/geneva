@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedDoubleCollection.cpp
+ * @file GConstrainedDoubleObjectCollection.cpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,12 +27,12 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GConstrainedDoubleCollection.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
 
 // Included here so no conflicts occur. See explanation at
 // http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GConstrainedDoubleCollection)
+BOOST_CLASS_EXPORT(Gem::Geneva::GConstrainedDoubleObjectCollection)
 
 namespace Gem {
 namespace Geneva {
@@ -41,16 +41,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GConstrainedDoubleCollection::GConstrainedDoubleCollection()
+GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection()
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * The copy constructor
  *
- * @param cp A copy of another GConstrainedDoubleCollection object
+ * @param cp A copy of another GConstrainedDoubleObjectCollection object
  */
-GConstrainedDoubleCollection::GConstrainedDoubleCollection(const GConstrainedDoubleCollection& cp)
+GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection& cp)
 	: GParameterTCollectionT<GConstrainedDouble>(cp)
 { /* nothing */ }
 
@@ -58,18 +58,18 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection(const GConstrainedDou
 /**
  * The destructor
  */
-GConstrainedDoubleCollection::~GConstrainedDoubleCollection()
+GConstrainedDoubleObjectCollection::~GConstrainedDoubleObjectCollection()
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * A standard assignment operator.
  *
- * @param cp A copy of another GConstrainedDoubleCollection object
+ * @param cp A copy of another GConstrainedDoubleObjectCollection object
  * @return A constant reference to this object
  */
-const GConstrainedDoubleCollection& GConstrainedDoubleCollection::operator=(const GConstrainedDoubleCollection& cp){
-	GConstrainedDoubleCollection::load_(&cp);
+const GConstrainedDoubleObjectCollection& GConstrainedDoubleObjectCollection::operator=(const GConstrainedDoubleObjectCollection& cp){
+	GConstrainedDoubleObjectCollection::load_(&cp);
 	return *this;
 }
 
@@ -79,34 +79,34 @@ const GConstrainedDoubleCollection& GConstrainedDoubleCollection::operator=(cons
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GConstrainedDoubleCollection::clone_() const {
-	return new GConstrainedDoubleCollection(*this);
+GObject* GConstrainedDoubleObjectCollection::clone_() const {
+	return new GConstrainedDoubleObjectCollection(*this);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for equality with another GConstrainedDoubleCollection object
+ * Checks for equality with another GConstrainedDoubleObjectCollection object
  *
- * @param  cp A constant reference to another GConstrainedDoubleCollection object
+ * @param  cp A constant reference to another GConstrainedDoubleObjectCollection object
  * @return A boolean indicating whether both objects are equal
  */
-bool GConstrainedDoubleCollection::operator==(const GConstrainedDoubleCollection& cp) const {
+bool GConstrainedDoubleObjectCollection::operator==(const GConstrainedDoubleObjectCollection& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedDoubleCollection::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedDoubleObjectCollection::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for inequality with another GConstrainedDoubleCollection object
+ * Checks for inequality with another GConstrainedDoubleObjectCollection object
  *
- * @param  cp A constant reference to another GConstrainedDoubleCollection object
+ * @param  cp A constant reference to another GConstrainedDoubleObjectCollection object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GConstrainedDoubleCollection::operator!=(const GConstrainedDoubleCollection& cp) const {
+bool GConstrainedDoubleObjectCollection::operator!=(const GConstrainedDoubleObjectCollection& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedDoubleCollection::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedDoubleObjectCollection::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -122,7 +122,7 @@ bool GConstrainedDoubleCollection::operator!=(const GConstrainedDoubleCollection
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GConstrainedDoubleCollection::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GConstrainedDoubleObjectCollection::checkRelationshipWith(const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -132,28 +132,28 @@ boost::optional<std::string> GConstrainedDoubleCollection::checkRelationshipWith
     using namespace Gem::Common;
 
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedDoubleCollection>(&cp);
+    GObject::selfAssignmentCheck<GConstrainedDoubleObjectCollection>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterTCollectionT<GConstrainedDouble>::checkRelationshipWith(cp, e, limit, "GConstrainedDoubleCollection", y_name, withMessages));
+	deviations.push_back(GParameterTCollectionT<GConstrainedDouble>::checkRelationshipWith(cp, e, limit, "GConstrainedDoubleObjectCollection", y_name, withMessages));
 
 	// no local data ...
 
-	return evaluateDiscrepancies("GConstrainedDoubleCollection", caller, deviations, e);
+	return evaluateDiscrepancies("GConstrainedDoubleObjectCollection", caller, deviations, e);
 }
 
 /*******************************************************************************************/
 /**
  * Loads the data of another GObject
  *
- * @param cp A copy of another GConstrainedDoubleCollection object, camouflaged as a GObject
+ * @param cp A copy of another GConstrainedDoubleObjectCollection object, camouflaged as a GObject
  */
-void GConstrainedDoubleCollection::load_(const GObject* cp){
+void GConstrainedDoubleObjectCollection::load_(const GObject* cp){
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedDoubleCollection>(cp);
+    GObject::selfAssignmentCheck<GConstrainedDoubleObjectCollection>(cp);
 
 	// Load our parent class'es data ...
 	GParameterTCollectionT<GConstrainedDouble>::load_(cp);
@@ -169,7 +169,7 @@ void GConstrainedDoubleCollection::load_(const GObject* cp){
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GConstrainedDoubleCollection::modify_GUnitTests() {
+bool GConstrainedDoubleObjectCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -182,7 +182,7 @@ bool GConstrainedDoubleCollection::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
+void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterTCollectionT<GConstrainedDouble>::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -191,7 +191,7 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
+void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterTCollectionT<GConstrainedDouble>::specificTestsFailuresExpected_GUnitTests();
 }
