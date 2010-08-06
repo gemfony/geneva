@@ -72,7 +72,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GIndividual.hpp"
-#include "GOptimizationAlgorithm.hpp"
+#include "GOptimizationAlgorithmT.hpp"
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
@@ -109,7 +109,7 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
  * as implied by the population size and the number of parents set at the beginning.
  */
 class GEvolutionaryAlgorithm
-	:public GOptimizationAlgorithm
+	:public GOptimizationAlgorithmT<Gem::Geneva::GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -118,7 +118,7 @@ class GEvolutionaryAlgorithm
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizationAlgorithm)
+		ar & make_nvp("GOptimizationAlgorithmT_GIndividual", boost::serialization::base_object<GOptimizationAlgorithmT<Gem::Geneva::GIndividual> >(*this))
 		   & BOOST_SERIALIZATION_NVP(nParents_)
 		   & BOOST_SERIALIZATION_NVP(microTrainingInterval_)
 		   & BOOST_SERIALIZATION_NVP(recombinationMethod_)

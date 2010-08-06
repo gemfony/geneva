@@ -73,6 +73,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "GIndividual.hpp"
+#include "GParameterSet.hpp"
 #include "GOptimizationAlgorithm.hpp"
 #include "GOptimizationEnums.hpp"
 
@@ -296,10 +297,10 @@ private:
 	/** @brief A factor for multiplication of deltas, or lower end of a random range */
 	double c_delta_;
 
-	boost::shared_ptr<GIndividual> global_best_; ///< The globally best individual
-	boost::shared_ptr<GIndividual> *local_bests_; ///< The collection of best individuals from each neighborhood
+	boost::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
+	boost::shared_ptr<GParameterSet> *local_bests_; ///< The collection of best individuals from each neighborhood
 
-	std::vector<boost::shared_ptr<GIndividual> > velocities_; ///< Holds velocities, as calculated in the previous iteration
+	std::vector<boost::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
 
 #ifdef GENEVATESTING
 public:

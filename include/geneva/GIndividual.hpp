@@ -82,13 +82,6 @@ class GIndividual
 	 public GObject
 {
 	///////////////////////////////////////////////////////////////////////
-	// Needed so only the corresponding optimization algorithms can set the
-	// personality of an individual
-	friend class GOptimizationAlgorithm;
-	friend class GEvolutionaryAlgorithm;
-	friend class GSwarm;
-
-	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
 	template<typename Archive>
@@ -229,6 +222,11 @@ public:
 	/** @brief This function returns the current swarm algorithm personality traits pointer */
 	boost::shared_ptr<GSwarmPersonalityTraits> getSwarmPersonalityTraits();
 
+	/** @brief Sets the current personality of this individual */
+	void setPersonality(const personality&);
+	/** @brief Resets the current personality to NONE */
+	void resetPersonality();
+
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
@@ -243,11 +241,6 @@ protected:
 
 	/** @brief Sets the dirtyFlag_ */
 	void setDirtyFlag() ;
-
-	/** @brief Sets the current personality of this individual */
-	void setPersonality(const personality&);
-	/** @brief Resets the current personality to NONE */
-	void resetPersonality();
 
 private:
 	/** @brief Sets the dirtyFlag_ to any desired value */

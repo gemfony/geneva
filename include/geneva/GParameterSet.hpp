@@ -107,12 +107,13 @@ public:
 	/** @brief Allows to randomly initialize parameter members */
 	void randomInit();
 
-	/** @brief Initializes floating-point parameters with a given value */
-	void fpFixedValueInit(const float&);
 	/** @brief Multiplies with a random floating point number in a given range */
 	void fpRandomMultiplyBy(const float&, const float&);
 	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
 	void fpRandomMultiplyBy();
+
+	/** @brief Initializes floating-point parameters with a given value */
+	void fpFixedValueInit(const float&);
 
 	/** @brief Adds the floating point parameters of another GParameterSet object to this one */
 	void fpAdd(boost::shared_ptr<GParameterSet>);
@@ -126,8 +127,6 @@ public:
 
 	/** @brief Multiplies floating-point parameters with a given value */
 	void fpMultiplyBy(const float& val);
-	/** @brief Small convenience function */
-	void operator*=(const float&);
 
 	/**********************************************************************/
 	/**
@@ -179,6 +178,9 @@ protected:
 
 	/** @brief Allows to store an evaluation function for this object */
 	boost::function<double (const GParameterSet&)> eval_;
+
+private:
+	explicit GParameterSet(const float&); ///< Intentionally private and undefined
 
 #ifdef GENEVATESTING
 public:

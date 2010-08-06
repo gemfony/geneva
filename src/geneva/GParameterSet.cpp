@@ -360,15 +360,6 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
 
 /************************************************************************************************************/
 /**
- * Small convenience function that helps to multiply GParameterSet objects with floating point values in
- * more transparent ways.
- */
-void GParameterSet::operator*=(const float& val) {
-	fpMultiplyBy(val);
-}
-
-/************************************************************************************************************/
-/**
  * Small convenience function that helps to add a GParameterSet objects to this one in
  * more transparent ways.
  */

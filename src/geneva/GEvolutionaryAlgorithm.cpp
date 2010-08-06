@@ -47,7 +47,7 @@ namespace Geneva {
  * vital parameters, such as the population size or the parent individuals by hand.
  */
 GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
-	: GOptimizationAlgorithm()
+	: GOptimizationAlgorithmT<Gem::Geneva::GIndividual>()
 	, nParents_(0)
 	, microTrainingInterval_(DEFAULTMICROTRAININGINTERVAL)
 	, recombinationMethod_(DEFAULTRECOMBINE)
@@ -66,7 +66,7 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
  * @param cp Another GEvolutionaryAlgorithm object
  */
 GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
-	: GOptimizationAlgorithm(cp)
+	: GOptimizationAlgorithmT<Gem::Geneva::GIndividual>(cp)
 	, nParents_(cp.nParents_)
 	, microTrainingInterval_(cp.microTrainingInterval_)
 	, recombinationMethod_(cp.recombinationMethod_)
@@ -106,7 +106,7 @@ void GEvolutionaryAlgorithm::load_(const GObject * cp)
 	const GEvolutionaryAlgorithm *p_load = conversion_cast<GEvolutionaryAlgorithm>(cp);
 
 	// First load the parent class'es data ...
-	GOptimizationAlgorithm::load_(cp);
+	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::load_(cp);
 
 	// ... and then our own data
 	nParents_ = p_load->nParents_;
@@ -184,7 +184,7 @@ boost::optional<std::string> GEvolutionaryAlgorithm::checkRelationshipWith(const
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GOptimizationAlgorithm::checkRelationshipWith(cp, e, limit, "GEvolutionaryAlgorithm", y_name, withMessages));
+	deviations.push_back(GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::checkRelationshipWith(cp, e, limit, "GEvolutionaryAlgorithm", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", nParents_, p_load->nParents_, "nParents_", "p_load->nParents_", e , limit));
@@ -412,14 +412,14 @@ void GEvolutionaryAlgorithm::registerInfoFunction(boost::function<void (const in
  * @param nParents The desired number of parents
  */
 void GEvolutionaryAlgorithm::setDefaultPopulationSize(const std::size_t& popSize, const std::size_t& nParents) {
-	GOptimizationAlgorithm::setDefaultPopulationSize(popSize);
+	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::setDefaultPopulationSize(popSize);
 	nParents_ = nParents;
 }
 
 /************************************************************************************************************/
 /**
  * This function implements the logic that constitutes evolutionary algorithms. The
- * function is called by GOptimizationAlgorithm for each cycle of the optimization,
+ * function is called by GOptimizationAlgorithmT<Gem::Geneva::GIndividual> for each cycle of the optimization,
  *
  * @return The value of the best individual found
  */
@@ -459,12 +459,12 @@ double GEvolutionaryAlgorithm::cycleLogic() {
 /************************************************************************************************************/
 /**
  * The function checks that the population size meets the requirements and does some
- * tagging. It is called from within GOptimizationAlgorithm::optimize(), before the
+ * tagging. It is called from within GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::optimize(), before the
  * actual optimization cycle starts.
  */
 void GEvolutionaryAlgorithm::init() {
 	// To be performed before any other action
-	GOptimizationAlgorithm::init();
+	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::init();
 
 	// First check that we have been given a suitable value for the number of parents.
 	// Note that a number of checks (e.g. population size != 0) has already been done
@@ -519,7 +519,7 @@ void GEvolutionaryAlgorithm::init() {
  */
 void GEvolutionaryAlgorithm::finalize() {
 	// Last action
-	GOptimizationAlgorithm::finalize();
+	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::finalize();
 }
 
 /************************************************************************************************************/
@@ -528,7 +528,7 @@ void GEvolutionaryAlgorithm::finalize() {
  * population to the appropriate size, if required. An obvious precondition is that at
  * least one individual has been added to the population. Individuals that have already
  * been added will not be replaced. This function is called once before the optimization
- * cycle from within GOptimizationAlgorithm::optimize()
+ * cycle from within GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::optimize()
  */
 void GEvolutionaryAlgorithm::adjustPopulation() {
 	// Has the population size been set at all ?
@@ -536,7 +536,7 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::adjustPopulation() : Error!" << std::endl
 			  << "The population size is 0." << std::endl
-			  << "Did you call GOptimizationAlgorithm:setDefaultPopulationSize() ?" << std::endl;
+			  << "Did you call GOptimizationAlgorithmT<Gem::Geneva::GIndividual>:setDefaultPopulationSize() ?" << std::endl;
 
 		// throw an exception. Add some information so that if the exception
 		// is caught through a base object, no information is lost.
@@ -640,7 +640,7 @@ sortingMode GEvolutionaryAlgorithm::getSortingScheme() const {
 
 /************************************************************************************************************/
 /**
- * This function is called from GOptimizationAlgorithm::optimize() and performs the
+ * This function is called from GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::optimize() and performs the
  * actual recombination, based on the recombination schemes defined by the user.
  *
  * Note that, in DEBUG mode, this implementation will enforce a minimum number of children,
@@ -1020,7 +1020,7 @@ bool GEvolutionaryAlgorithm::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GOptimizationAlgorithm::modify_GUnitTests()) result = true;
+	if(GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -1031,7 +1031,7 @@ bool GEvolutionaryAlgorithm::modify_GUnitTests() {
  */
 void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GOptimizationAlgorithm::specificTestsNoFailureExpected_GUnitTests();
+	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -1040,7 +1040,7 @@ void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GOptimizationAlgorithm::specificTestsFailuresExpected_GUnitTests();
+	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/

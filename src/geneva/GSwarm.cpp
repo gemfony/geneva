@@ -54,11 +54,8 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
 	, local_bests_(new boost::shared_ptr<GIndividual>[nNeighborhoods_])
 	, c_local_(DEFAULTCLOCAL)
-	, c_local_range_(-1.)
 	, c_global_(DEFAULTCGLOBAL)
-	, c_global_range_(-1.)
 	, c_delta_(DEFAULTCDELTA)
-	, c_delta_range_(-1.)
 {
 	GOptimizationAlgorithm::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
@@ -81,14 +78,11 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, nNeighborhoods_(cp.nNeighborhoods_)
 	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
 	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
-	, global_best_((cp.getIteration()>0)?(cp.global_best_)->clone<GIndividual>():boost::shared_ptr<GIndividual>())
-	, local_bests_(new boost::shared_ptr<GIndividual>[nNeighborhoods_])
+	, global_best_((cp.getIteration()>0)?(cp.global_best_)->clone<GParameterSet>():boost::shared_ptr<GParameterSet>())
+	, local_bests_(new boost::shared_ptr<GParameterSet>[nNeighborhoods_])
 	, c_local_(cp.c_local_)
-	, c_local_range_(cp.c_local_range_)
 	, c_global_(cp.c_global_)
-	, c_global_range_(cp.c_global_range_)
 	, c_delta_(cp.c_delta_)
-	, c_delta_range_(cp.c_delta_range_)
 {
 	// Copy the current number of individuals in each neighborhood over
 #ifdef DEBUG
@@ -172,11 +166,8 @@ void GSwarm::load_(const GObject *cp)
 	// ... and then our own data
 	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
 	c_local_ = p_load->c_local_;
-	c_local_range_ = p_load->c_local_range_;
 	c_global_ = p_load->c_global_;
-	c_global_range_ = p_load->c_global_range_;
 	c_delta_ = p_load->c_delta_;
-	c_delta_range_ = p_load->c_delta_range_;
 
 	// We start from scratch if the number of neighborhoods or the alleged number of members in them differ
 	if(nNeighborhoods_!=p_load->nNeighborhoods_ || !nNeighborhoodMembersEqual(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_)) {
@@ -284,11 +275,8 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", defaultNNeighborhoodMembers_, p_load->defaultNNeighborhoodMembers_, "defaultNNeighborhoodMembers_", "p_load->defaultNNeighborhoodMembers_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", global_best_, p_load->global_best_, "global_best_", "p_load->global_best_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_local_, p_load->c_local_, "c_local_", "p_load->c_local_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_local_range_, p_load->c_local_range_, "c_local_range_", "p_load->c_local_range_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_range_, p_load->c_global_range_, "c_global_range_", "p_load->c_global_range_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_delta_, p_load->c_delta_, "c_delta_", "p_load->c_delta_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_delta_range_, p_load->c_delta_range_, "c_delta_range_", "p_load->c_delta_range_", e , limit));
 
 	// The next checks only makes sense if the number of neighborhoods are equal
 	if(nNeighborhoods_ == p_load->nNeighborhoods_) {
@@ -400,6 +388,17 @@ void GSwarm::init() {
 	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it, ++pos) {
 		// Make the position known to the individual
 		(*it)->getSwarmPersonalityTraits()->setPopulationPosition(pos);
+
+		// Create a copy of the current individual. Note that, if you happen
+		// to have assigned anything else than a GParameterSet derivative to
+		// the swarm, then the following line will throw in DEBUG mode or otherwise
+		// return bad results.
+		boost::shared_ptr<GParameterSet> p((*it)->clone<GParameterSet>());
+		// Assign the value 0. to all floating point parameters
+		p->fpFixedValueInit(float(0.));
+		// Add the zero-initialized individual to the velocity array.
+		// The necessary downcast will be handled by
+		velocities_.push_back(p);
 	}
 
 }
@@ -409,6 +408,10 @@ void GSwarm::init() {
  * Does any necessary finalization work
  */
 void GSwarm::finalize() {
+	// Remove remaining velocity individuals. The boost::shared_ptr<GIndividual>s
+	// will take care of deleting the GIndividual objects.
+	velocity_.clear();
+
 	// Last action
 	GOptimizationAlgorithm::finalize();
 }

@@ -122,7 +122,6 @@ bool GOptimizationAlgorithm::operator!=(const GOptimizationAlgorithm& cp) const 
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithm::operator!=","cp", CE_SILENT);
 }
 
-
 /************************************************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
@@ -210,7 +209,7 @@ void GOptimizationAlgorithm::load_(const GObject* cp)
 /************************************************************************************************************/
 /**
  * This function encapsulates some common functionality of iteration-based
- * optimization algorithms. E.g., they all need a a loop that stops if some
+ * optimization algorithms. E.g., they all need a loop that stops if some
  * predefined criterion is reached. The function is also the main entry
  * point for all optimization algorithms.
  *
@@ -846,7 +845,7 @@ void GOptimizationAlgorithm::customAdaptions()
 /**
  * Fitness calculation for a population means optimization. The fitness is then determined
  * by the best individual which, after the end of the optimization cycle, can be found in
- * the first position of the array. This is true both for all sorting modes.
+ * the first position of the array. This is true for all sorting modes.
  *
  * @return The fitness of the best individual in the population
  */
