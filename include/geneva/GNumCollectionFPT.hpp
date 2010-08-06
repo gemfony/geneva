@@ -88,7 +88,7 @@ public:
 
 	/******************************************************************/
 	/**
-	 * Initialize with a number of random values within given boundaries
+	 * Allows to specify the boundaries for random initialization
 	 *
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries

@@ -79,8 +79,8 @@ public:
 	GInt32Collection();
 	/** @brief The copy constructor */
 	GInt32Collection(const GInt32Collection&);
-	/** @brief Initialization with a number of random values */
-	explicit GInt32Collection(const std::size_t& nval, const boost::int32_t& min, const boost::int32_t& max);
+	/** @brief Initialization with a number of random values in a given range */
+	GInt32Collection(const std::size_t&, const boost::int32_t&, const boost::int32_t&);
 	/** @brief The destructor */
 	virtual ~GInt32Collection();
 

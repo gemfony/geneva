@@ -13,6 +13,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedInt32.hpp
 	GConstrainedInt32ObjectCollection.hpp
 	GConstrainedIntegerT.hpp
+#	GConstrainedNumCollectionT.hpp
 	GConstrainedNumT.hpp
 	GDouble.hpp
 	GDoubleCollection.hpp

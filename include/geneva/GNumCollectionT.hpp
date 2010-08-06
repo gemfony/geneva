@@ -99,7 +99,7 @@ public:
 
 	/******************************************************************/
 	/**
-	 * Initialize with a number of random values within given boundaries
+	 * Specifies the boundaries for random intialization
 	 *
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
