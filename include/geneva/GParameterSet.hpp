@@ -108,6 +108,14 @@ public:
 	void fpFixedValueInit(const float&);
 	/** @brief Multiplies floating-point parameters with a given value */
 	void fpMultiplyBy(const float& val);
+	/** @brief Multiplies with a random floating point number in a given range */
+	void fpRandomMultiplyBy(const float&, const float&);
+	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
+	void fpRandomMultiplyBy();
+	/** @brief Adds the floating point parameters of another GParameterSet object to this one */
+	void fpAdd(boost::shared_ptr<GParameterSet>);
+	/** @brief Subtracts the floating point parameters of another GParameterSet object from this one */
+	void fpSubtract(boost::shared_ptr<GParameterSet>);
 
 	/**********************************************************************/
 	/**

@@ -51,6 +51,8 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/optional.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GPARAMETERBASE_HPP_
 #define GPARAMETERBASE_HPP_
@@ -124,6 +126,14 @@ public:
 	virtual void fpFixedValueInit(const float& val);
 	/** @brief Multiplies double-based parameters with a given value */
 	virtual void fpMultiplyBy(const float& val);
+	/** @brief Multiplies with a random floating point number in a given range */
+	virtual void fpRandomMultiplyBy(const float&, const float&);
+	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
+	virtual void fpRandomMultiplyBy();
+	/** @brief Adds the floating point parameters of another GParameterBase object to this one */
+	virtual void fpAdd(boost::shared_ptr<GParameterBase>);
+	/** @brief Subtract the floating point parameters of another GParameterBase object from this one */
+	virtual void fpSubtract(boost::shared_ptr<GParameterBase>);
 
 	/** @brief Specifies that no random initialization should occur anymore */
 	void blockRandomInitialization();
@@ -137,6 +147,36 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+
+	/**************************************************************************************************/
+	/**
+	 * This function converts a GParameterBase boost::shared_ptr to the target type.  Note that this
+	 * template will only be accessible to the compiler if GParameterBase is a base type of load_type.
+	 *
+	 * @param load_ptr A boost::shared_ptr<load_type> to the item to be converted
+	 * @param dummy A dummy argument needed for boost's enable_if and type traits magic
+	 * @return A boost::shared_ptr holding the converted object
+	 */
+	template <typename load_type>
+	inline boost::shared_ptr<load_type> parameterbase_cast (
+			boost::shared_ptr<GParameterBase> load_ptr
+		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GParameterBase, load_type> >::type* dummy = 0
+	) const {
+#ifdef DEBUG
+		boost::shared_ptr<load_type> p = boost::dynamic_pointer_cast<load_type>(load_ptr);
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In boost::shared_ptr<load_type> GParameterBase::conversion_cast<load_type>() : Error!" << std::endl
+				  << "Invalid conversion" << std::endl;
+			throw Gem::Common::gemfony_error_condition(error.str());
+		}
+#else
+		return boost::static_pointer_cast<load_type>(load_ptr);
+#endif
+	}
+
+	/**************************************************************************************************/
 
 protected:
 	/** @brief Loads the data of another GObject */

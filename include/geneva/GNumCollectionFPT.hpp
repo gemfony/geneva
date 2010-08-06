@@ -150,7 +150,7 @@ public:
 		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumCollectionFPT<T>::operator!=","cp", CE_SILENT);
 	}
 
-	/*******************************************************************************************/
+	/******************************************************************/
 	/**
 	 * Initializes floating-point-based parameters with a given value.
 	 *
@@ -163,7 +163,7 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
+	/******************************************************************/
 	/**
 	 * Multiplies floating-point-based parameters with a given value
 	 *
@@ -172,7 +172,85 @@ public:
 	virtual void fpMultiplyBy(const float& val) {
 		typename GNumCollectionFPT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=(*it)*T(val);
+			(*it) *= T(val);
+		}
+	}
+
+	/******************************************************************/
+	/**
+	 * Multiplies with a random floating point number in a given range.
+	 *
+	 * @param min The lower boundary for random number generation
+	 * @param max The upper boundary for random number generation
+	 */
+	virtual void fpRandomMultiplyBy(const float& min, const float& max)	{
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
+		typename GNumCollectionFPT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it) *= gr.uniform_real(T(min), T(max));
+		}
+	}
+
+	/******************************************************************/
+	/**
+	 * Multiplies with a random floating point number in the range [0, 1[.
+	 */
+	virtual void fpRandomMultiplyBy() {
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
+		typename GNumCollectionFPT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it) *= gr.uniform_01();
+		}
+	}
+
+	/******************************************************************/
+	/**
+	 * Adds the floating point parameters of another GParameterBase object to this one.
+	 *
+	 * @oaram p A boost::shared_ptr to another GParameterBase object
+	 */
+	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
+		// We first need to convert p_base into the local type
+		boost::shared_ptr<GNumCollectionFPT<T> > p = GParameterBase::parameterbase_cast<GNumCollectionFPT<T> >(p_base);
+
+		// Do some error checking
+		if(this->size() != p->size()) {
+			std::ostringstream error;
+			error << "In GNumCollectionFPT<T>::fpAdd(): Error!" << std::endl
+				  << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		typename GNumCollectionFPT<T>::iterator it, it_p;
+		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
+			(*it) += (*it_p);
+		}
+	}
+
+	/******************************************************************/
+	/**
+	 * Subtracts the floating point parameters of another GParameterBase object
+	 * from this one.
+	 *
+	 * @oaram p A boost::shared_ptr to another GParameterBase object
+	 */
+	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
+		// We first need to convert p_base into the local type
+		boost::shared_ptr<GNumCollectionFPT<T> > p = GParameterBase::parameterbase_cast<GNumCollectionFPT<T> >(p_base);
+
+		// Do some error checking
+		if(this->size() != p->size()) {
+			std::ostringstream error;
+			error << "In GNumCollectionFPT<T>::fpSubtract(): Error!" << std::endl
+				  << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		typename GNumCollectionFPT<T>::iterator it, it_p;
+		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
+			(*it) -= (*it_p);
 		}
 	}
 

@@ -246,6 +246,83 @@ public:
 		}
 	}
 
+	/*******************************************************************************************/
+	/**
+	 * Multiplies with a random floating point number in a given range.
+	 *
+	 * @param min The lower boundary for random number generation
+	 * @param max The upper boundary for random number generation
+	 */
+	virtual void fpRandomMultiplyBy(const float& min, const float& max)	{
+		typename GParameterTCollectionT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->fpRandomMultiplyBy(min, max);
+		}
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Multiplies with a random floating point number in the range [0, 1[.
+	 */
+	virtual void fpRandomMultiplyBy() {
+		typename GParameterTCollectionT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->fpRandomMultiplyBy();
+		}
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Adds the floating point parameters of another GParameterTCollectionT object to this one.
+	 *
+	 * @oaram p A boost::shared_ptr to another GParameterBase object
+	 */
+	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base)	{
+		// We first need to convert p_base to our local type
+		typename boost::shared_ptr<GParameterTCollectionT<T> > p
+			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+
+		// Check that both collections have the same size
+		if(this->size() != p->size()) {
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::fpAdd(): Error!" << std::endl
+				  << "Collections have different sizes: " << this->size() << " " << p->size() << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// Call fpAdd on all objects stored in this collection
+		typename GParameterTCollectionT<T>::iterator it, it_p;
+		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
+			(*it)->fpAdd(*it_p);
+		}
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Subtracts the floating point parameters of another GParameterTCollectionT object from this one.
+	 *
+	 * @oaram p A boost::shared_ptr to another GParameterBase object
+	 */
+	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base)	{
+		// We first need to convert p_base to our local type
+		typename boost::shared_ptr<GParameterTCollectionT<T> > p
+			= GParameterBase::parameterbase_cast<GParameterTCollectionT<T> >(p_base);
+
+		// Check that both collections have the same size
+		if(this->size() != p->size()) {
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::fpSubtract(): Error!" << std::endl
+				  << "Collections have different sizes: " << this->size() << " " << p->size() << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// Call fpAdd on all objects stored in this collection
+		typename GParameterTCollectionT<T>::iterator it, it_p;
+		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
+			(*it)->fpSubtract(*it_p);
+		}
+	}
+
 protected:
 	/*******************************************************************************************/
 	/**

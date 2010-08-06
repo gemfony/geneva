@@ -232,12 +232,12 @@ protected:
 
 	/**************************************************************************************************/
 	/**
-	 * This function converts the GObject pointer to the target, optionally checking for self-assignment
+	 * This function converts the GObject pointer to the target type, optionally checking for self-assignment
 	 * along the ways in DEBUG mode (through selfAssignmentCheck() ).  Note that this template will
 	 * only be accessible to the compiler if GObject is a base type of load_type.
 	 */
 	template <typename load_type>
-	inline const load_type* conversion_cast(
+	inline const load_type* conversion_cast (
 			const GObject *load_ptr
 		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
 	) const {
@@ -254,6 +254,37 @@ protected:
 		}
 #else
 		return static_cast<const load_type *>(load_ptr);
+#endif
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * This function converts a GObject boost::shared_ptr to the target type, optionally checking for
+	 * self-assignment along the ways in DEBUG mode (through selfAssignmentCheck() ).  Note that this
+	 * template will only be accessible to the compiler if GObject is a base type of load_type.
+	 *
+	 * @param load_ptr A boost::shared_ptr<load_type> to the item to be converted
+	 * @param dummy A dummy argument needed for boost's enable_if and type traits magic
+	 * @return A boost::shared_ptr holding the converted object
+	 */
+	template <typename load_type>
+	inline boost::shared_ptr<load_type> conversion_cast (
+			boost::shared_ptr<GObject> load_ptr
+		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, load_type> >::type* dummy = 0
+	) const {
+		selfAssignmentCheck<load_type>(load_ptr.get());
+
+#ifdef DEBUG
+		boost::shared_ptr<load_type> p = boost::dynamic_pointer_cast<load_type>(load_ptr);
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In boost::shared_ptr<load_type> GObject::conversion_cast<load_type>() : Error!" << std::endl
+				  << "Invalid conversion" << std::endl;
+			throw Gem::Common::gemfony_error_condition(error.str());
+		}
+#else
+		return boost::static_pointer_cast<load_type>(load_ptr);
 #endif
 	}
 

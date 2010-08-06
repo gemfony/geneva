@@ -204,24 +204,73 @@ public:
 		return evaluateDiscrepancies("GNumFPT<T>", caller, deviations, e);
 	}
 
-	/*******************************************************************************************/
+	/******************************************************************/
 	/**
 	 * Initializes floating-point-based parameters with a given value.
 	 *
 	 * @param val The value to use for the initialization
 	 */
 	virtual void fpFixedValueInit(const float& val) {
-		setValue(T(val));
+		GParameterT<T>::setValue(T(val));
 	}
 
-	/*******************************************************************************************/
+	/******************************************************************/
 	/**
 	 * Multiplies floating-point-based parameters with a given value
 	 *
 	 * @param val The value to be multiplied with the parameter
 	 */
 	virtual void fpMultiplyBy(const float& val) {
-		setValue(GParameterT<T>::value() * T(val));
+		GParameterT<T>::setValue(GParameterT<T>::value() * T(val));
+	}
+
+	/******************************************************************/
+	/**
+	 * Multiplies with a random floating point number in a given range.
+	 *
+	 * @param min The lower boundary for random number generation
+	 * @param max The upper boundary for random number generation
+	 */
+	void fpRandomMultiplyBy(const float& min, const float& max)	{
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
+		GParameterT<T>::setValue(GParameterT<T>::value() * gr.uniform_real(T(min), T(max)));
+	}
+
+	/******************************************************************/
+	/**
+	 * Multiplies with a random floating point number in the range [0, 1[.
+	 */
+	void fpRandomMultiplyBy() {
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
+		GParameterT<T>::setValue(GParameterT<T>::value() * gr.uniform_01());
+	}
+
+	/******************************************************************/
+	/**
+	 * Adds the floating point parameters of another GParameterBase
+	 * object to this one.
+	 *
+	 * @oaram p A boost::shared_ptr to another GParameterBase object
+	 */
+	void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
+		// We first need to convert p_base into the local type
+		boost::shared_ptr<GNumFPT<T> > p = GParameterBase::parameterbase_cast<GNumFPT<T> >(p_base);
+		GParameterT<T>::setValue(GParameterT<T>::value() + p->value());
+	}
+
+	/******************************************************************/
+	/**
+	 * Subtracts the floating point parameters of another GParameterBase
+	 * object from this one.
+	 *
+	 * @oaram p A boost::shared_ptr to another GParameterBase object
+	 */
+	void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
+		// We first need to convert p_base into the local type
+		boost::shared_ptr<GNumFPT<T> > p = GParameterBase::parameterbase_cast<GNumFPT<T> >(p_base);
+		GParameterT<T>::setValue(GParameterT<T>::value() - p->value());
 	}
 
 protected:

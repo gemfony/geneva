@@ -218,6 +218,52 @@ void GParameterBase::fpMultiplyBy(const float& val)
 
 /**********************************************************************************/
 /**
+ * Multiplies with a random floating point number in a given range. The actual
+ * functionality needs to be added by derived classes, if they need this. I.e.,
+ * a boolean-based parameter would simply ignore this call, as it does not re-implement
+ * this function and thus uses this empty stub. A floating-point-based parameter
+ * re-implements this function and takes appropriate action.
+ *
+ * @param min The lower boundary for random number generation
+ * @param max The upper boundary for random number generation
+ */
+void GParameterBase::fpRandomMultiplyBy(const float& min, const float& max)
+{ /* do nothing by default */ }
+
+/**********************************************************************************/
+/**
+ * Multiplies with a random floating point number in the range [0, 1[.  The actual
+ * functionality needs to be added by derived classes, if they need this.  I.e.,
+ * a boolean-based parameter would simply ignore this call, as it does not re-implement
+ * this function and thus uses this empty stub. A floating-point-based parameter
+ * re-implements this function and takes appropriate action.
+ */
+void GParameterBase::fpRandomMultiplyBy()
+{ /* do nothing by default */ }
+
+/**********************************************************************************/
+/**
+ * Adds the floating point parameters of another GParameterBase object to this one.
+ * The actual actions need to be defined by derived classes.
+ *
+ * @oaram p A boost::shared_ptr to another GParameterBase object
+ */
+void GParameterBase::fpAdd(boost::shared_ptr<GParameterBase> p)
+{ /* do nothing by default */ }
+
+/**********************************************************************************/
+/**
+ * Subtracts the floating point parameters of another GParameterBase object from this one.
+ * The actual actions need to be defined by derived classes.
+ *
+ * @oaram p A boost::shared_ptr to another GParameterBase object
+ */
+void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
+{ /* do nothing by default */ }
+
+
+/**********************************************************************************/
+/**
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::blockRandomInitialization() {

@@ -275,6 +275,91 @@ void GParameterSet::fpMultiplyBy(const float& val) {
 
 /************************************************************************************************************/
 /**
+ * Triggers multiplication of floating point parameters with a random floating point number in a given range
+ *
+ * @param min The lower boundary for random number generation
+ * @param max The upper boundary for random number generation
+ */
+void GParameterSet::fpRandomMultiplyBy(const float& min, const float& max) {
+	// Loop over all GParameterBase objects
+	GParameterSet::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->fpRandomMultiplyBy(min, max);
+	}
+
+	// As we have modified our internal data sets, make sure the dirty flag is set
+	GIndividual::setDirtyFlag();
+}
+
+/************************************************************************************************************/
+/**
+ * Triggers multiplication of floating point parameters with a random floating point number in the range [0,1[
+ */
+void GParameterSet::fpRandomMultiplyBy() {
+	// Loop over all GParameterBase objects
+	GParameterSet::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->fpRandomMultiplyBy();
+	}
+
+	// As we have modified our internal data sets, make sure the dirty flag is set
+	GIndividual::setDirtyFlag();
+}
+
+/************************************************************************************************************/
+/**
+ * Adds the floating point parameters of another GParameterSet object to this one
+ *
+ * @param cp A boost::shared_ptr to another GParameterSet object whose floating point parameters should be added to this one
+ */
+void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
+	// Some error checking
+	if(p->size() != this->size()) {
+		std::ostringstream error;
+		error << "In GParameterSet::fpAdd(): Error! " << std::endl
+			  << "Sizes do not match: " << this->size() << " " << p->size() << std::endl;
+		throw Gem::Common::gemfony_error_condition(error.str());
+	}
+
+	// Loop over all GParameterBase objects in this and the other object
+	GParameterSet::iterator it;
+	GParameterSet::const_iterator cit;
+	// Note that the GParameterBase objects need to accept a
+	// boost::shared_ptr<GParameterBase>, contrary to the calling conventions
+	// of this function.
+	for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
+		(*it)->fpAdd(*cit);
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Subtract the floating point parameters of another GParameterSet object from this one
+ *
+ * @param cp A boost::shared_ptr to another GParameterSet object whose floating point parameters should be subtracted from this one
+ */
+void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
+	// Some error checking
+	if(p->size() != this->size()) {
+		std::ostringstream error;
+		error << "In GParameterSet::fpAdd(): Error! " << std::endl
+			  << "Sizes do not match: " << this->size() << " " << p->size() << std::endl;
+		throw Gem::Common::gemfony_error_condition(error.str());
+	}
+
+	// Loop over all GParameterBase objects in this and the other object
+	GParameterSet::iterator it;
+	GParameterSet::const_iterator cit;
+	// Note that the GParameterBase objects need to accept a
+	// boost::shared_ptr<GParameterBase>, contrary to the calling conventions
+	// of this function.
+	for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
+		(*it)->fpSubtract(*cit);
+	}
+}
+
+/************************************************************************************************************/
+/**
  * The actual fitness calculation takes place here. Note that you need
  * to overload this function if you do not want to use the GEvaluator
  * mechanism.

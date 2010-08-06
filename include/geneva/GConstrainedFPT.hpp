@@ -403,7 +403,7 @@ public:
 	 *
 	 * @param val The value to be assigned to the parameters
 	 */
-	void fpFixedValueInit(const float& val)
+	virtual void fpFixedValueInit(const float& val)
 	{
 		GParameterT<T>::setValue(transfer(T(val)));
 	}
@@ -415,8 +415,67 @@ public:
 	 * representation will then be transferred back to an external value in the allowed
 	 * value range.
 	 */
-	void fpMultiplyBy(const float& val) {
+	virtual void fpMultiplyBy(const float& val) {
 		GParameterT<T>::setValue(transfer(T(val) * GParameterT<T>::value()));
+	}
+
+	/****************************************************************************/
+	/**
+	 * Multiplies with a random floating point number in a given range.  Note that the resulting
+	 * internal value may well be outside of the allowed boundaries. However, the internal
+	 * representation will then be transferred back to an external value in the allowed
+	 * value range.
+	 *
+	 * @param min The lower boundary for random number generation
+	 * @param max The upper boundary for random number generation
+	 */
+	virtual void fpRandomMultiplyBy(const float& min, const float& max)	{
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
+		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * gr.uniform_real(T(min), T(max))));
+	}
+
+	/****************************************************************************/
+	/**
+	 * Multiplies with a random floating point number in the range [0, 1[.  Note that the resulting
+	 * internal value may well be outside of the allowed boundaries. However, the internal
+	 * representation will then be transferred back to an external value in the allowed
+	 * value range.
+	 */
+	virtual void fpRandomMultiplyBy() {
+		using namespace Gem::Hap;
+		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
+		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * gr.uniform_01()));
+	}
+
+	/****************************************************************************/
+	/**
+	 * Adds the floating point parameters of another GParameterBase object to this one.
+	 * Note that the resulting internal value may well be outside of the allowed boundaries.
+	 * However, the internal representation will then be transferred back to an external
+	 * value in the allowed value range.
+	 *
+	 * @oaram p A boost::shared_ptr to another GParameterBase object
+	 */
+	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
+		// We first need to convert p_base into the local type
+		boost::shared_ptr<GConstrainedFPT<T> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<T> >(p_base);
+		GParameterT<T>::setValue(transfer(GParameterT<T>::value() + p->value()));
+	}
+
+	/****************************************************************************/
+	/**
+	 * Subtracts the floating point parameters of another GParameterBase object
+	 * from this one. Note that the resulting internal value may well be outside of
+	 * the allowed boundaries. However, the internal representation will then be
+	 * transferred back to an external value in the allowed value range.
+	 *
+	 * @oaram p A boost::shared_ptr to another GParameterBase object
+	 */
+	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
+		// We first need to convert p_base into the local type
+		boost::shared_ptr<GConstrainedFPT<T> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<T> >(p_base);
+		GParameterT<T>::setValue(transfer(GParameterT<T>::value() - p->value()));
 	}
 
 protected:
