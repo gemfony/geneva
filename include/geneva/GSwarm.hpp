@@ -74,7 +74,7 @@
 #include "common/GExceptions.hpp"
 #include "GIndividual.hpp"
 #include "GParameterSet.hpp"
-#include "GOptimizationAlgorithm.hpp"
+#include "GOptimizationAlgorithmT.hpp"
 #include "GOptimizationEnums.hpp"
 
 namespace Gem {
@@ -86,7 +86,7 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
 /*********************************************************************************/
 /**
  * The GSwarm class implements a swarm optimization algorithm, based on the infrastructure
- * provided by the GOptimizationAlgorithm class. Its population is based on a constant number
+ * provided by the GOptimizationAlgorithmT class. Its population is based on a constant number
  * of neighborhoods, whose amount of members is allowed to vary. This happens so that late
  * arrivals in case of networked execution can still be integrated into later iterations.
  *
@@ -95,7 +95,7 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
  * TODO: decide how adaptors can be added in the case of swarms
  */
 class GSwarm
-	:public GOptimizationAlgorithm
+	:public GOptimizationAlgorithmT<GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -104,7 +104,7 @@ class GSwarm
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizationAlgorithm)
+		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
 		   & BOOST_SERIALIZATION_NVP(global_best_)

@@ -47,7 +47,7 @@ namespace Geneva {
  * @oaram nNeighborhoodMembers The default number of individuals in each neighborhood (hardwired to >= 2)
  */
 GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
-	: GOptimizationAlgorithm()
+	: GOptimizationAlgorithmT<GParametetSet>()
 	, infoFunction_(&GSwarm::simpleInfoFunction)
 	, nNeighborhoods_((nNeighborhoods==0)?1:nNeighborhoods)
 	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
@@ -57,7 +57,7 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, c_global_(DEFAULTCGLOBAL)
 	, c_delta_(DEFAULTCDELTA)
 {
-	GOptimizationAlgorithm::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+	GOptimizationAlgorithmT<GParametetSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
 	// Initialize with the default number of members in each neighborhood. adjustPopulation() will
 	// later take care to fill the population with individuals as needed.
@@ -73,7 +73,7 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
  * @param cp Another GSwarm object
  */
 GSwarm::GSwarm(const GSwarm& cp)
-	: GOptimizationAlgorithm(cp)
+	: GOptimizationAlgorithmT<GParametetSet>(cp)
 	, infoFunction_(&GSwarm::simpleInfoFunction) // Note that we do not copy the info function
 	, nNeighborhoods_(cp.nNeighborhoods_)
 	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
@@ -112,7 +112,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 	// Differences might e.g. occur if not all individuals return from their remote
 	// evaluation. adjustPopulation will take care to resize the population appropriately
 	// inside of the "optimize()" call.
-	GOptimizationAlgorithm::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
+	GOptimizationAlgorithmT<GParametetSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
 	// Clone cp's locally best individuals, if this is not the first iteration
 	if(cp.getIteration()>0) {
@@ -161,7 +161,7 @@ void GSwarm::load_(const GObject *cp)
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
-	GOptimizationAlgorithm::load_(cp);
+	GOptimizationAlgorithmT<GParametetSet>::load_(cp);
 
 	// ... and then our own data
 	defaultNNeighborhoodMembers_ = p_load->defaultNNeighborhoodMembers_;
@@ -268,7 +268,7 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GOptimizationAlgorithm::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithm", y_name, withMessages));
+	deviations.push_back(GOptimizationAlgorithmT<GParametetSet>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<GParametetSet>", y_name, withMessages));
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoods_, p_load->nNeighborhoods_, "nNeighborhoods_", "p_load->nNeighborhoods_", e , limit));
@@ -375,11 +375,11 @@ void GSwarm::registerInfoFunction(boost::function<void (const infoMode&, GSwarm 
 /************************************************************************************************************/
 /**
  * This function does some preparatory work and tagging required by swarm algorithms. It is called
- * from within GOptimizationAlgorithm::optimize(), immediately before the actual optimization cycle starts.
+ * from within GOptimizationAlgorithmT<GParametetSet>::optimize(), immediately before the actual optimization cycle starts.
  */
 void GSwarm::init() {
 	// To be performed before any other action
-	GOptimizationAlgorithm::init();
+	GOptimizationAlgorithmT<GParametetSet>::init();
 
 	// Create copies of our individuals in the velocity vector. Setting the position needs to be done
 	// only once before the start of the optimization cycle, as individuals do not change position in
@@ -413,7 +413,7 @@ void GSwarm::finalize() {
 	velocity_.clear();
 
 	// Last action
-	GOptimizationAlgorithm::finalize();
+	GOptimizationAlgorithmT<GParametetSet>::finalize();
 }
 
 /************************************************************************************************************/
@@ -493,7 +493,7 @@ std::size_t GSwarm::getLastNIPos(const std::size_t& neighborhood) const {
 /************************************************************************************************************/
 /**
  * This function implements the logic that constitutes each cycle of a swarm algorithm. The
- * function is called by GOptimizationAlgorithm for each iteration of the optimization,
+ * function is called by GOptimizationAlgorithmT<GParametetSet> for each iteration of the optimization,
  *
  * @return The value of the best individual found
  */
@@ -687,7 +687,7 @@ void GSwarm::adjustNeighborhoods() {
 /************************************************************************************************************/
 /**
  * Resizes the population to the desired level and does some error checks. This is an overloaded version
- * from GOptimizationAlgorithm::adjustPopulation().
+ * from GOptimizationAlgorithmT<GParametetSet>::adjustPopulation().
  */
 void GSwarm::adjustPopulation() {
 	const std::size_t defaultPopSize = nNeighborhoods_*defaultNNeighborhoodMembers_;
@@ -881,7 +881,7 @@ bool GSwarm::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GOptimizationAlgorithm::modify_GUnitTests()) result = true;
+	if(GOptimizationAlgorithmT<GParametetSet>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -892,7 +892,7 @@ bool GSwarm::modify_GUnitTests() {
  */
 void GSwarm::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GOptimizationAlgorithm::specificTestsNoFailureExpected_GUnitTests();
+	GOptimizationAlgorithmT<GParametetSet>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -901,7 +901,7 @@ void GSwarm::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GSwarm::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GOptimizationAlgorithm::specificTestsFailuresExpected_GUnitTests();
+	GOptimizationAlgorithmT<GParametetSet>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
