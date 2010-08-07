@@ -52,7 +52,6 @@
 #include "hap/GRandomT.hpp"
 #include "dataexchange/GDataExchange.hpp"
 
-using namespace Gem::Geneva;
 using namespace Gem::Dataexchange;
 
 using boost::unit_test_framework::test_suite;
