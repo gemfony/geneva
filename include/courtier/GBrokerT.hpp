@@ -77,9 +77,9 @@ namespace Courtier {
 
 /**************************************************************************************/
 
-/** @brief The maximum allowed port id. Note that, if we have no 64 integer types,
+/** @brief The maximum allowed port id. Note that, if we have no 64 bit integer types,
  * we will only be able to count up to roughly 4 billion. PORTIDTYPE is defined in
- * GBufferPortT.hpp, based on whether BOOST_HAS_LONG_LONG is defined or not. */
+ * GBoundedBufferWithIdT.hpp, based on whether BOOST_HAS_LONG_LONG is defined or not. */
 const PORTIDTYPE MAXPORTID = std::numeric_limits<PORTIDTYPE>::max()-1;
 
 /**************************************************************************************/
