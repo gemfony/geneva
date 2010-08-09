@@ -49,10 +49,10 @@
 
 
 // Geneva header files go here
-#include "common/GBoundedBufferT.hpp"
+#include "GBoundedBufferT.hpp"
 
 namespace Gem {
-namespace Courtier {
+namespace Common {
 
 /**
  * These typedefs are needed as it is not clear whether we're running on a 64 or 32 bit
@@ -139,7 +139,7 @@ private:
 };
 
 
-} /* namespace Courtier */
+} /* namespace Common */
 } /* namespace Gem */
 
 #endif /* GBOUNDEDBUFFERWITHIDT_HPP_ */

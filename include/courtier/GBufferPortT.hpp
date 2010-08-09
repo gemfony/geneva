@@ -49,7 +49,7 @@
 
 // Geneva header files go here
 
-#include "GBoundedBufferWithIdT.hpp"
+#include "common/GBoundedBufferWithIdT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -74,12 +74,12 @@ class GBufferPortT
 public:
 	/*****************************************************************************/
 	/**
-	 * The default constructor. Note that, when using this constructor, the GBoundedBufferWithIdT
-	 * objects will assume the default sizes.
+	 * The default constructor. Note that, when using this constructor, the
+	 * GBoundedBufferWithIdT objects will assume the default sizes.
 	 */
 	GBufferPortT()
-		: original_(new Gem::Courtier::GBoundedBufferWithIdT<T>())
-		, processed_(new Gem::Courtier::GBoundedBufferWithIdT<T>())
+		: original_(new Gem::Common::GBoundedBufferWithIdT<T>())
+		, processed_(new Gem::Common::GBoundedBufferWithIdT<T>())
 	{ /* nothing */	}
 
 	/*****************************************************************************/
@@ -89,8 +89,8 @@ public:
 	 * @param size The desired capacity of the GBoundedBufferWithIdT objects
 	 */
 	explicit GBufferPortT(const std::size_t& size)
-	   : original_(new Gem::Courtier::GBoundedBufferWithIdT<T>(size))
-	   , processed_(new Gem::Courtier::GBoundedBufferWithIdT<T>(size))
+	   : original_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
+	   , processed_(new Gem::Common::GBoundedBufferWithIdT<T>(size))
 	{ /* nothing */ }
 
 	/*****************************************************************************/
@@ -99,7 +99,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "original" queue
 	 */
-	boost::shared_ptr<Gem::Courtier::GBoundedBufferWithIdT<T> > getOriginal() {
+	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getOriginal() {
 		return original_;
 	}
 
@@ -109,7 +109,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "processed" queue
 	 */
-	boost::shared_ptr<Gem::Courtier::GBoundedBufferWithIdT<T> > getProcessed() {
+	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getProcessed() {
 		return processed_;
 	}
 
@@ -207,8 +207,8 @@ public:
 	/*****************************************************************************/
 
 private:
-	boost::shared_ptr<Gem::Courtier::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
-	boost::shared_ptr<Gem::Courtier::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects
+	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
+	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects
 };
 
 /*****************************************************************************/

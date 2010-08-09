@@ -175,7 +175,7 @@ private:
 	void processItems(){
 		try{
 			boost::shared_ptr<processable_object> p;
-			Gem::Courtier::PORTIDTYPE id;
+			Gem::Common::PORTIDTYPE id;
 			boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
 			while(true){

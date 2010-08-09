@@ -6,7 +6,6 @@ SET ( COMMUNICATIONINCLUDES
 	GAsioTCPConsumerT.hpp
 	GBaseClientT.hpp
 	GBoostThreadConsumerT.hpp
-	GBoundedBufferWithIdT.hpp
 	GBrokerT.hpp
 	GBufferPortT.hpp
 	GCommunicationEnums.hpp

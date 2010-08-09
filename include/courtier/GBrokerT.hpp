@@ -66,10 +66,10 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GBoundedBufferWithIdT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
 #include "GConsumer.hpp"
-#include "GBoundedBufferWithIdT.hpp"
 #include "GBufferPortT.hpp"
 
 namespace Gem {
@@ -80,7 +80,7 @@ namespace Courtier {
 /** @brief The maximum allowed port id. Note that, if we have no 64 bit integer types,
  * we will only be able to count up to roughly 4 billion. PORTIDTYPE is defined in
  * GBoundedBufferWithIdT.hpp, based on whether BOOST_HAS_LONG_LONG is defined or not. */
-const PORTIDTYPE MAXPORTID = std::numeric_limits<PORTIDTYPE>::max()-1;
+const Gem::Common::PORTIDTYPE MAXPORTID = std::numeric_limits<Gem::Common::PORTIDTYPE>::max()-1;
 
 /**************************************************************************************/
 /**
@@ -90,9 +90,9 @@ template<typename carryer_type>
 class GBrokerT
 	:private boost::noncopyable
 {
-	typedef typename boost::shared_ptr<GBoundedBufferWithIdT<carryer_type> > GBoundedBufferWithIdT_Ptr;
+	typedef typename boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carryer_type> > GBoundedBufferWithIdT_Ptr;
 	typedef typename std::list<GBoundedBufferWithIdT_Ptr> BufferPtrList;
-	typedef typename std::map<PORTIDTYPE, GBoundedBufferWithIdT_Ptr> BufferPtrMap;
+	typedef typename std::map<Gem::Common::PORTIDTYPE, GBoundedBufferWithIdT_Ptr> BufferPtrMap;
 
 public:
 	/**********************************************************************************/
@@ -154,12 +154,12 @@ public:
 		// Get new id for GBoundedBufferWithIdT classes and increment
 		// the id afterwards for later use.
 		// TODO: This should later be done with Boost::UUID
-		PORTIDTYPE portId = lastId_++;
+		Gem::Common::PORTIDTYPE portId = lastId_++;
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
-		boost::shared_ptr<GBoundedBufferWithIdT<carryer_type> > original = gbp->getOriginal();
-		boost::shared_ptr<GBoundedBufferWithIdT<carryer_type> > processed = gbp->getProcessed();
+		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carryer_type> > original = gbp->getOriginal();
+		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carryer_type> > processed = gbp->getProcessed();
 		original->setId(portId);
 		processed->setId(portId);
 
@@ -212,7 +212,7 @@ public:
 	 * @param p Holds the retrieved "raw" item
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	PORTIDTYPE get(carryer_type& p) {
+	Gem::Common::PORTIDTYPE get(carryer_type& p) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -245,7 +245,7 @@ public:
 	 * @param timeout Time after which the function should time out
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	PORTIDTYPE get(carryer_type& p, const boost::posix_time::time_duration& timeout) {
+	Gem::Common::PORTIDTYPE get(carryer_type& p, const boost::posix_time::time_duration& timeout) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -278,7 +278,7 @@ public:
 	 * @param key A key that uniquely identifies the origin of p
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 */
-	void put(const PORTIDTYPE& id, const carryer_type& p) {
+	void put(const Gem::Common::PORTIDTYPE& id, const carryer_type& p) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -307,7 +307,7 @@ public:
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 * @param timeout Time after which the function should time out
 	 */
-	void put(const PORTIDTYPE& id, const carryer_type& p,
+	void put(const Gem::Common::PORTIDTYPE& id, const carryer_type& p,
 			 const boost::posix_time::time_duration& timeout)
 	{
 		GBoundedBufferWithIdT_Ptr currentBuffer;
@@ -343,7 +343,7 @@ private:
 	BufferPtrList RawBuffers_; ///< Holds GBoundedBufferWithIdT objects with raw items
 	BufferPtrMap ProcessedBuffers_; ///< Holds GBoundedBufferWithIdT objects for processed items
 
-	PORTIDTYPE lastId_; ///< The last id we've assigned to a buffer
+	Gem::Common::PORTIDTYPE lastId_; ///< The last id we've assigned to a buffer
 	typename BufferPtrList::iterator currentGetPosition_; ///< The current get position in the RawBuffers_ collection
 	bool buffersPresentRaw_; ///< Set to true once the first "raw" bounded buffer has been enrolled
 	bool buffersPresentProcessed_; ///< Set to true once the first "processed" bounded buffer has been enrolled

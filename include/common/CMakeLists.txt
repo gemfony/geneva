@@ -33,6 +33,7 @@ ADD_SUBDIRECTORY ( thirdparty )
 
 SET ( GENEVACOMMONINCLUDES
 	GBoundedBufferT.hpp
+	GBoundedBufferWithIdT.hpp
 	GCommonEnums.hpp
 	GExceptions.hpp
 	GGlobalDefines.hpp

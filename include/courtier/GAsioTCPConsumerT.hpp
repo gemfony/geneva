@@ -154,7 +154,7 @@ public:
 	        // Retrieve an item from the broker and submit it to the client.
 	        try{
 	            boost::shared_ptr<processable_type> p;
-	            Gem::Courtier::PORTIDTYPE id;
+	            Gem::Common::PORTIDTYPE id;
 
 	            // Retrieve an item
 	            id = GBROKER( boost::shared_ptr<processable_type> )->get(p, timeout);
@@ -188,7 +188,7 @@ public:
 	            // into the GBufferPortT objects.
 	            boost::shared_ptr<processable_type> p = Gem::Common::sharedPtrFromString<processable_type>(itemString, serializationMode_);
 
-	            Gem::Courtier::PORTIDTYPE id = boost::lexical_cast<Gem::Courtier::PORTIDTYPE>(portid);
+	            Gem::Common::PORTIDTYPE id = boost::lexical_cast<Gem::Common::PORTIDTYPE>(portid);
 	            try {
 	                GBROKER( boost::shared_ptr<processable_type> )->put(id, p, timeout);
 	            }
