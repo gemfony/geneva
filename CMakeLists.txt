@@ -135,16 +135,17 @@ LINK_DIRECTORIES (
 )
 
 # The names of the libraries that will be built
-SET ( COMMONLIBNAME gemfony-common )
-SET ( DATAEXCHANGELIBNAME gemfony-dataexchange )
-SET ( HAPLIBNAME gemfony-hap )
-SET ( COMMUNICATIONLIBNAME gemfony-courtier )
+SET ( COMMONLIBNAME "gemfony-common" )
+SET ( HAPLIBNAME "gemfony-hap" )
+SET ( COMMUNICATIONLIBNAME "gemfony-courtier" )
 
-# The name of the optimization lib depends on whether or not it contains test code
+# The name of the libs depend on whether or not they contain test code
 IF ( BUILDTESTCODE )
-	SET ( OPTIMIZATIONLIBNAME gemfony-geneva-testing )
+	SET ( DATAEXCHANGELIBNAME "gemfony-dataexchange-testing" )
+	SET ( OPTIMIZATIONLIBNAME "gemfony-geneva-testing" )
 ELSE()
-	SET ( OPTIMIZATIONLIBNAME gemfony-geneva )
+	SET ( DATAEXCHANGELIBNAME "gemfony-dataexchange" )
+	SET ( OPTIMIZATIONLIBNAME "gemfony-geneva" )
 ENDIF()
 
 ADD_SUBDIRECTORY (CMakeModules)
