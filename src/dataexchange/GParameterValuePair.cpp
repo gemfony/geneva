@@ -125,14 +125,14 @@ bool GParameterValuePair::operator==(const GParameterValuePair& cp) const {
 	if(hasValue_ != cp.hasValue_) {
 #ifdef GENEVATESTING
 		std::cout << "hasValue_ != cp.hasValue_" << std::endl;
-#endif
+#endif /* GENEVATESTING */
 		return false;
 	}
 
 	if(value_ != cp.value_) {
 #ifdef GENEVATESTING
 		std::cout << "value_ != cp.value_: " << value_ << " " << cp.value_ << std::endl;
-#endif
+#endif /* GENEVATESTING */
 		return false;
 	}
 
@@ -140,7 +140,7 @@ bool GParameterValuePair::operator==(const GParameterValuePair& cp) const {
 	if(dArray_.size() != cp.dArray_.size()) {
 #ifdef GENEVATESTING
 		std::cout << "dArray_.size() != cp.dArray_.size(): " << dArray_.size() << " " << cp.dArray_.size() << std::endl;
-#endif
+#endif /* GENEVATESTING */
 		return false;
 	}
 	std::vector<boost::shared_ptr<GDoubleParameter> >::const_iterator dcit, cp_dcit;
@@ -149,7 +149,7 @@ bool GParameterValuePair::operator==(const GParameterValuePair& cp) const {
 		if(**dcit != **cp_dcit) {
 #ifdef GENEVATESTING
 			std::cout << "**dcit != **cp_dcit : " << **dcit << " " << **cp_dcit << std::endl;
-#endif
+#endif /* GENEVATESTING */
 			return false;
 		}
 	}
@@ -158,7 +158,7 @@ bool GParameterValuePair::operator==(const GParameterValuePair& cp) const {
 	if(lArray_.size() != cp.lArray_.size()) {
 #ifdef GENEVATESTING
 		std::cout << "lArray_.size() != cp.lArray_.size(): " << lArray_.size() << " " << cp.lArray_.size() << std::endl;
-#endif
+#endif /* GENEVATESTING */
 		return false;
 	}
 	std::vector<boost::shared_ptr<GLongParameter> >::const_iterator lcit, cp_lcit;
@@ -167,7 +167,7 @@ bool GParameterValuePair::operator==(const GParameterValuePair& cp) const {
 		if(**lcit != **cp_lcit) {
 #ifdef GENEVATESTING
 			std::cout << "**lcit != **cp_lcit : " << **lcit << " " << **cp_lcit << std::endl;
-#endif
+#endif /* GENEVATESTING */
 			return false;
 		}
 	}
@@ -176,7 +176,7 @@ bool GParameterValuePair::operator==(const GParameterValuePair& cp) const {
 	if(bArray_.size() != cp.bArray_.size()) {
 #ifdef GENEVATESTING
 		std::cout << "bArray_.size() != cp.bArray_.size(): " << bArray_.size() << " " << cp.bArray_.size() << std::endl;
-#endif
+#endif /* GENEVATESTING */
 		return false;
 	}
 	std::vector<boost::shared_ptr<GBoolParameter> >::const_iterator bcit, cp_bcit;
@@ -185,7 +185,7 @@ bool GParameterValuePair::operator==(const GParameterValuePair& cp) const {
 		if(**bcit != **cp_bcit) {
 #ifdef GENEVATESTING
 			std::cout << "**bcit != **cp_bcit : " << **bcit << " " << **cp_bcit << std::endl;
-#endif
+#endif /* GENEVATESTING */
 			return false;
 		}
 	}
