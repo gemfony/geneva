@@ -230,7 +230,7 @@ public:
 	 * Checks for similarity between two objects. For most types
 	 * the same as equality, but different for doubles (particularly
 	 * in the case of text io. This function is mainly needed for
-	 * testing purposes. There is a speecialization for double.
+	 * testing purposes. There is a specialization for double.
 	 *
 	 * @param cp A constant reference to another GNumericParameterT<T> object
 	 * @param limit The maximum acceptable level of difference between both objects
@@ -483,7 +483,7 @@ private:
 	T upperBoundary_; ///< The upper boundary allowed for param_
 };
 
-// Declaration of specializations for various "allowed types
+// Declaration of specializations for various allowed types
 template<> double GNumericParameterT<double>::unknownParameterTypeTrap(double);
 template<> boost::int32_t GNumericParameterT<boost::int32_t>::unknownParameterTypeTrap(boost::int32_t);
 template<> bool GNumericParameterT<bool>::unknownParameterTypeTrap(bool);
