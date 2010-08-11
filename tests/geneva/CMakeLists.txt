@@ -5,7 +5,7 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	Manual
+	ManualTests
 )
 
 ADD_SUBDIRECTORY (
