@@ -69,11 +69,11 @@
 
 // Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
+#include "hap/GRandomT.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GBrokerT.hpp"
 #include "GCommunicationEnums.hpp"
 #include "GConsumer.hpp"
-#include "hap/GRandomT.hpp"
 
 namespace Gem
 {
