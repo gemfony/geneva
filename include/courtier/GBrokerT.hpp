@@ -86,11 +86,11 @@ const Gem::Common::PORTIDTYPE MAXPORTID = std::numeric_limits<Gem::Common::PORTI
 /**
  * This class acts as the main interface between producers and consumers.
  */
-template<typename carryer_type>
+template<typename carrier_type>
 class GBrokerT
 	:private boost::noncopyable
 {
-	typedef typename boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carryer_type> > GBoundedBufferWithIdT_Ptr;
+	typedef typename boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carrier_type> > GBoundedBufferWithIdT_Ptr;
 	typedef typename std::list<GBoundedBufferWithIdT_Ptr> BufferPtrList;
 	typedef typename std::map<Gem::Common::PORTIDTYPE, GBoundedBufferWithIdT_Ptr> BufferPtrMap;
 
@@ -135,7 +135,7 @@ public:
 	 *
 	 * @param gbp A shared pointer to a new GBufferPortT object
 	 */
-	void enrol(boost::shared_ptr<GBufferPortT<carryer_type> > gbp) {
+	void enrol(boost::shared_ptr<GBufferPortT<carrier_type> > gbp) {
 		// Lock the access to our internal data
 		boost::mutex::scoped_lock rawLock(RawBuffersMutex_);
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -158,8 +158,8 @@ public:
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
-		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carryer_type> > original = gbp->getOriginal();
-		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carryer_type> > processed = gbp->getProcessed();
+		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carrier_type> > original = gbp->getOriginal();
+		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carrier_type> > processed = gbp->getProcessed();
 		original->setId(portId);
 		processed->setId(portId);
 
@@ -212,7 +212,7 @@ public:
 	 * @param p Holds the retrieved "raw" item
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	Gem::Common::PORTIDTYPE get(carryer_type& p) {
+	Gem::Common::PORTIDTYPE get(carrier_type& p) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -245,7 +245,7 @@ public:
 	 * @param timeout Time after which the function should time out
 	 * @return A key that uniquely identifies the origin of p
 	 */
-	Gem::Common::PORTIDTYPE get(carryer_type& p, const boost::posix_time::time_duration& timeout) {
+	Gem::Common::PORTIDTYPE get(carrier_type& p, const boost::posix_time::time_duration& timeout) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		// Locks access to our internal data until we have a copy of a buffer.
@@ -278,7 +278,7 @@ public:
 	 * @param key A key that uniquely identifies the origin of p
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 */
-	void put(const Gem::Common::PORTIDTYPE& id, const carryer_type& p) {
+	void put(const Gem::Common::PORTIDTYPE& id, const carrier_type& p) {
 		GBoundedBufferWithIdT_Ptr currentBuffer;
 
 		boost::mutex::scoped_lock processedLock(ProcessedBuffersMutex_);
@@ -307,7 +307,7 @@ public:
 	 * @param p Holds the "raw" item to be submitted to the processed queue
 	 * @param timeout Time after which the function should time out
 	 */
-	void put(const Gem::Common::PORTIDTYPE& id, const carryer_type& p,
+	void put(const Gem::Common::PORTIDTYPE& id, const carrier_type& p,
 			 const boost::posix_time::time_duration& timeout)
 	{
 		GBoundedBufferWithIdT_Ptr currentBuffer;
@@ -331,8 +331,8 @@ public:
 
 private:
 	/**********************************************************************************/
-	GBrokerT(const GBrokerT<carryer_type>&); ///< Intentionally left undefined
-	const GBrokerT& operator=(const GBrokerT<carryer_type>&); ///< Intentionally left undefined
+	GBrokerT(const GBrokerT<carrier_type>&); ///< Intentionally left undefined
+	const GBrokerT& operator=(const GBrokerT<carrier_type>&); ///< Intentionally left undefined
 
 	boost::mutex RawBuffersMutex_; ///< Regulates access to the RawBuffers_ collection
 	boost::mutex ProcessedBuffersMutex_; ///< Regulates access to the ProcessedBuffers_ collection
