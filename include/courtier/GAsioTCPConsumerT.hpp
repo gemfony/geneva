@@ -217,7 +217,7 @@ public:
 	 *
 	 * @return The socket used by this object
 	 */
-	boost::asio::ip::tcp::socket& socket(){
+	boost::asio::ip::tcp::socket& getSocket(){
 	    return socket_;
 	}
 
@@ -399,7 +399,7 @@ public:
         }
         // Start the actual processing. All real work is done in the GAsioServerSession class .
         boost::shared_ptr<GAsioServerSession<processable_type> > newSession(new GAsioServerSession<processable_type>(work_->get_io_service() ,serializationMode_));
-        acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumerT<processable_type>::handleAccept, this, newSession, _1));
+        acceptor_.async_accept(newSession->getSocket(), boost::bind(&GAsioTCPConsumerT<processable_type>::handleAccept, this, newSession, _1));
     }
 
     /*********************************************************************/
@@ -472,7 +472,7 @@ private:
 
         // First we make sure a new session is started asynchronously so the next request can be served
         boost::shared_ptr<GAsioServerSession<processable_type> > newSession(new GAsioServerSession<processable_type>(work_->get_io_service(), serializationMode_));
-        acceptor_.async_accept(newSession->socket(), boost::bind(&GAsioTCPConsumerT<processable_type>::handleAccept, this, newSession, _1));
+        acceptor_.async_accept(newSession->getSocket(), boost::bind(&GAsioTCPConsumerT<processable_type>::handleAccept, this, newSession, _1));
 
         // Now we can dispatch the actual session code to our thread pool
         tp_.schedule(boost::bind(&GAsioServerSession<processable_type>::processRequest, currentSession));
