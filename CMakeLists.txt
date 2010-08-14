@@ -135,17 +135,17 @@ LINK_DIRECTORIES (
 )
 
 # The names of the libraries that will be built
-SET ( COMMONLIBNAME "gemfony-common" )
-SET ( HAPLIBNAME "gemfony-hap" )
-SET ( COMMUNICATIONLIBNAME "gemfony-courtier" )
+SET ( COMMON_LIBNAME           "gemfony-common" )
+SET ( HAP_LIBNAME              "gemfony-hap" )
+SET ( COURTIER_LIBNAME         "gemfony-courtier" )
 
 # The name of the libs depend on whether or not they contain test code
 IF ( BUILDTESTCODE )
-	SET ( DATAEXCHANGELIBNAME "gemfony-dataexchange-testing" )
-	SET ( OPTIMIZATIONLIBNAME "gemfony-geneva-testing" )
+	SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange-testing" )
+	SET ( GENEVA_LIBNAME       "gemfony-geneva-testing" )
 ELSE()
-	SET ( DATAEXCHANGELIBNAME "gemfony-dataexchange" )
-	SET ( OPTIMIZATIONLIBNAME "gemfony-geneva" )
+	SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange" )
+	SET ( GENEVA_LIBNAME       "gemfony-geneva" )
 ENDIF()
 
 ADD_SUBDIRECTORY (CMakeModules)
@@ -157,6 +157,18 @@ ADD_SUBDIRECTORY (src)
 IF( BUILDTESTCODE )
 	ADD_SUBDIRECTORY (tests)
 ENDIF()
+
+# Add custom targets for building single libraries only
+ADD_CUSTOM_TARGET( "common"       DEPENDS ${COMMON_LIBNAME}
+									COMMENT "Building only the Common library." )
+ADD_CUSTOM_TARGET( "dataexchange" DEPENDS ${DATAEXCHANGE_LIBNAME}
+									COMMENT "Building only the Dataexchange library." )
+ADD_CUSTOM_TARGET( "hap"          DEPENDS ${HAP_LIBNAME}
+									COMMENT "Building only the Hap library." )
+ADD_CUSTOM_TARGET( "courtier"     DEPENDS ${COURTIER_LIBNAME}
+									COMMENT "Building only the Courtier library." )
+ADD_CUSTOM_TARGET( "geneva"       DEPENDS ${GENEVA_LIBNAME}
+									COMMENT "Building only the Geneva library." )
 
 SET ( INFORMATIONFILES
 	AUTHORS

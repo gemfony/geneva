@@ -94,14 +94,14 @@ SET ( COMMUNICATION_LIBNAME "gemfony-courtier" )
 # The name of the libs depend on whether or not they contain test code
 IF ( BUILDTESTCODE )
 	SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange-testing" )
-	SET ( OPTIMIZATION_LIBNAME "gemfony-geneva-testing" )
+	SET ( GENEVA_LIBNAME "gemfony-geneva-testing" )
 ELSE()
 	SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange" )
-	SET ( OPTIMIZATION_LIBNAME "gemfony-geneva" )
+	SET ( GENEVA_LIBNAME "gemfony-geneva" )
 ENDIF()
 
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-	${OPTIMIZATION_LIBNAME}
+	${GENEVA_LIBNAME}
 	${COMMUNICATION_LIBNAME}
 	${DATAEXCHANGE_LIBNAME}
 	${HAP_LIBNAME}
