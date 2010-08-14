@@ -3,7 +3,6 @@ PROJECT (GStartProject)
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 # Make sure we first check our local modules directory
-ADD_SUBDIRECTORY (CMakeModules)
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
 # Check Geneva dirs
