@@ -68,11 +68,11 @@
 #endif
 
 // Geneva header files go here
-#include "common/GExceptions.hpp"
-#include "hap/GRandomT.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GParameterSet.hpp"
+#include <common/GExceptions.hpp>
+#include <hap/GRandomT.hpp>
+#include <geneva/GDoubleCollection.hpp>
+#include <geneva/GDoubleGaussAdaptor.hpp>
+#include <geneva/GParameterSet.hpp>
 
 namespace Gem
 {

@@ -53,13 +53,13 @@
 #endif
 
 // Geneva header files go here
-#include "common/GCommonEnums.hpp"
-#include "common/GExceptions.hpp"
-#include "geneva/GConstrainedDouble.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GParameterSet.hpp"
-#include "hap/GRandomT.hpp"
+#include <common/GCommonEnums.hpp>
+#include <common/GExceptions.hpp>
+#include <geneva/GConstrainedDouble.hpp>
+#include <geneva/GConstrainedDoubleObjectCollection.hpp>
+#include <geneva/GDoubleGaussAdaptor.hpp>
+#include <geneva/GParameterSet.hpp>
+#include <hap/GRandomT.hpp>
 
 namespace Gem
 {

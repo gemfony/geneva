@@ -38,7 +38,7 @@
 #include <utility> // For std::pair
 
 // Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
+#include <common/GGlobalDefines.hpp>
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
@@ -56,18 +56,18 @@
 #endif
 
 // Geneva header files go here
-#include "hap/GRandomT.hpp"
-#include "common/GCommonEnums.hpp"
-#include "common/GExceptions.hpp"
-#include "geneva/GConstrainedDouble.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GObjectExpectationChecksT.hpp"
-#include "geneva/GParameterObjectCollection.hpp"
-#include "geneva/GParameterSet.hpp"
+#include <hap/GRandomT.hpp>
+#include <common/GCommonEnums.hpp>
+#include <common/GExceptions.hpp>
+#include <geneva/GConstrainedDouble.hpp>
+#include <geneva/GConstrainedDoubleObjectCollection.hpp>
+#include <geneva/GDoubleGaussAdaptor.hpp>
+#include <geneva/GObjectExpectationChecksT.hpp>
+#include <geneva/GParameterObjectCollection.hpp>
+#include <geneva/GParameterSet.hpp>
 
 #ifdef GENEVATESTING
-#include "common/GUnitTestFrameworkT.hpp"
+#include <common/GUnitTestFrameworkT.hpp>
 #endif /* GENEVATESTING */
 
 namespace Gem

@@ -36,13 +36,13 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "courtier/GAsioHelperFunctions.hpp"
-#include "courtier/GAsioTCPClientT.hpp"
-#include "courtier/GAsioTCPConsumerT.hpp"
-#include "geneva/GBrokerEA.hpp"
-#include "geneva/GEvolutionaryAlgorithm.hpp"
-#include "geneva/GIndividual.hpp"
-#include "geneva/GMultiThreadedEA.hpp"
+#include <courtier/GAsioHelperFunctions.hpp>
+#include <courtier/GAsioTCPClientT.hpp>
+#include <courtier/GAsioTCPConsumerT.hpp>
+#include <geneva/GBrokerEA.hpp>
+#include <geneva/GEvolutionaryAlgorithm.hpp>
+#include <geneva/GIndividual.hpp>
+#include <geneva/GMultiThreadedEA.hpp>
 
 // The individual that should be optimized
 #include "GFunctionIndividual.hpp"

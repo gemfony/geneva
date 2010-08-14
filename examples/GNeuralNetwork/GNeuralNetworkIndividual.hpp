@@ -36,7 +36,7 @@
 #include <fstream>
 
 // Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
+#include <common/GGlobalDefines.hpp>
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
@@ -71,15 +71,15 @@
 #endif
 
 // Geneva header files go here
-#include "common/GCommonEnums.hpp"
-#include "common/GExceptions.hpp"
-#include "common/GHelperFunctionsT.hpp"
-#include "hap/GRandomT.hpp"
-#include "geneva/GDouble.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GDoubleObjectCollection.hpp"
-#include "geneva/GParameterSet.hpp"
-#include "geneva/GStdSimpleVectorInterfaceT.hpp"
+#include <common/GCommonEnums.hpp>
+#include <common/GExceptions.hpp>
+#include <common/GHelperFunctionsT.hpp>
+#include <hap/GRandomT.hpp>
+#include <geneva/GDouble.hpp>
+#include <geneva/GDoubleGaussAdaptor.hpp>
+#include <geneva/GDoubleObjectCollection.hpp>
+#include <geneva/GParameterSet.hpp>
+#include <geneva/GStdSimpleVectorInterfaceT.hpp>
 
 namespace Gem
 {

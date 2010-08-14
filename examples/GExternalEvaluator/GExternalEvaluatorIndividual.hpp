@@ -58,19 +58,19 @@
 #endif
 
 // Geneva header files go here
-#include "common/GCommonEnums.hpp"
-#include "dataexchange/GBoolParameter.hpp"
-#include "dataexchange/GDataExchange.hpp"
-#include "dataexchange/GDoubleParameter.hpp"
-#include "dataexchange/GLongParameter.hpp"
-#include "geneva/GBooleanAdaptor.hpp"
-#include "geneva/GBooleanCollection.hpp"
-#include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GConstrainedInt32ObjectCollection.hpp"
-#include "geneva/GDoubleCollection.hpp"
-#include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GInt32FlipAdaptor.hpp"
-#include "geneva/GParameterSet.hpp"
+#include <common/GCommonEnums.hpp>
+#include <dataexchange/GBoolParameter.hpp>
+#include <dataexchange/GDataExchange.hpp>
+#include <dataexchange/GDoubleParameter.hpp>
+#include <dataexchange/GLongParameter.hpp>
+#include <geneva/GBooleanAdaptor.hpp>
+#include <geneva/GBooleanCollection.hpp>
+#include <geneva/GConstrainedDoubleObjectCollection.hpp>
+#include <geneva/GConstrainedInt32ObjectCollection.hpp>
+#include <geneva/GDoubleCollection.hpp>
+#include <geneva/GDoubleGaussAdaptor.hpp>
+#include <geneva/GInt32FlipAdaptor.hpp>
+#include <geneva/GParameterSet.hpp>
 
 // The enums
 #include "GExternalEvaluatorEnums.hpp"
