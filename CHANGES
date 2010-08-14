@@ -16,6 +16,7 @@ The main changes for this release include:
    and integer-aware classes.
  - Moved the GBoundedBufferWithIdT class from the Courtier to the Common library.
  - Organized the tests in subfolders corresponding to each tested library.
+ - Improved the examples' build-files to allow all the examples to compile out of tree.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8, "Prevessin" - August 4, 2010
