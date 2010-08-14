@@ -63,11 +63,7 @@ ENDIF()
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}
-	${GENEVA_ROOT}/include/common
-#	${GENEVA_ROOT}/include/dataexchange
-	${GENEVA_ROOT}/include/hap
-	${GENEVA_ROOT}/include/courtier
-	${GENEVA_ROOT}/include/geneva
+	${GENEVA_ROOT}/include
 #	${Boost_INCLUDE_DIRS}
 )
 
