@@ -28,3 +28,34 @@ used directly without adaption. These are:
 Please check each directory for further information. Where no README file
 is available, the main source code file (named similar to the directory it
 is in) will have further information.
+
+
+Compilation
+===========
+
+All the examples in this folder are compiled when building the whole Geneva
+tree. However, you can also give any of these examples a try by compiling it
+in a stand-alone way.
+
+For compiling a given example proceed as follows:
+
+- Create a "build" folder somewhere and change into it:
+	mkdir /tmp/build
+	cd /tmp/build
+
+- Run cmake with the appropriate options:
+	cmake -DBOOSTROOT=<PATH_TO_BOOST_ROOT> -DBOOST_INCLUDEDIR="${BOOSTROOT}/lib" \
+	      -DBOOST_LIBRARYDIR="${BOOSTROOT}/include/boost" \
+	      -DGENEVA_ROOT=<PATH_TO_GENEVA_INSTALL_DIR> \
+	      -DGENEVA_BUILD_TYPE=[Release|Debug] \
+	      -DCMAKE_INSTALL_PREFIX=<PATH_TO_GENEVA_EXAMPLE_INSTALL_DIR> \
+	      -DCMAKE_VERBOSE_MAKEFILE=[0|1] -DBUILDTESTCODE=[0|1] \
+	      		<PATH_TO_EXAMPLE_SOURCE_DIR>
+  In particular, if the Boost libraries are installed system-wide you will most
+  probably only need the GENEVA_ROOT variable and you can simply try with:
+	cmake -DGENEVA_ROOT=/opt/geneva \
+	      -DCMAKE_INSTALL_PREFIX=/opt/geneva-examples geneva-src/examples/GSimpleEA/
+
+- Build and install the example:
+	make
+	make install

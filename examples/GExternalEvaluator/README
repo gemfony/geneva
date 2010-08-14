@@ -4,4 +4,4 @@ executables is not readily available or cannot be integrated into Geneva, e.g.
 for licensing reasons. Note that calling an external executable for each evaluation
 implies a significant overhead. Whenever possible, we thus recommend to write
 native individuals instead. An example for an external evaluator can be found 
-in the subdirectory "Evaluator".
+in the subdirectory "SampleEvaluator".
