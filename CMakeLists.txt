@@ -158,7 +158,7 @@ IF( BUILDTESTCODE )
 	ADD_SUBDIRECTORY (tests)
 ENDIF()
 
-# Add custom targets for building single libraries only
+# Custom targets for building single libraries only
 ADD_CUSTOM_TARGET( "common"       DEPENDS ${COMMON_LIBNAME}
 									COMMENT "Building only the Common library." )
 ADD_CUSTOM_TARGET( "dataexchange" DEPENDS ${DATAEXCHANGE_LIBNAME}
