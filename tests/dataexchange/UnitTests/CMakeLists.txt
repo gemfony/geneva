@@ -1,24 +1,26 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GDataExchangeObjectsTests)
+ADD_CUSTOM_TARGET ( "dataexchange-tests-unit" )
 
-SET (${EXECUTABLENAME}_SRCS 
+ADD_DEPENDENCIES ( "dataexchange-tests-unit"
+	# Add all the available tests targets (EXECUTABLENAMEs) here
+	GDataExchangeObjectsTests
+)
+
+SET ( EXECUTABLENAME GDataExchangeObjectsTests )
+
+SET ( ${EXECUTABLENAME}_SRCS 
 	ObjectsTests
 )
 
-ADD_SUBDIRECTORY (
-	ObjectsTestsHeaders
-)
+ADD_SUBDIRECTORY ( ObjectsTestsHeaders )
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
+ADD_EXECUTABLE ( ${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
-INCLUDE_DIRECTORIES (AFTER
+INCLUDE_DIRECTORIES ( AFTER
 	${PROJECT_SOURCE_DIR}/include
-)
-
-INCLUDE_DIRECTORIES (AFTER
 	${PROJECT_SOURCE_DIR}/tests/dataexchange/UnitTests/ObjectsTestsHeaders
 )
 

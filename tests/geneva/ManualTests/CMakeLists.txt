@@ -1,17 +1,16 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-ADD_SUBDIRECTORY (
+ADD_CUSTOM_TARGET ( "geneva-tests-manual" )
+
+ADD_DEPENDENCIES ( "geneva-tests-manual"
+	# Add all the available tests targets (EXECUTABLENAMEs) here
 	GBooleanProbabilityTest
-)
-
-ADD_SUBDIRECTORY (
 	GConstrainedFPTTest
-)
-
-ADD_SUBDIRECTORY (
 	GConstrainedIntegerTTest
-)
-
-ADD_SUBDIRECTORY (
 	GSigmaAdaption
 )
+
+ADD_SUBDIRECTORY ( GBooleanProbabilityTest )
+ADD_SUBDIRECTORY ( GConstrainedFPTTest )
+ADD_SUBDIRECTORY ( GConstrainedIntegerTTest )
+ADD_SUBDIRECTORY ( GSigmaAdaption )

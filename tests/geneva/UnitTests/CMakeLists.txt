@@ -1,49 +1,40 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME1 GenevaStandardTests)
-SET (EXECUTABLENAME2 GenevaObjectsTests)
+ADD_CUSTOM_TARGET ( "geneva-tests-unit" )
 
-SET (${EXECUTABLENAME1}_SRCS 
+ADD_DEPENDENCIES ( "geneva-tests-unit"
+	# Add all the available tests targets (EXECUTABLENAMEs) here
 	GenevaStandardTests
-)
-
-SET (${EXECUTABLENAME2}_SRCS 
 	GenevaObjectsTests
 )
 
-ADD_SUBDIRECTORY (
-	GBrokerTestsHeaders
+SET ( EXECUTABLENAME1 GenevaStandardTests )
+SET ( EXECUTABLENAME2 GenevaObjectsTests )
+
+SET ( ${EXECUTABLENAME1}_SRCS 
+	GenevaStandardTests
 )
 
-ADD_SUBDIRECTORY (
-	GenevaObjectsTestsHeaders
+SET ( ${EXECUTABLENAME2}_SRCS 
+	GenevaObjectsTests
 )
 
-ADD_SUBDIRECTORY (
-	UtilityHeaders
-)
+ADD_SUBDIRECTORY ( GBrokerTestsHeaders )
+ADD_SUBDIRECTORY ( GenevaObjectsTestsHeaders )
+ADD_SUBDIRECTORY ( UtilityHeaders )
 
-ADD_EXECUTABLE(${EXECUTABLENAME1}
+ADD_EXECUTABLE ( ${EXECUTABLENAME1}
 	${${EXECUTABLENAME1}_SRCS}
 )
 
-ADD_EXECUTABLE(${EXECUTABLENAME2}
+ADD_EXECUTABLE ( ${EXECUTABLENAME2}
 	${${EXECUTABLENAME2}_SRCS}
 )
 
-INCLUDE_DIRECTORIES (AFTER
+INCLUDE_DIRECTORIES ( AFTER
 	${PROJECT_SOURCE_DIR}/include
-)
-
-INCLUDE_DIRECTORIES (AFTER
 	${PROJECT_SOURCE_DIR}/tests/geneva/TestIndividuals
-)
-
-INCLUDE_DIRECTORIES (AFTER
 	${PROJECT_SOURCE_DIR}/tests/geneva/UnitTests/UtilityHeaders
-)
-
-INCLUDE_DIRECTORIES (AFTER
 	${PROJECT_SOURCE_DIR}/tests/geneva/UnitTests/GenevaObjectsTestsHeaders
 )
 
