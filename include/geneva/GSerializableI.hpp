@@ -62,7 +62,7 @@ public:
 	virtual ~GSerializableI() { /* nothing */ }
 
 	/** @brief Create a text representation from this class */
-	virtual std::string toString(const Gem::Common::serializationMode&) = 0;
+	virtual std::string toString(const Gem::Common::serializationMode&) const = 0;
 
 	/** @brief Initialize this class from a text representation */
 	virtual void fromString(const std::string&, const Gem::Common::serializationMode&) = 0;

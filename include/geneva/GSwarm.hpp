@@ -34,6 +34,7 @@
 #include <sstream>
 #include <cmath>
 #include <cfloat>
+#include <vector>
 #include <algorithm>
 
 // Includes check for correct Boost version(s)
@@ -46,6 +47,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/cast.hpp>
+#include <boost/serialization/nvp.hpp>
 #include <boost/date_time.hpp>
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
@@ -90,9 +92,6 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
  * of neighborhoods, whose amount of members is allowed to vary. This happens so that late
  * arrivals in case of networked execution can still be integrated into later iterations.
  *
- * TODO: Check getBestFitness Implementation for this object and GEA objects
- * TODO: registerInfoFunction into base class, with protected boost::function Object
- * TODO: decide how adaptors can be added in the case of swarms
  * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */
 class GSwarm
@@ -102,18 +101,72 @@ class GSwarm
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
+	void load(Archive & ar, const unsigned int) {
+		using boost::serialization::make_nvp;
+
+		std::size_t currentNNeighborhoods = nNeighborhoods_;
+
+		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
+		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_);
+
+		if(currentNNeighborhoods != nNeighborhoods_) {
+			delete [] nNeighborhoodMembers_;
+			nNeighborhoodMembers_ = new std::size_t[nNeighborhoods_];
+		}
+
+		std::vector<std::size_t> nNeighborhoodMembersVec;
+		ar & BOOST_SERIALIZATION_NVP(nNeighborhoodMembersVec);
+		for(std::size_t i=0; i<nNeighborhoods_; i++) {
+			nNeighborhoodMembers_[i] = nNeighborhoodMembersVec[i];
+		}
+
+		ar & BOOST_SERIALIZATION_NVP(global_best_);
+
+		std::vector<boost::shared_ptr<GParameterSet> > local_bests_vec;
+		ar & BOOST_SERIALIZATION_NVP(local_bests_vec);
+
+		if(currentNNeighborhoods != nNeighborhoods_) {
+			delete [] local_bests_;
+			local_bests_ = new boost::shared_ptr<GParameterSet>[nNeighborhoods_];
+		}
+
+		for(std::size_t i=0; i<nNeighborhoods_; i++) {
+			local_bests_[i] = local_bests_vec[i];
+		}
+
+		ar & BOOST_SERIALIZATION_NVP(c_local_)
+		   & BOOST_SERIALIZATION_NVP(c_global_)
+		   & BOOST_SERIALIZATION_NVP(c_delta_);
+	}
+
+	template<typename Archive>
+	void save(Archive & ar, const unsigned int) const {
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
-		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
-		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
-		   & BOOST_SERIALIZATION_NVP(global_best_)
-		   & BOOST_SERIALIZATION_NVP(local_bests_)
+		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_);
+
+		std::vector<std::size_t> nNeighborhoodMembersVec;
+		for(std::size_t i=0; i<nNeighborhoods_; i++) {
+			nNeighborhoodMembersVec.push_back(nNeighborhoodMembers_[i]);
+		}
+
+		ar & BOOST_SERIALIZATION_NVP(nNeighborhoodMembersVec)
+		   & BOOST_SERIALIZATION_NVP(global_best_);
+
+		std::vector<boost::shared_ptr<GParameterSet> > local_bests_vec;
+		for(std::size_t i=0; i<nNeighborhoods_; i++) {
+			local_bests_vec.push_back(local_bests_[i]);
+		}
+
+		ar & BOOST_SERIALIZATION_NVP(local_bests_vec)
 		   & BOOST_SERIALIZATION_NVP(c_local_)
 		   & BOOST_SERIALIZATION_NVP(c_global_)
 		   & BOOST_SERIALIZATION_NVP(c_delta_);
 	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 	///////////////////////////////////////////////////////////////////////
 
 public:
@@ -145,19 +198,19 @@ public:
 	virtual void loadCheckpoint(const std::string&);
 
 	/** @brief Allows to set a static multiplier for local distances */
-	void setCLocal(const double&);
+	void setCLocal(const float&);
 	/** @brief Allows to retrieve the static multiplier for local distances or the lower boundary of a random range */
-	double getCLocal() const;
+	float getCLocal() const;
 
 	/** @brief Allows to set a static multiplier for global distances */
-	void setCGlobal(const double&);
+	void setCGlobal(const float&);
 	/** @brief Allows to retrieve the static multiplier for local distances or the lower boundary of a random range */
-	double getCGlobal() const;
+	float getCGlobal() const;
 
 	/** @brief Allows to set a static multiplier for deltas */
-	void setCDelta(const double&);
+	void setCDelta(const float&);
 	/** @brief Allows to retrieve the static multiplier for deltas or the lower boundary of a random range */
-	double getCDelta() const;
+	float getCDelta() const;
 
 	/** @brief Retrieves the number of neighborhoods */
 	std::size_t getNNeighborhoods() const;
@@ -210,9 +263,9 @@ public:
 	 * it is recommended to register function objects instead of this function.
 	 *
 	 * @param im Indicates the information mode
-	 * @param gbp A pointer to the population information should be emitted about
+	 * @param gs A pointer to the population information should be emitted about
 	 */
-	static void simpleInfoFunction(const infoMode& im, GSwarm * const gbp) {
+	static void simpleInfoFunction(const infoMode& im, GSwarm * const gs) {
 		std::ostringstream information;
 
 		switch(im){
@@ -223,12 +276,7 @@ public:
 			{
 				bool isDirty = false;
 
-				information << std::setprecision(10) << "In iteration "<< gbp->getIteration() << ": " << global_best_->getCurrentFitness(isDirty);
-
-				if(isDirty) {
-					information << " (dirty flag is set)";
-				}
-				information << std::endl;
+				information << std::setprecision(10) << "In iteration "<< gs->getIteration() << ": " << gs->getBestFitness() << std::endl;
 			}
 			break;
 
@@ -263,7 +311,7 @@ protected:
 	/** @brief Updates the fitness of all individuals */
 	virtual void updatePositionsAndFitness();
 	/** @brief Updates an individual's parameters */
-	virtual void updateParameters(boost::shared_ptr<GIndividual>, const std::size_t&);
+	virtual void updateParameters(boost::shared_ptr<GParameterSet>, const std::size_t&);
 	/** @brief Updates the best individuals found */
 	virtual double findBests();
 	/** @brief Adjusts each neighborhood so it has the correct size */
@@ -272,7 +320,7 @@ protected:
 	/**************************************************************************************************/
 private:
 	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
-	GSwarm(){;}
+	GSwarm(){}
 
 	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
 	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
@@ -291,12 +339,12 @@ private:
 	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
 	std::size_t *nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
 
-	/** @brief A factor for multiplication of local bests, or lower end of a random range */
-	double c_local_;
-	/** @brief A factor for multiplication of global bests, or lower end of a random range */
-	double c_global_;
-	/** @brief A factor for multiplication of deltas, or lower end of a random range */
-	double c_delta_;
+	/** @brief A factor for multiplication of local bests */
+	float c_local_;
+	/** @brief A factor for multiplication of global bests */
+	float c_global_;
+	/** @brief A factor for multiplication of deltas */
+	float c_delta_;
 
 	boost::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
 	boost::shared_ptr<GParameterSet> *local_bests_; ///< The collection of best individuals from each neighborhood

@@ -34,8 +34,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterObjectCollection
 	GParameterSet
 	GPersonalityTraits
-#	GSwarm
-	GSwarmAdaptor
+	GSwarm
 	GSwarmPersonalityTraits
 )
 

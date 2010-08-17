@@ -112,6 +112,9 @@ public:
 	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
 	void fpRandomMultiplyBy();
 
+	/** @brief Multiplies floating-point parameters with a given value */
+	void fpMultiplyBy(const float& val);
+
 	/** @brief Initializes floating-point parameters with a given value */
 	void fpFixedValueInit(const float&);
 
@@ -124,9 +127,6 @@ public:
 	void fpSubtract(boost::shared_ptr<GParameterSet>);
 	/** @brief Small convenience function */
 	void operator-=(boost::shared_ptr<GParameterSet>);
-
-	/** @brief Multiplies floating-point parameters with a given value */
-	void fpMultiplyBy(const float& val);
 
 	/**********************************************************************/
 	/**

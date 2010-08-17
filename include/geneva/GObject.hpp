@@ -127,17 +127,17 @@ public:
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 	/** @brief Convert class to a serial representation that is then written to a stream */
-	void toStream(std::ostream&, const Gem::Common::serializationMode&);
+	void toStream(std::ostream&, const Gem::Common::serializationMode&) const;
 	/** @brief Load class from a stream */
 	void fromStream(std::istream&, const Gem::Common::serializationMode&);
 
 	/** @brief Convert class to a serial representation, using a user-specified serialization mode */
-	std::string toString(const Gem::Common::serializationMode&);
+	std::string toString(const Gem::Common::serializationMode&) const;
 	/** @brief Convert class to a serial representation, using a specific serialization mode */
 	void fromString(const std::string&, const Gem::Common::serializationMode&);
 
 	/** @brief Writes a serial representation of this object to a file */
-	void toFile(const std::string&, const Gem::Common::serializationMode&);
+	void toFile(const std::string&, const Gem::Common::serializationMode&) const;
 	/** @brief Loads a serial representation of this object from file */
 	void fromFile(const std::string&, const Gem::Common::serializationMode&);
 

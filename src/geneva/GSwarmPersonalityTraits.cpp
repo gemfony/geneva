@@ -237,22 +237,6 @@ std::string GSwarmPersonalityTraits::getCommand() const {
 
 /*****************************************************************************/
 /**
- * Makes the globally best individual known to this object
- */
-void GSwarmPersonalityTraits::registerGlobalBest(boost::shared_ptr<Gem::Geneva::GIndividual> gb_cp) {
-	global_best_ = gb_cp;
-}
-
-/*****************************************************************************/
-/**
- * Makes the locally best individual known to this object
- */
-void GSwarmPersonalityTraits::registerLocalBest(boost::shared_ptr<Gem::Geneva::GIndividual> lb_cp) {
-	local_best_ = lb_cp;
-}
-
-/*****************************************************************************/
-/**
  * Updates the parameters of the individual
  */
 void GSwarmPersonalityTraits::updateParameters() {

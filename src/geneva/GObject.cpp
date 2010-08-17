@@ -110,8 +110,8 @@ std::string GObject::report() {
  * @param oarchive_stream The output stream the object should be written to
  * @param serMod The desired serialization mode
  */
-void GObject::toStream(std::ostream& oarchive_stream, const Gem::Common::serializationMode& serMod) {
-    GObject *local = this; // Serialization should happen through a base pointer
+void GObject::toStream(std::ostream& oarchive_stream, const Gem::Common::serializationMode& serMod) const {
+    const GObject *local = this; // Serialization should happen through a base pointer
 
     switch(serMod)
     {
@@ -193,7 +193,7 @@ void GObject::fromStream(std::istream& istr, const Gem::Common::serializationMod
  * @param serMod The desired serialization mode
  * @return A text-representation of this class (or its derivative)
  */
-std::string GObject::toString(const Gem::Common::serializationMode& serMod) {
+std::string GObject::toString(const Gem::Common::serializationMode& serMod) const {
 	std::ostringstream oarchive_stream;
 	toStream(oarchive_stream, serMod);
     return oarchive_stream.str();
@@ -223,7 +223,7 @@ void GObject::fromString(const std::string& descr, const Gem::Common::serializat
  *
  * TODO: Error check whether the file is accessible / state of the stream
  */
-void GObject::toFile(const std::string& fileName, const Gem::Common::serializationMode& serMod) {
+void GObject::toFile(const std::string& fileName, const Gem::Common::serializationMode& serMod) const {
 	std::ofstream checkpointStream(fileName.c_str());
 	toStream(checkpointStream, serMod);
 	checkpointStream.close();

@@ -241,12 +241,7 @@ public:
 			{
 				bool isDirty = false;
 
-				information << std::setprecision(10) << "In iteration "<< gbp->getIteration() << ": " << gbp->data.at(0)->getCurrentFitness(isDirty);
-
-				if(isDirty) {
-					information << " (dirty flag is set)";
-				}
-				information << std::endl;
+				information << std::setprecision(10) << "In iteration "<< gbp->getIteration() << ": " << gbp->getBestFitness() << std::endl;
 			}
 			break;
 

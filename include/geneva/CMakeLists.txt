@@ -54,8 +54,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GSerializableI.hpp
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
-#	GSwarm.hpp
-	GSwarmAdaptor.hpp
+	GSwarm.hpp
 	GSwarmPersonalityTraits.hpp
 )
 

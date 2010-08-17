@@ -419,7 +419,7 @@ public:
 	/**************************************************************************************************/
 	/**
 	 * Inserts a given item at position pos. Behavior defaults
-	 * to isert_noclone(pos,item).
+	 * to insert_noclone(pos,item).
 	 *
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection

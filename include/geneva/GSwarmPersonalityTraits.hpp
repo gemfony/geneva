@@ -126,11 +126,6 @@ public:
 	/** @brief Retrieves and resets the current value of the noPositionUpdate_ flag */
 	bool checkNoPositionUpdateAndReset();
 
-	/** @brief Makes the globally best individual known to this object */
-	void registerGlobalBest(boost::shared_ptr<Gem::Geneva::GIndividual>);
-	/** @brief Makes the locally best individual known to this object */
-	void registerLocalBest(boost::shared_ptr<Gem::Geneva::GIndividual>);
-
 	/** @brief Triggers the update of GParameterSet derivatives */
 	void updateParameters();
 
@@ -145,11 +140,6 @@ private:
 	std::size_t neighborhood_;
 	/** @brief The command to be performed by remote clients */
 	std::string command_;
-
-	/** @brief A pointer to the locally best individual. It will not be serialized or copied */
-	boost::shared_ptr<Gem::Geneva::GIndividual> local_best_;
-	/** @brief A pointer to the globally best individual. It will not be serialized or copied */
-	boost::shared_ptr<Gem::Geneva::GIndividual> global_best_;
 
 	/** @brief Determines whether the individual has been randomly initialized */
 	bool noPositionUpdate_;
