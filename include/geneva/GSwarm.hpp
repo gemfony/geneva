@@ -234,7 +234,7 @@ public:
 #ifdef DEBUG
 		// Check that global_best_ actually points somewhere
 		if(!global_best_) {
-			std::ostringsteam error;
+			std::ostringstream error;
 			error << "In GSwarm::getBestIndividual<>() : Error" << std::endl
 				  << "Tried to access uninitialized globally best individual." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
@@ -244,7 +244,7 @@ public:
 
 		if(p) return p;
 		else {
-			std::ostringsteam error;
+			std::ostringstream error;
 			error << "In GSwarm::getBestIndividual<>() : Conversion error" << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
