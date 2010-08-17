@@ -150,9 +150,9 @@ namespace Gem
 	   "The amount of random number producer threads")
 	  ("nEvaluationThreads",po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
 	   "The amount of threads processing individuals simultaneously")
-	  ("nNeighborhoods", po::value<std::size_t>(&nNeighborhoods)->default_value(DEFAULTNNEIGHBORHOODS),
+	  ("nNeighborhoods", po::value<std::size_t>(&nNeighborhoods)->default_value(DEFAULTNNEIGHBORHOODSAP),
 	   "The number of neighborhoods in the population")
-      ("nNeighborhoodMembers", po::value<std::size_t>(&nNeighborhoodMembers)->default_value(DEFAULTNNEIGHBORHOODMEMBERS),
+      ("nNeighborhoodMembers", po::value<std::size_t>(&nNeighborhoodMembers)->default_value(DEFAULTNNEIGHBORHOODMEMBERSAP),
        "The default number of members in each neighborhood")
 	  ("maxIterations", po::value<boost::uint32_t>(&maxIterations)->default_value(DEFAULTMAXITERATIONS),
 	   "Maximum number of iterations in the population")

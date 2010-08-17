@@ -21,9 +21,9 @@ ADD_SUBDIRECTORY (
 	GSimpleEA
 )
 
-#ADD_SUBDIRECTORY (
-#	GSimpleSwarm
-#)
+ADD_SUBDIRECTORY (
+	GSimpleSwarm
+)
 
 ADD_SUBDIRECTORY (
 	GExternalEvaluator

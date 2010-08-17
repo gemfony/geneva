@@ -84,8 +84,8 @@ namespace Gem
     const std::size_t DEFAULTPARDIM=100;
     const double DEFAULTMINVAR=-10.;
     const double DEFAULTMAXVAR=10.;
-    const std::size_t DEFAULTNNEIGHBORHOODS=5;
-    const std::size_t DEFAULTNNEIGHBORHOODMEMBERS=20;
+    const std::size_t DEFAULTNNEIGHBORHOODSAP=5;
+    const std::size_t DEFAULTNNEIGHBORHOODMEMBERSAP=20;
 
     namespace po = boost::program_options;
 

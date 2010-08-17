@@ -49,9 +49,6 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
-// Information retrieval and printing
-#include "GInfoFunction.hpp"
-
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
@@ -128,9 +125,6 @@ int main(int argc, char **argv){
   }
 
   //***************************************************************************
-  // Create an instance of our optimization monitor, telling it to output information in given intervals
-  std::ofstream resultSummary("./result.C");
-  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(nParents, resultSummary));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // We can now start creating populations. We refer to them through the base class
@@ -143,7 +137,7 @@ int main(int argc, char **argv){
     //-----------------------------------------------------------------------------------------------------
   case 0: // Serial execution
     // Create an empty population
-    pop_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
+    pop_ptr = boost::shared_ptr<GSwarm>(new GSwarm(nNeighborhoods, nNeighborhoodMembers));
 
     // Add a function call here that allows to set the population size (number of neighborhoods and members in them)
 
@@ -152,6 +146,7 @@ int main(int argc, char **argv){
     //-----------------------------------------------------------------------------------------------------
   case 1: // Multi-threaded execution
     {
+    	/*
       // Create the multi-threaded population
       boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
 
@@ -160,12 +155,14 @@ int main(int argc, char **argv){
 
       // Assignment to the base pointer
       pop_ptr = popPar_ptr;
+      */
     }
     break;
 
     //-----------------------------------------------------------------------------------------------------
   case 2: // Networked execution (server-side)
     {
+    	/*
       // Create a network consumer and enrol it with the broker
       boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
       GINDIVIDUALBROKER->enrol(gatc);
@@ -176,6 +173,7 @@ int main(int argc, char **argv){
 
       // Assignment to the base pointer
       pop_ptr = popBroker_ptr;
+      */
     }
     break;
   }
@@ -195,15 +193,11 @@ int main(int argc, char **argv){
   pop_ptr->setMaxIteration(maxIterations);
   pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
   pop_ptr->setReportIteration(reportIteration);
-  pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
   
   // Do the actual optimization
   pop_ptr->optimize();
 
   //--------------------------------------------------------------------------------------------
-
-  // Make sure we close the result file
-  resultSummary.close();
 
   std::cout << "Done ..." << std::endl;
   return 0;
