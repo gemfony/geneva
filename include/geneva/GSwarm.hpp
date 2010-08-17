@@ -93,6 +93,7 @@ const std::size_t DEFAULTNNEIGHBORHOODMEMBERS = 20;
  * TODO: Check getBestFitness Implementation for this object and GEA objects
  * TODO: registerInfoFunction into base class, with protected boost::function Object
  * TODO: decide how adaptors can be added in the case of swarms
+ * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */
 class GSwarm
 	:public GOptimizationAlgorithmT<GParameterSet>
@@ -270,8 +271,8 @@ protected:
 
 	/**************************************************************************************************/
 private:
-	/** @brief The default constructor. Intentionally private and undefined */
-	GSwarm();
+	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
+	GSwarm(){;}
 
 	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
 	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
