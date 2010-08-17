@@ -519,9 +519,13 @@ double GSwarm::cycleLogic() {
  * be overloaded by derived classes so the fitness calculation can be performed in parallel.
  */
 void GSwarm::updatePositionsAndFitness() {
+	std::cout << "In iteration " << getIteration() << ":" << std::endl;
+
 	std::size_t offset = 0;
 	GSwarm::iterator start = this->begin();
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+		std::cout << "In neighborhood " << neighborhood << std::endl;
+
 #ifdef DEBUG
 		if(getIteration() > 0) {
 			if(!local_bests_[neighborhood]) {
@@ -554,7 +558,9 @@ void GSwarm::updatePositionsAndFitness() {
 			}
 
 			// Trigger the fitness calculation (if necessary)
-			(*(start + offset))->fitness();
+			double f = (*(start + offset))->fitness();
+
+			std::cout << "fitness: " << f << std::endl;
 
 			offset++;
 		}
@@ -577,23 +583,40 @@ void GSwarm::updateParameters(boost::shared_ptr<GParameterSet> ind, const std::s
 	local_tmp->fpSubtract(ind);
 	global_tmp->fpSubtract(ind);
 
+	std::cout << "local vs. global: " << local_tmp->fitness() << " " << global_tmp->fitness() << " (1)" << std::endl;
+
 	// Multiply each floating point value with a random fp number in the range [0,1[
+	std::cout << "Multiplication by random value " << std::endl;
+
 	local_tmp->fpRandomMultiplyBy();
 	global_tmp->fpRandomMultiplyBy();
 
+	std::cout << "local vs. global: " << local_tmp->fitness() << " " << global_tmp->fitness() << " (2)" << std::endl;
+
 	// Multiply each floating point value with a fixed, configurable constant value
+	std::cout << "multiplying local by " << getCLocal() << std::endl;
 	local_tmp->fpMultiplyBy(getCLocal());
-	global_tmp->fpMultiplyBy(getCLocal());
+	std::cout << "multiplying global by " << getCGlobal() << std::endl;
+	global_tmp->fpMultiplyBy(getCGlobal());
+
+	std::cout << "local vs. global: " << local_tmp->fitness() << " " << global_tmp->fitness() << " (3)" << std::endl;
 
 	// Multiply the last iterations velocity with a fixed, configurable constant value
+	std::cout << "multiplying velocity by " << getCDelta() << std::endl;
 	velocities_[neighborhood]->fpMultiplyBy(getCDelta());
+
+	std::cout << "velocities_[neighborhood]->fitness() = " << velocities_[neighborhood]->fitness() << " (4)" << std::endl;
 
 	// Add the local and global tmps
 	velocities_[neighborhood]->fpAdd(local_tmp);
+	std::cout << "velocities_[neighborhood]->fitness() after local addition = " << velocities_[neighborhood]->fitness() << " (5)" << std::endl;
 	velocities_[neighborhood]->fpAdd(global_tmp);
+	std::cout << "velocities_[neighborhood]->fitness() after global addition = " << velocities_[neighborhood]->fitness() << " (6)" << std::endl;
 
 	// Add the velocity to the current individual
 	ind->fpAdd(velocities_[neighborhood]);
+
+	std::cout << "ind->fitness() = " << ind->fitness() << " (7)" << std::endl;
 }
 
 /************************************************************************************************************/
@@ -612,9 +635,13 @@ double GSwarm::findBests() {
 
 	// Sort all neighborhoods according to their fitness
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
+		std::cout << "In findBests iteration " << neighborhood << std::endl;
+
 		// identify the first and last id of the individuals in the current neighborhood
 		std::size_t firstCounter = getFirstNIPos(neighborhood);
 		std::size_t lastCounter = getLastNIPos(neighborhood);
+
+		std::cout << "Counters = " << firstCounter << " " << lastCounter << std::endl;
 
 		// Only partially sort the arrays
 		if(getMaximize()){
@@ -634,6 +661,7 @@ double GSwarm::findBests() {
 		else {
 			if(isBetter((*(this->begin() + firstCounter))->fitness(), local_bests_[neighborhood]->fitness())) {
 				local_bests_[neighborhood]->load(*(this->begin() + firstCounter));
+				std::cout << "Updated local best" << std::endl;
 			}
 		}
 
@@ -652,6 +680,7 @@ double GSwarm::findBests() {
 	else {
 		if(isBetter(bestCurrentLocalFitness, global_best_->fitness())) {
 			global_best_->load(local_bests_[bestCurrentLocalId]);
+			std::cout << "Updated global best" << std::endl;
 		}
 	}
 

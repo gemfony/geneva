@@ -349,12 +349,12 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
 
 	// Loop over all GParameterBase objects in this and the other object
 	GParameterSet::iterator it;
-	GParameterSet::const_iterator cit;
+	GParameterSet::iterator it_p;
 	// Note that the GParameterBase objects need to accept a
 	// boost::shared_ptr<GParameterBase>, contrary to the calling conventions
 	// of this function.
-	for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
-		(*it)->fpSubtract(*cit);
+	for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
+		(*it)->fpSubtract(*it_p);
 	}
 }
 
@@ -418,8 +418,28 @@ bool GParameterSet::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
+	// Instantiate a local random number generator
+	using namespace Gem::Hap;
+	GRandomT<RANDOMLOCAL> gr;
+
 	// Call the parent class'es function
 	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
+
+	//---------------------------------------------------------------------
+	// Create a GParameterSet object as a clone of this object for further usage
+	boost::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
+	// Clear the collection
+	p_test->clear();
+	// Make sure it is really empty
+	BOOST_CHECK(p_test->empty());
+	// Add some parameters
+	for(std::size_t i=0; i<5; i++) {
+		p->push_back(boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(gr.uniform_real(-3.,3.), -3., 3.)));
+		p->push_back(boost::shared_ptr<GConstrainedDouble>(new GDouble(gr.uniform_real(-3.,3.))));
+	}
+
+	//---------------------------------------------------------------------
+	// Test whether fpMultipyBy has an effect
 }
 
 /************************************************************************************************************/

@@ -56,6 +56,12 @@
 
 #ifdef GENEVATESTING
 #include "common/GUnitTestFrameworkT.hpp"
+#include "GConstrainedDouble.hpp"
+#include "GConstrainedDoubleObjectCollection.hpp"
+#include "GDoubleCollection.hpp"
+#include "GDouble.hpp"
+#include "GInt32Collection.hpp"
+#include "hap/GRandomT.hpp"
 #endif /* GENEVATESTING */
 
 namespace Gem {

@@ -339,17 +339,17 @@ private:
 	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
 	std::size_t *nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
 
+	boost::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
+	boost::shared_ptr<GParameterSet> *local_bests_; ///< The collection of best individuals from each neighborhood
+
+	std::vector<boost::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
+
 	/** @brief A factor for multiplication of local bests */
 	float c_local_;
 	/** @brief A factor for multiplication of global bests */
 	float c_global_;
 	/** @brief A factor for multiplication of deltas */
 	float c_delta_;
-
-	boost::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
-	boost::shared_ptr<GParameterSet> *local_bests_; ///< The collection of best individuals from each neighborhood
-
-	std::vector<boost::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
 
 #ifdef GENEVATESTING
 public:
