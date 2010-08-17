@@ -41,6 +41,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/serialization/nvp.hpp>
 #include <boost/date_time.hpp>
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
@@ -113,11 +114,11 @@ namespace Geneva
     template<typename Archive>
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
-      ar & make_nvp("GEvolutionaryAlgorithm", boost::serialization::base_object<GEvolutionaryAlgorithm>(*this));
-      ar & make_nvp("firstTimeOut_", firstTimeOut_);
-      ar & make_nvp("loopTime_",loopTime_);
-      ar & make_nvp("waitFactor_", waitFactor_);
-      ar & make_nvp("maxWaitFactor_", maxWaitFactor_);
+      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GEvolutionaryAlgorithm)
+         & BOOST_SERIALIZATION_NVP(firstTimeOut_)
+         & BOOST_SERIALIZATION_NVP(loopTime_)
+         & BOOST_SERIALIZATION_NVP(waitFactor_)
+         & BOOST_SERIALIZATION_NVP(maxWaitFactor_);
     }
     ///////////////////////////////////////////////////////////////////////
 

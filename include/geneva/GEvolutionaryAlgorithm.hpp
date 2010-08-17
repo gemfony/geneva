@@ -45,6 +45,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/cast.hpp>
+#include <boost/serialization/nvp.hpp>
 #include <boost/date_time.hpp>
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
