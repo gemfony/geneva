@@ -555,9 +555,9 @@ void GSwarm::updatePositionsAndFitness() {
 
 			// Trigger the fitness calculation (if necessary). Make sure lazy evaluation
 			// is allowed so we do not trigger an exception.
-			bool currentAllowLazyEvaluation = (*current)->setAllowLazyEvaluation(true);
+			bool originalAllowLazyEvaluation = (*current)->setAllowLazyEvaluation(true);
 			(*current)->fitness();
-			(*current)->setAllowLazyEvaluation(currentAllowLazyEvaluation);
+			(*current)->setAllowLazyEvaluation(originalAllowLazyEvaluation);
 
 			offset++;
 		}
