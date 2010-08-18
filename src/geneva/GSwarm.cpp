@@ -519,6 +519,8 @@ double GSwarm::cycleLogic() {
 void GSwarm::updatePositionsAndFitness() {
 	std::size_t offset = 0;
 	GSwarm::iterator start = this->begin();
+	boost::uint32_t iteration = getIteration();
+
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 #ifdef DEBUG
 		if(getIteration() > 0) {
@@ -541,23 +543,24 @@ void GSwarm::updatePositionsAndFitness() {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			GSwarm::iterator current = start + offset;
 
-			// Let the personality know in which neighborhood it is
-			(*current)->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
+			if(iteration > 0 && !(*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
+				swarmLogic (
+					  neighborhood
+					, *current
+					, local_bests_[neighborhood]->clone<GParameterSet>()
+					, global_best_->clone<GParameterSet>()
+					, velocities_[offset]
+					, getCLocal()
+					, getCGlobal()
+					, getCDelta()
+				);
 
-			// Update the swarm positions. Note that this only makes sense
-			// once the first series of evaluations has been done and local as well
-			// as global bests are known. The operation also does not make sense for
-			// randomly initialized items
-			if(getIteration() > 0  && !(*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
-				// Make sure the individual's parameters are updated
-				updateParameters(*current, neighborhood);
+			} else { // the first iteration
+				swarmLogicNoUpdate (
+					  neighborhood
+				    , *current
+				);
 			}
-
-			// Trigger the fitness calculation (if necessary). Make sure lazy evaluation
-			// is allowed so we do not trigger an exception.
-			bool originalAllowLazyEvaluation = (*current)->setAllowLazyEvaluation(true);
-			(*current)->fitness();
-			(*current)->setAllowLazyEvaluation(originalAllowLazyEvaluation);
 
 			offset++;
 		}
@@ -566,37 +569,80 @@ void GSwarm::updatePositionsAndFitness() {
 
 /************************************************************************************************************/
 /**
- * Updates an individual's parameters
+ * Triggers the fitness calculation in the first iteration as well as for randomly initialized items.
  *
- * @param ind The individual whose parameters should be updated
- * @param neighborhood The neighborhood the individual belongs to
+ * @param neighborhood The neighborhood the individual is in
+ * @param ind The individual for which the fitness calculation should be performed
  */
-void GSwarm::updateParameters(boost::shared_ptr<GParameterSet> ind, const std::size_t& neighborhood) {
-	// We need a target for the subtraction
-	boost::shared_ptr<GParameterSet> local_tmp = local_bests_[neighborhood]->clone<GParameterSet>();
-	boost::shared_ptr<GParameterSet> global_tmp = global_best_->clone<GParameterSet>();
+void GSwarm::swarmLogicNoUpdate(
+	    std::size_t neighborhood
+	  , boost::shared_ptr<GParameterSet> ind
+){
+	// Let the personality know in which neighborhood it is
+	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
+
+	// Trigger the fitness calculation (if necessary). Make sure lazy evaluation
+	// is allowed so we do not trigger an exception.
+	bool originalAllowLazyEvaluation = ind->setAllowLazyEvaluation(true);
+	ind->fitness();
+	ind->setAllowLazyEvaluation(originalAllowLazyEvaluation);
+}
+
+/************************************************************************************************************/
+/**
+ * Updates the individual's position and performs the fitness calculation
+ *
+ * @param neighborhood The neighborhood that has been assigned to the individual
+ * @param ind The individual whose position should be updated
+ * @param local_best_tmp The locally best dataset of the individual's neighborhood
+ * @param global_best_tmp The globally best individual so far
+ * @param velocity A velocity vector
+ * @param cLocal A constant used for multiplication with the local direction
+ * @param cGlobal A constant used for multiplication with the global direction
+ * @param cDelta A constant used for multiplication with the velocity vector
+ */
+void GSwarm::swarmLogic(
+	    std::size_t neighborhood
+	  , boost::shared_ptr<GParameterSet> ind
+	  , boost::shared_ptr<GParameterSet> local_best_tmp
+	  , boost::shared_ptr<GParameterSet> global_best_tmp
+	  , boost::shared_ptr<GParameterSet> velocity
+	  , double cLocal
+	  , double cGlobal
+	  , double cDelta
+){
+	// Let the personality know in which neighborhood it is
+	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
+
+	// Update the swarm positions:
 
 	// Subtract the current individual
-	local_tmp->fpSubtract(ind);
-	global_tmp->fpSubtract(ind);
+	local_best_tmp->fpSubtract(ind);
+	global_best_tmp->fpSubtract(ind);
 
 	// Multiply each floating point value with a random fp number in the range [0,1[
-	local_tmp->fpRandomMultiplyBy();
-	global_tmp->fpRandomMultiplyBy();
+	local_best_tmp->fpRandomMultiplyBy();
+	global_best_tmp->fpRandomMultiplyBy();
 
 	// Multiply each floating point value with a fixed, configurable constant value
-	local_tmp->fpMultiplyBy(getCLocal());
-	global_tmp->fpMultiplyBy(getCGlobal());
+	local_best_tmp->fpMultiplyBy(cLocal);
+	global_best_tmp->fpMultiplyBy(cGlobal);
 
 	// Multiply the last iterations velocity with a fixed, configurable constant value
-	velocities_[neighborhood]->fpMultiplyBy(getCDelta());
+	velocity->fpMultiplyBy(cDelta);
 
 	// Add the local and global tmps
-	velocities_[neighborhood]->fpAdd(local_tmp);
-	velocities_[neighborhood]->fpAdd(global_tmp);
+	velocity->fpAdd(local_best_tmp);
+	velocity->fpAdd(global_best_tmp);
 
 	// Add the velocity to the current individual
-	ind->fpAdd(velocities_[neighborhood]);
+	ind->fpAdd(velocity);
+
+	// Trigger the fitness calculation (if necessary). Make sure lazy evaluation
+	// is allowed so we do not trigger an exception.
+	bool originalAllowLazyEvaluation = ind->setAllowLazyEvaluation(true);
+	ind->fitness();
+	ind->setAllowLazyEvaluation(originalAllowLazyEvaluation);
 }
 
 /************************************************************************************************************/

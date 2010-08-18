@@ -310,12 +310,24 @@ protected:
 
 	/** @brief Updates the fitness of all individuals */
 	virtual void updatePositionsAndFitness();
-	/** @brief Updates an individual's parameters */
-	virtual void updateParameters(boost::shared_ptr<GParameterSet>, const std::size_t&);
 	/** @brief Updates the best individuals found */
 	virtual double findBests();
 	/** @brief Adjusts each neighborhood so it has the correct size */
 	virtual void adjustNeighborhoods();
+
+	/** @brief Triggers the fitness calculation in the first iteration as well as for randomly initialized items */
+	void swarmLogicNoUpdate(std::size_t, boost::shared_ptr<GParameterSet>);
+	/** @brief Updates the individual's position and performs the fitness calculation */
+	void swarmLogic (
+		    std::size_t
+		  , boost::shared_ptr<GParameterSet>
+		  , boost::shared_ptr<GParameterSet>
+		  , boost::shared_ptr<GParameterSet>
+		  , boost::shared_ptr<GParameterSet>
+		  , double
+		  , double
+		  , double
+	);
 
 	/**************************************************************************************************/
 protected:

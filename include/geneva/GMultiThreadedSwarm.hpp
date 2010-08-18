@@ -108,14 +108,17 @@ public:
 	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&);
 
+	/** @brief Sets the maximum number of threads */
+	void setNThreads(const boost::uint8_t&);
+	/** @brief Retrieves the maximum number of threads */
+	uint8_t getNThreads() const ;
+
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
-	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	virtual double cycleLogic();
 	/** @brief Does some preparatory work before the optimization starts */
 	virtual void init();
 	/** @brief Does any necessary finalization work */
@@ -126,17 +129,16 @@ protected:
 
 	/** @brief Updates the fitness of all individuals */
 	virtual void updatePositionsAndFitness();
-	/** @brief Updates an individual's parameters */
-	virtual void updateParameters(boost::shared_ptr<GParameterSet>, const std::size_t&);
-	/** @brief Updates the best individuals found */
-	virtual double findBests();
-	/** @brief Adjusts each neighborhood so it has the correct size */
-	virtual void adjustNeighborhoods();
 
 	/**************************************************************************************************/
 private:
 	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
 	GMultiThreadedSwarm(){}
+
+	boost::uint8_t nThreads_; ///< The number of threads
+	boost::threadpool::pool tp_; ///< A thread pool
+
+	std::vector<bool> le_value_; ///< Internal storage for lazy-evaluation settings
 
 #ifdef GENEVATESTING
 public:
