@@ -66,6 +66,8 @@
 namespace Gem {
 namespace Geneva {
 
+class GSwarm; // forward declaration
+
 /**************************************************************************************************/
 /**
  * This class acts as an interface class for all objects that can take part
@@ -81,6 +83,8 @@ class GIndividual
 	 public GRateableI,
 	 public GObject
 {
+	friend class GSwarm; ///< Needed so GSwarm can set the dirty flag
+
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 

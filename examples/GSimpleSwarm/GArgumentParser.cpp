@@ -198,8 +198,8 @@ namespace Gem
 	  std::cout << std::endl
 		    << "Running with the following options from " << configFile << ":" << std::endl
 		    << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
-		    << "nNeighborhoods = " << nNeighborhoods
-		    << "nNeighborhoodMembers = " << nNeighborhoodMembers
+		    << "nNeighborhoods = " << nNeighborhoods << std::endl
+		    << "nNeighborhoodMembers = " << nNeighborhoodMembers << std::endl
 		    << "maxIterations = " << maxIterations << std::endl
 		    << "maxMinutes = " << maxMinutes << std::endl
 		    << "reportIteration = " << reportIteration << std::endl
