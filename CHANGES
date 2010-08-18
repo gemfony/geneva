@@ -3,12 +3,11 @@ Wishlist for Version 0.9, yet unnamed, release-date unknown
  - Full documentation
  - Full test coverage
  - Revision of broker infrastructure
- - Implementation of swarm algorithms
  - Implementation of a GBoundedDoubleWithGaps
- - Get rid of self-initialized singletons, in favor of a GenevaInitialize/Finalize() function
+ - Get rid of self-initialized singletons, in favor of a GInitialize/Finalize() function
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.8.1, yet unnamed, release-date unknown
+* Version 0.8.1, "PS 197", release-date unknown
 
 The main changes for this release include:
  - Refactored the GBoundedDouble and GBoundedInt32 classes, which are now named
@@ -17,6 +16,8 @@ The main changes for this release include:
  - Moved the GBoundedBufferWithIdT class from the Courtier to the Common library.
  - Organized the tests in subfolders corresponding to each tested library.
  - Improved the examples' build-files to allow all the examples to compile out of tree.
+ - Implemented swarm algorithms. Note that this implementation still needs to mature further
+   so that it is recommend to stick with evolutionary algorithms at the moment.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8, "Prevessin" - August 4, 2010
