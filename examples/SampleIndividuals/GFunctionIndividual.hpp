@@ -320,6 +320,38 @@ template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
 }
 
 /************************************************************************************************/
+/**
+ * The Ackeley function (see e.g. http://www.it.lut.fi/ip/evo/functions/node14.html)
+ *
+ * @param x The input parameters for the function
+ * @return The result of the calculation
+ */
+template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
+	// Extract the GDoubleCollection object
+	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
+
+	std::size_t parameterSize = x->size();
+	double result = 0.;
+
+#ifdef DEBUG
+	// Check the size of the parameter vector -- must be at least 2
+	if(parameterSize < 2) {
+		std::ostringstream error;
+		error << "In GFunctionIndividual<dF>::ackeley(): Error!" << std::endl
+			  << "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+
+	for(std::size_t i=0; i<(parameterSize-1); i++) {
+		result += (exp(-0.2)*sqrt(GSQUARED(x_ref[i]) + GSQUARED(x_ref[i+1])) + 3.*(cos(2.*x_ref[i]) + sin(2.*x_ref[i+1])));
+	}
+
+	return result;
+}
+
+/************************************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

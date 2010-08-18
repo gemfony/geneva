@@ -45,9 +45,13 @@ namespace Geneva
  * This enum denotes the possible demo function types
  */
 enum demoFunction {
-	PARABOLA=0,
-	NOISYPARABOLA=1,
-	ROSENBROCK=2
+	  PARABOLA=0
+	, NOISYPARABOLA=1
+	, ROSENBROCK=2
+	, ACKLEY=3
+	//, RASTRIGIN=4
+	//, SCHWEFEL
+	//, WEIERSTRASS
 };
 
 /************************************************************************************************/

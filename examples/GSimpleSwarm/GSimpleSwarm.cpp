@@ -174,7 +174,7 @@ int main(int argc, char **argv){
       GINDIVIDUALBROKER->enrol(gatc);
 
       // Create the actual broker population
-      boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+      boost::shared_ptr<GBrokerSwarm> popBroker_ptr(new GBrokerSwarm());
       popBroker_ptr->setWaitFactor(waitFactor);
 
       // Assignment to the base pointer

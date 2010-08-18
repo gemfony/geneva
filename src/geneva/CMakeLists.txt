@@ -6,6 +6,7 @@ SET ( OPTIMIZATIONSOURCES
 	GBooleanCollection
 	GBooleanObjectCollection
 	GBrokerEA
+	# GBrokerSwarm
 	GConstrainedDouble
 	GConstrainedDoubleObjectCollection
 	GConstrainedInt32
