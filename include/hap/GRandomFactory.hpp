@@ -53,9 +53,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/limits.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/cast.hpp>
 
 /**
  * Check that we have support for threads. This collection of classes is useless
@@ -80,6 +80,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GThreadGroup.hpp"
+#include "common/GHelperFunctions.hpp"
 #include "hap/GSeedManager.hpp"
 
 /****************************************************************************/

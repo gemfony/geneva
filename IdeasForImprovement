@@ -95,12 +95,6 @@
 - Change general mutate calls (e.g. in the adaptors) to the more generic "adapt" -- a cosmetic change, but 
   appears important in the light of the fact that adaptions are not called mutations in optimization algorithms 
   other than evolutionary algorithms.
-- Instead of "GBoundedInt32" etc. create classes like "template GBoundedInt<int bitSize = 32>" with a useful
-  default value
-- use Boost.enable_if to check allowed template instantiations
-- Check whether we can make use of http://www.taygeta.com/random/gaussian.html to create gaussian random numbers more quickly 
-  and whether we can indeed use both y1 and y2 values without fear of correlations ? Benchmark the traditional vs. the
-  method proposed in this web page
 - Check whether we can replace getAdaptorId with some typeid construct.
 - Make local and factory production of random numbers a template, controlled through a define
 - Add ability to lock vector wrappers, making it impossible to change the individual entries or size
@@ -115,4 +109,4 @@
 - Make the user choose whether he wants a throwing saveCheckpoint or one that returns a boolean. Could be done by providing a purely virtual saveCheckpoint which
   returns a boost::optional<std::string>, and a predefined GOptimizationAlgorithm::saveCheckpointThrow() that throws
 - Add a travelling salesman example
-- GBoundedDouble needs an overhaul -- overloading and use of internal values is odd (but seems to work o.k.)
+- Unify type used for number of threads (uint8_t, std::size_t, uint16_t are being used) 

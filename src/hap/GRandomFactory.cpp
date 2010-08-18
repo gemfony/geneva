@@ -47,7 +47,7 @@ boost::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
 GRandomFactory::GRandomFactory()
 	: arraySize_(DEFAULTARRAYSIZE)
 	, threadsHaveBeenStarted_(false)
-	, n01Threads_(DEFAULT01PRODUCERTHREADS)
+	, n01Threads_(boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
 	, g01_ (boost::shared_ptr<Gem::Common::GBoundedBufferT<boost::shared_array<double> > >(new Gem::Common::GBoundedBufferT<boost::shared_array<double> > (DEFAULTFACTORYBUFFERSIZE)))
 {
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
@@ -217,29 +217,31 @@ std::size_t GRandomFactory::getSeedingQueueSize() const {
  */
 void GRandomFactory::setNProducerThreads(const boost::uint16_t& n01Threads)
 {
-	// Do some error checking
-	if (n01Threads == 0)	{  // We need at least 1 thread
-		std::ostringstream error;
-		error << "In GRandomFactory::setNProducerThreads(): Error" << std::endl
-		          << "Requested 0 threads: " << n01Threads << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+	boost::uint16_t n01Threads_local = 0;
+
+	// Make a suggestion for the number of threads, if requested
+	if (n01Threads == 0)	{
+		n01Threads_local = boost::numeric_cast<boost::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS));
+	}
+	else {
+		n01Threads_local = n01Threads;
 	}
 
 	// Threads might already be running, so we need to regulate access
 	{
 		boost::mutex::scoped_lock lk(thread_creation_mutex_);
 		if(threadsHaveBeenStarted_) {
-			if (n01Threads > n01Threads_) { // start new 01 threads
-				for (boost::uint16_t i = n01Threads_; i < n01Threads; i++) {
+			if (n01Threads_local > n01Threads_) { // start new 01 threads
+				for (boost::uint16_t i = n01Threads_; i < n01Threads_local; i++) {
 					boost::uint32_t seed_ =  this->getSeed();
 					producer_threads_01_.create_thread(boost::bind(&GRandomFactory::producer01, this, seed_));
 				}
-			} else if (n01Threads < n01Threads_) { // We need to remove threads
-				producer_threads_01_.remove_last(n01Threads_ - n01Threads);
+			} else if (n01Threads_local < n01Threads_) { // We need to remove threads
+				producer_threads_01_.remove_last(n01Threads_ - n01Threads_local);
 			}
 		}
 
-		n01Threads_ = n01Threads;
+		n01Threads_ = n01Threads_local;
 	}
 }
 
