@@ -138,9 +138,6 @@ int main(int argc, char **argv){
   case 0: // Serial execution
     // Create an empty population
     pop_ptr = boost::shared_ptr<GSwarm>(new GSwarm(nNeighborhoods, nNeighborhoodMembers));
-
-    // Add a function call here that allows to set the population size (number of neighborhoods and members in them)
-
     break;
 
     //-----------------------------------------------------------------------------------------------------
@@ -188,7 +185,7 @@ int main(int argc, char **argv){
 	  gdii_ptr->setProcessingCycles(processingCycles);
 	  pop_ptr->push_back(gdii_ptr);
   }
- 
+
   // Specify some general population settings
   pop_ptr->setMaxIteration(maxIterations);
   pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));

@@ -154,6 +154,8 @@ bool GSwarmPersonalityTraits::noPositionUpdate() const {
 /*****************************************************************************/
 /**
  * Retrieves and resets the current value of the noPositionUpdate_ flag
+ *
+ * @return The value of the noPositionUpdate_ flag when the function was called
  */
 bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
 	bool current = noPositionUpdate_;

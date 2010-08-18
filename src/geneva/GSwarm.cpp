@@ -298,8 +298,9 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
  * Sets the individual's personality types to Swarm
  */
 void GSwarm::setIndividualPersonalities() {
-	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it)
+	for(GSwarm::iterator it=this->begin(); it!=this->end(); ++it) {
 		(*it)->setPersonality(SWARM);
+	}
 }
 
 /************************************************************************************************************/
@@ -736,12 +737,12 @@ void GSwarm::adjustNeighborhoods() {
 
 /************************************************************************************************************/
 /**
- * Resizes the population to the desired level and does some error checks. This is an overloaded version
- * from GOptimizationAlgorithmT<GParameterSet>::adjustPopulation().
+ * Resizes the population to the desired level and does some error checks. This function implements
+ * the purely virtual function GOptimizationAlgorithmT<GParameterSet>::adjustPopulation() .
  */
 void GSwarm::adjustPopulation() {
 	std::size_t currentSize = this->size();
-	std::size_t defaultPopSize = nNeighborhoods_*defaultNNeighborhoodMembers_;
+	std::size_t defaultPopSize = getDefaultPopulationSize();
 
 	// Check the actual population
 	if(currentSize == 0) {
@@ -786,6 +787,12 @@ void GSwarm::adjustPopulation() {
 			// -- Transfer all complete pointers to another vector b
 			// -- Initialize all local pointers with random objects
 			// -- Copy the pointers from b to the neighborhoods in a round-robin fashion
+			// or
+			// -- Transfer all complete pointers to another vector b
+			// -- while nPointers - nNeighborhoods > 0: copy as many pointers as
+			// possible into the current neighborhood
+			// -- Continue with next neighborhood
+			// -- Fill up and initialize missing entries
 
 			std::size_t nMissing = defaultPopSize - currentSize;
 			for(std::size_t m=0; m<nMissing; m++) {

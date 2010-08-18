@@ -435,6 +435,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	// Add some parameters
 	for(std::size_t i=0; i<5; i++) {
 		p_test->push_back(boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(gr.uniform_real(-3.,3.), -3., 3.)));
+		p_test->push_back(boost::shared_ptr<GDouble>(new GDouble(gr.uniform_real(-3.,3.))));
 	}
 
 	//---------------------------------------------------------------------
