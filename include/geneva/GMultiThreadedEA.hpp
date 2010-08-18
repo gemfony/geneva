@@ -55,6 +55,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GHelperFunctions.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"

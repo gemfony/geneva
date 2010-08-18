@@ -34,6 +34,7 @@
 
 // Boost headers go here
 
+#include <boost/cast.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
@@ -64,6 +65,7 @@
 // Geneva headers go here
 
 #include "common/GThreadGroup.hpp"
+#include "common/GHelperFunctions.hpp"
 #include "GBrokerT.hpp"
 #include "GConsumer.hpp"
 
@@ -113,10 +115,7 @@ public:
 	*/
 	void setMaxThreads(const std::size_t& maxThreads) {
 		if(maxThreads == 0) {
-			std::size_t hardwareThreads = boost::thread::hardware_concurrency();
-
-			if(hardwareThreads > 0) maxThreads_ = hardwareThreads;
-			else maxThreads_ = DEFAULTGBTCMAXTHREADS;
+			maxThreads_ = boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTGBTCMAXTHREADS));
 		}
 		else {
 			maxThreads_ = maxThreads;

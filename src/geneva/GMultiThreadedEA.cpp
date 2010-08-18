@@ -261,14 +261,7 @@ void GMultiThreadedEA::adaptChildren() {
  */
 void GMultiThreadedEA::setNThreads(const boost::uint8_t& nThreads) {
 	if(nThreads == 0) {
-		boost::uint8_t hardwareThreads = boost::numeric_cast<boost::uint8_t>(boost::thread::hardware_concurrency());
-		if(hardwareThreads > 0) {
-			std::cout << "Determined " << (int)hardwareThreads << " as a suitable number of processing threads for this architecture." << std::endl;
-			nThreads_ = hardwareThreads;
-		}
-		else {
-			nThreads_ = DEFAULTBOOSTTHREADSEA;
-		}
+		nThreads_ = boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA));
 	}
 	else {
 		nThreads_ = nThreads;

@@ -111,6 +111,13 @@ std::ostream& operator<<(std::ostream&, const Gem::Common::expectation&);
 std::istream& operator>>(std::istream&, Gem::Common::expectation&);
 
 /**********************************************************************************************/
+/**
+ * Specification of the default number of threads, when no information about hardware
+ * concurrency can be determined.
+ */
+const unsigned int DEFAULTNHARDWARETHREADS = 2;
+
+/**********************************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

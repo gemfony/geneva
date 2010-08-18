@@ -56,6 +56,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GHelperFunctions.hpp"
 #include "GSwarm.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
@@ -137,8 +138,6 @@ private:
 
 	boost::uint8_t nThreads_; ///< The number of threads
 	boost::threadpool::pool tp_; ///< A thread pool
-
-	std::vector<bool> le_value_; ///< Internal storage for lazy-evaluation settings
 
 #ifdef GENEVATESTING
 public:

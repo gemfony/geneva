@@ -38,6 +38,7 @@ SET ( GENEVACOMMONINCLUDES
 	GExceptions.hpp
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
+	GHelperFunctions.hpp
 	GHelperFunctionsT.hpp
 	GMathHelperFunctions.hpp
 	GPODExpectationChecksT.hpp

@@ -69,6 +69,7 @@
 
 // Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
+#include "common/GHelperFunctions.hpp"
 #include "hap/GRandomT.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GBrokerT.hpp"
@@ -389,14 +390,10 @@ public:
         :GConsumer(),
          work_(new boost::asio::io_service::work(io_service_)),
          acceptor_(work_->get_io_service(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
-         listenerThreads_(listenerThreads>0?listenerThreads:boost::thread::hardware_concurrency()),
+         listenerThreads_(listenerThreads>0?listenerThreads:Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS)),
          tp_(listenerThreads_),
          serializationMode_(Gem::Common::SERIALIZATIONMODE_TEXT)
     {
-        if(listenerThreads_ == 0) { // boost::thread::hardware_concurrency() has returned 0. Needs to be corrected.
-            listenerThreads_ = GASIOTCPCONSUMERTHREADS;
-            tp_.size_controller().resize(listenerThreads_);
-        }
         // Start the actual processing. All real work is done in the GAsioServerSession class .
         boost::shared_ptr<GAsioServerSession<processable_type> > newSession(new GAsioServerSession<processable_type>(work_->get_io_service() ,serializationMode_));
         acceptor_.async_accept(newSession->getSocket(), boost::bind(&GAsioTCPConsumerT<processable_type>::handleAccept, this, newSession, _1));
