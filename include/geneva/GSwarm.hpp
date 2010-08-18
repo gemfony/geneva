@@ -315,6 +315,11 @@ protected:
 	/** @brief Adjusts each neighborhood so it has the correct size */
 	virtual void adjustNeighborhoods();
 
+	/** @brief Helper function that returns the id of the first individual of a neighborhood */
+	std::size_t getFirstNIPos(const std::size_t&) const;
+	/** @brief Helper function that returns the id of the last individual of a neighborhood */
+	std::size_t getLastNIPos(const std::size_t&) const;
+
 	/** @brief Triggers the fitness calculation in the first iteration as well as for randomly initialized items */
 	void swarmLogicNoUpdate(std::size_t, boost::shared_ptr<GParameterSet>);
 	/** @brief Updates the individual's position and performs the fitness calculation */
@@ -328,14 +333,6 @@ protected:
 		  , double
 		  , double
 	);
-
-	/**************************************************************************************************/
-protected:
-
-	/** @brief Helper function that returns the id of the first individual of a neighborhood */
-	std::size_t getFirstNIPos(const std::size_t&) const;
-	/** @brief Helper function that returns the id of the last individual of a neighborhood */
-	std::size_t getLastNIPos(const std::size_t&) const;
 
 	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
 
@@ -355,10 +352,11 @@ protected:
 	/** @brief A factor for multiplication of deltas */
 	float c_delta_;
 
-private:
-	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
+	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes. */
 	GSwarm(){}
 
+private:
+	/**************************************************************************************************/
 	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
 	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
 

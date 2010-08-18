@@ -42,6 +42,7 @@
 #include <geneva/GBrokerEA.hpp>
 #include <geneva/GIndividual.hpp>
 #include <geneva/GSwarm.hpp>
+#include <geneva/GMultiThreadedSwarm.hpp>
 
 // The individual that should be optimized
 #include "GStartIndividual.hpp"
@@ -153,16 +154,14 @@ int main(int argc, char **argv){
     //-----------------------------------------------------------------------------------------------------
   case 1: // Multi-threaded execution
     {
-    	/*
       // Create the multi-threaded population
-      boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+      boost::shared_ptr<GMultiThreadedSwarm> popPar_ptr(new GMultiThreadedSwarm(nNeighborhoods, nNeighborhoodMembers));
 
       // Population-specific settings
       popPar_ptr->setNThreads(nEvaluationThreads);
 
       // Assignment to the base pointer
       pop_ptr = popPar_ptr;
-      */
     }
     break;
 

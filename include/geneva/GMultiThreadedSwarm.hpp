@@ -106,9 +106,6 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Loads a checkpoint from disk */
-	virtual void loadCheckpoint(const std::string&);
-
 	/** @brief Sets the maximum number of threads */
 	void setNThreads(const boost::uint8_t&);
 	/** @brief Retrieves the maximum number of threads */
@@ -125,17 +122,14 @@ protected:
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
 
-	/** @brief Saves the state of the class to disc. */
-	virtual void saveCheckpoint() const;
-
 	/** @brief Updates the fitness of all individuals */
 	virtual void updatePositionsAndFitness();
 
-	/**************************************************************************************************/
-private:
 	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
 	GMultiThreadedSwarm(){}
 
+	/**************************************************************************************************/
+private:
 	boost::uint8_t nThreads_; ///< The number of threads
 	boost::threadpool::pool tp_; ///< A thread pool
 

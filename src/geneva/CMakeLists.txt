@@ -27,7 +27,7 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32ObjectCollection
 	GIntFlipAdaptorT
 	GMultiThreadedEA
-	# GMultiThreadedSwarm
+	GMultiThreadedSwarm
 	GObject
 	GOptimizationEnums
 	GParameterBase

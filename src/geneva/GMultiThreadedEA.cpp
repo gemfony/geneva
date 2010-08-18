@@ -46,7 +46,7 @@ namespace Geneva {
  */
 GMultiThreadedEA::GMultiThreadedEA()
    : GEvolutionaryAlgorithm()
-   , nThreads_(DEFAULTBOOSTTHREADSEA)
+   , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSEA)))
    , tp_(nThreads_)
 { /* nothing */ }
 
@@ -60,7 +60,7 @@ GMultiThreadedEA::GMultiThreadedEA()
 GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA& cp)
    : GEvolutionaryAlgorithm(cp)
    , nThreads_(cp.nThreads_)
-   , tp_(nThreads_)
+   , tp_(nThreads_) // Make sure we initialize the threadpool
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -181,7 +181,6 @@ boost::optional<std::string> GMultiThreadedEA::checkRelationshipWith(const GObje
 	return evaluateDiscrepancies("GMultiThreadedEA", caller, deviations, e);
 }
 
-
 /************************************************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
@@ -235,14 +234,12 @@ void GMultiThreadedEA::adaptChildren() {
 	// or MUNU1PRETAIN selection model.
 	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)) {
 		for(it=data.begin(); it!=data.begin() + nParents; ++it) {
-			// tp_.schedule(boost::bind(&GIndividual::checkedFitness, it->get()));
 			tp_.schedule(boost::bind(&GIndividual::checkedFitness, *it));
 		}
 	}
 
 	// Next we adapt the children
 	for(it=data.begin() + nParents; it!=data.end(); ++it) {
-		// tp_.schedule(boost::bind(&GIndividual::checkedAdaption, it->get()));
 		tp_.schedule(boost::bind(&GIndividual::checkedAdaption, *it));
 	}
 
