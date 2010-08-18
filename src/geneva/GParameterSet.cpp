@@ -330,6 +330,9 @@ void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
 	for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
 		(*it)->fpAdd(*cit);
 	}
+
+	// As we have modified our internal data sets, make sure the dirty flag is set
+	GIndividual::setDirtyFlag();
 }
 
 /************************************************************************************************************/
@@ -356,6 +359,9 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
 	for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
 		(*it)->fpSubtract(*it_p);
 	}
+
+	// As we have modified our internal data sets, make sure the dirty flag is set
+	GIndividual::setDirtyFlag();
 }
 
 /************************************************************************************************************/

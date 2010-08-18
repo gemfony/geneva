@@ -32,6 +32,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GInt32ObjectCollection.hpp
 	GIntFlipAdaptorT.hpp
 	GMultiThreadedEA.hpp
+	GMultiThreadedSwarm.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
 	GNumCollectionFPT.hpp

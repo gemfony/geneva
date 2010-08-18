@@ -597,9 +597,6 @@ void GSwarm::updateParameters(boost::shared_ptr<GParameterSet> ind, const std::s
 
 	// Add the velocity to the current individual
 	ind->fpAdd(velocities_[neighborhood]);
-
-	// Make sure the individual's fitness is re-calculated
-	ind->setDirtyFlag();
 }
 
 /************************************************************************************************************/

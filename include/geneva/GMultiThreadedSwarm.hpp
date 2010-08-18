@@ -1,5 +1,5 @@
 /**
- * @file GMultiThreadedEA.hpp
+ * @file GMultiThreadedSwarm.hpp
  */
 
 /* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
@@ -27,6 +27,7 @@
  * http://www.gemfony.com .
  */
 
+
 // Standard headers go here
 
 // Includes check for correct Boost version(s)
@@ -44,8 +45,8 @@
 #include <boost/thread/xtime.hpp>
 #include <common/thirdparty/boost/threadpool.hpp>
 
-#ifndef GMULTITHREADEDEA_HPP_
-#define GMULTITHREADEDEA_HPP_
+#ifndef GMULTITHREADEDSWARM_HPP_
+#define GMULTITHREADEDSWARM_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -55,7 +56,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "GEvolutionaryAlgorithm.hpp"
+#include "GSwarm.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
 
@@ -63,16 +64,15 @@ namespace Gem {
 namespace Geneva {
 
 /** @brief The default number of threads for parallelization with boost */
-const boost::uint16_t DEFAULTBOOSTTHREADSEA = 2;
+const boost::uint16_t DEFAULTBOOSTTHREADSSWARM = 2;
 
 /********************************************************************/
 /**
- * A multi-threaded population based on GEvolutionaryAlgorithm. This version
- * uses the Boost.Threads library and a thread-pool library from
- * http://threadpool.sf.net .
+ * A multi-threaded swarm based on GSwarm. This version uses the
+ * Boost.Threads library and a thread-pool library from http://threadpool.sf.net .
  */
-class GMultiThreadedEA
-	: public Geneva::GEvolutionaryAlgorithm
+class GMultiThreadedSwarm
+	: public GSwarm
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -81,58 +81,66 @@ class GMultiThreadedEA
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GEvolutionaryAlgorithm)
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSwarm)
 		   & BOOST_SERIALIZATION_NVP(nThreads_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GMultiThreadedEA();
+	GMultiThreadedSwarm(const std::size_t&, const std::size_t&);
 	/** @brief A standard copy constructor */
-	GMultiThreadedEA(const GMultiThreadedEA&);
-	/** @brief The standard destructor */
-	virtual ~GMultiThreadedEA();
+	GMultiThreadedSwarm(const GMultiThreadedSwarm&);
+	/** @brief The destructor */
+	virtual ~GMultiThreadedSwarm();
 
-	/** @brief Assignment operator */
-	const GMultiThreadedEA& operator=(const GMultiThreadedEA&);
+	/** @brief A standard assignment operator */
+	const GMultiThreadedSwarm& operator=(const GMultiThreadedSwarm&);
 
-	/** @brief Checks for equality with another GMultiThreadedEA object */
-	bool operator==(const GMultiThreadedEA&) const;
-	/** @brief Checks for inequality with another GMultiThreadedEA object */
-	bool operator!=(const GMultiThreadedEA&) const;
+	/** @brief Checks for equality with another GMultiThreadedSwarm object */
+	bool operator==(const GMultiThreadedSwarm&) const;
+	/** @brief Checks for inequality with another GMultiThreadedSwarm object */
+	bool operator!=(const GMultiThreadedSwarm&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Necessary initialization work before the start of the optimization */
-	virtual void init();
-	/** @brief Necessary clean-up work after the optimization has finished */
-	virtual void finalize();
-
-	/** @brief Sets the maximum number of threads */
-	void setNThreads(const boost::uint8_t&);
-	/** @brief Retrieves the maximum number of threads */
-	uint8_t getNThreads() const ;
+	/** @brief Loads a checkpoint from disk */
+	virtual void loadCheckpoint(const std::string&);
 
 protected:
-	/** @brief Loads data from another object */
+	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
-	/** @brief Overloaded version from GEvolutionaryAlgorithm,
-	 * core of the Boost-thread implementation */
-	virtual void adaptChildren();
+	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+	virtual double cycleLogic();
+	/** @brief Does some preparatory work before the optimization starts */
+	virtual void init();
+	/** @brief Does any necessary finalization work */
+	virtual void finalize();
 
+	/** @brief Saves the state of the class to disc. */
+	virtual void saveCheckpoint() const;
+
+	/** @brief Updates the fitness of all individuals */
+	virtual void updatePositionsAndFitness();
+	/** @brief Updates an individual's parameters */
+	virtual void updateParameters(boost::shared_ptr<GParameterSet>, const std::size_t&);
+	/** @brief Updates the best individuals found */
+	virtual double findBests();
+	/** @brief Adjusts each neighborhood so it has the correct size */
+	virtual void adjustNeighborhoods();
+
+	/**************************************************************************************************/
 private:
-	boost::uint8_t nThreads_; ///< The number of threads
-	boost::threadpool::pool tp_; ///< A thread pool
-
-	std::vector<bool> le_value_; ///< Internal storage for lazy-evaluation settings
+	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
+	GMultiThreadedSwarm(){}
 
 #ifdef GENEVATESTING
 public:
+	/**************************************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -142,9 +150,7 @@ public:
 #endif /* GENEVATESTING */
 };
 
-/********************************************************************/
-
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GMULTITHREADEDEA_HPP_ */
+#endif /* GMULTITHREADEDSWARM_HPP_ */

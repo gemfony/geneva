@@ -318,15 +318,7 @@ protected:
 	virtual void adjustNeighborhoods();
 
 	/**************************************************************************************************/
-private:
-	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
-	GSwarm(){}
-
-	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
-	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
-
-	/** @brief Small helper function that helps to fill up a neighborhood, if there is just one entry in it */
-	void fillUpNeighborhood1();
+protected:
 
 	/** @brief Helper function that returns the id of the first individual of a neighborhood */
 	std::size_t getFirstNIPos(const std::size_t&) const;
@@ -350,6 +342,16 @@ private:
 	float c_global_;
 	/** @brief A factor for multiplication of deltas */
 	float c_delta_;
+
+private:
+	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
+	GSwarm(){}
+
+	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
+	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
+
+	/** @brief Small helper function that helps to fill up a neighborhood, if there is just one entry in it */
+	void fillUpNeighborhood1();
 
 #ifdef GENEVATESTING
 public:

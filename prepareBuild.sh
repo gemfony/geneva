@@ -81,7 +81,7 @@ if [ ! -x ${CMAKE} ]; then
 fi
 
 if [ ! -e ${BOOSTINCL}/version.hpp ]; then
-	echo "Error: This does not seem to be a complete"
+	echo "Error: There does not seem to be a complete"
 	echo "Boost installation. Got variables"
 	echo "BOOSTROOT = ${BOOSTROOT}"
 	echo "BOOSTLIBS = ${BOOSTLIBS}"

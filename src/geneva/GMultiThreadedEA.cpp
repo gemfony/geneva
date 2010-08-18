@@ -46,7 +46,7 @@ namespace Geneva {
  */
 GMultiThreadedEA::GMultiThreadedEA()
    : GEvolutionaryAlgorithm()
-   , nThreads_(DEFAULTBOOSTTHREADS)
+   , nThreads_(DEFAULTBOOSTTHREADSEA)
    , tp_(nThreads_)
 { /* nothing */ }
 
@@ -222,7 +222,7 @@ void GMultiThreadedEA::finalize() {
 /**
  * An overloaded version of GEvolutionaryAlgorithm::adaptChildren() . Adaption
  * and evaluation of children is handled by threads in a thread pool. The maximum
- * number of threads is DEFAULTBOOSTTHREADS (possibly 2) and can be overridden
+ * number of threads is DEFAULTBOOSTTHREADSEA (possibly 2) and can be overridden
  * with the GMultiThreadedEA::setMaxThreads() function.
  */
 void GMultiThreadedEA::adaptChildren() {
@@ -267,7 +267,7 @@ void GMultiThreadedEA::setNThreads(const boost::uint8_t& nThreads) {
 			nThreads_ = hardwareThreads;
 		}
 		else {
-			nThreads_ = DEFAULTBOOSTTHREADS;
+			nThreads_ = DEFAULTBOOSTTHREADSEA;
 		}
 	}
 	else {
