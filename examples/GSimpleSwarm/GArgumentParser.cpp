@@ -38,13 +38,15 @@ namespace Gem
     /**
      * A function that parses the command line for all required parameters
      */
-    bool parseCommandLine(int argc, char **argv,
-			  std::string& configFile,
-			  boost::uint16_t& parallelizationMode,
-			  bool& serverMode,
-			  std::string& ip,
-			  unsigned short& port)
-    {
+    bool parseCommandLine (
+    		 int argc
+    	   , char **argv
+		   , std::string& configFile
+		   , boost::uint16_t& parallelizationMode
+		   , bool& serverMode
+		   , std::string& ip
+		   , unsigned short& port
+    ) {
       try{
 	// Check the command line options. Uses the Boost program options library.
 	po::options_description desc("Usage: evaluator [options]");
@@ -117,22 +119,26 @@ namespace Gem
     /**
      * A function that parses a config file for further parameters
      */
-    bool parseConfigFile(const std::string& configFile,
-			 boost::uint16_t& nProducerThreads,
-			 boost::uint16_t& nEvaluationThreads,
-			 std::size_t& nNeighborhoods,
-			 std::size_t& nNeighborhoodMembers,
-			 boost::uint32_t& maxIterations,
-			 long& maxMinutes,
-			 boost::uint32_t& reportIteration,
-			 std::size_t& arraySize,
-			 boost::uint32_t& processingCycles,
-			 bool& returnRegardless,
-			 boost::uint32_t& waitFactor,
-			 std::size_t& parDim,
-			 double& minVar,
-			 double& maxVar) 
-    {
+    bool parseConfigFile (
+   		 const std::string& configFile
+	   , boost::uint16_t& nProducerThreads
+	   , boost::uint16_t& nEvaluationThreads
+	   , std::size_t& nNeighborhoods
+	   , std::size_t& nNeighborhoodMembers
+	   , boost::uint32_t& maxIterations
+	   , long& maxMinutes
+	   , boost::uint32_t& reportIteration
+	   , std::size_t& arraySize
+	   , boost::uint32_t& processingCycles
+	   , bool& returnRegardless
+	   , boost::uint32_t& waitFactor
+	   , std::size_t& parDim
+	   , double& minVar
+	   , double& maxVar
+	   , double& cLocal
+	   , double& cGlobal
+	   , double& cDelta
+    ) {
       boost::uint16_t recombinationScheme=0;
       bool verbose;
 
@@ -176,6 +182,12 @@ namespace Gem
 	   "The lower boundary for all variables")
 	  ("maxVar", po::value<double>(&maxVar)->default_value(DEFAULTMAXVAR),
 	   "The upper boundary for all variables")
+	  ("cLocal", po::value<double>(&cLocal)->default_value(DEFAULTCLOCALAP),
+	   "A constant to be multiplied with the local direction vector")
+	  ("cGlobal", po::value<double>(&cGlobal)->default_value(DEFAULTCGLOBALAP),
+	   "A constant to be multiplied with the local direction vector")
+	  ("cDelta", po::value<double>(&cDelta)->default_value(DEFAULTCDELTAAP),
+	   "A constant to be multiplied with the old velocity vector")
 	  ;
 	
 	po::variables_map vm;
@@ -210,6 +222,9 @@ namespace Gem
 		    << "parDim = " << parDim << std::endl
 		    << "minVar = " << minVar << std::endl
 		    << "maxVar = " << maxVar << std::endl
+		    << "cLocal = " << cLocal << std::endl
+		    << "cGlobal = " << cGlobal << std::endl
+		    << "cDelta = " << cDelta << std::endl
 		    << std::endl;
 	}
       }

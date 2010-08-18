@@ -86,31 +86,42 @@ namespace Gem
     const double DEFAULTMAXVAR=10.;
     const std::size_t DEFAULTNNEIGHBORHOODSAP=5;
     const std::size_t DEFAULTNNEIGHBORHOODMEMBERSAP=20;
+    const double DEFAULTCLOCALAP=2.;
+    const double DEFAULTCGLOBALAP=2.;
+    const double DEFAULTCDELTAAP=0.95;
 
     namespace po = boost::program_options;
 
-    bool parseCommandLine(int argc, char **argv,
-			  std::string& configFile,			  
-			  boost::uint16_t& parallelizationMode,
-			  bool& serverMode,
-			  std::string& ip,
-			  unsigned short& port);
+    bool parseCommandLine(
+    		 int argc
+    	   , char **argv
+		   , std::string& configFile
+		   , boost::uint16_t& parallelizationMode
+		   , bool& serverMode
+		   , std::string& ip
+		   , unsigned short& port
+    );
 
-    bool parseConfigFile(const std::string& configFile,
-			 boost::uint16_t& nProducerThreads,
-			 boost::uint16_t& nEvaluationThreads,
-			 std::size_t& nNeighborhoods,
-			 std::size_t& nNeighborhoodMembers,
-			 boost::uint32_t& maxIterations,
-			 long& maxMinutes,
-			 boost::uint32_t& reportIteration,
-			 std::size_t& arraySize,
-			 boost::uint32_t& processingCycles,
-			 bool& returnRegardless,
-			 boost::uint32_t& waitFactor,
-			 std::size_t& parDim,
-			 double& minVar,
-			 double& maxVar);
+    bool parseConfigFile(
+    		 const std::string& configFile
+		   , boost::uint16_t& nProducerThreads
+		   , boost::uint16_t& nEvaluationThreads
+		   , std::size_t& nNeighborhoods
+		   , std::size_t& nNeighborhoodMembers
+		   , boost::uint32_t& maxIterations
+		   , long& maxMinutes
+		   , boost::uint32_t& reportIteration
+		   , std::size_t& arraySize
+		   , boost::uint32_t& processingCycles
+		   , bool& returnRegardless
+		   , boost::uint32_t& waitFactor
+		   , std::size_t& parDim
+		   , double& minVar
+		   , double& maxVar
+		   , double& cLocal
+		   , double& cGlobal
+		   , double& cDelta
+	);
 
   } /* namespace Geneva */
 } /* namespace Gem */

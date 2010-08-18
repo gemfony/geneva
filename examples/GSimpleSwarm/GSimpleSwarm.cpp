@@ -77,29 +77,39 @@ int main(int argc, char **argv){
   boost::uint32_t waitFactor;
   std::size_t nNeighborhoods;
   std::size_t nNeighborhoodMembers;
+  double cLocal;
+  double cGlobal;
+  double cDelta;
 
-  if(!parseCommandLine(argc, argv,
-		       configFile,			  
-		       parallelizationMode,
-		       serverMode,
-		       ip,
-		       port)
-     ||
-     !parseConfigFile(configFile,
-		      nProducerThreads,
-		      nEvaluationThreads,
-		      nNeighborhoods,
-			  nNeighborhoodMembers,
-		      maxIterations,
-		      maxMinutes,
-		      reportIteration,
-		      arraySize,
-		      processingCycles,
-		      returnRegardless,
-		      waitFactor,
-		      parDim,
-		      minVar,
-		      maxVar))
+  if(!parseCommandLine (
+		  argc
+		, argv
+		, configFile
+		, parallelizationMode
+		, serverMode
+		, ip
+		, port
+  ) ||
+     !parseConfigFile (
+		  configFile
+		, nProducerThreads
+		, nEvaluationThreads
+		, nNeighborhoods
+		, nNeighborhoodMembers
+		, maxIterations
+		, maxMinutes
+		, reportIteration
+		, arraySize
+		, processingCycles
+		, returnRegardless
+		, waitFactor
+		, parDim
+		, minVar
+		, maxVar
+		, cLocal
+		, cGlobal
+		, cDelta
+	))
     { exit(1); }
 
   // Random numbers are our most valuable good. Set the number of threads
@@ -190,6 +200,9 @@ int main(int argc, char **argv){
   pop_ptr->setMaxIteration(maxIterations);
   pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
   pop_ptr->setReportIteration(reportIteration);
+  pop_ptr->setCLocal(cLocal);
+  pop_ptr->setCGlobal(cGlobal);
+  pop_ptr->setCDelta(cDelta);
   
   // Do the actual optimization
   pop_ptr->optimize();
