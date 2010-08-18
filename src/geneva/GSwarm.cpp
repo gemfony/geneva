@@ -553,8 +553,11 @@ void GSwarm::updatePositionsAndFitness() {
 				updateParameters(*current, neighborhood);
 			}
 
-			// Trigger the fitness calculation (if necessary)
-			double f = (*current)->fitness();
+			// Trigger the fitness calculation (if necessary). Make sure lazy evaluation
+			// is allowed so we do not trigger an exception.
+			bool currentAllowLazyEvaluation = (*current)->setAllowLazyEvaluation(true);
+			(*current)->fitness();
+			(*current)->setAllowLazyEvaluation(currentAllowLazyEvaluation);
 
 			offset++;
 		}
@@ -596,7 +599,6 @@ void GSwarm::updateParameters(boost::shared_ptr<GParameterSet> ind, const std::s
 	ind->fpAdd(velocities_[neighborhood]);
 
 	// Make sure the individual's fitness is re-calculated
-	ind->setAllowLazyEvaluation(true);
 	ind->setDirtyFlag();
 }
 
