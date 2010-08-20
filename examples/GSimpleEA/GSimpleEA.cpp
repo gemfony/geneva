@@ -167,6 +167,12 @@ int main(int argc, char **argv){
 	  case ACKLEY:
 		  functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<ACKLEY> >(new GFunctionIndividual<ACKLEY>());
 		  break;
+	  case RASTRIGIN:
+		  functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<RASTRIGIN> >(new GFunctionIndividual<RASTRIGIN>());
+		  break;
+	  case SCHWEFEL:
+		  functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<SCHWEFEL> >(new GFunctionIndividual<SCHWEFEL>());
+		  break;
 	  }
 
 	  // Set up a GDoubleCollection with dimension values, each initialized

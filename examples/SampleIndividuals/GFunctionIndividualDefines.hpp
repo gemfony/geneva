@@ -49,8 +49,8 @@ enum demoFunction {
 	, NOISYPARABOLA=1
 	, ROSENBROCK=2
 	, ACKLEY=3
-	//, RASTRIGIN=4
-	//, SCHWEFEL
+	, RASTRIGIN=4
+	, SCHWEFEL
 	//, WEIERSTRASS
 };
 

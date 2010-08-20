@@ -352,6 +352,50 @@ template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
 }
 
 /************************************************************************************************/
+/**
+ * The Rastrigin function (see e.g. http://www.it.lut.fi/ip/evo/functions/node6.html)
+ *
+ * @param x The input parameters for the function
+ * @return The result of the calculation
+ */
+template<> inline double GFunctionIndividual<RASTRIGIN>::fitnessCalculation() {
+	// Extract the GDoubleCollection object
+	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
+
+	std::size_t parameterSize = x->size();
+	double result = 10*double(parameterSize);
+
+	for(std::size_t i=0; i<parameterSize; i++) {
+		result += (GSQUARED(x_ref[i]) - 10.*cos(2*M_PI*x_ref[i]));
+	}
+
+	return result;
+}
+
+/************************************************************************************************/
+/**
+ * The Schwefel function (see e.g. http://www.it.lut.fi/ip/evo/functions/node10.html)
+ *
+ * @param x The input parameters for the function
+ * @return The result of the calculation
+ */
+template<> inline double GFunctionIndividual<SCHWEFEL>::fitnessCalculation() {
+	// Extract the GDoubleCollection object
+	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
+
+	std::size_t parameterSize = x->size();
+	double result = 0.;
+
+	for(std::size_t i=0; i<parameterSize; i++) {
+		result += -x_ref[i]*sin(sqrt(fabs(x_ref[i])));
+	}
+
+	return result/parameterSize;
+}
+
+/************************************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
@@ -360,5 +404,8 @@ template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::PARABOLA>, "GFunctionIndividual_PARABOLA")
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::NOISYPARABOLA>, "GFunctionIndividual_NOISYPARABOLA")
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::ROSENBROCK>, "GFunctionIndividual_ROSENBROCK")
+BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::ACKLEY>, "GFunctionIndividual_ACKLEY")
+BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::RASTRIGIN>, "GFunctionIndividual_RASTRIGIN")
+BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::SCHWEFEL>, "GFunctionIndividual_SCHWEFEL")
 
 #endif /* GFUNCTIONINDIVIDUAL_HPP_ */

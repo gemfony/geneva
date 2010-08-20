@@ -59,6 +59,7 @@
 #include "courtier/GBufferPortT.hpp"
 #include "GEAPersonalityTraits.hpp"
 #include "GEvolutionaryAlgorithm.hpp"
+#include "GBrokerConnector.hpp"
 #include "GIndividual.hpp"
 
 namespace Gem
@@ -67,46 +68,18 @@ namespace Geneva
 {
   /**********************************************************************************/
   /**
-   * The default factor applied to the turn-around time
-   * of the first individual in the first generation. Used to
-   * find a suitable timeout-value for following individuals.
-   */
-  const boost::uint32_t DEFAULTWAITFACTOR = 20;
-
-  /**
-   * The default maximum value of the wait factor used during automatic
-   * adaption of the waitFactor_ variable. If set to 0, no automatic
-   * adaption will take place.
-   */
-  const boost::uint32_t DEFAULTMAXWAITFACTOR = 0;
-
-  /**
-   * The default allowed time in seconds for the first individual
-   * in generation 0 to return. Set it to 0 to disable this timeout.
-   */
-  const std::string DEFAULTFIRSTTIMEOUT = EMPTYDURATION; // defined in GOptimizationEnums
-
-  /**
-   * The default number of milliseconds before the broker times out
-   */
-  const boost::uint32_t DEFAULTLOOPMSEC = 20;
-
-  /**********************************************************************************/
-  /**
-   * This population handles optimization in environments where communication between
-   * client and communication is handled through a single point of contact. The most
-   * likely scenario is a network interface. However, for testing purposes, also a thread
-   * consumer interface is available.
-   *
-   * Note that serialization of this population makes sense only for backup-purposes,
+   * This population handles evolutionary algorithm-based optimization in environments
+   * where communication between client and communication is handled through Geneva's
+   * broker infrastructure (libcourtier).
+   * Note that serialization of this class makes sense only for backup-purposes,
    * in order to allow later, manual recovery. A broker object needs to be registered,
    * and serialization does not help here.
-   *
    * Serialization in a network context only happens below the level of this population,
    * it is itself usually not shipped over a network connection.
    */
   class GBrokerEA
-    :public Geneva::GEvolutionaryAlgorithm
+    : public GEvolutionaryAlgorithm
+    , public GBrokerConnector
   {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -114,12 +87,9 @@ namespace Geneva
     template<typename Archive>
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
+
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GEvolutionaryAlgorithm)
-		 & BOOST_SERIALIZATION_NVP(waitFactor_)
-		 & BOOST_SERIALIZATION_NVP(maxWaitFactor_)
-         & BOOST_SERIALIZATION_NVP(firstTimeOut_)
-         & BOOST_SERIALIZATION_NVP(loopTime_)
-         & BOOST_SERIALIZATION_NVP(doLogging_);
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnector);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -149,32 +119,6 @@ namespace Geneva
 	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
 	virtual void finalize();
 
-    /** @brief Sets the wait factor */
-    void setWaitFactor(const boost::uint32_t&);
-    /** @brief Sets the wait factor, including automatic adaption of the factor */
-    void setWaitFactor(const boost::uint32_t&, const boost::uint32_t&);
-    /** @brief Retrieves the wait factor */
-    boost::uint32_t getWaitFactor() const;
-    /** @brief Retrieves the maximum wait factor used in automatic adaption of the wait factor */
-    boost::uint32_t getMaxWaitFactor() const;
-
-    /** @brief Sets the first timeout factor */
-    void setFirstTimeOut(const boost::posix_time::time_duration&);
-    /** @brief Retrieves the first timeout factor */
-    boost::posix_time::time_duration getFirstTimeOut() const;
-
-    /** @brief Sets the loop time */
-    void setLoopTime(const boost::posix_time::time_duration&);
-    /** @brief Retrieves the second part of the loop time */
-    boost::posix_time::time_duration getLoopTime() const;
-
-	/** @brief Allows to specify whether logging of arrival times of individuals should be done */
-	void doLogging(const bool& dl=true);
-	/** @brief Allows to determine whether logging of arrival times has been activated */
-	bool loggingActivated() const;
-	/** @brief Allows to retrieve the logging results */
-	std::vector<std::vector<boost::uint32_t> > getLoggingResults() const;
-
   protected:
     /** @brief Loads the data of another GTransfer Population */
     virtual void load_(const GObject *);
@@ -200,17 +144,6 @@ namespace Geneva
     };
 
     /*********************************************************************************/
-
-	boost::uint32_t waitFactor_; ///< Affects the timeout for returning individuals
-	boost::uint32_t maxWaitFactor_; ///< Determines the maximum allowed wait factor during automatic adaption of the waitFactor_ variable
-
-    boost::posix_time::time_duration firstTimeOut_; ///< Maximum time frame for first individual
-    boost::posix_time::time_duration loopTime_;
-
-    GBufferPortT_ptr CurrentBufferPort_; ///< Holds a GBufferPortT object during the optimization cycle
-
-    bool doLogging_; ///< Specifies whether arrival times of individuals should be logged
-    std::vector<std::vector<boost::uint32_t> >  arrivalTimes_; ///< Holds the actual arrival times. Note: Neither serialized nor copied
 
 #ifdef GENEVATESTING
   public:

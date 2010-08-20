@@ -47,11 +47,7 @@ namespace Geneva
  */
 GBrokerEA::GBrokerEA()
 	: GEvolutionaryAlgorithm()
-    , waitFactor_(DEFAULTWAITFACTOR)
-    , maxWaitFactor_(DEFAULTMAXWAITFACTOR)
-    , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTFIRSTTIMEOUT))
-    , loopTime_(boost::posix_time::milliseconds(DEFAULTLOOPMSEC))
-    , doLogging_(false)
+	, GBrokerConnector()
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -62,11 +58,7 @@ GBrokerEA::GBrokerEA()
  */
 GBrokerEA::GBrokerEA(const GBrokerEA& cp)
 	: GEvolutionaryAlgorithm(cp)
-	, waitFactor_(cp.waitFactor_)
-	, maxWaitFactor_(cp.maxWaitFactor_)
-	, firstTimeOut_(cp.firstTimeOut_)
-	, loopTime_(cp.loopTime_)
-	, doLogging_(cp.doLogging_)
+	, GBrokerConnector(cp)
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -99,15 +91,11 @@ const GBrokerEA& GBrokerEA::operator=(const GBrokerEA& cp) {
 void GBrokerEA::load_(const GObject * cp) {
 	const GBrokerEA *p_load = conversion_cast<GBrokerEA>(cp);
 
-	// Load the parent class'es data ...
+	// Load the parent classes' data ...
 	GEvolutionaryAlgorithm::load_(cp);
+	GBrokerConnector::load(p_load);
 
-	// ... and then our own
-	waitFactor_=p_load->waitFactor_;
-	maxWaitFactor_=p_load->maxWaitFactor_;
-	firstTimeOut_=p_load->firstTimeOut_;
-	loopTime_=p_load->loopTime_;
-	doLogging_ = p_load->doLogging_;
+	// no local data
 }
 
 /************************************************************************************************************/
@@ -174,157 +162,12 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(const GObject& cp,
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
-	// Check our parent class'es data ...
+	// Check our parent classes' data ...
 	deviations.push_back(GEvolutionaryAlgorithm::checkRelationshipWith(cp, e, limit, "GBrokerEA", y_name, withMessages));
+	deviations.push_back(GBrokerConnector::checkRelationshipWith(*p_load, e, limit, "GBrokerEA", y_name, withMessages));
 
-	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", waitFactor_, p_load->waitFactor_, "waitFactor_", "p_load->waitFactor_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", maxWaitFactor_, p_load->maxWaitFactor_, "maxWaitFactor_", "p_load->maxWaitFactor_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", firstTimeOut_, p_load->firstTimeOut_, "firstTimeOut_", "p_load->firstTimeOut_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", loopTime_, p_load->loopTime_, "loopTime_", "p_load->loopTime_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBrokerEA", doLogging_, p_load->doLogging_, "doLogging_", "p_load->doLogging_", e , limit));
-
+	// no local data ...
 	return evaluateDiscrepancies("GBrokerEA", caller, deviations, e);
-}
-
-/************************************************************************************************************/
-/**
- * Sets the waitFactor_ variable. This population measures the time until the
- * first individual has returned. This time times the waitFactor_ variable is
- * then used to check whether a timeout was reached for other individuals.
- * waitFactor_ is by default set to DEFAULTWAITFACTOR. You can disable this
- * timeout by setting waitFactor_ to 0.
- *
- * @param waitFactor The desired new value for waitFactor_ .
- */
-void GBrokerEA::setWaitFactor(const boost::uint32_t& waitFactor)  {
-	waitFactor_ = waitFactor;
-}
-
-/************************************************************************************************************/
-/**
- * Sets the waitFactor_ and the maximumWaitFactor_ variable. If the latter is
- * != 0, the waitFactor_ will be automatically adapted, based on the number of
- * older individuals received.
- *
- * @param waitFactor The desired new value for waitFactor_ .
- */
-void GBrokerEA::setWaitFactor(const boost::uint32_t& waitFactor, const boost::uint32_t& maxWaitFactor)  {
-	// Do error checks
-	if(maxWaitFactor && maxWaitFactor < waitFactor) {
-		std::ostringstream error;
-		error << "In GBrokerEA::setWaitFactor(uint32_t, uint32_t) : Error!" << std::endl
-			  << "invalid maximum wait factor: " << maxWaitFactor << " / " << waitFactor << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
-	}
-
-	waitFactor_ = waitFactor;
-	maxWaitFactor_ = maxWaitFactor;
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the waitFactor_ variable.
- *
- * @return The value of the waitFactor_ variable
- */
-boost::uint32_t GBrokerEA::getWaitFactor() const  {
-	return waitFactor_;
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the maxWaitFactor_ variable.
- *
- * @return The value of the maxWaitFactor_ variable
- */
-boost::uint32_t GBrokerEA::getMaxWaitFactor() const  {
-	return maxWaitFactor_;
-}
-
-/************************************************************************************************************/
-/**
- * Sets the maximum turn-around time for the first individual. When this time
- * has passed, an exception will be raised. Set the time out value to 0 if you
- * do not want the first individual to time out.
- *
- * @param firstTimeOut The maximum allowed time until the first individual returns
- */
-void GBrokerEA::setFirstTimeOut(const boost::posix_time::time_duration& firstTimeOut) {
-	firstTimeOut_ = firstTimeOut;
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the value of the firstTimeOut_ variable.
- *
- * @return The value of firstTimeOut_ variable
- */
-boost::posix_time::time_duration GBrokerEA::getFirstTimeOut() const {
-	return firstTimeOut_;
-}
-
-/************************************************************************************************************/
-/**
- * When retrieving items from the GBoundedBufferT queue (which in turn is accessed through
- * the GBroker interface), a time-out factor can be set with this function. The
- * default values is DEFAULTLOOPMSEC. A minimum value of 1 micro second is required.
- *
- * @param loopTime Timeout until an item was retrieved from the GBoundedBufferT
- */
-void GBrokerEA::setLoopTime(const boost::posix_time::time_duration& loopTime) {
-	// Only allow "real" values
-	if(loopTime.is_special() || loopTime.is_negative() || loopTime.total_microseconds()==0) {
-		std::ostringstream error;
-		error << "In GBrokerEA::setLoopTime() : Error!" << std::endl
-			  << "loopTime is set to 0" << std::endl;
-
-		throw Gem::Common::gemfony_error_condition(error.str());
-	}
-
-	loopTime_ = loopTime;
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the value of the loopTime_ variable
- *
- * @return The value of the loopTime_ variable
- */
-boost::posix_time::time_duration GBrokerEA::getLoopTime() const {
-	return loopTime_;
-}
-
-/************************************************************************************************************/
-/**
- * Allows to specify whether logging of arrival times of individuals should be done. Note that only
- * arrival times of individuals of the current generation are logged. This also allows to find out
- * how many individuals did not return before the deadline.
- *
- * @param dl A boolean which allows to specify whether logging of arrival times of individuals should be done
- */
-void GBrokerEA::doLogging(const bool& dl) {
-	doLogging_ = dl;
-}
-
-/************************************************************************************************************/
-/**
- * Allows to determine whether logging of arrival times has been activated.
- *
- * @return A boolean indicating whether logging of arrival times has been activated
- */
-bool GBrokerEA::loggingActivated() const {
-	return doLogging_;
-}
-
-/************************************************************************************************************/
-/**
- * Allows to retrieve the logging results
- *
- * @return A vector containing the logging results
- */
-std::vector<std::vector<boost::uint32_t> > GBrokerEA::getLoggingResults() const {
-	return arrivalTimes_;
 }
 
 /************************************************************************************************************/
@@ -332,7 +175,7 @@ std::vector<std::vector<boost::uint32_t> > GBrokerEA::getLoggingResults() const 
  * Performs any necessary initialization work before the start of the optimization cycle
  */
 void GBrokerEA::init() {
-	// Prevent usage of this population inside another broker population - check type of first individual
+	// Prevent usage of this population inside another broker population - check type of individuals
 	{
 		std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {

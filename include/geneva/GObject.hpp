@@ -58,7 +58,6 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
-#include <boost/serialization/export.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/optional.hpp>
 #include <boost/utility/enable_if.hpp>

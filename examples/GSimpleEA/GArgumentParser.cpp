@@ -271,6 +271,10 @@ bool parseConfigFile(const std::string& configFile,
 			df = ROSENBROCK;
 		else if (evalFunction == (boost::uint16_t) ACKLEY)
 			df = ACKLEY;
+		else if (evalFunction == (boost::uint16_t) RASTRIGIN)
+			df = RASTRIGIN;
+		else if (evalFunction == (boost::uint16_t) SCHWEFEL)
+			df = SCHWEFEL;
 		else {
 			std::cout << "Error: Invalid evaluation function: " << evalFunction
 					<< std::endl;
@@ -291,6 +295,12 @@ bool parseConfigFile(const std::string& configFile,
 				break;
 			case ACKLEY:
 				eF = "ACKLEY";
+				break;
+			case RASTRIGIN:
+				eF = "RASTRIGIN";
+				break;
+			case SCHWEFEL:
+				eF = "SCHWEFEL";
 				break;
 			}
 
