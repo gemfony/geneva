@@ -193,6 +193,42 @@ const double CGLOBALRANGEDISABLED = -1.; ///< A value < 0 means that the global 
 const double CDELTARANGEDISABLED = -1.; ///< A value < 0 means that the delta range is disabled
 
 /**********************************************************************************************/
+/**
+ * The default factor applied to the turn-around time
+ * of the first individual in the first generation. Used to
+ * find a suitable timeout-value for following individuals.
+ * Used in conjunction with optimization algorithms that
+ * communicate via the "courtier" broker infrastructure.
+ */
+const boost::uint32_t DEFAULTBROKERWAITFACTOR = 20;
+
+/**********************************************************************************************/
+/**
+ * The default maximum value of the wait factor used during automatic
+ * adaption of the waitFactor_ variable. If set to 0, no automatic
+ * adaption will take place. Used in conjunction with optimization
+ * algorithms that communicate via the "courtier" broker infrastructure.
+ */
+const boost::uint32_t DEFAULTBROKERMAXWAITFACTOR = 0;
+
+/**********************************************************************************************/
+/**
+ * The default allowed time in seconds for the first individual
+ * in generation 0 to return. Set it to 0 to disable this timeout.
+ * Used in conjunction with optimization algorithms that
+ * communicate via the "courtier" broker infrastructure.
+ */
+const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
+
+/**********************************************************************************************/
+/**
+ * The default number of milliseconds before the broker times out
+ * Used in conjunction with optimization algorithms that
+ * communicate via the "courtier" broker infrastructure.
+ */
+const boost::uint32_t DEFAULTBROKERLOOPMSEC = 20;
+
+/**********************************************************************************************/
 
 /** @brief Puts a Gem::Geneva::recoScheme into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::recoScheme&);

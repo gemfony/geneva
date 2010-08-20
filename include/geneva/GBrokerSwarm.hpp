@@ -46,8 +46,8 @@
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/date_time/posix_time/time_serialize.hpp>
 
-#ifndef GBROKEREA_HPP_
-#define GBROKEREA_HPP_
+#ifndef GBROKERSWARM_HPP_
+#define GBROKERSWARM_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -83,7 +83,7 @@ const boost::uint32_t DEFAULTSWARMMAXWAITFACTOR = 0;
  * The default allowed time in seconds for the first individual
  * in generation 0 to return. Set it to 0 to disable this timeout.
  */
-const std::string DEFAULTSWARMFIRSTTIMEOUT = EMPTYDURATION; // defined in GEvolutionaryAlgorithm
+const std::string DEFAULTSWARMFIRSTTIMEOUT = EMPTYDURATION;  // defined in GOptimizationEnums
 
 /**
  * The default number of milliseconds before the broker times out
@@ -99,4 +99,4 @@ const boost::uint32_t DEFAULTSWARMLOOPMSEC = 20;
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GBROKEREA_HPP_ */
+#endif /* GBROKERSWARM_HPP_ */

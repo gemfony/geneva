@@ -145,7 +145,7 @@ public:
 	 * @param cp A copy of another GStdPtrVectorInterfaceT<T> object
 	 * @return The argument of this function
 	 */
-	const GStdPtrVectorInterfaceT& operator=(const GStdPtrVectorInterfaceT<T>& cp) {
+	const GStdPtrVectorInterfaceT<T>& operator=(const GStdPtrVectorInterfaceT<T>& cp) {
 		this->operator=(cp.data);
 		return cp;
 	}
@@ -207,13 +207,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const std::vector<boost::shared_ptr<T> >& cp_data,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+			const std::vector<boost::shared_ptr<T> >& cp_data
+		  , const Gem::Common::expectation& e
+		  , const double& limit
+	      , const std::string& caller
+		  , const std::string& y_name
+		  , const bool& withMessages
+	) const	{
 	    using namespace Gem::Common;
 
 		// Will hold possible deviations from the expectation, including explanations
@@ -243,13 +244,14 @@ public:
 	 * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
 	 * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
 	 */
-	boost::optional<std::string> checkRelationshipWith(const GStdPtrVectorInterfaceT<T>& cp,
-			const Gem::Common::expectation& e,
-			const double& limit,
-			const std::string& caller,
-			const std::string& y_name,
-			const bool& withMessages) const
-	{
+	boost::optional<std::string> checkRelationshipWith(
+			const GStdPtrVectorInterfaceT<T>& cp
+		  , const Gem::Common::expectation& e
+		  , const double& limit
+		  , const std::string& caller
+		  , const std::string& y_name
+		  , const bool& withMessages
+	) const	{
 	    using namespace Gem::Common;
 
 		// Will hold possible deviations from the expectation, including explanations

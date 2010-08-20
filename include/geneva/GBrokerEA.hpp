@@ -84,7 +84,7 @@ namespace Geneva
    * The default allowed time in seconds for the first individual
    * in generation 0 to return. Set it to 0 to disable this timeout.
    */
-  const std::string DEFAULTFIRSTTIMEOUT = EMPTYDURATION; // defined in GEvolutionaryAlgorithm
+  const std::string DEFAULTFIRSTTIMEOUT = EMPTYDURATION; // defined in GOptimizationEnums
 
   /**
    * The default number of milliseconds before the broker times out
@@ -115,10 +115,11 @@ namespace Geneva
     void serialize(Archive & ar, const unsigned int){
       using boost::serialization::make_nvp;
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GEvolutionaryAlgorithm)
+		 & BOOST_SERIALIZATION_NVP(waitFactor_)
+		 & BOOST_SERIALIZATION_NVP(maxWaitFactor_)
          & BOOST_SERIALIZATION_NVP(firstTimeOut_)
          & BOOST_SERIALIZATION_NVP(loopTime_)
-         & BOOST_SERIALIZATION_NVP(waitFactor_)
-         & BOOST_SERIALIZATION_NVP(maxWaitFactor_);
+         & BOOST_SERIALIZATION_NVP(doLogging_);
     }
     ///////////////////////////////////////////////////////////////////////
 
