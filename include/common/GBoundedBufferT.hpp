@@ -231,6 +231,31 @@ public:
 
 	/***************************************************************/
 	/**
+	 * Adds a single item to the front of the buffer. The function
+	 * will time out after a given amount of time and return false
+	 * in this case.
+	 *
+	 * @param item An item to be added to the front of the buffer
+	 * @param timeout duration until a timeout occurs
+	 * @return A boolean indicating whether an item has been successfully submitted
+	 */
+	bool push_front_bool(value_type item, const boost::posix_time::time_duration& timeout)
+	{
+		boost::mutex::scoped_lock lock(mutex_);
+		if(!not_full_.timed_wait(lock, timeout, boost::bind(&GBoundedBufferT<value_type>::is_not_full, this))) {
+#ifdef DEBUG
+			std::cout << "Push timeout" << std::endl;
+#endif
+			return false;
+		}
+		container_.push_front(item);
+		lock.unlock();
+		not_empty_.notify_one();
+		return true;
+	}
+
+	/***************************************************************/
+	/**
 	 * Uses the function(-object) f to produce an item to be added
 	 * to the list. Loops until an item has been produced that is
 	 * not yet present.
@@ -298,6 +323,33 @@ public:
 		container_.pop_back();
 		lock.unlock();
 		not_full_.notify_one();
+	}
+
+	/***************************************************************/
+	/**
+	 * Retrieves a single item from the end of the buffer. The function
+	 * will time out after a given amount of time. It will return false
+	 * in this case. "true" will be returned if an item could be retrieved
+	 * successfully.
+	 *
+	 * @param pItem Pointer to a single item that was removed from the end of the buffer
+	 * @param timeout duration until a timeout occurs
+	 * @return A boolean indicating whether an item has been successfully retrieved
+	 */
+	bool pop_back_bool(value_type* pItem, const boost::posix_time::time_duration& timeout)
+	{
+		boost::mutex::scoped_lock lock(mutex_);
+		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
+#ifdef DEBUG
+			std::cout << "pop timeout" << std::endl;
+#endif
+			return false;
+		}
+		(*pItem) = container_.back();
+		container_.pop_back();
+		lock.unlock();
+		not_full_.notify_one();
+		return true;
 	}
 
 	/***************************************************************/

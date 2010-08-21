@@ -120,9 +120,9 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
  * - VALUERECOMBINE prefers parents with a higher fitness
  */
 enum recoScheme {
-	  DEFAULTRECOMBINE
-	, RANDOMRECOMBINE
-	, VALUERECOMBINE
+	  DEFAULTRECOMBINE = 0
+	, RANDOMRECOMBINE = 1
+	, VALUERECOMBINE = 2
 };
 
 /**********************************************************************************************/
@@ -156,9 +156,9 @@ enum adaptorId {
  * (unless a better child was found). All other parents are selected from children only.
  */
 enum sortingMode {
-	  MUPLUSNU
-	, MUCOMMANU
-	, MUNU1PRETAIN
+	  MUPLUSNU = 0
+	, MUCOMMANU = 1
+	, MUNU1PRETAIN = 2
 };
 
 /**********************************************************************************************/
@@ -204,29 +204,12 @@ const boost::uint32_t DEFAULTBROKERWAITFACTOR = 20;
 
 /**********************************************************************************************/
 /**
- * The default maximum value of the wait factor used during automatic
- * adaption of the waitFactor_ variable. If set to 0, no automatic
- * adaption will take place. Used in conjunction with optimization
- * algorithms that communicate via the "courtier" broker infrastructure.
- */
-const boost::uint32_t DEFAULTBROKERMAXWAITFACTOR = 0;
-
-/**********************************************************************************************/
-/**
  * The default allowed time in seconds for the first individual
  * in generation 0 to return. Set it to 0 to disable this timeout.
  * Used in conjunction with optimization algorithms that
  * communicate via the "courtier" broker infrastructure.
  */
 const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
-
-/**********************************************************************************************/
-/**
- * The default number of milliseconds before the broker times out
- * Used in conjunction with optimization algorithms that
- * communicate via the "courtier" broker infrastructure.
- */
-const boost::uint32_t DEFAULTBROKERLOOPMSEC = 20;
 
 /**********************************************************************************************/
 

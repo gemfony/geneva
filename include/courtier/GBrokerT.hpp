@@ -158,8 +158,8 @@ public:
 
 		// Retrieve the processed and original queues and tag them with
 		// a suitable id. Increment the id for later use during other enrollments.
-		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carrier_type> > original = gbp->getOriginal();
-		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carrier_type> > processed = gbp->getProcessed();
+		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carrier_type> > original = gbp->getOriginalQueue();
+		boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<carrier_type> > processed = gbp->getProcessedQueue();
 		original->setId(portId);
 		processed->setId(portId);
 

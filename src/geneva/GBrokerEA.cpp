@@ -172,6 +172,20 @@ boost::optional<std::string> GBrokerEA::checkRelationshipWith(const GObject& cp,
 
 /************************************************************************************************************/
 /**
+ * The actual business logic to be performed during each iteration.
+ *
+ * @return The best achieved fitness
+ */
+double GBrokerEA::cycleLogic() {
+	// Let the GBrokerConnector know that we are starting a new iteration
+	GBrokerConnector::markNewIteration();
+
+	// Start the actual optimization cycle
+	return GEvolutionaryAlgorithm::cycleLogic();
+}
+
+/************************************************************************************************************/
+/**
  * Performs any necessary initialization work before the start of the optimization cycle
  */
 void GBrokerEA::init() {
@@ -196,8 +210,8 @@ void GBrokerEA::init() {
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::init();
 
-	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> >());
-	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
+	// Connect to the broker
+	GBrokerConnector::init();
 }
 
 /************************************************************************************************************/
@@ -205,11 +219,8 @@ void GBrokerEA::init() {
  * Performs any necessary finalization work after the end of the optimization cycle
  */
 void GBrokerEA::finalize() {
-	// Remove the GBufferPortT object. The broker only holds shared_ptr's to the
-	// two objects contained therein, which are not invalidated, but become unique.
-	// This is a selection criterion which lets the broker remove surplus buffer
-	// twins.
-	CurrentBufferPort_.reset();
+	// Invalidate our local broker connection
+	GBrokerConnector::finalize();
 
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::finalize();
@@ -220,7 +231,7 @@ void GBrokerEA::finalize() {
  * Starting from the end of the children's list, we submit individuals  to the
  * broker. In the first generation, in the case of the MUPLUSNU sorting strategy,
  * also the fitness of the parents is calculated. The type of command intended to
- * be executed on the individuals is stored in their attributes. The function
+ * be executed on the individuals is stored in the individual. The function
  * then waits for the first individual to come back. The time frame for all other
  * individuals to come back is a multiple of this time frame.
  */
@@ -229,7 +240,7 @@ void GBrokerEA::adaptChildren() {
 
 	std::vector<boost::shared_ptr<GIndividual> >::reverse_iterator rit;
 	std::size_t np = getNParents(), nc=data.size()-np;
-	boost::uint32_t generation=getIteration();
+	boost::uint32_t iteration=getIteration();
 
 	//--------------------------------------------------------------------------------
 	// First we send all individuals abroad
@@ -238,23 +249,23 @@ void GBrokerEA::adaptChildren() {
 	// This is the same for all sorting modes
 	for(rit=data.rbegin(); rit!=data.rbegin()+nc; ++rit) {
 		(*rit)->getPersonalityTraits()->setCommand("adapt");
-		CurrentBufferPort_->push_front_orig(*rit);
+		GBrokerConnector::submit(*rit);
 	}
 
 	// We can remove children, so only parents remain in the population
 	data.resize(np);
 
-	// Make sure we also evaluate the parents in the first generation, if needed.
+	// Make sure we also evaluate the parents in the first iteration, if needed.
 	// This is only applicable to the MUPLUSNU and MUNU1PRETAIN modes.
-	if(generation==0) {
+	if(iteration==0) {
 		switch(getSortingScheme()) {
 		//--------------------------------------------------------------
 		case MUPLUSNU:
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
-			// Note that we only have parents left in this generation
+			// Note that we only have parents left in this iteration
 			for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
 				(*rit)->getPersonalityTraits()->setCommand("adapt");
-				CurrentBufferPort_->push_front_orig(*rit);
+				GBrokerConnector::submit(*rit);
 			}
 
 			// Next we clear the population. We do not loose anything,
@@ -269,170 +280,101 @@ void GBrokerEA::adaptChildren() {
 		// If we are running in MUPLUSNU or MUNU1PRETAIN mode, we now have an empty population,
 		// as parents have been sent away for evaluation. If this is the MUCOMMANU mode, parents
 		// do not participate in the sorting and can be ignored.
-		//
 	}
 
 	//--------------------------------------------------------------------------------
-	// If logging is enabled, add a std::vector<boost::uint32_t> for the current generation
-	// to arrivalTimes_
-	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
+	// We can now wait for the first individual of the current generation to return
+	// from its journey.
 
-	//--------------------------------------------------------------------------------
-	// We can now wait for the individuals to return from their journey.
+	// First wait for the first individual of the current iteration to arrive.
+	// Individuals from older iterations will also be accepted in this loop,
+	// unless they are parents. Note that we can thus have a situation where less
+	// genuine parents are in the population than have originally been sent away.
+	std::size_t nReceivedParent = 0;
+	std::size_t nReceivedChildCurrent=0;
+	std::size_t nReceivedChildOlder = 0;
 
-	// First we wait for the first individual from the current generation to arrive,
-	// or until a timeout has been reached. Individuals from older generations will
-	// also be accepted in this loop, unless they are parents. If firstTimeOut_ is set
-	// to 0, we do not timeout. Note that we can have a situation where less genuine
-	// parents are in the population than have originally been sent away.
+	while(true) {
+		// Note: the following call will throw if a timeout has been reached.
+		boost::shared_ptr<GIndividual> p = GBrokerConnector::retrieveFirstItem<GIndividual>();
 
-	// start to measure time. Uses the Boost.date_time library
-	ptime startTime = boost::posix_time::microsec_clock::local_time();
+		// If it is from the current iteration, break the loop, otherwise
+		// continue until the first item of the current iteration has been
+		// received.
+		if(p->getParentAlgIteration() == iteration) {
+			// Add the individual to our list.
+			this->push_back(p);
 
-	std::size_t nReceivedParent = 0, nReceivedChildCurrent=0, nReceivedChildOlder = 0;
+			// Give the GBrokerConnector the opportunity to perform logging
+			GBrokerConnector::log();
 
-	while(true)
-	{
-		try {
-			boost::shared_ptr<GIndividual> p;
+			// Update the counter.
+			if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
+			else nReceivedChildCurrent++;
 
-			// This function will throw a time-out condition if we
-			// have exceeded the allowed time. Hence, when we reach
-			// the next code line, we can assume to have a valid object
-			CurrentBufferPort_->pop_back_processed(&p,loopTime_);
+			break;
+		} else {
+			if(!p->getEAPersonalityTraits()->isParent()){
+				// Make it known to the individual that it is now part of a new iteration
+				p->setParentAlgIteration(iteration);
 
-			// If it is from the current generation, break the loop.
-			// Update the number of items received.
-			if(p->getParentAlgIteration() == generation){
 				// Add the individual to our list.
 				this->push_back(p);
-
-				// Log arrival times if requested by the user
-				if(doLogging_) {
-#ifdef DEBUG
-					if(arrivalTimes_.size() != generation+1) {
-						std::ostringstream error;
-						error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
-							  << "The arrivalTimes_ vector has the incorrect size " << arrivalTimes_.size() << std::endl
-							  << "Expected the size to be " << generation+1 << std::endl;
-						throw Gem::Common::gemfony_error_condition(error.str());
-					}
-#endif /* DEBUG */
-					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_milliseconds());
-				}
-
-				// Update the counter.
-				if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
-				else nReceivedChildCurrent++;
-
-				break;
-			}
-			else {
-				if(!p->getEAPersonalityTraits()->isParent()){ // We do not accept parents from older populations
-					// Make it known to the individual that it is now part of a new generation
-					p->setParentAlgIteration(generation);
-
-					// Add the individual to our list.
-					this->push_back(p);
-
-					// Update the counter
-					nReceivedChildOlder++;
-				}
-				else p.reset();
-			}
-		}
-		catch(Gem::Common::condition_time_out&) {
-			// Find out whether we have exceeded a threshold
-			if(firstTimeOut_.total_microseconds() && ((microsec_clock::local_time()-startTime) > firstTimeOut_)){
-				std::ostringstream error;
-				error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
-					  << "Timeout for first individual reached." << std::endl
-					  << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
-					  << "You can change this value with the setFirstTimeOut() function." << std::endl;
-
-				throw Gem::Common::gemfony_error_condition(error.str());
-			}
-			// The loop will continue if no exception was thrown here
-			else {
-				continue;
-			}
-		}
-	}
-
-	// At this point we have received the first individual of the current generation back.
-	// Record the elapsed time.
-	time_duration totalElapsedFirst = microsec_clock::local_time()-startTime;
-	time_duration maxAllowedElapsed = totalElapsedFirst * waitFactor_;
-	time_duration totalElapsed = totalElapsedFirst;
-
-	// Wait for further arrivals until the population is complete or
-	// a timeout has been reached.
-	bool complete=false;
-	while(true){
-		try {
-			boost::shared_ptr<GIndividual> p;
-			CurrentBufferPort_->pop_back_processed(&p,loopTime_);
-
-			// Count the number of items received.
-			if(p->getParentAlgIteration() == generation) {
-				// Add the individual to our list.
-				this->push_back(p);
-
-				// Log arrival times if requested by the user
-				if(doLogging_) {
-#ifdef DEBUG
-					if(arrivalTimes_.size() != generation+1) {
-						std::ostringstream error;
-						error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
-							  << "The arrivalTimes_ vector has the incorrect size " << arrivalTimes_.size() << std::endl
-							  << "Expected the size to be " << generation+1 << std::endl;
-						throw Gem::Common::gemfony_error_condition(error.str());
-					}
-#endif /* DEBUG */
-					arrivalTimes_[(std::size_t)generation].push_back((microsec_clock::local_time()-startTime).total_milliseconds());
-				}
 
 				// Update the counter
-				if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
-				else nReceivedChildCurrent++;
+				nReceivedChildOlder++;
 			}
-			else {
-				if(!p->getEAPersonalityTraits()->isParent()){  // Parents from older populations will be ignored, as there is no else clause
-					// Make it known to the individual that it is now part of a new generation
-					p->setParentAlgIteration(generation);
-
-					// Add the individual to our list.
-					this->push_back(p);
-
-					// Update the counter
-					nReceivedChildOlder++;
-				}
-			}
-		}
-		catch(Gem::Common::condition_time_out&) {
-			// Break if we have reached the timeout
-			totalElapsed = microsec_clock::local_time()-startTime;
-			if(waitFactor_ && (totalElapsed > maxAllowedElapsed)) break;
-			else continue; // Nothing to do. Continue to wait for arrivals
-		}
-
-		// Break if a full set of children (and parents in generation 0 / MUPLUSNU / MUNU1PRETAIN)
-		// has returned. Older individuals may return in the next iterations (i.e. generations), unless they are parents
-		if(generation == 0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)) {
-			if(nReceivedParent+nReceivedChildCurrent==np+getDefaultNChildren()) {
-				complete=true;
-				break;
-			}
-		}
-		else {
-			if(nReceivedChildCurrent>=getDefaultNChildren()) { // Note the >=
-				complete=true;
-				break;
+			else { // We do not accept parents from older iterations
+				p.reset();
 			}
 		}
 	}
 
-	if(generation==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
+	//--------------------------------------------------------------------------------
+	// Wait for further arrivals until the population is complete or a timeout has been reached.
+	bool complete=false;
+	boost::shared_ptr<GIndividual> p;
+
+	// retrieveItem will return an empty pointer, if a timeout has been reached
+	while(!complete && (p=GBrokerConnector::retrieveItem<GIndividual>())) {
+		// Count the number of items received.
+		if(p->getParentAlgIteration() == iteration) {
+			// Add the individual to our list.
+			this->push_back(p);
+
+			// Give the GBrokerConnector the opportunity to perform logging
+			GBrokerConnector::log();
+
+			// Update the counter
+			if(p->getEAPersonalityTraits()->isParent()) nReceivedParent++;
+			else nReceivedChildCurrent++;
+		} else {
+			if(!p->getEAPersonalityTraits()->isParent()){  // Parents from older populations will be ignored, as there is no else clause
+				// Make it known to the individual that it is now part of a new iteration
+				p->setParentAlgIteration(iteration);
+
+				// Add the individual to our list.
+				this->push_back(p);
+
+				// Update the counter
+				nReceivedChildOlder++;
+			}
+		}
+
+		// Mark as complete, if a full set of children (and parents in iteration 0 / MUPLUSNU / MUNU1PRETAIN)
+		// has returned. Older individuals may return in the next iterations, unless they are parents.
+		if(iteration == 0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)) {
+			if(nReceivedParent+nReceivedChildCurrent==np+getDefaultNChildren()) {
+				complete=true;
+			}
+		} else {
+			if(nReceivedChildCurrent>=getDefaultNChildren()) { // Note the >=
+				complete=true;
+			}
+		}
+	}
+
+	if(iteration==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
 			std::ostringstream error;
@@ -443,30 +385,15 @@ void GBrokerEA::adaptChildren() {
 		}
 
 		// Sort according to parent/child tag. We do not know in what order individuals have returned.
-		// Hence we need to sort them.
+		// Hence we need to sort them. Parents need to be in front, children in the back.
 		sort(data.begin(), data.end(), indParentComp());
 	}
 
 	//--------------------------------------------------------------------------------
 	// We are done, if a full set of individuals has returned.
 	// The population size is at least at nominal values.
-	if(complete) {
-		// Check if we have used significantly less time than allowed by the waitFactor_ variable
-		// If so, and we do use automatic adaption of that variable, decrease the factor by one.
-		if(waitFactor_ && maxWaitFactor_) { // Have we been asked to adapt the waitFactor_ variable ?
-			totalElapsed = microsec_clock::local_time()-startTime;
-			if(totalElapsed < maxAllowedElapsed &&
-					(maxAllowedElapsed.total_microseconds() - totalElapsedFirst.total_microseconds()) >
-					 long(double(maxAllowedElapsed.total_microseconds())*0.1)) {
-				if(waitFactor_ > 1) waitFactor_ -= 1;
-#ifdef DEBUG
-				std::cout << "Adapted the waitFactor_ variable to " << waitFactor_ << std::endl;
-#endif /* DEBUG */
-			}
-		}
-
-		return;
-	}
+	// TODO: Adapt waitFactor_ variable
+	if(complete) return;
 
 	//--------------------------------------------------------------------------------
 	// O.k., so we are missing individuals from the current population. Do some fixing.
@@ -475,9 +402,9 @@ void GBrokerEA::adaptChildren() {
 	std::ostringstream information;
 	information << "Note that in GBrokerEA::adaptChildren()" << std::endl
 				<< "some individuals of the current population did not return" << std::endl
-				<< "in generation " << generation << "." << std::endl;
+				<< "in iteration " << iteration << "." << std::endl;
 
-	if(generation==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
+	if(iteration==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		information << "We have received " << nReceivedParent << " parents." << std::endl
 			        << "where " << np << " parents were expected." << std::endl;
 	}
@@ -492,8 +419,8 @@ void GBrokerEA::adaptChildren() {
 		std::size_t fixSize=np+getDefaultNChildren() - data.size();
 
 #ifdef DEBUG
-		information << fixSize << "individuals thus need to be added to the population." << std::endl
-					<< "Note that children may still return in later generations." << std::endl;
+		information << fixSize << " individuals thus need to be added to the population." << std::endl
+					<< "Note that children may still return in later iterations." << std::endl;
 #endif /* DEBUG */
 
 		for(std::size_t i=0; i<fixSize; i++){
@@ -506,24 +433,9 @@ void GBrokerEA::adaptChildren() {
 	std::cout << information.str();
 #endif /* DEBUG */
 
-	// Adapt the waitFactor_ variable, if necessary
-	// Check if we have used significantly less time than allowed by the waitFactor_ variable
-	// If so, and we do use automatic adaption of that variable, decrease the factor by one.
-	if(waitFactor_ && maxWaitFactor_) { // Have we been asked to adapt the waitFactor_ variable ?
-		if(generation>0 && double(nReceivedChildOlder) > 0.1*double(nc)) {
-			if(waitFactor_ < maxWaitFactor_) {
-				waitFactor_ += 1;
-
-#ifdef DEBUG
-				std::cout << "Adapted the waitFactor_ variable to " << waitFactor_ << std::endl;
-#endif /* DEBUG */
-			}
-		}
-	}
-
 	// Mark the first nParents_ individuals as parents, if they aren't parents yet. We want
 	// to have a "sane" population.
-	if(generation==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
+	if(iteration==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		GEvolutionaryAlgorithm::iterator it;
 		for(it=this->begin(); it!=this->begin() + getNParents(); ++it) {
 			if(!(*it)->getEAPersonalityTraits()->isParent()) {
@@ -535,7 +447,7 @@ void GBrokerEA::adaptChildren() {
 	// We care for too many returned individuals in the select() function. Older
 	// individuals might nevertheless have a better quality. We do not want to loose them.
 
-	// We might theoretically at this point have a population that (in generation 0 / MUPLUSNU / MUNU1PRETAIN)
+	// We might theoretically at this point have a population that (in iteration 0 / MUPLUSNU / MUNU1PRETAIN)
 	// consists of only parents. This is not a problem, as the entire population will get sorted
 	// in this case, and new parents and children will be tagged after the select function.
 }
@@ -555,7 +467,7 @@ void GBrokerEA::select() {
 
 	////////////////////////////////////////////////////////////
 	// At this point we have a sorted list of individuals and can take care of
-	// too many members, so the next generation finds a "standard" population. This
+	// too many members, so the next iteration finds a "standard" population. This
 	// function will remove the last items.
 	data.resize(getNParents() + getDefaultNChildren());
 

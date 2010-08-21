@@ -123,18 +123,34 @@ bool parseCommandLine(int argc, char **argv, std::string& configFile,
 /**
  * A function that parses a config file for further parameters
  */
-bool parseConfigFile(const std::string& configFile,
-		boost::uint16_t& nProducerThreads, boost::uint16_t& nEvaluationThreads,
-		std::size_t& populationSize, std::size_t& nParents,
-		boost::uint32_t& maxIterations, long& maxMinutes,
-		boost::uint32_t& reportIteration, recoScheme& rScheme,
-		sortingMode& smode, std::size_t& arraySize,
-		boost::uint32_t& processingCycles, bool& returnRegardless,
-		boost::uint32_t& waitFactor, double& adProb,
-		boost::uint32_t& adaptionThreshold, double& sigma, double& sigmaSigma,
-		double& minSigma, double& maxSigma, std::size_t& parDim,
-		double& minVar, double& maxVar, demoFunction& df) {
+bool parseConfigFile(
+		const std::string& configFile
+	  , boost::uint16_t& nProducerThreads
+	  , boost::uint16_t& nEvaluationThreads
+	  , std::size_t& populationSize
+	  , std::size_t& nParents
+	  , boost::uint32_t& maxIterations
+	  , long& maxMinutes
+	  , boost::uint32_t& reportIteration
+	  , recoScheme& rScheme
+	  , sortingMode& smode
+	  , std::size_t& arraySize
+	  , boost::uint32_t& processingCycles
+	  , bool& returnRegardless
+	  , boost::uint32_t& waitFactor
+	  , double& adProb
+	  , boost::uint32_t& adaptionThreshold
+	  , double& sigma
+	  , double& sigmaSigma
+	  , double& minSigma
+	  , double& maxSigma
+	  , std::size_t& parDim
+	  , double& minVar
+	  , double& maxVar
+	  , demoFunction& df
+) {
 	boost::uint16_t recombinationScheme = 0;
+	boost::uint16_t sortingScheme = 0;
 	boost::uint16_t evalFunction = 0;
 	bool verbose = true;
 
@@ -148,81 +164,56 @@ bool parseConfigFile(const std::string& configFile,
 	try {
 		// Check the configuration file line options. Uses the Boost program options library.
 		po::options_description config("Allowed options");
-		config.add_options()("nProducerThreads", po::value<boost::uint16_t>(
-				&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
-				"The amount of random number producer threads")(
-				"nEvaluationThreads", po::value<boost::uint16_t>(
-						&nEvaluationThreads)->default_value(
-						DEFAULTNEVALUATIONTHREADS),
-				"The amount of threads processing individuals simultaneously")(
-				"populationSize",
-				po::value<std::size_t>(&populationSize)->default_value(
-						DEFAULTPOPULATIONSIZE),
-				"The size of the super-population")("nParents", po::value<
-				std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
-				"The number of parents in the population") // Needs to be treated separately
-		("maxIterations",
-				po::value<boost::uint32_t>(&maxIterations)->default_value(
-						DEFAULTMAXITERATIONS),
-				"Maximum number of iterations in the population")("maxMinutes",
-				po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
-				"The maximum number of minutes the optimization of the population should run")(
-				"reportIteration",
-				po::value<boost::uint32_t>(&reportIteration)->default_value(
-						DEFAULTREPORTITERATION),
-				"The number of iterations after which information should be emitted in the super-population")(
-				"rScheme",
-				po::value<boost::uint16_t>(&recombinationScheme)->default_value(
-						DEFAULTRSCHEME),
-				"The recombination scheme for the super-population")(
-				"sortingScheme,o",
-				po::value<sortingMode>(&smode)->default_value(
-						DEFAULTSORTINGSCHEME),
-				"Determines whether sorting is done in MUCOMMANU (0), MUPLUSNU (1)  or MUNU1PRETAIN (2) mode")(
-				"arraySize", po::value<std::size_t>(&arraySize)->default_value(
-						DEFAULTARRAYSIZE),
-				"The size of the buffer with random arrays in the random factory")(
-				"verbose", po::value<bool>(&verbose)->default_value(
-						DEFAULTVERBOSE),
-				"Whether additional information should be emitted")(
-				"processingCycles",
-				po::value<boost::uint32_t>(&processingCycles)->default_value(
-						DEFAULTPROCESSINGCYCLES),
-				"The maximum number of cycles a client should perform adaptions before it returns without success")(
-				"returnRegardless",
-				po::value<bool>(&returnRegardless)->default_value(
-						DEFAULTRETURNREGARDLESS),
-				"Specifies whether results should be returned even if they are not better than before")(
-				"waitFactor",
-				po::value<boost::uint32_t>(&waitFactor)->default_value(
-						DEFAULTGBTCWAITFACTOR),
-				"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")(
-				"adProb", po::value<double>(&adProb)->default_value(
-						DEFAULTGDAADPROB),
-				"Specifies the likelihood for adaptions to be actually carried out")(
-				"adaptionThreshold", po::value<boost::uint32_t>(
-						&adaptionThreshold)->default_value(
-						DEFAULTADAPTIONTHRESHOLD),
-				"Number of calls to adapt() after which adaption parameters should be modified")(
-				"sigma",
-				po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
-				"The width of the gaussian used for the adaption of double values")(
-				"sigmaSigma", po::value<double>(&sigmaSigma)->default_value(
-						DEFAULTSIGMASIGMA), "The adaption rate of sigma")(
-				"minSigma", po::value<double>(&minSigma)->default_value(
-						DEFAULTMINSIGMA), "The minimum allowed value for sigma")(
-				"maxSigma", po::value<double>(&maxSigma)->default_value(
-						DEFAULTMAXSIGMA), "The maximum allowed value for sigma")(
-				"parDim", po::value<std::size_t>(&parDim)->default_value(
-						DEFAULTPARDIM),
-				"The amount of variables in the parabola")("minVar", po::value<
-				double>(&minVar)->default_value(DEFAULTMINVAR),
-				"The lower boundary for all variables")("maxVar", po::value<
-				double>(&maxVar)->default_value(DEFAULTMAXVAR),
-				"The upper boundary for all variables")(
-				"evalFunction",
-				po::value<boost::uint16_t>(&evalFunction),
-				"The id of the evaluation function. Allowed values: 0 (parabola), 1 (noisy parabola), 2 (rosenbrock)");
+		config.add_options()
+			("nProducerThreads", po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),
+			"The amount of random number producer threads")
+			("nEvaluationThreads", po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
+			"The amount of threads processing individuals simultaneously")
+			("populationSize", po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
+			"The size of the super-population")
+			("nParents", po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
+			"The number of parents in the population") // Needs to be treated separately
+			("maxIterations", po::value<boost::uint32_t>(&maxIterations)->default_value(DEFAULTMAXITERATIONS),
+			"Maximum number of iterations in the population")
+			("maxMinutes",	po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
+			"The maximum number of minutes the optimization of the population should run")
+			("reportIteration",	po::value<boost::uint32_t>(&reportIteration)->default_value(DEFAULTREPORTITERATION),
+			"The number of iterations after which information should be emitted in the super-population")
+			("rScheme",	po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
+			"The recombination scheme for the super-population")
+			("sortingScheme,o",	po::value<boost::uint16_t>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
+			"Determines whether sorting is done in MUPLUSNU (0), MUCOMMANU (1)  or MUNU1PRETAIN (2) mode")
+			("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
+			"The size of the buffer with random arrays in the random factory")
+			("verbose", po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
+			"Whether additional information should be emitted")
+			("processingCycles", po::value<boost::uint32_t>(&processingCycles)->default_value(DEFAULTPROCESSINGCYCLES),
+			"The maximum number of cycles a client should perform adaptions before it returns without success")
+			("returnRegardless", po::value<bool>(&returnRegardless)->default_value(DEFAULTRETURNREGARDLESS),
+			"Specifies whether results should be returned even if they are not better than before")
+			("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
+			"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
+			("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
+			"Specifies the likelihood for adaptions to be actually carried out")
+			("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+			"Number of calls to adapt() after which adaption parameters should be modified")
+			("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
+			"The width of the gaussian used for the adaption of double values")
+			("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
+			"The adaption rate of sigma")
+			("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
+			"The minimum allowed value for sigma")
+			("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
+			"The maximum allowed value for sigma")
+			("parDim", po::value<std::size_t>(&parDim)->default_value(DEFAULTPARDIM),
+			"The amount of variables in the parabola")
+			("minVar", po::value<double>(&minVar)->default_value(DEFAULTMINVAR),
+			"The lower boundary for all variables")
+			("maxVar", po::value<double>(&maxVar)->default_value(DEFAULTMAXVAR),
+			"The upper boundary for all variables")
+			("evalFunction",po::value<boost::uint16_t>(&evalFunction),
+			"The id of the evaluation function."
+		);
 
 		po::variables_map vm;
 		std::ifstream ifs(configFile.c_str());
@@ -251,15 +242,23 @@ bool parseConfigFile(const std::string& configFile,
 		}
 
 		// Workaround for assigment problem with rScheme
-		if (recombinationScheme == (boost::uint16_t) VALUERECOMBINE)
-			rScheme = VALUERECOMBINE;
-		else if (recombinationScheme == (boost::uint16_t) RANDOMRECOMBINE)
-			rScheme = RANDOMRECOMBINE;
-		else if (recombinationScheme == (boost::uint16_t) DEFAULTRECOMBINE)
-			rScheme = DEFAULTRECOMBINE;
+		if (recombinationScheme == (boost::uint16_t) VALUERECOMBINE)        rScheme = VALUERECOMBINE;
+		else if (recombinationScheme == (boost::uint16_t) RANDOMRECOMBINE)	rScheme = RANDOMRECOMBINE;
+		else if (recombinationScheme == (boost::uint16_t) DEFAULTRECOMBINE)	rScheme = DEFAULTRECOMBINE;
 		else {
-			std::cout << "Error: Invalid recombination scheme in population: "
-					<< recombinationScheme << std::endl;
+			std::cout << "Error: Invalid recombination scheme in population: " << recombinationScheme << std::endl;
+			return false;
+		}
+
+		// Convert sorting scheme to desired target type
+		if (sortingScheme == (boost::uint16_t) MUPLUSNU)
+			smode = MUPLUSNU;
+		else if (sortingScheme == (boost::uint16_t) MUCOMMANU)
+			smode = MUCOMMANU;
+		else if (sortingScheme == (boost::uint16_t) MUNU1PRETAIN)
+			smode = MUNU1PRETAIN;
+		else {
+			std::cout << "Error: Invalid sorting scheme in population: " << sortingScheme << std::endl;
 			return false;
 		}
 

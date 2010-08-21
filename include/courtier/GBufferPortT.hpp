@@ -99,7 +99,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "original" queue
 	 */
-	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getOriginal() {
+	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getOriginalQueue() {
 		return original_;
 	}
 
@@ -109,7 +109,7 @@ public:
 	 *
 	 * @return A shared_ptr with the "processed" queue
 	 */
-	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getProcessed() {
+	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > getProcessedQueue() {
 		return processed_;
 	}
 
@@ -126,7 +126,7 @@ public:
 	/*****************************************************************************/
 	/**
 	 * Timed version of GBufferPortT::push_front_orig() . If the item could not be added
-	 * after sec seconds and msec milliseconds, the function returns. Note that a time_out
+	 * after a given amount of time, the function returns. Note that a time_out
 	 * exception will be thrown in this case.
 	 *
 	 * @param item An item to be added to the buffer
@@ -134,6 +134,19 @@ public:
 	 */
 	inline void push_front_orig(const T& item, const boost::posix_time::time_duration& timeout) {
 		original_->push_front(item, timeout);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Timed version of GBufferPortT::push_front_orig() that return a boolean
+	 * indicating whether an item could be submitted
+	 *
+	 * @param item An item to be added to the buffer
+	 * @param timeout duration until a timeout occurs
+	 * @return A boolean indicating whether an item could be submitted
+	 */
+	inline bool push_front_orig_bool(const T& item, const boost::posix_time::time_duration& timeout) {
+		return original_->push_front_bool(item, timeout);
 	}
 
 	/*****************************************************************************/
@@ -148,14 +161,28 @@ public:
 	/*****************************************************************************/
 	/**
 	 * A version of GBufferPortT::push_back_orig() with the ability to time-out. Note
-	 * that a time_out exception will be thrown by original_ if the time-out was
-	 * reached. It needs to be caught by the calling function.
+	 * that an exception will be thrown by original_ if the time-out was reached. It
+	 * needs to be caught by the calling function.
 	 *
 	 * @param item The item that was retrieved from the queue
 	 * @param timeout duration until a timeout occurs
 	 */
 	inline void pop_back_orig(T *item, const boost::posix_time::time_duration& timeout) {
 		original_->pop_back(item, timeout);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * A version of GBufferPortT::push_back_orig() with the ability to time-out. Instead
+	 * of throwing an exception it will return a boolean indicating whether an item
+	 * could be retrieved.
+	 *
+	 * @param item The item that was retrieved from the queue
+	 * @param timeout duration until a timeout occurs
+	 * @return A boolean indicating whether an item could be retrieved
+	 */
+	inline bool pop_back_orig_bool(T *item, const boost::posix_time::time_duration& timeout) {
+		return original_->pop_back_bool(item, timeout);
 	}
 
 	/*****************************************************************************/
@@ -170,15 +197,28 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * Timed version of GBufferPortT::putProc() . If the item could not be added
-	 * after sec seconds and msec milliseconds, a timed_out exception will be thrown
-	 * by processed_.
+	 * Timed version of GBufferPortT::push_front_processed() . If the item could not
+	 * be added after a given amount of time, a timed_out exception will be thrown by
+	 * processed_.
 	 *
 	 * @param item An item to be added to the buffer
 	 * @param timeout duration until a timeout occurs
 	 */
 	inline void push_front_processed(const T& item, const boost::posix_time::time_duration& timeout) {
 		processed_->push_front(item, timeout);
+	}
+
+	/*****************************************************************************/
+	/**
+	 * Timed version of GBufferPortT::push_front_processed() that returns a boolean
+	 * indicating whether an item could be submitted.
+	 *
+	 * @param item An item to be added to the buffer
+	 * @param timeout duration until a timeout occurs
+	 * @return A boolean indicating whether an item could be submitted
+	 */
+	inline bool push_front_processed_bool(const T& item, const boost::posix_time::time_duration& timeout) {
+		return processed_->push_front_bool(item, timeout);
 	}
 
 	/*****************************************************************************/
@@ -194,7 +234,7 @@ public:
 
 	/*****************************************************************************/
 	/**
-	 * A version of GBufferPortT::getProc() with the ability to time-out. If the
+	 * A version of GBufferPortT::pop_back_processed() with the ability to time-out. If the
 	 * time-out was reached, processed_ will throw a time_out exception.
 	 *
 	 * @param item The item that was retrieved from the queue
@@ -205,7 +245,20 @@ public:
 	}
 
 	/*****************************************************************************/
+	/**
+	 * A version of GBufferPortT::pop_back_processed() with the ability to time-out.
+	 * Instead of throwing an exception, it will return a boolean indicating whether
+	 * an item could be retrieved.
+	 *
+	 * @param item The item that was retrieved from the queue
+	 * @param timeout duration until a timeout occurs
+	 * @return A boolean indicating whether an item could be retrieved
+	 */
+	inline bool pop_back_processed_bool(T* item, const boost::posix_time::time_duration& timeout) {
+		return processed_->pop_back_bool(item, timeout);
+	}
 
+	/*****************************************************************************/
 private:
 	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > original_; ///< The queue for raw objects
 	boost::shared_ptr<Gem::Common::GBoundedBufferWithIdT<T> > processed_; ///< The queue for processed objects

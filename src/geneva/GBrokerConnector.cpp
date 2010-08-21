@@ -47,9 +47,7 @@ namespace Geneva
  */
 GBrokerConnector::GBrokerConnector()
     : waitFactor_(DEFAULTBROKERWAITFACTOR)
-    , maxWaitFactor_(DEFAULTBROKERMAXWAITFACTOR)
     , firstTimeOut_(boost::posix_time::duration_from_string(DEFAULTBROKERFIRSTTIMEOUT))
-    , loopTime_(boost::posix_time::milliseconds(DEFAULTBROKERLOOPMSEC))
     , doLogging_(false)
 { /* nothing */ }
 
@@ -61,9 +59,7 @@ GBrokerConnector::GBrokerConnector()
  */
 GBrokerConnector::GBrokerConnector(const GBrokerConnector& cp)
 	: waitFactor_(cp.waitFactor_)
-	, maxWaitFactor_(cp.maxWaitFactor_)
 	, firstTimeOut_(cp.firstTimeOut_)
-	, loopTime_(cp.loopTime_)
 	, doLogging_(cp.doLogging_)
 { /* nothing */ }
 
@@ -95,9 +91,7 @@ const GBrokerConnector& GBrokerConnector::operator=(const GBrokerConnector& cp) 
  */
 void GBrokerConnector::load(GBrokerConnector const * const cp) {
 	waitFactor_ = cp->waitFactor_;
-	maxWaitFactor_ = cp->maxWaitFactor_;
 	firstTimeOut_ = cp->firstTimeOut_;
-	loopTime_ = cp->loopTime_;
 	doLogging_ = cp->doLogging_;
 }
 
@@ -129,9 +123,7 @@ boost::optional<std::string> GBrokerConnector::checkRelationshipWith(
 
 	// Check the local local data
 	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", waitFactor_, cp.waitFactor_, "waitFactor_", "cp.waitFactor_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", maxWaitFactor_, cp.maxWaitFactor_, "maxWaitFactor_", "cp.maxWaitFactor_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", firstTimeOut_, cp.firstTimeOut_, "firstTimeOut_", "cp.firstTimeOut_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", loopTime_, cp.loopTime_, "loopTime_", "cp.loopTime_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GBrokerConnector", doLogging_, cp.doLogging_, "doLogging_", "cp.doLogging_", e , limit));
 
 	return evaluateDiscrepancies("GBrokerConnector", caller, deviations, e);
@@ -179,43 +171,12 @@ void GBrokerConnector::setWaitFactor(const boost::uint32_t& waitFactor)  {
 
 /************************************************************************************************************/
 /**
- * Sets the waitFactor_ and the maximumWaitFactor_ variable. If the latter is
- * != 0, the waitFactor_ will be automatically adapted, based on the number of
- * older individuals received.
- *
- * @param waitFactor The desired new value for waitFactor_ .
- */
-void GBrokerConnector::setWaitFactor(const boost::uint32_t& waitFactor, const boost::uint32_t& maxWaitFactor)  {
-	// Do error checks
-	if(maxWaitFactor && maxWaitFactor < waitFactor) {
-		std::ostringstream error;
-		error << "In GBrokerConnector::setWaitFactor(uint32_t, uint32_t) : Error!" << std::endl
-			  << "invalid maximum wait factor: " << maxWaitFactor << " < " << waitFactor << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
-	}
-
-	waitFactor_ = waitFactor;
-	maxWaitFactor_ = maxWaitFactor;
-}
-
-/************************************************************************************************************/
-/**
  * Retrieves the waitFactor_ variable.
  *
  * @return The value of the waitFactor_ variable
  */
 boost::uint32_t GBrokerConnector::getWaitFactor() const  {
 	return waitFactor_;
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the maxWaitFactor_ variable.
- *
- * @return The value of the maxWaitFactor_ variable
- */
-boost::uint32_t GBrokerConnector::getMaxWaitFactor() const  {
-	return maxWaitFactor_;
 }
 
 /************************************************************************************************************/
@@ -242,36 +203,6 @@ boost::posix_time::time_duration GBrokerConnector::getFirstTimeOut() const {
 
 /************************************************************************************************************/
 /**
- * When retrieving items from the GBoundedBufferT queue, a time-out factor can be set with this function. The
- * default values is DEFAULTBROKERLOOPMSEC. A minimum value of 1 micro second is required.
- *
- * @param loopTime Timeout until an item was retrieved from the GBoundedBufferT
- */
-void GBrokerConnector::setLoopTime(const boost::posix_time::time_duration& loopTime) {
-	// Only allow "real" values
-	if(loopTime.is_special() || loopTime.is_negative() || loopTime.total_microseconds()==0) {
-		std::ostringstream error;
-		error << "In GBrokerConnector::setLoopTime() : Error!" << std::endl
-			  << "loopTime is invalid" << std::endl;
-
-		throw Gem::Common::gemfony_error_condition(error.str());
-	}
-
-	loopTime_ = loopTime;
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the value of the loopTime_ variable
- *
- * @return The value of the loopTime_ variable
- */
-boost::posix_time::time_duration GBrokerConnector::getLoopTime() const {
-	return loopTime_;
-}
-
-/************************************************************************************************************/
-/**
  * Allows to specify whether logging of arrival times of individuals should be done. Note that only
  * arrival times of individuals of the current generation are logged. This also allows to find out
  * how many individuals did not return before the deadline.
@@ -294,6 +225,17 @@ bool GBrokerConnector::loggingActivated() const {
 
 /************************************************************************************************************/
 /**
+ * Instructs GBrokerConnector to performing logging activities
+ */
+void GBrokerConnector::log() {
+	// Log arrival times if requested by the user
+	if(doLogging_) {
+		arrivalTimes_.back().push_back((boost::posix_time::microsec_clock::local_time()-iterationStartTime_).total_milliseconds());
+	}
+}
+
+/************************************************************************************************************/
+/**
  * Allows to retrieve the logging results
  *
  * @return A vector containing the logging results
@@ -302,6 +244,111 @@ std::vector<std::vector<boost::uint32_t> > GBrokerConnector::getLoggingResults()
 	return arrivalTimes_;
 }
 
+/************************************************************************************************************/
+/**
+ * Performs necessary initialization work after an optimization run
+ */
+void GBrokerConnector::init() {
+	CurrentBufferPort_ = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<boost::shared_ptr<Gem::Geneva::GIndividual> >());
+	GINDIVIDUALBROKER->enrol(CurrentBufferPort_);
+}
+
+/************************************************************************************************************/
+/**
+ * Performs necessary finalization work after an optimization run
+ */
+void GBrokerConnector::finalize() {
+	// Remove the GBufferPortT object. The broker only holds shared_ptr's to the
+	// two objects contained therein, which are not invalidated, but become unique.
+	// This is a selection criterion which lets the broker remove surplus buffer
+	// twins.
+	CurrentBufferPort_.reset();
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to perform any work necessary to be repeated in each new iteration.
+ */
+void GBrokerConnector::markNewIteration() {
+	// If logging is enabled, add a std::vector<boost::uint32_t> for the current iteration
+	// to arrivalTimes_
+	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to submit GIndividual-derivatives.
+ *
+ * @param gi A boost::shared_ptr to a GIndividual-derivative
+ */
+void GBrokerConnector::submit(boost::shared_ptr<GIndividual> gi) {
+	CurrentBufferPort_->push_front_orig(gi);
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieval of the first item of an iteration. This is a specialization for ind_type == GIndividual
+ */
+template <>
+boost::shared_ptr<GIndividual> GBrokerConnector::retrieveFirstItem<GIndividual>() {
+	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
+
+	// Holds the retrieved item
+	boost::shared_ptr<GIndividual> p;
+
+	if(firstTimeOut_.total_microseconds()) { // Wait for a given maximum amount of time
+		// This function will return false if we have reached the timeout
+		// We cannot continue in this case. It is recommended to set this
+		// variable to a rather high value.
+		if(!CurrentBufferPort_->pop_back_processed_bool(&p, firstTimeOut_)) {
+			std::ostringstream error;
+			error << "In GBrokerConnector::retrieveFirstItem(): Error!" << std::endl
+				  << "Timeout for first item reached." << std::endl
+				  << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
+				  << "You can change this value with the setFirstTimeOut() function." << std::endl;
+			throw Gem::Common::gemfony_error_condition(error.str());
+		}
+	}
+	else { // Wait indefinitely for the first item to return
+		CurrentBufferPort_->pop_back_processed(&p);
+	}
+
+	// At this point we have received the first individual of the current generation back.
+
+	// Record the elapsed time
+	totalElapsedFirst_ = boost::posix_time::microsec_clock::local_time()-iterationStartTime_;
+
+	// The total time that may have elapsed since the start of the retrieval procedure. A
+	// waitFactor_ of 1 thus means that, after we have received the first individual, we
+	// wait the same amount of time for further individuals to return from their journey.
+	maxAllowedElapsed_ = totalElapsedFirst_ * (waitFactor_ + 1);
+
+	return p;
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieval of individuals and conversion to target type. This function will
+ * return individuals as long as the elapsed time hasn't surpassed the allotted
+ * time-frame. Once this has happened, it will return an empty pointer.
+ *
+ * @return An individual from the processed queue, converted to the desired target type
+ */
+template <>
+boost::shared_ptr<GIndividual> GBrokerConnector::retrieveItem<GIndividual>() {
+	// Will hold retrieved items or stay empty, if none could be retrieved
+	boost::shared_ptr<GIndividual> p;
+
+	if(waitFactor_) { // Have we been asked to take into account a possible time-out ?
+	   if(!CurrentBufferPort_->pop_back_processed_bool(&p,	maxAllowedElapsed_-(boost::posix_time::microsec_clock::local_time()-iterationStartTime_))) {
+		   p.reset(); // Make sure it is empty if we have encountered a time-out
+	   }
+	} else {// Wait indefinitely for the next item
+		CurrentBufferPort_->pop_back_processed(&p);
+	}
+
+	return p;
+}
 
 #ifdef GENEVATESTING
 /************************************************************************************************************/
