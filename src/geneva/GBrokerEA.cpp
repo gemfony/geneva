@@ -362,7 +362,8 @@ void GBrokerEA::adaptChildren() {
 		}
 
 		// Mark as complete, if a full set of children (and parents in iteration 0 / MUPLUSNU / MUNU1PRETAIN)
-		// has returned. Older individuals may return in the next iterations, unless they are parents.
+		// of the current iteration has returned. Older individuals may return in the next iterations, unless
+		// they are parents.
 		if(iteration == 0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)) {
 			if(nReceivedParent+nReceivedChildCurrent==np+getDefaultNChildren()) {
 				complete=true;
@@ -374,6 +375,7 @@ void GBrokerEA::adaptChildren() {
 		}
 	}
 
+	// If parents have been evaluated, make sure they are at the beginning of the array.
 	if(iteration==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
