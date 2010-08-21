@@ -127,9 +127,9 @@ public:
 	/** @brief Multiplies double-based parameters with a given value */
 	virtual void fpMultiplyBy(const float& val);
 	/** @brief Multiplies with a random floating point number in a given range */
-	virtual void fpRandomMultiplyBy(const float&, const float&);
+	virtual void fpMultiplyByRandom(const float&, const float&);
 	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
-	virtual void fpRandomMultiplyBy();
+	virtual void fpMultiplyByRandom();
 	/** @brief Adds the floating point parameters of another GParameterBase object to this one */
 	virtual void fpAdd(boost::shared_ptr<GParameterBase>);
 	/** @brief Subtract the floating point parameters of another GParameterBase object from this one */

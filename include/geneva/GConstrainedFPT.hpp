@@ -429,7 +429,7 @@ public:
 	 * @param min The lower boundary for random number generation
 	 * @param max The upper boundary for random number generation
 	 */
-	virtual void fpRandomMultiplyBy(const float& min, const float& max)	{
+	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
 		using namespace Gem::Hap;
 		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
 		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * gr.uniform_real(T(min), T(max))));
@@ -442,7 +442,7 @@ public:
 	 * representation will then be transferred back to an external value in the allowed
 	 * value range.
 	 */
-	virtual void fpRandomMultiplyBy() {
+	virtual void fpMultiplyByRandom() {
 		using namespace Gem::Hap;
 		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
 		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * gr.uniform_01()));

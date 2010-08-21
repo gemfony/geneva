@@ -59,40 +59,81 @@
 #include "courtier/GBufferPortT.hpp"
 #include "GSwarmPersonalityTraits.hpp"
 #include "GSwarm.hpp"
-#include "GIndividual.hpp"
+#include "GBrokerConnector.hpp"
 
-namespace Gem {
-namespace Geneva {
-
-/**********************************************************************************/
-/**
- * The default factor applied to the turn-around time
- * of the first individual in the first generation. Used to
- * find a suitable timeout-value for following individuals.
- */
-const boost::uint32_t DEFAULTSWARMWAITFACTOR = 20;
-
-/**
- * The default maximum value of the wait factor used during automatic
- * adaption of the waitFactor_ variable. If set to 0, no automatic
- * adaption will take place.
- */
-const boost::uint32_t DEFAULTSWARMMAXWAITFACTOR = 0;
-
-/**
- * The default allowed time in seconds for the first individual
- * in generation 0 to return. Set it to 0 to disable this timeout.
- */
-const std::string DEFAULTSWARMFIRSTTIMEOUT = EMPTYDURATION;  // defined in GOptimizationEnums
-
-/**
- * The default number of milliseconds before the broker times out
- */
-const boost::uint32_t DEFAULTSWARMLOOPMSEC = 20;
+namespace Gem
+{
+namespace Geneva
+{
 
 /**********************************************************************************/
+/**
+ * This class implements a swarm algorithm with the ability to delegate certain
+ * tasks to remote clients, using Geneva's broker infrastructure.
+ */
+class GBrokerSwarm
+  : public GSwarm
+  , public GBrokerConnector
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+		using boost::serialization::make_nvp;
 
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSwarm)
+		   & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBrokerConnector);
+	}
+	///////////////////////////////////////////////////////////////////////
+
+public:
+	/** @brief The standard constructor */
+    GBrokerSwarm(const std::size_t&, const std::size_t&);
+    /** @brief A standard copy constructor */
+    GBrokerSwarm(const GBrokerSwarm&);
+    /** @brief The standard destructor */
+    virtual ~GBrokerSwarm();
+
+    /** @brief A standard assignment operator */
+    const GBrokerSwarm& operator=(const GBrokerSwarm&);
+
+	/** @brief Checks for equality with another GBrokerSwarm object */
+	bool operator==(const GBrokerSwarm&) const;
+	/** @brief Checks for inequality with another GBrokerSwarm object */
+	bool operator!=(const GBrokerSwarm&) const;
+
+	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
+	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+
+	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+	virtual double cycleLogic();
+	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
+	virtual void init();
+	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
+	virtual void finalize();
+
+protected:
+    /** @brief Loads the data of another GTransfer Population */
+    virtual void load_(const GObject *);
+    /** @brief Creates a deep copy of this object */
+    virtual GObject *clone_() const;
+
+	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes. */
+	GBrokerSwarm(){}
+
+    /*********************************************************************************/
+
+#ifdef GENEVATESTING
+public:
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	virtual bool modify_GUnitTests();
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	virtual void specificTestsNoFailureExpected_GUnitTests();
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests();
+#endif /* GENEVATESTING */
+};
 
 /**********************************************************************************/
 

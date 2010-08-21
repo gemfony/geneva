@@ -280,11 +280,11 @@ void GParameterSet::fpMultiplyBy(const float& val) {
  * @param min The lower boundary for random number generation
  * @param max The upper boundary for random number generation
  */
-void GParameterSet::fpRandomMultiplyBy(const float& min, const float& max) {
+void GParameterSet::fpMultiplyByRandom(const float& min, const float& max) {
 	// Loop over all GParameterBase objects
 	GParameterSet::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->fpRandomMultiplyBy(min, max);
+		(*it)->fpMultiplyByRandom(min, max);
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
@@ -295,11 +295,11 @@ void GParameterSet::fpRandomMultiplyBy(const float& min, const float& max) {
 /**
  * Triggers multiplication of floating point parameters with a random floating point number in the range [0,1[
  */
-void GParameterSet::fpRandomMultiplyBy() {
+void GParameterSet::fpMultiplyByRandom() {
 	// Loop over all GParameterBase objects
 	GParameterSet::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->fpRandomMultiplyBy();
+		(*it)->fpMultiplyByRandom();
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set

@@ -231,7 +231,7 @@ public:
 	 * @param min The lower boundary for random number generation
 	 * @param max The upper boundary for random number generation
 	 */
-	void fpRandomMultiplyBy(const float& min, const float& max)	{
+	void fpMultiplyByRandom(const float& min, const float& max)	{
 		using namespace Gem::Hap;
 		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
 		GParameterT<T>::setValue(GParameterT<T>::value() * gr.uniform_real(T(min), T(max)));
@@ -241,7 +241,7 @@ public:
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
-	void fpRandomMultiplyBy() {
+	void fpMultiplyByRandom() {
 		using namespace Gem::Hap;
 		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
 		GParameterT<T>::setValue(GParameterT<T>::value() * gr.uniform_01());

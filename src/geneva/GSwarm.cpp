@@ -621,8 +621,8 @@ void GSwarm::swarmLogic(
 	global_best_tmp->fpSubtract(ind);
 
 	// Multiply each floating point value with a random fp number in the range [0,1[
-	local_best_tmp->fpRandomMultiplyBy();
-	global_best_tmp->fpRandomMultiplyBy();
+	local_best_tmp->fpMultiplyByRandom();
+	global_best_tmp->fpMultiplyByRandom();
 
 	// Multiply each floating point value with a fixed, configurable constant value
 	local_best_tmp->fpMultiplyBy(cLocal);

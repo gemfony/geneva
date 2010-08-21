@@ -253,10 +253,10 @@ public:
 	 * @param min The lower boundary for random number generation
 	 * @param max The upper boundary for random number generation
 	 */
-	virtual void fpRandomMultiplyBy(const float& min, const float& max)	{
+	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->fpRandomMultiplyBy(min, max);
+			(*it)->fpMultiplyByRandom(min, max);
 		}
 	}
 
@@ -264,10 +264,10 @@ public:
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
-	virtual void fpRandomMultiplyBy() {
+	virtual void fpMultiplyByRandom() {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->fpRandomMultiplyBy();
+			(*it)->fpMultiplyByRandom();
 		}
 	}
 

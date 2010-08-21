@@ -114,9 +114,9 @@ public:
 	void randomInit();
 
 	/** @brief Multiplies with a random floating point number in a given range */
-	void fpRandomMultiplyBy(const float&, const float&);
+	void fpMultiplyByRandom(const float&, const float&);
 	/** @brief Multiplies with a random floating point number in the range [0, 1[ */
-	void fpRandomMultiplyBy();
+	void fpMultiplyByRandom();
 
 	/** @brief Multiplies floating-point parameters with a given value */
 	void fpMultiplyBy(const float& val);

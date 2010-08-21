@@ -227,7 +227,7 @@ void GParameterBase::fpMultiplyBy(const float& val)
  * @param min The lower boundary for random number generation
  * @param max The upper boundary for random number generation
  */
-void GParameterBase::fpRandomMultiplyBy(const float& min, const float& max)
+void GParameterBase::fpMultiplyByRandom(const float& min, const float& max)
 { /* do nothing by default */ }
 
 /**********************************************************************************/
@@ -238,7 +238,7 @@ void GParameterBase::fpRandomMultiplyBy(const float& min, const float& max)
  * this function and thus uses this empty stub. A floating-point-based parameter
  * re-implements this function and takes appropriate action.
  */
-void GParameterBase::fpRandomMultiplyBy()
+void GParameterBase::fpMultiplyByRandom()
 { /* do nothing by default */ }
 
 /**********************************************************************************/
