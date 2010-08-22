@@ -506,89 +506,124 @@ double GIndividual::checkedFitness(){
  */
 bool GIndividual::process(){
 	switch(pers_) {
+	//-------------------------------------------------------------------------------------------------------
 	case EA: // Evolutionary Algorithm
-	{
-		bool gotUsefulResult = false;
-		bool previous=setAllowLazyEvaluation(false);
-		if(getPersonalityTraits()->getCommand() == "adapt") {
-			if(processingCycles_ == 1 || getParentAlgIteration() == 0) {
-				adapt();
-				gotUsefulResult = true;
-			}
-			else{
-				// Retrieve this object's current fitness.
-				bool isDirty=false;
-				double originalFitness = getCurrentFitness(isDirty);
+		{
+			bool gotUsefulResult = false;
+			bool previous=setAllowLazyEvaluation(false);
+			if(getPersonalityTraits()->getCommand() == "adapt") {
+				if(processingCycles_ == 1 || getParentAlgIteration() == 0) {
+					adapt();
+					gotUsefulResult = true;
+				}
+				else{
+					// Retrieve this object's current fitness.
+					bool isDirty=false;
+					double originalFitness = getCurrentFitness(isDirty);
 
 #ifdef DEBUG
-				// Individuals that arrive here for adaption should be "clean"
-				if(isDirty) {
-					std::ostringstream error;
-					error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl;
-					throw Gem::Common::gemfony_error_condition(error.str());
-				}
+					// Individuals that arrive here for adaption should be "clean"
+					if(isDirty) {
+						std::ostringstream error;
+						error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl;
+						throw Gem::Common::gemfony_error_condition(error.str());
+					}
 #endif /* DEBUG */
 
-				// Record the number of processing cycles
-				boost::uint32_t nCycles=0;
+					// Record the number of processing cycles
+					boost::uint32_t nCycles=0;
 
-				// Will hold a copy of this object
-				boost::shared_ptr<GIndividual> p;
+					// Will hold a copy of this object
+					boost::shared_ptr<GIndividual> p;
 
-				// Indicates whether a better solution was found
-				bool success = false;
+					// Indicates whether a better solution was found
+					bool success = false;
 
-				// Loop until a better solution was found or the maximum number of attempts was reached
-				while(true) {
-					// Create a copy of this object
-					p = clone<GIndividual>();
+					// Loop until a better solution was found or the maximum number of attempts was reached
+					while(true) {
+						// Create a copy of this object
+						p = clone<GIndividual>();
 
-					// Adapt and check fitness. Leave if a better solution was found
-					p->adapt();
-					if((!maximize_ && p->fitness() < originalFitness) ||
-							(maximize_ && p->fitness() > originalFitness))
-					{
-						success = true;
-						break;
+						// Adapt and check fitness. Leave if a better solution was found
+						p->adapt();
+						if((!maximize_ && p->fitness() < originalFitness) || (maximize_ && p->fitness() > originalFitness))	{
+							success = true;
+							break;
+						}
+
+						// Leave if the maximum number of cycles was reached. Will continue
+						// to loop if processingCycles_ is 0 (dangerous!)
+						if(processingCycles_ && nCycles++ >= processingCycles_) break;
 					}
 
-					// Leave if the maximum number of cycles was reached. Will continue
-					// to loop if processingCycles_ is 0 (dangerous!)
-					if(processingCycles_ && nCycles++ >= processingCycles_) break;
+					// Load the last tested solution into this object
+					GObject::load(p);
+
+					// If a better solution was found, let the audience know
+					if(success) gotUsefulResult = true;
 				}
-
-				// Load the last tested solution into this object
-				GObject::load(p);
-
-				// If a better solution was found, let the audience know
-				if(success) gotUsefulResult = true;
 			}
-		}
-		else if(getPersonalityTraits()->getCommand() == "evaluate") {
-			fitness();
-			gotUsefulResult = true;
-		}
-		else {
-			std::ostringstream error;
-			error << "In GIndividual::process(): Unknown command: \""
-					<< getPersonalityTraits()->getCommand() << "\"" << std::endl;
+			else if(getPersonalityTraits()->getCommand() == "evaluate") {
+				fitness();
+				gotUsefulResult = true;
+			}
+			else {
+				std::ostringstream error;
+				error << "In GIndividual::process(//EA//): Unknown command: \""
+						<< getPersonalityTraits()->getCommand() << "\"" << std::endl;
 
-			throw Gem::Common::gemfony_error_condition(error.str());
+				throw Gem::Common::gemfony_error_condition(error.str());
+			}
+			setAllowLazyEvaluation(previous);
+
+			return gotUsefulResult;
 		}
-		setAllowLazyEvaluation(previous);
+		break;
 
-		return gotUsefulResult;
-	}
-	break;
+	case SWARM:
+		{
+			bool previous=setAllowLazyEvaluation(false);
+			if(getPersonalityTraits()->getCommand() == "evaluate") {
+				// Trigger fitness calculation
+				fitness();
 
+				/*
+				// We do not necessarily need to return any data to the server in a swarm,
+				// as no parameter changes happen in the client. Hence we could reset our
+				// internal data structures, so that only the fitness gets transported back
+				// to the server. Resetting happens by removing all GParameterBase-derivatives
+				// from our list. The server then only needs to load the fitness into its local
+				// individuals and reset their dirty flags. On the down side, this makes it
+				// impossible to re-integrate late arrivals into the server, as the information
+				// about the parameter structure is lost (or the server would have to keep track
+				// of all individuals that didn't return, which would really complicate things).
+				this->clear();
+				*/
+			}
+			else {
+				std::ostringstream error;
+				error << "In GIndividual::process(//SWARM//): Unknown command: \""
+					  << getPersonalityTraits()->getCommand() << "\"" << std::endl;
+
+				throw Gem::Common::gemfony_error_condition(error.str());
+			}
+			setAllowLazyEvaluation(previous);
+
+			// Processing in swarms will always yield useful results, regardless of
+			// whether a better solution was found than previously known.
+			return true;
+		}
+		break;
+
+	//-------------------------------------------------------------------------------------------------------
 	default:
-	{
-		std::ostringstream error;
-		error << "In GIndividual::process(): Error" << std::endl
-			  << "Processing for invalid algorithm requested" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
-	break;
+		{
+			std::ostringstream error;
+			error << "In GIndividual::process(): Error" << std::endl
+				  << "Processing for invalid algorithm requested" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+		break;
 	}
 }
 
@@ -700,6 +735,20 @@ void GIndividual::setNStalls(const boost::uint32_t& nStalls) {
  */
 boost::uint32_t GIndividual::getNStalls() const {
 	return nStalls_;
+}
+
+/************************************************************************************************************/
+/**
+ * Loads the fitness of another GIndividual-derivative and clears the dirty flag. This is useful if a remote
+ * entity is only tasked with evaluating an individual, without applying any other modifications (such as
+ * mutating its parameters). In this situation it can make sense to only transport part of the individual
+ * (most notably its fitness) back to the server in order to reduce possible overhead.
+ *
+ * @param cp A copy of another GIndividual-derivative
+ */
+void GIndividual::loadFitnessAndClean(const boost::shared_ptr<GIndividual>& cp) {
+	currentFitness_ = cp->currentFitness_;
+	setDirtyFlag(false);
 }
 
 #ifdef GENEVATESTING

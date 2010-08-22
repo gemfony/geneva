@@ -179,6 +179,9 @@ public:
 	/** @brief Allows to randomly initialize parameter members */
 	virtual void randomInit() = 0;
 
+	/** @brief Loads the fitness of another GIndividual-derivative and clears the dirty flag */
+	void loadFitnessAndClean(const boost::shared_ptr<GIndividual>&);
+
 	/**********************************************************************/
 	/**
 	 * The function converts the local personality to the desired type and

@@ -232,15 +232,15 @@ void GBrokerSwarm::updateFitness(std::size_t neighborhood, boost::shared_ptr<GPa
  */
 void GBrokerSwarm::swarmLogic() {
 	//--------------------------------------------------------------------------------
-	// This function will call the overloaded GBrokerSwarm::updateFitness() function
+	// This function will call the overloaded GBrokerSwarm::updateFitness() function,
+	// so that all individuals are submitted to the broker.
 	GSwarm::swarmLogic();
 
 	//--------------------------------------------------------------------------------
 	// We can now wait for the individuals to return from their journey.
 	std::size_t nReceivedCurrent = 0;
 	std::size_t nReceivedOlder   = 0;
-
-	/*
+/*
 	// First wait for the first individual of the current iteration to arrive.
 	// Individuals from older iterations will also be accepted in this loop.
 	while(true) {
