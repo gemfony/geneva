@@ -228,7 +228,14 @@ void GMultiThreadedSwarm::swarmLogic() {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			GMultiThreadedSwarm::iterator current = start + offset;
 
-			if(iteration > 0 && !(*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
+			if(iteration == 0 || (*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
+				tp_.schedule(boost::bind(&GMultiThreadedSwarm::updateFitness,
+						this
+					  , neighborhood
+					  , *current
+				));
+			}
+			else {
 				tp_.schedule(boost::bind(&GMultiThreadedSwarm::updatePositionsAndFitness,
 						this
 					  , neighborhood
@@ -239,12 +246,6 @@ void GMultiThreadedSwarm::swarmLogic() {
 					  , getCLocal()
 					  , getCGlobal()
 					  , getCDelta()
-				));
-			} else { // the first iteration
-				tp_.schedule(boost::bind(&GMultiThreadedSwarm::updateFitness,
-						this
-					  , neighborhood
-					  , *current
 				));
 			}
 

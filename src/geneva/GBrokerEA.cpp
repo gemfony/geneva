@@ -288,13 +288,16 @@ void GBrokerEA::adaptChildren() {
 	std::size_t nReceivedChildCurrent = 0;
 	std::size_t nReceivedChildOlder   = 0;
 
+	// Will hold returned items
+	boost::shared_ptr<GIndividual> p;
+
 	// First wait for the first individual of the current iteration to arrive.
 	// Individuals from older iterations will also be accepted in this loop,
 	// unless they are parents. Note that we can thus have a situation where less
 	// genuine parents are in the population than have originally been sent away.
 	while(true) {
 		// Note: the following call will throw if a timeout has been reached.
-		boost::shared_ptr<GIndividual> p = GBrokerConnector::retrieveFirstItem<GIndividual>();
+		p = GBrokerConnector::retrieveFirstItem<GIndividual>();
 
 		// If it is from the current iteration, break the loop, otherwise
 		// continue until the first item of the current iteration has been
@@ -331,7 +334,6 @@ void GBrokerEA::adaptChildren() {
 	//--------------------------------------------------------------------------------
 	// Wait for further arrivals until the population is complete or a timeout has been reached.
 	bool complete=false;
-	boost::shared_ptr<GIndividual> p;
 
 	// retrieveItem will return an empty pointer, if a timeout has been reached
 	while(!complete && (p=GBrokerConnector::retrieveItem<GIndividual>())) {
@@ -396,7 +398,8 @@ void GBrokerEA::adaptChildren() {
 	if(complete) return;
 
 	//--------------------------------------------------------------------------------
-	// O.k., so we are missing individuals from the current population. Do some fixing.
+	// O.k., so we are missing individuals from the current population.
+	// Do some fixing, if necessary and let the audience know in DEBUG mode.
 
 #ifdef DEBUG
 	std::ostringstream information;
@@ -411,7 +414,9 @@ void GBrokerEA::adaptChildren() {
 
 	information << nReceivedChildCurrent << " children of the current population returned" << std::endl
 			    << "plus " << nReceivedChildOlder << " older children," << std::endl
-			    << "where the default number of children is " << getDefaultNChildren() << std::endl;
+			    << "where the default number of children is " << getDefaultNChildren() << "." << std::endl
+			    << "The current size of the population is now " << this->size() << std::endl
+			    << "where a minimal size of " << getDefaultPopulationSize() << " is needed." << std::endl;
 #endif /* DEBUG*/
 
 

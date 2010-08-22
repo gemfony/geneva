@@ -225,53 +225,168 @@ void GBrokerSwarm::updateFitness(std::size_t neighborhood, boost::shared_ptr<GPa
 
 	GBrokerConnector::submit(ind);
 }
+
+/************************************************************************************************************/
+/**
+ * Makes individuals aware of the current iteration and integrates them into the population.
+ * The return value can be used to break the loop, if the individual is the first one to
+ * return in an iteration.
+ *
+ * @param p The individual that should be integrated into the population
+ * @param nReceivedCurrent This variable will be incremented if the individual is part of the current iteration
+ * @param nReceivedOlder This variable will be incremented if the individual is part of an older iteration
+ * @return A boolean which indicates whether the individual is part of the current iteration
+ */
+bool GBrokerSwarm::updateIndividualsAndIntegrate(
+		boost::shared_ptr<GParameterSet> p
+	  , std::size_t& nReceivedCurrent
+	  , std::size_t& nReceivedOlder
+	  , const boost::uint32_t& iteration
+) {
+	if(p->getParentAlgIteration() == iteration) {
+		// Add the individual to our list.
+		this->push_back(p);
+
+		// Give the GBrokerConnector the opportunity to perform logging
+		GBrokerConnector::log();
+
+		// Update the counter.
+		nReceivedCurrent++;
+
+		return true;
+	} else {
+		// Make it known to the individual that it is now part of a new iteration
+		p->setParentAlgIteration(iteration);
+
+		// Add to the population
+		this->push_back(p);
+
+		// Update the counter
+		nReceivedOlder++;
+
+		return false;
+	}
+}
+
 /************************************************************************************************************/
 /**
  * Modifies the particle positions, then triggers fitness calculation for all individuals. This function
- * submits individuals to Geneva's broker infrastructure.
+ * submits individuals to Geneva's broker infrastructure and then integrates evaluated items, when they
+ * come back.
  */
 void GBrokerSwarm::swarmLogic() {
+	boost::uint32_t iteration = getIteration();
+	GBrokerSwarm::iterator it;
+
+	//--------------------------------------------------------------------------------
+	// Create a copy of the last iteration's individuals, if iteration > 0 . We use
+	// this to fill in missing returns. This doesn't make sense for iteration 0 though,
+	// as individuals have not generally been evaluated then, and we do not want to
+	// fill up with "dirty" individuals.
+	std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals;
+	if(iteration > 0) {
+		for(it=this->begin(); it!=this->end(); ++it) {
+			oldIndividuals.push_back((*it)->clone<GParameterSet>());
+		}
+	}
+
 	//--------------------------------------------------------------------------------
 	// This function will call the overloaded GBrokerSwarm::updateFitness() function,
-	// so that all individuals are submitted to the broker.
+	// so that all individuals are submitted to the broker. Position updates will be
+	// applied locally in the server.
 	GSwarm::swarmLogic();
+
+	//--------------------------------------------------------------------------------
+	// We can now clear the local data vector. Individuals will be added to it as
+	// they return from their journey.
+	this->clear();
 
 	//--------------------------------------------------------------------------------
 	// We can now wait for the individuals to return from their journey.
 	std::size_t nReceivedCurrent = 0;
 	std::size_t nReceivedOlder   = 0;
-/*
+
+	// Will hold returned items
+	boost::shared_ptr<GParameterSet> p;
+
 	// First wait for the first individual of the current iteration to arrive.
 	// Individuals from older iterations will also be accepted in this loop.
 	while(true) {
 		// Note: the following call will throw if a timeout has been reached.
-		boost::shared_ptr<GParameterSet> p = GBrokerConnector::retrieveFirstItem<GParameterSet>();
+		p = GBrokerConnector::retrieveFirstItem<GParameterSet>();
 
 		// If it is from the current iteration, break the loop, otherwise
 		// continue until the first item of the current iteration has been
 		// received.
-		if(p->getParentAlgIteration() == iteration) {
-			// Add the individual to our list.
-			this->push_back(p);
+		if(updateIndividualsAndIntegrate(p, nReceivedCurrent, nReceivedOlder, iteration)) break;
+	}
 
-			// Give the GBrokerConnector the opportunity to perform logging
-			GBrokerConnector::log();
+	//--------------------------------------------------------------------------------
+	// Wait for further arrivals until the population is complete or a timeout has been reached.
+	bool complete=false;
 
-			// Update the counter.
-			nReceivedCurrent++;
+	// Retrieve items as long as the population is not complete and
+	// GBrokerConnector returns valid items
+	while(!complete && (p=GBrokerConnector::retrieveItem<GParameterSet>())) {
+		// Integrate the individual into the population and update variables
+		updateIndividualsAndIntegrate(p, nReceivedCurrent, nReceivedOlder, iteration);
 
-			break;
-		} else {
-			// Add to the population
-
-			// Update the individual's iteration
-
-			// Update the counter
-			nReceivedOlder++;
-
+		// Mark as complete, if a full set of individuals of the current iteration has returned.
+		// Older individuals may return in the next iterations and will be taken into account.
+		// The loop will terminate if the population has been found to be complete.
+		if(nReceivedCurrent == getDefaultPopulationSize()) {
+			complete = true;
 		}
 	}
-	*/
+
+	//--------------------------------------------------------------------------------
+	// We now need to sort the individuals according to their neighborhood, so that
+	// the individuals of the same neighborhood are in adjacent areas.
+	sort(data.begin(), data.end(), indNeighborhoodComp());
+
+	// Now update the number of items in each neighborhood
+	for(std::size_t i=0; i<getNNeighborhoods(); i++) { // First reset the number of members of each neighborhood
+		nNeighborhoodMembers_[i] = 0;
+	}
+	for(it=this->begin(); it!=this->end(); ++it) { // Update the number of individuals in each neighborhood
+		nNeighborhoodMembers_[(*it)->getSwarmPersonalityTraits()->getNeighborhood()] += 1;
+	}
+
+	//--------------------------------------------------------------------------------
+	// We are done, if a full set of individuals of the current iteration has returned
+	// ("complete", which implies that each neighborhood has at least the correct number
+	// of entries), or at the very least each neighborhood is at least at nominal values.
+	// The population size might be larger than the default values (due to older individuals
+	// having returned). Each neighborhood will be adjusted in a later function
+	// (GSwarm::adjustNeighborhoods(), called from GSwarm::cycleLogic()), if necessary.
+	if(complete || neighborhoodsHaveNominalValues()) {
+		oldIndividuals.clear(); // Get rid of the copies
+		return;
+	}
+
+	//--------------------------------------------------------------------------------
+	// O.k., so some individuals are missing in this iteration. Do some fixing
+	if(iteration > 0) { // The most likely case
+		// Loop over all neighborhoods
+		for(std::size_t n=0; n<nNeighborhoods_; n++) {
+			// Find out, how many items are missing, add as required
+			if(nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_) {
+				std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
+/*
+				// Copy the nMissing best individuals from the past iteration over
+				std::size_t firstNIPos;
+				for(std::size_t nM = 0; nM < nMissing; nM++) {
+
+				}
+*/
+			}
+		}
+	} else { // iteration == 0
+
+	}
+
+	// Get rid of the remaining copies of the current population
+	oldIndividuals.clear();
 }
 
 #ifdef GENEVATESTING

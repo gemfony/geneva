@@ -586,19 +586,6 @@ bool GIndividual::process(){
 			if(getPersonalityTraits()->getCommand() == "evaluate") {
 				// Trigger fitness calculation
 				fitness();
-
-				/*
-				// We do not necessarily need to return any data to the server in a swarm,
-				// as no parameter changes happen in the client. Hence we could reset our
-				// internal data structures, so that only the fitness gets transported back
-				// to the server. Resetting happens by removing all GParameterBase-derivatives
-				// from our list. The server then only needs to load the fitness into its local
-				// individuals and reset their dirty flags. On the down side, this makes it
-				// impossible to re-integrate late arrivals into the server, as the information
-				// about the parameter structure is lost (or the server would have to keep track
-				// of all individuals that didn't return, which would really complicate things).
-				this->clear();
-				*/
 			}
 			else {
 				std::ostringstream error;
@@ -735,20 +722,6 @@ void GIndividual::setNStalls(const boost::uint32_t& nStalls) {
  */
 boost::uint32_t GIndividual::getNStalls() const {
 	return nStalls_;
-}
-
-/************************************************************************************************************/
-/**
- * Loads the fitness of another GIndividual-derivative and clears the dirty flag. This is useful if a remote
- * entity is only tasked with evaluating an individual, without applying any other modifications (such as
- * mutating its parameters). In this situation it can make sense to only transport part of the individual
- * (most notably its fitness) back to the server in order to reduce possible overhead.
- *
- * @param cp A copy of another GIndividual-derivative
- */
-void GIndividual::loadFitnessAndClean(const boost::shared_ptr<GIndividual>& cp) {
-	currentFitness_ = cp->currentFitness_;
-	setDirtyFlag(false);
 }
 
 #ifdef GENEVATESTING

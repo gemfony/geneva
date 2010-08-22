@@ -543,7 +543,13 @@ void GSwarm::swarmLogic() {
 		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
 			GSwarm::iterator current = start + offset;
 
-			if(iteration > 0 && !(*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
+			if(iteration == 0 || (*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
+				updateFitness (
+					  neighborhood
+				    , *current
+				);
+			}
+			else {
 				updatePositionsAndFitness (
 					  neighborhood
 					, *current
@@ -553,12 +559,6 @@ void GSwarm::swarmLogic() {
 					, getCLocal()
 					, getCGlobal()
 					, getCDelta()
-				);
-
-			} else { // the first iteration
-				updateFitness (
-					  neighborhood
-				    , *current
 				);
 			}
 
@@ -887,6 +887,19 @@ void GSwarm::fillUpNeighborhood1() {
 			(*(this->begin()+n+1))->getSwarmPersonalityTraits()->setNoPositionUpdate();
 		}
 	}
+}
+
+/************************************************************************************************************/
+/**
+ * Checks whether each neighborhood has at least the default size
+ *
+ * @return A boolean which indicates whether all neighborhoods have at least the default size
+ */
+bool GSwarm::neighborhoodsHaveNominalValues() const {
+	for(std::size_t n=0; n<nNeighborhoods_; n++) {
+		if(nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_) return false;
+	}
+	return true;
 }
 
 /************************************************************************************************************/

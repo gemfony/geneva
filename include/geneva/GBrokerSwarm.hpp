@@ -107,7 +107,8 @@ public:
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
 protected:
-    /** @brief Loads the data of another GTransfer Population */
+    /*********************************************************************************/
+	/** @brief Loads the data of another GTransfer Population */
     virtual void load_(const GObject *);
     /** @brief Creates a deep copy of this object */
     virtual GObject *clone_() const;
@@ -122,9 +123,30 @@ protected:
 	virtual void updateFitness(std::size_t, boost::shared_ptr<GParameterSet>);
     /** @brief Updates the positions and/or fitness of all individuals, using the broker infrastructure */
 	virtual void swarmLogic();
+	/** @brief Updates and integrates individuals into the population after their return */
+	bool updateIndividualsAndIntegrate(
+			boost::shared_ptr<GParameterSet>
+		  , std::size_t&
+		  , std::size_t&
+		  , const boost::uint32_t&
+	);
 
 	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes. */
 	GBrokerSwarm(){}
+
+
+private:
+    /*********************************************************************************/
+    /**
+     * A simple comparison operator that helps to sort individuals according to their
+     * affiliation to a neighborhood. Smaller neighborhood numbers should be in front.
+     */
+    class indNeighborhoodComp {
+    public:
+    	bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
+    		return x->getSwarmPersonalityTraits()->getNeighborhood() < y->getSwarmPersonalityTraits()->getNeighborhood();
+    	}
+    };
 
     /*********************************************************************************/
 

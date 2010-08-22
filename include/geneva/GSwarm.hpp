@@ -345,6 +345,9 @@ protected:
 		  , double
 	);
 
+    /** @brief Checks whether each neighborhood has at least the default size */
+    bool neighborhoodsHaveNominalValues() const;
+
 	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
