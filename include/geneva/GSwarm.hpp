@@ -308,8 +308,8 @@ protected:
 	/** @brief Saves the state of the class to disc. */
 	virtual void saveCheckpoint() const;
 
-	/** @brief Updates the fitness of all individuals */
-	virtual void updatePositionsAndFitness();
+	/** @brief Updates the positions and/or fitness of all individuals */
+	virtual void swarmLogic();
 	/** @brief Updates the best individuals found */
 	virtual double findBests();
 	/** @brief Adjusts each neighborhood so it has the correct size */
@@ -320,10 +320,21 @@ protected:
 	/** @brief Helper function that returns the id of the last individual of a neighborhood */
 	std::size_t getLastNIPos(const std::size_t&) const;
 
-	/** @brief Triggers the fitness calculation in the first iteration as well as for randomly initialized items */
-	void swarmLogicNoUpdate(std::size_t, boost::shared_ptr<GParameterSet>);
+	/** @brief Triggers an update of the individuals' positions */
+	void updatePositions(
+		    std::size_t
+		  , boost::shared_ptr<GParameterSet>
+		  , boost::shared_ptr<GParameterSet>
+		  , boost::shared_ptr<GParameterSet>
+		  , boost::shared_ptr<GParameterSet>
+		  , double
+		  , double
+		  , double
+	);
+	/** @brief Triggers the fitness calculation */
+	virtual void updateFitness(std::size_t, boost::shared_ptr<GParameterSet>);
 	/** @brief Updates the individual's position and performs the fitness calculation */
-	void swarmLogic (
+	void updatePositionsAndFitness (
 		    std::size_t
 		  , boost::shared_ptr<GParameterSet>
 		  , boost::shared_ptr<GParameterSet>

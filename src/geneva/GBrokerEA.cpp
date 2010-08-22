@@ -264,7 +264,7 @@ void GBrokerEA::adaptChildren() {
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			// Note that we only have parents left in this iteration
 			for(rit=data.rbegin(); rit!=data.rend(); ++rit) {
-				(*rit)->getPersonalityTraits()->setCommand("adapt");
+				(*rit)->getPersonalityTraits()->setCommand("evaluate");
 				GBrokerConnector::submit(*rit);
 			}
 

@@ -173,9 +173,11 @@ public:
 	/** @brief Triggers updates when the optimization process has stalled */
 	virtual bool updateOnStall();
 
-	/**********************************************************************/
 	/** @brief Retrieves the current personality of this object */
 	personality getPersonality() const;
+
+	/** @brief Allows to randomly initialize parameter members */
+	virtual void randomInit() = 0;
 
 	/**********************************************************************/
 	/**

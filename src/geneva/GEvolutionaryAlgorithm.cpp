@@ -567,6 +567,12 @@ void GEvolutionaryAlgorithm::adjustPopulation() {
 	// Fill up as required. We are now sure we have a suitable number of individuals to do so
 	if(this_sz < getDefaultPopulationSize()) {
 		this->resize_clone(getDefaultPopulationSize(), data[0]);
+
+		// Randomly initialize new items.
+		// (Note: This will currently only have an effect on GParameterSet-derivatives)
+		for(it=data.begin()+this_sz; it!=data.end(); ++it) {
+			(*it)->randomInit();
+		}
 	}
 }
 

@@ -499,7 +499,7 @@ double GSwarm::cycleLogic() {
 	// Modifies the individual's parameters, then triggers the fitness calculation of all individuals
 	// and identifies the local and global bests. This function can be overloaded in derived classes
 	// so that part of the modification and/or fitness calculation are performed in parallel.
-	updatePositionsAndFitness();
+	swarmLogic();
 
 	// Search for the locally and globally best individuals in all neighborhoods and
 	// update the list of locally best solutions, if necessary
@@ -516,14 +516,14 @@ double GSwarm::cycleLogic() {
  * Modifies the particle positions, then triggers fitness calculation for all individuals. This function can
  * be overloaded by derived classes so the fitness calculation can be performed in parallel.
  */
-void GSwarm::updatePositionsAndFitness() {
+void GSwarm::swarmLogic() {
 	std::size_t offset = 0;
 	GSwarm::iterator start = this->begin();
 	boost::uint32_t iteration = getIteration();
 
 	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 #ifdef DEBUG
-		if(getIteration() > 0) {
+		if(iteration > 0) {
 			if(!local_bests_[neighborhood]) {
 				std::ostringstream error;
 				error << "In GSwarm::updatePositionsAndFitness(): Error!" << std::endl
@@ -544,7 +544,7 @@ void GSwarm::updatePositionsAndFitness() {
 			GSwarm::iterator current = start + offset;
 
 			if(iteration > 0 && !(*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
-				swarmLogic (
+				updatePositionsAndFitness (
 					  neighborhood
 					, *current
 					, local_bests_[neighborhood]->clone<GParameterSet>()
@@ -556,7 +556,7 @@ void GSwarm::updatePositionsAndFitness() {
 				);
 
 			} else { // the first iteration
-				swarmLogicNoUpdate (
+				updateFitness (
 					  neighborhood
 				    , *current
 				);
@@ -569,12 +569,58 @@ void GSwarm::updatePositionsAndFitness() {
 
 /************************************************************************************************************/
 /**
- * Triggers the fitness calculation in the first iteration as well as for randomly initialized items.
+ * Update the individual's positions
+ *
+ * @param neighborhood The neighborhood that has been assigned to the individual
+ * @param ind The individual whose position should be updated
+ * @param local_best_tmp The locally best dataset of the individual's neighborhood
+ * @param global_best_tmp The globally best individual so far
+ * @param velocity A velocity vector
+ * @param cLocal A constant used for multiplication with the local direction
+ * @param cGlobal A constant used for multiplication with the global direction
+ * @param cDelta A constant used for multiplication with the velocity vector
+ */
+void GSwarm::updatePositions(
+	    std::size_t neighborhood
+	  , boost::shared_ptr<GParameterSet> ind
+	  , boost::shared_ptr<GParameterSet> local_best_tmp
+	  , boost::shared_ptr<GParameterSet> global_best_tmp
+	  , boost::shared_ptr<GParameterSet> velocity
+	  , double cLocal
+	  , double cGlobal
+	  , double cDelta
+) {
+	// Subtract the current individual
+	local_best_tmp->fpSubtract(ind);
+	global_best_tmp->fpSubtract(ind);
+
+	// Multiply each floating point value with a random fp number in the range [0,1[
+	local_best_tmp->fpMultiplyByRandom();
+	global_best_tmp->fpMultiplyByRandom();
+
+	// Multiply each floating point value with a fixed, configurable constant value
+	local_best_tmp->fpMultiplyBy(cLocal);
+	global_best_tmp->fpMultiplyBy(cGlobal);
+
+	// Multiply the last iterations velocity with a fixed, configurable constant value
+	velocity->fpMultiplyBy(cDelta);
+
+	// Add the local and global tmps
+	velocity->fpAdd(local_best_tmp);
+	velocity->fpAdd(global_best_tmp);
+
+	// Add the velocity to the current individual
+	ind->fpAdd(velocity);
+}
+
+/************************************************************************************************************/
+/**
+ * Prepares individuals for the fitness calculation and performs that calculation
  *
  * @param neighborhood The neighborhood the individual is in
  * @param ind The individual for which the fitness calculation should be performed
  */
-void GSwarm::swarmLogicNoUpdate(
+void GSwarm::updateFitness(
 	    std::size_t neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 ){
@@ -601,7 +647,7 @@ void GSwarm::swarmLogicNoUpdate(
  * @param cGlobal A constant used for multiplication with the global direction
  * @param cDelta A constant used for multiplication with the velocity vector
  */
-void GSwarm::swarmLogic(
+void GSwarm::updatePositionsAndFitness(
 	    std::size_t neighborhood
 	  , boost::shared_ptr<GParameterSet> ind
 	  , boost::shared_ptr<GParameterSet> local_best_tmp
@@ -611,38 +657,20 @@ void GSwarm::swarmLogic(
 	  , double cGlobal
 	  , double cDelta
 ){
-	// Let the personality know in which neighborhood it is
-	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
-
 	// Update the swarm positions:
+	updatePositions(
+		neighborhood
+	  , ind
+	  , local_best_tmp
+	  , global_best_tmp
+	  , velocity
+	  , cLocal
+	  , cGlobal
+	  , cDelta
+	);
 
-	// Subtract the current individual
-	local_best_tmp->fpSubtract(ind);
-	global_best_tmp->fpSubtract(ind);
-
-	// Multiply each floating point value with a random fp number in the range [0,1[
-	local_best_tmp->fpMultiplyByRandom();
-	global_best_tmp->fpMultiplyByRandom();
-
-	// Multiply each floating point value with a fixed, configurable constant value
-	local_best_tmp->fpMultiplyBy(cLocal);
-	global_best_tmp->fpMultiplyBy(cGlobal);
-
-	// Multiply the last iterations velocity with a fixed, configurable constant value
-	velocity->fpMultiplyBy(cDelta);
-
-	// Add the local and global tmps
-	velocity->fpAdd(local_best_tmp);
-	velocity->fpAdd(global_best_tmp);
-
-	// Add the velocity to the current individual
-	ind->fpAdd(velocity);
-
-	// Trigger the fitness calculation (if necessary). Make sure lazy evaluation
-	// is allowed so we do not trigger an exception.
-	bool originalAllowLazyEvaluation = ind->setAllowLazyEvaluation(true);
-	ind->fitness();
-	ind->setAllowLazyEvaluation(originalAllowLazyEvaluation);
+	// Update the fitness
+	updateFitness(neighborhood, ind);
 }
 
 /************************************************************************************************************/

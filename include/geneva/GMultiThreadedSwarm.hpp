@@ -122,8 +122,8 @@ protected:
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
 
-	/** @brief Updates the fitness of all individuals */
-	virtual void updatePositionsAndFitness();
+	/** @brief Updates the positions and/or fitness of all individuals */
+	virtual void swarmLogic();
 
 	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
 	GMultiThreadedSwarm(){}

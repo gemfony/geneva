@@ -106,18 +106,22 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
+protected:
+    /** @brief Loads the data of another GTransfer Population */
+    virtual void load_(const GObject *);
+    /** @brief Creates a deep copy of this object */
+    virtual GObject *clone_() const;
+
 	/** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
 	virtual double cycleLogic();
 	/** @brief Performs any necessary initialization work before the start of the optimization cycle */
 	virtual void init();
 	/** @brief Performs any necessary finalization work after the end of the optimization cycle */
 	virtual void finalize();
-
-protected:
-    /** @brief Loads the data of another GTransfer Population */
-    virtual void load_(const GObject *);
-    /** @brief Creates a deep copy of this object */
-    virtual GObject *clone_() const;
+	/** @brief Triggers the fitness calculation */
+	virtual void updateFitness(std::size_t, boost::shared_ptr<GParameterSet>);
+    /** @brief Updates the positions and/or fitness of all individuals, using the broker infrastructure */
+	virtual void swarmLogic();
 
 	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes. */
 	GBrokerSwarm(){}

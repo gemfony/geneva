@@ -201,7 +201,7 @@ void GMultiThreadedSwarm::finalize() {
  * Updates the fitness of all individuals. This is an overloaded version of the parent class'es function
  * which enqueues tasks in the thread pool.
  */
-void GMultiThreadedSwarm::updatePositionsAndFitness() {
+void GMultiThreadedSwarm::swarmLogic() {
 	std::size_t offset = 0;
 	GMultiThreadedSwarm::iterator start = this->begin();
 	boost::uint32_t iteration = getIteration();
@@ -229,7 +229,7 @@ void GMultiThreadedSwarm::updatePositionsAndFitness() {
 			GMultiThreadedSwarm::iterator current = start + offset;
 
 			if(iteration > 0 && !(*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
-				tp_.schedule(boost::bind(&GMultiThreadedSwarm::swarmLogic,
+				tp_.schedule(boost::bind(&GMultiThreadedSwarm::updatePositionsAndFitness,
 						this
 					  , neighborhood
 					  , *current
@@ -241,7 +241,7 @@ void GMultiThreadedSwarm::updatePositionsAndFitness() {
 					  , getCDelta()
 				));
 			} else { // the first iteration
-				tp_.schedule(boost::bind(&GMultiThreadedSwarm::swarmLogicNoUpdate,
+				tp_.schedule(boost::bind(&GMultiThreadedSwarm::updateFitness,
 						this
 					  , neighborhood
 					  , *current

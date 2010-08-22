@@ -771,6 +771,15 @@ public:
 #endif /* DEBUG */
 	}
 
+	/**************************************************************************************/
+	/**
+	 * This function is e.g. called from GEvolutionaryAlgorithm::adjustPopulation(). It
+	 * currently only triggers actions for GParameterSet-derivatives. Optimization algorithms
+	 * are unaffected. It might be useful to implement actions here as well, though, in order
+	 * to make better use of Multi-Populations in Evolutionary Algorithms.
+	 */
+	void randomInit() { /* nothing */ }
+
 protected:
 	/**************************************************************************************/
 	/**

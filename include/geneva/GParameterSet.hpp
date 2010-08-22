@@ -111,7 +111,7 @@ public:
 	virtual bool updateOnStall();
 
 	/** @brief Allows to randomly initialize parameter members */
-	void randomInit();
+	virtual void randomInit();
 
 	/** @brief Multiplies with a random floating point number in a given range */
 	void fpMultiplyByRandom(const float&, const float&);

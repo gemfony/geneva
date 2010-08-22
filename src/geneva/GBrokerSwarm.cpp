@@ -208,6 +208,36 @@ void GBrokerSwarm::finalize() {
 	GSwarm::finalize();
 }
 
+/************************************************************************************************************/
+/**
+ * Triggers the fitness calculation of a GParameterSet-derivative, using Geneva's broker infrastructure.
+ *
+ * @param neighborhood The neighborhood the individual is in
+ * @param ind The individual for which the fitness calculation should be performed
+ */
+void GBrokerSwarm::updateFitness(std::size_t neighborhood, boost::shared_ptr<GParameterSet> ind) {
+	// Let the individual know in which neighborhood it is
+	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
+
+	// Let the individual know that it should perform the "evaluate" command
+	// after having passed the broker (i.e. usually on a remote machine)
+	ind->getPersonalityTraits()->setCommand("evaluate");
+
+	GBrokerConnector::submit(ind);
+}
+/************************************************************************************************************/
+/**
+ * Modifies the particle positions, then triggers fitness calculation for all individuals. This function
+ * submits individuals to Geneva's broker infrastructure.
+ */
+void GBrokerSwarm::swarmLogic() {
+	// This function will call the overloaded GBrokerSwarm::updateFitness() function
+	GSwarm::swarmLogic();
+
+	// All individuals should now have been submitted for evaluation to the broker.
+	// We can now wait for new arrivals.
+}
+
 #ifdef GENEVATESTING
 /************************************************************************************************************/
 /**

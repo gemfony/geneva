@@ -190,6 +190,9 @@ int main(int argc, char **argv){
 	  functionIndividual_ptr->push_back(gdc_ptr);
 	  functionIndividual_ptr->setProcessingCycles(processingCycles);
 
+	  // Randomly initialize all individuals (within their constraints)
+	  functionIndividual_ptr->randomInit();
+
 	  parentIndividuals.push_back(functionIndividual_ptr);
   }
 

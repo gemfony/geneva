@@ -191,6 +191,7 @@ int main(int argc, char **argv){
   // Add individuals to the population
   for(std::size_t p = 0 ; p<pop_ptr->getDefaultPopulationSize(); p++) {
 	  boost::shared_ptr<GStartIndividual> gdii_ptr(new GStartIndividual(parDim, minVar, maxVar));
+	  gdii_ptr->randomInit();
 	  gdii_ptr->setProcessingCycles(processingCycles);
 	  pop_ptr->push_back(gdii_ptr);
   }
