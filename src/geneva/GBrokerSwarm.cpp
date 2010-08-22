@@ -231,11 +231,47 @@ void GBrokerSwarm::updateFitness(std::size_t neighborhood, boost::shared_ptr<GPa
  * submits individuals to Geneva's broker infrastructure.
  */
 void GBrokerSwarm::swarmLogic() {
+	//--------------------------------------------------------------------------------
 	// This function will call the overloaded GBrokerSwarm::updateFitness() function
 	GSwarm::swarmLogic();
 
-	// All individuals should now have been submitted for evaluation to the broker.
-	// We can now wait for new arrivals.
+	//--------------------------------------------------------------------------------
+	// We can now wait for the individuals to return from their journey.
+	std::size_t nReceivedCurrent = 0;
+	std::size_t nReceivedOlder   = 0;
+
+	/*
+	// First wait for the first individual of the current iteration to arrive.
+	// Individuals from older iterations will also be accepted in this loop.
+	while(true) {
+		// Note: the following call will throw if a timeout has been reached.
+		boost::shared_ptr<GParameterSet> p = GBrokerConnector::retrieveFirstItem<GParameterSet>();
+
+		// If it is from the current iteration, break the loop, otherwise
+		// continue until the first item of the current iteration has been
+		// received.
+		if(p->getParentAlgIteration() == iteration) {
+			// Add the individual to our list.
+			this->push_back(p);
+
+			// Give the GBrokerConnector the opportunity to perform logging
+			GBrokerConnector::log();
+
+			// Update the counter.
+			nReceivedCurrent++;
+
+			break;
+		} else {
+			// Add to the population
+
+			// Update the individual's iteration
+
+			// Update the counter
+			nReceivedOlder++;
+
+		}
+	}
+	*/
 }
 
 #ifdef GENEVATESTING

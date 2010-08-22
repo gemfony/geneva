@@ -283,17 +283,15 @@ void GBrokerEA::adaptChildren() {
 	}
 
 	//--------------------------------------------------------------------------------
-	// We can now wait for the first individual of the current generation to return
-	// from its journey.
+	// We can now wait for the individuals to return from their journey.
+	std::size_t nReceivedParent       = 0;
+	std::size_t nReceivedChildCurrent = 0;
+	std::size_t nReceivedChildOlder   = 0;
 
 	// First wait for the first individual of the current iteration to arrive.
 	// Individuals from older iterations will also be accepted in this loop,
 	// unless they are parents. Note that we can thus have a situation where less
 	// genuine parents are in the population than have originally been sent away.
-	std::size_t nReceivedParent = 0;
-	std::size_t nReceivedChildCurrent=0;
-	std::size_t nReceivedChildOlder = 0;
-
 	while(true) {
 		// Note: the following call will throw if a timeout has been reached.
 		boost::shared_ptr<GIndividual> p = GBrokerConnector::retrieveFirstItem<GIndividual>();

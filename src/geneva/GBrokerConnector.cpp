@@ -273,6 +273,11 @@ void GBrokerConnector::markNewIteration() {
 	// If logging is enabled, add a std::vector<boost::uint32_t> for the current iteration
 	// to arrivalTimes_
 	if(doLogging_) arrivalTimes_.push_back(std::vector<boost::uint32_t>());
+
+	// Set the start time of the new iteration so we calculate a correct
+	// Return time for the first individual, regardless of whether older
+	// individuals have returned first.
+	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
 }
 
 /************************************************************************************************************/
@@ -291,8 +296,6 @@ void GBrokerConnector::submit(boost::shared_ptr<GIndividual> gi) {
  */
 template <>
 boost::shared_ptr<GIndividual> GBrokerConnector::retrieveFirstItem<GIndividual>() {
-	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
-
 	// Holds the retrieved item
 	boost::shared_ptr<GIndividual> p;
 

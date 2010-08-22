@@ -176,8 +176,6 @@ protected:
 	 */
 	template <typename ind_type>
 	boost::shared_ptr<ind_type> retrieveFirstItem() {
-		iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
-
 		// Holds the retrieved item
 		boost::shared_ptr<GIndividual> p;
 
