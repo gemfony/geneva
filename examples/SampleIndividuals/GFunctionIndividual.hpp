@@ -217,8 +217,8 @@ public:
 		case PARABOLA:
 			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<PARABOLA> >(new GFunctionIndividual<PARABOLA>());
 			break;
-		case NOISYPARABOLA:
-			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<NOISYPARABOLA> >(new GFunctionIndividual<NOISYPARABOLA>());
+		case BERLICH:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<BERLICH> >(new GFunctionIndividual<BERLICH>());
 			break;
 		case ROSENBROCK:
 			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<ROSENBROCK> >(new GFunctionIndividual<ROSENBROCK>());
@@ -253,8 +253,8 @@ public:
 		case PARABOLA:
 			result="PARABOLA";
 			break;
-		case NOISYPARABOLA:
-			result="NOISYPARABOLA";
+		case BERLICH:
+			result="BERLICH";
 			break;
 		case ROSENBROCK:
 			result="ROSENBROCK";
@@ -348,7 +348,7 @@ template<> inline double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
  *
  * @return The result of the calculation
  */
-template<> inline double GFunctionIndividual<NOISYPARABOLA>::fitnessCalculation() {
+template<> inline double GFunctionIndividual<BERLICH>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
@@ -494,7 +494,7 @@ template<> inline double GFunctionIndividual<SALOMON>::fitnessCalculation() {
 
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::PARABOLA>, "GFunctionIndividual_PARABOLA")
-BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::NOISYPARABOLA>, "GFunctionIndividual_NOISYPARABOLA")
+BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::BERLICH>, "GFunctionIndividual_BERLICH")
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::ROSENBROCK>, "GFunctionIndividual_ROSENBROCK")
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::ACKLEY>, "GFunctionIndividual_ACKLEY")
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::RASTRIGIN>, "GFunctionIndividual_RASTRIGIN")

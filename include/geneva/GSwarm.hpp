@@ -255,6 +255,40 @@ public:
 
 	/**************************************************************************************************/
 	/**
+	 * Retrieves the best individual of a neighborhood and casts it to the desired type. Note that this
+	 * function will only be accessible to the compiler if individual_type is a derivative of GIndividual,
+	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
+	 *
+	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
+	 */
+	template <typename individual_type>
+	inline boost::shared_ptr<individual_type> getBestNeighborhoodIndividual(
+			typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+	){
+#ifdef DEBUG
+		// Check that global_best_ actually points somewhere
+		if(!global_best_) {
+			std::ostringstream error;
+			error << "In GSwarm::getBestIndividual<>() : Error" << std::endl
+				  << "Tried to access uninitialized globally best individual." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		boost::shared_ptr<individual_type> p = boost::dynamic_pointer_cast<individual_type>(global_best_);
+
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In GSwarm::getBestIndividual<>() : Conversion error" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#else
+		return boost::static_pointer_cast<individual_type>(global_best_);
+#endif /* DEBUG */
+	}
+
+	/**************************************************************************************************/
+	/**
 	 * Emits information about the population it has been given, using a simple format. Note that we are
 	 * using a static member function in order to avoid storing a local "this" pointer in this function
 	 * when registering it in boost::function.

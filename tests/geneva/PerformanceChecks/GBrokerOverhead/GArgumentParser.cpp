@@ -189,7 +189,7 @@ namespace Gem
 	  ("maxVar", po::value<double>(&maxVar)->default_value(DEFAULTMAXVAR),
 	   "The upper boundary for all variables")
 	  ("evalFunction", po::value<boost::uint16_t>(&evalFunction),
-		"The id of the evaluation function. Allowed values: 0 (parabola), 1 (noisy parabola), 2 (rosenbrock)")
+		"The id of the evaluation function")
 	  ;
 	
 	po::variables_map vm;

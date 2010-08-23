@@ -46,7 +46,7 @@ namespace Geneva
  */
 enum demoFunction {
 	  PARABOLA=0
-	, NOISYPARABOLA=1
+	, BERLICH=1
 	, ROSENBROCK=2
 	, ACKLEY=3
 	, RASTRIGIN=4
