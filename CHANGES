@@ -14,10 +14,12 @@ The main changes for this release include:
    GConstrainedDouble and GConstrainedInt32 and are based on generic floating-point-
    and integer-aware classes.
  - Moved the GBoundedBufferWithIdT class from the Courtier to the Common library.
- - Organized the tests in subfolders corresponding to each tested library.
+ - Organized the tests in sub-folders corresponding to each tested library.
  - Improved the examples' build-files to allow all the examples to compile out of tree.
- - Implemented swarm algorithms. Note that this implementation still needs to mature further
-   so that it is recommend to stick with evolutionary algorithms at the moment.
+ - Implemented swarm algorithms in all three modes (serial execution, multi-threaded
+   and networked). Note that this implementation still needs to mature further
+   so that it is recommend for the curious only.
+ - Implemented many new test functions
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8, "Prevessin" - August 4, 2010
