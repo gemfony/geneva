@@ -278,7 +278,40 @@ boost::shared_ptr<GObject> GObject::clone() const {
 	return boost::shared_ptr<GObject>(clone_());
 }
 
+
+#ifdef GENEVATESTING
 /**************************************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GObject::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function: no parent class
+
+	return result;
+}
+
+/**************************************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GObject::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function: no parent class
+}
+
+/**************************************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GObject::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function: no parent class
+}
+
+/**************************************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

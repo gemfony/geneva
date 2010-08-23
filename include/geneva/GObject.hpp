@@ -299,14 +299,15 @@ private:
 public:
 	/**************************************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual bool modify_GUnitTests() { return false; }
+	virtual bool modify_GUnitTests();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing - no local data */ }
+	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() { /* nothing - no local data */ }
+	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
 };
 
+/**********************************************************************************************************/
 /** @brief A specialization for cases for no conversion is supposed to take place */
 template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
 		boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type*
@@ -325,8 +326,5 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GObject)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**********************************************************************************************************/
 // Tests for the GObject class
-
-
-
 
 #endif /* GOBJECT_HPP_ */
