@@ -50,9 +50,11 @@ enum demoFunction {
 	, ROSENBROCK=2
 	, ACKLEY=3
 	, RASTRIGIN=4
-	, SCHWEFEL
-	//, WEIERSTRASS
+	, SCHWEFEL=5
+	, SALOMON=6
 };
+
+const demoFunction MAXDEMOFUNCTION=SALOMON;
 
 /************************************************************************************************/
 

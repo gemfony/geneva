@@ -202,6 +202,80 @@ public:
 		return demoFunction_;
 	}
 
+	/*******************************************************************************************/
+	/**
+	 * A factory function that returns a function individual of the desired type.
+	 *
+	 * @param df The id of the desired function individual
+	 * @return A function individual of the desired type
+	 */
+	static boost::shared_ptr<GParameterSet> getFunctionIndividual(const demoFunction& df) {
+		boost::shared_ptr<GParameterSet> functionIndividual_ptr;
+
+		// Set up a single function individual, depending on the expected function type
+		switch(df) {
+		case PARABOLA:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<PARABOLA> >(new GFunctionIndividual<PARABOLA>());
+			break;
+		case NOISYPARABOLA:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<NOISYPARABOLA> >(new GFunctionIndividual<NOISYPARABOLA>());
+			break;
+		case ROSENBROCK:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<ROSENBROCK> >(new GFunctionIndividual<ROSENBROCK>());
+			break;
+		case ACKLEY:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<ACKLEY> >(new GFunctionIndividual<ACKLEY>());
+			break;
+		case RASTRIGIN:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<RASTRIGIN> >(new GFunctionIndividual<RASTRIGIN>());
+			break;
+		case SCHWEFEL:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<SCHWEFEL> >(new GFunctionIndividual<SCHWEFEL>());
+			break;
+		case SALOMON:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<SALOMON> >(new GFunctionIndividual<SALOMON>());
+			break;
+		}
+
+		return functionIndividual_ptr;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * This function converts the function id to a string representation. This is a convenience
+	 * function that is mostly used in GArgumentParser.cpp of various Geneva examples.
+	 */
+	static std::string getStringRepresentation(const demoFunction& df) {
+		std::string result;
+
+		// Set up a single function individual, depending on the expected function type
+		switch(df) {
+		case PARABOLA:
+			result="PARABOLA";
+			break;
+		case NOISYPARABOLA:
+			result="NOISYPARABOLA";
+			break;
+		case ROSENBROCK:
+			result="ROSENBROCK";
+			break;
+		case ACKLEY:
+			result="ACKLEY";
+			break;
+		case RASTRIGIN:
+			result="RASTRIGIN";
+			break;
+		case SCHWEFEL:
+			result="SCHWEFEL";
+			break;
+		case SALOMON:
+			result="SALOMON";
+			break;
+		}
+
+		return result;
+	}
+
 protected:
 	/********************************************************************************************/
 	/**
@@ -248,7 +322,7 @@ private:
 	const demoFunction demoFunction_; ///< Specifies which demo function is being used
 };
 
-/************************************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////////////////////
 // A number of specializations of fitnessCalculation() for the three function types
 
 /************************************************************************************************/
@@ -291,7 +365,6 @@ template<> inline double GFunctionIndividual<NOISYPARABOLA>::fitnessCalculation(
 /**
  * The generalized Rosenbrock function (see e.g. http://en.wikipedia.org/wiki/Rosenbrock_function)
  *
- * @param x The input parameters for the function
  * @return The result of the calculation
  */
 template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
@@ -323,7 +396,6 @@ template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
 /**
  * The Ackeley function (see e.g. http://www.it.lut.fi/ip/evo/functions/node14.html)
  *
- * @param x The input parameters for the function
  * @return The result of the calculation
  */
 template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
@@ -355,7 +427,6 @@ template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
 /**
  * The Rastrigin function (see e.g. http://www.it.lut.fi/ip/evo/functions/node6.html)
  *
- * @param x The input parameters for the function
  * @return The result of the calculation
  */
 template<> inline double GFunctionIndividual<RASTRIGIN>::fitnessCalculation() {
@@ -377,7 +448,6 @@ template<> inline double GFunctionIndividual<RASTRIGIN>::fitnessCalculation() {
 /**
  * The Schwefel function (see e.g. http://www.it.lut.fi/ip/evo/functions/node10.html)
  *
- * @param x The input parameters for the function
  * @return The result of the calculation
  */
 template<> inline double GFunctionIndividual<SCHWEFEL>::fitnessCalculation() {
@@ -396,6 +466,28 @@ template<> inline double GFunctionIndividual<SCHWEFEL>::fitnessCalculation() {
 }
 
 /************************************************************************************************/
+/**
+ * The Salomon function (see e.g. http://www.it.lut.fi/ip/evo/functions/node12.html)
+ *
+ * @return The result of the calculation
+ */
+template<> inline double GFunctionIndividual<SALOMON>::fitnessCalculation() {
+	// Extract the GDoubleCollection object
+	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
+
+	std::size_t parameterSize = x->size();
+
+	double sum_root = 0.;
+	for(std::size_t i=0; i<parameterSize; i++) {
+		sum_root += GSQUARED(x_ref[i]);
+	}
+	sum_root=sqrt(sum_root);
+
+	return -cos(2*M_PI*sum_root) + 0.1*sum_root + 1;
+}
+
+/************************************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
@@ -407,5 +499,6 @@ BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::ROSENBROCK
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::ACKLEY>, "GFunctionIndividual_ACKLEY")
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::RASTRIGIN>, "GFunctionIndividual_RASTRIGIN")
 BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::SCHWEFEL>, "GFunctionIndividual_SCHWEFEL")
+BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::SALOMON>, "GFunctionIndividual_SALOMON")
 
 #endif /* GFUNCTIONINDIVIDUAL_HPP_ */

@@ -229,28 +229,15 @@ namespace Gem
 	  return false;
 	}
 
-	if(evalFunction == (boost::uint16_t)PARABOLA) df=PARABOLA;
-	else if(evalFunction == (boost::uint16_t)NOISYPARABOLA) df=NOISYPARABOLA;
-	else if(evalFunction == (boost::uint16_t)ROSENBROCK) df=ROSENBROCK;
-	else {
-		std::cout << "Error: Invalid evaluation function: " << evalFunction << std::endl;
+	// Assign the demo function
+	if(evalFunction > (boost::uint16_t)MAXDEMOFUNCTION) {
+		std::cout << "Error: Invalid evaluation function: " << evalFunction
+				<< std::endl;
 		return false;
 	}
+	df=(demoFunction)evalFunction;
 
 	if(verbose){
-		std::string eF;
-		switch(evalFunction) {
-		case PARABOLA:
-			eF = "PARABOLA";
-			break;
-		case NOISYPARABOLA:
-			eF = "NOISYPARABOLA";
-			break;
-		case ROSENBROCK:
-			eF = "ROSENBROCK";
-			break;
-		}
-
 	  std::cout << std::endl
 		    << "Running with the following options from " << configFile << ":" << std::endl
 		    << "nProducerThreads = " << (boost::uint16_t)nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
@@ -273,7 +260,7 @@ namespace Gem
 		    << "parDim = " << parDim << std::endl
 		    << "minVar = " << minVar << std::endl
 		    << "maxVar = " << maxVar << std::endl
-		    << "evalFunction = " << eF << std::endl
+		    << "evalFunction = " << GFunctionIndividual<>::getStringRepresentation(df) << std::endl
 		    << std::endl;
 	}
       }

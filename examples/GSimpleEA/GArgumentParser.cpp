@@ -262,47 +262,15 @@ bool parseConfigFile(
 			return false;
 		}
 
-		if (evalFunction == (boost::uint16_t) PARABOLA)
-			df = PARABOLA;
-		else if (evalFunction == (boost::uint16_t) NOISYPARABOLA)
-			df = NOISYPARABOLA;
-		else if (evalFunction == (boost::uint16_t) ROSENBROCK)
-			df = ROSENBROCK;
-		else if (evalFunction == (boost::uint16_t) ACKLEY)
-			df = ACKLEY;
-		else if (evalFunction == (boost::uint16_t) RASTRIGIN)
-			df = RASTRIGIN;
-		else if (evalFunction == (boost::uint16_t) SCHWEFEL)
-			df = SCHWEFEL;
-		else {
+		// Assign the demo function
+		if(evalFunction > (boost::uint16_t)MAXDEMOFUNCTION) {
 			std::cout << "Error: Invalid evaluation function: " << evalFunction
 					<< std::endl;
 			return false;
 		}
+		df=(demoFunction)evalFunction;
 
 		if (verbose) {
-			std::string eF;
-			switch (evalFunction) {
-			case PARABOLA:
-				eF = "PARABOLA";
-				break;
-			case NOISYPARABOLA:
-				eF = "NOISYPARABOLA";
-				break;
-			case ROSENBROCK:
-				eF = "ROSENBROCK";
-				break;
-			case ACKLEY:
-				eF = "ACKLEY";
-				break;
-			case RASTRIGIN:
-				eF = "RASTRIGIN";
-				break;
-			case SCHWEFEL:
-				eF = "SCHWEFEL";
-				break;
-			}
-
 			std::cout << std::endl
 					<< "Running with the following options from " << configFile
 					<< ":" << std::endl << "nProducerThreads = "
@@ -324,7 +292,7 @@ bool parseConfigFile(
 					<< std::endl << "maxSigma " << maxSigma << std::endl
 					<< "parDim = " << parDim << std::endl << "minVar = "
 					<< minVar << std::endl << "maxVar = " << maxVar
-					<< std::endl << "evalFunction = " << eF << std::endl
+					<< std::endl << "evalFunction = " << GFunctionIndividual<>::getStringRepresentation(df) << std::endl
 					<< std::endl;
 		}
 	} catch (...) {

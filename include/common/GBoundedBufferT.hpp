@@ -219,9 +219,11 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_full_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_full, this))) {
+			/*
 #ifdef DEBUG
 			std::cout << "Push timeout" << std::endl;
 #endif
+			 */
 			throw Gem::Common::condition_time_out();
 		}
 		container_.push_front(item);
@@ -243,9 +245,11 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_full_.timed_wait(lock, timeout, boost::bind(&GBoundedBufferT<value_type>::is_not_full, this))) {
+			/*
 #ifdef DEBUG
 			std::cout << "Push timeout" << std::endl;
 #endif
+			 */
 			return false;
 		}
 		container_.push_front(item);
@@ -314,9 +318,11 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
+			/*
 #ifdef DEBUG
 			std::cout << "pop timeout" << std::endl;
 #endif
+			 */
 			throw Gem::Common::condition_time_out();
 		}
 		(*pItem) = container_.back();
@@ -340,9 +346,11 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		if(!not_empty_.timed_wait(lock,timeout,boost::bind(&GBoundedBufferT<value_type>::is_not_empty, this))) {
+			/*
 #ifdef DEBUG
 			std::cout << "pop timeout" << std::endl;
 #endif
+			*/
 			return false;
 		}
 		(*pItem) = container_.back();

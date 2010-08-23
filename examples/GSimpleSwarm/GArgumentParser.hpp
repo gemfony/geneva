@@ -58,6 +58,10 @@
 #include <common/GCommonEnums.hpp>
 #include <common/GSerializationHelperFunctionsT.hpp>
 
+// The individual that should be optimized
+#include "GFunctionIndividual.hpp"
+#include "GFunctionIndividualDefines.hpp"
+
 namespace Gem
 {
   namespace Geneva
@@ -88,7 +92,7 @@ namespace Gem
     const std::size_t DEFAULTNNEIGHBORHOODMEMBERSAP=20;
     const double DEFAULTCLOCALAP=2.;
     const double DEFAULTCGLOBALAP=2.;
-    const double DEFAULTCDELTAAP=0.95;
+    const double DEFAULTCDELTAAP=0.4;
 
     namespace po = boost::program_options;
 
@@ -118,6 +122,7 @@ namespace Gem
 		   , std::size_t& parDim
 		   , double& minVar
 		   , double& maxVar
+		   , demoFunction& df
 		   , double& cLocal
 		   , double& cGlobal
 		   , double& cDelta

@@ -317,6 +317,8 @@ protected:
 
 	/** @brief Helper function that returns the id of the first individual of a neighborhood */
 	std::size_t getFirstNIPos(const std::size_t&) const;
+	/** @brief Helper function that returns the id of the first individual of a neighborhood, using a vector of neighborhood sizes */
+	std::size_t getFirstNIPosVec(const std::size_t&, std::size_t*) const;
 	/** @brief Helper function that returns the id of the last individual of a neighborhood */
 	std::size_t getLastNIPos(const std::size_t&) const;
 

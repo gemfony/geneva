@@ -582,7 +582,8 @@ bool GIndividual::process(){
 
 	case SWARM:
 		{
-			bool previous=setAllowLazyEvaluation(false);
+			// Individuals may arrive with the dirty flag set in swarm algorithms
+			bool previous=setAllowLazyEvaluation(true);
 			if(getPersonalityTraits()->getCommand() == "evaluate") {
 				// Trigger fitness calculation
 				fitness();

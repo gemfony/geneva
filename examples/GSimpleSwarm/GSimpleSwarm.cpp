@@ -43,9 +43,11 @@
 #include <geneva/GIndividual.hpp>
 #include <geneva/GSwarm.hpp>
 #include <geneva/GMultiThreadedSwarm.hpp>
+#include <geneva/GBrokerSwarm.hpp>
 
 // The individual that should be optimized
-#include "GStartIndividual.hpp"
+#include "GFunctionIndividual.hpp"
+#include "GFunctionIndividualDefines.hpp"
 
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
@@ -59,156 +61,168 @@ using namespace Gem::Hap;
  * The main function.
  */
 int main(int argc, char **argv){
-  std::string configFile;		  
-  boost::uint16_t parallelizationMode;
-  bool serverMode;
-  std::string ip;
-  unsigned short port;
-  boost::uint16_t nProducerThreads;
-  boost::uint16_t nEvaluationThreads;
-  boost::uint32_t maxIterations;
-  long maxMinutes;
-  boost::uint32_t reportIteration;
-  std::size_t arraySize;
-  std::size_t parDim;
-  double minVar;
-  double maxVar;
-  boost::uint32_t processingCycles;
-  bool returnRegardless;
-  boost::uint32_t waitFactor;
-  std::size_t nNeighborhoods;
-  std::size_t nNeighborhoodMembers;
-  double cLocal;
-  double cGlobal;
-  double cDelta;
+	std::string configFile;
+	boost::uint16_t parallelizationMode;
+	bool serverMode;
+	std::string ip;
+	unsigned short port;
+	boost::uint16_t nProducerThreads;
+	boost::uint16_t nEvaluationThreads;
+	boost::uint32_t maxIterations;
+	long maxMinutes;
+	boost::uint32_t reportIteration;
+	std::size_t arraySize;
+	std::size_t parDim;
+	double minVar;
+	double maxVar;
+	boost::uint32_t processingCycles;
+	bool returnRegardless;
+	boost::uint32_t waitFactor;
+	std::size_t nNeighborhoods;
+	std::size_t nNeighborhoodMembers;
+	demoFunction df;
+	double cLocal;
+	double cGlobal;
+	double cDelta;
 
-  if(!parseCommandLine (
-		  argc
-		, argv
-		, configFile
-		, parallelizationMode
-		, serverMode
-		, ip
-		, port
-  ) ||
-     !parseConfigFile (
-		  configFile
-		, nProducerThreads
-		, nEvaluationThreads
-		, nNeighborhoods
-		, nNeighborhoodMembers
-		, maxIterations
-		, maxMinutes
-		, reportIteration
-		, arraySize
-		, processingCycles
-		, returnRegardless
-		, waitFactor
-		, parDim
-		, minVar
-		, maxVar
-		, cLocal
-		, cGlobal
-		, cDelta
+	if(!parseCommandLine (
+			argc
+			, argv
+			, configFile
+			, parallelizationMode
+			, serverMode
+			, ip
+			, port
+	) ||
+	!parseConfigFile (
+			configFile
+			, nProducerThreads
+			, nEvaluationThreads
+			, nNeighborhoods
+			, nNeighborhoodMembers
+			, maxIterations
+			, maxMinutes
+			, reportIteration
+			, arraySize
+			, processingCycles
+			, returnRegardless
+			, waitFactor
+			, parDim
+			, minVar
+			, maxVar
+			, df
+			, cLocal
+			, cGlobal
+			, cDelta
 	))
-    { exit(1); }
+	{ exit(1); }
 
-  // Random numbers are our most valuable good. Set the number of threads
-  GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
-  GRANDOMFACTORY->setArraySize(arraySize);
-  
-  //***************************************************************************
-  // If this is a client in networked mode, we can just start the listener and
-  // return when it has finished
-  if(parallelizationMode==2 && !serverMode) {
-    boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip, boost::lexical_cast<std::string>(port)));
+	// Random numbers are our most valuable good. Set the number of threads
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
+	GRANDOMFACTORY->setArraySize(arraySize);
 
-    p->setMaxStalls(0); // An infinite number of stalled data retrievals
-    p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
+	//***************************************************************************
+	// If this is a client in networked mode, we can just start the listener and
+	// return when it has finished
+	if(parallelizationMode==2 && !serverMode) {
+		boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip, boost::lexical_cast<std::string>(port)));
 
-    // Prevent return of unsuccessful adaption attempts to the server
-    p->returnResultIfUnsuccessful(returnRegardless);
+		p->setMaxStalls(0); // An infinite number of stalled data retrievals
+		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
 
-    // Start the actual processing loop
-    p->run();
+		// Prevent return of unsuccessful adaption attempts to the server
+		p->returnResultIfUnsuccessful(returnRegardless);
 
-    return 0;
-  }
+		// Start the actual processing loop
+		p->run();
 
-  //***************************************************************************
+		return 0;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // We can now start creating populations. We refer to them through the base class
+	//***************************************************************************
 
-  // This smart pointer will hold the different population types
-  boost::shared_ptr<GSwarm> pop_ptr;
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// We can now start creating populations. We refer to them through the base class
 
-  // Create the actual populations
-  switch (parallelizationMode) {
-    //-----------------------------------------------------------------------------------------------------
-  case 0: // Serial execution
-    // Create an empty population
-    pop_ptr = boost::shared_ptr<GSwarm>(new GSwarm(nNeighborhoods, nNeighborhoodMembers));
-    break;
+	// This smart pointer will hold the different population types
+	boost::shared_ptr<GSwarm> pop_ptr;
 
-    //-----------------------------------------------------------------------------------------------------
-  case 1: // Multi-threaded execution
-    {
-      // Create the multi-threaded population
-      boost::shared_ptr<GMultiThreadedSwarm> popPar_ptr(new GMultiThreadedSwarm(nNeighborhoods, nNeighborhoodMembers));
+	// Create the actual populations
+	switch (parallelizationMode) {
+	//-----------------------------------------------------------------------------------------------------
+	case 0: // Serial execution
+		// Create an empty population
+		pop_ptr = boost::shared_ptr<GSwarm>(new GSwarm(nNeighborhoods, nNeighborhoodMembers));
+		break;
 
-      // Population-specific settings
-      popPar_ptr->setNThreads(nEvaluationThreads);
+		//-----------------------------------------------------------------------------------------------------
+	case 1: // Multi-threaded execution
+	{
+		// Create the multi-threaded population
+		boost::shared_ptr<GMultiThreadedSwarm> popPar_ptr(new GMultiThreadedSwarm(nNeighborhoods, nNeighborhoodMembers));
 
-      // Assignment to the base pointer
-      pop_ptr = popPar_ptr;
-    }
-    break;
+		// Population-specific settings
+		popPar_ptr->setNThreads(nEvaluationThreads);
 
-    //-----------------------------------------------------------------------------------------------------
-  case 2: // Networked execution (server-side)
-    {
-    	/*
-      // Create a network consumer and enrol it with the broker
-      boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
-      GINDIVIDUALBROKER->enrol(gatc);
+		// Assignment to the base pointer
+		pop_ptr = popPar_ptr;
+	}
+	break;
 
-      // Create the actual broker population
-      boost::shared_ptr<GBrokerSwarm> popBroker_ptr(new GBrokerSwarm());
-      popBroker_ptr->setWaitFactor(waitFactor);
+	//-----------------------------------------------------------------------------------------------------
+	case 2: // Networked execution (server-side)
+	{
+		// Create a network consumer and enrol it with the broker
+		boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
+		GINDIVIDUALBROKER->enrol(gatc);
 
-      // Assignment to the base pointer
-      pop_ptr = popBroker_ptr;
-      */
-    }
-    break;
-  }
+		// Create the actual broker population
+		boost::shared_ptr<GBrokerSwarm> popBroker_ptr(new GBrokerSwarm(nNeighborhoods, nNeighborhoodMembers));
+		popBroker_ptr->setWaitFactor(waitFactor);
+
+		// Assignment to the base pointer
+		pop_ptr = popBroker_ptr;
+	}
+	break;
+	}
 
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Now we have suitable populations and can fill them with data
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Now we have suitable populations and can fill them with data
 
-  // Add individuals to the population
-  for(std::size_t p = 0 ; p<pop_ptr->getDefaultPopulationSize(); p++) {
-	  boost::shared_ptr<GStartIndividual> gdii_ptr(new GStartIndividual(parDim, minVar, maxVar));
-	  gdii_ptr->randomInit();
-	  gdii_ptr->setProcessingCycles(processingCycles);
-	  pop_ptr->push_back(gdii_ptr);
-  }
+	// Add individuals to the population.
+	// NOTE: Unlike evolutionary algorithms, we do not have to add an adaptor to the population
+	for(std::size_t p = 0 ; p<pop_ptr->getDefaultPopulationSize(); p++) {
+		boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual<>::getFunctionIndividual(df);
 
-  // Specify some general population settings
-  pop_ptr->setMaxIteration(maxIterations);
-  pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
-  pop_ptr->setReportIteration(reportIteration);
-  pop_ptr->setCLocal(cLocal);
-  pop_ptr->setCGlobal(cGlobal);
-  pop_ptr->setCDelta(cDelta);
-  
-  // Do the actual optimization
-  pop_ptr->optimize();
+		// Set up a GDoubleCollection with dimension values, each initialized
+		// with a random number in the range [min,max[
+		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
 
-  //--------------------------------------------------------------------------------------------
+		// Make the parameter collection known to this individual
+		functionIndividual_ptr->push_back(gdc_ptr);
+		functionIndividual_ptr->setProcessingCycles(processingCycles);
 
-  std::cout << "Done ..." << std::endl;
-  return 0;
+		// Randomly initialize the individual (within its constraints)
+		functionIndividual_ptr->randomInit();
+
+		// Add tp the population
+		pop_ptr->push_back(functionIndividual_ptr);
+	}
+
+	// Specify some general population settings
+	pop_ptr->setMaxIteration(maxIterations);
+	pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
+	pop_ptr->setReportIteration(reportIteration);
+	pop_ptr->setCLocal(cLocal);
+	pop_ptr->setCGlobal(cGlobal);
+	pop_ptr->setCDelta(cDelta);
+
+	// Do the actual optimization
+	pop_ptr->optimize();
+
+	//--------------------------------------------------------------------------------------------
+
+	std::cout << "Done ..." << std::endl;
+	return 0;
 }

@@ -277,16 +277,24 @@ bool GBrokerSwarm::updateIndividualsAndIntegrate(
 void GBrokerSwarm::swarmLogic() {
 	boost::uint32_t iteration = getIteration();
 	GBrokerSwarm::iterator it;
+	std::size_t *nNeighborhoodMembersCp;
 
 	//--------------------------------------------------------------------------------
-	// Create a copy of the last iteration's individuals, if iteration > 0 . We use
-	// this to fill in missing returns. This doesn't make sense for iteration 0 though,
-	// as individuals have not generally been evaluated then, and we do not want to
-	// fill up with "dirty" individuals.
+	// Create a copy of the last iteration's individuals and the number of individuals
+	// in each neighborhood, if iteration > 0 . We use this to fill in missing returns.
+	// This doesn't make sense for iteration 0 though, as individuals have not generally
+	// been evaluated then, and we do not want to fill up with "dirty" individuals.
 	std::vector<boost::shared_ptr<GParameterSet> > oldIndividuals;
 	if(iteration > 0) {
+		// Copy the individuals over
 		for(it=this->begin(); it!=this->end(); ++it) {
 			oldIndividuals.push_back((*it)->clone<GParameterSet>());
+		}
+
+		// Store the current amount of individuals in each neighborhood
+		nNeighborhoodMembersCp = new std::size_t[nNeighborhoods_];
+		for(std::size_t n=0; n<nNeighborhoods_; n++) {
+			nNeighborhoodMembersCp[n] = nNeighborhoodMembers_[n];
 		}
 	}
 
@@ -367,26 +375,92 @@ void GBrokerSwarm::swarmLogic() {
 	//--------------------------------------------------------------------------------
 	// O.k., so some individuals are missing in this iteration. Do some fixing
 	if(iteration > 0) { // The most likely case
+		GBrokerSwarm::iterator insert_it = this->begin();
+		std::vector<boost::shared_ptr<GParameterSet> >::iterator remove_it = oldIndividuals.begin();
+
 		// Loop over all neighborhoods
 		for(std::size_t n=0; n<nNeighborhoods_; n++) {
-			// Find out, how many items are missing, add as required
+			// Find out, how many items are missing (if at all), add as required
 			if(nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_) {
 				std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
-/*
-				// Copy the nMissing best individuals from the past iteration over
-				std::size_t firstNIPos;
-				for(std::size_t nM = 0; nM < nMissing; nM++) {
 
+				// Copy the nMissing best individuals from the past iteration over. We
+				// assume that the best individuals can be found at the front of each neighborhood
+				std::size_t firstOldPos;
+				std::size_t firstNIPos;
+
+				for(std::size_t nM = 0; nM < nMissing; nM++) {
+					// Calculate the position of oldIndividual's first individual in this neighborhood
+					firstOldPos = getFirstNIPosVec(n, nNeighborhoodMembersCp);
+
+					// Calculate the position of our own first individual in this neighborhood
+					firstNIPos = getFirstNIPos(n);
+
+					// Insert into main data vector
+					this->insert(insert_it+firstNIPos, *(remove_it + firstOldPos));
+
+#ifdef DEBUG
+					if((*(insert_it+firstNIPos))->getSwarmPersonalityTraits()->getNeighborhood() != n) {
+						std::ostringstream error;
+						error << "In GBrokerSwarm::swarmLogic(): Error!" << std::endl
+							  << "Found invalid neighborhood in copy: " << (*(insert_it+firstNIPos))->getSwarmPersonalityTraits()->getNeighborhood() << "/" << n << std::endl;
+						throw(Gem::Common::gemfony_error_condition(error.str()));
+					}
+#endif /* DEBUG */
+
+					// Remove entry from the copy
+					oldIndividuals.erase(remove_it + firstOldPos);
+
+					// Update the counters
+					nNeighborhoodMembers_[n] += 1;
+#ifdef DEBUG
+					if(nNeighborhoodMembersCp[n] <= 0) {
+						std::ostringstream error;
+						error << "In GBrokerSwarm::swarmLogic(): Error!" << std::endl
+							  << "Found copy of neighborhood without entries." << std::endl;
+						throw(Gem::Common::gemfony_error_condition(error.str()));
+					}
+#endif /* DEBUG */
+					nNeighborhoodMembersCp[n] -= 1;
 				}
-*/
 			}
 		}
-	} else { // iteration == 0
 
+		// Get rid of the information about old individuals
+		delete [] nNeighborhoodMembersCp;
+		oldIndividuals.clear();
+	} else { // iteration == 0: Fill up with random items
+		// At least one individual must have returned. Otherwise getFirstItem() would
+		// have thrown an exception. We can thus safely create copies of the first
+		// individual in the collection and re-initialize them randomly.
+
+		// The start of the collection
+		GBrokerSwarm::iterator insert_it = this->begin();
+
+		// Loop over all neighborhoods. Find out, how many items are missing, add as required
+		for(std::size_t n=0; n<nNeighborhoods_; n++) {
+			std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
+
+			std::size_t firstNIPos;
+			for(std::size_t nM = 0; nM < nMissing; nM++) {
+				// Calculate the position of our own first individual in this neighborhood
+				firstNIPos = getFirstNIPos(n);
+
+				// Insert a clone of the first individual of the collection
+				this->insert(insert_it + firstNIPos, (this->front())->clone<GParameterSet>());
+
+				// Randomly initialize the item and prevent position updates
+				(*(insert_it + firstNIPos))->randomInit();
+				(*(insert_it + firstNIPos))->getSwarmPersonalityTraits()->setNoPositionUpdate();
+
+				// Set the neighborhood as required
+				(*(insert_it + firstNIPos))->getSwarmPersonalityTraits()->setNeighborhood(n);
+
+				// Update the counter
+				nNeighborhoodMembers_[n] += 1;
+			}
+		}
 	}
-
-	// Get rid of the remaining copies of the current population
-	oldIndividuals.clear();
 }
 
 #ifdef GENEVATESTING

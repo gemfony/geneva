@@ -125,20 +125,7 @@ int main(int argc, char **argv){
   // Create the first set of parent individuals. Initialization of parameters is done randomly.
   std::vector<boost::shared_ptr<GParameterSet> > parentIndividuals;
   for(std::size_t p = 0 ; p<nParents; p++) {
-	  boost::shared_ptr<GParameterSet> functionIndividual_ptr;
-
-	  // Set up a single function individual, depending on the expected function type
-	  switch(df) {
-	  case PARABOLA:
-		  functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<PARABOLA> >(new GFunctionIndividual<PARABOLA>());
-		  break;
-	  case NOISYPARABOLA:
-		  functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<NOISYPARABOLA> >(new GFunctionIndividual<NOISYPARABOLA>());
-		  break;
-	  case ROSENBROCK:
-		  functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<ROSENBROCK> >(new GFunctionIndividual<ROSENBROCK>());
-		  break;
-	  }
+	  boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual<>::getFunctionIndividual(df);
 
 	  // Set up a GDoubleCollection with dimension values, each initialized
 	  // with a random number in the range [min,max[

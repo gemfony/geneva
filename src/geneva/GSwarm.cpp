@@ -438,10 +438,23 @@ bool GSwarm::nNeighborhoodMembersEqual(const std::size_t *one, const std::size_t
  * @return The position of the first individual of a neighborhood
  */
 std::size_t GSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
+	return getFirstNIPosVec(neighborhood, nNeighborhoodMembers_);
+}
+
+/************************************************************************************************************/
+/**
+ * Helper function that returns the id of the first individual of a neighborhood, using a vector of neighborhood
+ * sizes. "NI" stands for NeighborhoodIndividual. "neighborhood" is assumed to be a counter, starting at 0 and assuming
+ * a maximum value of (nNeighborhoods_-1).
+ *
+ * @param neighborhood The id of the neighborhood for which the id of the first individual should be calculated
+ * @return The position of the first individual of a neighborhood
+ */
+std::size_t GSwarm::getFirstNIPosVec(const std::size_t& neighborhood, std::size_t* vec) const {
 #ifdef DEBUG
 	if(neighborhood >= nNeighborhoods_) {
 		std::ostringstream error;
-		error << "In GSwarm::getFirstNIPos(): Error!" << std::endl
+		error << "In GSwarm::getFirstNIPosVec(): Error!" << std::endl
 			  << "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
 			  << "The number of neighborhoods is " << nNeighborhoods_ << "," << std::endl
 			  << "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "." << std::endl;
@@ -453,7 +466,7 @@ std::size_t GSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
 	else {	// Sum up the number of members in each neighborhood
 		std::size_t nPreviousMembers=0;
 		for(std::size_t n=0; n<neighborhood; n++) {
-			nPreviousMembers += nNeighborhoodMembers_[n];
+			nPreviousMembers += vec[n];
 		}
 
 		return nPreviousMembers;
@@ -508,6 +521,7 @@ double GSwarm::cycleLogic() {
 	// Makes sure that each neighborhood has the right size before the next cycle starts
 	adjustNeighborhoods();
 
+	// Let the audience know
 	return bestLocalFitness;
 }
 
@@ -526,17 +540,25 @@ void GSwarm::swarmLogic() {
 		if(iteration > 0) {
 			if(!local_bests_[neighborhood]) {
 				std::ostringstream error;
-				error << "In GSwarm::updatePositionsAndFitness(): Error!" << std::endl
+				error << "In GSwarm::swarmLogic(): Error!" << std::endl
 					  << "local_bests[" << neighborhood << "] is empty." << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 
 			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
 				std::ostringstream error;
-				error << "In GSwarm::updatePositionsAndFitness(): Error!" << std::endl
+				error << "In GSwarm::swarmLogic(): Error!" << std::endl
 					  << "global_best_ is empty." << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
+		}
+
+		if(nNeighborhoodMembers_[neighborhood] != defaultNNeighborhoodMembers_) {
+			std::ostringstream error;
+			error << "In GSwarm::swarmLogic(): Error!" << std::endl
+				  << "nNeighborhoodMembers_[" << neighborhood << "] should be " << defaultNNeighborhoodMembers_ << std::endl
+				  << "but has value " << nNeighborhoodMembers_[neighborhood] << " instead" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #endif /* DEBUG */
 
@@ -555,7 +577,11 @@ void GSwarm::swarmLogic() {
 					, *current
 					, local_bests_[neighborhood]->clone<GParameterSet>()
 					, global_best_->clone<GParameterSet>()
+#ifdef DEBUG
+					, velocities_.at(offset)
+#else
 					, velocities_[offset]
+#endif /* DEBUG */
 					, getCLocal()
 					, getCGlobal()
 					, getCDelta()
@@ -590,6 +616,38 @@ void GSwarm::updatePositions(
 	  , double cGlobal
 	  , double cDelta
 ) {
+#ifdef DEBUG
+	// Do some error checking
+	if(!ind) {
+		std::ostringstream error;
+		error << "In GSwarm::updatePositions(): Error!" << std::endl
+			  << "Found empty individual \"ind\"" << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
+	if(!local_best_tmp) {
+		std::ostringstream error;
+		error << "In GSwarm::updatePositions(): Error!" << std::endl
+			  << "Found empty individual \"local_best_tmp\"" << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
+	if(!global_best_tmp) {
+		std::ostringstream error;
+		error << "In GSwarm::updatePositions(): Error!" << std::endl
+			  << "Found empty individual \"global_best_tmp\"" << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
+	if(!velocity) {
+		std::ostringstream error;
+		error << "In GSwarm::updatePositions(): Error!" << std::endl
+			  << "Found empty individual \"velocity\"" << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
+#endif /* DEBUG */
+
 	// Subtract the current individual
 	local_best_tmp->fpSubtract(ind);
 	global_best_tmp->fpSubtract(ind);
@@ -779,6 +837,9 @@ void GSwarm::adjustNeighborhoods() {
 			(*(this->begin() + n*defaultNNeighborhoodMembers_))->randomInit();
 			(*(this->begin() + n*defaultNNeighborhoodMembers_))->getSwarmPersonalityTraits()->setNoPositionUpdate();
 		}
+
+		// Update the number of entries in this neighborhood
+		nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
 	}
 }
 
