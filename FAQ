@@ -8,4 +8,18 @@ A: Geneva stands for "Grid-enabled evolutionary algorithms". The library will ul
 Q: Why do member functions of Geneva classes do not carry the "throw(...)" specifier ?
 A: In former releases, throw() specifiers were used to list the exceptions a function
    could throw. A rationale for the decision to remove these specifiers can be found
-   here: http://www.gotw.ca/publications/mill22.htm . 
+   here: http://www.gotw.ca/publications/mill22.htm .
+   
+Q: When I run one of the examples in networked mode on the local box, the optimization stops
+   reproducibly after a few hundred iterations. Is this a bug ?
+A: The Geneva library assumes that evaluation functions run for a (possibly very) long time.
+   Consequently clients disconnect from the server as soon as they have received a work item,
+   and reconnect, once they have finished the calculation. The examples shipped with the 
+   library, in turn, only implement evaluation functions that run for a few milliseconds.
+   This means that a lot of connections are opened and closed in a very short time. You might
+   then quickly run out of ports, whose number is limited on Linux (you can find this out with 
+   the command "cat /proc/sys/net/ipv4/ip_local_port_range"). One remedy is explained here:
+   http://www.speedguide.net/read_articles.php?id=121 (search for TCP_TW_REUSE). Note that 
+   you need to carefully evaluate the effects of resetting that variable on your system.
+   See also a related 2007 discussion on the Boost.Asio Usenet forum (quoted e.g. here:
+   http://osdir.com/ml/lib.boost.asio.user/2007-06/msg00101.html) .
