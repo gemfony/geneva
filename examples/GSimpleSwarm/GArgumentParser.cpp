@@ -139,6 +139,10 @@ namespace Gem
 	   , double& cLocal
 	   , double& cGlobal
 	   , double& cDelta
+	   , updateRule& ur
+	   , boost::uint16_t& xDim
+	   , boost::uint16_t& yDim
+	   , bool& followProgress
     ) {
 		  boost::uint16_t evalFunction = 0;
 		  bool verbose;
@@ -191,6 +195,14 @@ namespace Gem
 		   "A constant to be multiplied with the local direction vector")
 		  ("cDelta", po::value<double>(&cDelta)->default_value(DEFAULTCDELTAAP),
 		   "A constant to be multiplied with the old velocity vector")
+		  ("ur", po::value<updateRule>(&ur)->default_value(DEFAULTUPDATERULE),
+		   "Use linear (0) or classical (1) update rule")
+		  ("xDim", po::value<boost::uint16_t>(&xDim)->default_value(DEFAULTXDIMAP),
+		   "The x-dimension of the canvas for the result print(s)")
+		  ("yDim", po::value<boost::uint16_t>(&yDim)->default_value(DEFAULTYDIMAP),
+		   "The y-dimension of the canvas for the result print(s)")
+		  ("followProgress", po::value<bool>(&followProgress)->default_value(DEFAULTFOLLOWPROGRESS),
+		   "Specifies whether snapshots should be taken in regular intervals")
 		  ;
 
 		po::variables_map vm;
@@ -238,6 +250,10 @@ namespace Gem
 					<< "cLocal = " << cLocal << std::endl
 					<< "cGlobal = " << cGlobal << std::endl
 					<< "cDelta = " << cDelta << std::endl
+					<< "updateRule = " << ur << std::endl
+					<< "xDim = " << xDim << std::endl
+					<< "yDim = " << yDim << std::endl
+					<< "followProgress = " << (followProgress?"true":"false") << std::endl
 					<< std::endl;
 		}
       }

@@ -208,6 +208,41 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::personality& pers) {
 }
 
 /*********************************************************************/
+/**
+ * Puts a Gem::Geneva::updateRule item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param ur the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream& operator<<(std::ostream& o, const Gem::Geneva::updateRule& ur) {
+	boost::uint16_t tmp = static_cast<boost::uint16_t>(ur);
+	o << tmp;
+	return o;
+}
+
+/*********************************************************************/
+/**
+ * Reads a Gem::Geneva::updateRule item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param ur The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream& operator>>(std::istream& i, Gem::Geneva::updateRule& ur) {
+	boost::uint16_t tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	ur = boost::numeric_cast<Gem::Geneva::updateRule>(tmp);
+#else
+	ur = static_cast<Gem::Geneva::updateRule>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/*********************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -52,6 +52,9 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
+// Holds the optimization monitor
+#include "GInfoFunction.hpp"
+
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
@@ -84,6 +87,10 @@ int main(int argc, char **argv){
 	double cLocal;
 	double cGlobal;
 	double cDelta;
+	updateRule ur;
+	boost::uint16_t xDim;
+	boost::uint16_t yDim;
+	bool followProgress;
 
 	if(!parseCommandLine (
 			argc
@@ -114,6 +121,10 @@ int main(int argc, char **argv){
 			, cLocal
 			, cGlobal
 			, cDelta
+			, ur
+			, xDim
+			, yDim
+			, followProgress
 	))
 	{ exit(1); }
 
@@ -140,6 +151,13 @@ int main(int argc, char **argv){
 	}
 
 	//***************************************************************************
+	// Create an instance of our optimization monitor, telling it to output information in given intervals
+	std::ofstream resultSummary("./result.C");
+	boost::shared_ptr<optimizationMonitor> om_ptr(new optimizationMonitor(df, resultSummary));
+	om_ptr->setDims(xDim, yDim);
+	om_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
+	om_ptr->setXExtremes(minVar, maxVar);
+	om_ptr->setYExtremes(minVar, maxVar);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// We can now start creating populations. We refer to them through the base class
@@ -203,9 +221,6 @@ int main(int argc, char **argv){
 		functionIndividual_ptr->push_back(gdc_ptr);
 		functionIndividual_ptr->setProcessingCycles(processingCycles);
 
-		// Randomly initialize the individual (within its constraints)
-		functionIndividual_ptr->randomInit();
-
 		// Add tp the population
 		pop_ptr->push_back(functionIndividual_ptr);
 	}
@@ -217,6 +232,8 @@ int main(int argc, char **argv){
 	pop_ptr->setCLocal(cLocal);
 	pop_ptr->setCGlobal(cGlobal);
 	pop_ptr->setCDelta(cDelta);
+	pop_ptr->setUpdateRule(ur);
+	pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om_ptr, _1, _2));
 
 	// Do the actual optimization
 	pop_ptr->optimize();

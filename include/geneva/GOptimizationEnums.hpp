@@ -194,6 +194,19 @@ const double CDELTARANGEDISABLED = -1.; ///< A value < 0 means that the delta ra
 
 /**********************************************************************************************/
 /**
+ * Specifies different update rules in swarms
+ */
+enum updateRule {
+	  LINEAR
+	, CLASSIC
+};
+
+/**********************************************************************************************/
+
+const updateRule DEFAULTUPDATERULE = CLASSIC; ///< The default update rule in swarms
+
+/**********************************************************************************************/
+/**
  * The default factor applied to the turn-around time
  * of the first individual in the first generation. Used to
  * find a suitable timeout-value for following individuals.
@@ -242,6 +255,12 @@ std::ostream& operator<<(std::ostream&, const Gem::Geneva::personality&);
 
 /** @brief Reads a Gem::Geneva::personality from a stream. Needed also for boost::lexical_cast<> */
 std::istream& operator>>(std::istream&, Gem::Geneva::personality&);
+
+/** @brief Puts a Gem::Geneva::updateRule into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::updateRule&);
+
+/** @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::updateRule&);
 
 /**********************************************************************************************/
 

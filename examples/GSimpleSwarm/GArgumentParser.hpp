@@ -55,7 +55,7 @@
 #endif
 
 // Geneva headers go here
-#include <common/GCommonEnums.hpp>
+#include <geneva/GOptimizationEnums.hpp>
 #include <common/GSerializationHelperFunctionsT.hpp>
 
 // The individual that should be optimized
@@ -93,6 +93,9 @@ namespace Gem
     const double DEFAULTCLOCALAP=2.;
     const double DEFAULTCGLOBALAP=2.;
     const double DEFAULTCDELTAAP=0.4;
+    const boost::uint16_t DEFAULTXDIMAP=1024;
+    const boost::uint16_t DEFAULTYDIMAP=1024;
+    const bool DEFAULTFOLLOWPROGRESS=false;
 
     namespace po = boost::program_options;
 
@@ -126,6 +129,10 @@ namespace Gem
 		   , double& cLocal
 		   , double& cGlobal
 		   , double& cDelta
+		   , updateRule& ur
+		   , boost::uint16_t& xDim
+		   , boost::uint16_t& yDim
+		   , bool& followProgress
 	);
 
   } /* namespace Geneva */

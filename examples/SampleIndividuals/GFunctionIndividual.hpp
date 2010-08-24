@@ -244,6 +244,9 @@ public:
 	/**
 	 * This function converts the function id to a string representation. This is a convenience
 	 * function that is mostly used in GArgumentParser.cpp of various Geneva examples.
+	 *
+	 * @param df The id of the desired function individual
+	 * @return A string representing the name of the current function
 	 */
 	static std::string getStringRepresentation(const demoFunction& df) {
 		std::string result;
@@ -251,25 +254,64 @@ public:
 		// Set up a single function individual, depending on the expected function type
 		switch(df) {
 		case PARABOLA:
-			result="PARABOLA";
+			result="Parabola";
 			break;
 		case BERLICH:
-			result="BERLICH";
+			result="Berlich noisy parabola";
 			break;
 		case ROSENBROCK:
-			result="ROSENBROCK";
+			result="Rosenbrock";
 			break;
 		case ACKLEY:
-			result="ACKLEY";
+			result="Ackley";
 			break;
 		case RASTRIGIN:
-			result="RASTRIGIN";
+			result="Rastrigin";
 			break;
 		case SCHWEFEL:
-			result="SCHWEFEL";
+			result="Schwefel";
 			break;
 		case SALOMON:
-			result="SALOMON";
+			result="Salomon";
+			break;
+		}
+
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Retrieves a string in ROOT format (see http://root.cern.ch) of the 2D version of a
+	 * given function.
+	 *
+	 * @param df The id of the desired function individual
+	 * @return A string suitable for plotting a 2D version of this function with the ROOT analysis framework
+	 */
+	static std::string get2DROOTFunction(const demoFunction& df) {
+		std::string result;
+
+		// Set up a single function individual, depending on the expected function type
+		switch(df) {
+		case PARABOLA:
+			result="x^2 + y^2";
+			break;
+		case BERLICH:
+			result="(cos(x^2 + y^2) + 2.) * (x^2 + y^2)";
+			break;
+		case ROSENBROCK:
+			result="100.*(x^2 - y)^2 + (1 - x)^2";
+			break;
+		case ACKLEY:
+			result="exp(-0.2)*sqrt(x^2 + y^2) + 3.*(cos(2.*x) + sin(2.*y))";
+			break;
+		case RASTRIGIN:
+			result="20.+(x^2 - 10.*cos(2*pi*x)) + (y^2 - 10.*cos(2*pi*y))";
+			break;
+		case SCHWEFEL:
+			result="-0.5*(x*sin(sqrt(abs(x))) + y*sin(sqrt(abs(y))))";
+			break;
+		case SALOMON:
+			result="-cos(2.*pi*sqrt(x^2 + y^2)) + 0.1*sqrt(x^2 + y^2) + 1.";
 			break;
 		}
 
@@ -364,6 +406,7 @@ template<> inline double GFunctionIndividual<BERLICH>::fitnessCalculation() {
 /************************************************************************************************/
 /**
  * The generalized Rosenbrock function (see e.g. http://en.wikipedia.org/wiki/Rosenbrock_function)
+ * or http://www.it.lut.fi/ip/evo/functions/node5.html .
  *
  * @return The result of the calculation
  */
@@ -386,7 +429,7 @@ template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
 #endif /* DEBUG */
 
 	for(std::size_t i=0; i<(parameterSize-1); i++) {
-		result += GSQUARED(1.-x_ref[i]) + 100.*GSQUARED(x_ref[i+1]-GSQUARED(x_ref[i]));
+		result += 100.*GSQUARED(GSQUARED(x_ref[i]) - x_ref[i+1]) + GSQUARED(1.-x_ref[i]);
 	}
 
 	return result;

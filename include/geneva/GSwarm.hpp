@@ -136,7 +136,8 @@ class GSwarm
 
 		ar & BOOST_SERIALIZATION_NVP(c_local_)
 		   & BOOST_SERIALIZATION_NVP(c_global_)
-		   & BOOST_SERIALIZATION_NVP(c_delta_);
+		   & BOOST_SERIALIZATION_NVP(c_delta_)
+		   & BOOST_SERIALIZATION_NVP(ur_);
 	}
 
 	template<typename Archive>
@@ -162,7 +163,8 @@ class GSwarm
 		ar & BOOST_SERIALIZATION_NVP(local_bests_vec)
 		   & BOOST_SERIALIZATION_NVP(c_local_)
 		   & BOOST_SERIALIZATION_NVP(c_global_)
-		   & BOOST_SERIALIZATION_NVP(c_delta_);
+		   & BOOST_SERIALIZATION_NVP(c_delta_)
+		   & BOOST_SERIALIZATION_NVP(ur_);
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -219,17 +221,22 @@ public:
 	/** @brief Retrieves the current number of individuals in a given neighborhood */
 	std::size_t getCurrentNNeighborhoodMembers(const std::size_t&) const;
 
+	/** @brief Allows to specify the update rule to be used by the swarm */
+	void setUpdateRule(const updateRule&);
+	/** @brief Allows to retrieve the update rule currently used by the swarm */
+	updateRule getUpdateRule() const;
+
 	/**************************************************************************************************/
 	/**
 	 * Retrieves the best individual of the population and casts it to the desired type. Note that this
-	 * function will only be accessible to the compiler if individual_type is a derivative of GIndividual,
+	 * function will only be accessible to the compiler if parameterset_type is a derivative of GParameterSet,
 	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
 	 *
 	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
 	 */
-	template <typename individual_type>
-	inline boost::shared_ptr<individual_type> getBestIndividual(
-			typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+	template <typename parameterset_type>
+	inline boost::shared_ptr<parameterset_type> getBestIndividual(
+			typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
 	){
 #ifdef DEBUG
 		// Check that global_best_ actually points somewhere
@@ -240,7 +247,7 @@ public:
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		boost::shared_ptr<individual_type> p = boost::dynamic_pointer_cast<individual_type>(global_best_);
+		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(global_best_);
 
 		if(p) return p;
 		else {
@@ -249,41 +256,51 @@ public:
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #else
-		return boost::static_pointer_cast<individual_type>(global_best_);
+		return boost::static_pointer_cast<parameterset_type>(global_best_);
 #endif /* DEBUG */
 	}
 
 	/**************************************************************************************************/
 	/**
 	 * Retrieves the best individual of a neighborhood and casts it to the desired type. Note that this
-	 * function will only be accessible to the compiler if individual_type is a derivative of GIndividual,
+	 * function will only be accessible to the compiler if parameterset_type is a derivative of GParameterSet,
 	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
 	 *
+	 * @param neighborhood The neighborhood, whose best individual should be returned
 	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
 	 */
-	template <typename individual_type>
-	inline boost::shared_ptr<individual_type> getBestNeighborhoodIndividual(
-			typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+	template <typename parameterset_type>
+	inline boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
+			std::size_t neighborhood
+		  , typename boost::enable_if<boost::is_base_of<GIndividual, parameterset_type> >::type* dummy = 0
 	){
 #ifdef DEBUG
-		// Check that global_best_ actually points somewhere
-		if(!global_best_) {
+		// Check that the neighborhood is in a valid range
+		if(neighborhood >= nNeighborhoods_) {
 			std::ostringstream error;
-			error << "In GSwarm::getBestIndividual<>() : Error" << std::endl
-				  << "Tried to access uninitialized globally best individual." << std::endl;
+			error << "In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
+				  << "Requested neighborhood which does not exist: " << neighborhood << " / " << nNeighborhoods_ << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		boost::shared_ptr<individual_type> p = boost::dynamic_pointer_cast<individual_type>(global_best_);
+		// Check that global_best_ actually points somewhere
+		if(!local_bests_[neighborhood]) {
+			std::ostringstream error;
+			error << "In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
+				  << "Tried to access uninitialized locally best individual." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(local_bests_[neighborhood]);
 
 		if(p) return p;
 		else {
 			std::ostringstream error;
-			error << "In GSwarm::getBestIndividual<>() : Conversion error" << std::endl;
+			error << "In GSwarm::getBestNeighborhoodIndividual<>() : Conversion error" << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #else
-		return boost::static_pointer_cast<individual_type>(global_best_);
+		return boost::static_pointer_cast<parameterset_type>(local_bests_[neighborhood]);
 #endif /* DEBUG */
 	}
 
@@ -401,6 +418,9 @@ protected:
 	float c_global_;
 	/** @brief A factor for multiplication of deltas */
 	float c_delta_;
+
+	/** @brief Specifies how the parameters are updated */
+	updateRule ur_;
 
 	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes. */
 	GSwarm(){}

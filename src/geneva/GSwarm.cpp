@@ -57,6 +57,7 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, c_local_(DEFAULTCLOCAL)
 	, c_global_(DEFAULTCGLOBAL)
 	, c_delta_(DEFAULTCDELTA)
+	, ur_(DEFAULTUPDATERULE)
 {
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
@@ -84,6 +85,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, c_local_(cp.c_local_)
 	, c_global_(cp.c_global_)
 	, c_delta_(cp.c_delta_)
+	, ur_(cp.ur_)
 {
 	// Copy the current number of individuals in each neighborhood over
 #ifdef DEBUG
@@ -169,6 +171,7 @@ void GSwarm::load_(const GObject *cp)
 	c_local_ = p_load->c_local_;
 	c_global_ = p_load->c_global_;
 	c_delta_ = p_load->c_delta_;
+	ur_ = p_load->ur_;
 
 	// We start from scratch if the number of neighborhoods or the alleged number of members in them differ
 	if(nNeighborhoods_!=p_load->nNeighborhoods_ || !nNeighborhoodMembersEqual(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_)) {
@@ -278,6 +281,7 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_local_, p_load->c_local_, "c_local_", "p_load->c_local_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_delta_, p_load->c_delta_, "c_delta_", "p_load->c_delta_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", ur_, p_load->ur_, "ur_", "p_load->ur_", e , limit));
 
 	// The next checks only makes sense if the number of neighborhoods are equal
 	if(nNeighborhoods_ == p_load->nNeighborhoods_) {
@@ -652,9 +656,17 @@ void GSwarm::updatePositions(
 	local_best_tmp->fpSubtract(ind);
 	global_best_tmp->fpSubtract(ind);
 
-	// Multiply each floating point value with a random fp number in the range [0,1[
-	local_best_tmp->fpMultiplyByRandom();
-	global_best_tmp->fpMultiplyByRandom();
+	switch(ur_) {
+	case CLASSIC:
+		// Multiply each floating point value with a random fp number in the range [0,1[
+		local_best_tmp->fpMultiplyByRandom();
+		global_best_tmp->fpMultiplyByRandom();
+		break;
+	case LINEAR:
+		// Multiply local_best_tmp and global_best_tmp with a single [0,1[ random number each
+		local_best_tmp->fpMultiplyBy(gr.uniform_01());
+		global_best_tmp->fpMultiplyBy(gr.uniform_01());
+	}
 
 	// Multiply each floating point value with a fixed, configurable constant value
 	local_best_tmp->fpMultiplyBy(cLocal);
@@ -1039,6 +1051,26 @@ std::size_t GSwarm::getDefaultNNeighborhoodMembers() const {
  */
 std::size_t GSwarm::getCurrentNNeighborhoodMembers(const std::size_t& neighborhood) const {
 	return nNeighborhoodMembers_[neighborhood];
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to specify the update rule to be used by the swarm.
+ *
+ * @param ur The desired update rule
+ */
+void GSwarm::setUpdateRule(const updateRule& ur) {
+	ur_ = ur;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to retrieve the update rule currently used by the swarm.
+ *
+ * @return The current update rule
+ */
+updateRule GSwarm::getUpdateRule() const {
+	return ur_;
 }
 
 #ifdef GENEVATESTING
