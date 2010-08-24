@@ -318,6 +318,84 @@ public:
 		return result;
 	}
 
+	/*******************************************************************************************/
+	/**
+	 * Retrieves the minimum x-value(s) of a given (2D) demo function
+	 *
+	 * @param df The id of the desired function individual
+	 * @return The x-coordinate(s) of the global optimium in 2D
+	 */
+	static std::vector<double> getXMin(const demoFunction& df) {
+		std::vector<double> result;
+
+		// Set up a single function individual, depending on the expected function type
+		switch(df) {
+		case PARABOLA:
+			result.push_back(0.);
+			break;
+		case BERLICH:
+			result.push_back(0.);
+			break;
+		case ROSENBROCK:
+			result.push_back(1.);
+			break;
+		case ACKLEY:
+			// two global optima
+			result.push_back(-1.5096201);
+			result.push_back( 1.5096201);
+			break;
+		case RASTRIGIN:
+			result.push_back(0.);
+			break;
+		case SCHWEFEL:
+			result.push_back(420.968746);
+			break;
+		case SALOMON:
+			result.push_back(0.);
+			break;
+		}
+
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Retrieves the minimum y-value(s) of a given (2D) demo function
+	 *
+	 * @param df The id of the desired function individual
+	 * @return The y-coordinate(s) of the global optimium in 2D
+	 */
+	static std::vector<double> getYMin(const demoFunction& df) {
+		std::vector<double> result;
+
+		// Set up a single function individual, depending on the expected function type
+		switch(df) {
+		case PARABOLA:
+			result.push_back(0.);
+			break;
+		case BERLICH:
+			result.push_back(0.);
+			break;
+		case ROSENBROCK:
+			result.push_back(1.);
+			break;
+		case ACKLEY:
+			result.push_back(-0.7548651);
+			break;
+		case RASTRIGIN:
+			result.push_back(0.);
+			break;
+		case SCHWEFEL:
+			result.push_back(420.968746);
+			break;
+		case SALOMON:
+			result.push_back(0.);
+			break;
+		}
+
+		return result;
+	}
+
 protected:
 	/********************************************************************************************/
 	/**

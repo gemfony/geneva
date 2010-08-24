@@ -359,7 +359,6 @@ private:
 
 		// Open a file stream
 		std::ofstream ofs((outputPath_ + outputFileName).c_str());
-
 		if(!ofs) {
 			std::ostringstream error;
 			error << "In optimizationMonitor::takeSnapshot(): Error!" << std::endl
@@ -367,20 +366,83 @@ private:
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
+		// Retrieve the globally best individual for later use
+		boost::shared_ptr<GParameterSet> g_best_ptr = gs->getBestIndividual<GParameterSet>();
+		// Extract the fitness
+		bool isDirty;
+		double global_best_fitness = g_best_ptr->getCurrentFitness(isDirty);
+#ifdef DEBUG
+		// Check that the dirty flag isn't set
+		if(isDirty) {
+			std::ostringstream error;
+			error << "In optimizationMonitor::takeSnapshot(): Error!" << std::endl
+				  << "Globally best individual has dirty flag set when it shouldn't" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#endif
+
 		// Output a ROOT header
 		ofs << "{" << std::endl
 			<< "  gROOT->Reset();" << std::endl
 			<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDim_ << "," << yDim_ << ");" << std::endl
-			<< "  gStyle->SetTitle(\"" << (GFunctionIndividual<>::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) << "\");" << std::endl
+			<< "  gStyle->SetTitle(\"" << (GFunctionIndividual<>::getStringRepresentation(df_) + " / iteration = " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");" << std::endl
 			<< std::endl
 		    << "  TF2 *tf = new TF2(\"tf\", \"" << GFunctionIndividual<>::get2DROOTFunction(df_) << "\", " << minX_ << ", " << maxX_ << ", " << minY_ << ", " << maxY_ << ");" << std::endl
 			<< "  tf->SetLineWidth(0.05);" << std::endl
 			<< "  tf->SetLineColor(16);" << std::endl
 			<< "  tf->GetXaxis()->SetLabelSize(0.02);" << std::endl
 			<< "  tf->GetYaxis()->SetLabelSize(0.02);" << std::endl
-			<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual<>::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) << "\");"
+			<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual<>::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
 			<< std::endl
-			<< "  tf->Draw();" << std::endl;
+			<< "  tf->Draw();" << std::endl
+			<< std::endl;
+
+		// Draw lines where the global optima are
+		std::vector<double> f_x_mins = GFunctionIndividual<>::getXMin(df_);
+		std::vector<double> f_y_mins = GFunctionIndividual<>::getYMin(df_);
+		for(std::size_t i=0; i<f_x_mins.size(); i++) {
+			ofs << "  TLine *tlx" << i << " = new TLine(" << f_x_mins[i] << ", " << minY_ << ", " << f_x_mins[i] << ", " << maxY_ << ");" << std::endl
+				<< "  tlx" << i << "->SetLineStyle(5);" << std::endl
+				<< "  tlx" << i << "->SetLineColor(45);" << std::endl
+				<< "  tlx" << i << "->Draw();" << std::endl;
+		}
+		for(std::size_t i=0; i<f_x_mins.size(); i++) {
+			ofs << "  TLine *tly" << i << " = new TLine(" << minX_ << ", " << f_y_mins[i] << ", " << maxX_ << ", " << f_y_mins[i] << ");" << std::endl
+				<< "  tly" << i << "->SetLineStyle(5);" << std::endl
+				<< "  tly" << i << "->SetLineColor(45);" << std::endl
+				<< "  tly" << i << "->Draw();" << std::endl;
+		}
+
+		// Extract the locally best individuals and mark them in the plot
+		for(std::size_t neighborhood=0; neighborhood<gs->getNNeighborhoods(); neighborhood++) {
+			boost::shared_ptr<GParameterSet> l_best_ptr = gs->getBestNeighborhoodIndividual<GParameterSet>(neighborhood);
+
+			// Extract the coordinates
+			double x_local_best = l_best_ptr->pc_at<GDoubleCollection>(0)->at(0);
+			double y_local_best = l_best_ptr->pc_at<GDoubleCollection>(0)->at(1);
+
+			// Add to the plot, if the marker would still be inside the main drawing area
+			if(x_local_best > minX_ && x_local_best < maxX_ && y_local_best > minY_ && y_local_best < maxY_) {
+				ofs << "  TMarker *lbest" << neighborhood << " = new TMarker(" << x_local_best << ", " << y_local_best << ", 22);" << std::endl // A circle
+					<< "  lbest" << neighborhood << "->SetMarkerColor(4);" << std::endl
+					<< "  lbest" << neighborhood << "->SetMarkerSize(1.3);" << std::endl
+					<< "  lbest" << neighborhood << "->Draw();" << std::endl
+					<< std::endl;
+			}
+		}
+
+		// Extract the coordinates of the globally best individual and mark them in the plot
+		double x_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(0);
+		double y_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(1);
+
+		// Add to the plot, if the marker would still be inside the main drawing area
+		if(x_global_best > minX_ && x_global_best < maxX_ && y_global_best > minY_ && y_global_best < maxY_) {
+			ofs << "  TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 8);" << std::endl // A circle
+				<< "  gbest->SetMarkerColor(2);" << std::endl
+				<< "  gbest->SetMarkerSize(1.8);" << std::endl
+				<< "  gbest->Draw();" << std::endl
+				<< std::endl;
+		}
 
 		// Loop over all individuals in this iteration and output their parameters
 		GSwarm::iterator it;
@@ -409,7 +471,8 @@ private:
 			}
 		}
 
-		ofs << "  cc->Print(\"" << (snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".jpg") << "\");" << std::endl
+		ofs << std::endl
+			<< "  cc->Print(\"" << (snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".jpg") << "\");" << std::endl
 			<< "}" << std::endl;
 
 		// Close the file stream
