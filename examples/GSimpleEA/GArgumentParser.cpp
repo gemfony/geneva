@@ -35,10 +35,15 @@ namespace Geneva {
 /**
  * A function that parses the command line for all required parameters
  */
-bool parseCommandLine(int argc, char **argv, std::string& configFile,
-		boost::uint16_t& parallelizationMode, bool& serverMode,
-		std::string& ip, unsigned short& port,
-		Gem::Common::serializationMode& serMode) {
+bool parseCommandLine(
+		int argc, char **argv
+		, std::string& configFile
+		, boost::uint16_t& parallelizationMode
+		, bool& serverMode
+		, std::string& ip
+		, unsigned short& port
+		, Gem::Common::serializationMode& serMode
+) {
 	try {
 		// Check the command line options. Uses the Boost program options library.
 		po::options_description desc("Usage: evaluator [options]");
@@ -125,29 +130,32 @@ bool parseCommandLine(int argc, char **argv, std::string& configFile,
  */
 bool parseConfigFile(
 		const std::string& configFile
-	  , boost::uint16_t& nProducerThreads
-	  , boost::uint16_t& nEvaluationThreads
-	  , std::size_t& populationSize
-	  , std::size_t& nParents
-	  , boost::uint32_t& maxIterations
-	  , long& maxMinutes
-	  , boost::uint32_t& reportIteration
-	  , recoScheme& rScheme
-	  , sortingMode& smode
-	  , std::size_t& arraySize
-	  , boost::uint32_t& processingCycles
-	  , bool& returnRegardless
-	  , boost::uint32_t& waitFactor
-	  , double& adProb
-	  , boost::uint32_t& adaptionThreshold
-	  , double& sigma
-	  , double& sigmaSigma
-	  , double& minSigma
-	  , double& maxSigma
-	  , std::size_t& parDim
-	  , double& minVar
-	  , double& maxVar
-	  , demoFunction& df
+		, boost::uint16_t& nProducerThreads
+		, boost::uint16_t& nEvaluationThreads
+		, std::size_t& populationSize
+		, std::size_t& nParents
+		, boost::uint32_t& maxIterations
+		, long& maxMinutes
+		, boost::uint32_t& reportIteration
+		, recoScheme& rScheme
+		, sortingMode& smode
+		, std::size_t& arraySize
+		, boost::uint32_t& processingCycles
+		, bool& returnRegardless
+		, boost::uint32_t& waitFactor
+		, double& adProb
+		, boost::uint32_t& adaptionThreshold
+		, double& sigma
+		, double& sigmaSigma
+		, double& minSigma
+		, double& maxSigma
+		, std::size_t& parDim
+		, double& minVar
+		, double& maxVar
+		, demoFunction& df
+		, boost::uint16_t& xDim
+		, boost::uint16_t& yDim
+		, bool& followProgress
 ) {
 	boost::uint16_t recombinationScheme = 0;
 	boost::uint16_t sortingScheme = 0;
@@ -212,8 +220,13 @@ bool parseConfigFile(
 			("maxVar", po::value<double>(&maxVar)->default_value(DEFAULTMAXVAR),
 			"The upper boundary for all variables")
 			("evalFunction",po::value<boost::uint16_t>(&evalFunction),
-			"The id of the evaluation function."
-		);
+			"The id of the evaluation function.")
+	       ("xDim", po::value<boost::uint16_t>(&xDim)->default_value(DEFAULTXDIMAP),
+	        "The x-dimension of the canvas for the result print(s)")
+	       ("yDim", po::value<boost::uint16_t>(&yDim)->default_value(DEFAULTYDIMAP),
+	        "The y-dimension of the canvas for the result print(s)")
+	       ("followProgress", po::value<bool>(&followProgress)->default_value(DEFAULTFOLLOWPROGRESS),
+	    	"Specifies whether snapshots should be taken in regular intervals");
 
 		po::variables_map vm;
 		std::ifstream ifs(configFile.c_str());
@@ -293,6 +306,9 @@ bool parseConfigFile(
 					<< "parDim = " << parDim << std::endl << "minVar = "
 					<< minVar << std::endl << "maxVar = " << maxVar
 					<< std::endl << "evalFunction = " << GFunctionIndividual<>::getStringRepresentation(df) << std::endl
+					<< "xDim = " << xDim << std::endl
+					<< "yDim = " << yDim << std::endl
+					<< "followProgress = " << (followProgress?"true":"false") << std::endl
 					<< std::endl;
 		}
 	} catch (...) {

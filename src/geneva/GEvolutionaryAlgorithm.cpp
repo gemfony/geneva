@@ -54,6 +54,7 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
 	, smode_(DEFAULTSMODE)
 	, defaultNChildren_(0)
 	, oneTimeMuCommaNu_(false)
+	, logOldParents_(DEFAULTMARKOLDPARENTS)
 	, infoFunction_(&GEvolutionaryAlgorithm::simpleInfoFunction)
 { /* nothing */ }
 
@@ -73,8 +74,17 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 	, smode_(cp.smode_)
 	, defaultNChildren_(cp.defaultNChildren_)
 	, oneTimeMuCommaNu_(cp.oneTimeMuCommaNu_)
+	, logOldParents_(cp.logOldParents_)
 	, infoFunction_(&GEvolutionaryAlgorithm::simpleInfoFunction) // Note that we do not copy the info function
-{ /* nothing */ }
+{
+	// Copy the old parents array over if requested
+	if(logOldParents_) {
+		std::vector<boost::shared_ptr<GIndividual> >::const_iterator cit;
+		for(cit=cp.oldParents_.begin(); cit!=cp.oldParents_.end(); ++cit) {
+			oldParents_.push_back((*cit)->clone<GIndividual>());
+		}
+	}
+}
 
 /************************************************************************************************************/
 /**
@@ -114,7 +124,15 @@ void GEvolutionaryAlgorithm::load_(const GObject * cp)
 	recombinationMethod_ = p_load->recombinationMethod_;
 	smode_ = p_load->smode_;
 	defaultNChildren_ = p_load->defaultNChildren_;
-	oneTimeMuCommaNu_=p_load->oneTimeMuCommaNu_;
+	oneTimeMuCommaNu_ = p_load->oneTimeMuCommaNu_;
+	logOldParents_ = p_load->logOldParents_;
+	if(logOldParents_) {
+		oldParents_.clear();
+		std::vector<boost::shared_ptr<GIndividual> >::const_iterator cit;
+		for(cit=p_load->oldParents_.begin(); cit!=p_load->oldParents_.end(); ++cit) {
+			oldParents_.push_back((*cit)->clone<GIndividual>());
+		}
+	}
 
 	// Note that we do not copy the info function
 }
@@ -193,6 +211,8 @@ boost::optional<std::string> GEvolutionaryAlgorithm::checkRelationshipWith(const
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", smode_, p_load->smode_, "smode_", "p_load->smode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", defaultNChildren_, p_load->defaultNChildren_, "defaultNChildren_", "p_load->defaultNChildren_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", oneTimeMuCommaNu_, p_load->oneTimeMuCommaNu_, "oneTimeMuCommaNu_", "p_load->oneTimeMuCommaNu_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", logOldParents_, p_load->logOldParents_, "logOldParents_", "p_load->logOldParents_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm", oldParents_, p_load->oldParents_, "oldParents_", "p_load->oldParents_", e , limit));
 
 	return evaluateDiscrepancies("GEvolutionaryAlgorithm", caller, deviations, e);
 }
@@ -378,6 +398,26 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 
 /************************************************************************************************************/
 /**
+ * Instruct the algorithm whether it should log old parents for one iteration
+ *
+ * @param logOldParents The desired new value of the logOldParents_ flag
+ */
+void GEvolutionaryAlgorithm::setLogOldParents(const bool& logOldParents) {
+	logOldParents_ = logOldParents;
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the current value of the logOldParents_ flag
+ *
+ * @return The current value of the logOldParents_ flag
+ */
+bool GEvolutionaryAlgorithm::oldParentsLogged() const {
+	return logOldParents_;
+}
+
+/************************************************************************************************************/
+/**
  * Emits information specific to this population. The function can be overloaded
  * in derived classes. By default we allow the user to register a call-back function
  * using GEvolutionaryAlgorithm::registerInfoFunction() . Please note that it is not
@@ -424,10 +464,24 @@ void GEvolutionaryAlgorithm::setDefaultPopulationSize(const std::size_t& popSize
  * @return The value of the best individual found
  */
 double GEvolutionaryAlgorithm::cycleLogic() {
-	recombine(); // create new children from parents
-	markIndividualPositions();
-	adaptChildren(); // adapt children and calculate their value
-	select(); // find out the best individuals of the population
+	// create new children from parents
+	recombine();
+	// adapt children and calculate their (and possibly their parent's) values
+	adaptChildren();
+
+	// Create a copy of the old parents, if requested
+	if(logOldParents_) {
+		// Make sure we are dealing with an empty vector
+		oldParents_.clear();
+		// Attach copies of the current parent individuals
+		GEvolutionaryAlgorithm::iterator it;
+		for(it=this->begin(); it!= this->end(); ++it) {
+			oldParents_.push_back((*it)->clone<GIndividual>());
+		}
+	}
+
+	// find out the best individuals of the population
+	select();
 
 	boost::uint32_t stallCounter = getStallCounter();
 	if(microTrainingInterval_ && stallCounter && stallCounter%microTrainingInterval_ == 0) {
@@ -503,8 +557,9 @@ void GEvolutionaryAlgorithm::init() {
 		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 
-	// Let parents know they are parents and children that they are children
+	// Let parents know they are parents
 	markParents();
+	// Let children know they are children
 
 	// Make sure derived classes (such as GTransferPopulation) have a way of finding out
 	// what the desired number of children is. This is particularly important, if, in a
@@ -676,10 +731,10 @@ void GEvolutionaryAlgorithm::recombine()
 	doRecombine();
 
 	// Let children know they are children
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin()+nParents_; it!=data.end(); ++it){
-		(*it)->getEAPersonalityTraits()->setIsChild();
-	}
+	markChildren();
+
+	// Tell individuals about their ids
+	markIndividualPositions();
 }
 
 /************************************************************************************************************/
@@ -700,8 +755,10 @@ void GEvolutionaryAlgorithm::doRecombine() {
 		// Recombination according to the parents' fitness only makes sense if
 		// we have at least 2 parents. We do the recombination manually otherwise
 		if(nParents_==1) {
+			std::size_t p_pos = 0;
 			for(it=data.begin()+1; it!= data.end(); ++it) {
 				(*it)->GObject::load(*(data.begin()));
+				(*it)->getEAPersonalityTraits()->setParentId(p_pos++);
 			}
 		}
 		else {
@@ -758,12 +815,22 @@ void GEvolutionaryAlgorithm::doRecombine() {
 void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& p) {
 	std::size_t p_pos;
 
-	// Choose a parent to be used for the recombination. Note that
-	// numeric_cat may throw. Exceptions need to be caught in surrounding functions.
-	// try/catch blocks would add a non-negligible overhead in this function.
-	p_pos = boost::numeric_cast<std::size_t>(gr.uniform_int(nParents_));
+	if(nParents_==1) {
+		p->GObject::load(*(data.begin()));
+		p_pos = 0;
 
-	p->GObject::load(*(data.begin() + p_pos));
+	} else {
+		// Choose a parent to be used for the recombination. Note that
+		// numeric_cat may throw. Exceptions need to be caught in surrounding functions.
+		// try/catch blocks would add a non-negligible overhead in this function.
+		p_pos = boost::numeric_cast<std::size_t>(gr.uniform_int(nParents_));
+
+		// Load the parent data into the individual
+		p->GObject::load(*(data.begin() + p_pos));
+	}
+
+	// Let the individual know the id of the parent
+	p->getEAPersonalityTraits()->setParentId(p_pos);
 }
 
 /************************************************************************************************************/
@@ -779,12 +846,14 @@ void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& p) 
  */
 void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, const std::vector<double>& threshold) {
 	bool done=false;
-	std::size_t i;
 	double randTest = gr.uniform_01(); // get the test value
 
-	for(i=0; i<nParents_; i++) {
-		if(randTest<threshold[i]) {
-			p->GObject::load(*(data.begin() + i));
+	for(std::size_t par=0; par<nParents_; par++) {
+		if(randTest<threshold[par]) {
+			// Load the parent's data
+			p->GObject::load(*(data.begin() + par));
+			// Let the individual know the parent's id
+			p->getEAPersonalityTraits()->setParentId(par);
 			done = true;
 
 			break;
@@ -875,10 +944,8 @@ void GEvolutionaryAlgorithm::select()
 	//----------------------------------------------------------------------------
 	}
 
-	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(); it!=data.begin()+nParents_; ++it) {
-		(*it)->getEAPersonalityTraits()->setIsParent();
-	}
+	// Let parents know they are parents
+	markParents();
 }
 
 /************************************************************************************************************/
@@ -964,7 +1031,14 @@ void GEvolutionaryAlgorithm::markParents() {
 	for(it=data.begin(); it!=data.begin()+nParents_; ++it){
 		(*it)->getEAPersonalityTraits()->setIsParent();
 	}
+}
 
+/************************************************************************************************************/
+/**
+ * This helper function marks children as children
+ */
+void GEvolutionaryAlgorithm::markChildren() {
+	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin()+nParents_; it!=data.end(); ++it){
 		(*it)->getEAPersonalityTraits()->setIsChild();
 	}

@@ -43,7 +43,7 @@
 #include <courtier/GAsioTCPClientT.hpp>
 #include <courtier/GAsioTCPConsumerT.hpp>
 #include <geneva/GBrokerEA.hpp>
-#include <geneva/GSwarm.hpp>
+#include <geneva/GEvolutionaryAlgorithm.hpp>
 #include <geneva/GIndividual.hpp>
 #include <geneva/GDoubleCollection.hpp>
 
@@ -85,7 +85,7 @@ public:
 		, xDim_(DEFAULTXDIM)
 		, yDim_(DEFAULTYDIM)
 		, followProgress_(false)
-		, snapshotBaseName_("GSwarmSnapshot")
+		, snapshotBaseName_("GEvolutionaryAlgorithmSnapshot")
 		, minX_(-10.)
 		, maxX_( 10.)
 		, minY_(-10.)
@@ -103,9 +103,9 @@ public:
 	 * INFOEND: is called once after the optimization run
 	 *
 	 * @param im The current mode in which the function is called
-	 * @param gs A pointer to a GSwarm object for which information should be collected
+	 * @param ea A pointer to a GEvolutionaryAlgorithm object for which information should be collected
 	 */
-	void informationFunction(const infoMode& im, GSwarm * const gs){
+	void informationFunction(const infoMode& im, GEvolutionaryAlgorithm * const ea){
 		switch(im) {
 		//---------------------------------------------------------------------------
 		case Gem::Geneva::INFOINIT:
@@ -129,12 +129,12 @@ public:
 			double currentEvaluation = 0.;
 
 			// Retrieve the current iteration
-			boost::uint32_t iteration = gs->getIteration();
+			boost::uint32_t iteration = ea->getIteration();
 
 			summary_ << "  iteration.push_back(" << iteration << ");" << std::endl;
 
 			// Get access to the best inidividual
-			boost::shared_ptr<GParameterSet> gdii_ptr = gs->getBestIndividual<GParameterSet>();
+			boost::shared_ptr<GIndividual> gdii_ptr = ea->getBestIndividual<GIndividual>();
 
 			// Retrieve the fitness of this individual
 			currentEvaluation = gdii_ptr->getCurrentFitness(isDirty);
@@ -147,7 +147,7 @@ public:
 			         << std::endl; // Improves readability when following the output with "tail -f"
 
 			if(followProgress_) {
-				takeSnapshot(gs);
+				takeSnapshot(ea);
 			}
 		}
 		break;
@@ -340,14 +340,14 @@ public:
 private:
 	/*********************************************************************************************/
 	/**
-	 * Writes out a snapshot of the GSwarm object we've been given for the current iteration. In
+	 * Writes out a snapshot of the GEvolutionaryAlgorithm object we've been given for the current iteration. In
 	 * the way it is implemented here, this function only makes sense for two-dimensional optimization
 	 * problems. It is thus used for illustration purposes only.
 	 *
-	 * @param gs A pointer to a GSwarm object
+	 * @param ea A pointer to a GEvolutionaryAlgorithm object
 	 */
-	void takeSnapshot(GSwarm *gs) {
-		boost::uint32_t iteration = gs->getIteration();
+	void takeSnapshot(GEvolutionaryAlgorithm *ea) {
+		boost::uint32_t iteration = ea->getIteration();
 		std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
 
 		// Check whether the output directory exists, otherwise create it
@@ -367,7 +367,7 @@ private:
 		}
 
 		// Retrieve the globally best individual for later use
-		boost::shared_ptr<GParameterSet> g_best_ptr = gs->getBestIndividual<GParameterSet>();
+		boost::shared_ptr<GParameterSet> g_best_ptr = ea->getBestIndividual<GParameterSet>();
 		// Extract the fitness
 		bool isDirty;
 		double global_best_fitness = g_best_ptr->getCurrentFitness(isDirty);
@@ -412,26 +412,30 @@ private:
 				<< "  tly" << i << "->SetLineColor(45);" << std::endl
 				<< "  tly" << i << "->Draw();" << std::endl;
 		}
+		ofs << std::endl;
 
-		// Extract the locally best individuals and mark them in the plot
-		for(std::size_t neighborhood=0; neighborhood<gs->getNNeighborhoods(); neighborhood++) {
-			boost::shared_ptr<GParameterSet> l_best_ptr = gs->getBestNeighborhoodIndividual<GParameterSet>(neighborhood);
+		// Extract the parents and mark them in the plot
+		for(std::size_t parentId=0; parentId < ea->getNParents(); parentId++) {
+			boost::shared_ptr<GParameterSet> p_ptr = ea->getParentIndividual<GParameterSet>(parentId);
+
+			// std::cout << "================ Iteration " << ea->getIteration() << " / Parent = " << parentId << " =================" << std::endl
+			//	         << p_ptr->toString(Gem::Common::SERIALIZATIONMODE_XML) << std::endl;
 
 			// Extract the coordinates
-			double x_local_best = l_best_ptr->pc_at<GDoubleCollection>(0)->at(0);
-			double y_local_best = l_best_ptr->pc_at<GDoubleCollection>(0)->at(1);
+			double x_parent = p_ptr->pc_at<GDoubleCollection>(0)->at(0);
+			double y_parent = p_ptr->pc_at<GDoubleCollection>(0)->at(1);
 
 			// Add to the plot, if the marker would still be inside the main drawing area
-			if(x_local_best > minX_ && x_local_best < maxX_ && y_local_best > minY_ && y_local_best < maxY_) {
-				ofs << "  TMarker *lbest" << neighborhood << " = new TMarker(" << x_local_best << ", " << y_local_best << ", 22);" << std::endl // A circle
-					<< "  lbest" << neighborhood << "->SetMarkerColor(4);" << std::endl
-					<< "  lbest" << neighborhood << "->SetMarkerSize(1.3);" << std::endl
-					<< "  lbest" << neighborhood << "->Draw();" << std::endl
+			if(x_parent > minX_ && x_parent < maxX_ && y_parent > minY_ && y_parent < maxY_) {
+				ofs << "  TMarker *parent_marker" << parentId << " = new TMarker(" << x_parent << ", " << y_parent << ", 22);" << std::endl // A circle
+					<< "  parent_marker" << parentId << "->SetMarkerColor(4);" << std::endl
+					<< "  parent_marker" << parentId << "->SetMarkerSize(1.3);" << std::endl
+					<< "  parent_marker" << parentId << "->Draw();" << std::endl
 					<< std::endl;
 			}
 		}
 
-		// Extract the coordinates of the globally best individual and mark them in the plot
+		// Extract the coordinates of the globally best individual
 		double x_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(0);
 		double y_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(1);
 
@@ -445,11 +449,11 @@ private:
 		}
 
 		// Loop over all individuals in this iteration and output their parameters
-		GSwarm::iterator it;
-		std::size_t particle = 0;
-		for(it=gs->begin(); it!=gs->end(); ++it, ++particle) {
+		GEvolutionaryAlgorithm::iterator it;
+		std::size_t cind = 0;
+		for(it=ea->begin() + ea->getNParents(); it!=ea->end(); ++it) {
 			// Retrieve the data members
-			boost::shared_ptr<GDoubleCollection> x = (*it)->pc_at<GDoubleCollection>(0);
+			boost::shared_ptr<GDoubleCollection> x = boost::dynamic_pointer_cast<GParameterSet>(*it)->pc_at<GDoubleCollection>(0);
 			// Store a reference for ease of access
 			const GDoubleCollection& x_ref = *x;
 #ifdef DEBUG
@@ -462,13 +466,16 @@ private:
 			}
 #endif
 
-			// Only draw the particle if it is inside of the function plot
+			// Only draw the child if it is inside of the function plot
 			if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
-				ofs << "  TText txt_" << particle << "(" << x_ref[0] << ", " << x_ref[1] << ", \"" << (*it)->getSwarmPersonalityTraits()->getNeighborhood() << "\");" << std::endl
-					<< "  txt_" << particle << "->SetTextSize(0.013);" << std::endl
-					<< "  txt_" << particle << "->Draw();" << std::endl
+				ofs << "  TMarker *child_marker_" << cind << " = new TMarker(" << x_ref[0] << ", " << x_ref[1] << ", 8);" << std::endl // A circle
+					<< "  child_marker_" << cind << "->SetMarkerColor(1);" << std::endl
+					<< "  child_marker_" << cind << "->SetMarkerSize(1.1);" << std::endl
+					<< "  child_marker_" << cind << "->Draw();" << std::endl
 					<< std::endl;
 			}
+
+			cind++;
 		}
 
 		ofs << std::endl

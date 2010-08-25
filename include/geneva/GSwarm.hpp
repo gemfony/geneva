@@ -267,12 +267,12 @@ public:
 	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
 	 *
 	 * @param neighborhood The neighborhood, whose best individual should be returned
-	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
+	 * @return A converted shared_ptr to the best individual of a given neighborhood
 	 */
 	template <typename parameterset_type>
 	inline boost::shared_ptr<parameterset_type> getBestNeighborhoodIndividual(
 			std::size_t neighborhood
-		  , typename boost::enable_if<boost::is_base_of<GIndividual, parameterset_type> >::type* dummy = 0
+		  , typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
 	){
 #ifdef DEBUG
 		// Check that the neighborhood is in a valid range
@@ -283,7 +283,7 @@ public:
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		// Check that global_best_ actually points somewhere
+		// Check that pointer actually points somewhere
 		if(!local_bests_[neighborhood]) {
 			std::ostringstream error;
 			error << "In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl

@@ -46,6 +46,7 @@ GEAPersonalityTraits::GEAPersonalityTraits()
 	, parentCounter_(0)
 	, popPos_(0)
 	, command_("")
+	, parentId_(-1) // means "unset"
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -59,6 +60,7 @@ GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits& cp)
 	, parentCounter_(cp.parentCounter_)
 	, popPos_(cp.popPos_)
 	, command_(cp.command_)
+	, parentId_(cp.parentId_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -129,6 +131,7 @@ boost::optional<std::string> GEAPersonalityTraits::checkRelationshipWith(const G
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", parentCounter_, p_load->parentCounter_, "parentCounter_", "p_load->parentCounter_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", popPos_, p_load->popPos_, "popPos_", "p_load->popPos_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", command_, p_load->command_, "command_", "p_load->command_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEAPersonalityTraits", parentId_, p_load->parentId_, "parentId_", "p_load->parentId_", e , limit));
 
 	return evaluateDiscrepancies("GEAPersonalityTraits", caller, deviations, e);
 }
@@ -159,6 +162,7 @@ void GEAPersonalityTraits::load_(const GObject* cp) {
 	parentCounter_ = p_load->parentCounter_;
 	popPos_ = p_load->popPos_;
 	command_ = p_load->command_;
+	parentId_ = p_load->parentId_;
 }
 
 /*****************************************************************************/
@@ -249,6 +253,52 @@ void GEAPersonalityTraits::setCommand(const std::string& command) {
  */
 std::string GEAPersonalityTraits::getCommand() const {
 	return command_;
+}
+
+/*****************************************************************************/
+/**
+ * Stores the parent's id with this object.
+ *
+ * @param parentId The id of the individual's parent
+ */
+void GEAPersonalityTraits::setParentId(const std::size_t& parentId) {
+	parentId_ = (boost::int16_t) parentId;
+}
+
+/*****************************************************************************/
+/**
+ * Retrieves the parent id's value. Note that this function will throw if
+ * no parent id has been set.
+ *
+ * @return The parent's id
+ */
+std::size_t GEAPersonalityTraits::getParentId() const {
+	if(parentId_ >= 0) return parentId_;
+	else {
+		std::ostringstream error;
+		error << "In GEAPersonalityTraits::getParentId(): Error!" << std::endl
+			  << "parentId_ is unset" << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+}
+
+/*****************************************************************************/
+/**
+ * Checks whether a parent id has been set
+ *
+ * @return A boolean which indicates whether the parent id has been set
+ */
+bool GEAPersonalityTraits::parentIdSet() const {
+	if(parentId_ >= 0) return true;
+	else return false;
+}
+
+/*****************************************************************************/
+/**
+ * Marks the parent id as unset
+ */
+void GEAPersonalityTraits::unsetParentId() {
+	parentId_ = -1;
 }
 
 #ifdef GENEVATESTING

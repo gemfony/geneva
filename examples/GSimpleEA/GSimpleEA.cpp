@@ -51,6 +51,9 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
+// Holds the optimization monitor
+#include "GInfoFunction.hpp"
+
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
@@ -89,39 +92,50 @@ int main(int argc, char **argv){
   double adProb;
   bool returnRegardless;
   Gem::Common::serializationMode serMode;
+  boost::uint16_t xDim;
+  boost::uint16_t yDim;
+  bool followProgress;
 
-  if(!parseCommandLine(argc, argv,
-		       configFile,			  
-		       parallelizationMode,
-		       serverMode,
-		       ip,
-		       port,
-		       serMode)
+  if(!parseCommandLine(
+		  argc
+		  , argv
+		  , configFile
+		  , parallelizationMode
+		  , serverMode
+		  , ip
+		  , port
+		  , serMode
+  )
      ||
-     !parseConfigFile(configFile,
-		      nProducerThreads,
-		      nEvaluationThreads,
-		      populationSize,
-		      nParents,
-		      maxIterations,
-		      maxMinutes,
-		      reportIteration,
-		      rScheme,
-		      smode,
-		      arraySize,
-		      processingCycles,
-			  returnRegardless,
-		      waitFactor,
-		      adProb,
-		      adaptionThreshold,
-			  sigma,
-			  sigmaSigma,
-			  minSigma,
-			  maxSigma,
-		      parDim,
-		      minVar,
-		      maxVar,
-		      df))
+     !parseConfigFile(
+		 configFile
+		 , nProducerThreads
+		 , nEvaluationThreads
+		 , populationSize
+		 , nParents
+		 , maxIterations
+		 , maxMinutes
+		 , reportIteration
+		 , rScheme
+		 , smode
+		 , arraySize
+		 , processingCycles
+		 , returnRegardless
+		 , waitFactor
+		 , adProb
+		 , adaptionThreshold
+		 , sigma
+		 , sigmaSigma
+		 , minSigma
+		 , maxSigma
+		 , parDim
+		 , minVar
+		 , maxVar
+		 , df
+		 , xDim
+		 , yDim
+		 , followProgress
+     ))
     { exit(1); }
 
   // Random numbers are our most valuable good. Set the number of threads
@@ -145,6 +159,15 @@ int main(int argc, char **argv){
 
     return 0;
   }
+
+  //***************************************************************************
+  // Create an instance of our optimization monitor, telling it to output information in given intervals
+  std::ofstream resultSummary("./result.C");
+  boost::shared_ptr<optimizationMonitor> om_ptr(new optimizationMonitor(df, resultSummary));
+  om_ptr->setDims(xDim, yDim);
+  om_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
+  om_ptr->setXExtremes(minVar, maxVar);
+  om_ptr->setYExtremes(minVar, maxVar);
 
   //***************************************************************************
 
@@ -233,6 +256,7 @@ int main(int argc, char **argv){
   pop_ptr->setReportIteration(reportIteration);
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
+  pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om_ptr, _1, _2));
   
   // Do the actual optimization
   pop_ptr->optimize();

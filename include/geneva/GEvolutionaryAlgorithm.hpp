@@ -72,6 +72,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "GIndividual.hpp"
 #include "GOptimizationAlgorithmT.hpp"
 #include "GOptimizationEnums.hpp"
@@ -125,7 +126,9 @@ class GEvolutionaryAlgorithm
 		   & BOOST_SERIALIZATION_NVP(recombinationMethod_)
 		   & BOOST_SERIALIZATION_NVP(smode_)
 		   & BOOST_SERIALIZATION_NVP(defaultNChildren_)
-		   & BOOST_SERIALIZATION_NVP(oneTimeMuCommaNu_);
+		   & BOOST_SERIALIZATION_NVP(oneTimeMuCommaNu_)
+		   & BOOST_SERIALIZATION_NVP(logOldParents_)
+		   & BOOST_SERIALIZATION_NVP(oldParents_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -177,6 +180,11 @@ public:
 	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&);
 
+	/** @brief Instruct the algorithm whether it should log old parents for one iteration */
+	void setLogOldParents(const bool&);
+	/** @brief Retrieves the current value of the logOldParents_ flag */
+	bool oldParentsLogged() const;
+
 	//------------------------------------------------------------------------------------------
 	// Settings specific to micro-training
 	/** @brief Set the interval in which micro training should be performed */
@@ -215,6 +223,108 @@ public:
 		}
 #else
 		return boost::static_pointer_cast<individual_type>(data[0]);
+#endif /* DEBUG */
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * Retrieves a specific parent individual and casts it to the desired type. Note that this
+	 * function will only be accessible to the compiler if individual_type is a derivative of GIndividual,
+	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
+	 *
+	 * @param parent The id of the parent that should be returned
+	 * @return A converted shared_ptr to the parent
+	 */
+	template <typename individual_type>
+	inline boost::shared_ptr<individual_type> getParentIndividual(
+			std::size_t parentId
+		  , typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+	){
+#ifdef DEBUG
+		// Check that the parent id is in a valid range
+		if(parentId >= this->getNParents()) {
+			std::ostringstream error;
+			error << "In GEvolutionaryAlgorithm::getParentIndividual<>() : Error" << std::endl
+				  << "Requested parent id which does not exist: " << parentId << " / " << this->getNParents() << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// Retrieve a pointer to the parent individual
+		boost::shared_ptr<GIndividual> parent_ptr = *(this->begin() + parentId);
+
+		// Check that the pointer actually points somewhere
+		if(!parent_ptr) {
+			std::ostringstream error;
+			error << "In GEvolutionaryAlgorithm::getParentIndividual<>() : Error" << std::endl
+				  << "Tried to access uninitialized parent individual." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		boost::shared_ptr<individual_type> converted_parent_pointer = boost::dynamic_pointer_cast<individual_type>(parent_ptr);
+
+		if(converted_parent_pointer) return converted_parent_pointer;
+		else {
+			std::ostringstream error;
+			error << "In GEvolutionaryAlgorithm::getParentIndividual<>(): Conversion error" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#else
+		return boost::static_pointer_cast<individual_type>(*(this->begin() + parentId));
+#endif /* DEBUG */
+	}
+
+	/**************************************************************************************************/
+	/**
+	 * Retrieves a specific (logged) parent individual and casts it to the desired type. Note that this
+	 * function will only be accessible to the compiler if individual_type is a derivative of GIndividual,
+	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
+	 *
+	 * @param parent The id of the logged parent that should be returned
+	 * @return A converted shared_ptr to the parent
+	 */
+	template <typename individual_type>
+	inline boost::shared_ptr<individual_type> getOldParentIndividual(
+			std::size_t parentId
+		  , typename boost::enable_if<boost::is_base_of<GIndividual, individual_type> >::type* dummy = 0
+	){
+#ifdef DEBUG
+		// Check that we have indeed logged parents
+		if(!logOldParents_) {
+			std::ostringstream error;
+			error << "In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
+				  << "Requested logged parent individual when no logging is done" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// Check that the parent id is in a valid range
+		if(parentId >= oldParents_.size()) {
+			std::ostringstream error;
+			error << "In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
+				  << "Requested parent id which does not exist: " << parentId << " / " << oldParents_.size() << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// Retrieve a pointer to the parent individual
+		boost::shared_ptr<GIndividual> parent_ptr = *(oldParents_.begin() + parentId);
+
+		// Check that the pointer actually points somewhere
+		if(!parent_ptr) {
+			std::ostringstream error;
+			error << "In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
+				  << "Tried to access uninitialized parent individual." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		boost::shared_ptr<individual_type> converted_parent_pointer = boost::dynamic_pointer_cast<individual_type>(parent_ptr);
+
+		if(converted_parent_pointer) return converted_parent_pointer;
+		else {
+			std::ostringstream error;
+			error << "In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Conversion error" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#else
+		return boost::static_pointer_cast<individual_type>(*(oldParents_.begin() + parentId));
 #endif /* DEBUG */
 	}
 
@@ -273,6 +383,8 @@ protected:
 
 	/** @brief Marks parents as parents and children as children */
 	void markParents();
+	/** @brief Marks children as children */
+	void markChildren();
 	/** @brief Lets individuals know about their position in the population */
 	void markIndividualPositions();
 
@@ -313,6 +425,9 @@ private:
 	sortingMode smode_; ///< The chosen sorting scheme
 	std::size_t defaultNChildren_; ///< Expected number of children
 	bool oneTimeMuCommaNu_; ///< Specifies whether a one-time selection scheme of MUCOMMANU should be used
+
+	bool logOldParents_; ///< If set, a copy of the old parent individuals will be kept and the id of the parent individual will be recorded
+	std::vector<boost::shared_ptr<GIndividual> > oldParents_; ///< Holds the last generation's parents, if logOldParents_ is set
 
 	boost::function<void (const infoMode&, GEvolutionaryAlgorithm * const)> infoFunction_; ///< Used to emit information with doInfo()
 

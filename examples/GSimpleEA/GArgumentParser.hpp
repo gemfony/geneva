@@ -95,44 +95,50 @@ namespace Gem
     const double DEFAULTGDAADPROB=0.05;
     const bool DEFAULTRETURNREGARDLESS=true;
     const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
+    const boost::uint16_t DEFAULTXDIMAP=1024;
+    const boost::uint16_t DEFAULTYDIMAP=1024;
+    const bool DEFAULTFOLLOWPROGRESS=false;
 
     namespace po = boost::program_options;
 
     bool parseCommandLine(
     		int argc, char **argv
-		  , std::string& configFile
-		  , boost::uint16_t& parallelizationMode
-		  , bool& serverMode
-		  , std::string& ip
-		  , unsigned short& port
-		  , Gem::Common::serializationMode& serMode
+    		, std::string& configFile
+    		, boost::uint16_t& parallelizationMode
+    		, bool& serverMode
+    		, std::string& ip
+    		, unsigned short& port
+    		, Gem::Common::serializationMode& serMode
 	);
 
     bool parseConfigFile(
     		const std::string& configFile
-    	  , boost::uint16_t& nProducerThreads
-		  , boost::uint16_t& nEvaluationThreads
-		  , std::size_t& populationSize
-		  , std::size_t& nParents
-		  , boost::uint32_t& maxIterations
-		  , long& maxMinutes
-		  , boost::uint32_t& reportIteration
-		  , recoScheme& rScheme
-		  , sortingMode& smode
-		  , std::size_t& arraySize
-		  , boost::uint32_t& processingCycles
-		  , bool& returnRegardless
-		  , boost::uint32_t& waitFactor
-		  , double& adProb
-		  , boost::uint32_t& adaptionThreshold
-		  , double& sigma
-		  , double& sigmaSigma
-		  , double& minSigma
-		  , double& maxSigma
-		  , std::size_t& parDim
-		  , double& minVar
-		  , double& maxVar
-		  , demoFunction& df
+    		, boost::uint16_t& nProducerThreads
+    		, boost::uint16_t& nEvaluationThreads
+    		, std::size_t& populationSize
+    		, std::size_t& nParents
+    		, boost::uint32_t& maxIterations
+    		, long& maxMinutes
+    		, boost::uint32_t& reportIteration
+    		, recoScheme& rScheme
+    		, sortingMode& smode
+    		, std::size_t& arraySize
+    		, boost::uint32_t& processingCycles
+    		, bool& returnRegardless
+    		, boost::uint32_t& waitFactor
+    		, double& adProb
+    		, boost::uint32_t& adaptionThreshold
+    		, double& sigma
+    		, double& sigmaSigma
+    		, double& minSigma
+    		, double& maxSigma
+    		, std::size_t& parDim
+    		, double& minVar
+    		, double& maxVar
+    		, demoFunction& df
+    		, boost::uint16_t& xDim
+    		, boost::uint16_t& yDim
+    		, bool& followProgress
 	);
 
   } /* namespace Geneva */

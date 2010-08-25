@@ -175,6 +175,14 @@ enum personality {
 };
 
 /**********************************************************************************************/
+/**
+ * The default value for the GEvolutionaryAlgorithm::markOldParents_ flag. This is used mostly
+ * for logging purposes. If set, the algorithm will keep a copy of the parents from which the
+ * children originated and will mark their id in the individual's personality traits.
+ */
+const bool DEFAULTMARKOLDPARENTS = false;
+
+/**********************************************************************************************/
 
 const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
 const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption

@@ -79,9 +79,9 @@ class GSwarm; // forward declaration
  * place at the same time.
  */
 class GIndividual
-	:public GMutableI,
-	 public GRateableI,
-	 public GObject
+	: public GMutableI
+	, public GRateableI
+	, public GObject
 {
 	friend class GSwarm; ///< Needed so GSwarm can set the dirty flag
 

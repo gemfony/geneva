@@ -83,7 +83,8 @@ class GEAPersonalityTraits :public GPersonalityTraits
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
 	     & BOOST_SERIALIZATION_NVP(parentCounter_)
 	     & BOOST_SERIALIZATION_NVP(popPos_)
-	     & BOOST_SERIALIZATION_NVP(command_);
+	     & BOOST_SERIALIZATION_NVP(command_)
+	     & BOOST_SERIALIZATION_NVP(parentId_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -123,6 +124,15 @@ public:
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const;
 
+	/** @brief Stores the parent's id with this object */
+	void setParentId(const std::size_t&);
+	/** @brief Retrieves the parent id's value */
+	std::size_t getParentId() const;
+	/** @brief Checks whether a parent id has been set */
+	bool parentIdSet() const;
+	/** @brief Marks the parent id as unset */
+	void unsetParentId();
+
 protected:
 	/** @brief Loads the data of another GEAPersonalityTraits object */
 	virtual void load_(const GObject*);
@@ -130,12 +140,14 @@ protected:
 	virtual GObject* clone_() const;
 
 private:
-	/** @brief Allows populations to mark members as parents or children */
+	/** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
 	boost::uint32_t parentCounter_;
 	/** @brief Stores the current position in the population */
 	std::size_t popPos_;
 	/** @brief The command to be performed by remote clients */
 	std::string command_;
+	/** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
+	boost::int16_t parentId_;
 
 #ifdef GENEVATESTING
 public:
