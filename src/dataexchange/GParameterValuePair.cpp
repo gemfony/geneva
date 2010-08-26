@@ -2,13 +2,16 @@
  * @file GParameterValuePair.cpp
  */
 
-/* Copyright (C) 2009 Dr. Ruediger Berlich and Karlsruhe Institute of Technology
- * (University of the State of Baden-Wuerttemberg and National Laboratory
- * of the Helmholtz Association)
+/*
+ * Copyright (C) Authors of the Geneva library collection and Karlsruhe
+ * Institute of Technology (University of the State of Baden-Wuerttemberg
+ * and National Laboratory of the Helmholtz Association).
+ *
+ * See the AUTHORS file in the top-level directory for a list of authors.
  *
  * Contact: info [at] gemfony (dot) com
  *
- * This file is part of Geneva, Gemfony scientific's optimization library.
+ * This file is part of the Geneva library collection
  *
  * This file is free software: you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Affero General Public License,
@@ -16,7 +19,7 @@
  * License, as published by the Free Software Foundation.
  *
  * NOTE THAT THIS FORM OF DUAL-LICENSING DOES NOT APPLY TO ANY OTHER FILES
- * OF THE GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRSPONDING FILE.
+ * OF THE GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  *
  * Geneva is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,6 +33,7 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.com .
  */
+
 
 #include "dataexchange/GParameterValuePair.hpp"
 

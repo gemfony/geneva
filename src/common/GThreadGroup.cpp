@@ -2,37 +2,44 @@
  * @file GThreadGroup.cpp
  */
 
-/* This file is part of Geneva, Gemfony scientific's optimization library.
+/* This file is part of the Geneva library collection.
  *
  * Contact: info [at] gemfony (dot) com
  *
- * Note: This class was adapted from an early Boost 1.36 version of the
- * thread_group class. The original code containted the following text:
+ * Note: This class was adapted from an earlier Boost 1.36 version of the
+ * thread_group class. The original code contained the following text:
  *
- ****
+ * ***
  * Distributed under the Boost Software License, Version 1.0. (See
  * accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  * (C) Copyright 2007-8 Anthony Williams
- ****
+ * ***
  *
- * Modifications were applied to the code.
+ * As allowed by the license, modifications were applied to the code.
  *
  * All modifications to Anthony William's original code, as shown in this
  * file, are also covered by the Boost Software License, Version 1.0,
- * and are Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of
- * Technology.
+ * and are Copyright (C) Authors of the Geneva library collection and
+ * Karlsruhe Institute of Technology.
+ *
+ * See the AUTHORS file in the top-level directory for a list of authors.
  *
  * In particular, please note that
  *
  ***************************************************************
- * RUEDIGER BERLICH AND FORSCHUNGSZENTRUM KARLSRUHE MAKE NO
- * REPRESENTATION ABOUT THE SUITABILITY OF THIS SOFTWARE FOR
+ * THE AUTHORS OF THIS SOFTWARE AND KARLSRUHE INSTITUTE OF TECHNOLOGY
+ * MAKE NO REPRESENTATION ABOUT THE SUITABILITY OF THIS SOFTWARE FOR
  * ANY PURPOSE. IT IS PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED
  * WARRANTY.
  ***************************************************************
+ *
+ * Note that different licenses apply to other parts of the Geneva
+ * library collection. These licenses are specified in each file of
+ * the source code.
  */
 
-/* The code in this file is covered by the following license:
+/*
+ * The following license applies to the code in this file:
  *
  * Boost Software License - Version 1.0 - August 17th, 2003
  *

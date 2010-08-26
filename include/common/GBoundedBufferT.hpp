@@ -2,7 +2,7 @@
  * @file GBoundedBufferT.hpp
  */
 
-/* This file is part of Geneva, Gemfony scientific's optimization library.
+/* This file is part of the Geneva library collection.
  *
  * Note: This class was adapted from a circular_buffer test case (
  * [Boost 1.36 trunk version 17.7.08]/libs/circular_buffer/test/bounded_buffer_comparison.cpp )
@@ -23,20 +23,26 @@
  *
  * All modifications to Jan Gaspar's original code, as shown in this
  * file, are also covered by the Boost Software License, Version 1.0,
- * and are Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute
- * of Technology. Contact: info [at] gemfony (dot) com
+ * and are Copyright (C) Authors of the Geneva library collection and
+ * Karlsruhe Institute of Technology.
+ *
+ * See the AUTHORS file in the top-level directory for a list of authors.
+ *
+ * Contact: info [at] gemfony (dot) com
  *
  * In particular, please note that:
  *
  ***************************************************************
- * RUEDIGER BERLICH AND FORSCHUNGSZENTRUM KARLSRUHE MAKE NO
- * REPRESENTATION ABOUT THE SUITABILITY OF THIS SOFTWARE FOR
+ * THE AUTHORS OF THIS SOFTWARE AND FORSCHUNGSZENTRUM KARLSRUHE MAKE
+ * NO REPRESENTATION ABOUT THE SUITABILITY OF THIS SOFTWARE FOR
  * ANY PURPOSE. IT IS PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED
  * WARRANTY.
  ***************************************************************
  */
 
 /*
+ * The following license applies to the code in this file:
+ *
  * Boost Software License - Version 1.0 - August 17th, 2003
  *
  * Permission is hereby granted, free of charge, to any person or organization

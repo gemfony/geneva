@@ -1,20 +1,17 @@
 /**
  * @file GSigmaAdaption_test.cpp
- *
- * This test adapts a double a given number of times and records the values of
- * different entities of a GDoubleGaussAdaptor as a function of the iteration.
- * The output can be processed with the help of the ROOT analysis toolkit (see
- * http://root.cern.ch .
  */
 
-/* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
- * (University of the State of Baden-Wuerttemberg and National Laboratory
- * of the Helmholtz Association)
+/*
+ * Copyright (C) Authors of the Geneva library collection and Karlsruhe
+ * Institute of Technology (University of the State of Baden-Wuerttemberg
+ * and National Laboratory of the Helmholtz Association).
+ *
+ * See the AUTHORS file in the top-level directory for a list of authors.
  *
  * Contact: info [at] gemfony (dot) com
  *
- * This file is part of the Geneva library, Gemfony scientific's optimization
- * library.
+ * This file is part of the Geneva library collection
  *
  * Geneva is free software: you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Affero General Public License
@@ -30,6 +27,13 @@
  *
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.com .
+ */
+
+/*
+ * This test adapts a double a given number of times and records the values of
+ * different entities of a GDoubleGaussAdaptor as a function of the iteration.
+ * The output can be processed with the help of the ROOT analysis toolkit (see
+ * http://root.cern.ch .
  */
 
 // Standard header files go here

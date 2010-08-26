@@ -1,19 +1,17 @@
 /**
  * @file GDataExchange_test.cpp
- *
- * This test checks all public member functions of the GDataExchange class plus
- * dependent classes. You should run this test both in DEBUG and in RELEASE mode,
- * as some functions may work differently in this case.
  */
 
-/* Copyright (C) Dr. Ruediger Berlich and Karlsruhe Institute of Technology
- * (University of the State of Baden-Wuerttemberg and National Laboratory
- * of the Helmholtz Association)
+/*
+ * Copyright (C) Authors of the Geneva library collection and Karlsruhe
+ * Institute of Technology (University of the State of Baden-Wuerttemberg
+ * and National Laboratory of the Helmholtz Association).
+ *
+ * See the AUTHORS file in the top-level directory for a list of authors.
  *
  * Contact: info [at] gemfony (dot) com
  *
- * This file is part of the Geneva library, Gemfony scientific's optimization
- * library.
+ * This file is part of the Geneva library collection
  *
  * Geneva is free software: you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Affero General Public License
@@ -29,6 +27,12 @@
  *
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.com .
+ */
+
+/*
+ * This test checks all public member functions of the GDataExchange class plus
+ * dependent classes. You should run this test both in DEBUG and in RELEASE mode,
+ * as some functions may work differently in this case.
  */
 
 // Standard header files go here
