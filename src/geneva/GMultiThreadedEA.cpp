@@ -226,20 +226,30 @@ void GMultiThreadedEA::finalize() {
  */
 void GMultiThreadedEA::adaptChildren() {
 	std::size_t nParents = GEvolutionaryAlgorithm::getNParents();
-	boost::uint32_t generation = GEvolutionaryAlgorithm::getIteration();
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
-	// We start with the parents, if this is generation 0. Their
+	// We start with the parents, if this is iteration 0. Their
 	// initial fitness needs to be determined, if this is the MUPLUSNU
 	// or MUNU1PRETAIN selection model.
-	if(generation==0 && (this->getSortingScheme()==MUPLUSNU || this->getSortingScheme()==MUNU1PRETAIN)) {
-		for(it=data.begin(); it!=data.begin() + nParents; ++it) {
-			tp_.schedule(boost::bind(&GIndividual::checkedFitness, *it));
+	// Make sure we also evaluate the parents in the first iteration, if needed.
+	// This is only applicable to the MUPLUSNU and MUNU1PRETAIN modes.
+	if(GEvolutionaryAlgorithm::getIteration()==0) {
+		switch(getSortingScheme()) {
+		//--------------------------------------------------------------
+		case MUPLUSNU:
+		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
+			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
+				tp_.schedule(boost::bind(&GIndividual::checkedFitness, *it));
+			}
+			break;
+
+		case MUCOMMANU:
+			break; // nothing
 		}
 	}
 
 	// Next we adapt the children
-	for(it=data.begin() + nParents; it!=data.end(); ++it) {
+	for(it=data.begin()+nParents; it!=data.end(); ++it) {
 		tp_.schedule(boost::bind(&GIndividual::checkedAdaption, *it));
 	}
 

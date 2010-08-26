@@ -91,6 +91,7 @@ int main(int argc, char **argv){
 	boost::uint16_t xDim;
 	boost::uint16_t yDim;
 	bool followProgress;
+	bool allRandomInit;
 
 	if(!parseCommandLine (
 			argc
@@ -125,6 +126,7 @@ int main(int argc, char **argv){
 			, xDim
 			, yDim
 			, followProgress
+			, allRandomInit
 	))
 	{ exit(1); }
 
@@ -210,19 +212,44 @@ int main(int argc, char **argv){
 
 	// Add individuals to the population.
 	// NOTE: Unlike evolutionary algorithms, we do not have to add an adaptor to the population
-	for(std::size_t p = 0 ; p<pop_ptr->getDefaultPopulationSize(); p++) {
-		boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual<>::getFunctionIndividual(df);
+	if(allRandomInit) { // Random initialization of all individuals in the population
+		for(std::size_t p = 0 ; p<pop_ptr->getDefaultPopulationSize(); p++) {
+			boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual<>::getFunctionIndividual(df);
 
-		// Set up a GDoubleCollection with dimension values, each initialized
-		// with a random number in the range [min,max[
-		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
+			// Set up a GDoubleCollection with dimension values, each initialized
+			// with a random number in the range [min,max[
+			boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
+			// Let the collection know its initialization range
+			gdc_ptr->setInitBoundaries(minVar, maxVar);
 
-		// Make the parameter collection known to this individual
-		functionIndividual_ptr->push_back(gdc_ptr);
-		functionIndividual_ptr->setProcessingCycles(processingCycles);
+			// Make the parameter collection known to this individual
+			functionIndividual_ptr->push_back(gdc_ptr);
 
-		// Add tp the population
-		pop_ptr->push_back(functionIndividual_ptr);
+			// Add tp the population
+			pop_ptr->push_back(functionIndividual_ptr);
+		}
+	}
+	else { // Individuals of the same neighborhood start from the same location
+		for(std::size_t n=0; n<nNeighborhoods; n++) {
+			// Initialize the first individual of the neighborhood
+			boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual<>::getFunctionIndividual(df);
+			// Set up a GDoubleCollection with dimension values, each initialized
+			// with a random number in the range [min,max[
+			boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
+			// Let the collection know its initialization range
+			gdc_ptr->setInitBoundaries(minVar, maxVar);
+
+			// Make the parameter collection known to this individual
+			functionIndividual_ptr->push_back(gdc_ptr);
+
+			// Add tp the population
+			pop_ptr->push_back(functionIndividual_ptr);
+
+			// Now add the required number of clones to the neighborhood
+			for(std::size_t p=1; p<nNeighborhoodMembers; p++) {
+				pop_ptr->push_back(functionIndividual_ptr->clone<GParameterSet>());
+			}
+		}
 	}
 
 	// Specify some general population settings

@@ -95,6 +95,8 @@ int main(int argc, char **argv){
   boost::uint16_t xDim;
   boost::uint16_t yDim;
   bool followProgress;
+  bool trackParentRelations;
+  bool drawArrows;
 
   if(!parseCommandLine(
 		  argc
@@ -135,6 +137,8 @@ int main(int argc, char **argv){
 		 , xDim
 		 , yDim
 		 , followProgress
+		 , trackParentRelations
+		 , drawArrows
      ))
     { exit(1); }
 
@@ -168,6 +172,8 @@ int main(int argc, char **argv){
   om_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
   om_ptr->setXExtremes(minVar, maxVar);
   om_ptr->setYExtremes(minVar, maxVar);
+  om_ptr->setTrackParentRelations(trackParentRelations);
+  om_ptr->setDrawArrows(drawArrows);
 
   //***************************************************************************
 
@@ -179,6 +185,8 @@ int main(int argc, char **argv){
 	  // Set up a GDoubleCollection with dimension values, each initialized
 	  // with a random number in the range [min,max[
 	  boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));
+	  // Let the GDoubleCollection know about its desired initialization range
+	  gdc_ptr->setInitBoundaries(minVar, maxVar);
 
 	  // Set up and register an adaptor for the collection, so it
 	  // knows how to be adapted.
@@ -202,42 +210,42 @@ int main(int argc, char **argv){
 
   // Create the actual populations
   switch (parallelizationMode) {
-    //-----------------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------------
   case 0: // Serial execution
-    // Create an empty population
-    pop_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
-    break;
+	  // Create an empty population
+	  pop_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
+	  break;
 
-    //-----------------------------------------------------------------------------------------------------
+	  //-----------------------------------------------------------------------------------------------------
   case 1: // Multi-threaded execution
-    {
-      // Create the multi-threaded population
-      boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+  {
+	  // Create the multi-threaded population
+	  boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
 
-      // Population-specific settings
-      popPar_ptr->setNThreads(nEvaluationThreads);
+	  // Population-specific settings
+	  popPar_ptr->setNThreads(nEvaluationThreads);
 
-      // Assignment to the base pointer
-      pop_ptr = popPar_ptr;
-    }
-    break;
+	  // Assignment to the base pointer
+	  pop_ptr = popPar_ptr;
+  }
+  break;
 
-    //-----------------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------------
   case 2: // Execution with networked consumer
-    {
-        // Create a network consumer and enrol it with the broker
-        boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
-        gatc->setSerializationMode(serMode);
-        GINDIVIDUALBROKER->enrol(gatc);
+  {
+	  // Create a network consumer and enrol it with the broker
+	  boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
+	  gatc->setSerializationMode(serMode);
+	  GINDIVIDUALBROKER->enrol(gatc);
 
-        // Create the actual broker population
-        boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
-        popBroker_ptr->setWaitFactor(waitFactor);
+	  // Create the actual broker population
+	  boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+	  popBroker_ptr->setWaitFactor(waitFactor);
 
-        // Assignment to the base pointer
-        pop_ptr = popBroker_ptr;
-    }
-    break;
+	  // Assignment to the base pointer
+	  pop_ptr = popBroker_ptr;
+  }
+  break;
   }
 
 
@@ -257,6 +265,7 @@ int main(int argc, char **argv){
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
   pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om_ptr, _1, _2));
+  pop_ptr->setLogOldParents(trackParentRelations);
   
   // Do the actual optimization
   pop_ptr->optimize();

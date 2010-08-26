@@ -96,6 +96,7 @@ namespace Gem
     const boost::uint16_t DEFAULTXDIMAP=1024;
     const boost::uint16_t DEFAULTYDIMAP=1024;
     const bool DEFAULTFOLLOWPROGRESS=false;
+    const bool DEFAULTALLRANDOMINIT=false;
 
     namespace po = boost::program_options;
 
@@ -133,6 +134,7 @@ namespace Gem
 		   , boost::uint16_t& xDim
 		   , boost::uint16_t& yDim
 		   , bool& followProgress
+		   , bool& allRandomInit
 	);
 
   } /* namespace Geneva */

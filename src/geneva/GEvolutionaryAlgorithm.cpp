@@ -475,7 +475,7 @@ double GEvolutionaryAlgorithm::cycleLogic() {
 		oldParents_.clear();
 		// Attach copies of the current parent individuals
 		GEvolutionaryAlgorithm::iterator it;
-		for(it=this->begin(); it!= this->end(); ++it) {
+		for(it=this->begin(); it!= this->begin() + nParents_; ++it) {
 			oldParents_.push_back((*it)->clone<GIndividual>());
 		}
 	}
@@ -748,7 +748,12 @@ void GEvolutionaryAlgorithm::doRecombine() {
 	switch(recombinationMethod_){
 	case DEFAULTRECOMBINE: // we want the RANDOMRECOMBINE behavior
 	case RANDOMRECOMBINE:
-		for(it=data.begin()+nParents_; it!= data.end(); ++it) randomRecombine(*it);
+	{
+		std::size_t child_id=0;
+		for(it=data.begin()+nParents_; it!= data.end(); ++it) {
+			randomRecombine(*it);
+		}
+	}
 		break;
 
 	case VALUERECOMBINE:
@@ -812,25 +817,24 @@ void GEvolutionaryAlgorithm::doRecombine() {
  *
  * @param pos The position of the individual for which a new value should be chosen
  */
-void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& p) {
-	std::size_t p_pos;
+void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& child) {
+	std::size_t parent_pos;
 
 	if(nParents_==1) {
-		p->GObject::load(*(data.begin()));
-		p_pos = 0;
+		parent_pos = 0;
 
 	} else {
 		// Choose a parent to be used for the recombination. Note that
-		// numeric_cat may throw. Exceptions need to be caught in surrounding functions.
+		// numeric_cast may throw. Exceptions need to be caught in surrounding functions.
 		// try/catch blocks would add a non-negligible overhead in this function.
-		p_pos = boost::numeric_cast<std::size_t>(gr.uniform_int(nParents_));
-
-		// Load the parent data into the individual
-		p->GObject::load(*(data.begin() + p_pos));
+		parent_pos = boost::numeric_cast<std::size_t>(gr.uniform_int(nParents_));
 	}
 
+	// Load the parent data into the individual
+	child->GObject::load(*(data.begin() + parent_pos));
+
 	// Let the individual know the id of the parent
-	p->getEAPersonalityTraits()->setParentId(p_pos);
+	child->getEAPersonalityTraits()->setParentId(parent_pos);
 }
 
 /************************************************************************************************************/
@@ -881,13 +885,23 @@ void GEvolutionaryAlgorithm::adaptChildren()
 {
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 
-	// We need to make sure that fitness calculation is
-	// triggered for all parents. Note that it may well be that at
-	// this stage we have several identical parents in the population,
-	// due to the actions of the adjustPopulation function.
-	if(getIteration() == 0) {
-		for(it=data.begin(); it!=data.begin()+nParents_; ++it) {
-			(*it)->fitness();
+	// We start with the parents, if this is iteration 0. Their
+	// initial fitness needs to be determined, if this is the MUPLUSNU
+	// or MUNU1PRETAIN selection model.
+	// Make sure we also evaluate the parents in the first iteration, if needed.
+	// This is only applicable to the MUPLUSNU and MUNU1PRETAIN modes.
+	if(getIteration()==0) {
+		switch(getSortingScheme()) {
+		//--------------------------------------------------------------
+		case MUPLUSNU:
+		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
+			for(it=data.begin(); it!=data.begin() + nParents_; ++it) {
+				(*it)->fitness();
+			}
+			break;
+
+		case MUCOMMANU:
+			break; // nothing
 		}
 	}
 
@@ -959,10 +973,18 @@ void GEvolutionaryAlgorithm::sortMuplusnuMode() {
 	if(getMaximize()){
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
 				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+		/*
+		std::sort(data.begin(), data.end(),
+				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+		*/
 	}
 	else{
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
 				boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+		/*
+		std::sort(data.begin(), data.end(),
+				boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+		*/
 	}
 }
 
@@ -977,10 +999,18 @@ void GEvolutionaryAlgorithm::sortMucommanuMode() {
 	if(getMaximize()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+		/*
+		std::sort(data.begin()+nParents_, data.end(),
+				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
+		*/
 	}
 	else{
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 			  boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+		/*
+		std::sort(data.begin()+nParents_, data.end(),
+				boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
+		*/
 	}
 	std::swap_ranges(data.begin(),data.begin()+nParents_,data.begin()+nParents_);
 }

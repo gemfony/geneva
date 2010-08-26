@@ -143,6 +143,7 @@ namespace Gem
 	   , boost::uint16_t& xDim
 	   , boost::uint16_t& yDim
 	   , bool& followProgress
+	   , bool& allRandomInit
     ) {
 		  boost::uint16_t evalFunction = 0;
 		  bool verbose;
@@ -203,6 +204,8 @@ namespace Gem
 		   "The y-dimension of the canvas for the result print(s)")
 		  ("followProgress", po::value<bool>(&followProgress)->default_value(DEFAULTFOLLOWPROGRESS),
 		   "Specifies whether snapshots should be taken in regular intervals")
+		  ("allRandomInit", po::value<bool>(&allRandomInit)->default_value(DEFAULTALLRANDOMINIT),
+		   "If set, all individuals will be initialized randomly. If 0, all individuals in one neighborhood will have the same start value")
 		  ;
 
 		po::variables_map vm;
@@ -254,6 +257,7 @@ namespace Gem
 					<< "xDim = " << xDim << std::endl
 					<< "yDim = " << yDim << std::endl
 					<< "followProgress = " << (followProgress?"true":"false") << std::endl
+					<< "allRandomInit = " << allRandomInit << std::endl
 					<< std::endl;
 		}
       }

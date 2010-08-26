@@ -85,6 +85,8 @@ public:
 		, xDim_(DEFAULTXDIM)
 		, yDim_(DEFAULTYDIM)
 		, followProgress_(false)
+		, trackParentRelations_(false)
+		, drawArrows_(false)
 		, snapshotBaseName_("GEvolutionaryAlgorithmSnapshot")
 		, minX_(-10.)
 		, maxX_( 10.)
@@ -243,6 +245,47 @@ public:
 
 	/*********************************************************************************************/
 	/**
+	 * Specifies whether the relationship between children and parents should be monitored in
+	 * snapshots.
+	 *
+	 * @param trackParentRelations Specifies whether relationships between children and parents should be tracked
+	 */
+	void setTrackParentRelations(const bool& trackParentRelations) {
+		trackParentRelations_ = trackParentRelations;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Retrieves the current value of the trackParentRelations_ flag.
+	 *
+	 * @return The current value of the trackParentRelations_ flag
+	 */
+	bool getTrackParentRelations() const {
+		return trackParentRelations_;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Specifies whether arrows should be drawn from old parents to their children
+	 *
+	 * @param A boolean indicating whether arrows should be drawn from old parents to their children
+	 */
+	void setDrawArrows(const bool& drawArrows) {
+		drawArrows_ = drawArrows;
+	}
+
+	/*********************************************************************************************/
+	/**
+	 * Retrieves the current value of the drawArrows_
+	 *
+	 * @return The current value of the drawArrows_ flag
+	 */
+	bool getDrawArrows() const {
+		return drawArrows_;
+	}
+
+	/*********************************************************************************************/
+	/**
 	 * Allows to set the base name used for snapshot files
 	 *
 	 * @param snapshotBaseName The desired base name for snapshot files
@@ -349,6 +392,7 @@ private:
 	void takeSnapshot(GEvolutionaryAlgorithm *ea) {
 		boost::uint32_t iteration = ea->getIteration();
 		std::string outputFileName = snapshotBaseName_ + "_" + boost::lexical_cast<std::string>(iteration) + ".C";
+		std::size_t nParents = ea->getNParents();
 
 		// Check whether the output directory exists, otherwise create it
 		boost::filesystem::path outputPath(outputPath_.c_str());
@@ -379,7 +423,7 @@ private:
 				  << "Globally best individual has dirty flag set when it shouldn't" << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
-#endif
+#endif /* DEBUG */
 
 		// Output a ROOT header
 		ofs << "{" << std::endl
@@ -415,7 +459,7 @@ private:
 		ofs << std::endl;
 
 		// Extract the parents and mark them in the plot
-		for(std::size_t parentId=0; parentId < ea->getNParents(); parentId++) {
+		for(std::size_t parentId=0; parentId < nParents; parentId++) {
 			boost::shared_ptr<GParameterSet> p_ptr = ea->getParentIndividual<GParameterSet>(parentId);
 
 			// std::cout << "================ Iteration " << ea->getIteration() << " / Parent = " << parentId << " =================" << std::endl
@@ -427,31 +471,18 @@ private:
 
 			// Add to the plot, if the marker would still be inside the main drawing area
 			if(x_parent > minX_ && x_parent < maxX_ && y_parent > minY_ && y_parent < maxY_) {
-				ofs << "  TMarker *parent_marker" << parentId << " = new TMarker(" << x_parent << ", " << y_parent << ", 22);" << std::endl // A circle
-					<< "  parent_marker" << parentId << "->SetMarkerColor(4);" << std::endl
-					<< "  parent_marker" << parentId << "->SetMarkerSize(1.3);" << std::endl
+				ofs << "  TMarker *parent_marker" << parentId << " = new TMarker(" << x_parent << ", " << y_parent << ", 26);" << std::endl // A circle
+					<< "  parent_marker" << parentId << "->SetMarkerColor(2);" << std::endl
+					<< "  parent_marker" << parentId << "->SetMarkerSize(1.5);" << std::endl
 					<< "  parent_marker" << parentId << "->Draw();" << std::endl
 					<< std::endl;
 			}
 		}
 
-		// Extract the coordinates of the globally best individual
-		double x_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(0);
-		double y_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(1);
-
-		// Add to the plot, if the marker would still be inside the main drawing area
-		if(x_global_best > minX_ && x_global_best < maxX_ && y_global_best > minY_ && y_global_best < maxY_) {
-			ofs << "  TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 8);" << std::endl // A circle
-				<< "  gbest->SetMarkerColor(2);" << std::endl
-				<< "  gbest->SetMarkerSize(1.8);" << std::endl
-				<< "  gbest->Draw();" << std::endl
-				<< std::endl;
-		}
-
 		// Loop over all individuals in this iteration and output their parameters
 		GEvolutionaryAlgorithm::iterator it;
 		std::size_t cind = 0;
-		for(it=ea->begin() + ea->getNParents(); it!=ea->end(); ++it) {
+		for(it=ea->begin() + nParents; it!=ea->end(); ++it) {
 			// Retrieve the data members
 			boost::shared_ptr<GDoubleCollection> x = boost::dynamic_pointer_cast<GParameterSet>(*it)->pc_at<GDoubleCollection>(0);
 			// Store a reference for ease of access
@@ -464,7 +495,7 @@ private:
 					  << "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
-#endif
+#endif /* DEBUG */
 
 			// Only draw the child if it is inside of the function plot
 			if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
@@ -475,7 +506,90 @@ private:
 					<< std::endl;
 			}
 
+			// If requested, draw an arrow from the old parent to the individual
+			if(trackParentRelations_ && drawArrows_ && iteration>0) { // Tracking doesn't make sense for iteration 0
+#ifdef DEBUG
+				// Check whether the parent is was set at all
+				if(!(*it)->getEAPersonalityTraits()->parentIdSet()) {
+					std::ostringstream error;
+					error << "In optimizationMonitor::takeSnapshot(): Error!" << std::endl
+						  << "Tried to access parent id while the id wasn't set." << std::endl;
+					throw(Gem::Common::gemfony_error_condition(error.str()));
+				}
+#endif /* DEBUG */
+
+				// Retrieve the id of the individual's parent
+				std::size_t oldParentId = (*it)->getEAPersonalityTraits()->getParentId();
+
+				// Retrieve a pointer to that parent
+				boost::shared_ptr<GParameterSet> op_ptr = ea->getOldParentIndividual<GParameterSet>(oldParentId);
+				// Retrieve the data members
+				boost::shared_ptr<GDoubleCollection> op_x = op_ptr->pc_at<GDoubleCollection>(0);
+				// Store a reference for ease of access
+				const GDoubleCollection& op_x_ref = *op_x;
+
+				// Create the arrow
+				ofs << "  TArrow *rel_arrow" << cind << " = new TArrow(" << op_x_ref[0] << ", " << op_x_ref[1] << ", " << x_ref[0] << ", " << x_ref[1] << ", 0.01, \"|>\");" << std::endl
+					<< "  rel_arrow" << cind << "->Draw();" << std::endl;
+			}
+
 			cind++;
+		}
+
+		// If we want to monitor the relationships between parent individuals and children,
+		// draw the old parents and mark which children have originated from them.
+		if(trackParentRelations_ && iteration>0) { // Tracking doesn't make sense for iteration 0
+#ifdef DEBUG
+			// Check that the population has indeed logged old parents
+			if(!ea->oldParentsLogged()) {
+				std::ostringstream error;
+				error << "In optimizationMonitor::takeSnapshot(): Error!" << std::endl
+					  << "Logging of parent relations was requested, even though the population" << std::endl
+					  << "doesn't have the required information." << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+#endif /* DEBUG */
+
+			// Extract the old parent individuals and draw them into the plot
+			for(std::size_t oldParentId=0; oldParentId<nParents; oldParentId++) {
+				// Retrieve the old parent
+				boost::shared_ptr<GParameterSet> op_ptr = ea->getOldParentIndividual<GParameterSet>(oldParentId);
+				// Retrieve the data members
+				boost::shared_ptr<GDoubleCollection> x = op_ptr->pc_at<GDoubleCollection>(0);
+				// Store a reference for ease of access
+				const GDoubleCollection& x_ref = *x;
+	#ifdef DEBUG
+				// Check that we indeed only have two dimensions
+				if(x_ref.size() != 2) {
+					std::ostringstream error;
+					error << "In optimizationMonitor::takeSnapshot(): Error!" << std::endl
+						  << "Found GDoubleCollection with invalid number of entries: " << x_ref.size() << std::endl;
+					throw(Gem::Common::gemfony_error_condition(error.str()));
+				}
+	#endif /* DEBUG */
+
+				// Only draw the old parent if it is inside of the function plot
+				if(x_ref[0] > minX_ && x_ref[0] < maxX_ && x_ref[1] > minY_ && x_ref[1] < maxY_) {
+					ofs << "  TMarker *old_parent_marker_" << oldParentId << " = new TMarker(" << x_ref[0] << ", " << x_ref[1] << ", 8);" << std::endl // A circle
+						<< "  old_parent_marker_" << oldParentId << "->SetMarkerColor(2);" << std::endl
+						<< "  old_parent_marker_" << oldParentId << "->SetMarkerSize(2.0);" << std::endl
+						<< "  old_parent_marker_" << oldParentId << "->Draw();" << std::endl
+						<< std::endl;
+				}
+			}
+		}
+
+		// Extract the coordinates of the globally best individual
+		double x_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(0);
+		double y_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(1);
+
+		// Add to the plot, if the marker would still be inside the main drawing area
+		if(x_global_best > minX_ && x_global_best < maxX_ && y_global_best > minY_ && y_global_best < maxY_) {
+			ofs << "  TMarker *gbest = new TMarker(" << x_global_best << ", " << y_global_best << ", 22);" << std::endl // A circle
+				<< "  gbest->SetMarkerColor(4);" << std::endl
+				<< "  gbest->SetMarkerSize(1.6);" << std::endl
+				<< "  gbest->Draw();" << std::endl
+				<< std::endl;
 		}
 
 		ofs << std::endl
@@ -494,6 +608,8 @@ private:
 	boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
 	demoFunction df_; ///< The id of the evaluation function
 	bool followProgress_; ///< Indicates whether a snapshot of the current individuals should be taken whenever the infoFunction is called
+	bool trackParentRelations_; ///< Indicates whether the relationship to parent individuals should be monitored in snapshots
+	bool drawArrows_; ///< Indicates whether arrows should be drawn from old parents to their children
 	std::string snapshotBaseName_; ///< The base name of the snapshot file
 	double minX_, maxX_; ///< Minimal and maximal x values for snapshots
 	double minY_, maxY_; ///< Minimal and maximal y values for snapshots
