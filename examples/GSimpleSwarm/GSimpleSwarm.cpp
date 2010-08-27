@@ -156,7 +156,7 @@ int main(int argc, char **argv){
 	}
 
 	//***************************************************************************
-	// Create an instance of our optimization monitor, telling it to output information in given intervals
+	// Create an instance of our optimization monitor
 	std::ofstream resultSummary("./result.C");
 	boost::shared_ptr<optimizationMonitor> om_ptr(new optimizationMonitor(df, resultSummary));
 	om_ptr->setDims(xDim, yDim);

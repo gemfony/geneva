@@ -106,7 +106,13 @@ public:
 	bool operator!=(const GMultiThreadedSwarm&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/** @brief Sets the maximum number of threads */
 	void setNThreads(const boost::uint8_t&);
@@ -114,6 +120,20 @@ public:
 	uint8_t getNThreads() const ;
 
 protected:
+	/** @brief Triggers supervised fitness calculation */
+	virtual void checkedUpdateFitness(std::size_t, boost::shared_ptr<GParameterSet>);
+	/** @brief Updates the individual's position and performs the supervised fitness calculation */
+	void checkedUpdatePositionsAndFitness (
+		    std::size_t
+		  , boost::shared_ptr<GParameterSet>
+		  , boost::shared_ptr<GParameterSet>
+		  , boost::shared_ptr<GParameterSet>
+		  , boost::shared_ptr<GParameterSet>
+		  , double
+		  , double
+		  , double
+	);
+
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */

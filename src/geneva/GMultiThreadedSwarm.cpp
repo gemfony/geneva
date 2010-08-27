@@ -257,14 +257,14 @@ void GMultiThreadedSwarm::swarmLogic() {
 			GMultiThreadedSwarm::iterator current = start + offset;
 
 			if(iteration == 0 || (*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
-				tp_.schedule(boost::bind(&GMultiThreadedSwarm::updateFitness,
+				tp_.schedule(boost::bind(&GMultiThreadedSwarm::checkedUpdateFitness,
 						this
 					  , neighborhood
 					  , *current
 				));
 			}
 			else {
-				tp_.schedule(boost::bind(&GMultiThreadedSwarm::updatePositionsAndFitness,
+				tp_.schedule(boost::bind(&GMultiThreadedSwarm::checkedUpdatePositionsAndFitness,
 						this
 					  , neighborhood
 					  , *current
@@ -283,6 +283,99 @@ void GMultiThreadedSwarm::swarmLogic() {
 
 	// wait for the pool to become empty ...
 	tp_.wait();
+}
+
+/************************************************************************************************************/
+/**
+ * Prepares individuals for the fitness calculation and performs that calculation. This version catches
+ * exceptions thrown by the parent class'es updateFitness() function. It is meant to be called from a thread.
+ *
+ * @param neighborhood The neighborhood the individual is in
+ * @param ind The individual for which the fitness calculation should be performed
+ */
+void GMultiThreadedSwarm::checkedUpdateFitness(
+	    std::size_t neighborhood
+	  , boost::shared_ptr<GParameterSet> ind
+){
+	try {
+		GSwarm::updateFitness(neighborhood, ind);
+	}
+	catch(std::exception& e){
+		std::ostringstream error;
+		error << "In GMultiThreadedSwarm::checkedUpdatePositionsAndFitness(): Caught std::exception with message" << std::endl
+			  << e.what() << std::endl;
+		std::cerr << error.str();
+		std::terminate();
+	}
+	catch(boost::exception& e){
+		std::ostringstream error;
+		error << "In GMultiThreadedSwarm::checkedUpdatePositionsAndFitness(): Caught boost::exception" << std::endl;
+		std::cerr << error.str();
+		std::terminate();
+	}
+	catch(...){
+		std::ostringstream error;
+		error << "In GMultiThreadedSwarm::checkedUpdatePositionsAndFitness(): Caught unknown exception" << std::endl;
+		std::cerr << error.str();
+		std::terminate();
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Updates the individual's position and performs the fitness calculation. This version catches exceptions
+ * thrown by the parent class'es updatePositionsAndFitness() function. It is meant to be called from a thread.
+ *
+ * @param neighborhood The neighborhood that has been assigned to the individual
+ * @param ind The individual whose position should be updated
+ * @param local_best_tmp The locally best dataset of the individual's neighborhood
+ * @param global_best_tmp The globally best individual so far
+ * @param velocity A velocity vector
+ * @param cLocal A constant used for multiplication with the local direction
+ * @param cGlobal A constant used for multiplication with the global direction
+ * @param cDelta A constant used for multiplication with the velocity vector
+ */
+void GMultiThreadedSwarm::checkedUpdatePositionsAndFitness(
+	    std::size_t neighborhood
+	  , boost::shared_ptr<GParameterSet> ind
+	  , boost::shared_ptr<GParameterSet> local_best_tmp
+	  , boost::shared_ptr<GParameterSet> global_best_tmp
+	  , boost::shared_ptr<GParameterSet> velocity
+	  , double cLocal
+	  , double cGlobal
+	  , double cDelta
+){
+	try {
+		GSwarm::updatePositionsAndFitness(
+				neighborhood
+				, ind
+				, local_best_tmp
+				, global_best_tmp
+				, velocity
+				, cLocal
+				, cGlobal
+				, cDelta
+		);
+	}
+	catch(std::exception& e){
+		std::ostringstream error;
+		error << "In GMultiThreadedSwarm::checkedUpdatePositionsAndFitness(): Caught std::exception with message" << std::endl
+			  << e.what() << std::endl;
+		std::cerr << error.str();
+		std::terminate();
+	}
+	catch(boost::exception& e){
+		std::ostringstream error;
+		error << "In GMultiThreadedSwarm::checkedUpdatePositionsAndFitness(): Caught boost::exception" << std::endl;
+		std::cerr << error.str();
+		std::terminate();
+	}
+	catch(...){
+		std::ostringstream error;
+		error << "In GMultiThreadedSwarm::checkedUpdatePositionsAndFitness(): Caught unknown exception" << std::endl;
+		std::cerr << error.str();
+		std::terminate();
+	}
 }
 
 /************************************************************************************************************/
