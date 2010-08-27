@@ -54,7 +54,7 @@ GMultiThreadedEA::GMultiThreadedEA()
 
 /************************************************************************************************************/
 /**
- * A standard copy constructor. Note that we do not copy le_value_ as
+ * A standard copy constructor. Note that we do not copy sm_value_ as
  * it is used for internal caching only.
  *
  * @param cp Reference to another GMultiThreadedEA object
@@ -107,7 +107,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 		tp_.size_controller().resize(nThreads_);
 	}
 
-	// Note that we do not copy le_value_ as it is used for internal caching only
+	// Note that we do not copy sm_value_ as it is used for internal caching only
 }
 
 /************************************************************************************************************/
@@ -191,12 +191,13 @@ void GMultiThreadedEA::init() {
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::init();
 
-	// We want to prevent lazy evaluation, as all value calculation
-	// shall take place in the threads. By the same token, though, we want to be
-	// able to restore the original values.
+	// We want to confine re-evaluation to defined places. However, we also want to restore
+	// the original flags. We thus record the previous setting when setting the flag to true.
+	sm_value_.clear(); // Make sure we do not have "left-overs"
+	// Set the server mode and store the original flag
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it){
-		le_value_.push_back((*it)->setAllowLazyEvaluation(false));
+		sm_value_.push_back((*it)->setServerMode(true));
 	}
 }
 
@@ -205,15 +206,22 @@ void GMultiThreadedEA::init() {
  * Necessary clean-up work after the optimization has finished
  */
 void GMultiThreadedEA::finalize() {
+#ifdef DEBUG
+	if(data.size() != sm_value_.size()) {
+		std::ostringstream error;
+		error << "In GMultiThreadedEA::finalize(): Error!" << std::endl
+			  << "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size() << std::endl;
+		throw Gem::Common::gemfony_error_condition(error.str());
+	}
+#endif /* DEBUG */
+
 	// Restore the original values
 	std::vector<bool>::iterator b_it;
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
-	for(it=data.begin(), b_it=le_value_.begin();
-		it!=data.end(), b_it != le_value_.end();
-		++it, ++b_it)
-	{
-		(*it)->setAllowLazyEvaluation(*b_it);
+	for(it=data.begin(), b_it=sm_value_.begin(); it!=data.end(); ++it, ++b_it) {
+		(*it)->setServerMode(*b_it);
 	}
+	sm_value_.clear(); // Make sure we have no "left-overs"
 
 	// GEvolutionaryAlgorithm sees exactly the environment it would when called from its own class
 	GEvolutionaryAlgorithm::finalize();
@@ -241,6 +249,9 @@ void GMultiThreadedEA::adaptChildren() {
 		case MUPLUSNU:
 		case MUNU1PRETAIN: // same procedure. We do not know which parent is best
 			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
+				// Make re-evaluation accessible
+				(*it)->setServerMode(false);
+				// Schedule the actual job
 				tp_.schedule(boost::bind(&GIndividual::checkedFitness, *it));
 			}
 			break;
@@ -252,11 +263,36 @@ void GMultiThreadedEA::adaptChildren() {
 
 	// Next we adapt the children
 	for(it=data.begin()+nParents; it!=data.end(); ++it) {
+		// Make re-evaluation accessible
+		(*it)->setServerMode(false);
+		// Schedule the actual job
 		tp_.schedule(boost::bind(&GIndividual::checkedAdaption, *it));
 	}
 
 	// ... and wait for the pool to become empty
 	tp_.wait();
+
+	// Restart the server mode for parents
+	if(GEvolutionaryAlgorithm::getIteration() == 0) {
+		switch(getSortingScheme()) {
+		//--------------------------------------------------------------
+		case MUPLUSNU:
+		case MUNU1PRETAIN: // same procedure
+			for(it=data.begin(); it!=data.begin() + nParents; ++it) {
+				// Make re-evaluation impossible
+				(*it)->setServerMode(true);
+			}
+			break;
+
+		case MUCOMMANU:
+			break; // nothing
+		}
+	}
+
+	// Restart the server mode for children
+	for(it=data.begin()+nParents; it!=data.end(); ++it) {
+		(*it)->setServerMode(true);
+	}
 }
 
 /************************************************************************************************************/

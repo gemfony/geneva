@@ -142,7 +142,6 @@ bool parseConfigFile(const std::string& configFile,
 		double& sigmaSigma,
 		double& minSigma,
 		double& maxSigma,
-		boost::uint32_t& nEvaluations,
 		Gem::Geneva::dataExchangeMode& exchangeMode,
 		bool& maximize,
 		bool& randomFill)
@@ -202,8 +201,6 @@ bool parseConfigFile(const std::string& configFile,
 			"The minimum allowed value for sigma")
 			("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
 			"The maximum allowed value for sigma")
-			("nEvaluations", po::value<boost::uint32_t>(&nEvaluations)->default_value(DEFAULTNEVALUATIONS),
-			"The amount of evaluations each external program shall perform")
 			("exchangeMode", po::value<Gem::Geneva::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
 			"Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
 			("maximize", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
@@ -272,7 +269,6 @@ bool parseConfigFile(const std::string& configFile,
 					<< "sigmaSigma = " << sigmaSigma << std::endl
 					<< "minSigma = " << minSigma << std::endl
 					<< "maxSigma = " << maxSigma << std::endl
-					<< "nEvaluations = " << nEvaluations << std::endl
 					<< "exchangeMode = " << exchangeMode << std::endl
 					<< "maximize = " << maximize << std::endl
 					<< "randomFill = " << randomFill << std::endl

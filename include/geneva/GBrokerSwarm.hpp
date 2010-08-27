@@ -139,6 +139,9 @@ protected:
 
 
 private:
+	/*********************************************************************************/
+	std::vector<bool> sm_value_; ///< Internal storage for server mode flags
+
     /*********************************************************************************/
     /**
      * A simple comparison operator that helps to sort individuals according to their

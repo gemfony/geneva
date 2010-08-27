@@ -267,14 +267,14 @@ public:
 		BOOST_CHECK(dirtyFlag == false);
 
 		// adapt the object and check if the dirty flag was set
-		BOOST_CHECK(!gpi2.getAllowLazyEvaluation());
+		BOOST_CHECK(!gpi2.serverMode()); // should be false by default
 		gpi2.adapt();
 		BOOST_CHECK(!gpi2.isDirty());
 		BOOST_CHECK(gpi2.fitness() != 0); // We can safely call the fitness function in this situation
 
-		// Allow lazy evaluation, adapt and check the fitness again
-		gpi2.setAllowLazyEvaluation(true);
-		BOOST_CHECK(gpi2.getAllowLazyEvaluation() == true);
+		// Allow instant value calculation
+		gpi2.setServerMode(false);
+		BOOST_CHECK(gpi2.serverMode() == false);
 		gpi2.adapt();
 		BOOST_CHECK(gpi2.isDirty()); // No evaluation should have taken place at this pojnt
 		BOOST_CHECK(gpi2.fitness() != 0); // Does the actual fitness calculation

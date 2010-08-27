@@ -39,6 +39,14 @@
 namespace Gem {
 namespace Common {
 
+/**************************************************************************************************/
+/**
+ * This function retrieves the number of CPU cores on the system, which is regarded as a suitable
+ * default number for the amount of threads of a specific kind.
+ *
+ * @param defaultNThreads The default number of threads to be returned if hardware concurrency cannot be determined
+ * @return A guess at a suitable number of threads for this architecture
+ */
 unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
 	unsigned int nHardwareThreads = boost::thread::hardware_concurrency();
 	if(nHardwareThreads > 0) {
@@ -56,6 +64,34 @@ unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
 		return defaultNThreads;
 	}
 }
+
+/**************************************************************************************************/
+/**
+ * Execute an external command, reacting to possible errors.
+ *
+ * @param command The command to be executed
+ */
+void runExternalCommand(const std::string& command) {
+#ifdef PRINTCOMMANDLINE
+		std::cout << "Executing external command \"" << commandLine << "\" ...";
+#endif /* PRINTCOMMANDLINE */
+
+	int errorCode = system(command.c_str());
+
+#ifdef PRINTCOMMANDLINE
+		std::cout << "... done." << std::endl;
+#endif /* PRINTCOMMANDLINE */
+
+	if(errorCode) {
+		std::ostringstream error;
+		error << "In runExternalCommand(): Error" << std::endl
+			  << "Command: " << command << std::endl
+			  << "Error code: " << errorCode << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+}
+
+/**************************************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

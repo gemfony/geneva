@@ -31,6 +31,10 @@
 
 #include "geneva/GObject.hpp"
 
+/** @brief Eliminate some serialization overhead at the cost by omitting versioning for this class.
+ * See http://beta.boost.org/doc/libs/1_44_0/libs/serialization/doc/special.html#derivedpointers */
+// BOOST_CLASS_IMPLEMENTATION(Gem::Geneva::GObject, boost::serialization::object_serializable);
+
 namespace Gem {
 namespace Geneva {
 

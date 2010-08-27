@@ -93,7 +93,6 @@ int main(int argc, char **argv){
   double sigmaSigma;
   double minSigma;
   double maxSigma;
-  boost::uint32_t nEvaluations;
   Gem::Geneva::dataExchangeMode exchangeMode;
   bool maximize;
   bool randomFill;
@@ -128,7 +127,6 @@ int main(int argc, char **argv){
 		      sigmaSigma,
 		      minSigma,
 		      maxSigma,
-		      nEvaluations,
 		      exchangeMode,
 		      maximize,
 		      randomFill))
@@ -193,9 +191,6 @@ int main(int argc, char **argv){
 					gba_ptr
 			)
 	);
-
-	// Make each external program evaluate a number of data sets, if nEvaluations > 1
-	gev_ptr->setNEvaluations(nEvaluations);
 
 	// Set the desired maximization/minimization mode
 	gev_ptr->setMaximize(maximize);

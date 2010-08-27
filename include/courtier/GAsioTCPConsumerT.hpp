@@ -478,6 +478,7 @@ private:
         tp_.schedule(boost::bind(&GAsioServerSession<processable_type>::processRequest, currentSession));
     }
 
+    /*********************************************************************/
 	/**
 	 * ASIO's io service, responsible for event processing, absolutely
 	 * needs to be _before_ acceptor so it gets initialized first.

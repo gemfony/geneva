@@ -93,7 +93,6 @@ namespace Gem
     const std::string DEFAULTPROGRAM="./evaluator/evaluator";
     const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
     const std::string DEFAULTEXTERNALARGUMENTS="empty";
-    const boost::uint32_t DEFAULTNEVALUATIONS=5;
     const Gem::Geneva::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::Geneva::BINARYEXCHANGE;
     const bool DEFAULTMAXIMIZE=false;
     const bool DEFAULTRANDOMFILL=true; // whether template data should be filled randomly
@@ -133,7 +132,6 @@ namespace Gem
 		  , double& sigmaSigma
 		  , double& minSigma
 		  , double& maxSigma
-		  , boost::uint32_t& nEvaluations
 		  , Gem::Geneva::dataExchangeMode& exchangeMode
 		  , bool& maximize
 		  , bool& randomFill

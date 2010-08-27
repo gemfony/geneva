@@ -567,7 +567,8 @@ public:
 } /* namespace Gem */
 
 /********************************************************************************************/
-// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+/** @brief Mark this class as abstract. This is the content of
+ * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 
 namespace boost {
 	namespace serialization {

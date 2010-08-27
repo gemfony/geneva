@@ -698,11 +698,11 @@ void GSwarm::updateFitness(
 	// Let the personality know in which neighborhood it is
 	ind->getSwarmPersonalityTraits()->setNeighborhood(neighborhood);
 
-	// Trigger the fitness calculation (if necessary). Make sure lazy evaluation
-	// is allowed so we do not trigger an exception.
-	bool originalAllowLazyEvaluation = ind->setAllowLazyEvaluation(true);
+	// Trigger the fitness calculation (if necessary). Make sure
+	// that fitness calculation is indeed allows at this point.
+	bool originalServerMode = ind->setServerMode(false);
 	ind->fitness();
-	ind->setAllowLazyEvaluation(originalAllowLazyEvaluation);
+	ind->setServerMode(originalServerMode);
 }
 
 /************************************************************************************************************/

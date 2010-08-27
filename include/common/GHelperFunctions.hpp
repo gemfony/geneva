@@ -60,6 +60,7 @@
 
 // Our own headers go here
 #include "GCommonEnums.hpp"
+#include "GExceptions.hpp"
 
 namespace Gem
 {
@@ -69,6 +70,10 @@ namespace Common
 /**************************************************************************************************/
 /** @brief This function tries to determine a suitable number of threads for the current architecture */
 unsigned int getNHardwareThreads(const unsigned int& defaultNThreads = Gem::Common::DEFAULTNHARDWARETHREADS);
+
+/**************************************************************************************************/
+/** @brief This function executes an external command on the operating system */
+void runExternalCommand(const std::string&);
 
 /**************************************************************************************************/
 

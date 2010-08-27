@@ -51,7 +51,7 @@ GIndividual::GIndividual()
 	, bestPastFitness_(0.)
 	, nStalls_(0)
 	, dirtyFlag_(true)
-	, allowLazyEvaluation_(false)
+	, serverMode_(false)
 	, processingCycles_(1)
 	, maximize_(false)
 	, parentAlgIteration_(0)
@@ -72,7 +72,7 @@ GIndividual::GIndividual(const GIndividual& cp)
 	, bestPastFitness_(cp.bestPastFitness_)
 	, nStalls_(cp.nStalls_)
 	, dirtyFlag_(cp.dirtyFlag_)
-	, allowLazyEvaluation_(cp.allowLazyEvaluation_)
+	, serverMode_(cp.serverMode_)
 	, processingCycles_(cp.processingCycles_)
 	, maximize_(cp.maximize_)
 	, parentAlgIteration_(cp.parentAlgIteration_)
@@ -151,7 +151,7 @@ boost::optional<std::string> GIndividual::checkRelationshipWith(const GObject& c
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", nStalls_, p_load->nStalls_, "nStalls_", "p_load->nStalls_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", dirtyFlag_, p_load->dirtyFlag_, "dirtyFlag_", "p_load->dirtyFlag_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GIndividual", allowLazyEvaluation_, p_load->allowLazyEvaluation_, "allowLazyEvaluation_", "p_load->allowLazyEvaluation_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GIndividual", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", processingCycles_, p_load->processingCycles_, "processingCycles_", "p_load->processingCycles_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GIndividual", parentAlgIteration_, p_load->parentAlgIteration_, "parentAlgIteration_", "p_load->parentAlgIteration_", e , limit));
@@ -178,7 +178,7 @@ void GIndividual::load_(const GObject* cp) {
 	bestPastFitness_ = p_load->bestPastFitness_;
 	nStalls_ = p_load->nStalls_;
 	dirtyFlag_ = p_load->dirtyFlag_;
-	allowLazyEvaluation_ = p_load->allowLazyEvaluation_;
+	serverMode_ = p_load->serverMode_;
 	processingCycles_ = p_load->processingCycles_;
 	maximize_ = p_load->maximize_;
 	parentAlgIteration_ = p_load->parentAlgIteration_;
@@ -188,45 +188,30 @@ void GIndividual::load_(const GObject* cp) {
 
 /************************************************************************************************************/
 /**
- * The adaption interface. If lazy evaluation is not allowed (the default), this
- * function also triggers the re-calculation of the fitness.
+ * The adaption interface. This function also triggers re-evaluation of the fitness.
  */
 void GIndividual::adapt() {
-	customAdaptions();
+	customAdaptions(); // The actual mutation and adaption process
 	GIndividual::setDirtyFlag(true);
-
-	// In some cases we want to allow lazy evaluation. The
-	// fitness calculation is then deferred to the next call
-	// of the GIndividual::fitness() function
-	if (!allowLazyEvaluation_) {
-		currentFitness_ = fitnessCalculation();
-		setDirtyFlag(false);
-	}
+	GIndividual::fitness(); // Trigger re-evaluation
 }
 
 /************************************************************************************************************/
 /**
  * Returns the last known fitness calculation of this object. Re-calculation
- * of the fitness is triggered, if lazy evaluation is allowed.
+ * of the fitness is triggered, unless this is the server mode.
  *
  * @return The fitness of this individual
  */
 double GIndividual::fitness() {
 	if (dirtyFlag_) {
-
-#ifdef DEBUG
-		// Except for iteration 0, it is an error if lazy evaluation is not allowed, but
-		// the dirty flag is set. There the fitness calculation of initial individuals happens
-		// before their modification.
-		if (!allowLazyEvaluation_ && getParentAlgIteration() > 0) {
+		// Re-evaluation is not allowed on the server
+		if (serverMode_) {
 			std::ostringstream error;
 			error << "In GIndividual::fitness(): Error!" << std::endl
-				  << "The dirty flag is set while lazy evaluation is not allowed."
-				  << std::endl;
-
+				  << "Tried to perform re-evaluation in server-mode" << std::endl;
 			throw Gem::Common::gemfony_error_condition(error.str());
 		}
-#endif /* DEBUG */
 
 		currentFitness_ = fitnessCalculation();
 		setDirtyFlag(false);
@@ -261,25 +246,25 @@ double GIndividual::doFitnessCalculation() {
 
 /************************************************************************************************************/
 /**
- * Indicates whether lazy evaluation is allowed
+ * (De-)activates the server mode.
  *
- * @param allowLazyEvaluation The new value for the allowLazyEvaluation_ parameter
- * @return The previous value of the allowLazyEvaluation_ parameter
+ * @param sM The desired new value of the serverMode_ variable
+ * @return The previous value of the serverMode_ variable
  */
-bool GIndividual::setAllowLazyEvaluation(const bool& allowLazyEvaluation)  {
-	bool previous = allowLazyEvaluation_;
-	allowLazyEvaluation_ = allowLazyEvaluation;
+bool GIndividual::setServerMode(const bool& sM) {
+	bool previous = serverMode_;
+	serverMode_ = sM;
 	return previous;
 }
 
 /************************************************************************************************************/
 /**
- * Retrieve the allowLazyEvaluation_ parameter
+ * Checks whether the server mode is set
  *
- * @return The value of the allowLazyEvaluation_ parameter
+ * @return The current value of the serverMode_ variable
  */
-bool GIndividual::getAllowLazyEvaluation() const  {
-	return allowLazyEvaluation_;
+bool GIndividual::serverMode() const {
+	return serverMode_;
 }
 
 /************************************************************************************************************/
@@ -498,21 +483,25 @@ double GIndividual::checkedFitness(){
 /************************************************************************************************************/
 /**
  * Performs all necessary processing steps for this object. Not meant to be
- * called from threads, as no exceptions are caught. Use checkedProcess() instead.
+ * called directly from threads, as no exceptions are caught. Use checkedProcess() instead.
  * If the processingCycles_ variable is set to a value of 0 or higher than 1, multiple
- * adapt() calls will be performed, until the maximum number of calls is reached or
+ * adapt() calls will be performed in EA mode, until the maximum number of calls is reached or
  * a better solution is found. If processingCycles_ has a value of 0, this routine
  * will loop forever, unless a better solution is found (DANGEROUS: USE WITH CARE!!!).
  *
  * @return A boolean which indicates whether processing has led to a useful result
  */
 bool GIndividual::process(){
+	bool gotUsefulResult = false;
+
+	// Record the previous setting of the serverMode_ flag and make
+	// sure that re-evaluation is possible
+	bool previousServerMode=setServerMode(false);
+
 	switch(pers_) {
 	//-------------------------------------------------------------------------------------------------------
 	case EA: // Evolutionary Algorithm
 		{
-			bool gotUsefulResult = false;
-			bool previous=setAllowLazyEvaluation(false);
 			if(getPersonalityTraits()->getCommand() == "adapt") {
 				if(processingCycles_ == 1 || getParentAlgIteration() == 0) {
 					adapt();
@@ -576,16 +565,11 @@ bool GIndividual::process(){
 
 				throw Gem::Common::gemfony_error_condition(error.str());
 			}
-			setAllowLazyEvaluation(previous);
-
-			return gotUsefulResult;
 		}
 		break;
 
 	case SWARM:
 		{
-			// Individuals may arrive with the dirty flag set in swarm algorithms
-			bool previous=setAllowLazyEvaluation(true);
 			if(getPersonalityTraits()->getCommand() == "evaluate") {
 				// Trigger fitness calculation
 				fitness();
@@ -597,11 +581,10 @@ bool GIndividual::process(){
 
 				throw Gem::Common::gemfony_error_condition(error.str());
 			}
-			setAllowLazyEvaluation(previous);
 
 			// Processing in swarms will always yield useful results, regardless of
 			// whether a better solution was found than previously known.
-			return true;
+			gotUsefulResult = true;
 		}
 		break;
 
@@ -615,6 +598,12 @@ bool GIndividual::process(){
 		}
 		break;
 	}
+
+	// Restore the serverMode_ flag
+	setServerMode(previousServerMode);
+
+	// Let the audience know
+	return gotUsefulResult;
 }
 
 /************************************************************************************************************/

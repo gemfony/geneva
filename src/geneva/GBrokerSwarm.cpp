@@ -196,6 +196,15 @@ void GBrokerSwarm::init() {
 
 	// Connect to the broker
 	GBrokerConnector::init();
+
+	// We want to confine re-evaluation to defined places. However, we also want to restore
+	// the original flags. We thus record the previous setting when setting the flag to true.
+	sm_value_.clear(); // Make sure we do not have "left-overs"
+	// Set the server mode and store the original flag
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+	for(it=data.begin(); it!=data.end(); ++it){
+		sm_value_.push_back((*it)->setServerMode(true));
+	}
 }
 
 /************************************************************************************************************/
@@ -203,6 +212,23 @@ void GBrokerSwarm::init() {
  * Performs any necessary finalization work after the end of the optimization cycle
  */
 void GBrokerSwarm::finalize() {
+#ifdef DEBUG
+	if(data.size() != sm_value_.size()) {
+		std::ostringstream error;
+		error << "In GBrokerSwarm::finalize(): Error!" << std::endl
+			  << "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size() << std::endl;
+		throw Gem::Common::gemfony_error_condition(error.str());
+	}
+#endif /* DEBUG */
+
+	// Restore the original values
+	std::vector<bool>::iterator b_it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+	for(it=data.begin(), b_it=sm_value_.begin(); it!=data.end(); ++it, ++b_it) {
+		(*it)->setServerMode(*b_it);
+	}
+	sm_value_.clear(); // Make sure we have no "left-overs"
+
 	// Invalidate our local broker connection
 	GBrokerConnector::finalize();
 

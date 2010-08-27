@@ -83,10 +83,10 @@ public:
 	 * @param summary The stream to which information should be written
 	 */
 	optimizationMonitor(const Gem::Geneva::demoFunction& df, std::ostream& summary)
-		: df_(df)
-		, summary_(summary)
+		: summary_(summary)
 		, xDim_(DEFAULTXDIM)
 		, yDim_(DEFAULTYDIM)
+		, df_(df)
 		, followProgress_(false)
 		, trackParentRelations_(false)
 		, drawArrows_(false)

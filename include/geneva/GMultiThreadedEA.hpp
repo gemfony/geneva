@@ -133,7 +133,7 @@ private:
 	boost::uint8_t nThreads_; ///< The number of threads
 	boost::threadpool::pool tp_; ///< A thread pool
 
-	std::vector<bool> le_value_; ///< Internal storage for lazy-evaluation settings
+	std::vector<bool> sm_value_; ///< Internal storage for server mode flags
 
 #ifdef GENEVATESTING
 public:
