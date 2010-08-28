@@ -5,7 +5,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 # Set the library/package version
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "8")
-SET(VERSION_PATCH "1rc1")
+SET(VERSION_PATCH "1")
 
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
 # it was not deployed in one of the standard system locations. Otherwise,
@@ -160,15 +160,15 @@ ENDIF()
 
 # Custom targets for building single libraries only
 ADD_CUSTOM_TARGET( "common"       DEPENDS ${COMMON_LIBNAME}
-									COMMENT "Building only the Common library." )
+				COMMENT "Building only the Common library." )
 ADD_CUSTOM_TARGET( "dataexchange" DEPENDS ${DATAEXCHANGE_LIBNAME}
-									COMMENT "Building only the Dataexchange library." )
+				COMMENT "Building only the Dataexchange library." )
 ADD_CUSTOM_TARGET( "hap"          DEPENDS ${HAP_LIBNAME}
-									COMMENT "Building only the Hap library." )
+				COMMENT "Building only the Hap library." )
 ADD_CUSTOM_TARGET( "courtier"     DEPENDS ${COURTIER_LIBNAME}
-									COMMENT "Building only the Courtier library." )
+				COMMENT "Building only the Courtier library." )
 ADD_CUSTOM_TARGET( "geneva"       DEPENDS ${GENEVA_LIBNAME}
-									COMMENT "Building only the Geneva library." )
+				COMMENT "Building only the Geneva library." )
 
 SET ( INFORMATIONFILES
 	AUTHORS
