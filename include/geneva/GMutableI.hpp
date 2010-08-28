@@ -68,41 +68,6 @@ public:
 
 	/** @brief Allows derivatives to be adapted */
 	virtual void adapt() = 0;
-
-	/*********************************************************************************************/
-	/**
-	 * A version of the adaption functionality that also checks for
-	 * exceptions. To be used when adapt() is to become the main
-	 * function to be called by a thread.
-	 */
-	void checkedAdaption(){
-#ifdef DEBUG
-		try{
-			this->adapt();
-		}
-		catch(std::exception& e){
-			std::ostringstream error;
-			error << "In GMutableI::checkedAdaption(): Caught std::exception with message" << std::endl
-				  << e.what() << std::endl;
-			std::cerr << error.str();
-			std::terminate();
-		}
-		catch(boost::exception& e){
-			std::ostringstream error;
-			error << "In GMutableI::checkedAdaption(): Caught boost::exception" << std::endl;
-			std::cerr << error.str();
-			std::terminate();
-		}
-		catch(...){
-			std::ostringstream error;
-			error << "In GMutableI::checkedAdaption(): Caught unknown exception" << std::endl;
-			std::cerr << error.str();
-			std::terminate();
-		}
-#else
-	this->adapt();
-#endif
-	}
 };
 
 } /* namespace Geneva */

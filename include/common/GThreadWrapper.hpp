@@ -1,5 +1,5 @@
 /**
- * @file GRateableI.hpp
+ * @file GThreadWrapper.hpp
  */
 
 /*
@@ -29,16 +29,38 @@
  * http://www.gemfony.com .
  */
 
-// Standard header files go here
+// Standard headers go here
+
+#include <cstdlib>
+#include <iomanip>
+#include <ctime>
+#include <cmath>
+#include <iostream>
 #include <sstream>
+#include <cassert>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
 
-// Boost header files go here
 
-#ifndef GRATEABLEI_HPP_
-#define GRATEABLEI_HPP_
+// Boost headers go here
+#include <boost/cstdint.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/shared_array.hpp>
+
+#if BOOST_VERSION < 104200
+#include <boost/exception.hpp> // Deprecated as of Boost 1.42
+#else
+#include <boost/exception/all.hpp>
+#endif
+
+
+#ifndef GTHREADWRAPPER_HPP_
+#define GTHREADWRAPPER_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -47,26 +69,31 @@
 
 
 // Geneva header files go here
+#include "common/GExceptions.hpp"
 
 namespace Gem {
-namespace Geneva {
+namespace Common {
 
 /**************************************************************************************************/
 /**
- * A simple interface class for objects that can be evaluated.
+ * This struct is used to catch errors of worker tasks, submitted to threads. Exceptions that are
+ * thrown inside of threads to not travel beyond the thread's boundary. Hence we need to catch them
+ * and emit a message. Catching of exceptions is only performed in DEBUG mode.
  */
-class GRateableI {
-public:
-	/** @brief The standard destructor */
-	virtual ~GRateableI(){ /* nothing */ }
+struct GThreadWrapper {
+	/** @brief The standard constructor for this struct */
+	GThreadWrapper(boost::function<void()>);
+	/** @brief This is the main function that will be executed by the thread */
+	void operator()();
 
-	/** @brief Retrieve a value for this class */
-	virtual double fitness() = 0;
+private:
+	GThreadWrapper(); ///< Intentionally empty and undefined
+	boost::function<void()> f_; ///< Holds the actual worker task
 };
-
-} /* namespace Geneva */
-} /* namespace Gem */
 
 /**************************************************************************************************/
 
-#endif /* GRATEABLEI_HPP_ */
+} /* namespace Common */
+} /* namespace Gem */
+
+#endif /* GTHREADWRAPPER_HPP_ */

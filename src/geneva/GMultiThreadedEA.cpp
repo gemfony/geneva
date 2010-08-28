@@ -252,7 +252,7 @@ void GMultiThreadedEA::adaptChildren() {
 				// Make re-evaluation accessible
 				(*it)->setServerMode(false);
 				// Schedule the actual job
-				tp_.schedule(boost::bind(&GIndividual::checkedFitness, *it));
+				tp_.schedule(Gem::Common::GThreadWrapper(boost::bind(&GIndividual::fitness, *it)));
 			}
 			break;
 
@@ -266,10 +266,10 @@ void GMultiThreadedEA::adaptChildren() {
 		// Make re-evaluation accessible
 		(*it)->setServerMode(false);
 		// Schedule the actual job
-		tp_.schedule(boost::bind(&GIndividual::checkedAdaption, *it));
+		tp_.schedule(Gem::Common::GThreadWrapper(boost::bind(&GIndividual::adapt, *it)));
 	}
 
-	// ... and wait for the pool to become empty
+	// ... and wait for all tasks to complete
 	tp_.wait();
 
 	// Restart the server mode for parents

@@ -45,6 +45,7 @@ SET ( GENEVACOMMONINCLUDES
 	GSerializationHelperFunctionsT.hpp
 	GSingletonT.hpp
 	GThreadGroup.hpp
+	GThreadWrapper.hpp
 	GTriboolSerialization.hpp
 	GUnitTestFrameworkT.hpp
 )

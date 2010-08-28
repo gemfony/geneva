@@ -146,6 +146,7 @@ int main(int argc, char **argv){
      ))
     { exit(1); }
 
+  //***************************************************************************
   // Random numbers are our most valuable good. Set the number of threads
   GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
   GRANDOMFACTORY->setArraySize(arraySize);

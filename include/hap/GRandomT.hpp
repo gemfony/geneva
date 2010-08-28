@@ -50,6 +50,7 @@
 #include <boost/date_time.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/thread/tss.hpp>
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
@@ -309,6 +310,8 @@ private:
 	/** @brief The actual generator for local random number creation */
 	boost::rand48 linCongr_;
 };
+
+/****************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */

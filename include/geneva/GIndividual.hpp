@@ -131,15 +131,11 @@ public:
 	virtual double fitness();
 	/** @brief Do the required processing for this object */
 	bool process();
-	/** @brief Do the required processing for this object and catch all exceptions */
-	bool checkedProcess();
 	/** @brief Allows to instruct this individual to perform multiple process operations in one go. */
 	void setProcessingCycles(const boost::uint32_t&);
 	/** @brief Retrieves the number of allowed processing cycles */
 	boost::uint32_t getProcessingCycles() const;
 
-	/** @brief Retrieve a value for this class and check for exceptions. Useful for threads */
-	virtual double checkedFitness();
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	double getCurrentFitness(bool&) const;
 	/** @brief Enforce fitness calculation */

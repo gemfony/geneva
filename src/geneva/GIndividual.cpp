@@ -451,37 +451,6 @@ bool GIndividual::customUpdateOnStall() {
 
 /************************************************************************************************************/
 /**
- * A version of the fitness framework that also checks for
- * exceptions. To be used when fitness() is to become the main
- * function to be called by a thread.
- */
-double GIndividual::checkedFitness(){
-	try{
-		return fitness();
-	}
-	catch(std::exception& e){
-		std::ostringstream error;
-		error << "In GIndividual::checkedFitness(): Caught std::exception with message" << std::endl
-		      << e.what() << std::endl;
-		std::cerr << error.str();
-		std::terminate();
-	}
-	catch(boost::exception& e){
-		std::ostringstream error;
-		error << "In GIndividual::checkedFitness(): Caught boost::exception with message" << std::endl;
-		std::cerr << error.str();
-		std::terminate();
-	}
-	catch(...){
-		std::ostringstream error;
-		error << "In GIndividual::checkedFitness(): Caught unknown exception" << std::endl;
-		std::cerr << error.str();
-		std::terminate();
-	}
-}
-
-/************************************************************************************************************/
-/**
  * Performs all necessary processing steps for this object. Not meant to be
  * called directly from threads, as no exceptions are caught. Use checkedProcess() instead.
  * If the processingCycles_ variable is set to a value of 0 or higher than 1, multiple
@@ -604,38 +573,6 @@ bool GIndividual::process(){
 
 	// Let the audience know
 	return gotUsefulResult;
-}
-
-/************************************************************************************************************/
-/**
- * Performs all necessary processing steps for this object and catches all exceptions.
- * Meant to be called by threads.
- *
- * @return A boolean which indicates whether processing has led to a useful result
- */
-bool GIndividual::checkedProcess(){
-	try{
-		return process();
-	}
-	catch(std::exception& e){
-		std::ostringstream error;
-		error << "In GIndividual::checkedProcess(): Caught std::exception with message" << std::endl
-		      << e.what() << std::endl;
-		std::cerr << error.str();
-		std::terminate();
-	}
-	catch(boost::exception& e){
-		std::ostringstream error;
-		error << "In GIndividual::checkedProcess(): Caught boost::exception" << std::endl;
-		std::cerr << error.str();
-		std::terminate();
-	}
-	catch(...){
-		std::ostringstream error;
-		error << "In GIndividual::checkedProcess(): Caught unknown exception" << std::endl;
-		std::cerr << error.str();
-		std::terminate();
-	}
 }
 
 /************************************************************************************************************/

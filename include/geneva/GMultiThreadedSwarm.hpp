@@ -59,6 +59,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctions.hpp"
+#include "common/GThreadWrapper.hpp"
 #include "GSwarm.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
@@ -120,20 +121,6 @@ public:
 	uint8_t getNThreads() const ;
 
 protected:
-	/** @brief Triggers supervised fitness calculation */
-	virtual void checkedUpdateFitness(std::size_t, boost::shared_ptr<GParameterSet>);
-	/** @brief Updates the individual's position and performs the supervised fitness calculation */
-	void checkedUpdatePositionsAndFitness (
-		    std::size_t
-		  , boost::shared_ptr<GParameterSet>
-		  , boost::shared_ptr<GParameterSet>
-		  , boost::shared_ptr<GParameterSet>
-		  , boost::shared_ptr<GParameterSet>
-		  , double
-		  , double
-		  , double
-	);
-
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
