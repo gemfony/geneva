@@ -1,5 +1,5 @@
 /**
- * @file GIntFlipAdaptorT.hpp
+ * @file GRandomTest.hpp
  */
 
 /*
@@ -42,6 +42,6 @@ using namespace boost::unit_test;
 
 // Test program entry point
 test_suite* init_unit_test_suite(int argc, char** argv) {
-   framework::master_test_suite().add(new GRandomSuite());
+   framework::master_test_suite().add(new GHapSuite());
    return 0;
 }

@@ -183,10 +183,10 @@ private:
 // This test suite checks as much as possible of the functionality provided
 // by the GRandom class. Please also have a look at the histograms created
 // in the "manual" test section.
-class GRandomSuite: public test_suite
+class GHapSuite: public test_suite
 {
 public:
-	GRandomSuite() :test_suite("GRandomSuite") {
+	GHapSuite() :test_suite("GHapSuite") {
 	  // create an instance of the test cases class
 	  boost::shared_ptr<GRandom_test> instance(new GRandom_test());
 
