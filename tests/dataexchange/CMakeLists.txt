@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 ADD_CUSTOM_TARGET ( "dataexchange-tests"
-	COMMENT "Building only the Dataexchange tests."
+	COMMENT "Building the Dataexchange tests."
 )
 
 ADD_DEPENDENCIES ( "dataexchange-tests"

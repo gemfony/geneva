@@ -7,17 +7,11 @@ ADD_CUSTOM_TARGET ( "tests"
 ADD_DEPENDENCIES ( "tests"
 	"dataexchange-tests"
 	"hap-tests"
+	#"courtier-tests"
 	"geneva-tests"
 )
 
-ADD_SUBDIRECTORY (
-	dataexchange
-)
-
-ADD_SUBDIRECTORY (
-	hap
-)
-
-ADD_SUBDIRECTORY (
-	geneva
-)
+ADD_SUBDIRECTORY ( dataexchange )
+ADD_SUBDIRECTORY ( hap )
+#ADD_SUBDIRECTORY ( courtier )
+ADD_SUBDIRECTORY ( geneva )

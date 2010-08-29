@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 ADD_CUSTOM_TARGET ( "geneva-tests"
-	COMMENT "Building only the Geneva tests."
+	COMMENT "Building the Geneva tests."
 )
 
 ADD_DEPENDENCIES ( "geneva-tests"

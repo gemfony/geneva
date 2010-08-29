@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 ADD_CUSTOM_TARGET ( "hap-tests"
-	COMMENT "Building only the Hap tests."
+	COMMENT "Building the Hap tests."
 )
 
 ADD_DEPENDENCIES ( "hap-tests"
