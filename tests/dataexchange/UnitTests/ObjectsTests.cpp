@@ -1,5 +1,5 @@
 /**
- * @file GenevaObjectsTests.cpp
+ * @file ObjectsTests.cpp
  */
 
 /*
