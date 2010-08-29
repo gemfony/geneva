@@ -7,10 +7,10 @@ ADD_DEPENDENCIES ( "geneva-tests-manual"
 	GBooleanProbabilityTest
 	GConstrainedFPTTest
 	GConstrainedIntegerTTest
-	GSigmaAdaption
+	GSigmaAdaptionTest
 )
 
 ADD_SUBDIRECTORY ( GBooleanProbabilityTest )
 ADD_SUBDIRECTORY ( GConstrainedFPTTest )
 ADD_SUBDIRECTORY ( GConstrainedIntegerTTest )
-ADD_SUBDIRECTORY ( GSigmaAdaption )
+ADD_SUBDIRECTORY ( GSigmaAdaptionTest )

@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GSigmaAdaption_test) 
+SET (EXECUTABLENAME GSigmaAdaptionTest) 
 
 SET (${EXECUTABLENAME}_SRCS 
- 	GSigmaAdaption_test
+ 	GSigmaAdaptionTest
  	GCommandLineParser
 )
 
