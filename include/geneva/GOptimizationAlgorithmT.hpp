@@ -63,7 +63,6 @@
 
 
 // Geneva headers go here
-#include "hap/GRandomT.hpp"
 #include "GMutableSetT.hpp"
 #include "GObject.hpp"
 #include "GIndividual.hpp"
@@ -944,16 +943,23 @@ protected:
 
 	/**************************************************************************************/
 	/**
-	 * Allows derived classes to perform initialization work before the optimization
-	 * cycle starts
+	 * Allows to perform initialization work before the optimization cycle starts. This
+	 * function will usually be overloaded by derived functions.
 	 */
-	virtual void init()
-	{ /* nothing */ }
+	virtual void init() {
+		// Tell all individuals in this collection to update their random number generators
+		// with the one contained in GMutableSetT. Note: This will only have an effect on
+		// GParameterSet objects, as GIndividual contains an empty function.
+		typename GOptimizationAlgorithmT<individual_type>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->updateRNGs();
+		}
+	}
 
 	/**************************************************************************************/
 	/**
-	 * Allows derived classes to perform any remaining work after the
-	 * optimization cycle has finished
+	 * Allows to perform any remaining work after the optimization cycle has finished.
+	 * This function will usually be overloaded by derived functions.
 	 */
 	virtual void finalize()
 	{ /* nothing */ }
@@ -961,17 +967,6 @@ protected:
 	/**************************************************************************************/
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual void adjustPopulation() = 0;
-
-	/***********************************************************************************/
-    /**
-     * A random number generator. Note that the actual calculation is possibly
-     * done in a random number server, depending on the defines you have chosen.
-     */
-#ifdef USELOCALRANDOMADAPTION /* produce random numbers locally */
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> gr;
-#else /* act as a proxy, take random numbers from a factory */
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> gr;
-#endif /* USEPROXYRANDOM */
 
 private:
 	/**************************************************************************************/

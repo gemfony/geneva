@@ -333,9 +333,7 @@ protected:
 	 * Randomly initializes the parameter (within its limits)
 	 */
 	virtual void randomInit_() {
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL> gr;
-		setValue(gr.uniform_int(GConstrainedNumT<T>::getLowerBoundary(), GConstrainedNumT<T>::getUpperBoundary()));
+		setValue(GParameterBase::gr->uniform_int(GConstrainedNumT<T>::getLowerBoundary(), GConstrainedNumT<T>::getUpperBoundary()));
 	}
 
 private:
@@ -375,9 +373,6 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL, double, T> gr;
-
 		// Call the parent classes' functions
 		GConstrainedNumT<T>::specificTestsNoFailureExpected_GUnitTests();
 
@@ -395,16 +390,16 @@ public:
 		// Check a number of times that the transfer function only returns items
 		// in the allowed value range
 		for(std::size_t i=0; i<100; i++) {
-			T lowerBoundary = gr.uniform_int(minLower, maxLower);
+			T lowerBoundary = GParameterBase::gr->uniform_int(minLower, maxLower);
 			T upperBoundary;
-			while((upperBoundary = gr.uniform_int(minUpper, maxUpper)) <= lowerBoundary);
+			while((upperBoundary = GParameterBase::gr->uniform_int(minUpper, maxUpper)) <= lowerBoundary);
 
 			p->setValue(lowerBoundary);
 			p->setBoundaries(lowerBoundary, upperBoundary);
 
 			// Check that there are no values outside of the allowed range
 			for(std::size_t j=0; j<1000; j++) {
-				T probe = gr.uniform_int(-10000, 10000);
+				T probe = GParameterBase::gr->uniform_int(-10000, 10000);
 				T mapping = p->transfer(probe);
 				BOOST_CHECK(mapping >= lowerBoundary && mapping <= upperBoundary);
 			}

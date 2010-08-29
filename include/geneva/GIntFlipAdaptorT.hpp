@@ -246,7 +246,7 @@ protected:
 	 * @param value The bit value to be adapted
 	 */
 	virtual void customAdaptions(T& value) {
-		bool up = this->gr.uniform_bool();
+		bool up = this->gr->uniform_bool();
 		if(up){
 #if defined (CHECKOVERFLOWS)
 			if(std::numeric_limits<T>::max() == value) {

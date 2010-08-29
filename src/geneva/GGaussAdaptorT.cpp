@@ -49,7 +49,7 @@ void GGaussAdaptorT<double>::customAdaptions(double& value) {
 #if defined (CHECKOVERFLOWS) || defined (DEBUG)
 		// Prevent over- and underflows. Note that we currently do not check the
 		// size of "addition" in comparison to "value".
-		double addition = this->gr.normal_distribution(sigma_);
+		double addition = gr->normal_distribution(sigma_);
 
 		if(value >= 0){
 			if(addition >= 0. && (std::numeric_limits<double>::max()-value < addition)) addition *= -1.;
@@ -61,7 +61,7 @@ void GGaussAdaptorT<double>::customAdaptions(double& value) {
 		value += addition;
 #else
 		// We do not check for over- or underflows for performance reasons.
-		value += this->gr.normal_distribution(sigma_);
+		value += gr->normal_distribution(sigma_);
 #endif /* CHECKOVERFLOWS || DEBUG */
 }
 

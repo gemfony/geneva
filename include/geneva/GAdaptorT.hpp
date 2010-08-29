@@ -68,6 +68,7 @@
 
 #include "common/GTriboolSerialization.hpp"
 #include "hap/GRandomT.hpp"
+#include "hap/GRandomBaseT.hpp"
 #include "GObject.hpp"
 #include "GObjectExpectationChecksT.hpp"
 #include "GOptimizationEnums.hpp"
@@ -141,6 +142,8 @@ public:
 	 */
 	GAdaptorT()
 		: GObject()
+		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>())
+		, gr(gr_local)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
 		, adProb_(DEFAULTADPROB)
@@ -156,6 +159,8 @@ public:
 	 */
 	GAdaptorT(const double& prob)
 		: GObject()
+		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>())
+		, gr(gr_local)
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
 		, adProb_(prob)
@@ -172,6 +177,8 @@ public:
 	 */
 	GAdaptorT(const GAdaptorT<T>& cp)
 		: GObject(cp)
+		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>()) // We do *not* copy the other object's generator
+		, gr(gr_local)
 		, adaptionCounter_(cp.adaptionCounter_)
 		, adaptionThreshold_(cp.adaptionThreshold_)
 		, adProb_(cp.adProb_)
@@ -191,10 +198,12 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * The standard destructor. We have no local, dynamically allocated data, so the body of
-	 * this function is empty.
+	 * The standard destructor. Gets rid of the local random number generator, unless
+	 * an external generator has been assigned.
 	 */
-	virtual ~GAdaptorT() { /* nothing */ }
+	virtual ~GAdaptorT() {
+		if(gr_local) delete gr_local;
+	}
 
 	/***********************************************************************************/
 	/**
@@ -381,7 +390,7 @@ public:
 	void adapt(T& val)  {
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case
 			// We only allow adaptions in a certain percentage of cases
-			if(gr.uniform_01() <= adProb_) {
+			if(gr->uniform_01() <= adProb_) {
 				if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
 					adaptionCounter_ = 0;
 					adaptAdaption();
@@ -443,7 +452,28 @@ public:
 		return currentIndex_;
 	}
 
+	/***********************************************************************************/
+	/**
+	 * Assign a random number generator from another object.
+	 *
+	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
+	 */
+	void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+		gr = gr_cp;
+		if(gr_local) delete gr_local;
+		gr_local = NULL;
+	}
+
 protected:
+	/***********************************************************************************/
+    /**
+     * A random number generator. This reference and the associated pointer is either
+     * connected to a local random number generator assigned in the constructor, or
+     * to a "factory" generator located in the surrounding GParameterSet object.
+     */
+	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_local;
+	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr;
+
 	/***********************************************************************************/
 	/**
 	 * Loads the contents of another GAdaptorT<T>. The function
@@ -483,17 +513,6 @@ protected:
 	/***********************************************************************************/
 	/** @brief Creates a deep copy of this object */
 	virtual GObject *clone_(void) const =0;
-
-	/***********************************************************************************/
-    /**
-     * A random number generator. Note that the actual calculation is possibly
-     * done in a random number server, depending on the defines you have chosen.
-     */
-#ifdef USELOCALRANDOMADAPTION /* produce random numbers locally */
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> gr;
-#else /* act as a proxy, take random numbers from a factory */
-	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> gr;
-#endif /* USEPROXYRANDOM */
 
 	/***********************************************************************************/
 	/**

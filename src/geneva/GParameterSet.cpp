@@ -368,6 +368,18 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
 
 /************************************************************************************************************/
 /**
+ * Updates the random number generators contained in this object's GParameterBase-derivatives
+ */
+void GParameterSet::updateRNGs() {
+	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_ptr = &(GMutableSetT<Gem::Geneva::GParameterBase>::gr);
+	GParameterSet::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->assignGRandomPointer(gr_ptr);
+	}
+}
+
+/************************************************************************************************************/
+/**
  * Small convenience function that helps to add a GParameterSet objects to this one in
  * more transparent ways.
  */
@@ -426,10 +438,6 @@ bool GParameterSet::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
-	// Instantiate a local random number generator
-	using namespace Gem::Hap;
-	GRandomT<RANDOMLOCAL> gr;
-
 	// Call the parent class'es function
 	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
 

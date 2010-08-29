@@ -58,9 +58,7 @@ namespace Geneva
   GBooleanCollection::GBooleanCollection(const std::size_t& nval)
     : GParameterCollectionT<bool>()
   {
-	  using namespace Gem::Hap;
-	  Gem::Hap::GRandomT<RANDOMLOCAL> gr;
-	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.uniform_bool());
+	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr->uniform_bool());
   }
 
   /**********************************************************************/
@@ -74,9 +72,7 @@ namespace Geneva
   GBooleanCollection::GBooleanCollection(const std::size_t& nval, const double& probability)
 	: GParameterCollectionT<bool>()
   {
-	  using namespace Gem::Hap;
-	  Gem::Hap::GRandomT<RANDOMLOCAL> gr;
-	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr.weighted_bool(probability));
+	  for(std::size_t i= 0; i<nval; i++) this->push_back(gr->weighted_bool(probability));
   }
 
   /**********************************************************************/
@@ -138,9 +134,7 @@ namespace Geneva
    * that is added later will remain unaffected.
    */
   void GBooleanCollection::randomInit_() {
-	  using namespace Gem::Hap;
-	  GRandomT<RANDOMLOCAL> gr;
-	  for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr.uniform_bool();
+	  for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr->uniform_bool();
   }
 
   /**********************************************************************/
@@ -150,9 +144,7 @@ namespace Geneva
    * @param probability The probability for true values in the collection
    */
   void GBooleanCollection::randomInit_(const double& probability) {
-	  using namespace Gem::Hap;
-	  GRandomT<RANDOMLOCAL> gr;
-	  for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr.weighted_bool(probability);
+	  for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr->weighted_bool(probability);
   }
 
   /**********************************************************************/

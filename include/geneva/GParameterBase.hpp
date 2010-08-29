@@ -66,6 +66,7 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
+#include "hap/GRandomT.hpp"
 #include "GMutableI.hpp"
 #include "GObject.hpp"
 #include "GObjectExpectationChecksT.hpp"
@@ -150,6 +151,9 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
+	/** @brief Assigns a random number generator from another object. */
+	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *);
+
 	/**************************************************************************************************/
 	/**
 	 * This function converts a GParameterBase boost::shared_ptr to the target type.  Note that this
@@ -178,9 +182,17 @@ public:
 #endif
 	}
 
-	/**************************************************************************************************/
-
 protected:
+	/**************************************************************************************************/
+	/**
+     * A random number generator. This reference and the associated pointer is either
+     * connected to a local random number generator assigned in the constructor, or
+     * to a "factory" generator located in the surrounding GParameterSet object.
+     */
+	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_local;
+	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr;
+
+	/**************************************************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */

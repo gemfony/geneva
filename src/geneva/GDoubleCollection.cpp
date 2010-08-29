@@ -60,9 +60,7 @@ GDoubleCollection::GDoubleCollection()
 GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max)
 	: GNumCollectionFPT<double>(min, max)
 {
-	using namespace Gem::Hap;
-	GRandomT<RANDOMLOCAL> gr;
-	for(std::size_t i= 0; i<nval; i++) this->push_back(gr.uniform_real(min,max));
+	for(std::size_t i= 0; i<nval; i++) this->push_back(gr->uniform_real(min,max));
 }
 
 /*******************************************************************************************/

@@ -433,9 +433,7 @@ public:
 	 * @param max The upper boundary for random number generation
 	 */
 	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
-		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * gr.uniform_real(T(min), T(max))));
+		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * GParameterBase::gr->uniform_real(T(min), T(max))));
 	}
 
 	/****************************************************************************/
@@ -446,9 +444,7 @@ public:
 	 * value range.
 	 */
 	virtual void fpMultiplyByRandom() {
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
-		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * gr.uniform_01()));
+		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * GParameterBase::gr->uniform_01()));
 	}
 
 	/****************************************************************************/
@@ -507,9 +503,7 @@ protected:
 	 * Randomly initializes the parameter (within its limits)
 	 */
 	virtual void randomInit_() {
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
-		setValue(gr.uniform_real(GConstrainedNumT<T>::getLowerBoundary(), GConstrainedNumT<T>::getUpperBoundary()));
+		setValue(GParameterBase::gr->uniform_real(GConstrainedNumT<T>::getLowerBoundary(), GConstrainedNumT<T>::getUpperBoundary()));
 	}
 
 private:

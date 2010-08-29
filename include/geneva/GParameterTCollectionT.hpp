@@ -326,6 +326,20 @@ public:
 		}
 	}
 
+	/*******************************************************************************************/
+	/**
+	 * Assigns a random number generator from another object to all objects stored in this
+	 * collection
+	 *
+	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
+	 */
+	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+		typename GParameterTCollectionT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->assignGRandomPointer(gr_cp);
+		}
+	}
+
 protected:
 	/*******************************************************************************************/
 	/**

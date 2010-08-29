@@ -52,6 +52,7 @@
 
 
 // Geneva headers go here
+#include "hap/GRandomT.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "GIndividual.hpp"
 #include "GObject.hpp"
@@ -192,6 +193,17 @@ public:
 	inline void swap(std::vector<boost::shared_ptr<T> >& cp_data) { GStdPtrVectorInterfaceT<T>::swap(cp_data); }
 
 protected:
+	/***********************************************************************************/
+    /**
+     * A random number generator. Note that the actual calculation is possibly
+     * done in a random number server, depending on the defines you have chosen.
+     */
+#ifdef USELOCALRANDOMADAPTION /* produce random numbers locally */
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> gr;
+#else /* act as a proxy, take random numbers from a factory */
+	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> gr;
+#endif /* USEPROXYRANDOM */
+
 	/**********************************************************************************/
 	/**
 	 * Loads the data of another GParameterBase object, camouflaged as a GObject

@@ -137,6 +137,9 @@ public:
 	/** @brief Small convenience function */
 	void operator-=(boost::shared_ptr<GParameterSet>);
 
+	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
+	virtual void updateRNGs();
+
 	/**********************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.

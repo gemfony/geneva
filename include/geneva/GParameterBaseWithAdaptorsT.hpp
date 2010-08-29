@@ -216,6 +216,9 @@ public:
 		else {
 			adaptor_ = gat_ptr->GObject::clone<GAdaptorT<T> >();
 		}
+
+		// Make our local random number generator known to the adaptor
+		adaptor_->assignGRandomPointer(GParameterBase::gr);
 	}
 
 	/*******************************************************************************************/
@@ -297,6 +300,17 @@ public:
 	bool hasAdaptor() const {
 		if(adaptor_) return true;
 		return false;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Assigns a random number generator from another object.
+	 *
+	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
+	 */
+	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+		if(adaptor_) adaptor_->assignGRandomPointer(gr_cp);
+		GParameterBase::assignGRandomPointer(gr_cp);
 	}
 
 protected:

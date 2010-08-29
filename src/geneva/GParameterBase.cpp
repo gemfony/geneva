@@ -41,6 +41,8 @@ namespace Geneva {
 GParameterBase::GParameterBase()
 	: GMutableI()
 	, GObject()
+	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>())
+	, gr(gr_local)
 	, adaptionsActive_(true)
 	, randomInitializationBlocked_(false)
 { /* nothing */ }
@@ -54,6 +56,8 @@ GParameterBase::GParameterBase()
 GParameterBase::GParameterBase(const GParameterBase& cp)
 	: GMutableI(cp)
 	, GObject(cp)
+	, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>()) // We do *not* copy cp's random number generator!
+	, gr(gr_local)
 	, adaptionsActive_(cp.adaptionsActive_)
 	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
 { /* nothing */ }
@@ -180,6 +184,18 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
 	deviations.push_back(checkExpectation(withMessages, "GParameterBase", randomInitializationBlocked_, p_load->randomInitializationBlocked_, "randomInitializationBlocked_", "p_load->randomInitializationBlocked_", e , limit));
 
 	return evaluateDiscrepancies("GParameterBase", caller, deviations, e);
+}
+
+/***********************************************************************************/
+/**
+ * Assign a random number generator from another object.
+ *
+ * @param gr_cp A reference to another object's GRandomBaseT object derivative
+ */
+void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+	gr = gr_cp;
+	if(gr_local) delete gr_local;
+	gr_local = NULL;
 }
 
 /**********************************************************************************/

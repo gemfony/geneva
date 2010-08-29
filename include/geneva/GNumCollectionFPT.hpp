@@ -187,11 +187,9 @@ public:
 	 * @param max The upper boundary for random number generation
 	 */
 	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
 		typename GNumCollectionFPT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it) *= gr.uniform_real(T(min), T(max));
+			(*it) *= GParameterBase::gr->uniform_real(T(min), T(max));
 		}
 	}
 
@@ -200,11 +198,9 @@ public:
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
 	virtual void fpMultiplyByRandom() {
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
 		typename GNumCollectionFPT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it) *= gr.uniform_01();
+			(*it) *= GParameterBase::gr->uniform_01();
 		}
 	}
 
@@ -329,16 +325,12 @@ protected:
 	 * set up. Data that is added later will remain unaffected.
 	 */
 	virtual void randomInit_() {
-		using namespace Gem::Hap;
-
 		T lowerBoundary = GNumCollectionT<T>::getLowerInitBoundary();
 		T upperBoundary = GNumCollectionT<T>::getUpperInitBoundary();
 
-		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
-
 		typename GNumCollectionFPT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=gr.uniform_real(lowerBoundary, upperBoundary);
+			(*it)=GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary);
 		}
 	}
 

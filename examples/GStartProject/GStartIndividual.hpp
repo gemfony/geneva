@@ -117,9 +117,6 @@ public:
 			const double& max)
 		: GParameterSet()
 	  {
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL> gr;
-
 		// Set up a GConstrainedDoubleObjectCollection
 		// boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc_ptr(new GConstrainedDoubleObjectCollection());
 		// boost::shared_ptr<GParameterObjectCollection> gpoc_ptr(new GParameterObjectCollection());

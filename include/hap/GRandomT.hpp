@@ -107,7 +107,7 @@ public:
 	/** @brief Initialization by seed */
 	explicit GRandomT(const seed_type&);
 	/** @brief The destructor */
-	~GRandomT();
+	virtual ~GRandomT();
 
 	/** @brief Production of uniformly distributed floating point numbers in [0,1[ */
 	virtual fp_type uniform_01();

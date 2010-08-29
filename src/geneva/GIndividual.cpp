@@ -463,6 +463,9 @@ bool GIndividual::customUpdateOnStall() {
 bool GIndividual::process(){
 	bool gotUsefulResult = false;
 
+	// Make sure GParameterBase objects are updated with our local random number generator
+	this->updateRNGs();
+
 	// Record the previous setting of the serverMode_ flag and make
 	// sure that re-evaluation is possible
 	bool previousServerMode=setServerMode(false);
@@ -652,6 +655,14 @@ void GIndividual::setNStalls(const boost::uint32_t& nStalls) {
 boost::uint32_t GIndividual::getNStalls() const {
 	return nStalls_;
 }
+
+/************************************************************************************************************/
+/**
+ * Updates the random number generators contained in this object's GParameterBase-derivatives. This function
+ * is filled with meaning in GParameterSet, but is empty for other GIndividual-derivatives.
+ */
+void GIndividual::updateRNGs()
+{ /* nothing */ }
 
 #ifdef GENEVATESTING
 

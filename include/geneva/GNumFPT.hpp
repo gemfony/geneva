@@ -235,9 +235,7 @@ public:
 	 * @param max The upper boundary for random number generation
 	 */
 	void fpMultiplyByRandom(const float& min, const float& max)	{
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
-		GParameterT<T>::setValue(GParameterT<T>::value() * gr.uniform_real(T(min), T(max)));
+		GParameterT<T>::setValue(GParameterT<T>::value() * GParameterBase::gr->uniform_real(T(min), T(max)));
 	}
 
 	/******************************************************************/
@@ -245,9 +243,7 @@ public:
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
 	void fpMultiplyByRandom() {
-		using namespace Gem::Hap;
-		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
-		GParameterT<T>::setValue(GParameterT<T>::value() * gr.uniform_01());
+		GParameterT<T>::setValue(GParameterT<T>::value() * GParameterBase::gr->uniform_01());
 	}
 
 	/******************************************************************/
@@ -310,14 +306,9 @@ protected:
 	 * Triggers random initialization of the parameter
 	 */
 	virtual void randomInit_() {
-		using namespace Gem::Hap;
-
 		T lowerBoundary = GNumT<T>::getLowerInitBoundary();
 		T upperBoundary = GNumT<T>::getUpperInitBoundary();
-
-		GRandomT<RANDOMLOCAL, T, boost::int32_t> gr;
-
-		GParameterT<T>::setValue(gr.uniform_real(lowerBoundary, upperBoundary));
+		GParameterT<T>::setValue(GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary));
 	}
 
 #ifdef GENEVATESTING

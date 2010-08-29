@@ -232,6 +232,9 @@ public:
 	/** @brief Resets the current personality to NONE */
 	void resetPersonality();
 
+	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
+	virtual void updateRNGs();
+
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
