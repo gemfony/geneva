@@ -296,12 +296,17 @@ public:
 	 * This function produces uniform random numbers locally.
 	 */
 	virtual fp_type uniform_01() {
+		boost::rand48::result_type enumerator  = linCongr_() - linCongr_.min();
+		boost::rand48::result_type denominator = linCongr_.max() - linCongr_.min();
+
+		enumerator>0?enumerator-=1:enumerator=0;
+
 #ifdef DEBUG
-		fp_type value =  boost::numeric_cast<fp_type>(linCongr_() - linCongr_.min()) / boost::numeric_cast<fp_type>(linCongr_.max() - linCongr_.min());
+		fp_type value =  boost::numeric_cast<fp_type>(enumerator)/boost::numeric_cast<fp_type>(denominator);
 		assert(value>=fp_type(0.) && value<fp_type(1.));
 		return value;
 #else
-		return static_cast<fp_type>(linCongr_() - linCongr_.min()) / static_cast<fp_type>(linCongr_.max() - linCongr_.min());
+		return static_cast<fp_type>(enumerator)/static_cast<fp_type>(denominator);
 #endif
 	}
 

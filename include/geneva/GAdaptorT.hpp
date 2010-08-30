@@ -123,9 +123,7 @@ class GAdaptorT:
 		   & BOOST_SERIALIZATION_NVP(adaptionCounter_)
 		   & BOOST_SERIALIZATION_NVP(adaptionThreshold_)
 		   & BOOST_SERIALIZATION_NVP(adProb_)
-		   & BOOST_SERIALIZATION_NVP(adaptionMode_)
-		   & BOOST_SERIALIZATION_NVP(currentIndex_)
-		   & BOOST_SERIALIZATION_NVP(nVars_);
+		   & BOOST_SERIALIZATION_NVP(adaptionMode_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -148,8 +146,6 @@ public:
 		, adaptionThreshold_(0)
 		, adProb_(DEFAULTADPROB)
 		, adaptionMode_(boost::logic::indeterminate)
-		, currentIndex_(0)
-		, nVars_(1)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -165,9 +161,14 @@ public:
 		, adaptionThreshold_(0)
 		, adProb_(prob)
 		, adaptionMode_(boost::logic::indeterminate)
-		, currentIndex_(0)
-		, nVars_(1)
-	{ /* nothing */ }
+	{
+		// Do some error checking
+		if(prob < 0. || prob > 1.) {
+			std::cerr << "In GAdaptorT<T>::GadaptorT(const double& prob): Error!" << std::endl
+					  << "Provided daption probability is invalid: " << prob << std::endl;
+			std::terminate();
+		}
+	}
 
 	/***********************************************************************************/
 	/**
@@ -183,18 +184,7 @@ public:
 		, adaptionThreshold_(cp.adaptionThreshold_)
 		, adProb_(cp.adProb_)
 		, adaptionMode_(cp.adaptionMode_)
-		, currentIndex_(cp.currentIndex_)
-		, nVars_(cp.nVars_)
-	{
-#ifdef DEBUG
-		if(nVars_ < 1) {
-			std::ostringstream error;
-			error << "In GAdaptorT<T>::GAdaptorT(cp):: Error!" << std::endl
-			      << "The maximum number of variables must be at least 1" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-#endif /* DEBUG */
-	}
+	{ /* nothing */ }
 
 	/***********************************************************************************/
 	/**
@@ -278,8 +268,6 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionThreshold_, p_load->adaptionThreshold_, "adaptionThreshold_", "p_load->adaptionThreshold_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adProb_, p_load->adProb_, "adProb_", "p_load->adProb_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionMode_, p_load->adaptionMode_, "adaptionMode_", "p_load->adaptionMode_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", currentIndex_, p_load->currentIndex_, "currentIndex_", "p_load->currentIndex_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", nVars_, p_load->nVars_, "nVars_", "p_load->nVars_", e , limit));
 
 		return evaluateDiscrepancies("GAdaptorT<T>", caller, deviations, e);
 	}
@@ -298,13 +286,21 @@ public:
 	 * Sets the adaption probability to a given value. This function will throw
 	 * if the probability is not in the allowed range.
 	 *
+	 * @test {
+	 * 	 <ul>
+	 *     <li>Setting of valid probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
+	 *     <li>Checks for setting of invalid probabilities is tested in GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()</li>
+	 *     <li>The effects on the probability of adaptions actually taking place are tested in GBooleanAdaptor</li>
+	 *   </ul>
+	 * }
+	 *
 	 * @param val The new value of the probability for integer flips
 	 */
 	void setAdaptionProbability(const double& probability) {
 		// Check the supplied probability value
 		if(probability < 0. || probability > 1.) {
 			std::ostringstream error;
-			error << "In GAdaptorT::setAdaptionProbability(const double&) : Error!" << std::endl
+			error << "In GAdaptorT<T>::setAdaptionProbability(const double&) : Error!" << std::endl
 				  << "Bad probability value given: " << probability << std::endl;
 
 			// throw an exception. Add some information so that if the exception
@@ -318,6 +314,12 @@ public:
 	/***********************************************************************************/
 	/**
 	 * Retrieves the current value of the adaption probability
+	 *
+	 * @test {
+	 * 	 <ul>
+	 *     <li>retrieval of probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
+	 *   </ul>
+	 * }
 	 *
 	 * @return The current value of the adaption probability
 	 */
@@ -389,7 +391,8 @@ public:
 	 */
 	void adapt(T& val)  {
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case
-			// We only allow adaptions in a certain percentage of cases
+			// The adaption parameters are modified every adaptionThreshold_ number
+			// of calls to this function.
 			if(gr->uniform_01() <= adProb_) {
 				if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
 					adaptionCounter_ = 0;
@@ -403,53 +406,6 @@ public:
 			customAdaptions(val);
 		}
 		// No need to test for adaptionMode_ == false as no action is needed in this case
-
-		// Wrap index if we have reached the maximum, otherwise increment
-		if(nVars_>1 && ++currentIndex_ >= nVars_) currentIndex_ = 0;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Sets the maximum number of variables this adaptor can expect to adapt in a row.
-	 * The knowledge about that quantity can become important when dealing with collections
-	 * of variables, such as a GDoubleCollection or a GConstrainedDoubleObjectCollection.
-	 * The function also resets the current index counter.
-	 *
-	 * @param nVars The maximum number of variables this adaptor can expect to adapt in a row
-	 */
-	void setNVars(const std::size_t nVars) {
-#ifdef DEBUG
-		if(nVars_ < 1) {
-			std::ostringstream error;
-			error << "In GAdaptorT<T>::setNVars() : Error!" << std::endl
-				  << "The maximum number of variables must be at least 1" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-#endif /* DEBUG */
-
-		nVars_ = nVars;
-		currentIndex_ = 0;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Retrieves the value for the maximum number of adaptions this adaptor expects
-	 * to perform in a row.
-	 *
-	 * @return The maximum number of adaptions this adaptor expects
-	 */
-	std::size_t getNVars() const {
-		return nVars_;
-	}
-
-	/***********************************************************************************/
-	/**
-	 * Retrieves the current index counter
-	 *
-	 * @return The current index counter variable
-	 */
-	std::size_t getCurrentIndex() const {
-		return currentIndex_;
 	}
 
 	/***********************************************************************************/
@@ -497,17 +453,6 @@ protected:
 		adaptionThreshold_ = p_load->adaptionThreshold_;
 		adProb_ = p_load->adProb_;
 		adaptionMode_ = p_load->adaptionMode_;
-		currentIndex_ = p_load->currentIndex_;
-		nVars_ = p_load->nVars_;
-
-#ifdef DEBUG
-		if(nVars_ < 1) {
-			std::ostringstream error;
-			error << "In GAdaptorT<T>::load_(cp):: Error!" << std::endl
-			      << "The maximum number of variables must be at least 1" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-#endif /* DEBUG */
 	}
 
 	/***********************************************************************************/
@@ -539,8 +484,6 @@ private:
 	boost::uint32_t adaptionThreshold_; ///< Specifies after how many adaptions the adaption itself should be adapted
 	double adProb_; ///< internal representation of the adaption probability
 	boost::logic::tribool adaptionMode_; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
-	std::size_t currentIndex_; ///< The index of variable to be changed, when dealing with collections
-	std::size_t nVars_; ///< The number of variables this adaptor deals with in a row
 
 #ifdef GENEVATESTING
 public:
@@ -564,8 +507,93 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		// Call the parent classes' functions
 		GObject::specificTestsNoFailureExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Test of GAdaptorT<T>::set/getAdaptionProbability()
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// The adaption probability should have been cloned
+			BOOST_CHECK_MESSAGE(
+					p_test->getAdaptionProbability() == this->getAdaptionProbability()
+					,  "\n"
+					<< "p_test->getAdaptionProbability() = " << p_test->getAdaptionProbability() << "\n"
+					<< "this->getAdaptionProbability() = " << this->getAdaptionProbability() << "\n"
+			);
+
+			// Set the adaption probability to a sensible value and check the new setting
+			double testAdProb = 0.5;
+			BOOST_CHECK_NO_THROW(
+					p_test->setAdaptionProbability(testAdProb);
+			);
+			BOOST_CHECK_MESSAGE(
+					p_test->getAdaptionProbability() == testAdProb
+					,  "\n"
+					<< "p_test->getAdaptionProbability() = " << p_test->getAdaptionProbability() << "\n"
+					<< "testAdProb = " << testAdProb << "\n"
+			);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that mutating a value with this class actually work with different likelihoods
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			T testVal = T(0);
+			for(double prob=0.; prob<1.; prob+=0.01) {
+				// Account for rounding problems
+				if(prob > 1.) prob = 1.;
+
+				BOOST_CHECK_NO_THROW(p_test->setAdaptionProbability(prob));
+				BOOST_CHECK_NO_THROW(p_test->adapt(testVal));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test of GAdaptorT<T>::setAdaptionProbability() regarding the effects on the likelihood for adaption of the variable
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			const std::size_t nTests=100000;
+
+			for(double prob=0.; prob<1.; prob+=0.1) {
+				// Account for rounding problems
+				if(prob > 1.) prob = 1.;
+
+				std::size_t nChanged=0;
+
+				T testVal = T(0);
+				T prevTestVal = testVal;
+
+				// Set the likelihood for adaption to "prob"
+				p_test->setAdaptionProbability(prob);
+
+				// Mutating a boolean value a number of times should now result in a certain number of changed values
+				for(std::size_t i=0; i<nTests; i++) {
+					p_test->adapt(testVal);
+					if(testVal != prevTestVal) {
+						nChanged++;
+						prevTestVal=testVal;
+					}
+				}
+
+				double changeProb = double(nChanged)/double(nTests);
+
+				BOOST_CHECK_MESSAGE(
+						changeProb>0.95*prob
+						,  "\n"
+						<< "changeProb = " << changeProb << "\n"
+						<< "prob = " << prob << "\n"
+				);
+			}
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/***********************************************************************************/
@@ -573,8 +601,37 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		// Call the parent classes' functions
 		GObject::specificTestsFailuresExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Test of GAdaptorT<T>::setAdaptionProbability(): Setting a value < 0. should throw
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// Setting a probability < 0 should throw
+			BOOST_CHECK_THROW(
+					p_test->setAdaptionProbability(-1.);
+					, Gem::Common::gemfony_error_condition
+			);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test of GAdaptorT<T>::setAdaptionProbability(): Setting a value > 1. should throw
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// Setting a probability < 0 should throw
+			BOOST_CHECK_THROW(
+					p_test->setAdaptionProbability(2.);
+					, Gem::Common::gemfony_error_condition
+			);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 #endif /* GENEVATESTING */

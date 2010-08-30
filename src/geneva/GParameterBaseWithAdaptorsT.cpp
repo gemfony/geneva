@@ -46,9 +46,6 @@ namespace Geneva {
  */
 template<>
 void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collection) {
-	// Let the adaptor know about the number of variables to expect
-	adaptor_->setNVars(collection.size());
-
 #ifdef DEBUG
 		if(!adaptor_) {
 			std::ostringstream error;

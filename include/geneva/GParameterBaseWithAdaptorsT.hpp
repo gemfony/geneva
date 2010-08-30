@@ -360,9 +360,6 @@ protected:
 	 * @param value The parameter to be adapted
 	 */
 	void applyAdaptor(T &value) {
-		// Let the adaptor know about the number of variables to expect
-		if(adaptor_) adaptor_->setNVars(1);
-
 #ifdef DEBUG
 		if (adaptor_) {
 			adaptor_->adapt(value);
@@ -387,9 +384,6 @@ protected:
 	 * @param collection A vector of values that shall be adapted
 	 */
 	void applyAdaptor(std::vector<T> &collection) {
-		// Let the adaptor know about the number of variables to expect
-		adaptor_->setNVars(collection.size());
-
 #ifdef DEBUG
 		if(!adaptor_) {
 			std::ostringstream error;

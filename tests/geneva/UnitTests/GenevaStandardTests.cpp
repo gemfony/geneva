@@ -60,6 +60,10 @@ using namespace boost::unit_test;
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
+#include "geneva/GSwarm.hpp"
+#include "geneva/GMultiThreadedSwarm.hpp"
+
+#include "GTestIndividual1.hpp"
 
 #include "GStandard_test.hpp"
 
@@ -84,7 +88,7 @@ public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 
 		typedef boost::mpl::list<
-		      GIdentityAdaptorT<boost::int32_t>
+			GIdentityAdaptorT<boost::int32_t>
 			, GInt32FlipAdaptor
 			, GBooleanAdaptor
 			, GInt32GaussAdaptor
@@ -93,7 +97,7 @@ public:
 		adaptor_types;
 
 		typedef boost::mpl::list<
-			  GBooleanObjectCollection
+			GBooleanObjectCollection
 			, GInt32ObjectCollection
 			, GDoubleObjectCollection
 			, GConstrainedDoubleObjectCollection
@@ -110,17 +114,24 @@ public:
 		data_types;
 
 		typedef boost::mpl::list<
-			  GEvolutionaryAlgorithm
+			GEvolutionaryAlgorithm
 			, GMultiThreadedEA
+			, GSwarm
+			//, GMultiThreadedSwarm
 		>
 		algorithm_types;
 
 		typedef boost::mpl::list<
-			  GEAPersonalityTraits
+			GEAPersonalityTraits
 			, GGDPersonalityTraits
 			, GSwarmPersonalityTraits
 		>
 		trait_types;
+
+		typedef boost::mpl::list<
+			Gem::Tests::GTestIndividual1
+		>
+		individual_types;
 
 		/*****************************************************************************************/
 
@@ -135,6 +146,9 @@ public:
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, trait_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, trait_types ) );
+
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, individual_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, individual_types ) );
 	}
 };
 

@@ -59,6 +59,7 @@
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedDouble.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GCommonEnums.hpp"
@@ -73,7 +74,7 @@ namespace Tests
  * of writing, it was included in order to be able to set the individual's personality without
  * weakening data protection.
  */
-class GTestIndividual1 :public GParameterSet
+class GTestIndividual1 :public Gem::Geneva::GParameterSet
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -128,7 +129,7 @@ public:
 	 * Allows to retrieve the individual's personality. Note that this is not a normal feature of
 	 * individuals but has been added in this particular individual in order to allow unit tests.
 	 */
-	personality getPersonalityType() const {
+	Gem::Geneva::personality getPersonalityType() const {
 		return this->getPersonality();
 	}
 
@@ -170,9 +171,9 @@ protected:
 	virtual double fitnessCalculation(){
 		double result = 0.;
 
-		// Extract the first GDoubleCollection object. In a realistic scenario, you might want
+		// Extract the first Gem::Geneva::GDoubleCollection object. In a realistic scenario, you might want
 		// to add error checks here upon first invocation.
-		boost::shared_ptr<GDoubleCollection> vC = pc_at<GDoubleCollection>(0);
+		boost::shared_ptr<Gem::Geneva::GDoubleCollection> vC = pc_at<Gem::Geneva::GDoubleCollection>(0);
 
 		// Calculate the value of the parabola
 		for(std::size_t i=0; i<vC->size(); i++) {

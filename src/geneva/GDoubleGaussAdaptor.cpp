@@ -273,6 +273,13 @@ bool GDoubleGaussAdaptor::modify_GUnitTests() {
 void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{
+		boost::shared_ptr<GDoubleGaussAdaptor> p_test = this->clone<GDoubleGaussAdaptor>();
+	}
+
 }
 
 /*******************************************************************************************/

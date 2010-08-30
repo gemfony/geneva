@@ -1113,3 +1113,23 @@ void GSwarm::specificTestsFailuresExpected_GUnitTests() {
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+#ifdef GENEVATESTING
+// Tests of this class (and parent classes)
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * As Gem::Geneva::GSwarm has a protected default constructor, we need to provide a
+ * specialization of the factory function that creates objects of this type.
+ */
+template <>
+boost::shared_ptr<Gem::Geneva::GSwarm> TFactory_GUnitTests<Gem::Geneva::GSwarm>() {
+	boost::shared_ptr<Gem::Geneva::GSwarm> p(new Gem::Geneva::GSwarm(5,10));
+	return p;
+}
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+#endif /* GENEVATESTING */
