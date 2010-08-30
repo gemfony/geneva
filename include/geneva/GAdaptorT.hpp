@@ -43,6 +43,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/logic/tribool.hpp>
+#include <boost/logic/tribool_io.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -145,7 +146,7 @@ public:
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
 		, adProb_(DEFAULTADPROB)
-		, adaptionMode_(boost::logic::indeterminate)
+		, adaptionMode_(DEFAULTADAPTIONMODE)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -160,7 +161,7 @@ public:
 		, adaptionCounter_(0)
 		, adaptionThreshold_(0)
 		, adProb_(prob)
-		, adaptionMode_(boost::logic::indeterminate)
+		, adaptionMode_(DEFAULTADAPTIONMODE)
 	{
 		// Do some error checking
 		if(prob < 0. || prob > 1.) {
@@ -277,6 +278,15 @@ public:
 	 * Retrieves the id of the adaptor. Purely virtual, must be implemented by the
 	 * actual adaptors.
 	 *
+	 * @test {
+	 * 	 <ul>
+	 *     <li>Tested in GBooleanAdaptor</li>
+	 *     <li>Tested in GInt32FlipAdaptor</li>
+	 *     <li>Tested in GInt32GaussAdaptor</li>
+	 *     <li>Tested in GDoubleGaussAdaptor</li>
+	 *   </ul>
+	 * }
+	 *
 	 * @return The id of the adaptor
 	 */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
@@ -290,7 +300,7 @@ public:
 	 * 	 <ul>
 	 *     <li>Setting of valid probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
 	 *     <li>Checks for setting of invalid probabilities is tested in GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()</li>
-	 *     <li>The effects on the probability of adaptions actually taking place are tested in GBooleanAdaptor</li>
+	 *     <li>The effects on the probability of adaptions actually taking place are tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
 	 *   </ul>
 	 * }
 	 *
@@ -365,6 +375,13 @@ public:
 	 * virtual so adaptors requiring adaptions to happen always or never can prevent
 	 * resetting of the adaptionMode_ variable.
 	 *
+	 * @test {
+	 * 	 <ul>
+	 *     <li>Setting of the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
+	 *     <li>The effect of setting the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
+	 *   </ul>
+	 * }
+	 *
 	 * @param adaptionMode The desired mode (always/never/with a given probability)
 	 */
 	virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
@@ -374,6 +391,12 @@ public:
 	/***********************************************************************************/
 	/**
 	 * Returns the current value of the adaptionMode_ variable
+	 *
+	 * @test {
+	 * 	 <ul>
+	 *     <li>Retrieval of the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
+	 *   </ul>
+	 * }
 	 *
 	 * @return The current value of the adaptionMode_ variable
 	 */
@@ -390,10 +413,12 @@ public:
 	 * @param val The value that needs to be adapted
 	 */
 	void adapt(T& val)  {
-		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case
-			// The adaption parameters are modified every adaptionThreshold_ number
-			// of calls to this function.
+		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate
 			if(gr->uniform_01() <= adProb_) {
+				// The adaption parameters are modified every adaptionThreshold_ number
+				// of adaptions.
+				// TODO: Better outside of the above if statement ?
+				// TODO: Rather than counting, can we use a probability ?
 				if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
 					adaptionCounter_ = 0;
 					adaptAdaption();
@@ -402,7 +427,7 @@ public:
 				customAdaptions(val);
 			}
 		}
-		else if(adaptionMode_ == true) { // always adapt
+		else if(adaptionMode_) { // always adapt
 			customAdaptions(val);
 		}
 		// No need to test for adaptionMode_ == false as no action is needed in this case
@@ -544,6 +569,9 @@ public:
 		{ // Check that mutating a value with this class actually work with different likelihoods
 			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
 
+			// Make sure the adaption probability is taken into account
+			p_test->setAdaptionMode(boost::logic::indeterminate);
+
 			T testVal = T(0);
 			for(double prob=0.; prob<1.; prob+=0.01) {
 				// Account for rounding problems
@@ -558,6 +586,9 @@ public:
 
 		{ // Test of GAdaptorT<T>::setAdaptionProbability() regarding the effects on the likelihood for adaption of the variable
 			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// Make sure the adaption probability is taken into account
+			p_test->setAdaptionMode(boost::logic::indeterminate);
 
 			const std::size_t nTests=100000;
 
@@ -584,13 +615,128 @@ public:
 
 				double changeProb = double(nChanged)/double(nTests);
 
-				BOOST_CHECK_MESSAGE(
-						changeProb>0.95*prob
+				if(prob==0.) {
+					BOOST_CHECK_MESSAGE(
+								changeProb<0.0001
+								,  "\n"
+								<< "changeProb = " << changeProb << "\n"
+								<< "prob = " << prob << "\n"
+								<< "with allowed window = [" << 0. << " : " << 0.0001 << "]" << "\n"
+					);
+				}
+				else {
+					BOOST_CHECK_MESSAGE(
+							changeProb>0.95*prob && changeProb<1.05*prob
+							,  "\n"
+							<< "changeProb = " << changeProb << "\n"
+							<< "prob = " << prob << "\n"
+							<< "with allowed window = [" << 0.95*prob << " : " << 1.05*prob << "]" << "\n"
+					);
+				}
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check setting and retrieval of the adaption mode
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// Check the default setting
+			if(DEFAULTADAPTIONMODE) { // true
+				BOOST_CHECK_MESSAGE (
+						p_test->getAdaptionMode()
 						,  "\n"
-						<< "changeProb = " << changeProb << "\n"
-						<< "prob = " << prob << "\n"
+						<< "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
+						<< "DEFAULTADAPTIONMODE       = " << DEFAULTADAPTIONMODE << "\n"
 				);
 			}
+			else if(!DEFAULTADAPTIONMODE) { // false
+				BOOST_CHECK_MESSAGE (
+						!(p_test->getAdaptionMode())
+						,  "\n"
+						<< "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
+						<< "DEFAULTADAPTIONMODE       = " << DEFAULTADAPTIONMODE << "\n"
+				);
+			}
+			else { // indeterminate
+				BOOST_CHECK_MESSAGE (
+						boost::logic::indeterminate(p_test->getAdaptionMode())
+						,  "\n"
+						<< "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
+						<< "DEFAULTADAPTIONMODE)      = " << DEFAULTADAPTIONMODE << "\n"
+				);
+			}
+
+			// Check setting of the different allowed values
+			// false
+			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(false));
+			BOOST_CHECK_MESSAGE (
+					!(p_test->getAdaptionMode())
+					,  "\n"
+					<< "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
+					<< "required value            = false\n"
+			);
+
+			// true
+			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(true));
+			BOOST_CHECK_MESSAGE (
+					p_test->getAdaptionMode()
+					,  "\n"
+					<< "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
+					<< "required value            = true\n"
+			);
+
+			// boost::logic::indeterminate
+			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(boost::logic::indeterminate));
+			BOOST_CHECK_MESSAGE (
+					boost::logic::indeterminate(p_test->getAdaptionMode())
+					,  "\n"
+					<< "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
+					<< "required value            = boost::logic::indeterminate\n"
+			);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check the effect of the adaption mode settings
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+			p_test->setAdaptionProbability(0.5);
+
+			const std::size_t nTests = 10000;
+
+			// false: There should never be adaptions, independent of the adaption probability
+			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(false));
+			T currentValue = T(0);
+			T oldValue = currentValue;
+			for(std::size_t i=0; i<nTests; i++) {
+				p_test->adapt(currentValue);
+				BOOST_CHECK_MESSAGE (
+						currentValue == oldValue
+						,  "\n"
+						<< "currentValue = " << currentValue << "\n"
+						<< "oldValue     = " << oldValue << "\n"
+						<< "iteration    = " << i << "\n"
+				);
+			}
+
+			// true: Adaptions should happen always, independent of the adaption probability
+			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(true));
+			currentValue = T(0);
+			oldValue = currentValue;
+			for(std::size_t i=0; i<nTests; i++) {
+				p_test->adapt(currentValue);
+				BOOST_CHECK_MESSAGE (
+						currentValue != oldValue
+						,  "\n"
+						<< "currentValue = " << currentValue << "\n"
+						<< "oldValue     = " << oldValue << "\n"
+						<< "iteration    = " << i << "\n"
+				);
+				oldValue = currentValue;
+			}
+
+			// boost::logic::indeterminate: Adaptions should happen with a certain adaption probability
+			// No tests -- we already know that this works
 		}
 
 		//------------------------------------------------------------------------------

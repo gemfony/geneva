@@ -86,6 +86,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	{
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
+		BOOST_REQUIRE(T_ptr); // must point somewhere
 
 		// Make sure the object is not in pristine condition
 		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
@@ -110,6 +111,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	{
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
+		BOOST_REQUIRE(T_ptr); // must point somewhere
 
 		// Make sure the object is not in pristine condition
 		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
@@ -134,12 +136,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	{
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
+		BOOST_REQUIRE(T_ptr); // must point somewhere
 
 		// Make sure the object is not in pristine condition
 		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
 
 		// Loading
 		BOOST_REQUIRE_NO_THROW(T_ptr_load = TFactory_GUnitTests<T>());
+		BOOST_REQUIRE(T_ptr_load); // must point somewhere
 		BOOST_REQUIRE_NO_THROW(T_ptr_load->GObject::load(T_ptr));
 
 		// Check for equivalence and similarity
@@ -159,12 +163,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	{
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
+		BOOST_REQUIRE(T_ptr); // must point somewhere
 
 		// Make sure the object is not in pristine condition
 		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
 
 		// Assignment
 		BOOST_REQUIRE_NO_THROW(T_ptr_assign = TFactory_GUnitTests<T>());
+		BOOST_REQUIRE(T_ptr_assign); // must point somewhere
 		BOOST_REQUIRE_NO_THROW(*T_ptr_assign = *T_ptr);
 
 		// Check for equivalence and similarity
@@ -185,7 +191,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	// Check (de-)serialization in different modes.
 	{ // plain text format
 		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr1); // must point somewhere
 		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
 		//Modify and check inequality
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
@@ -198,7 +206,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{ // XML format
 		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr1); // must point somewhere
 		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
 		//Modify and check inequality
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
@@ -210,7 +220,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 
 	{ // binary test format
 		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr1); // must point somewhere
 		boost::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr2); // must point somewhere
 
 		//Modify and check inequality
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
@@ -224,6 +236,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	// Run specific tests for the current object type
 	{
 		boost::shared_ptr<T> T_ptr = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr); // must point somewhere
 		BOOST_CHECK_NO_THROW(T_ptr->specificTestsNoFailureExpected_GUnitTests());
 	}
 }
@@ -243,6 +256,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 		// Checks that self-assignment throws in DEBUG mode
 #ifdef DEBUG
 		boost::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr1); // must point somewhere
 		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, Gem::Common::gemfony_error_condition);
 #endif
 	}
@@ -251,6 +265,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 	// Run specific tests for the current object type
 	{
 		boost::shared_ptr<T> T_ptr = TFactory_GUnitTests<T>();
+		BOOST_REQUIRE(T_ptr); // must point somewhere
 		BOOST_CHECK_NO_THROW(T_ptr->specificTestsFailuresExpected_GUnitTests());
 	}
 }

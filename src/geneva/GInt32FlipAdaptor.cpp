@@ -208,6 +208,21 @@ bool GInt32FlipAdaptor::modify_GUnitTests() {
 void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GIntFlipAdaptorT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that the adaptor returns the correct adaptor id
+		boost::shared_ptr<GInt32FlipAdaptor> p_test = this->clone<GInt32FlipAdaptor>();
+
+		BOOST_CHECK_MESSAGE(
+			p_test->getAdaptorId() == GINT32FLIPADAPTOR
+			,  "\n"
+			<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
+			<< "GINT32FLIPADAPTOR      = " << GINT32FLIPADAPTOR << "\n"
+		);
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /*****************************************************************************/

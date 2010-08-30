@@ -50,9 +50,6 @@ namespace Common {
 unsigned int getNHardwareThreads(const unsigned int& defaultNThreads) {
 	unsigned int nHardwareThreads = boost::thread::hardware_concurrency();
 	if(nHardwareThreads > 0) {
-#ifdef DEBUG
-		std::cout << "Determined " << (int)nHardwareThreads << " as a suitable number of processing threads for this architecture." << std::endl;
-#endif
 		return nHardwareThreads;
 	}
 	else {

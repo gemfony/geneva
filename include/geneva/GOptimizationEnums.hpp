@@ -42,6 +42,7 @@
 // Boost headers go here
 
 #include <boost/cstdint.hpp>
+#include <boost/logic/tribool.hpp>
 
 #ifndef GOPTIMIZATIONENUMS_HPP_
 #define GOPTIMIZATIONENUMS_HPP_
@@ -143,9 +144,7 @@ enum infoMode {
  * Ids that are assigned to adaptors and which should (by convention!) be unique for these
  */
 enum adaptorId {
-	  GIDENTITYADAPTOR
-	, GSWARMADAPTOR
-	, GDOUBLEGAUSSADAPTOR
+	  GDOUBLEGAUSSADAPTOR
 	, GINT32GAUSSADAPTOR
 	, GBOOLEANADAPTOR
 	, GINT32FLIPADAPTOR
@@ -188,11 +187,13 @@ const bool DEFAULTMARKOLDPARENTS = false;
 /**********************************************************************************************/
 
 const double DEFAULTSIGMA = 1; ///< Default start value for sigma_
-const double DEFAULTSIGMASIGMA = 0.001; ///< Default width of the gaussian used for sigma adaption
+const double DEFAULTINT32SIGMA = 5; ///< Default sigma start value for GInt32GaussAdaptor
+const double DEFAULTSIGMASIGMA = 0.8; ///< Default width of the gaussian used for sigma adaption
 const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for sigma_
 const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
 const double DEFAULTBITADPROB = 0.05; // 5 percent adaption probability for bits
 const double DEFAULTADPROB = 1.0; // 100 percent adaption probability for all other cases
+const boost::logic::tribool DEFAULTADAPTIONMODE = boost::logic::indeterminate; // Adapt should happen with a given probability
 
 /**********************************************************************************************/
 

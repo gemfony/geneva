@@ -18,9 +18,7 @@ SET ( OPTIMIZATIONSOURCES
 	GDoubleObjectCollection
 	GEAPersonalityTraits
 	GEvolutionaryAlgorithm
-	GGaussAdaptorT
 	GGDPersonalityTraits
-	GIdentityAdaptorT
 	GIndividual
 	GInt32
 	GInt32Collection

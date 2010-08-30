@@ -35,7 +35,6 @@ using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
 // All classes that will be tested in this file
-#include "geneva/GIdentityAdaptorT.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
@@ -88,8 +87,7 @@ public:
 	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 
 		typedef boost::mpl::list<
-			GIdentityAdaptorT<boost::int32_t>
-			, GInt32FlipAdaptor
+			GInt32FlipAdaptor
 			, GBooleanAdaptor
 			, GInt32GaussAdaptor
 			, GDoubleGaussAdaptor

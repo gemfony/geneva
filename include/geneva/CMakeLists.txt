@@ -25,7 +25,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GEvolutionaryAlgorithm.hpp
 	GGaussAdaptorT.hpp
 	GGDPersonalityTraits.hpp
-	GIdentityAdaptorT.hpp
 	GIndividual.hpp
 	GInt32.hpp
 	GInt32Collection.hpp

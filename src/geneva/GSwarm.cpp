@@ -1125,7 +1125,8 @@ void GSwarm::specificTestsFailuresExpected_GUnitTests() {
  */
 template <>
 boost::shared_ptr<Gem::Geneva::GSwarm> TFactory_GUnitTests<Gem::Geneva::GSwarm>() {
-	boost::shared_ptr<Gem::Geneva::GSwarm> p(new Gem::Geneva::GSwarm(5,10));
+	boost::shared_ptr<Gem::Geneva::GSwarm> p;
+	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSwarm>(new Gem::Geneva::GSwarm(5,10)));
 	return p;
 }
 

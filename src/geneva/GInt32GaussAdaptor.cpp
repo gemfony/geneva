@@ -41,9 +41,12 @@ namespace Geneva {
 
 /*******************************************************************************************/
 /**
- * The default constructor
+ * The default constructor. Note that we need to use a different default value for sigma,
+ * as there is a "natural" gap of 1 between integers, and the DEFAULTSIGMA might not be
+ * suitable for us.
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor()
+	: GGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -58,12 +61,14 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor& cp)
 
 /*******************************************************************************************/
 /**
- * Initialization with a adaption probability
+ * Initialization with a adaption probability.  Note that we need to use a different default
+ * value for sigma, as there is a "natural" gap of 1 between integers, and the DEFAULTSIGMA
+ * might not be suitable for us.
  *
  * @param adProb The adaption probability
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor(const double& adProb)
-	: GGaussAdaptorT<boost::int32_t>(adProb)
+	: GGaussAdaptorT<boost::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -221,14 +226,17 @@ Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
 void GInt32GaussAdaptor::customAdaptions(boost::int32_t &value) {
 	// adapt the value in situ. Note that this changes
 	// the argument of this function
-#if defined (CHECKOVERFLOWS)
-
 #if defined (DEBUG)
 	boost::int32_t addition = boost::numeric_cast<boost::int32_t>(gr->normal_distribution(sigma_));
 #else
 	boost::int32_t addition = static_cast<boost::int32_t>(gr->normal_distribution(sigma_));
 #endif /* DEBUG */
 
+	if(addition == 0) { // Enforce a minimal change of 1.
+		gr->uniform_bool()?(addition=1):(addition=-1);
+	}
+
+#if defined (CHECKOVERFLOWS)
 	// Prevent over- and underflows.
 	if(value >= 0){
 		if(addition >= 0 && (std::numeric_limits<boost::int32_t>::max()-value < addition)) {
@@ -246,17 +254,9 @@ void GInt32GaussAdaptor::customAdaptions(boost::int32_t &value) {
 			addition *= -1;
 		}
 	}
+#endif /* CHECKOVERFLOWS  */
 
 	value += addition;
-#else  /* CHECKOVERFLOWS */
-	// We do not check for over- or underflows for performance reasons.
-#if defined (DEBUG)
-	value += boost::numeric_cast<boost::int32_t>(gr->normal_distribution(sigma_));
-#else
-	value += static_cast<boost::int32_t>(gr->normal_distribution(sigma_));
-#endif /* DEBUG */
-
-#endif /* CHECKOVERFLOWS  */
 }
 
 #ifdef GENEVATESTING
@@ -282,6 +282,21 @@ bool GInt32GaussAdaptor::modify_GUnitTests() {
 void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GGaussAdaptorT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that the adaptor returns the correct adaptor id
+		boost::shared_ptr<GInt32GaussAdaptor> p_test = this->clone<GInt32GaussAdaptor>();
+
+		BOOST_CHECK_MESSAGE(
+			p_test->getAdaptorId() == GINT32GAUSSADAPTOR
+			,  "\n"
+			<< "p_test->getAdaptorId() = " << p_test->getAdaptorId()
+			<< "GINT32GAUSSADAPTOR     = " << GINT32GAUSSADAPTOR << "\n"
+		);
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /*******************************************************************************************/
