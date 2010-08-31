@@ -106,6 +106,11 @@ std::string GObject::report() {
 	return toString(Gem::Common::SERIALIZATIONMODE_XML);
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**************************************************************************************************/
 /**
  * Converts class to a serial representation that is then written to a stream.
@@ -143,6 +148,11 @@ void GObject::toStream(std::ostream& oarchive_stream, const Gem::Common::seriali
 		break;
     }
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**************************************************************************************************/
 /**
@@ -187,6 +197,11 @@ void GObject::fromStream(std::istream& istr, const Gem::Common::serializationMod
     if(local) delete local;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**************************************************************************************************/
 /**
  * Converts the class to a text representation, using the currently set serialization mode for this
@@ -201,6 +216,11 @@ std::string GObject::toString(const Gem::Common::serializationMode& serMod) cons
 	toStream(oarchive_stream, serMod);
     return oarchive_stream.str();
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**************************************************************************************************/
 /**
@@ -217,6 +237,11 @@ void GObject::fromString(const std::string& descr, const Gem::Common::serializat
     fromStream(istr, serMod);
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**************************************************************************************************/
 /**
  * Writes a serial representation of this object to a file. Can be used for check-pointing.
@@ -227,10 +252,24 @@ void GObject::fromString(const std::string& descr, const Gem::Common::serializat
  * TODO: Error check whether the file is accessible / state of the stream
  */
 void GObject::toFile(const std::string& fileName, const Gem::Common::serializationMode& serMod) const {
-	std::ofstream checkpointStream(fileName.c_str());
-	toStream(checkpointStream, serMod);
-	checkpointStream.close();
+	std::ofstream ofstr(fileName.c_str());
+
+	if(!ofstr) {
+		std::ostringstream error;
+		error << "In GObject::toFile(): Error!" << std::endl
+			  << "Problems connecting to file " << fileName << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
+	toStream(ofstr, serMod);
+	ofstr.close();
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * Part of the regular Geneva standard tests for every tested object
+ * ----------------------------------------------------------------------------------
+ */
 
 /**************************************************************************************************/
 /**
@@ -242,9 +281,24 @@ void GObject::toFile(const std::string& fileName, const Gem::Common::serializati
  * TODO: Error check whether the file is accessible / state of the stream
  */
 void GObject::fromFile(const std::string& fileName, const Gem::Common::serializationMode& serMod) {
-	std::ifstream checkpointStream(fileName.c_str());
-	fromStream(checkpointStream, serMod);
+	std::ifstream ifstr(fileName.c_str());
+
+	if(!ifstr) {
+		std::ostringstream error;
+		error << "In GObject::fromFile(): Error!" << std::endl
+			  << "Problems connecting to file " << fileName << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
+	fromStream(ifstr, serMod);
+	ifstr.close();
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * Part of the regular Geneva standard tests for every tested object
+ * ----------------------------------------------------------------------------------
+ */
 
 /**************************************************************************************************/
 /**
@@ -272,6 +326,11 @@ boost::shared_ptr<GObject> GObject::clone<GObject>(
 	return boost::shared_ptr<GObject>(clone_());
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**************************************************************************************************/
 /**
  * Creates a deep clone of this object, storing it in a boost::shared_ptr<GObject>
@@ -282,6 +341,10 @@ boost::shared_ptr<GObject> GObject::clone() const {
 	return boost::shared_ptr<GObject>(clone_());
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 #ifdef GENEVATESTING
 /**************************************************************************************************/
@@ -302,7 +365,107 @@ bool GObject::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GObject::specificTestsNoFailureExpected_GUnitTests() {
-	// Call the parent class'es function: no parent class
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	// no parent class
+
+	// ------------------------------------------------------------------------------
+
+	{ // Check cloning to GObject format
+		boost::shared_ptr<GObject> p_test = this->clone<GObject>();
+
+		// Check that the pointer actually points somewhere
+		BOOST_CHECK(p_test);
+	}
+
+	// ------------------------------------------------------------------------------
+
+	{ // Check cloning to GObject format, using a different method
+		boost::shared_ptr<GObject> p_test = this->clone();
+
+		// Check that the pointer actually points somewhere
+		BOOST_CHECK(p_test);
+	}
+
+	// ------------------------------------------------------------------------------
+
+	{ // Check that the report function returns a non-empty description
+		boost::shared_ptr<GObject> p_test = this->clone();
+
+		// Check that the pointer actually points somewhere
+		BOOST_CHECK(!(p_test->report()).empty());
+	}
+
+
+	{ // Check (de-)serialization from/to a stream in three modes
+		boost::shared_ptr<GObject> p_test = this->clone();
+
+		{ // Text mode
+			std::ostringstream ostr;
+			BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::SERIALIZATIONMODE_TEXT));
+			std::istringstream istr(ostr.str());
+			BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::SERIALIZATIONMODE_TEXT));
+		}
+
+		{ // XML mode
+			std::ostringstream ostr;
+			BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::SERIALIZATIONMODE_XML));
+			std::istringstream istr(ostr.str());
+			BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::SERIALIZATIONMODE_XML));
+		}
+
+		{ // Binary mode
+			std::ostringstream ostr;
+			BOOST_CHECK_NO_THROW(p_test->toStream(ostr, Gem::Common::SERIALIZATIONMODE_BINARY));
+			std::istringstream istr(ostr.str());
+			BOOST_CHECK_NO_THROW(p_test->fromStream(istr, Gem::Common::SERIALIZATIONMODE_BINARY));
+		}
+	}
+
+	// ------------------------------------------------------------------------------
+
+	{ // Check (de-)serialization from/to strings in three modes
+		boost::shared_ptr<GObject> p_test = this->clone();
+
+		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
+		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_XML), Gem::Common::SERIALIZATIONMODE_XML));
+		BOOST_CHECK_NO_THROW(p_test->fromString(p_test->toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
+	}
+
+	// ------------------------------------------------------------------------------
+
+	{ // Check (de-)serialization from/to a file in three different modes
+		using namespace boost::filesystem;
+
+		boost::shared_ptr<GObject> p_test = this->clone();
+
+		{ // Text mode
+			BOOST_CHECK_NO_THROW(p_test->toFile("123test.txt", Gem::Common::SERIALIZATIONMODE_TEXT));
+			BOOST_CHECK_NO_THROW(p_test->fromFile("123test.txt", Gem::Common::SERIALIZATIONMODE_TEXT));
+
+			// Get rid of the file
+			remove(path("./123test.txt"));
+		}
+
+		{ // XML mode
+			BOOST_CHECK_NO_THROW(p_test->toFile("123test.xml", Gem::Common::SERIALIZATIONMODE_XML));
+			BOOST_CHECK_NO_THROW(p_test->fromFile("123test.xml", Gem::Common::SERIALIZATIONMODE_XML));
+
+			// Get rid of the file
+			remove(path("./123test.xml"));
+		}
+
+		{ // Binary mode
+			BOOST_CHECK_NO_THROW(p_test->toFile("123test.bin", Gem::Common::SERIALIZATIONMODE_BINARY));
+			BOOST_CHECK_NO_THROW(p_test->fromFile("123test.bin", Gem::Common::SERIALIZATIONMODE_BINARY));
+
+			// Get rid of the file
+			remove(path("./123test.bin"));
+		}
+	}
+
+	// ------------------------------------------------------------------------------
 }
 
 /**************************************************************************************************/
@@ -310,7 +473,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GObject::specificTestsFailuresExpected_GUnitTests() {
-	// Call the parent class'es function: no parent class
+	// no parent class
 }
 
 /**************************************************************************************************/

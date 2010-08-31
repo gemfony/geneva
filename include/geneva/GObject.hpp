@@ -47,6 +47,7 @@
 // Boost header files go here
 
 #include <boost/cstdint.hpp>
+#include "boost/filesystem.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -164,6 +165,11 @@ public:
 		load_(cp.get());
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * loading is tested for all objects taking part in the Geneva standard tests
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	/**
 	 * Loads the data of another GObject(-derivative), presented as a constant reference. Note that this
@@ -178,6 +184,11 @@ public:
 	) {
 		load_(&cp);
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * loading is tested for all objects taking part in the Geneva standard tests
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 	/**
@@ -204,6 +215,11 @@ public:
 		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
 #endif /* DEBUG */
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * cloning is tested for all objects taking part in the Geneva standard tests
+	 * ----------------------------------------------------------------------------------
+	 */
 
 protected:
 	/**************************************************************************************************/
@@ -233,6 +249,11 @@ protected:
 #endif
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * selfAssignment checks are performed for all objects taking part in the Geneva standard tests
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	/**
 	 * This function converts the GObject pointer to the target type, optionally checking for self-assignment
@@ -259,6 +280,12 @@ protected:
 		return static_cast<const load_type *>(load_ptr);
 #endif
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * conversion_casts are regularly performed as part of the loading process and are thus
+	 * considered to be well tested.
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 	/**
@@ -290,6 +317,12 @@ protected:
 		return boost::static_pointer_cast<load_type>(load_ptr);
 #endif
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * conversion_casts are regularly performed as part of the loading process and are thus
+	 * considered to be well tested.
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 
