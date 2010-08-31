@@ -160,7 +160,7 @@ private:
 	GBoostThreadConsumerT(const GBoostThreadConsumerT&); ///< Intentionally left undefined
 	const GBoostThreadConsumerT& operator=(const GBoostThreadConsumerT&); ///< Intentionally left undefined
 
-	std::size_t maxThreads_; ///< The maxumum number of allowed threads in the pool
+	std::size_t maxThreads_; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
 
 	boost::mutex stopMutex_;
