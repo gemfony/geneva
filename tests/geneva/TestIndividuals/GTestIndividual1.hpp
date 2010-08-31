@@ -56,6 +56,7 @@
 
 // Geneva header files go here
 #include "geneva/GParameterSet.hpp"
+#include "geneva/GDoubleCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedDouble.hpp"
@@ -94,6 +95,22 @@ public:
 	 */
 	GTestIndividual1()
 		: GParameterSet()
+	{
+		// Fill with some data
+		boost::shared_ptr<Gem::Geneva::GDoubleCollection > gdc_ptr(new Gem::Geneva::GDoubleCollection(100, -10., 10.));
+		boost::shared_ptr<Gem::Geneva::GDoubleGaussAdaptor> gdga1(new Gem::Geneva::GDoubleGaussAdaptor(1.,0.6,0.,2.));
+		gdc_ptr->addAdaptor(gdga1);
+		this->push_back(gdc_ptr);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * The copy constructor
+	 *
+	 * @param cp A constant reference to another GTestIndividual1 object
+	 */
+	GTestIndividual1(const GTestIndividual1& cp)
+		: GParameterSet(cp)
 	{	/* nothing */ }
 
 	/********************************************************************************************/
@@ -113,24 +130,6 @@ public:
 	const GTestIndividual1& operator=(const GTestIndividual1& cp){
 		GTestIndividual1::load_(&cp);
 		return *this;
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Allows to set the individual's personality. Note that this is not a normal feature of
-	 * individuals but has been added in this particular individual in order to allow unit tests.
-	 */
-	void setPersonalityType(const Gem::Geneva::personality& pers) {
-		this->setPersonality(pers);
-	}
-
-	/********************************************************************************************/
-	/**
-	 * Allows to retrieve the individual's personality. Note that this is not a normal feature of
-	 * individuals but has been added in this particular individual in order to allow unit tests.
-	 */
-	Gem::Geneva::personality getPersonalityType() const {
-		return this->getPersonality();
 	}
 
 protected:

@@ -191,7 +191,7 @@ bool parseConfigFile(const std::string& configFile,
 			"the name of a file holding the evaluation executable")
 			("externalArguments",po::value<std::string>(&externalArguments)->default_value(DEFAULTEXTERNALARGUMENTS),
 			"Arguments to be handed to programs called through the \"system()\" call")
-			("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+			("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLDAP),
 			"Number of calls to adapt after which adaption parameters should be modified")
 			("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
 			"The width of the gaussian used for the adaption of double values")

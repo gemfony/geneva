@@ -77,9 +77,9 @@ public:
 		GTestIndividual1 gpi;
 
 		// Make this an evolutionary algorithm individual
-		gpi.setPersonalityType(EA);
+		gpi.setPersonality(EA);
 		// Check that this is indeed the case
-		BOOST_CHECK(gpi.getPersonalityType() == EA);
+		BOOST_CHECK(gpi.getPersonality() == EA);
 
 		// Test the vector interface of GMutableSetT
 		boost::shared_ptr<GDoubleCollection> tempIItem_ptr(new GDoubleCollection(100, -10., 10.));
@@ -209,7 +209,7 @@ public:
 		//----------------------------------------------------------------------------------------------
 		// Tests of the GIndividual interface
 		GTestIndividual1 gpi2;
-		gpi2.setPersonalityType(EA);
+		gpi2.setPersonality(EA);
 
 		boost::shared_ptr<GDoubleCollection> gdc2_ptr(new GDoubleCollection(100, -10., 10.));
 		gdc2_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(1.,0.001,0.,1.)));
@@ -312,8 +312,8 @@ public:
 		{
 			// Default construction
 			GTestIndividual1 gpi;
-			gpi.setPersonalityType(EA);
-			BOOST_CHECK(gpi.getPersonalityType() == EA);
+			gpi.setPersonality(EA);
+			BOOST_CHECK(gpi.getPersonality() == EA);
 
 			// Needed for the following throw test
 			boost::shared_ptr<GDoubleCollection > gdc_ptr(new GDoubleCollection(100, -10., 10.));

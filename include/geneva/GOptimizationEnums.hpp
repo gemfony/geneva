@@ -193,6 +193,8 @@ const double DEFAULTMINSIGMA = 0.0000001; ///< Default minimum allowed value for
 const double DEFAULTMAXSIGMA = 5; ///< Default maximum allowed value for sigma_
 const double DEFAULTBITADPROB = 0.05; // 5 percent adaption probability for bits
 const double DEFAULTADPROB = 1.0; // 100 percent adaption probability for all other cases
+const boost::uint32_t DEFAULTADAPTIONTHRESHOLD = 1; // Adaption parameters should be adapted whenever an adaption takes place
+const double DEFAULTADAPTADAPTIONPROB = 0.; // 0 percent probability for the adaption of adaption parameters
 const boost::logic::tribool DEFAULTADAPTIONMODE = boost::logic::indeterminate; // Adapt should happen with a given probability
 
 /**********************************************************************************************/

@@ -206,6 +206,7 @@ public:
 	}
 
 protected:
+	/**************************************************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */

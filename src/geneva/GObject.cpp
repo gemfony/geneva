@@ -31,9 +31,6 @@
 
 #include "geneva/GObject.hpp"
 
-/** @brief Eliminate some serialization overhead at the cost by omitting versioning for this class.
- * See http://beta.boost.org/doc/libs/1_44_0/libs/serialization/doc/special.html#derivedpointers */
-// BOOST_CLASS_IMPLEMENTATION(Gem::Geneva::GObject, boost::serialization::object_serializable);
 
 namespace Gem {
 namespace Geneva {
@@ -268,7 +265,8 @@ void GObject::load_(const GObject *cp) {
  *
  * @return A boost::shared_ptr<GObject> to a clone of the derived object
  */
-template <> boost::shared_ptr<GObject> GObject::clone<GObject>(
+template <>
+boost::shared_ptr<GObject> GObject::clone<GObject>(
 		boost::enable_if<boost::is_base_of<Gem::Geneva::GObject, GObject> >::type* dummy
 ) const {
 	return boost::shared_ptr<GObject>(clone_());
@@ -293,11 +291,10 @@ boost::shared_ptr<GObject> GObject::clone() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GObject::modify_GUnitTests() {
-	bool result = false;
+	// There is no modifyable parent class and no local data,
+	// so there is nothing we can do here in this function.
 
-	// Call the parent class'es function: no parent class
-
-	return result;
+	return false;
 }
 
 /**************************************************************************************************/

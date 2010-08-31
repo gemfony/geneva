@@ -212,7 +212,7 @@ namespace Gem
 	   "Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
 	  ("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
 		"Specifies the likelihood for adaptions to be actually carried out")
-	  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLD),
+	  ("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLDAP),
 		"Number of calls to adapt() after which adaption parameters should be modified")
 	  ("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
 		"The width of the gaussian used for the adaption of double values")

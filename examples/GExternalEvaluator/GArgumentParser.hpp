@@ -91,7 +91,7 @@ namespace Gem
     const std::size_t DEFAULTNBTCONSUMERTHREADS=2;
     const boost::uint32_t DEFAULTGBTCWAITFACTOR=5;
     const std::string DEFAULTPROGRAM="./evaluator/evaluator";
-    const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
+    const boost::uint32_t DEFAULTADAPTIONTHRESHOLDAP=1;
     const std::string DEFAULTEXTERNALARGUMENTS="empty";
     const Gem::Geneva::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::Geneva::BINARYEXCHANGE;
     const bool DEFAULTMAXIMIZE=false;

@@ -35,6 +35,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <assert.h>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -124,7 +125,8 @@ class GAdaptorT:
 		   & BOOST_SERIALIZATION_NVP(adaptionCounter_)
 		   & BOOST_SERIALIZATION_NVP(adaptionThreshold_)
 		   & BOOST_SERIALIZATION_NVP(adProb_)
-		   & BOOST_SERIALIZATION_NVP(adaptionMode_);
+		   & BOOST_SERIALIZATION_NVP(adaptionMode_)
+		   & BOOST_SERIALIZATION_NVP(adaptAdaptionProbability_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -144,9 +146,10 @@ public:
 		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>())
 		, gr(gr_local)
 		, adaptionCounter_(0)
-		, adaptionThreshold_(0)
+		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
 		, adProb_(DEFAULTADPROB)
 		, adaptionMode_(DEFAULTADAPTIONMODE)
+		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -159,9 +162,10 @@ public:
 		, gr_local(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>())
 		, gr(gr_local)
 		, adaptionCounter_(0)
-		, adaptionThreshold_(0)
+		, adaptionThreshold_(DEFAULTADAPTIONTHRESHOLD)
 		, adProb_(prob)
 		, adaptionMode_(DEFAULTADAPTIONMODE)
+		, adaptAdaptionProbability_(DEFAULTADAPTADAPTIONPROB)
 	{
 		// Do some error checking
 		if(prob < 0. || prob > 1.) {
@@ -185,6 +189,7 @@ public:
 		, adaptionThreshold_(cp.adaptionThreshold_)
 		, adProb_(cp.adProb_)
 		, adaptionMode_(cp.adaptionMode_)
+		, adaptAdaptionProbability_(cp.adaptAdaptionProbability_)
 	{ /* nothing */ }
 
 	/***********************************************************************************/
@@ -269,6 +274,7 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionThreshold_, p_load->adaptionThreshold_, "adaptionThreshold_", "p_load->adaptionThreshold_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adProb_, p_load->adProb_, "adProb_", "p_load->adProb_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptionMode_, p_load->adaptionMode_, "adaptionMode_", "p_load->adaptionMode_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GAdaptorT<T>", adaptAdaptionProbability_, p_load->adaptAdaptionProbability_, "adaptAdaptionProbability_", "p_load->adaptAdaptionProbability_", e , limit));
 
 		return evaluateDiscrepancies("GAdaptorT<T>", caller, deviations, e);
 	}
@@ -278,33 +284,24 @@ public:
 	 * Retrieves the id of the adaptor. Purely virtual, must be implemented by the
 	 * actual adaptors.
 	 *
-	 * @test {
-	 * 	 <ul>
-	 *     <li>Tested in GBooleanAdaptor</li>
-	 *     <li>Tested in GInt32FlipAdaptor</li>
-	 *     <li>Tested in GInt32GaussAdaptor</li>
-	 *     <li>Tested in GDoubleGaussAdaptor</li>
-	 *   </ul>
-	 * }
-	 *
 	 * @return The id of the adaptor
 	 */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GBooleanAdaptor
+	 * Tested in GInt32FlipAdaptor
+	 * Tested in GInt32GaussAdaptor
+	 * Tested in GDoubleGaussAdaptor
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/***********************************************************************************/
 	/**
 	 * Sets the adaption probability to a given value. This function will throw
 	 * if the probability is not in the allowed range.
 	 *
-	 * @test {
-	 * 	 <ul>
-	 *     <li>Setting of valid probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
-	 *     <li>Checks for setting of invalid probabilities is tested in GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()</li>
-	 *     <li>The effects on the probability of adaptions actually taking place are tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
-	 *   </ul>
-	 * }
-	 *
-	 * @param val The new value of the probability for integer flips
+	 * @param probability The new value of the probability of adaptions taking place
 	 */
 	void setAdaptionProbability(const double& probability) {
 		// Check the supplied probability value
@@ -321,21 +318,69 @@ public:
 		adProb_ = probability;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Setting of valid probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Checks for setting of invalid probabilities is tested in GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * The effects on the probability of adaptions actually taking place are tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/***********************************************************************************/
 	/**
 	 * Retrieves the current value of the adaption probability
-	 *
-	 * @test {
-	 * 	 <ul>
-	 *     <li>retrieval of probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
-	 *   </ul>
-	 * }
 	 *
 	 * @return The current value of the adaption probability
 	 */
 	double getAdaptionProbability() const {
 		return adProb_;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Retrieval of probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/***********************************************************************************/
+	/**
+	 * Sets the probability for the adaption of adaption parameters
+	 *
+	 * @param probability The new value of the probability of adaptions of adaption parameters
+	 */
+	void setAdaptAdaptionProbability(const double& probability) {
+		// Check the supplied probability value
+		if(probability < 0. || probability > 1.) {
+			std::ostringstream error;
+			error << "In GAdaptorT<T>::setAdaptAdaptionProbability(const double&) : Error!" << std::endl
+				  << "Bad probability value given: " << probability << std::endl;
+
+			// throw an exception. Add some information so that if the exception
+			// is caught through a base object, no information is lost.
+			throw Gem::Common::gemfony_error_condition(error.str());
+		}
+
+		adaptAdaptionProbability_ = probability;
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Setting of valid probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Checks for setting of invalid probabilities is tested in GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/***********************************************************************************/
+	/**
+	 * Retrieves the current value of the adaptAdaptionProbability_ variable
+	 *
+	 * @return The current value of the adaptAdaptionProbability_ variable
+	 */
+	double getAdaptAdaptionProbability() const {
+		return adaptAdaptionProbability_;
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Retrieval of probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/***********************************************************************************/
 	/**
@@ -346,6 +391,12 @@ public:
 	virtual boost::uint32_t getAdaptionCounter() const  {
 		return adaptionCounter_;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * It is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests() that the
+	 * adaption counter does not exceed the set adaption threshold
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/***********************************************************************************/
 	/**
@@ -358,6 +409,11 @@ public:
 		adaptionThreshold_ = adaptionThreshold;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Setting of adaption thresholds is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/***********************************************************************************/
 	/**
 	 * Retrieves the value of the adaptionThreshold_ variable.
@@ -368,6 +424,11 @@ public:
 		return adaptionThreshold_;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Retrieval of adaption threshold is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/***********************************************************************************/
 	/**
 	 * Allows to specify whether adaptions should happen always, never, or with a given
@@ -375,28 +436,21 @@ public:
 	 * virtual so adaptors requiring adaptions to happen always or never can prevent
 	 * resetting of the adaptionMode_ variable.
 	 *
-	 * @test {
-	 * 	 <ul>
-	 *     <li>Setting of the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
-	 *     <li>The effect of setting the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
-	 *   </ul>
-	 * }
-	 *
 	 * @param adaptionMode The desired mode (always/never/with a given probability)
 	 */
 	virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
 		adaptionMode_ = adaptionMode;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Setting of the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * The effect of setting the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/***********************************************************************************/
 	/**
 	 * Returns the current value of the adaptionMode_ variable
-	 *
-	 * @test {
-	 * 	 <ul>
-	 *     <li>Retrieval of the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()</li>
-	 *   </ul>
-	 * }
 	 *
 	 * @return The current value of the adaptionMode_ variable
 	 */
@@ -404,24 +458,31 @@ public:
 		return adaptionMode_;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Retrieval of the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/***********************************************************************************/
 	/**
-	 * Common interface for all adaptors to the adaption
-	 * functionality. The user specifies this functionality in the
-	 * customAdaptions() function.
+	 * Common interface for all adaptors to the adaption functionality. The user
+	 * specifies the actual actions in the customAdaptions() function.
 	 *
 	 * @param val The value that needs to be adapted
 	 */
-	void adapt(T& val)  {
+	void adapt(T& val) {
 		if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate
-			if(gr->uniform_01() <= adProb_) {
-				// The adaption parameters are modified every adaptionThreshold_ number
-				// of adaptions.
-				// TODO: Better outside of the above if statement ?
-				// TODO: Rather than counting, can we use a probability ?
-				if(adaptionThreshold_ && adaptionCounter_++ >= adaptionThreshold_){
-					adaptionCounter_ = 0;
-					adaptAdaption();
+			if(gr->uniform_01() <= adProb_) { // Should we perform adaption
+				// The adaption parameters are modified every adaptionThreshold_ number of adaptions.
+				if(adaptionThreshold_) {
+					if(++adaptionCounter_ >= adaptionThreshold_){
+						adaptionCounter_ = 0;
+						adaptAdaption();
+					}
+				} else if(adaptAdaptionProbability_) { // Do the same with probability settings
+					if(gr->uniform_01() <= adaptAdaptionProbability_) {
+						adaptAdaption();
+					}
 				}
 
 				customAdaptions(val);
@@ -430,8 +491,14 @@ public:
 		else if(adaptionMode_) { // always adapt
 			customAdaptions(val);
 		}
+
 		// No need to test for adaptionMode_ == false as no action is needed in this case
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Adaption is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/***********************************************************************************/
 	/**
@@ -440,10 +507,51 @@ public:
 	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
 	 */
 	void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+#ifdef DEBUG
+		if(!gr_cp) {
+			std::ostringstream error;
+			error << "In GAdaptorT<T>::assignGRandomPointer() : Error!" << std::endl
+				  << "Tried to assign NULL pointer" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#endif
+
 		gr = gr_cp;
-		if(gr_local) delete gr_local;
-		gr_local = NULL;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Assigning a random number generator is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/***********************************************************************************/
+	/**
+	 * Re-connects the local random number generator to gr.
+	 */
+	void resetGRandomPointer() {
+		gr = gr_local;
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Resetting random number generator is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/***********************************************************************************/
+	/**
+	 * Checks whether the local random number generator is used. This is simply done
+	 * by comparing the two pointers.
+	 *
+	 * @bool A boolean indicating whether the local random number generator is used
+	 */
+	bool usesLocalRNG() const {
+		return gr == gr_local;
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Used in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 protected:
 	/***********************************************************************************/
@@ -478,6 +586,7 @@ protected:
 		adaptionThreshold_ = p_load->adaptionThreshold_;
 		adProb_ = p_load->adProb_;
 		adaptionMode_ = p_load->adaptionMode_;
+		adaptAdaptionProbability_ = p_load->adaptAdaptionProbability_;
 	}
 
 	/***********************************************************************************/
@@ -509,6 +618,7 @@ private:
 	boost::uint32_t adaptionThreshold_; ///< Specifies after how many adaptions the adaption itself should be adapted
 	double adProb_; ///< internal representation of the adaption probability
 	boost::logic::tribool adaptionMode_; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
+	double adaptAdaptionProbability_; ///< Influences the likelihood for the adaption of the adaption parameters
 
 #ifdef GENEVATESTING
 public:
@@ -523,6 +633,16 @@ public:
 
 		// Call the parent classes' functions
 		if(GObject::modify_GUnitTests()) result = true;
+
+		// Modify some local parameters
+		if(this->getAdaptionProbability() <= 0.5) {
+			this->setAdaptionProbability(0.75);
+		}
+		else {
+			this->setAdaptionProbability(0.25);
+		}
+
+		result = true;
 
 		return result;
 	}
@@ -641,32 +761,6 @@ public:
 		{ // Check setting and retrieval of the adaption mode
 			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
 
-			// Check the default setting
-			if(DEFAULTADAPTIONMODE) { // true
-				BOOST_CHECK_MESSAGE (
-						p_test->getAdaptionMode()
-						,  "\n"
-						<< "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-						<< "DEFAULTADAPTIONMODE       = " << DEFAULTADAPTIONMODE << "\n"
-				);
-			}
-			else if(!DEFAULTADAPTIONMODE) { // false
-				BOOST_CHECK_MESSAGE (
-						!(p_test->getAdaptionMode())
-						,  "\n"
-						<< "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-						<< "DEFAULTADAPTIONMODE       = " << DEFAULTADAPTIONMODE << "\n"
-				);
-			}
-			else { // indeterminate
-				BOOST_CHECK_MESSAGE (
-						boost::logic::indeterminate(p_test->getAdaptionMode())
-						,  "\n"
-						<< "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-						<< "DEFAULTADAPTIONMODE)      = " << DEFAULTADAPTIONMODE << "\n"
-				);
-			}
-
 			// Check setting of the different allowed values
 			// false
 			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(false));
@@ -740,6 +834,181 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+		{ // Test of GAdaptorT<T>::set/getAdaptAdaptionProbability()
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// The adaption probability should have been cloned
+			BOOST_CHECK_MESSAGE(
+					p_test->getAdaptAdaptionProbability() == this->getAdaptAdaptionProbability()
+					,  "\n"
+					<< "p_test->getAdaptAdaptionProbability() = " << p_test->getAdaptAdaptionProbability() << "\n"
+					<< "this->getAdaptAdaptionProbability() = " << this->getAdaptAdaptionProbability() << "\n"
+			);
+
+			// Set the adaption probability to a sensible value and check the new setting
+			double testAdProb = 0.5;
+			BOOST_CHECK_NO_THROW(
+					p_test->setAdaptAdaptionProbability(testAdProb);
+			);
+			BOOST_CHECK_MESSAGE(
+					p_test->getAdaptAdaptionProbability() == testAdProb
+					,  "\n"
+					<< "p_test->getAdaptAdaptionProbability() = " << p_test->getAdaptAdaptionProbability() << "\n"
+					<< "testAdProb = " << testAdProb << "\n"
+			);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test retrieval and setting of the adaption threshold and whether the adaptionCounter behaves nicely
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// Make sure we have the right adaption mode
+			p_test->setAdaptionMode(boost::logic::indeterminate);
+			// Make sure we always adapt
+			p_test->setAdaptionProbability(1.0);
+
+			// The value that will be adapted
+			T testVal = T(0);
+			T oldTestVal = T(0);
+
+			// The old adaption counter
+			boost::uint32_t oldAdaptionCounter=p_test->getAdaptionCounter();
+
+			// Set the adaption threshold to a specific value
+			for(boost::uint32_t adThr=10; adThr>0; adThr--) {
+				// Just make sure our logic is right and we stay in the right window
+				assert(adThr >= 0 && adThr<=10);
+
+				BOOST_CHECK_NO_THROW(p_test->setAdaptionThreshold(adThr));
+				BOOST_CHECK_MESSAGE(
+						p_test->getAdaptionThreshold() == adThr
+						,  "\n"
+						<< "p_test->getAdaptionThreshold() = " << p_test->getAdaptionThreshold() << "\n"
+						<< "adThr = " << adThr << "\n"
+				);
+
+				// Check that the adaption counter does not exceed the threshold by
+				// adapting a value a number of times > adThr
+				for(boost::uint32_t adCnt=0; adCnt<3*adThr; adCnt++) {
+					// Do the actual adaption
+					p_test->adapt(testVal);
+
+					// Check that testVal has indeed been adapted
+					BOOST_CHECK_MESSAGE(
+							testVal != oldTestVal
+							,  "\n"
+							<< "testVal = " << testVal << "\n"
+							<< "oldTestVal = " << oldTestVal << "\n"
+							<< "adThr = " << adThr << "\n"
+							<< "adCnt = " << adCnt << "\n"
+					);
+					oldTestVal = testVal;
+
+					// Check that the adaption counter has changed at all, as it should
+					// for adaption thresholds > 1
+					if(adThr > 1) {
+						BOOST_CHECK_MESSAGE(
+								p_test->getAdaptionCounter() != oldAdaptionCounter
+								,  "\n"
+								<< "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
+								<< "oldAdaptionCounter = " << oldAdaptionCounter << "\n"
+								<< "adThr = " << adThr << "\n"
+								<< "adCnt = " << adCnt << "\n"
+						);
+						oldAdaptionCounter = p_test->getAdaptionCounter();
+					}
+
+					// Check that the adaption counter is behaving nicely
+					BOOST_CHECK_MESSAGE(
+							p_test->getAdaptionCounter() < adThr
+							, "\n"
+							<< "p_test->getAdaptionCounter() = " << p_test->getAdaptionCounter() << "\n"
+							<< "adThr = " << adThr << "\n"
+							<< "adCnt = " << adCnt << "\n"
+					);
+				}
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check adding and resetting of random number generators
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// Always adapt
+			p_test->setAdaptionMode(true);
+
+			// A cloned adaptor should have a local random number generator, as it is default-constructed
+			BOOST_CHECK(p_test->usesLocalRNG());
+
+			// Some values that will be adapted
+			T testVal = T(0);
+			T oldTestVal = T(0);
+
+			// Check that we have adaption powers when using a local random number generator
+			for(std::size_t i=0; i<1000; i++) {
+				p_test->adapt(testVal);
+				BOOST_CHECK_MESSAGE(
+						testVal != oldTestVal
+						,  "(1)\n"
+						<< "testVal = " << testVal << "\n"
+						<< "oldTestVal = " << oldTestVal << "\n"
+						<< "iteration = " << i << "\n"
+				);
+				oldTestVal = testVal;
+			}
+
+			// Assign a factory generator
+			Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>();
+
+			BOOST_CHECK_NO_THROW(p_test->assignGRandomPointer(gr_test));
+
+			// Has the generator been assigned ?
+			BOOST_CHECK(!p_test->usesLocalRNG());
+
+			// Check that we have adaption powers when using the new random number generator
+			testVal = T(0);
+			oldTestVal = T(0);
+			for(std::size_t i=0; i<1000; i++) {
+				p_test->adapt(testVal);
+				BOOST_CHECK_MESSAGE(
+						testVal != oldTestVal
+						,  "(2)\n"
+						<< "testVal = " << testVal << "\n"
+						<< "oldTestVal = " << oldTestVal << "\n"
+						<< "iteration = " << i << "\n"
+				);
+				oldTestVal = testVal;
+			}
+
+			// Make sure we use the local generator again
+			BOOST_CHECK_NO_THROW(p_test->resetGRandomPointer());
+
+			// Get rid of the test generator
+			delete gr_test;
+
+			// We should now be using a local random number generator again
+			BOOST_CHECK(p_test->usesLocalRNG());
+
+			// Check that we have adaption powers when using the local random number generator again
+			testVal = T(0);
+			oldTestVal = T(0);
+			for(std::size_t i=0; i<1000; i++) {
+				p_test->adapt(testVal);
+				BOOST_CHECK_MESSAGE(
+						testVal != oldTestVal
+						,  "(3)\n"
+						<< "testVal = " << testVal << "\n"
+						<< "oldTestVal = " << oldTestVal << "\n"
+						<< "iteration = " << i << "\n"
+				);
+				oldTestVal = testVal;
+			}
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/***********************************************************************************/
@@ -770,9 +1039,33 @@ public:
 		{ // Test of GAdaptorT<T>::setAdaptionProbability(): Setting a value > 1. should throw
 			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
 
-			// Setting a probability < 0 should throw
+			// Setting a probability > 1 should throw
 			BOOST_CHECK_THROW(
 					p_test->setAdaptionProbability(2.);
+					, Gem::Common::gemfony_error_condition
+			);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test of GAdaptorT<T>::setAdaptAdaptionProbability(): Setting a value < 0. should throw
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// Setting a probability < 0 should throw
+			BOOST_CHECK_THROW(
+					p_test->setAdaptAdaptionProbability(-1.);
+					, Gem::Common::gemfony_error_condition
+			);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test of GAdaptorT<T>::setAdaptAdaptionProbability(): Setting a value > 1. should throw
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// Setting a probability > 1 should throw
+			BOOST_CHECK_THROW(
+					p_test->setAdaptAdaptionProbability(2.);
 					, Gem::Common::gemfony_error_condition
 			);
 		}

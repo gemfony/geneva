@@ -288,6 +288,9 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 	//------------------------------------------------------------------------------
+	// Note to self: Test the effects of the adaptAdaptionProbability -- how often
+	// are the adaption settings adapted for a specific probability ?
+	//------------------------------------------------------------------------------
 }
 
 /*******************************************************************************************/

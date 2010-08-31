@@ -93,7 +93,7 @@ namespace Gem
     const double DEFAULTMINVAR=-10.;
     const double DEFAULTMAXVAR=10.;
     const boost::uint16_t DEFAULTEVALFUNCTION=0;
-    const boost::uint32_t DEFAULTADAPTIONTHRESHOLD=1;
+    const boost::uint32_t DEFAULTADAPTIONTHRESHOLDAP=1;
     const double DEFAULTGDAADPROB=0.05;
     const bool DEFAULTRETURNREGARDLESS=true;
     const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;

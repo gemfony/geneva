@@ -66,11 +66,12 @@ using namespace boost::unit_test;
 
 #include "GStandard_test.hpp"
 
-// For reasons that are not understood the export statements in the
+// For reasons that are not understood, some export statements in the
 // .cpp files do not get pulled in here. We get an error "unregistered class"
-// when these two statements are not present below.
+// when these statements are not present below.
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
+BOOST_CLASS_EXPORT(Gem::Geneva::GSwarm)
 
 using namespace Gem::Hap;
 using namespace Gem::Geneva;
@@ -114,7 +115,7 @@ public:
 		typedef boost::mpl::list<
 			GEvolutionaryAlgorithm
 			, GMultiThreadedEA
-			, GSwarm
+			//, GSwarm
 			//, GMultiThreadedSwarm
 		>
 		algorithm_types;

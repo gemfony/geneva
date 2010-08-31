@@ -62,10 +62,10 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 {
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
-	// Initialize with the default number of members in each neighborhood. adjustPopulation() will
-	// later take care to fill the population with individuals as needed.
+	// Initialize with 0. adjustPopulation() will later take care to fill the population with individuals as needed.
+	// and set the array to the correct values
 	for(std::size_t i=0; i<nNeighborhoods_; i++) {
-		nNeighborhoodMembers_[i] = defaultNNeighborhoodMembers_;
+		nNeighborhoodMembers_[i] = 0;
 	}
 }
 
@@ -187,12 +187,27 @@ void GSwarm::load_(const GObject *cp)
 		// Copy the local bests and number of neighborhood members over
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {
 			nNeighborhoodMembers_[i] = p_load->nNeighborhoodMembers_[i];
-			local_bests_[i] = p_load->local_bests_[i]->clone<GParameterSet>();
+			// The following only makes sense if this is not the first iteration. Note that
+			// getIteration will return the "foreign" GSwarm object's iteration, as it has
+			// already been copied.
+			if(getIteration() > 0) {
+				local_bests_[i] = p_load->local_bests_[i]->clone<GParameterSet>();
+			}
+			// we do not need to reset the local_bests_, as that array has just been created
 		}
 	}
-	else { // We now assume that we can just load local bests in each position
-		for(std::size_t i=0; i<nNeighborhoods_; i++) {
-			local_bests_[i]->GObject::load(p_load->local_bests_[i]);
+	else { // We now assume that we can just load local bests in each position.
+		// Copying only makes sense of the foreign GSwarm object's iteration is > 0.
+		// Note that getIteration() will return the foreign iteration, as that value
+		// has already been copied.
+		if(getIteration() > 0) {
+			for(std::size_t i=0; i<nNeighborhoods_; i++) {
+				local_bests_[i]->GObject::load(p_load->local_bests_[i]);
+			}
+		} else {
+			for(std::size_t i=0; i<nNeighborhoods_; i++) {
+				local_bests_[i].reset();
+			}
 		}
 	}
 
@@ -290,9 +305,12 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
 			std::string local = "nNeighborhoodMembers_[" + boost::lexical_cast<std::string>(i) + "]";
 			std::string remote = "(p_load->nNeighborhoodMembers_)[" + boost::lexical_cast<std::string>(i) + "]";
 			deviations.push_back(checkExpectation(withMessages, "GSwarm", nNeighborhoodMembers_[i], (p_load->nNeighborhoodMembers_)[i], local, remote, e , limit));
-		}
 
-		deviations.push_back(checkExpectation(withMessages, "GSwarm", local_bests_, p_load->local_bests_, "local_bests_", "p_load->local_bests_", e , limit));
+			// No local bests have been assigned yet in iteration 0
+			if(getIteration() > 0) {
+				deviations.push_back(checkExpectation(withMessages, "GSwarm", local_bests_[i], p_load->local_bests_[i], local, remote, e , limit));
+			}
+		}
 	}
 
 	return evaluateDiscrepancies("GSwarm", caller, deviations, e);
@@ -880,12 +898,20 @@ void GSwarm::adjustPopulation() {
 			this->back()->randomInit();
 			this->back()->getSwarmPersonalityTraits()->setNoPositionUpdate();
 		}
+
+		// Update the number of individuals in each neighborhood
+		for(std::size_t n=0; n<nNeighborhoods_; n++) {
+			nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
+		}
 	}
 	else if(currentSize == nNeighborhoods_) {
 		fillUpNeighborhood1();
 	}
 	else if(currentSize == defaultPopSize) { // The default size
-		// nothing to do
+		// Update the number of individuals in each neighborhood
+		for(std::size_t n=0; n<nNeighborhoods_; n++) {
+			nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
+		}
 	}
 	else {
 		if(currentSize < nNeighborhoods_) {
@@ -921,8 +947,18 @@ void GSwarm::adjustPopulation() {
 				this->back()->randomInit();
 				this->back()->getSwarmPersonalityTraits()->setNoPositionUpdate();
 			}
+
+			// Update the number of individuals in each neighborhood
+			for(std::size_t n=0; n<nNeighborhoods_; n++) {
+				nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
+			}
 		}
 		else { // currentSize > defaultPopsize
+			// Update the number of individuals in each neighborhood
+			for(std::size_t n=0; n<nNeighborhoods_-1; n++) {
+				nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
+			}
+
 			// Adjust the nNeighborhoodMembers_ array. The surplus items will
 			// be assumed to belong to the last neighborhood, all other neighborhoods
 			// have the default size.
@@ -960,6 +996,9 @@ void GSwarm::fillUpNeighborhood1() {
 			(*(this->begin()+n+1))->randomInit();
 			(*(this->begin()+n+1))->getSwarmPersonalityTraits()->setNoPositionUpdate();
 		}
+
+		// Update the number of individuals in each neighborhood
+		nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
 	}
 }
 
