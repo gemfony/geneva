@@ -247,15 +247,6 @@ void GSwarmPersonalityTraits::resetCommand() {
 	command_ = "";
 }
 
-
-/*****************************************************************************/
-/**
- * Updates the parameters of the individual
- */
-void GSwarmPersonalityTraits::updateParameters() {
-	/* nothing yet */
-}
-
 #ifdef GENEVATESTING
 /*****************************************************************************/
 /**

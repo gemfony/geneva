@@ -130,9 +130,6 @@ public:
 	/** @brief Retrieves and resets the current value of the noPositionUpdate_ flag */
 	bool checkNoPositionUpdateAndReset();
 
-	/** @brief Triggers the update of GParameterSet derivatives */
-	void updateParameters();
-
 protected:
 	/** @brief Loads the data of another GSwarmPersonalityTraits object */
 	virtual void load_(const GObject*);
