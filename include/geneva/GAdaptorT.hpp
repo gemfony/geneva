@@ -1080,7 +1080,8 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Check that assigning a NULL pointer for the random number generator throws
+#ifdef DEBUG
+		{ // Check that assigning a NULL pointer for the random number generator throws in DEBUG mode
 			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
 
 			// Assigning a NULL pointer should throw
@@ -1089,8 +1090,10 @@ public:
 					, Gem::Common::gemfony_error_condition
 			);
 		}
+#endif /* DEBUG */
 
 		//------------------------------------------------------------------------------
+
 
 		{ // Check that resetting the random number generator throws if gr_local is NULL
 			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();

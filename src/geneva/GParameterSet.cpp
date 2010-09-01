@@ -199,11 +199,13 @@ bool GParameterSet::updateOnStall() {
 
 	}
 
-	GIndividual::updateOnStall();
-
-	return false;
+	return GIndividual::updateOnStall();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Throwing of an exception is tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**

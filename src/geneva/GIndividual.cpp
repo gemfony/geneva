@@ -477,7 +477,7 @@ boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
 
 /* ----------------------------------------------------------------------------------
  * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
- * Tested in GIndividual::specificTestsFailureExpected_GUnitTests()
+ * Tested in GIndividual::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -494,7 +494,7 @@ boost::shared_ptr<GEAPersonalityTraits> GIndividual::getEAPersonalityTraits() {
 
 /* ----------------------------------------------------------------------------------
  * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
- * Tested in GIndividual::specificTestsFailureExpected_GUnitTests()
+ * Tested in GIndividual::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -547,6 +547,11 @@ bool GIndividual::updateOnStall() {
 	return updatePerformed;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Updates the object's structure and/or parameters, if the optimization has
@@ -564,6 +569,11 @@ bool GIndividual::updateOnStall() {
 bool GIndividual::customUpdateOnStall() {
 	return false;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -650,7 +660,6 @@ bool GIndividual::process(){
 				std::ostringstream error;
 				error << "In GIndividual::process(//EA//): Unknown command: \""
 						<< getPersonalityTraits()->getCommand() << "\"" << std::endl;
-
 				throw Gem::Common::gemfony_error_condition(error.str());
 			}
 		}
@@ -666,7 +675,6 @@ bool GIndividual::process(){
 				std::ostringstream error;
 				error << "In GIndividual::process(//SWARM//): Unknown command: \""
 					  << getPersonalityTraits()->getCommand() << "\"" << std::endl;
-
 				throw Gem::Common::gemfony_error_condition(error.str());
 			}
 
@@ -696,6 +704,12 @@ bool GIndividual::process(){
 	// Let the audience know
 	return gotUsefulResult;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
