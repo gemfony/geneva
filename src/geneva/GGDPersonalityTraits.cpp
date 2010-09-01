@@ -171,6 +171,12 @@ void GGDPersonalityTraits::setCommand(const std::string& command) {
 	command_ = command;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GGDPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /*****************************************************************************/
 /**
  * Retrieves the command to be performed by a remote client.
@@ -178,8 +184,24 @@ void GGDPersonalityTraits::setCommand(const std::string& command) {
  * @return The command to be performed by a remote client.
  */
 std::string GGDPersonalityTraits::getCommand() const {
+#ifdef DEBUG
+	// Some error checking
+	if(command_.empty() || command_=="" || command_=="empty") {
+		std::ostringstream error;
+		error << "In GGDPersonalityTraits::getCommand(): Error " << std::endl
+			  << "Tried to retrieve a command while a command hasn't been set" << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+
 	return command_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GGDPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /*****************************************************************************/
 /**
@@ -188,6 +210,11 @@ std::string GGDPersonalityTraits::getCommand() const {
 void GGDPersonalityTraits::resetCommand() {
 	command_ = "";
 }
+
+/* ----------------------------------------------------------------------------------
+ * Used in GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 #ifdef GENEVATESTING
 /*****************************************************************************/
@@ -210,8 +237,26 @@ bool GGDPersonalityTraits::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GGDPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of the allowed commands
+		boost::shared_ptr<GGDPersonalityTraits> p_test = this->clone<GGDPersonalityTraits>();
+
+		BOOST_CHECK_NO_THROW(p_test->setCommand("evaluate"));
+		BOOST_CHECK(p_test->getCommand() == "evaluate");
+	}
+
+	//------------------------------------------------------------------------------
+
+
+
+	//------------------------------------------------------------------------------
 }
 
 /*****************************************************************************/
@@ -219,8 +264,36 @@ void GGDPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+#ifdef DEBUG
+	{ // Test that retrieval of an unset command throws in DEBUG mode
+		boost::shared_ptr<GGDPersonalityTraits> p_test = this->clone<GGDPersonalityTraits>();
+
+		// Reset the command string
+		BOOST_CHECK_NO_THROW(p_test->resetCommand());
+
+		// Try to retrieve the command string
+		BOOST_CHECK_THROW(p_test->getCommand(), Gem::Common::gemfony_error_condition);
+	}
+#endif /* DEBUG */
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that setting any other command than "evaluate" or "adapt" throws
+		boost::shared_ptr<GGDPersonalityTraits> p_test = this->clone<GGDPersonalityTraits>();
+
+		// Try to set an unknown command
+		BOOST_CHECK_THROW(p_test->setCommand("abc"), Gem::Common::gemfony_error_condition);
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /*****************************************************************************/
