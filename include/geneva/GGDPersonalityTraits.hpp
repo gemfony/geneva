@@ -108,6 +108,8 @@ public:
 	virtual void setCommand(const std::string&);
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const;
+	/** @brief Resets the command string */
+	virtual void resetCommand();
 
 protected:
 	/** @brief Loads the data of another GGDPersonalityTraits object */

@@ -114,6 +114,8 @@ public:
 	virtual void setCommand(const std::string&) = 0;
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const = 0;
+	/** @brief Resets the command string */
+	virtual void resetCommand() = 0;
 
 protected:
 	/** @brief Loads the data of another GPersonalityTraits object */

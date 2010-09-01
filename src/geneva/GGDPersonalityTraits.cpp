@@ -181,6 +181,14 @@ std::string GGDPersonalityTraits::getCommand() const {
 	return command_;
 }
 
+/*****************************************************************************/
+/**
+ * Resets the command string
+ */
+void GGDPersonalityTraits::resetCommand() {
+	command_ = "";
+}
+
 #ifdef GENEVATESTING
 /*****************************************************************************/
 /**

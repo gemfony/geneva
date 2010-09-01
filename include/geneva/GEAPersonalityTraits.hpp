@@ -107,15 +107,15 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Checks whether this is a parent individual */
-	bool isParent() const ;
-	/** @brief Retrieves the current value of the parentCounter_ variable */
-	boost::uint32_t getParentCounter() const ;
-
 	/** @brief Marks an individual as a parent*/
 	bool setIsParent();
 	/** @brief Marks an individual as a child */
 	bool setIsChild();
+
+	/** @brief Checks whether this is a parent individual */
+	bool isParent() const ;
+	/** @brief Retrieves the current value of the parentCounter_ variable */
+	boost::uint32_t getParentCounter() const ;
 
 	/** @brief Sets the position of the individual in the population */
 	void setPopulationPosition(std::size_t) ;
@@ -126,6 +126,8 @@ public:
 	virtual void setCommand(const std::string&);
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const;
+	/** @brief Resets the command string */
+	virtual void resetCommand();
 
 	/** @brief Stores the parent's id with this object */
 	void setParentId(const std::size_t&);

@@ -162,6 +162,8 @@ bool GPersonalityTraits::modify_GUnitTests() {
 void GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsNoFailureExpected_GUnitTests();
+
+	// No local data -- nothing to test
 }
 
 /*****************************************************************************/
@@ -171,6 +173,8 @@ void GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 void GPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsFailuresExpected_GUnitTests();
+
+	// No local data -- nothing to test
 }
 
 /*****************************************************************************/

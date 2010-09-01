@@ -115,6 +115,8 @@ public:
 	virtual void setCommand(const std::string&);
 	/** @brief Retrieves the command to be performed by a remote client. */
 	virtual std::string getCommand() const;
+	/** @brief Resets the command string */
+	virtual void resetCommand();
 
 	/** @brief Specifies in which neighborhood the individual is at present */
 	void setNeighborhood(const std::size_t&) ;
