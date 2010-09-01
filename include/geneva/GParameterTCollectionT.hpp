@@ -329,15 +329,66 @@ public:
 	/*******************************************************************************************/
 	/**
 	 * Assigns a random number generator from another object to all objects stored in this
-	 * collection
+	 * collection and to the object itself.
 	 *
 	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
 	 */
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+		// Do some error checking
+		if(!gr_cp) {
+			std::ostringstream error;
+			error << "In GParameterTCollectionT<T>::assignGRandomPointer(): Error!" << std::endl
+				  << "Tried to assign a NULL pointer" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// Assign the foreign pointer to all objects stored in this collection
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->assignGRandomPointer(gr_cp);
 		}
+
+		// Assign the foreign pointer to this object as well
+		GParameterBase::assignGRandomPointer(gr_cp);
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Re-connects the local random number generator to gr and distributes the call
+	 * to all objects contained in this collection class.
+	 */
+	void resetGRandomPointer() {
+		// Reset all objects stored in this collection
+		typename GParameterTCollectionT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->resetGRandomPointer();
+		}
+
+		// Reset our parent class
+		GParameterBase::resetGRandomPointer();
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Checks whether solely the local random number generator is used. The function returns
+	 * false if at least one component of this class does not use a local random number
+	 * generator
+	 *
+	 * @bool A boolean indicating whether solely the local random number generator is used
+	 */
+	bool usesLocalRNG() const {
+		bool result = true;
+
+		// Check all components of this class
+		typename GParameterTCollectionT<T>::const_iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			if(!(*it)->usesLocalRNG()) result = false;
+		}
+
+		// Check our parent class
+		if(!GParameterBase::usesLocalRNG()) result = false;
+
+		return result;
 	}
 
 protected:

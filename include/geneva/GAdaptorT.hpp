@@ -520,7 +520,8 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Assigning a random number generator is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * - Assigning a random number generator is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * - Assigning a NULL pointer is tested in GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -529,11 +530,18 @@ public:
 	 * Re-connects the local random number generator to gr.
 	 */
 	void resetGRandomPointer() {
-		gr = gr_local;
+		if(gr_local) gr = gr_local;
+		else {
+			std::ostringstream error;
+			error << "In GAdaptorT<T>::resetGRandomPointer() : Error!" << std::endl
+				  << "Tried to assign NULL pointer" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Resetting random number generator is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * - Resetting random number generator is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * - throw is untested
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -1013,7 +1021,7 @@ public:
 
 	/***********************************************************************************/
 	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
+	 * Performs self tests that are expected to fail. This is needed for testing purposes.
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		using boost::unit_test_framework::test_suite;
@@ -1066,6 +1074,33 @@ public:
 			// Setting a probability > 1 should throw
 			BOOST_CHECK_THROW(
 					p_test->setAdaptAdaptionProbability(2.);
+					, Gem::Common::gemfony_error_condition
+			);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assigning a NULL pointer for the random number generator throws
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			// Assigning a NULL pointer should throw
+			BOOST_CHECK_THROW(
+					p_test->assignGRandomPointer(NULL);
+					, Gem::Common::gemfony_error_condition
+			);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that resetting the random number generator throws if gr_local is NULL
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			p_test->gr_local = NULL;
+
+			// Resetting the pointer should throw, if gr_local is NULL (which it technically
+			// should never be able to become
+			BOOST_CHECK_THROW(
+					p_test->resetGRandomPointer();
 					, Gem::Common::gemfony_error_condition
 			);
 		}

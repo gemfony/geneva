@@ -304,13 +304,40 @@ public:
 
 	/*******************************************************************************************/
 	/**
-	 * Assigns a random number generator from another object.
+	 * Assigns a random number generator from another object to this object and any adaptor
+	 * contained herein.
 	 *
 	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
 	 */
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
 		if(adaptor_) adaptor_->assignGRandomPointer(gr_cp);
 		GParameterBase::assignGRandomPointer(gr_cp);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Re-connects the local random number generator to gr and tells the adaptor to do the same.
+	 */
+	virtual void resetGRandomPointer() {
+		if(adaptor_) adaptor_->resetGRandomPointer();
+		GParameterBase::resetGRandomPointer();
+	}
+
+	/***********************************************************************************/
+	/**
+	 * Checks whether the local random number generator is used in this class and in a
+	 * possible adaptor contained in this object. The result will be true only if both
+	 * this object and the adaptor (if available) contain a local random number generator.
+	 *
+	 * @bool A boolean indicating whether solely the local random number generator is used
+	 */
+	virtual bool usesLocalRNG() const {
+		bool result=true;
+
+		if(adaptor_ && !adaptor_->usesLocalRNG()) result=false;
+		if(!GParameterBase::usesLocalRNG()) result=false;
+
+		return result;
 	}
 
 protected:

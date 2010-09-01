@@ -67,7 +67,9 @@ GParameterBase::GParameterBase(const GParameterBase& cp)
  * The standard destructor. No local data, hence nothing to do.
  */
 GParameterBase::~GParameterBase()
-{ /* nothing */ }
+{
+	if(gr_local) delete gr_local;
+}
 
 /**********************************************************************************/
 /**
@@ -193,9 +195,42 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
  * @param gr_cp A reference to another object's GRandomBaseT object derivative
  */
 void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+		if(!gr_cp) {
+			std::ostringstream error;
+			error << "In GParameterBase::assignGRandomPointer() : Error!" << std::endl
+				  << "Tried to assign NULL pointer" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
 	gr = gr_cp;
-	if(gr_local) delete gr_local;
-	gr_local = NULL;
+}
+
+/***********************************************************************************/
+/**
+ * Re-connects the local random number generator to gr. Derived collection classes
+ * may distribute this call to their sub-objects.
+ */
+void GParameterBase::resetGRandomPointer() {
+	if(gr_local) gr = gr_local;
+	else {
+		std::ostringstream error;
+		error << "In GParameterBase::resetGRandomPointer() : Error!" << std::endl
+			  << "Tried to assign NULL pointer" << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
+	gr = gr_local;
+}
+
+/***********************************************************************************/
+/**
+ * Checks whether the local random number generator is used. This is simply done
+ * by comparing the two pointers.
+ *
+ * @bool A boolean indicating whether the local random number generator is used
+ */
+bool GParameterBase::usesLocalRNG() const {
+	return gr == gr_local;
 }
 
 /**********************************************************************************/

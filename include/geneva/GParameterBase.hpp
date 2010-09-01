@@ -153,6 +153,10 @@ public:
 
 	/** @brief Assigns a random number generator from another object. */
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *);
+	/** @brief Re-connects the local random number generator to gr */
+	virtual void resetGRandomPointer();
+	/** @brief Checks whether the local random number generator is used */
+	virtual bool usesLocalRNG() const;
 
 	/**************************************************************************************************/
 	/**

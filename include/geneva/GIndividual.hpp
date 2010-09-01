@@ -67,6 +67,12 @@
 #include "GSwarmPersonalityTraits.hpp"
 
 namespace Gem {
+namespace Tests {
+class GTestIndividual1; // forward declaration
+} /* namespace Tests */
+} /* namespace Gem */
+
+namespace Gem {
 namespace Geneva {
 
 class GSwarm; // forward declaration
@@ -87,6 +93,7 @@ class GIndividual
 	, public GObject
 {
 	friend class GSwarm; ///< Needed so GSwarm can set the dirty flag
+	friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -180,8 +187,8 @@ public:
 
 	/**********************************************************************/
 	/**
-	 * The function converts the local personality to the desired type and
-	 * returns it for modification by the corresponding optimization algorithm.
+	 * The function converts the local personality base pointer to the desired type
+	 * and returns it for modification by the corresponding optimization algorithm.
 	 * The base algorithms have been declared "friend" of GParameterSet and
 	 * can thus access this function. External entities have no need to do so. Note
 	 * that this function will only be accessible to the compiler if personality_type
@@ -216,6 +223,12 @@ public:
 
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+	 * Tested in GIndividual::specificTestsFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 
 	/** @brief This function returns the current personality traits base pointer */
@@ -228,12 +241,16 @@ public:
 	boost::shared_ptr<GSwarmPersonalityTraits> getSwarmPersonalityTraits();
 
 	/** @brief Sets the current personality of this individual */
-	void setPersonality(const personality&);
+	personality setPersonality(const personality&);
 	/** @brief Resets the current personality to NONE */
 	void resetPersonality();
 
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
 	virtual void updateRNGs();
+	/** @brief Restores local random number generators contained in this object's GParameterBase-derivatives */
+	virtual void restoreRNGs();
+	/** @brief Checks whether all GParameterBase derivatives use local random number generators */
+	virtual bool localRNGsUsed() const;
 
 protected:
 	/** @brief Loads the data of another GObject */

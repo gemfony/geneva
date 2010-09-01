@@ -961,8 +961,14 @@ protected:
 	 * Allows to perform any remaining work after the optimization cycle has finished.
 	 * This function will usually be overloaded by derived functions.
 	 */
-	virtual void finalize()
-	{ /* nothing */ }
+	virtual void finalize()	{
+		// Tell all individuals in this collection to tell all GParameterBase derivatives
+		// to again use their local generators.
+		typename GOptimizationAlgorithmT<individual_type>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->restoreRNGs();
+		}
+	}
 
 	/**************************************************************************************/
 	/** @brief Resizes the population to the desired level and does some error checks */

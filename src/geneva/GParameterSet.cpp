@@ -371,11 +371,39 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
  * Updates the random number generators contained in this object's GParameterBase-derivatives
  */
 void GParameterSet::updateRNGs() {
-	Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_ptr = &(GMutableSetT<Gem::Geneva::GParameterBase>::gr);
 	GParameterSet::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)->assignGRandomPointer(gr_ptr);
+		(*it)->assignGRandomPointer(&(GMutableSetT<Gem::Geneva::GParameterBase>::gr));
 	}
+}
+
+/************************************************************************************************************/
+/**
+ * Restores the local random number generators contained in this object's GParameterBase-derivatives
+ */
+void GParameterSet::restoreRNGs() {
+	GParameterSet::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->resetGRandomPointer();
+	}
+}
+
+/************************************************************************************************************/
+/**
+ * Checks whether all GParameterBase derivatives use local random number generators. The function will return
+ * false if at least one object is found in this collection that does not use a local RNG.
+ *
+ * @return A boolean which indicates whether all objects in this collection use local random number generators
+ */
+bool GParameterSet::localRNGsUsed() const {
+	bool result = true;
+
+	GParameterSet::const_iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		if(!(*it)->usesLocalRNG()) result = false;
+	}
+
+	return result;
 }
 
 /************************************************************************************************************/

@@ -139,6 +139,10 @@ public:
 
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
 	virtual void updateRNGs();
+	/** @brief Restores the local random number generators contained in this object's GParameterBase-derivatives */
+	virtual void restoreRNGs();
+	/** @brief Checks whether all GParameterBase derivatives use local random number generators */
+	virtual bool localRNGsUsed() const;
 
 	/**********************************************************************/
 	/**

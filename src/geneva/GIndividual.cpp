@@ -196,6 +196,11 @@ void GIndividual::adapt() {
 	GIndividual::fitness(); // Trigger re-evaluation
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Returns the last known fitness calculation of this object. Re-calculation
@@ -220,6 +225,12 @@ double GIndividual::fitness() {
 	return currentFitness_;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * Test for throw in serverMode tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Retrieves the current (not necessarily up-to-date) fitness
@@ -232,9 +243,14 @@ double GIndividual::getCurrentFitness(bool& dirtyFlag) const  {
 	return currentFitness_;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
- * Enforces re-calculation of the fitness.
+ * Enforces re-calculation of the fitness. Mainly needed for testing purposes.
  *
  * @return The result of the fitness calculation
  */
@@ -243,6 +259,11 @@ double GIndividual::doFitnessCalculation() {
 	setDirtyFlag(false);
 	return currentFitness_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * untested
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -257,6 +278,12 @@ bool GIndividual::setServerMode(const bool& sM) {
 	return previous;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Setting is tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Test for throw of fitness() function in serverMode tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Checks whether the server mode is set
@@ -267,6 +294,11 @@ bool GIndividual::serverMode() const {
 	return serverMode_;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Retrieval is tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Checks whether the dirty flag is set
@@ -276,6 +308,11 @@ bool GIndividual::serverMode() const {
 bool GIndividual::isDirty() const  {
 	return dirtyFlag_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -288,6 +325,11 @@ void GIndividual::setMaxMode(const bool& mode) {
 	maximize_ = mode;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Setting is tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Allows to retrieve the maximize_ parameter
@@ -298,6 +340,11 @@ bool GIndividual::getMaxMode() const {
 	return maximize_;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Retrieval is tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Sets the dirtyFlag_. This is a "one way" function, accessible to the external
@@ -307,6 +354,12 @@ bool GIndividual::getMaxMode() const {
 void GIndividual::setDirtyFlag()  {
 	dirtyFlag_ = true;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -321,15 +374,26 @@ bool GIndividual::setDirtyFlag(const bool& dirtyFlag)  {
 	return previous;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Sets the current personality of this individual
  *
  * @param pers The desired personality of this individual
+ * @return The previous personality of this individual
  */
-void GIndividual::setPersonality(const personality& pers) {
-	if(pers_==pers && pt_ptr_)  return; // A suitable personality has already been added
+personality GIndividual::setPersonality(const personality& pers) {
+	// Make a note of the current (soon to be previous) personality
+	personality previous = pers_;
 
+	// Do nothing if this particular personality type has already been set
+	if(pers_==pers && pt_ptr_)  return pers_; // A suitable personality has already been added
+
+	// Create suitable personality objects
 	switch(pers) {
 	case NONE:
 		pt_ptr_.reset();
@@ -348,8 +412,18 @@ void GIndividual::setPersonality(const personality& pers) {
 		break;
 	}
 
+	// Update our local personality
 	pers_ = pers;
+
+	// Let the audience know the previous personality type
+	return previous;
 }
+
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -358,6 +432,11 @@ void GIndividual::setPersonality(const personality& pers) {
 void GIndividual::resetPersonality() {
 	setPersonality(NONE);
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -369,6 +448,11 @@ personality GIndividual::getPersonality() const {
 	return pers_;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * This function returns the current personality traits base pointer. Note that there
@@ -378,8 +462,24 @@ personality GIndividual::getPersonality() const {
  * @return A shared pointer to the personality traits base class
  */
 boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
+#ifdef DEBUG
+	// Do some error checking
+	if(!pt_ptr_) {
+		std::ostringstream error;
+		error << "In GIndividual::getPersonalityTraits(): Error!" << std::endl
+			  << "Pointer to personality traits object is empty." << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif
+
 	return pt_ptr_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GIndividual::specificTestsFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**************************************************************************************************/
 /**
@@ -392,6 +492,12 @@ boost::shared_ptr<GEAPersonalityTraits> GIndividual::getEAPersonalityTraits() {
 	return this->getPersonalityTraits<GEAPersonalityTraits>();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GIndividual::specificTestsFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**************************************************************************************************/
 /**
  * Convenience function to make the code more readable. Gives access to the gradient descent
@@ -403,6 +509,11 @@ boost::shared_ptr<GGDPersonalityTraits> GIndividual::getGDPersonalityTraits() {
 	return this->getPersonalityTraits<GGDPersonalityTraits>();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**************************************************************************************************/
 /**
  * Convenience function to make the code more readable. Gives access to the swarm algorithm
@@ -413,6 +524,11 @@ boost::shared_ptr<GGDPersonalityTraits> GIndividual::getGDPersonalityTraits() {
 boost::shared_ptr<GSwarmPersonalityTraits> GIndividual::getSwarmPersonalityTraits() {
 	return this->getPersonalityTraits<GSwarmPersonalityTraits>();
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -574,6 +690,9 @@ bool GIndividual::process(){
 	// Restore the serverMode_ flag
 	setServerMode(previousServerMode);
 
+	// Restore the local random number generators in the individuals
+	this->restoreRNGs();
+
 	// Let the audience know
 	return gotUsefulResult;
 }
@@ -590,11 +709,21 @@ void GIndividual::setProcessingCycles(const boost::uint32_t& processingCycles) {
 	processingCycles_= processingCycles;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /** @brief Retrieves the number of allowed processing cycles */
 boost::uint32_t GIndividual::getProcessingCycles() const {
 	return processingCycles_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -606,6 +735,11 @@ void GIndividual::setParentAlgIteration(const boost::uint32_t& parentAlgIteratio
 	parentAlgIteration_ = parentAlgIteration;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Gives access to the parent optimization algorithm's iteration
@@ -615,6 +749,11 @@ void GIndividual::setParentAlgIteration(const boost::uint32_t& parentAlgIteratio
 boost::uint32_t GIndividual::getParentAlgIteration() const {
 	return parentAlgIteration_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -626,6 +765,11 @@ void GIndividual::setBestKnownFitness(const double& bnf) {
 	bestPastFitness_ = bnf;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Retrieves the value of the globally best known fitness
@@ -635,6 +779,11 @@ void GIndividual::setBestKnownFitness(const double& bnf) {
 double GIndividual::getBestKnownFitness() const {
 	return bestPastFitness_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -646,6 +795,11 @@ void GIndividual::setNStalls(const boost::uint32_t& nStalls) {
 	nStalls_ = nStalls;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Allows to retrieve the number of optimization cycles without improvement
@@ -656,6 +810,11 @@ boost::uint32_t GIndividual::getNStalls() const {
 	return nStalls_;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GIndividual::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Updates the random number generators contained in this object's GParameterBase-derivatives. This function
@@ -663,6 +822,26 @@ boost::uint32_t GIndividual::getNStalls() const {
  */
 void GIndividual::updateRNGs()
 { /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * Restores the random number generators contained in this object's GParameterBase-derivatives. This function
+ * is filled with meaning in GParameterSet, but is empty for other GIndividual-derivatives.
+ */
+void GIndividual::restoreRNGs()
+{ /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * Checks whether all GParameterBase derivatives use local random number generators. This function
+ * is filled with meaning in GParameterSet, but is empty for other GIndividual-derivatives. In this
+ * dummy version the result will always be "true".
+ *
+ * @return A boolean indicating whether only local random number generators are used in the GParameterBase derivatives (return value will always be true)
+ */
+bool GIndividual::localRNGsUsed() const {
+	return true;
+}
 
 #ifdef GENEVATESTING
 
@@ -673,10 +852,20 @@ void GIndividual::updateRNGs()
  * @return A boolean which indicates whether modifications were made
  */
 bool GIndividual::modify_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	bool result = false;
 
 	// Call the parent class'es function
 	if(GObject::modify_GUnitTests()) result = true;
+
+	// Adaption of parameters through the adapt() call is done in GTestIndividual1.
+	// We do not know what is stored in this individual, hence we cannot modify
+	// parameters directly here in this class.
+
+	// A relatively harmless change
+	this->setProcessingCycles(this->getProcessingCycles() + 1);
 
 	return result;
 }
@@ -686,8 +875,239 @@ bool GIndividual::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GObject::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of the server mode flag
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		BOOST_CHECK_NO_THROW(p_test->setServerMode(true));
+		BOOST_CHECK(p_test->serverMode() == true);
+		BOOST_CHECK_NO_THROW(p_test->setServerMode(false));
+		BOOST_CHECK(p_test->serverMode() == false);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of the maximization mode flag
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		BOOST_CHECK_NO_THROW(p_test->setMaxMode(true));
+		BOOST_CHECK(p_test->getMaxMode() == true);
+		BOOST_CHECK_NO_THROW(p_test->setMaxMode(false));
+		BOOST_CHECK(p_test->getMaxMode() == false);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check setting of the dirty flag
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(true));
+		BOOST_CHECK(p_test->isDirty() == true);
+		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(false));
+		BOOST_CHECK(p_test->isDirty() == false);
+		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
+		BOOST_CHECK(p_test->isDirty() == true); // Note the missing argument -- this is a different function
+		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(false));
+		BOOST_CHECK(p_test->isDirty() == false);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of processing cycles
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		for(boost::uint32_t i=1; i<10; i++) {
+			BOOST_CHECK_NO_THROW(p_test->setProcessingCycles(i));
+			BOOST_CHECK_MESSAGE(
+					p_test->getProcessingCycles() == i
+					,  "\n"
+					<< "p_test->getProcessingCycles() = " << p_test->getProcessingCycles() << "\n"
+					<< "i = " << i << "\n"
+			);
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of the surrounding optimization algorithm's current iteration
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		for(boost::uint32_t i=1; i<10; i++) {
+			BOOST_CHECK_NO_THROW(p_test->setParentAlgIteration(i));
+			BOOST_CHECK_MESSAGE(
+					p_test->getParentAlgIteration() == i
+					,  "\n"
+					<< "p_test->getParentAlgIteration() = " << p_test->getParentAlgIteration() << "\n"
+					<< "i = " << i << "\n"
+			);
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of the best known fitness so far
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		for(double d=0.; d<1.; d+=0.1) {
+			BOOST_CHECK_NO_THROW(p_test->setBestKnownFitness(d));
+			BOOST_CHECK_MESSAGE(
+					p_test->getBestKnownFitness() == d
+					,  "\n"
+					<< "p_test->getBestKnownFitness() = " << p_test->getBestKnownFitness() << "\n"
+					<< "d = " << d << "\n"
+			);
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of the number of consecutive stalls
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		for(boost::uint32_t i=1; i<10; i++) {
+			BOOST_CHECK_NO_THROW(p_test->setNStalls(i));
+			BOOST_CHECK_MESSAGE(
+					p_test->getNStalls() == i
+					,  "\n"
+					<< "p_test->getNStalls() = " << p_test->getNStalls() << "\n"
+					<< "i = " << i << "\n"
+			);
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check setting and retrieval of the current personality status and whether the personalities themselves can be accessed
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+		boost::shared_ptr<GPersonalityTraits> p_pt;
+
+		// Reset the personality type
+		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
+		BOOST_CHECK_MESSAGE(
+				p_test->getPersonality() == NONE
+				,  "\n"
+				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
+				<< "expected NONE\n"
+		);
+
+		// Set the personality type to EA
+		personality previous;
+		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(EA));
+		BOOST_CHECK_MESSAGE(
+				previous == NONE
+				,  "\n"
+				<< "previous = " << previous << "\n"
+				<< "expected NONE"
+		);
+		BOOST_CHECK_MESSAGE(
+				p_test->getPersonality() == EA
+				,  "\n"
+				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
+				<< "expected EA\n"
+		);
+
+		// Try to retrieve a GEAPersonalityTraits object and check that the smart pointer actually points somewhere
+		boost::shared_ptr<GEAPersonalityTraits> p_pt_ea;
+		BOOST_CHECK_NO_THROW(p_pt_ea = p_test->getEAPersonalityTraits());
+		BOOST_CHECK(p_pt_ea);
+
+		// Retrieve the same object through a different method
+		p_pt_ea.reset();
+		BOOST_CHECK_NO_THROW(p_pt_ea = p_test->getPersonalityTraits<GEAPersonalityTraits>());
+		BOOST_CHECK(p_pt_ea);
+		p_pt_ea.reset();
+
+		// Retrieve a base pointer to the EA object and check that it points somewhere
+		BOOST_CHECK_NO_THROW(p_pt = p_test->getPersonalityTraits());
+		BOOST_CHECK(p_pt);
+		p_pt.reset();
+
+		// Set the personality type to GD
+		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(GD));
+		BOOST_CHECK_MESSAGE(
+				previous == EA
+				,  "\n"
+				<< "previous = " << previous << "\n"
+				<< "expected EA"
+		);
+		BOOST_CHECK_MESSAGE(
+				p_test->getPersonality() == GD
+				,  "\n"
+				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
+				<< "expected GD\n"
+		);
+
+		// Try to retrieve a GGDPersonalityTraits object and check that the smart pointer actually points somewhere
+		boost::shared_ptr<GGDPersonalityTraits> p_pt_gd;
+		BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getGDPersonalityTraits());
+		BOOST_CHECK(p_pt_gd);
+
+		// Retrieve the same object through a different method
+		p_pt_gd.reset();
+		BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getPersonalityTraits<GGDPersonalityTraits>());
+		BOOST_CHECK(p_pt_gd);
+		p_pt_gd.reset();
+
+		// Retrieve a base pointer to the GD object and check that it points somewhere
+		BOOST_CHECK_NO_THROW(p_pt = p_test->getPersonalityTraits());
+		BOOST_CHECK(p_pt);
+		p_pt.reset();
+
+		// Set the personality type to SwARM
+		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(SWARM));
+		BOOST_CHECK_MESSAGE(
+				previous == GD
+				,  "\n"
+				<< "previous = " << previous << "\n"
+				<< "expected GD"
+		);
+		BOOST_CHECK_MESSAGE(
+				p_test->getPersonality() == SWARM
+				,  "\n"
+				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
+				<< "expected SWARM\n"
+		);
+
+		// Try to retrieve a GSwarmPersonalityTraits object and check that the smart pointer actually points somewhere
+		boost::shared_ptr<GSwarmPersonalityTraits> p_pt_swarm;
+		BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getSwarmPersonalityTraits());
+		BOOST_CHECK(p_pt_swarm);
+
+		// Retrieve the same object through a different method
+		p_pt_swarm.reset();
+		BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getPersonalityTraits<GSwarmPersonalityTraits>());
+		BOOST_CHECK(p_pt_swarm);
+		p_pt_swarm.reset();
+
+		// Retrieve a base pointer to the SWARM object and check that it points somewhere
+		BOOST_CHECK_NO_THROW(p_pt = p_test->getPersonalityTraits());
+		BOOST_CHECK(p_pt);
+		p_pt.reset();
+
+		// Set the personality type to NONE
+		BOOST_CHECK_NO_THROW(previous = p_test->setPersonality(NONE));
+		BOOST_CHECK_MESSAGE(
+				previous == SWARM
+				,  "\n"
+				<< "previous = " << previous << "\n"
+				<< "expected SWARM"
+		);
+		BOOST_CHECK_MESSAGE(
+				p_test->getPersonality() == NONE
+				,  "\n"
+				<< "p_test->getPersonality() = " << p_test->getPersonality() << "\n"
+				<< "expected NONE\n"
+		);
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /************************************************************************************************************/
@@ -695,8 +1115,57 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GIndividual::specificTestsFailuresExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GObject::specificTestsFailuresExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+#ifdef DEBUG
+	{ // Test that retrieval of an EA personality traits object from an uninitialized pointer throws in DEBUG mode
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		// Make sure the personality type is set to NONE
+		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
+
+		// Trying to retrieve an EA personality object should throw
+		boost::shared_ptr<GEAPersonalityTraits> p_pt_ea;
+		BOOST_CHECK_THROW(p_pt_ea = p_test->getEAPersonalityTraits(), Gem::Common::gemfony_error_condition);
+	}
+#endif /* DEBUG */
+
+	//------------------------------------------------------------------------------
+
+#ifdef DEBUG
+	{ // Test that retrieval of an EA personality traits object from an individual with SWARM personality throws
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		// Make sure the personality type is set to SWARM
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(SWARM));
+
+		// Trying to retrieve an EA personality object should throw
+		BOOST_CHECK_THROW(p_test->getEAPersonalityTraits(), Gem::Common::gemfony_error_condition);
+	}
+#endif /* DEBUG */
+
+	//------------------------------------------------------------------------------
+
+#ifdef DEBUG
+	{ // Test that retrieval of a personality traits base object from an individual without personality throws
+		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
+
+		// Make sure the personality type is set to NONE
+		BOOST_CHECK_NO_THROW(p_test->resetPersonality());
+
+		// Trying to retrieve an EA personality object should throw
+		boost::shared_ptr<GPersonalityTraits> p_pt;
+		BOOST_CHECK_THROW(p_pt = p_test->getPersonalityTraits(), Gem::Common::gemfony_error_condition);
+	}
+#endif /* DEBUG */
+
+	//------------------------------------------------------------------------------
 }
 
 /************************************************************************************************************/
@@ -705,4 +1174,3 @@ void GIndividual::specificTestsFailuresExpected_GUnitTests() {
 
 } /* namespace Geneva */
 } /* namespace Gem */
-
