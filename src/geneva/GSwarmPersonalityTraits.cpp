@@ -143,6 +143,11 @@ void GSwarmPersonalityTraits::setNoPositionUpdate() {
 	noPositionUpdate_ = true;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /*****************************************************************************/
 /**
  * Retrieves the current value of the noPositionUpdate_ flag
@@ -152,6 +157,11 @@ void GSwarmPersonalityTraits::setNoPositionUpdate() {
 bool GSwarmPersonalityTraits::noPositionUpdate() const {
 	return noPositionUpdate_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /*****************************************************************************/
 /**
@@ -164,6 +174,11 @@ bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
 	if(noPositionUpdate_) noPositionUpdate_ = false;
 	return current;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /*****************************************************************************/
 /**
@@ -229,6 +244,12 @@ void GSwarmPersonalityTraits::setCommand(const std::string& command) {
 	command_ = command;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /*****************************************************************************/
 /**
  * Retrieves the command to be performed by a remote client.
@@ -236,8 +257,24 @@ void GSwarmPersonalityTraits::setCommand(const std::string& command) {
  * @return The command to be performed by a remote client.
  */
 std::string GSwarmPersonalityTraits::getCommand() const {
+#ifdef DEBUG
+	// Some error checking
+	if(command_.empty() || command_=="" || command_=="empty") {
+		std::ostringstream error;
+		error << "In GSwarmPersonalityTraits::getCommand(): Error " << std::endl
+			  << "Tried to retrieve a command while a command hasn't been set" << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+
 	return command_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /*****************************************************************************/
 /**
@@ -246,6 +283,11 @@ std::string GSwarmPersonalityTraits::getCommand() const {
 void GSwarmPersonalityTraits::resetCommand() {
 	command_ = "";
 }
+
+/* ----------------------------------------------------------------------------------
+ * Used in GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 #ifdef GENEVATESTING
 /*****************************************************************************/
@@ -268,8 +310,56 @@ bool GSwarmPersonalityTraits::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of the allowed commands
+		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+
+		BOOST_CHECK_NO_THROW(p_test->setCommand("evaluate"));
+		BOOST_CHECK(p_test->getCommand() == "evaluate");
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of the noPositionUpdate_ flag
+		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+
+		// Check setting and retrieval
+		BOOST_CHECK_NO_THROW(p_test->setNoPositionUpdate());
+		BOOST_CHECK(p_test->noPositionUpdate() == true);
+
+		// Check retrieval and reset
+		bool noPositionUpdate = false; // This value should be changed by the following call
+		BOOST_CHECK_NO_THROW(noPositionUpdate = p_test->checkNoPositionUpdateAndReset());
+		BOOST_CHECK(noPositionUpdate == true);
+		BOOST_CHECK(p_test->noPositionUpdate() == false);
+
+		// Try again -- the value "false" should not change
+		noPositionUpdate = true; // This value should be changed by the following call
+		BOOST_CHECK_NO_THROW(noPositionUpdate = p_test->checkNoPositionUpdateAndReset());
+		BOOST_CHECK(noPositionUpdate == false);
+		BOOST_CHECK(p_test->noPositionUpdate() == false);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of the neighborhood
+		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+
+		// Setting and retrieval of the neighborhood
+		for(std::size_t i=0; i<10; i++) {
+			BOOST_CHECK_NO_THROW(p_test->setNeighborhood(i));
+			BOOST_CHECK(p_test->getNeighborhood() == i);
+		}
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /*****************************************************************************/
@@ -277,8 +367,36 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+#ifdef DEBUG
+	{ // Test that retrieval of an unset command throws in DEBUG mode
+		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+
+		// Reset the command string
+		BOOST_CHECK_NO_THROW(p_test->resetCommand());
+
+		// Try to retrieve the command string
+		BOOST_CHECK_THROW(p_test->getCommand(), Gem::Common::gemfony_error_condition);
+	}
+#endif /* DEBUG */
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that setting any other command than "evaluate" throws. In particular, "adapt" should throw
+		boost::shared_ptr<GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+
+		// Try to set an unknown command
+		BOOST_CHECK_THROW(p_test->setCommand("adapt"), Gem::Common::gemfony_error_condition);
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /*****************************************************************************/
