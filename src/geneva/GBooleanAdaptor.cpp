@@ -184,6 +184,11 @@ Gem::Geneva::adaptorId GBooleanAdaptor::getAdaptorId() const {
 	return Gem::Geneva::GBOOLEANADAPTOR;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GBooleanAdaptor::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /*******************************************************************************************/
 /**
  * The actual adaption logic
@@ -208,6 +213,9 @@ void GBooleanAdaptor::customAdaptions(bool& value) {
  * @return A boolean which indicates whether modifications were made
  */
 bool GBooleanAdaptor::modify_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	bool result = false;
 
 	// Call the parent class'es function
@@ -221,6 +229,9 @@ bool GBooleanAdaptor::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GIntFlipAdaptorT<bool>::specificTestsNoFailureExpected_GUnitTests();
 
@@ -245,8 +256,13 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GIntFlipAdaptorT<bool>::specificTestsFailuresExpected_GUnitTests();
+
+	// no local data - nothing to test
 }
 
 /*****************************************************************************/
