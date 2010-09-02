@@ -45,6 +45,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/limits.hpp>
 #include <boost/cast.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -94,9 +95,8 @@ class GGaussAdaptorT :public GAdaptorT<T>
 		using boost::serialization::make_nvp;
 
 		// Save all necessary data
-		ar & make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<T> >(*this));
-
-		ar & BOOST_SERIALIZATION_NVP(sigma_)
+		ar & make_nvp("GAdaptorT_num", boost::serialization::base_object<GAdaptorT<T> >(*this))
+		   & BOOST_SERIALIZATION_NVP(sigma_)
 		   & BOOST_SERIALIZATION_NVP(sigmaSigma_)
 		   & BOOST_SERIALIZATION_NVP(minSigma_)
 		   & BOOST_SERIALIZATION_NVP(maxSigma_);
@@ -359,6 +359,12 @@ public:
 		else if(sigma_>maxSigma_) sigma_ = maxSigma_;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Setting of valid ranges is tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Setting of invalid ranges is tested in GGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/********************************************************************************************/
 	/**
 	 * Retrieves the allowed value range for sigma. You can retrieve the values
@@ -369,6 +375,11 @@ public:
 	std::pair<double,double> getSigmaRange() const  {
 		return std::make_pair(minSigma_, maxSigma_);
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/********************************************************************************************/
 	/**
@@ -395,6 +406,12 @@ public:
 		sigmaSigma_ = sigmaSigma;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Setting of valid adaption rates is tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Setting of invalid adaption rates is tested in GGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/********************************************************************************************/
 	/**
 	 * Retrieves the value of sigmaSigma_ .
@@ -404,6 +421,11 @@ public:
 	double getSigmaAdaptionRate() const  {
 		return sigmaSigma_;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Retrieval of adaption rates is tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/********************************************************************************************/
 	/**
@@ -421,6 +443,11 @@ public:
 		setSigmaRange(minSigma, maxSigma);
 		setSigma(sigma);
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/***********************************************************************************/
 	/**
@@ -472,6 +499,8 @@ protected:
 	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
+	 *
+	 * TODO: Recursively adapt until a sigma in the allowed range is found ??
 	 */
 	virtual void adaptAdaption()
 	{
@@ -512,6 +541,9 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		bool result = false;
 
 		// Call the parent classes' functions
@@ -525,8 +557,137 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		// Call the parent classes' functions
 		GAdaptorT<T>::specificTestsNoFailureExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Test setting and retrieval of the sigma range
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			for(double dlower=0.; dlower<1.; dlower+=0.1) {
+				double dupper = 2.*dlower;
+
+				BOOST_CHECK_NO_THROW(p_test->setSigmaRange(dlower, dlower==0.?1.:dupper));
+				std::pair<double, double> range;
+				BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
+
+				if(dlower == 0.) { // Account for the fact that a lower boundary of 0. will be silently changed
+					BOOST_CHECK(range.first == DEFAULTMINSIGMA);
+					BOOST_CHECK(range.second == 1.);
+				}
+				else {
+					BOOST_CHECK(range.first == dlower);
+					BOOST_CHECK(fabs(range.second - 2.*dlower) < pow(10,-8)); // Take into account rounding errors
+				}
+			}
+
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a sigma of 0. will result in a sigma with value DEFAULTMINSIGMA
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0., 2.));
+			BOOST_CHECK_NO_THROW(p_test->setSigma(0.));
+			BOOST_CHECK(p_test->getSigma() == DEFAULTMINSIGMA);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Tests setting and retrieval of the sigma parameter
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0., 2.));
+
+			for(double d=0.1; d<1.9; d+=0.1) {
+				BOOST_CHECK_NO_THROW(p_test->setSigma(d));
+				BOOST_CHECK(p_test->getSigma() == d);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test setting and retrieval of the sigma adaption rate
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			for(double d=0.1; d<1.9; d+=0.1) {
+				BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(d));
+				BOOST_CHECK(p_test->getSigmaAdaptionRate() == d);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that simultaneous setting of all "sigma-values" has an effect
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_NO_THROW(p_test->setAll(0.5, 0.8, 0., 1.));
+			BOOST_CHECK(p_test->getSigma() == 0.5);
+			BOOST_CHECK(p_test->getSigmaAdaptionRate() == 0.8);
+			std::pair<double, double> range;
+			BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
+			BOOST_CHECK(range.first == DEFAULTMINSIGMA);
+			BOOST_CHECK(range.second == 1.);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test sigma adaption
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			const double minSigma = 0.1;
+			const double maxSigma = 0.5;
+			const double sigmaStart = 0.3;
+			const double sigmaSigma = 0.3;
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(minSigma, maxSigma));
+			BOOST_CHECK_NO_THROW(p_test->setSigma(sigmaStart));
+			BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(sigmaSigma));
+
+			double oldSigma = p_test->getSigma();
+			double newSigma = 0.;
+			BOOST_CHECK(oldSigma == sigmaStart);
+
+			std::size_t nTests = 10000;
+			std::size_t maxCounter = 0;
+			std::size_t maxMaxCounter = 5000;
+			for(std::size_t i=0; i<nTests; i++) {
+				BOOST_CHECK_NO_THROW(p_test->adaptAdaption());
+				BOOST_CHECK(newSigma = p_test->getSigma());
+				BOOST_CHECK(newSigma >= minSigma && newSigma <= maxSigma);
+
+				if(newSigma != minSigma && newSigma != maxSigma) {
+					BOOST_CHECK_MESSAGE (
+						newSigma != oldSigma
+						,  "\n"
+						<< "oldSigma = " << oldSigma << "\n"
+						<< "newSigma = " << newSigma << "\n"
+						<< "iteration = " << i << "\n"
+					);
+					oldSigma = newSigma;
+				}
+				else {
+					// We want to know how often we have exceeded the boundaries
+					maxCounter++;
+				}
+			}
+
+			// std::cout << "maxCounter = " << maxCounter << std::endl;
+
+			BOOST_CHECK_MESSAGE (
+					maxCounter < maxMaxCounter
+					,  "\n"
+					<< "maxCounter = " << maxCounter << "\n"
+					<< "maxMaxCounter = " << maxMaxCounter << "\n"
+			);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/***********************************************************************************/
@@ -534,8 +695,71 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		// Call the parent classes' functions
 		GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a minimal sigma < 0. throws
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_THROW(p_test->setSigmaRange(-1., 2.), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a minimal sigma > the maximum sigma throws
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_THROW(p_test->setSigmaRange(2., 1.), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a negative sigma throws
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_THROW(p_test->setSigma(-1.), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a sigma below the allowed range throws
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0.5, 2.));
+			BOOST_CHECK_THROW(p_test->setSigma(0.1), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a sigma above the allowed range throws
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0.5, 2.));
+			BOOST_CHECK_THROW(p_test->setSigma(3.), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting a negative sigma adaption rate throws
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_THROW(p_test->setSigmaAdaptionRate(-1.), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting a 0 sigma adaption rate throws
+			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+
+			BOOST_CHECK_THROW(p_test->setSigmaAdaptionRate(0.), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 #endif /* GENEVATESTING */
