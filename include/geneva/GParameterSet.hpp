@@ -67,6 +67,14 @@
 #include "hap/GRandomT.hpp"
 #endif /* GENEVATESTING */
 
+
+namespace Gem {
+namespace Tests {
+class GTestIndividual1; // forward declaration, needed for test purposes
+} /* namespace Tests */
+} /* namespace Gem */
+
+
 namespace Gem {
 namespace Geneva {
 
@@ -78,6 +86,8 @@ namespace Geneva {
 class GParameterSet:
 	public GMutableSetT<Gem::Geneva::GParameterBase>
 {
+	friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
+
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -191,6 +201,8 @@ protected:
 
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation();
+	/* @brief The actual adaption operations. */
+	virtual void customAdaptions();
 
 	/** @brief Allows to store an evaluation function for this object */
 	boost::function<double (const GParameterSet&)> eval_;

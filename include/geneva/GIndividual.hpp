@@ -68,7 +68,7 @@
 
 namespace Gem {
 namespace Tests {
-class GTestIndividual1; // forward declaration
+class GTestIndividual1; // forward declaration, needed for test purposes
 } /* namespace Tests */
 } /* namespace Gem */
 
@@ -260,7 +260,7 @@ protected:
 	/** @brief The actual fitness calculation takes place here */
 	virtual double fitnessCalculation() = 0;
 	/** @brief The actual adaption operations */
-	virtual void customAdaptions() = 0;
+	virtual void customAdaptions();
 	/** @brief Updates the object's structure and/or parameters, if the optimization has stalled */
 	virtual bool customUpdateOnStall();
 

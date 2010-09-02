@@ -182,15 +182,19 @@ public:
 
 	/**********************************************************************************/
 	/**
-	 * Swap another object's vector with ours
+	 * Swap another object's vector with ours. We need to set the dirty flag of both
+	 * individuals in this case.
 	 */
-	inline void swap(GMutableSetT<T>& cp) { GStdPtrVectorInterfaceT<T>::swap(cp.data); }
+	inline void swap(GMutableSetT<T>& cp) {
+		GStdPtrVectorInterfaceT<T>::swap(cp.data);
+		GIndividual::setDirtyFlag();
+		cp.setDirtyFlag();
+	}
 
-	/**********************************************************************************/
-	/**
-	 * Swap another vector with ours
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
 	 */
-	inline void swap(std::vector<boost::shared_ptr<T> >& cp_data) { GStdPtrVectorInterfaceT<T>::swap(cp_data); }
 
 protected:
 	/***********************************************************************************/
@@ -229,16 +233,6 @@ protected:
 
 	/**********************************************************************************/
 	/**
-	 * The actual adaption operations. Easy, as we know that all GParameterBase objects
-	 * in this object must implement the adapt() function.
-	 */
-	virtual void customAdaptions(){
-		typename GMutableSetT<T>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) (*it)->adapt();
-	}
-
-	/**********************************************************************************/
-	/**
 	 * Re-implementation of a corresponding function in GStdPtrVectorInterface.
 	 * Make the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
@@ -254,11 +248,20 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		bool result = false;
 
 		// Call the parent classes' functions
 		if(GIndividual::modify_GUnitTests()) result = true;
 		if(GStdPtrVectorInterfaceT<T>::modify_GUnitTests()) result = true;
+
+		// Try to change the objects contained in the collection
+		typename GMutableSetT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			if((*it)->modify_GUnitTests()) result = true;
+		}
 
 		return result;
 	}
@@ -268,9 +271,14 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		// Call the parent classes' functions
 		GIndividual::specificTestsNoFailureExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
+
+		// no local data, nothing to test
 	}
 
 	/**********************************************************************************/
@@ -278,9 +286,14 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		// Call the parent classes' functions
 		GIndividual::specificTestsFailuresExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
+
+		// no local data, nothing to test
 	}
 
 	/**********************************************************************************/

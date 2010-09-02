@@ -447,6 +447,24 @@ double GParameterSet::fitnessCalculation(){
 	return eval_(*this);
 }
 
+/**********************************************************************************/
+/**
+ * The actual adaption operations. Easy, as we know that all objects
+ * in this collection must implement the adapt() function, as they are
+ * derived from the GMutableI class / interface.
+ */
+void GParameterSet::customAdaptions() {
+	GParameterSet::iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		(*it)->adapt();
+	}
+}
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 #ifdef GENEVATESTING
 /************************************************************************************************************/
 /**

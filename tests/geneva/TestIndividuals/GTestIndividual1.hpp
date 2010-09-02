@@ -604,6 +604,91 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+		{ // Test of GMutableSetT<T>::swap(const GMutableSetT<T>&)
+			boost::shared_ptr<GTestIndividual1> p_test1 = this->clone<GTestIndividual1>();
+			boost::shared_ptr<GTestIndividual1> p_test2 = this->clone<GTestIndividual1>();
+
+			// Check that both individuals are the same
+			BOOST_CHECK(*p_test1 == *p_test2);
+
+			// Adapt p_test2, so that both individuals are different
+			BOOST_CHECK_NO_THROW(p_test2->adapt());
+
+			// Make sure both individuals are clean and evaluated
+			double fitness1_old = 0., fitness2_old = 0;
+			BOOST_CHECK_NO_THROW(fitness1_old = p_test1->fitness());
+			BOOST_CHECK_NO_THROW(fitness2_old = p_test2->fitness());
+			BOOST_CHECK(!p_test1->isDirty());
+			BOOST_CHECK(!p_test2->isDirty());
+
+			// Make sure the individuals are different
+			BOOST_CHECK(*p_test1 != *p_test2);
+
+			// Make sure their fitness differs
+			BOOST_CHECK(p_test1->fitness() != p_test2->fitness());
+
+			// Swap their data vectors
+			BOOST_CHECK_NO_THROW(p_test1->swap(*p_test2));
+
+			// They should now both have the dirty flag set
+			BOOST_CHECK(p_test1->isDirty());
+			BOOST_CHECK(p_test2->isDirty());
+
+			// Make sure both individuals are clean and evaluated
+			double fitness1_new = 0., fitness2_new = 0;
+			BOOST_CHECK_NO_THROW(fitness1_new = p_test1->fitness());
+			BOOST_CHECK_NO_THROW(fitness2_new = p_test2->fitness());
+			BOOST_CHECK(!p_test1->isDirty());
+			BOOST_CHECK(!p_test2->isDirty());
+
+			// The fitness values of both individuals should effectively have been exchanged
+			// Note that rounding errors might prevent fitness1_new to be == fitness2_old
+			// and vice versa
+			BOOST_CHECK(fabs(fitness1_new - fitness2_old) < pow(10, -8));
+			BOOST_CHECK(fabs(fitness2_new - fitness1_old) < pow(10, -8));
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check of the GParameterSet::customAdaptions() function
+			boost::shared_ptr<GTestIndividual1> p_test1 = this->clone<GTestIndividual1>();
+			boost::shared_ptr<GTestIndividual1> p_test2 = this->clone<GTestIndividual1>();
+
+			// Check that both individuals are the same
+			BOOST_CHECK(*p_test1 == *p_test2);
+
+			// Make sure both individuals are clean and evaluated
+			double fitness1_old = 0., fitness2_old = 0;
+			BOOST_CHECK_NO_THROW(fitness1_old = p_test1->fitness());
+			BOOST_CHECK_NO_THROW(fitness2_old = p_test2->fitness());
+			BOOST_CHECK(!p_test1->isDirty());
+			BOOST_CHECK(!p_test2->isDirty());
+
+			// Extract and clone the first individual's GDoubleCollection object for later comparisons
+			boost::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_old = p_test1->at(0)->clone<Gem::Geneva::GDoubleCollection>();
+
+			// Adapt and evaluate the first individual
+			BOOST_CHECK_NO_THROW(p_test1->customAdaptions());
+			// We need to manually mark the individual as dirty
+			BOOST_CHECK_NO_THROW(p_test1->setDirtyFlag());
+
+			// The fitness of individual1 should have changed. Re-evaluate and check
+			double fitness1_new = 0.;
+			BOOST_CHECK_NO_THROW(fitness1_new = p_test1->fitness());
+			BOOST_CHECK(fitness1_new != fitness1_old);
+
+			// The individuals should now differ
+			BOOST_CHECK(*p_test1 != *p_test2);
+
+			// Extract and clone the first individual's GDoubleCollection object for comparison
+			boost::shared_ptr<Gem::Geneva::GDoubleCollection> gdc_ptr_new = p_test1->at(0)->clone<Gem::Geneva::GDoubleCollection>();
+
+			// Check that both GDoubleCollection objects differ
+			BOOST_CHECK(*gdc_ptr_old != *gdc_ptr_new);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/******************************************************************/

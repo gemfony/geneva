@@ -577,6 +577,14 @@ bool GIndividual::customUpdateOnStall() {
 
 /************************************************************************************************************/
 /**
+ * Actions to be performed when adapting this object. This function will be overloaded particularly
+ * for the GParameterSet class.
+ */
+void GIndividual::customAdaptions()
+{ /* nothing */}
+
+/************************************************************************************************************/
+/**
  * Performs all necessary processing steps for this object. Not meant to be
  * called directly from threads, as no exceptions are caught. Use checkedProcess() instead.
  * If the processingCycles_ variable is set to a value of 0 or higher than 1, multiple

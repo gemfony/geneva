@@ -867,14 +867,6 @@ protected:
 
 	/**************************************************************************************/
 	/**
-	 * Possible adaptions of a population could involve shifting of individuals.
-	 * By default, no adaptions are defined.
-	 */
-	virtual void customAdaptions()
-	{ /* nothing */}
-
-	/**************************************************************************************/
-	/**
 	 * Fitness calculation for a population means optimization. The fitness is then determined
 	 * by the best individual which, after the end of the optimization cycle, can be found in
 	 * the first position of the array. This is true for all sorting modes.

@@ -888,6 +888,7 @@ private:
 #ifdef GENEVATESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	// Note to self: changes to GStdPtrVectorInterface should be minimal and not involve objects pointed to
 	virtual bool modify_GUnitTests() { /* nothing here yet */ return false; }
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests() { /* nothing here yet */ }
