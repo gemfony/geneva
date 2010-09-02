@@ -549,6 +549,10 @@ public:
 		// Call the parent classes' functions
 		if(GAdaptorT<T>::modify_GUnitTests()) result = true;
 
+		// A relatively harmless change
+		sigmaSigma_ *= 1.1;
+		result = true;
+
 		return result;
 	}
 

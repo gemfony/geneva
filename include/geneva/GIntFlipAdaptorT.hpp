@@ -207,6 +207,12 @@ public:
 	 */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GInt32FlipAdaptor::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GBooleanAdaptor::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 protected:
 	/********************************************************************************************/
 	/**
@@ -275,6 +281,11 @@ protected:
 		}
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 #ifdef GENEVATESTING
 public:
 	/*******************************************************************************************/
@@ -284,10 +295,15 @@ public:
 	 * @return A boolean which indicates whether modifications were made
 	 */
 	virtual bool modify_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		bool result = false;
 
 		// Call the parent classes' functions
 		if(GAdaptorT<T>::modify_GUnitTests()) result = true;
+
+		// no local data -- nothing to change
 
 		return result;
 	}
@@ -297,6 +313,9 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		// Call the parent classes' functions
 		GAdaptorT<T>::specificTestsNoFailureExpected_GUnitTests();
 	}
@@ -306,6 +325,9 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
 		// Call the parent classes' functions
 		GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests();
 	}

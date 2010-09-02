@@ -194,6 +194,11 @@ void GBooleanAdaptor::customAdaptions(bool& value) {
 	value==true?value=false:value=true;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 #ifdef GENEVATESTING
 
 /*******************************************************************************************/
