@@ -217,6 +217,11 @@ Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
 	return Gem::Geneva::GINT32GAUSSADAPTOR;
 }
 
+/* ----------------------------------------------------------------------------------
+ * - Tested in GInt32GaussAdaptor::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /*******************************************************************************************/
 /**
  * The actual adaption of the supplied value takes place here.
@@ -258,6 +263,11 @@ void GInt32GaussAdaptor::customAdaptions(boost::int32_t &value) {
 
 	value += addition;
 }
+
+/* ----------------------------------------------------------------------------------
+ * - Tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 #ifdef GENEVATESTING
 /*******************************************************************************************/

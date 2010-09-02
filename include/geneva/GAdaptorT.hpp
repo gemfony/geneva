@@ -980,7 +980,7 @@ public:
 			testVal = T(0);
 			oldTestVal = T(0);
 			for(std::size_t i=0; i<1000; i++) {
-				p_test->adapt(testVal);
+				BOOST_CHECK_NO_THROW(p_test->adapt(testVal));
 				BOOST_CHECK_MESSAGE(
 						testVal != oldTestVal
 						,  "(2)\n"
@@ -1008,6 +1008,28 @@ public:
 				BOOST_CHECK_MESSAGE(
 						testVal != oldTestVal
 						,  "(3)\n"
+						<< "testVal = " << testVal << "\n"
+						<< "oldTestVal = " << oldTestVal << "\n"
+						<< "iteration = " << i << "\n"
+				);
+				oldTestVal = testVal;
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that customAdaptions() in derived classes changes a test value on every call
+			boost::shared_ptr<GAdaptorT<T> > p_test = this->clone<GAdaptorT<T> >();
+
+			std::size_t nTests = 10000;
+
+			T testVal = T(0);
+			T oldTestVal = T(0);
+			for(std::size_t i=0; i<nTests; i++) {
+				BOOST_CHECK_NO_THROW(p_test->customAdaptions(testVal));
+				BOOST_CHECK_MESSAGE(
+						testVal != oldTestVal
+						,  "\n"
 						<< "testVal = " << testVal << "\n"
 						<< "oldTestVal = " << oldTestVal << "\n"
 						<< "iteration = " << i << "\n"

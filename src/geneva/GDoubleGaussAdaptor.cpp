@@ -212,6 +212,11 @@ Gem::Geneva::adaptorId GDoubleGaussAdaptor::getAdaptorId() const {
 	return Gem::Geneva::GDOUBLEGAUSSADAPTOR;
 }
 
+/* ----------------------------------------------------------------------------------
+ * - Tested in GDoubleGaussAdaptor::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /*******************************************************************************************/
 /**
  * The actual adaption of the supplied value takes place here.
@@ -250,6 +255,11 @@ void GDoubleGaussAdaptor::customAdaptions(double &value) {
 #endif /* CHECKOVERFLOWS */
 }
 
+/* ----------------------------------------------------------------------------------
+ * - Tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 #ifdef GENEVATESTING
 /*******************************************************************************************/
 /**
@@ -258,6 +268,9 @@ void GDoubleGaussAdaptor::customAdaptions(double &value) {
  * @return A boolean which indicates whether modifications were made
  */
 bool GDoubleGaussAdaptor::modify_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	bool result = false;
 
 	// Call the parent class'es function
@@ -271,6 +284,9 @@ bool GDoubleGaussAdaptor::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
 
@@ -291,6 +307,8 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// Note to self: Test the effects of the adaptAdaptionProbability -- how often
 	// are the adaption settings adapted for a specific probability ?
 	//------------------------------------------------------------------------------
+
+	//------------------------------------------------------------------------------
 }
 
 /*******************************************************************************************/
@@ -298,6 +316,9 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	// Call the parent class'es function
 	GGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
 }
