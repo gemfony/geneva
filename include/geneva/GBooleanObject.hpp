@@ -1,5 +1,5 @@
 /**
- * @file GBoolean.hpp
+ * @file GBooleanObject.hpp
  */
 
 /*
@@ -39,8 +39,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GBOOLEAN_HPP_
-#define GBOOLEAN_HPP_
+#ifndef GBOOLEANOBJECT_HPP_
+#define GBOOLEANOBJECT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -60,7 +60,7 @@ namespace Geneva {
  * and indeed for most applications this is not the recommended solution -
  * use the GBooleanCollection instead.
  */
-class GBoolean
+class GBooleanObject
 	:public GParameterT<bool>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -76,24 +76,24 @@ class GBoolean
 
 public:
 	/** @brief The default constructor */
-	GBoolean();
+	GBooleanObject();
 	/** @brief The copy constructor */
-	GBoolean(const GBoolean&);
+	GBooleanObject(const GBooleanObject&);
 	/** @brief Initialization by contained value */
-	explicit GBoolean(const bool&);
+	explicit GBooleanObject(const bool&);
 	/** @brief The destructor */
-	virtual ~GBoolean();
+	virtual ~GBooleanObject();
 
 	/** @brief An assignment operator */
 	virtual bool operator=(const bool&);
 
 	/** @brief A standard assignment operator */
-	const GBoolean& operator=(const GBoolean&);
+	const GBooleanObject& operator=(const GBooleanObject&);
 
-	/** @brief Checks for equality with another GBoolean object */
-	bool operator==(const GBoolean&) const;
-	/** @brief Checks for inequality with another GBoolean object */
-	bool operator!=(const GBoolean&) const;
+	/** @brief Checks for equality with another GBooleanObject object */
+	bool operator==(const GBooleanObject&) const;
+	/** @brief Checks for inequality with another GBooleanObject object */
+	bool operator!=(const GBooleanObject&) const;
 
 	/** @brief Triggers random initialization of the parameter object */
 	virtual void randomInit();
@@ -130,4 +130,4 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GBOOLEAN_HPP_ */
+#endif /* GBOOLEANOBJECT_HPP_ */

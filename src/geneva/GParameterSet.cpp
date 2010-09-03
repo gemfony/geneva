@@ -588,7 +588,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Attach a few other parameter types
 		p_test_0->push_back(boost::shared_ptr<GConstrainedInt32>(new GConstrainedInt32(7, -10, 10)));
-		p_test_0->push_back(boost::shared_ptr<GBoolean>(new GBoolean(true)));
+		p_test_0->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
 
 		//-----------------------------------------------------------------
 
@@ -661,10 +661,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				counter++;
 
 				// Likewise, the boolean parameter should have stayed the same
-				boost::shared_ptr<GBoolean> p_boolean_orig;
-				boost::shared_ptr<GBoolean> p_boolean_cloned;
-				BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
-				BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+				boost::shared_ptr<GBooleanObject> p_boolean_orig;
+				boost::shared_ptr<GBooleanObject> p_boolean_cloned;
+				BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBooleanObject>(counter));
+				BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBooleanObject>(counter));
 				BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 				counter++;
 			}
@@ -723,10 +723,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				counter++;
 
 				// Likewise, the boolean parameter should have stayed the same
-				boost::shared_ptr<GBoolean> p_boolean_orig;
-				boost::shared_ptr<GBoolean> p_boolean_cloned;
-				BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
-				BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+				boost::shared_ptr<GBooleanObject> p_boolean_orig;
+				boost::shared_ptr<GBooleanObject> p_boolean_cloned;
+				BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBooleanObject>(counter));
+				BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBooleanObject>(counter));
 				BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 				counter++;
 			}
@@ -780,10 +780,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			counter++;
 
 			// Likewise, the boolean parameter should have stayed the same
-			boost::shared_ptr<GBoolean> p_boolean_orig;
-			boost::shared_ptr<GBoolean> p_boolean_cloned;
-			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
-			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+			boost::shared_ptr<GBooleanObject> p_boolean_orig;
+			boost::shared_ptr<GBooleanObject> p_boolean_cloned;
+			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBooleanObject>(counter));
+			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBooleanObject>(counter));
 			BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 			counter++;
 		}
@@ -836,10 +836,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			counter++;
 
 			// Likewise, the boolean parameter should have stayed the same
-			boost::shared_ptr<GBoolean> p_boolean_orig;
-			boost::shared_ptr<GBoolean> p_boolean_cloned;
-			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
-			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+			boost::shared_ptr<GBooleanObject> p_boolean_orig;
+			boost::shared_ptr<GBooleanObject> p_boolean_cloned;
+			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBooleanObject>(counter));
+			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBooleanObject>(counter));
 			BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 			counter++;
 		}
@@ -894,10 +894,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			counter++;
 
 			// Likewise, the boolean parameter should have stayed the same
-			boost::shared_ptr<GBoolean> p_boolean_orig;
-			boost::shared_ptr<GBoolean> p_boolean_cloned;
-			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
-			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+			boost::shared_ptr<GBooleanObject> p_boolean_orig;
+			boost::shared_ptr<GBooleanObject> p_boolean_cloned;
+			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBooleanObject>(counter));
+			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBooleanObject>(counter));
 			BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 			counter++;
 		}
@@ -952,10 +952,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			counter++;
 
 			// Likewise, the boolean parameter should have stayed the same
-			boost::shared_ptr<GBoolean> p_boolean_orig;
-			boost::shared_ptr<GBoolean> p_boolean_cloned;
-			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
-			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+			boost::shared_ptr<GBooleanObject> p_boolean_orig;
+			boost::shared_ptr<GBooleanObject> p_boolean_cloned;
+			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBooleanObject>(counter));
+			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBooleanObject>(counter));
 			BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 			counter++;
 		}

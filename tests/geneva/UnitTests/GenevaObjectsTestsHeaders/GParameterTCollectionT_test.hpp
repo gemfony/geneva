@@ -62,7 +62,7 @@
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GConstrainedDouble.hpp"
 #include "geneva/GConstrainedInt32.hpp"
-#include "geneva/GBoolean.hpp"
+#include "geneva/GBooleanObject.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedInt32ObjectCollection.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
@@ -164,10 +164,10 @@ boost::shared_ptr<GInt32Object> getTemplateItem<GInt32ObjectCollection>() {
 	return gint32_ptr;
 }
 
-// Specialization for GBoolean
+// Specialization for GBooleanObject
 template <>
-boost::shared_ptr<GBoolean> getTemplateItem<GBooleanObjectCollection>() {
-	boost::shared_ptr<GBoolean> gboolean_ptr(new GBoolean(false));
+boost::shared_ptr<GBooleanObject> getTemplateItem<GBooleanObjectCollection>() {
+	boost::shared_ptr<GBooleanObject> gboolean_ptr(new GBooleanObject(false));
 	gboolean_ptr->addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor()));
 	return gboolean_ptr;
 }
@@ -216,10 +216,10 @@ boost::shared_ptr<GInt32Object> getFindItem<GInt32ObjectCollection>() {
 	return gint32_ptr;
 }
 
-// Specialization for GBoolean
+// Specialization for GBooleanObject
 template <>
-boost::shared_ptr<GBoolean> getFindItem<GBooleanObjectCollection>() {
-	boost::shared_ptr<GBoolean> gboolean_ptr(new GBoolean(true));
+boost::shared_ptr<GBooleanObject> getFindItem<GBooleanObjectCollection>() {
+	boost::shared_ptr<GBooleanObject> gboolean_ptr(new GBooleanObject(true));
 	gboolean_ptr->addAdaptor(boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor()));
 	return gboolean_ptr;
 }
@@ -359,7 +359,7 @@ class GParameterTCollectionTSuite: public test_suite
 public:
 	/***********************************************************************************/
 	GParameterTCollectionTSuite() :test_suite("GParameterTCollectionTSuite") {
-		// typedef boost::mpl::list<GDoubleObject, GConstrainedDouble, GInt32Object, GBoolean> test_types;
+		// typedef boost::mpl::list<GDoubleObject, GConstrainedDouble, GInt32Object, GBooleanObject> test_types;
 		typedef boost::mpl::list<GDoubleObjectCollection,
 						         GInt32ObjectCollection,
 						         GBooleanObjectCollection,

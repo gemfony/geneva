@@ -59,7 +59,7 @@
 
 #ifdef GENEVATESTING
 #include "common/GUnitTestFrameworkT.hpp"
-#include "GBoolean.hpp"
+#include "GBooleanObject.hpp"
 #include "GConstrainedInt32.hpp"
 #include "GConstrainedDouble.hpp"
 #include "GConstrainedDoubleObjectCollection.hpp"

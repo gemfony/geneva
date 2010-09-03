@@ -3,8 +3,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( OPTIMIZATIONINCLUDES
 	GAdaptorT.hpp
 	GBooleanAdaptor.hpp
-	GBoolean.hpp
 	GBooleanCollection.hpp
+	GBooleanObject.hpp
 	GBooleanObjectCollection.hpp
 	GBrokerConnector.hpp
 	GBrokerEA.hpp

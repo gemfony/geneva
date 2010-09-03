@@ -1,5 +1,5 @@
 /**
- * @file GBoolean.cpp
+ * @file GBooleanObject.cpp
  */
 
 /*
@@ -29,14 +29,14 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GBoolean.hpp"
+#include "geneva/GBooleanObject.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GBoolean)
+BOOST_CLASS_EXPORT(Gem::Geneva::GBooleanObject)
 
 namespace Gem {
 namespace Geneva {
@@ -45,16 +45,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GBoolean::GBoolean()
+GBooleanObject::GBooleanObject()
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * The copy constructor
  *
- * @param cp A copy of another GBoolean object
+ * @param cp A copy of another GBooleanObject object
  */
-GBoolean::GBoolean(const GBoolean& cp)
+GBooleanObject::GBooleanObject(const GBooleanObject& cp)
 	: GParameterT<bool>(cp)
 { /* nothing */ }
 
@@ -64,7 +64,7 @@ GBoolean::GBoolean(const GBoolean& cp)
  *
  * @param val A value used for the initialization
  */
-GBoolean::GBoolean(const bool& val)
+GBooleanObject::GBooleanObject(const bool& val)
 	: GParameterT<bool>(val)
 { /* nothing */ }
 
@@ -72,7 +72,7 @@ GBoolean::GBoolean(const bool& val)
 /**
  * The destructor
  */
-GBoolean::~GBoolean()
+GBooleanObject::~GBooleanObject()
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -82,7 +82,7 @@ GBoolean::~GBoolean()
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-bool GBoolean::operator=(const bool& val) {
+bool GBooleanObject::operator=(const bool& val) {
 	return GParameterT<bool>::operator=(val);
 }
 
@@ -90,11 +90,11 @@ bool GBoolean::operator=(const bool& val) {
 /**
  * A standard assignment operator.
  *
- * @param cp A copy of another GBoolean object
+ * @param cp A copy of another GBooleanObject object
  * @return A constant reference to this object
  */
-const GBoolean& GBoolean::operator=(const GBoolean& cp){
-	GBoolean::load_(&cp);
+const GBooleanObject& GBooleanObject::operator=(const GBooleanObject& cp){
+	GBooleanObject::load_(&cp);
 	return *this;
 }
 
@@ -104,34 +104,34 @@ const GBoolean& GBoolean::operator=(const GBoolean& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GBoolean::clone_() const {
-	return new GBoolean(*this);
+GObject* GBooleanObject::clone_() const {
+	return new GBooleanObject(*this);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for equality with another GBoolean object
+ * Checks for equality with another GBooleanObject object
  *
- * @param  cp A constant reference to another GBoolean object
+ * @param  cp A constant reference to another GBooleanObject object
  * @return A boolean indicating whether both objects are equal
  */
-bool GBoolean::operator==(const GBoolean& cp) const {
+bool GBooleanObject::operator==(const GBooleanObject& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBoolean::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GBooleanObject::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for inequality with another GBoolean object
+ * Checks for inequality with another GBooleanObject object
  *
- * @param  cp A constant reference to another GBoolean object
+ * @param  cp A constant reference to another GBooleanObject object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GBoolean::operator!=(const GBoolean& cp) const {
+bool GBooleanObject::operator!=(const GBooleanObject& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBoolean::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GBooleanObject::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -139,7 +139,7 @@ bool GBoolean::operator!=(const GBoolean& cp) const {
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanObject.GParameterBase::randomInit();".
  */
-void GBoolean::randomInit() {
+void GBooleanObject::randomInit() {
 	  GParameterBase::randomInit();
 }
 
@@ -147,7 +147,7 @@ void GBoolean::randomInit() {
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure
  */
-void GBoolean::randomInit(const double& probability) {
+void GBooleanObject::randomInit(const double& probability) {
   if(!GParameterBase::randomInitializationBlocked()) randomInit_(probability);
 }
 
@@ -155,9 +155,9 @@ void GBoolean::randomInit(const double& probability) {
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure.
  * This function holds the actual initialization logic, used in the publicly accessible
- * GBoolean::randomInit(const double& probability) function.
+ * GBooleanObject::randomInit(const double& probability) function.
  */
-void GBoolean::randomInit_(const double& probability) {
+void GBooleanObject::randomInit_(const double& probability) {
 	this->setValue(gr->weighted_bool(probability));
 }
 
@@ -165,7 +165,7 @@ void GBoolean::randomInit_(const double& probability) {
 /**
  * Triggers random initialization of the parameter object
  */
-void GBoolean::randomInit_() {
+void GBooleanObject::randomInit_() {
 	this->setValue(gr->uniform_bool());
 }
 
@@ -182,7 +182,7 @@ void GBoolean::randomInit_() {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GBoolean::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GBooleanObject::checkRelationshipWith(const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -192,28 +192,28 @@ boost::optional<std::string> GBoolean::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Common;
 
 	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GBoolean>(&cp);
+	GObject::selfAssignmentCheck<GBooleanObject>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterT<bool>::checkRelationshipWith(cp, e, limit, "GBoolean", y_name, withMessages));
+	deviations.push_back(GParameterT<bool>::checkRelationshipWith(cp, e, limit, "GBooleanObject", y_name, withMessages));
 
 	// no local data ...
 
-	return evaluateDiscrepancies("GBoolean", caller, deviations, e);
+	return evaluateDiscrepancies("GBooleanObject", caller, deviations, e);
 }
 
 /*******************************************************************************************/
 /**
  * Loads the data of another GObject
  *
- * @param cp A copy of another GBoolean object, camouflaged as a GObject
+ * @param cp A copy of another GBooleanObject object, camouflaged as a GObject
  */
-void GBoolean::load_(const GObject* cp){
+void GBooleanObject::load_(const GObject* cp){
 	// Check for a possible self-assignment
-	GObject::selfAssignmentCheck<GBoolean>(cp);
+	GObject::selfAssignmentCheck<GBooleanObject>(cp);
 
 	// Load our parent class'es data ...
 	GParameterT<bool>::load_(cp);
@@ -229,7 +229,7 @@ void GBoolean::load_(const GObject* cp){
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GBoolean::modify_GUnitTests() {
+bool GBooleanObject::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -242,7 +242,7 @@ bool GBoolean::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GBoolean::specificTestsNoFailureExpected_GUnitTests() {
+void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterT<bool>::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -251,7 +251,7 @@ void GBoolean::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GBoolean::specificTestsFailuresExpected_GUnitTests() {
+void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterT<bool>::specificTestsFailuresExpected_GUnitTests();
 }

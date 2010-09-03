@@ -53,7 +53,7 @@ GBooleanObjectCollection::GBooleanObjectCollection()
  * @param cp A copy of another GBooleanObjectCollection object
  */
 GBooleanObjectCollection::GBooleanObjectCollection(const GBooleanObjectCollection& cp)
-	: GParameterTCollectionT<GBoolean>(cp)
+	: GParameterTCollectionT<GBooleanObject>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -140,7 +140,7 @@ boost::optional<std::string> GBooleanObjectCollection::checkRelationshipWith(con
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterTCollectionT<GBoolean>::checkRelationshipWith(cp, e, limit, "GBooleanObjectCollection", y_name, withMessages));
+	deviations.push_back(GParameterTCollectionT<GBooleanObject>::checkRelationshipWith(cp, e, limit, "GBooleanObjectCollection", y_name, withMessages));
 
 	// no local data ...
 
@@ -158,7 +158,7 @@ void GBooleanObjectCollection::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GBooleanObjectCollection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GBoolean>::load_(cp);
+	GParameterTCollectionT<GBooleanObject>::load_(cp);
 
 	// ... no local data
 }
@@ -175,7 +175,7 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GParameterTCollectionT<GBoolean>::modify_GUnitTests()) result = true;
+	if(GParameterTCollectionT<GBooleanObject>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -186,7 +186,7 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
  */
 void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GBoolean>::specificTestsNoFailureExpected_GUnitTests();
+	GParameterTCollectionT<GBooleanObject>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
@@ -195,7 +195,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GBoolean>::specificTestsFailuresExpected_GUnitTests();
+	GParameterTCollectionT<GBooleanObject>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

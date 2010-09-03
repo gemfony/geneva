@@ -2,8 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( OPTIMIZATIONSOURCES
 	GBooleanAdaptor
-	GBoolean
 	GBooleanCollection
+	GBooleanObject
 	GBooleanObjectCollection
 	GBrokerConnector
 	GBrokerEA

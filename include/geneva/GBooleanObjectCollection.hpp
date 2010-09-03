@@ -46,7 +46,7 @@
 
 
 // Geneva header files go here
-#include "GBoolean.hpp"
+#include "GBooleanObject.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
@@ -54,11 +54,11 @@ namespace Geneva {
 
 /*************************************************************************/
 /**
- * A collection of GBoolean objects, ready for use in a
+ * A collection of GBooleanObject objects, ready for use in a
  * GParameterSet derivative.
  */
 class GBooleanObjectCollection
-	:public GParameterTCollectionT<GBoolean>
+	:public GParameterTCollectionT<GBooleanObject>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -68,7 +68,7 @@ class GBooleanObjectCollection
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GParameterTCollectionT_gbo",
-			  boost::serialization::base_object<GParameterTCollectionT<GBoolean> >(*this));
+			  boost::serialization::base_object<GParameterTCollectionT<GBooleanObject> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

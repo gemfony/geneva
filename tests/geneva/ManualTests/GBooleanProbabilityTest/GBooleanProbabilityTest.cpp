@@ -48,7 +48,7 @@
 #include <boost/shared_ptr.hpp>
 
 // Geneva header files go here
-#include "geneva/GBoolean.hpp"
+#include "geneva/GBooleanObject.hpp"
 #include "geneva/GBooleanCollection.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 
@@ -56,7 +56,7 @@ using namespace Gem::Geneva;
 using namespace boost;
 
 /**
- * This test checks the flip probability of GBoolean and a GBooleanCollection. Likewise this is a test
+ * This test checks the flip probability of GBooleanObject and a GBooleanCollection. Likewise this is a test
  * for the GBooleanAdaptor class and the class's operator=; Tests include constant flip probability
  * as well as mutative adaption of the flip probability. Results can be viewed using the ROOT
  * analysis toolkit (see http://root.cern.ch).
@@ -71,7 +71,7 @@ const std::size_t NBIT=10;
  */
 int main(int argc, char **argv){
 	// Create test candidates
-	GBoolean A(true), A_tmp;
+	GBooleanObject A(true), A_tmp;
 	GBooleanCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
 
 	boost::shared_ptr<GBooleanAdaptor> A_adaptor(new GBooleanAdaptor(0.1));
@@ -100,7 +100,7 @@ int main(int argc, char **argv){
 	double A_noprobadapt_notflipped=0., A_noprobadapt_flipped=0.;
 	double B_noprobadapt_notflipped=0., B_noprobadapt_flipped=0.;
 	for(std::size_t i=0; i<MAXFLIP; i++){
-		// GBoolean
+		// GBooleanObject
 		A_tmp = A;
 		A.adapt(); // adapt
 		if(A.value() == A_tmp.value()){
@@ -144,7 +144,7 @@ int main(int argc, char **argv){
 	double A_probadapt_notflipped=0., A_probadapt_flipped=0.;
 	double B_probadapt_notflipped=0., B_probadapt_flipped=0.;
 	for(std::size_t i=0; i<MAXFLIP; i++){
-		// GBoolean
+		// GBooleanObject
 		A_tmp = A;
 		A.adapt(); // adapt
 		if(A.value() == A_tmp.value()){

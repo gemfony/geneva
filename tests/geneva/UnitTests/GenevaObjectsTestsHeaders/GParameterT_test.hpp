@@ -54,7 +54,7 @@
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
 #include "geneva/GParameterT.hpp"
-#include "geneva/GBoolean.hpp"
+#include "geneva/GBooleanObject.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
 #include "geneva/GInt32Object.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
@@ -145,7 +145,7 @@ public:
 	// Test features that are expected to work: boolean case
 	void bool_no_failure_expected() {
 		// Default construction
-		GBoolean gpt0;
+		GBooleanObject gpt0;
 
 		// Adding a single adaptor
 		BOOST_CHECK(!gpt0.hasAdaptor());
@@ -274,7 +274,7 @@ class GParameterTSuite: public test_suite
 {
 public:
 	GParameterTSuite() :test_suite("GParameterTSuite") {
-		typedef boost::mpl::list<GBoolean, GInt32Object, GDoubleObject> test_types;
+		typedef boost::mpl::list<GBooleanObject, GInt32Object, GDoubleObject> test_types;
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, test_types ) );
 
 		// create an instance of the test cases class
