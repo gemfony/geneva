@@ -12,6 +12,9 @@ Wishlist for Version 0.9, yet unnamed, release-date unknown
 The main changes for this release include:
  - Gave GParameterSet objects the ability to distribute its local random number
    generator to the GParameterBase objects stored in it.
+ - Renamed GDouble to GDoubleObject, GInt32 to GInt32Object, GBoolean to GBooleanObject,
+   GConstrainedDouble to GConstrainedDoubleObject and GConstrainedInt32 to GConstrainedInt32Object
+   for better consistency with class names like GDoubleObjectCollection and GDoubleCollection
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.1, "PS 197" - August 28, 2010

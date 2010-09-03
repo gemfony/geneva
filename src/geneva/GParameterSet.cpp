@@ -225,6 +225,11 @@ void GParameterSet::registerEvaluator(const boost::function<double (const GParam
 	eval_ = eval;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Untested -- deprecated
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Allows to randomly initialize parameter members
@@ -239,6 +244,11 @@ void GParameterSet::randomInit() {
 	// As we have modified our internal data sets, make sure the dirty flag is set
 	GIndividual::setDirtyFlag();
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -259,6 +269,11 @@ void GParameterSet::fpFixedValueInit(const float& val) {
 	GIndividual::setDirtyFlag();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Multiplies floating-point-based parameters with a given value.
@@ -276,6 +291,11 @@ void GParameterSet::fpMultiplyBy(const float& val) {
 	// As we have modified our internal data sets, make sure the dirty flag is set
 	GIndividual::setDirtyFlag();
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -295,6 +315,11 @@ void GParameterSet::fpMultiplyByRandom(const float& min, const float& max) {
 	GIndividual::setDirtyFlag();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Triggers multiplication of floating point parameters with a random floating point number in the range [0,1[
@@ -309,6 +334,11 @@ void GParameterSet::fpMultiplyByRandom() {
 	// As we have modified our internal data sets, make sure the dirty flag is set
 	GIndividual::setDirtyFlag();
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -339,6 +369,11 @@ void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
 	GIndividual::setDirtyFlag();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Subtract the floating point parameters of another GParameterSet object from this one
@@ -368,6 +403,11 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
 	GIndividual::setDirtyFlag();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Updates the random number generators contained in this object's GParameterBase-derivatives
@@ -379,6 +419,11 @@ void GParameterSet::updateRNGs() {
 	}
 }
 
+/* ----------------------------------------------------------------------------------
+ * - Assigning a random number generator is tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Restores the local random number generators contained in this object's GParameterBase-derivatives
@@ -389,6 +434,11 @@ void GParameterSet::restoreRNGs() {
 		(*it)->resetGRandomPointer();
 	}
 }
+
+/* ----------------------------------------------------------------------------------
+ * - Restoring the random number generators is tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -408,23 +458,33 @@ bool GParameterSet::localRNGsUsed() const {
 	return result;
 }
 
-/************************************************************************************************************/
-/**
- * Small convenience function that helps to add a GParameterSet objects to this one in
- * more transparent ways.
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
  */
-void GParameterSet::operator+=(boost::shared_ptr<GParameterSet> p) {
-	fpAdd(p);
-}
 
 /************************************************************************************************************/
 /**
- * Small convenience function that helps to subtract a GParameterSet objects from this one in
- * more transparent ways.
+ * Checks whether all GParameterBase derivatives use the assigned random number generator. The function will return
+ * false if at least one object is found in this collection that uses a local RNG.
+ *
+ * @return A boolean which indicates whether all objects in this collection use the assigned random number generator
  */
-void GParameterSet::operator-=(boost::shared_ptr<GParameterSet> p) {
-	fpSubtract(p);
+bool GParameterSet::assignedRNGUsed() const {
+	bool result = true;
+
+	GParameterSet::const_iterator it;
+	for(it=this->begin(); it!=this->end(); ++it) {
+		if((*it)->usesLocalRNG()) result = false;
+	}
+
+	return result;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /************************************************************************************************************/
 /**
@@ -446,6 +506,11 @@ double GParameterSet::fitnessCalculation(){
 	// Trigger the actual calculation
 	return eval_(*this);
 }
+
+/* ----------------------------------------------------------------------------------
+ * Untested -- deprecated. Will be replaced by the registration of a	 GEvaluator object
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
@@ -490,20 +555,415 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
 
 	//---------------------------------------------------------------------
-	// Create a GParameterSet object as a clone of this object for further usage
-	boost::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
-	// Clear the collection
-	p_test->clear();
-	// Make sure it is really empty
-	BOOST_CHECK(p_test->empty());
-	// Add some parameters
-	for(std::size_t i=0; i<5; i++) {
-		p_test->push_back(boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(gr.uniform_real(-3.,3.), -3., 3.)));
-		p_test->push_back(boost::shared_ptr<GDouble>(new GDouble(gr.uniform_real(-3.,3.))));
+
+	{ // All tests below use the same, cloned collection
+		// Some settings for the collection of tests below
+		const double MINGCONSTRDOUBLE    = -4.;
+		const double MAXGCONSTRDOUBLE    =  4.;
+		const double MINGDOUBLE          = -5.;
+		const double MAXGDOUBLE          =  5.;
+		const double MINGDOUBLECOLL      = -3.;
+		const double MAXGDOUBLECOLL      =  3.;
+		const std::size_t NGDOUBLECOLL   = 10 ;
+		const std::size_t FPLOOPCOUNT    =  5 ;
+		const double FPFIXEDVALINITMIN   = -3.;
+		const double FPFIXEDVALINITMAX   =  3.;
+		const double FPMULTIPLYBYRANDMIN = -5.;
+		const double FPMULTIPLYBYRANDMAX =  5.;
+		const double FPADD               =  2.;
+		const double FPSUBTRACT          =  2.;
+
+		// Create a GParameterSet object as a clone of this object for further usage
+		boost::shared_ptr<GParameterSet> p_test_0 = this->clone<GParameterSet>();
+		// Clear the collection
+		p_test_0->clear();
+		// Make sure it is really empty
+		BOOST_CHECK(p_test_0->empty());
+		// Add some floating pount parameters
+		for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
+			p_test_0->push_back(boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(gr.uniform_real(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE)));
+			p_test_0->push_back(boost::shared_ptr<GDouble>(new GDouble(gr.uniform_real(MINGDOUBLE,MAXGDOUBLE))));
+			p_test_0->push_back(boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)));
+		}
+
+		// Attach a few other parameter types
+		p_test_0->push_back(boost::shared_ptr<GConstrainedInt32>(new GConstrainedInt32(7, -10, 10)));
+		p_test_0->push_back(boost::shared_ptr<GBoolean>(new GBoolean(true)));
+
+		//-----------------------------------------------------------------
+
+		{ // Test setting and resetting of the random number generator
+			// Create a GParameterSet object as a clone of p_test_0 for further usage
+			boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+
+			// Distribute our own random number generator
+			BOOST_CHECK_NO_THROW(p_test->updateRNGs());
+			BOOST_CHECK(p_test->assignedRNGUsed() == true);
+
+			// Restore the original generators in all objects in the container
+			BOOST_CHECK_NO_THROW(p_test->restoreRNGs());
+			BOOST_CHECK(p_test->localRNGsUsed() == true);
+		}
+
+		//-----------------------------------------------------------------
+
+		{ // Test random initialization
+			// Create a GParameterSet object as a clone of p_test_0 for further usage
+			boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+
+			BOOST_CHECK_NO_THROW(p_test->randomInit());
+			BOOST_CHECK(*p_test != *p_test_0);
+		}
+
+		//-----------------------------------------------------------------
+		{ // Test initialization of all fp parameters with a fixed value
+			for(double d=FPFIXEDVALINITMIN; d<FPFIXEDVALINITMAX; d+=1.) {
+				// Create a GParameterSet object as a clone of p_test_0 for further usage
+				boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+
+				// Make sure the individual is clean by manually setting the dirty flag to false
+				// We might not have any evaluation code, so we cannot just call the fitness() function
+				// p_test->setDirtyFlag(false);
+
+				// Initialize all fp-values with 0.
+				p_test->fpFixedValueInit(d);
+
+				// Make sure the dirty flag is set
+				BOOST_CHECK(p_test->isDirty() == true);
+
+				// Cross-check
+				std::size_t counter = 0;
+				for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
+					BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() == d);
+					counter++;
+					BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() == d);
+					counter++;
+					boost::shared_ptr<GDoubleCollection> p_gdc;
+					BOOST_CHECK_NO_THROW(p_gdc = p_test->pc_at<GDoubleCollection>(counter));
+					for(std::size_t gdc_cnt=0; gdc_cnt<NGDOUBLECOLL; gdc_cnt++) {
+						BOOST_CHECK_MESSAGE (
+								p_gdc->at(gdc_cnt) == d
+								,  "\n"
+								<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+								<< "expected " << d << "\n"
+								<< "iteration = " << gdc_cnt << "\n"
+						);
+					}
+					counter++;
+				}
+
+				// The int32 parameter should have stayed the same
+				boost::shared_ptr<GConstrainedInt32> p_int32_0;
+				boost::shared_ptr<GConstrainedInt32> p_int32;
+				BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
+				BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+				BOOST_CHECK(*p_int32_0 == *p_int32);
+				counter++;
+
+				// Likewise, the boolean parameter should have stayed the same
+				boost::shared_ptr<GBoolean> p_boolean_orig;
+				boost::shared_ptr<GBoolean> p_boolean_cloned;
+				BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
+				BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+				BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+				counter++;
+			}
+		}
+
+		//-----------------------------------------------------------------
+
+		{ // Test multiplication of all fp parameters with a fixed value
+			for(double d=-3; d<3; d+=1.) {
+				// Create a GParameterSet object as a clone of p_test_0 for further usage
+				boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+
+				// Make sure the individual is clean by manually setting the dirty flag to false
+				// We might not have any evaluation code, so we cannot just call the fitness() function
+				// p_test->setDirtyFlag(false);
+
+				// Initialize all fp-values with FPFIXEDVALINITMAX
+				BOOST_CHECK_NO_THROW(p_test->fpFixedValueInit(FPFIXEDVALINITMAX));
+
+				// Multiply this fixed value by d
+				BOOST_CHECK_NO_THROW(p_test->fpMultiplyBy(d));
+
+				// Make sure the dirty flag is set
+				BOOST_CHECK(p_test->isDirty() == true);
+
+				// Cross-check
+				std::size_t counter = 0;
+				for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
+					// A constrained value does not have to assume the value d*FPFIXEDVALINITMAX,
+					// but needs to stay within its boundaries
+					BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() >= MINGCONSTRDOUBLE);
+					BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() <= MAXGCONSTRDOUBLE);
+					counter++;
+					BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() == d*FPFIXEDVALINITMAX);
+					counter++;
+					boost::shared_ptr<GDoubleCollection> p_gdc;
+					BOOST_CHECK_NO_THROW(p_gdc = p_test->pc_at<GDoubleCollection>(counter));
+					for(std::size_t gdc_cnt=0; gdc_cnt<NGDOUBLECOLL; gdc_cnt++) {
+						BOOST_CHECK_MESSAGE (
+								p_gdc->at(gdc_cnt) == d*FPFIXEDVALINITMAX
+								,  "\n"
+								<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+								<< "expected " << d*FPFIXEDVALINITMAX << "\n"
+								<< "iteration = " << gdc_cnt << "\n"
+						);
+					}
+					counter++;
+				}
+
+				// The int32 parameter should have stayed the same
+				boost::shared_ptr<GConstrainedInt32> p_int32_0;
+				boost::shared_ptr<GConstrainedInt32> p_int32;
+				BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
+				BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+				BOOST_CHECK(*p_int32_0 == *p_int32);
+				counter++;
+
+				// Likewise, the boolean parameter should have stayed the same
+				boost::shared_ptr<GBoolean> p_boolean_orig;
+				boost::shared_ptr<GBoolean> p_boolean_cloned;
+				BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
+				BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+				BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+				counter++;
+			}
+		}
+
+		//-----------------------------------------------------------------
+
+		{ // Test that fpMultiplyByRandom(min,max) changes every single parameter
+			// Create a GParameterSet object as a clone of p_test_0 for further usage
+			boost::shared_ptr<GParameterSet> p_test       = p_test_0->clone<GParameterSet>();
+
+			// Make sure the individual is clean by manually setting the dirty flag to false
+			// We might not have any evaluation code, so we cannot just call the fitness() function
+			// p_test->setDirtyFlag(false);
+
+			// Multiply each floating point value with a constrained random value
+			BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom(FPMULTIPLYBYRANDMIN, FPMULTIPLYBYRANDMAX));
+
+			// Make sure the dirty flag is set
+			BOOST_CHECK(p_test->isDirty() == true);
+
+			// Cross-check
+			std::size_t counter = 0;
+			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
+				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() != p_test_0->pc_at<GConstrainedDouble>(counter)->value());
+				counter++;
+				BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() != p_test_0->pc_at<GDouble>(counter)->value());
+				counter++;
+				boost::shared_ptr<GDoubleCollection> p_gdc;
+				boost::shared_ptr<GDoubleCollection> p_gdc_0;
+				BOOST_CHECK_NO_THROW(p_gdc   = p_test->pc_at<GDoubleCollection>(counter));
+				BOOST_CHECK_NO_THROW(p_gdc_0 = p_test_0->pc_at<GDoubleCollection>(counter));
+				for(std::size_t gdc_cnt=0; gdc_cnt<NGDOUBLECOLL; gdc_cnt++) {
+					BOOST_CHECK_MESSAGE (
+							p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt)
+							,  "\n"
+							<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+							<< "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
+							<< "iteration = " << gdc_cnt << "\n"
+					);
+				}
+				counter++;
+			}
+
+			// The int32 parameter should have stayed the same
+			boost::shared_ptr<GConstrainedInt32> p_int32_0;
+			boost::shared_ptr<GConstrainedInt32> p_int32;
+			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
+			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+			BOOST_CHECK(*p_int32_0 == *p_int32);
+			counter++;
+
+			// Likewise, the boolean parameter should have stayed the same
+			boost::shared_ptr<GBoolean> p_boolean_orig;
+			boost::shared_ptr<GBoolean> p_boolean_cloned;
+			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
+			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+			BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+			counter++;
+		}
+
+		//-----------------------------------------------------------------
+
+		{ // Test that fpMultiplyByRandom() changes every single parameter
+			// Create a GParameterSet object as a clone of p_test_0 for further usage
+			boost::shared_ptr<GParameterSet> p_test       = p_test_0->clone<GParameterSet>();
+
+			// Make sure the individual is clean by manually setting the dirty flag to false
+			// We might not have any evaluation code, so we cannot just call the fitness() function
+			// p_test->setDirtyFlag(false);
+
+			// Multiply each floating point value with a constrained random value
+			BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom());
+
+			// Make sure the dirty flag is set
+			BOOST_CHECK(p_test->isDirty() == true);
+
+			// Cross-check
+			std::size_t counter = 0;
+			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
+				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() != p_test_0->pc_at<GConstrainedDouble>(counter)->value());
+				counter++;
+				BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() != p_test_0->pc_at<GDouble>(counter)->value());
+				counter++;
+				boost::shared_ptr<GDoubleCollection> p_gdc;
+				boost::shared_ptr<GDoubleCollection> p_gdc_0;
+				BOOST_CHECK_NO_THROW(p_gdc   = p_test->pc_at<GDoubleCollection>(counter));
+				BOOST_CHECK_NO_THROW(p_gdc_0 = p_test_0->pc_at<GDoubleCollection>(counter));
+				for(std::size_t gdc_cnt=0; gdc_cnt<NGDOUBLECOLL; gdc_cnt++) {
+					BOOST_CHECK_MESSAGE (
+							p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt)
+							,  "\n"
+							<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+							<< "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
+							<< "iteration = " << gdc_cnt << "\n"
+					);
+				}
+				counter++;
+			}
+
+			// The int32 parameter should have stayed the same
+			boost::shared_ptr<GConstrainedInt32> p_int32_0;
+			boost::shared_ptr<GConstrainedInt32> p_int32;
+			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
+			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+			BOOST_CHECK(*p_int32_0 == *p_int32);
+			counter++;
+
+			// Likewise, the boolean parameter should have stayed the same
+			boost::shared_ptr<GBoolean> p_boolean_orig;
+			boost::shared_ptr<GBoolean> p_boolean_cloned;
+			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
+			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+			BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+			counter++;
+		}
+
+		//-----------------------------------------------------------------
+
+		{ // Check adding of individuals
+			// Create two GParameterSet objects as a clone of p_test_0 for further usage
+			boost::shared_ptr<GParameterSet> p_test       = p_test_0->clone<GParameterSet>();
+			boost::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
+
+			// Initialize all fp-values of the "add" individual with a fixed valie
+			BOOST_CHECK_NO_THROW(p_test_fixed->fpFixedValueInit(FPADD));
+
+			// Add p_test_fixed to p_test
+			BOOST_CHECK_NO_THROW(p_test->fpAdd(p_test_fixed));
+
+			// Check the results
+			std::size_t counter = 0;
+			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
+				// A constrained value does not have to assume the value value()+FPADD
+				// but needs to stay within its boundaries
+				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() >= MINGCONSTRDOUBLE);
+				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() <= MAXGCONSTRDOUBLE);
+				counter++;
+				BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() == p_test_0->pc_at<GDouble>(counter)->value() + FPADD);
+				counter++;
+				boost::shared_ptr<GDoubleCollection> p_gdc;
+				boost::shared_ptr<GDoubleCollection> p_gdc_0;
+				BOOST_CHECK_NO_THROW(p_gdc   = p_test->pc_at<GDoubleCollection>(counter));
+				BOOST_CHECK_NO_THROW(p_gdc_0 = p_test_0->pc_at<GDoubleCollection>(counter));
+				for(std::size_t gdc_cnt=0; gdc_cnt<NGDOUBLECOLL; gdc_cnt++) {
+					BOOST_CHECK_MESSAGE (
+							p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) + FPADD
+							,  "\n"
+							<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+							<< "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
+							<< "FPADD = " << FPADD
+							<< "p_gdc_0->at(gdc_cnt) + FPADD = " << p_gdc_0->at(gdc_cnt) + FPADD << "\n"
+							<< "iteration = " << gdc_cnt << "\n"
+					);
+				}
+				counter++;
+			}
+
+			// The int32 parameter should have stayed the same
+			boost::shared_ptr<GConstrainedInt32> p_int32_0;
+			boost::shared_ptr<GConstrainedInt32> p_int32;
+			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
+			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+			BOOST_CHECK(*p_int32_0 == *p_int32);
+			counter++;
+
+			// Likewise, the boolean parameter should have stayed the same
+			boost::shared_ptr<GBoolean> p_boolean_orig;
+			boost::shared_ptr<GBoolean> p_boolean_cloned;
+			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
+			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+			BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+			counter++;
+		}
+
+		//-----------------------------------------------------------------
+
+		{ // Check subtraction of individuals
+			// Create two GParameterSet objects as a clone of p_test_0 for further usage
+			boost::shared_ptr<GParameterSet> p_test       = p_test_0->clone<GParameterSet>();
+			boost::shared_ptr<GParameterSet> p_test_fixed = p_test_0->clone<GParameterSet>();
+
+			// Initialize all fp-values of the "add" individual with a fixed valie
+			BOOST_CHECK_NO_THROW(p_test_fixed->fpFixedValueInit(FPSUBTRACT));
+
+			// Add p_test_fixed to p_test
+			BOOST_CHECK_NO_THROW(p_test->fpSubtract(p_test_fixed));
+
+			// Check the results
+			std::size_t counter = 0;
+			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
+				// A constrained value does not have to assume the value value()-FPSUBTRACT
+				// but needs to stay within its boundaries
+				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() >= MINGCONSTRDOUBLE);
+				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() <= MAXGCONSTRDOUBLE);
+				counter++;
+				BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() == p_test_0->pc_at<GDouble>(counter)->value() - FPSUBTRACT);
+				counter++;
+				boost::shared_ptr<GDoubleCollection> p_gdc;
+				boost::shared_ptr<GDoubleCollection> p_gdc_0;
+				BOOST_CHECK_NO_THROW(p_gdc   = p_test->pc_at<GDoubleCollection>(counter));
+				BOOST_CHECK_NO_THROW(p_gdc_0 = p_test_0->pc_at<GDoubleCollection>(counter));
+				for(std::size_t gdc_cnt=0; gdc_cnt<NGDOUBLECOLL; gdc_cnt++) {
+					BOOST_CHECK_MESSAGE (
+							p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) - FPSUBTRACT
+							,  "\n"
+							<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+							<< "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) << "\n"
+							<< "FPSUBTRACT = " << FPSUBTRACT
+							<< "p_gdc_0->at(gdc_cnt) - FPSUBTRACT = " << p_gdc_0->at(gdc_cnt) - FPSUBTRACT << "\n"
+							<< "iteration = " << gdc_cnt << "\n"
+					);
+				}
+				counter++;
+			}
+
+			// The int32 parameter should have stayed the same
+			boost::shared_ptr<GConstrainedInt32> p_int32_0;
+			boost::shared_ptr<GConstrainedInt32> p_int32;
+			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
+			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+			BOOST_CHECK(*p_int32_0 == *p_int32);
+			counter++;
+
+			// Likewise, the boolean parameter should have stayed the same
+			boost::shared_ptr<GBoolean> p_boolean_orig;
+			boost::shared_ptr<GBoolean> p_boolean_cloned;
+			BOOST_CHECK_NO_THROW(p_boolean_orig   = p_test_0->pc_at<GBoolean>(counter));
+			BOOST_CHECK_NO_THROW(p_boolean_cloned =   p_test->pc_at<GBoolean>(counter));
+			BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
+			counter++;
+		}
+
+		//-----------------------------------------------------------------
 	}
 
 	//---------------------------------------------------------------------
-	// Test whether fpMultipyBy has an effect
 }
 
 /************************************************************************************************************/

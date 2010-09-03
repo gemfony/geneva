@@ -15,6 +15,7 @@ SET ( OPTIMIZATIONSOURCES
 	GDouble
 	GDoubleCollection
 	GDoubleGaussAdaptor
+	# GDoubleObject
 	GDoubleObjectCollection
 	GEAPersonalityTraits
 	GEvolutionaryAlgorithm

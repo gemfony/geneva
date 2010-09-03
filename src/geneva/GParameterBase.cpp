@@ -252,6 +252,11 @@ void GParameterBase::randomInit() {
 	if(!randomInitializationBlocked_) randomInit_();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**********************************************************************************/
 /**
  * Initializes double-based parameters with a given value. Allows e.g. to set all
@@ -323,6 +328,11 @@ void GParameterBase::blockRandomInitialization() {
 	randomInitializationBlocked_ = true;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**********************************************************************************/
 /**
  * Specifies that no random initialization should occur anymore
@@ -331,6 +341,11 @@ void GParameterBase::allowRandomInitialization() {
 	randomInitializationBlocked_ = false;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**********************************************************************************/
 /**
  * Checks whether initialization has been blocked
@@ -338,6 +353,11 @@ void GParameterBase::allowRandomInitialization() {
 bool GParameterBase::randomInitializationBlocked() const {
 	return randomInitializationBlocked_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 #ifdef GENEVATESTING
 /**********************************************************************************/
@@ -362,6 +382,73 @@ bool GParameterBase::modify_GUnitTests() {
 void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsNoFailureExpected_GUnitTests();
+
+	//---------------------------------------------------------------------
+
+	{ // Test blocking and unblocking of random initialization
+		// Create two GParameterBase objects as clone of this object for further usage
+		boost::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
+		boost::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
+
+		BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
+		BOOST_CHECK_NO_THROW(p_test2->blockRandomInitialization());
+		BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
+		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+
+		// Random initialization should leave the object unchanged
+		BOOST_CHECK_NO_THROW(p_test1->randomInit());
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Unblock random initialization
+		BOOST_CHECK_NO_THROW(p_test1->allowRandomInitialization());
+		BOOST_CHECK_NO_THROW(p_test2->allowRandomInitialization());
+		BOOST_CHECK(p_test1->randomInitializationBlocked() == false);
+		BOOST_CHECK(p_test2->randomInitializationBlocked() == false);
+
+		// Random initialization should change p_test1
+		BOOST_CHECK_NO_THROW(p_test1->randomInit());
+		BOOST_CHECK(*p_test1 != *p_test2);
+	}
+
+	//---------------------------------------------------------------------
+
+	{ // Check activating and de-activating adaptions. Note that the
+	  // effects of these flags can only be tested if an adaptor or
+	  // multiple adaptors (in the case of object collections) has/ve
+	  // been loaded.
+
+		// Create some clones of this object
+		boost::shared_ptr<GParameterBase> p_test = this->clone<GParameterBase>();
+		boost::shared_ptr<GParameterBase> p_test_1 = this->clone<GParameterBase>();
+		boost::shared_ptr<GParameterBase> p_test_2 = this->clone<GParameterBase>();
+
+		// activate adaptions
+		BOOST_CHECK_NO_THROW(p_test_1->setAdaptionsActive());
+		BOOST_CHECK(p_test_1->adaptionsActive() == true);
+
+		// de-activate adaptions
+		BOOST_CHECK_NO_THROW(p_test_2->setAdaptionsInactive());
+		BOOST_CHECK(p_test_2->adaptionsActive() == false);
+
+		if(p_test_1->hasAdaptor() && p_test_2->hasAdaptor()) {
+			BOOST_CHECK_NO_THROW(p_test_1->adapt()); // Should change
+			BOOST_CHECK_NO_THROW(p_test->setAdaptionsActive()); // Make sure differences do not stem from this flag
+			BOOST_CHECK(*p_test_1 != *p_test);
+
+			BOOST_CHECK_NO_THROW(p_test_2->adapt()); // Should stay unchanged
+			BOOST_CHECK_NO_THROW(p_test->setAdaptionsInactive()); // Make sure differences do not stem from this flag
+			BOOST_CHECK(*p_test_2 == *p_test);
+		}
+	}
+
+	//---------------------------------------------------------------------
+
+	{ // Check adding and resetting of random number generators
+		// Note to self: this needs to be tested in derived classes (such as GDouble)
+		// BUT: Can check hasAdaptor() ...
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /**********************************************************************************/
@@ -371,6 +458,36 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsFailuresExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that assigning a NULL pointer for the random number generator throws
+		boost::shared_ptr<GParameterBase> p_test = this->clone<GParameterBase>();
+
+		// Assigning a NULL pointer should throw
+		BOOST_CHECK_THROW(
+				p_test->assignGRandomPointer(NULL);
+				, Gem::Common::gemfony_error_condition
+		);
+	}
+
+	//------------------------------------------------------------------------------
+
+
+	{ // Check that resetting the random number generator throws if gr_local is NULL
+		boost::shared_ptr<GParameterBase> p_test = this->clone<GParameterBase>();
+
+		p_test->gr_local = NULL;
+
+		// Resetting the pointer should throw, if gr_local is NULL (which it technically
+		// should never be able to become
+		BOOST_CHECK_THROW(
+				p_test->resetGRandomPointer();
+				, Gem::Common::gemfony_error_condition
+		);
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /**********************************************************************************/

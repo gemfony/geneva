@@ -59,6 +59,8 @@
 
 #ifdef GENEVATESTING
 #include "common/GUnitTestFrameworkT.hpp"
+#include "GBoolean.hpp"
+#include "GConstrainedInt32.hpp"
 #include "GConstrainedDouble.hpp"
 #include "GConstrainedDoubleObjectCollection.hpp"
 #include "GDoubleCollection.hpp"
@@ -139,13 +141,8 @@ public:
 
 	/** @brief Adds the floating point parameters of another GParameterSet object to this one */
 	void fpAdd(boost::shared_ptr<GParameterSet>);
-	/** @brief Small convenience function */
-	void operator+=(boost::shared_ptr<GParameterSet>);
-
 	/** @brief Subtracts the floating point parameters of another GParameterSet object from this one */
 	void fpSubtract(boost::shared_ptr<GParameterSet>);
-	/** @brief Small convenience function */
-	void operator-=(boost::shared_ptr<GParameterSet>);
 
 	/** @brief Updates the random number generators contained in this object's GParameterBase-derivatives */
 	virtual void updateRNGs();
@@ -153,6 +150,8 @@ public:
 	virtual void restoreRNGs();
 	/** @brief Checks whether all GParameterBase derivatives use local random number generators */
 	virtual bool localRNGsUsed() const;
+	/** @brief Checks whether all GParameterBase derivatives use the assigned random number generator */
+	virtual bool assignedRNGUsed() const;
 
 	/**********************************************************************/
 	/**

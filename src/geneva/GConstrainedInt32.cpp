@@ -51,7 +51,7 @@ GConstrainedInt32::GConstrainedInt32()
 
 /*******************************************************************************************/
 /**
- * Initialization with boundaries only. The value is set randomly.
+ * Initialization with boundaries only. The value is set to the lower boundary in GConstrainedNumT<T>.
  *
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range

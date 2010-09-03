@@ -50,6 +50,7 @@
 // Geneva headers go here
 
 #include "GNumFPT.hpp"
+#include "GDoubleGaussAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
