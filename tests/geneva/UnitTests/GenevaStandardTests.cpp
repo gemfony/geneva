@@ -45,11 +45,10 @@ using namespace boost::unit_test;
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedInt32ObjectCollection.hpp"
 #include "geneva/GBooleanObject.hpp"
-#include "geneva/GConstrainedInt32.hpp"
+#include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GInt32Object.hpp"
 #include "geneva/GDoubleObject.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
-#include "geneva/GConstrainedInt32.hpp"
 #include "geneva/GInt32Collection.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GBooleanCollection.hpp"
@@ -101,7 +100,7 @@ public:
 			, GConstrainedDoubleObjectCollection
 			, GBooleanObject
 			, GConstrainedDoubleObject
-			, GConstrainedInt32
+			, GConstrainedInt32Object
 			, GConstrainedInt32ObjectCollection
 			, GDoubleObject
 			, GInt32Object

@@ -50,7 +50,7 @@
 #include <boost/cstdint.hpp>
 
 // Geneva header files go here
-#include "geneva/GConstrainedInt32.hpp"
+#include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 
 using namespace Gem::Geneva;
@@ -59,8 +59,8 @@ using namespace boost;
 const boost::uint32_t NTESTS=10000;
 
 int main(int argc, char **argv){
-	GConstrainedInt32 gint13(-1, 3); // lower boundary -1, upper Boundary 3
-	GConstrainedInt32 gint02(0, 2); // lower boundary 0.5, upper Boundary 2
+	GConstrainedInt32Object gint13(-1, 3); // lower boundary -1, upper Boundary 3
+	GConstrainedInt32Object gint02(0, 2); // lower boundary 0.5, upper Boundary 2
 
 	double internalValue = 0., externalValue = 0.;
 
@@ -153,7 +153,7 @@ int main(int argc, char **argv){
 		    << "  TPaveText *pt = new TPaveText(0.349138,0.872881,0.637931,0.963983,\"blNDC\");" << std::endl
 		    << "  pt->SetBorderSize(2);" << std::endl
 		    << "  pt->SetFillColor(19);" << std::endl
-		    << "  pt->AddText(\"Test of the GConstrainedInt32 class\");" << std::endl
+		    << "  pt->AddText(\"Test of the GConstrainedInt32Object class\");" << std::endl
 		    << "  pt->Draw();" << std::endl
 	        << "}" << std::endl;
 

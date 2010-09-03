@@ -46,7 +46,7 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
-#include "geneva/GConstrainedInt32.hpp"
+#include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
@@ -75,11 +75,11 @@ public:
 							 Gem::Common::CE_WITH_MESSAGES);
 
 		// Test instantiation in different modes
-		GConstrainedInt32 gbi0;
-		GConstrainedInt32 gbi1(-10,10);
-		GConstrainedInt32 gbi2(1,-10,10);
-		GConstrainedInt32 gbi7(3); // has maximum boundaries
-		GConstrainedInt32 gbi3(gbi2);
+		GConstrainedInt32Object gbi0;
+		GConstrainedInt32Object gbi1(-10,10);
+		GConstrainedInt32Object gbi2(1,-10,10);
+		GConstrainedInt32Object gbi7(3); // has maximum boundaries
+		GConstrainedInt32Object gbi3(gbi2);
 
 		BOOST_CHECK(gbi3 == gbi2);
 		if(gbi1.value() != 1) BOOST_CHECK(gbi2 != gbi1); // gbi1 may randomly be assigned the value, which would result in an error being erroneously reported
@@ -100,7 +100,7 @@ public:
 		BOOST_CHECK_NO_THROW(gbi7.setBoundaries(-10,10));
 
 		// (Repeated) assignment
-		GConstrainedInt32 gbi3_2;
+		GConstrainedInt32Object gbi3_2;
 		gbi3_2 = gbi3 = gbi0;
 		BOOST_CHECK(gbi3 != gbi2);
 		BOOST_CHECK(gbi3 == gbi0);
@@ -108,7 +108,7 @@ public:
 		BOOST_CHECK(gbi3_2 == gbi0);
 
 		// Cloning and loading
-		GConstrainedInt32 gbi5;
+		GConstrainedInt32Object gbi5;
 		{
 			boost::shared_ptr<GObject> gbi4;
 			BOOST_CHECK_NO_THROW(gbi4 = gbi3.GObject::clone());
@@ -133,7 +133,7 @@ public:
 
 		// Attach an adaptor to the integer and check that no values outside of the
 		// value range occur
-		GConstrainedInt32 mutTest(2, 1, 5);
+		GConstrainedInt32Object mutTest(2, 1, 5);
 		boost::shared_ptr<GInt32FlipAdaptor> gifa(new GInt32FlipAdaptor);
 		mutTest.addAdaptor(gifa);
 		for(std::size_t i=0; i<NADAPTIONS; i++) {
@@ -144,7 +144,7 @@ public:
 		// Check that input of bounded int leads to the desired output (in this
 		// case same number of entries in the vector
 		std::vector<boost::int32_t> iVec(20,0);
-		GConstrainedInt32 cc(-10,9); // cc == "checkConversion; 20 values
+		GConstrainedInt32Object cc(-10,9); // cc == "checkConversion; 20 values
 		for(boost::int32_t i=0; i<1000; i++) {
 			val =  cc.transfer(-10+i%20);
 			iVec[boost::numeric_cast<std::size_t>(10 + val)] += 1;
@@ -156,8 +156,8 @@ public:
 		// Test serialization and loading in different serialization modes
 		{ // plain text format
 			// Copy construction of a new object
-			GConstrainedInt32 gbi6(0,-10,10);
-			GConstrainedInt32 gbi6_cp(gbi6);
+			GConstrainedInt32Object gbi6(0,-10,10);
+			GConstrainedInt32Object gbi6_cp(gbi6);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gbi6_cp == gbi6);
@@ -173,8 +173,8 @@ public:
 
 		{ // XML format
 			// Copy construction of a new object
-			GConstrainedInt32 gbi6(0,-10,10);
-			GConstrainedInt32 gbi6_cp(gbi6);
+			GConstrainedInt32Object gbi6(0,-10,10);
+			GConstrainedInt32Object gbi6_cp(gbi6);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gbi6_cp == gbi6);
@@ -190,8 +190,8 @@ public:
 
 		{ // binary test format
 			// Copy construction of a new object
-			GConstrainedInt32 gbi6(0,-10,10);
-			GConstrainedInt32 gbi6_cp(gbi6);
+			GConstrainedInt32Object gbi6(0,-10,10);
+			GConstrainedInt32Object gbi6_cp(gbi6);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gbi6_cp == gbi6);
@@ -211,14 +211,14 @@ public:
 	void failures_expected() {
 		{
 			// Assignment of value outside of the allowed range
-			GConstrainedInt32 gbi(-10,10);
+			GConstrainedInt32Object gbi(-10,10);
 			BOOST_CHECK_THROW(gbi=11, Gem::Common::gemfony_error_condition);
 		}
 
 		{
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-			boost::shared_ptr<GConstrainedInt32> gbi_ptr(new GConstrainedInt32(-10,10));
+			boost::shared_ptr<GConstrainedInt32Object> gbi_ptr(new GConstrainedInt32Object(-10,10));
 			BOOST_CHECK_THROW(gbi_ptr->load(gbi_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 		}
@@ -232,7 +232,7 @@ private:
 
 /********************************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GConstrainedInt32 class. Please also have a look at the manual test,
+// by the GConstrainedInt32Object class. Please also have a look at the manual test,
 // as it gives a graphical representation of the mapping.
 class GConstrainedInt32Suite: public test_suite
 {

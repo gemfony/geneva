@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedInt32.hpp
+ * @file GConstrainedInt32Object.hpp
  */
 /*
  * Copyright (C) Authors of the Geneva library collection and Karlsruhe
@@ -45,8 +45,8 @@
 #include <boost/cast.hpp> // For boost::numeric_cast<>
 #include <boost/cstdint.hpp>
 
-#ifndef GCONSTRAINEDINT32_HPP_
-#define GCONSTRAINEDINT32_HPP_
+#ifndef GCONSTRAINEDINT32OBJECT_HPP_
+#define GCONSTRAINEDINT32OBJECT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -64,11 +64,11 @@ namespace Geneva
 
 /******************************************************************************/
 /**
- * The GConstrainedInt32 class allows to limit the value range of a boost::int32_t value,
+ * The GConstrainedInt32Object class allows to limit the value range of a boost::int32_t value,
  * while applying adaptions to a continuous range. This is done by means of a
  * mapping from an internal representation to an externally visible value.
  */
-class GConstrainedInt32
+class GConstrainedInt32Object
   : public GConstrainedIntegerT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -84,28 +84,28 @@ class GConstrainedInt32
 
 public:
 	/** @brief The default constructor */
-	GConstrainedInt32();
+	GConstrainedInt32Object();
 	/** @brief Initialization with boundaries only */
-	GConstrainedInt32(const boost::int32_t&, const boost::int32_t&);
+	GConstrainedInt32Object(const boost::int32_t&, const boost::int32_t&);
 	/** @brief Initialization with value and boundaries */
-	GConstrainedInt32(const boost::int32_t&, const boost::int32_t&, const boost::int32_t&);
+	GConstrainedInt32Object(const boost::int32_t&, const boost::int32_t&, const boost::int32_t&);
 	/** @brief The copy constructor */
-	GConstrainedInt32(const GConstrainedInt32&);
+	GConstrainedInt32Object(const GConstrainedInt32Object&);
 	/** @brief Initialization by contained value */
-	explicit GConstrainedInt32(const boost::int32_t&);
+	explicit GConstrainedInt32Object(const boost::int32_t&);
 	/** @brief The destructor */
-	virtual ~GConstrainedInt32();
+	virtual ~GConstrainedInt32Object();
 
 	/** @brief An assignment operator for the contained value type */
 	virtual boost::int32_t operator=(const boost::int32_t&);
 
 	/** @brief A standard assignment operator */
-	const GConstrainedInt32& operator=(const GConstrainedInt32&);
+	const GConstrainedInt32Object& operator=(const GConstrainedInt32Object&);
 
-	/** @brief Checks for equality with another GConstrainedInt32 object */
-	bool operator==(const GConstrainedInt32&) const;
-	/** @brief Checks for inequality with another GConstrainedInt32 object */
-	bool operator!=(const GConstrainedInt32&) const;
+	/** @brief Checks for equality with another GConstrainedInt32Object object */
+	bool operator==(const GConstrainedInt32Object&) const;
+	/** @brief Checks for inequality with another GConstrainedInt32Object object */
+	bool operator!=(const GConstrainedInt32Object&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
@@ -135,4 +135,4 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GCONSTRAINEDINT32_HPP_ */
+#endif /* GCONSTRAINEDINT32OBJECT_HPP_ */

@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedInt32.cpp
+ * @file GConstrainedInt32Object.cpp
  */
 
 /*
@@ -29,14 +29,14 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GConstrainedInt32.hpp"
+#include "geneva/GConstrainedInt32Object.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GConstrainedInt32)
+BOOST_CLASS_EXPORT(Gem::Geneva::GConstrainedInt32Object)
 
 namespace Gem {
 namespace Geneva {
@@ -45,7 +45,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GConstrainedInt32::GConstrainedInt32()
+GConstrainedInt32Object::GConstrainedInt32Object()
 	: GConstrainedIntegerT<boost::int32_t>()
 { /* nothing */ }
 
@@ -56,7 +56,7 @@ GConstrainedInt32::GConstrainedInt32()
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
  */
-GConstrainedInt32::GConstrainedInt32(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
+GConstrainedInt32Object::GConstrainedInt32Object(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
 	: GConstrainedIntegerT<boost::int32_t>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
@@ -68,7 +68,7 @@ GConstrainedInt32::GConstrainedInt32(const boost::int32_t& lowerBoundary, const 
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
  */
-GConstrainedInt32::GConstrainedInt32 (
+GConstrainedInt32Object::GConstrainedInt32Object (
 		  const boost::int32_t& val
 		, const boost::int32_t& lowerBoundary
 		, const boost::int32_t& upperBoundary
@@ -80,9 +80,9 @@ GConstrainedInt32::GConstrainedInt32 (
 /**
  * The copy constructor
  *
- * @param cp A copy of another GConstrainedInt32 object
+ * @param cp A copy of another GConstrainedInt32Object object
  */
-GConstrainedInt32::GConstrainedInt32(const GConstrainedInt32& cp)
+GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object& cp)
 	: GConstrainedIntegerT<boost::int32_t>(cp)
 { /* nothing */ }
 
@@ -92,7 +92,7 @@ GConstrainedInt32::GConstrainedInt32(const GConstrainedInt32& cp)
  *
  * @param val A value used for the initialization
  */
-GConstrainedInt32::GConstrainedInt32(const boost::int32_t& val)
+GConstrainedInt32Object::GConstrainedInt32Object(const boost::int32_t& val)
 	: GConstrainedIntegerT<boost::int32_t>(val)
 { /* nothing */ }
 
@@ -100,7 +100,7 @@ GConstrainedInt32::GConstrainedInt32(const boost::int32_t& val)
 /**
  * The destructor
  */
-GConstrainedInt32::~GConstrainedInt32()
+GConstrainedInt32Object::~GConstrainedInt32Object()
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -110,7 +110,7 @@ GConstrainedInt32::~GConstrainedInt32()
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-boost::int32_t GConstrainedInt32::operator=(const boost::int32_t& val) {
+boost::int32_t GConstrainedInt32Object::operator=(const boost::int32_t& val) {
 	return GConstrainedIntegerT<boost::int32_t>::operator=(val);
 }
 
@@ -118,11 +118,11 @@ boost::int32_t GConstrainedInt32::operator=(const boost::int32_t& val) {
 /**
  * A standard assignment operator.
  *
- * @param cp A copy of another GConstrainedInt32 object
+ * @param cp A copy of another GConstrainedInt32Object object
  * @return A constant reference to this object
  */
-const GConstrainedInt32& GConstrainedInt32::operator=(const GConstrainedInt32& cp){
-	GConstrainedInt32::load_(&cp);
+const GConstrainedInt32Object& GConstrainedInt32Object::operator=(const GConstrainedInt32Object& cp){
+	GConstrainedInt32Object::load_(&cp);
 	return *this;
 }
 
@@ -132,34 +132,34 @@ const GConstrainedInt32& GConstrainedInt32::operator=(const GConstrainedInt32& c
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GConstrainedInt32::clone_() const {
-	return new GConstrainedInt32(*this);
+GObject* GConstrainedInt32Object::clone_() const {
+	return new GConstrainedInt32Object(*this);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for equality with another GConstrainedInt32 object
+ * Checks for equality with another GConstrainedInt32Object object
  *
- * @param  cp A constant reference to another GConstrainedInt32 object
+ * @param  cp A constant reference to another GConstrainedInt32Object object
  * @return A boolean indicating whether both objects are equal
  */
-bool GConstrainedInt32::operator==(const GConstrainedInt32& cp) const {
+bool GConstrainedInt32Object::operator==(const GConstrainedInt32Object& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to true)
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedInt32::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedInt32Object::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for inequality with another GConstrainedInt32 object
+ * Checks for inequality with another GConstrainedInt32Object object
  *
- * @param  cp A constant reference to another GConstrainedInt32 object
+ * @param  cp A constant reference to another GConstrainedInt32Object object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GConstrainedInt32::operator!=(const GConstrainedInt32& cp) const {
+bool GConstrainedInt32Object::operator!=(const GConstrainedInt32Object& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality fulfilled, if no error text was emitted (which converts to true)
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedInt32::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedInt32Object::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -175,7 +175,7 @@ bool GConstrainedInt32::operator!=(const GConstrainedInt32& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GConstrainedInt32::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GConstrainedInt32Object::checkRelationshipWith(const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -185,28 +185,28 @@ boost::optional<std::string> GConstrainedInt32::checkRelationshipWith(const GObj
     using namespace Gem::Common;
 
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedInt32>(&cp);
+    GObject::selfAssignmentCheck<GConstrainedInt32Object>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GConstrainedIntegerT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GConstrainedInt32", y_name, withMessages));
+	deviations.push_back(GConstrainedIntegerT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GConstrainedInt32Object", y_name, withMessages));
 
 	// no local data ...
 
-	return evaluateDiscrepancies("GConstrainedInt32", caller, deviations, e);
+	return evaluateDiscrepancies("GConstrainedInt32Object", caller, deviations, e);
 }
 
 /*******************************************************************************************/
 /**
  * Loads the data of another GObject
  *
- * @param cp A copy of another GConstrainedInt32 object, camouflaged as a GObject
+ * @param cp A copy of another GConstrainedInt32Object object, camouflaged as a GObject
  */
-void GConstrainedInt32::load_(const GObject* cp){
+void GConstrainedInt32Object::load_(const GObject* cp){
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedInt32>(cp);
+    GObject::selfAssignmentCheck<GConstrainedInt32Object>(cp);
 
 	// Load our parent class'es data ...
 	GConstrainedIntegerT<boost::int32_t>::load_(cp);
@@ -218,7 +218,7 @@ void GConstrainedInt32::load_(const GObject* cp){
 /**
  * Triggers random initialization of the parameter object
  */
-void GConstrainedInt32::randomInit_() {
+void GConstrainedInt32Object::randomInit_() {
 	GConstrainedIntegerT<boost::int32_t>::randomInit_();
 }
 
@@ -231,7 +231,7 @@ void GConstrainedInt32::randomInit_() {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GConstrainedInt32::modify_GUnitTests() {
+bool GConstrainedInt32Object::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -244,7 +244,7 @@ bool GConstrainedInt32::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GConstrainedInt32::specificTestsNoFailureExpected_GUnitTests() {
+void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GConstrainedIntegerT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -253,7 +253,7 @@ void GConstrainedInt32::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GConstrainedInt32::specificTestsFailuresExpected_GUnitTests() {
+void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GConstrainedIntegerT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
 }

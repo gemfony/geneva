@@ -12,7 +12,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedDoubleObject.hpp
 	GConstrainedDoubleObjectCollection.hpp
 	GConstrainedFPT.hpp
-	GConstrainedInt32.hpp
+	GConstrainedInt32Object.hpp
 	GConstrainedInt32ObjectCollection.hpp
 	GConstrainedIntegerT.hpp
 #	GConstrainedNumCollectionT.hpp

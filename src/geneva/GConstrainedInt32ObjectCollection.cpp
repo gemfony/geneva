@@ -53,7 +53,7 @@ GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection()
  * @param cp A copy of another GConstrainedInt32ObjectCollection object
  */
 GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(const GConstrainedInt32ObjectCollection& cp)
-	: GParameterTCollectionT<GConstrainedInt32>(cp)
+	: GParameterTCollectionT<GConstrainedInt32Object>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -140,7 +140,7 @@ boost::optional<std::string> GConstrainedInt32ObjectCollection::checkRelationshi
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterTCollectionT<GConstrainedInt32>::checkRelationshipWith(cp, e, limit, "GConstrainedInt32ObjectCollection", y_name, withMessages));
+	deviations.push_back(GParameterTCollectionT<GConstrainedInt32Object>::checkRelationshipWith(cp, e, limit, "GConstrainedInt32ObjectCollection", y_name, withMessages));
 
 	// no local data ...
 
@@ -158,7 +158,7 @@ void GConstrainedInt32ObjectCollection::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GConstrainedInt32ObjectCollection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GConstrainedInt32>::load_(cp);
+	GParameterTCollectionT<GConstrainedInt32Object>::load_(cp);
 
 	// ... no local data
 }
@@ -174,7 +174,7 @@ bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GParameterTCollectionT<GConstrainedInt32>::modify_GUnitTests()) result = true;
+	if(GParameterTCollectionT<GConstrainedInt32Object>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -185,7 +185,7 @@ bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
  */
 void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GConstrainedInt32>::specificTestsNoFailureExpected_GUnitTests();
+	GParameterTCollectionT<GConstrainedInt32Object>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
@@ -194,7 +194,7 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
  */
 void GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GConstrainedInt32>::specificTestsFailuresExpected_GUnitTests();
+	GParameterTCollectionT<GConstrainedInt32Object>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

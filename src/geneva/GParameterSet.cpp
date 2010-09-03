@@ -587,7 +587,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		}
 
 		// Attach a few other parameter types
-		p_test_0->push_back(boost::shared_ptr<GConstrainedInt32>(new GConstrainedInt32(7, -10, 10)));
+		p_test_0->push_back(boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object(7, -10, 10)));
 		p_test_0->push_back(boost::shared_ptr<GBooleanObject>(new GBooleanObject(true)));
 
 		//-----------------------------------------------------------------
@@ -653,10 +653,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				}
 
 				// The int32 parameter should have stayed the same
-				boost::shared_ptr<GConstrainedInt32> p_int32_0;
-				boost::shared_ptr<GConstrainedInt32> p_int32;
-				BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
-				BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+				boost::shared_ptr<GConstrainedInt32Object> p_int32_0;
+				boost::shared_ptr<GConstrainedInt32Object> p_int32;
+				BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32Object>(counter));
+				BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32Object>(counter));
 				BOOST_CHECK(*p_int32_0 == *p_int32);
 				counter++;
 
@@ -715,10 +715,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				}
 
 				// The int32 parameter should have stayed the same
-				boost::shared_ptr<GConstrainedInt32> p_int32_0;
-				boost::shared_ptr<GConstrainedInt32> p_int32;
-				BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
-				BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+				boost::shared_ptr<GConstrainedInt32Object> p_int32_0;
+				boost::shared_ptr<GConstrainedInt32Object> p_int32;
+				BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32Object>(counter));
+				BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32Object>(counter));
 				BOOST_CHECK(*p_int32_0 == *p_int32);
 				counter++;
 
@@ -772,10 +772,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			}
 
 			// The int32 parameter should have stayed the same
-			boost::shared_ptr<GConstrainedInt32> p_int32_0;
-			boost::shared_ptr<GConstrainedInt32> p_int32;
-			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
-			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+			boost::shared_ptr<GConstrainedInt32Object> p_int32_0;
+			boost::shared_ptr<GConstrainedInt32Object> p_int32;
+			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32Object>(counter));
+			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32Object>(counter));
 			BOOST_CHECK(*p_int32_0 == *p_int32);
 			counter++;
 
@@ -828,10 +828,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			}
 
 			// The int32 parameter should have stayed the same
-			boost::shared_ptr<GConstrainedInt32> p_int32_0;
-			boost::shared_ptr<GConstrainedInt32> p_int32;
-			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
-			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+			boost::shared_ptr<GConstrainedInt32Object> p_int32_0;
+			boost::shared_ptr<GConstrainedInt32Object> p_int32;
+			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32Object>(counter));
+			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32Object>(counter));
 			BOOST_CHECK(*p_int32_0 == *p_int32);
 			counter++;
 
@@ -886,10 +886,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			}
 
 			// The int32 parameter should have stayed the same
-			boost::shared_ptr<GConstrainedInt32> p_int32_0;
-			boost::shared_ptr<GConstrainedInt32> p_int32;
-			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
-			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+			boost::shared_ptr<GConstrainedInt32Object> p_int32_0;
+			boost::shared_ptr<GConstrainedInt32Object> p_int32;
+			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32Object>(counter));
+			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32Object>(counter));
 			BOOST_CHECK(*p_int32_0 == *p_int32);
 			counter++;
 
@@ -944,10 +944,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			}
 
 			// The int32 parameter should have stayed the same
-			boost::shared_ptr<GConstrainedInt32> p_int32_0;
-			boost::shared_ptr<GConstrainedInt32> p_int32;
-			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32>(counter));
-			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32>(counter));
+			boost::shared_ptr<GConstrainedInt32Object> p_int32_0;
+			boost::shared_ptr<GConstrainedInt32Object> p_int32;
+			BOOST_CHECK_NO_THROW(p_int32_0   = p_test_0->pc_at<GConstrainedInt32Object>(counter));
+			BOOST_CHECK_NO_THROW(p_int32 =   p_test->pc_at<GConstrainedInt32Object>(counter));
 			BOOST_CHECK(*p_int32_0 == *p_int32);
 			counter++;
 

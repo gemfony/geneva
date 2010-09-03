@@ -10,7 +10,7 @@ SET ( OPTIMIZATIONSOURCES
 	GBrokerSwarm
 	GConstrainedDoubleObject
 	GConstrainedDoubleObjectCollection
-	GConstrainedInt32
+	GConstrainedInt32Object
 	GConstrainedInt32ObjectCollection
 	GDoubleCollection
 	GDoubleGaussAdaptor

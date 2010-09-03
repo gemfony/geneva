@@ -188,7 +188,7 @@ class GExternalEvaluatorIndividual
 		}
 
 		//-----------------------------------------------------------------------------------------------
-		glong_ptr_=boost::shared_ptr<GConstrainedInt32>(new GConstrainedInt32());
+		glong_ptr_=boost::shared_ptr<GConstrainedInt32Object>(new GConstrainedInt32Object());
 		if(glong_ad_ptr) {
 			glong_ptr_->addAdaptor(glong_ad_ptr->GObject::clone<GAdaptorT<boost::int32_t> >());
 		}
@@ -259,7 +259,7 @@ class GExternalEvaluatorIndividual
 		, parameterFile_(cp.parameterFile_)
 	{
 		gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone<GConstrainedDoubleObject>();
-		glong_ptr_ = cp.glong_ptr_->GObject::clone<GConstrainedInt32>();
+		glong_ptr_ = cp.glong_ptr_->GObject::clone<GConstrainedInt32Object>();
 	}
 
 	/********************************************************************************************/
@@ -519,7 +519,7 @@ class GExternalEvaluatorIndividual
 		parameterFile_ = p_load->parameterFile_;
 
 		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone<GConstrainedDoubleObject>();
-		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GConstrainedInt32>();
+		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GConstrainedInt32Object>();
 	}
 
 	/********************************************************************************************/
@@ -605,7 +605,7 @@ class GExternalEvaluatorIndividual
 		, maximize_(false)
 		, parameterFile_("empty")
 		, gdbl_ptr_(boost::shared_ptr<GConstrainedDoubleObject>((GConstrainedDoubleObject *)NULL))
-		, glong_ptr_(boost::shared_ptr<GConstrainedInt32>((GConstrainedInt32 *)NULL))
+		, glong_ptr_(boost::shared_ptr<GConstrainedInt32Object>((GConstrainedInt32Object *)NULL))
 	{ /* nothing */ }
 
 	/********************************************************************************************/
@@ -707,7 +707,7 @@ class GExternalEvaluatorIndividual
 
 		// Make sure we have (template-)items in the local collection
 		if(gbic->empty()) {
-			boost::shared_ptr<GConstrainedInt32> gbi_templ(new GConstrainedInt32());
+			boost::shared_ptr<GConstrainedInt32Object> gbi_templ(new GConstrainedInt32Object());
 			boost::shared_ptr<GInt32FlipAdaptor> gifa_templ(new GInt32FlipAdaptor());
 			gbi_templ->addAdaptor(gifa_templ);
 			gbic->push_back(gbi_templ);
@@ -785,7 +785,7 @@ class GExternalEvaluatorIndividual
 	std::string parameterFile_;
 
 	boost::shared_ptr<GConstrainedDoubleObject> gdbl_ptr_; ///< A template for GConstrainedDoubleObject objects
-	boost::shared_ptr<GConstrainedInt32> glong_ptr_; ///< A template for GConstrainedInt32 objects
+	boost::shared_ptr<GConstrainedInt32Object> glong_ptr_; ///< A template for GConstrainedInt32Object objects
 
 	Gem::Dataexchange::GDataExchange gde_; ///< takes care of the data exchange with external programs
  };

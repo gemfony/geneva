@@ -54,7 +54,7 @@
 
 
 // Geneva header files go here
-#include "GConstrainedInt32.hpp"
+#include "GConstrainedInt32Object.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
@@ -62,11 +62,11 @@ namespace Geneva {
 
 /*************************************************************************/
 /**
- * A collection of GConstrainedInt32 objects, ready for use in a
+ * A collection of GConstrainedInt32Object objects, ready for use in a
  * GParameterSet derivative.
  */
 class GConstrainedInt32ObjectCollection
-	:public GParameterTCollectionT<GConstrainedInt32>
+	:public GParameterTCollectionT<GConstrainedInt32Object>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -76,7 +76,7 @@ class GConstrainedInt32ObjectCollection
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GParameterTCollectionT_gbi",
-			  boost::serialization::base_object<GParameterTCollectionT<GConstrainedInt32> >(*this));
+			  boost::serialization::base_object<GParameterTCollectionT<GConstrainedInt32Object> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
