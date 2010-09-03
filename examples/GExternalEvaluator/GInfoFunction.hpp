@@ -148,7 +148,7 @@ public:
 #endif /* DEBUG */
 
 						// Extract the adaptor
-						boost::shared_ptr<GDoubleGaussAdaptor> ad_ptr = (*gbdc_it)->adaptor_cast<GDoubleGaussAdaptor>();
+						boost::shared_ptr<GDoubleGaussAdaptor> ad_ptr = (*gbdc_it)->getAdaptor<GDoubleGaussAdaptor>();
 
 						// Get the sigma and sum it up
 						double sigma = ad_ptr->getSigma();

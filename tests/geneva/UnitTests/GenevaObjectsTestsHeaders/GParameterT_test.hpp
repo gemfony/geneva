@@ -156,7 +156,7 @@ public:
 		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<bool> > gadb0_ptr = gpt0.getAdaptor());
 
 		// Retrieve the adaptor in its original form
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_ptr = gpt0.adaptor_cast<GBooleanAdaptor>());
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GBooleanAdaptor> gba0_ptr = gpt0.getAdaptor<GBooleanAdaptor>());
 
 		// Check adaptions
 		const std::size_t NADAPTIONS=10000;
@@ -184,7 +184,7 @@ public:
 		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<boost::int32_t> > gadb0_ptr = gpt0.getAdaptor());
 
 		// Retrieve the adaptor in its original form
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GInt32FlipAdaptor> gpt0_ptr = gpt0.adaptor_cast<GInt32FlipAdaptor>());
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GInt32FlipAdaptor> gpt0_ptr = gpt0.getAdaptor<GInt32FlipAdaptor>());
 
 		// Check adaptions
 		const std::size_t NADAPTIONS=10000;
@@ -212,7 +212,7 @@ public:
 		BOOST_CHECK_NO_THROW(boost::shared_ptr<GAdaptorT<double> > gadb0_ptr = gpt0.getAdaptor());
 
 		// Retrieve the adaptor in its original form
-		BOOST_CHECK_NO_THROW(boost::shared_ptr<GDoubleGaussAdaptor> gpt0_ptr = gpt0.adaptor_cast<GDoubleGaussAdaptor>());
+		BOOST_CHECK_NO_THROW(boost::shared_ptr<GDoubleGaussAdaptor> gpt0_ptr = gpt0.getAdaptor<GDoubleGaussAdaptor>());
 
 		// Check adaptions
 		const std::size_t NADAPTIONS=10000;
@@ -246,7 +246,7 @@ public:
 			GInt32Object gpt0;
 			// Extracting an adaptor of wrong type should throw in DEBUG mode
 			BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
-			BOOST_CHECK_THROW(gpt0.adaptor_cast<GBooleanAdaptor>(), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(gpt0.getAdaptor<GBooleanAdaptor>(), Gem::Common::gemfony_error_condition);
 		*/
 		}
 #endif /* DEBUG */

@@ -254,13 +254,13 @@ public:
 	 * @return The desired adaptor instance, using its "natural" type
 	 */
 	template <typename adaptor_type>
-	boost::shared_ptr<adaptor_type> adaptor_cast(
+	boost::shared_ptr<adaptor_type> getAdaptor(
 			typename boost::enable_if<boost::is_base_of<GAdaptorT<T>, adaptor_type> >::type* dummy = 0
 	) const {
 #ifdef DEBUG
 		if(!adaptor_) {
 			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>()" << std::endl
+			error << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << std::endl
 				  << "with typeid(T).name() = " << typeid(T).name() << " : Error!" << std::endl
 				  << "Tried to access empty adaptor pointer." << std::endl;
 			throw Gem::Common::gemfony_error_condition(error.str());
@@ -271,7 +271,7 @@ public:
 		if(p) return p;
 		else {
 			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT::adaptor_cast<adaptor_type>() : Conversion error!" << std::endl;
+			error << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>() : Conversion error!" << std::endl;
 			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 #else
