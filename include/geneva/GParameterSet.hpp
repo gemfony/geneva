@@ -153,6 +153,9 @@ public:
 	/** @brief Checks whether all GParameterBase derivatives use the assigned random number generator */
 	virtual bool assignedRNGUsed() const;
 
+	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
+	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
+
 	/**********************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.
@@ -165,14 +168,14 @@ public:
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
 	template <typename parameter_type>
-	inline const boost::shared_ptr<parameter_type> pc_at(
+	inline const boost::shared_ptr<parameter_type> at(
 			  const std::size_t& pos
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
 	)  const {
 #ifdef DEBUG
 		if(pos >= data.size()) {
 			std::ostringstream error;
-			error << "In GParameterSet::pc_at<>() : Error" << std::endl
+			error << "In GParameterSet::at<>() : Error" << std::endl
 				  << "Tried to access index " << pos << " which is >= the size " << data.size() << " of the vector." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
@@ -182,13 +185,18 @@ public:
 		if(p) return p;
 		else {
 			std::ostringstream error;
-			error << "In GParameterSet::pc_at<>() : Conversion error" << std::endl;
+			error << "In GParameterSet::at<>() : Conversion error" << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #else
 		return boost::static_pointer_cast<parameter_type>(data[pos]);
 #endif /* DEBUG */
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested. See also the second version of th at() function.
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 

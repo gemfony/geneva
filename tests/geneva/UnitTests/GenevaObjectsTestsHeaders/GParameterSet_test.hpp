@@ -114,9 +114,9 @@ public:
 		BOOST_CHECK(gep.isEqual(gpi_load, gpi));
 
 		// Test retrieval of the GDoubleCollection object. Can it be modified ?
-		boost::shared_ptr<GDoubleCollection> gpi_load_gdc = gpi_load.pc_at<GDoubleCollection>(0);
+		boost::shared_ptr<GDoubleCollection> gpi_load_gdc = gpi_load.at<GDoubleCollection>(0);
 		gpi_load_gdc->at(0) = gpi_load_gdc->at(0) + 1;
-		boost::shared_ptr<GDoubleCollection> gpi_cc_gdc = gpi_cc.pc_at<GDoubleCollection>(0);
+		boost::shared_ptr<GDoubleCollection> gpi_cc_gdc = gpi_cc.at<GDoubleCollection>(0);
 		gpi_cc_gdc->at(0) = gpi_cc_gdc->at(0) + 1;
 
 		// Test that the copied, cloned, ... objects become in-equal to the
@@ -303,9 +303,9 @@ public:
 			gdc_ptr->addAdaptor(gdga1);
 			gpi.push_back(gdc_ptr);
 
-			// TODO: The enable_if check in pc_at has crippled this test. FIXME !!!
+			// TODO: The enable_if check in at has crippled this test. FIXME !!!
 			// Trying to retrieve an item of wrong type should throw in DEBUG mode
-			BOOST_CHECK_THROW(gpi.pc_at<GInt32Collection>(0), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(gpi.at<GInt32Collection>(0), Gem::Common::gemfony_error_condition);
 		}
 #endif
 

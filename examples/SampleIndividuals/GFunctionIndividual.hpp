@@ -456,7 +456,7 @@ private:
  */
 template<> inline double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
 	std::size_t parameterSize = x->size();
@@ -473,7 +473,7 @@ template<> inline double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
  */
 template<> inline double GFunctionIndividual<BERLICH>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
 	std::size_t parameterSize = x->size();
@@ -493,7 +493,7 @@ template<> inline double GFunctionIndividual<BERLICH>::fitnessCalculation() {
  */
 template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
 	std::size_t parameterSize = x->size();
@@ -524,7 +524,7 @@ template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
  */
 template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
 	std::size_t parameterSize = x->size();
@@ -555,7 +555,7 @@ template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
  */
 template<> inline double GFunctionIndividual<RASTRIGIN>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
 	std::size_t parameterSize = x->size();
@@ -576,7 +576,7 @@ template<> inline double GFunctionIndividual<RASTRIGIN>::fitnessCalculation() {
  */
 template<> inline double GFunctionIndividual<SCHWEFEL>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
 	std::size_t parameterSize = x->size();
@@ -597,7 +597,7 @@ template<> inline double GFunctionIndividual<SCHWEFEL>::fitnessCalculation() {
  */
 template<> inline double GFunctionIndividual<SALOMON>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = pc_at<GDoubleCollection>(0);
+	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
 
 	std::size_t parameterSize = x->size();

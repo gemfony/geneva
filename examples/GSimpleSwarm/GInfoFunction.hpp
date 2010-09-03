@@ -421,8 +421,8 @@ private:
 			boost::shared_ptr<GParameterSet> l_best_ptr = gs->getBestNeighborhoodIndividual<GParameterSet>(neighborhood);
 
 			// Extract the coordinates
-			double x_local_best = l_best_ptr->pc_at<GDoubleCollection>(0)->at(0);
-			double y_local_best = l_best_ptr->pc_at<GDoubleCollection>(0)->at(1);
+			double x_local_best = l_best_ptr->at<GDoubleCollection>(0)->at(0);
+			double y_local_best = l_best_ptr->at<GDoubleCollection>(0)->at(1);
 
 			// Add to the plot, if the marker would still be inside the main drawing area
 			if(x_local_best > minX_ && x_local_best < maxX_ && y_local_best > minY_ && y_local_best < maxY_) {
@@ -435,8 +435,8 @@ private:
 		}
 
 		// Extract the coordinates of the globally best individual and mark them in the plot
-		double x_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(0);
-		double y_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(1);
+		double x_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(0);
+		double y_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(1);
 
 		// Add to the plot, if the marker would still be inside the main drawing area
 		if(x_global_best > minX_ && x_global_best < maxX_ && y_global_best > minY_ && y_global_best < maxY_) {
@@ -452,7 +452,7 @@ private:
 		std::size_t particle = 0;
 		for(it=gs->begin(); it!=gs->end(); ++it, ++particle) {
 			// Retrieve the data members
-			boost::shared_ptr<GDoubleCollection> x = (*it)->pc_at<GDoubleCollection>(0);
+			boost::shared_ptr<GDoubleCollection> x = (*it)->at<GDoubleCollection>(0);
 			// Store a reference for ease of access
 			const GDoubleCollection& x_ref = *x;
 #ifdef DEBUG

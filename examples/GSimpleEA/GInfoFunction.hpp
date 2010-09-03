@@ -469,8 +469,8 @@ private:
 			//	         << p_ptr->toString(Gem::Common::SERIALIZATIONMODE_XML) << std::endl;
 
 			// Extract the coordinates
-			double x_parent = p_ptr->pc_at<GDoubleCollection>(0)->at(0);
-			double y_parent = p_ptr->pc_at<GDoubleCollection>(0)->at(1);
+			double x_parent = p_ptr->at<GDoubleCollection>(0)->at(0);
+			double y_parent = p_ptr->at<GDoubleCollection>(0)->at(1);
 
 			// Add to the plot, if the marker would still be inside the main drawing area
 			if(x_parent > minX_ && x_parent < maxX_ && y_parent > minY_ && y_parent < maxY_) {
@@ -487,7 +487,7 @@ private:
 		std::size_t cind = 0;
 		for(it=ea->begin() + nParents; it!=ea->end(); ++it) {
 			// Retrieve the data members
-			boost::shared_ptr<GDoubleCollection> x = boost::dynamic_pointer_cast<GParameterSet>(*it)->pc_at<GDoubleCollection>(0);
+			boost::shared_ptr<GDoubleCollection> x = boost::dynamic_pointer_cast<GParameterSet>(*it)->at<GDoubleCollection>(0);
 			// Store a reference for ease of access
 			const GDoubleCollection& x_ref = *x;
 #ifdef DEBUG
@@ -527,7 +527,7 @@ private:
 				// Retrieve a pointer to that parent
 				boost::shared_ptr<GParameterSet> op_ptr = ea->getOldParentIndividual<GParameterSet>(oldParentId);
 				// Retrieve the data members
-				boost::shared_ptr<GDoubleCollection> op_x = op_ptr->pc_at<GDoubleCollection>(0);
+				boost::shared_ptr<GDoubleCollection> op_x = op_ptr->at<GDoubleCollection>(0);
 				// Store a reference for ease of access
 				const GDoubleCollection& op_x_ref = *op_x;
 
@@ -558,7 +558,7 @@ private:
 				// Retrieve the old parent
 				boost::shared_ptr<GParameterSet> op_ptr = ea->getOldParentIndividual<GParameterSet>(oldParentId);
 				// Retrieve the data members
-				boost::shared_ptr<GDoubleCollection> x = op_ptr->pc_at<GDoubleCollection>(0);
+				boost::shared_ptr<GDoubleCollection> x = op_ptr->at<GDoubleCollection>(0);
 				// Store a reference for ease of access
 				const GDoubleCollection& x_ref = *x;
 	#ifdef DEBUG
@@ -583,8 +583,8 @@ private:
 		}
 
 		// Extract the coordinates of the globally best individual
-		double x_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(0);
-		double y_global_best = g_best_ptr->pc_at<GDoubleCollection>(0)->at(1);
+		double x_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(0);
+		double y_global_best = g_best_ptr->at<GDoubleCollection>(0)->at(1);
 
 		// Add to the plot, if the marker would still be inside the main drawing area
 		if(x_global_best > minX_ && x_global_best < maxX_ && y_global_best > minY_ && y_global_best < maxY_) {

@@ -16,6 +16,7 @@ The main changes for this release include:
    GConstrainedDouble to GConstrainedDoubleObject and GConstrainedInt32 to GConstrainedInt32Object
    for better consistency with class names like GDoubleObjectCollection and GDoubleCollection
  - Renamed GParameterBaseWithAdaptorsT<T>::adaptor_cast<adaptor_type> to getAdaptor<adaptor_type> 
+ - Renamed GParameterSet::pc_at<> to at<> for consistency reasons
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.1, "PS 197" - August 28, 2010

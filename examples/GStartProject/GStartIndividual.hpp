@@ -351,14 +351,14 @@ protected:
 		// Extract the GConstrainedDoubleObjectCollection object. In a realistic scenario, you might want
 		// to add error checks here upon first invocation.
 		/*
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> vC = pc_at<GConstrainedDoubleObjectCollection>(0);
+		boost::shared_ptr<GConstrainedDoubleObjectCollection> vC = at<GConstrainedDoubleObjectCollection>(0);
 
 		// Calculate the value of the parabola
 		for(std::size_t i=0; i<vC->size(); i++)
 			result += vC->at(i)->value() * vC->at(i)->value();
 		 */
 
-		// boost::shared_ptr<GParameterObjectCollection> vC = pc_at<GParameterObjectCollection>(0);
+		// boost::shared_ptr<GParameterObjectCollection> vC = at<GParameterObjectCollection>(0);
 		// GParameterObjectCollection::conversion_iterator<GConstrainedDoubleObject> it(vC->end());
 		GStartIndividual::conversion_iterator<GConstrainedDoubleObject> it(this->end());
 		// for(it=vC->begin(); it!=vC->end(); ++it) {

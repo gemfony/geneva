@@ -561,7 +561,7 @@ protected:
 
 		// Retrieve the double vector. We have a single GParameterBase object in the individual,
 		// of which we know that its "real" type is "GDoubleCollection".
-		boost::shared_ptr<GDoubleCollection> data_ptr = pc_at<GDoubleCollection>(0);
+		boost::shared_ptr<GDoubleCollection> data_ptr = at<GDoubleCollection>(0);
 
 		for (i = 0; i < nData_; i++) {
 			for (j = i + 1; j < nData_; j++) {

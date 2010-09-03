@@ -274,7 +274,7 @@ protected:
 
 		// Extract the first Gem::Geneva::GDoubleCollection object. In a realistic scenario, you might want
 		// to add error checks here upon first invocation.
-		boost::shared_ptr<Gem::Geneva::GDoubleCollection> vC = pc_at<Gem::Geneva::GDoubleCollection>(0);
+		boost::shared_ptr<Gem::Geneva::GDoubleCollection> vC = at<Gem::Geneva::GDoubleCollection>(0);
 
 		// Calculate the value of the parabola
 		for(std::size_t i=0; i<vC->size(); i++) {

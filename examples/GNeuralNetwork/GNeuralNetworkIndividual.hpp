@@ -1131,7 +1131,7 @@ public:
 				<< "      const double weights[nWeights] = {" << std::endl;
 
 		for(std::size_t i=0; i<nD_->size(); i++) {
-			boost::shared_ptr<GDoubleObjectCollection> currentLayer = pc_at<GDoubleObjectCollection>(i);
+			boost::shared_ptr<GDoubleObjectCollection> currentLayer = at<GDoubleObjectCollection>(i);
 
 			for(std::size_t j=0; j<currentLayer->size(); j++) {
 				header << "        " << currentLayer->at(j)->value();
@@ -1269,7 +1269,7 @@ protected:
 			std::vector<double> prevResults;
 			std::size_t nLayerNodes = (*nD_)[0];
 			double nodeResult=0;
-			const GDoubleObjectCollection& inputLayer = *(pc_at<GDoubleObjectCollection>(0));
+			const GDoubleObjectCollection& inputLayer = *(at<GDoubleObjectCollection>(0));
 			for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
 				nodeResult=tS.Input[nodeCounter] * inputLayer[2*nodeCounter]->value() - inputLayer[2*nodeCounter+1]->value();
 				nodeResult=transfer(nodeResult);
@@ -1282,7 +1282,7 @@ protected:
 				std::vector<double> currentResults;
 				nLayerNodes=(*nD_)[layerCounter];
 				std::size_t nPrevLayerNodes=(*nD_)[layerCounter-1];
-				const GDoubleObjectCollection& currentLayer = *(pc_at<GDoubleObjectCollection>(layerCounter));
+				const GDoubleObjectCollection& currentLayer = *(at<GDoubleObjectCollection>(layerCounter));
 
 				for(std::size_t nodeCounter=0; nodeCounter<nLayerNodes; nodeCounter++){
 					// Loop over all nodes of the previous layer

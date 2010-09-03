@@ -626,7 +626,7 @@ class GExternalEvaluatorIndividual
 		// Retrieve pointers to the four containers and add their data to the GDataExchange module
 
 		// A GConstrainedDoubleObjectCollection can mostly be treated like a std::vector<boost::shared_ptr<GConstrainedDoubleObject> >
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc = pc_at<GConstrainedDoubleObjectCollection>(0);
+		boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc = at<GConstrainedDoubleObjectCollection>(0);
 
 		GConstrainedDoubleObjectCollection::iterator gbdc_it;
 		for(gbdc_it=gbdc->begin(); gbdc_it!=gbdc->end(); ++gbdc_it) {
@@ -634,14 +634,14 @@ class GExternalEvaluatorIndividual
 			gde_.append(dpar);
 		}
 
-		boost::shared_ptr<GConstrainedInt32ObjectCollection> gbic = pc_at<GConstrainedInt32ObjectCollection>(1);
+		boost::shared_ptr<GConstrainedInt32ObjectCollection> gbic = at<GConstrainedInt32ObjectCollection>(1);
 		GConstrainedInt32ObjectCollection::iterator gbic_it;
 		for(gbic_it=gbic->begin(); gbic_it!=gbic->end(); ++gbic_it) {
 			boost::shared_ptr<Gem::Dataexchange::GLongParameter> ipar(new Gem::Dataexchange::GLongParameter((*gbic_it)->value(), (*gbic_it)->getLowerBoundary(), (*gbic_it)->getUpperBoundary()));
 			gde_.append(ipar);
 		}
 
-		boost::shared_ptr<GBooleanCollection> gbc = pc_at<GBooleanCollection>(2);
+		boost::shared_ptr<GBooleanCollection> gbc = at<GBooleanCollection>(2);
 		GBooleanCollection::iterator gbc_it;
 		for(gbc_it=gbc->begin(); gbc_it!=gbc->end(); ++gbc_it) {
 			boost::shared_ptr<Gem::Dataexchange::GBoolParameter> bpar(new Gem::Dataexchange::GBoolParameter(*gbc_it)); // no boundaries for booleans
@@ -679,7 +679,7 @@ class GExternalEvaluatorIndividual
 
 		//--------------------------------------------------------------------------------------------------------------------------------------
 		// Retrieve our "double" collection items
-		boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc = pc_at<GConstrainedDoubleObjectCollection>(0);
+		boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc = at<GConstrainedDoubleObjectCollection>(0);
 
 		// Get the size of the  "foreign" container ...
 		std::size_t exchangeSize = gde_.size<double>();
@@ -703,7 +703,7 @@ class GExternalEvaluatorIndividual
 
 		//--------------------------------------------------------------------------------------------------------------------------------------
 		// Retrieve our "long" collection items
-		boost::shared_ptr<GConstrainedInt32ObjectCollection> gbic = pc_at<GConstrainedInt32ObjectCollection>(1);
+		boost::shared_ptr<GConstrainedInt32ObjectCollection> gbic = at<GConstrainedInt32ObjectCollection>(1);
 
 		// Make sure we have (template-)items in the local collection
 		if(gbic->empty()) {
@@ -734,7 +734,7 @@ class GExternalEvaluatorIndividual
 
 		//--------------------------------------------------------------------------------------------------------------------------------------
 		// Retrieve our "bool" collection items
-		boost::shared_ptr<GBooleanCollection> gbc = pc_at<GBooleanCollection>(2);
+		boost::shared_ptr<GBooleanCollection> gbc = at<GBooleanCollection>(2);
 
 		// Get the size of the "foreign" container ...
 		exchangeSize = gde_.size<bool>();
