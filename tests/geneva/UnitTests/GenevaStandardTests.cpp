@@ -113,7 +113,7 @@ public:
 		typedef boost::mpl::list<
 			GEvolutionaryAlgorithm
 			, GMultiThreadedEA
-			//, GSwarm
+			// , GSwarm
 			//, GMultiThreadedSwarm
 		>
 		algorithm_types;
