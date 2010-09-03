@@ -12,10 +12,9 @@ SET ( OPTIMIZATIONSOURCES
 	GConstrainedDoubleObjectCollection
 	GConstrainedInt32
 	GConstrainedInt32ObjectCollection
-	GDouble
 	GDoubleCollection
 	GDoubleGaussAdaptor
-	# GDoubleObject
+	GDoubleObject
 	GDoubleObjectCollection
 	GEAPersonalityTraits
 	GEvolutionaryAlgorithm

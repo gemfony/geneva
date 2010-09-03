@@ -64,7 +64,7 @@
 #include "GConstrainedDouble.hpp"
 #include "GConstrainedDoubleObjectCollection.hpp"
 #include "GDoubleCollection.hpp"
-#include "GDouble.hpp"
+#include "GDoubleObject.hpp"
 #include "GInt32Collection.hpp"
 #include "hap/GRandomT.hpp"
 #endif /* GENEVATESTING */

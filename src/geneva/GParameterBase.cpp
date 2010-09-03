@@ -444,7 +444,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------
 
 	{ // Check adding and resetting of random number generators
-		// Note to self: this needs to be tested in derived classes (such as GDouble)
+		// Note to self: this needs to be tested in derived classes (such as GDoubleObject)
 		// BUT: Can check hasAdaptor() ...
 	}
 

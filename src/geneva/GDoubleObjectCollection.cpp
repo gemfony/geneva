@@ -52,7 +52,7 @@ GDoubleObjectCollection::GDoubleObjectCollection()
  * @param cp A copy of another GDoubleObjectCollection object
  */
 GDoubleObjectCollection::GDoubleObjectCollection(const GDoubleObjectCollection& cp)
-	: GParameterTCollectionT<GDouble>(cp)
+	: GParameterTCollectionT<GDoubleObject>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -139,7 +139,7 @@ boost::optional<std::string> GDoubleObjectCollection::checkRelationshipWith(cons
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterTCollectionT<GDouble>::checkRelationshipWith(cp, e, limit, "GDoubleObjectCollection", y_name, withMessages));
+	deviations.push_back(GParameterTCollectionT<GDoubleObject>::checkRelationshipWith(cp, e, limit, "GDoubleObjectCollection", y_name, withMessages));
 
 	// no local data ...
 
@@ -157,7 +157,7 @@ void GDoubleObjectCollection::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GDoubleObjectCollection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GDouble>::load_(cp);
+	GParameterTCollectionT<GDoubleObject>::load_(cp);
 
 	// ... no local data
 }
@@ -173,7 +173,7 @@ bool GDoubleObjectCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GParameterTCollectionT<GDouble>::modify_GUnitTests()) result = true;
+	if(GParameterTCollectionT<GDoubleObject>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -184,7 +184,7 @@ bool GDoubleObjectCollection::modify_GUnitTests() {
  */
 void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GDouble>::specificTestsNoFailureExpected_GUnitTests();
+	GParameterTCollectionT<GDoubleObject>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
@@ -193,7 +193,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GDouble>::specificTestsFailuresExpected_GUnitTests();
+	GParameterTCollectionT<GDoubleObject>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

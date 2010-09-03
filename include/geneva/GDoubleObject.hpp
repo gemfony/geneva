@@ -1,5 +1,5 @@
 /**
- * @file GDouble.hpp
+ * @file GDoubleObject.hpp
  */
 
 /*
@@ -39,8 +39,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GDOUBLE_HPP_
-#define GDOUBLE_HPP_
+#ifndef GDOUBLEOBJECT_HPP_
+#define GDOUBLEOBJECT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -62,7 +62,7 @@ namespace Geneva {
  * use the GDoubleCollection class or individual GConstrainedDouble objects
  * instead.
  */
-class GDouble
+class GDoubleObject
 	:public GNumFPT<double>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -78,26 +78,26 @@ class GDouble
 
 public:
 	/** @brief The default constructor */
-	GDouble();
+	GDoubleObject();
 	/** @brief The copy constructor */
-	GDouble(const GDouble&);
+	GDoubleObject(const GDoubleObject&);
 	/** @brief Initialization by contained value */
-	explicit GDouble(const double&);
+	explicit GDoubleObject(const double&);
 	/** @brief Random initialization in a given range */
-	GDouble(const double&, const double&);
+	GDoubleObject(const double&, const double&);
 	/** @brief The destructor */
-	virtual ~GDouble();
+	virtual ~GDoubleObject();
 
 	/** @brief An assignment operator for the contained value type */
 	virtual double operator=(const double&);
 
 	/** @brief A standard assignment operator */
-	const GDouble& operator=(const GDouble&);
+	const GDoubleObject& operator=(const GDoubleObject&);
 
-	/** @brief Checks for equality with another GDouble object */
-	bool operator==(const GDouble&) const;
-	/** @brief Checks for inequality with another GDouble object */
-	bool operator!=(const GDouble&) const;
+	/** @brief Checks for equality with another GDoubleObject object */
+	bool operator==(const GDoubleObject&) const;
+	/** @brief Checks for inequality with another GDoubleObject object */
+	bool operator!=(const GDoubleObject&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
@@ -125,4 +125,4 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GDOUBLE_HPP_ */
+#endif /* GDOUBLEOBJECT_HPP_ */

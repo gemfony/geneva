@@ -58,11 +58,10 @@
 #include "geneva/GInt32.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
-#include "geneva/GDouble.hpp"
+#include "geneva/GDoubleObject.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GConstrainedDouble.hpp"
 #include "geneva/GConstrainedInt32.hpp"
-#include "geneva/GDouble.hpp"
 #include "geneva/GInt32.hpp"
 #include "geneva/GBoolean.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
@@ -150,10 +149,10 @@ boost::shared_ptr<GConstrainedInt32> getTemplateItem<GConstrainedInt32ObjectColl
 	return gbi_ptr;
 }
 
-// Specialization for GDouble
+// Specialization for GDoubleObject
 template <>
-boost::shared_ptr<GDouble> getTemplateItem<GDoubleObjectCollection>() {
-	boost::shared_ptr<GDouble> gbd_ptr(new GDouble(0.));
+boost::shared_ptr<GDoubleObject> getTemplateItem<GDoubleObjectCollection>() {
+	boost::shared_ptr<GDoubleObject> gbd_ptr(new GDoubleObject(0.));
 	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
 	return gbd_ptr;
 }
@@ -202,10 +201,10 @@ boost::shared_ptr<GConstrainedInt32> getFindItem<GConstrainedInt32ObjectCollecti
 	return gbi_ptr;
 }
 
-// Specialization for GDouble
+// Specialization for GDoubleObject
 template <>
-boost::shared_ptr<GDouble> getFindItem<GDoubleObjectCollection>() {
-	boost::shared_ptr<GDouble> gbd_ptr(new GDouble(1.));
+boost::shared_ptr<GDoubleObject> getFindItem<GDoubleObjectCollection>() {
+	boost::shared_ptr<GDoubleObject> gbd_ptr(new GDoubleObject(1.));
 	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
 	return gbd_ptr;
 }
@@ -361,7 +360,7 @@ class GParameterTCollectionTSuite: public test_suite
 public:
 	/***********************************************************************************/
 	GParameterTCollectionTSuite() :test_suite("GParameterTCollectionTSuite") {
-		// typedef boost::mpl::list<GDouble, GConstrainedDouble, GInt32, GBoolean> test_types;
+		// typedef boost::mpl::list<GDoubleObject, GConstrainedDouble, GInt32, GBoolean> test_types;
 		typedef boost::mpl::list<GDoubleObjectCollection,
 						         GInt32ObjectCollection,
 						         GBooleanObjectCollection,

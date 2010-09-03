@@ -1,5 +1,5 @@
 /**
- * @file GDouble.cpp
+ * @file GDoubleObject.cpp
  */
 
 /*
@@ -28,14 +28,14 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.com .
  */
-#include "geneva/GDouble.hpp"
+#include "geneva/GDoubleObject.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GDouble)
+BOOST_CLASS_EXPORT(Gem::Geneva::GDoubleObject)
 
 namespace Gem {
 namespace Geneva {
@@ -44,16 +44,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GDouble::GDouble()
+GDoubleObject::GDoubleObject()
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * The copy constructor
  *
- * @param cp A copy of another GDouble object
+ * @param cp A copy of another GDoubleObject object
  */
-GDouble::GDouble(const GDouble& cp)
+GDoubleObject::GDoubleObject(const GDoubleObject& cp)
 	: GNumFPT<double>(cp)
 { /* nothing */ }
 
@@ -63,7 +63,7 @@ GDouble::GDouble(const GDouble& cp)
  *
  * @param val A value used for the initialization
  */
-GDouble::GDouble(const double& val)
+GDoubleObject::GDoubleObject(const double& val)
 	: GNumFPT<double>(val)
 { /* nothing */ }
 
@@ -74,7 +74,7 @@ GDouble::GDouble(const double& val)
  * @param lowerBoundary The lower boundary for the random number used in the initialization
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
-GDouble::GDouble(const double& lowerBoundary, const double& upperBoundary)
+GDoubleObject::GDoubleObject(const double& lowerBoundary, const double& upperBoundary)
 	: GNumFPT<double>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
@@ -82,7 +82,7 @@ GDouble::GDouble(const double& lowerBoundary, const double& upperBoundary)
 /**
  * The destructor
  */
-GDouble::~GDouble()
+GDoubleObject::~GDoubleObject()
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -92,7 +92,7 @@ GDouble::~GDouble()
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-double GDouble::operator=(const double& val) {
+double GDoubleObject::operator=(const double& val) {
 	return GNumFPT<double>::operator=(val);
 }
 
@@ -100,11 +100,11 @@ double GDouble::operator=(const double& val) {
 /**
  * A standard assignment operator.
  *
- * @param cp A copy of another GDouble object
+ * @param cp A copy of another GDoubleObject object
  * @return A constant reference to this object
  */
-const GDouble& GDouble::operator=(const GDouble& cp){
-	GDouble::load_(&cp);
+const GDoubleObject& GDoubleObject::operator=(const GDoubleObject& cp){
+	GDoubleObject::load_(&cp);
 	return *this;
 }
 
@@ -114,34 +114,34 @@ const GDouble& GDouble::operator=(const GDouble& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GDouble::clone_() const {
-	return new GDouble(*this);
+GObject* GDoubleObject::clone_() const {
+	return new GDoubleObject(*this);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for equality with another GDouble object
+ * Checks for equality with another GDoubleObject object
  *
- * @param  cp A constant reference to another GDouble object
+ * @param  cp A constant reference to another GDoubleObject object
  * @return A boolean indicating whether both objects are equal
  */
-bool GDouble::operator==(const GDouble& cp) const {
+bool GDoubleObject::operator==(const GDoubleObject& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDouble::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GDoubleObject::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for inequality with another GDouble object
+ * Checks for inequality with another GDoubleObject object
  *
- * @param  cp A constant reference to another GDouble object
+ * @param  cp A constant reference to another GDoubleObject object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GDouble::operator!=(const GDouble& cp) const {
+bool GDoubleObject::operator!=(const GDoubleObject& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDouble::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GDoubleObject::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -157,7 +157,7 @@ bool GDouble::operator!=(const GDouble& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GDouble::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GDoubleObject::checkRelationshipWith(const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -167,28 +167,28 @@ boost::optional<std::string> GDouble::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Common;
 
     // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GDouble>(&cp);
+    GObject::selfAssignmentCheck<GDoubleObject>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GNumFPT<double>::checkRelationshipWith(cp, e, limit, "GDouble", y_name, withMessages));
+	deviations.push_back(GNumFPT<double>::checkRelationshipWith(cp, e, limit, "GDoubleObject", y_name, withMessages));
 
 	// no local data ...
 
-	return evaluateDiscrepancies("GDouble", caller, deviations, e);
+	return evaluateDiscrepancies("GDoubleObject", caller, deviations, e);
 }
 
 /*******************************************************************************************/
 /**
  * Loads the data of another GObject
  *
- * @param cp A copy of another GDouble object, camouflaged as a GObject
+ * @param cp A copy of another GDoubleObject object, camouflaged as a GObject
  */
-void GDouble::load_(const GObject* cp){
+void GDoubleObject::load_(const GObject* cp){
     // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GDouble>(cp);
+    GObject::selfAssignmentCheck<GDoubleObject>(cp);
 
 	// Load our parent class'es data ...
 	GNumFPT<double>::load_(cp);
@@ -203,7 +203,7 @@ void GDouble::load_(const GObject* cp){
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GDouble::modify_GUnitTests() {
+bool GDoubleObject::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -216,7 +216,7 @@ bool GDouble::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GDouble::specificTestsNoFailureExpected_GUnitTests() {
+void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
@@ -247,7 +247,7 @@ void GDouble::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GDouble::specificTestsFailuresExpected_GUnitTests() {
+void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;

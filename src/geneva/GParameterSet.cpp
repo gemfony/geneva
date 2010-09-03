@@ -582,7 +582,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		// Add some floating pount parameters
 		for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
 			p_test_0->push_back(boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(gr.uniform_real(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE)));
-			p_test_0->push_back(boost::shared_ptr<GDouble>(new GDouble(gr.uniform_real(MINGDOUBLE,MAXGDOUBLE))));
+			p_test_0->push_back(boost::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real(MINGDOUBLE,MAXGDOUBLE))));
 			p_test_0->push_back(boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)));
 		}
 
@@ -636,7 +636,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
 					BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() == d);
 					counter++;
-					BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() == d);
+					BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() == d);
 					counter++;
 					boost::shared_ptr<GDoubleCollection> p_gdc;
 					BOOST_CHECK_NO_THROW(p_gdc = p_test->pc_at<GDoubleCollection>(counter));
@@ -698,7 +698,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 					BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() >= MINGCONSTRDOUBLE);
 					BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() <= MAXGCONSTRDOUBLE);
 					counter++;
-					BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() == d*FPFIXEDVALINITMAX);
+					BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() == d*FPFIXEDVALINITMAX);
 					counter++;
 					boost::shared_ptr<GDoubleCollection> p_gdc;
 					BOOST_CHECK_NO_THROW(p_gdc = p_test->pc_at<GDoubleCollection>(counter));
@@ -753,7 +753,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
 				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() != p_test_0->pc_at<GConstrainedDouble>(counter)->value());
 				counter++;
-				BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() != p_test_0->pc_at<GDouble>(counter)->value());
+				BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() != p_test_0->pc_at<GDoubleObject>(counter)->value());
 				counter++;
 				boost::shared_ptr<GDoubleCollection> p_gdc;
 				boost::shared_ptr<GDoubleCollection> p_gdc_0;
@@ -809,7 +809,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
 				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() != p_test_0->pc_at<GConstrainedDouble>(counter)->value());
 				counter++;
-				BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() != p_test_0->pc_at<GDouble>(counter)->value());
+				BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() != p_test_0->pc_at<GDoubleObject>(counter)->value());
 				counter++;
 				boost::shared_ptr<GDoubleCollection> p_gdc;
 				boost::shared_ptr<GDoubleCollection> p_gdc_0;
@@ -865,7 +865,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() >= MINGCONSTRDOUBLE);
 				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() <= MAXGCONSTRDOUBLE);
 				counter++;
-				BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() == p_test_0->pc_at<GDouble>(counter)->value() + FPADD);
+				BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() == p_test_0->pc_at<GDoubleObject>(counter)->value() + FPADD);
 				counter++;
 				boost::shared_ptr<GDoubleCollection> p_gdc;
 				boost::shared_ptr<GDoubleCollection> p_gdc_0;
@@ -923,7 +923,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() >= MINGCONSTRDOUBLE);
 				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() <= MAXGCONSTRDOUBLE);
 				counter++;
-				BOOST_CHECK(p_test->pc_at<GDouble>(counter)->value() == p_test_0->pc_at<GDouble>(counter)->value() - FPSUBTRACT);
+				BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() == p_test_0->pc_at<GDoubleObject>(counter)->value() - FPSUBTRACT);
 				counter++;
 				boost::shared_ptr<GDoubleCollection> p_gdc;
 				boost::shared_ptr<GDoubleCollection> p_gdc_0;

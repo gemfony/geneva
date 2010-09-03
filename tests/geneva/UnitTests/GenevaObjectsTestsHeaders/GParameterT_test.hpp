@@ -59,7 +59,7 @@
 #include "geneva/GInt32.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
-#include "geneva/GDouble.hpp"
+#include "geneva/GDoubleObject.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
@@ -203,7 +203,7 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work: double case
 	void double_no_failure_expected() {
-		GDouble gpt0;
+		GDoubleObject gpt0;
 
 		// Adding a single adaptor
 		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor())));
@@ -274,7 +274,7 @@ class GParameterTSuite: public test_suite
 {
 public:
 	GParameterTSuite() :test_suite("GParameterTSuite") {
-		typedef boost::mpl::list<GBoolean, GInt32, GDouble> test_types;
+		typedef boost::mpl::list<GBoolean, GInt32, GDoubleObject> test_types;
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, test_types ) );
 
 		// create an instance of the test cases class

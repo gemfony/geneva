@@ -17,9 +17,9 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedIntegerT.hpp
 #	GConstrainedNumCollectionT.hpp
 	GConstrainedNumT.hpp
-	GDouble.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp
+	GDoubleObject.hpp
 	GDoubleObjectCollection.hpp
 	GEAPersonalityTraits.hpp
 	GEvolutionaryAlgorithm.hpp

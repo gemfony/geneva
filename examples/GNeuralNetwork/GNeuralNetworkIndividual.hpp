@@ -77,7 +77,7 @@
 #include <common/GExceptions.hpp>
 #include <common/GHelperFunctionsT.hpp>
 #include <hap/GRandomT.hpp>
-#include <geneva/GDouble.hpp>
+#include <geneva/GDoubleObject.hpp>
 #include <geneva/GDoubleGaussAdaptor.hpp>
 #include <geneva/GDoubleObjectCollection.hpp>
 #include <geneva/GParameterSet.hpp>
@@ -322,19 +322,19 @@ public:
 				// Set up a GDoubleObjectCollection
 				boost::shared_ptr<GDoubleObjectCollection> gdoc(new GDoubleObjectCollection());
 
-				// Add GDouble objects
+				// Add GDoubleObject objects
 				for(std::size_t i=0; i<(layerNumber==0?2*nNodes:nNodes*(nNodesPrevious+1)); i++) {
-					// Set up a GDouble object, initializing it with random data
-					boost::shared_ptr<GDouble> gd_ptr(new GDouble(gr.uniform_real(min,max)));
+					// Set up a GDoubleObject object, initializing it with random data
+					boost::shared_ptr<GDoubleObject> gd_ptr(new GDoubleObject(gr.uniform_real(min,max)));
 
 					// Set up an adaptor
 					boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
 					gdga->setAdaptionProbability(adProb);
 
-					// Register it with the GDouble object
+					// Register it with the GDoubleObject object
 					gd_ptr->addAdaptor(gdga);
 
-					// Register the GDouble object with the collection
+					// Register the GDoubleObject object with the collection
 					gdoc->push_back(gd_ptr);
 				}
 

@@ -45,7 +45,7 @@
 #endif
 
 // Geneva header files go here
-#include "GDouble.hpp"
+#include "GDoubleObject.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
@@ -53,11 +53,11 @@ namespace Geneva {
 
 /*************************************************************************/
 /**
- * A collection of GDouble objects, ready for use in a
+ * A collection of GDoubleObject objects, ready for use in a
  * GParameterSet derivative.
  */
 class GDoubleObjectCollection
-	:public GParameterTCollectionT<GDouble>
+	:public GParameterTCollectionT<GDoubleObject>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -67,7 +67,7 @@ class GDoubleObjectCollection
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GParameterTCollectionT_gbd",
-			  boost::serialization::base_object<GParameterTCollectionT<GDouble> >(*this));
+			  boost::serialization::base_object<GParameterTCollectionT<GDoubleObject> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
