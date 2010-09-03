@@ -252,8 +252,30 @@ namespace Geneva
    * Performs self tests that are expected to succeed. This is needed for testing purposes
    */
   void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
-  	// Call the parent class'es function
+	  // Make sure we have an appropriate adaptor loaded when performing these tests
+	  bool adaptorStored = false;
+	  boost::shared_ptr<GAdaptorT<bool> > storedAdaptor;
+
+	  if(this->hasAdaptor()) {
+		  storedAdaptor = this->getAdaptor();
+		  adaptorStored = true;
+	  }
+
+	  boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+	  gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+	  gba_ptr->setAdaptionMode(true); // Always adapt
+	  this->addAdaptor(gba_ptr);
+
+	  // Call the parent class'es function
 	  GParameterCollectionT<bool>::specificTestsNoFailureExpected_GUnitTests();
+
+	  // Remove the test adaptor
+	  this->resetAdaptor();
+
+	  // Load the old adaptor, if needed
+	  if(adaptorStored) {
+		  this->addAdaptor(storedAdaptor);
+	  }
   }
 
   /*****************************************************************************/
@@ -261,8 +283,31 @@ namespace Geneva
    * Performs self tests that are expected to fail. This is needed for testing purposes
    */
   void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
-  	// Call the parent class'es function
+	  // Make sure we have an appropriate adaptor loaded when performing these tests
+	  bool adaptorStored = false;
+	  boost::shared_ptr<GAdaptorT<bool> > storedAdaptor;
+
+	  if(this->hasAdaptor()) {
+		  storedAdaptor = this->getAdaptor();
+		  adaptorStored = true;
+	  }
+
+	  boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+	  gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+	  gba_ptr->setAdaptionMode(true); // Always adapt
+	  this->addAdaptor(gba_ptr);
+
+
+	  // Call the parent class'es function
 	  GParameterCollectionT<bool>::specificTestsFailuresExpected_GUnitTests();
+
+	  // Remove the test adaptor
+	  this->resetAdaptor();
+
+	  // Load the old adaptor, if needed
+	  if(adaptorStored) {
+		  this->addAdaptor(storedAdaptor);
+	  }
   }
 
   /*****************************************************************************/

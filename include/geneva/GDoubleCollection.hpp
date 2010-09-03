@@ -52,7 +52,7 @@
 
 // Geneva header files go here
 #include "GNumCollectionFPT.hpp"
-
+#include "GDoubleGaussAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {

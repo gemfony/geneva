@@ -53,6 +53,7 @@
 #include "common/GExceptions.hpp"
 #include "GOptimizationEnums.hpp"
 #include "GParameterCollectionT.hpp"
+#include "GBooleanAdaptor.hpp"
 
 namespace Gem
 {

@@ -201,8 +201,30 @@ bool GDoubleCollection::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
+	// Make sure we have an appropriate adaptor loaded when performing these tests
+	bool adaptorStored = false;
+	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
+
+	if(this->hasAdaptor()) {
+		storedAdaptor = this->getAdaptor();
+		adaptorStored = true;
+	}
+
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+	gdga_ptr->setAdaptionMode(true); // Always adapt
+	this->addAdaptor(gdga_ptr);
+
 	// Call the parent class'es function
 	GNumCollectionFPT<double>::specificTestsNoFailureExpected_GUnitTests();
+
+	// Remove the test adaptor
+	this->resetAdaptor();
+
+	// Load the old adaptor, if needed
+	if(adaptorStored) {
+		this->addAdaptor(storedAdaptor);
+	}
 }
 
 /*******************************************************************************************/
@@ -210,8 +232,30 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
+	// Make sure we have an appropriate adaptor loaded when performing these tests
+	bool adaptorStored = false;
+	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
+
+	if(this->hasAdaptor()) {
+		storedAdaptor = this->getAdaptor();
+		adaptorStored = true;
+	}
+
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+	gdga_ptr->setAdaptionMode(true); // Always adapt
+	this->addAdaptor(gdga_ptr);
+
 	// Call the parent class'es function
 	GNumCollectionFPT<double>::specificTestsFailuresExpected_GUnitTests();
+
+	// Remove the test adaptor
+	this->resetAdaptor();
+
+	// Load the old adaptor, if needed
+	if(adaptorStored) {
+		this->addAdaptor(storedAdaptor);
+	}
 }
 
 /*******************************************************************************************/

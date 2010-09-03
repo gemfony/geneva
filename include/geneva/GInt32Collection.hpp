@@ -54,7 +54,7 @@
 // Geneva header files go here
 
 #include "GNumCollectionT.hpp"
-
+#include "GInt32GaussAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
