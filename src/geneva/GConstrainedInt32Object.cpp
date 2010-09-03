@@ -245,8 +245,30 @@ bool GConstrainedInt32Object::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
+	// Make sure we have an appropriate adaptor loaded when performing these tests
+	bool adaptorStored = false;
+	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+
+	if(this->hasAdaptor()) {
+		storedAdaptor = this->getAdaptor();
+		adaptorStored = true;
+	}
+
+	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+	giga_ptr->setAdaptionMode(true); // Always adapt
+	this->addAdaptor(giga_ptr);
+
 	// Call the parent class'es function
 	GConstrainedIntegerT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+
+	// Remove the test adaptor
+	this->resetAdaptor();
+
+	// Load the old adaptor, if needed
+	if(adaptorStored) {
+		this->addAdaptor(storedAdaptor);
+	}
 }
 
 /*******************************************************************************************/
@@ -254,8 +276,30 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
+	// Make sure we have an appropriate adaptor loaded when performing these tests
+	bool adaptorStored = false;
+	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
+
+	if(this->hasAdaptor()) {
+		storedAdaptor = this->getAdaptor();
+		adaptorStored = true;
+	}
+
+	boost::shared_ptr<GInt32GaussAdaptor> giga_ptr(new GInt32GaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+	giga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+	giga_ptr->setAdaptionMode(true); // Always adapt
+	this->addAdaptor(giga_ptr);
+
 	// Call the parent class'es function
 	GConstrainedIntegerT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+
+	// Remove the test adaptor
+	this->resetAdaptor();
+
+	// Load the old adaptor, if needed
+	if(adaptorStored) {
+		this->addAdaptor(storedAdaptor);
+	}
 }
 
 /*******************************************************************************************/

@@ -50,6 +50,7 @@
 
 // Geneva headers go here
 #include "GParameterT.hpp"
+#include "GBooleanAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {

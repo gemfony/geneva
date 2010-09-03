@@ -56,6 +56,7 @@
 
 // Geneva headers go here
 #include "GConstrainedIntegerT.hpp"
+#include "GInt32GaussAdaptor.hpp"
 
 namespace Gem
 {

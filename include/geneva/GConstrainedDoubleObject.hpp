@@ -57,6 +57,7 @@
 
 // Geneva headers go here
 #include "GConstrainedFPT.hpp"
+#include "GDoubleGaussAdaptor.hpp"
 
 namespace Gem
 {
