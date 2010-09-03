@@ -1,5 +1,5 @@
 /**
- * @file GInt32.cpp
+ * @file GInt32Object.cpp
  */
 
 /*
@@ -29,14 +29,14 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GInt32.hpp"
+#include "geneva/GInt32Object.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GInt32)
+BOOST_CLASS_EXPORT(Gem::Geneva::GInt32Object)
 
 namespace Gem {
 namespace Geneva {
@@ -45,16 +45,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GInt32::GInt32()
+GInt32Object::GInt32Object()
 { /* nothing */ }
 
 /*******************************************************************************************/
 /**
  * The copy constructor
  *
- * @param cp A copy of another GInt32 object
+ * @param cp A copy of another GInt32Object object
  */
-GInt32::GInt32(const GInt32& cp)
+GInt32Object::GInt32Object(const GInt32Object& cp)
 	: GNumT<boost::int32_t>(cp)
 { /* nothing */ }
 
@@ -64,7 +64,7 @@ GInt32::GInt32(const GInt32& cp)
  *
  * @param val A value used for the initialization
  */
-GInt32::GInt32(const boost::int32_t& val)
+GInt32Object::GInt32Object(const boost::int32_t& val)
 	: GNumT<boost::int32_t>(val)
 { /* nothing */ }
 
@@ -75,7 +75,7 @@ GInt32::GInt32(const boost::int32_t& val)
  * @param lowerBoundary The lower boundary for the random number used in the initialization
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
-GInt32::GInt32(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
+GInt32Object::GInt32Object(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
 	: GNumT<boost::int32_t>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
@@ -83,7 +83,7 @@ GInt32::GInt32(const boost::int32_t& lowerBoundary, const boost::int32_t& upperB
 /**
  * The destructor
  */
-GInt32::~GInt32()
+GInt32Object::~GInt32Object()
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -93,7 +93,7 @@ GInt32::~GInt32()
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-boost::int32_t GInt32::operator=(const boost::int32_t& val) {
+boost::int32_t GInt32Object::operator=(const boost::int32_t& val) {
 	return GNumT<boost::int32_t>::operator=(val);
 }
 
@@ -101,11 +101,11 @@ boost::int32_t GInt32::operator=(const boost::int32_t& val) {
 /**
  * A standard assignment operator.
  *
- * @param cp A copy of another GInt32 object
+ * @param cp A copy of another GInt32Object object
  * @return A constant reference to this object
  */
-const GInt32& GInt32::operator=(const GInt32& cp){
-	GInt32::load_(&cp);
+const GInt32Object& GInt32Object::operator=(const GInt32Object& cp){
+	GInt32Object::load_(&cp);
 	return *this;
 }
 
@@ -115,34 +115,34 @@ const GInt32& GInt32::operator=(const GInt32& cp){
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GInt32::clone_() const {
-	return new GInt32(*this);
+GObject* GInt32Object::clone_() const {
+	return new GInt32Object(*this);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for equality with another GInt32 object
+ * Checks for equality with another GInt32Object object
  *
- * @param  cp A constant reference to another GInt32 object
+ * @param  cp A constant reference to another GInt32Object object
  * @return A boolean indicating whether both objects are equal
  */
-bool GInt32::operator==(const GInt32& cp) const {
+bool GInt32Object::operator==(const GInt32Object& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInt32::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GInt32Object::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for inequality with another GInt32 object
+ * Checks for inequality with another GInt32Object object
  *
- * @param  cp A constant reference to another GInt32 object
+ * @param  cp A constant reference to another GInt32Object object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GInt32::operator!=(const GInt32& cp) const {
+bool GInt32Object::operator!=(const GInt32Object& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GInt32Object::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -158,7 +158,7 @@ bool GInt32::operator!=(const GInt32& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GInt32::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GInt32Object::checkRelationshipWith(const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -168,28 +168,28 @@ boost::optional<std::string> GInt32::checkRelationshipWith(const GObject& cp,
     using namespace Gem::Common;
 
     // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GInt32>(&cp);
+    GObject::selfAssignmentCheck<GInt32Object>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GNumT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32", y_name, withMessages));
+	deviations.push_back(GNumT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32Object", y_name, withMessages));
 
 	// no local data ...
 
-	return evaluateDiscrepancies("GInt32", caller, deviations, e);
+	return evaluateDiscrepancies("GInt32Object", caller, deviations, e);
 }
 
 /*******************************************************************************************/
 /**
  * Loads the data of another GObject
  *
- * @param cp A copy of another GInt32 object, camouflaged as a GObject
+ * @param cp A copy of another GInt32Object object, camouflaged as a GObject
  */
-void GInt32::load_(const GObject* cp){
+void GInt32Object::load_(const GObject* cp){
     // Check that we are not accidently assigning this object to itself
-    GObject::selfAssignmentCheck<GInt32>(cp);
+    GObject::selfAssignmentCheck<GInt32Object>(cp);
 
 	// Load our parent class'es data ...
 	GNumT<boost::int32_t>::load_(cp);
@@ -201,7 +201,7 @@ void GInt32::load_(const GObject* cp){
 /**
  * Triggers random initialization of the parameter.
  */
-void GInt32::randomInit_() {
+void GInt32Object::randomInit_() {
 	boost::int32_t lowerBoundary = getLowerInitBoundary();
 	boost::int32_t upperBoundary = getUpperInitBoundary()+1;
 
@@ -215,7 +215,7 @@ void GInt32::randomInit_() {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GInt32::modify_GUnitTests() {
+bool GInt32Object::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -228,7 +228,7 @@ bool GInt32::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GInt32::specificTestsNoFailureExpected_GUnitTests() {
+void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
@@ -259,7 +259,7 @@ void GInt32::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GInt32::specificTestsFailuresExpected_GUnitTests() {
+void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;

@@ -55,7 +55,7 @@ GInt32ObjectCollection::GInt32ObjectCollection()
  * @param cp A copy of another GInt32ObjectCollection object
  */
 GInt32ObjectCollection::GInt32ObjectCollection(const GInt32ObjectCollection& cp)
-	: GParameterTCollectionT<GInt32>(cp)
+	: GParameterTCollectionT<GInt32Object>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -142,7 +142,7 @@ boost::optional<std::string> GInt32ObjectCollection::checkRelationshipWith(const
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterTCollectionT<GInt32>::checkRelationshipWith(cp, e, limit, "GInt32ObjectCollection", y_name, withMessages));
+	deviations.push_back(GParameterTCollectionT<GInt32Object>::checkRelationshipWith(cp, e, limit, "GInt32ObjectCollection", y_name, withMessages));
 
 	// no local data ...
 
@@ -160,7 +160,7 @@ void GInt32ObjectCollection::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GInt32ObjectCollection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GInt32>::load_(cp);
+	GParameterTCollectionT<GInt32Object>::load_(cp);
 
 	// ... no local data
 }
@@ -176,7 +176,7 @@ bool GInt32ObjectCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GParameterTCollectionT<GInt32>::modify_GUnitTests()) result = true;
+	if(GParameterTCollectionT<GInt32Object>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -187,7 +187,7 @@ bool GInt32ObjectCollection::modify_GUnitTests() {
  */
 void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GInt32>::specificTestsNoFailureExpected_GUnitTests();
+	GParameterTCollectionT<GInt32Object>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
@@ -196,7 +196,7 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GInt32>::specificTestsFailuresExpected_GUnitTests();
+	GParameterTCollectionT<GInt32Object>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

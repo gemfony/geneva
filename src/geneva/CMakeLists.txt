@@ -20,10 +20,10 @@ SET ( OPTIMIZATIONSOURCES
 	GEvolutionaryAlgorithm
 	GGDPersonalityTraits
 	GIndividual
-	GInt32
 	GInt32Collection
 	GInt32FlipAdaptor
 	GInt32GaussAdaptor
+	GInt32Object
 	GInt32ObjectCollection
 	GIntFlipAdaptorT
 	GMultiThreadedEA

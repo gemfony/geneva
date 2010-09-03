@@ -26,10 +26,10 @@ SET ( OPTIMIZATIONINCLUDES
 	GGaussAdaptorT.hpp
 	GGDPersonalityTraits.hpp
 	GIndividual.hpp
-	GInt32.hpp
 	GInt32Collection.hpp
 	GInt32FlipAdaptor.hpp
 	GInt32GaussAdaptor.hpp
+	GInt32Object.hpp
 	GInt32ObjectCollection.hpp
 	GIntFlipAdaptorT.hpp
 	GMultiThreadedEA.hpp

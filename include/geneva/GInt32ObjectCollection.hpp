@@ -47,7 +47,7 @@
 
 
 // Geneva header files go here
-#include "GInt32.hpp"
+#include "GInt32Object.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {
@@ -55,11 +55,11 @@ namespace Geneva {
 
 /*************************************************************************/
 /**
- * A collection of GInt32 objects, ready for use in a
+ * A collection of GInt32Object objects, ready for use in a
  * GParameterSet derivative.
  */
 class GInt32ObjectCollection
-	:public GParameterTCollectionT<GInt32>
+	:public GParameterTCollectionT<GInt32Object>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -69,7 +69,7 @@ class GInt32ObjectCollection
 	  using boost::serialization::make_nvp;
 
 	  ar & make_nvp("GParameterTCollectionT_ioc",
-			  boost::serialization::base_object<GParameterTCollectionT<GInt32> >(*this));
+			  boost::serialization::base_object<GParameterTCollectionT<GInt32Object> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

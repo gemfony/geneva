@@ -1,5 +1,5 @@
 /**
- * @file GGaussAdaptorT_test.cpp
+ * @file GParameterT_test.cpp
  */
 
 /*
@@ -56,7 +56,7 @@
 #include "geneva/GParameterT.hpp"
 #include "geneva/GBoolean.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
-#include "geneva/GInt32.hpp"
+#include "geneva/GInt32Object.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GDoubleObject.hpp"
@@ -175,7 +175,7 @@ public:
 	/***********************************************************************************/
 	// Test features that are expected to work: boost::int32_t case
 	void int32_no_failure_expected() {
-		GInt32 gpt0;
+		GInt32Object gpt0;
 
 		// Adding a single adaptor
 		BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
@@ -233,7 +233,7 @@ public:
 	void failures_expected() {
 		{
 			// Default construction
-			GInt32 gpt0;
+			GInt32Object gpt0;
 			// Adding an empty adaptor should throw
 			BOOST_CHECK_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>()), Gem::Common::gemfony_error_condition);
 		}
@@ -243,7 +243,7 @@ public:
 		// TODO : THIS DOES NOT WORK AND WILL LIKELY NOT THROW WHEN IT DOES COMPILE
 		/*
 			// Default construction
-			GInt32 gpt0;
+			GInt32Object gpt0;
 			// Extracting an adaptor of wrong type should throw in DEBUG mode
 			BOOST_CHECK_NO_THROW(gpt0.addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(new GInt32FlipAdaptor())));
 			BOOST_CHECK_THROW(gpt0.adaptor_cast<GBooleanAdaptor>(), Gem::Common::gemfony_error_condition);
@@ -254,7 +254,7 @@ public:
 		{
 			// Self assignment should throw in DEBUG mode
 #ifdef DEBUG
-			boost::shared_ptr<GInt32> gpt0_ptr(new GInt32());
+			boost::shared_ptr<GInt32Object> gpt0_ptr(new GInt32Object());
 			BOOST_CHECK_THROW(gpt0_ptr->load(gpt0_ptr), Gem::Common::gemfony_error_condition);
 #endif /* DEBUG */
 		}
@@ -274,7 +274,7 @@ class GParameterTSuite: public test_suite
 {
 public:
 	GParameterTSuite() :test_suite("GParameterTSuite") {
-		typedef boost::mpl::list<GBoolean, GInt32, GDoubleObject> test_types;
+		typedef boost::mpl::list<GBoolean, GInt32Object, GDoubleObject> test_types;
 		add( BOOST_TEST_CASE_TEMPLATE( GParameterT_no_failure_expected, test_types ) );
 
 		// create an instance of the test cases class

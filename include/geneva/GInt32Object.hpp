@@ -1,5 +1,5 @@
 /**
- * @file GInt32.hpp
+ * @file GInt32Object.hpp
  */
 
 /*
@@ -40,8 +40,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GINT32_HPP_
-#define GINT32_HPP_
+#ifndef GINT32OBJECT_HPP_
+#define GINT32OBJECT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -69,7 +69,7 @@ namespace Geneva {
  * Plus, having a separate integer class adds some consistency to Geneva, as other values
  * (most notably doubles) have their own class as well (GConstrainedDouble, GDoubleObject).
  */
-class GInt32
+class GInt32Object
 	:public GNumT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -85,26 +85,26 @@ class GInt32
 
 public:
 	/** @brief The default constructor */
-	GInt32();
+	GInt32Object();
 	/** @brief The copy constructor */
-	GInt32(const GInt32&);
+	GInt32Object(const GInt32Object&);
 	/** @brief Initialization by contained value */
-	explicit GInt32(const boost::int32_t&);
+	explicit GInt32Object(const boost::int32_t&);
 	/** @brief Initialization by random number in a given range */
-	GInt32(const boost::int32_t&, const boost::int32_t&);
+	GInt32Object(const boost::int32_t&, const boost::int32_t&);
 	/** @brief The destructor */
-	virtual ~GInt32();
+	virtual ~GInt32Object();
 
 	/** @brief An assignment operator for the contained value type */
 	virtual boost::int32_t operator=(const boost::int32_t&);
 
 	/** @brief A standard assignment operator */
-	const GInt32& operator=(const GInt32&);
+	const GInt32Object& operator=(const GInt32Object&);
 
-	/** @brief Checks for equality with another GInt32 object */
-	bool operator==(const GInt32&) const;
-	/** @brief Checks for inequality with another GInt32 object */
-	bool operator!=(const GInt32&) const;
+	/** @brief Checks for equality with another GInt32Object object */
+	bool operator==(const GInt32Object&) const;
+	/** @brief Checks for inequality with another GInt32Object object */
+	bool operator!=(const GInt32Object&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
@@ -134,4 +134,4 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GINT32_HPP_ */
+#endif /* GINT32OBJECT_HPP_ */
