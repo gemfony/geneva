@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedDouble.cpp
+ * @file GConstrainedDoubleObject.cpp
  */
 
 /*
@@ -29,14 +29,14 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GConstrainedDouble.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GConstrainedDouble)
+BOOST_CLASS_EXPORT(Gem::Geneva::GConstrainedDoubleObject)
 
 namespace Gem {
 namespace Geneva {
@@ -45,7 +45,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GConstrainedDouble::GConstrainedDouble()
+GConstrainedDoubleObject::GConstrainedDoubleObject()
 	: GConstrainedFPT<double>()
 { /* nothing */ }
 
@@ -56,7 +56,7 @@ GConstrainedDouble::GConstrainedDouble()
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
  */
-GConstrainedDouble::GConstrainedDouble(const double& lowerBoundary, const double& upperBoundary)
+GConstrainedDoubleObject::GConstrainedDoubleObject(const double& lowerBoundary, const double& upperBoundary)
 	: GConstrainedFPT<double>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
@@ -68,7 +68,7 @@ GConstrainedDouble::GConstrainedDouble(const double& lowerBoundary, const double
  * @param lowerBoundary The lower boundary of the value range
  * @param upperBoundary The upper boundary of the value range
  */
-GConstrainedDouble::GConstrainedDouble (
+GConstrainedDoubleObject::GConstrainedDoubleObject (
 		  const double& val
 		, const double& lowerBoundary
 		, const double& upperBoundary
@@ -80,9 +80,9 @@ GConstrainedDouble::GConstrainedDouble (
 /**
  * The copy constructor
  *
- * @param cp A copy of another GConstrainedDouble object
+ * @param cp A copy of another GConstrainedDoubleObject object
  */
-GConstrainedDouble::GConstrainedDouble(const GConstrainedDouble& cp)
+GConstrainedDoubleObject::GConstrainedDoubleObject(const GConstrainedDoubleObject& cp)
 	: GConstrainedFPT<double>(cp)
 { /* nothing */ }
 
@@ -92,7 +92,7 @@ GConstrainedDouble::GConstrainedDouble(const GConstrainedDouble& cp)
  *
  * @param val A value used for the initialization
  */
-GConstrainedDouble::GConstrainedDouble(const double& val)
+GConstrainedDoubleObject::GConstrainedDoubleObject(const double& val)
 	: GConstrainedFPT<double>(val)
 { /* nothing */ }
 
@@ -100,7 +100,7 @@ GConstrainedDouble::GConstrainedDouble(const double& val)
 /**
  * The destructor
  */
-GConstrainedDouble::~GConstrainedDouble()
+GConstrainedDoubleObject::~GConstrainedDoubleObject()
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -110,7 +110,7 @@ GConstrainedDouble::~GConstrainedDouble()
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-double GConstrainedDouble::operator=(const double& val) {
+double GConstrainedDoubleObject::operator=(const double& val) {
 	return GConstrainedFPT<double>::operator=(val);
 }
 
@@ -118,11 +118,11 @@ double GConstrainedDouble::operator=(const double& val) {
 /**
  * A standard assignment operator.
  *
- * @param cp A copy of another GConstrainedDouble object
+ * @param cp A copy of another GConstrainedDoubleObject object
  * @return A constant reference to this object
  */
-const GConstrainedDouble& GConstrainedDouble::operator=(const GConstrainedDouble& cp){
-	GConstrainedDouble::load_(&cp);
+const GConstrainedDoubleObject& GConstrainedDoubleObject::operator=(const GConstrainedDoubleObject& cp){
+	GConstrainedDoubleObject::load_(&cp);
 	return *this;
 }
 
@@ -132,34 +132,34 @@ const GConstrainedDouble& GConstrainedDouble::operator=(const GConstrainedDouble
  *
  * @return A copy of this object, camouflaged as a GObject
  */
-GObject* GConstrainedDouble::clone_() const {
-	return new GConstrainedDouble(*this);
+GObject* GConstrainedDoubleObject::clone_() const {
+	return new GConstrainedDoubleObject(*this);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for equality with another GConstrainedDouble object
+ * Checks for equality with another GConstrainedDoubleObject object
  *
- * @param  cp A constant reference to another GConstrainedDouble object
+ * @param  cp A constant reference to another GConstrainedDoubleObject object
  * @return A boolean indicating whether both objects are equal
  */
-bool GConstrainedDouble::operator==(const GConstrainedDouble& cp) const {
+bool GConstrainedDoubleObject::operator==(const GConstrainedDoubleObject& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to true)
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedDouble::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedDoubleObject::operator==","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
 /**
- * Checks for inequality with another GConstrainedDouble object
+ * Checks for inequality with another GConstrainedDoubleObject object
  *
- * @param  cp A constant reference to another GConstrainedDouble object
+ * @param  cp A constant reference to another GConstrainedDoubleObject object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GConstrainedDouble::operator!=(const GConstrainedDouble& cp) const {
+bool GConstrainedDoubleObject::operator!=(const GConstrainedDoubleObject& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality fulfilled, if no error text was emitted (which converts to true)
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedDouble::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedDoubleObject::operator!=","cp", CE_SILENT);
 }
 
 /*******************************************************************************************/
@@ -175,7 +175,7 @@ bool GConstrainedDouble::operator!=(const GConstrainedDouble& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GConstrainedDouble::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GConstrainedDoubleObject::checkRelationshipWith(const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
@@ -185,28 +185,28 @@ boost::optional<std::string> GConstrainedDouble::checkRelationshipWith(const GOb
     using namespace Gem::Common;
 
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedDouble>(&cp);
+    GObject::selfAssignmentCheck<GConstrainedDoubleObject>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GConstrainedFPT<double>::checkRelationshipWith(cp, e, limit, "GConstrainedDouble", y_name, withMessages));
+	deviations.push_back(GConstrainedFPT<double>::checkRelationshipWith(cp, e, limit, "GConstrainedDoubleObject", y_name, withMessages));
 
 	// no local data ...
 
-	return evaluateDiscrepancies("GConstrainedDouble", caller, deviations, e);
+	return evaluateDiscrepancies("GConstrainedDoubleObject", caller, deviations, e);
 }
 
 /*******************************************************************************************/
 /**
  * Loads the data of another GObject
  *
- * @param cp A copy of another GConstrainedDouble object, camouflaged as a GObject
+ * @param cp A copy of another GConstrainedDoubleObject object, camouflaged as a GObject
  */
-void GConstrainedDouble::load_(const GObject* cp){
+void GConstrainedDoubleObject::load_(const GObject* cp){
 	// Check for a possible self-assignment
-    GObject::selfAssignmentCheck<GConstrainedDouble>(cp);
+    GObject::selfAssignmentCheck<GConstrainedDoubleObject>(cp);
 
 	// Load our parent class'es data ...
 	GConstrainedFPT<double>::load_(cp);
@@ -218,7 +218,7 @@ void GConstrainedDouble::load_(const GObject* cp){
 /**
  * Triggers random initialization of the parameter object
  */
-void GConstrainedDouble::randomInit_() {
+void GConstrainedDoubleObject::randomInit_() {
 	GConstrainedFPT<double>::randomInit_();
 }
 
@@ -231,7 +231,7 @@ void GConstrainedDouble::randomInit_() {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GConstrainedDouble::modify_GUnitTests() {
+bool GConstrainedDoubleObject::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
@@ -244,7 +244,7 @@ bool GConstrainedDouble::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GConstrainedDouble::specificTestsNoFailureExpected_GUnitTests() {
+void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GConstrainedFPT<double>::specificTestsNoFailureExpected_GUnitTests();
 }
@@ -253,7 +253,7 @@ void GConstrainedDouble::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GConstrainedDouble::specificTestsFailuresExpected_GUnitTests() {
+void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GConstrainedFPT<double>::specificTestsFailuresExpected_GUnitTests();
 }

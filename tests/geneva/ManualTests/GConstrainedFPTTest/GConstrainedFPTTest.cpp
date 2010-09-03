@@ -30,12 +30,12 @@
  */
 
 /**
- * This test takes a GConstrainedDouble object:
+ * This test takes a GConstrainedDoubleObject object:
  * a) It examines the mapping from internal to external representation of its value.
  * b) It tests the "distortion" of a gaussian when going through the mapping from
  *    internal to external value.
  *
- * Additional tests (including error handling) of the GConstrainedDouble class have been
+ * Additional tests (including error handling) of the GConstrainedDoubleObject class have been
  * implemented as part of the unit tests.
  *
  * In order to see the results of this test, you need the Root toolkit from http://root.cern.ch.
@@ -56,7 +56,7 @@
 
 // Geneva header files go here
 #include "hap/GRandomT.hpp"
-#include "geneva/GConstrainedDouble.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 
 using namespace Gem::Geneva;
@@ -68,8 +68,8 @@ int main(int argc, char **argv){
 	//***************************************************************************
 	// Test a: Mapping from internal to external value
 
-	GConstrainedDouble gbd13(-1.,3.); // lower boundary -1, upper Boundary 3
-	GConstrainedDouble gbd052(0.5,2.); // lower boundary 0.5, upper Boundary 2
+	GConstrainedDoubleObject gbd13(-1.,3.); // lower boundary -1, upper Boundary 3
+	GConstrainedDoubleObject gbd052(0.5,2.); // lower boundary 0.5, upper Boundary 2
 
 	double internalValue = 0., externalValue = 0.;
 
@@ -105,7 +105,7 @@ int main(int argc, char **argv){
 	// Set up and register an adaptor for gbd13, so it
 	// knows how to be adaptd. We want a sigma of 0.5, sigma-adaption of 0.05 and
 	// a minimum sigma of 0.02. The adaptor will be deleted automatically by the
-	// GConstrainedDouble.
+	// GConstrainedDoubleObject.
 	boost::shared_ptr<GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(0.5,0.05,0.02,2.));
 	gbd13.addAdaptor(gdga);
 
@@ -147,7 +147,7 @@ int main(int argc, char **argv){
 		    << "  TPaveText *pt = new TPaveText(0.349138,0.872881,0.637931,0.963983,\"blNDC\");" << std::endl
 		    << "  pt->SetBorderSize(2);" << std::endl
 		    << "  pt->SetFillColor(19);" << std::endl
-		    << "  pt->AddText(\"Test of the GConstrainedDouble class\");" << std::endl
+		    << "  pt->AddText(\"Test of the GConstrainedDoubleObject class\");" << std::endl
 		    << "  pt->Draw();" << std::endl
 	        << "}" << std::endl;
 
@@ -159,7 +159,7 @@ int main(int argc, char **argv){
 	// whose mean is shifted from left to right of a [-1,1] range
 
 	Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY> gr;
-	GConstrainedDouble gbd_distortion(-1.,1.);
+	GConstrainedDoubleObject gbd_distortion(-1.,1.);
 
 	std::ofstream distortion("distortion.C");
 

@@ -46,7 +46,7 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
-#include "geneva/GConstrainedDouble.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
 
@@ -69,11 +69,11 @@ public:
 							 Gem::Common::CE_WITH_MESSAGES);
 
 		// Test instantiation in different modes
-		GConstrainedDouble gbd0;
-		GConstrainedDouble gbd1(-10,10);
-		GConstrainedDouble gbd2(1.,-10,10);
-		GConstrainedDouble gbd7(3); // has maximum boundaries
-		GConstrainedDouble gbd3(gbd2);
+		GConstrainedDoubleObject gbd0;
+		GConstrainedDoubleObject gbd1(-10,10);
+		GConstrainedDoubleObject gbd2(1.,-10,10);
+		GConstrainedDoubleObject gbd7(3); // has maximum boundaries
+		GConstrainedDoubleObject gbd3(gbd2);
 
 		BOOST_CHECK(gbd3 == gbd2);
 		BOOST_CHECK(gbd2 != gbd1);
@@ -94,7 +94,7 @@ public:
 		BOOST_CHECK_NO_THROW(gbd7.setBoundaries(-10.,10.));
 
 		// (Repeated) assignment
-		GConstrainedDouble gbd3_2;
+		GConstrainedDoubleObject gbd3_2;
 		gbd3_2 = gbd3 = gbd0;
 		BOOST_CHECK(gbd3 != gbd2);
 		BOOST_CHECK(gbd3 == gbd0);
@@ -102,7 +102,7 @@ public:
 		BOOST_CHECK(gbd3_2 == gbd0);
 
 		// Cloning and loading
-		GConstrainedDouble gbd5;
+		GConstrainedDoubleObject gbd5;
 		{
 		   boost::shared_ptr<GObject> gbd4;
 		   BOOST_CHECK_NO_THROW(gbd4 = gbd3.GObject::clone());
@@ -150,8 +150,8 @@ public:
 		// Test serialization and loading in different serialization modes
 		{ // plain text format
 			// Copy construction of a new object
-			GConstrainedDouble gbd6(0.,-10.,10.);
-			GConstrainedDouble gbd6_cp(gbd6);
+			GConstrainedDoubleObject gbd6(0.,-10.,10.);
+			GConstrainedDoubleObject gbd6_cp(gbd6);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gbd6_cp == gbd6);
@@ -167,8 +167,8 @@ public:
 
 		{ // XML format
 			// Copy construction of a new object
-			GConstrainedDouble gbd6(0.,-10.,10.);
-			GConstrainedDouble gbd6_cp(gbd6);
+			GConstrainedDoubleObject gbd6(0.,-10.,10.);
+			GConstrainedDoubleObject gbd6_cp(gbd6);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gbd6_cp == gbd6);
@@ -184,8 +184,8 @@ public:
 
 		{ // binary test format
 			// Copy construction of a new object
-			GConstrainedDouble gbd6(0.,-10.,10.);
-			GConstrainedDouble gbd6_cp(gbd6);
+			GConstrainedDoubleObject gbd6(0.,-10.,10.);
+			GConstrainedDoubleObject gbd6_cp(gbd6);
 
 			// Check equalities and inequalities
 			BOOST_CHECK(gbd6_cp == gbd6);
@@ -205,20 +205,20 @@ public:
 	void failures_expected() {
 		// Assignment of value outside of the allowed range
 		{
-			GConstrainedDouble gbd(-10,10.);
+			GConstrainedDoubleObject gbd(-10,10.);
 			BOOST_CHECK_THROW(gbd=11., Gem::Common::gemfony_error_condition);
 		}
 
 		// Setting boundaries so that the value lies outside of the new boundaries should throw
 		{
-			GConstrainedDouble gbd(10); // Has boundaries -DBL_MAX, DBL_MAX
+			GConstrainedDoubleObject gbd(10); // Has boundaries -DBL_MAX, DBL_MAX
 			BOOST_CHECK_THROW(gbd.setBoundaries(-7, 7), Gem::Common::gemfony_error_condition);
 		}
 
 #ifdef DEBUG
 		// Self assignment should throw in DEBUG mode
 		{
-			boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(-10,10.));
+			boost::shared_ptr<GConstrainedDoubleObject> gbd_ptr(new GConstrainedDoubleObject(-10,10.));
 			BOOST_CHECK_THROW(gbd_ptr->load(gbd_ptr), Gem::Common::gemfony_error_condition);
 		}
 #endif /* DEBUG */
@@ -230,7 +230,7 @@ private:
 };
 
 /********************************************************************************************/
-// Test features of the the GConstrainedDouble class. Please also have a look at the manual test,
+// Test features of the the GConstrainedDoubleObject class. Please also have a look at the manual test,
 // as it gives a graphical representation of the mapping.
 class GConstrainedDoubleSuite: public test_suite
 {

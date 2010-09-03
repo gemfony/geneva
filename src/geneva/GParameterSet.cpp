@@ -581,7 +581,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test_0->empty());
 		// Add some floating pount parameters
 		for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
-			p_test_0->push_back(boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(gr.uniform_real(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE)));
+			p_test_0->push_back(boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(gr.uniform_real(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE), MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE)));
 			p_test_0->push_back(boost::shared_ptr<GDoubleObject>(new GDoubleObject(gr.uniform_real(MINGDOUBLE,MAXGDOUBLE))));
 			p_test_0->push_back(boost::shared_ptr<GDoubleCollection>(new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL)));
 		}
@@ -634,7 +634,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				// Cross-check
 				std::size_t counter = 0;
 				for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
-					BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() == d);
+					BOOST_CHECK(p_test->pc_at<GConstrainedDoubleObject>(counter)->value() == d);
 					counter++;
 					BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() == d);
 					counter++;
@@ -695,8 +695,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
 					// A constrained value does not have to assume the value d*FPFIXEDVALINITMAX,
 					// but needs to stay within its boundaries
-					BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() >= MINGCONSTRDOUBLE);
-					BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() <= MAXGCONSTRDOUBLE);
+					BOOST_CHECK(p_test->pc_at<GConstrainedDoubleObject>(counter)->value() >= MINGCONSTRDOUBLE);
+					BOOST_CHECK(p_test->pc_at<GConstrainedDoubleObject>(counter)->value() <= MAXGCONSTRDOUBLE);
 					counter++;
 					BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() == d*FPFIXEDVALINITMAX);
 					counter++;
@@ -751,7 +751,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			// Cross-check
 			std::size_t counter = 0;
 			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
-				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() != p_test_0->pc_at<GConstrainedDouble>(counter)->value());
+				BOOST_CHECK(p_test->pc_at<GConstrainedDoubleObject>(counter)->value() != p_test_0->pc_at<GConstrainedDoubleObject>(counter)->value());
 				counter++;
 				BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() != p_test_0->pc_at<GDoubleObject>(counter)->value());
 				counter++;
@@ -807,7 +807,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			// Cross-check
 			std::size_t counter = 0;
 			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
-				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() != p_test_0->pc_at<GConstrainedDouble>(counter)->value());
+				BOOST_CHECK(p_test->pc_at<GConstrainedDoubleObject>(counter)->value() != p_test_0->pc_at<GConstrainedDoubleObject>(counter)->value());
 				counter++;
 				BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() != p_test_0->pc_at<GDoubleObject>(counter)->value());
 				counter++;
@@ -862,8 +862,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
 				// A constrained value does not have to assume the value value()+FPADD
 				// but needs to stay within its boundaries
-				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() >= MINGCONSTRDOUBLE);
-				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() <= MAXGCONSTRDOUBLE);
+				BOOST_CHECK(p_test->pc_at<GConstrainedDoubleObject>(counter)->value() >= MINGCONSTRDOUBLE);
+				BOOST_CHECK(p_test->pc_at<GConstrainedDoubleObject>(counter)->value() <= MAXGCONSTRDOUBLE);
 				counter++;
 				BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() == p_test_0->pc_at<GDoubleObject>(counter)->value() + FPADD);
 				counter++;
@@ -920,8 +920,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			for(std::size_t i=0; i<FPLOOPCOUNT; i++) {
 				// A constrained value does not have to assume the value value()-FPSUBTRACT
 				// but needs to stay within its boundaries
-				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() >= MINGCONSTRDOUBLE);
-				BOOST_CHECK(p_test->pc_at<GConstrainedDouble>(counter)->value() <= MAXGCONSTRDOUBLE);
+				BOOST_CHECK(p_test->pc_at<GConstrainedDoubleObject>(counter)->value() >= MINGCONSTRDOUBLE);
+				BOOST_CHECK(p_test->pc_at<GConstrainedDoubleObject>(counter)->value() <= MAXGCONSTRDOUBLE);
 				counter++;
 				BOOST_CHECK(p_test->pc_at<GDoubleObject>(counter)->value() == p_test_0->pc_at<GDoubleObject>(counter)->value() - FPSUBTRACT);
 				counter++;

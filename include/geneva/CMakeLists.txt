@@ -9,7 +9,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GBrokerConnector.hpp
 	GBrokerEA.hpp
 	GBrokerSwarm.hpp
-	GConstrainedDouble.hpp
+	GConstrainedDoubleObject.hpp
 	GConstrainedDoubleObjectCollection.hpp
 	GConstrainedFPT.hpp
 	GConstrainedInt32.hpp

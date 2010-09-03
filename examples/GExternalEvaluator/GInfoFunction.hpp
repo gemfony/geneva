@@ -135,14 +135,14 @@ public:
 
 				std::vector<boost::shared_ptr<GConstrainedDoubleObjectCollection> >::iterator it;
 				for(it=v.begin(); it!=v.end(); ++it) {
-					// We need to loop over all GConstrainedDouble objects to extract the desired information
+					// We need to loop over all GConstrainedDoubleObject objects to extract the desired information
 					GConstrainedDoubleObjectCollection::iterator gbdc_it;
 					for(gbdc_it=(*it)->begin(); gbdc_it!=(*it)->end(); ++gbdc_it) {
 #ifdef DEBUG
 						if(!(*gbdc_it)->hasAdaptor()) { // This should not happen
 							std::ostringstream error;
 							error << "In optimizationMonitor::informationFunction(INFOPROCESSING): Error!" << std::endl
-									<< "Expected an adaptor in GConstrainedDouble object but didn't find it." << std::endl;
+									<< "Expected an adaptor in GConstrainedDoubleObject object but didn't find it." << std::endl;
 							throw(Gem::Common::gemfony_error_condition(error.str()));
 						}
 #endif /* DEBUG */

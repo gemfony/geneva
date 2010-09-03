@@ -8,7 +8,7 @@ SET ( OPTIMIZATIONSOURCES
 	GBrokerConnector
 	GBrokerEA
 	GBrokerSwarm
-	GConstrainedDouble
+	GConstrainedDoubleObject
 	GConstrainedDoubleObjectCollection
 	GConstrainedInt32
 	GConstrainedInt32ObjectCollection

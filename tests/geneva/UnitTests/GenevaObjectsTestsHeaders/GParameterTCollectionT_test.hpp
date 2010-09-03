@@ -60,7 +60,7 @@
 #include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GDoubleObject.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
-#include "geneva/GConstrainedDouble.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GConstrainedInt32.hpp"
 #include "geneva/GBooleanObject.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
@@ -87,10 +87,10 @@ boost::shared_ptr<typename T::collection_type> getTemplateItemNoAdaptor() {
 	return boost::shared_ptr<typename T::collection_type>(new typename T::collection_type(0));
 }
 
-// Specialization for GConstrainedDouble
+// Specialization for GConstrainedDoubleObject
 template <>
-boost::shared_ptr<GConstrainedDouble> getTemplateItemNoAdaptor<GConstrainedDoubleObjectCollection>() {
-	return boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(0.,0.,1.));
+boost::shared_ptr<GConstrainedDoubleObject> getTemplateItemNoAdaptor<GConstrainedDoubleObjectCollection>() {
+	return boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(0.,0.,1.));
 }
 
 // Specialization for GConstrainedInt32
@@ -107,10 +107,10 @@ boost::shared_ptr<typename T::collection_type> getFindItemNoAdaptor() {
 	return boost::shared_ptr<typename T::collection_type>(new typename T::collection_type(1));
 }
 
-// Specialization for GConstrainedDouble
+// Specialization for GConstrainedDoubleObject
 template <>
-boost::shared_ptr<GConstrainedDouble> getFindItemNoAdaptor<GConstrainedDoubleObjectCollection>() {
-	return boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble(1.,0.,1.));
+boost::shared_ptr<GConstrainedDoubleObject> getFindItemNoAdaptor<GConstrainedDoubleObjectCollection>() {
+	return boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(1.,0.,1.));
 }
 
 // Specialization for GConstrainedInt32
@@ -132,10 +132,10 @@ boost::shared_ptr<typename T::collection_type> getTemplateItem() {
 	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 
-// Specialization for GConstrainedDouble
+// Specialization for GConstrainedDoubleObject
 template <>
-boost::shared_ptr<GConstrainedDouble> getTemplateItem<GConstrainedDoubleObjectCollection>() {
-	boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(0.,0.,1.));
+boost::shared_ptr<GConstrainedDoubleObject> getTemplateItem<GConstrainedDoubleObjectCollection>() {
+	boost::shared_ptr<GConstrainedDoubleObject> gbd_ptr(new GConstrainedDoubleObject(0.,0.,1.));
 	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
 	return gbd_ptr;
 }
@@ -184,10 +184,10 @@ boost::shared_ptr<typename T::collection_type> getFindItem() {
 	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
 
-// Specialization for GConstrainedDouble
+// Specialization for GConstrainedDoubleObject
 template <>
-boost::shared_ptr<GConstrainedDouble> getFindItem<GConstrainedDoubleObjectCollection>() {
-	boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(1.,0.,1.));
+boost::shared_ptr<GConstrainedDoubleObject> getFindItem<GConstrainedDoubleObjectCollection>() {
+	boost::shared_ptr<GConstrainedDoubleObject> gbd_ptr(new GConstrainedDoubleObject(1.,0.,1.));
 	gbd_ptr->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor()));
 	return gbd_ptr;
 }
@@ -359,7 +359,7 @@ class GParameterTCollectionTSuite: public test_suite
 public:
 	/***********************************************************************************/
 	GParameterTCollectionTSuite() :test_suite("GParameterTCollectionTSuite") {
-		// typedef boost::mpl::list<GDoubleObject, GConstrainedDouble, GInt32Object, GBooleanObject> test_types;
+		// typedef boost::mpl::list<GDoubleObject, GConstrainedDoubleObject, GInt32Object, GBooleanObject> test_types;
 		typedef boost::mpl::list<GDoubleObjectCollection,
 						         GInt32ObjectCollection,
 						         GBooleanObjectCollection,

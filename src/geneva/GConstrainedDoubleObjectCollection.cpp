@@ -53,7 +53,7 @@ GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection()
  * @param cp A copy of another GConstrainedDoubleObjectCollection object
  */
 GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection& cp)
-	: GParameterTCollectionT<GConstrainedDouble>(cp)
+	: GParameterTCollectionT<GConstrainedDoubleObject>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -140,7 +140,7 @@ boost::optional<std::string> GConstrainedDoubleObjectCollection::checkRelationsh
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterTCollectionT<GConstrainedDouble>::checkRelationshipWith(cp, e, limit, "GConstrainedDoubleObjectCollection", y_name, withMessages));
+	deviations.push_back(GParameterTCollectionT<GConstrainedDoubleObject>::checkRelationshipWith(cp, e, limit, "GConstrainedDoubleObjectCollection", y_name, withMessages));
 
 	// no local data ...
 
@@ -158,7 +158,7 @@ void GConstrainedDoubleObjectCollection::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GConstrainedDoubleObjectCollection>(cp);
 
 	// Load our parent class'es data ...
-	GParameterTCollectionT<GConstrainedDouble>::load_(cp);
+	GParameterTCollectionT<GConstrainedDoubleObject>::load_(cp);
 
 	// ... no local data
 }
@@ -175,7 +175,7 @@ bool GConstrainedDoubleObjectCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GParameterTCollectionT<GConstrainedDouble>::modify_GUnitTests()) result = true;
+	if(GParameterTCollectionT<GConstrainedDoubleObject>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -186,7 +186,7 @@ bool GConstrainedDoubleObjectCollection::modify_GUnitTests() {
  */
 void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GConstrainedDouble>::specificTestsNoFailureExpected_GUnitTests();
+	GParameterTCollectionT<GConstrainedDoubleObject>::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /*******************************************************************************************/
@@ -195,7 +195,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
  */
 void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GParameterTCollectionT<GConstrainedDouble>::specificTestsFailuresExpected_GUnitTests();
+	GParameterTCollectionT<GConstrainedDoubleObject>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

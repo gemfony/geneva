@@ -62,7 +62,7 @@
 #include <hap/GRandomT.hpp>
 #include <common/GCommonEnums.hpp>
 #include <common/GExceptions.hpp>
-#include <geneva/GConstrainedDouble.hpp>
+#include <geneva/GConstrainedDoubleObject.hpp>
 #include <geneva/GConstrainedDoubleObjectCollection.hpp>
 #include <geneva/GDoubleGaussAdaptor.hpp>
 #include <geneva/GObjectExpectationChecksT.hpp>
@@ -123,18 +123,18 @@ public:
 
 		// Add bounded double objects
 		for(std::size_t i=0; i<dim; i++) {
-			// GConstrainedDouble will start with random values in the range [min:max]
-			boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(gr.uniform_real(min, max), min, max) );
+			// GConstrainedDoubleObject will start with random values in the range [min:max]
+			boost::shared_ptr<GConstrainedDoubleObject> gbd_ptr(new GConstrainedDoubleObject(gr.uniform_real(min, max), min, max) );
 
 			// Create a suitable adaptor (sigma=0.1, sigma-adaption=0.5, min sigma=0, max sigma=0,5)
 			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 0.5));
 			gdga_ptr->setAdaptionThreshold(1); // Adaption parameters are modified after each adaption
 			gdga_ptr->setAdaptionProbability(0.05); // The likelihood for a parameter to be adapted
 
-			// Register the adaptor with GConstrainedDouble objects
+			// Register the adaptor with GConstrainedDoubleObject objects
 			gbd_ptr->addAdaptor(gdga_ptr);
 
-			// Add a GConstrainedDouble object to the collection
+			// Add a GConstrainedDoubleObject object to the collection
 			// gbdc_ptr->push_back(gbd_ptr);
 			// gpoc_ptr->push_back(gbd_ptr);
 			this->push_back(gbd_ptr);
@@ -359,8 +359,8 @@ protected:
 		 */
 
 		// boost::shared_ptr<GParameterObjectCollection> vC = pc_at<GParameterObjectCollection>(0);
-		// GParameterObjectCollection::conversion_iterator<GConstrainedDouble> it(vC->end());
-		GStartIndividual::conversion_iterator<GConstrainedDouble> it(this->end());
+		// GParameterObjectCollection::conversion_iterator<GConstrainedDoubleObject> it(vC->end());
+		GStartIndividual::conversion_iterator<GConstrainedDoubleObject> it(this->end());
 		// for(it=vC->begin(); it!=vC->end(); ++it) {
 		for(it=this->begin(); it!=this->end(); ++it) {
 			result += (*it)->value() * (*it)->value();

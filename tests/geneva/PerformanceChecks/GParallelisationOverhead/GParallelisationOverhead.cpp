@@ -220,16 +220,16 @@ int main(int argc, char **argv){
 			// Set up a GConstrainedDoubleObjectCollection
 			boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc_ptr(new GConstrainedDoubleObjectCollection());
 
-			// Set up nVariables GConstrainedDouble objects in the desired value range,
+			// Set up nVariables GConstrainedDoubleObject objects in the desired value range,
 			// and register them with the double collection
 			for(std::size_t var=0; var<nVariables; var++) {
-				boost::shared_ptr<GConstrainedDouble> gbd_ptr(new GConstrainedDouble(0.,1.)); // range [0,1], random initialization
+				boost::shared_ptr<GConstrainedDoubleObject> gbd_ptr(new GConstrainedDoubleObject(0.,1.)); // range [0,1], random initialization
 
 				boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
 				gdga_ptr->setAdaptionThreshold(1);
 				gbd_ptr->addAdaptor(gdga_ptr); // We use a common adaptor for all objects in the collection
 
-				// Make the GConstrainedDouble known to the collection
+				// Make the GConstrainedDoubleObject known to the collection
 				gbdc_ptr->push_back(gbd_ptr);
 			}
 

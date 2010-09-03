@@ -59,7 +59,7 @@
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
-#include "geneva/GConstrainedDouble.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GGlobalOptionsT.hpp"

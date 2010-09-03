@@ -179,7 +179,7 @@ class GExternalEvaluatorIndividual
 
 		// Set up the local adaptor templates and collection items
 		//-----------------------------------------------------------------------------------------------
-		gdbl_ptr_=boost::shared_ptr<GConstrainedDouble>(new GConstrainedDouble());
+		gdbl_ptr_=boost::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject());
 		if(gdbl_ad_ptr) {
 			gdbl_ptr_->addAdaptor(gdbl_ad_ptr->GObject::clone<GAdaptorT<double> >());
 		}
@@ -258,7 +258,7 @@ class GExternalEvaluatorIndividual
 		, maximize_(cp.maximize_)
 		, parameterFile_(cp.parameterFile_)
 	{
-		gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone<GConstrainedDouble>();
+		gdbl_ptr_ = cp.gdbl_ptr_->GObject::clone<GConstrainedDoubleObject>();
 		glong_ptr_ = cp.glong_ptr_->GObject::clone<GConstrainedInt32>();
 	}
 
@@ -518,7 +518,7 @@ class GExternalEvaluatorIndividual
 		maximize_ = p_load->maximize_;
 		parameterFile_ = p_load->parameterFile_;
 
-		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone<GConstrainedDouble>();
+		gdbl_ptr_ = p_load->gdbl_ptr_->GObject::clone<GConstrainedDoubleObject>();
 		glong_ptr_ = p_load->glong_ptr_->GObject::clone<GConstrainedInt32>();
 	}
 
@@ -604,7 +604,7 @@ class GExternalEvaluatorIndividual
 		, exchangeMode_(Gem::Geneva::BINARYEXCHANGE)
 		, maximize_(false)
 		, parameterFile_("empty")
-		, gdbl_ptr_(boost::shared_ptr<GConstrainedDouble>((GConstrainedDouble *)NULL))
+		, gdbl_ptr_(boost::shared_ptr<GConstrainedDoubleObject>((GConstrainedDoubleObject *)NULL))
 		, glong_ptr_(boost::shared_ptr<GConstrainedInt32>((GConstrainedInt32 *)NULL))
 	{ /* nothing */ }
 
@@ -625,7 +625,7 @@ class GExternalEvaluatorIndividual
 
 		// Retrieve pointers to the four containers and add their data to the GDataExchange module
 
-		// A GConstrainedDoubleObjectCollection can mostly be treated like a std::vector<boost::shared_ptr<GConstrainedDouble> >
+		// A GConstrainedDoubleObjectCollection can mostly be treated like a std::vector<boost::shared_ptr<GConstrainedDoubleObject> >
 		boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc = pc_at<GConstrainedDoubleObjectCollection>(0);
 
 		GConstrainedDoubleObjectCollection::iterator gbdc_it;
@@ -784,7 +784,7 @@ class GExternalEvaluatorIndividual
 	bool maximize_; ///< indicates whether small values of this individual are better than large values
 	std::string parameterFile_;
 
-	boost::shared_ptr<GConstrainedDouble> gdbl_ptr_; ///< A template for GConstrainedDouble objects
+	boost::shared_ptr<GConstrainedDoubleObject> gdbl_ptr_; ///< A template for GConstrainedDoubleObject objects
 	boost::shared_ptr<GConstrainedInt32> glong_ptr_; ///< A template for GConstrainedInt32 objects
 
 	Gem::Dataexchange::GDataExchange gde_; ///< takes care of the data exchange with external programs

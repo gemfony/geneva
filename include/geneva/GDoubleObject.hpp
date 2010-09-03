@@ -59,7 +59,7 @@ namespace Geneva {
 /**
  * This class encapsulates a double type. This might appear heavy weight,
  * and indeed for most applications this is not the recommended solution -
- * use the GDoubleCollection class or individual GConstrainedDouble objects
+ * use the GDoubleCollection class or individual GConstrainedDoubleObject objects
  * instead.
  */
 class GDoubleObject

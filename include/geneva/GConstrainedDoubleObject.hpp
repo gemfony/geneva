@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedDouble.hpp
+ * @file GConstrainedDoubleObject.hpp
  */
 
 /*
@@ -46,8 +46,8 @@
 #include <boost/cast.hpp> // For boost::numeric_cast<>
 #include <boost/cstdint.hpp>
 
-#ifndef GCONSTRAINEDDOUBLE_HPP_
-#define GCONSTRAINEDDOUBLE_HPP_
+#ifndef GCONSTRAINEDDOUBLEOBJECT_HPP_
+#define GCONSTRAINEDDOUBLEOBJECT_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -65,11 +65,11 @@ namespace Geneva
 
 /******************************************************************************/
 /**
- * The GConstrainedDouble class allows to limit the value range of a double value,
+ * The GConstrainedDoubleObject class allows to limit the value range of a double value,
  * while applying adaptions to a continuous range. This is done by means of a
  * mapping from an internal representation to an externally visible value.
  */
-class GConstrainedDouble
+class GConstrainedDoubleObject
   : public GConstrainedFPT<double>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -85,28 +85,28 @@ class GConstrainedDouble
 
 public:
 	/** @brief The default constructor */
-	GConstrainedDouble();
+	GConstrainedDoubleObject();
 	/** @brief Initialization with boundaries only */
-	GConstrainedDouble(const double&, const double&);
+	GConstrainedDoubleObject(const double&, const double&);
 	/** @brief Initialization with value and boundaries */
-	GConstrainedDouble(const double&, const double&, const double&);
+	GConstrainedDoubleObject(const double&, const double&, const double&);
 	/** @brief The copy constructor */
-	GConstrainedDouble(const GConstrainedDouble&);
+	GConstrainedDoubleObject(const GConstrainedDoubleObject&);
 	/** @brief Initialization by contained value */
-	explicit GConstrainedDouble(const double&);
+	explicit GConstrainedDoubleObject(const double&);
 	/** @brief The destructor */
-	virtual ~GConstrainedDouble();
+	virtual ~GConstrainedDoubleObject();
 
 	/** @brief An assignment operator for the contained value type */
 	virtual double operator=(const double&);
 
 	/** @brief A standard assignment operator */
-	const GConstrainedDouble& operator=(const GConstrainedDouble&);
+	const GConstrainedDoubleObject& operator=(const GConstrainedDoubleObject&);
 
-	/** @brief Checks for equality with another GConstrainedDouble object */
-	bool operator==(const GConstrainedDouble&) const;
-	/** @brief Checks for inequality with another GConstrainedDouble object */
-	bool operator!=(const GConstrainedDouble&) const;
+	/** @brief Checks for equality with another GConstrainedDoubleObject object */
+	bool operator==(const GConstrainedDoubleObject&) const;
+	/** @brief Checks for inequality with another GConstrainedDoubleObject object */
+	bool operator!=(const GConstrainedDoubleObject&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
@@ -136,4 +136,4 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GCONSTRAINEDDOUBLE_HPP_ */
+#endif /* GCONSTRAINEDDOUBLEOBJECT_HPP_ */
