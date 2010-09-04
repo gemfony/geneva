@@ -217,6 +217,9 @@ bool GDoubleObject::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
+	// A few settings
+	const std::size_t nTests = 10000;
+
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
@@ -233,6 +236,55 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GNumFPT<double>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Test of GParameterT<T>'s methods for setting and retrieval of values
+		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+
+		for(double d=0.; d<10; d+=0.01) {
+			BOOST_CHECK_NO_THROW((*p_test) = d); // Setting using operator=()
+			BOOST_CHECK(p_test->value() == d); // Retrieval through the value() function
+			BOOST_CHECK_NO_THROW(p_test->setValue(d)); // Setting using the setValue() function
+			BOOST_CHECK(p_test->value() == d); // Retrieval through the value() function
+			BOOST_CHECK_NO_THROW(p_test->setValue_(d)); // Setting using the protected constant setValue_() function
+			BOOST_CHECK(p_test->value() == d); // Retrieval through the value() function
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test automatic conversion to the target type, using GParameterT<T>'s operator T()
+		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+
+		double target = -1.;
+		for(double d=0.; d<10; d+=0.01) {
+			BOOST_CHECK_NO_THROW(p_test->setValue(d)); // Setting using the setValue() function
+			BOOST_CHECK_NO_THROW(target = *p_test); // Automatic conversion
+			BOOST_CHECK(target == d); // Cross-check
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test the GParameterT<T>::adaptImpl() implementation
+		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+
+		if(p_test->hasAdaptor()) {
+			BOOST_CHECK_NO_THROW(*p_test = 1.);
+			double origVal = *p_test;
+			BOOST_CHECK(*p_test == 1.);
+			BOOST_CHECK(origVal == 1.);
+
+			for(std::size_t i=0; i<nTests; i++) {
+				BOOST_CHECK_NO_THROW(p_test->adaptImpl());
+				BOOST_CHECK(origVal != *p_test); // Should be different
+				BOOST_CHECK_NO_THROW(origVal = *p_test);
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------
 
 	// Remove the test adaptor
 	this->resetAdaptor();
@@ -264,6 +316,8 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GNumFPT<double>::specificTestsFailuresExpected_GUnitTests();
+
+	// Nothing to check -- no local data
 
 	// Remove the test adaptor
 	this->resetAdaptor();

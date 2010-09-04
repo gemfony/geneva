@@ -40,6 +40,7 @@
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GNUMT_HPP_
 #define GNUMT_HPP_
@@ -101,7 +102,10 @@ public:
 	 *
 	 * @param val The value used for the initialization
 	 */
-	explicit GNumT(const T& val)
+	explicit GNumT(
+			const T& val
+			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
+	)
 		: GParameterT<T>(val)
 		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
 		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
@@ -114,7 +118,11 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumT(const T& min, const T& max)
+	GNumT(
+			const T& min
+			, const T& max
+			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
+	)
 		: GParameterT<T> ()
 		, lowerInitBoundary_(min)
 		, upperInitBoundary_(max)
@@ -230,10 +238,30 @@ public:
 	 * @param lowerInitBoundary The lower boundary for random initialization
 	 * @param upperInitBoundary The upper boundary for random initialization
 	 */
-	void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
+	void setInitBoundaries(
+			const T& lowerInitBoundary
+			, const T& upperInitBoundary
+			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
+	) {
+		// Do some error checking
+		if(lowerInitBoundary >= upperInitBoundary) {
+			std::ostringstream error;
+			error << "In GNumT<T>::setInitBoundaries(): Error!" << std::endl
+				  << "Invalid boundaries provided: " << std::endl
+				  << "lowerInitBoundary = " << lowerInitBoundary << std::endl
+				  << "upperInitBoundary = " << upperInitBoundary << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
 		lowerInitBoundary_ = lowerInitBoundary;
 		upperInitBoundary_ = upperInitBoundary;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested GNumT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * Setting of invalid boundaries is tested in GNumT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/******************************************************************/
 	/**
@@ -245,6 +273,11 @@ public:
 		return lowerInitBoundary_;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested GNumT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/******************************************************************/
 	/**
 	 * Retrieves the value of the upper initialization boundary
@@ -254,6 +287,11 @@ public:
 	T getUpperInitBoundary() const {
 		return upperInitBoundary_;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested GNumT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 protected:
 	/******************************************************************/
@@ -320,6 +358,25 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
+
+		// A few settings
+		const T LOWERTESTINITVAL = T(1); // Do not choose a negative value as T might be an unsigned type
+		const T UPPERTESTINITVAL = T(3);
+
+		//------------------------------------------------------------------------------
+
+		{ // Test setting and retrieval of initialization boundaries
+			boost::shared_ptr<GNumT<T> > p_test = this->GObject::clone<GNumT<T> >();
+
+			// Set the boundaries
+			BOOST_CHECK_NO_THROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
+
+			// Check that these values have indeed been assigned
+			BOOST_CHECK(p_test->getLowerInitBoundary() == LOWERTESTINITVAL);
+			BOOST_CHECK(p_test->getUpperInitBoundary() == UPPERTESTINITVAL);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/******************************************************************/
@@ -329,6 +386,20 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();
+
+		// A few settings
+		const T LOWERTESTINITVAL = T(1); // Do not choose a negative value as T might be an unsigned type
+		const T UPPERTESTINITVAL = T(3);
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assignement of initialization boundaries throws for invalid boundaries
+			boost::shared_ptr<GNumT<T> > p_test = this->GObject::clone<GNumT<T> >();
+
+			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 #endif /* GENEVATESTING */

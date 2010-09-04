@@ -98,21 +98,40 @@ void GParameterBase::adapt() {
 	if(adaptionsActive_) adaptImpl();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**********************************************************************************/
 /**
  * Switches on adaptions for this object
  */
-void GParameterBase::setAdaptionsActive() {
+bool GParameterBase::setAdaptionsActive() {
+	bool previous = adaptionsActive_;
 	adaptionsActive_ = true;
+	return previous;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
  * Disables adaptions for this object
  */
-void GParameterBase::setAdaptionsInactive() {
+bool GParameterBase::setAdaptionsInactive() {
+	bool previous = adaptionsActive_;
 	adaptionsActive_ = false;
+	return previous;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
@@ -123,6 +142,11 @@ void GParameterBase::setAdaptionsInactive() {
 bool GParameterBase::adaptionsActive() const {
 	return adaptionsActive_;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
@@ -205,6 +229,11 @@ void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::
 	gr = gr_cp;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /***********************************************************************************/
 /**
  * Re-connects the local random number generator to gr. Derived collection classes
@@ -222,6 +251,11 @@ void GParameterBase::resetGRandomPointer() {
 	gr = gr_local;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /***********************************************************************************/
 /**
  * Checks whether the local random number generator is used. This is simply done
@@ -233,6 +267,11 @@ bool GParameterBase::usesLocalRNG() const {
 	return gr == gr_local;
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**********************************************************************************/
 /**
  * Convenience function so we do not need to always cast  derived classes.
@@ -242,6 +281,11 @@ bool GParameterBase::usesLocalRNG() const {
 bool GParameterBase::hasAdaptor() const {
 	return false;
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
@@ -267,12 +311,32 @@ void GParameterBase::randomInit() {
 void GParameterBase::fpFixedValueInit(const float& val)
 { /* do nothing by default */ }
 
+/* ----------------------------------------------------------------------------------
+ * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**********************************************************************************/
 /**
  * Multiplies double-based parameters with a given value.
  */
 void GParameterBase::fpMultiplyBy(const float& val)
 { /* do nothing by default */ }
+
+/* ----------------------------------------------------------------------------------
+ * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
@@ -288,6 +352,16 @@ void GParameterBase::fpMultiplyBy(const float& val)
 void GParameterBase::fpMultiplyByRandom(const float& min, const float& max)
 { /* do nothing by default */ }
 
+/* ----------------------------------------------------------------------------------
+ * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**********************************************************************************/
 /**
  * Multiplies with a random floating point number in the range [0, 1[.  The actual
@@ -299,6 +373,16 @@ void GParameterBase::fpMultiplyByRandom(const float& min, const float& max)
 void GParameterBase::fpMultiplyByRandom()
 { /* do nothing by default */ }
 
+/* ----------------------------------------------------------------------------------
+ * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**********************************************************************************/
 /**
  * Adds the floating point parameters of another GParameterBase object to this one.
@@ -308,6 +392,16 @@ void GParameterBase::fpMultiplyByRandom()
  */
 void GParameterBase::fpAdd(boost::shared_ptr<GParameterBase> p)
 { /* do nothing by default */ }
+
+/* ----------------------------------------------------------------------------------
+ * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
@@ -319,6 +413,15 @@ void GParameterBase::fpAdd(boost::shared_ptr<GParameterBase> p)
 void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
 { /* do nothing by default */ }
 
+/* ----------------------------------------------------------------------------------
+ * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /**********************************************************************************/
 /**
@@ -414,7 +517,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 
 	{ // Check activating and de-activating adaptions. Note that the
 	  // effects of these flags can only be tested if an adaptor or
-	  // multiple adaptors (in the case of object collections) has/ve
+	  // multiple adaptors (in the case of object collections) have
 	  // been loaded.
 
 		// Create some clones of this object
@@ -443,9 +546,86 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 
 	//---------------------------------------------------------------------
 
-	{ // Check adding and resetting of random number generators
-		// Note to self: this needs to be tested in derived classes (such as GDoubleObject)
-		// BUT: Can check hasAdaptor() ...
+	{ // Check adding and resetting of random number generators, adapt() and (de-)activation of adaptions
+		// Create two local clones
+		boost::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
+		boost::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
+
+		// Always adapt
+		BOOST_CHECK_NO_THROW(p_test1->setAdaptionsActive());
+		BOOST_CHECK_NO_THROW(p_test2->setAdaptionsActive());
+
+		// Check that adaptions are indeed active in both objects
+		BOOST_CHECK(p_test1->adaptionsActive() == true);
+		BOOST_CHECK(p_test2->adaptionsActive() == true);
+
+		// A cloned adaptor should have a local random number generator, as it is default-constructed
+		BOOST_CHECK(p_test1->usesLocalRNG() == true);
+		BOOST_CHECK(p_test2->usesLocalRNG() == true);
+
+
+		// Check that we have adaption powers when using a local random number generator
+		if(p_test1->hasAdaptor()) {
+			for(std::size_t i=0; i<100; i++) {
+				BOOST_CHECK_NO_THROW(p_test1->adapt());
+				BOOST_CHECK(*p_test1 != *p_test2);
+				BOOST_CHECK_NO_THROW(p_test1->load(p_test2));
+				BOOST_CHECK(*p_test1 == *p_test2);
+			}
+		}
+
+		// Assign a factory generator
+		Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>();
+
+		BOOST_CHECK_NO_THROW(p_test1->assignGRandomPointer(gr_test));
+		BOOST_CHECK_NO_THROW(p_test2->assignGRandomPointer(gr_test));
+
+		// Has the generator been assigned ?
+		BOOST_CHECK(p_test1->usesLocalRNG() == false);
+		BOOST_CHECK(p_test2->usesLocalRNG() == false);
+
+		// Check that we have adaption powers when using the new random number generator
+		if(p_test1->hasAdaptor()) {
+			for(std::size_t i=0; i<100; i++) {
+				BOOST_CHECK_NO_THROW(p_test1->adapt());
+				BOOST_CHECK(*p_test1 != *p_test2);
+				BOOST_CHECK_NO_THROW(p_test1->load(p_test2));
+				BOOST_CHECK(*p_test1 == *p_test2);
+			}
+		}
+
+		// Make sure we use the local generator again
+		BOOST_CHECK_NO_THROW(p_test1->resetGRandomPointer());
+		BOOST_CHECK_NO_THROW(p_test2->resetGRandomPointer());
+
+		// Get rid of the test generator
+		delete gr_test;
+
+		// We should now be using a local random number generator again
+		BOOST_CHECK(p_test1->usesLocalRNG() == true);
+		BOOST_CHECK(p_test2->usesLocalRNG() == true);
+
+		// Check that we have adaption powers when using the local random number generator again
+		if(p_test1->hasAdaptor()) {
+			for(std::size_t i=0; i<100; i++) {
+				BOOST_CHECK_NO_THROW(p_test1->adapt());
+				BOOST_CHECK(*p_test1 != *p_test2);
+				BOOST_CHECK_NO_THROW(p_test1->load(p_test2));
+				BOOST_CHECK(*p_test1 == *p_test2);
+			}
+		}
+
+		// De-activate adaptions in both objects
+		BOOST_CHECK_NO_THROW(p_test1->setAdaptionsInactive());
+		BOOST_CHECK_NO_THROW(p_test2->setAdaptionsInactive());
+
+		// Check that adaptions do not occur anymore in p_test1
+		if(p_test1->hasAdaptor()) {
+			for(std::size_t i=0; i<100; i++) {
+				BOOST_CHECK_NO_THROW(p_test1->adapt());
+				BOOST_CHECK(*p_test1 == *p_test2);
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------

@@ -143,6 +143,11 @@ void GBooleanObject::randomInit() {
 	  GParameterBase::randomInit();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /*******************************************************************************************/
 /**
  * Triggers random initialization of the parameter object, with a given likelihood structure
@@ -150,6 +155,11 @@ void GBooleanObject::randomInit() {
 void GBooleanObject::randomInit(const double& probability) {
   if(!GParameterBase::randomInitializationBlocked()) randomInit_(probability);
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /*******************************************************************************************/
 /**
@@ -161,6 +171,11 @@ void GBooleanObject::randomInit_(const double& probability) {
 	this->setValue(gr->weighted_bool(probability));
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /*******************************************************************************************/
 /**
  * Triggers random initialization of the parameter object
@@ -168,6 +183,11 @@ void GBooleanObject::randomInit_(const double& probability) {
 void GBooleanObject::randomInit_() {
 	this->setValue(gr->uniform_bool());
 }
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /*******************************************************************************************/
 /**
@@ -243,6 +263,10 @@ bool GBooleanObject::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
+	// Some general settings
+	const bool FIXEDVALUEINIT = true;
+	const std::size_t nTests = 10000;
+
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<bool> > storedAdaptor;
@@ -259,6 +283,230 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GParameterT<bool>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that random initialization with equal probability for true and false will result in roughly the same amount of corresponding values
+		boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+
+		// Assign a boolean value true
+		BOOST_CHECK_NO_THROW(*p_test = true);
+		// Cross-check
+		BOOST_CHECK(p_test->value() == true);
+
+		// Count the number of true and false values for a number of subsequent initializations
+		// with the internal randomInit_ function.
+		std::size_t nTrue = 0;
+		std::size_t nFalse = 0;
+		for(std::size_t i=0; i<nTests; i++) {
+			p_test->randomInit_();
+			p_test->value()?nTrue++:nFalse++;
+		}
+
+		// We allow a slight deviation, as the initialization is a random process
+		BOOST_REQUIRE(nFalse != 0); // There should be a few false values
+		double ratio = double(nTrue)/double(nFalse);
+		BOOST_CHECK_MESSAGE(
+				ratio>0.8 && ratio<1.2
+				,  "\n"
+				<< "ratio = " << ratio << "\n"
+				<< "nTrue = " << nTrue << "\n"
+				<< "nFalse = " << nFalse << "\n"
+		);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that initialization with a probability of 1 for true will only result in true values
+		boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+
+		// Assign a boolean value true
+		BOOST_CHECK_NO_THROW(*p_test = false);
+		// Cross-check
+		BOOST_CHECK(p_test->value() == false);
+
+		// Count the number of true and false values for a number of subsequent initializations
+		// with the internal randomInit_ function.
+		std::size_t nTrue = 0;
+		std::size_t nFalse = 0;
+		for(std::size_t i=0; i<nTests; i++) {
+			p_test->randomInit_(1.);
+			p_test->value()?nTrue++:nFalse++;
+		}
+
+		// We should have received only true values
+		BOOST_CHECK(nTrue ==nTests);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that initialization with a probability of 0 for true will only result in false values
+		boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+
+		// Assign a boolean value true
+		BOOST_CHECK_NO_THROW(*p_test = true);
+		// Cross-check
+		BOOST_CHECK(p_test->value() == true);
+
+		// Count the number of true and false values for a number of subsequent initializations
+		// with the internal randomInit_ function.
+		std::size_t nTrue = 0;
+		std::size_t nFalse = 0;
+		for(std::size_t i=0; i<nTests; i++) {
+			p_test->randomInit_(0.);
+			p_test->value()?nTrue++:nFalse++;
+		}
+
+		// We should have received only true values
+		BOOST_CHECK(nFalse ==nTests);
+	}
+
+	//-----------------------------------------------------------------------------
+
+	{ // Test that random initialization with a given probability for true will result in roughly the expected amount of corresponding values
+		for(double d=0.1; d<0.9; d+=0.1) {
+			boost::shared_ptr<GBooleanObject> p_test = this->clone<GBooleanObject>();
+
+			// Assign a boolean value true
+			BOOST_CHECK_NO_THROW(*p_test = true);
+			// Cross-check
+			BOOST_CHECK(p_test->value() == true);
+
+			// Randomly initialize, using the internal function, with the current probability
+			BOOST_CHECK_NO_THROW(p_test->randomInit_(d));
+
+			// Count the number of true and false values for a number of subsequent initializations
+			// with the internal randomInit_ function.
+			std::size_t nTrue = 0;
+			std::size_t nFalse = 0;
+			for(std::size_t i=0; i<nTests; i++) {
+				p_test->randomInit_(d);
+				p_test->value()?nTrue++:nFalse++;
+			}
+
+			// We allow a slight deviation, as the initialization is a random process
+			double expectedTrueMin = 0.8*d*nTests;
+			double expectedTrueMax = 1.2*d*nTests;
+
+			BOOST_CHECK_MESSAGE(
+					double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax
+					,  "\n"
+					<< "d = " << d << "\n"
+					<< "Allowed window = " << expectedTrueMin << " - " << expectedTrueMax << "\n"
+					<< "nTests = " << nTests << "\n"
+					<< "nTrue = " << nTrue << "\n"
+					<< "nFalse = " << nFalse << "\n"
+			);
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that random initialization can be blocked for equal distributions
+		boost::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
+		boost::shared_ptr<GBooleanObject> p_test2 = this->clone<GBooleanObject>();
+
+		// Assign a boolean value true
+		BOOST_CHECK_NO_THROW(*p_test1 = true);
+		// Cross-check
+		BOOST_CHECK(p_test1->value() == true);
+
+		// Block random initialization and cross check
+		BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
+		BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
+
+		// Load the data into p_test2
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+		// Check that both objects are equal
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Check that random initialization is also blocked for p_test2
+		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+
+		// Try to randomly initialize, using the *external* function
+		BOOST_CHECK_NO_THROW(p_test1->randomInit());
+
+		// Check that both objects are still the same
+		BOOST_CHECK(*p_test1 == *p_test2);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that random initialization can be blocked for distributions with a given probability structure
+		boost::shared_ptr<GBooleanObject> p_test1 = this->clone<GBooleanObject>();
+		boost::shared_ptr<GBooleanObject> p_test2 = this->clone<GBooleanObject>();
+
+		// Assign a boolean value true
+		BOOST_CHECK_NO_THROW(*p_test1 = true);
+		// Cross-check
+		BOOST_CHECK(p_test1->value() == true);
+
+		// Block random initialization and cross check
+		BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
+		BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
+
+		// Load the data into p_test2
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+		// Check that both objects are equal
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Check that random initialization is also blocked for p_test2
+		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+
+		// Try to randomly initialize, using the *external* function
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7));
+
+		// Check that both objects are still the same
+		BOOST_CHECK(*p_test1 == *p_test2);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that the fp-family of functions doesn't have an effect on this object
+		boost::shared_ptr<GBooleanObject> p_test1 = this->GObject::clone<GBooleanObject>();
+		boost::shared_ptr<GBooleanObject> p_test2 = this->GObject::clone<GBooleanObject>();
+		boost::shared_ptr<GBooleanObject> p_test3 = this->GObject::clone<GBooleanObject>();
+
+		// Assign a boolean value true
+		BOOST_CHECK_NO_THROW(*p_test1 = true);
+		// Cross-check
+		BOOST_CHECK(p_test1->value() == true);
+
+		// Load into p_test2 and p_test3 and test equality
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+		BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
+		BOOST_CHECK(*p_test2 == *p_test1);
+		BOOST_CHECK(*p_test3 == *p_test1);
+		BOOST_CHECK(*p_test3 == *p_test2);
+
+		// Check that initialization with a fixed floating point value has no effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(2.));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that multiplication with a fixed floating point value has no effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyBy(2.));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom(1., 2.));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom());
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that adding p_test1 to p_test3 does not have an effect
+		BOOST_CHECK_NO_THROW(p_test3->fpAdd(p_test1));
+		BOOST_CHECK(*p_test3 == *p_test2);
+
+		// Check that subtracting p_test1 from p_test3 does not have an effect
+		BOOST_CHECK_NO_THROW(p_test3->fpSubtract(p_test1));
+		BOOST_CHECK(*p_test3 == *p_test2);
+	}
+
+	//------------------------------------------------------------------------------
 
 	// Remove the test adaptor
 	this->resetAdaptor();

@@ -35,12 +35,14 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <iomanip>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 #include <boost/cstdint.hpp>
+#include <boost/cast.hpp>
 
 #ifndef GNUMFPT_HPP_
 #define GNUMFPT_HPP_
@@ -217,6 +219,11 @@ public:
 		GParameterT<T>::setValue(T(val));
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/******************************************************************/
 	/**
 	 * Multiplies floating-point-based parameters with a given value
@@ -226,6 +233,11 @@ public:
 	virtual void fpMultiplyBy(const float& val) {
 		GParameterT<T>::setValue(GParameterT<T>::value() * T(val));
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/******************************************************************/
 	/**
@@ -238,6 +250,11 @@ public:
 		GParameterT<T>::setValue(GParameterT<T>::value() * GParameterBase::gr->uniform_real(T(min), T(max)));
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/******************************************************************/
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
@@ -245,6 +262,11 @@ public:
 	void fpMultiplyByRandom() {
 		GParameterT<T>::setValue(GParameterT<T>::value() * GParameterBase::gr->uniform_01());
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/******************************************************************/
 	/**
@@ -259,6 +281,11 @@ public:
 		GParameterT<T>::setValue(GParameterT<T>::value() + p->value());
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/******************************************************************/
 	/**
 	 * Subtracts the floating point parameters of another GParameterBase
@@ -271,6 +298,11 @@ public:
 		boost::shared_ptr<GNumFPT<T> > p = GParameterBase::parameterbase_cast<GNumFPT<T> >(p_base);
 		GParameterT<T>::setValue(GParameterT<T>::value() - p->value());
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 protected:
 	/******************************************************************/
@@ -311,6 +343,11 @@ protected:
 		GParameterT<T>::setValue(GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary));
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 #ifdef GENEVATESTING
 public:
 
@@ -334,8 +371,205 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		// A few settings
+		const std::size_t nTests = 100;
+		const T LOWERINITBOUNDARY = -10.1;
+		const T UPPERINITBOUNDARY =  10.1;
+		const T FIXEDVALUEINIT = 1.;
+		const T MULTVALUE = 3.;
+		const T RANDLOWERBOUNDARY = 0.;
+		const T RANDUPPERBOUNDARY = 10.;
+
 		// Call the parent classes' functions
 		GNumT<T>::specificTestsNoFailureExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Check initialization with a fixed value, setting and retrieval of boundaries and random initialization
+			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<T> > p_test2 = this->GObject::clone<GNumFPT<T> >();
+
+			// Assign a defined start value
+			p_test1->GParameterT<T>::setValue(T(0));
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(boost::numeric_cast<float>(2.*UPPERINITBOUNDARY))); // Make sure the parameters indeed change
+
+			// Check that the value has indeed been set. Note that we need to take into account
+			// FP inaccuracy, as fpFixedValueInit() deals with float values rather than doubles
+			BOOST_CHECK_MESSAGE(
+					fabs(p_test1->value() - 2.*UPPERINITBOUNDARY) < pow(10., -6)
+					,  "\n"
+					<< std::setprecision(10)
+					<< "p_test1->value() = " << p_test1->value() << "\n"
+					<< "2.*UPPERINITBOUNDARY = " << 2.*UPPERINITBOUNDARY << "\n"
+					<< "fabs(p_test1->value() - 2.*UPPERINITBOUNDARY) = " << fabs(p_test1->value() - 2.*UPPERINITBOUNDARY) << "\n"
+					<< "pow(10., -8) = " << pow(10., -8) << "\n"
+			);
+
+			// Set initialization boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+			// Cross-check the boundaries
+			BOOST_CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
+			BOOST_CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
+
+			// Check that each value is different and that the values of p_test1 are inside of the allowed boundaries
+			for(std::size_t i=0; i<nTests; i++) {
+				// Load p_test1 into p_test2
+				BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+				// Cross-check that both objects are equal
+				BOOST_CHECK(*p_test1 == *p_test2);
+
+				// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+
+				// Check that the object has indeed changed
+				BOOST_CHECK(*p_test2 != *p_test1);
+
+				BOOST_CHECK(p_test2->value() != p_test1->value());
+				BOOST_CHECK(p_test2->value() >= LOWERINITBOUNDARY);
+				BOOST_CHECK(p_test2->value() <= UPPERINITBOUNDARY);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test multiplication with a fixed value
+			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<T> > p_test2 = this->GObject::clone<GNumFPT<T> >();
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+
+			// Check that this value has been set
+			BOOST_CHECK(p_test1->value() == FIXEDVALUEINIT);
+
+			// Set initialization boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+
+			// Load the data into p_test2 and check that both objects are equal
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			BOOST_CHECK(*p_test1 == *p_test2);
+
+			// Multiply p_test1 with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyBy(MULTVALUE));
+
+			// Check that the multiplication has succeeded
+			BOOST_CHECK(p_test1->value() == MULTVALUE * p_test2->value());
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test multiplication with a random value in fixed range
+			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.)); // 1. chosen so we see the multiplication value of the random number generator
+
+			// Check that this value has been set
+			BOOST_CHECK(p_test1->value() == 1.);
+
+			// Multiply with random values in a given range
+			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY));
+
+			// Check that all values are in the allowed range
+			BOOST_CHECK(p_test1->value() >= RANDLOWERBOUNDARY);
+			BOOST_CHECK(p_test1->value() <= RANDUPPERBOUNDARY);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test multiplication with a random value in the range [0:1[
+			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.)); // 1. chosen so we see the multiplication value of the random number generator
+
+			// Check that this value has been set
+			BOOST_CHECK(p_test1->value() == 1.);
+
+			// Multiply with random values in a given range
+			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom());
+
+			// Check that all values are in the allowed range
+			BOOST_CHECK(p_test1->value() >= 0.);
+			BOOST_CHECK(p_test1->value() <= 1.);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test addition of other GNumFPT<T> objets
+			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<T> > p_test2 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<T> > p_test3 = this->GObject::clone<GNumFPT<T> >();
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(0.));
+			BOOST_CHECK(p_test1->value() == 0.);
+
+			// Set initialization boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+			// Load the data of p_test_1 into p_test2
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+			// Randomly initialize p_test1 and p_test2, so that both objects are different
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+
+			// Check that they are indeed different
+			BOOST_CHECK(*p_test1 != *p_test2);
+
+			// Load p_test2's data into p_test_3
+			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
+
+			// Add p_test1 to p_test3
+			BOOST_CHECK_NO_THROW(p_test3->fpAdd(p_test1));
+
+			// Cross-check that the addition has worked
+			BOOST_CHECK(p_test3->value() == p_test1->value() + p_test2->value());
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test subtraction of other GNumFPT<T> objets
+			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<T> > p_test2 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<T> > p_test3 = this->GObject::clone<GNumFPT<T> >();
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(0.));
+			BOOST_CHECK(p_test1->value() == 0.);
+
+			// Set initialization boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+			// Load the data of p_test_1 into p_test2
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+			// Randomly initialize p_test1 and p_test2, so that both objects are different
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+
+			// Check that they are indeed different
+			BOOST_CHECK(*p_test1 != *p_test2);
+
+			// Load p_test2's data into p_test_3
+			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
+
+			// Subtract p_test1 from p_test3
+			BOOST_CHECK_NO_THROW(p_test3->fpSubtract(p_test1));
+
+			// Cross-check that the addition has worked. Note that we do need to take into
+			// account effects of floating point accuracy
+			BOOST_CHECK(p_test3->value() == (p_test2->value() - p_test1->value()));
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/******************************************************************/

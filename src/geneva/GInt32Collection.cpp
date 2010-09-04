@@ -143,6 +143,11 @@ void GInt32Collection::randomInit_() {
 	}
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /*******************************************************************************************/
 /**
  * Checks whether a given expectation for the relationship between this object and another object
@@ -216,6 +221,12 @@ bool GInt32Collection::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
+	// A few general settings
+	const std::size_t nItems = 100;
+	const boost::int32_t LOWERINITBOUNDARY = -10;
+	const boost::int32_t UPPERINITBOUNDARY =  10;
+	const boost::int32_t FIXEDVALUEINIT = 1;
+
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
@@ -232,6 +243,93 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GNumCollectionT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
+		boost::shared_ptr<GInt32Collection> p_test1 = this->GObject::clone<GInt32Collection>();
+		boost::shared_ptr<GInt32Collection> p_test2 = this->GObject::clone<GInt32Collection>();
+
+		// Make sure p_test1 and p_test2 are empty
+		BOOST_CHECK_NO_THROW(p_test1->clear());
+		BOOST_CHECK_NO_THROW(p_test2->clear());
+
+		// Add a few items
+		for(std::size_t i=0; i<nItems; i++) {
+			p_test1->push_back(2*UPPERINITBOUNDARY); // Make sure random initialization cannot randomly leave the value unchanged
+		}
+
+		// Set initialization boundaries
+		BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+		// Check that the boundaries have been set as expected
+		BOOST_CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
+		BOOST_CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
+
+		// Load the data of p_test1 into p_test2
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+		// Cross check that both are indeed equal
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
+		BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+
+		// Check that the object has indeed changed
+		BOOST_CHECK(*p_test1 != *p_test2);
+
+		// Check that the values of p_test1 are inside of the allowed boundaroes
+		for(std::size_t i=0; i<nItems; i++) {
+			BOOST_CHECK(p_test1->at(i) != p_test2->at(i));
+			BOOST_CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
+			BOOST_CHECK(p_test1->at(i) <= UPPERINITBOUNDARY);
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that the fp-family of functions doesn't have an effect on this object
+		boost::shared_ptr<GInt32Collection> p_test1 = this->GObject::clone<GInt32Collection>();
+		boost::shared_ptr<GInt32Collection> p_test2 = this->GObject::clone<GInt32Collection>();
+		boost::shared_ptr<GInt32Collection> p_test3 = this->GObject::clone<GInt32Collection>();
+
+		// Add a few items to p_test1
+		for(std::size_t i=0; i<nItems; i++) {
+			p_test1->push_back(FIXEDVALUEINIT);
+		}
+
+		// Load into p_test2 and p_test3 and test equality
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+		BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
+		BOOST_CHECK(*p_test2 == *p_test1);
+		BOOST_CHECK(*p_test3 == *p_test1);
+		BOOST_CHECK(*p_test3 == *p_test2);
+
+		// Check that initialization with a fixed floating point value has no effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(2.));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that multiplication with a fixed floating point value has no effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyBy(2.));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom(1., 2.));
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
+		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom());
+		BOOST_CHECK(*p_test2 == *p_test1);
+
+		// Check that adding p_test1 to p_test3 does not have an effect
+		BOOST_CHECK_NO_THROW(p_test3->fpAdd(p_test1));
+		BOOST_CHECK(*p_test3 == *p_test2);
+
+		// Check that subtracting p_test1 from p_test3 does not have an effect
+		BOOST_CHECK_NO_THROW(p_test3->fpSubtract(p_test1));
+		BOOST_CHECK(*p_test3 == *p_test2);
+	}
+
+	//------------------------------------------------------------------------------
 
 	// Remove the test adaptor
 	this->resetAdaptor();

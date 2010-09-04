@@ -107,7 +107,7 @@ public:
 	/*******************************************************************************************/
 	/**
 	 * An assignment operator that allows us to set val_ . Note that the value is returned as
-	 * a copy, not a reference. Hence we assume here that val_ is a basic type, such as double, int, ... .
+	 * a copy, not a reference. Hence we assume here that val_ is copy-constructible.
 	 *
 	 * @param val The new value for val_
 	 * @return The new value of val_
@@ -129,6 +129,11 @@ public:
 		val_ = val;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/*******************************************************************************************/
 	/**
 	 * Automatic conversion to the target type
@@ -136,6 +141,11 @@ public:
 	operator T() const {
 		return this->value();
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**
@@ -146,6 +156,11 @@ public:
 	virtual T value() const {
 		return val_;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**
@@ -218,6 +233,11 @@ public:
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(val_);
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 protected:
 	/*******************************************************************************************/
 	/**
@@ -231,6 +251,11 @@ protected:
 	void setValue_(const T& val) const {
 		val_ = val;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**
@@ -290,6 +315,8 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent classes' functions
 		GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests();
+
+		// All tests of our local functions are made in derived classes
 	}
 
 	/*******************************************************************************************/

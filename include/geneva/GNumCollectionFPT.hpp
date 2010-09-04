@@ -166,6 +166,11 @@ public:
 		}
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/******************************************************************/
 	/**
 	 * Multiplies floating-point-based parameters with a given value
@@ -178,6 +183,11 @@ public:
 			(*it) *= T(val);
 		}
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/******************************************************************/
 	/**
@@ -193,6 +203,11 @@ public:
 		}
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/******************************************************************/
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
@@ -203,6 +218,11 @@ public:
 			(*it) *= GParameterBase::gr->uniform_01();
 		}
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/******************************************************************/
 	/**
@@ -228,6 +248,11 @@ public:
 		}
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/******************************************************************/
 	/**
 	 * Subtracts the floating point parameters of another GParameterBase object
@@ -252,6 +277,11 @@ public:
 			(*it) -= (*it_p);
 		}
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/******************************************************************/
 	/**
@@ -334,6 +364,11 @@ protected:
 		}
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 #ifdef GENEVATESTING
 public:
 
@@ -359,6 +394,235 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent classes' functions
 		GNumCollectionT<T>::specificTestsNoFailureExpected_GUnitTests();
+
+		// A few settings
+		const std::size_t nItems = 100;
+		const T LOWERINITBOUNDARY = -10.1;
+		const T UPPERINITBOUNDARY =  10.1;
+		const T FIXEDVALUEINIT = 1.;
+		const T MULTVALUE = 3.;
+		const T RANDLOWERBOUNDARY = 0.;
+		const T RANDUPPERBOUNDARY = 10.;
+
+		//------------------------------------------------------------------------------
+
+		{ // Check initialization with a fixed value, setting and retrieval of boundaries and random initialization
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test1 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test2 = this->GObject::clone<GNumCollectionFPT<T> >();
+
+			// Make sure p_test1 and p_test2 are empty
+			BOOST_CHECK_NO_THROW(p_test1->clear());
+			BOOST_CHECK_NO_THROW(p_test2->clear());
+
+			// Add a few items
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(T(0));
+				p_test2->push_back(T(0));
+			}
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+			BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(FIXEDVALUEINIT));
+
+			// Check that values have indeed been set
+			for(std::size_t i=0; i<nItems; i++) {
+				BOOST_CHECK(p_test1->at(i) == FIXEDVALUEINIT);
+				BOOST_CHECK(p_test2->at(i) == FIXEDVALUEINIT);
+			}
+
+			// Set initialization boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+			BOOST_CHECK_NO_THROW(p_test2->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+
+			// Check that the object has indeed changed
+			BOOST_CHECK(*p_test1 != *p_test2);
+
+			// Check that each value is different and that the values of p_test1 are inside of the allowed boundaroes
+			for(std::size_t i=0; i<nItems; i++) {
+				BOOST_CHECK(p_test1->at(i) != p_test2->at(i));
+				BOOST_CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
+				BOOST_CHECK(p_test1->at(i) <= UPPERINITBOUNDARY);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test multiplication with a fixed value
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test1 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test2 = this->GObject::clone<GNumCollectionFPT<T> >();
+
+			// Make sure p_test1 and p_test2 are empty
+			BOOST_CHECK_NO_THROW(p_test1->clear());
+
+			// Add a few items
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(T(0));
+			}
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+
+			// Set initialization boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+
+			// Load the data into p_test2 and check that both objects are equal
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			BOOST_CHECK(*p_test1 == *p_test2);
+
+			// Multiply p_test1 with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyBy(MULTVALUE));
+
+			// Check that the multiplication has succeeded
+			for(std::size_t i=0; i<nItems; i++) {
+				BOOST_CHECK(p_test1->at(i) == MULTVALUE * p_test2->at(i));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test multiplication with a random value in fixed range
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test1 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test2 = this->GObject::clone<GNumCollectionFPT<T> >();
+
+			// Make sure p_test1 and p_test2 are empty
+			BOOST_CHECK_NO_THROW(p_test1->clear());
+
+			// Add a few items
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(T(0));
+			}
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.));
+
+			// Multiply with random values in a given range
+			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY));
+
+			// Check that all values are in this range
+			for(std::size_t i=0; i<nItems; i++) {
+				BOOST_CHECK(p_test1->at(i) >= RANDLOWERBOUNDARY);
+				BOOST_CHECK(p_test1->at(i) <= RANDUPPERBOUNDARY);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test multiplication with a random value in the range [0:1[
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test1 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test2 = this->GObject::clone<GNumCollectionFPT<T> >();
+
+			// Make sure p_test1 and p_test2 are empty
+			BOOST_CHECK_NO_THROW(p_test1->clear());
+
+			// Add a few items
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(T(0));
+			}
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.));
+
+			// Multiply with random values in a given range
+			BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom());
+
+			// Check that all values are in this range
+			for(std::size_t i=0; i<nItems; i++) {
+				BOOST_CHECK(p_test1->at(i) >= 0.);
+				BOOST_CHECK(p_test1->at(i) <= 1.);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test addition of other GNumCollectionFPT<T> objets
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test1 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test2 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test3 = this->GObject::clone<GNumCollectionFPT<T> >();
+
+			// Make sure all clones are empty
+			BOOST_CHECK_NO_THROW(p_test1->clear());
+			BOOST_CHECK_NO_THROW(p_test2->clear());
+			BOOST_CHECK_NO_THROW(p_test3->clear());
+
+			// Add a few items
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(T(0));
+			}
+
+			// Set initialization boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+			// Load the data of p_test_1 into p_test2
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+			// Randomly initialize p_test1 and p_test2, so that both objects are different
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+
+			// Check that they are indeed different
+			BOOST_CHECK(*p_test1 != *p_test2);
+
+			// Load p_test2's data into p_test_3
+			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
+
+			// Add p_test1 to p_test3
+			BOOST_CHECK_NO_THROW(p_test3->fpAdd(p_test1));
+
+			// Cross check that for each i p_test3[i] == p_test1[i] + p_test2[i]
+			for(std::size_t i=0; i<nItems; i++) {
+				BOOST_CHECK(p_test3->at(i) == p_test1->at(i) + p_test2->at(i));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test subtraction of other GNumCollectionFPT<T> objets
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test1 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test2 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test3 = this->GObject::clone<GNumCollectionFPT<T> >();
+
+			// Make sure all clones are empty
+			BOOST_CHECK_NO_THROW(p_test1->clear());
+			BOOST_CHECK_NO_THROW(p_test2->clear());
+			BOOST_CHECK_NO_THROW(p_test3->clear());
+
+			// Add a few items
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(T(0));
+			}
+
+			// Set initialization boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+			// Load the data of p_test_1 into p_test2
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+			// Randomly initialize p_test1 and p_test2, so that both objects are different
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+
+			// Check that they are indeed different
+			BOOST_CHECK(*p_test1 != *p_test2);
+
+			// Load p_test2's data into p_test_3
+			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
+
+			// Add p_test1 to p_test3
+			BOOST_CHECK_NO_THROW(p_test3->fpSubtract(p_test1));
+
+			// Cross check that for each i p_test3[i] == p_test1[i] - p_test2[i]
+			for(std::size_t i=0; i<nItems; i++) {
+				BOOST_CHECK(p_test3->at(i) == p_test2->at(i) - p_test1->at(i));
+			}
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/******************************************************************/
@@ -366,8 +630,41 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+		// A few settings
+		const std::size_t nItems = 100;
+
 		// Call the parent classes' functions
 		GNumCollectionT<T>::specificTestsFailuresExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that adding another object of different size throws
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test1 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test2 = this->GObject::clone<GNumCollectionFPT<T> >();
+
+			// Add a few items to p_test1, but not to p_test2
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(T(0));
+			}
+
+			BOOST_CHECK_THROW(p_test1->fpAdd(p_test2), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that subtracting another object of different size throws
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test1 = this->GObject::clone<GNumCollectionFPT<T> >();
+			boost::shared_ptr<GNumCollectionFPT<T> > p_test2 = this->GObject::clone<GNumCollectionFPT<T> >();
+
+			// Add a few items to p_test1, but not to p_test2
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(T(0));
+			}
+
+			BOOST_CHECK_THROW(p_test1->fpSubtract(p_test2), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 #endif /* GENEVATESTING */

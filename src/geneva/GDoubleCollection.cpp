@@ -218,6 +218,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GNumCollectionFPT<double>::specificTestsNoFailureExpected_GUnitTests();
 
+	// Nothing to check -- no local data
+
 	// Remove the test adaptor
 	this->resetAdaptor();
 
@@ -248,6 +250,8 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GNumCollectionFPT<double>::specificTestsFailuresExpected_GUnitTests();
+
+	// Nothing to check -- no local data
 
 	// Remove the test adaptor
 	this->resetAdaptor();

@@ -111,9 +111,9 @@ public:
 	virtual void adaptImpl() = 0;
 
 	/** @brief Switches on adaptions for this object */
-	void setAdaptionsActive();
+	bool setAdaptionsActive();
 	/** @brief Disables adaptions for this object */
-	void setAdaptionsInactive();
+	bool setAdaptionsInactive();
 	/** @brief Determines whether adaptions are performed for this object */
 	bool adaptionsActive() const;
 
