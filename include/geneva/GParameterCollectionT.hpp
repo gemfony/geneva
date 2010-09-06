@@ -225,6 +225,11 @@ public:
 		GParameterBaseWithAdaptorsT<T>::applyAdaptor(GStdSimpleVectorInterfaceT<T>::data);
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/*******************************************************************************************/
 	/**
 	 * Swap another object's vector with ours
@@ -233,13 +238,10 @@ public:
 		GStdSimpleVectorInterfaceT<T>::swap(cp.data);
 	}
 
-	/*******************************************************************************************/
-	/**
-	 * Swap another vector with ours
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
 	 */
-	virtual inline void swap(std::vector<T>& cp_data) {
-		GStdSimpleVectorInterfaceT<T>::swap(cp_data);
-	}
 
 protected:
 	/*******************************************************************************************/

@@ -39,8 +39,8 @@ namespace Geneva {
 /***********************************************************************************************/
 /**
  * This function applies the first adaptor of the adaptor sequence to a collection of values.
- * Note that the parameter of this function will get changed. The check for adaptors happens
- * inside applyFirstAdaptor. This is a specialization of a generic template function.
+ * Note that the parameter of this function will get changed. This is a specialization of a
+ * generic template function.
  *
  * @param collection A vector of values that shall be adapted
  */

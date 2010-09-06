@@ -55,7 +55,7 @@ GInt32Object::GInt32Object()
  * @param cp A copy of another GInt32Object object
  */
 GInt32Object::GInt32Object(const GInt32Object& cp)
-	: GNumT<boost::int32_t>(cp)
+	: GNumIntT<boost::int32_t>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -65,7 +65,7 @@ GInt32Object::GInt32Object(const GInt32Object& cp)
  * @param val A value used for the initialization
  */
 GInt32Object::GInt32Object(const boost::int32_t& val)
-	: GNumT<boost::int32_t>(val)
+	: GNumIntT<boost::int32_t>(val)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -76,7 +76,7 @@ GInt32Object::GInt32Object(const boost::int32_t& val)
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GInt32Object::GInt32Object(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
-	: GNumT<boost::int32_t>(lowerBoundary, upperBoundary)
+	: GNumIntT<boost::int32_t>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -94,7 +94,7 @@ GInt32Object::~GInt32Object()
  * @return The value that was just assigned to this object
  */
 boost::int32_t GInt32Object::operator=(const boost::int32_t& val) {
-	return GNumT<boost::int32_t>::operator=(val);
+	return GNumIntT<boost::int32_t>::operator=(val);
 }
 
 /*******************************************************************************************/
@@ -174,7 +174,7 @@ boost::optional<std::string> GInt32Object::checkRelationshipWith(const GObject& 
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GNumT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32Object", y_name, withMessages));
+	deviations.push_back(GNumIntT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32Object", y_name, withMessages));
 
 	// no local data ...
 
@@ -192,26 +192,10 @@ void GInt32Object::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GInt32Object>(cp);
 
 	// Load our parent class'es data ...
-	GNumT<boost::int32_t>::load_(cp);
+	GNumIntT<boost::int32_t>::load_(cp);
 
 	// ... no local data
 }
-
-/*******************************************************************************************/
-/**
- * Triggers random initialization of the parameter.
- */
-void GInt32Object::randomInit_() {
-	boost::int32_t lowerBoundary = getLowerInitBoundary();
-	boost::int32_t upperBoundary = getUpperInitBoundary()+1;
-
-	setValue(gr->uniform_int(lowerBoundary, upperBoundary));
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 #ifdef GENEVATESTING
 /*******************************************************************************************/
@@ -224,7 +208,7 @@ bool GInt32Object::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if(GNumIntT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -255,86 +239,57 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GNumT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GNumIntT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 
-	{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
-		boost::shared_ptr<GInt32Object> p_test1 = this->GObject::clone<GInt32Object>();
-		boost::shared_ptr<GInt32Object> p_test2 = this->GObject::clone<GInt32Object>();
+	{ // Test different ways of adding an adaptor (Test of GParameterBaseWithAdaptorsT<T> functions)
+		boost::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
 
-		// Assign a boolean value true
-		BOOST_CHECK_NO_THROW(*p_test1 = 2*UPPERINITBOUNDARY); // Make sure random initialization cannot randomly result in an unchanged value
-		// Cross-check
-		BOOST_CHECK(p_test1->value() == 2*UPPERINITBOUNDARY);
+		// Make sure no adaptor is present and cross-check
+		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+		BOOST_CHECK(p_test->hasAdaptor() == false);
 
-		// Set initialization boundaries
-		BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+		//********************************
+		// Adding an adaptor when no adaptor is present should clone the adaptor
+		BOOST_CHECK_NO_THROW(p_test->addAdaptor(giga_ptr));
 
-		// Check that the boundaries have been set as expected
-		BOOST_CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
-		BOOST_CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
+		// Check that the addresses of both adaptors differ
+		boost::shared_ptr<GInt32GaussAdaptor> giga_clone_ptr;
+		BOOST_CHECK_NO_THROW(giga_clone_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
+		BOOST_CHECK(giga_clone_ptr.get() != giga_ptr.get());
 
-		// Load the data of p_test1 into p_test2
-		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-		// Cross check that both are indeed equal
-		BOOST_CHECK(*p_test1 == *p_test2);
+		//********************************
+		// Adding an adaptor when an adaptor of the same type is present should leave the original address intact
 
-		// Check that the values of p_test1 are inside of the allowed boundaries
-		for(std::size_t i=0; i<nTests; i++) {
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_());
-			BOOST_CHECK(p_test1->value() >= LOWERINITBOUNDARY);
-			BOOST_CHECK(p_test1->value() <= UPPERINITBOUNDARY);
-			BOOST_CHECK(p_test1->value() != p_test2->value());
-		}
+		// Make a note of the stored adaptor's address
+		GInt32GaussAdaptor *ptr_store = giga_clone_ptr.get();
+
+		// Add the "global" adaptor again, should be load()-ed
+		BOOST_CHECK_NO_THROW(p_test->addAdaptor(giga_ptr));
+
+		// Retrieve the adaptor again
+		boost::shared_ptr<GInt32GaussAdaptor> giga_clone2_ptr;
+		BOOST_CHECK_NO_THROW(giga_clone2_ptr = p_test->getAdaptor<GInt32GaussAdaptor>());
+
+		// Check that the address hasn't changed
+		BOOST_CHECK(ptr_store == giga_clone2_ptr.get());
+
+		//********************************
+		// Adding an adaptor of different type should clone the adaptor and replace the stored adaptor's address
+
+		// Add the adaptor
+		boost::shared_ptr<GInt32FlipAdaptor> p_intFlip(new GInt32FlipAdaptor());
+		BOOST_CHECK_NO_THROW(p_test->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(p_intFlip)));
+
+		// Retrieve the new adaptor's address
+		GInt32FlipAdaptor *ptr2_store = p_intFlip.get();
+
+		// Compare with ptr_store -- should be different
+		BOOST_CHECK((void *)ptr_store != (void *)ptr2_store);
 	}
 
 	//------------------------------------------------------------------------------
-
-	{ // Check that the fp-family of functions doesn't have an effect on this object
-		boost::shared_ptr<GInt32Object> p_test1 = this->GObject::clone<GInt32Object>();
-		boost::shared_ptr<GInt32Object> p_test2 = this->GObject::clone<GInt32Object>();
-		boost::shared_ptr<GInt32Object> p_test3 = this->GObject::clone<GInt32Object>();
-
-		// Assign a boolean value true
-		BOOST_CHECK_NO_THROW(*p_test1 = FIXEDVALUEINIT); // Make sure random initialization cannot randomly result in an unchanged value
-		// Cross-check
-		BOOST_CHECK(p_test1->value() == FIXEDVALUEINIT);
-
-		// Load into p_test2 and p_test3 and test equality
-		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-		BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
-		BOOST_CHECK(*p_test2 == *p_test1);
-		BOOST_CHECK(*p_test3 == *p_test1);
-		BOOST_CHECK(*p_test3 == *p_test2);
-
-		// Check that initialization with a fixed floating point value has no effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(2.));
-		BOOST_CHECK(*p_test2 == *p_test1);
-
-		// Check that multiplication with a fixed floating point value has no effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyBy(2.));
-		BOOST_CHECK(*p_test2 == *p_test1);
-
-		// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom(1., 2.));
-		BOOST_CHECK(*p_test2 == *p_test1);
-
-		// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom());
-		BOOST_CHECK(*p_test2 == *p_test1);
-
-		// Check that adding p_test1 to p_test3 does not have an effect
-		BOOST_CHECK_NO_THROW(p_test3->fpAdd(p_test1));
-		BOOST_CHECK(*p_test3 == *p_test2);
-
-		// Check that subtracting p_test1 from p_test3 does not have an effect
-		BOOST_CHECK_NO_THROW(p_test3->fpSubtract(p_test1));
-		BOOST_CHECK(*p_test3 == *p_test2);
-	}
-
-	//------------------------------------------------------------------------------
-
 
 	// Remove the test adaptor
 	this->resetAdaptor();
@@ -365,7 +320,24 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GNumT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GNumIntT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that retrieval of the adaptor with simultaneous conversion to an incorrect target type throws (Test of GParameterBaseWithAdaptorsT<T> functions)
+		boost::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
+
+		// Make sure an adaptor is present
+		BOOST_REQUIRE(p_test->hasAdaptor() == true);
+
+		// Make sure the local adaptor has the type we expect
+		BOOST_CHECK(p_test->getAdaptor()->getAdaptorId() == GINT32GAUSSADAPTOR);
+
+		// Attempted conversion to an invalid target type should throw
+		BOOST_CHECK_THROW(p_test->getAdaptor<GInt32FlipAdaptor>(), Gem::Common::gemfony_error_condition);
+	}
+
+	//------------------------------------------------------------------------------
 
 	// Load the old adaptor, if needed
 	if(adaptorStored) {

@@ -51,8 +51,9 @@
 
 // Geneva headers go here
 
-#include "GNumT.hpp"
+#include "GNumIntT.hpp"
 #include "GInt32GaussAdaptor.hpp"
+#include "GInt32FlipAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -70,7 +71,7 @@ namespace Geneva {
  * (most notably doubles) have their own class as well (GConstrainedDoubleObject, GDoubleObject).
  */
 class GInt32Object
-	:public GNumT<boost::int32_t>
+	:public GNumIntT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -79,7 +80,7 @@ class GInt32Object
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumT_int32", boost::serialization::base_object<GNumT<boost::int32_t> >(*this));
+	  ar & make_nvp("GNumIntT", boost::serialization::base_object<GNumIntT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -114,9 +115,6 @@ protected:
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
-
-	/** @brief Triggers random initialization of the parameter collection */
-	virtual void randomInit_();
 
 #ifdef GENEVATESTING
 public:

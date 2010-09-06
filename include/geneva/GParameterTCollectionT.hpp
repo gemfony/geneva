@@ -188,13 +188,9 @@ public:
 	/**
 	 * Swap another object's vector with ours
 	 */
-	inline void swap(GParameterTCollectionT<T>& cp) { GStdPtrVectorInterfaceT<T>::swap(cp.data); }
-
-	/*******************************************************************************************/
-	/**
-	 * Swap another vector with ours
-	 */
-	inline void swap(std::vector<boost::shared_ptr<T> >& cp_data) { GStdPtrVectorInterfaceT<T>::swap(cp_data); }
+	inline void swap(GParameterTCollectionT<T>& cp) {
+		GStdPtrVectorInterfaceT<T>::swap(cp.data);
+	}
 
 	/*******************************************************************************************/
 	/**

@@ -57,10 +57,8 @@ GInt32Collection::GInt32Collection()
  * @param max The maximum random value
  */
 GInt32Collection::GInt32Collection(const std::size_t& nval, const boost::int32_t& min, const boost::int32_t& max)
-	: GNumCollectionT<boost::int32_t>(min, max)
-{
-	for(std::size_t i= 0; i<nval; i++) this->push_back(gr->uniform_int(min,max));
-}
+	: GIntNumCollectionT<boost::int32_t>(nval, min, max)
+{ /* nothing */ }
 
 /*******************************************************************************************/
 /**
@@ -69,7 +67,7 @@ GInt32Collection::GInt32Collection(const std::size_t& nval, const boost::int32_t
  * @param cp A copy of another GInt32Collection object
  */
 GInt32Collection::GInt32Collection(const GInt32Collection& cp)
-	: GNumCollectionT<boost::int32_t>(cp)
+	: GIntNumCollectionT<boost::int32_t>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -129,27 +127,6 @@ bool GInt32Collection::operator!=(const GInt32Collection& cp) const {
 
 /*******************************************************************************************/
 /**
- * Triggers random initialization of the parameter collection. Note that this
- * function assumes that the collection has been completely set up. Data
- * that is added later will remain unaffected.
- */
-void GInt32Collection::randomInit_() {
-	boost::int32_t lowerBoundary = getLowerInitBoundary();
-	boost::int32_t upperBoundary = getUpperInitBoundary()+1;
-
-	GInt32Collection::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
-		(*it)=gr->uniform_int(lowerBoundary, upperBoundary);
-	}
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/*******************************************************************************************/
-/**
  * Checks whether a given expectation for the relationship between this object and another object
  * is fulfilled.
  *
@@ -177,7 +154,7 @@ boost::optional<std::string> GInt32Collection::checkRelationshipWith(const GObje
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterCollectionT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32Collection", y_name, withMessages));
+	deviations.push_back(GIntNumCollectionT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GInt32Collection", y_name, withMessages));
 
 	// no local data ...
 
@@ -195,7 +172,7 @@ void GInt32Collection::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GInt32Collection>(cp);
 
 	// Load our parent class'es data ...
-	GNumCollectionT<boost::int32_t>::load_(cp);
+	GIntNumCollectionT<boost::int32_t>::load_(cp);
 
 	// ... no local data
 }
@@ -211,7 +188,7 @@ bool GInt32Collection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumCollectionT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if(GIntNumCollectionT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -221,12 +198,6 @@ bool GInt32Collection::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
-	// A few general settings
-	const std::size_t nItems = 100;
-	const boost::int32_t LOWERINITBOUNDARY = -10;
-	const boost::int32_t UPPERINITBOUNDARY =  10;
-	const boost::int32_t FIXEDVALUEINIT = 1;
-
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<boost::int32_t> > storedAdaptor;
@@ -242,94 +213,9 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GNumCollectionT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GIntNumCollectionT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 
-	//------------------------------------------------------------------------------
-
-	{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
-		boost::shared_ptr<GInt32Collection> p_test1 = this->GObject::clone<GInt32Collection>();
-		boost::shared_ptr<GInt32Collection> p_test2 = this->GObject::clone<GInt32Collection>();
-
-		// Make sure p_test1 and p_test2 are empty
-		BOOST_CHECK_NO_THROW(p_test1->clear());
-		BOOST_CHECK_NO_THROW(p_test2->clear());
-
-		// Add a few items
-		for(std::size_t i=0; i<nItems; i++) {
-			p_test1->push_back(2*UPPERINITBOUNDARY); // Make sure random initialization cannot randomly leave the value unchanged
-		}
-
-		// Set initialization boundaries
-		BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
-
-		// Check that the boundaries have been set as expected
-		BOOST_CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
-		BOOST_CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
-
-		// Load the data of p_test1 into p_test2
-		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-		// Cross check that both are indeed equal
-		BOOST_CHECK(*p_test1 == *p_test2);
-
-		// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-		BOOST_CHECK_NO_THROW(p_test1->randomInit_());
-
-		// Check that the object has indeed changed
-		BOOST_CHECK(*p_test1 != *p_test2);
-
-		// Check that the values of p_test1 are inside of the allowed boundaroes
-		for(std::size_t i=0; i<nItems; i++) {
-			BOOST_CHECK(p_test1->at(i) != p_test2->at(i));
-			BOOST_CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
-			BOOST_CHECK(p_test1->at(i) <= UPPERINITBOUNDARY);
-		}
-	}
-
-	//------------------------------------------------------------------------------
-
-	{ // Check that the fp-family of functions doesn't have an effect on this object
-		boost::shared_ptr<GInt32Collection> p_test1 = this->GObject::clone<GInt32Collection>();
-		boost::shared_ptr<GInt32Collection> p_test2 = this->GObject::clone<GInt32Collection>();
-		boost::shared_ptr<GInt32Collection> p_test3 = this->GObject::clone<GInt32Collection>();
-
-		// Add a few items to p_test1
-		for(std::size_t i=0; i<nItems; i++) {
-			p_test1->push_back(FIXEDVALUEINIT);
-		}
-
-		// Load into p_test2 and p_test3 and test equality
-		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-		BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
-		BOOST_CHECK(*p_test2 == *p_test1);
-		BOOST_CHECK(*p_test3 == *p_test1);
-		BOOST_CHECK(*p_test3 == *p_test2);
-
-		// Check that initialization with a fixed floating point value has no effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(2.));
-		BOOST_CHECK(*p_test2 == *p_test1);
-
-		// Check that multiplication with a fixed floating point value has no effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyBy(2.));
-		BOOST_CHECK(*p_test2 == *p_test1);
-
-		// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom(1., 2.));
-		BOOST_CHECK(*p_test2 == *p_test1);
-
-		// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->fpMultiplyByRandom());
-		BOOST_CHECK(*p_test2 == *p_test1);
-
-		// Check that adding p_test1 to p_test3 does not have an effect
-		BOOST_CHECK_NO_THROW(p_test3->fpAdd(p_test1));
-		BOOST_CHECK(*p_test3 == *p_test2);
-
-		// Check that subtracting p_test1 from p_test3 does not have an effect
-		BOOST_CHECK_NO_THROW(p_test3->fpSubtract(p_test1));
-		BOOST_CHECK(*p_test3 == *p_test2);
-	}
-
-	//------------------------------------------------------------------------------
+	// no local data, nothing to test
 
 	// Remove the test adaptor
 	this->resetAdaptor();
@@ -360,7 +246,9 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GNumCollectionT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GIntNumCollectionT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+
+	// no local data, nothing to test
 
 	// Remove the test adaptor
 	this->resetAdaptor();

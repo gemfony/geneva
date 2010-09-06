@@ -312,12 +312,7 @@ void GParameterBase::fpFixedValueInit(const float& val)
 { /* do nothing by default */ }
 
 /* ----------------------------------------------------------------------------------
- * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested (including overloads for FP numbers) in the most derived classes
  * ----------------------------------------------------------------------------------
  */
 
@@ -329,12 +324,7 @@ void GParameterBase::fpMultiplyBy(const float& val)
 { /* do nothing by default */ }
 
 /* ----------------------------------------------------------------------------------
- * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested (including overloads for FP numbers) in the most derived classes
  * ----------------------------------------------------------------------------------
  */
 
@@ -353,12 +343,7 @@ void GParameterBase::fpMultiplyByRandom(const float& min, const float& max)
 { /* do nothing by default */ }
 
 /* ----------------------------------------------------------------------------------
- * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested (including overloads for FP numbers) in the most derived classes
  * ----------------------------------------------------------------------------------
  */
 
@@ -374,12 +359,7 @@ void GParameterBase::fpMultiplyByRandom()
 { /* do nothing by default */ }
 
 /* ----------------------------------------------------------------------------------
- * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested (including overloads for FP numbers) in the most derived classes
  * ----------------------------------------------------------------------------------
  */
 
@@ -394,12 +374,7 @@ void GParameterBase::fpAdd(boost::shared_ptr<GParameterBase> p)
 { /* do nothing by default */ }
 
 /* ----------------------------------------------------------------------------------
- * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested (including overloads for FP numbers) in the most derived classes
  * ----------------------------------------------------------------------------------
  */
 
@@ -414,12 +389,7 @@ void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
 { /* do nothing by default */ }
 
 /* ----------------------------------------------------------------------------------
- * Overload for FP values tested in GNumCollectionFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Overload for FP values tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Collection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanCollection::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GBooleanObject::specificTestsNoFailuresExpected_GUnitTests()
- * Tested that application to non-fp parameters has no effect in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested (including overloads for FP numbers) in the most derived classes
  * ----------------------------------------------------------------------------------
  */
 

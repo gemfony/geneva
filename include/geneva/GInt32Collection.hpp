@@ -53,7 +53,7 @@
 
 // Geneva header files go here
 
-#include "GNumCollectionT.hpp"
+#include "GIntNumCollectionT.hpp"
 #include "GInt32GaussAdaptor.hpp"
 
 namespace Gem {
@@ -64,7 +64,7 @@ namespace Geneva {
  * A collection of boost::int32_t objects without boundaries
  */
 class GInt32Collection
-	:public GNumCollectionT<boost::int32_t>
+	:public GIntNumCollectionT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -73,7 +73,7 @@ class GInt32Collection
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumCollectionT_int32", boost::serialization::base_object<GNumCollectionT<boost::int32_t> >(*this));
+	  ar & make_nvp("GIntNumCollectionT_int32", boost::serialization::base_object<GIntNumCollectionT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -103,9 +103,6 @@ protected:
 	virtual void load_(const GObject* cp);
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
-
-	/** @brief Triggers random initialization of the parameter collection */
-	virtual void randomInit_();
 
 #ifdef GENEVATESTING
 public:

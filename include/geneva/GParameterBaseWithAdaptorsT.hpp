@@ -1,4 +1,4 @@
-/**
+	/**
  * @file GParameterBaseWithAdaptorsT.hpp
  */
 
@@ -207,7 +207,7 @@ public:
 			if (adaptor_->getAdaptorId() == gat_ptr->getAdaptorId()) {
 				adaptor_->GObject::load(gat_ptr);
 			}
-			// Different type - need to convert
+			// Different type - need to clone and assign to gat_ptr
 			else {
 				adaptor_ = gat_ptr->GObject::clone<GAdaptorT<T> >();
 			}
@@ -220,6 +220,13 @@ public:
 		// Make our local random number generator known to the adaptor
 		adaptor_->assignGRandomPointer(GParameterBase::gr);
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * Effects of adding different adaptors to empty/full object tested in GInt32Object::specificTestsNoFailureExpected_GUnitTests()
+	 * Failures/throws tested in GDoubleObject::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**
@@ -241,6 +248,12 @@ public:
 
 		return adaptor_;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * Failures/throws tested in GDoubleObject::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**
@@ -279,6 +292,13 @@ public:
 #endif /* DEBUG */
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * Failures/throws tested in GDoubleObject::specificTestsFailuresExpected_GUnitTests() and
+	 * GInt32Object::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/*******************************************************************************************/
 	/**
 	 * This function resets the local adaptor_ pointer.
@@ -287,9 +307,10 @@ public:
 		adaptor_.reset();
 	}
 
-	/*******************************************************************************************/
-	/** @brief The adaption interface */
-	virtual void adaptImpl(void) = 0;
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**
@@ -301,6 +322,11 @@ public:
 		if(adaptor_) return true;
 		return false;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**
@@ -314,6 +340,11 @@ public:
 		GParameterBase::assignGRandomPointer(gr_cp);
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/*******************************************************************************************/
 	/**
 	 * Re-connects the local random number generator to gr and tells the adaptor to do the same.
@@ -322,6 +353,11 @@ public:
 		if(adaptor_) adaptor_->resetGRandomPointer();
 		GParameterBase::resetGRandomPointer();
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/***********************************************************************************/
 	/**
@@ -339,6 +375,33 @@ public:
 
 		return result;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/***********************************************************************************/
+	/**
+	 * Checks whether a "foreign" random number generator is used in this class and in a
+	 * possible adaptor contained in this object. The result will be true only if both
+	 * this object and the adaptor (if available) use the foreign generator
+	 *
+	 * @bool A boolean indicating whether solely the foreign random number generator is used
+	 */
+	virtual bool usesForeignRNG() const {
+		bool result=true;
+
+		if(adaptor_ && adaptor_->usesLocalRNG()) result=false;
+		if(GParameterBase::usesLocalRNG()) result=false;
+
+		return result;
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 protected:
 	/*******************************************************************************************/
@@ -403,6 +466,12 @@ protected:
 #endif /* DEBUG */
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested / used indirectly through GParameterT<T>::adaptImpl()
+	 * Failures/throws tested in GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/*******************************************************************************************/
 	/**
 	 * This function applies our adaptor to a collection of values. Note that the argument
@@ -427,6 +496,12 @@ protected:
 			adaptor_->adapt(*it);
 		}
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested / used indirectly through GParameterCollectionT<T>::adaptImpl()
+	 * Failures/throws tested in GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 private:
 	/*******************************************************************************************/
@@ -459,6 +534,39 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent classes' functions
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Test assigning and resetting of random number generators in this object and any stored adaptor
+			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
+
+			// Force this object and any stored adaptor to use the local generator
+			BOOST_CHECK_NO_THROW(p_test->resetGRandomPointer());
+
+			// Cross-check that the local generator is used
+			BOOST_CHECK(p_test->usesLocalRNG() == true);
+			// Also check the parent class and the adaptor individually
+			BOOST_CHECK(p_test->GParameterBase::usesLocalRNG() == true);
+			BOOST_CHECK(p_test->adaptor_ && p_test->adaptor_->usesLocalRNG() == true);
+
+			// Create and assign a "foreign" generator
+			Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>();
+			BOOST_CHECK_NO_THROW(p_test->assignGRandomPointer(gr_test));
+
+			// Cross-check that the foreign generator is used
+			BOOST_CHECK(p_test->usesForeignRNG() == true);
+			// Also check the parent class and the adaptor individually
+			BOOST_CHECK(p_test->GParameterBase::usesLocalRNG() == false);
+			BOOST_CHECK(p_test->adaptor_ && p_test->adaptor_->usesLocalRNG() == false);
+
+			// Clean up p_test before we remove the random number generator
+			p_test.reset();
+
+			// Get rid of the dynamically allocated memory
+			delete gr_test;
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/*******************************************************************************************/
@@ -468,6 +576,37 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to call applyAdaptor(singleVal) with no adaptor present throws
+			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
+
+			// Make sure no adaptor is present
+			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			BOOST_CHECK(p_test->hasAdaptor() == false);
+
+			T testVal = T(0);
+			// We have no local adaptor, so trying to call the applyAdaptor() function should throw
+			BOOST_CHECK_THROW(p_test->applyAdaptor(testVal), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to call applyAdaptor(collection) with no adaptor present throws
+			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
+
+			// Make sure no adaptor is present
+			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			BOOST_CHECK(p_test->hasAdaptor() == false);
+
+			std::vector<T> testVec;
+			for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
+			// We have no local adaptor, so trying to call the applyAdaptor(collection) function should throw
+			BOOST_CHECK_THROW(p_test->applyAdaptor(testVec), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 #endif /* GENEVATESTING */
 };

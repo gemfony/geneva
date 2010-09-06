@@ -43,6 +43,8 @@
 // Boost headers go here
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GNUMFPT_HPP_
 #define GNUMFPT_HPP_
@@ -65,9 +67,9 @@ namespace Geneva {
  * in this class is a double. It adds floating point initialization and multiplication
  * to GNumT
  */
-template <typename T>
+template <typename fp_type>
 class GNumFPT
-	: public GNumT<T>
+	: public GNumT<fp_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -75,20 +77,20 @@ class GNumFPT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
-		ar & make_nvp("GNumT",	boost::serialization::base_object<GNumT<T> >(*this));
+		ar & make_nvp("GNumT",	boost::serialization::base_object<GNumT<fp_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief Specifies the type of parameters stored in this collection */
-	typedef T collection_type;
+	/** @brief Specifies the type of parameters stored in this object */
+	typedef fp_type parameter_type;
 
 	/******************************************************************/
 	/**
 	 * The default constructor.
 	 */
 	GNumFPT()
-		: GNumT<T> ()
+		: GNumT<fp_type> ()
 	{ /* nothing */ }
 
 	/*****************************************************************/
@@ -97,27 +99,37 @@ public:
 	 *
 	 * @param val The value used for the initialization
 	 */
-	explicit GNumFPT(const T& val)
-		: GNumT<T>(val)
+	explicit GNumFPT(
+			const fp_type& val
+			, typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+	)
+		: GNumT<fp_type>(val)
 	{ /* nothing */ }
 
 	/******************************************************************/
 	/**
-	 * Initialize with a random value within given boundaries
+	 * Initialize with a random value within given boundaries. Random
+	 * initialization is handled by GNumT<fp_type>
 	 *
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumFPT(const T& min, const T& max)
-		: GNumT<T> (min, max)
+	GNumFPT(
+			const fp_type& min
+			, const fp_type& max
+			, typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
+	)
+		: GNumT<fp_type> (min, max)
 	{ /* nothing */ }
 
 	/******************************************************************/
 	/**
 	 * The standard copy constructor
+	 *
+	 * @param cp A constant reference to another GNumFPT<fp_type> object
 	 */
-	GNumFPT(const GNumFPT<T>& cp)
-		: GNumT<T> (cp)
+	GNumFPT(const GNumFPT<fp_type>& cp)
+		: GNumT<fp_type> (cp)
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -131,46 +143,49 @@ public:
 	/**
 	 * The standard assignment operator.
 	 *
-	 * @param cp A copy of another GDoubleCollection object
+	 * @param cp A copy of another GNumFPT<fp_type> object
 	 * @return A constant reference to this object
 	 */
-	const GNumFPT& operator=(const GNumFPT<T>& cp){
-		GNumFPT<T>::load_(&cp);
+	const GNumFPT<fp_type> & operator=(const GNumFPT<fp_type>& cp){
+		GNumFPT<fp_type>::load_(&cp);
 		return *this;
 	}
 
 	/******************************************************************/
 	/**
 	 * An assignment operator for the contained value type
+	 *
+	 * @param val The value to be assigned to this object
+	 * @return The value that was assigned to this object
 	 */
-	virtual T operator=(const T& val) {
-		return GNumT<T>::operator=(val);
+	virtual fp_type operator=(const fp_type& val) {
+		return GNumT<fp_type>::operator=(val);
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for equality with another GNumFPT<T> object
+	 * Checks for equality with another GNumFPT<fp_type> object
 	 *
-	 * @param  cp A constant reference to another GNumFPT<T> object
+	 * @param  cp A constant reference to another GNumFPT<fp_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GNumFPT<T>& cp) const {
+	bool operator==(const GNumFPT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumFPT<T>::operator==","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumFPT<fp_type>::operator==","cp", CE_SILENT);
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for inequality with another GNumFPT<T> object
+	 * Checks for inequality with another GNumFPT<fp_type> object
 	 *
-	 * @param  cp A constant reference to another GNumFPT<T> object
+	 * @param  cp A constant reference to another GNumFPT<fp_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GNumFPT<T>& cp) const {
+	bool operator!=(const GNumFPT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumFPT<T>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumFPT<fp_type>::operator!=","cp", CE_SILENT);
 	}
 
 	/******************************************************************/
@@ -196,17 +211,17 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GNumFPT<T>  *p_load = GObject::conversion_cast<GNumFPT<T> >(&cp);
+		const GNumFPT<fp_type>  *p_load = GObject::conversion_cast<GNumFPT<fp_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GNumT<T>::checkRelationshipWith(cp, e, limit, "GNumFPT<T>", y_name, withMessages));
+		deviations.push_back(GNumT<fp_type>::checkRelationshipWith(cp, e, limit, "GNumFPT<fp_type>", y_name, withMessages));
 
 		// no local data
 
-		return evaluateDiscrepancies("GNumFPT<T>", caller, deviations, e);
+		return evaluateDiscrepancies("GNumFPT<fp_type>", caller, deviations, e);
 	}
 
 	/******************************************************************/
@@ -215,12 +230,14 @@ public:
 	 *
 	 * @param val The value to use for the initialization
 	 */
-	virtual void fpFixedValueInit(const float& val) {
-		GParameterT<T>::setValue(T(val));
+	virtual void fpFixedValueInit(
+			const float& val
+	) {
+		GParameterT<fp_type>::setValue(fp_type(val));
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -231,11 +248,11 @@ public:
 	 * @param val The value to be multiplied with the parameter
 	 */
 	virtual void fpMultiplyBy(const float& val) {
-		GParameterT<T>::setValue(GParameterT<T>::value() * T(val));
+		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * fp_type(val));
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -247,11 +264,11 @@ public:
 	 * @param max The upper boundary for random number generation
 	 */
 	void fpMultiplyByRandom(const float& min, const float& max)	{
-		GParameterT<T>::setValue(GParameterT<T>::value() * GParameterBase::gr->uniform_real(T(min), T(max)));
+		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * GParameterBase::gr->uniform_real(fp_type(min), fp_type(max)));
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -260,11 +277,11 @@ public:
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
 	void fpMultiplyByRandom() {
-		GParameterT<T>::setValue(GParameterT<T>::value() * GParameterBase::gr->uniform_01());
+		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * GParameterBase::gr->uniform_01());
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -277,12 +294,12 @@ public:
 	 */
 	void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
 		// We first need to convert p_base into the local type
-		boost::shared_ptr<GNumFPT<T> > p = GParameterBase::parameterbase_cast<GNumFPT<T> >(p_base);
-		GParameterT<T>::setValue(GParameterT<T>::value() + p->value());
+		boost::shared_ptr<GNumFPT<fp_type> > p = GParameterBase::parameterbase_cast<GNumFPT<fp_type> >(p_base);
+		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() + p->value());
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -295,31 +312,31 @@ public:
 	 */
 	void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
 		// We first need to convert p_base into the local type
-		boost::shared_ptr<GNumFPT<T> > p = GParameterBase::parameterbase_cast<GNumFPT<T> >(p_base);
-		GParameterT<T>::setValue(GParameterT<T>::value() - p->value());
+		boost::shared_ptr<GNumFPT<fp_type> > p = GParameterBase::parameterbase_cast<GNumFPT<fp_type> >(p_base);
+		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() - p->value());
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
 protected:
 	/******************************************************************/
 	/**
-	 * Loads the data of another GNumFPT<T> object,
+	 * Loads the data of another GNumFPT<fp_type> object,
 	 * camouflaged as a GObject. We have no local data, so
 	 * all we need to do is to the standard identity check,
 	 * preventing that an object is assigned to itself.
 	 *
-	 * @param cp A copy of another GNumFPT<T> object, camouflaged as a GObject
+	 * @param cp A copy of another GNumFPT<fp_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp){
 		// Convert cp into local format
-		const GNumFPT<T> *p_load = GObject::conversion_cast<GNumFPT<T> >(cp);
+		const GNumFPT<fp_type> *p_load = GObject::conversion_cast<GNumFPT<fp_type> >(cp);
 
 		// Load our parent class'es data ...
-		GNumT<T>::load_(cp);
+		GNumT<fp_type>::load_(cp);
 
 		// no local data ...
 	}
@@ -338,13 +355,13 @@ protected:
 	 * Triggers random initialization of the parameter
 	 */
 	virtual void randomInit_() {
-		T lowerBoundary = GNumT<T>::getLowerInitBoundary();
-		T upperBoundary = GNumT<T>::getUpperInitBoundary();
-		GParameterT<T>::setValue(GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary));
+		fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
+		fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
+		GParameterT<fp_type>::setValue(GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary));
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumFPT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -361,7 +378,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GNumT<T>::modify_GUnitTests()) result = true;
+		if(GNumT<fp_type>::modify_GUnitTests()) result = true;
 
 		return result;
 	}
@@ -373,24 +390,24 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// A few settings
 		const std::size_t nTests = 100;
-		const T LOWERINITBOUNDARY = -10.1;
-		const T UPPERINITBOUNDARY =  10.1;
-		const T FIXEDVALUEINIT = 1.;
-		const T MULTVALUE = 3.;
-		const T RANDLOWERBOUNDARY = 0.;
-		const T RANDUPPERBOUNDARY = 10.;
+		const fp_type LOWERINITBOUNDARY = -10.1;
+		const fp_type UPPERINITBOUNDARY =  10.1;
+		const fp_type FIXEDVALUEINIT = 1.;
+		const fp_type MULTVALUE = 3.;
+		const fp_type RANDLOWERBOUNDARY = 0.;
+		const fp_type RANDUPPERBOUNDARY = 10.;
 
 		// Call the parent classes' functions
-		GNumT<T>::specificTestsNoFailureExpected_GUnitTests();
+		GNumT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
 
 		//------------------------------------------------------------------------------
 
 		{ // Check initialization with a fixed value, setting and retrieval of boundaries and random initialization
-			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
-			boost::shared_ptr<GNumFPT<T> > p_test2 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Assign a defined start value
-			p_test1->GParameterT<T>::setValue(T(0));
+			p_test1->GParameterT<fp_type>::setValue(fp_type(0));
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(boost::numeric_cast<float>(2.*UPPERINITBOUNDARY))); // Make sure the parameters indeed change
@@ -436,8 +453,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a fixed value
-			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
-			boost::shared_ptr<GNumFPT<T> > p_test2 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
@@ -465,7 +482,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in fixed range
-			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.)); // 1. chosen so we see the multiplication value of the random number generator
@@ -484,7 +501,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in the range [0:1[
-			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(1.)); // 1. chosen so we see the multiplication value of the random number generator
@@ -502,10 +519,10 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test addition of other GNumFPT<T> objets
-			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
-			boost::shared_ptr<GNumFPT<T> > p_test2 = this->GObject::clone<GNumFPT<T> >();
-			boost::shared_ptr<GNumFPT<T> > p_test3 = this->GObject::clone<GNumFPT<T> >();
+		{ // Test addition of other GNumFPT<fp_type> objets
+			boost::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test3 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(0.));
@@ -536,10 +553,10 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test subtraction of other GNumFPT<T> objets
-			boost::shared_ptr<GNumFPT<T> > p_test1 = this->GObject::clone<GNumFPT<T> >();
-			boost::shared_ptr<GNumFPT<T> > p_test2 = this->GObject::clone<GNumFPT<T> >();
-			boost::shared_ptr<GNumFPT<T> > p_test3 = this->GObject::clone<GNumFPT<T> >();
+		{ // Test subtraction of other GNumFPT<fp_type> objects
+			boost::shared_ptr<GNumFPT<fp_type> > p_test1 = this->GObject::clone<GNumFPT<fp_type> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test2 = this->GObject::clone<GNumFPT<fp_type> >();
+			boost::shared_ptr<GNumFPT<fp_type> > p_test3 = this->GObject::clone<GNumFPT<fp_type> >();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(0.));
@@ -578,7 +595,7 @@ public:
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent classes' functions
-		GNumT<T>::specificTestsFailuresExpected_GUnitTests();
+		GNumT<fp_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
 #endif /* GENEVATESTING */
@@ -592,10 +609,10 @@ public:
 
 namespace boost {
 	namespace serialization {
-		template<typename T>
-		struct is_abstract<Gem::Geneva::GNumFPT<T> > : public boost::true_type {};
-		template<typename T>
-		struct is_abstract< const Gem::Geneva::GNumFPT<T> > : public boost::true_type {};
+		template<typename fp_type>
+		struct is_abstract<Gem::Geneva::GNumFPT<fp_type> > : public boost::true_type {};
+		template<typename fp_type>
+		struct is_abstract< const Gem::Geneva::GNumFPT<fp_type> > : public boost::true_type {};
 	}
 }
 /**********************************************************************/

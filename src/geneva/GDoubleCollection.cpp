@@ -58,10 +58,8 @@ GDoubleCollection::GDoubleCollection()
  * @param max The maximum random value
  */
 GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max)
-	: GNumCollectionFPT<double>(min, max)
-{
-	for(std::size_t i= 0; i<nval; i++) this->push_back(gr->uniform_real(min,max));
-}
+	: GNumCollectionFPT<double>(nval, min, max)
+{ /* nothing */ }
 
 /*******************************************************************************************/
 /**
@@ -157,7 +155,7 @@ boost::optional<std::string> GDoubleCollection::checkRelationshipWith(const GObj
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GParameterCollectionT<double>::checkRelationshipWith(cp, e, limit, "GDoubleCollection", y_name, withMessages));
+	deviations.push_back(GNumCollectionFPT<double>::checkRelationshipWith(cp, e, limit, "GDoubleCollection", y_name, withMessages));
 
 	// no local data ...
 
@@ -201,6 +199,11 @@ bool GDoubleCollection::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
+	// A few settings
+	const std::size_t nItems = 10000;
+	const std::size_t nTests = 10;
+	const double FIXEDVALUEINIT = 1.;
+
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
@@ -218,7 +221,87 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GNumCollectionFPT<double>::specificTestsNoFailureExpected_GUnitTests();
 
-	// Nothing to check -- no local data
+	//------------------------------------------------------------------------------
+
+	{ // Test the GParameterT<T>::adaptImpl() implementation
+		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		boost::shared_ptr<GDoubleCollection> p_test2 = this->clone<GDoubleCollection>();
+
+		if(p_test1->hasAdaptor()) {
+			// Make sure the collection is clean
+			p_test1->clear();
+
+			// Add a few items
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(FIXEDVALUEINIT);
+			}
+
+			for(std::size_t t=0; t<nTests; t++) {
+				// Load p_test1 into p_test2
+				BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+				// Make sure the objects match
+				BOOST_CHECK(*p_test1 == *p_test2);
+
+				// Adapt p_test1, using the internal function
+				BOOST_CHECK_NO_THROW(p_test1->adaptImpl());
+
+				// Test whether the two objects differ now
+				BOOST_CHECK(*p_test1 != *p_test2);
+
+				// Check that each element differs
+				for(std::size_t i=0; i<nItems; i++) {
+					BOOST_CHECK(p_test1->at(i) != p_test2->at(i));
+				}
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test of GParameterT<T>::swap(const GParameterT<T>&)
+		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+		boost::shared_ptr<GDoubleCollection> p_test2 = this->clone<GDoubleCollection>();
+		boost::shared_ptr<GDoubleCollection> p_test3 = this->clone<GDoubleCollection>();
+
+		if(p_test1->hasAdaptor()) {
+			// Make sure the collection is clean
+			p_test1->clear();
+
+			// Add a few items
+			for(std::size_t i=0; i<nItems; i++) {
+				p_test1->push_back(FIXEDVALUEINIT);
+			}
+
+			// Load p_test1 into p_test2 and p_test3
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
+
+			// Make sure the objects match
+			BOOST_CHECK(*p_test1 == *p_test2);
+			BOOST_CHECK(*p_test1 == *p_test3);
+			BOOST_CHECK(*p_test3 == *p_test2);
+
+			// Adapt p_test1, using the internal function
+			BOOST_CHECK_NO_THROW(p_test1->adaptImpl());
+
+			// Test whether p_test1 and p_test2/3 differ now
+			BOOST_CHECK(*p_test1 != *p_test2);
+			BOOST_CHECK(*p_test1 != *p_test3);
+			// Test whether p_test2 is still the same as p_test3
+			BOOST_CHECK(*p_test3 == *p_test2);
+
+			// Swap the data of p_test2 and p_test1
+			BOOST_CHECK_NO_THROW(p_test2->swap(*p_test1));
+
+			// Now p_test1 and p_test3 should be the same, while p_test2 differs from both
+			BOOST_CHECK(*p_test1 == *p_test3);
+			BOOST_CHECK(*p_test2 != *p_test1);
+			BOOST_CHECK(*p_test2 != *p_test3);
+		}
+	}
+
+	//------------------------------------------------------------------------------
 
 	// Remove the test adaptor
 	this->resetAdaptor();

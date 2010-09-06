@@ -286,6 +286,44 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
+	{ // Test resetting, adding and retrieval of adaptors in GParameterBaseWithAdaptorsT<T>
+		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+
+		// Remove any available local adaptor and cross-check
+		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+		BOOST_CHECK(p_test->hasAdaptor() == false);
+
+		// Add a new adaptor. This should clone the adaptor
+		BOOST_CHECK_NO_THROW(p_test->addAdaptor(gdga_ptr));
+
+		// Check that we again have an adaptor
+		BOOST_CHECK(p_test->hasAdaptor() == true);
+
+		// Retrieve a pointer to the adaptor
+		boost::shared_ptr<GAdaptorT<double> > p_adaptor_base;
+		BOOST_CHECK(!p_adaptor_base);
+		BOOST_CHECK_NO_THROW(p_adaptor_base = p_test->getAdaptor());
+
+		// Check that we have indeed received an adaptor
+		BOOST_CHECK(p_adaptor_base);
+
+		// Retrieve another, converted pointer to the adaptor
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_clone_ptr;
+		BOOST_CHECK(!gdga_clone_ptr);
+		BOOST_CHECK_NO_THROW(gdga_clone_ptr = p_test->getAdaptor<GDoubleGaussAdaptor>());
+
+		// Check that we have indeed received an adaptor
+		BOOST_CHECK(gdga_clone_ptr);
+
+		// The address of the original adaptor and of this one should differ
+		BOOST_CHECK(gdga_clone_ptr.get() != gdga_ptr.get());
+
+		// The adaptors should otherwise be identical
+		BOOST_CHECK(*gdga_clone_ptr == *gdga_ptr);
+	}
+
+	//------------------------------------------------------------------------------
+
 	// Remove the test adaptor
 	this->resetAdaptor();
 
@@ -317,7 +355,46 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GNumFPT<double>::specificTestsFailuresExpected_GUnitTests();
 
-	// Nothing to check -- no local data
+	//------------------------------------------------------------------------------
+
+	{ // Test of GParameterBaseWithAdaptorsT<T>::addAdaptor() in case of an empty adaptor pointer
+		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+
+		// Make sure no adaptor is present
+		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+		BOOST_CHECK(p_test->hasAdaptor() == false);
+
+		// Add an empty boost::shared_ptr<GDoubleGaussAdaptor>. This should throw
+		BOOST_CHECK_THROW(p_test->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>()), Gem::Common::gemfony_error_condition);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that retrieval of an empty adaptor throws in GParameterBaseWithAdaptorsT<T>::getAdaptor() (Note: This is the non-templated version of the function)
+		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+
+		// Make sure no adaptor is present
+		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+		BOOST_CHECK(p_test->hasAdaptor() == false);
+
+		BOOST_CHECK_THROW(p_test->getAdaptor(), Gem::Common::gemfony_error_condition);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that retrieval of an empty adaptor throws in GParameterBaseWithAdaptorsT<T>::getAdaptor<>() (Note: This is the templated version of the function)
+		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+
+		// Make sure no adaptor is present
+		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+		BOOST_CHECK(p_test->hasAdaptor() == false);
+
+		BOOST_CHECK_THROW(p_test->getAdaptor<GDoubleGaussAdaptor>(), Gem::Common::gemfony_error_condition);
+	}
+
+	// Note: Test for invalid conversion is done in GInt32Object
+
+	//------------------------------------------------------------------------------
 
 	// Remove the test adaptor
 	this->resetAdaptor();
