@@ -79,7 +79,7 @@ namespace Geneva
  */
 template <typename T>
 class GConstrainedNumT
-:public GParameterT<T>
+	:public GParameterT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -285,6 +285,11 @@ public:
     	return lowerBoundary_;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/****************************************************************************/
     /**
      * Retrieves the upper boundary
@@ -295,6 +300,11 @@ public:
     	return upperBoundary_;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/****************************************************************************/
 	/**
 	 * Resets the boundaries to the maximum allowed value.
@@ -302,6 +312,11 @@ public:
 	void resetBoundaries() {
 		this->setBoundaries(-std::numeric_limits<T>::max(), std::numeric_limits<T>::max());
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -350,6 +365,11 @@ public:
 		GParameterT<T>::setValue(currentValue);
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Throwing tested in GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/****************************************************************************/
 	/**
 	 * Allows to set the value. This function will throw if val is not in the currently
@@ -372,6 +392,11 @@ public:
 		// O.k., assign value
 		GParameterT<T>::setValue(val);
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Throwing tested in GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -410,6 +435,11 @@ public:
 		// O.k., assign value
 		GParameterT<T>::setValue(val);
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Throwing tested in GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -501,18 +531,19 @@ public:
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
 
-		// Clone the current object, so we can always recover from failures
-		boost::shared_ptr<GConstrainedNumT<T> > p = this->GObject::clone<GConstrainedNumT<T> >();
+		//------------------------------------------------------------------------------
 
-		// Make sure we can freely assign values
-		p->resetBoundaries();
-		BOOST_CHECK(p->getLowerBoundary() == -std::numeric_limits<T>::max());
-		BOOST_CHECK(p->getUpperBoundary() ==  std::numeric_limits<T>::max());
+		{ // Make sure resetting the boundaries results in correct limits
+			// Clone the current object, so we can always recover from failures
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
 
-		// Assign a value and check whether it has been set correctly
+			// Make sure we can freely assign values
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+			BOOST_CHECK(p_test->getLowerBoundary() == -std::numeric_limits<T>::max());
+			BOOST_CHECK(p_test->getUpperBoundary() ==  std::numeric_limits<T>::max());
+		}
 
-		// Assign boundaries and check whether they have been set correctly
-		// and that the value of the class has remained the same
+		//------------------------------------------------------------------------------
 	}
 
 	/****************************************************************************/
@@ -522,6 +553,62 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsFailuresExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting invalid boundaries in setBoundaries(lower, upper) throws
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// Setting an upper boundary < lower boundary should throw
+			BOOST_CHECK_THROW(p_test->setBoundaries(T(1), T(0)), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting boundaries incompatible with the current value throws
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// First make sure we have the widest possible boundaries
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Now assign a value
+			BOOST_CHECK_NO_THROW(p_test->setValue(T(2)));
+
+			// Setting of boundaries incompatible with T(2) should throw
+			BOOST_CHECK_THROW(p_test->setBoundaries(T(0), T(1)), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting invalid boundaries with setValue(val, lower, upper) throws
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// Setting an upper boundary < lower boundary should throw
+			BOOST_CHECK_THROW(p_test->setValue(T(0), T(2), T(0)), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting a value outside of valid boundaries with setValue(val, lower, upper) throws
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// Try to assign a value outside of the allowed boundaries should throw
+			BOOST_CHECK_THROW(p_test->setValue(T(2), T(0), T(1)), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting a value outside of the currently assigned boundaries throws
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// Assign a compatible value and boundaries
+			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
+
+			// Try to assign 1 as a value - should throw
+			BOOST_CHECK_THROW(p_test->setValue(T(2)), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 #endif /* GENEVATESTING */
