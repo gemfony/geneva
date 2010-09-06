@@ -1,5 +1,5 @@
 /**
- * @file GNumCollectionFPT.hpp
+ * @file GFPNumCollectionT.hpp
  */
 
 /*
@@ -70,7 +70,7 @@ namespace Geneva {
  * class is a double.
  */
 template <typename fp_type>
-class GNumCollectionFPT
+class GFPNumCollectionT
 	: public GNumCollectionT<fp_type>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GNumCollectionFPT()
+	GFPNumCollectionT()
 		: GNumCollectionT<fp_type> ()
 	{ /* nothing */ }
 
@@ -99,7 +99,7 @@ public:
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumCollectionFPT(
+	GFPNumCollectionT(
 			const fp_type& min
 			, const fp_type& max
 			, typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
@@ -115,7 +115,7 @@ public:
 	 * @param min The minimum random value
 	 * @param max The maximum random value
 	 */
-	GNumCollectionFPT(
+	GFPNumCollectionT(
 			const std::size_t& nval
 			, const fp_type& min
 			, const fp_type& max
@@ -130,7 +130,7 @@ public:
 	/**
 	 * The standard copy constructor
 	 */
-	GNumCollectionFPT(const GNumCollectionFPT<fp_type>& cp)
+	GFPNumCollectionT(const GFPNumCollectionT<fp_type>& cp)
 		: GNumCollectionT<fp_type> (cp)
 	{ /* nothing */ }
 
@@ -138,7 +138,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GNumCollectionFPT()
+	virtual ~GFPNumCollectionT()
 	{ /* nothing */ }
 
 	/******************************************************************/
@@ -148,35 +148,35 @@ public:
 	 * @param cp A copy of another GDoubleCollection object
 	 * @return A constant reference to this object
 	 */
-	const GNumCollectionFPT& operator=(const GNumCollectionFPT<fp_type>& cp){
-		GNumCollectionFPT<fp_type>::load_(&cp);
+	const GFPNumCollectionT& operator=(const GFPNumCollectionT<fp_type>& cp){
+		GFPNumCollectionT<fp_type>::load_(&cp);
 		return *this;
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for equality with another GNumCollectionFPT<fp_type> object
+	 * Checks for equality with another GFPNumCollectionT<fp_type> object
 	 *
-	 * @param  cp A constant reference to another GNumCollectionFPT<fp_type> object
+	 * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GNumCollectionFPT<fp_type>& cp) const {
+	bool operator==(const GFPNumCollectionT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumCollectionFPT<fp_type>::operator==","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFPNumCollectionT<fp_type>::operator==","cp", CE_SILENT);
 	}
 
 	/******************************************************************/
 	/**
-	 * Checks for inequality with another GNumCollectionFPT<fp_type> object
+	 * Checks for inequality with another GFPNumCollectionT<fp_type> object
 	 *
-	 * @param  cp A constant reference to another GNumCollectionFPT<fp_type> object
+	 * @param  cp A constant reference to another GFPNumCollectionT<fp_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GNumCollectionFPT<fp_type>& cp) const {
+	bool operator!=(const GFPNumCollectionT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumCollectionFPT<fp_type>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFPNumCollectionT<fp_type>::operator!=","cp", CE_SILENT);
 	}
 
 	/******************************************************************/
@@ -186,14 +186,14 @@ public:
 	 * @param val The value to use for the initialization
 	 */
 	virtual void fpFixedValueInit(const float& val) {
-		typename GNumCollectionFPT<fp_type>::iterator it;
+		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)=fp_type(val);
 		}
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumCollectionFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -204,14 +204,14 @@ public:
 	 * @param val The value to be multiplied with the parameter
 	 */
 	virtual void fpMultiplyBy(const float& val) {
-		typename GNumCollectionFPT<fp_type>::iterator it;
+		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it) *= fp_type(val);
 		}
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumCollectionFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -223,14 +223,14 @@ public:
 	 * @param max The upper boundary for random number generation
 	 */
 	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
-		typename GNumCollectionFPT<fp_type>::iterator it;
+		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it) *= GParameterBase::gr->uniform_real(fp_type(min), fp_type(max));
 		}
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumCollectionFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -239,14 +239,14 @@ public:
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
 	virtual void fpMultiplyByRandom() {
-		typename GNumCollectionFPT<fp_type>::iterator it;
+		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it) *= GParameterBase::gr->uniform_01();
 		}
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumCollectionFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -258,24 +258,24 @@ public:
 	 */
 	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
 		// We first need to convert p_base into the local type
-		boost::shared_ptr<GNumCollectionFPT<fp_type> > p = GParameterBase::parameterbase_cast<GNumCollectionFPT<fp_type> >(p_base);
+		boost::shared_ptr<GFPNumCollectionT<fp_type> > p = GParameterBase::parameterbase_cast<GFPNumCollectionT<fp_type> >(p_base);
 
 		// Do some error checking
 		if(this->size() != p->size()) {
 			std::ostringstream error;
-			error << "In GNumCollectionFPT<fp_type>::fpAdd(): Error!" << std::endl
+			error << "In GFPNumCollectionT<fp_type>::fpAdd(): Error!" << std::endl
 				  << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		typename GNumCollectionFPT<fp_type>::iterator it, it_p;
+		typename GFPNumCollectionT<fp_type>::iterator it, it_p;
 		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
 			(*it) += (*it_p);
 		}
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumCollectionFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -288,24 +288,24 @@ public:
 	 */
 	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
 		// We first need to convert p_base into the local type
-		boost::shared_ptr<GNumCollectionFPT<fp_type> > p = GParameterBase::parameterbase_cast<GNumCollectionFPT<fp_type> >(p_base);
+		boost::shared_ptr<GFPNumCollectionT<fp_type> > p = GParameterBase::parameterbase_cast<GFPNumCollectionT<fp_type> >(p_base);
 
 		// Do some error checking
 		if(this->size() != p->size()) {
 			std::ostringstream error;
-			error << "In GNumCollectionFPT<fp_type>::fpSubtract(): Error!" << std::endl
+			error << "In GFPNumCollectionT<fp_type>::fpSubtract(): Error!" << std::endl
 				  << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		typename GNumCollectionFPT<fp_type>::iterator it, it_p;
+		typename GFPNumCollectionT<fp_type>::iterator it, it_p;
 		for(it=this->begin(), it_p=p->begin(); it!=this->end(); ++it, ++it_p) {
 			(*it) -= (*it_p);
 		}
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumCollectionFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -332,32 +332,32 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GNumCollectionFPT<fp_type>  *p_load = GObject::conversion_cast<GNumCollectionFPT<fp_type> >(&cp);
+		const GFPNumCollectionT<fp_type>  *p_load = GObject::conversion_cast<GFPNumCollectionT<fp_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GNumCollectionT<fp_type>::checkRelationshipWith(cp, e, limit, "GNumCollectionFPT<fp_type>", y_name, withMessages));
+		deviations.push_back(GNumCollectionT<fp_type>::checkRelationshipWith(cp, e, limit, "GFPNumCollectionT<fp_type>", y_name, withMessages));
 
 		// no local data ...
 
-		return evaluateDiscrepancies("GNumCollectionFPT<fp_type>", caller, deviations, e);
+		return evaluateDiscrepancies("GFPNumCollectionT<fp_type>", caller, deviations, e);
 	}
 
 protected:
 	/******************************************************************/
 	/**
-	 * Loads the data of another GNumCollectionFPT<fp_type> object,
+	 * Loads the data of another GFPNumCollectionT<fp_type> object,
 	 * camouflaged as a GObject. We have no local data, so
 	 * all we need to do is to the standard identity check,
 	 * preventing that an object is assigned to itself.
 	 *
-	 * @param cp A copy of another GNumCollectionFPT<fp_type> object, camouflaged as a GObject
+	 * @param cp A copy of another GFPNumCollectionT<fp_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp){
 		// Convert cp into local format
-		const GNumCollectionFPT<fp_type> *p_load = GObject::conversion_cast<GNumCollectionFPT<fp_type> >(cp);
+		const GFPNumCollectionT<fp_type> *p_load = GObject::conversion_cast<GFPNumCollectionT<fp_type> >(cp);
 
 		// Load our parent class'es data ...
 		GNumCollectionT<fp_type>::load_(cp);
@@ -384,14 +384,14 @@ protected:
 		fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
 
-		typename GNumCollectionFPT<fp_type>::iterator it;
+		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)=GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary);
 		}
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GNumCollectionFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GFPNumCollectionT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -433,8 +433,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check initialization with a fixed value, setting and retrieval of boundaries and random initialization
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test1 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test2 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -477,8 +477,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a fixed value
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test1 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test2 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -513,8 +513,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in fixed range
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test1 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test2 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -540,8 +540,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in the range [0:1[
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test1 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test2 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -566,10 +566,10 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test addition of other GNumCollectionFPT<fp_type> objets
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test1 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test2 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test3 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
+		{ // Test addition of other GFPNumCollectionT<fp_type> objets
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
 
 			// Make sure all clones are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -608,10 +608,10 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test subtraction of other GNumCollectionFPT<fp_type> objets
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test1 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test2 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test3 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
+		{ // Test subtraction of other GFPNumCollectionT<fp_type> objets
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
 
 			// Make sure all clones are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -665,8 +665,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that adding another object of different size throws
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test1 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test2 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
 
 			// Add a few items to p_test1, but not to p_test2
 			for(std::size_t i=0; i<nItems; i++) {
@@ -679,8 +679,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that subtracting another object of different size throws
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test1 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
-			boost::shared_ptr<GNumCollectionFPT<fp_type> > p_test2 = this->GObject::clone<GNumCollectionFPT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
+			boost::shared_ptr<GFPNumCollectionT<fp_type> > p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type> >();
 
 			// Add a few items to p_test1, but not to p_test2
 			for(std::size_t i=0; i<nItems; i++) {
@@ -707,9 +707,9 @@ public:
 namespace boost {
 	namespace serialization {
 		template<typename fp_type>
-		struct is_abstract<Gem::Geneva::GNumCollectionFPT<fp_type> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GFPNumCollectionT<fp_type> > : public boost::true_type {};
 		template<typename fp_type>
-		struct is_abstract< const Gem::Geneva::GNumCollectionFPT<fp_type> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GFPNumCollectionT<fp_type> > : public boost::true_type {};
 	}
 }
 /**********************************************************************/

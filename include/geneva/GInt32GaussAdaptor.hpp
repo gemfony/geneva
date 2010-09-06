@@ -63,7 +63,7 @@
 
 // Geneva headers go here
 
-#include "GGaussAdaptorT.hpp"
+#include "GNumGaussAdaptorT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -74,13 +74,13 @@ namespace Geneva {
  * boost::int32_t values through the addition of gaussian-distributed random numbers.
  * See the documentation of GAdaptorT<T> for further information on adaptors
  * in the Geneva context. Most functionality is currently implemented in the
- * GGaussAdaptorT parent-class. Note that, for the purpose of adapting integer
+ * GNumGaussAdaptorT parent-class. Note that, for the purpose of adapting integer
  * values, it is generally not useful to choose very small sigma values. A value of
  * 1 might be a good choice. Similarly, the minSigma parameter should be set
  * accordingly, so sigma cannot get too small when being adapted.
  */
 class GInt32GaussAdaptor
-	:public GGaussAdaptorT<boost::int32_t>
+	:public GNumGaussAdaptorT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -89,7 +89,7 @@ class GInt32GaussAdaptor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GGaussAdaptorT_int", boost::serialization::base_object<GGaussAdaptorT<boost::int32_t> >(*this));
+	  ar & make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

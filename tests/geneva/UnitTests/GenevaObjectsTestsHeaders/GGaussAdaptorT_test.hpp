@@ -1,5 +1,5 @@
 /**
- * @file GGaussAdaptorT_test.cpp
+ * @file GNumGaussAdaptorT_test.cpp
  */
 
 /*
@@ -51,7 +51,7 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
-#include "geneva/GGaussAdaptorT.hpp"
+#include "geneva/GNumGaussAdaptorT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 #include "GEqualityPrinter.hpp"
@@ -66,12 +66,12 @@ using boost::unit_test_framework::test_case;
 // The actual unit tests for this class
 
 // Test features that are expected to work
-BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumGaussAdaptorT_no_failure_expected, T )
 {
 	using namespace Gem::Hap;
 
 	// Prepare printing of error messages in object comparisons
-	GEqualityPrinter gep("GGaussAdaptorT_no_failure_expected",
+	GEqualityPrinter gep("GNumGaussAdaptorT_no_failure_expected",
 						 pow(10,-10),
 						 Gem::Common::CE_WITH_MESSAGES);
 
@@ -155,7 +155,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_no_failure_expected, T )
 
 /***********************************************************************************/
 // Test features that are expected to fail
-BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_failures_expected, T )
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumGaussAdaptorT_failures_expected, T )
 {
 	GRandomT<RANDOMLOCAL> gr;
 
@@ -188,18 +188,18 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GGaussAdaptorT_failures_expected, T )
 
 /***********************************************************************************/
 // This test suite checks as much as possible of the functionality provided
-// by the GGaussAdaptorT class. The template is instantiated for all types
+// by the GNumGaussAdaptorT class. The template is instantiated for all types
 // defined in an mpl::list . Note that a lot of functionality of this class has
 // already been covered as GBooleanAdaptor has been used as a vehicle to
 // test GObject and GAdaotorT.
-class GGaussAdaptorTSuite: public test_suite
+class GNumGaussAdaptorTSuite: public test_suite
 {
 public:
-	GGaussAdaptorTSuite() :test_suite("GGaussAdaptorTSuite") {
+	GNumGaussAdaptorTSuite() :test_suite("GNumGaussAdaptorTSuite") {
 		typedef boost::mpl::list<GInt32GaussAdaptor, GDoubleGaussAdaptor> test_types;
 
-		add( BOOST_TEST_CASE_TEMPLATE( GGaussAdaptorT_no_failure_expected, test_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( GGaussAdaptorT_failures_expected, test_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( GNumGaussAdaptorT_no_failure_expected, test_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( GNumGaussAdaptorT_failures_expected, test_types ) );
 	}
 };
 

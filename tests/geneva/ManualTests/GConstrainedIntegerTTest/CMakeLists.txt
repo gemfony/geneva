@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET (EXECUTABLENAME GConstrainedIntegerTTest) 
+SET (EXECUTABLENAME GConstrainedIntTTest) 
 
 SET (${EXECUTABLENAME}_SRCS 
- 	GConstrainedIntegerTTest
+ 	GConstrainedIntTTest
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

@@ -44,7 +44,7 @@ using namespace boost::unit_test;
 #include "GConstrainedInt32_test.hpp"
 #include "GDoubleCollection_test.hpp"
 #include "GEvolutionaryAlgorithm_test.hpp"
-#include "GGaussAdaptorT_test.hpp"
+#include "GNumGaussAdaptorT_test.hpp"
 #include "GInt32Collection_test.hpp"
 #include "GIntFlipAdaptorT_test.hpp"
 #include "GMultiThreadedEA_test.hpp"
@@ -62,7 +62,7 @@ test_suite* init_unit_test_suite(int argc, char** argv) {
    framework::master_test_suite().add(new GConstrainedInt32Suite());
    framework::master_test_suite().add(new GDoubleCollectionSuite());
    framework::master_test_suite().add(new GEvolutionaryAlgorithmSuite());
-   framework::master_test_suite().add(new GGaussAdaptorTSuite());
+   framework::master_test_suite().add(new GNumGaussAdaptorTSuite());
    framework::master_test_suite().add(new GInt32CollectionSuite());
    framework::master_test_suite().add(new GIntFlipAdaptorTSuite());
    framework::master_test_suite().add(new GMultiThreadedEASuite());

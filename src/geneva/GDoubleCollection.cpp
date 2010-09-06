@@ -58,7 +58,7 @@ GDoubleCollection::GDoubleCollection()
  * @param max The maximum random value
  */
 GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min, const double& max)
-	: GNumCollectionFPT<double>(nval, min, max)
+	: GFPNumCollectionT<double>(nval, min, max)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -68,7 +68,7 @@ GDoubleCollection::GDoubleCollection(const std::size_t& nval, const double& min,
  * @param cp A copy of another GDoubleCollection object
  */
 GDoubleCollection::GDoubleCollection(const GDoubleCollection& cp)
-	: GNumCollectionFPT<double>(cp)
+	: GFPNumCollectionT<double>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -155,7 +155,7 @@ boost::optional<std::string> GDoubleCollection::checkRelationshipWith(const GObj
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GNumCollectionFPT<double>::checkRelationshipWith(cp, e, limit, "GDoubleCollection", y_name, withMessages));
+	deviations.push_back(GFPNumCollectionT<double>::checkRelationshipWith(cp, e, limit, "GDoubleCollection", y_name, withMessages));
 
 	// no local data ...
 
@@ -173,7 +173,7 @@ void GDoubleCollection::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GDoubleCollection>(cp);
 
 	// Load our parent class'es data ...
-	GNumCollectionFPT<double>::load_(cp);
+	GFPNumCollectionT<double>::load_(cp);
 
 	// ... no local data
 }
@@ -189,7 +189,7 @@ bool GDoubleCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GNumCollectionFPT<double>::modify_GUnitTests()) result = true;
+	if(GFPNumCollectionT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -219,7 +219,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function
-	GNumCollectionFPT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 
@@ -332,7 +332,7 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function
-	GNumCollectionFPT<double>::specificTestsFailuresExpected_GUnitTests();
+	GFPNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests();
 
 	// Nothing to check -- no local data
 

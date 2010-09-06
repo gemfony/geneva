@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedIntegerTTest.cpp
+ * @file GConstrainedIntTTest.cpp
  */
 
 /*
@@ -30,7 +30,7 @@
  */
 
 /**
- * This test takes a GConstrainedIntegerT<boost::int32_t> object and examines the mapping
+ * This test takes a GConstrainedIntT<boost::int32_t> object and examines the mapping
  * from internal to external representation of its value.
  *
  * In order to see the results of this test, you need the Root toolkit from http://root.cern.ch.
@@ -96,7 +96,7 @@ int main(int argc, char **argv){
 	// Set up and register an adaptor for gint13, so it
 	// knows how to be adapted. We want a sigma of 0.5, sigma-adaption of 0.8 and
 	// a minimum sigma of 0.02. The adaptor will be deleted automatically by the
-	// GConstrainedIntegerT<boost::int32_t>.
+	// GConstrainedIntT<boost::int32_t>.
 	boost::shared_ptr<GInt32GaussAdaptor> gdga(new GInt32GaussAdaptor(0.5,0.8,0.02,2.));
 	gint13.addAdaptor(gdga);
 

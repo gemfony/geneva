@@ -51,7 +51,7 @@
 
 
 // Geneva header files go here
-#include "GNumCollectionFPT.hpp"
+#include "GFPNumCollectionT.hpp"
 #include "GDoubleGaussAdaptor.hpp"
 
 namespace Gem {
@@ -62,7 +62,7 @@ namespace Geneva {
  * A collection of double objects without boundaries
  */
 class GDoubleCollection
-	:public GNumCollectionFPT<double>
+	:public GFPNumCollectionT<double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -71,7 +71,7 @@ class GDoubleCollection
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GNumCollectionFPT_double", boost::serialization::base_object<GNumCollectionFPT<double> >(*this));
+	  ar & make_nvp("GFPNumCollectionT_double", boost::serialization::base_object<GFPNumCollectionT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

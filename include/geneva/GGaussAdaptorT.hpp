@@ -1,5 +1,5 @@
 /**
- * @file GGaussAdaptorT.hpp
+ * @file GNumGaussAdaptorT.hpp
  */
 
 /*
@@ -79,13 +79,13 @@ namespace Geneva {
 
 /************************************************************************************************/
 /**
- * GGaussAdaptorT represents an adaptor used for the adaption of numeric
+ * GNumGaussAdaptorT represents an adaptor used for the adaption of numeric
  * types, by the addition of gaussian-distributed random numbers. Different numeric
  * types may be used, including Boost's integer representations.
  * The type used needs to be specified as a template parameter.
  */
 template<typename T>
-class GGaussAdaptorT :public GAdaptorT<T>
+class GNumGaussAdaptorT :public GAdaptorT<T>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -108,7 +108,7 @@ public:
 	/**
 	 * The standard constructor.
 	 */
-	GGaussAdaptorT()
+	GNumGaussAdaptorT()
 		: GAdaptorT<T> ()
 		, sigma_(DEFAULTSIGMA)
 		, sigmaSigma_(DEFAULTSIGMASIGMA)
@@ -122,7 +122,7 @@ public:
 	 *
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
-	GGaussAdaptorT(const double& probability)
+	GNumGaussAdaptorT(const double& probability)
 		: GAdaptorT<T> (probability)
 		, sigma_(DEFAULTSIGMA)
 		, sigmaSigma_(DEFAULTSIGMASIGMA)
@@ -139,7 +139,7 @@ public:
 	 * @param minSigma The minimal value allowed for sigma_
 	 * @param maxSigma The maximal value allowed for sigma_
 	 */
-	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
+	GNumGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma)
 		: GAdaptorT<T> ()
 		, sigma_(DEFAULTSIGMA)
@@ -163,7 +163,7 @@ public:
 	 * @param maxSigma The maximal value allowed for sigma_
 	 * @param probability The likelihood for a adaption actually taking place
 	 */
-	GGaussAdaptorT(const double& sigma, const double& sigmaSigma,
+	GNumGaussAdaptorT(const double& sigma, const double& sigmaSigma,
 				const double& minSigma, const double& maxSigma,
 				const double& probability)
 		: GAdaptorT<T> (probability)
@@ -183,9 +183,9 @@ public:
 	 * A standard copy constructor. It assumes that the values of the other object are correct
 	 * and does no additional error checks.
 	 *
-	 * @param cp Another GGaussAdaptorT object
+	 * @param cp Another GNumGaussAdaptorT object
 	 */
-	GGaussAdaptorT(const GGaussAdaptorT<T>& cp)
+	GNumGaussAdaptorT(const GNumGaussAdaptorT<T>& cp)
 		: GAdaptorT<T> (cp)
 		, sigma_(cp.sigma_)
 		, sigmaSigma_(cp.sigmaSigma_)
@@ -198,45 +198,45 @@ public:
 	 * The standard destructor. Empty, as we have no local, dynamically
 	 * allocated data.
 	 */
-	~GGaussAdaptorT()
+	~GNumGaussAdaptorT()
 	{ /* nothing */ }
 
 	/********************************************************************************************/
 	/**
-	 * A standard assignment operator for GGaussAdaptorT objects,
+	 * A standard assignment operator for GNumGaussAdaptorT objects,
 	 *
-	 * @param cp A copy of another GGaussAdaptorT object
+	 * @param cp A copy of another GNumGaussAdaptorT object
 	 */
-	const GGaussAdaptorT<T>& operator=(const GGaussAdaptorT<T>& cp)
+	const GNumGaussAdaptorT<T>& operator=(const GNumGaussAdaptorT<T>& cp)
 	{
-		GGaussAdaptorT<T>::load_(&cp);
+		GNumGaussAdaptorT<T>::load_(&cp);
 		return *this;
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for equality with another GGaussAdaptorT<T> object
+	 * Checks for equality with another GNumGaussAdaptorT<T> object
 	 *
-	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
+	 * @param  cp A constant reference to another GNumGaussAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GGaussAdaptorT<T>& cp) const {
+	bool operator==(const GNumGaussAdaptorT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GGaussAdaptorT<T>::operator==","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GNumGaussAdaptorT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/
 	/**
-	 * Checks for inequality with another GGaussAdaptorT<T> object
+	 * Checks for inequality with another GNumGaussAdaptorT<T> object
 	 *
-	 * @param  cp A constant reference to another GGaussAdaptorT<T> object
+	 * @param  cp A constant reference to another GNumGaussAdaptorT<T> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GGaussAdaptorT<T>& cp) const {
+	bool operator!=(const GNumGaussAdaptorT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GGaussAdaptorT<T>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GNumGaussAdaptorT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/********************************************************************************************/
@@ -262,21 +262,21 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GGaussAdaptorT<T>  *p_load = GObject::conversion_cast<GGaussAdaptorT<T> >(&cp);
+		const GNumGaussAdaptorT<T>  *p_load = GObject::conversion_cast<GNumGaussAdaptorT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GAdaptorT<T>::checkRelationshipWith(cp, e, limit, "GGaussAdaptorT<T>", y_name, withMessages));
+		deviations.push_back(GAdaptorT<T>::checkRelationshipWith(cp, e, limit, "GNumGaussAdaptorT<T>", y_name, withMessages));
 
 		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GGaussAdaptorT<T>", sigma_, p_load->sigma_, "sigma_", "p_load->sigma_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GGaussAdaptorT<T>", sigmaSigma_, p_load->sigmaSigma_, "sigmaSigma_", "p_load->sigmaSigma_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GGaussAdaptorT<T>", minSigma_, p_load->minSigma_, "minSigma_", "p_load->minSigma_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GGaussAdaptorT<T>", maxSigma_, p_load->maxSigma_, "maxSigma_", "p_load->maxSigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<T>", sigma_, p_load->sigma_, "sigma_", "p_load->sigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<T>", sigmaSigma_, p_load->sigmaSigma_, "sigmaSigma_", "p_load->sigmaSigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<T>", minSigma_, p_load->minSigma_, "minSigma_", "p_load->minSigma_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GNumGaussAdaptorT<T>", maxSigma_, p_load->maxSigma_, "maxSigma_", "p_load->maxSigma_", e , limit));
 
-		return evaluateDiscrepancies("GGaussAdaptorT<T>", caller, deviations, e);
+		return evaluateDiscrepancies("GNumGaussAdaptorT<T>", caller, deviations, e);
 	}
 
 	/********************************************************************************************/
@@ -290,7 +290,7 @@ public:
 	{
 		if(sigma < 0.) {
 			std::ostringstream error;
-			error << "In GGaussAdaptorT::setSigma(const double&): Error!" << std::endl
+			error << "In GNumGaussAdaptorT::setSigma(const double&): Error!" << std::endl
 			  	  << "sigma is negative: " << sigma << std::endl;
 
 			throw Gem::Common::gemfony_error_condition(error.str());
@@ -304,7 +304,7 @@ public:
 		if(tmpSigma < minSigma_ || tmpSigma > maxSigma_)
 		{
 			std::ostringstream error;
-			error << "In GGaussAdaptorT::setSigma(const double&): Error!" << std::endl
+			error << "In GNumGaussAdaptorT::setSigma(const double&): Error!" << std::endl
 			  	  << "sigma is not in the allowed range: " << std::endl
 			  	  << tmpSigma << " " << minSigma_ << " " << maxSigma_ << std::endl
 			  	  << "If you want to use these values you need to" << std::endl
@@ -345,7 +345,7 @@ public:
 		// Do some error checks
 		if(tmpMinSigma<=0. || minSigma >= maxSigma){ // maxSigma will automatically be > 0. now
 			std::ostringstream error;
-			error << "In GGaussAdaptorT::setSigmaRange(const double&, const double&): Error!" << std::endl
+			error << "In GNumGaussAdaptorT::setSigmaRange(const double&, const double&): Error!" << std::endl
 				  << "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma << std::endl;
 
 			throw Gem::Common::gemfony_error_condition(error.str());
@@ -360,8 +360,8 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Setting of valid ranges is tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	 * Setting of invalid ranges is tested in GGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * Setting of valid ranges is tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Setting of invalid ranges is tested in GNumGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -377,7 +377,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -397,7 +397,7 @@ public:
 		if(sigmaSigma <= 0.)
 		{
 			std::ostringstream error;
-			error << "In GGaussAdaptorT::setSigmaSigma(double, double): Error!" << std::endl
+			error << "In GNumGaussAdaptorT::setSigmaSigma(double, double): Error!" << std::endl
 				  << "Bad value for sigmaSigma given: " << sigmaSigma << std::endl;
 
 			throw Gem::Common::gemfony_error_condition(error.str());
@@ -407,8 +407,8 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Setting of valid adaption rates is tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	 * Setting of invalid adaption rates is tested in GGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * Setting of valid adaption rates is tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Setting of invalid adaption rates is tested in GNumGaussAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -423,7 +423,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Retrieval of adaption rates is tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Retrieval of adaption rates is tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -445,7 +445,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -458,7 +458,7 @@ public:
 	 */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const {
 		std::ostringstream error;
-		error << "In Gem::Geneva::adaptorId GGaussAdaptorT::getAdaptorId(): Error!" << std::endl
+		error << "In Gem::Geneva::adaptorId GNumGaussAdaptorT::getAdaptorId(): Error!" << std::endl
 			  << "Function used with a type it was not designed for" << std::endl;
 		throw (Gem::Common::gemfony_error_condition(error.str()));
 	}
@@ -466,15 +466,15 @@ public:
 protected:
 	/********************************************************************************************/
 	/**
-	 * This function loads the data of another GGaussAdaptorT, camouflaged as a GObject.
+	 * This function loads the data of another GNumGaussAdaptorT, camouflaged as a GObject.
 	 * We assume that the values given to us by the other object are correct and do no error checks.
 	 *
-	 * @param A copy of another GGaussAdaptorT, camouflaged as a GObject
+	 * @param A copy of another GNumGaussAdaptorT, camouflaged as a GObject
 	 */
 	void load_(const GObject *cp)
 	{
 		// Convert GObject pointer to local format
-		const GGaussAdaptorT<T> *p_load = GObject::conversion_cast<GGaussAdaptorT<T> >(cp);
+		const GNumGaussAdaptorT<T> *p_load = GObject::conversion_cast<GNumGaussAdaptorT<T> >(cp);
 
 		// Load the data of our parent class ...
 		GAdaptorT<T>::load_(cp);
@@ -570,7 +570,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test setting and retrieval of the sigma range
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			for(double dlower=0.; dlower<1.; dlower+=0.1) {
 				double dupper = 2.*dlower;
@@ -594,7 +594,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a sigma of 0. will result in a sigma with value DEFAULTMINSIGMA
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0., 2.));
 			BOOST_CHECK_NO_THROW(p_test->setSigma(0.));
@@ -604,7 +604,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Tests setting and retrieval of the sigma parameter
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0., 2.));
 
@@ -617,7 +617,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test setting and retrieval of the sigma adaption rate
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			for(double d=0.1; d<1.9; d+=0.1) {
 				BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(d));
@@ -628,7 +628,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that simultaneous setting of all "sigma-values" has an effect
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_NO_THROW(p_test->setAll(0.5, 0.8, 0., 1.));
 			BOOST_CHECK(p_test->getSigma() == 0.5);
@@ -642,7 +642,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test sigma adaption
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			const double minSigma = 0.1;
 			const double maxSigma = 0.5;
@@ -708,7 +708,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a minimal sigma < 0. throws
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_THROW(p_test->setSigmaRange(-1., 2.), Gem::Common::gemfony_error_condition);
 		}
@@ -716,7 +716,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a minimal sigma > the maximum sigma throws
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_THROW(p_test->setSigmaRange(2., 1.), Gem::Common::gemfony_error_condition);
 		}
@@ -724,7 +724,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a negative sigma throws
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_THROW(p_test->setSigma(-1.), Gem::Common::gemfony_error_condition);
 		}
@@ -732,7 +732,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a sigma below the allowed range throws
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0.5, 2.));
 			BOOST_CHECK_THROW(p_test->setSigma(0.1), Gem::Common::gemfony_error_condition);
@@ -741,7 +741,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a sigma above the allowed range throws
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(0.5, 2.));
 			BOOST_CHECK_THROW(p_test->setSigma(3.), Gem::Common::gemfony_error_condition);
@@ -750,7 +750,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting a negative sigma adaption rate throws
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_THROW(p_test->setSigmaAdaptionRate(-1.), Gem::Common::gemfony_error_condition);
 		}
@@ -758,7 +758,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that setting a 0 sigma adaption rate throws
-			boost::shared_ptr<GGaussAdaptorT<T> > p_test = this->GObject::clone<GGaussAdaptorT<T> >();
+			boost::shared_ptr<GNumGaussAdaptorT<T> > p_test = this->GObject::clone<GNumGaussAdaptorT<T> >();
 
 			BOOST_CHECK_THROW(p_test->setSigmaAdaptionRate(0.), Gem::Common::gemfony_error_condition);
 		}
@@ -783,9 +783,9 @@ public:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract< Gem::Geneva::GGaussAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract< Gem::Geneva::GNumGaussAdaptorT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::Geneva::GGaussAdaptorT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GNumGaussAdaptorT<T> > : public boost::true_type {};
 	}
 }
 

@@ -61,7 +61,7 @@
 
 
 // Geneva headers go here
-#include "GGaussAdaptorT.hpp"
+#include "GNumGaussAdaptorT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -70,13 +70,13 @@ namespace Geneva {
 /**
  * The GDoubleGaussAdaptor represents an adaptor used for the adaption of
  * double values through the addition of gaussian-distributed random numbers.
- * See the documentation of GGaussAdaptorT<T> for further information on adaptors
+ * See the documentation of GNumGaussAdaptorT<T> for further information on adaptors
  * in the Geneva context. This class is at the core of evolutionary strategies,
  * as implemented by this library. It is now implemented through a generic
  * base class that can also be used to adapt other numeric types.
  */
 class GDoubleGaussAdaptor
-	:public GGaussAdaptorT<double>
+	:public GNumGaussAdaptorT<double>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -85,7 +85,7 @@ class GDoubleGaussAdaptor
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & make_nvp("GGaussAdaptorT_double", boost::serialization::base_object<GGaussAdaptorT<double> >(*this));
+	  ar & make_nvp("GNumGaussAdaptorT_double", boost::serialization::base_object<GNumGaussAdaptorT<double> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

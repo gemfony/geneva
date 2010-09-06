@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedIntegerT.hpp
+ * @file GConstrainedIntT.hpp
  */
 
 /*
@@ -70,7 +70,7 @@ namespace Geneva
 {
 
 /******************************************************************************/
-/* The GConstrainedIntegerT class represents an integer type, such as an int or a long,
+/* The GConstrainedIntT class represents an integer type, such as an int or a long,
  * equipped with the ability to adapt itself. The value range can have an upper and a lower
  * limit.  Adapted values will only appear inside the given range to the user. Note that
  * appropriate adaptors (see e.g the GInt32FlipAdaptor class) need to be loaded in order
@@ -78,7 +78,7 @@ namespace Geneva
  * [lower:upper]. We currently only allow signed integers.
  */
 template <typename T>
-class GConstrainedIntegerT
+class GConstrainedIntT
 	:public GConstrainedNumT<T>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GConstrainedIntegerT()
+	GConstrainedIntT()
 		: GConstrainedNumT<T>()
     { /* nothing */ }
 
@@ -112,7 +112,7 @@ public:
 	 *
 	 * @param val The desired external value of this object
 	 */
-	explicit GConstrainedIntegerT(const T& val)
+	explicit GConstrainedIntT(const T& val)
 		: GConstrainedNumT<T>(val)
 	{ /* nothing */	}
 
@@ -123,7 +123,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedIntegerT(const T& lowerBoundary, const T& upperBoundary)
+	GConstrainedIntT(const T& lowerBoundary, const T& upperBoundary)
 		: GConstrainedNumT<T>(lowerBoundary, upperBoundary)
 	{ /* nothing */	}
 
@@ -135,7 +135,7 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedIntegerT(const T& val, const T& lowerBoundary, const T& upperBoundary)
+	GConstrainedIntT(const T& val, const T& lowerBoundary, const T& upperBoundary)
 		: GConstrainedNumT<T>(val, lowerBoundary, upperBoundary)
 	{ /* nothing */	}
 
@@ -146,7 +146,7 @@ public:
 	 *
 	 * @param cp Another GConstrainedNumT<T> object
 	 */
-	GConstrainedIntegerT(const GConstrainedIntegerT<T>& cp)
+	GConstrainedIntT(const GConstrainedIntT<T>& cp)
 		: GConstrainedNumT<T>(cp)
 	{ /* nothing */ }
 
@@ -154,18 +154,18 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GConstrainedIntegerT()
+	virtual ~GConstrainedIntT()
 	{ /* nothing */	}
 
 	/****************************************************************************/
 	/**
-	 * A standard assignment operator for GConstrainedIntegerT<T> objects
+	 * A standard assignment operator for GConstrainedIntT<T> objects
 	 *
-	 * @param cp A constant reference to another GConstrainedIntegerT<T> object
+	 * @param cp A constant reference to another GConstrainedIntT<T> object
 	 * @return A constant reference to this object
 	 */
-	const GConstrainedIntegerT<T>& operator=(const GConstrainedIntegerT<T>& cp) {
-		GConstrainedIntegerT<T>::load_(&cp);
+	const GConstrainedIntT<T>& operator=(const GConstrainedIntT<T>& cp) {
+		GConstrainedIntT<T>::load_(&cp);
 		return *this;
 	}
 
@@ -185,26 +185,26 @@ public:
     /**
      * Checks equality of this object with another.
      *
-     * @param cp A constant reference to another GConstrainedIntegerT<T> object
+     * @param cp A constant reference to another GConstrainedIntT<T> object
      * @return A boolean indicating whether both objects are equal
      */
-	bool operator==(const GConstrainedIntegerT<T>& cp) const {
+	bool operator==(const GConstrainedIntT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedIntegerT<T>::operator==","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedIntT<T>::operator==","cp", CE_SILENT);
 	}
 
 	/****************************************************************************/
     /**
      * Checks inequality of this object with another.
      *
-     * @param cp A constant reference to another GConstrainedIntegerT<T> object
+     * @param cp A constant reference to another GConstrainedIntT<T> object
      * @return A boolean indicating whether both objects are inequal
      */
-	bool operator!=(const GConstrainedIntegerT<T>& cp) const {
+	bool operator!=(const GConstrainedIntT<T>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, as no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedIntegerT<T>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedIntT<T>::operator!=","cp", CE_SILENT);
 	}
 
 	/****************************************************************************/
@@ -230,17 +230,17 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GConstrainedIntegerT<T>  *p_load = GObject::conversion_cast<GConstrainedIntegerT<T> >(&cp);
+		const GConstrainedIntT<T>  *p_load = GObject::conversion_cast<GConstrainedIntT<T> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GConstrainedNumT<T>::checkRelationshipWith(cp, e, limit, "GConstrainedIntegerT<T>", y_name, withMessages));
+		deviations.push_back(GConstrainedNumT<T>::checkRelationshipWith(cp, e, limit, "GConstrainedIntT<T>", y_name, withMessages));
 
 		// ... no local data
 
-		return evaluateDiscrepancies("GConstrainedIntegerT<T>", caller, deviations, e);
+		return evaluateDiscrepancies("GConstrainedIntT<T>", caller, deviations, e);
 	}
 
 	/****************************************************************************/
@@ -310,13 +310,13 @@ public:
 protected:
 	/****************************************************************************/
 	/**
-	 * Loads the data of another GConstrainedIntegerT<T>, camouflaged as a GObject.
+	 * Loads the data of another GConstrainedIntT<T>, camouflaged as a GObject.
 	 *
-	 * @param cp Another GConstrainedIntegerT<T> object, camouflaged as a GObject
+	 * @param cp Another GConstrainedIntT<T> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) {
 		// Convert GObject pointer to local format
-		const GConstrainedIntegerT<T> *p_load = GObject::conversion_cast<GConstrainedIntegerT<T> >(cp);
+		const GConstrainedIntT<T> *p_load = GObject::conversion_cast<GConstrainedIntT<T> >(cp);
 
 		// Load our parent class'es data ...
 		GConstrainedNumT<T>::load_(cp);
@@ -377,7 +377,7 @@ public:
 		GConstrainedNumT<T>::specificTestsNoFailureExpected_GUnitTests();
 
 		// Clone the current object, so we can always recover from failures
-		boost::shared_ptr<GConstrainedIntegerT<T> > p = this->GObject::clone<GConstrainedIntegerT<T> >();
+		boost::shared_ptr<GConstrainedIntT<T> > p = this->GObject::clone<GConstrainedIntT<T> >();
 
 		// Make sure we start with the maximum range
 		p->resetBoundaries();
@@ -430,9 +430,9 @@ public:
 namespace boost {
 	namespace serialization {
 		template<typename T>
-		struct is_abstract<Gem::Geneva::GConstrainedIntegerT<T> > : public boost::true_type {};
+		struct is_abstract<Gem::Geneva::GConstrainedIntT<T> > : public boost::true_type {};
 		template<typename T>
-		struct is_abstract< const Gem::Geneva::GConstrainedIntegerT<T> > : public boost::true_type {};
+		struct is_abstract< const Gem::Geneva::GConstrainedIntT<T> > : public boost::true_type {};
 	}
 }
 

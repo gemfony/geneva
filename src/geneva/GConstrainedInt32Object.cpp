@@ -46,7 +46,7 @@ namespace Geneva {
  * The default constructor
  */
 GConstrainedInt32Object::GConstrainedInt32Object()
-	: GConstrainedIntegerT<boost::int32_t>()
+	: GConstrainedIntT<boost::int32_t>()
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -57,7 +57,7 @@ GConstrainedInt32Object::GConstrainedInt32Object()
  * @param upperBoundary The upper boundary of the value range
  */
 GConstrainedInt32Object::GConstrainedInt32Object(const boost::int32_t& lowerBoundary, const boost::int32_t& upperBoundary)
-	: GConstrainedIntegerT<boost::int32_t>(lowerBoundary, upperBoundary)
+	: GConstrainedIntT<boost::int32_t>(lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -73,7 +73,7 @@ GConstrainedInt32Object::GConstrainedInt32Object (
 		, const boost::int32_t& lowerBoundary
 		, const boost::int32_t& upperBoundary
 )
-	: GConstrainedIntegerT<boost::int32_t>(val, lowerBoundary, upperBoundary)
+	: GConstrainedIntT<boost::int32_t>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -83,7 +83,7 @@ GConstrainedInt32Object::GConstrainedInt32Object (
  * @param cp A copy of another GConstrainedInt32Object object
  */
 GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object& cp)
-	: GConstrainedIntegerT<boost::int32_t>(cp)
+	: GConstrainedIntT<boost::int32_t>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -93,7 +93,7 @@ GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object& 
  * @param val A value used for the initialization
  */
 GConstrainedInt32Object::GConstrainedInt32Object(const boost::int32_t& val)
-	: GConstrainedIntegerT<boost::int32_t>(val)
+	: GConstrainedIntT<boost::int32_t>(val)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -111,7 +111,7 @@ GConstrainedInt32Object::~GConstrainedInt32Object()
  * @return The value that was just assigned to this object
  */
 boost::int32_t GConstrainedInt32Object::operator=(const boost::int32_t& val) {
-	return GConstrainedIntegerT<boost::int32_t>::operator=(val);
+	return GConstrainedIntT<boost::int32_t>::operator=(val);
 }
 
 /*******************************************************************************************/
@@ -191,7 +191,7 @@ boost::optional<std::string> GConstrainedInt32Object::checkRelationshipWith(cons
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GConstrainedIntegerT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GConstrainedInt32Object", y_name, withMessages));
+	deviations.push_back(GConstrainedIntT<boost::int32_t>::checkRelationshipWith(cp, e, limit, "GConstrainedInt32Object", y_name, withMessages));
 
 	// no local data ...
 
@@ -209,7 +209,7 @@ void GConstrainedInt32Object::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GConstrainedInt32Object>(cp);
 
 	// Load our parent class'es data ...
-	GConstrainedIntegerT<boost::int32_t>::load_(cp);
+	GConstrainedIntT<boost::int32_t>::load_(cp);
 
 	// ... no local data
 }
@@ -219,7 +219,7 @@ void GConstrainedInt32Object::load_(const GObject* cp){
  * Triggers random initialization of the parameter object
  */
 void GConstrainedInt32Object::randomInit_() {
-	GConstrainedIntegerT<boost::int32_t>::randomInit_();
+	GConstrainedIntT<boost::int32_t>::randomInit_();
 }
 
 
@@ -235,7 +235,7 @@ bool GConstrainedInt32Object::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GConstrainedIntegerT<boost::int32_t>::modify_GUnitTests()) result = true;
+	if(GConstrainedIntT<boost::int32_t>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -260,7 +260,7 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GConstrainedIntegerT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GConstrainedIntT<boost::int32_t>::specificTestsNoFailureExpected_GUnitTests();
 
 	// Remove the test adaptor
 	this->resetAdaptor();
@@ -291,7 +291,7 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GConstrainedIntegerT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GConstrainedIntT<boost::int32_t>::specificTestsFailuresExpected_GUnitTests();
 
 	// Remove the test adaptor
 	this->resetAdaptor();

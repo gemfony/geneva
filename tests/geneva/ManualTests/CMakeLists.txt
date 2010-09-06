@@ -6,11 +6,11 @@ ADD_DEPENDENCIES ( "geneva-tests-manual"
 	# Add all the available tests targets (EXECUTABLENAMEs) here
 	GBooleanProbabilityTest
 	GConstrainedFPTTest
-	GConstrainedIntegerTTest
+	GConstrainedIntTTest
 	GSigmaAdaptionTest
 )
 
 ADD_SUBDIRECTORY ( GBooleanProbabilityTest )
 ADD_SUBDIRECTORY ( GConstrainedFPTTest )
-ADD_SUBDIRECTORY ( GConstrainedIntegerTTest )
+ADD_SUBDIRECTORY ( GConstrainedIntTTest )
 ADD_SUBDIRECTORY ( GSigmaAdaptionTest )

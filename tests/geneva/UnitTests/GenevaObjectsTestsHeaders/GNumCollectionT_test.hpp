@@ -53,7 +53,7 @@
 #include "geneva/GNumCollectionT.hpp"
 #include "geneva/GInt32Collection.hpp"
 #include "geneva/GDoubleCollection.hpp"
-#include "geneva/GGaussAdaptorT.hpp"
+#include "geneva/GNumGaussAdaptorT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
 #include "geneva/GStdSimpleVectorInterfaceT.hpp"
@@ -67,18 +67,18 @@ using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
 
 template <typename T>
-boost::shared_ptr<GGaussAdaptorT<typename T::collection_type> > getNumCollectionAdaptor() {
+boost::shared_ptr<GNumGaussAdaptorT<typename T::collection_type> > getNumCollectionAdaptor() {
 	std::cout << "Error: Function getAdaptor<>() called for wrong type" << std::endl;
 	exit(1);
 }
 
 template <>
-boost::shared_ptr<GGaussAdaptorT<double> > getNumCollectionAdaptor<GDoubleCollection>() {
+boost::shared_ptr<GNumGaussAdaptorT<double> > getNumCollectionAdaptor<GDoubleCollection>() {
 	return boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(10,0.1,2,100));
 }
 
 template <>
-boost::shared_ptr<GGaussAdaptorT<boost::int32_t> > getNumCollectionAdaptor<GInt32Collection>() {
+boost::shared_ptr<GNumGaussAdaptorT<boost::int32_t> > getNumCollectionAdaptor<GInt32Collection>() {
 	return boost::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(10,0.1,2,100));
 }
 
@@ -147,7 +147,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( GNumCollectionT_no_failure_expected, T)
 	delete gpb;
 
 	// Adding an adaptor with rather large gauss
-	boost::shared_ptr<GGaussAdaptorT<typename T::collection_type> > gba = getNumCollectionAdaptor<T>();
+	boost::shared_ptr<GNumGaussAdaptorT<typename T::collection_type> > gba = getNumCollectionAdaptor<T>();
 	gnct6.addAdaptor(gba);
 
 	const std::size_t NADAPTIONS=1000;

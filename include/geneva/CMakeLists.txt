@@ -14,7 +14,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedFPT.hpp
 	GConstrainedInt32Object.hpp
 	GConstrainedInt32ObjectCollection.hpp
-	GConstrainedIntegerT.hpp
+	GConstrainedIntT.hpp
 #	GConstrainedNumCollectionT.hpp
 	GConstrainedNumT.hpp
 	GDoubleCollection.hpp
@@ -23,7 +23,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GDoubleObjectCollection.hpp
 	GEAPersonalityTraits.hpp
 	GEvolutionaryAlgorithm.hpp
-	GGaussAdaptorT.hpp
+	GNumGaussAdaptorT.hpp
 	GGDPersonalityTraits.hpp
 	GIndividual.hpp
 	GInt32Collection.hpp
@@ -37,7 +37,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GMultiThreadedSwarm.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
-	GNumCollectionFPT.hpp
+	GFPNumCollectionT.hpp
 	GNumCollectionT.hpp
 	GNumFPT.hpp
 	GNumIntT.hpp

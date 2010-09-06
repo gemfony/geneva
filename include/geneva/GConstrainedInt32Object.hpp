@@ -55,7 +55,7 @@
 
 
 // Geneva headers go here
-#include "GConstrainedIntegerT.hpp"
+#include "GConstrainedIntT.hpp"
 #include "GInt32GaussAdaptor.hpp"
 
 namespace Gem
@@ -70,7 +70,7 @@ namespace Geneva
  * mapping from an internal representation to an externally visible value.
  */
 class GConstrainedInt32Object
-  : public GConstrainedIntegerT<boost::int32_t>
+  : public GConstrainedIntT<boost::int32_t>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -79,7 +79,7 @@ class GConstrainedInt32Object
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GConstrainedIntegerT_int32", boost::serialization::base_object<GConstrainedIntegerT<boost::int32_t> >(*this));
+		ar & make_nvp("GConstrainedIntT_int32", boost::serialization::base_object<GConstrainedIntT<boost::int32_t> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

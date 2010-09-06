@@ -53,7 +53,7 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor()
  * @param cp A copy of another GDoubleGaussAdaptor object
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
-	: GGaussAdaptorT<double>(cp)
+	: GNumGaussAdaptorT<double>(cp)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -63,7 +63,7 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const GDoubleGaussAdaptor& cp)
  * @param adProb The adaption probability
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& adProb)
-	: GGaussAdaptorT<double>(adProb)
+	: GNumGaussAdaptorT<double>(adProb)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -77,7 +77,7 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& adProb)
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigmaSigma,
 			        const double& minSigma, const double& maxSigma)
-	: GGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma)
+	: GNumGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -92,7 +92,7 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigm
  */
 GDoubleGaussAdaptor::GDoubleGaussAdaptor(const double& sigma, const double& sigmaSigma,
 			        const double& minSigma, const double& maxSigma, const double& adProb)
-	: GGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
+	: GNumGaussAdaptorT<double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
 { /* nothing */ }
 
 /*******************************************************************************************/
@@ -179,7 +179,7 @@ boost::optional<std::string> GDoubleGaussAdaptor::checkRelationshipWith(const GO
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GGaussAdaptorT<double>::checkRelationshipWith(cp, e, limit, "GDoubleGaussAdaptor", y_name, withMessages));
+	deviations.push_back(GNumGaussAdaptorT<double>::checkRelationshipWith(cp, e, limit, "GDoubleGaussAdaptor", y_name, withMessages));
 
 	// no local data ...
 
@@ -197,7 +197,7 @@ void GDoubleGaussAdaptor::load_(const GObject* cp){
     GObject::selfAssignmentCheck<GDoubleGaussAdaptor>(cp);
 
 	// Load our parent class'es data ...
-	GGaussAdaptorT<double>::load_(cp);
+	GNumGaussAdaptorT<double>::load_(cp);
 
 	// ... no local data
 }
@@ -256,7 +256,7 @@ void GDoubleGaussAdaptor::customAdaptions(double &value) {
 }
 
 /* ----------------------------------------------------------------------------------
- * - Tested in GGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+ * - Tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -274,7 +274,7 @@ bool GDoubleGaussAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GGaussAdaptorT<double>::modify_GUnitTests()) result = true;
+	if(GNumGaussAdaptorT<double>::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -288,7 +288,7 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GNumGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
 
 	//------------------------------------------------------------------------------
 
@@ -320,7 +320,7 @@ void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
+	GNumGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
 }
 
 /*******************************************************************************************/

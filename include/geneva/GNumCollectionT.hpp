@@ -237,7 +237,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested GNumCollectionFPT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * Tested GFPNumCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
 	 * Tested GNumCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
 	 * Assignment of invalid boundaries Tested GNumCollectionT<T>::specificTestsFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
@@ -254,7 +254,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested GNumCollectionFPT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * Tested GFPNumCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
 	 * Tested GNumCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
@@ -270,7 +270,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * Tested GNumCollectionFPT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * Tested GFPNumCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
 	 * Tested GNumCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
