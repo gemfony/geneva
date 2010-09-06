@@ -23,7 +23,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GDoubleObjectCollection.hpp
 	GEAPersonalityTraits.hpp
 	GEvolutionaryAlgorithm.hpp
-	GNumGaussAdaptorT.hpp
+	GFPNumCollectionT.hpp
 	GGDPersonalityTraits.hpp
 	GIndividual.hpp
 	GInt32Collection.hpp
@@ -37,7 +37,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GMultiThreadedSwarm.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp
-	GFPNumCollectionT.hpp
+	GNumGaussAdaptorT.hpp
 	GNumCollectionT.hpp
 	GNumFPT.hpp
 	GNumIntT.hpp
