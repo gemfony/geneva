@@ -101,9 +101,9 @@ public:
 	 * The default constructor
 	 */
 	GConstrainedNumT()
-		: GParameterT<T>(T(0))
-		, lowerBoundary_(T(0))
-		, upperBoundary_(T(1))
+		: GParameterT<T>()
+		, lowerBoundary_(-std::numeric_limits<T>::max())
+		, upperBoundary_( std::numeric_limits<T>::max())
     { /* nothing */ }
 
 
@@ -131,7 +131,16 @@ public:
 		: GParameterT<T>(lowerBoundary)
 		, lowerBoundary_(lowerBoundary)
 		, upperBoundary_(upperBoundary)
-	{ /* nothing */ }
+	{
+		// Do some error checking
+		if(lowerBoundary_ > upperBoundary_) {
+			std::ostringstream error;
+			error << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper): Error!" << std::endl
+				  << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+	}
 
 	/****************************************************************************/
 	/**
@@ -367,6 +376,7 @@ public:
 
 	/* ----------------------------------------------------------------------------------
 	 * Throwing tested in GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -395,6 +405,7 @@ public:
 
 	/* ----------------------------------------------------------------------------------
 	 * Throwing tested in GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -422,22 +433,13 @@ public:
 		lowerBoundary_ = lowerBoundary;
 		upperBoundary_ = upperBoundary;
 
-		// Is the desired new value in the allowed range ?
-		if(val < lowerBoundary_ || val > upperBoundary_) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setValue(val,lower,upper): Error!" << std::endl
-				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-
-		// O.k., assign value
-		GParameterT<T>::setValue(val);
+		// Set the desired value
+		this->setValue(val);
 	}
 
 	/* ----------------------------------------------------------------------------------
 	 * Throwing tested in GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
 
@@ -461,6 +463,12 @@ public:
 		return mapping;
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * Effects of variations of the internal value on the external value tested in most-derived classes
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/****************************************************************************/
 	/**
 	 * Retrieves GParameterT<T>'s internal value. Added here for compatibility
@@ -469,6 +477,11 @@ public:
 	T getInternalValue() const {
 		return GParameterT<T>::value();
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/** @brief The transfer function needed to calculate the externally visible
@@ -528,6 +541,11 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		// Some general settings
+		const T testVal = T(42);
+		const T lowerBoundary = T(0);
+		const T upperBoundary = T(100);
+
 		// Call the parent classes' functions
 		GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
 
@@ -541,6 +559,99 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 			BOOST_CHECK(p_test->getLowerBoundary() == -std::numeric_limits<T>::max());
 			BOOST_CHECK(p_test->getUpperBoundary() ==  std::numeric_limits<T>::max());
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assigning a simple, valid value works
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// Make sure we can freely assign values
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Assign a valid value
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal));
+
+			// Check with the local value() function that the value has been set
+			BOOST_CHECK(p_test->value() == testVal);
+
+			// Check with the corresponding GParameterT<T> function
+			BOOST_CHECK(p_test->GParameterT<T>::value() == testVal);
+
+			// Check that getInternalValue() behaves as expected
+			BOOST_CHECK(p_test->GParameterT<T>::value() == p_test->getInternalValue());
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting of boundaries with setBoundaries(lower, upper) results in the correct values
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// Make sure we can freely assign values
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Set the desired value
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal));
+
+			// Check that the value has indeed been set
+			BOOST_CHECK(p_test->value() == testVal);
+
+			// Set the boundaries
+			BOOST_CHECK_NO_THROW(p_test->setBoundaries(lowerBoundary, upperBoundary));
+
+			// Check the values of these boundaries
+			BOOST_CHECK(p_test->getLowerBoundary() == lowerBoundary);
+			BOOST_CHECK(p_test->getUpperBoundary() == upperBoundary);
+
+			// Check that the value is still the same
+			BOOST_CHECK(p_test->value() == testVal);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting of boundaries with setValue(val, lower, upper) results in the correct values
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// Make sure we can freely assign values
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Set the desired value
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+
+			// Check the values of these boundaries
+			BOOST_CHECK_MESSAGE(
+					p_test->getLowerBoundary() == lowerBoundary
+					,  "\n"
+					<< "p_test->getLowerBoundary() = " << p_test->getLowerBoundary() << "\n"
+					<< "lowerBoundary = " << lowerBoundary << "\n"
+			);
+			BOOST_CHECK_MESSAGE(
+					p_test->getUpperBoundary() == upperBoundary
+					,  "\n"
+					<< "p_test->getUpperBoundary() = " << p_test->getUpperBoundary() << "\n"
+					<< "upperBoundary = " << upperBoundary << "\n"
+			);
+
+			// Check that the value is still the same
+			BOOST_CHECK(p_test->value() == testVal);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assigning a valid value using operator= results in the correct value
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// Make sure we can freely assign values
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Set the desired value
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+
+			// Assign a value
+			BOOST_CHECK_NO_THROW(*p_test = (testVal - T(1)));
+
+			// Check that is was set correctly
+			BOOST_CHECK_NO_THROW(p_test->value() == (testVal - T(1)));
 		}
 
 		//------------------------------------------------------------------------------
@@ -604,8 +715,20 @@ public:
 			// Assign a compatible value and boundaries
 			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
 
-			// Try to assign 1 as a value - should throw
+			// Try to assign 2 as a value - should throw
 			BOOST_CHECK_THROW(p_test->setValue(T(2)), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assigning a value using operator= outside of the allowed range throws
+			boost::shared_ptr<GConstrainedNumT<T> > p_test = this->GObject::clone<GConstrainedNumT<T> >();
+
+			// Assign a compatible value and boundaries
+			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
+
+			// Try to assign 2 as a value - should throw
+			BOOST_CHECK_THROW(*p_test = 2, Gem::Common::gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------

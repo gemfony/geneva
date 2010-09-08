@@ -579,6 +579,7 @@ public:
 
 		//------------------------------------------------------------------------------
 
+#ifdef DEBUG
 		{ // Test that trying to call applyAdaptor(singleVal) with no adaptor present throws
 			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
 
@@ -587,9 +588,10 @@ public:
 			BOOST_CHECK(p_test->hasAdaptor() == false);
 
 			T testVal = T(0);
-			// We have no local adaptor, so trying to call the applyAdaptor() function should throw
+			// We have no local adaptor, so trying to call the applyAdaptor() function should throw in DEBUG mode
 			BOOST_CHECK_THROW(p_test->applyAdaptor(testVal), Gem::Common::gemfony_error_condition);
 		}
+#endif
 
 		//------------------------------------------------------------------------------
 

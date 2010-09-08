@@ -67,7 +67,7 @@ ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 		ADD_DEFINITIONS ("-O3 -pthread")
 	ELSE() # e.g. g++
 		MESSAGE ("Using g++ compiler settings")
-		ADD_DEFINITIONS ("-O3 -pthread")
+		ADD_DEFINITIONS ("-O3 -pthread") #
 	ENDIF()
 ENDIF()
 

@@ -207,7 +207,31 @@ public:
 		// Check that min and max have appropriate values
 		assert(min<=max);
 #endif
-		return uniform_01() * (max - min) + min;
+
+		if(min >= fp_type(0.) || max <= fp_type(0.)) { // (max-min) is valid
+			return uniform_01() * (max - min) + min;
+		}
+		else { // Some values (e.g. max=std::numeric_limits<T>::max(), min=-std::numeric_limits<fp_type>::max()) will fail (max-min)
+			// We know: min<0., max>0.
+			assert(min<0.);
+			assert(max>0.);
+
+			// Calculate a random number in the range [0,1[
+			fp_type fraction = uniform_01();
+
+			// Calculate the fraction of the distance of min from 0.
+			volatile fp_type minFraction = -fraction*min; // < std::numeric_limits<T>::max(), thus valid
+			// Calculate the fraction of the distance of max from 0.
+			volatile fp_type maxFraction = fraction*max; // < std::numeric_limits<T>::max(), thus valid
+
+			// The start of the scale
+			volatile fp_type result = min + minFraction;
+
+			// Add maxFraction to result. Possible problem: Can compiler-optimization amalgamate this to "return min+minFraction+maxFraction" ?
+			result += maxFraction;
+
+			return result;
+		}
 	}
 
 	/************************************************************************/

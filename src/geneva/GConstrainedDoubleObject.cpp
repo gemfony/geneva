@@ -214,15 +214,6 @@ void GConstrainedDoubleObject::load_(const GObject* cp){
 	// ... no local data
 }
 
-/*******************************************************************************************/
-/**
- * Triggers random initialization of the parameter object
- */
-void GConstrainedDoubleObject::randomInit_() {
-	GConstrainedFPT<double>::randomInit_();
-}
-
-
 #ifdef GENEVATESTING
 
 /*******************************************************************************************/
@@ -245,6 +236,12 @@ bool GConstrainedDoubleObject::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
+	// Some general settings
+	const double testVal = 42.;
+	const double testVal2 = 17.;
+	const double lowerBoundary = 0.;
+	const double upperBoundary = 100.;
+
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
 	boost::shared_ptr<GAdaptorT<double> > storedAdaptor;
@@ -261,6 +258,35 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Call the parent class'es function
 	GConstrainedFPT<double>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Check that assignment of a value with operator= works both for set and unset boundaries
+		boost::shared_ptr<GConstrainedDoubleObject> p_test = this->GObject::clone<GConstrainedDoubleObject>();
+
+		// Reset the boundaries so we are free to do what we want
+		BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+		// Assign a value with operator=
+		BOOST_CHECK_NO_THROW(*p_test = testVal2);
+
+		// Check the value
+		BOOST_CHECK(p_test->value() == testVal2);
+
+		// Assign boundaries and values
+		BOOST_CHECK_NO_THROW(p_test->setValue(testVal2, lowerBoundary, upperBoundary));
+
+		// Check the value again
+		BOOST_CHECK(p_test->value() == testVal2);
+
+		// Assign a value with operator=
+		BOOST_CHECK_NO_THROW(*p_test = testVal);
+
+		// Check the value again, should have changed
+		BOOST_CHECK(p_test->value() == testVal);
+	}
+
+	//------------------------------------------------------------------------------
 
 	// Remove the test adaptor
 	this->resetAdaptor();

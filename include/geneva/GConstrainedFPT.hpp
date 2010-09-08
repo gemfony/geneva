@@ -37,6 +37,7 @@
 #include <typeinfo>
 #include <limits>
 #include <utility> // for std::pair
+#include <iomanip> // for setprecision
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -50,6 +51,7 @@
 #include <boost/limits.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
 
 #ifndef GCONSTRAINEDFPT_HPP_
 #define GCONSTRAINEDFPT_HPP_
@@ -72,16 +74,15 @@ namespace Geneva
 {
 
 /******************************************************************************/
-/* The GConstrainedFPT class represents an integer type, such as an int or a long,
+/* The GConstrainedFPT class represents a floating point type, such as a double,
  * equipped with the ability to adapt itself. The value range can have an upper and a lower
  * limit.  Adapted values will only appear inside the given range to the user. Note that
- * appropriate adaptors (see e.g the GInt32FlipAdaptor class) need to be loaded in order
- * to benefit from the adaption capabilities. Both boundaries are inclusive, i.e.
- * [lower:upper]. We currently only allow signed integers.
+ * appropriate adaptors (see e.g the GDoubleGaussAdaptor class) need to be loaded in order
+ * to benefit from the adaption capabilities.
  */
-template <typename T>
+template <typename fp_type>
 class GConstrainedFPT
-	:public GConstrainedNumT<T>
+	:public GConstrainedNumT<fp_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -91,18 +92,23 @@ class GConstrainedFPT
 		using boost::serialization::make_nvp;
 
 		// Save data
-		ar & make_nvp("GConstrainedNumT_T", boost::serialization::base_object<GConstrainedNumT<T> >(*this));
+		ar & make_nvp("GConstrainedNumT_T", boost::serialization::base_object<GConstrainedNumT<fp_type> >(*this))
+		   & BOOST_SERIALIZATION_NVP(upper_closed_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/****************************************************************************/
 	/**
-	 * The default constructor
+	 * The default constructor.
 	 */
 	GConstrainedFPT()
-		: GConstrainedNumT<T>()
-    { /* nothing */ }
+		: GConstrainedNumT<fp_type>()
+		, upper_closed_(fp_type(0))
+    {
+		// Assign a correct value to the upper_closed_ variable
+		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumT<fp_type>::getUpperBoundary());
+    }
 
 	/****************************************************************************/
 	/**
@@ -111,9 +117,13 @@ public:
 	 *
 	 * @param val The desired external value of this object
 	 */
-	explicit GConstrainedFPT (const T& val)
-		: GConstrainedNumT<T>(val)
-	{ /* nothing */	}
+	explicit GConstrainedFPT (const fp_type& val)
+		: GConstrainedNumT<fp_type>(val)
+		, upper_closed_(fp_type(0))
+	{
+		// Assign a correct value to the upper_closed_ variable
+		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumT<fp_type>::getUpperBoundary());
+	}
 
 	/****************************************************************************/
 	/**
@@ -122,12 +132,25 @@ public:
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	GConstrainedFPT (
-			const T& lowerBoundary
-		  , const T& upperBoundary
-	)
-		: GConstrainedNumT<T>(lowerBoundary, upperBoundary)
-	{ /* nothing */	}
+	GConstrainedFPT (const fp_type& lowerBoundary , const fp_type& upperBoundary)
+		: GConstrainedNumT<fp_type>(lowerBoundary, upperBoundary)
+		, upper_closed_(fp_type(0))
+	{
+		// Do some error checking.
+
+		// The following is a stronger requirement than used in our
+		// parent class, as the "real" upper boundary is defined by "upper_closed_".
+		if(lowerBoundary >= upperBoundary) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<fp_type>::GConstrainedFPT(lower,upper): Error!" << std::endl
+				  << "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
+				  << "upperBoundary = " << upperBoundary << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// Assign a correct value to the upper_closed_ variable
+		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumT<fp_type>::getUpperBoundary());
+	}
 
 	/****************************************************************************/
 	/**
@@ -140,21 +163,37 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedFPT (
-			const T& val
-		  , const T& lowerBoundary
-		  , const T& upperBoundary
+			const fp_type& val
+		  , const fp_type& lowerBoundary
+		  , const fp_type& upperBoundary
 	)
-		: GConstrainedNumT<T>(val, lowerBoundary, upperBoundary)
+		: GConstrainedNumT<fp_type>(val, lowerBoundary, upperBoundary)
+		, upper_closed_(fp_type(0))
 	{
+		// Do some error checking.
+
+		// The following is a stronger requirement than used in our
+		// parent class, as the "real" upper boundary is defined by "upper_closed_".
+		if(lowerBoundary >= upperBoundary) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<fp_type>::GConstrainedFPT(lower,upper): Error!" << std::endl
+				  << "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
+				  << "upperBoundary = " << upperBoundary << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
 		// The upper boundary is not included for floating point values
 		if(val >= upperBoundary) {
 			std::ostringstream error;
-			error << "In GConstrainedFPT<T>::GConstrainedFPT(val,lower,upper): Error!" << std::endl
+			error << "In GConstrainedFPT<fp_type>::GConstrainedFPT(val,lower,upper): Error!" << std::endl
 				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
 				  << "lowerBoundary = " << lowerBoundary << std::endl
 				  << "upperBoundary = " << upperBoundary << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
+
+		// Assign a correct value to the upper_closed_ variable
+		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumT<fp_type>::getUpperBoundary());
 	}
 
 	/****************************************************************************/
@@ -162,10 +201,11 @@ public:
 	 * A standard copy constructor. Most work is done by the parent
 	 * classes, we only need to copy the allowed value range.
 	 *
-	 * @param cp Another GConstrainedNumT<T> object
+	 * @param cp Another GConstrainedNumT<fp_type> object
 	 */
-	GConstrainedFPT (const GConstrainedFPT<T>& cp)
-		: GConstrainedNumT<T>(cp)
+	GConstrainedFPT (const GConstrainedFPT<fp_type>& cp)
+		: GConstrainedNumT<fp_type>(cp)
+	    , upper_closed_(cp.upper_closed_)
 	{ /* nothing */ }
 
 	/****************************************************************************/
@@ -177,64 +217,40 @@ public:
 
 	/****************************************************************************/
 	/**
-	 * A standard assignment operator for GConstrainedFPT<T> objects
+	 * A standard assignment operator for GConstrainedFPT<fp_type> objects
 	 *
-	 * @param cp A constant reference to another GConstrainedFPT<T> object
+	 * @param cp A constant reference to another GConstrainedFPT<fp_type> object
 	 * @return A constant reference to this object
 	 */
-	const GConstrainedFPT<T>& operator= (const GConstrainedFPT<T>& cp) {
-		GConstrainedFPT<T>::load_(&cp);
+	const GConstrainedFPT<fp_type>& operator= (const GConstrainedFPT<fp_type>& cp) {
+		GConstrainedFPT<fp_type>::load_(&cp);
 		return *this;
-	}
-
-	/****************************************************************************/
-	/**
-	 * A standard assignment operator for T values. Note that this function
-	 * will throw an exception if the new value is not in the allowed value range.
-	 *
-	 * @param The desired new external value
-	 * @return The new external value of this object
-	 */
-	virtual T operator=(const T& val) {
-		// The upper boundary is not included for fp values. Hence
-		// we need to enforce a more stringent check than is used
-		// in GConstrainedNumT.
-		if(val >= GConstrainedNumT<T>::getUpperBoundary()) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<T>::operator=(val): Error!" << std::endl
-				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary = " << GConstrainedNumT<T>::getLowerBoundary() << std::endl
-				  << "upperBoundary = " << GConstrainedNumT<T>::getUpperBoundary() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-
-		return GConstrainedNumT<T>::operator=(val);
 	}
 
 	/****************************************************************************/
     /**
      * Checks equality of this object with another.
      *
-     * @param cp A constant reference to another GConstrainedFPT<T> object
+     * @param cp A constant reference to another GConstrainedFPT<fp_type> object
      * @return A boolean indicating whether both objects are equal
      */
-	bool operator==(const GConstrainedFPT<T>& cp) const {
+	bool operator==(const GConstrainedFPT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFPT<T>::operator==","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GConstrainedFPT<fp_type>::operator==","cp", CE_SILENT);
 	}
 
 	/****************************************************************************/
     /**
      * Checks inequality of this object with another.
      *
-     * @param cp A constant reference to another GConstrainedFPT<T> object
+     * @param cp A constant reference to another GConstrainedFPT<fp_type> object
      * @return A boolean indicating whether both objects are inequal
      */
-	bool operator!= (const GConstrainedFPT<T>& cp) const {
+	bool operator!= (const GConstrainedFPT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, as no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFPT<T>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GConstrainedFPT<fp_type>::operator!=","cp", CE_SILENT);
 	}
 
 	/****************************************************************************/
@@ -261,97 +277,176 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GConstrainedFPT<T>  *p_load = GObject::conversion_cast<GConstrainedFPT<T> >(&cp);
+		const GConstrainedFPT<fp_type>  *p_load = GObject::conversion_cast<GConstrainedFPT<fp_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GConstrainedNumT<T>::checkRelationshipWith(cp, e, limit, "GConstrainedFPT<T>", y_name, withMessages));
+		deviations.push_back(GConstrainedNumT<fp_type>::checkRelationshipWith(cp, e, limit, "GConstrainedFPT<fp_type>", y_name, withMessages));
 
-		// ... no local data
+		// ... and then our local data
+		deviations.push_back(checkExpectation(withMessages, "GConstrainedNumFPT<fp_type>", upper_closed_, p_load->upper_closed_, "upper_closed_", "p_load->upper_closed_", e , limit));
 
-		return evaluateDiscrepancies("GConstrainedFPT<T>", caller, deviations, e);
+		return evaluateDiscrepancies("GConstrainedFPT<fp_type>", caller, deviations, e);
 	}
 
 	/****************************************************************************/
 	/**
-	 * Sets the boundaries of this object and does corresponding
-	 * error checks. This is an overloaded function from the parent
-	 * class, which enforces a more stringent check, as the upper
-	 * boundary is not included for fp values.
+	 * A standard assignment operator for T values. Note that this function
+	 * will throw an exception if the new value is not in the allowed value range.
 	 *
-	 * @param lower The new lower boundary for this object
-	 * @param upper The new upper boundary for this object
+	 * @param The desired new external value
+	 * @return The new external value of this object
 	 */
-	virtual void setBoundaries(const T& lower, const T& upper) {
-		const T currentValue = GParameterT<T>::value();
-
-		// Check that the value is inside the allowed range
-		if(currentValue < lower || currentValue >= upper){
+	virtual fp_type operator=(const fp_type& val) {
+		// The upper boundary is not included for fp values. Hence
+		// we need to enforce a more stringent check than is used
+		// in GConstrainedNumT.
+		if(val >= GConstrainedNumT<fp_type>::getUpperBoundary()) {
 			std::ostringstream error;
-			error << "In GConstrainedFPT<T>::setBoundaries(const T&, const T&) : Error!" << std::endl
-				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
-				  << "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
-				  << "with existing value  " << currentValue << " outside of this range." << std::endl;
-
-			// throw an exception.
-			throw Gem::Common::gemfony_error_condition(error.str());
-		}
-
-		GConstrainedNumT<T>::setBoundaries(lower, upper);
-	}
-
-	/****************************************************************************/
-	/**
-	 * Allows to set the value. Sets the boundaries of this object and does corresponding
-	 * error checks. This is an overloaded function from the parent
-	 * class, which enforces a more stringent check, as the upper
-	 * boundary is not included for fp values.
-	 *
-	 * @param val The new T value stored in this class
-	 */
-	virtual void setValue(const T& val)  {
-		// Do some error checking
-		if(val < GConstrainedNumT<T>::getLowerBoundary() || val >= GConstrainedNumT<T>::getUpperBoundary()) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<T>::setValue(val): Error!" << std::endl
-				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary = " << GConstrainedNumT<T>::getLowerBoundary() << std::endl
-				  << "upperBoundary = " << GConstrainedNumT<T>::getUpperBoundary() << std::endl;
+			error << "In GConstrainedFPT<fp_type>::operator=(val): Error!" << std::endl
+				  << "Assigned value " << val << " is above upper boundary: " << std::endl
+				  << "upperBoundary = " << GConstrainedNumT<fp_type>::getUpperBoundary() << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		// O.k., set the value
-		GConstrainedNumT<T>::setValue(val);
+		return GConstrainedNumT<fp_type>::operator=(val);
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Throwing tested in GConstrainedFPT<fp_type>::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/****************************************************************************/
+	/**
+	 * Allows to set the value. Has the same constraints as the parent class'es function,
+	 * applies additional restrictions.
+	 *
+	 * @param val The new fp_type value stored in this class
+	 */
+	virtual void setValue(const fp_type& val)  {
+		// The upper boundary is not included for fp values. Hence
+		// we need to enforce a more stringent check than is used
+		// in GConstrainedNumT.
+		if(val >= GConstrainedNumT<fp_type>::getUpperBoundary()) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<fp_type>::setValue(val): Error!" << std::endl
+				  << "Assigned value " << val << " is >= upper boundary: " << std::endl
+				  << "upperBoundary = " << GConstrainedNumT<fp_type>::getUpperBoundary() << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		GConstrainedNumT<fp_type>::setValue(val);
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Throwing tested in GConstrainedFPT<fp_type>::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
 	 * Allows to set the value of this object together with its boundaries.
-	 * Sets the boundaries of this object and does corresponding error checks.
-	 * This is an overloaded function from the parent class, which enforces a
-	 * more stringent check, as the upper boundary is not included for fp values.
+	 * Has the same constraints as the parent class'es function, applies additional
+	 * restrictions.
 	 *
 	 * @param val The desired value of this object
 	 * @param lowerBoundary The lower boundary of the value range
 	 * @param upperBoundary The upper boundary of the value range
 	 */
-	virtual void setValue(const T& val, const T& lowerBoundary, const T& upperBoundary) {
-		// Is the desired new value in the allowed range ?
-		if(val < lowerBoundary || val >= upperBoundary) {
+	virtual void setValue(const fp_type& val, const fp_type& lowerBoundary, const fp_type& upperBoundary) {
+		// The following is a stronger requirement than used in our
+		// parent class, as the "real" upper boundary is defined by "upper_closed_".
+		if(lowerBoundary >= upperBoundary) {
 			std::ostringstream error;
-			error << "In GConstrainedFPT<T>::setValue(val,lower,upper): Error!" << std::endl
-				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary = " << lowerBoundary << std::endl
+			error << "In GConstrainedFPT<fp_type>::setValue(val, lower,upper): Error!" << std::endl
+				  << "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
 				  << "upperBoundary = " << upperBoundary << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		// O.k., set the value
-		GConstrainedNumT<T>::setValue(val);
+		// The upper boundary is not included for fp values. Hence
+		// we need to enforce a more stringent check than is used
+		// in GConstrainedNumT.
+		if(val >= upperBoundary) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<fp_type>::setValue(val, lower, upper): Error!" << std::endl
+				  << "Assigned value " << val << " is >= upper boundary: " << std::endl
+				  << "upperBoundary = " << upperBoundary << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		GConstrainedNumT<fp_type>::setValue(val, lowerBoundary, upperBoundary);
+
+		// Assign a correct value to the upper_closed_ variable
+		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumT<fp_type>::getUpperBoundary());
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Throwing tested in GConstrainedFPT<fp_type>::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/****************************************************************************/
+	/**
+	 * Sets the boundaries of this object. This function differs from the parent
+	 * class'es function in that it calculates an additional quantity, the closed
+	 * upper boundary (upper is assumed to be an open, i.e. non-inclusive boundary).
+	 *
+	 * @param lower The new lower boundary for this object
+	 * @param upper The new upper boundary for this object
+	 */
+	virtual void setBoundaries(const fp_type& lowerBoundary, const fp_type& upperBoundary) {
+		// The following is a stronger requirement than used in our
+		// parent class, as the "real" upper boundary is defined by "upper_closed_".
+		if(lowerBoundary >= upperBoundary) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<fp_type>::setValue(val, lower,upper): Error!" << std::endl
+				  << "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
+				  << "upperBoundary = " << upperBoundary << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// The upper boundary is not included for fp values. Hence
+		// we need to enforce a more stringent check than is used
+		// in GConstrainedNumT.
+		if(this->value() >= upperBoundary) {
+			std::ostringstream error;
+			error << "In GConstrainedFPT<fp_type>::setBoundaries(lower, upper): Error!" << std::endl
+				  << "Assigned value " << this->value() << " is >= upper boundary: " << std::endl
+				  << "upperBoundary = " << upperBoundary << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// Set the actual boundaries
+		GConstrainedNumT<fp_type>::setBoundaries(lowerBoundary, upperBoundary);
+
+		// Assign a correct value to the upper_closed_ variable
+		upper_closed_ = boost::math::float_prior<fp_type>(GConstrainedNumT<fp_type>::getUpperBoundary());
+	}
+
+	/****************************************************************************/
+	/**
+	 * Retrieves the value of the upper closed boundary. When an upper boundary is
+	 * assigned to this class, it is assumed to be an open boundary. Hence we need
+	 * to calculate a closed boundary, which is the largest representable fp value
+	 * below the assigned upper boundary. This function gives you access to it.
+	 *
+	 * @return The closed upper boundary
+	 */
+	fp_type getClosedUpperBoundary() const {
+		return upper_closed_;
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -360,10 +455,11 @@ public:
 	 * @param val The value to which the transformation should be applied
 	 * @return The transformed value
 	 */
-	virtual T transfer(const T& val) const {
-		// Find out the size of the confined area
+	virtual fp_type transfer(const fp_type& val) const {
+		fp_type lowerBoundary = GConstrainedNumT<fp_type>::getLowerBoundary();
+		fp_type upperBoundary = upper_closed_; // We want turning points to be at the next representable fp value below the assigned upper boundary
 
-		if(val >= GConstrainedNumT<T>::getLowerBoundary() && val < GConstrainedNumT<T>::getUpperBoundary()) {
+		if(val >= lowerBoundary && val < upperBoundary) {
 			return val;
 		}
 		else {
@@ -371,30 +467,33 @@ public:
 			// that should have been delivered with this software). Note that boost::numeric_cast<>
 			// may throw - exceptions must be caught in surrounding functions.
 			boost::int32_t region = 0.;
-			T lowerBoundary = GConstrainedNumT<T>::getLowerBoundary();
-			T upperBoundary = GConstrainedNumT<T>::getUpperBoundary();
 
 #ifdef DEBUG
-			region =	boost::numeric_cast<boost::int32_t>(Gem::Common::GFloor((T(val) - T(lowerBoundary)) / (T(upperBoundary) - T(lowerBoundary))));
+			region =	boost::numeric_cast<boost::int32_t>(Gem::Common::GFloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #else
-			region =	static_cast<boost::int32_t>(Gem::Common::GFloor((T(val) - T(lowerBoundary)) / (T(upperBoundary) - T(lowerBoundary))));
+			region =	static_cast<boost::int32_t>(Gem::Common::GFloor((fp_type(val) - fp_type(lowerBoundary)) / (fp_type(upperBoundary) - fp_type(lowerBoundary))));
 #endif
 
 			// Check whether we are in an odd or an even range and calculate the
 			// external value accordingly
-			T mapping = T(0.);
+			fp_type mapping = fp_type(0.);
 			if(region%2 == 0) { // can it be divided by 2 ? Region 0,2,... or a negative even range
-				mapping = val - T(region) * (GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary());
+				mapping = val - fp_type(region) * (upperBoundary - lowerBoundary);
 			} else { // Range 1,3,... or a negative odd range
-				mapping = -val + (T(region-1)*(GConstrainedNumT<T>::getUpperBoundary() - GConstrainedNumT<T>::getLowerBoundary()) + 2*GConstrainedNumT<T>::getUpperBoundary());
+				mapping = -val + (fp_type(region-1)*(upperBoundary - lowerBoundary) + 2*upperBoundary);
 			}
 
 			return mapping;
 		}
 
 		// Make the compiler happy
-		return T(0.);
+		return fp_type(0.);
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -408,8 +507,13 @@ public:
 	 */
 	virtual void fpFixedValueInit(const float& val)
 	{
-		GParameterT<T>::setValue(transfer(T(val)));
+		GParameterT<fp_type>::setValue(transfer(fp_type(val)));
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -419,8 +523,13 @@ public:
 	 * value range.
 	 */
 	virtual void fpMultiplyBy(const float& val) {
-		GParameterT<T>::setValue(transfer(T(val) * GParameterT<T>::value()));
+		GParameterT<fp_type>::setValue(transfer(fp_type(val) * GParameterT<fp_type>::value()));
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -433,8 +542,13 @@ public:
 	 * @param max The upper boundary for random number generation
 	 */
 	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
-		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * GParameterBase::gr->uniform_real(T(min), T(max))));
+		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * GParameterBase::gr->uniform_real(fp_type(min), fp_type(max))));
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -444,8 +558,13 @@ public:
 	 * value range.
 	 */
 	virtual void fpMultiplyByRandom() {
-		GParameterT<T>::setValue(transfer(GParameterT<T>::value() * GParameterBase::gr->uniform_01()));
+		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() * GParameterBase::gr->uniform_01()));
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -458,9 +577,14 @@ public:
 	 */
 	virtual void fpAdd(boost::shared_ptr<GParameterBase> p_base) {
 		// We first need to convert p_base into the local type
-		boost::shared_ptr<GConstrainedFPT<T> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<T> >(p_base);
-		GParameterT<T>::setValue(transfer(GParameterT<T>::value() + p->value()));
+		boost::shared_ptr<GConstrainedFPT<fp_type> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<fp_type> >(p_base);
+		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() + p->value()));
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/****************************************************************************/
 	/**
@@ -473,25 +597,31 @@ public:
 	 */
 	virtual void fpSubtract(boost::shared_ptr<GParameterBase> p_base) {
 		// We first need to convert p_base into the local type
-		boost::shared_ptr<GConstrainedFPT<T> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<T> >(p_base);
-		GParameterT<T>::setValue(transfer(GParameterT<T>::value() - p->value()));
+		boost::shared_ptr<GConstrainedFPT<fp_type> > p = GParameterBase::parameterbase_cast<GConstrainedFPT<fp_type> >(p_base);
+		GParameterT<fp_type>::setValue(transfer(GParameterT<fp_type>::value() - p->value()));
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 protected:
 	/****************************************************************************/
 	/**
-	 * Loads the data of another GConstrainedFPT<T>, camouflaged as a GObject.
+	 * Loads the data of another GConstrainedFPT<fp_type>, camouflaged as a GObject.
 	 *
-	 * @param cp Another GConstrainedFPT<T> object, camouflaged as a GObject
+	 * @param cp Another GConstrainedFPT<fp_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject *cp) {
 		// Convert GObject pointer to local format
-		const GConstrainedFPT<T> *p_load = GObject::conversion_cast<GConstrainedFPT<T> >(cp);
+		const GConstrainedFPT<fp_type> *p_load = GObject::conversion_cast<GConstrainedFPT<fp_type> >(cp);
 
 		// Load our parent class'es data ...
-		GConstrainedNumT<T>::load_(cp);
+		GConstrainedNumT<fp_type>::load_(cp);
 
-		// no local data
+		// ... and then our local data
+		upper_closed_ = p_load->upper_closed_;
 	}
 
 	/****************************************************************************/
@@ -503,10 +633,16 @@ protected:
 	 * Randomly initializes the parameter (within its limits)
 	 */
 	virtual void randomInit_() {
-		setValue(GParameterBase::gr->uniform_real(GConstrainedNumT<T>::getLowerBoundary(), GConstrainedNumT<T>::getUpperBoundary()));
+		this->setValue(GParameterBase::gr->uniform_real(GConstrainedNumT<fp_type>::getLowerBoundary(), GConstrainedNumT<fp_type>::getUpperBoundary()));
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 private:
+	fp_type upper_closed_; //< The next floating point value directly before an upper boundary
 
 #ifdef GENEVATESTING
 public:
@@ -520,7 +656,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GConstrainedNumT<T>::modify_GUnitTests()) result = true;
+		if(GConstrainedNumT<fp_type>::modify_GUnitTests()) result = true;
 
 		return result;
 	}
@@ -530,8 +666,407 @@ public:
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		// Some general settings
+		const std::size_t nTests = 10000;
+		const fp_type testVal = fp_type(42);
+		const fp_type testVal2 = fp_type(17);
+		const fp_type lowerBoundary = fp_type(0);
+		const fp_type upperBoundary = fp_type(100);
+		const fp_type lowerRandomBoundary = fp_type(-100000);
+		const fp_type upperRandomBoundary = fp_type( 100000);
+
 		// Call the parent classes' functions
-		GConstrainedNumT<T>::specificTestsNoFailureExpected_GUnitTests();
+		GConstrainedNumT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assignment of a value with operator= works both for set and unset boundaries
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Assign a value with operator=
+			BOOST_CHECK_NO_THROW(*p_test = testVal2);
+
+			// Check the value
+			BOOST_CHECK(p_test->value() == testVal2);
+
+			// Assign boundaries and values
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal2, lowerBoundary, upperBoundary));
+
+			// Check the value again
+			BOOST_CHECK(p_test->value() == testVal2);
+
+			// Assign a value with operator=
+			BOOST_CHECK_NO_THROW(*p_test = testVal);
+
+			// Check the value again, should have changed
+			BOOST_CHECK(p_test->value() == testVal);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting an upper boundary always results in a smaller upper_closed_ value
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Assign boundaries and values
+			BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(-1000.), fp_type(-1000.), fp_type(1000.)));
+
+			// Check the value returned by getClosedUpperBoundary
+			for(boost::int32_t i=-999.; i<999; i++) {
+				// Set a boundary
+				BOOST_CHECK_NO_THROW(p_test->setBoundaries(fp_type(-1000.), fp_type(i)));
+
+				// Will hold the upper boundary
+				fp_type upper = 0.;
+
+				// Check that the upper boundary has the expected value
+				BOOST_CHECK_NO_THROW(upper = p_test->GConstrainedNumT<fp_type>::getUpperBoundary());
+				BOOST_CHECK(upper == fp_type(i));
+
+				// Check that the value returned by getClosedUpperBoundary() is smaller than this value
+				BOOST_CHECK(p_test->getClosedUpperBoundary() < upper);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assignment of a value with setValue(val) works both for set and unset boundaries
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Assign a value
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal2));
+
+			// Check the value
+			BOOST_CHECK(p_test->value() == testVal2);
+
+			// Assign new boundaries
+			BOOST_CHECK_NO_THROW(p_test->setBoundaries(lowerBoundary, upperBoundary));
+
+			// Cross-check that boundaries are o.k.
+			BOOST_CHECK(p_test->getLowerBoundary() == lowerBoundary);
+			BOOST_CHECK(p_test->getUpperBoundary() == upperBoundary);
+
+			// Check the value again
+			BOOST_CHECK(p_test->value() == testVal2);
+
+			// Assign a new value
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal));
+
+			// Check the value again, should have changed
+			BOOST_CHECK(p_test->value() == testVal);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that simultaneous assignment of a valid value and boundaries works
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Assign boundaries and values
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+
+			// Cross-check that value and boundaries are o.k.
+			BOOST_CHECK(p_test->getLowerBoundary() == lowerBoundary);
+			BOOST_CHECK(p_test->getUpperBoundary() == upperBoundary);
+			BOOST_CHECK(p_test->value() == testVal);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check a number of times that calls to the transfer function do not lie outside of the allowed boundaries
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			fp_type result = 0.;
+			for(fp_type offset = fp_type(-100); offset < fp_type(100); offset += fp_type(10)) {
+				fp_type tmpLowerBoundary = lowerBoundary + offset;
+				fp_type tmpUpperBoundary = upperBoundary + offset;
+
+				// Assign valid boundaries and value
+				BOOST_CHECK_NO_THROW(p_test->setValue(tmpLowerBoundary, tmpLowerBoundary, tmpUpperBoundary));
+
+				for(std::size_t i=0; i<nTests; i++) {
+					fp_type randomValue = fp_type(GParameterBase::gr->uniform_real(lowerRandomBoundary, upperRandomBoundary));
+					BOOST_CHECK_NO_THROW(result = p_test->transfer(randomValue));
+					BOOST_CHECK_MESSAGE(
+							result >= tmpLowerBoundary && result < tmpUpperBoundary
+							,  "\n"
+							<< std::setprecision(6)
+							<< "randomValue = " << randomValue << "\n"
+							<< "after transfer = " << result << "\n"
+							<< "lowerBoundary = " << tmpLowerBoundary << "\n"
+							<< "upperBoundary = " << tmpUpperBoundary << "\n"
+					);
+				}
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test initialization with a single "fixed" value (chosen randomly in a given range)
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Assign a valid value and boundaries
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+
+			for(std::size_t i=0; i<nTests; i++) {
+				// Randomly initialize with a "fixed" value
+				BOOST_CHECK_NO_THROW(p_test->fpFixedValueInit(boost::numeric_cast<float>(GParameterBase::gr->uniform_real(lowerRandomBoundary, upperRandomBoundary))));
+
+				// Check that the external value is inside of the allowed value range
+				// Check that the value is still in the allowed range
+				BOOST_CHECK_MESSAGE(
+						p_test->value() >= lowerBoundary && p_test->value() < upperBoundary
+						,  "\n"
+						<< std::setprecision(10)
+						<< "p_test->value() = " << p_test->value() << "\n"
+						<< "lowerBoundary = " << lowerBoundary << "\n"
+						<< "upperBoundary = " << upperBoundary << "\n"
+				);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test multiplication with a single floating point value that won't make the internal value leave the boundaries
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Assign a value
+			BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(1), fp_type(0), fp_type(100)));
+
+			for(std::size_t i=1; i<99; i++) {
+				// Multiply by the counter variable
+				BOOST_CHECK_NO_THROW(p_test->fpMultiplyBy(fp_type(i)));
+
+				// Check that the external value is in the expected range
+				BOOST_CHECK_MESSAGE (
+						fabs(p_test->value() - fp_type(i)) < pow(10, -8)  // This also means that the value has changed from its start value 1
+						,  "\n"
+						<< std::setprecision(10)
+						<< "p_test->value() = " << p_test->value() << "\n"
+						<< "fp_type(i) = " << fp_type(i) << "\n"
+						<< "pow(10, -8) = " << pow(10, -8) << "\n"
+				);
+
+				// Check that the internal value is in the expected range
+				BOOST_CHECK_MESSAGE (
+						fabs(p_test->getInternalValue() - fp_type(i)) < pow(10, -8)
+						,  "\n"
+						<< std::setprecision(10)
+						<< "p_test->getInternalValue() = " << p_test->getInternalValue() << "\n"
+						<< "fp_type(i) = " << fp_type(i) << "\n"
+						<< "pow(10, -8) = " << pow(10, -8) << "\n"
+				);
+
+				// Reset the value
+				BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(1)));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+
+		{ // Test multiplication with a single floating point value that will make the internal value leave its boundaries
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Assign boundaries and values
+			BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(1), lowerBoundary, upperBoundary));
+
+			for(std::size_t i=0; i<nTests; i++) {
+				// Multiply with a random value in a very wide
+				BOOST_CHECK_NO_THROW(p_test->fpMultiplyBy(boost::numeric_cast<float>(GParameterBase::gr->uniform_real(lowerRandomBoundary, upperRandomBoundary))));
+
+				// Check that the value is still in the allowed range
+				BOOST_CHECK_MESSAGE(
+						p_test->value() >= lowerBoundary && p_test->value() < upperBoundary
+						,  "\n"
+						<< std::setprecision(10)
+						<< "p_test->value() = " << p_test->value() << "\n"
+						<< "lowerBoundary = " << lowerBoundary << "\n"
+						<< "upperBoundary = " << upperBoundary << "\n"
+				);
+
+				// Reset the value
+				BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(1)));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check multiplication with a random number in a wide range that might make the internal value leave its boundaries
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Assign boundaries and values
+			BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(1), lowerBoundary, upperBoundary));
+
+			for(std::size_t i=0; i<nTests; i++) {
+				// Multiply with a random value in a very wide
+				BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom(lowerRandomBoundary, upperRandomBoundary));
+
+				// Check that the value is still in the allowed range
+				BOOST_CHECK_MESSAGE(
+						p_test->value() >= lowerBoundary && p_test->value() < upperBoundary
+						,  "\n"
+						<< std::setprecision(10)
+						<< "p_test->value() = " << p_test->value() << "\n"
+						<< "lowerBoundary = " << lowerBoundary << "\n"
+						<< "upperBoundary = " << upperBoundary << "\n"
+				);
+
+				// Reset the value
+				BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(1)));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check multiplication with a random number in the range [0:1[. As the value used for the
+		  // basis of this multiplication is the lower boundary, multiplication will bring the internal
+		  // value outside of the external boundaries
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Assign boundaries and values
+			BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
+
+			for(std::size_t i=0; i<nTests; i++) {
+				// Multiply with a random value in a very wide
+				BOOST_CHECK_NO_THROW(p_test->fpMultiplyByRandom());
+
+				// Check that the value is still in the allowed range
+				BOOST_CHECK_MESSAGE(
+						p_test->value() >= lowerBoundary && p_test->value() < upperBoundary
+						,  "\n"
+						<< std::setprecision(10)
+						<< "p_test->value() = " << p_test->value() << "\n"
+						<< "lowerBoundary = " << lowerBoundary << "\n"
+						<< "upperBoundary = " << upperBoundary << "\n"
+				);
+
+				// Reset the value
+				BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test adding of objects with fpAdd. We try to stay inside of the value range
+			const fp_type lower = fp_type(-10000.), upper = fp_type(10000.);
+
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test1 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test2 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test1->resetBoundaries());
+
+			// Assign a value and boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setValue(lower, lower, upper));
+
+			// Load p_test1 into p_test2
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+			// Assign a value of 1 to p_test2
+			BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(fp_type(1.)));
+
+			fp_type currentVal = fp_type(-10000.);
+			for(boost::int32_t i=-9999; i<9999; i++) {
+				BOOST_CHECK_NO_THROW(p_test1->fpAdd(p_test2));
+				currentVal += fp_type(1.);
+				BOOST_CHECK(p_test1->value() == currentVal);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test subtraction of objects with fpSubtract. We try to stay inside of the value range
+			const fp_type lower = fp_type(-10000.), upper = fp_type(10000.);
+
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test1 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test2 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test1->resetBoundaries());
+
+			// Assign a value and boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setValue(upper - fp_type(1.), lower, upper));
+
+			// Load p_test1 into p_test2
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+			// Assign a value of 1 to p_test2
+			BOOST_CHECK_NO_THROW(p_test2->fpFixedValueInit(fp_type(1.)));
+
+			fp_type currentVal = fp_type(upper - fp_type(1));
+			for(boost::int32_t i=9999; i>=-9998; i--) {
+				BOOST_CHECK_NO_THROW(p_test1->fpSubtract(p_test2));
+				currentVal -= fp_type(1.);
+				BOOST_CHECK(p_test1->value() == currentVal);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test random initialization, as well as adding and subtraction of random values, which may leave the value range
+			const fp_type lower = fp_type(-10000.), upper = fp_type(10000.);
+
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test1 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test2 = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Assign a value and boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setValue(fp_type(0.), lower, upper));
+			BOOST_CHECK_NO_THROW(p_test2->setValue(fp_type(0.), lower, upper));
+
+			// Repeatedly add and subtract a randomly initialized p_test2 from p_test1
+			for(std::size_t i=0; i<nTests; i++) {
+				// Randomly initialize p_test2
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+
+				fp_type firstValue = p_test2->value();
+
+				// Inside of the allowed value range ?
+				BOOST_CHECK(firstValue >= lower);
+				BOOST_CHECK(firstValue  < upper);
+
+				// Add to p_test1
+				BOOST_CHECK_NO_THROW(p_test1->fpAdd(p_test2));
+
+				// Check that p_test1 is still inside of the allowed value range
+				BOOST_CHECK(p_test1->value() >= lower);
+				BOOST_CHECK(p_test1->value()  < upper);
+
+				// Randomly initialize p_test2 again
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_());
+
+				fp_type secondValue = p_test2->value();
+
+				// Inside of the allowed value range ?
+				BOOST_CHECK(secondValue >= lower);
+				BOOST_CHECK(secondValue  < upper);
+
+				// Has the value changed at all ?
+				BOOST_CHECK(firstValue != secondValue);
+
+				// Subtract from p_test1
+				BOOST_CHECK_NO_THROW(p_test1->fpSubtract(p_test2));
+
+				// Check that p_test1 is still inside of the allowed value range
+				BOOST_CHECK(p_test1->value() >= lower);
+				BOOST_CHECK(p_test1->value()  < upper);
+			}
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/****************************************************************************/
@@ -539,8 +1074,81 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+		// Some general settings
+		const fp_type testVal = fp_type(42);
+		const fp_type lowerBoundary = fp_type(0);
+		const fp_type upperBoundary = fp_type(100);
+
 		// Call the parent classes' functions
-		GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests();
+		GConstrainedNumT<fp_type>::specificTestsFailuresExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assignment of a value equal to the upper boundary with operator= throws
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Set value, upper and lower boundaries
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+
+			// Try to set a value equal to the upper boundary, should throw
+			BOOST_CHECK_THROW((*p_test) = upperBoundary, Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assignment of a value equal to the upper boundary with setValue(val, lower, upper) throws
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Set value, upper and lower boundaries; should throw, as value >= upperBoundary
+			BOOST_CHECK_THROW(p_test->setValue(upperBoundary, lowerBoundary, upperBoundary), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assignment of a value equal to the upper boundary with setValue() throws
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Set value, upper and lower boundaries
+			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
+
+			// Try to set a value equal to the upper boundary, should throw
+			BOOST_CHECK_THROW(p_test->setValue(upperBoundary), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting an upper boundary <= lower boundary with setBoundaries(lower, upper) throws
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Try to set an upper boundary == lower boundary
+			BOOST_CHECK_THROW(p_test->setBoundaries(lowerBoundary, lowerBoundary), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting an upper boundary <= lower boundary with setValue(val, lower, upper) throws
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Try to set an upper boundary == lower boundary
+			BOOST_CHECK_THROW(p_test->setValue(lowerBoundary, lowerBoundary, lowerBoundary), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 #endif /* GENEVATESTING */
@@ -554,10 +1162,10 @@ public:
 
 namespace boost {
 	namespace serialization {
-		template<typename T>
-		struct is_abstract<Gem::Geneva::GConstrainedFPT<T> > : public boost::true_type {};
-		template<typename T>
-		struct is_abstract< const Gem::Geneva::GConstrainedFPT<T> > : public boost::true_type {};
+		template<typename fp_type>
+		struct is_abstract<Gem::Geneva::GConstrainedFPT<fp_type> > : public boost::true_type {};
+		template<typename fp_type>
+		struct is_abstract< const Gem::Geneva::GConstrainedFPT<fp_type> > : public boost::true_type {};
 	}
 }
 

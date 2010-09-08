@@ -118,9 +118,6 @@ protected:
 	/** @brief Creates a deep clone of this object. */
 	virtual GObject* clone_() const;
 
-	/** @brief Triggers random initialization of the parameter object */
-	virtual void randomInit_();
-
 #ifdef GENEVATESTING
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
