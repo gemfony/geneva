@@ -5,7 +5,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 # Set the library/package version
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "8")
-SET(VERSION_PATCH "1")
+SET(VERSION_PATCH "2")
 
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
 # it was not deployed in one of the standard system locations. Otherwise,
@@ -67,7 +67,7 @@ ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 		ADD_DEFINITIONS ("-O3 -pthread")
 	ELSE() # e.g. g++
 		MESSAGE ("Using g++ compiler settings")
-		ADD_DEFINITIONS ("-O3 -pthread") #
+		ADD_DEFINITIONS ("-O3 -pthread")
 	ENDIF()
 ENDIF()
 

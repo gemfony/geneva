@@ -7,7 +7,7 @@ Wishlist for Version 0.9, yet unnamed, release-date unknown
  - Get rid of self-initialized singletons, in favor of a GInitialize/Finalize() function
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.8.2, yet unnamed, release-date unknown
+* Version 0.8.2, "Route De Broglie" - September 8, 2010
 
 The main changes for this release include:
  - Gave GParameterSet objects the ability to distribute its local random number
