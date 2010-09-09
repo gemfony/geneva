@@ -370,6 +370,7 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
+#ifdef DEBUG
 	{ // Test that retrieval of an empty adaptor throws in GParameterBaseWithAdaptorsT<T>::getAdaptor() (Note: This is the non-templated version of the function)
 		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
@@ -379,9 +380,11 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 
 		BOOST_CHECK_THROW(p_test->getAdaptor(), Gem::Common::gemfony_error_condition);
 	}
+#endif /* DEBUG */
 
 	//------------------------------------------------------------------------------
 
+#ifdef DEBUG
 	{ // Test that retrieval of an empty adaptor throws in GParameterBaseWithAdaptorsT<T>::getAdaptor<>() (Note: This is the templated version of the function)
 		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
@@ -391,6 +394,7 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 
 		BOOST_CHECK_THROW(p_test->getAdaptor<GDoubleGaussAdaptor>(), Gem::Common::gemfony_error_condition);
 	}
+#endif /* DEBUG */
 
 	// Note: Test for invalid conversion is done in GInt32Object
 

@@ -5,6 +5,12 @@ Wishlist for Version 0.9, yet unnamed, release-date unknown
  - Revision of broker infrastructure
  - Implementation of a GBoundedDoubleWithGaps
  - Get rid of self-initialized singletons, in favor of a GInitialize/Finalize() function
+ - Implement a GEvaluator module which centralizes parameter definition and evaluation
+
+//------------------------------------------------------------------------------------------------------
+* Version 0.8.3, yet unnamed, release-date unknown
+
+The main changes for this release include:
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.2, "Route De Broglie" - September 8, 2010

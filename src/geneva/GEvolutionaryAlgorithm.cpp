@@ -827,8 +827,10 @@ void GEvolutionaryAlgorithm::randomRecombine(boost::shared_ptr<GIndividual>& chi
 	} else {
 		// Choose a parent to be used for the recombination. Note that
 		// numeric_cast may throw. Exceptions need to be caught in surrounding functions.
-		// try/catch blocks would add a non-negligible overhead in this function.
-		parent_pos = boost::numeric_cast<std::size_t>(gr.uniform_int(nParents_));
+		// try/catch blocks would add a non-negligible overhead in this function. uniform_int(max)
+		// returns integer values in the range [0,max]. As we want to have values in the range
+		// 0,1, ... nParents_-1, we need to subtract one from the argument.
+		parent_pos = boost::numeric_cast<std::size_t>(gr.uniform_int(nParents_-1));
 	}
 
 	// Load the parent data into the individual

@@ -161,6 +161,14 @@ bool GRandomFactory::setStartSeed(const initial_seed_type& initial_seed) {
  * @return The value of the global start seed
  */
 boost::uint32_t GRandomFactory::getStartSeed() const {
+	// Initialize the generator if necessary
+	if(!seedManager_ptr_) { // double lock pattern
+		boost::mutex::scoped_lock lk(seedingMutex_);
+		if(!seedManager_ptr_) {
+			seedManager_ptr_ = boost::shared_ptr<Gem::Hap::GSeedManager>(new GSeedManager());
+		}
+	}
+
 	return seedManager_ptr_->getStartSeed();
 }
 
@@ -171,6 +179,14 @@ boost::uint32_t GRandomFactory::getStartSeed() const {
  * @return A boolean indicating whether seeding has already been initialized
  */
 bool GRandomFactory::checkSeedingIsInitialized() const {
+	// Initialize the generator if necessary
+	if(!seedManager_ptr_) { // double lock pattern
+		boost::mutex::scoped_lock lk(seedingMutex_);
+		if(!seedManager_ptr_) {
+			seedManager_ptr_ = boost::shared_ptr<Gem::Hap::GSeedManager>(new GSeedManager());
+		}
+	}
+
 	return seedManager_ptr_->checkSeedingIsInitialized();
 }
 

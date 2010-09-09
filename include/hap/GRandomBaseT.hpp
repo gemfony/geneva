@@ -368,7 +368,7 @@ public:
 	 *
 	 * @param min The minimum value of the range
 	 * @param max The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [min,max[
+	 * @return Discrete random numbers evenly distributed in the range [min,max]
 	 */
 	int_type uniform_int (
 			  const int_type& min
@@ -376,12 +376,12 @@ public:
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
 	) {
 #ifdef DEBUG
-		assert(max > min);
+		assert(max >= min);
 #endif /* DEBUG */
 
 		// A uniform distribution in the desired range. Note that boost::uniform_int produces
 		// random numbers up to and including its upper limit.
-		boost::uniform_int<int_type> ui(min, max-1);
+		boost::uniform_int<int_type> ui(min, max);
 
 		// A generator that binds together our own random number generator and a uniform_int distribution
 		boost::variate_generator<Gem::Hap::GRandomBaseT<fp_type, int_type>&, boost::uniform_int<int_type> > boost_uniform_int(*this, ui);
@@ -394,7 +394,7 @@ public:
 	 * This function produces integer random numbers in the range of [0, max] .
 	 *
 	 * @param max The maximum (excluded) value of the range
-	 * @return Discrete random numbers evenly distributed in the range [0,max[
+	 * @return Discrete random numbers evenly distributed in the range [0,max]
 	 */
 	int_type uniform_int (
 			  const int_type& max
@@ -419,14 +419,14 @@ public:
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
 	) {
 #ifdef DEBUG
-		assert(max > min);
+		assert(max >= min);
 #endif /* DEBUG */
 
 		// A uniform distribution in the desired range. Note that boost::uniform_int produces
 		// random numbers up to and including its upper limit.
-		boost::uniform_smallint<int_type> ui(min, max-1);
+		boost::uniform_smallint<int_type> ui(min, max);
 
-		// A generator that binds together our own random number generator and a uniform_int distribution
+		// A generator that binds together our own random number generator and a uniform_smallint distribution
 		boost::variate_generator<Gem::Hap::GRandomBaseT<fp_type, int_type>&, boost::uniform_smallint<int_type> > boost_uniform_smallint(*this, ui);
 
 		return boost_uniform_smallint();
@@ -445,6 +445,10 @@ public:
 			  const int_type& max
 			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
 	) {
+#ifdef DEBUG
+		assert(max >= 0);
+#endif /* DEBUG */
+
 		return uniform_smallint(0, max);
 	}
 

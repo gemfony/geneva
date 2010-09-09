@@ -257,9 +257,8 @@ protected:
 		int_type lowerBoundary = GNumT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumT<int_type>::getUpperInitBoundary();
 
-		// uniform_int produces random numbers that exclude the upper boundary. Hence we need to
-		// add 1 for initializations to happen in the expected range.
-		GParameterT<int_type>::setValue(GParameterBase::gr->uniform_int(lowerBoundary, upperBoundary+1));
+		// uniform_int produces random numbers that include the upper boundary.
+		GParameterT<int_type>::setValue(GParameterBase::gr->uniform_int(lowerBoundary, upperBoundary));
 	}
 
 	/* ----------------------------------------------------------------------------------

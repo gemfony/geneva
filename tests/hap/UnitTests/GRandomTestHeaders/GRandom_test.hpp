@@ -62,7 +62,7 @@ public:
 	/***********************************************************************************/
 	// The default constructor
 	GRandom_test():
-		NRNR(100000)
+		nTests(100000)
 	{ /* empty */ }
 
 	/***********************************************************************************/
@@ -70,104 +70,351 @@ public:
 	void no_failure_expected() {
 		using namespace Gem::Hap;
 
-		const boost::uint32_t startSeed = 41;
-		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == false);
+		//------------------------------------------------------------------------------
 
-		// Check that we can set and retrieve the current seed
-		bool seedSetSuccess = GRANDOMFACTORY->setStartSeed(startSeed);
-		BOOST_CHECK(seedSetSuccess == true);
-		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == false); // The thread hasn't started yet
-		boost::uint32_t  testSeed = GRANDOMFACTORY->getStartSeed();
-		BOOST_CHECK_MESSAGE(testSeed == startSeed, "testSeed = " << testSeed << ", should be " << startSeed);
+		{ // Check seeding
+			// Check that we can set and retrieve the current seed. This needs to be the first test
+			const boost::uint32_t startSeed = 41;
+			bool seedSetSuccess;
+			BOOST_CHECK_NO_THROW(seedSetSuccess = GRANDOMFACTORY->setStartSeed(startSeed));
+			BOOST_CHECK(seedSetSuccess == true);
+			BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == true); // The seeding thread should have been started
+			boost::uint32_t testSeed;
+			BOOST_CHECK_NO_THROW(testSeed = GRANDOMFACTORY->getStartSeed());
+			BOOST_CHECK_MESSAGE(testSeed == startSeed, "testSeed = " << testSeed << ", should be " << startSeed);
 
-		// Retrieve a single seed and check that the seeding thread has started
-		boost::uint32_t singleSeed = GRANDOMFACTORY->getSeed();
-		BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == true);
-		BOOST_CHECK(singleSeed != startSeed);
-
-		// Check that seeding creates different values during every call for a predefined number of calls
-		std::size_t seedingQueueSize = GRANDOMFACTORY->getSeedingQueueSize();
-		std::vector<boost::uint32_t> seedVec(static_cast<boost::uint32_t>(seedingQueueSize));
-		for(std::size_t i=0; i<seedingQueueSize; i++) {
-			seedVec.at(i) = GRANDOMFACTORY->getSeed();
-		}
-		std::sort(seedVec.begin(), seedVec.end());
-		for(std::size_t i=1; i<seedingQueueSize; i++) {
-			BOOST_CHECK(seedVec.at(i) > seedVec.at(i-1));
+			// Retrieve a single seed and check that the seeding thread has started
+			boost::uint32_t singleSeed;
+			BOOST_CHECK_NO_THROW(singleSeed = GRANDOMFACTORY->getSeed());
+			BOOST_CHECK(GRANDOMFACTORY->checkSeedingIsInitialized() == true);
+			BOOST_CHECK(singleSeed != startSeed);
 		}
 
-		/*
-		GRandomT<RANDOMLOCAL> gr1, gr2, gr3;
-		boost::shared_ptr<GRandomBase> gr4_ptr(new GRandom());
+		//------------------------------------------------------------------------------
 
-		// Make gr1 and gr2 use the random factory
-		BOOST_CHECK_NO_THROW(gr1.setRNRFactoryMode());
-		BOOST_CHECK_NO_THROW(gr2.setRNRFactoryMode());
+		{ // Test that uniform_int(min,max) covers the entire range, including the upper boundary in RANDOMLOCAL mode
+			// A few settings
+			const boost::int32_t MINRANDOM=-10;
+			const boost::int32_t MAXRANDOM= 10;
 
-		// gr1 and gr2 should have received different start seeds
-		boost::uint32_t seed1, seed2;
-		seed1 = gr1.getSeed();
-		seed2 = gr2.getSeed();
-		BOOST_CHECK_MESSAGE(seed1 != seed2, "Error: Found equal seeds: " << seed1 << " " << seed2);
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
 
-		// Check that we can set gr3's production flags and can produce a number of random numbers
-		gr3.setRNRFactoryMode();
-		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Hap::RNRFACTORY);
-		double last = -1., now=0.;
-		for(std::size_t i=0; i<NRNR; i++) {
-			now = gr3.evenRandom();
-			BOOST_CHECK_MESSAGE(now != last, "Found equal random numbers(1)" << last << " " << now);
-			last = now;
-		}
-		gr3.setRNRLocalMode();
-		BOOST_CHECK(gr3.getRnrGenerationMode () == Gem::Hap::RNRLOCAL);
-		last = -1., now=0.;
-		for(std::size_t i=0; i<NRNR; i++) {
-			now = gr3.evenRandom();
-			BOOST_CHECK_MESSAGE(now != last, "Found equal random numbers(1)" << last << " " << now);
-			last = now;
-		}
+			std::vector<boost::int32_t> randomHist(21); // 21 positions from -10 to 10
 
-		// Check that two objects emit different values
-		const std::size_t arraySize=10;
-		std::vector<boost::int32_t> intRnr1, intRnr2;
-		for(std::size_t i=0; i<arraySize; i++) {
-			intRnr1.push_back(gr1.discreteRandom(-10,10));
-			intRnr2.push_back(gr2.discreteRandom(-10,10));
-		}
-		BOOST_CHECK(intRnr1 != intRnr2);
+			// Initialize with 0
+			for(std::size_t i=0; i<21; i++) randomHist.at(i) = 0;
 
-		std::vector<double> dRnr1, dRnr2;
-		for(std::size_t i=0; i<arraySize; i++) {
-			dRnr1.push_back(gr1.evenRandom(-10.,10.));
-			dRnr2.push_back(gr2.evenRandom(-10.,10.));
-		}
-		BOOST_CHECK(dRnr1 != dRnr2);
+			for(std::size_t i=0; i<nTests; i++) {
+				boost::int32_t randVal;
 
-		// Check that "ranged" distributions never fall outside of the desired range
-		for(std::size_t i=0; i<NRNR; i++) {
-			boost::int32_t irnr = gr1.discreteRandom<boost::int32_t>(-10,15);
-			double drnr = gr1.evenRandom(-10.,15.);
-			BOOST_CHECK(irnr >= -10 && irnr <15); // note the "<" . We want to check that the upper boundary is not reached
-			BOOST_CHECK(drnr >= -10. && drnr <= 15.);
+				// Produce a single random number
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(MINRANDOM, MAXRANDOM));
+
+				// Is it in the allowed range ?
+				BOOST_CHECK(randVal >= MINRANDOM && randVal <= MAXRANDOM);
+
+				// Add the value to the vector
+				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal+10)) += 1);
+			}
+
+			// Due to the large number of entries, we should have > 0 entries in all positions
+			for(std::size_t i=0; i<21; i++) {
+				BOOST_CHECK(randomHist.at(i) > 0);
+			}
 		}
 
-		// Check that it is possible to use GRandom objects as producers
-		// for boost's random number distributions
-		boost::uniform_int<> dist(1, 6);
-		boost::variate_generator<Gem::Hap::GRandom&, boost::uniform_int<> > die(gr1, dist);
-		for(std::size_t i=0; i<NRNR; i++) {
-			double drnr = die();
-			BOOST_CHECK(drnr >= 1 && drnr <= 6);
+		//------------------------------------------------------------------------------
+
+		{ // Test that uniform_int(min,max) covers the entire range, including the upper boundary in RANDOMPROXY mode
+			// A few settings
+			const boost::int32_t MINRANDOM=-10;
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+
+			std::vector<boost::int32_t> randomHist(21); // 21 positions from -10 to 10
+
+			// Initialize with 0
+			for(std::size_t i=0; i<21; i++) randomHist.at(i) = 0;
+
+			for(std::size_t i=0; i<nTests; i++) {
+				boost::int32_t randVal;
+
+				// Produce a single random number
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(MINRANDOM, MAXRANDOM));
+
+				// Is it in the allowed range ?
+				BOOST_CHECK(randVal >= MINRANDOM && randVal <= MAXRANDOM);
+
+				// Add the value to the vector
+				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal+10)) += 1);
+			}
+
+			// Due to the large number of entries, we should have > 0 entries in all positions
+			for(std::size_t i=0; i<21; i++) {
+				BOOST_CHECK(randomHist.at(i) > 0);
+			}
 		}
-		*/
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that uniform_int(max) covers the entire range, including the upper boundary in RANDOMLOCAL mode
+			// A few settings
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+
+			std::vector<boost::int32_t> randomHist(11); // 11 positions from 0 to 10
+
+			// Initialize with 0
+			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
+
+			for(std::size_t i=0; i<nTests; i++) {
+				boost::int32_t randVal;
+
+				// Produce a single random number
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(MAXRANDOM));
+
+				// Is it in the allowed range ?
+				BOOST_CHECK(randVal >= 0 && randVal <= MAXRANDOM);
+
+				// Add the value to the vector
+				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal)) += 1);
+			}
+
+			// Due to the large number of entries, we should have > 0 entries in all positions
+			for(std::size_t i=0; i<11; i++) {
+				BOOST_CHECK(randomHist.at(i) > 0);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that uniform_int(max) covers the entire range, including the upper boundary in RANDOMPROXy mode
+			// A few settings
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+
+			std::vector<boost::int32_t> randomHist(11); // 11 positions from 0 to 10
+
+			// Initialize with 0
+			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
+
+			for(std::size_t i=0; i<nTests; i++) {
+				boost::int32_t randVal;
+
+				// Produce a single random number
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(MAXRANDOM));
+
+				// Is it in the allowed range ?
+				BOOST_CHECK(randVal >= 0 && randVal <= MAXRANDOM);
+
+				// Add the value to the vector
+				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal)) += 1);
+			}
+
+			// Due to the large number of entries, we should have > 0 entries in all positions
+			for(std::size_t i=0; i<11; i++) {
+				BOOST_CHECK(randomHist.at(i) > 0);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in RAMDOMLOCAL mode
+			// A few settings
+			const boost::int32_t MINRANDOM=-10;
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+
+			volatile boost::int32_t randVal;
+			for(std::size_t i=0; i<nTests; i++) {
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(-std::numeric_limits<boost::int32_t>::max(), std::numeric_limits<boost::int32_t>::max()));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that using extreme values for the boundaries of uniform_int(min,max) and producing random numbers doesn't throw in RAMDOMPROXY mode
+			// A few settings
+			const boost::int32_t MINRANDOM=-10;
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+
+			volatile boost::int32_t randVal;
+			for(std::size_t i=0; i<nTests; i++) {
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(-std::numeric_limits<boost::int32_t>::max(), std::numeric_limits<boost::int32_t>::max()));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that using extreme values for the boundaries of uniform_int(max) and producing random numbers doesn't throw in RAMDOMLOCAL mode
+			// A few settings
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+
+			volatile boost::int32_t randVal;
+			for(std::size_t i=0; i<nTests; i++) {
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(std::numeric_limits<boost::int32_t>::max()));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that using extreme values for the boundaries of uniform_int(max) and producing random numbers doesn't throw in RAMDOMPROXY mode
+			// A few settings
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+
+			volatile boost::int32_t randVal;
+			for(std::size_t i=0; i<nTests; i++) {
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_int(std::numeric_limits<boost::int32_t>::max()));
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that uniform_smallint(min,max) covers the entire range, including the upper boundary in RANDOMLOCAL mode
+			// A few settings
+			const boost::int32_t MINRANDOM=-10;
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+
+			std::vector<boost::int32_t> randomHist(21); // 21 positions from -10 to 10
+
+			// Initialize with 0
+			for(std::size_t i=0; i<21; i++) randomHist.at(i) = 0;
+
+			for(std::size_t i=0; i<nTests; i++) {
+				boost::int32_t randVal;
+
+				// Produce a single random number
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_smallint(MINRANDOM, MAXRANDOM));
+
+				// Is it in the allowed range ?
+				BOOST_CHECK(randVal >= MINRANDOM && randVal <= MAXRANDOM);
+
+				// Add the value to the vector
+				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal+10)) += 1);
+			}
+
+			// Due to the large number of entries, we should have > 0 entries in all positions
+			for(std::size_t i=0; i<21; i++) {
+				BOOST_CHECK(randomHist.at(i) > 0);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that uniform_smallint(min,max) covers the entire range, including the upper boundary in RANDOMPROXY mode
+			// A few settings
+			const boost::int32_t MINRANDOM=-10;
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+
+			std::vector<boost::int32_t> randomHist(21); // 21 positions from -10 to 10
+
+			// Initialize with 0
+			for(std::size_t i=0; i<21; i++) randomHist.at(i) = 0;
+
+			for(std::size_t i=0; i<nTests; i++) {
+				boost::int32_t randVal;
+
+				// Produce a single random number
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_smallint(MINRANDOM, MAXRANDOM));
+
+				// Is it in the allowed range ?
+				BOOST_CHECK(randVal >= MINRANDOM && randVal <= MAXRANDOM);
+
+				// Add the value to the vector
+				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal+10)) += 1);
+			}
+
+			// Due to the large number of entries, we should have > 0 entries in all positions
+			for(std::size_t i=0; i<21; i++) {
+				BOOST_CHECK(randomHist.at(i) > 0);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that uniform_smallint(max) covers the entire range, including the upper boundary in RANDOMLOCAL mode
+			// A few settings
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMLOCAL, double, boost::int32_t>());
+
+			std::vector<boost::int32_t> randomHist(11); // 11 positions from 0 to 10
+
+			// Initialize with 0
+			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
+
+			for(std::size_t i=0; i<nTests; i++) {
+				boost::int32_t randVal;
+
+				// Produce a single random number
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_smallint(MAXRANDOM));
+
+				// Is it in the allowed range ?
+				BOOST_CHECK(randVal >= 0 && randVal <= MAXRANDOM);
+
+				// Add the value to the vector
+				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal)) += 1);
+			}
+
+			// Due to the large number of entries, we should have > 0 entries in all positions
+			for(std::size_t i=0; i<11; i++) {
+				BOOST_CHECK(randomHist.at(i) > 0);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that uniform_smallint(max) covers the entire range, including the upper boundary in RANDOMPROXy mode
+			// A few settings
+			const boost::int32_t MAXRANDOM= 10;
+
+			boost::shared_ptr<GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t> > gr_ptr(new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>());
+
+			std::vector<boost::int32_t> randomHist(11); // 11 positions from 0 to 10
+
+			// Initialize with 0
+			for(std::size_t i=0; i<11; i++) randomHist.at(i) = 0;
+
+			for(std::size_t i=0; i<nTests; i++) {
+				boost::int32_t randVal;
+
+				// Produce a single random number
+				BOOST_CHECK_NO_THROW(randVal = gr_ptr->uniform_smallint(MAXRANDOM));
+
+				// Is it in the allowed range ?
+				BOOST_CHECK(randVal >= 0 && randVal <= MAXRANDOM);
+
+				// Add the value to the vector
+				BOOST_CHECK_NO_THROW(randomHist.at(std::size_t(randVal)) += 1);
+			}
+
+			// Due to the large number of entries, we should have > 0 entries in all positions
+			for(std::size_t i=0; i<11; i++) {
+				BOOST_CHECK(randomHist.at(i) > 0);
+			}
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/***********************************************************************************/
 	// Test features that are expected to fail
 	void failures_expected() {
-		{
-			// Test (as the very last test) that multiple creation of GRandomFactory throws.
+		{ // Test (as the very last test) that multiple creation of GRandomFactory throws.
 			// Note that one instance of GRandomFactory should already be running, simply by virtue of
 			// the inclusion of the GRandom header file.
 			BOOST_CHECK_THROW(boost::shared_ptr<GRandomFactory>(new GRandomFactory()), Gem::Common::gemfony_error_condition);
@@ -176,7 +423,7 @@ public:
 
 	/***********************************************************************************/
 private:
-	const std::size_t NRNR;
+	const std::size_t nTests;
 };
 
 /********************************************************************************************/

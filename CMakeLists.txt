@@ -54,8 +54,8 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 	ELSE() # e.g. g++
 	    MESSAGE ("Using g++ compiler settings")
-		# ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
-		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread")
+		# ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
+		ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -ansi -pthread")
 	ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 	MESSAGE ("========================")
@@ -67,9 +67,13 @@ ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
 		ADD_DEFINITIONS ("-O3 -pthread")
 	ELSE() # e.g. g++
 		MESSAGE ("Using g++ compiler settings")
-		ADD_DEFINITIONS ("-O3 -pthread")
+		ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -O3 -pthread")
+		# ADD_DEFINITIONS ("-fno-unsafe-math-optimizations -fno-finite-math-only -g -O0 -pthread")
 	ENDIF()
 ENDIF()
+
+# Note: -fno-unsafe-math-optimizations -fno-finite-math-only prevent false optimization of some critical
+# code in GRandomBaseT inside uniform_real().
 
 # Set the library type to shared by default
 IF( NOT GENEVA_STATIC )

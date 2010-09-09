@@ -129,7 +129,8 @@ public:
 	)
 		: GNumCollectionT<int_type>(min, max)
 	{
-		for(std::size_t i= 0; i<nval; i++) this->push_back(GParameterBase::gr->uniform_int(min,max+1)); // Note the +1 (cross-check!)
+		// uniform_int produces random numbers that include the upper boundary
+		for(std::size_t i= 0; i<nval; i++) this->push_back(GParameterBase::gr->uniform_int(min,max));
 	}
 
 	/*************************************************************************************/
@@ -243,7 +244,7 @@ protected:
 	 */
 	void randomInit_() {
 		int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
-		int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary()+1;
+		int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary();
 
 		typename GIntNumCollectionT<int_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {

@@ -114,7 +114,7 @@ namespace Hap {
  * geometry of the quality surface adds to the randomness.
  */
 class GRandomFactory {
-	typedef boost::lagged_fibonacci1279 lagged_fibonacci;
+	typedef boost::lagged_fibonacci19937 lagged_fibonacci;
 
 public:
 	/** @brief The default constructor */
@@ -172,9 +172,9 @@ private:
 
 	boost::mutex thread_creation_mutex_; ///< Synchronization of access to the threadsHaveBeenStarted_ variable
 	mutable boost::mutex arraySizeMutex_; ///< Regulates access to the arraySize_ variable
-	boost::mutex seedingMutex_; ///< Regulates start-up of the seeding process
+	mutable boost::mutex seedingMutex_; ///< Regulates start-up of the seeding process
 
-	boost::shared_ptr<GSeedManager> seedManager_ptr_; ///< Manages seed creation
+	mutable boost::shared_ptr<GSeedManager> seedManager_ptr_; ///< Manages seed creation
 };
 
 } /* namespace Hap */

@@ -324,6 +324,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
+#ifdef DEBUG
 	{ // Check that retrieval of the adaptor with simultaneous conversion to an incorrect target type throws (Test of GParameterBaseWithAdaptorsT<T> functions)
 		boost::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
 
@@ -336,6 +337,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 		// Attempted conversion to an invalid target type should throw
 		BOOST_CHECK_THROW(p_test->getAdaptor<GInt32FlipAdaptor>(), Gem::Common::gemfony_error_condition);
 	}
+#endif /* DEBUG */
 
 	//------------------------------------------------------------------------------
 

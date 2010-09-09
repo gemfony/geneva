@@ -591,10 +591,11 @@ public:
 			// We have no local adaptor, so trying to call the applyAdaptor() function should throw in DEBUG mode
 			BOOST_CHECK_THROW(p_test->applyAdaptor(testVal), Gem::Common::gemfony_error_condition);
 		}
-#endif
+#endif /* DEBUG */
 
 		//------------------------------------------------------------------------------
 
+#ifdef DEBUG
 		{ // Test that trying to call applyAdaptor(collection) with no adaptor present throws
 			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
 
@@ -607,6 +608,7 @@ public:
 			// We have no local adaptor, so trying to call the applyAdaptor(collection) function should throw
 			BOOST_CHECK_THROW(p_test->applyAdaptor(testVec), Gem::Common::gemfony_error_condition);
 		}
+#endif /* DEBUG */
 
 		//------------------------------------------------------------------------------
 	}
