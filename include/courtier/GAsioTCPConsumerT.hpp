@@ -76,7 +76,7 @@
 #include "hap/GRandomT.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GBrokerT.hpp"
-#include "GCommunicationEnums.hpp"
+#include "GCourtierEnums.hpp"
 #include "GConsumer.hpp"
 
 namespace Gem

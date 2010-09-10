@@ -67,7 +67,7 @@
 #include "hap/GRandomT.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GBaseClientT.hpp"
-#include "GCommunicationEnums.hpp"
+#include "GCourtierEnums.hpp"
 
 namespace Gem
 {

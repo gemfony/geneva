@@ -69,7 +69,7 @@
 
 // Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "GCommunicationEnums.hpp"
+#include "GCourtierEnums.hpp"
 
 namespace Gem
 {

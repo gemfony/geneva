@@ -8,7 +8,7 @@ SET ( COMMUNICATIONINCLUDES
 	GBoostThreadConsumerT.hpp
 	GBrokerT.hpp
 	GBufferPortT.hpp
-	GCommunicationEnums.hpp
+	GCourtierEnums.hpp
 	GConsumer.hpp
 )
 

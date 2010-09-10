@@ -1,5 +1,5 @@
 /**
- * @file GCommunicationEnums.hpp
+ * @file GCourtierEnums.hpp
  */
 
 /*
@@ -43,8 +43,8 @@
 
 #include <boost/cstdint.hpp>
 
-#ifndef GCOMMUNICATIONENUMS_HPP_
-#define GCOMMUNICATIONENUMS_HPP_
+#ifndef GCOURTIERENUMS_HPP_
+#define GCOURTIERENUMS_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -68,4 +68,4 @@ const std::size_t COMMANDLENGTH=64;
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GCOMMUNICATIONENUMS_HPP_ */
+#endif /* GCOURTIERENUMS_HPP_ */

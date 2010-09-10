@@ -11,6 +11,7 @@ Wishlist for Version 0.9, yet unnamed, release-date unknown
 * Version 0.8.3, yet unnamed, release-date unknown
 
 The main changes for this release include:
+ - Renamed GCommunicationEnums to GCourtierEnums for greater consistency with the library name.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.2, "Route De Broglie" - September 8, 2010
