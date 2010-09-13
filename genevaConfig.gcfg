@@ -29,10 +29,12 @@
 # as needed.
 
 CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
-BOOSTROOT="/opt/boost143"                 # Where Boost is installed
+BOOSTROOT="/opt/boost"                    # Where Boost is installed
 BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
 BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
 BUILDMODE="Release"                       # Release or Debug
-VERBOSEMAKEFILE="1"                       # Whether compilation information should be emitted
-INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
 BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
+BUILDPCH="0"                              # Whether to use pre-compiled headers if possible (GCC4+ only)
+                                          #   Beware of the huge space requirement, many GB!!
+VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
+INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go

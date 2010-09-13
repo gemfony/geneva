@@ -26,9 +26,9 @@
 ####################################################################
 # This script is a wrapper around the rather complicated cmake call,
 # allowing you to permanently specify some options you'd otherwise
-# have to provide repeatedly on the command line. Call the script 
+# have to provide repeatedly on the command line. Call the script
 # with a file setting the variables below. See the Geneva root dir
-# for an example (genevaConfig.gcfg). Config files need to end with 
+# for an example (genevaConfig.gcfg). Config files need to end with
 # .gcfg
 ####################################################################
 #!/bin/bash
@@ -41,11 +41,13 @@ if [ $# -eq 0 ]; then
 	echo -e "an example (genevaConfig.gcfg).\n"
 
 	CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
-	BOOSTROOT="/opt/boost142"                 # Where Boost is installed
+	BOOSTROOT="/opt/boost"                    # Where Boost is installed
 	BOOSTLIBS="${BOOSTROOT}/lib"              # Where the Boost libraries are
 	BOOSTINCL="${BOOSTROOT}/include/boost"    # Where the Boost headers are
 	BUILDMODE="Release"                       # Release or Debug
-	VERBOSEMAKEFILE="1"                       # Whether compilation information should be emitted
+	BUILDTESTCODE="0"                         # Whether to build Geneva with testing code
+	BUILDPCH="0"                              # Whether to use pre-compiled headers if possible
+	VERBOSEMAKEFILE="0"                       # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"                  # Where the Geneva library shall go
 elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
@@ -55,13 +57,13 @@ elif [ $# -eq 1 ]; then
 		echo "end in .gcfg as expected. Tested with ${testfile}. Leaving."
 		exit
 	fi
-	
+
 	# Check that the file exists
 	if [ ! -e $1 ]; then
 		echo "Error: File $1 does not seem to exist. Leaving"
 		exit
 	fi
-	
+
 	# Source the config file
 	echo -e "\nUsing configuration file $1"
 	. $1
@@ -95,14 +97,26 @@ if [ ! "${BUILDMODE}" = "Release" -a ! "${BUILDMODE}" = "Debug" ]; then
 	exit
 fi
 
-if [ ! "${VERBOSEMAKEFILE}" = "1" -a ! "${VERBOSEMAKEFILE}" = "0" ]; then
+if [ ! "${BUILDTESTCODE}" = "0" -a ! "${BUILDTESTCODE}" = "1" ]; then
+	echo "Error: Variable BUILDTESTCODE must be 0 or 1. Got ${BUILDTESTCODE}"
+	echo "Leaving"
+	exit
+fi
+
+if [ ! "${BUILDPCH}" = "0" -a ! "${BUILDPCH}" = "1" ]; then
+	echo "Error: Variable BUILDPCH must be 0 or 1. Got ${BUILDPCH}"
+	echo "Leaving"
+	exit
+fi
+
+if [ ! "${VERBOSEMAKEFILE}" = "0" -a ! "${VERBOSEMAKEFILE}" = "1" ]; then
 	echo "Error: Variable VERBOSEMAKEFILE must be 0 or 1. Got ${VERBOSEMAKEFILE}"
-	echo "Leaving."
+	echo "Leaving"
 	exit
 fi
 
 ####################################################################
-# Find out where this script is located and whether there is a 
+# Find out where this script is located and whether there is a
 # CMakeLists.txt file in the same directory. We then assume that
 # this is the project root, as it should be.
 PROJECTROOT=`dirname $0`
@@ -114,7 +128,7 @@ fi
 
 ####################################################################
 # Do the actual call to cmake
-CONFIGURE="${CMAKE} -DBOOST_ROOT=${BOOSTROOT} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} -DBUILDTESTCODE=${BUILDTESTCODE} ${PROJECTROOT}"
+CONFIGURE="${CMAKE} -DBOOST_ROOT=${BOOSTROOT} -DBOOST_LIBRARYDIR=${BOOSTLIBS} -DBOOST_INCLUDEDIR=${BOOSTINCL} -DGENEVA_BUILD_TYPE=${BUILDMODE} -DBUILDTESTCODE=${BUILDTESTCODE} -DBUILDPCH=${BUILDPCH} -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} ${PROJECTROOT}"
 
 echo -e "\nConfiguring with command: \"${CONFIGURE}\"\n"
 ${CONFIGURE}
