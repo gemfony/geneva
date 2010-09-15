@@ -222,6 +222,10 @@ void GConstrainedInt32Object::randomInit_() {
 	GConstrainedIntT<boost::int32_t>::randomInit_();
 }
 
+/* ----------------------------------------------------------------------------------
+ * Tested in GConstrainedIntT<int_type>::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 #ifdef GENEVATESTING
 

@@ -183,8 +183,61 @@ bool GDoubleObjectCollection::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+	// Some settings
+	const std::size_t nAddedObjects = 10;
+
 	// Call the parent class'es function
 	GParameterTCollectionT<GDoubleObject>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Test the GParameterTCollectionT<T>::adaptImpl() implementation
+		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		boost::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+
+		// Clear p_test1, so we can start fresh
+		BOOST_CHECK_NO_THROW(p_test1->clear());
+
+		// Add GDoubleObject items with adaptors to p_test1
+		for(std::size_t i=0; i<nAddedObjects; i++) {
+			// Create a suitable adaptor
+			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+			gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+			gdga_ptr->setAdaptionMode(true); // Always adapt
+
+			// Create a suitable GDoubleObject object
+			boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(-100., 100.)); // Initialization in the range -100, 100
+
+			// Add the adaptor
+			gdo_ptr->addAdaptor(gdga_ptr);
+
+			// Randomly initialize the GDoubleObject object, so it is unique
+			gdo_ptr->randomInit();
+
+			// Add the object to the collection
+			p_test1->push_back(gdo_ptr);
+		}
+
+	    // Load the p_test1 data into p_test2
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+		// Check that both objects are identical
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Modify p_test2 using its adaptImpl function
+		BOOST_CHECK_NO_THROW(p_test2->adaptImpl());
+
+		// Check that both objects differ
+		// Check that both objects are identical
+		BOOST_CHECK(*p_test1 != *p_test2);
+
+		// All items in the collection must have been modified individually
+		for(std::size_t i=0; i<nAddedObjects; i++) {
+			BOOST_CHECK(*(p_test1->at(i)) != *(p_test2->at(i)));
+		}
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /*******************************************************************************************/
@@ -192,8 +245,93 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
 void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+	// Some settings
+	const std::size_t nAddedObjects = 10;
+
 	// Call the parent class'es function
 	GParameterTCollectionT<GDoubleObject>::specificTestsFailuresExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that fpAdd throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpAdd() )
+		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		boost::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+
+		// Clear p_test1 and p_test2, so we can start fresh
+		BOOST_CHECK_NO_THROW(p_test1->clear());
+		BOOST_CHECK_NO_THROW(p_test2->clear());
+
+		// Add GDoubleObject items with adaptors to p_test1
+		for(std::size_t i=0; i<nAddedObjects; i++) {
+			// Create a suitable adaptor
+			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+			gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+			gdga_ptr->setAdaptionMode(true); // Always adapt
+
+			// Create a suitable GDoubleObject object
+			boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(-100., 100.)); // Initialization in the range -100, 100
+
+			// Add the adaptor
+			gdo_ptr->addAdaptor(gdga_ptr);
+
+			// Randomly initialize the GDoubleObject object, so it is unique
+			gdo_ptr->randomInit();
+
+			// Add the object to the collection
+			p_test1->push_back(gdo_ptr);
+		}
+
+		// Check that both objects are in-equal
+		BOOST_CHECK(*p_test1 != *p_test2);
+
+		// Check that the sizes differ
+		BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
+
+		// Adding p_test2 to p_test1 should throw
+		BOOST_CHECK_THROW(p_test1->fpAdd(p_test1), Gem::Common::gemfony_error_condition);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that fpSubtract throws if an item of invalid size is added (Test of GParameterTCollectionT<T>::fpSubtract() )
+		boost::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
+		boost::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
+
+		// Clear p_test1 and p_test2, so we can start fresh
+		BOOST_CHECK_NO_THROW(p_test1->clear());
+		BOOST_CHECK_NO_THROW(p_test2->clear());
+
+		// Add GDoubleObject items with adaptors to p_test1
+		for(std::size_t i=0; i<nAddedObjects; i++) {
+			// Create a suitable adaptor
+			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0));
+			gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
+			gdga_ptr->setAdaptionMode(true); // Always adapt
+
+			// Create a suitable GDoubleObject object
+			boost::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(-100., 100.)); // Initialization in the range -100, 100
+
+			// Add the adaptor
+			gdo_ptr->addAdaptor(gdga_ptr);
+
+			// Randomly initialize the GDoubleObject object, so it is unique
+			gdo_ptr->randomInit();
+
+			// Add the object to the collection
+			p_test1->push_back(gdo_ptr);
+		}
+
+		// Check that both objects are in-equal
+		BOOST_CHECK(*p_test1 != *p_test2);
+
+		// Check that the sizes differ
+		BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
+
+		// Adding p_test2 to p_test1 should throw
+		BOOST_CHECK_THROW(p_test1->fpSubtract(p_test1), Gem::Common::gemfony_error_condition);
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /*******************************************************************************************/

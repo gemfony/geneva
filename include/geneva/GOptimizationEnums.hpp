@@ -29,12 +29,11 @@
  * http://www.gemfony.com .
  */
 
-
-
 // Standard headers go here
 #include <string>
 #include <ostream>
 #include <istream>
+#include <limits>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -42,6 +41,7 @@
 // Boost headers go here
 
 #include <boost/cstdint.hpp>
+#include <boost/limits.hpp>
 #include <boost/logic/tribool.hpp>
 
 #ifndef GOPTIMIZATIONENUMS_HPP_
@@ -57,6 +57,22 @@
 
 namespace Gem {
 namespace Geneva {
+
+/**********************************************************************************************/
+/**
+ * The default maximum value for constrained double values. It needs to be smaller
+ * than the maximum allowed value for the underlying type in order to allow statements like
+ * (max - min) without leaving the allowed value range.
+ */
+const double MAXCONSTRAINEDDOUBLE = std::numeric_limits<double>::max()/10.;
+
+/**********************************************************************************************/
+/**
+ * The default maximum value for constrained boost::int32_t values. It needs to be smaller
+ * than the maximum allowed value for the underlying type in order to allow statements like
+ * (max - min) without leaving the allowed value range.
+ */
+const boost::int32_t MAXCONSTRAINEDINT32 = std::numeric_limits<boost::int32_t>::max()/10;
 
 /**********************************************************************************************/
 /**

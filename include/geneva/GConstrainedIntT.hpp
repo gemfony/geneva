@@ -72,12 +72,12 @@ namespace Geneva
 /******************************************************************************/
 /* The GConstrainedIntT class represents an integer type, such as an int or a long,
  * equipped with the ability to adapt itself. The value range can have an upper and a lower
- * limit.  Adapted values will only appear inside the given range to the user. Note that
- * appropriate adaptors (see e.g the GInt32FlipAdaptor class) need to be loaded in order
- * to benefit from the adaption capabilities. Both boundaries are inclusive, i.e.
- * [lower:upper]. We currently only allow signed integers, as a mapping takes place from
+ * limit, both are included in the allowed value range.  Adapted values will only appear
+ * in the given range to the user. Note that appropriate adaptors (see e.g the
+ * GInt32FlipAdaptor class) need to be loaded in order to benefit from the adaption
+ * capabilities. We currently only allow signed integers, as a mapping takes place from
  * internal to external value, and both are required to be of the same type at the moment.
- * Signed integers as types are enforced using the Boost.Concept library.
+ * Signed integers as types are enforced using Boost's concept checks.
  */
 template <typename int_type>
 class GConstrainedIntT
@@ -95,7 +95,7 @@ class GConstrainedIntT
 	}
 	///////////////////////////////////////////////////////////////////////
 
-	// Make sure this class can only be instantiated if int_type is *signed* integer type
+	// Make sure this class can only be instantiated if int_type is a *signed* integer type
 	BOOST_CONCEPT_ASSERT((boost::SignedInteger<int_type>));
 
 public:
@@ -359,9 +359,6 @@ private:
 	 * Reverts the value to descending order. Note: No check is made whether the value
 	 * is indeed in the allowed region.
 	 *
-	 * TODO: NOTE: This function does not currently take into account very large value ranges,
-	 * where value - lowerBoundary might be undefined.
-	 *
 	 * @param value The value to be reverted
 	 * @return The reverted value
 	 */
@@ -499,8 +496,81 @@ public:
 
 		//------------------------------------------------------------------------------
 
+		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimit<T>) with the setValue(val, lower, upper) function throws
+			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Check that the boundaries have the expected values
+			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<int_type>::max());
+			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
+
+			// Try to set a boundary to a bad value
+			BOOST_CHECK_THROW(p_test->setValue(0, 0, std::numeric_limits<int_type>::max()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimit<T>)  with the setValue(val, lower, upper) function throws
+			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Check that the boundaries have the expected values
+			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<int_type>::max());
+			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
+
+			// Try to set a boundary to a bad value
+			BOOST_CHECK_THROW(p_test->setValue(0, -std::numeric_limits<int_type>::max(), 100), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimit<T>) with the setBoundaries(lower, upper) function throws
+			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Check that the boundaries have the expected values
+			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<int_type>::max());
+			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
+
+			// Try to set a boundary to a bad value
+			BOOST_CHECK_THROW(p_test->setBoundaries(0, std::numeric_limits<int_type>::max()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimit<T>) with the setBoundaries(lower, upper) function throws
+			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Check that the boundaries have the expected values
+			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<int_type>::max());
+			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<int_type>::max());
+
+			// Try to set a boundary to a bad value
+			BOOST_CHECK_THROW(p_test->setBoundaries(-std::numeric_limits<int_type>::max(), 100), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
 		{ // Test reversion of order
 			boost::shared_ptr<GConstrainedIntT<int_type> > p_test = this->GObject::clone<GConstrainedIntT<int_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			for(int_type i=1; i<100; i++) {
+				int_type probe = GParameterBase::gr->uniform_int(i,2*i);
+				BOOST_CHECK_NO_THROW(p_test->setValue(probe, i, 2*i));
+				BOOST_CHECK(p_test->revert(probe) == p_test->getUpperBoundary() - (probe - p_test->getLowerBoundary()));
+			}
 		}
 
 		//------------------------------------------------------------------------------

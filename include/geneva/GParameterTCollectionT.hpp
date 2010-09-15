@@ -136,6 +136,33 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Checks for equality with another GParameterTCollectionT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
+	 * @return A boolean indicating whether both objects are equal
+	 */
+	bool operator==(const GParameterTCollectionT<T>& cp) const {
+		using namespace Gem::Common;
+		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GParameterTCollectionT<T>::operator==","cp", CE_SILENT);
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Checks for inequality with another GParameterTCollectionT<T> object
+	 *
+	 * @param  cp A constant reference to another GParameterTCollectionT<T> object
+	 * @return A boolean indicating whether both objects are inequal
+	 */
+	bool operator!=(const GParameterTCollectionT<T>& cp) const {
+		using namespace Gem::Common;
+		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GParameterTCollectionT<T>::operator==","cp", CE_SILENT);
+	}
+
+
+	/*******************************************************************************************/
+	/**
 	 * Checks whether a given expectation for the relationship between this object and another object
 	 * is fulfilled.
 	 *
@@ -184,39 +211,10 @@ public:
 		}
 	}
 
-	/*******************************************************************************************/
-	/**
-	 * Swap another object's vector with ours
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
 	 */
-	inline void swap(GParameterTCollectionT<T>& cp) {
-		GStdPtrVectorInterfaceT<T>::swap(cp.data);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Compares another vector object with ours.
-	 *
-	 * TODO: Attention: is GStdPtrVectorInterfaceT<T>::operator==(cp_data) defined ??
-	 */
-	bool operator==(const std::vector<boost::shared_ptr<T> >& cp_data) {
-		return GStdPtrVectorInterfaceT<T>::operator==(cp_data);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Compares another vector object with ours
-	 */
-	bool operator!=(const std::vector<boost::shared_ptr<T> >& cp_data) {
-		return GStdPtrVectorInterfaceT<T>::operator!=(cp_data);
-	}
-
-	/*******************************************************************************************/
-	/**
-	 * Assign another vector object to ours
-	 */
-	const std::vector<boost::shared_ptr<T> >& operator=(const std::vector<boost::shared_ptr<T> >& cp_data) {
-		return GStdPtrVectorInterfaceT<T>::operator=(cp_data);
-	}
 
 	/*******************************************************************************************/
 	/**
@@ -232,6 +230,11 @@ public:
 		}
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in most-derived classes
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/*******************************************************************************************/
 	/**
 	 * Multiplies floating-point-based parameters with a given value.
@@ -244,6 +247,11 @@ public:
 			(*it)->fpMultiplyBy(val);
 		}
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in most-derived classes
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**
@@ -259,6 +267,11 @@ public:
 		}
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in most-derived classes
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/*******************************************************************************************/
 	/**
 	 * Multiplies with a random floating point number in the range [0, 1[.
@@ -269,6 +282,11 @@ public:
 			(*it)->fpMultiplyByRandom();
 		}
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in most-derived classes
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**
@@ -296,6 +314,12 @@ public:
 		}
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in most-derived classes
+	 * Throw due to invalid size tested in GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/*******************************************************************************************/
 	/**
 	 * Subtracts the floating point parameters of another GParameterTCollectionT object from this one.
@@ -321,6 +345,12 @@ public:
 			(*it)->fpSubtract(*it_p);
 		}
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in most-derived classes
+	 * Throw due to invalid size tested in GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 	/*******************************************************************************************/
 	/**

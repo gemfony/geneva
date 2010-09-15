@@ -52,6 +52,8 @@
 #include <boost/logic/tribool.hpp>
 #include <boost/date_time.hpp>
 #include <boost/variant.hpp>
+#include <boost/limits.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GHELPERFUNCTIONST_HPP_
 #define GHELPERFUNCTIONST_HPP_

@@ -17,6 +17,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GConstrainedIntT.hpp
 #	GConstrainedNumCollectionT.hpp
 	GConstrainedNumT.hpp
+	GConstrainedValueLimit.hpp
 	GDoubleCollection.hpp
 	GDoubleGaussAdaptor.hpp
 	GDoubleObject.hpp

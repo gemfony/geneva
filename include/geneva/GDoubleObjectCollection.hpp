@@ -46,6 +46,7 @@
 
 // Geneva header files go here
 #include "GDoubleObject.hpp"
+#include "GDoubleGaussAdaptor.hpp"
 #include "GParameterTCollectionT.hpp"
 
 namespace Gem {

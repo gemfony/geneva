@@ -1149,6 +1149,70 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimit<T>) with the setValue(val, lower, upper) function throws
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Check that the boundaries have the expected values
+			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<fp_type>::max());
+			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<fp_type>::max());
+
+			// Try to set a boundary to a bad value
+			BOOST_CHECK_THROW(p_test->setValue(lowerBoundary, lowerBoundary, std::numeric_limits<fp_type>::max()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimit<T>)  with the setValue(val, lower, upper) function throws
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Check that the boundaries have the expected values
+			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<fp_type>::max());
+			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<fp_type>::max());
+
+			// Try to set a boundary to a bad value
+			BOOST_CHECK_THROW(p_test->setValue(0., -std::numeric_limits<fp_type>::max(), upperBoundary), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting an upper boundary larger than the allowed value (see GConstrainedValueLimit<T>) with the setBoundaries(lower, upper) function throws
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Check that the boundaries have the expected values
+			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<fp_type>::max());
+			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<fp_type>::max());
+
+			// Try to set a boundary to a bad value
+			BOOST_CHECK_THROW(p_test->setBoundaries(lowerBoundary, std::numeric_limits<fp_type>::max()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that setting a lower boundary smaller than the allowed value (see GConstrainedValueLimit<T>) with the setBoundaries(lower, upper) function throws
+			boost::shared_ptr<GConstrainedFPT<fp_type> > p_test = this->GObject::clone<GConstrainedFPT<fp_type> >();
+
+			// Reset the boundaries so we are free to do what we want
+			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
+
+			// Check that the boundaries have the expected values
+			BOOST_CHECK(p_test->getLowerBoundary() == -GConstrainedValueLimit<fp_type>::max());
+			BOOST_CHECK(p_test->getUpperBoundary() ==  GConstrainedValueLimit<fp_type>::max());
+
+			// Try to set a boundary to a bad value
+			BOOST_CHECK_THROW(p_test->setBoundaries(-std::numeric_limits<fp_type>::max(), upperBoundary), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 #endif /* GENEVATESTING */
