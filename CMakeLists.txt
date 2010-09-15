@@ -28,6 +28,7 @@ ENDIF()
 
 # Make sure we first check our local modules directory
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+INCLUDE("PCHSupport")
 
 # Set the build type to Debug by default or in case GENEVA_BUILD_TYPE
 # was set to Debug. Set it to Release if GENEVA_BUILD_TYPE was set
