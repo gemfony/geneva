@@ -55,6 +55,12 @@
 // Geneva header files go here
 #include "GParameterBase.hpp"
 #include "GParameterTCollectionT.hpp"
+#include "GBooleanAdaptor.hpp"
+#include "GDoubleGaussAdaptor.hpp"
+#include "GInt32GaussAdaptor.hpp"
+#include "GBooleanObject.hpp"
+#include "GInt32Object.hpp"
+#include "GDoubleObject.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -108,6 +114,8 @@ protected:
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
+	/** @brief Fills the collection with GParameterBase objects */
+	void fillWithObjects();
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */

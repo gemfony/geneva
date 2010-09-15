@@ -48,6 +48,7 @@
 // Geneva header files go here
 #include "GBooleanObject.hpp"
 #include "GParameterTCollectionT.hpp"
+#include "GBooleanAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -101,6 +102,8 @@ protected:
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
+	/** @brief Fills the collection with GBooleanObject objects */
+	void fillWithObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */

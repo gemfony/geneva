@@ -102,10 +102,7 @@ public:
 	 *
 	 * @param val The value used for the initialization
 	 */
-	explicit GNumT(
-			const T& val
-			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
-	)
+	explicit GNumT(const T& val)
 		: GParameterT<T>(val)
 		, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
 		, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
@@ -113,22 +110,17 @@ public:
 
 	/******************************************************************/
 	/**
-	 * Initialize with a random value within given boundaries
+	 * Initialize the boundaries. The internal value will be
+	 * initialized with the lower boundary.
 	 *
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumT(
-			const T& min
-			, const T& max
-			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
-	)
-		: GParameterT<T> ()
+	GNumT(const T& min, const T& max)
+		: GParameterT<T> (min)
 		, lowerInitBoundary_(min)
 		, upperInitBoundary_(max)
-	{
-		GParameterBase::randomInit();
-	}
+	{ /* nothing */ }
 
 	/******************************************************************/
 	/**
@@ -238,11 +230,7 @@ public:
 	 * @param lowerInitBoundary The lower boundary for random initialization
 	 * @param upperInitBoundary The upper boundary for random initialization
 	 */
-	void setInitBoundaries(
-			const T& lowerInitBoundary
-			, const T& upperInitBoundary
-			, typename boost::enable_if<boost::is_arithmetic<T> >::type* dummy = 0
-	) {
+	void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {
 			std::ostringstream error;

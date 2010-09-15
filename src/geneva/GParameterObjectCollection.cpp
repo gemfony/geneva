@@ -180,6 +180,21 @@ bool GParameterObjectCollection::modify_GUnitTests() {
 
 /*******************************************************************************************/
 /**
+ * Fills the collection with GParameterBase derivatives
+ */
+void GParameterObjectCollection::fillWithObjects() {
+	// Clear the collection, so we can start fresh
+	BOOST_CHECK_NO_THROW(this->clear());
+
+	// Add a GBooleanObject object
+
+	// Add a GInt32 object
+
+	// Add a GDouble object
+}
+
+/*******************************************************************************************/
+/**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {

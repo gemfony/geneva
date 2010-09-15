@@ -182,11 +182,99 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
 
 /*******************************************************************************************/
 /**
+ * Fills the collection with GBooleanObject objects
+ */
+void GBooleanObjectCollection::fillWithObjects(const std::size_t& nAddedObjects) {
+	// Clear the collection, so we can start fresh
+	BOOST_CHECK_NO_THROW(this->clear());
+
+	// Add GBooleanObject items with adaptors to p_test1
+	for(std::size_t i=0; i<nAddedObjects; i++) {
+		// Create a suitable adaptor
+		boost::shared_ptr<GBooleanAdaptor> gba_ptr;
+
+		BOOST_CHECK_NO_THROW(gba_ptr = boost::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
+		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
+		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionMode(true)); // Always adapt
+
+		// Create a suitable GBooleanObject object
+		boost::shared_ptr<GBooleanObject> gbo_ptr;
+
+		BOOST_CHECK_NO_THROW(gbo_ptr = boost::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
+
+		// Add the adaptor
+		BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
+
+		// Randomly initialize the GBooleanObject object, so it is unique
+		BOOST_CHECK_NO_THROW(gbo_ptr->randomInit());
+
+		// Add the object to the collection
+		BOOST_CHECK_NO_THROW(this->push_back(gbo_ptr));
+	}
+}
+
+/*******************************************************************************************/
+/**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+	// Some settings
+	const std::size_t nAddedObjects = 10;
+	const std::size_t nTests = 100;
+	const double LOWERINITBOUNDARY = -10;
+	const double UPPERINITBOUNDARY =  10;
+	const double FIXEDVALUEINIT = 1.;
+	const double MULTVALUE = 3.;
+	const double RANDLOWERBOUNDARY = 0.;
+	const double RANDUPPERBOUNDARY = 10.;
+
 	// Call the parent class'es function
 	GParameterTCollectionT<GBooleanObject>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that the fp-family of functions has no effect on this object (and contained objects)
+		boost::shared_ptr<GBooleanObjectCollection> p_test1 = this->clone<GBooleanObjectCollection>();
+		boost::shared_ptr<GBooleanObjectCollection> p_test2 = this->clone<GBooleanObjectCollection>();
+
+		// Fill p_test1 with objects
+		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+
+		// Make sure it has the expected size
+		BOOST_CHECK(p_test1->size() == nAddedObjects);
+
+		// Load the data into p_test2
+		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+
+		// Check that both items are identical
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Try to add a fixed fp value to p_test1 and check whether it has changed
+		BOOST_CHECK_NO_THROW(p_test1->fpFixedValueInit(FIXEDVALUEINIT));
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Try to multiply p_test1 with a fixed fp value and check whether it has changed
+		BOOST_CHECK_NO_THROW(p_test1->fpMultiplyBy(MULTVALUE));
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Try to multiply p_test1 with a random fp value in a given range and check whether it has changed
+		BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY));
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Try to multiply p_test1 with a random fp value in the range [0,1[ and check whether it has changed
+		BOOST_CHECK_NO_THROW(p_test1->fpMultiplyByRandom());
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Try to add p_test2 to p_test1 and see whether it has changed
+		BOOST_CHECK_NO_THROW(p_test1->fpAdd(p_test2));
+		BOOST_CHECK(*p_test1 == *p_test2);
+
+		// Try to subtract p_test2 from p_test1 and see whether it has changed
+		BOOST_CHECK_NO_THROW(p_test1->fpSubtract(p_test2));
+		BOOST_CHECK(*p_test1 == *p_test2);
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /*******************************************************************************************/

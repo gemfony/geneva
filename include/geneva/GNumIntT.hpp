@@ -42,6 +42,7 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/concept_check.hpp>
 
 #ifndef GNUMINTT_HPP_
 #define GNUMINTT_HPP_
@@ -82,6 +83,9 @@ class GNumIntT
 	}
 	///////////////////////////////////////////////////////////////////////
 
+	// Make sure this class can only be instantiated if int_type is a *signed* integer type
+	BOOST_CONCEPT_ASSERT((boost::SignedInteger<int_type>));
+
 public:
 	/** @brief Specifies the type of parameters stored in this object */
 	typedef int_type parameter_type;
@@ -110,27 +114,24 @@ public:
 	 *
 	 * @param val The value used for the initialization
 	 */
-	explicit GNumIntT(
-			const int_type& val
-			, typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
-	)
+	explicit GNumIntT(const int_type& val)
 		: GNumT<int_type>(val)
 	{ /* nothing */ }
 
 	/******************************************************************/
 	/**
-	 * Initialization by random number in a given range
+	 * Initialization by random number in a given range. Note that we
+	 * use the local randomInit_ function in order to avoid trying to
+	 * call any purely virtual functions from the constructor.
 	 *
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumIntT(
-			const int_type& min
-		  ,	const int_type& max
-		  , typename boost::enable_if<boost::is_integral<int_type> >::type* dummy = 0
-	)
+	GNumIntT(const int_type& min,	const int_type& max)
 		: GNumT<int_type> (min, max)
-	{ /* nothing */ }
+	{
+		GNumIntT<int_type>::randomInit_();
+	}
 
 	/******************************************************************/
 	/**

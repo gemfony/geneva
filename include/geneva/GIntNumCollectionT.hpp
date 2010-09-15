@@ -44,6 +44,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/cast.hpp>
+#include <boost/concept_check.hpp>
 
 #ifndef GINTNUMCOLLECTIONT_HPP_
 #define GINTNUMCOLLECTIONT_HPP_
@@ -79,6 +80,9 @@ class GIntNumCollectionT
 	  ar & make_nvp("GNumCollectionT_intType", boost::serialization::base_object<GNumCollectionT<int_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
+
+	// Make sure this class can only be instantiated if int_type is a *signed* integer type
+	BOOST_CONCEPT_ASSERT((boost::SignedInteger<int_type>));
 
 public:
 	/*************************************************************************************/

@@ -46,6 +46,7 @@
 #include <geneva/GEvolutionaryAlgorithm.hpp>
 #include <geneva/GIndividual.hpp>
 #include <geneva/GMultiThreadedEA.hpp>
+#include <geneva/GDoubleObject.hpp>
 
 // The individual that should be optimized
 #include "GFunctionIndividual.hpp"

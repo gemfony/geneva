@@ -99,28 +99,24 @@ public:
 	 *
 	 * @param val The value used for the initialization
 	 */
-	explicit GNumFPT(
-			const fp_type& val
-			, typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
-	)
+	explicit GNumFPT(const fp_type& val)
 		: GNumT<fp_type>(val)
 	{ /* nothing */ }
 
 	/******************************************************************/
 	/**
-	 * Initialize with a random value within given boundaries. Random
-	 * initialization is handled by GNumT<fp_type>
+	 * Initialize with a random value within given boundaries. Note that
+	 * we use the local randomInit_ function in order not to call any
+	 * purely virtual functions.
 	 *
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
 	 */
-	GNumFPT(
-			const fp_type& min
-			, const fp_type& max
-			, typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
-	)
+	GNumFPT(const fp_type& min, const fp_type& max)
 		: GNumT<fp_type> (min, max)
-	{ /* nothing */ }
+	{
+		GNumFPT<fp_type>::randomInit_();
+	}
 
 	/******************************************************************/
 	/**
