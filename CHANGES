@@ -1,7 +1,6 @@
 //------------------------------------------------------------------------------------------------------
-Wishlist for Version 0.9, yet unnamed, release-date unknown
+Wishlist for Version 1.0, yet unnamed, release-date unknown
  - Full documentation
- - Full test coverage
  - Revision of broker infrastructure
  - Implementation of a GBoundedDoubleWithGaps
  - Get rid of self-initialized singletons, in favor of a GInitialize/Finalize() function
@@ -12,6 +11,11 @@ Wishlist for Version 0.9, yet unnamed, release-date unknown
 
 The main changes for this release include:
  - Renamed GCommunicationEnums to GCourtierEnums for greater consistency with the library name.
+ - Completed the unit tests for data types (GParameterBase derivatives, adaptors, GParameterSet 
+   and related classes). From the optimization-related classes only the algorithms are still
+   lacking complete unit test coverage. However, through their heavy use in the actual optimization
+   problems they are nevertheless quite well tested. Corresponding tests will be added when the 
+   need arises or time permits.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.2, "Route De Broglie" - September 8, 2010
