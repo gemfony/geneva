@@ -57,6 +57,7 @@
 // Geneva header files go here
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GDoubleCollection.hpp"
+#include "geneva/GDoubleObject.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
@@ -315,9 +316,51 @@ public:
 
 	/******************************************************************/
 	/**
+	 * Adds a number of GDoubleObject objects to the individual
+	 *
+	 * @param nItems The number of items to be added
+	 */
+	void addGDoubleObjects(const std::size_t& nItems) {
+		using namespace Gem::Geneva;
+
+		// Clear the collection, so we can start fresh
+		BOOST_CHECK_NO_THROW(this->clear());
+
+		// Add GDoubleObject items with adaptors to p_test1
+		for(std::size_t i=0; i<nItems; i++) {
+			// Create a suitable adaptor
+			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr;
+
+			BOOST_CHECK_NO_THROW(gdga_ptr = boost::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.5, 0.8, 0., 2., 1.0)));
+			BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(0)); // Make sure the adaptor's internal parameters don't change through the adaption
+			BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(true)); // Always adapt
+
+			// Create a suitable GDoubleObject object
+			boost::shared_ptr<GDoubleObject> gdo_ptr;
+
+			BOOST_CHECK_NO_THROW(gdo_ptr = boost::shared_ptr<GDoubleObject>(new GDoubleObject(-100., 100.))); // Initialization in the range -100, 100
+
+			// Add the adaptor
+			BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
+
+			// Randomly initialize the GDoubleObject object, so it is unique
+			BOOST_CHECK_NO_THROW(gdo_ptr->randomInit());
+
+			// Add the object to the collection
+			BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
+		}
+	}
+
+	/******************************************************************/
+	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
+		using namespace Gem::Geneva;
+
+		// A few settings
+		const std::size_t nItems = 100;
+
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -692,6 +735,176 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+		{ // Test resize_clone, resize_noclone, finding and counting of items (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Initialize with a fixed value
+			BOOST_CHECK_NO_THROW(p_test->fpFixedValueInit(42.));
+
+			// Check the current size
+			BOOST_CHECK(p_test->size() == nItems);
+
+			// Create a copy of the first parameter item
+			boost::shared_ptr<GDoubleObject> search_ptr;
+			GTestIndividual1::const_iterator find_cit;
+			BOOST_CHECK_NO_THROW(search_ptr = p_test->at(0)->clone<GDoubleObject>());
+
+			// Find the first item that complies to a GDoubleObject, initialized with the number 42
+			BOOST_CHECK_NO_THROW(find_cit = p_test->find(search_ptr));
+			BOOST_CHECK(find_cit == p_test->begin());
+
+			// Resize, so that only one item remains, cross-check
+			BOOST_CHECK_NO_THROW(p_test->resize_clone(1, search_ptr));
+			BOOST_CHECK(p_test->size() == 1);
+
+			// Use resize_clone to resize to the original size
+			BOOST_CHECK_NO_THROW(p_test->resize_clone(nItems, search_ptr));
+
+			// Count the number of items identical to search_ptr (should be nItems)
+			BOOST_CHECK(p_test->count(search_ptr) == nItems);
+
+			// Resize again to 1, using resize_noclone
+			BOOST_CHECK_NO_THROW(p_test->resize_noclone(1, search_ptr));
+			BOOST_CHECK(p_test->size() == 1);
+
+			// Resize back to the original size
+			BOOST_CHECK_NO_THROW(p_test->resize_noclone(nItems, search_ptr));
+			BOOST_CHECK(p_test->size() == nItems);
+
+			// Check that the pointer of the last item is identical to the one used in search_ptr
+			BOOST_CHECK((p_test->back()).get() == search_ptr.get());
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test insert_clone, insert_noclone (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Check the current size
+			BOOST_CHECK(p_test->size() == nItems);
+
+			// Create a copy of the first parameter item
+			boost::shared_ptr<GDoubleObject> insert_ptr;
+			BOOST_CHECK_NO_THROW(insert_ptr = p_test->at(0)->clone<GDoubleObject>());
+
+			// Assign a fixed value to insert_ptr
+			BOOST_CHECK_NO_THROW(*insert_ptr = 1.);
+			BOOST_CHECK(insert_ptr->value() == 1.);
+
+			// Insert one item and check the resulting size and value of the first item
+			BOOST_CHECK_NO_THROW(p_test->insert_clone(p_test->begin(), insert_ptr));
+			BOOST_CHECK(p_test->size() == nItems + 1);
+			BOOST_CHECK(p_test->at<GDoubleObject>(0)->value() == 1.);
+
+			// Find the first item which is identical to insert_ptr -- should be at the beginning
+			GTestIndividual1::const_iterator find_cit;
+			BOOST_CHECK_NO_THROW(find_cit = p_test->find(insert_ptr));
+			BOOST_CHECK(find_cit == p_test->begin());
+
+			// Insert another (nItems) - 1 items and count the number of items identical to insert_ptr
+			BOOST_CHECK_NO_THROW(p_test->insert_clone(p_test->begin(), nItems - 1, insert_ptr));
+			BOOST_CHECK(p_test->size() == 2*nItems);
+			BOOST_CHECK((std::size_t)p_test->count(insert_ptr) >= nItems);
+
+			// Check that there is no item with the same physical address as insert_ptr
+			for(std::size_t i=0; i<p_test->size(); i++) {
+				BOOST_CHECK((p_test->at(i)).get() != insert_ptr.get());
+			}
+
+			// Insert one more item at the end, using insert_noclone
+			BOOST_CHECK_NO_THROW(p_test->insert_noclone(p_test->end(), insert_ptr));
+			BOOST_CHECK(p_test->size() == 2*nItems + 1);
+
+			// There should now be exactly one item with the same address as insert_ptr (i.e. the same object)
+			std::size_t nIdentical = 0;
+			for(std::size_t i=0; i<p_test->size(); i++) {
+				if((p_test->at(i)).get() == insert_ptr.get()) nIdentical++;
+			}
+			BOOST_CHECK(nIdentical == 1);
+
+			// Remove the item again and check the size
+			BOOST_CHECK_NO_THROW(p_test->pop_back());
+			BOOST_CHECK(p_test->size() == 2*nItems);
+
+			// Check that there is no item left with the same address
+			for(std::size_t i=0; i<p_test->size(); i++) {
+				BOOST_CHECK((p_test->at(i)).get() != insert_ptr.get());
+			}
+
+			// Insert another nItems items at the beginning, using insert_noclone; cross-check the size
+			BOOST_CHECK_NO_THROW(p_test->insert_noclone(p_test->begin(), nItems, insert_ptr));
+			BOOST_CHECK(p_test->size() == 3*nItems);
+
+			// There should again be exactly one item with the same address as insert_ptr (i.e. the same object)
+			nIdentical = 0;
+			for(std::size_t i=0; i<p_test->size(); i++) {
+				if((p_test->at(i)).get() == insert_ptr.get()) nIdentical++;
+			}
+			BOOST_CHECK(nIdentical == 1);
+
+			// The identical item should be at the very beginning of the collection
+			BOOST_CHECK((p_test->at<GDoubleObject>(0)).get() == insert_ptr.get());
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test push_back_clone and push_back_noclone (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Check the current size
+			BOOST_CHECK(p_test->size() == nItems);
+
+			// Create a copy of the first parameter item
+			boost::shared_ptr<GDoubleObject> pushback_ptr;
+			BOOST_CHECK_NO_THROW(pushback_ptr = p_test->at(0)->clone<GDoubleObject>());
+
+			// Assign a fixed value to pushback_ptr
+			BOOST_CHECK_NO_THROW(*pushback_ptr = 1.);
+			BOOST_CHECK(pushback_ptr->value() == 1.);
+
+			// Push back the cloned item to the collection; cross-check the size and the pointers
+			BOOST_CHECK_NO_THROW(p_test->push_back_clone(pushback_ptr));
+			BOOST_CHECK(p_test->size() == nItems + 1);
+			BOOST_CHECK((p_test->back()).get() != pushback_ptr.get());
+
+			// Push back the un-cloned item to the collection; cross-check the size and the pointers
+			BOOST_CHECK_NO_THROW(p_test->push_back_noclone(pushback_ptr));
+			BOOST_CHECK(p_test->size() == nItems + 2);
+			BOOST_CHECK((p_test->back()).get() == pushback_ptr.get());
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test retrieval of a data copy (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Check the current size
+			BOOST_CHECK(p_test->size() == nItems);
+
+			std::vector<boost::shared_ptr<GParameterBase> > dataCopy;
+			BOOST_CHECK_NO_THROW(p_test->getDataCopy(dataCopy));
+
+			// Check the size and content
+			BOOST_CHECK(dataCopy.size() == p_test->size() && p_test->size() != 0);
+			for(std::size_t i=0; i<p_test->size(); i++) {
+				BOOST_CHECK((p_test->at(i)).get() != dataCopy.at(i).get());
+			}
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/******************************************************************/
@@ -699,6 +912,11 @@ public:
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
+		using namespace Gem::Geneva;
+
+		// A few settings
+		const std::size_t nItems = 100;
+
 		using boost::unit_test_framework::test_suite;
 		using boost::unit_test_framework::test_case;
 
@@ -766,43 +984,6 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		/* The following two tests are unnecessary (and don't work), as the error is already
-		 * caught by the setCommand() call.
-		{ // Calling any other command than "evaluate" or "adapt" in EA mode should throw in process()
-			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
-
-			// Set the personality and the command
-			BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::EA));
-			BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("xyz"));
-
-			// Allow just one processing cycle so we do not throw for the wrong reason
-			BOOST_CHECK_NO_THROW(p_test->setProcessingCycles(1));
-
-			// Calling the process function should throw when the process() function is called
-			// on a dirty individual that allows multiple processing cycles
-			BOOST_CHECK_THROW(p_test->process(), Gem::Common::gemfony_error_condition);
-		}
-
-		//------------------------------------------------------------------------------
-
-		{ // Calling any other command than "evaluate" in SWARM mode should throw in process().
-		  // In particular, the "adapt" call should throw.
-			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
-
-			// Set the personality and the command
-			BOOST_CHECK_NO_THROW(p_test->setPersonality(Gem::Geneva::SWARM));
-			BOOST_CHECK_NO_THROW(p_test->getPersonalityTraits()->setCommand("adapt"));
-
-			// Allow just one processing cycle so we do not throw for the wrong reason
-			BOOST_CHECK_NO_THROW(p_test->setProcessingCycles(1));
-
-			// Calling the process function should throw when the process() function is called
-			// on a dirty individual that allows multiple processing cycles
-			BOOST_CHECK_THROW(p_test->process(), Gem::Common::gemfony_error_condition);
-		}
-		*/
-		//------------------------------------------------------------------------------
-
 #ifdef DEBUG
 		{ // Check that calling GParameterSet::updateOnStall throws in EA mode, if this is not a parent
 		  // The exception will only be triggered in DEBUG mode
@@ -822,6 +1003,141 @@ public:
 			BOOST_CHECK_THROW(p_test->updateOnStall(), Gem::Common::gemfony_error_condition);
 		}
 #endif /* DEBUG */
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to count an empty smart pointer throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Try to count the number of occurances of an empty smart pointer. Should throw
+			BOOST_CHECK_THROW(p_test->count(boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to find an empty smart pointer throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Try to find an empty smart pointer. Should throw
+			BOOST_CHECK_THROW(p_test->find(boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to insert an empty smart pointer with insert_noclone(pos, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Try to insert a number of empty smart pointers. Should throw
+			BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to insert an empty smart pointer with insert_noclone(pos, amount, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Try to insert a number of empty smart pointers. Should throw
+			BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), 10, boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to insert an empty smart pointer with insert_clone(pos, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Try to insert a number of empty smart pointers. Should throw
+			BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to insert an empty smart pointer with insert_clone(pos, amount, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Try to insert a number of empty smart pointers. Should throw
+			BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), 10, boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to add an empty smart pointer with push_back_clone(item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Try to attach an empty smart pointer Should throw
+			BOOST_CHECK_THROW(p_test->push_back_clone(boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to add an empty smart pointer with push_back_noclone(item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Add a few data items
+			BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+
+			// Try to attach an empty smart pointer Should throw
+			BOOST_CHECK_THROW(p_test->push_back_noclone(boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to resize an empty collection with resize(amount) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Make sure p_test is empty
+			BOOST_CHECK_NO_THROW(p_test->clear());
+			BOOST_CHECK(p_test->empty());
+
+			// Try to resize an empty collection
+			BOOST_CHECK_THROW(p_test->resize(10), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to resize an empty collection with resize_noclone(amount, item) throws if item is an empty smart pointer(Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Make sure p_test is empty
+			BOOST_CHECK_NO_THROW(p_test->clear());
+			BOOST_CHECK(p_test->empty());
+
+			// Try to resize an empty collection
+			BOOST_CHECK_THROW(p_test->resize_noclone(10, boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to resize an empty collection with resize_clone(amount, item) throws if item is an empty smart pointer(Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+			boost::shared_ptr<GTestIndividual1> p_test = this->clone<GTestIndividual1>();
+
+			// Make sure p_test is empty
+			BOOST_CHECK_NO_THROW(p_test->clear());
+			BOOST_CHECK(p_test->empty());
+
+			// Try to resize an empty collection
+			BOOST_CHECK_THROW(p_test->resize_clone(10, boost::shared_ptr<GDoubleObject>()), Gem::Common::gemfony_error_condition);
+		}
 
 		//------------------------------------------------------------------------------
 	}

@@ -1,7 +1,4 @@
-This directory contains tests for instantiable classes. 
-Many parent classes in Geneva are purely virtual. So unless you
-will find a test for them here, their functionality 
-is tested through an instantiable derived class. 
+This directory contains tests for all optimization-related Geneva classes.
 
 The current test setup is modeled after the documentation of 
 Boost.Test, with additional information taken from 

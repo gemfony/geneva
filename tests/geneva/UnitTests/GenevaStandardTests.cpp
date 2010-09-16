@@ -59,6 +59,7 @@ using namespace boost::unit_test;
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "geneva/GSwarm.hpp"
 #include "geneva/GMultiThreadedSwarm.hpp"
+#include "geneva/GParameterObjectCollection.hpp"
 
 #include "GTestIndividual1.hpp"
 
@@ -94,16 +95,17 @@ public:
 		adaptor_types;
 
 		typedef boost::mpl::list<
-			GBooleanObjectCollection
+			GParameterObjectCollection
+			, GBooleanObjectCollection
 			, GInt32ObjectCollection
+			, GConstrainedInt32ObjectCollection
 			, GDoubleObjectCollection
 			, GConstrainedDoubleObjectCollection
 			, GBooleanObject
-			, GConstrainedDoubleObject
-			, GConstrainedInt32Object
-			, GConstrainedInt32ObjectCollection
-			, GDoubleObject
 			, GInt32Object
+			, GDoubleObject
+			, GConstrainedInt32Object
+			, GConstrainedDoubleObject
 			, GInt32Collection
 			, GDoubleCollection
 			, GBooleanCollection

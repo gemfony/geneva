@@ -287,53 +287,12 @@ public:
 
 	/**************************************************************************************************/
 	// Non modifying access
-	size_type size() const { return data.size(); }
-	bool empty() const { return data.empty(); }
-	size_type max_size() const { return data.max_size(); }
+	size_type size() const { return data.size(); } // not tested -- trivial mapping
+	bool empty() const { return data.empty(); } // not tested -- trivial mapping
+	size_type max_size() const { return data.max_size(); } // not tested -- trivial mapping
 
-	size_type capacity() const { return data.capacity(); }
-	void reserve(size_type amount) { data.reserve(amount); }
-
-	/**************************************************************************************************/
-	/**
-	 * A small helper class that compares two items and checks for equality, depending on the current mode
-	 */
-	template <typename item_type>
-	class vi_equal_to {
-	public:
-		typedef bool result_type;
-
-		bool operator() (const boost::shared_ptr<item_type>& item, const boost::shared_ptr<T>& cont_item)  const{
-			bool result = false;
-#ifdef DEBUG
-			try {
-				result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
-			}
-			catch(...) {
-				std::ostringstream error;
-				error << "Unknown error in bool vi_equal_to::operator()" << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
-			}
-#else
-			result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));
-#endif
-			return result;
-		}
-	};
-
-	/**************************************************************************************************/
-	/**
-	 * A small helper class that compares two items of identical type
-	 * and checks for equality, depending on the current mode
-	 */
-	class same_equal_to {
-	public:
-		typedef bool result_type;
-
-		bool operator() (const boost::shared_ptr<T>& item, const boost::shared_ptr<T>& cont_item)  const{
-			return (*item == *cont_item);
-		}
-	};
+	size_type capacity() const { return data.capacity(); } // not tested -- trivial mapping
+	void reserve(size_type amount) { data.reserve(amount); } // not tested -- trivial mapping
 
 	/**************************************************************************************************/
 	/**
@@ -348,7 +307,7 @@ public:
 		if(!item) { // Check that item actually contains something useful
 			std::ostringstream error;
 			error << "In GParameterTCollectionT<T>::count(item): Error!"
-				     << "Tried to count an empty smart pointer." << std::endl;
+				  << "Tried to count an empty smart pointer." << std::endl;
 
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
@@ -360,6 +319,12 @@ public:
 			return std::count_if(data.begin(), data.end(),  boost::bind(vi_equal_to<item_type>(), item, _1));
 		}
 	}
+
+	/* ------------------------------------------------------------------------------------------------
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 	/**
@@ -385,37 +350,43 @@ public:
 		}
 	}
 
+	/* ------------------------------------------------------------------------------------------------
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	// Modifying functions
 
 	// Exchange of two data sets
-	void swap(std::vector<boost::shared_ptr<T> >& cont) { data.swap(cont); }
+	void swap(std::vector<boost::shared_ptr<T> >& cont) { data.swap(cont); } // not tested -- trivial mapping
 
 	// Access to elements (unchecked / checked)
-	reference operator[](std::size_t pos) { return data[pos]; }
-	const_reference operator[](std::size_t pos) const { return data[pos]; }
+	reference operator[](std::size_t pos) { return data[pos]; } // not tested -- trivial mapping
+	const_reference operator[](std::size_t pos) const { return data[pos]; } // not tested -- trivial mapping
 
-	reference at(std::size_t pos) { return data.at(pos); }
-	const_reference at(std::size_t pos) const { return data.at(pos); }
+	reference at(std::size_t pos) { return data.at(pos); } // not tested -- trivial mapping
+	const_reference at(std::size_t pos) const { return data.at(pos); } // not tested -- trivial mapping
 
-	reference front() { return data.front(); }
-	const_reference front() const { return data.front(); }
+	reference front() { return data.front(); } // not tested -- trivial mapping
+	const_reference front() const { return data.front(); } // not tested -- trivial mapping
 
-	reference back() { return data.back(); }
-	const_reference back() const { return data.back(); }
+	reference back() { return data.back(); } // not tested -- trivial mapping
+	const_reference back() const { return data.back(); } // not tested -- trivial mapping
 
 	// Iterators
-	iterator begin() { return data.begin(); }
-	const_iterator begin() const { return data.begin(); }
+	iterator begin() { return data.begin(); } // not tested -- trivial mapping
+	const_iterator begin() const { return data.begin(); } // not tested -- trivial mapping
 
-	iterator end() { return data.end(); }
-	const_iterator end() const { return data.end(); }
+	iterator end() { return data.end(); } // not tested -- trivial mapping
+	const_iterator end() const { return data.end(); } // not tested -- trivial mapping
 
-	reverse_iterator rbegin() { return data.rbegin(); }
-	const_reverse_iterator rbegin() const { return data.rbegin(); }
+	reverse_iterator rbegin() { return data.rbegin(); } // not tested -- trivial mapping
+	const_reverse_iterator rbegin() const { return data.rbegin(); } // not tested -- trivial mapping
 
-	reverse_iterator rend() { return data.rend(); }
-	const_reverse_iterator rend() const { return data.rend(); }
+	reverse_iterator rend() { return data.rend(); } // not tested -- trivial mapping
+	const_reverse_iterator rend() const { return data.rend(); } // not tested -- trivial mapping
 
 	/**************************************************************************************************/
 	// Insertion and removal
@@ -432,6 +403,11 @@ public:
 	iterator insert(iterator pos, boost::shared_ptr<T> item_ptr) {
 		return this->insert_noclone(pos, item_ptr);
 	}
+
+	/* ------------------------------------------------------------------------------------------------
+	 * Tested via insert_noclone
+	 * ------------------------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 	/**
@@ -454,6 +430,12 @@ public:
 		return data.insert(pos, item_ptr);
 	}
 
+	/* ------------------------------------------------------------------------------------------------
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
@@ -475,6 +457,12 @@ public:
 		return data.insert(pos, item_ptr->GObject::clone<T>());
 	}
 
+	/* ------------------------------------------------------------------------------------------------
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	/**
 	 * Inserts a given amount of items at position pos. Defaults to
@@ -487,6 +475,11 @@ public:
 	void insert(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
 		this->insert_clone(pos, amount, item_ptr);
 	}
+
+	/* ------------------------------------------------------------------------------------------------
+	 * Tested via insert_clone
+	 * ------------------------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 	/**
@@ -511,6 +504,12 @@ public:
 			data.insert(data.begin() + iterator_pos,  item_ptr->GObject::clone<T>());
 		}
 	}
+
+	/* ------------------------------------------------------------------------------------------------
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 	/**
@@ -541,6 +540,12 @@ public:
 		data.insert(data.begin() + iterator_pos, item_ptr);
 	}
 
+	/* ------------------------------------------------------------------------------------------------
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. The function defaults to
@@ -551,6 +556,11 @@ public:
 	void push_back(boost::shared_ptr<T> item_ptr){
 		this->push_back_noclone(item_ptr);
 	}
+
+	/* ------------------------------------------------------------------------------------------------
+	 * Tested via push_back_noclone
+	 * ------------------------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 	/**
@@ -572,6 +582,12 @@ public:
 		data.push_back(item_ptr);
 	}
 
+	/* ------------------------------------------------------------------------------------------------
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	/**
 	 * Ads a shared_ptr object to the  back of the vector. The object pointed to
@@ -592,23 +608,23 @@ public:
 		data.push_back(item_ptr->GObject::clone<T>());
 	}
 
+	/* ------------------------------------------------------------------------------------------------
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	// Removal at a given position or in a range
-	iterator erase(iterator pos) { return data.erase(pos); }
-	iterator erase(iterator from, iterator to) { return data.erase(from,to); }
+	iterator erase(iterator pos) { return data.erase(pos); }  // not tested -- trivial mapping
+	iterator erase(iterator from, iterator to) { return data.erase(from,to); }  // not tested -- trivial mapping
 
 	// Removing an element from the end of the vector
-	void pop_back(){ data.pop_back(); }
+	void pop_back(){ data.pop_back(); }  // not tested -- trivial mapping
 
 	/**************************************************************************************************/
 	/**
-	 * Resizing the vector. An increase in size is only allowed if at least one item
-	 * is already stored in the collection. The first stored item will then be cloned
-	 * the required number of times. The function will throw if an attempt is made to
-	 * increase the size of the vector, if it was empty before. The reason is that this
-	 * class may hold boost::shared_ptr objects with purely virtual objects. These cannot
-	 * be default constructed, which is required if we increase the size of the vector,
-	 * and no items in the collection can be used as a template.
+	 * Resizing the vector. This function will clone the first item in the collection, if available.
 	 */
 	void resize(size_type amount) {
 		if(this->empty() && amount != 0) {
@@ -623,6 +639,12 @@ public:
 		this->resize_clone(amount, this->at(0));
 	}
 
+	/* ------------------------------------------------------------------------------------------------
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	/**
 	 * Resizing the vector, initialization with item. This function is a front end
@@ -635,12 +657,18 @@ public:
 		resize_clone(amount, item_ptr);
 	}
 
+	/* ------------------------------------------------------------------------------------------------
+	 * Tested via resize_clone(amount, item)
+	 * ------------------------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	/**
 	 * Resizing the vector, initialization with item. This function does nothing
 	 * if amount is the same as data.size(). Note that item_ptr will become part
 	 * of the collection. Hence changes to the object pointed to will also affect
-	 * the collection.
+	 * the collection. If amount would increase the collection size by more than one,
+	 * additional added items will need to be cloned nonetheless.
 	 *
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
@@ -669,6 +697,12 @@ public:
 			data.push_back(item_ptr);
 		}
 	}
+
+	/* ------------------------------------------------------------------------------------------------
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
 
 	/**************************************************************************************************/
 	/**
@@ -700,9 +734,15 @@ public:
 		}
 	}
 
+	/* ------------------------------------------------------------------------------------------------
+	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+	 * Throwing tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
+	 * ------------------------------------------------------------------------------------------------
+	 */
+
 	/**************************************************************************************************/
 	/** @brief Clearing the data vector */
-	void clear() { data.clear(); }
+	void clear() { data.clear(); } // Not tested -- trivial mapping
 
 	/**************************************************************************************************/
 	/**
@@ -714,8 +754,9 @@ public:
 	void getDataCopy(std::vector<boost::shared_ptr<T> >& cp) const {
 		cp.clear();
 		typename std::vector<boost::shared_ptr<T> >::const_iterator it;
-		for(it=data.begin(); it!= data.end(); ++it)
+		for(it=data.begin(); it!= data.end(); ++it) {
 			cp.push_back((*it)->GObject::clone<T>());
+		}
 	}
 
 	/**************************************************************************************************/
@@ -823,18 +864,15 @@ public:
 					  << "current position at end of sequence" << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
-#endif /* DEBUG */
 
-			return p;
-#ifdef DEBUG
 			if(p) return p;
 			else {
-				if(!p) {
-					std::ostringstream error;
-					error << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl;
-					throw(Gem::Common::gemfony_error_condition(error.str()));
-				}
+				std::ostringstream error;
+				error << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
+#else
+			return p;
 #endif /* DEBUG*/
 		}
 
@@ -873,6 +911,45 @@ protected:
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
+
+	/**************************************************************************************************/
+	/**
+	 * A small helper class that compares two items and checks for equality, depending on the current mode
+	 */
+	template <typename item_type>
+	struct vi_equal_to {
+		typedef bool result_type;
+
+		bool operator() (const boost::shared_ptr<item_type>& item, const boost::shared_ptr<T>& cont_item)  const{
+			bool result = false;
+#ifdef DEBUG
+			try {
+				result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
+			}
+			catch(...) {
+				std::ostringstream error;
+				error << "Unknown error in bool vi_equal_to::operator()" << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+#else
+			result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));
+#endif
+			return result;
+		}
+	};
+
+	/**************************************************************************************************/
+	/**
+	 * A small helper class that compares two items of identical type
+	 * and checks for equality, depending on the current mode
+	 */
+	struct same_equal_to {
+		typedef bool result_type;
+
+		bool operator() (const boost::shared_ptr<T>& item, const boost::shared_ptr<T>& cont_item)  const{
+			return (*item == *cont_item);
+		}
+	};
 
 private:
 	/**************************************************************************************************/

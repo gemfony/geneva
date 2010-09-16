@@ -104,7 +104,40 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
+	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
+	boost::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
+
+	/**********************************************************************/
+	/**
+	 * This function returns a parameter item at a given position of the data set.
+     * Note that this function will only be accessible to the compiler if parameter_type
+     * is a derivative of GParameterBase, thanks to the magic of Boost's enable_if
+     * and Type Traits libraries.
+	 *
+	 * @param pos The position in our data array that shall be converted
+	 * @return A converted version of the GParameterBase object, as required by the user
+	 */
+	template <typename parameter_type>
+	inline const boost::shared_ptr<parameter_type> at(
+			  const std::size_t& pos
+			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
+	)  const {
+#ifdef DEBUG
+		boost::shared_ptr<parameter_type> p = boost::static_pointer_cast<parameter_type>(data.at(pos));
+
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In GParameterSet::at<>() : Conversion error" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#else
+		return boost::static_pointer_cast<parameter_type>(data[pos]);
+#endif /* DEBUG */
+	}
+
 protected:
+	/**********************************************************************/
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object. */

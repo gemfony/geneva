@@ -215,12 +215,12 @@ public:
 
 	/*****************************************************************************/
 	// Non modifying access
-	size_type size() const { return data.size(); }
-	bool empty() const { return data.empty(); }
-	size_type max_size() const { return data.max_size(); }
+	size_type size() const { return data.size(); } // Used/tested in GDoubleCollection::fillWithData()
+	bool empty() const { return data.empty(); } // Used/tested in GDoubleCollection::fillWithData()
+	size_type max_size() const { return data.max_size(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-	size_type capacity() const { return data.capacity(); }
-	void reserve(size_type amount) { data.reserve(amount); }
+	size_type capacity() const { return data.capacity(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	void reserve(size_type amount) { data.reserve(amount); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
 	/*****************************************************************************/
 	/**
@@ -230,6 +230,11 @@ public:
 	 * @return The number of items found
 	 */
 	size_type count(const T& item) const { return std::count(data.begin(), data.end(), item); }
+
+	/* ----------------------------------------------------------------------------
+	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------
+	 */
 
 	/*****************************************************************************/
 	/**
@@ -241,35 +246,40 @@ public:
 		return std::find(data.begin(), data.end(), item);
 	}
 
+	/* ----------------------------------------------------------------------------
+	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------
+	 */
+
 	/*****************************************************************************/
 
 	// Modifying functions
-	void swap(std::vector<T>& cont) { std::swap(data, cont); }
+	void swap(std::vector<T>& cont) { std::swap(data, cont); } // untested (likely irrelevant)
 
 	// Access to elements (unchecked / checked)
-	reference operator[](std::size_t pos) { return data[pos]; }
+	reference operator[](std::size_t pos) { return data[pos]; } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 	const_reference operator[](std::size_t pos) const { return data[pos]; }
 
-	reference at(std::size_t pos) { return data.at(pos); }
+	reference at(std::size_t pos) { return data.at(pos); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 	const_reference at(std::size_t pos) const { return data.at(pos); }
 
-	reference front() { return data.front(); }
+	reference front() { return data.front(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 	const_reference front() const { return data.front(); }
 
-	reference back() { return data.back(); }
+	reference back() { return data.back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 	const_reference back() const { return data.back(); }
 
 	// Iterators
 	iterator begin() { return data.begin(); }
-	const_iterator begin() const { return data.begin(); }
+	const_iterator begin() const { return data.begin(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-	iterator end() { return data.end(); }
+	iterator end() { return data.end(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 	const_iterator end() const { return data.end(); }
 
-	reverse_iterator rbegin() { return data.rbegin(); }
+	reverse_iterator rbegin() { return data.rbegin(); } // untested (likely irrelevant)
 	const_reverse_iterator rbegin() const { return data.rbegin(); }
 
-	reverse_iterator rend() { return data.rend(); }
+	reverse_iterator rend() { return data.rend(); } // untested (likely irrelevant)
 	const_reverse_iterator rend() const { return data.rend(); }
 
 	/*****************************************************************************/
@@ -281,24 +291,34 @@ public:
 	 */
 	iterator insert(iterator pos, const T& item) { return data.insert(pos, item); }
 
+	/* ----------------------------------------------------------------------------
+	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------
+	 */
+
 	/*****************************************************************************/
 	/**
 	 * Inserts a given amount of items after position pos.
 	 */
 	void insert(iterator pos, size_type amount, const T& item) {	return data.insert(pos,amount,item); }
 
+	/* ----------------------------------------------------------------------------
+	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------
+	 */
+
 	/*****************************************************************************/
 	// Adding simple items to the  back of the vector
-	void push_back(const T& item){ data.push_back(item); }
+	void push_back(const T& item){ data.push_back(item); } // Used/tested in GDoubleCollection::fillWithData()
 
 	/*****************************************************************************/
 
 	// Removal at a given position or in a range
-	iterator erase(iterator pos) { return data.erase(pos); }
-	iterator erase(iterator from, iterator to) { return data.erase(from, to); }
+	iterator erase(iterator pos) { return data.erase(pos); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	iterator erase(iterator from, iterator to) { return data.erase(from, to); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
 	// Removing an element from the end of the vector
-	void pop_back(){ data.pop_back(); }
+	void pop_back(){ data.pop_back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
 	/*****************************************************************************/
 	/**
@@ -309,11 +329,11 @@ public:
 	 * @param amount The new desired size of the vector
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
-	void resize(size_type amount, const T& item) { data.resize(amount, item);	}
+	void resize(size_type amount, const T& item) { data.resize(amount, item);} // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
 	/*****************************************************************************/
 	/** @brief Clearing the data vector */
-	void clear() { data.clear(); }
+	void clear() { data.clear(); } // Used/tested in GDoubleCollection::fillWithData()
 
 	/*****************************************************************************/
 	/**
@@ -327,6 +347,11 @@ public:
 		return cp;
 	}
 
+	/* ----------------------------------------------------------------------------
+	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------
+	 */
+
 	/*****************************************************************************/
 	/**
 	 * Creates a copy of the data vector. It is assumed that cp is empty or that
@@ -334,7 +359,7 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<T>& cp) const {	cp=data; 	}
+	void getDataCopy(std::vector<T>& cp) const { cp=data; 	}  // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
 protected:
 	std::vector<T> data;

@@ -274,6 +274,16 @@ bool GParameterBase::usesLocalRNG() const {
 
 /**********************************************************************************/
 /**
+ * Checks whether the assigned random number generator is used throughout
+ *
+ * @return A boolean indicating whether the assigned random number generator is used
+ */
+bool GParameterBase::assignedRNGUsed() const {
+	return gr != gr_local;
+}
+
+/**********************************************************************************/
+/**
  * Convenience function so we do not need to always cast  derived classes.
  * See GParameterBaseWithAdaptors::hasAdaptors() for the "real"
  * function.

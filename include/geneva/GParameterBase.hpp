@@ -157,6 +157,8 @@ public:
 	virtual void resetGRandomPointer();
 	/** @brief Checks whether the local random number generator is used */
 	virtual bool usesLocalRNG() const;
+	/** @brief Checks whether the assigned random number generator is used throughout */
+	virtual bool assignedRNGUsed() const;
 
 	/**************************************************************************************************/
 	/**
@@ -168,7 +170,7 @@ public:
 	 * @return A boost::shared_ptr holding the converted object
 	 */
 	template <typename load_type>
-	inline boost::shared_ptr<load_type> parameterbase_cast (
+	boost::shared_ptr<load_type> parameterbase_cast (
 			boost::shared_ptr<GParameterBase> load_ptr
 		  , typename boost::enable_if<boost::is_base_of<Gem::Geneva::GParameterBase, load_type> >::type* dummy = 0
 	) const {

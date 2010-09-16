@@ -506,7 +506,7 @@ public:
 	 *
 	 * @param gr_cp A reference to another object's GRandomBaseT object derivative
 	 */
-	void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
+	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
 #ifdef DEBUG
 		if(!gr_cp) {
 			std::ostringstream error;
@@ -529,7 +529,7 @@ public:
 	/**
 	 * Re-connects the local random number generator to gr.
 	 */
-	void resetGRandomPointer() {
+	virtual void resetGRandomPointer() {
 		if(gr_local) gr = gr_local;
 		else {
 			std::ostringstream error;
@@ -552,7 +552,7 @@ public:
 	 *
 	 * @bool A boolean indicating whether the local random number generator is used
 	 */
-	bool usesLocalRNG() const {
+	virtual bool usesLocalRNG() const {
 		return gr == gr_local;
 	}
 
@@ -560,6 +560,16 @@ public:
 	 * Used in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+	/***********************************************************************************/
+	/**
+	 * Checks whether an assigned random number generator is used
+	 *
+	 * @return A boolean indicating whether an assigned random number generator is used
+	 */
+	virtual bool assignedRNGUsed() const {
+		return gr != gr_local;
+	}
 
 protected:
 	/***********************************************************************************/

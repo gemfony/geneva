@@ -389,11 +389,11 @@ public:
 	 *
 	 * @bool A boolean indicating whether solely the foreign random number generator is used
 	 */
-	virtual bool usesForeignRNG() const {
+	virtual bool assignedRNGUsed() const {
 		bool result=true;
 
-		if(adaptor_ && adaptor_->usesLocalRNG()) result=false;
-		if(GParameterBase::usesLocalRNG()) result=false;
+		if(adaptor_ && !adaptor_->assignedRNGUsed()) result=false;
+		if(!GParameterBase::assignedRNGUsed()) result=false;
 
 		return result;
 	}
@@ -554,7 +554,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->assignGRandomPointer(gr_test));
 
 			// Cross-check that the foreign generator is used
-			BOOST_CHECK(p_test->usesForeignRNG() == true);
+			BOOST_CHECK(p_test->assignedRNGUsed() == true);
 			// Also check the parent class and the adaptor individually
 			BOOST_CHECK(p_test->GParameterBase::usesLocalRNG() == false);
 			BOOST_CHECK(p_test->adaptor_ && p_test->adaptor_->usesLocalRNG() == false);

@@ -196,6 +196,34 @@ bool GDoubleCollection::modify_GUnitTests() {
 
 /*******************************************************************************************/
 /**
+ * Fills the collection with some random data
+ */
+void GDoubleCollection::fillWithData(const std::size_t& nItems) {
+	// Make sure the collection is empty
+	BOOST_CHECK_NO_THROW(this->clear());
+
+	// Cross check that it really is
+	BOOST_CHECK(this->size() == 0);
+	// Use another method
+	BOOST_CHECK(this->empty());
+
+	// Add a single item of defined value, so we can test the find() and count() functions
+	BOOST_CHECK_NO_THROW(this->push_back(0.));
+
+	for(std::size_t i=1; i<nItems - 1; i++) {
+		BOOST_CHECK_NO_THROW(this->push_back(gr->uniform_real(-10., 10.)));
+	}
+
+	// Add a single item of defined value, so we can test the find() and count() functions
+	BOOST_CHECK_NO_THROW(this->push_back(1.));
+
+	// Cross-check the size
+	BOOST_CHECK(this->size() == nItems);
+	BOOST_CHECK(!this->empty());
+}
+
+/*******************************************************************************************/
+/**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
@@ -299,6 +327,156 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK(*p_test2 != *p_test1);
 			BOOST_CHECK(*p_test2 != *p_test3);
 		}
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test the GStdSimpleVectorInterfaceT<double>::reserve(), capacity() and max_size() functions
+		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+
+		// Make sure the collection is empty
+		BOOST_CHECK_NO_THROW(p_test1->clear());
+
+		// Check the site
+		BOOST_CHECK(p_test1->size() == 0);
+		BOOST_CHECK(p_test1->empty());
+
+		// Check that the maximum size is > 0
+		BOOST_CHECK(p_test1->max_size() > 0);
+
+		// Reserve some space
+		BOOST_CHECK_NO_THROW(p_test1->reserve(nItems));
+
+		// Check that the capacity is > 0
+		BOOST_CHECK(p_test1->capacity() > 0);
+
+		// Add some data
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+
+		// Check the size again
+		BOOST_CHECK(p_test1->size() == nItems);
+		BOOST_CHECK(!p_test1->empty());
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test the GStdSimpleVectorInterfaceT<double>::count(), find() and begin() functions
+		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+
+		// Add some data
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+
+		// Count the number of values == 0. . Should be >= 1
+		BOOST_CHECK(p_test1->count(0.) >= 1);
+		// Count the number of values == 1. . Should be >= 1
+		BOOST_CHECK(p_test1->count(1.) >= 1);
+
+		// Find the item with value 0. -- the first one is in position 0
+		GDoubleCollection::const_iterator find_it, pos_it;
+		BOOST_CHECK_NO_THROW(pos_it = p_test1->begin());
+		BOOST_CHECK_NO_THROW(find_it = p_test1->find(0.));
+		BOOST_CHECK(find_it == pos_it);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test setting and retrieval of items with the operator[] and at() functions of GStdSimpleVectorInterfaceT<double>
+		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+
+		// Add some data
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+
+		// Retrieve items
+		BOOST_CHECK((*p_test1)[0] == 0.);
+		BOOST_CHECK(p_test1->at(0) == 0.);
+
+		// Set and retrieve an item using two different functions
+		BOOST_CHECK_NO_THROW((*p_test1)[0] = 1.);
+		BOOST_CHECK((*p_test1)[0] == 1.);
+		BOOST_CHECK_NO_THROW(p_test1->at(0) = 2.);
+		BOOST_CHECK(p_test1->at(0) == 2.);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test the GStdSimpleVectorInterfaceT<double>::front() and back() functions
+		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+
+		// Add some data
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+
+		// Check the front and back of the vector -- we know the values
+		BOOST_CHECK(p_test1->front() == 0.);
+		BOOST_CHECK(p_test1->back() == 1.);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test iteration over the vector and retrieval of the end() iterator (Test of GStdSimpleVectorInterfaceT<double> functionality)
+		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+
+		// Add some data
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+
+		// Iterate over the sequence
+		GDoubleCollection::iterator it;
+		std::size_t itemCount = 0;
+		for(it=p_test1->begin(); it!= p_test1->end(); ++it) itemCount++;
+		BOOST_CHECK(itemCount == nItems);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test inserting and erasure of items, the pop_back and resize functions and the getDataCopy and operator= functions (Test of GStdSimpleVectorInterfaceT<double> functionality)
+		boost::shared_ptr<GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
+
+		// Add some data
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+
+		// Insert 1 item at position 1 and cross-check
+		BOOST_CHECK_NO_THROW(p_test1->insert(p_test1->begin() + 1, 1.));
+		BOOST_CHECK(p_test1->at(1) == 1.);
+		BOOST_CHECK(p_test1->size() == nItems + 1);
+
+		// Insert another (nItems - 1 ) items at position 0
+		BOOST_CHECK_NO_THROW(p_test1->insert(p_test1->begin(), nItems-1, 1.));
+		BOOST_CHECK(p_test1->size() == 2*nItems);
+		BOOST_CHECK(p_test1->at(0) == 1.);
+
+		// Erase 1 item at the beginning and cross-check
+		BOOST_CHECK_NO_THROW(p_test1->erase(p_test1->begin()));
+		BOOST_CHECK(p_test1->size() == 2*nItems - 1);
+
+		// Erase another nItems - 1 items from the beginning
+		BOOST_CHECK_NO_THROW(p_test1->erase(p_test1->begin(), p_test1->begin() + nItems - 1));
+		BOOST_CHECK(p_test1->size() == nItems);
+
+		// Remove another item at the end
+		BOOST_CHECK_NO_THROW(p_test1->pop_back());
+		BOOST_CHECK(p_test1->size() == nItems - 1);
+
+		// Remove all remaining items
+		BOOST_CHECK_NO_THROW(p_test1->resize(0, 0.));
+		BOOST_CHECK(p_test1->size() == 0);
+
+		// Add a number of identical items, using the resize() function and cross-check
+		BOOST_CHECK_NO_THROW(p_test1->resize(nItems, 1.));
+		BOOST_CHECK(p_test1->size() == nItems);
+		BOOST_CHECK(p_test1->count(1.) == nItems);
+
+		std::vector<double> dataCopy;
+		BOOST_CHECK_NO_THROW(p_test1->getDataCopy(dataCopy));
+		BOOST_CHECK(dataCopy.size() == nItems);
+		BOOST_CHECK((std::size_t)std::count(dataCopy.begin(), dataCopy.end(), 1.) == nItems);
+
+		// Assign 1 to all positions and add further items
+		for(std::size_t i=0; i<dataCopy.size(); i++) dataCopy[i] = 0.;
+		for(std::size_t i=0; i<nItems; i++) dataCopy.push_back(0.);
+
+		// Assign the vector to p_test1 and cross-check
+		BOOST_CHECK_NO_THROW(p_test1->GStdSimpleVectorInterfaceT<double>::operator=(dataCopy));
+		BOOST_CHECK(p_test1->size() == 2*nItems);
+		BOOST_CHECK(p_test1->count(0.) == 2*nItems);
 	}
 
 	//------------------------------------------------------------------------------

@@ -10,6 +10,20 @@ A: In former releases, throw() specifiers were used to list the exceptions a fun
    could throw. A rationale for the decision to remove these specifiers can be found
    here: http://www.gotw.ca/publications/mill22.htm .
    
+Q: Are there bugs ?
+A: Yes.
+   
+Q: Ummmh -- so if there are bugs, why don't you fix them ?
+A: We have done our best to check the Geneva library for all kinds of possible problems. 
+   Particularly, there is a complete unit test framework for the core optimization 
+   libraries. So the actual number of bugs should be quite low. However, we cannot test 
+   Geneva under all possible circumstances. This is where, in the best tradition of Open 
+   Source software, we rely on you to report the problems you have encountered. Also note 
+   that there may be known bugs that we are currently working on, that we currently consider 
+   to have such a low priority that we have chosen to work on other parts of Geneva first, 
+   or which are simply impossible to fix, as they are related to problems of a particular
+   execution environment.
+   
 Q: When I run one of the examples in networked mode on the local box, the optimization stops
    reproducibly after a few hundred iterations. Is this a bug ?
 A: The Geneva library assumes that evaluation functions run for a (possibly very) long time.
@@ -23,3 +37,4 @@ A: The Geneva library assumes that evaluation functions run for a (possibly very
    you need to carefully evaluate the effects of resetting that variable on your system.
    See also a related 2007 discussion on the Boost.Asio Usenet forum (quoted e.g. here:
    http://osdir.com/ml/lib.boost.asio.user/2007-06/msg00101.html) .
+   

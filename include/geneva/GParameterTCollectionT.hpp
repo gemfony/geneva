@@ -378,12 +378,18 @@ public:
 		GParameterBase::assignGRandomPointer(gr_cp);
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GParameterTCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * Throw tested in GParameterTCollectionT<T>::specificTestsFailuresExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/***********************************************************************************/
 	/**
 	 * Re-connects the local random number generator to gr and distributes the call
 	 * to all objects contained in this collection class.
 	 */
-	void resetGRandomPointer() {
+	virtual void resetGRandomPointer() {
 		// Reset all objects stored in this collection
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
@@ -394,6 +400,11 @@ public:
 		GParameterBase::resetGRandomPointer();
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GParameterTCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 	/***********************************************************************************/
 	/**
 	 * Checks whether solely the local random number generator is used. The function returns
@@ -402,7 +413,7 @@ public:
 	 *
 	 * @bool A boolean indicating whether solely the local random number generator is used
 	 */
-	bool usesLocalRNG() const {
+	virtual bool usesLocalRNG() const {
 		bool result = true;
 
 		// Check all components of this class
@@ -416,6 +427,37 @@ public:
 
 		return result;
 	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GParameterTCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/***********************************************************************************/
+	/**
+	 * Checks whether all relevant objects use the assigned random number generator.
+	 *
+	 * @return A boolean indicating whether an assigned random number generator is used
+	 */
+	virtual bool assignedRNGUsed() const {
+		bool result = true;
+
+		// Check all components of this class
+		typename GParameterTCollectionT<T>::const_iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			if(!(*it)->assignedRNGUsed()) result = false;
+		}
+
+		// Check our parent class
+		if(!GParameterBase::assignedRNGUsed()) result = false;
+
+		return result;
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GParameterTCollectionT<T>::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
 
 protected:
 	/*******************************************************************************************/
@@ -462,6 +504,11 @@ protected:
 		}
 	}
 
+	/* ----------------------------------------------------------------------------------
+	 * Tested in GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests()
+	 * ----------------------------------------------------------------------------------
+	 */
+
 #ifdef GENEVATESTING
 public:
 	/*******************************************************************************************/
@@ -488,6 +535,33 @@ public:
 		// Call the parent classes' functions
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsNoFailureExpected_GUnitTests();
+
+		//---------------------------------------------------------------------
+
+		{ // Check adding and resetting of random number generators
+			// Create two local clones
+			boost::shared_ptr<GParameterTCollectionT<T> > p_test1 = this->clone<GParameterTCollectionT<T> >();
+
+			// Assign a factory generator
+			Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_test = new Gem::Hap::GRandomT<Gem::Hap::RANDOMPROXY, double, boost::int32_t>();
+			BOOST_CHECK_NO_THROW(p_test1->assignGRandomPointer(gr_test));
+
+			// Has the generator been assigned ?
+			BOOST_CHECK(p_test1->usesLocalRNG() == false);
+			BOOST_CHECK(p_test1->assignedRNGUsed() == true);
+
+			// Make sure we use the local generator again
+			BOOST_CHECK_NO_THROW(p_test1->resetGRandomPointer());
+
+			// Get rid of the test generator
+			delete gr_test;
+
+			// We should now be using a local random number generator again
+			BOOST_CHECK(p_test1->usesLocalRNG() == true);
+			BOOST_CHECK(p_test1->assignedRNGUsed() == false);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 
 	/*******************************************************************************************/
@@ -498,6 +572,20 @@ public:
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();
 		GStdPtrVectorInterfaceT<T>::specificTestsFailuresExpected_GUnitTests();
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assigning a NULL pointer for the random number generator throws
+			boost::shared_ptr<GParameterTCollectionT<T> > p_test = this->clone<GParameterTCollectionT<T> >();
+
+			// Assigning a NULL pointer should throw
+			BOOST_CHECK_THROW(
+					p_test->assignGRandomPointer(NULL);
+					, Gem::Common::gemfony_error_condition
+			);
+		}
+
+		//------------------------------------------------------------------------------
 	}
 #endif /* GENEVATESTING */
 };

@@ -159,10 +159,9 @@ public:
 	/**********************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.
-	 * If compiled in DEBUG mode, it also checks that the accesses position matches
-	 * the size of the vector. Note that this function will only be accessible to the
-	 * compiler if parameter_type is a derivative of GParameterBase, thanks to the magic
-	 * of Boost's enable_if and Type Traits libraries.
+	 * Note that this function will only be accessible to the compiler if parameter_type
+	 * is a derivative of GParameterBase, thanks to the magic of Boost's enable_if and
+	 * Type Traits libraries.
 	 *
 	 * @param pos The position in our data array that shall be converted
 	 * @return A converted version of the GParameterBase object, as required by the user
@@ -173,14 +172,7 @@ public:
 			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
 	)  const {
 #ifdef DEBUG
-		if(pos >= data.size()) {
-			std::ostringstream error;
-			error << "In GParameterSet::at<>() : Error" << std::endl
-				  << "Tried to access index " << pos << " which is >= the size " << data.size() << " of the vector." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-
-		boost::shared_ptr<parameter_type> p = boost::static_pointer_cast<parameter_type>(data[pos]);
+		boost::shared_ptr<parameter_type> p = boost::static_pointer_cast<parameter_type>(data.at(pos));
 
 		if(p) return p;
 		else {
@@ -194,7 +186,7 @@ public:
 	}
 
 	/* ----------------------------------------------------------------------------------
-	 * So far untested. See also the second version of th at() function.
+	 * So far untested. See also the second version of the at() function.
 	 * ----------------------------------------------------------------------------------
 	 */
 
