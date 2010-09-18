@@ -52,9 +52,11 @@ IF ( NOT DEFINED BUILDPCH )
 ENDIF ( NOT DEFINED BUILDPCH )
 
 # Inform the user
+SET( PCHSupport_USE FALSE )
 IF ( BUILDPCH )
 	IF ( PCHSupport_FOUND )
 		MESSAGE( "Using Pre-Compiled Headers" )
+		SET( PCHSupport_USE TRUE )
 	ELSE ( PCHSupport_FOUND )
 		MESSAGE( "Pre-Compiled Headers will not be used, unsupported compiler" )
 	ENDIF ( PCHSupport_FOUND )
@@ -62,42 +64,41 @@ ELSE ( BUILDPCH )
 	MESSAGE( "Pre-Compiled Headers will not be used, BUILDPCH is set to false" )
 ENDIF ( BUILDPCH )
 
+
+# The actual macro
 MACRO( ADD_PCH_RULE _header_filename _src_list )
 
-	IF ( NOT BUILDPCH )
-		RETURN()
-	ENDIF ( NOT BUILDPCH )
+	IF ( PCHSupport_USE )
 
-	IF ( PCHSupport_FOUND )
 		#MESSAGE( "Info: Adding Pre-Compiled Header for ${_header_filename}" )
-	ELSE ( PCHSupport_FOUND )
-		MESSAGE( "Info: Not adding Pre-Compiled Header for ${_header_filename}, unsupported" )
-		RETURN()
-	ENDIF ( PCHSupport_FOUND )
 
-	IF ( NOT CMAKE_BUILD_TYPE )
-		MESSAGE( FATAL_ERROR "This is the ADD_PCH_RULE macro: you must set CMAKE_BUILD_TYPE!" )
-	ENDIF ( NOT CMAKE_BUILD_TYPE )
+		IF ( NOT CMAKE_BUILD_TYPE )
+			MESSAGE( FATAL_ERROR "This is the ADD_PCH_RULE macro: you must set CMAKE_BUILD_TYPE!" )
+		ENDIF ( NOT CMAKE_BUILD_TYPE )
 
-	#
-	# Main logic starts here
-	#
-	SET( _gch_filename "${CMAKE_CURRENT_BINARY_DIR}/${_header_filename}_${CMAKE_BUILD_TYPE}.gch" )
-	LIST( APPEND ${_src_list} ${_gch_filename} )
+		SET( _gch_filename "${CMAKE_CURRENT_BINARY_DIR}/${_header_filename}_${CMAKE_BUILD_TYPE}.gch" )
+		LIST( APPEND ${_src_list} ${_gch_filename} )
 
-	# Add $CMAKE_CURRENT_BINARY_DIR to the includes, as it is where the precompiled headers are
-	INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+		# Add $CMAKE_CURRENT_BINARY_DIR to the includes, as it is where the precompiled headers are
+		INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
-	SET( _args ${CMAKE_CXX_FLAGS} )
-	LIST( APPEND _args -c ${CMAKE_CURRENT_SOURCE_DIR}/${_header_filename} -o ${_gch_filename} )
-	GET_DIRECTORY_PROPERTY( _include_dirs INCLUDE_DIRECTORIES )
-	FOREACH ( _inc ${_include_dirs} )
-		LIST( APPEND _args "-I" ${_inc} )
-	ENDFOREACH ( _inc ${DIRINC} )
-	SEPARATE_ARGUMENTS( _args )
-	ADD_CUSTOM_COMMAND( OUTPUT ${_gch_filename}
-		COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1} ${_args}
-		DEPENDS ${_header_filename}
-	)
+		SET( _args ${CMAKE_CXX_FLAGS} )
+		LIST( APPEND _args -c ${CMAKE_CURRENT_SOURCE_DIR}/${_header_filename} -o ${_gch_filename} )
+		GET_DIRECTORY_PROPERTY( _include_dirs INCLUDE_DIRECTORIES )
+		FOREACH ( _inc ${_include_dirs} )
+			LIST( APPEND _args "-I" ${_inc} )
+		ENDFOREACH ( _inc ${DIRINC} )
+		SEPARATE_ARGUMENTS( _args )
+		ADD_CUSTOM_COMMAND( OUTPUT ${_gch_filename}
+			COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1} ${_args}
+			DEPENDS ${_header_filename}
+		)
+
+	ELSE ( PCHSupport_USE )
+
+		# Just do nothing, a normal configuration takes place
+		#MESSAGE( "Info: Not adding Pre-Compiled Header for ${_header_filename}, unsupported" )
+
+	ENDIF ( PCHSupport_USE )
 
 ENDMACRO( ADD_PCH_RULE )
