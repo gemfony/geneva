@@ -1,176 +1,215 @@
 //------------------------------------------------------------------------------------------------------
 Wishlist for Version 1.0, yet unnamed, release-date unknown
- - Full documentation
- - Revision of broker infrastructure
- - Implementation of a GBoundedDoubleWithGaps
- - Get rid of self-initialized singletons, in favor of a GInitialize/Finalize() function
- - Implement a GEvaluator module which centralizes parameter definition and evaluation
+ - Full documentation.
+ - Revision of broker infrastructure.
+ - Implementation of a GBoundedDoubleWithGaps.
+ - Get rid of self-initialized singletons, in favor of a GInitialize/Finalize()
+   function.
+ - Implement a GEvaluator module which centralizes parameter definition
+   and evaluation.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.3, yet unnamed, release-date unknown
 
 The main changes for this release include:
- - Renamed GCommunicationEnums to GCourtierEnums for greater consistency with the library name.
- - Completed the unit tests for data types (GParameterBase derivatives, adaptors, GParameterSet 
-   and related classes). From the optimization-related classes only the algorithms are still
-   lacking complete unit test coverage. However, through their heavy use in the actual optimization
-   problems they are nevertheless quite well tested. Corresponding tests will be added when the 
-   need arises or time permits.
+ - Renamed GCommunicationEnums to GCourtierEnums for greater consistency
+   with the library name.
+ - Completed the unit tests for data types (GParameterBase derivatives,
+   adaptors, GParameterSet and related classes). From the optimization-related
+   classes only the algorithms are still lacking complete unit test
+   coverage. However, through their heavy use in the actual optimization
+   problems they are nevertheless quite well tested. Corresponding tests 
+   will be added when the need arises or time permits.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.2, "Route De Broglie" - September 8, 2010
 
 The main changes for this release include:
- - Gave GParameterSet objects the ability to distribute its local random number
-   generator to the GParameterBase objects stored in it.
- - Renamed GDouble to GDoubleObject, GInt32 to GInt32Object, GBoolean to GBooleanObject,
-   GConstrainedDouble to GConstrainedDoubleObject and GConstrainedInt32 to GConstrainedInt32Object
-   for better consistency with class names like GDoubleObjectCollection and GDoubleCollection
- - Renamed GParameterBaseWithAdaptorsT<T>::adaptor_cast<adaptor_type> to getAdaptor<adaptor_type> 
- - Renamed GParameterSet::pc_at<> to at<> for consistency reasons
- - Added many additional tests
+ - Gave GParameterSet objects the ability to distribute its local random
+   number generator to the GParameterBase objects stored in it.
+ - Renamed GDouble to GDoubleObject, GInt32 to GInt32Object, GBoolean to
+   GBooleanObject, GConstrainedDouble to GConstrainedDoubleObject and
+   GConstrainedInt32 to GConstrainedInt32Object for better consistency with
+   class names like GDoubleObjectCollection and GDoubleCollection.
+ - Renamed GParameterBaseWithAdaptorsT<T>::adaptor_cast<adaptor_type> to
+   getAdaptor<adaptor_type>.
+ - Renamed GParameterSet::pc_at<> to at<> for consistency reasons.
+ - Added many additional tests.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.1, "PS 197" - August 28, 2010
 
 The main changes for this release include:
- - Implemented swarm algorithms in all three modes (serial execution, multi-threaded
-   and networked). Note that this implementation still needs to mature further
-   so that it is recommend for the curious only.
- - Refactored the GBoundedDouble and GBoundedInt32 classes, which are now named
-   GConstrainedDouble and GConstrainedInt32 and are based on generic floating-point-
-   and integer-aware classes.
- - Moved the GBoundedBufferWithIdT class from the Courtier to the Common library.
+ - Implemented swarm algorithms in all three modes (serial execution,
+   multi-threaded and networked). Note that this implementation still needs
+   to mature further so that it is recommend for the curious only.
+ - Refactored the GBoundedDouble and GBoundedInt32 classes, which are now
+   named GConstrainedDouble and GConstrainedInt32 and are based on generic
+   floating-point- and integer-aware classes.
+ - Moved the GBoundedBufferWithIdT class from the Courtier to the Common
+   library.
  - Implemented many new test functions.
  - Organized the tests in sub-folders corresponding to each tested library.
- - Improved the examples' build-files to allow all the examples to compile out of tree.
+ - Improved the examples' build-files to allow all the examples to compile
+   out of tree.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8, "Prevessin" - August 4, 2010
 
 The main changes for this release include:
- - Separated code into the libraries Hap (random number production), Courtier (brokerage and
-   networking), Geneva (optimization algorithms), Dataexchange (communication with external
-   evaluation programs) and Common (common code needed by all other libraries), each
-   with its own namespace. Includes should now be prefixed with the (sub)library name.
+ - Separated code into the libraries Hap (random number production),
+   Courtier (brokerage and networking), Geneva (optimization algorithms),
+   Dataexchange (communication with external evaluation programs) and
+   Common (common code needed by all other libraries), each with its own
+   namespace. Includes should now be prefixed with the (sub)library name.
  - Reworked the test framework implementing the tests directly inside the
-   tested classes. This allows for better testing of private members and virtual
-   classes, and at the same time simplifies the code maintenance.
- - Replaced all calls to mutate() (and associated functions) with calls to adapt()
-   in order to reflect different naming schemes in different optimization algorithms.
- - Added an iterator to GStdPtrVectorInterface that lets users iterate only over
-   specific derived objects of the stored base-objects.
- - Removed ability to assign joint adaptors to entire collections in favor of
-   all-local adaptors, in order to facilitate the inner design and usage of the
-   library.
+   tested classes. This allows for better testing of private members and
+   virtual classes, and at the same time simplifies the code maintenance.
+ - Replaced all calls to mutate() (and associated functions) with calls to
+   adapt() in order to reflect different naming schemes in different
+   optimization algorithms.
+ - Added an iterator to GStdPtrVectorInterface that lets users iterate only
+   over specific derived objects of the stored base-objects.
+ - Removed ability to assign joint adaptors to entire collections in favor
+   of all-local adaptors, in order to facilitate the inner design and usage
+   of the library.
  - Added a GParameterObjectCollection that allows to arbitrarily mix any
    GParameterBase object in the same collection.
- - Removed GBoostThreadConsumer dependency on GIndividual, making it a template class
-   GBoostThreadConsumerT.
- - Removed GAsioTCPConsumer dependency on GIndividual, making it a template class
-   GAsioTCPConsumerT.
- - Removed the GIndividualBroker class, the GINDIVIDUALBROKER macro was moved to GIndividual.hpp.
- - Renamed GenevaExceptions file to GExceptions and renamed Gem::Geneva::geneva_error_condition
-   to Gem::Common::gemfony_error_condition, in order to better separate different libraries.
+ - Removed GBoostThreadConsumer dependency on GIndividual, making it a
+   template class GBoostThreadConsumerT.
+ - Removed GAsioTCPConsumer dependency on GIndividual, making it a template
+   class GAsioTCPConsumerT.
+ - Removed the GIndividualBroker class, the GINDIVIDUALBROKER macro was
+   moved to GIndividual.hpp.
+ - Renamed GenevaExceptions file to GExceptions and renamed
+   Gem::Geneva::geneva_error_condition to Gem::Common::gemfony_error_condition,
+   in order to better separate different libraries.
  - Replaced usage of GDataExchangeException by Gem::Common::gemfony_error_condition.
- - Gave GParameterBase-derivatives and GParameterSet objects the ability to randomly initialize
-   a given set of data elements contained in them.
+ - Gave GParameterBase-derivatives and GParameterSet objects the ability to
+   randomly initialize a given set of data elements contained in them.
  - Update to CMake 2.8, ported to Boost 1.43.
  - Made compilation of test code optional.
- - Moved the sample programs in the 'associated' folder together with the other examples.
+ - Moved the sample programs in the 'associated' folder together with
+   the other examples.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.7, "Route Arago" - March 1, 2010
 
 The main changes for this release include:
- - Removed all direct dependencies of GIndividual objects from the optimization algorithm in order to
-   allow the implementation of additional algorithms, based on the same data structures and 
-   parallelization framework
- - Gave the GAsioTCPConsumer the ability to automatically determine the number of listener threads.
-   Should improve scalability of the server on systems with many cores. 
- - Added GDelayIndividual in order to allow measurement of the overhead incurred through the parallelization
- - Reworked GExternalEvaluator example to be more usable in a production environment (e.g. added a configuration
-   file instead of command line options)
- - Refactored GIndividualSet (now named GOptimizationAlgorithm) to become the base class of a hierarchy
-   of iteration-based optimization algorithms. The class now encapsulates functionality common to all of 
-   these algorithms, such as the main loop and different halt criteria.
- - Gave GIndividual knowledge about the currently best known fitness of all individuals
- - Gave GIndividual knowledge about the number of optimization cycles without improvement
- - Renamed GBasePopulation to GEvolutionaryAlgorithm, GBrokerPopulation to GBrokerEA and GBoostThreadPopulation
-   to GMultiThreadedEA
- - Implemented a new way to select views of vectors of boost::shared_ptr<GIndividual>, including 
-   automatic conversion ("attachViewTo<>()")
- - Allowed adaptors to choose from "always mutate", "never mutate" and "mutate with a certain likelihood"
- - Added compilation warnings when using Boost 1.39 or Boost 1.41, which seem to have issues wrt. Geneva,
-   possibly in the serialization library.
- - Reworked the test framework, including renovation of conversion_cast<> 
- - Reworked the clone framework to use boost::shared_ptr instead of "raw" GObject * pointers
- - Reworked the load framework so that public accessible load functions is shared pointers
- - Removed GChar and related classes, as these can be implemented better through integer classes
- - Cleaned up and renovated the example's hierarchy
- - Added a build script to facilitate building the Geneva library
+ - Removed all direct dependencies of GIndividual objects from the
+   optimization algorithm in order to allow the implementation of
+   additional algorithms, based on the same data structures and
+   parallelization framework.
+ - Gave the GAsioTCPConsumer the ability to automatically determine the
+   number of listener threads. Should improve scalability of the server
+   on systems with many cores. 
+ - Added GDelayIndividual in order to allow measurement of the overhead
+   incurred through the parallelization.
+ - Reworked GExternalEvaluator example to be more usable in a production
+   environment (e.g. added a configuration file instead of command
+   line options).
+ - Refactored GIndividualSet (now named GOptimizationAlgorithm) to
+   become the base class of a hierarchy of iteration-based optimization
+   algorithms. The class now encapsulates functionality common to all of
+   these algorithms, such as the main loop and different stop criteria.
+ - Gave GIndividual knowledge about the currently best known fitness of
+   all individuals.
+ - Gave GIndividual knowledge about the number of optimization cycles
+   without improvement.
+ - Renamed GBasePopulation to GEvolutionaryAlgorithm, GBrokerPopulation
+   to GBrokerEA and GBoostThreadPopulation to GMultiThreadedEA.
+ - Implemented a new way to select views of vectors of
+   boost::shared_ptr<GIndividual>, including automatic conversion "attachViewTo<>()".
+ - Allowed adaptors to choose from "always mutate", "never mutate" and
+   "mutate with a certain likelihood".
+ - Added compilation warnings when using Boost 1.39 or Boost 1.41, which
+   seem to have issues wrt. Geneva, possibly in the serialization library.
+ - Reworked the test framework, including renovation of conversion_cast<>.
+ - Reworked the clone framework to use boost::shared_ptr instead of "raw"
+   GObject* pointers.
+ - Reworked the load framework so that public accessible load functions
+   is shared pointers.
+ - Removed GChar and related classes, as these can be implemented better
+   through integer classes.
+ - Cleaned up and renovated the example's hierarchy.
+ - Added a build script to facilitate building the Geneva library.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009
 
 The main changes for this release include: 
- - Added option to GBasePopulation to stop optimizing after a user-defined number of stalls
- - Allowed to selectively switch off mutations (i.e. value changes) for GParameterBase derivatives
- - Gave GBrokerPopulation the ability to dynamically adapt the waitFactor_ variable upon request
- - Added a new selection scheme MUNU1PRETAIN to GBasePopulation. In this scheme, the best parent of
-   the last generation is retained, unless a better child was found. The other parents are replaced
-   by the best children. This is a hybrid between the MUPLUSNU and MUCOMMANU modes.
- - Added micro-training environment to GBasePopulation (and derivatives). When the optimization 
-   stalls, parents may perform structural updates. As these will very likely lead to a decrease in 
-   quality, a one-time selection policy of MUPLUSNU is used.
- - Added the option to set an arbitrary start generation. This is useful when intermediate results
-   are written out, whose file name is based on the current generation. Files can continue to be
-   written out with sequential generation numbers, even if the optimization was started anew, e.g.
-   using a checkpoint file.
- - Added the option to prevent the data of unsuccessful mutation attempts to be returned to the server.
-   The goal is to lessen the network traffic. On the down-side, the MUCOMMANU and MUNU1PRETAIN 
-   selection mode also need sub-optimal results and might work less efficient, when this setting is enabled.
- - Prevented GBrokerPopulation from becoming an individual inside of itself. Doesn't make sense and
-   will likely not work.
- - Added the option to let Geneva automatically determine a suitable number of processing threads
-   in GBoostThreadPopulation (set the number of threads to 0 using 
-   GBoostThreadPopulation::setNThreads() to use this feature).
+ - Added option to GBasePopulation to stop optimizing after a user-defined
+   number of stalls.
+ - Allowed to selectively switch off mutations (i.e. value changes) for
+   GParameterBase derivatives.
+ - Gave GBrokerPopulation the ability to dynamically adapt the waitFactor_
+   variable upon request.
+ - Added a new selection scheme MUNU1PRETAIN to GBasePopulation. In this
+   scheme, the best parent of the last generation is retained, unless a
+   better child was found. The other parents are replaced by the best
+   children. This is a hybrid between the MUPLUSNU and MUCOMMANU modes.
+ - Added micro-training environment to GBasePopulation (and derivatives).
+   When the optimization stalls, parents may perform structural updates.
+   As these will very likely lead to a decrease in quality, a one-time
+   selection policy of MUPLUSNU is used.
+ - Added the option to set an arbitrary start generation. This is useful
+   when intermediate results are written out, whose file name is based on
+   the current generation. Files can continue to be written out with
+   sequential generation numbers, even if the optimization was started
+   anew, e.g. using a checkpoint file.
+ - Added the option to prevent the data of unsuccessful mutation attempts
+   to be returned to the server. The goal is to lessen the network traffic.
+   On the down-side, the MUCOMMANU and MUNU1PRETAIN selection mode also
+   need sub-optimal results and might work less efficient, when this
+   setting is enabled.
+ - Prevented GBrokerPopulation from becoming an individual inside of
+   itself. Doesn't make sense and will likely not work.
+ - Added the option to let Geneva automatically determine a suitable
+   number of processing threads in GBoostThreadPopulation (set the number
+   of threads to 0 using GBoostThreadPopulation::setNThreads() to use
+   this feature).
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.5.3, "Building 39" - July 6, 2009
 
 The main changes for this release include:
  - Made the library compile (mostly clean) with the Intel 10.1 compiler.
- - Made the library compile cleanly with the old GNU g++ 3.4.6
- - Made the package size produced by the GRandomFactory changeable at run-time
- - Allow for random numbers to be produced locally in each GRandom object, if desired. 
-   This makes it possible to assign many more parameters to an individual
- - Moved away from the Boost random number generator for local generation mode
-   due to its large memory requirements
- - Added possibility to compile the library/executables statically
- - Added Philipp Henkel's threadpool library to the Geneva distribution (with his
-   kind permission), in order to ease the compilation procedure.
- - Added the CMake 2.6.4 FindBoost.cmake macro to the Geneva distribution in order
-   to ease the compilation procedure. There should now be no need to upgrade older 2.6.x
-   CMake distributions, whose FindBoost.cmake seemed to have had a problem.
- - Removed the former GLogger framework. It was only used in a few places and
-   hasn't been updated for a while. When the Boost.Logging library will pass its
-   review, it will be used in Geneva instead.
- - Added the ability to GParameterTColletionT to use a common adaptor for all of its 
-   GParameterT objects. Note: Needs some more testing. 
- - GSeed will now first try to get an initial seed from /dev/urandom, if available, and 
-   will then set the seed to a predefined value upon failure.
- - Removed GRandom from GObject, providing individual GRandom objects only for GAdaptorT
-   and GIndividualSet. This results in a greatly reduced memory consumption at very
-   little expense to functionality.
- - Made the network clients ask the server for a seed for their local random number
-   genrator, so we are sure that each client uses a different random number sequence
- - Reworked test suite so that it now uses manual test registration rather than automatic
-   test cases. Needed in order to let the GRandomFactory tests be performed in the beginning.
- - Renamed the installed library to geneva-opt, so that it doesn't clash with other, similarly
-   named libraries on the system.
- - Improved the check-pointing infrastructure (toFile/fromFile) in GObject
- - Added ability to GBasePopulation to checkpoint the nParents' best individuals in regular intervals
+ - Made the library compile cleanly with the old GNU g++ 3.4.6.
+ - Made the package size produced by the GRandomFactory changeable at
+   run-time.
+ - Allow for random numbers to be produced locally in each GRandom object,
+   if desired. This makes it possible to assign many more parameters to
+   an individual.
+ - Moved away from the Boost random number generator for local generation
+   mode due to its large memory requirements.
+ - Added possibility to compile the library/executables statically.
+ - Added Philipp Henkel's threadpool library to the Geneva distribution
+   (with his kind permission), in order to ease the compilation procedure.
+ - Added the CMake 2.6.4 FindBoost.cmake macro to the Geneva distribution
+   in order to ease the compilation procedure. There should now be no need
+   to upgrade older 2.6.x CMake distributions, whose FindBoost.cmake
+   seemed to have had a problem.
+ - Removed the former GLogger framework. It was only used in a few places
+   and hasn't been updated for a while. When the Boost.Logging library will
+   pass its review, it will be used in Geneva instead.
+ - Added the ability to GParameterTColletionT to use a common adaptor for
+   all of its GParameterT objects. Note: Needs some more testing. 
+ - GSeed will now first try to get an initial seed from /dev/urandom, if
+   available, and will then set the seed to a predefined value upon failure.
+ - Removed GRandom from GObject, providing individual GRandom objects only
+   for GAdaptorT and GIndividualSet. This results in a greatly reduced
+   memory consumption at very little expense to functionality.
+ - Made the network clients ask the server for a seed for their local random
+   number generator, so we are sure that each client uses a different random
+   number sequence.
+ - Reworked test suite so that it now uses manual test registration rather
+   than automatic test cases. Needed in order to let the GRandomFactory
+   tests be performed in the beginning.
+ - Renamed the installed library to geneva-opt, so that it doesn't clash
+   with other, similarly named libraries on the system.
+ - Improved the check-pointing infrastructure (toFile/fromFile) in GObject.
+ - Added ability to GBasePopulation to checkpoint the nParents' best
+   individuals in regular intervals.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.5.2, "Building 38" - April 20, 2009
@@ -206,4 +245,4 @@ to CMake. Directory structure of SVN repository has been revised.
 //------------------------------------------------------------------------------------------------------
 * Version 0.4, "CERN-barracks" - July 7, 2008
 
-Initial public release
+Initial public release.
