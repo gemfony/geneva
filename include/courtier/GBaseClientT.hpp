@@ -246,8 +246,8 @@ protected:
 		// This one line is all it takes to do the processing required for this object.
 		// The object has all required functions on board. GBaseClientT<T> does not need to understand
 		// what is being done during the processing. If processing did not lead to a useful result,
-		// information will be returned back to the server only if discardIfUnsuccessful_ is set to
-		// false.
+		// information will be returned back to the server only if returnRegardless_
+		// is set to true.
 		if(!target->process() && !returnRegardless_) return true;
 
 		// transform target back into a string and submit to the server. The actual
