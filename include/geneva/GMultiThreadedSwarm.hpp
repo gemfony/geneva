@@ -159,4 +159,18 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
+#ifdef GENEVATESTING
+// Tests of this class (and parent classes)
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/** @brief We need to provide a specialization of the factory function that creates objects of this type. */
+template <> boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedSwarm>();
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+
+#endif /* GENEVATESTING */
+
 #endif /* GMULTITHREADEDSWARM_HPP_ */

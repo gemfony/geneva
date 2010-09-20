@@ -54,7 +54,6 @@
 
 
 namespace Gem {
-
 namespace Geneva {
 
 /************************************************************************************************/
@@ -74,7 +73,6 @@ std::istream& operator>>(std::istream&, Gem::Geneva::dataExchangeMode&);
 /************************************************************************************************/
 
 } /* namespace Geneva */
-
 } /* namespace Gem */
 
 #endif /* GEXTERNALEVALUATORENUMS_HPP_ */

@@ -87,7 +87,7 @@ const std::string DEFAULTCPDIR = "./";
 
 /******************************************************************************************/
 /**
- * The default serialization mode used for checkpointing
+ * The default serialization mode used for check-pointing
  */
 const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATIONMODE_BINARY;
 
@@ -98,9 +98,9 @@ const Gem::Common::serializationMode DEFAULTCPSERMODE = Gem::Common::SERIALIZATI
  * a given amount of time. The class also defines the interface functions common to these
  * algorithms, such as a general call to "optimize()".
  */
-template <typename individual_type = Gem::Geneva::GIndividual>
+template <typename ind_type = Gem::Geneva::GIndividual>
 class GOptimizationAlgorithmT
-	:public GMutableSetT<individual_type>
+	:public GMutableSetT<ind_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -108,7 +108,7 @@ class GOptimizationAlgorithmT
 	template<typename Archive>
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
-	  ar & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<individual_type> >(*this))
+	  ar & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
 	     & BOOST_SERIALIZATION_NVP(iteration_)
 	     & BOOST_SERIALIZATION_NVP(maxIteration_)
 	     & BOOST_SERIALIZATION_NVP(maxStallIteration_)
@@ -134,7 +134,7 @@ public:
 	 * The default constructor
 	 */
 	GOptimizationAlgorithmT()
-		: GMutableSetT<individual_type>()
+		: GMutableSetT<ind_type>()
 		, iteration_(0)
 		, maxIteration_(DEFAULTMAXIT)
 		, maxStallIteration_(DEFAULMAXTSTALLIT)
@@ -159,8 +159,8 @@ public:
 	 *
 	 * @param cp A constant reference to another GOptimizationAlgorithmT object
 	 */
-	GOptimizationAlgorithmT(const GOptimizationAlgorithmT<individual_type>& cp)
-		: GMutableSetT<individual_type>(cp)
+	GOptimizationAlgorithmT(const GOptimizationAlgorithmT<ind_type>& cp)
+		: GMutableSetT<ind_type>(cp)
 		, iteration_(cp.iteration_)
 		, maxIteration_(cp.maxIteration_)
 		, maxStallIteration_(cp.maxStallIteration_)
@@ -194,7 +194,7 @@ public:
 	 */
 	void checkpoint(const bool& better) const {
 		// Save checkpoints if required by the user
-		if(cpInterval_ == -1 && better) saveCheckpoint();
+		if(cpInterval_ < 0 && better) saveCheckpoint();
 		else if(cpInterval_ && iteration_%cpInterval_ == 0) saveCheckpoint();
 	}
 
@@ -226,18 +226,13 @@ public:
 
 	/**************************************************************************************/
 	/**
-	 * Allows to set the number of generations after which a checkpoint should be written
+	 * Allows to set the number of generations after which a checkpoint should be written.
+	 * A negative value will result in automatic checkpointing, whenever a better solution
+	 * was found.
 	 *
 	 * @param cpInterval The number of generations after which a checkpoint should be written
 	 */
 	void setCheckpointInterval(const boost::int32_t& cpInterval) {
-		if(cpInterval < -1) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<individual_type>::setCheckpointInterval():" << std::endl
-				  << "Error: received bad checkpoint interval: " << cpInterval << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
-		}
-
 		cpInterval_ = cpInterval;
 	}
 
@@ -263,14 +258,14 @@ public:
 		// Do some basic checks
 		if(cpBaseName == "empty" || cpBaseName.empty()) {
 			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<individual_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+			error << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				  << "Error: Invalid cpBaseName: " << cpBaseName << std::endl;
 			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		if(cpDirectory == "empty" || cpDirectory.empty()) {
 			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<individual_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+			error << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				  << "Error: Invalid cpDirectory: " << cpDirectory << std::endl;
 			throw Gem::Common::gemfony_error_condition(error.str());
 		}
@@ -280,7 +275,7 @@ public:
 		// Check that the provided directory exists
 		if(!boost::filesystem::exists(cpDirectory) || !boost::filesystem::is_directory(cpDirectory)) {
 			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<individual_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+			error << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				  << "Error: directory does not exist: " << cpDirectory << std::endl;
 			throw Gem::Common::gemfony_error_condition(error.str());
 		}
@@ -338,10 +333,10 @@ public:
 	 * @param  cp A constant reference to another GOptimizationAlgorithmT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GOptimizationAlgorithmT<individual_type>& cp) const {
+	bool operator==(const GOptimizationAlgorithmT<ind_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithm<individual_type>::operator==","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithm<ind_type>::operator==","cp", CE_SILENT);
 	}
 
 	/**************************************************************************************/
@@ -351,10 +346,10 @@ public:
 	 * @param  cp A constant reference to another GOptimizationAlgorithmT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GOptimizationAlgorithmT<individual_type>& cp) const {
+	bool operator!=(const GOptimizationAlgorithmT<ind_type>& cp) const {
 		using namespace Gem::Common;
 		// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<individual_type>::operator!=","cp", CE_SILENT);
+		return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::operator!=","cp", CE_SILENT);
 	}
 
 	/**************************************************************************************/
@@ -380,33 +375,33 @@ public:
 	    using namespace Gem::Common;
 
 		// Check that we are indeed dealing with a GParamterBase reference
-		const GOptimizationAlgorithmT<individual_type> *p_load = GObject::conversion_cast<GOptimizationAlgorithmT<individual_type> >(&cp);
+		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::conversion_cast<GOptimizationAlgorithmT<ind_type> >(&cp);
 
 		// Will hold possible deviations from the expectation, including explanations
 	    std::vector<boost::optional<std::string> > deviations;
 
 		// Check our parent class'es data ...
-		deviations.push_back(GMutableSetT<individual_type>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<individual_type>", y_name, withMessages));
+		deviations.push_back(GMutableSetT<ind_type>::checkRelationshipWith(cp, e, limit, "GOptimizationAlgorithmT<ind_type>", y_name, withMessages));
 
 		// ... and then our local data
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", iteration_, p_load->iteration_, "iteration_", "p_load->iteration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", maxIteration_, p_load->maxIteration_, "maxIteration_", "p_load->maxIteration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", maxStallIteration_, p_load->maxStallIteration_, "maxStallIteration_", "p_load->maxStallIteration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", defaultPopulationSize_, p_load->defaultPopulationSize_, "defaultPopulationSize_", "p_load->defaultPopulationSize_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", stallCounter_, p_load->stallCounter_, "stallCounter_", "p_load->stallCounter_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", cpInterval_, p_load->cpInterval_, "cpInterval_", "p_load->cpInterval_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", cpBaseName_, p_load->cpBaseName_, "cpBaseName_", "p_load->cpBaseName_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", cpDirectory_, p_load->cpDirectory_, "cpDirectory_", "p_load->cpDirectory_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", cpSerMode_, p_load->cpSerMode_, "cpSerMode_", "p_load->cpSerMode_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", qualityThreshold_, p_load->qualityThreshold_, "qualityThreshold_", "p_load->qualityThreshold_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", hasQualityThreshold_, p_load->hasQualityThreshold_, "hasQualityThreshold_", "p_load->hasQualityThreshold_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", maxDuration_, p_load->maxDuration_, "maxDuration_", "p_load->maxDuration_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<individual_type>", emitTerminationReason_, p_load->emitTerminationReason_, "emitTerminationReason_", "p_load->emitTerminationReason_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", iteration_, p_load->iteration_, "iteration_", "p_load->iteration_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxIteration_, p_load->maxIteration_, "maxIteration_", "p_load->maxIteration_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxStallIteration_, p_load->maxStallIteration_, "maxStallIteration_", "p_load->maxStallIteration_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", defaultPopulationSize_, p_load->defaultPopulationSize_, "defaultPopulationSize_", "p_load->defaultPopulationSize_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", stallCounter_, p_load->stallCounter_, "stallCounter_", "p_load->stallCounter_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpInterval_, p_load->cpInterval_, "cpInterval_", "p_load->cpInterval_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpBaseName_, p_load->cpBaseName_, "cpBaseName_", "p_load->cpBaseName_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpDirectory_, p_load->cpDirectory_, "cpDirectory_", "p_load->cpDirectory_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpSerMode_, p_load->cpSerMode_, "cpSerMode_", "p_load->cpSerMode_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", qualityThreshold_, p_load->qualityThreshold_, "qualityThreshold_", "p_load->qualityThreshold_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", hasQualityThreshold_, p_load->hasQualityThreshold_, "hasQualityThreshold_", "p_load->hasQualityThreshold_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxDuration_, p_load->maxDuration_, "maxDuration_", "p_load->maxDuration_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", emitTerminationReason_, p_load->emitTerminationReason_, "emitTerminationReason_", "p_load->emitTerminationReason_", e , limit));
 
-		return evaluateDiscrepancies("GOptimizationAlgorithmT<individual_type>", caller, deviations, e);
+		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
 	}
 
 	/**************************************************************************************/
@@ -581,7 +576,7 @@ public:
 		// Only allow "real" values
 		if(maxDuration.is_special() || maxDuration.is_negative()) {
 			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<individual_type>::setMaxTime() : Error!" << std::endl
+			error << "In GOptimizationAlgorithmT<ind_type>::setMaxTime() : Error!" << std::endl
 				  << "Invalid maxDuration." << std::endl;
 
 			throw Gem::Common::gemfony_error_condition(error.str());
@@ -740,7 +735,7 @@ public:
 	 * type and returns it. In DEBUG mode, the function will check whether the
 	 * requested position exists.
 	 *
-	 * Note that this function will only be accessible to the compiler if individual_type
+	 * Note that this function will only be accessible to the compiler if ind_type
 	 * is a derivative of GIndividual, thanks to the magic of Boost's enable_if and Type
 	 * Traits libraries.
 	 *
@@ -755,7 +750,7 @@ public:
 #ifdef DEBUG
 		if(pos >= this->size()) {
 			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<individual_type>::individual_cast<>() : Error" << std::endl
+			error << "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Error" << std::endl
 				  << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
@@ -765,7 +760,7 @@ public:
 		if(p) return p;
 		else {
 			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<individual_type>::individual_cast<>() : Conversion error" << std::endl;
+			error << "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Conversion error" << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #else
@@ -791,10 +786,10 @@ protected:
 	 */
 	virtual void load_(const GObject* cp)
 	{
-		const GOptimizationAlgorithmT<individual_type> *p_load = GObject::conversion_cast<GOptimizationAlgorithmT<individual_type> >(cp);
+		const GOptimizationAlgorithmT<ind_type> *p_load = GObject::conversion_cast<GOptimizationAlgorithmT<ind_type> >(cp);
 
 		// Load the parent class'es data
-		GMutableSetT<individual_type>::load_(cp);
+		GMutableSetT<ind_type>::load_(cp);
 
 		// and then our local data
 		iteration_ = p_load->iteration_;
@@ -828,7 +823,7 @@ protected:
 	 * Resets the individual's personality types
 	 */
 	void resetIndividualPersonalities() {
-		typename GOptimizationAlgorithmT<individual_type>::iterator it;
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) (*it)->resetPersonality();
 	}
 
@@ -854,14 +849,14 @@ protected:
 	/**
 	 * It is possible for derived classes to specify in overloaded versions of this
 	 * function under which conditions the optimization should be stopped. The
-	 * function is called from GOptimizationAlgorithmT<individual_type>::halt .
+	 * function is called from GOptimizationAlgorithmT<ind_type>::halt .
 	 *
 	 * @return boolean indicating that a stop condition was reached
 	 */
 	virtual bool customHalt() const {
 		/* nothing - specify your own criteria in derived classes. Make sure
-		 * to emit a suitable mesage if execution was halted due to a
-		 * custom criterium */
+		 * to emit a suitable message if execution was halted due to a
+		 * custom criterion */
 		return false;
 	}
 
@@ -883,7 +878,7 @@ protected:
 		// run across an unevaluated individual.
 		if(dirty) {
 			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<individual_type>::fitnessCalculation(): Error!" << std::endl
+			error << "In GOptimizationAlgorithmT<ind_type>::fitnessCalculation(): Error!" << std::endl
 				  << "Came across dirty individual" << std::endl;
 
 			// throw an exception. Add some information so that if the exception
@@ -942,7 +937,7 @@ protected:
 		// Tell all individuals in this collection to update their random number generators
 		// with the one contained in GMutableSetT. Note: This will only have an effect on
 		// GParameterSet objects, as GIndividual contains an empty function.
-		typename GOptimizationAlgorithmT<individual_type>::iterator it;
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->updateRNGs();
 		}
@@ -956,7 +951,7 @@ protected:
 	virtual void finalize()	{
 		// Tell all individuals in this collection to tell all GParameterBase derivatives
 		// to again use their local generators.
-		typename GOptimizationAlgorithmT<individual_type>::iterator it;
+		typename GOptimizationAlgorithmT<ind_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			(*it)->restoreRNGs();
 		}
@@ -970,8 +965,8 @@ private:
 	/**************************************************************************************/
 	/**
 	 * This function returns true once a given time (set with
-	 * GOptimizationAlgorithm<individual_type>::setMaxTime()) has passed.
-	 * It is used in the GOptimizationAlgorithmT<individual_type>::halt() function.
+	 * GOptimizationAlgorithm<ind_type>::setMaxTime()) has passed.
+	 * It is used in the GOptimizationAlgorithmT<ind_type>::halt() function.
 	 *
 	 * @return A boolean indicating whether a given amount of time has passed
 	 */
@@ -1051,7 +1046,7 @@ private:
 	 * Lets individuals know whether they are part of a maximization or minimization scheme
 	 */
 	void setIndividualMaxMode() {
-		typename std::vector<boost::shared_ptr<individual_type> >::iterator it;
+		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) (*it)->setMaxMode(maximize_);
 	}
 
@@ -1061,7 +1056,7 @@ private:
 	 * cycle.
 	 */
 	void markIteration() {
-		typename std::vector<boost::shared_ptr<individual_type> >::iterator it;
+		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) (*it)->setParentAlgIteration(iteration_);
 	}
 
@@ -1070,7 +1065,7 @@ private:
 	 * Marks the globally best known fitness in all individuals
 	 */
 	void markBestFitness() {
-		typename std::vector<boost::shared_ptr<individual_type> >::iterator it;
+		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) (*it)->setBestKnownFitness(bestPastFitness_);
 	}
 
@@ -1079,7 +1074,7 @@ private:
 	 * Marks the number of stalled optimization attempts in all individuals
 	 */
 	void markNStalls() {
-		typename std::vector<boost::shared_ptr<individual_type> >::iterator it;
+		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) (*it)->setNStalls(stallCounter_);
 	}
 
@@ -1114,7 +1109,7 @@ public:
 		bool result = false;
 
 		// Call the parent class'es function
-		if(GMutableSetT<individual_type>::modify_GUnitTests()) result = true;
+		if(GMutableSetT<ind_type>::modify_GUnitTests()) result = true;
 
 		return result;
 	}
@@ -1125,7 +1120,7 @@ public:
 	 */
 	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent class'es function
-		GMutableSetT<individual_type>::specificTestsNoFailureExpected_GUnitTests();
+		GMutableSetT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
 	}
 
 	/**************************************************************************************/
@@ -1134,7 +1129,7 @@ public:
 	 */
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent class'es function
-		GMutableSetT<individual_type>::specificTestsFailuresExpected_GUnitTests();
+		GMutableSetT<ind_type>::specificTestsFailuresExpected_GUnitTests();
 	}
 
 	/**************************************************************************************/
@@ -1150,10 +1145,10 @@ public:
  */
 namespace boost {
   namespace serialization {
-    template<typename individual_type>
-    struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT<individual_type> > : public boost::true_type {};
-    template<typename individual_type>
-    struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<individual_type> > : public boost::true_type {};
+    template<typename ind_type>
+    struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
+    template<typename ind_type>
+    struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
   }
 }
 

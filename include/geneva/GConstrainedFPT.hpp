@@ -49,9 +49,9 @@
 #include <boost/bind.hpp>
 #include <boost/cast.hpp> // For boost::numeric_cast<>
 #include <boost/limits.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
+#include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
 
 #ifndef GCONSTRAINEDFPT_HPP_
 #define GCONSTRAINEDFPT_HPP_
@@ -96,6 +96,9 @@ class GConstrainedFPT
 		   & BOOST_SERIALIZATION_NVP(upper_closed_);
 	}
 	///////////////////////////////////////////////////////////////////////
+
+	// Make sure this class can only be instantiated if fp_type really is a floating point type
+	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
 
 public:
 	/****************************************************************************/

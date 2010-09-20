@@ -109,10 +109,11 @@ class GSwarm
 		std::size_t currentNNeighborhoods = nNeighborhoods_;
 
 		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
-		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_);
+		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
+		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_);
 
 		if(currentNNeighborhoods != nNeighborhoods_) {
-			delete [] nNeighborhoodMembers_;
+			if(nNeighborhoodMembers_) delete [] nNeighborhoodMembers_;
 			nNeighborhoodMembers_ = new std::size_t[nNeighborhoods_];
 		}
 
@@ -128,7 +129,7 @@ class GSwarm
 		ar & BOOST_SERIALIZATION_NVP(local_bests_vec);
 
 		if(currentNNeighborhoods != nNeighborhoods_) {
-			delete [] local_bests_;
+			if(local_bests_) delete [] local_bests_;
 			local_bests_ = new boost::shared_ptr<GParameterSet>[nNeighborhoods_];
 		}
 
@@ -147,7 +148,8 @@ class GSwarm
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
-		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_);
+		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
+		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_);
 
 		std::vector<std::size_t> nNeighborhoodMembersVec;
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {

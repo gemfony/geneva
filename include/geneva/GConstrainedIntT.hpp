@@ -48,7 +48,7 @@
 #include <boost/bind.hpp>
 #include <boost/cast.hpp> // For boost::numeric_cast<>
 #include <boost/limits.hpp>
-#include <boost/concept_check.hpp>
+#include <boost/mpl/assert.hpp>
 
 #ifndef GCONSTRAINEDINTEGERT_HPP_
 #define GCONSTRAINEDINTEGERT_HPP_
@@ -96,7 +96,7 @@ class GConstrainedIntT
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure this class can only be instantiated if int_type is a *signed* integer type
-	BOOST_CONCEPT_ASSERT((boost::SignedInteger<int_type>));
+	BOOST_MPL_ASSERT((boost::is_signed<int_type>));
 
 public:
 	/****************************************************************************/

@@ -4,6 +4,7 @@ SET (EXECUTABLENAME GExternalEvaluatorUnitTests)
 
 SET (${EXECUTABLENAME}_SRCS 
 	GExternalEvaluatorUnitTests
+	../../GExternalEvaluatorEnums
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

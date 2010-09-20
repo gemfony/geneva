@@ -39,10 +39,9 @@
 // Boost headers go here
 
 #include <boost/cstdint.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/concept_check.hpp>
+#include <boost/mpl/assert.hpp>
 
 #ifndef GNUMINTT_HPP_
 #define GNUMINTT_HPP_
@@ -84,7 +83,7 @@ class GNumIntT
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure this class can only be instantiated if int_type is a *signed* integer type
-	BOOST_CONCEPT_ASSERT((boost::SignedInteger<int_type>));
+	BOOST_MPL_ASSERT((boost::is_signed<int_type>));
 
 public:
 	/** @brief Specifies the type of parameters stored in this object */

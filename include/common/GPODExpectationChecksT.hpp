@@ -123,7 +123,7 @@ boost::optional<std::string> checkExpectation (
 		message << "In expectation check initiated by \"" << caller << "\" : "
 				<< x_name << " and " << y_name << " where not " <<
 				((e==Gem::Common::CE_EQUALITY || e==Gem::Common::CE_FP_SIMILARITY)?"equal/similar":"inequal")
-				<< " as expected.";
+				<< " as expected. Further analysis: " << x_name << " = " << x << " " << y_name << " = " << y;
 	}
 
 	if(expectationMet) {

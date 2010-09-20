@@ -239,14 +239,14 @@ void GMultiThreadedSwarm::swarmLogic() {
 		if(getIteration() > 0) {
 			if(!local_bests_[neighborhood]) {
 				std::ostringstream error;
-				error << "In GMultiThreadedSwarm::updatePositionsAndFitness(): Error!" << std::endl
+				error << "In GMultiThreadedSwarm::swarmLogic(): Error!" << std::endl
 					  << "local_bests[" << neighborhood << "] is empty." << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
 
 			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
 				std::ostringstream error;
-				error << "In GMultiThreadedSwarm::updatePositionsAndFitness(): Error!" << std::endl
+				error << "In GMultiThreadedSwarm::swarmLogic(): Error!" << std::endl
 					  << "global_best_ is empty." << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
@@ -364,3 +364,24 @@ void GMultiThreadedSwarm::specificTestsFailuresExpected_GUnitTests() {
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+#ifdef GENEVATESTING
+// Tests of this class (and parent classes)
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * As Gem::Geneva::GMultiThreadedSwarm has a protected default constructor, we need to provide a
+ * specialization of the factory function that creates objects of this type.
+ */
+template <>
+boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedSwarm>() {
+	boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> p;
+	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm>(new Gem::Geneva::GMultiThreadedSwarm(5,10)));
+	return p;
+}
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+#endif /* GENEVATESTING */

@@ -80,10 +80,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	//---------------------------------------------------------------------------//
 	// Tests of construction, loading, cloning, ...
 
-	// We use boost::shared_ptr so we can refer to the objects from within BOOST_CHECK
-	boost::shared_ptr<T> T_ptr, T_ptr_cp, T_ptr_clone, T_ptr_load, T_ptr_assign;
+	/*
+	{ // Test default construction and copy construction
+		boost::shared_ptr<T> T_ptr, T_ptr_cp;
 
-	{
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE(T_ptr); // must point somewhere
@@ -108,7 +108,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr_cp.reset());
 	}
 
-	{
+	{ // Test cloning
+		boost::shared_ptr<T> T_ptr, T_ptr_clone;
+
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE(T_ptr); // must point somewhere
@@ -133,7 +135,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr_clone.reset());
 	}
 
-	{
+	{ // Test loading
+		boost::shared_ptr<T> T_ptr, T_ptr_load;
+
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE(T_ptr); // must point somewhere
@@ -160,7 +164,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr_load.reset());
 	}
 
-	{
+	{ // Check assignment using operator=
+		boost::shared_ptr<T> T_ptr, T_ptr_assign;
+
 		// Default construction
 		BOOST_REQUIRE_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE(T_ptr); // must point somewhere
@@ -186,7 +192,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr.reset());
 		BOOST_REQUIRE_NO_THROW(T_ptr_assign.reset());
 	}
+	*/
 
+	/*
 	//---------------------------------------------------------------------------//
 	// Check (de-)serialization in different modes.
 	{ // plain text format
@@ -199,8 +207,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		if(T_ptr1->modify_GUnitTests()) BOOST_CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
 
 		// Serialize gbc7 and load into gbc7_co, check equalities and similarities
-		// BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
-		T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT);
+		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_TEXT), Gem::Common::SERIALIZATIONMODE_TEXT));
 		BOOST_CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
 	}
 
@@ -231,11 +238,12 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
 		BOOST_CHECK(gep.isEqual(*T_ptr1, *T_ptr2));
 	}
-
+   */
 	//---------------------------------------------------------------------------//
-	// Run specific tests for the current object type
-	{
-		boost::shared_ptr<T> T_ptr = TFactory_GUnitTests<T>();
+
+	{ // Run specific tests for the current object type
+		boost::shared_ptr<T> T_ptr;
+		BOOST_CHECK_NO_THROW(T_ptr = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE(T_ptr); // must point somewhere
 		BOOST_CHECK_NO_THROW(T_ptr->specificTestsNoFailureExpected_GUnitTests());
 	}
@@ -252,6 +260,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 						 pow(10,-10),
 						 Gem::Common::CE_WITH_MESSAGES);
 
+	/*
 	{
 		// Checks that self-assignment throws in DEBUG mode
 #ifdef DEBUG
@@ -268,6 +277,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 		BOOST_REQUIRE(T_ptr); // must point somewhere
 		BOOST_CHECK_NO_THROW(T_ptr->specificTestsFailuresExpected_GUnitTests());
 	}
+	*/
 }
 
 /*************************************************************************************************/

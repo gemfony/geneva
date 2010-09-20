@@ -42,8 +42,8 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
 
 #ifndef GNUMCOLLECTIONFPT_HPP_
 #define GNUMCOLLECTIONFPT_HPP_
@@ -83,6 +83,9 @@ class GFPNumCollectionT
 	}
 	///////////////////////////////////////////////////////////////////////
 
+	// Make sure this class can only be instantiated if fp_type really is a floating point type
+	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
+
 public:
 	/******************************************************************/
 	/**
@@ -102,7 +105,6 @@ public:
 	GFPNumCollectionT(
 			const fp_type& min
 			, const fp_type& max
-			, typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	)
 		: GNumCollectionT<fp_type> (min, max)
 	{ /* nothing */ }
@@ -119,7 +121,6 @@ public:
 			const std::size_t& nval
 			, const fp_type& min
 			, const fp_type& max
-			, typename boost::enable_if<boost::is_floating_point<fp_type> >::type* dummy = 0
 	)
 		: GNumCollectionT<fp_type>(min, max)
 	{

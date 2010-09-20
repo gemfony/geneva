@@ -43,8 +43,8 @@
 // Boost headers go here
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
 
 #ifndef GNUMFPT_HPP_
 #define GNUMFPT_HPP_
@@ -80,6 +80,9 @@ class GNumFPT
 		ar & make_nvp("GNumT",	boost::serialization::base_object<GNumT<fp_type> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
+
+	// Make sure this class can only be instantiated if fp_type really is a floating point type
+	BOOST_MPL_ASSERT((boost::is_floating_point<fp_type>));
 
 public:
 	/** @brief Specifies the type of parameters stored in this object */

@@ -28,6 +28,9 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.com .
  */
+
+#include <iostream>
+
 #include <boost/test/unit_test.hpp>
 #include <boost/cstdint.hpp>
 
@@ -115,8 +118,8 @@ public:
 		typedef boost::mpl::list<
 			GEvolutionaryAlgorithm
 			, GMultiThreadedEA
-			// , GSwarm
-			//, GMultiThreadedSwarm
+			, GSwarm
+			// , GMultiThreadedSwarm
 		>
 		algorithm_types;
 
@@ -148,6 +151,10 @@ public:
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, individual_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, individual_types ) );
+	}
+
+	~GenevaStandardTestSuite() {
+		std::cout << "GenevaStandardTestSuite has ended." << std::endl;
 	}
 };
 

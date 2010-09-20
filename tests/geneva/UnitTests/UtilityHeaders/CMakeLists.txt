@@ -3,7 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET ( UTILITYFILES
 	GEqualityPrinter.hpp
 	GStandard_test.hpp
-	GStdVectorInterface_test.hpp
 )
 
 INSTALL ( FILES ${UTILITYFILES} DESTINATION tests/geneva/UnitTests/UtilityHeaders
