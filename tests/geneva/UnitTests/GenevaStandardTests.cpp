@@ -119,7 +119,7 @@ public:
 			GEvolutionaryAlgorithm
 			, GMultiThreadedEA
 			, GSwarm
-			// , GMultiThreadedSwarm
+			, GMultiThreadedSwarm
 		>
 		algorithm_types;
 

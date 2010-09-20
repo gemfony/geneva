@@ -80,7 +80,6 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 	//---------------------------------------------------------------------------//
 	// Tests of construction, loading, cloning, ...
 
-	/*
 	{ // Test default construction and copy construction
 		boost::shared_ptr<T> T_ptr, T_ptr_cp;
 
@@ -192,9 +191,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr.reset());
 		BOOST_REQUIRE_NO_THROW(T_ptr_assign.reset());
 	}
-	*/
 
-	/*
 	//---------------------------------------------------------------------------//
 	// Check (de-)serialization in different modes.
 	{ // plain text format
@@ -238,7 +235,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr2->GObject::fromString(T_ptr1->GObject::toString(Gem::Common::SERIALIZATIONMODE_BINARY), Gem::Common::SERIALIZATIONMODE_BINARY));
 		BOOST_CHECK(gep.isEqual(*T_ptr1, *T_ptr2));
 	}
-   */
+
 	//---------------------------------------------------------------------------//
 
 	{ // Run specific tests for the current object type
@@ -260,7 +257,6 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 						 pow(10,-10),
 						 Gem::Common::CE_WITH_MESSAGES);
 
-	/*
 	{
 		// Checks that self-assignment throws in DEBUG mode
 #ifdef DEBUG
@@ -277,7 +273,6 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 		BOOST_REQUIRE(T_ptr); // must point somewhere
 		BOOST_CHECK_NO_THROW(T_ptr->specificTestsFailuresExpected_GUnitTests());
 	}
-	*/
 }
 
 /*************************************************************************************************/
