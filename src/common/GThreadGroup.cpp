@@ -87,11 +87,10 @@ GThreadGroup::~GThreadGroup()
  *
  * @param thrd A pointer to a thread that should be added to the group
  */
-void GThreadGroup::add_thread(boost::thread* thrd) {
+void GThreadGroup::add_thread(thread_ptr thrd) {
 	if (thrd) {
 		boost::lock_guard<boost::mutex> guard(m_);
-		thread_ptr p_thrd(thrd);
-		threads_.push_back(p_thrd);
+		threads_.push_back(thrd);
 	}
 }
 
@@ -101,12 +100,12 @@ void GThreadGroup::add_thread(boost::thread* thrd) {
  *
  * @param thrd A pointer to the thread that shall be removed from the group
  */
-void GThreadGroup::remove_thread(boost::thread* thrd) {
+void GThreadGroup::remove_thread(thread_ptr thrd) {
 	if (!thrd) return;
 
 	boost::lock_guard<boost::mutex> guard(m_);
 	thread_vector::iterator const cit =
-		std::find(threads_.begin(), threads_.end(), thread_ptr(thrd));
+		std::find(threads_.begin(), threads_.end(), thrd);
 
 	if (cit != threads_.end()) threads_.erase(cit);
 }

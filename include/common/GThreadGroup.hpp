@@ -110,10 +110,10 @@ public:
 	~GThreadGroup();
 
 	/** @brief Adds an already created thread to the group */
-	void add_thread(boost::thread*);
+	void add_thread(thread_ptr);
 
 	/** @brief Remove a thread from the group. Does nothing if the thread is empty. */
-	void remove_thread(boost::thread*);
+	void remove_thread(thread_ptr);
 
 	/** @brief Requests all threads to join */
 	void join_all();
