@@ -58,8 +58,6 @@
 #include <boost/utility.hpp>
 #include <boost/date_time.hpp>
 #include <boost/lexical_cast.hpp>
-#include <common/thirdparty/boost/threadpool.hpp>
-
 
 #ifndef GASIOTCPCONSUMERT_HPP_
 #define GASIOTCPCONSUMERT_HPP_
@@ -71,6 +69,7 @@
 
 
 // Geneva headers go here
+#include "common/GThreadGroup.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "hap/GRandomT.hpp"
@@ -378,121 +377,132 @@ class GAsioTCPConsumerT
 	:public Gem::Courtier::GConsumer // note: GConsumer is non-copyable
 {
 public:
+	  /*********************************************************************/
+	  /**
+	   * The standard constructor. Note that we have a private, undefined
+	   * default constructor, as we want to enforce that a port is provided
+	   * to this class. We do not need tp specify our own address, as we
+	   * are listening only on a port of the local machine.
+	   *
+	   * @param port The port where the server should wait for new connections
+	   * @param listenerThreads The number of threads used to wait for incoming connections
+	   */
+	  GAsioTCPConsumerT(
+			const unsigned short& port
+			, const std::size_t& listenerThreads = 0
+	  )
+			: listenerThreads_(listenerThreads>0?listenerThreads:Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+			, acceptor_(io_service_)
+			, serializationMode_(Gem::Common::SERIALIZATIONMODE_TEXT)
+	  {
+		  // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
+		  boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
+		  acceptor_.open(endpoint.protocol());
+		  acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+		  acceptor_.bind(endpoint);
+		  acceptor_.listen();
 
-    /**
-     * Standard constructor. Initializes the acceptor with ioservice and port.
-     * It would be good to use boost::uint8_t here, however endpoint uses
-     * unsigned short, so we stick with this convention. The number of threads will
-     * be initialized with the number of processor cores, if listenerThreads is
-     * set to 0.
-     *
-     * @param port The port through which clients can access the server
-     * @param initialThreads The number of threads used to listen for incoming connections
-     */
-    GAsioTCPConsumerT(const unsigned short& port, const std::size_t& listenerThreads = 0)
-        :GConsumer(),
-         work_(new boost::asio::io_service::work(io_service_)),
-         acceptor_(work_->get_io_service(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
-         listenerThreads_(listenerThreads>0?listenerThreads:Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS)),
-         tp_(listenerThreads_),
-         serializationMode_(Gem::Common::SERIALIZATIONMODE_TEXT)
-    {
-        // Start the actual processing. All real work is done in the GAsioServerSession class .
-        boost::shared_ptr<GAsioServerSession<processable_type> > newSession(new GAsioServerSession<processable_type>(work_->get_io_service() ,serializationMode_));
-        acceptor_.async_accept(newSession->getSocket(), boost::bind(&GAsioTCPConsumerT<processable_type>::handleAccept, this, newSession, _1));
-    }
+		  boost::shared_ptr<GAsioServerSession<processable_type> > currentSession(
+				  new GAsioServerSession<processable_type>(
+						  io_service_
+						  , serializationMode_
+				  )
+		  );
 
-    /*********************************************************************/
-    /**
-     * A standard destructor.
-     */
-    ~GAsioTCPConsumerT()
-    {
-        // Make sure we have no remaining tasks
-        tp_.clear(); // Remove pending tasks
-        tp_.wait(); // Wait for all running tasks to terminate
-    }
+		  acceptor_.async_accept(
+				  currentSession->getSocket()
+				  , boost::bind(
+						  &GAsioTCPConsumerT<processable_type>::handleAccept
+						  , this
+						  , currentSession
+						  , boost::asio::placeholders::error
+				  )
+		  );
+	  }
 
-    /*********************************************************************/
-    /**
-     * The actual business logic. This function is processed in a separate thread,
-     * which is started by the broker.
-     */
-    void process(){
-        // The io_service's event loop
-        (work_->get_io_service()).run();
-    }
+	  /*********************************************************************/
+	  /**
+	   * Starts the actual processing loops
+	   */
+	  void process() {
+		  // Create a number of threads responsible for the io_service_ objects
+		  Gem::Common::GThreadGroup tg;
+		  tg.create_threads(
+				  boost::bind(&boost::asio::io_service::run, &io_service_)
+		  	  	  , listenerThreads_
+		  );
 
-    /*********************************************************************/
-    /**
-     * Finalization code. Sets the stop_ variable to true. handleAccept
-     * checks this and terminates instead of starting a new handleAccept
-     * session.
-     */
-    void shutdown()
-    {
-        work_.reset();
-    }
+		  // Wait for the threads in the group to exit
+		  tg.join_all();
+	  }
 
-    /*********************************************************************/
-    /**
-     * Retrieves the current serialization mode
-     *
-     * @return The current serialization mode
-     */
-    Gem::Common::serializationMode getSerializationMode() const  {
-        return serializationMode_;
-    }
+	  /*********************************************************************/
+	  /**
+	   * Make sure the consumer shuts down gracefully
+	   */
+	  void shutdown() {
+		  io_service_.stop();
+	  }
 
-    /*********************************************************************/
-    /**
-     * Sets the serialization mode. The only allowed values of the enum serializationMode are
-     * Gem::Common::SERIALIZATIONMODE_BINARY, Gem::Common::SERIALIZATIONMODE_TEXT and Gem::Common::SERIALIZATIONMODE_XML.
-     * The compiler does the error-checking for us.
-     *
-     * @param ser The new serialization mode
-     */
-    void setSerializationMode(const Gem::Common::serializationMode& ser)  {
-        serializationMode_ = ser;
-    }
+	  /*********************************************************************/
+	  /**
+	   * Retrieves the current serialization mode
+	   *
+	   * @return The current serialization mode
+	   */
+	  Gem::Common::serializationMode getSerializationMode() const  {
+		  return serializationMode_;
+	  }
+
+	  /*********************************************************************/
+	  /**
+	   * Sets the serialization mode. The only allowed values of the enum serializationMode are
+	   * Gem::Common::SERIALIZATIONMODE_BINARY, Gem::Common::SERIALIZATIONMODE_TEXT and Gem::Common::SERIALIZATIONMODE_XML.
+	   * The compiler does the error-checking for us.
+	   *
+	   * @param ser The new serialization mode
+	   */
+	  void setSerializationMode(const Gem::Common::serializationMode& ser)  {
+		  serializationMode_ = ser;
+	  }
 
 private:
+	  /*********************************************************************/
+	  /**
+	   * Handles a new connection request from a client.
+	   *
+	   * @param currentSession A pointer to the current session
+	   * @param error Possible error conditions
+	   */
+	  void handleAccept(
+			  boost::shared_ptr<GAsioServerSession<processable_type> > currentSession
+			  , const boost::system::error_code& error)
+	  {
+		  // Check whether an error occurred. This will likely indicate that we've been asked to stop.
+		  if(error) return;
 
-    /*********************************************************************/
-    /**
-     * Handles a new connection request from a client.
-     *
-     * @param currentSession A pointer to the current session
-     * @param error Possible error conditions
-     */
-    void handleAccept(boost::shared_ptr<GAsioServerSession<processable_type> > currentSession, const boost::system::error_code& error)
-    {
-        // Check whether an error occurred. This will likely indicate that we've been asked to stop.
-        if(error) return;
+		  // First we make sure a new session is started asynchronously so the next request can be served
+		  boost::shared_ptr<GAsioServerSession<processable_type> > newSession(new GAsioServerSession<processable_type>(io_service_, serializationMode_));
+		  acceptor_.async_accept(
+				  newSession->getSocket()
+				  , boost::bind(
+						  &GAsioTCPConsumerT<processable_type>::handleAccept
+						  , this, newSession
+						  , boost::asio::placeholders::error
+				  )
+		  );
 
-        // First we make sure a new session is started asynchronously so the next request can be served
-        boost::shared_ptr<GAsioServerSession<processable_type> > newSession(new GAsioServerSession<processable_type>(work_->get_io_service(), serializationMode_));
-        acceptor_.async_accept(newSession->getSocket(), boost::bind(&GAsioTCPConsumerT<processable_type>::handleAccept, this, newSession, _1));
+		  // Now we can run the actual session code
+		  currentSession->processRequest();
+	  }
 
-        // Now we can dispatch the actual session code to our thread pool
-        tp_.schedule(boost::bind(&GAsioServerSession<processable_type>::processRequest, currentSession));
-    }
+	  /*********************************************************************/
+	  boost::asio::io_service io_service_; 	///< ASIO's io service, responsible for event processing, absolutely needs to be _before_ acceptor so it gets initialized first.
+	  std::size_t listenerThreads_;  ///< The number of threads used to listen for incoming connections through io_servce::run()
+	  boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
+	  Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
 
-    /*********************************************************************/
-	/**
-	 * ASIO's io service, responsible for event processing, absolutely
-	 * needs to be _before_ acceptor so it gets initialized first.
-	 */
-	boost::asio::io_service io_service_;
-	boost::shared_ptr<boost::asio::io_service::work> work_;
-
-	boost::asio::ip::tcp::acceptor acceptor_; ///< takes care of external connection requests
-
-	std::size_t listenerThreads_; /// The number of threads used to listen for incoming connections
-
-	boost::threadpool::pool tp_; ///< A simple threadpool, see http://threadpoo.sf.net
-
-	Gem::Common::serializationMode serializationMode_; ///< Specifies the serialization mode
+	  GAsioTCPConsumerT(); ///< Default constructor intentionally private and undefined
 };
 
 /*********************************************************************/
@@ -500,4 +510,4 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /*GASIOTCPCONSUMERT_HPP_*/
+#endif /* GASIOTCPCONSUMERT_HPP_ */

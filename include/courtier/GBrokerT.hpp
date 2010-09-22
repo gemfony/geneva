@@ -116,6 +116,11 @@ public:
 	 */
 	virtual ~GBrokerT()
 	{
+		std::vector<boost::shared_ptr<GConsumer> >::iterator it;
+		for(it=consumerCollection_.begin(); it!=consumerCollection_.end(); ++it) {
+			(*it)->shutdown();
+		}
+
 		consumerThreads_.join_all();
 	}
 
