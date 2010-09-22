@@ -381,7 +381,7 @@ public:
 	  /**
 	   * The standard constructor. Note that we have a private, undefined
 	   * default constructor, as we want to enforce that a port is provided
-	   * to this class. We do not need tp specify our own address, as we
+	   * to this class. We do not need to specify our own address, as we
 	   * are listening only on a port of the local machine.
 	   *
 	   * @param port The port where the server should wait for new connections

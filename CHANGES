@@ -12,6 +12,10 @@ Wishlist for Version 1.0, yet unnamed, release-date unknown
 * Version 0.8.4, yet unnamed, release-date unknown
 
 The main changes for this release include:
+ - Revised GAsioTCPConsumerT
+ - Fixed an important bug in the broker infrastructure. As a result of that
+   problem, the server sometimes didn't shut down properly at the end
+   of networked optimization.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.3, "Delphi" - September 19, 2010
