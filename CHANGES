@@ -7,6 +7,12 @@ Wishlist for Version 1.0, yet unnamed, release-date unknown
    and evaluation.
 
 //------------------------------------------------------------------------------------------------------
+* Version 0.8.4.1, yet unnamed, release-date unknown
+
+The main changes for this release include:
+ - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug, really)
+
+//------------------------------------------------------------------------------------------------------
 * Version 0.8.4, "Route Bell" - September 23, 2010
 
 The main changes for this release include:
