@@ -124,7 +124,7 @@ public:
 	)
 		: GNumCollectionT<fp_type>(min, max)
 	{
-		for(std::size_t i= 0; i<nval; i++) this->push_back(GParameterBase::gr->uniform_real(min,max));
+		for(std::size_t i= 0; i<nval; i++) this->push_back(this->GParameterBase::gr->uniform_real(min,max));
 	}
 
 	/******************************************************************/
@@ -226,7 +226,7 @@ public:
 	virtual void fpMultiplyByRandom(const float& min, const float& max)	{
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it) *= GParameterBase::gr->uniform_real(fp_type(min), fp_type(max));
+			(*it) *= this->GParameterBase::gr->uniform_real(fp_type(min), fp_type(max));
 		}
 	}
 
@@ -242,7 +242,7 @@ public:
 	virtual void fpMultiplyByRandom() {
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it) *= GParameterBase::gr->uniform_01();
+			(*it) *= this->GParameterBase::gr->uniform_01();
 		}
 	}
 
@@ -387,7 +387,7 @@ protected:
 
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary);
+			(*it)=this->GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary);
 		}
 	}
 

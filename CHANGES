@@ -3,8 +3,6 @@ Wishlist for Version 1.0, yet unnamed, release-date unknown
  - Full documentation.
  - Revision of broker infrastructure.
  - Implementation of a GBoundedDoubleWithGaps.
- - Get rid of self-initialized singletons, in favor of a GInitialize/Finalize()
-   function.
  - Implement a GEvaluator module which centralizes parameter definition
    and evaluation.
 

@@ -100,6 +100,7 @@ class GParameterSet:
 			  boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase> >(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
+
 public:
 	/** @brief The default constructor */
 	GParameterSet();
@@ -117,7 +118,14 @@ public:
 	bool operator!=(const GParameterSet&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/** @brief Registers an evaluation function */
 	void registerEvaluator(const boost::function<double (const GParameterSet&)>&);

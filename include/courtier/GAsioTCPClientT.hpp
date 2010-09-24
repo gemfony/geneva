@@ -312,7 +312,7 @@ protected:
 						  << "Maximum number of consecutive stalls reached,"
 						  << std::endl << "with last command = "
 						  << inboundCommandString << std::endl
-						  << "Cannot cope. Leaving now." << std::endl;
+						  << "Leaving now." << std::endl;
 
 					return shutdown(false);
 				}
@@ -328,12 +328,14 @@ protected:
 		// fatal and leads to the termination, by returning false.
 		catch (boost::system::system_error&) {
 			{ // Make sure we do not hide the next error declaration (avoid a warning message)
+#ifdef DEBUG
 				std::ostringstream error;
 				error << "In GAsioTCPClientT<processable_type>::retrieve():" << std::endl
-						 << "Caught boost::system::system_error exception."
-						 << std::endl << "Leaving now." << std::endl;
-
+						 << "Caught boost::system::system_error exception." << std::endl
+						 << "This is likely normal and due to a server shutdown." << std::endl
+						 << "Leaving now." << std::endl;
 				std::cerr << error.str();
+#endif /* DEBUG */
 			}
 
 			try {
@@ -410,12 +412,14 @@ protected:
 		// fatal and leads to the termination, by returning false.
 		catch (boost::system::system_error&) {
 			{
+#ifdef DEBUG
 				std::ostringstream error;
-				error << "In GAsioTCPClientT<processable_type>::retrieve:" << std::endl
-						  << "Caught boost::system::system_error exception."
-						  << std::endl << "Leaving now." << std::endl;
-
+				error << "In GAsioTCPClientT<processable_type>::submit():" << std::endl
+						  << "Caught boost::system::system_error exception." << std::endl
+						  << "This is likely normal and due to a server shutdown." << std::endl
+						  << "Leaving now." << std::endl;
 				std::cerr << error.str();
+#endif /* DEBUG */
 			}
 
 			try {

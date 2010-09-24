@@ -1,12 +1,14 @@
 ####################################################################
-# Copyright (C) Dr. Ruediger Berlich
-# and Karlsruhe Institute of Technology (University of the State of
-# Baden-Wuerttemberg and National Laboratory of the Helmholtz Association)
+#
+# Copyright (C) Authors of the Geneva library collection and Karlsruhe
+# Institute of Technology (University of the State of Baden-Wuerttemberg
+# and National Laboratory of the Helmholtz Association).
+#
+# See the AUTHORS file in the top-level directory for a list of authors.
 #
 # Contact: info [at] gemfony (dot) com
 #
-# This file is part of the Geneva library, Gemfony scientific's optimization
-# library.
+# This file is part of the Geneva library collection
 #
 # Geneva is free software: you can redistribute it and/or modify
 # it under the terms of version 3 of the GNU Affero General Public License
@@ -22,11 +24,12 @@
 #
 # For further information on Gemfony scientific and Geneva, visit
 # http://www.gemfony.com .
-#
 ####################################################################
+#
 # This file holds some configuration options used for the compilation
 # of the Geneva library. Copy to your compilation directory and adapt
-# as needed.
+# as needed. Then configure Geneva with a command line similar to
+# "/where/geneva/resides/prepareBuild.sh ./myGenevaConfig.gcfg"
 
 CMAKE=/usr/bin/cmake                      # Where the cmake executable is located
 BOOSTROOT="/opt/boost"                    # Where Boost is installed

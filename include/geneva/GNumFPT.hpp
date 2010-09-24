@@ -263,7 +263,7 @@ public:
 	 * @param max The upper boundary for random number generation
 	 */
 	void fpMultiplyByRandom(const float& min, const float& max)	{
-		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * GParameterBase::gr->uniform_real(fp_type(min), fp_type(max)));
+		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * this->GParameterBase::gr->uniform_real(fp_type(min), fp_type(max)));
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -276,7 +276,7 @@ public:
 	 * Multiplies with a random floating point number in the range [0, 1[.
 	 */
 	void fpMultiplyByRandom() {
-		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * GParameterBase::gr->uniform_01());
+		GParameterT<fp_type>::setValue(GParameterT<fp_type>::value() * this->GParameterBase::gr->uniform_01());
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -356,7 +356,7 @@ protected:
 	virtual void randomInit_() {
 		fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
-		GParameterT<fp_type>::setValue(GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary));
+		GParameterT<fp_type>::setValue(this->GParameterBase::gr->uniform_real(lowerBoundary, upperBoundary));
 	}
 
 	/* ----------------------------------------------------------------------------------
