@@ -7,10 +7,14 @@ Wishlist for Version 1.0, yet unnamed, release-date unknown
    and evaluation.
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.8.4.1, yet unnamed, release-date unknown
+* Version 0.8.5, yet unnamed, release-date unknown
 
 The main changes for this release include:
  - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug, really)
+ - Added a set of functions that allows to extract all parameters of type double, boost::int32_t or
+   boolean with a single call, in the sequence in which they were registered. E.g., if a GDoubleObject,
+   GBooleanCollection and a GConstrainedDouble have been registered in this order, it would be possible 
+   to just extract all double values in one go.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.4, "Route Bell" - September 23, 2010

@@ -238,6 +238,21 @@ namespace Geneva
 	  return evaluateDiscrepancies("GBooleanCollection", caller, deviations, e);
   }
 
+  /**********************************************************************/
+  /**
+   * Attach our local values to the vector. This is used to collect all parameters of this type
+   * in the sequence in which they were registered.
+   *
+   * @param parVec The vector to which the local values should be attached
+   */
+  void GBooleanCollection::booleanStreamline(std::vector<bool>& parVec) const {
+	  GBooleanCollection::const_iterator cit;
+	  for(cit=this->begin(); cit!=this->end(); ++cit) {
+		 parVec.push_back(*cit);
+	  }
+  }
+
+
 #ifdef GENEVATESTING
 
   /**********************************************************************/

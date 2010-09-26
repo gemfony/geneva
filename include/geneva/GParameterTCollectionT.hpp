@@ -354,6 +354,57 @@ public:
 
 	/*******************************************************************************************/
 	/**
+	 * Attach parameters of type double to the vector. This function distributes this task to
+	 * objects contained in the container.
+	 */
+	virtual void doubleStreamline(std::vector<double>& parVec) const {
+		typename GParameterTCollectionT<T>::const_iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->doubleStreamline(parVec);
+		}
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/*******************************************************************************************/
+	/**
+	 * Attach parameters of type boost::int32_t to the vector. This function distributes this task
+	 * to objects contained in the container.
+	 */
+	virtual void int32Streamline(std::vector<boost::int32_t>& parVec) const {
+		typename GParameterTCollectionT<T>::const_iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->int32Streamline(parVec);
+		}
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/*******************************************************************************************/
+	/**
+	 * Attach parameters of type bool to the vector.  This function distributes this task
+	 * to objects contained in the container.
+	 */
+	virtual void booleanStreamline(std::vector<bool>& parVec) const {
+		typename GParameterTCollectionT<T>::const_iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->booleanStreamline(parVec);
+		}
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/*******************************************************************************************/
+	/**
 	 * Assigns a random number generator from another object to all objects stored in this
 	 * collection and to the object itself.
 	 *

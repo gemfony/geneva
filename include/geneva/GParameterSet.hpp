@@ -32,6 +32,7 @@
 
 // Standard header files go here
 #include <sstream>
+#include <vector>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -197,6 +198,13 @@ public:
 	 * So far untested. See also the second version of the at() function.
 	 * ----------------------------------------------------------------------------------
 	 */
+
+	/** @brief Provides easy access to parameters of type double */
+	void streamline(std::vector<double>& parVec) const;
+	/** @brief Provides easy access to parameters of type boost::int32_t */
+	void streamline(std::vector<boost::int32_t>& parVec) const;
+	/** @brief Provides easy access to parameters of type bool */
+	void streamline(std::vector<bool>& parVec) const;
 
 	/**************************************************************************************************/
 

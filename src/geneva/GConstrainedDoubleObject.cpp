@@ -200,6 +200,17 @@ boost::optional<std::string> GConstrainedDoubleObject::checkRelationshipWith(con
 
 /*******************************************************************************************/
 /**
+ * Attach our local value to the vector. This is used to collect all parameters of this type
+ * in the sequence in which they were registered.
+ *
+ * @param parVec The vector to which the local value should be attached
+ */
+void GConstrainedDoubleObject::doubleStreamline(std::vector<double>& parVec) const {
+	parVec.push_back(this->value());
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GConstrainedDoubleObject object, camouflaged as a GObject

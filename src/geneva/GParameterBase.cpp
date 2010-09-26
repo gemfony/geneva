@@ -405,6 +405,48 @@ void GParameterBase::fpSubtract(boost::shared_ptr<GParameterBase> p)
 
 /**********************************************************************************/
 /**
+ * Attach parameters of type double to the vector. This function does nothing by
+ * default. Parameter types based on doubles need to overload this function and do
+ * the actual work.
+ */
+void GParameterBase::doubleStreamline(std::vector<double>& parVec) const
+{ /* do nothing by default */ }
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************************/
+/**
+ * Attach parameters of type boost::int32_t to the vector. This function does nothing by
+ * default. Parameter types based on boost::int32_t need to overload this function and do
+ * the actual work.
+ */
+void GParameterBase::int32Streamline(std::vector<boost::int32_t>& parVec) const
+{ /* do nothing by default */ }
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************************/
+/**
+ * Attach parameters of type bool to the vector. This function does nothing by
+ * default. Parameter types based on bool need to overload this function and do
+ * the actual work.
+ */
+void GParameterBase::booleanStreamline(std::vector<bool>& parVec) const
+{ /* do nothing by default */ }
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************************/
+/**
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::blockRandomInitialization() {

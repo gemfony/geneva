@@ -138,6 +138,13 @@ public:
 	/** @brief Subtract the floating point parameters of another GParameterBase object from this one */
 	virtual void fpSubtract(boost::shared_ptr<GParameterBase>);
 
+	/** @brief Attach parameters of type double to the vector */
+	virtual void doubleStreamline(std::vector<double>& parVec) const;
+	/** @brief Attach parameters of type boost::int32_t to the vector */
+	virtual void int32Streamline(std::vector<boost::int32_t>& parVec) const;
+	/** @brief Attach parameters of type bool to the vector */
+	virtual void booleanStreamline(std::vector<bool>& parVec) const;
+
 	/** @brief Specifies that no random initialization should occur anymore */
 	void blockRandomInitialization();
 	/** @brief Makes random initialization possible */
@@ -187,6 +194,8 @@ public:
 		return boost::static_pointer_cast<load_type>(load_ptr);
 #endif
 	}
+
+	/**************************************************************************************************/
 
 protected:
 	/**************************************************************************************************/

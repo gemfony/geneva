@@ -163,6 +163,20 @@ boost::optional<std::string> GInt32Collection::checkRelationshipWith(const GObje
 
 /*******************************************************************************************/
 /**
+ * Attach our local values to the vector. This is used to collect all parameters of this type
+ * in the sequence in which they were registered.
+ *
+ * @param parVec The vector to which the local value should be attached
+ */
+void GInt32Collection::int32Streamline(std::vector<boost::int32_t>& parVec) const {
+	GInt32Collection::const_iterator cit;
+	for(cit=this->begin(); cit!=this->end(); ++cit) {
+		parVec.push_back(*cit);
+	}
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GInt32Collection object, camouflaged as a GObject

@@ -408,6 +408,81 @@ void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
  * ----------------------------------------------------------------------------------
  */
 
+/**********************************************************************/
+/**
+ * Provides easy access to parameters of type double
+ *
+ * @param parVec the vector in which the parameters will be stored
+ */
+void GParameterSet::streamline(std::vector<double>& parVec) const {
+	// Make sure the vector is clean
+	parVec.clear();
+
+	// Loop over all GParameterBase objects. Each object
+	// will add the values of its parameters to the vector,
+	// if they comply with the type of the parameters to
+	// be stored in the vector.
+	GParameterSet::const_iterator cit;
+	for(cit=this->begin(); cit!=this->end(); ++cit) {
+		(*cit)->doubleStreamline(parVec);
+	}
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************/
+/**
+ * Provides easy access to parameters of type boost::int32_t
+ *
+ * @param parVec the vector in which the parameters will be stored
+ */
+void GParameterSet::streamline(std::vector<boost::int32_t>& parVec) const {
+	// Make sure the vector is clean
+	parVec.clear();
+
+	// Loop over all GParameterBase objects. Each object
+	// will add the values of its parameters to the vector,
+	// if they comply with the type of the parameters to
+	// be stored in the vector.
+	GParameterSet::const_iterator cit;
+	for(cit=this->begin(); cit!=this->end(); ++cit) {
+		(*cit)->int32Streamline(parVec);
+	}
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************/
+/**
+ * Provides easy access to parameters of type bool
+ *
+ * @param parVec the vector in which the parameters will be stored
+ */
+void GParameterSet::streamline(std::vector<bool>& parVec) const {
+	// Make sure the vector is clean
+	parVec.clear();
+
+	// Loop over all GParameterBase objects. Each object
+	// will add the values of its parameters to the vector,
+	// if they comply with the type of the parameters to
+	// be stored in the vector.
+	GParameterSet::const_iterator cit;
+	for(cit=this->begin(); cit!=this->end(); ++cit) {
+		(*cit)->booleanStreamline(parVec);
+	}
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
 /************************************************************************************************************/
 /**
  * Updates the random number generators contained in this object's GParameterBase-derivatives

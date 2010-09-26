@@ -227,6 +227,17 @@ boost::optional<std::string> GBooleanObject::checkRelationshipWith(const GObject
 
 /*******************************************************************************************/
 /**
+ * Attach our local value to the vector. This is used to collect all parameters of this type
+ * in the sequence in which they were registered.
+ *
+ * @param parVec The vector to which the local value should be attached
+ */
+void GBooleanObject::booleanStreamline(std::vector<bool>& parVec) const {
+	parVec.push_back(this->value());
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GBooleanObject object, camouflaged as a GObject

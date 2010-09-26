@@ -111,6 +111,9 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
+	/** @brief Attach our local value to the vector. */
+	virtual void int32Streamline(std::vector<boost::int32_t>&) const;
+
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);

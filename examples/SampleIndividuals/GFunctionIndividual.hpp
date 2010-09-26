@@ -463,6 +463,18 @@ template<> inline double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
 	double result = 0.;
 	for(std::size_t i=0; i<parameterSize; i++) result += GSQUARED(x_ref[i]);
 	return result;
+
+	/*
+	// It is now also possible to extract all double values in the following way:
+	double result = 0;
+	std::vector<double> parVec;
+	this->streamline(parVec); // The same has been implemented for bool and boost::int32_t
+	std::size_t parameterSize = parVec.size();
+	for(std::size_t i=0; i<parameterSize; i++) {
+		result += GSQUARED(parVec[i]);
+	}
+	return result;
+	*/
 }
 
 /************************************************************************************************/

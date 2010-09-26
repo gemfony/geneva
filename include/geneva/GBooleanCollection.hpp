@@ -110,6 +110,9 @@ namespace Geneva
     /** @brief Random initialization with a given probability structure */
     virtual void randomInit(const double&);
 
+	/** @brief Attach our local values to the vector. */
+	virtual void booleanStreamline(std::vector<bool>&) const;
+
   protected:
     /** @brief Loads the data of another GBooleanCollection class */
     virtual void load_(const GObject *);

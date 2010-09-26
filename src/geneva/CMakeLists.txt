@@ -17,7 +17,6 @@ SET ( OPTIMIZATIONSOURCES
 	GDoubleObject
 	GDoubleObjectCollection
 	GEAPersonalityTraits
-	# GEvaluator
 	GEvolutionaryAlgorithm
 	GGDPersonalityTraits
 	GIndividual

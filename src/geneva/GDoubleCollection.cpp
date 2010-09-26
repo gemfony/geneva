@@ -164,6 +164,20 @@ boost::optional<std::string> GDoubleCollection::checkRelationshipWith(const GObj
 
 /*******************************************************************************************/
 /**
+ * Attach our local values to the vector. This is used to collect all parameters of this type
+ * in the sequence in which they were registered.
+ *
+ * @param parVec The vector to which the local value should be attached
+ */
+void GDoubleCollection::doubleStreamline(std::vector<double>& parVec) const {
+	GDoubleCollection::const_iterator cit;
+	for(cit=this->begin(); cit!=this->end(); ++cit) {
+		parVec.push_back(*cit);
+	}
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GDoubleCollection object, camouflaged as a GObject
