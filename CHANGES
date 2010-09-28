@@ -2,7 +2,6 @@
 Wishlist for Version 1.0, yet unnamed, release-date unknown
  - Full documentation.
  - Revision of broker infrastructure.
- - Implementation of a GBoundedDoubleWithGaps.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.5, yet unnamed, release-date unknown
@@ -13,7 +12,7 @@ The main changes for this release include:
    boolean with a single call, in the sequence in which they were registered. E.g., if a GDoubleObject,
    GBooleanCollection and a GConstrainedDouble have been registered in this order, it would be possible 
    to just extract or set all double values in one go, while leaving the GBooleanCollection unchanged.
- - Implemented a gradient descent
+ - Implemented a gradient descent (so far serial and multi-threaded mode)
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.4, "Route Bell" - September 23, 2010

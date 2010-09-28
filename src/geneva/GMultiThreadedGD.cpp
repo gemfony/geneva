@@ -306,6 +306,9 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 		}
 #endif /* DEBUG*/
 
+		// Make sure we are allowed to perform value calculation
+		this->at(i)->setServerMode(false);
+
 		tp_.schedule(
 			Gem::Common::GThreadWrapper(
 				boost::bind(
@@ -319,13 +322,18 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 	// wait for the pool to run out of tasks
 	tp_.wait();
 
-	// Retrieve information about the best fitness found
+	// Retrieve information about the best fitness found and disallow re-evaluation
 	double fitnessFound = 0.;
-	for(std::size_t i=0; i<nStartingPoints; i++) {
-		fitnessFound = this->at(i)->fitness();
+	for(std::size_t i=0; i<this->size(); i++) {
+		// Prevents re-evaluation
+		this->at(i)->setServerMode(true);
 
-		if(isBetter(fitnessFound, bestFitness)) {
-			bestFitness = fitnessFound;
+		if(i<nStartingPoints) {
+			fitnessFound = this->at(i)->fitness();
+
+			if(isBetter(fitnessFound, bestFitness)) {
+				bestFitness = fitnessFound;
+			}
 		}
 	}
 
