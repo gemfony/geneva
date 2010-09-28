@@ -62,6 +62,8 @@ using namespace boost::unit_test;
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "geneva/GSwarm.hpp"
 #include "geneva/GMultiThreadedSwarm.hpp"
+#include "geneva/GGradientDescent.hpp"
+#include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 
 #include "GTestIndividual1.hpp"
@@ -120,6 +122,8 @@ public:
 			, GMultiThreadedEA
 			, GSwarm
 			, GMultiThreadedSwarm
+			, GGradientDescent
+			, GMultiThreadedGD
 		>
 		algorithm_types;
 

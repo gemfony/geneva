@@ -130,6 +130,14 @@ INCLUDE_DIRECTORIES (
 	${Boost_INCLUDE_DIRS}
 )
 
+# Needed here because we do in-source testing and occasionally 
+# need to add GTestIndividual1 objects, if BUILDTESTCODE is defined
+IF( BUILDTESTCODE )
+	INCLUDE_DIRECTORIES ( AFTER
+		${PROJECT_SOURCE_DIR}/tests/geneva/TestIndividuals
+	)
+ENDIF()
+
 LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src/common
 	${PROJECT_SOURCE_DIR}/src/dataexchange

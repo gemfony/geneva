@@ -26,6 +26,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GEvolutionaryAlgorithm.hpp
 	GFPNumCollectionT.hpp
 	GGDPersonalityTraits.hpp
+	GGradientDescent.hpp
 	GIndividual.hpp
 	GInt32Collection.hpp
 	GInt32FlipAdaptor.hpp
@@ -35,6 +36,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntFlipAdaptorT.hpp
 	GIntNumCollectionT.hpp
 	GMultiThreadedEA.hpp
+	GMultiThreadedGD.hpp
 	GMultiThreadedSwarm.hpp
 	GMutableI.hpp
 	GMutableSetT.hpp

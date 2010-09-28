@@ -63,9 +63,9 @@
 
 
 // Geneva headers go here
-#include "GMutableSetT.hpp"
-#include "GObject.hpp"
-#include "GIndividual.hpp"
+#include "geneva/GMutableSetT.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GIndividual.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -110,6 +110,7 @@ class GOptimizationAlgorithmT
 	  using boost::serialization::make_nvp;
 	  ar & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type> >(*this))
 	     & BOOST_SERIALIZATION_NVP(iteration_)
+	     & BOOST_SERIALIZATION_NVP(offset_)
 	     & BOOST_SERIALIZATION_NVP(maxIteration_)
 	     & BOOST_SERIALIZATION_NVP(maxStallIteration_)
 	     & BOOST_SERIALIZATION_NVP(reportIteration_)
@@ -124,7 +125,8 @@ class GOptimizationAlgorithmT
 	     & BOOST_SERIALIZATION_NVP(qualityThreshold_)
 	     & BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
 	     & BOOST_SERIALIZATION_NVP(maxDuration_)
-	     & BOOST_SERIALIZATION_NVP(emitTerminationReason_);
+	     & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
+	     & BOOST_SERIALIZATION_NVP(halted_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -136,6 +138,7 @@ public:
 	GOptimizationAlgorithmT()
 		: GMutableSetT<ind_type>()
 		, iteration_(0)
+		, offset_(0)
 		, maxIteration_(DEFAULTMAXIT)
 		, maxStallIteration_(DEFAULMAXTSTALLIT)
 		, reportIteration_(DEFAULTREPORTITER)
@@ -151,6 +154,7 @@ public:
 		, hasQualityThreshold_(false)
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
 		, emitTerminationReason_(false)
+		, halted_(false)
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -162,6 +166,7 @@ public:
 	GOptimizationAlgorithmT(const GOptimizationAlgorithmT<ind_type>& cp)
 		: GMutableSetT<ind_type>(cp)
 		, iteration_(cp.iteration_)
+		, offset_(0)
 		, maxIteration_(cp.maxIteration_)
 		, maxStallIteration_(cp.maxStallIteration_)
 		, reportIteration_(cp.reportIteration_)
@@ -177,6 +182,7 @@ public:
 		, hasQualityThreshold_(cp.hasQualityThreshold_)
 		, maxDuration_(cp.maxDuration_)
 		, emitTerminationReason_(cp.emitTerminationReason_)
+		, halted_(cp.halted_)
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -201,6 +207,17 @@ public:
 	/**************************************************************************************/
 	/** @brief Loads the state of the class from disc. */
 	virtual void loadCheckpoint(const std::string&) = 0;
+
+	/**************************************************************************************/
+	/**
+	 * Checks whether the optimization process has been halted, because the halt() function
+	 * has returned "true"
+	 *
+	 * @return A boolean indicating whether the optimization process has been halted
+	 */
+	bool halted() const {
+		return halted_;
+	}
 
 	/**************************************************************************************/
 	/**
@@ -385,6 +402,7 @@ public:
 
 		// ... and then our local data
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", iteration_, p_load->iteration_, "iteration_", "p_load->iteration_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxIteration_, p_load->maxIteration_, "maxIteration_", "p_load->maxIteration_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxStallIteration_, p_load->maxStallIteration_, "maxStallIteration_", "p_load->maxStallIteration_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
@@ -400,6 +418,7 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", hasQualityThreshold_, p_load->hasQualityThreshold_, "hasQualityThreshold_", "p_load->hasQualityThreshold_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxDuration_, p_load->maxDuration_, "maxDuration_", "p_load->maxDuration_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", emitTerminationReason_, p_load->emitTerminationReason_, "emitTerminationReason_", "p_load->emitTerminationReason_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", halted_, p_load->halted_, "halted_", "p_load->halted_", e , limit));
 
 		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
 	}
@@ -411,11 +430,17 @@ public:
 	 * predefined criterion is reached. This function is also the main entry
 	 * point for all optimization algorithms.
 	 *
-	 * @param startIteration Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
+	 * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
 	 */
-	virtual void optimize(const boost::uint32_t& startIteration = 0) {
+	virtual void optimize(const boost::uint32_t& offset = 0) {
 		// Reset the generation counter
-		iteration_ = startIteration;
+		iteration_ = offset;
+
+		// Set the iteration offset
+		offset_ = offset;
+
+		// Let the audience know that the otimization process hasn't been halted yet
+		halted_ = false;
 
 		// Resize the population to the desired size and do some error checks
 		adjustPopulation();
@@ -466,7 +491,7 @@ public:
 			// update the iteration_ counter
 			iteration_++;
 		}
-		while(!halt(startIteration));
+		while(!(halted_ = halt()));
 
 		// Give derived classes the opportunity to perform any remaining clean-up work
 		finalize();
@@ -793,6 +818,7 @@ protected:
 
 		// and then our local data
 		iteration_ = p_load->iteration_;
+		offset_ = p_load->offset_;
 		maxIteration_ = p_load->maxIteration_;
 		maxStallIteration_ = p_load->maxStallIteration_;
 		reportIteration_ = p_load->reportIteration_;
@@ -808,6 +834,7 @@ protected:
 		hasQualityThreshold_ = p_load->hasQualityThreshold_;
 		maxDuration_ = p_load->maxDuration_;
 		emitTerminationReason_ = p_load->emitTerminationReason_;
+		halted_ = p_load->halted_;
 	}
 
 	/**************************************************************************************/
@@ -974,8 +1001,6 @@ private:
 		using namespace boost::posix_time;
 		ptime currentTime = microsec_clock::local_time();
 		if((currentTime - startTime_) >= maxDuration_) {
-			if(emitTerminationReason_)
-				std::cerr << "Terminating optimization run because maximum time frame has been exceeded" << std::endl;
 			return true;
 		}
 		return false;
@@ -990,8 +1015,6 @@ private:
 	 */
 	bool qualityHalt() const {
 		if(isBetter(bestPastFitness_, qualityThreshold_)) {
-			if(emitTerminationReason_)
-				std::cerr << "Terminating optimization run because quality threshold has been reached" << std::endl;
 			return true;
 		}
 		else return false;
@@ -1001,41 +1024,59 @@ private:
 	/**
 	 * This function checks whether a halt criterion has been reached. The most
 	 * common criterion is the maximum number of iterations. Set the maxIteration_
-	 * counter to 0 if you want to disable this criterion. If the optimization is
-	 * supposed to start with a higher value of the iteration counter, e.g. because
-	 * a checkpoint file has been loaded, then an offset can be added to the
-	 * iteration counter.
+	 * counter to 0 if you want to disable this criterion.
 	 *
-	 * @param iterationOffset An offset to be added to the maximum iteration
 	 * @return A boolean indicating whether a halt criterion has been reached
 	 */
-	bool halt(const boost::uint32_t& iterationOffset) const
+	bool halt() const
 	{
 		// Have we exceeded the maximum number of iterations and
 		// do we indeed intend to stop in this case ?
-		if(maxIteration_ && (iteration_ > (maxIteration_ + iterationOffset))) {
-			if(emitTerminationReason_)
-				std::cout << "Terminating optimization run because iteration threshold has been reached" << std::endl;
+		if(maxIteration_ && (iteration_ > (maxIteration_ + offset_))) {
+			if(emitTerminationReason_) {
+				std::cout << "Terminating optimization run because iteration threshold has been reached." << std::endl;
+			}
+
 			return true;
 		}
 
 		// Has the optimization stalled too often ?
 		if(maxStallIteration_ && stallCounter_ > maxStallIteration_) {
-			if(emitTerminationReason_)
-				std::cout << "Terminating optimization run because maximum number of stalls has been exceeded" << std::endl;
+			if(emitTerminationReason_) {
+				std::cout << "Terminating optimization run because maximum number of stalls has been exceeded." << std::endl;
+			}
+
 			return true;
 		}
 
 		// Do we have a scheduled halt time ? The comparatively expensive
 		// timedHalt() calculation is only called if maxDuration_
 		// is at least one microsecond.
-		if(maxDuration_.total_microseconds() && timedHalt()) return true;
+		if(maxDuration_.total_microseconds() && timedHalt()) {
+			if(emitTerminationReason_) {
+				std::cerr << "Terminating optimization run because maximum time frame has been exceeded." << std::endl;
+			}
+
+			return true;
+		}
 
 		// Are we supposed to stop when the quality has exceeded a threshold ?
-		if(hasQualityThreshold_ && qualityHalt()) return true;
+		if(hasQualityThreshold_ && qualityHalt()) {
+			if(emitTerminationReason_) {
+				std::cerr << "Terminating optimization run because quality threshold has been reached." << std::endl;
+			}
+
+			return true;
+		}
 
 		// Has the user specified an additional stop criterion ?
-		if(customHalt()) return true;
+		if(customHalt()) {
+			if(emitTerminationReason_) {
+				std::cerr << "Terminating optimization run because custom halt criterion has triggered." << std::endl;
+			}
+
+			return true;
+		}
 
 		// Fine, we can continue.
 		return false;
@@ -1080,6 +1121,7 @@ private:
 
 	/**************************************************************************************/
 	boost::uint32_t iteration_; ///< The current iteration
+	boost::uint32_t offset_; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
 	boost::uint32_t maxIteration_; ///< The maximum number of iterations
 	boost::uint32_t maxStallIteration_; ///< The maximum number of generations without improvement, after which optimization is stopped
 	boost::uint32_t reportIteration_; ///< The number of generations after which a report should be issued
@@ -1096,6 +1138,7 @@ private:
 	boost::posix_time::time_duration maxDuration_; ///< Maximum time frame for the optimization
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
+	bool halted_; ///< Set to true when halt() has returned "true"
 
 #ifdef GENEVATESTING
 public:

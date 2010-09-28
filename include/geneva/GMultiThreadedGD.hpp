@@ -1,5 +1,5 @@
 /**
- * @file GMultiThreadedSwarm.hpp
+ * @file GMultiThreadedGD.hpp
  */
 
 /*
@@ -29,26 +29,47 @@
  * http://www.gemfony.com .
  */
 
-
 // Standard headers go here
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+#include <cfloat>
+#include <vector>
+#include <algorithm>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
-#include <boost/cast.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
-#include <boost/utility.hpp>
+#include <boost/function.hpp>
+#include <boost/cast.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/date_time.hpp>
+#include <boost/date_time/gregorian/greg_serialize.hpp>
+#include <boost/date_time/posix_time/time_serialize.hpp>
+#include <boost/cast.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/xtime.hpp>
 #include <common/thirdparty/boost/threadpool.hpp>
+/**
+ * Check that we have support for threads
+ */
+#ifndef BOOST_HAS_THREADS
+#error "Error: Support for multi-threading does not seem to be available."
+#endif
 
-#ifndef GMULTITHREADEDSWARM_HPP_
-#define GMULTITHREADEDSWARM_HPP_
+#ifndef GMULTITHREADEDGD_HPP_
+#define GMULTITHREADEDGD_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -58,25 +79,28 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "geneva/GGradientDescent.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GThreadWrapper.hpp"
-#include "geneva/GSwarm.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GObject.hpp"
+
+#ifdef GENEVATESTING
+#include "GTestIndividual1.hpp"
+#endif /* GENEVATESTING */
 
 namespace Gem {
 namespace Geneva {
 
 /** @brief The default number of threads for parallelization with boost */
-const boost::uint16_t DEFAULTBOOSTTHREADSSWARM = 2;
+const boost::uint16_t DEFAULTBOOSTTHREADSGD = 2;
 
-/********************************************************************/
+/*********************************************************************************/
 /**
- * A multi-threaded swarm based on GSwarm. This version uses the
- * Boost.Threads library and a thread-pool library from http://threadpool.sf.net .
+ * A multi-threaded version of the GMultiThreadedGD class
  */
-class GMultiThreadedSwarm
-	: public GSwarm
+class GMultiThreadedGD
+	:public GGradientDescent
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -85,32 +109,36 @@ class GMultiThreadedSwarm
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GSwarm)
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GGradientDescent)
 		   & BOOST_SERIALIZATION_NVP(nThreads_);
 	}
+
 	///////////////////////////////////////////////////////////////////////
 
 public:
 	/** @brief The default constructor */
-	GMultiThreadedSwarm(const std::size_t&, const std::size_t&);
+	GMultiThreadedGD();
+	/** @brief Initialization with the number of starting points and the size of the finite step */
+	GMultiThreadedGD(const std::size_t&, const float&, const float&);
 	/** @brief A standard copy constructor */
-	GMultiThreadedSwarm(const GMultiThreadedSwarm&);
+	GMultiThreadedGD(const GMultiThreadedGD&);
 	/** @brief The destructor */
-	virtual ~GMultiThreadedSwarm();
+	virtual ~GMultiThreadedGD();
 
 	/** @brief A standard assignment operator */
-	const GMultiThreadedSwarm& operator=(const GMultiThreadedSwarm&);
+	const GMultiThreadedGD& operator=(const GMultiThreadedGD&);
 
-	/** @brief Checks for equality with another GMultiThreadedSwarm object */
-	bool operator==(const GMultiThreadedSwarm&) const;
-	/** @brief Checks for inequality with another GMultiThreadedSwarm object */
-	bool operator!=(const GMultiThreadedSwarm&) const;
+	/** @brief Checks for equality with another GMultiThreadedGD object */
+	bool operator==(const GMultiThreadedGD&) const;
+	/** @brief Checks for inequality with another GMultiThreadedGD object */
+	bool operator!=(const GMultiThreadedGD&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
 			const GObject&
 			, const Gem::Common::expectation&
-			, const double&, const std::string&
+			, const double&
+			, const std::string&
 			, const std::string&
 			, const bool&
 	) const;
@@ -126,18 +154,13 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
 
-	/** @brief Does some preparatory work before the optimization starts */
 	virtual void init();
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
 
-	/** @brief Updates the positions and/or fitness of all individuals */
-	virtual void swarmLogic();
+	/** @brief Triggers fitness calculation of a number of individuals */
+	virtual double doFitnessCalculation(const std::size_t&);
 
-	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes */
-	GMultiThreadedSwarm(){}
-
-	/**************************************************************************************************/
 private:
 	boost::uint8_t nThreads_; ///< The number of threads
 	boost::threadpool::pool tp_; ///< A thread pool
@@ -165,12 +188,11 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 /** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedSwarm>();
+template <> boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedGD>();
 
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
-
 #endif /* GENEVATESTING */
 
-#endif /* GMULTITHREADEDSWARM_HPP_ */
+#endif /* GMULTITHREADEDGD_HPP_ */

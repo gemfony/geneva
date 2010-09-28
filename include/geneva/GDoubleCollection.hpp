@@ -98,6 +98,10 @@ public:
 
 	/** @brief Attach our local values to the vector. */
 	virtual void doubleStreamline(std::vector<double>&) const;
+	/** @brief Tell the audience that we own a number of double values */
+	virtual std::size_t countDoubleParameters() const;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&);
 
 protected:
 	/** @brief Loads the data of another GObject */

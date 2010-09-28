@@ -289,7 +289,7 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	if(!checkpointStream) {
 		std::ostringstream error;
 		error << "In GEvolutionaryAlgorithm::saveCheckpoint()" << std::endl
-			  << "Error: Could not open output file";
+			  << "Error: Could not open output file" << outputFile.c_str() << std::endl;
 		throw Gem::Common::gemfony_error_condition(error.str());
 	}
 

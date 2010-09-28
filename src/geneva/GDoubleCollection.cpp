@@ -178,6 +178,37 @@ void GDoubleCollection::doubleStreamline(std::vector<double>& parVec) const {
 
 /*******************************************************************************************/
 /**
+ * Tell the audience that we own a number of double values
+ *
+ * @return The number of double parameters
+ */
+std::size_t GDoubleCollection::countDoubleParameters() const {
+	return this->size();
+}
+
+/*******************************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GDoubleCollection::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+	  for(GDoubleCollection::iterator it=this->begin(); it!=this->end(); ++it) {
+#ifdef DEBUG
+		  // Do we have a valid position ?
+		  if(pos >= parVec.size()) {
+			  std::ostringstream error;
+			  error << "In GDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&): Error!" << std::endl
+					  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
+			  throw(Gem::Common::gemfony_error_condition(error.str()));
+		  }
+#endif
+
+		  (*it) = parVec[pos];
+		  pos++;
+	  }
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GDoubleCollection object, camouflaged as a GObject

@@ -106,6 +106,10 @@ public:
 
 	/** @brief Attach our local value to the vector. */
 	virtual void booleanStreamline(std::vector<bool>&) const;
+	/** @brief Tell the audience that we own a boost::int32_t value */
+	virtual std::size_t countBoolParameters() const;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&);
 
 protected:
 	/** @brief Loads the data of another GObject */

@@ -22,6 +22,10 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
+	GSimpleGD
+)
+
+ADD_SUBDIRECTORY (
 	GSimpleSwarm
 )
 

@@ -177,6 +177,37 @@ void GInt32Collection::int32Streamline(std::vector<boost::int32_t>& parVec) cons
 
 /*******************************************************************************************/
 /**
+ * Tell the audience that we own a number of boost::int32_t values
+ *
+ * @return The number of boost::int32_t parameters
+ */
+std::size_t GInt32Collection::countInt32Parameters() const {
+	return this->size();
+}
+
+/*******************************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) {
+	  for(GInt32Collection::iterator it=this->begin(); it!=this->end(); ++it) {
+#ifdef DEBUG
+		  // Do we have a valid position ?
+		  if(pos >= parVec.size()) {
+			  std::ostringstream error;
+			  error << "In GInt32Collection::assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&): Error!" << std::endl
+					  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
+			  throw(Gem::Common::gemfony_error_condition(error.str()));
+		  }
+#endif
+
+		  (*it) = parVec[pos];
+		  pos++;
+	  }
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GInt32Collection object, camouflaged as a GObject

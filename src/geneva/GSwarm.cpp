@@ -272,13 +272,14 @@ bool GSwarm::operator!=(const GSwarm& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GSwarm::checkRelationshipWith(const GObject& cp,
-		const Gem::Common::expectation& e,
-		const double& limit,
-		const std::string& caller,
-		const std::string& y_name,
-		const bool& withMessages) const
-{
+boost::optional<std::string> GSwarm::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
@@ -1164,8 +1165,10 @@ void GSwarm::specificTestsFailuresExpected_GUnitTests() {
  */
 template <>
 boost::shared_ptr<Gem::Geneva::GSwarm> TFactory_GUnitTests<Gem::Geneva::GSwarm>() {
+	using namespace Gem::Tests;
 	boost::shared_ptr<Gem::Geneva::GSwarm> p;
 	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSwarm>(new Gem::Geneva::GSwarm(5,10)));
+	p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
 	return p;
 }
 

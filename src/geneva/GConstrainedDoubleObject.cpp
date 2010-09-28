@@ -211,6 +211,36 @@ void GConstrainedDoubleObject::doubleStreamline(std::vector<double>& parVec) con
 
 /*******************************************************************************************/
 /**
+ * Tell the audience that we own a double value
+ *
+ * @return The number 1, as we own a single double parameter
+ */
+std::size_t GConstrainedDoubleObject::countDoubleParameters() const {
+	return 1;
+}
+
+/*******************************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter. Note that we apply a transformation to
+ * the parameter value, so that it lies inside of the allowed value range.
+ */
+void GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+#ifdef DEBUG
+	// Do we have a valid position ?
+	if(pos >= parVec.size()) {
+		std::ostringstream error;
+		error << "In GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&): Error!" << std::endl
+			  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif
+
+	this->setValue(this->transfer(parVec[pos]));
+	pos++;
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GConstrainedDoubleObject object, camouflaged as a GObject

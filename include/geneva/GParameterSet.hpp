@@ -168,20 +168,20 @@ public:
 	/**********************************************************************/
 	/**
 	 * This function returns a parameter set at a given position of the data set.
-	 * Note that this function will only be accessible to the compiler if parameter_type
+	 * Note that this function will only be accessible to the compiler if par_type
 	 * is a derivative of GParameterBase, thanks to the magic of Boost's enable_if and
 	 * Type Traits libraries.
 	 *
 	 * @param pos The position in our data array that shall be converted
 	 * @return A converted version of the GParameterBase object, as required by the user
 	 */
-	template <typename parameter_type>
-	inline const boost::shared_ptr<parameter_type> at(
+	template <typename par_type>
+	inline const boost::shared_ptr<par_type> at(
 			  const std::size_t& pos
-			, typename boost::enable_if<boost::is_base_of<GParameterBase, parameter_type> >::type* dummy = 0
+			, typename boost::enable_if<boost::is_base_of<GParameterBase, par_type> >::type* dummy = 0
 	)  const {
 #ifdef DEBUG
-		boost::shared_ptr<parameter_type> p = boost::static_pointer_cast<parameter_type>(data.at(pos));
+		boost::shared_ptr<par_type> p = boost::static_pointer_cast<par_type>(data.at(pos));
 
 		if(p) return p;
 		else {
@@ -190,7 +190,7 @@ public:
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 #else
-		return boost::static_pointer_cast<parameter_type>(data[pos]);
+		return boost::static_pointer_cast<par_type>(data[pos]);
 #endif /* DEBUG */
 	}
 
@@ -199,15 +199,41 @@ public:
 	 * ----------------------------------------------------------------------------------
 	 */
 
+	/**********************************************************************/
+	/**
+	 * Retrieve information about the total number of parameters of type
+	 * par_type in the individual. The actual counting is implemented in
+	 * the specializations provided for the so far implemented types "double",
+	 * "bool" and "boost::int32_t" . The function will return 0 for all other
+	 * types.
+	 */
+	template <typename par_type>
+	std::size_t countParameters() const {
+		return 0;
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested.
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/**********************************************************************/
 	/** @brief Provides easy access to parameters of type double */
-	void streamline(std::vector<double>& parVec) const;
+	void streamline(std::vector<double>&) const;
 	/** @brief Provides easy access to parameters of type boost::int32_t */
-	void streamline(std::vector<boost::int32_t>& parVec) const;
+	void streamline(std::vector<boost::int32_t>&) const;
 	/** @brief Provides easy access to parameters of type bool */
-	void streamline(std::vector<bool>& parVec) const;
+	void streamline(std::vector<bool>&) const;
 
-	/**************************************************************************************************/
+	/**********************************************************************/
+	/** @brief Assigns double values to the parameters in the collection */
+	void assignValueVector(const std::vector<double>&);
+	/** @brief Assigns boost::int32_t values to the parameters in the collection */
+	void assignValueVector(const std::vector<boost::int32_t>&);
+	/** @brief Assigns bool values to the parameters in the collection */
+	void assignValueVector(const std::vector<bool>&);
 
+	/**********************************************************************/
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
@@ -235,6 +261,12 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
 };
+
+/*************************************************************************************************/
+// Specializations of some functions
+template <> std::size_t GParameterSet::countParameters<double>() const;
+template <> std::size_t GParameterSet::countParameters<boost::int32_t>() const;
+template <> std::size_t GParameterSet::countParameters<bool>() const;
 
 } /* namespace Geneva */
 } /* namespace Gem */

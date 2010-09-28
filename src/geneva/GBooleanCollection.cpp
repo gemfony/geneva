@@ -252,6 +252,37 @@ namespace Geneva
 	  }
   }
 
+  /**********************************************************************/
+  /**
+   * Tell the audience that we own a number of bool values
+   *
+   * @return The number of bool parameters
+   */
+  std::size_t GBooleanCollection::countBoolParameters() const {
+	  return this->size();
+  }
+
+  /**********************************************************************/
+  /**
+   * Assigns part of a value vector to the parameter
+   */
+  void GBooleanCollection::assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) {
+	  for(GBooleanCollection::iterator it=this->begin(); it!=this->end(); ++it) {
+#ifdef DEBUG
+		  // Do we have a valid position ?
+		  if(pos >= parVec.size()) {
+			  std::ostringstream error;
+			  error << "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, std::size_t&): Error!" << std::endl
+					  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
+			  throw(Gem::Common::gemfony_error_condition(error.str()));
+		  }
+#endif
+
+		  (*it) = parVec[pos];
+		  pos++;
+	  }
+  }
+
 
 #ifdef GENEVATESTING
 

@@ -100,6 +100,10 @@ public:
 
 	/** @brief Attach our local values to the vector. */
 	virtual void int32Streamline(std::vector<boost::int32_t>&) const;
+	/** @brief Tell the audience that we own a number of boost::int32_t values */
+	virtual std::size_t countInt32Parameters() const;
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&);
 
 protected:
 	/** @brief Loads the data of another GObject */

@@ -358,9 +358,9 @@ public:
 	 * objects contained in the container.
 	 */
 	virtual void doubleStreamline(std::vector<double>& parVec) const {
-		typename GParameterTCollectionT<T>::const_iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->doubleStreamline(parVec);
+		typename GParameterTCollectionT<T>::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->doubleStreamline(parVec);
 		}
 	}
 
@@ -375,9 +375,9 @@ public:
 	 * to objects contained in the container.
 	 */
 	virtual void int32Streamline(std::vector<boost::int32_t>& parVec) const {
-		typename GParameterTCollectionT<T>::const_iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->int32Streamline(parVec);
+		typename GParameterTCollectionT<T>::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->int32Streamline(parVec);
 		}
 	}
 
@@ -392,9 +392,111 @@ public:
 	 * to objects contained in the container.
 	 */
 	virtual void booleanStreamline(std::vector<bool>& parVec) const {
-		typename GParameterTCollectionT<T>::const_iterator it;
+		typename GParameterTCollectionT<T>::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			(*cit)->booleanStreamline(parVec);
+		}
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/*******************************************************************************************/
+	/**
+	 * Count the number of double parameters. This function returns the responses from all
+	 * objects contained in this collection.
+	 *
+	 * @return The number of double parameters in this collection
+	 */
+	virtual std::size_t countDoubleParameters() const {
+		std::size_t result = 0;
+
+		typename GParameterTCollectionT<T>::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			result += (*cit)->countDoubleParameters();
+		}
+
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Count the number of boost::int32_t parameters. This function returns the responses from all
+	 * objects contained in this collection.
+	 *
+	 * @return The number of boost::int32_t parameters in this collection
+	 */
+	virtual std::size_t countInt32Parameters() const {
+		std::size_t result = 0;
+
+		typename GParameterTCollectionT<T>::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			result += (*cit)->countInt32Parameters();
+		}
+
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Count the number of bool parameters. This function returns the responses from all
+	 * objects contained in this collection.
+	 *
+	 * @return The number of bool parameters in this collection
+	 */
+	virtual std::size_t countBoolParameters() const {
+		std::size_t result = 0;
+
+		typename GParameterTCollectionT<T>::const_iterator cit;
+		for(cit=this->begin(); cit!=this->end(); ++cit) {
+			result += (*cit)->countBoolParameters();
+		}
+
+		return result;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * Assigns part of a value vector to the parameter
+	 */
+	void assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->booleanStreamline(parVec);
+			(*it)->assignDoubleValueVector(parVec, pos);
+		}
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/*******************************************************************************************/
+	/**
+	 * Assigns part of a value vector to the parameter
+	 */
+	void assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) {
+		typename GParameterTCollectionT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->assignInt32ValueVector(parVec, pos);
+		}
+	}
+
+	/* ----------------------------------------------------------------------------------
+	 * So far untested
+	 * ----------------------------------------------------------------------------------
+	 */
+
+	/*******************************************************************************************/
+	/**
+	 * Assigns part of a value vector to the parameter
+	 */
+	void assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) {
+		typename GParameterTCollectionT<T>::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->assignBooleanValueVector(parVec, pos);
 		}
 	}
 

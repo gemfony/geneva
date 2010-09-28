@@ -145,6 +145,20 @@ public:
 	/** @brief Attach parameters of type bool to the vector */
 	virtual void booleanStreamline(std::vector<bool>& parVec) const;
 
+	/** @brief Count the number of double parameters */
+	virtual std::size_t countDoubleParameters() const;
+	/** @brief Count the number of boost::int32_t parameters */
+	virtual std::size_t countInt32Parameters() const;
+	/** @brief Count the number of bool parameters */
+	virtual std::size_t countBoolParameters() const;
+
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual void assignDoubleValueVector(const std::vector<double>&, std::size_t&);
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual void assignInt32ValueVector(const std::vector<boost::int32_t>&, std::size_t&);
+	/** @brief Assigns part of a value vector to the parameter */
+	virtual void assignBooleanValueVector(const std::vector<bool>&, std::size_t&);
+
 	/** @brief Specifies that no random initialization should occur anymore */
 	void blockRandomInitialization();
 	/** @brief Makes random initialization possible */

@@ -135,35 +135,21 @@ bool parseConfigFile(
 		const std::string& configFile
 		, boost::uint16_t& nProducerThreads
 		, boost::uint16_t& nEvaluationThreads
-		, std::size_t& populationSize
-		, std::size_t& nParents
+		, std::size_t& nStartingPoints
+		, float& finiteStep
+		, float& stepSize
 		, boost::uint32_t& maxIterations
 		, long& maxMinutes
 		, boost::uint32_t& reportIteration
-		, recoScheme& rScheme
-		, sortingMode& smode
 		, std::size_t& arraySize
 		, boost::uint32_t& processingCycles
 		, bool& returnRegardless
 		, boost::uint32_t& waitFactor
-		, double& adProb
-		, boost::uint32_t& adaptionThreshold
-		, double& sigma
-		, double& sigmaSigma
-		, double& minSigma
-		, double& maxSigma
 		, std::size_t& parDim
 		, double& minVar
 		, double& maxVar
 		, demoFunction& df
-		, boost::uint16_t& xDim
-		, boost::uint16_t& yDim
-		, bool& followProgress
-		, bool& trackParentRelations
-		, bool& drawArrows
 ) {
-	boost::uint16_t recombinationScheme = 0;
-	boost::uint16_t sortingScheme = 0;
 	boost::uint16_t evalFunction = 0;
 	bool verbose = true;
 
@@ -182,20 +168,18 @@ bool parseConfigFile(
 			"The amount of random number producer threads")
 			("nEvaluationThreads", po::value<boost::uint16_t>(&nEvaluationThreads)->default_value(DEFAULTNEVALUATIONTHREADS),
 			"The amount of threads processing individuals simultaneously")
-			("populationSize", po::value<std::size_t>(&populationSize)->default_value(DEFAULTPOPULATIONSIZE),
-			"The size of the super-population")
-			("nParents", po::value<std::size_t>(&nParents)->default_value(DEFAULTNPARENTS),
-			"The number of parents in the population") // Needs to be treated separately
+			("nStartingPoints", po::value<std::size_t>(&nStartingPoints)->default_value(DEFAULTNSTARTINGPOINTSAP),
+			"The amount of simultaneous gradient descents being carried out")
+			("finiteStep", po::value<float>(&finiteStep)->default_value(DEFAULTFINITESTEPAP),
+			"The size of the finite adjustment in the difference quotient")
+			("stepSize", po::value<float>(&stepSize)->default_value(DEFAULTSTEPWIDTHAP),
+			"The size of the multiplier used in the adjustment of gradient descents")
 			("maxIterations", po::value<boost::uint32_t>(&maxIterations)->default_value(DEFAULTMAXITERATIONS),
 			"Maximum number of iterations in the population")
 			("maxMinutes",	po::value<long>(&maxMinutes)->default_value(DEFAULTMAXMINUTES),
 			"The maximum number of minutes the optimization of the population should run")
 			("reportIteration",	po::value<boost::uint32_t>(&reportIteration)->default_value(DEFAULTREPORTITERATION),
 			"The number of iterations after which information should be emitted in the super-population")
-			("rScheme",	po::value<boost::uint16_t>(&recombinationScheme)->default_value(DEFAULTRSCHEME),
-			"The recombination scheme for the super-population")
-			("sortingScheme,o",	po::value<boost::uint16_t>(&sortingScheme)->default_value(DEFAULTSORTINGSCHEME),
-			"Determines whether sorting is done in MUPLUSNU (0), MUCOMMANU (1)  or MUNU1PRETAIN (2) mode")
 			("arraySize", po::value<std::size_t>(&arraySize)->default_value(DEFAULTARRAYSIZE),
 			"The size of the buffer with random arrays in the random factory")
 			("verbose", po::value<bool>(&verbose)->default_value(DEFAULTVERBOSE),
@@ -206,18 +190,6 @@ bool parseConfigFile(
 			"Specifies whether results should be returned even if they are not better than before")
 			("waitFactor", po::value<boost::uint32_t>(&waitFactor)->default_value(DEFAULTGBTCWAITFACTOR),
 			"Influences the maximum waiting time of the GBrokerEA after the arrival of the first evaluated individuum")
-			("adProb", po::value<double>(&adProb)->default_value(DEFAULTGDAADPROB),
-			"Specifies the likelihood for adaptions to be actually carried out")
-			("adaptionThreshold", po::value<boost::uint32_t>(&adaptionThreshold)->default_value(DEFAULTADAPTIONTHRESHOLDAP),
-			"Number of calls to adapt() after which adaption parameters should be modified")
-			("sigma", po::value<double>(&sigma)->default_value(DEFAULTSIGMA),
-			"The width of the gaussian used for the adaption of double values")
-			("sigmaSigma", po::value<double>(&sigmaSigma)->default_value(DEFAULTSIGMASIGMA),
-			"The adaption rate of sigma")
-			("minSigma", po::value<double>(&minSigma)->default_value(DEFAULTMINSIGMA),
-			"The minimum allowed value for sigma")
-			("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
-			"The maximum allowed value for sigma")
 			("parDim", po::value<std::size_t>(&parDim)->default_value(DEFAULTPARDIM),
 			"The amount of variables in the parabola")
 			("minVar", po::value<double>(&minVar)->default_value(DEFAULTMINVAR),
@@ -226,16 +198,6 @@ bool parseConfigFile(
 			"The upper boundary for all variables")
 			("evalFunction",po::value<boost::uint16_t>(&evalFunction),
 			"The id of the evaluation function.")
-	       ("xDim", po::value<boost::uint16_t>(&xDim)->default_value(DEFAULTXDIMAP),
-	        "The x-dimension of the canvas for the result print(s)")
-	       ("yDim", po::value<boost::uint16_t>(&yDim)->default_value(DEFAULTYDIMAP),
-	        "The y-dimension of the canvas for the result print(s)")
-	       ("followProgress", po::value<bool>(&followProgress)->default_value(DEFAULTFOLLOWPROGRESS),
-	    	"Specifies whether snapshots should be taken in regular intervals")
-	       ("trackParentRelations", po::value<bool>(&trackParentRelations)->default_value(DEFAULTTRACKPARENTRELATIONS),
-	    	"If set, tracks old parents and their relationship with current individuals")
-	       ("drawArrows", po::value<bool>(&drawArrows)->default_value(DEFAULTDRAWARROWS),
-	    	"If set, triggers the drawing of arrows from old parents to children")
 	    ;
 
 		po::variables_map vm;
@@ -254,37 +216,6 @@ bool parseConfigFile(
 			return false;
 		}
 
-		// Check the number of parents in the super-population
-		if (2 * nParents > populationSize) {
-			std::cout << "Error: Invalid number of parents in population"
-					<< std::endl << "nParents       = " << nParents
-					<< std::endl << "populationSize = " << populationSize
-					<< std::endl;
-
-			return false;
-		}
-
-		// Workaround for assigment problem with rScheme
-		if (recombinationScheme == (boost::uint16_t) VALUERECOMBINE)        rScheme = VALUERECOMBINE;
-		else if (recombinationScheme == (boost::uint16_t) RANDOMRECOMBINE)	rScheme = RANDOMRECOMBINE;
-		else if (recombinationScheme == (boost::uint16_t) DEFAULTRECOMBINE)	rScheme = DEFAULTRECOMBINE;
-		else {
-			std::cout << "Error: Invalid recombination scheme in population: " << recombinationScheme << std::endl;
-			return false;
-		}
-
-		// Convert sorting scheme to desired target type
-		if (sortingScheme == (boost::uint16_t) MUPLUSNU)
-			smode = MUPLUSNU;
-		else if (sortingScheme == (boost::uint16_t) MUCOMMANU)
-			smode = MUCOMMANU;
-		else if (sortingScheme == (boost::uint16_t) MUNU1PRETAIN)
-			smode = MUNU1PRETAIN;
-		else {
-			std::cout << "Error: Invalid sorting scheme in population: " << sortingScheme << std::endl;
-			return false;
-		}
-
 		// Assign the demo function
 		if(evalFunction > (boost::uint16_t)MAXDEMOFUNCTION) {
 			std::cout << "Error: Invalid evaluation function: " << evalFunction
@@ -298,29 +229,18 @@ bool parseConfigFile(
 					<< "Running with the following options from " << configFile
 					<< ":" << std::endl << "nProducerThreads = "
 					<< (boost::uint16_t) nProducerThreads << std::endl // boost::uint8_t not printable on gcc ???
-					<< "populationSize = " << populationSize << std::endl
-					<< "nParents = " << nParents << std::endl
 					<< "maxIterations = " << maxIterations << std::endl
 					<< "maxMinutes = " << maxMinutes << std::endl
 					<< "reportIteration = " << reportIteration << std::endl
-					<< "rScheme = " << (boost::uint16_t) rScheme << std::endl
-					<< "sortingScheme = " << smode << std::endl
 					<< "arraySize = " << arraySize << std::endl
 					<< "processingCycles = " << processingCycles << std::endl
 					<< "waitFactor = " << waitFactor << std::endl
-					<< "adProb = " << adProb << std::endl
-					<< "adaptionThreshold = " << adaptionThreshold << std::endl
-					<< "sigma = " << sigma << std::endl << "sigmaSigma "
-					<< sigmaSigma << std::endl << "minSigma " << minSigma
-					<< std::endl << "maxSigma " << maxSigma << std::endl
+					<< "nStartingPoints = " << nStartingPoints << std::endl
+					<< "finiteStep = " << finiteStep << std::endl
+					<< "stepSize = " << stepSize << std::endl
 					<< "parDim = " << parDim << std::endl << "minVar = "
 					<< minVar << std::endl << "maxVar = " << maxVar
 					<< std::endl << "evalFunction = " << GFunctionIndividual<>::getStringRepresentation(df) << std::endl
-					<< "xDim = " << xDim << std::endl
-					<< "yDim = " << yDim << std::endl
-					<< "followProgress = " << (followProgress?"true":"false") << std::endl
-					<< "trackParentRelations = " << (trackParentRelations?"true":"false") << std::endl
-					<< "drawArrows = " << drawArrows << std::endl
 					<< std::endl;
 		}
 	} catch (...) {

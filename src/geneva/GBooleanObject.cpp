@@ -238,6 +238,35 @@ void GBooleanObject::booleanStreamline(std::vector<bool>& parVec) const {
 
 /*******************************************************************************************/
 /**
+ * Tell the audience that we own a bool value
+ *
+ * @return The number 1, as we own a single boolean value
+ */
+std::size_t GBooleanObject::countBoolParameters() const {
+	return 1;
+}
+
+/*******************************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GBooleanObject::assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) {
+#ifdef DEBUG
+	// Do we have a valid position ?
+	if(pos >= parVec.size()) {
+		std::ostringstream error;
+		error << "In GBooleanObject::assignBooleanValueVector(const std::vector<bool>&, std::size_t&): Error!" << std::endl
+			  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif
+
+	this->setValue(parVec[pos]);
+	pos++;
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GBooleanObject object, camouflaged as a GObject

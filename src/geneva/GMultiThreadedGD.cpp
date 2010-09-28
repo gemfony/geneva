@@ -1,5 +1,5 @@
 /**
- * @file GMultiThreadedSwarm.cpp
+ * @file GMultiThreadedGD.cpp
  */
 
 /*
@@ -29,38 +29,50 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GMultiThreadedSwarm.hpp"
+#include "geneva/GMultiThreadedGD.hpp"
 
 /**
  * Included here so no conflicts occur. See explanation at
  * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
  */
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GMultiThreadedSwarm)
+BOOST_CLASS_EXPORT(Gem::Geneva::GMultiThreadedGD)
 
 namespace Gem {
 namespace Geneva {
 
 /************************************************************************************************************/
 /**
- * A standard constructor. No local, dynamically allocated data, hence this function is empty.
+ * The default constructor
  */
-GMultiThreadedSwarm::GMultiThreadedSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
-   : GSwarm(nNeighborhoods, nNeighborhoodMembers)
-   , nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM)))
-   , tp_(nThreads_)
+GMultiThreadedGD::GMultiThreadedGD()
+	: GGradientDescent()
+	, nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
+	, tp_(nThreads_)
 { /* nothing */ }
 
 /************************************************************************************************************/
 /**
- * A standard copy constructor.
- *
- * @param cp Reference to another GMultiThreadedEA object
+ * Initialization with the number of starting points and the size of the finite step
  */
-GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
-   : GSwarm(cp)
-   , nThreads_(cp.nThreads_)
-   , tp_(nThreads_) // Make sure we initialize the threadpool appropriately
+GMultiThreadedGD::GMultiThreadedGD (
+		const std::size_t& nStartingPoints
+		, const float& finiteStep
+		, const float& stepSize
+)
+	: GGradientDescent(nStartingPoints, finiteStep, stepSize)
+	, nThreads_(boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD)))
+	, tp_(nThreads_)
+{ /* nothing */ }
+
+/************************************************************************************************************/
+/**
+ * A standard copy constructor
+ */
+GMultiThreadedGD::GMultiThreadedGD(const GMultiThreadedGD& cp)
+	: GGradientDescent(cp)
+	, nThreads_(cp.nThreads_)
+	, tp_(nThreads_) // Make sure we initialize the threadpool appropriately
 { /* nothing */ }
 
 /************************************************************************************************************/
@@ -68,68 +80,47 @@ GMultiThreadedSwarm::GMultiThreadedSwarm(const GMultiThreadedSwarm& cp)
  * The destructor. We clear remaining work items in the
  * thread pool and wait for active tasks to finish.
  */
-GMultiThreadedSwarm::~GMultiThreadedSwarm() {
+GMultiThreadedGD::~GMultiThreadedGD() {
 	tp_.clear();
 	tp_.wait();
 }
 
 /************************************************************************************************************/
 /**
- * A standard assignment operator for GMultiThreadedSwarm objects.
+ * A standard assignment operator for GMultiThreadedGD objects.
  *
- * @param cp Reference to another GMultiThreadedSwarm object
+ * @param cp Reference to another GMultiThreadedGD object
  * @return A constant reference to this object
  */
-const GMultiThreadedSwarm& GMultiThreadedSwarm::operator=(const GMultiThreadedSwarm& cp) {
-	GMultiThreadedSwarm::load_(&cp);
+const GMultiThreadedGD& GMultiThreadedGD::operator=(const GMultiThreadedGD& cp) {
+	GMultiThreadedGD::load_(&cp);
 	return *this;
 }
 
 /************************************************************************************************************/
 /**
- * Loads the data from another GMultiThreadedSwarm object.
+ * Checks for equality with another GMultiThreadedGD object
  *
- * @param vp Pointer to another GMultiThreadedSwarm object, camouflaged as a GObject
- */
-void GMultiThreadedSwarm::load_(const GObject *cp) {
-	// Convert GObject pointer to local format
-	const GMultiThreadedSwarm *p_load = this->conversion_cast<GMultiThreadedSwarm>(cp);
-
-	// First load our parent class'es data ...
-	GSwarm::load_(cp);
-
-	// ... and then our own
-	if(nThreads_ != p_load->nThreads_) {
-		nThreads_ = p_load->nThreads_;
-		tp_.clear(); // TODO: is this needed ?
-		tp_.size_controller().resize(nThreads_);
-	}
-}
-
-/************************************************************************************************************/
-/**
- * Checks for equality with another GMultiThreadedSwarm object
- *
- * @param  cp A constant reference to another GMultiThreadedSwarm object
+ * @param  cp A constant reference to another GMultiThreadedGD object
  * @return A boolean indicating whether both objects are equal
  */
-bool GMultiThreadedSwarm::operator==(const GMultiThreadedSwarm& cp) const {
+bool GMultiThreadedGD::operator==(const GMultiThreadedGD& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedSwarm::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GMultiThreadedGD::operator==","cp", CE_SILENT);
 }
 
 /************************************************************************************************************/
 /**
- * Checks for inequality with another GMultiThreadedSwarm object
+ * Checks for inequality with another GMultiThreadedGD object
  *
- * @param  cp A constant reference to another GMultiThreadedSwarm object
+ * @param  cp A constant reference to another GMultiThreadedGD object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GMultiThreadedSwarm::operator!=(const GMultiThreadedSwarm& cp) const {
+bool GMultiThreadedGD::operator!=(const GMultiThreadedGD& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedSwarm::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GMultiThreadedGD::operator!=","cp", CE_SILENT);
 }
 
 /************************************************************************************************************/
@@ -145,7 +136,7 @@ bool GMultiThreadedSwarm::operator!=(const GMultiThreadedSwarm& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GMultiThreadedSwarm::checkRelationshipWith(
+boost::optional<std::string> GMultiThreadedGD::checkRelationshipWith(
 		const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
@@ -156,18 +147,69 @@ boost::optional<std::string> GMultiThreadedSwarm::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference
-	const GMultiThreadedSwarm *p_load = GObject::conversion_cast<GMultiThreadedSwarm>(&cp);
+	const GMultiThreadedGD *p_load = GObject::conversion_cast<GMultiThreadedGD>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GSwarm::checkRelationshipWith(cp, e, limit, "GMultiThreadedSwarm", y_name, withMessages));
+	deviations.push_back(GGradientDescent::checkRelationshipWith(cp, e, limit, "GMultiThreadedGD", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GMultiThreadedSwarm", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GMultiThreadedGD", nThreads_, p_load->nThreads_, "nThreads_", "p_load->nThreads_", e , limit));
 
-	return evaluateDiscrepancies("GMultiThreadedSwarm", caller, deviations, e);
+	return evaluateDiscrepancies("GMultiThreadedGD", caller, deviations, e);
+}
+
+/************************************************************************************************************/
+/**
+ * Sets the number of threads for this population. If nThreads is set
+ * to 0, an attempt will be made to set the number of threads to the
+ * number of hardware threading units (e.g. number of cores or hyperthreading
+ * units).
+ *
+ * @param nThreads The number of threads this class uses
+ */
+void GMultiThreadedGD::setNThreads(const boost::uint8_t& nThreads) {
+	if(nThreads == 0) {
+		nThreads_ = boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSGD));
+	}
+	else {
+		nThreads_ = nThreads;
+	}
+
+	tp_.size_controller().resize(nThreads_);
+}
+
+/************************************************************************************************************/
+/**
+ * Retrieves the number of threads this population uses.
+ *
+ * @return The maximum number of allowed threads
+ */
+uint8_t GMultiThreadedGD::getNThreads() const  {
+	return nThreads_;
+}
+
+/************************************************************************************************************/
+/**
+ * Loads the data from another GMultiThreadedGD object.
+ *
+ * @param vp Pointer to another GMultiThreadedGD object, camouflaged as a GObject
+ */
+void GMultiThreadedGD::load_(const GObject *cp) {
+	// Convert GObject pointer to local format
+	const GMultiThreadedGD *p_load = this->conversion_cast<GMultiThreadedGD>(cp);
+
+	// First load our parent class'es data ...
+	GGradientDescent::load_(cp);
+
+	// ... and then our own
+	if(nThreads_ != p_load->nThreads_) {
+		nThreads_ = p_load->nThreads_;
+		tp_.clear(); // TODO: is this needed ?
+		tp_.size_controller().resize(nThreads_);
+	}
 }
 
 /************************************************************************************************************/
@@ -176,17 +218,17 @@ boost::optional<std::string> GMultiThreadedSwarm::checkRelationshipWith(
  *
  * @return A deep copy of this object, camouflaged as a GObject
  */
-GObject *GMultiThreadedSwarm::clone_() const  {
-	return new GMultiThreadedSwarm(*this);
+GObject *GMultiThreadedGD::clone_() const  {
+	return new GMultiThreadedGD(*this);
 }
 
 /************************************************************************************************************/
 /**
  * Necessary initialization work before the start of the optimization
  */
-void GMultiThreadedSwarm::init() {
-	// GSwarm sees exactly the environment it would when called from its own class
-	GSwarm::init();
+void GMultiThreadedGD::init() {
+	// GGradientDescent sees exactly the environment it would when called from its own class
+	GGradientDescent::init();
 
 	// We want to confine re-evaluation to defined places. However, we also want to restore
 	// the original flags. We thus record the previous setting when setting the flag to true.
@@ -202,11 +244,11 @@ void GMultiThreadedSwarm::init() {
 /**
  * Necessary clean-up work after the optimization has finished
  */
-void GMultiThreadedSwarm::finalize() {
+void GMultiThreadedGD::finalize() {
 #ifdef DEBUG
 	if(data.size() != sm_value_.size()) {
 		std::ostringstream error;
-		error << "In GMultiThreadedSwarm::finalize(): Error!" << std::endl
+		error << "In GMultiThreadedGD::finalize(): Error!" << std::endl
 			  << "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size() << std::endl;
 		throw Gem::Common::gemfony_error_condition(error.str());
 	}
@@ -220,109 +262,74 @@ void GMultiThreadedSwarm::finalize() {
 	}
 	sm_value_.clear(); // Make sure we have no "left-overs"
 
-	// GSwarm sees exactly the environment it would when called from its own class
-	GSwarm::finalize();
+	// GGradientDescent sees exactly the environment it would when called from its own class
+	GGradientDescent::finalize();
 }
 
 /************************************************************************************************************/
 /**
- * Updates the fitness of all individuals. This is an overloaded version of the parent class'es function
- * which enqueues tasks in the thread pool.
+ * Triggers fitness calculation of a number of individuals. This function performs the same task as done
+ * in GGradientDescent, albeit multi-threaded.
+ *
+ * @param finalPos The position in the vector up to which the fitness calculation should be performed
+ * @return The best fitness found amongst all parents
  */
-void GMultiThreadedSwarm::swarmLogic() {
-	std::size_t offset = 0;
-	GMultiThreadedSwarm::iterator start = this->begin();
-	boost::uint32_t iteration = getIteration();
+double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
+	double bestFitness = getWorstCase(); // Holds the best fitness found so far
+	std::size_t nStartingPoints = this->getNStartingPoints();
 
-	for(std::size_t neighborhood=0; neighborhood<nNeighborhoods_; neighborhood++) {
 #ifdef DEBUG
-		if(getIteration() > 0) {
-			if(!local_bests_[neighborhood]) {
-				std::ostringstream error;
-				error << "In GMultiThreadedSwarm::swarmLogic(): Error!" << std::endl
-					  << "local_bests[" << neighborhood << "] is empty." << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
-			}
+	if(finalPos > this->size()) {
+		std::ostringstream error;
+		error << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
+			  << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
 
-			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
-				std::ostringstream error;
-				error << "In GMultiThreadedSwarm::swarmLogic(): Error!" << std::endl
-					  << "global_best_ is empty." << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
-			}
+	if(finalPos < nStartingPoints) {
+		std::ostringstream error;
+		error << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
+			  << "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif
+
+	// Trigger value calculation for all individuals (including parents)
+	for(std::size_t i=0; i<finalPos; i++) {
+#ifdef DEBUG
+		// Make sure the evaluated individuals have the dirty flag set
+		if(!this->at(i)->isDirty()) {
+			std::ostringstream error;
+			error << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
+				  << "Found individual in position " << i << " whose dirty flag isn't set" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
-#endif /* DEBUG */
+#endif /* DEBUG*/
 
-		for(std::size_t member=0; member<nNeighborhoodMembers_[neighborhood]; member++) {
-			GMultiThreadedSwarm::iterator current = start + offset;
-
-			if(iteration == 0 || (*current)->getSwarmPersonalityTraits()->checkNoPositionUpdateAndReset()) {
-				tp_.schedule(
-					Gem::Common::GThreadWrapper(
-						boost::bind(
-							&GMultiThreadedSwarm::updateFitness
-							,this
-							, neighborhood
-							, *current
-						)
-					)
-				);
-			}
-			else {
-				tp_.schedule(
-					Gem::Common::GThreadWrapper(
-						boost::bind(
-							&GMultiThreadedSwarm::updatePositionsAndFitness
-							, this
-							, neighborhood
-							, *current
-							, local_bests_[neighborhood]->clone<GParameterSet>()
-							, global_best_->clone<GParameterSet>()
-							, velocities_[offset]
-							, getCLocal()
-							, getCGlobal()
-							, getCDelta()
-						)
-					)
-				);
-			}
-
-			offset++;
-		}
+		tp_.schedule(
+			Gem::Common::GThreadWrapper(
+				boost::bind(
+					&GParameterSet::fitness
+					, this->at(i)
+				)
+			)
+		);
 	}
 
 	// wait for the pool to run out of tasks
 	tp_.wait();
-}
 
-/************************************************************************************************************/
-/**
- * Sets the number of threads for this population. If nThreads is set
- * to 0, an attempt will be made to set the number of threads to the
- * number of hardware threading units (e.g. number of cores or hyperthreading
- * units).
- *
- * @param nThreads The number of threads this class uses
- */
-void GMultiThreadedSwarm::setNThreads(const boost::uint8_t& nThreads) {
-	if(nThreads == 0) {
-		nThreads_ = boost::numeric_cast<boost::uint8_t>(Gem::Common::getNHardwareThreads(DEFAULTBOOSTTHREADSSWARM));
-	}
-	else {
-		nThreads_ = nThreads;
+	// Retrieve information about the best fitness found
+	double fitnessFound = 0.;
+	for(std::size_t i=0; i<nStartingPoints; i++) {
+		fitnessFound = this->at(i)->fitness();
+
+		if(isBetter(fitnessFound, bestFitness)) {
+			bestFitness = fitnessFound;
+		}
 	}
 
-	tp_.size_controller().resize(nThreads_);
-}
-
-/************************************************************************************************************/
-/**
- * Retrieves the number of threads this population uses.
- *
- * @return The maximum number of allowed threads
- */
-uint8_t GMultiThreadedSwarm::getNThreads() const  {
-	return nThreads_;
+	return bestFitness;
 }
 
 #ifdef GENEVATESTING
@@ -332,11 +339,11 @@ uint8_t GMultiThreadedSwarm::getNThreads() const  {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GMultiThreadedSwarm::modify_GUnitTests() {
+bool GMultiThreadedGD::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GSwarm::modify_GUnitTests()) result = true;
+	if(GGradientDescent::modify_GUnitTests()) result = true;
 
 	return result;
 }
@@ -345,18 +352,18 @@ bool GMultiThreadedSwarm::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GMultiThreadedSwarm::specificTestsNoFailureExpected_GUnitTests() {
+void GMultiThreadedGD::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSwarm::specificTestsNoFailureExpected_GUnitTests();
+	GGradientDescent::specificTestsNoFailureExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GMultiThreadedSwarm::specificTestsFailuresExpected_GUnitTests() {
+void GMultiThreadedGD::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
-	GSwarm::specificTestsFailuresExpected_GUnitTests();
+	GGradientDescent::specificTestsFailuresExpected_GUnitTests();
 }
 
 /************************************************************************************************************/
@@ -371,13 +378,13 @@ void GMultiThreadedSwarm::specificTestsFailuresExpected_GUnitTests() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 /**
- * As Gem::Geneva::GMultiThreadedSwarm has a protected default constructor, we need to provide a
+ * As Gem::Geneva::GMultiThreadedGD has a protected default constructor, we need to provide a
  * specialization of the factory function that creates objects of this type.
  */
 template <>
-boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedSwarm>() {
-	boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> p;
-	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm>(new Gem::Geneva::GMultiThreadedSwarm(5,10)));
+boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> TFactory_GUnitTests<Gem::Geneva::GMultiThreadedGD>() {
+	boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> p;
+	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GMultiThreadedGD>(new Gem::Geneva::GMultiThreadedGD()));
 	return p;
 }
 

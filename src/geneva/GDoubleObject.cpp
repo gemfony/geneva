@@ -193,6 +193,35 @@ void GDoubleObject::doubleStreamline(std::vector<double>& parVec) const {
 
 /*******************************************************************************************/
 /**
+ * Tell the audience that we own a double value
+ *
+ * @return The number 1, as we own a single double parameter
+ */
+std::size_t GDoubleObject::countDoubleParameters() const {
+	return 1;
+}
+
+/*******************************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GDoubleObject::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+#ifdef DEBUG
+	// Do we have a valid position ?
+	if(pos >= parVec.size()) {
+		std::ostringstream error;
+		error << "In GBooleanObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&): Error!" << std::endl
+			  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif
+
+	this->setValue(parVec[pos]);
+	pos++;
+}
+
+/*******************************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GDoubleObject object, camouflaged as a GObject

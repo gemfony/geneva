@@ -447,6 +447,93 @@ void GParameterBase::booleanStreamline(std::vector<bool>& parVec) const
 
 /**********************************************************************************/
 /**
+ * Count the number of double parameters. The actual work needs to be done by
+ * derived classes, if they possess double parameters.
+ *
+ * @return The number of double parameters in this object
+ */
+std::size_t GParameterBase::countDoubleParameters() const {
+	return 0;
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************************/
+/**
+ * Count the number of boost::int32_t parameters. The actual work needs to be done by
+ * derived classes, if they possess boost::int32_t parameters.
+ *
+ * @return The number of boost::int32_t parameters in this object
+ */
+std::size_t GParameterBase::countInt32Parameters() const {
+	return 0;
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************************/
+/**
+ * Count the number of bool parameters. The actual work needs to be done by
+ * derived classes, if they possess bool parameters.
+ *
+ * @return The number of bool parameters in this object
+ */
+std::size_t GParameterBase::countBoolParameters() const {
+	return 0;
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GParameterBase::assignDoubleValueVector(const std::vector<double>& parVec, std::size_t& pos) {
+	/* Do nothing by default */
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GParameterBase::assignInt32ValueVector(const std::vector<boost::int32_t>& parVec, std::size_t& pos) {
+	/* Do nothing by default */
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************************/
+/**
+ * Assigns part of a value vector to the parameter
+ */
+void GParameterBase::assignBooleanValueVector(const std::vector<bool>& parVec, std::size_t& pos) {
+	/* Do nothing by default */
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/**********************************************************************************/
+/**
  * Specifies that no random initialization should occur anymore
  */
 void GParameterBase::blockRandomInitialization() {

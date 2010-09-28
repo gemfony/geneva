@@ -19,6 +19,7 @@ SET ( OPTIMIZATIONSOURCES
 	GEAPersonalityTraits
 	GEvolutionaryAlgorithm
 	GGDPersonalityTraits
+	GGradientDescent
 	GIndividual
 	GInt32Collection
 	GInt32FlipAdaptor
@@ -27,6 +28,7 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32ObjectCollection
 	GIntFlipAdaptorT
 	GMultiThreadedEA
+	GMultiThreadedGD
 	GMultiThreadedSwarm
 	GObject
 	GOptimizationEnums

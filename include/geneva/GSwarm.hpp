@@ -76,10 +76,14 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "GIndividual.hpp"
-#include "GParameterSet.hpp"
-#include "GOptimizationAlgorithmT.hpp"
-#include "GOptimizationEnums.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GParameterSet.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+
+#ifdef GENEVATESTING
+#include "GTestIndividual1.hpp"
+#endif /* GENEVATESTING */
 
 namespace Gem {
 namespace Geneva {
@@ -319,8 +323,6 @@ public:
 
 		case INFOPROCESSING:
 			{
-				bool isDirty = false;
-
 				information << std::setprecision(10) << "In iteration "<< gs->getIteration() << ": " << gs->getBestFitness() << std::endl;
 			}
 			break;
