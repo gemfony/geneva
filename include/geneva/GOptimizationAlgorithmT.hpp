@@ -1001,9 +1001,14 @@ private:
 		using namespace boost::posix_time;
 		ptime currentTime = microsec_clock::local_time();
 		if((currentTime - startTime_) >= maxDuration_) {
+			if(emitTerminationReason_) {
+				std::cerr << "Terminating optimization run because maximum time frame has been exceeded." << std::endl;
+			}
+
 			return true;
+		} else {
+			return false;
 		}
-		return false;
 	}
 
 	/**************************************************************************************/
@@ -1015,9 +1020,69 @@ private:
 	 */
 	bool qualityHalt() const {
 		if(isBetter(bestPastFitness_, qualityThreshold_)) {
+			if(emitTerminationReason_) {
+				std::cerr << "Terminating optimization run because quality threshold has been reached." << std::endl;
+			}
+
 			return true;
+		} else {
+			return false;
 		}
-		else return false;
+	}
+
+	/**************************************************************************************/
+	/**
+	 * This function returns true once a given number of stalls has been exceeded in a row
+	 *
+	 * @return A boolean indicating whether the optimization has stalled too often in a row
+	 */
+	bool stallHalt() const {
+		if(stallCounter_ > maxStallIteration_) {
+			if(emitTerminationReason_) {
+				std::cout << "Terminating optimization run because maximum number of stalls has been exceeded." << std::endl;
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**************************************************************************************/
+	/**
+	 * This function returns true once a maximum number of iterations has been exceeded
+	 *
+	 * @return A boolean indicating whether the maximum number of iterations has been exceeded
+	 */
+	bool iterationHalt() const {
+		if(iteration_ > (maxIteration_ + offset_)) {
+			if(emitTerminationReason_) {
+				std::cout << "Terminating optimization run because iteration threshold has been reached." << std::endl;
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**************************************************************************************/
+	/**
+	 * A wrapper for the customHalt() function that allows us to emit the termination reason
+	 *
+	 * @return A boolean indicating whether a custom halt criterion has been reached
+	 */
+	bool customHalt_() const {
+		if(customHalt()) {
+			if(emitTerminationReason_) {
+				std::cerr << "Terminating optimization run because custom halt criterion has triggered." << std::endl;
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 	/**************************************************************************************/
@@ -1032,51 +1097,21 @@ private:
 	{
 		// Have we exceeded the maximum number of iterations and
 		// do we indeed intend to stop in this case ?
-		if(maxIteration_ && (iteration_ > (maxIteration_ + offset_))) {
-			if(emitTerminationReason_) {
-				std::cout << "Terminating optimization run because iteration threshold has been reached." << std::endl;
-			}
-
-			return true;
-		}
+		if(maxIteration_ && iterationHalt()) return true;
 
 		// Has the optimization stalled too often ?
-		if(maxStallIteration_ && stallCounter_ > maxStallIteration_) {
-			if(emitTerminationReason_) {
-				std::cout << "Terminating optimization run because maximum number of stalls has been exceeded." << std::endl;
-			}
-
-			return true;
-		}
+		if(maxStallIteration_ && stallHalt()) return true;
 
 		// Do we have a scheduled halt time ? The comparatively expensive
 		// timedHalt() calculation is only called if maxDuration_
 		// is at least one microsecond.
-		if(maxDuration_.total_microseconds() && timedHalt()) {
-			if(emitTerminationReason_) {
-				std::cerr << "Terminating optimization run because maximum time frame has been exceeded." << std::endl;
-			}
-
-			return true;
-		}
+		if(maxDuration_.total_microseconds() && timedHalt()) return true;
 
 		// Are we supposed to stop when the quality has exceeded a threshold ?
-		if(hasQualityThreshold_ && qualityHalt()) {
-			if(emitTerminationReason_) {
-				std::cerr << "Terminating optimization run because quality threshold has been reached." << std::endl;
-			}
-
-			return true;
-		}
+		if(hasQualityThreshold_ && qualityHalt()) return true;
 
 		// Has the user specified an additional stop criterion ?
-		if(customHalt()) {
-			if(emitTerminationReason_) {
-				std::cerr << "Terminating optimization run because custom halt criterion has triggered." << std::endl;
-			}
-
-			return true;
-		}
+		if(customHalt_()) return true;
 
 		// Fine, we can continue.
 		return false;
