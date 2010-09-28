@@ -8,6 +8,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GBooleanObjectCollection.hpp
 	GBrokerConnector.hpp
 	GBrokerEA.hpp
+	GBrokerGD.hpp
 	GBrokerSwarm.hpp
 	GConstrainedDoubleObject.hpp
 	GConstrainedDoubleObjectCollection.hpp
