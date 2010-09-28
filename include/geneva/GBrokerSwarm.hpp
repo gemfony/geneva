@@ -60,9 +60,9 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "courtier/GBufferPortT.hpp"
-#include "GSwarmPersonalityTraits.hpp"
-#include "GSwarm.hpp"
-#include "GBrokerConnector.hpp"
+#include "geneva/GSwarmPersonalityTraits.hpp"
+#include "geneva/GSwarm.hpp"
+#include "geneva/GBrokerConnector.hpp"
 
 namespace Gem
 {

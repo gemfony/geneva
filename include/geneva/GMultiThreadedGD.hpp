@@ -97,7 +97,7 @@ const boost::uint16_t DEFAULTBOOSTTHREADSGD = 2;
 
 /*********************************************************************************/
 /**
- * A multi-threaded version of the GMultiThreadedGD class
+ * A multi-threaded version of the GGradientDescent class
  */
 class GMultiThreadedGD
 	:public GGradientDescent

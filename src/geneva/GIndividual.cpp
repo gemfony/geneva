@@ -673,6 +673,7 @@ bool GIndividual::process(){
 		}
 		break;
 
+	//-------------------------------------------------------------------------------------------------------
 	case SWARM:
 		{
 			if(getPersonalityTraits()->getCommand() == "evaluate") {
@@ -687,6 +688,26 @@ bool GIndividual::process(){
 			}
 
 			// Processing in swarms will always yield useful results, regardless of
+			// whether a better solution was found than previously known.
+			gotUsefulResult = true;
+		}
+		break;
+
+	//-------------------------------------------------------------------------------------------------------
+	case GD:
+		{
+			if(getPersonalityTraits()->getCommand() == "evaluate") {
+				// Trigger fitness calculation
+				fitness();
+			}
+			else {
+				std::ostringstream error;
+				error << "In GIndividual::process(//GD//): Unknown command: \""
+					  << getPersonalityTraits()->getCommand() << "\"" << std::endl;
+				throw Gem::Common::gemfony_error_condition(error.str());
+			}
+
+			// Processing in gradient descents will always yield useful results, regardless of
 			// whether a better solution was found than previously known.
 			gotUsefulResult = true;
 		}
