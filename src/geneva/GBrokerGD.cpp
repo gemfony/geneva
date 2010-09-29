@@ -289,7 +289,15 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 		GBrokerConnector::submit(this->at(i));
 	}
 
+	// Will hold returned items
+	boost::shared_ptr<GParameterSet> p;
+
 	// Wait for all submitted individuals to return.
+	bool complete = false;
+	while(!complete) {
+
+	}
+
 	// NOTE: Unlike swarm-algorithms and evolutionary algorithms, gradient descents
 	// cannot cope easily with missing responses. The only option would be to resubmit
 	// items that didn't return before a given deadline. This might be implemented

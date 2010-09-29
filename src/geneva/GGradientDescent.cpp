@@ -494,6 +494,9 @@ void GGradientDescent::updateParentIndividuals() {
 void GGradientDescent::init() {
 	// To be performed before any other action
 	GOptimizationAlgorithmT<GParameterSet>::init();
+
+	// Tell individuals about their position in the population
+	markIndividualPositions();
 }
 
 /************************************************************************************************************/
@@ -686,6 +689,17 @@ void GGradientDescent::saveCheckpoint() const {
 
 	// Make sure the stream is closed again
 	checkpointStream.close();
+}
+
+/************************************************************************************************************/
+/**
+ * This helper function lets all individuals know about their position in the
+ * population.
+ */
+void GGradientDescent::markIndividualPositions() {
+	std::size_t pos = 0;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+	for(it=data.begin(); it!=data.end(); ++it) (*it)->getGDPersonalityTraits()->setPopulationPosition(pos++);
 }
 
 #ifdef GENEVATESTING

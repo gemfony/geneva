@@ -84,7 +84,8 @@ class GGDPersonalityTraits :public GPersonalityTraits
 	  using boost::serialization::make_nvp;
 
 	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-	     & BOOST_SERIALIZATION_NVP(command_);
+	     & BOOST_SERIALIZATION_NVP(command_)
+	     & BOOST_SERIALIZATION_NVP(popPos_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -111,6 +112,11 @@ public:
 	/** @brief Resets the command string */
 	virtual void resetCommand();
 
+	/** @brief Sets the position of the individual in the population */
+	void setPopulationPosition(std::size_t) ;
+	/** @brief Retrieves the position of the individual in the population */
+	std::size_t getPopulationPosition(void) const ;
+
 protected:
 	/** @brief Loads the data of another GGDPersonalityTraits object */
 	virtual void load_(const GObject*);
@@ -120,6 +126,8 @@ protected:
 private:
 	/** @brief The command to be performed by remote clients */
 	std::string command_;
+	/** @brief Stores the current position in the population */
+	std::size_t popPos_;
 
 #ifdef GENEVATESTING
 public:

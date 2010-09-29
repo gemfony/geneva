@@ -45,6 +45,7 @@ namespace Geneva {
 GGDPersonalityTraits::GGDPersonalityTraits()
 	: GPersonalityTraits()
 	, command_("")
+	, popPos_(0)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -56,6 +57,7 @@ GGDPersonalityTraits::GGDPersonalityTraits()
 GGDPersonalityTraits::GGDPersonalityTraits(const GGDPersonalityTraits& cp)
 	: GPersonalityTraits(cp)
 	, command_(cp.command_)
+	, popPos_(cp.popPos_)
 { /* nothing */ }
 
 /*****************************************************************************/
@@ -124,6 +126,7 @@ boost::optional<std::string> GGDPersonalityTraits::checkRelationshipWith(const G
 
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GGDPersonalityTraits", command_, p_load->command_, "command_", "p_load->command_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GGDPersonalityTraits", popPos_, p_load->popPos_, "popPos_", "p_load->popPos_", e , limit));
 
 	return evaluateDiscrepancies("GGDPersonalityTraits", caller, deviations, e);
 }
@@ -153,6 +156,7 @@ void GGDPersonalityTraits::load_(const GObject* cp) {
 
 	// and then the local data
 	command_ = p_load->command_;
+	popPos_ = p_load->popPos_;
 }
 
 /*****************************************************************************/
@@ -213,6 +217,36 @@ void GGDPersonalityTraits::resetCommand() {
 
 /* ----------------------------------------------------------------------------------
  * Used in GGDPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
+/*****************************************************************************/
+/**
+ * Sets the position of the individual in the population
+ *
+ * @param popPos The new position of this individual in the population
+ */
+void GGDPersonalityTraits::setPopulationPosition(std::size_t popPos) {
+	popPos_ = popPos;
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/*****************************************************************************/
+/**
+ * Retrieves the position of the individual in the population
+ *
+ * @return The current position of this individual in the population
+ */
+std::size_t GGDPersonalityTraits::getPopulationPosition(void) const {
+	return popPos_;
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
  * ----------------------------------------------------------------------------------
  */
 

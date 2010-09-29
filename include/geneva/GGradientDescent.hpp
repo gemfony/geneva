@@ -244,6 +244,9 @@ private:
 	float finiteStep_; ///< The size of the incremental adaption of the feature vector
 	float stepSize_; ///< A multiplicative factor for the adaption
 
+	/** @brief Lets individuals know about their position in the population */
+	void markIndividualPositions();
+
 #ifdef GENEVATESTING
 public:
 	/**************************************************************************************************/
