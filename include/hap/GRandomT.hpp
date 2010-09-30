@@ -191,6 +191,9 @@ private:
 	 * exists, then retrieves a new container.
 	 */
 	void getNewP01() {
+		// Make sure we get rid of the old container
+		p01_.reset();
+
 		if(grf_) {
 #ifdef DEBUG
 			boost::uint32_t nRetries = 0;

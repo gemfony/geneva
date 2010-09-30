@@ -110,7 +110,7 @@ public:
 	/****************************************************************************/
 	/**
 	 * A constructor that initializes the value only. The boundaries will
-	 * be set to the maximum and minimum allowedvalues of the corresponding type.
+	 * be set to the maximum and minimum allowed values of the corresponding type.
 	 *
 	 * @param val The desired external value of this object
 	 */

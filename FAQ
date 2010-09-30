@@ -15,7 +15,7 @@ A: Yes.
    
 Q: Ummmh -- so if there are bugs, why don't you fix them ?
 A: We have done our best to check the Geneva library for all kinds of possible problems. 
-   Particularly, there is a complete unit test framework for the core optimization 
+   Particularly, there is a comprehensive unit test framework for the core optimization 
    libraries. So the actual number of bugs should be quite low. However, we cannot test 
    Geneva under all possible circumstances. This is where, in the best tradition of Open 
    Source software, we rely on you to report the problems you have encountered. Also note 
