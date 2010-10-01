@@ -42,6 +42,15 @@ namespace Geneva {
 
 /************************************************************************************************************/
 /**
+ * The default constructor. Intentionally protected and thus unaccessible by the general public, as it is
+ * only needed for de-serialization purposes. The id of the optimization algorithm will be set when the
+ * parent class is de-serialized.
+ */
+GSwarm::GSwarm()
+{ /* nothing */ }
+
+/************************************************************************************************************/
+/**
  * This constructor sets the number of neighborhoods and the number of individuals in them. Note that there
  * is no public default constructor, as it is only needed for de-serialization purposes.
  *
@@ -60,6 +69,7 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, c_delta_(DEFAULTCDELTA)
 	, ur_(DEFAULTUPDATERULE)
 {
+	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(SWARM);
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
 	// Initialize with 0. adjustPopulation() will later take care to fill the population with individuals as needed.

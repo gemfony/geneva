@@ -418,8 +418,8 @@ protected:
 	/** @brief Specifies how the parameters are updated */
 	updateRule ur_;
 
-	/** @brief The default constructor. Intentionally empty, as it is only needed for de-serialization purposes. */
-	GSwarm(){}
+	/** @brief The default constructor. Intentionally protected, as it is only needed for de-serialization purposes. */
+	GSwarm();
 
 private:
 	/**************************************************************************************************/

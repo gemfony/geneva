@@ -126,7 +126,8 @@ class GOptimizationAlgorithmT
 	     & BOOST_SERIALIZATION_NVP(hasQualityThreshold_)
 	     & BOOST_SERIALIZATION_NVP(maxDuration_)
 	     & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
-	     & BOOST_SERIALIZATION_NVP(halted_);
+	     & BOOST_SERIALIZATION_NVP(halted_)
+	     & BOOST_SERIALIZATION_NVP(optAlg_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -155,6 +156,7 @@ public:
 		, maxDuration_(boost::posix_time::duration_from_string(DEFAULTDURATION))
 		, emitTerminationReason_(false)
 		, halted_(false)
+		, optAlg_(NONE)
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -183,6 +185,7 @@ public:
 		, maxDuration_(cp.maxDuration_)
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
+		, optAlg_(cp.optAlg_)
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -419,6 +422,7 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maxDuration_, p_load->maxDuration_, "maxDuration_", "p_load->maxDuration_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", emitTerminationReason_, p_load->emitTerminationReason_, "emitTerminationReason_", "p_load->emitTerminationReason_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", halted_, p_load->halted_, "halted_", "p_load->halted_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", optAlg_, p_load->optAlg_, "optAlg_", "p_load->optAlg_", e , limit));
 
 		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
 	}
@@ -433,6 +437,14 @@ public:
 	 * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
 	 */
 	virtual void optimize(const boost::uint32_t& offset = 0) {
+		// Check that we are dealing with an "authorized" optimization algorithm
+		if(this->getOptimizationAlgorithm() == NONE) {
+			std::ostringstream error;
+			error << "In GOptimizationAlgorithmT<T>::optimize(): Error!" << std::endl
+				  << "The id of the optimization algorithm hasn't been set." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
 		// Reset the generation counter
 		iteration_ = offset;
 
@@ -802,6 +814,16 @@ public:
 	 */
 	void randomInit() { /* nothing */ }
 
+	/**************************************************************************************/
+	/**
+	 * Allows to retrieve information about the optimization algorithm currently being used
+	 *
+	 * @return The id of the optimization algorithm currently being used
+	 */
+	personality getOptimizationAlgorithm() const {
+		return optAlg_;
+	}
+
 protected:
 	/**************************************************************************************/
 	/**
@@ -835,11 +857,22 @@ protected:
 		maxDuration_ = p_load->maxDuration_;
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
+		optAlg_ = p_load->optAlg_;
 	}
 
 	/**************************************************************************************/
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
+
+	/**************************************************************************************/
+	/**
+	 * This function allows derived classes to set the id of the algorithm being used
+	 *
+	 * @param optAlg The id of the optimization algorithm being used.
+	 */
+	void setOptimizationAlgorithm(const personality& optAlg) {
+		optAlg_ = optAlg;
+	}
 
 	/**************************************************************************************/
 	/** @brief Allows derived classes to set the personality type of the individuals */
@@ -1174,6 +1207,7 @@ private:
 	mutable boost::posix_time::ptime startTime_; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
+	personality optAlg_; ///< Allows to identify the actual optimization algorithm built on top of this class
 
 #ifdef GENEVATESTING
 public:

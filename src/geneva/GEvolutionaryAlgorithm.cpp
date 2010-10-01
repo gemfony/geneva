@@ -57,7 +57,9 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
 	, oneTimeMuCommaNu_(false)
 	, logOldParents_(DEFAULTMARKOLDPARENTS)
 	, infoFunction_(&GEvolutionaryAlgorithm::simpleInfoFunction)
-{ /* nothing */ }
+{
+	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::setOptimizationAlgorithm(EA);
+}
 
 /************************************************************************************************************/
 /**

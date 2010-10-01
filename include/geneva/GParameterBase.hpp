@@ -74,6 +74,7 @@
 namespace Gem {
 namespace Geneva {
 
+/******************************************************************************************/
 /**
  * The purpose of this class is to provide a common base for all parameter classes, so
  * that a GParameterSet can be built from different parameter types. The class also
@@ -170,7 +171,14 @@ public:
 	virtual bool hasAdaptor() const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/** @brief Assigns a random number generator from another object. */
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *);

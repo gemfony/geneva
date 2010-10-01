@@ -52,7 +52,9 @@ GGradientDescent::GGradientDescent()
 	, nFPParmsFirst_(0)
 	, finiteStep_(DEFAULTFINITESTEP)
 	, stepSize_(DEFAULTSTEPSIZE)
-{ /* nothing */}
+{
+	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(GD);
+}
 
 /************************************************************************************************************/
 /**
@@ -73,11 +75,13 @@ GGradientDescent::GGradientDescent(
 	, nFPParmsFirst_(0)
 	, finiteStep_(finiteStep)
 	, stepSize_(stepSize)
-{ /* nothing */ }
+{
+	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(GD);
+}
 
 /************************************************************************************************************/
 /**
- * A standard copy constructor
+ * A standard copy constructor.
  *
  * @param cp A copy of another GRadientDescent object
  */
@@ -88,7 +92,9 @@ GGradientDescent::GGradientDescent(const GGradientDescent& cp)
 	, nFPParmsFirst_(cp.nFPParmsFirst_)
 	, finiteStep_(cp.finiteStep_)
 	, stepSize_(cp.stepSize_)
-{ /* nothing */ }
+{
+	// Copying / setting of the optimization algorithm id is done by the parent class
+}
 
 /************************************************************************************************************/
 /**
