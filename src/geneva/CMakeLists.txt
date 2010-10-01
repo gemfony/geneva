@@ -17,6 +17,7 @@ SET ( OPTIMIZATIONSOURCES
 	GDoubleGaussAdaptor
 	GDoubleObject
 	GDoubleObjectCollection
+	GEAOptimizationMonitor
 	GEAPersonalityTraits
 	GEvolutionaryAlgorithm
 	GGDPersonalityTraits
@@ -32,6 +33,7 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedGD
 	GMultiThreadedSwarm
 	GObject
+	GEAOptimizationMonitor
 	GOptimizationEnums
 	GParameterBase
 	GParameterBaseWithAdaptorsT

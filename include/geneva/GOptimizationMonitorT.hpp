@@ -84,7 +84,9 @@ namespace Geneva {
  * TODO: Add MPL-Assert that T is a derivative of GIndividual
  */
 template <typename T>
-class GOptimizationMonitorT {
+class GOptimizationMonitorT
+	: public GObject
+{
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -93,7 +95,7 @@ class GOptimizationMonitorT {
       using boost::serialization::make_nvp;
 
       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-      	 & BOOS_SERIALIZATION_NVP(quiet_);
+      	 & BOOST_SERIALIZATION_NVP(quiet_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -121,7 +123,7 @@ public:
     /**
      * The destructor
      */
-    ~GOptimizationMonitorT()
+    virtual ~GOptimizationMonitorT()
     { /* nothing */ }
 
     /**********************************************************************************/
@@ -131,7 +133,7 @@ public:
      * @param  cp A constant reference to another GOptimizationMonitorT object
      * @return A boolean indicating whether both objects are equal
      */
-    bool operator==(const GOptimizationMonitorT<T>& cp) const {
+    virtual bool operator==(const GOptimizationMonitorT<T>& cp) const {
     	using namespace Gem::Common;
     	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
     	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationMonitorT::operator==","cp", CE_SILENT);
@@ -144,7 +146,7 @@ public:
      * @param  cp A constant reference to another GOptimizationMonitorT object
      * @return A boolean indicating whether both objects are inequal
      */
-    bool operator!=(const GOptimizationMonitorT<T>& cp) const {
+    virtual bool operator!=(const GOptimizationMonitorT<T>& cp) const {
     	using namespace Gem::Common;
     	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
     	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationMonitorT::operator!=","cp", CE_SILENT);
@@ -163,7 +165,7 @@ public:
      * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
      * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
      */
-    boost::optional<std::string> checkRelationshipWith(
+    virtual boost::optional<std::string> checkRelationshipWith(
     		const GObject& cp
     		, const Gem::Common::expectation& e
     		, const double& limit
@@ -182,7 +184,8 @@ public:
     	// Check our parent class'es data ...
     	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GOptimizationMonitorT", y_name, withMessages));
 
-    	// ... there is no local data
+    	// ... and then our local data
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationMonitorT<T>", quiet_, p_load->quiet_, "quiet_", "p_load->quiet_", e , limit));
 
     	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
     }
@@ -194,7 +197,7 @@ public:
      * @param im The mode in which the information function is called
      * @param goa A pointer to the current optimization algorithm for which information should be emitted
      */
-    void informationFunction(const infoMode& im, GOptimizationAlgorithmT<T> * const goa) {
+    virtual void informationFunction(const infoMode& im, GOptimizationAlgorithmT<T> * const goa) {
     	if(quiet_) return;
 
     	switch(im) {
@@ -243,8 +246,9 @@ protected:
      *
      * @param goa A pointer to the current optimization algorithm for which information should be emitted
      */
-    void firstInformation(GOptimizationAlgorithmT<T> * const goa)
-    { /* nothing */ }
+    virtual void firstInformation(GOptimizationAlgorithmT<T> * const goa) {
+    	std::cout << "Starting the optimization run" << std::endl;
+    }
 
     /**********************************************************************************/
     /**
@@ -254,7 +258,7 @@ protected:
      *
      * @param goa A pointer to the current optimization algorithm for which information should be emitted
      */
-    void cycleInformation(GOptimizationAlgorithmT<T> * const goa) {
+    virtual void cycleInformation(GOptimizationAlgorithmT<T> * const goa) {
     	std::cout << "Fitness in iteration " << goa->getIteration() << ": " << goa->getBestFitness() << std::endl;
     }
 
@@ -264,8 +268,9 @@ protected:
      *
      * @param goa A pointer to the current optimization algorithm for which information should be emitted
      */
-    void lastInformation(GOptimizationAlgorithmT<T> * const goa)
-    { /* nothing */ }
+    virtual void lastInformation(GOptimizationAlgorithmT<T> * const goa) {
+    	std::cout << "End of optimization reached" << std::endl;
+    }
 
     /**********************************************************************************/
     /**
@@ -273,13 +278,14 @@ protected:
      *
      * cp A pointer to anither GOptimizationMonitorT object, camouflaged as a GObject
      */
-    void load_(const GObject* cp) {
-    	const GOptimizationMonitorT<T> *p_load = conversion_cast<GOptimizationMonitorT<T> >(cp);
+    virtual void load_(const GObject* cp) {
+    	const GOptimizationMonitorT<T> *p_load = GObject::conversion_cast<GOptimizationMonitorT<T> >(cp);
 
     	// Load the parent classes' data ...
     	GObject::load_(cp);
 
-    	// no local data
+    	// ... and then our local data
+    	quiet_ = p_load->quiet_;
     }
 
     /**********************************************************************************/
@@ -296,7 +302,7 @@ public:
 	/**
 	 * Applies modifications to this object. This is needed for testing purposes
 	 */
-	bool modify_GUnitTests() {
+	virtual bool modify_GUnitTests() {
 		bool result = false;
 
 		// Call the parent class'es function
@@ -309,7 +315,7 @@ public:
 	/**
 	 * Performs self tests that are expected to succeed. This is needed for testing purposes
 	 */
-	void specificTestsNoFailureExpected_GUnitTests() {
+	virtual void specificTestsNoFailureExpected_GUnitTests() {
 		// Call the parent class'es function
 		GObject::specificTestsNoFailureExpected_GUnitTests();
 	}
@@ -318,7 +324,7 @@ public:
 	/**
 	 * Performs self tests that are expected to fail. This is needed for testing purposes
 	 */
-	void specificTestsFailuresExpected_GUnitTests() {
+	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent class'es function
 		GObject::specificTestsFailuresExpected_GUnitTests();
 	}
@@ -331,10 +337,17 @@ public:
 } /* namespace Gem */
 
 /**************************************************************************************/
-/**
- * @brief Needed for Boost.Serialization
- */
-// TODO: Replace with template version!!! BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GOptimizationMonitorT)
+/** @brief Mark this class as abstract. This is the content of
+ * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
+
+namespace boost {
+	namespace serialization {
+		template<typename T>
+		struct is_abstract<Gem::Geneva::GOptimizationMonitorT<T> > : public boost::true_type {};
+		template<typename T>
+		struct is_abstract< const Gem::Geneva::GOptimizationMonitorT<T> > : public boost::true_type {};
+	}
+}
 
 /**************************************************************************************/
 

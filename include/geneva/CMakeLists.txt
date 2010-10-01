@@ -23,6 +23,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GDoubleGaussAdaptor.hpp
 	GDoubleObject.hpp
 	GDoubleObjectCollection.hpp
+	GEAOptimizationMonitor.hpp
 	GEAPersonalityTraits.hpp
 	GEvolutionaryAlgorithm.hpp
 	GFPNumCollectionT.hpp
