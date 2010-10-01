@@ -149,13 +149,14 @@ bool GBrokerEA::operator!=(const GBrokerEA& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GBrokerEA::checkRelationshipWith(const GObject& cp,
+boost::optional<std::string> GBrokerEA::checkRelationshipWith(
+		const GObject& cp,
 		const Gem::Common::expectation& e,
 		const double& limit,
 		const std::string& caller,
 		const std::string& y_name,
-		const bool& withMessages) const
-{
+		const bool& withMessages
+) const {
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GParamterBase reference

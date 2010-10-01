@@ -33,7 +33,6 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedSwarm
 	GObject
 	GOptimizationEnums
-	# GOptimizationMonitor
 	GParameterBase
 	GParameterBaseWithAdaptorsT
 	GParameterObjectCollection

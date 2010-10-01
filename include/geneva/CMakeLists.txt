@@ -50,7 +50,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GObjectExpectationChecksT.hpp
 	GOptimizationAlgorithmT.hpp
 	GOptimizationEnums.hpp
-	GOptimizationMonitor.hpp
+	GOptimizationMonitorT.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp
 	GParameterCollectionT.hpp
