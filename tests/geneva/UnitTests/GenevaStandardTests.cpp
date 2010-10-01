@@ -65,6 +65,7 @@ using namespace boost::unit_test;
 #include "geneva/GGradientDescent.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
+#include "geneva/GEAOptimizationMonitor.hpp"
 
 #include "GTestIndividual1.hpp"
 
