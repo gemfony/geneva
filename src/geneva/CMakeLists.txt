@@ -20,6 +20,7 @@ SET ( OPTIMIZATIONSOURCES
 	GEAOptimizationMonitor
 	GEAPersonalityTraits
 	GEvolutionaryAlgorithm
+	GGDOptimizationMonitor
 	GGDPersonalityTraits
 	GGradientDescent
 	GIndividual
@@ -41,6 +42,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterSet
 	GPersonalityTraits
 	GSwarm
+	GSwarmOptimizationMonitor
 	GSwarmPersonalityTraits
 )
 

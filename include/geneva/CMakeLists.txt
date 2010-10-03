@@ -27,6 +27,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GEAPersonalityTraits.hpp
 	GEvolutionaryAlgorithm.hpp
 	GFPNumCollectionT.hpp
+	GGDOptimizationMonitor.hpp
 	GGDPersonalityTraits.hpp
 	GGradientDescent.hpp
 	GIndividual.hpp
@@ -65,6 +66,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GSwarm.hpp
+	GSwarmOptimizationMonitor.hpp
 	GSwarmPersonalityTraits.hpp
 )
 

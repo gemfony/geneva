@@ -54,6 +54,7 @@
 #include <boost/optional.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/mpl/assert.hpp>
 
 
 #ifndef GOPTIMIZATIONMONITOR_HPP_
@@ -80,8 +81,6 @@ namespace Geneva {
  * in the Geneva library. It also provides users with some basic information.
  * The template parameter will usually either be of the type "GParameterSet"
  * or "GIndividual".
- *
- * TODO: Add MPL-Assert that T is a derivative of GIndividual
  */
 template <typename T>
 class GOptimizationMonitorT
@@ -98,6 +97,9 @@ class GOptimizationMonitorT
       	 & BOOST_SERIALIZATION_NVP(quiet_);
     }
     ///////////////////////////////////////////////////////////////////////
+
+	// Make sure this class can only be instantiated if T is a derivative of GIndividual
+	BOOST_MPL_ASSERT((boost::is_base_of<GIndividual, T>));
 
 public:
     /**********************************************************************************/

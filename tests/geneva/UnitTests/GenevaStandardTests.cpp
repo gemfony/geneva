@@ -66,6 +66,7 @@ using namespace boost::unit_test;
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GEAOptimizationMonitor.hpp"
+#include "geneva/GSwarmOptimizationMonitor.hpp"
 
 #include "GTestIndividual1.hpp"
 
@@ -137,6 +138,7 @@ public:
 
 		typedef boost::mpl::list<
 			GEAOptimizationMonitor
+			, GSwarmOptimizationMonitor
 		>
 		monitor_types;
 
