@@ -62,7 +62,7 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, nNeighborhoods_(nNeighborhoods?nNeighborhoods:1)
 	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
 	, nNeighborhoodMembers_(nNeighborhoods_)
-	, local_bests_(new boost::shared_ptr<GParameterSet>[nNeighborhoods_])
+	, local_bests_(nNeighborhoods_)
 	, c_local_(DEFAULTCLOCAL)
 	, c_global_(DEFAULTCGLOBAL)
 	, c_delta_(DEFAULTCDELTA)
@@ -90,7 +90,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
 	, nNeighborhoodMembers_(cp.nNeighborhoodMembers_)
 	, global_best_((cp.getIteration()>0)?(cp.global_best_)->clone<GParameterSet>():boost::shared_ptr<GParameterSet>())
-	, local_bests_(new boost::shared_ptr<GParameterSet>[nNeighborhoods_])
+	, local_bests_(nNeighborhoods_) // We copy the smart pointers over later
 	, c_local_(cp.c_local_)
 	, c_global_(cp.c_global_)
 	, c_delta_(cp.c_delta_)
@@ -119,7 +119,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 	// inside of the "optimize()" call.
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
 
-	// Clone cp's locally best individuals, if this is not the first iteration
+	// Clone cp's locally best individuals
 	if(cp.getIteration()>0) {
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {
 			local_bests_[i] = cp.local_bests_[i]->clone<GParameterSet>();
@@ -131,9 +131,8 @@ GSwarm::GSwarm(const GSwarm& cp)
 /**
  * The standard destructor. Most work is done in the parent class.
  */
-GSwarm::~GSwarm() {
-	if(local_bests_) delete [] local_bests_; // This will also get rid of the objects pointed to
-}
+GSwarm::~GSwarm()
+{ /* nothing */ }
 
 /************************************************************************************************************/
 /**
@@ -179,10 +178,10 @@ void GSwarm::load_(const GObject *cp)
 		nNeighborhoods_ = p_load->nNeighborhoods_;
 
 		nNeighborhoodMembers_.clear();
-		delete [] local_bests_;
+		local_bests_.clear();
 
 		nNeighborhoodMembers_.resize(nNeighborhoods_);
-		local_bests_ = new boost::shared_ptr<GParameterSet>[nNeighborhoods_];
+		local_bests_.resize(nNeighborhoods_);
 
 		// Copy the local bests and number of neighborhood members over
 		for(std::size_t i=0; i<nNeighborhoods_; i++) {

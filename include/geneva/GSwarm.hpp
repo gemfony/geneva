@@ -107,53 +107,20 @@ class GSwarm
 	friend class boost::serialization::access;
 
 	template<typename Archive>
-	void load(Archive & ar, const unsigned int) {
+	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
 		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_)
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
-		   & BOOST_SERIALIZATION_NVP(global_best_);
-
-		std::vector<boost::shared_ptr<GParameterSet> > local_bests_vec;
-		ar & BOOST_SERIALIZATION_NVP(local_bests_vec);
-
-		local_bests_ = new boost::shared_ptr<GParameterSet>[nNeighborhoods_];
-		for(std::size_t i=0; i<nNeighborhoods_; i++) {
-			local_bests_[i] = local_bests_vec[i];
-		}
-
-		ar & BOOST_SERIALIZATION_NVP(c_local_)
-		   & BOOST_SERIALIZATION_NVP(c_global_)
-		   & BOOST_SERIALIZATION_NVP(c_delta_)
-		   & BOOST_SERIALIZATION_NVP(ur_);
-	}
-
-	template<typename Archive>
-	void save(Archive & ar, const unsigned int) const {
-		using boost::serialization::make_nvp;
-
-		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
-		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
-		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_)
-		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
-		   & BOOST_SERIALIZATION_NVP(global_best_);
-
-		std::vector<boost::shared_ptr<GParameterSet> > local_bests_vec;
-		for(std::size_t i=0; i<nNeighborhoods_; i++) {
-			local_bests_vec.push_back(local_bests_[i]);
-		}
-
-		ar & BOOST_SERIALIZATION_NVP(local_bests_vec)
+		   & BOOST_SERIALIZATION_NVP(global_best_)
+		   & BOOST_SERIALIZATION_NVP(local_bests_)
 		   & BOOST_SERIALIZATION_NVP(c_local_)
 		   & BOOST_SERIALIZATION_NVP(c_global_)
 		   & BOOST_SERIALIZATION_NVP(c_delta_)
 		   & BOOST_SERIALIZATION_NVP(ur_);
 	}
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 	///////////////////////////////////////////////////////////////////////
 
 public:
@@ -352,8 +319,7 @@ protected:
 	std::vector<std::size_t> nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
 
 	boost::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
-	boost::shared_ptr<GParameterSet> *local_bests_; ///< The collection of best individuals from each neighborhood
-
+	std::vector<boost::shared_ptr<GParameterSet> > local_bests_; ///< The collection of best individuals from each neighborhood
 	std::vector<boost::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
 
 	/** @brief A factor for multiplication of local bests */
