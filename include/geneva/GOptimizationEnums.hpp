@@ -60,6 +60,22 @@ namespace Geneva {
 
 /**********************************************************************************************/
 /**
+ * The default name of the output file of the optimization monitor base class
+ */
+const std::string DEFAULTRESULTFILEOM = "./result.C";
+
+/**
+ * The default dimension of the canvas in x-direction
+ */
+const boost::uint16_t DEFAULTXDIMOM=1024;
+
+/**
+ * The default dimension of the canvas in y-direction
+ */
+const boost::uint16_t DEFAULTYDIMOM=768;
+
+/**********************************************************************************************/
+/**
  * The default maximum value for constrained double values. It needs to be smaller
  * than the maximum allowed value for the underlying type in order to allow statements like
  * (max - min) without leaving the allowed value range.

@@ -37,6 +37,9 @@
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
 
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm::GEAOptimizationMonitor)
+
 namespace Gem {
 namespace Geneva {
 
@@ -56,9 +59,15 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
 	, defaultNChildren_(0)
 	, oneTimeMuCommaNu_(false)
 	, logOldParents_(DEFAULTMARKOLDPARENTS)
-	, infoFunction_(&GEvolutionaryAlgorithm::simpleInfoFunction)
 {
 	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::setOptimizationAlgorithm(EA);
+
+	// Register the default optimization monitor
+	this->registerOptimizationMonitor(
+			boost::shared_ptr<GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT>(
+					new GEAOptimizationMonitor()
+			)
+	);
 }
 
 /************************************************************************************************************/
@@ -78,7 +87,6 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 	, defaultNChildren_(cp.defaultNChildren_)
 	, oneTimeMuCommaNu_(cp.oneTimeMuCommaNu_)
 	, logOldParents_(cp.logOldParents_)
-	, infoFunction_(&GEvolutionaryAlgorithm::simpleInfoFunction) // Note that we do not copy the info function
 {
 	// Copy the old parents array over if requested
 	if(logOldParents_) {
@@ -136,8 +144,6 @@ void GEvolutionaryAlgorithm::load_(const GObject * cp)
 			oldParents_.push_back((*cit)->clone<GIndividual>());
 		}
 	}
-
-	// Note that we do not copy the info function
 }
 
 /************************************************************************************************************/
@@ -417,31 +423,6 @@ void GEvolutionaryAlgorithm::setLogOldParents(const bool& logOldParents) {
  */
 bool GEvolutionaryAlgorithm::oldParentsLogged() const {
 	return logOldParents_;
-}
-
-/************************************************************************************************************/
-/**
- * Emits information specific to this population. The function can be overloaded
- * in derived classes. By default we allow the user to register a call-back function
- * using GEvolutionaryAlgorithm::registerInfoFunction() . Please note that it is not
- * possible to serialize this function, so it will only be active on the host were
- * it was registered, but not on remote systems.
- *
- * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
- */
-void GEvolutionaryAlgorithm::doInfo(const infoMode& im) {
-	if(!infoFunction_.empty()) infoFunction_(im, this);
-}
-
-/************************************************************************************************************/
-/**
- * The user can specify what information should be emitted in a call-back function
- * that is registered in the setup phase. This functionality is based on boost::function .
- *
- * @param infoFunction A Boost.function object allowing the emission of information
- */
-void GEvolutionaryAlgorithm::registerInfoFunction(boost::function<void (const infoMode&, GEvolutionaryAlgorithm * const)> infoFunction) {
-	infoFunction_ = infoFunction;
 }
 
 /************************************************************************************************************/
@@ -1159,6 +1140,427 @@ void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
+#endif /* GENEVATESTING */
+
+/**********************************************************************************/
+/**
+ * The default constructor
+ */
+GEvolutionaryAlgorithm::GEAOptimizationMonitor::GEAOptimizationMonitor()
+	: xDim_(DEFAULTXDIMOM)
+	, yDim_(DEFAULTYDIMOM)
+	, nMonitorInds_(0)
+{ /* nothing */ }
+
+/**********************************************************************************/
+/**
+ * The copy constructor
+ *
+ * @param cp A copy of another GEAOptimizationMonitor object
+ */
+GEvolutionaryAlgorithm::GEAOptimizationMonitor::GEAOptimizationMonitor(const GEvolutionaryAlgorithm::GEAOptimizationMonitor& cp)
+	: GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT(cp)
+	, xDim_(cp.xDim_)
+	, yDim_(cp.yDim_)
+	, nMonitorInds_(cp.nMonitorInds_)
+{ /* nothing */ }
+
+/**********************************************************************************/
+/**
+ * The destructor
+ */
+GEvolutionaryAlgorithm::GEAOptimizationMonitor::~GEAOptimizationMonitor()
+{ /* nothing */ }
+
+/**********************************************************************************/
+/**
+ * A standard assignment operator.
+ *
+ * @param cp A copy of another GEAOptimizationMonitor object
+ * @return A constant reference to this object
+ */
+const GEvolutionaryAlgorithm::GEAOptimizationMonitor& GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator=(const GEvolutionaryAlgorithm::GEAOptimizationMonitor& cp){
+	GEvolutionaryAlgorithm::GEAOptimizationMonitor::load_(&cp);
+	return *this;
+}
+
+/**********************************************************************************/
+/**
+ * Checks for equality with another GParameter Base object
+ *
+ * @param  cp A constant reference to another GEAOptimizationMonitor object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator==(const GEvolutionaryAlgorithm::GEAOptimizationMonitor& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator==","cp", CE_SILENT);
+}
+
+/**********************************************************************************/
+/**
+ * Checks for inequality with another GEAOptimizationMonitor object
+ *
+ * @param  cp A constant reference to another GEAOptimizationMonitor object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator!=(const GEvolutionaryAlgorithm::GEAOptimizationMonitor& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GEvolutionaryAlgorithm::GEAOptimizationMonitor::operator!=","cp", CE_SILENT);
+}
+
+/**********************************************************************************/
+/**
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GEvolutionaryAlgorithm::GEAOptimizationMonitor::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are indeed dealing with a GParamterBase reference
+	const GEvolutionaryAlgorithm::GEAOptimizationMonitor *p_load = GObject::conversion_cast<GEvolutionaryAlgorithm::GEAOptimizationMonitor >(&cp);
+
+	// Will hold possible deviations from the expectation, including explanations
+	std::vector<boost::optional<std::string> > deviations;
+
+	// Check our parent class'es data ...
+	deviations.push_back(GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GEvolutionaryAlgorithm::GEAOptimizationMonitor", y_name, withMessages));
+
+	// ... and then our local data.
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm::GEAOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm::GEAOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GEvolutionaryAlgorithm::GEAOptimizationMonitor", nMonitorInds_, p_load->nMonitorInds_, "nMonitorInds_", "p_load->nMonitorInds_", e , limit));
+
+	return evaluateDiscrepancies("GEvolutionaryAlgorithm::GEAOptimizationMonitor", caller, deviations, e);
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once before the optimization starts
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ * @return A string containing information to written to the output file (if any)
+ */
+std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
+	// This should always be the first statement in a custom optimization monitor
+	std::cout << GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::firstInformation(goa);
+
+	// Perform the conversion to the target algorithm
+#ifdef DEBUG
+	if(goa->getOptimizationAlgorithm() != EA) {
+		std::ostringstream error;
+		error << "In GEvolutionaryAlgorithm::GEAOptimizationMonitor::firstInformation(): Error!" << std::endl
+			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+	GEvolutionaryAlgorithm * const ea = static_cast<GEvolutionaryAlgorithm * const>(goa);
+
+	// Determine a suitable number of monitored individuals, if it hasn't already
+	// been set externally. We allow a maximum of 3 monitored individuals by default
+	// (or the number of parents, if <= 3).
+	if(nMonitorInds_ == 0) {
+		nMonitorInds_ = std::min(ea->getNParents(), std::size_t(3));
+	}
+
+	// Output the header to the summary stream
+	return eaFirstInformation(ea);
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called during each optimization cycle. It is possible to
+ * extract quite comprehensive information in each iteration. For examples, see
+ * the standard overloads provided for the various optimization algorithms.
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ * @return A string containing information to written to the output file (if any)
+ */
+std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
+	// Let the audience know what the parent has to say
+	std::cout << GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::cycleInformation(goa);
+
+	// Perform the conversion to the target algorithm
+#ifdef DEBUG
+	if(goa->getOptimizationAlgorithm() != EA) {
+		std::ostringstream error;
+		error << "In GEvolutionaryAlgorithm::GEAOptimizationMonitor::cycleInformation(): Error!" << std::endl
+			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+	GEvolutionaryAlgorithm * const ea = static_cast<GEvolutionaryAlgorithm * const>(goa);
+
+	return eaCycleInformation(ea);
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once at the end of the optimization cycle
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ * @return A string containing information to written to the output file (if any)
+ */
+std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GIndividual> * const goa) {
+	// Perform the conversion to the target algorithm
+#ifdef DEBUG
+	if(goa->getOptimizationAlgorithm() != EA) {
+		std::ostringstream error;
+		error << "In GEvolutionaryAlgorithm::GEAOptimizationMonitor::lastInformation(): Error!" << std::endl
+			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+	GEvolutionaryAlgorithm * const ea = static_cast<GEvolutionaryAlgorithm * const>(goa);
+
+	// Do the actual information gathering
+	std::ostringstream result;
+	result << eaLastInformation(ea);
+
+	// This should always be the last statement in a custom optimization monitor
+	std::cout << GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::lastInformation(goa);
+
+	return result.str();
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once before the optimization starts, acting on evolutionary
+ * algorithms
+ */
+std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaFirstInformation(GEvolutionaryAlgorithm * const ea) {
+	std::ostringstream result;
+
+	// Output the header to the summary stream
+	result << "{" << std::endl
+		   << "  gROOT->Reset();" << std::endl
+		   << "  gStyle->SetOptTitle(0);" << std::endl
+		   << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDim_ << "," << yDim_ << ");" << std::endl
+		   << "  cc->Divide(1," << nMonitorInds_ << ");" << std::endl
+		   << std::endl;
+
+	result << "  std::vector<long> iteration;" << std::endl
+		   << std::endl;
+	for(std::size_t i=0; i<nMonitorInds_; i++) {
+		result << "  std::vector<double> evaluation" << i << ";" << std::endl
+			   << std::endl;
+	}
+
+	return result.str();
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called during each optimization cycle, acting on evolutionary
+ * algorithms
+ *
+ */
+std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaCycleInformation(GEvolutionaryAlgorithm * const ea) {
+	std::ostringstream result;
+
+	bool isDirty = false;
+	double currentEvaluation = 0.;
+
+	// Retrieve the current iteration
+	boost::uint32_t iteration = ea->getIteration();
+
+	result << "  iteration.push_back(" << iteration << ");" << std::endl;
+
+	for(std::size_t i=0; i<nMonitorInds_; i++) {
+		// Get access to the individual
+		boost::shared_ptr<GIndividual> gi_ptr = ea->individual_cast<GIndividual>(i);
+
+		// Retrieve the fitness of this individual
+		isDirty = false;
+		currentEvaluation = gi_ptr->getCurrentFitness(isDirty);
+
+		// Write information to the output stream
+		result << "  evaluation" << i << ".push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl;
+	}
+	result << std::endl; // Improves readability of the output data
+
+	return result.str();
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once at the end of the optimization cycle acting
+ * on evolutionary algorithms
+ *
+ */
+std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::eaLastInformation(GEvolutionaryAlgorithm * const ea) {
+	std::ostringstream result;
+
+	// Output final print logic to the stream
+	result << "  // Transfer the vectors into arrays" << std::endl
+			<< "  double iteration_arr[iteration.size()];" << std::endl;
+
+	for(std::size_t i=0; i<nMonitorInds_; i++) {
+		result << "  double evaluation" << i << "_arr[evaluation" << i << ".size()];" << std::endl
+			   << std::endl
+			   << "  for(std::size_t i=0; i<iteration.size(); i++) {" << std::endl
+			   << "     iteration_arr[i] = (double)iteration[i];"
+			   << "     evaluation" << i << "_arr[i] = evaluation" << i << "[i];" << std::endl
+			   << "  }" << std::endl
+			   << std::endl
+			   << "  // Create a TGraph object" << std::endl
+			   << "  TGraph *evGraph" << i << " = new TGraph(evaluation" << i << ".size(), iteration_arr, evaluation" << i << "_arr);" << std::endl
+			   << "  // Set the axis titles" << std::endl
+			   << "  evGraph" << i << "->GetXaxis()->SetTitle(\"Iteration\");" << std::endl
+			   << "  evGraph" << i << "->GetYaxis()->SetTitleOffset(1.1);" << std::endl
+			   << "  evGraph" << i << "->GetYaxis()->SetTitle(\"Fitness\");" << std::endl
+			   << std::endl;
+	}
+
+	result << "  // Do the actual drawing" << std::endl;
+
+	for(std::size_t i=0; i<nMonitorInds_; i++) {
+		result << "  cc->cd(" << i+1 << ");" << std::endl
+			   << "  evGraph" << i << "->Draw(\"AP\");" << std::endl;
+	}
+
+	result << "  cc->cd();" << std::endl
+		   << "}" << std::endl;
+
+	return result.str();
+}
+
+/**********************************************************************************/
+/**
+ * Allows to set the dimensions of the canvas
+ *
+ * @param xDim The desired dimension of the canvas in x-direction
+ * @param yDim The desired dimension of the canvas in y-direction
+ */
+void GEvolutionaryAlgorithm::GEAOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
+	xDim_ = xDim;
+	yDim_ = yDim;
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the dimension of the canvas in x-direction
+ *
+ * @return The dimension of the canvas in x-direction
+ */
+boost::uint16_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getXDim() const {
+	return xDim_;
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the dimension of the canvas in y-direction
+ *
+ * @return The dimension of the canvas in y-direction
+ */
+boost::uint16_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getYDim() const {
+	return yDim_;
+}
+
+/**********************************************************************************/
+/**
+ * Sets the number of individuals in the population that should be monitored
+ *
+ * @oaram nMonitorInds The number of individuals in the population that should be monitored
+ */
+void GEvolutionaryAlgorithm::GEAOptimizationMonitor::setNMonitorIndividuals(const std::size_t& nMonitorInds) {
+	if(nMonitorInds == 0) {
+		std::ostringstream error;
+		error << "In GEvolutionaryAlgorithm::GEAOptimizationMonitor::setNMonitorIndividuals(): Error!" << std::endl
+		      << "Number of monitored individuals is set to 0." << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
+	nMonitorInds_ = nMonitorInds;
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the number of individuals that are being monitored
+ *
+ * @return The number of individuals in the population being monitored
+ */
+std::size_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getNMonitorIndividuals() const {
+	return nMonitorInds_;
+}
+
+/**********************************************************************************/
+/**
+ * Loads the data of another object
+ *
+ * cp A pointer to another GEvolutionaryAlgorithm::GEAOptimizationMonitor object, camouflaged as a GObject
+ */
+void GEvolutionaryAlgorithm::GEAOptimizationMonitor::load_(const GObject* cp) {
+	const GEvolutionaryAlgorithm::GEAOptimizationMonitor *p_load = conversion_cast<GEvolutionaryAlgorithm::GEAOptimizationMonitor>(cp);
+
+	// Load the parent classes' data ...
+	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::load_(cp);
+
+	// ... and then our local data
+	xDim_ = p_load->xDim_;
+	yDim_ = p_load->yDim_;
+	nMonitorInds_ = p_load->nMonitorInds_;
+}
+
+/**********************************************************************************/
+/**
+ * Creates a deep clone of this object
+ *
+ * @return A deep clone of this object
+ */
+GObject* GEvolutionaryAlgorithm::GEAOptimizationMonitor::clone_() const {
+	return new GEvolutionaryAlgorithm::GEAOptimizationMonitor(*this);
+}
+
+#ifdef GENEVATESTING
+/**********************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ */
+bool GEvolutionaryAlgorithm::GEAOptimizationMonitor::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/**********************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GEvolutionaryAlgorithm::GEAOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/**********************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GEvolutionaryAlgorithm::GEAOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
+}
+
+/**********************************************************************************/
 #endif /* GENEVATESTING */
 
 } /* namespace Geneva */

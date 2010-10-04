@@ -65,8 +65,6 @@ using namespace boost::unit_test;
 #include "geneva/GGradientDescent.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
-#include "geneva/GEAOptimizationMonitor.hpp"
-#include "geneva/GSwarmOptimizationMonitor.hpp"
 
 #include "GTestIndividual1.hpp"
 
@@ -77,9 +75,9 @@ using namespace boost::unit_test;
 // when these statements are not present below.
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
+BOOST_CLASS_EXPORT(Gem::Geneva::GGradientDescent)
 BOOST_CLASS_EXPORT(Gem::Geneva::GSwarm)
 
-using namespace Gem::Hap;
 using namespace Gem::Geneva;
 
 /*************************************************************************************************/
@@ -137,12 +135,6 @@ public:
 		trait_types;
 
 		typedef boost::mpl::list<
-			GEAOptimizationMonitor
-			, GSwarmOptimizationMonitor
-		>
-		monitor_types;
-
-		typedef boost::mpl::list<
 			Gem::Tests::GTestIndividual1
 		>
 		individual_types;
@@ -160,9 +152,6 @@ public:
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, trait_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, trait_types ) );
-
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, monitor_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, monitor_types ) );
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, individual_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, individual_types ) );

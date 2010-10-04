@@ -157,12 +157,11 @@ int main(int argc, char **argv){
 
 	//***************************************************************************
 	// Create an instance of our optimization monitor
-	std::ofstream resultSummary("./result.C");
-	boost::shared_ptr<optimizationMonitor> om_ptr(new optimizationMonitor(df, resultSummary));
-	om_ptr->setDims(xDim, yDim);
-	om_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
-	om_ptr->setXExtremes(minVar, maxVar);
-	om_ptr->setYExtremes(minVar, maxVar);
+	boost::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(df));
+	pm_ptr->setDims(xDim, yDim);
+	pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
+	pm_ptr->setXExtremes(minVar, maxVar);
+	pm_ptr->setYExtremes(minVar, maxVar);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// We can now start creating populations. We refer to them through the base class
@@ -263,7 +262,7 @@ int main(int argc, char **argv){
 	pop_ptr->setCGlobal(cGlobal);
 	pop_ptr->setCDelta(cDelta);
 	pop_ptr->setUpdateRule(ur);
-	pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om_ptr, _1, _2));
+	pop_ptr->registerOptimizationMonitor(pm_ptr);
 
 	// Do the actual optimization
 	pop_ptr->optimize();

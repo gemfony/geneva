@@ -59,7 +59,6 @@ GSwarm::GSwarm()
  */
 GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborhoodMembers)
 	: GOptimizationAlgorithmT<GParameterSet>()
-	, infoFunction_(&GSwarm::simpleInfoFunction)
 	, nNeighborhoods_(nNeighborhoods?nNeighborhoods:1)
 	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
 	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
@@ -87,7 +86,6 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
  */
 GSwarm::GSwarm(const GSwarm& cp)
 	: GOptimizationAlgorithmT<GParameterSet>(cp)
-	, infoFunction_(&GSwarm::simpleInfoFunction) // Note that we do not copy the info function
 	, nNeighborhoods_(cp.nNeighborhoods_)
 	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
 	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
@@ -229,8 +227,6 @@ void GSwarm::load_(const GObject *cp)
 		global_best_.reset(); // empty the smart pointer
 	}
 	// else {} // We do not need to do anything if both iterations are 0 as there is no global best at all
-
-	// Note that we do not copy the info function
 }
 
 /************************************************************************************************************/
@@ -381,31 +377,6 @@ void GSwarm::saveCheckpoint() const {
  */
 void GSwarm::loadCheckpoint(const std::string& cpFile) {
 	this->fromFile(cpFile, getCheckpointSerializationMode());
-}
-
-/************************************************************************************************************/
-/**
- * Emits information specific to this population. The function can be overloaded
- * in derived classes. By default we allow the user to register a call-back function
- * using GSwarm::registerInfoFunction() . Please note that it is not
- * possible to serialize this function, so it will only be active on the host were
- * it was registered, but not on remote systems.
- *
- * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
- */
-void GSwarm::doInfo(const infoMode& im) {
-	if(!infoFunction_.empty()) infoFunction_(im, this);
-}
-
-/************************************************************************************************************/
-/**
- * The user can specify what information should be emitted in a call-back function
- * that is registered in the setup phase. This functionality is based on boost::function .
- *
- * @param infoFunction A Boost.function object allowing the emission of information
- */
-void GSwarm::registerInfoFunction(boost::function<void (const infoMode&, GSwarm * const)> infoFunction) {
-	infoFunction_ = infoFunction;
 }
 
 /************************************************************************************************************/
@@ -1159,6 +1130,374 @@ void GSwarm::specificTestsFailuresExpected_GUnitTests() {
 }
 
 /************************************************************************************************************/
+#endif /* GENEVATESTING */
+
+/**********************************************************************************/
+/**
+ * The default constructor
+ */
+GSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor()
+	: xDim_(DEFAULTXDIMOM)
+	, yDim_(DEFAULTYDIMOM)
+{ /* nothing */ }
+
+/**********************************************************************************/
+/**
+ * The copy constructor
+ *
+ * @param cp A copy of another GSwarmOptimizationMonitor object
+ */
+GSwarm::GSwarmOptimizationMonitor::GSwarmOptimizationMonitor(const GSwarm::GSwarmOptimizationMonitor& cp)
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
+	, xDim_(cp.xDim_)
+	, yDim_(cp.yDim_)
+  { /* nothing */ }
+
+/**********************************************************************************/
+/**
+ * The destructor
+ */
+GSwarm::GSwarmOptimizationMonitor::~GSwarmOptimizationMonitor()
+{ /* nothing */ }
+
+/**********************************************************************************/
+/**
+ * A standard assignment operator.
+ *
+ * @param cp A copy of another GSwarmOptimizationMonitor object
+ * @return A constant reference to this object
+ */
+const GSwarm::GSwarmOptimizationMonitor& GSwarm::GSwarmOptimizationMonitor::operator=(const GSwarm::GSwarmOptimizationMonitor& cp){
+	GSwarm::GSwarmOptimizationMonitor::load_(&cp);
+	return *this;
+}
+
+/**********************************************************************************/
+/**
+ * Checks for equality with another GParameter Base object
+ *
+ * @param  cp A constant reference to another GSwarmOptimizationMonitor object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GSwarm::GSwarmOptimizationMonitor::operator==(const GSwarm::GSwarmOptimizationMonitor& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GSwarm::GSwarmOptimizationMonitor::operator==","cp", CE_SILENT);
+}
+
+/**********************************************************************************/
+/**
+ * Checks for inequality with another GSwarmOptimizationMonitor object
+ *
+ * @param  cp A constant reference to another GSwarmOptimizationMonitor object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GSwarm::GSwarmOptimizationMonitor::operator!=(const GSwarm::GSwarmOptimizationMonitor& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GSwarm::GSwarmOptimizationMonitor::operator!=","cp", CE_SILENT);
+}
+
+/**********************************************************************************/
+/**
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GSwarm::GSwarmOptimizationMonitor::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are indeed dealing with a GParamterBase reference
+	const GSwarm::GSwarmOptimizationMonitor *p_load = GObject::conversion_cast<GSwarm::GSwarmOptimizationMonitor >(&cp);
+
+	// Will hold possible deviations from the expectation, including explanations
+	std::vector<boost::optional<std::string> > deviations;
+
+	// Check our parent class'es data ...
+	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GSwarm::GSwarmOptimizationMonitor", y_name, withMessages));
+
+	// ... and then our local data
+	deviations.push_back(checkExpectation(withMessages, "GSwarm::GSwarmOptimizationMonitor", xDim_, p_load->xDim_, "xDim_", "p_load->xDim_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm::GSwarmOptimizationMonitor", yDim_, p_load->yDim_, "yDim_", "p_load->yDim_", e , limit));
+
+	return evaluateDiscrepancies("GSwarm::GSwarmOptimizationMonitor", caller, deviations, e);
+}
+
+/**********************************************************************************/
+/**
+ * Allows to set the dimensions of the canvas
+ *
+ * @param xDim The desired dimension of the canvas in x-direction
+ * @param yDim The desired dimension of the canvas in y-direction
+ */
+void GSwarm::GSwarmOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
+	xDim_ = xDim;
+	yDim_ = yDim;
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the dimension of the canvas in x-direction
+ *
+ * @return The dimension of the canvas in x-direction
+ */
+boost::uint16_t GSwarm::GSwarmOptimizationMonitor::getXDim() const {
+	return xDim_;
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the dimension of the canvas in y-direction
+ *
+ * @return The dimension of the canvas in y-direction
+ */
+boost::uint16_t GSwarm::GSwarmOptimizationMonitor::getYDim() const {
+	return yDim_;
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once before the optimization starts
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ * @return A string containing information to written to the output file (if any)
+ */
+std::string GSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+	// This should always be the first statement in a custom optimization monitor
+	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::firstInformation(goa);
+
+	// Perform the conversion to the target algorithm
+#ifdef DEBUG
+	if(goa->getOptimizationAlgorithm() != SWARM) {
+		std::ostringstream error;
+		error << "In GSwarm::GSwarmOptimizationMonitor::firstInformation(): Error!" << std::endl
+			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+	GSwarm * const swarm = static_cast<GSwarm * const>(goa);
+
+	// Output the header to the summary stream
+	return swarmFirstInformation(swarm);
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called during each optimization cycle. It is possible to
+ * extract quite comprehensive information in each iteration. For examples, see
+ * the standard overloads provided for the various optimization algorithms.
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ * @return A string containing information to written to the output file (if any)
+ */
+std::string GSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+	// Let the audience know what the parent has to say
+	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::cycleInformation(goa);
+
+	// Perform the conversion to the target algorithm
+#ifdef DEBUG
+	if(goa->getOptimizationAlgorithm() != SWARM) {
+		std::ostringstream error;
+		error << "In GSwarm::GSwarmOptimizationMonitor::cycleInformation(): Error!" << std::endl
+			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+	GSwarm * const swarm = static_cast<GSwarm * const>(goa);
+
+	return swarmCycleInformation(swarm);
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once at the end of the optimization cycle
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ * @return A string containing information to written to the output file (if any)
+ */
+std::string GSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+
+	// Perform the conversion to the target algorithm
+#ifdef DEBUG
+	if(goa->getOptimizationAlgorithm() != SWARM) {
+		std::ostringstream error;
+		error << "In GSwarm::GSwarmOptimizationMonitor::lastInformation(): Error!" << std::endl
+			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+	GSwarm * const swarm = static_cast<GSwarm * const>(goa);
+
+	// Do the actual information gathering
+	std::ostringstream result;
+	result << swarmLastInformation(swarm);
+
+	// This should always be the last statement in a custom optimization monitor
+	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::lastInformation(goa);
+
+	return result.str();
+}
+
+
+/**********************************************************************************/
+/**
+ * A function that is called once before the optimization starts
+ *
+ * @param swarm The object for which information should be collected
+ */
+std::string GSwarm::GSwarmOptimizationMonitor::swarmFirstInformation(GSwarm * const swarm) {
+	std::ostringstream result;
+
+	// Output the header to the summary stream
+	result << "{" << std::endl
+		   << "  gROOT->Reset();" << std::endl
+		   << "  gStyle->SetOptTitle(0);" << std::endl
+		   << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDim_ << "," << yDim_ << ");" << std::endl
+		   << std::endl
+		   << "  std::vector<long> iteration;" << std::endl
+		   << "  std::vector<double> evaluation;" << std::endl
+		   << std::endl;
+
+	return result.str();
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called during each optimization cycle
+ *
+ * @param swarm The object for which information should be collected
+ */
+std::string GSwarm::GSwarmOptimizationMonitor::swarmCycleInformation(GSwarm * const swarm) {
+	std::ostringstream result;
+	bool isDirty = false;
+	double currentEvaluation = 0.;
+
+	// Retrieve the current iteration
+	boost::uint32_t iteration = swarm->getIteration();
+
+	result << "  iteration.push_back(" << iteration << ");" << std::endl;
+
+	// Get access to the best inidividual
+	boost::shared_ptr<GParameterSet> gsi_ptr = swarm->getBestIndividual<GParameterSet>();
+
+	// Retrieve the fitness of this individual
+	currentEvaluation = gsi_ptr->getCurrentFitness(isDirty);
+
+	// Write information to the output stream
+	result << "  evaluation.push_back(" <<  currentEvaluation << ");" << (isDirty?" // dirty flag is set":"") << std::endl
+	       << std::endl; // Improves readability when following the output with "tail -f"
+
+	return result.str();
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once at the end of the optimization cycle
+ *
+ * @param swarm The object for which information should be collected
+ */
+std::string GSwarm::GSwarmOptimizationMonitor::swarmLastInformation(GSwarm * const swarm) {
+	std::ostringstream result;
+
+	// Output final print logic to the stream
+	result << "  // Transfer the vectors into arrays" << std::endl
+		   << "  double iteration_arr[iteration.size()];" << std::endl
+		   << "  double evaluation_arr[evaluation.size()];" << std::endl
+		   << std::endl
+		   << "  for(std::size_t i=0; i<iteration.size(); i++) {" << std::endl
+		   << "     iteration_arr[i] = (double)iteration[i];" << std::endl
+		   << "     evaluation_arr[i] = evaluation[i];" << std::endl
+		   << "  }" << std::endl
+		   << std::endl
+		   << "  // Create a TGraph object" << std::endl
+		   << "  TGraph *evGraph = new TGraph(evaluation.size(), iteration_arr, evaluation_arr);" << std::endl
+		   << std::endl
+		   << "  // Set the axis titles" << std::endl
+		   << "  evGraph->GetXaxis()->SetTitle(\"Iteration\");" << std::endl
+		   << "  evGraph->GetYaxis()->SetTitleOffset(1.1);" << std::endl
+		   << "  evGraph->GetYaxis()->SetTitle(\"Fitness\");" << std::endl
+		   << std::endl
+		   << "  // Do the actual drawing" << std::endl
+		   << "  evGraph->Draw(\"APL\");" << std::endl
+		   << "}" << std::endl;
+
+	return result.str();
+}
+
+/**********************************************************************************/
+/**
+ * Loads the data of another object
+ *
+ * cp A pointer to another GSwarmOptimizationMonitor object, camouflaged as a GObject
+ */
+void GSwarm::GSwarmOptimizationMonitor::load_(const GObject* cp) {
+	const GSwarm::GSwarmOptimizationMonitor *p_load = conversion_cast<GSwarm::GSwarmOptimizationMonitor>(cp);
+
+	// Load the parent classes' data ...
+	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);
+
+	// ... and then our local data
+	xDim_ = p_load->xDim_;
+	yDim_ = p_load->yDim_;
+}
+
+/**********************************************************************************/
+/**
+ * Creates a deep clone of this object
+ *
+ * @return A deep clone of this object
+ */
+GObject* GSwarm::GSwarmOptimizationMonitor::clone_() const {
+	return new GSwarm::GSwarmOptimizationMonitor(*this);
+}
+
+#ifdef GENEVATESTING
+/**********************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ */
+bool GSwarm::GSwarmOptimizationMonitor::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/**********************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GSwarm::GSwarmOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/**********************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GSwarm::GSwarmOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
+}
+
+/**********************************************************************************/
 #endif /* GENEVATESTING */
 
 } /* namespace Geneva */

@@ -76,12 +76,15 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
-#include "GIndividual.hpp"
-#include "GOptimizationAlgorithmT.hpp"
-#include "GOptimizationEnums.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 
 namespace Gem {
 namespace Geneva {
+
+// Forward declaration
+class GEAOptimizationMonitor;
 
 /**
  * The default sorting mode
@@ -114,7 +117,7 @@ const boost::uint32_t DEFAULTMICROTRAININGINTERVAL=0;
  * as implied by the population size and the number of parents set at the beginning.
  */
 class GEvolutionaryAlgorithm
-	:public GOptimizationAlgorithmT<Gem::Geneva::GIndividual>
+	:public GOptimizationAlgorithmT<GIndividual>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -123,7 +126,7 @@ class GEvolutionaryAlgorithm
 	void serialize(Archive & ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GOptimizationAlgorithmT_GIndividual", boost::serialization::base_object<GOptimizationAlgorithmT<Gem::Geneva::GIndividual> >(*this))
+		ar & make_nvp("GOptimizationAlgorithmT_GIndividual", boost::serialization::base_object<GOptimizationAlgorithmT<GIndividual> >(*this))
 		   & BOOST_SERIALIZATION_NVP(nParents_)
 		   & BOOST_SERIALIZATION_NVP(microTrainingInterval_)
 		   & BOOST_SERIALIZATION_NVP(recombinationMethod_)
@@ -153,12 +156,6 @@ public:
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
-
-	/** @brief Emits information specific to this population */
-	virtual void doInfo(const infoMode&);
-
-	/** @brief Registers a function to be called when emitting information from doInfo */
-	void registerInfoFunction(boost::function<void (const infoMode&, GEvolutionaryAlgorithm * const)>);
 
 	/** @brief Sets the default population size and number of parents */
 	void setDefaultPopulationSize(const std::size_t&, const std::size_t&);
@@ -331,41 +328,6 @@ public:
 #endif /* DEBUG */
 	}
 
-	/**************************************************************************************************/
-	/**
-	 * Emits information about the population it has been given, using a simple format. Note that we are
-	 * using a static member function in order to avoid storing a local "this" pointer in this function
-	 * when registering it in boost::function.
-	 *
-	 * Far more sophisticated setups than this information function are possible, and in general
-	 * it is recommended to register function objects instead of this function.
-	 *
-	 * @param im Indicates the information mode
-	 * @param gbp A pointer to the population information should be emitted about
-	 */
-	static void simpleInfoFunction(const infoMode& im, GEvolutionaryAlgorithm * const gbp) {
-		std::ostringstream information;
-
-		switch(im){
-		case INFOINIT: // nothing
-			break;
-
-		case INFOPROCESSING:
-			{
-				bool isDirty = false;
-
-				information << std::setprecision(10) << "In iteration "<< gbp->getIteration() << ": " << gbp->getBestFitness() << std::endl;
-			}
-			break;
-
-		case INFOEND: // nothing
-			break;
-		}
-
-		// Let the audience know
-		std::cout << information.str();
-	}
-
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
@@ -432,8 +394,6 @@ private:
 	bool logOldParents_; ///< If set, a copy of the old parent individuals will be kept and the id of the parent individual will be recorded
 	std::vector<boost::shared_ptr<GIndividual> > oldParents_; ///< Holds the last generation's parents, if logOldParents_ is set
 
-	boost::function<void (const infoMode&, GEvolutionaryAlgorithm * const)> infoFunction_; ///< Used to emit information with doInfo()
-
 #ifdef GENEVATESTING
 public:
 	/**************************************************************************************************/
@@ -444,6 +404,110 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
+
+public:
+	/**************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************/
+	/**
+	 * This nested class defines the interface of optimization monitors, as used
+	 * by default in the Geneva library for evolutionary algorithms.
+	 */
+	class GEAOptimizationMonitor
+		: public GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT
+	{
+	    ///////////////////////////////////////////////////////////////////////
+	    friend class boost::serialization::access;
+
+	    template<typename Archive>
+	    void serialize(Archive & ar, const unsigned int){
+	      using boost::serialization::make_nvp;
+
+	      ar & make_nvp("GOptimizationMonitorT_GIndividual", boost::serialization::base_object<GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT>(*this))
+	         & BOOST_SERIALIZATION_NVP(xDim_)
+	         & BOOST_SERIALIZATION_NVP(yDim_)
+	         & BOOST_SERIALIZATION_NVP(nMonitorInds_);
+	    }
+	    ///////////////////////////////////////////////////////////////////////
+
+	public:
+	    /** @brief The default constructor */
+	    GEAOptimizationMonitor();
+	    /** @brief The copy constructor */
+	    GEAOptimizationMonitor(const GEAOptimizationMonitor&);
+	    /** @brief The destructor */
+	    virtual ~GEAOptimizationMonitor();
+
+	    /** @brief A standard assignment operator */
+	    const GEAOptimizationMonitor& operator=(const GEAOptimizationMonitor&);
+	    /** @brief Checks for equality with another GParameter Base object */
+	    virtual bool operator==(const GEAOptimizationMonitor&) const;
+	    /** @brief Checks for inequality with another GEAOptimizationMonitor object */
+	    virtual bool operator!=(const GEAOptimizationMonitor&) const;
+
+	    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
+	    virtual boost::optional<std::string> checkRelationshipWith(
+	    		const GObject&
+	    		, const Gem::Common::expectation&
+	    		, const double&
+	    		, const std::string&
+	    		, const std::string&
+	    		, const bool&
+	    ) const;
+
+	    /** @brief Set the dimension of the output canvas */
+	    void setDims(const boost::uint16_t&, const boost::uint16_t&);
+	    /** @brief Retrieve the x-dimesion of the output canvas */
+	    boost::uint16_t getXDim() const;
+	    /** @brief Retrieve the y-dimesion of the output canvas */
+	    boost::uint16_t getYDim() const;
+
+	    /** @brief Sets the number of individuals in the population that should be monitored */
+	    void setNMonitorIndividuals(const std::size_t&);
+	    /** @brief Retrieves the number of individuals that are being monitored */
+	    std::size_t getNMonitorIndividuals() const;
+
+	protected:
+	    /** @brief A function that is called once before the optimization starts */
+	    virtual std::string eaFirstInformation(GEvolutionaryAlgorithm * const);
+	    /** @brief A function that is called during each optimization cycle */
+	    virtual std::string eaCycleInformation(GEvolutionaryAlgorithm * const);
+	    /** @brief A function that is called once at the end of the optimization cycle */
+	    virtual std::string eaLastInformation(GEvolutionaryAlgorithm * const);
+
+	    /** @brief A function that is called once before the optimization starts */
+	    virtual std::string firstInformation(GOptimizationAlgorithmT<GIndividual> * const);
+	    /** @brief A function that is called during each optimization cycle */
+	    virtual std::string cycleInformation(GOptimizationAlgorithmT<GIndividual> * const);
+	    /** @brief A function that is called once at the end of the optimization cycle */
+	    virtual std::string lastInformation(GOptimizationAlgorithmT<GIndividual> * const);
+
+	    /** @brief Loads the data of another object */
+	    virtual void load_(const GObject*);
+	    /** @brief Creates a deep clone of this object */
+		virtual GObject* clone_() const;
+
+	private:
+		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
+		boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
+		std::size_t nMonitorInds_; ///< The number if individuals that should be monitored
+
+#ifdef GENEVATESTING
+	public:
+		/** @brief Applies modifications to this object. This is needed for testing purposes */
+		virtual bool modify_GUnitTests();
+		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+		virtual void specificTestsNoFailureExpected_GUnitTests();
+		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+		virtual void specificTestsFailuresExpected_GUnitTests();
+
+		/**********************************************************************************/
+#endif /* GENEVATESTING */
+	};
+
+	/**************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************/
 };
 
 /*********************************************************************************/

@@ -61,6 +61,7 @@
 #pragma once
 #endif
 
+/**************************************************************************************/
 
 // Geneva headers go here
 #include "geneva/GMutableSetT.hpp"
@@ -102,6 +103,11 @@ template <typename ind_type = Gem::Geneva::GIndividual>
 class GOptimizationAlgorithmT
 	:public GMutableSetT<ind_type>
 {
+public:
+	// Forward declaration, as this class is only defined at the end of this file
+	class GOptimizationMonitorT;
+
+private:
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -127,7 +133,8 @@ class GOptimizationAlgorithmT
 	     & BOOST_SERIALIZATION_NVP(maxDuration_)
 	     & BOOST_SERIALIZATION_NVP(emitTerminationReason_)
 	     & BOOST_SERIALIZATION_NVP(halted_)
-	     & BOOST_SERIALIZATION_NVP(optAlg_);
+	     & BOOST_SERIALIZATION_NVP(optAlg_)
+	     & BOOST_SERIALIZATION_NVP(optimizationMonitor_ptr_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -157,6 +164,7 @@ public:
 		, emitTerminationReason_(false)
 		, halted_(false)
 		, optAlg_(NONE)
+		, optimizationMonitor_ptr_(new GOptimizationMonitorT())
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -186,6 +194,7 @@ public:
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
 		, optAlg_(cp.optAlg_)
+		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::clone<GOptimizationMonitorT>())
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -423,6 +432,7 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", emitTerminationReason_, p_load->emitTerminationReason_, "emitTerminationReason_", "p_load->emitTerminationReason_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", halted_, p_load->halted_, "halted_", "p_load->halted_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", optAlg_, p_load->optAlg_, "optAlg_", "p_load->optAlg_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", optimizationMonitor_ptr_, p_load->optimizationMonitor_ptr_, "optimizationMonitor_ptr_", "p_load->optimizationMonitor_ptr_", e , limit));
 
 		return evaluateDiscrepancies("GOptimizationAlgorithmT<ind_type>", caller, deviations, e);
 	}
@@ -524,17 +534,38 @@ public:
 	 * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
 	 */
 	virtual void doInfo(const infoMode& im) {
-		switch(im) {
-		case INFOINIT:
-			std::cout << "Starting optimization cycle" << std::endl;
-			break;
-		case INFOPROCESSING:
-			std::cout << getIteration() << ": " << getBestFitness() << std::endl;
-			break;
-		case INFOEND:
-			std::cout << "Optimization cycle terminated" << std::endl;
-			break;
+#ifdef DEBUG
+		if(!optimizationMonitor_ptr_) {
+			std::ostringstream error;
+			error << "In GOptimizationAlgorithmT<ind_type>::doInfo(): Error!" << std::endl
+				  << "optimizationMonitor_ptr_ is empty when it shouldn't be." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
+#endif /* DEBUG */
+
+		optimizationMonitor_ptr_->informationFunction(im, this);
+	}
+
+	/**************************************************************************************/
+	/**
+	 * Registers an optimizationMonitor object (or a derivative) with this object. Note
+	 * that this class will take ownership of the optimization monitor by cloning it.
+	 * You can thus assign the same boost::shared_ptr<GOptimizationAlgorithmT<ind_type> >
+	 * to different objects.
+	 *
+	 * @param om_ptr A shared pointer to a specific optimization monitor
+	 */
+	void registerOptimizationMonitor(boost::shared_ptr<GOptimizationMonitorT> om_ptr) {
+#ifdef DEBUG
+		if(!om_ptr) {
+			std::ostringstream error;
+			error << "In GOptimizationAlgorithmT<ind_type>::registerOptimizationMonitor(): Error!" << std::endl
+				  << "om_ptr is empty when it shouldn't be." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#endif /* DEBUG */
+
+		optimizationMonitor_ptr_ = om_ptr->GObject::clone<GOptimizationMonitorT>();
 	}
 
 	/**************************************************************************************/
@@ -824,6 +855,16 @@ public:
 		return optAlg_;
 	}
 
+	/**************************************************************************************/
+	/**
+	 * Gives access to the current optimization monitor
+	 *
+	 * @return A boost::shared_ptr to the current optimization monitor
+	 */
+	boost::shared_ptr<GOptimizationMonitorT> getOptimizationMonitor() {
+		return optimizationMonitor_ptr_;
+	}
+
 protected:
 	/**************************************************************************************/
 	/**
@@ -858,6 +899,7 @@ protected:
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
 		optAlg_ = p_load->optAlg_;
+		optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::clone<GOptimizationMonitorT>();
 	}
 
 	/**************************************************************************************/
@@ -1208,6 +1250,7 @@ private:
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
 	personality optAlg_; ///< Allows to identify the actual optimization algorithm built on top of this class
+	boost::shared_ptr<GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 #ifdef GENEVATESTING
 public:
@@ -1246,6 +1289,332 @@ public:
 
 	/**************************************************************************************/
 #endif /* GENEVATESTING */
+
+
+public:
+	/**************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************/
+	/**
+	 * This nested class defines the interface of optimization monitors, as used
+	 * in the Geneva library. It also provides users with some basic information.
+	 */
+	class GOptimizationMonitorT
+		: public GObject
+	{
+	    ///////////////////////////////////////////////////////////////////////
+	    friend class boost::serialization::access;
+
+	    template<typename Archive>
+	    void serialize(Archive & ar, const unsigned int){
+	      using boost::serialization::make_nvp;
+
+	      ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+	      	 & BOOST_SERIALIZATION_NVP(quiet_)
+	      	 & BOOST_SERIALIZATION_NVP(resultFile_);
+	    }
+	    ///////////////////////////////////////////////////////////////////////
+
+	public:
+	    /**********************************************************************************/
+	    /**
+	     * The default constructor
+	     */
+	    GOptimizationMonitorT()
+	    	: quiet_(false)
+	    	, resultFile_(DEFAULTRESULTFILEOM)
+	    { /* nothing */ }
+
+	    /**********************************************************************************/
+	    /**
+	     * The copy constructor
+	     *
+	     * @param cp A copy of another GOptimizationMonitorT object
+	     */
+	    GOptimizationMonitorT(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp)
+	    	: GObject(cp)
+	    	, quiet_(cp.quiet_)
+	    	, resultFile_(cp.resultFile_)
+	    { /* nothing */ }
+
+	    /**********************************************************************************/
+	    /**
+	     * The destructor
+	     */
+	    virtual ~GOptimizationMonitorT()
+	    { /* nothing */ }
+
+	    /**********************************************************************************/
+	    /**
+	     * Checks for equality with another GParameter Base object
+	     *
+	     * @param  cp A constant reference to another GOptimizationMonitorT object
+	     * @return A boolean indicating whether both objects are equal
+	     */
+	    virtual bool operator==(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
+	    	using namespace Gem::Common;
+	    	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	    	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator==","cp", CE_SILENT);
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * Checks for inequality with another GOptimizationMonitorT object
+	     *
+	     * @param  cp A constant reference to another GOptimizationMonitorT object
+	     * @return A boolean indicating whether both objects are inequal
+	     */
+	    virtual bool operator!=(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) const {
+	    	using namespace Gem::Common;
+	    	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	    	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT::operator!=","cp", CE_SILENT);
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * Checks whether a given expectation for the relationship between this object and another object
+	     * is fulfilled.
+	     *
+	     * @param cp A constant reference to another object, camouflaged as a GObject
+	     * @param e The expected outcome of the comparison
+	     * @param limit The maximum deviation for floating point values (important for similarity checks)
+	     * @param caller An identifier for the calling entity
+	     * @param y_name An identifier for the object that should be compared to this one
+	     * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+	     * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+	     */
+	    virtual boost::optional<std::string> checkRelationshipWith(
+	    		const GObject& cp
+	    		, const Gem::Common::expectation& e
+	    		, const double& limit
+	    		, const std::string& caller
+	    		, const std::string& y_name
+	    		, const bool& withMessages
+	    ) const {
+	        using namespace Gem::Common;
+
+	    	// Check that we are indeed dealing with a GOptimizationMonitorT reference
+	    	const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT *p_load = GObject::conversion_cast<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>(&cp);
+
+	    	// Will hold possible deviations from the expectation, including explanations
+	        std::vector<boost::optional<std::string> > deviations;
+
+	    	// Check our parent class'es data ...
+	    	deviations.push_back(GObject::checkRelationshipWith(cp, e, limit, "GOptimizationMonitorT", y_name, withMessages));
+
+	    	// ... and then our local data
+			deviations.push_back(checkExpectation(withMessages, "GOptimizationMonitorT<ind_type>", quiet_, p_load->quiet_, "quiet_", "p_load->quiet_", e , limit));
+			deviations.push_back(checkExpectation(withMessages, "GOptimizationMonitorT<ind_type>", resultFile_, p_load->resultFile_, "resultFile_", "p_load->resultFile_", e , limit));
+
+	    	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * The actual information function
+	     *
+	     * @param im The mode in which the information function is called
+	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
+	     */
+	    void informationFunction(const infoMode& im, GOptimizationAlgorithmT<ind_type> * const goa) {
+	    	if(quiet_) return;
+
+	    	switch(im) {
+	    	case Gem::Geneva::INFOINIT:
+	    	{
+	    		// Make sure we have an output path
+	    		summary_.open(resultFile_.c_str());
+	    		if(!summary_) {
+	    			std::ostringstream error;
+	    			error << "In GOptimizationMonitorT<T>::informationFunction(): Error!" << std::endl
+	    				  << "Could not open output file \"" << resultFile_ << "\"" << std::endl;
+	    			throw(Gem::Common::gemfony_error_condition(error.str()));
+	    		}
+
+	    		// Emit the header and perform any necessary initialization work
+	    		summary_ << this->firstInformation(goa);
+	    	}
+	    	break;
+
+	    	case Gem::Geneva::INFOPROCESSING:
+	    	{
+	    		// Regular information emitted during each iteration
+	    		summary_ << this->cycleInformation(goa);
+	    	}
+	    	break;
+
+	    	case Gem::Geneva::INFOEND:
+	    	{
+	    		// Emit any remaining information
+	    		summary_ << this->lastInformation(goa);
+
+	    		// Clean up
+	    		summary_.close();
+	    	}
+	    	break;
+	    	};
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * Prevents any information from being emitted by this object
+	     */
+	    void preventInformationEmission() {
+	    	quiet_ = true;
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * Allows this object to emit information
+	     */
+	    void allowInformationEmission() {
+	    	quiet_ = false;
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * Allows to check whether the emission of information is prevented
+	     *
+	     * @return A boolean which indicates whether information emission is prevented
+	     */
+	    bool informationEmissionPrevented() const {
+	    	return quiet_;
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * Allows to specify a different name for the result file
+	     *
+	     * @param resultFile The desired name of the result file
+	     */
+	    void setResultFileName(const std::string& resultFile) {
+	    	resultFile_ = resultFile;
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * Allows to retrieve the current value of the result file name
+	     *
+	     * @return The current name of the result file
+	     */
+	    std::string getResultFileName() const {
+	    	return resultFile_;
+	    }
+
+	protected:
+	    /**********************************************************************************/
+	    /**
+	     * A function that is called once before the optimization starts
+	     *
+	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
+	     * @return A string containing information to written to the output file (if any)
+	     */
+	    virtual std::string firstInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
+	    	std::ostringstream result;
+	    	result << "Starting the optimization run" << std::endl;
+	    	return result.str();
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * A function that is called during each optimization cycle. It is possible to
+	     * extract quite comprehensive information in each iteration. For examples, see
+	     * the standard overloads provided for the various optimization algorithms.
+	     *
+	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
+	     * @return A string containing information to written to the output file (if any)
+	     */
+	    virtual std::string cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
+	    	std::ostringstream result;
+	    	result << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestFitness() << std::endl;
+	    	return result.str();
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * A function that is called once at the end of the optimization cycle
+	     *
+	     * @param goa A pointer to the current optimization algorithm for which information should be emitted
+		 * @return A string containing information to written to the output file (if any)
+	     */
+	    virtual std::string lastInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
+	    	std::ostringstream result;
+	    	result << "End of optimization reached" << std::endl;
+	    	return result.str();
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * Loads the data of another object
+	     *
+	     * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
+	     */
+	    virtual void load_(const GObject* cp) {
+	    	const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT *p_load
+	    		= GObject::conversion_cast<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>(cp);
+
+	    	// Load the parent classes' data ...
+	    	GObject::load_(cp);
+
+	    	// ... and then our local data
+	    	quiet_ = p_load->quiet_;
+	    	resultFile_ = p_load->resultFile_;
+	    }
+
+	    /**********************************************************************************/
+	    /**
+	     * Creates a deep clone of this object
+	     */
+		virtual GObject* clone_() const {
+			return new GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT(*this);
+		}
+
+	private:
+		/**********************************************************************************/
+		bool quiet_; ///< Specifies whether any information should be emitted at all
+		std::string resultFile_; ///< Specifies where result information should be sent to
+		std::ofstream summary_; ///< The stream to which information is written (not serialied)
+
+#ifdef GENEVATESTING
+	public:
+		/**********************************************************************************/
+		/**
+		 * Applies modifications to this object. This is needed for testing purposes
+		 */
+		virtual bool modify_GUnitTests() {
+			bool result = false;
+
+			// Call the parent class'es function
+			if(GObject::modify_GUnitTests()) result = true;
+
+			return result;
+		}
+
+		/**********************************************************************************/
+		/**
+		 * Performs self tests that are expected to succeed. This is needed for testing purposes
+		 */
+		virtual void specificTestsNoFailureExpected_GUnitTests() {
+			// Call the parent class'es function
+			GObject::specificTestsNoFailureExpected_GUnitTests();
+		}
+
+		/**********************************************************************************/
+		/**
+		 * Performs self tests that are expected to fail. This is needed for testing purposes
+		 */
+		virtual void specificTestsFailuresExpected_GUnitTests() {
+			// Call the parent class'es function
+			GObject::specificTestsFailuresExpected_GUnitTests();
+		}
+
+		/**********************************************************************************/
+#endif /* GENEVATESTING */
+	};
+
+	/**************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************/
 };
 
 } /* namespace Geneva */

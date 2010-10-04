@@ -37,6 +37,7 @@
  */
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GGradientDescent)
+BOOST_CLASS_EXPORT(Gem::Geneva::GGradientDescent::GGDOptimizationMonitor)
 
 namespace Gem {
 namespace Geneva {
@@ -47,7 +48,6 @@ namespace Geneva {
  */
 GGradientDescent::GGradientDescent()
 	: GOptimizationAlgorithmT<GParameterSet>()
-	, infoFunction_(&GGradientDescent::simpleInfoFunction)
 	, nStartingPoints_(DEFAULTGDSTARTINGPOINTS)
 	, nFPParmsFirst_(0)
 	, finiteStep_(DEFAULTFINITESTEP)
@@ -70,7 +70,6 @@ GGradientDescent::GGradientDescent(
 		, const float& stepSize
 )
 	: GOptimizationAlgorithmT<GParameterSet>()
-	, infoFunction_(&GGradientDescent::simpleInfoFunction)
 	, nStartingPoints_(nStartingPoints)
 	, nFPParmsFirst_(0)
 	, finiteStep_(finiteStep)
@@ -87,7 +86,6 @@ GGradientDescent::GGradientDescent(
  */
 GGradientDescent::GGradientDescent(const GGradientDescent& cp)
 	: GOptimizationAlgorithmT<GParameterSet>(cp)
-	, infoFunction_(&GGradientDescent::simpleInfoFunction)
 	, nStartingPoints_(cp.nStartingPoints_)
 	, nFPParmsFirst_(cp.nFPParmsFirst_)
 	, finiteStep_(cp.finiteStep_)
@@ -264,26 +262,6 @@ boost::optional<std::string> GGradientDescent::checkRelationshipWith(
 
 /************************************************************************************************************/
 /**
- * Emits information specific to this population
- *
- * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
- */
-void GGradientDescent::doInfo(const infoMode& im) {
-	if(!infoFunction_.empty()) infoFunction_(im, this);
-}
-
-/************************************************************************************************************/
-/**
- * Registers a function to be called when emitting information from doInfo
- *
- * @param infoFunction A Boost.function object allowing the emission of information
- */
-void GGradientDescent::registerInfoFunction(boost::function<void (const infoMode&, GGradientDescent * const)> infoFunction) {
-	infoFunction_ = infoFunction;
-}
-
-/************************************************************************************************************/
-/**
  * Loads a checkpoint from disk
  *
  * @param cpFile The name of the file the checkpoint should be loaded from
@@ -378,8 +356,6 @@ void GGradientDescent::load_(const GObject *cp) {
 	nFPParmsFirst_ = p_load->nFPParmsFirst_;
 	finiteStep_ = p_load->finiteStep_;
 	stepSize_ = p_load->stepSize_;
-
-	// Note that we do not copy the info function
 }
 
 /************************************************************************************************************/
@@ -741,7 +717,201 @@ void GGradientDescent::specificTestsFailuresExpected_GUnitTests() {
 }
 #endif /* GENEVATESTING */
 
-/************************************************************************************************************/
+/**********************************************************************************/
+/**
+ * The default constructor
+ */
+GGradientDescent::GGDOptimizationMonitor::GGDOptimizationMonitor()
+{ /* nothing */ }
+
+/**********************************************************************************/
+/**
+ * The copy constructor
+ *
+ * @param cp A copy of another GGDOptimizationMonitor object
+ */
+GGradientDescent::GGDOptimizationMonitor::GGDOptimizationMonitor(const GGradientDescent::GGDOptimizationMonitor& cp)
+	: GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT(cp)
+  { /* nothing */ }
+
+/**********************************************************************************/
+/**
+ * The destructor
+ */
+GGradientDescent::GGDOptimizationMonitor::~GGDOptimizationMonitor()
+{ /* nothing */ }
+
+/**********************************************************************************/
+/**
+ * A standard assignment operator.
+ *
+ * @param cp A copy of another GGDOptimizationMonitor object
+ * @return A constant reference to this object
+ */
+const GGradientDescent::GGDOptimizationMonitor& GGradientDescent::GGDOptimizationMonitor::operator=(const GGradientDescent::GGDOptimizationMonitor& cp){
+	GGradientDescent::GGDOptimizationMonitor::load_(&cp);
+	return *this;
+}
+
+/**********************************************************************************/
+/**
+ * Checks for equality with another GParameter Base object
+ *
+ * @param  cp A constant reference to another GGDOptimizationMonitor object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GGradientDescent::GGDOptimizationMonitor::operator==(const GGradientDescent::GGDOptimizationMonitor& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GGradientDescent::GGDOptimizationMonitor::operator==","cp", CE_SILENT);
+}
+
+/**********************************************************************************/
+/**
+ * Checks for inequality with another GGDOptimizationMonitor object
+ *
+ * @param  cp A constant reference to another GGDOptimizationMonitor object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GGradientDescent::GGDOptimizationMonitor::operator!=(const GGradientDescent::GGDOptimizationMonitor& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GGradientDescent::GGDOptimizationMonitor::operator!=","cp", CE_SILENT);
+}
+
+/**********************************************************************************/
+/**
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GGradientDescent::GGDOptimizationMonitor::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
+	using namespace Gem::Common;
+
+	// Check that we are indeed dealing with a GParamterBase reference
+	const GGradientDescent::GGDOptimizationMonitor *p_load = GObject::conversion_cast<GGradientDescent::GGDOptimizationMonitor >(&cp);
+
+	// Will hold possible deviations from the expectation, including explanations
+	std::vector<boost::optional<std::string> > deviations;
+
+	// Check our parent class'es data ...
+	deviations.push_back(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::checkRelationshipWith(cp, e, limit, "GGradientDescent::GGDOptimizationMonitor", y_name, withMessages));
+
+	// ... there is no local data
+
+	return evaluateDiscrepancies("GGradientDescent::GGDOptimizationMonitor", caller, deviations, e);
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once before the optimization starts
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ * @return A string containing information to written to the output file (if any)
+ */
+std::string GGradientDescent::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+	// This should always be the first statement in a custom optimization monitor
+	return GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::firstInformation(goa);
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called during each optimization cycle. It is possible to
+ * extract quite comprehensive information in each iteration. For examples, see
+ * the standard overloads provided for the various optimization algorithms.
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ * @return A string containing information to written to the output file (if any)
+ */
+std::string GGradientDescent::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+	return GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::cycleInformation(goa);
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once at the end of the optimization cycle
+ *
+ * @param goa A pointer to the current optimization algorithm for which information should be emitted
+ * @return A string containing information to written to the output file (if any)
+ */
+std::string GGradientDescent::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+	// This should always be the last statement in a custom optimization monitor
+	return GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::lastInformation(goa);
+}
+
+/**********************************************************************************/
+/**
+ * Loads the data of another object
+ *
+ * cp A pointer to another GGDOptimizationMonitor object, camouflaged as a GObject
+ */
+void GGradientDescent::GGDOptimizationMonitor::load_(const GObject* cp) {
+	const GGradientDescent::GGDOptimizationMonitor *p_load = conversion_cast<GGradientDescent::GGDOptimizationMonitor>(cp);
+
+	// Load the parent classes' data ...
+	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::load_(cp);
+
+	// no local data
+}
+
+/**********************************************************************************/
+/**
+ * Creates a deep clone of this object
+ *
+ * @return A deep clone of this object
+ */
+GObject* GGradientDescent::GGDOptimizationMonitor::clone_() const {
+	return new GGradientDescent::GGDOptimizationMonitor(*this);
+}
+
+#ifdef GENEVATESTING
+/**********************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ */
+bool GGradientDescent::GGDOptimizationMonitor::modify_GUnitTests() {
+	bool result = false;
+
+	// Call the parent class'es function
+	if(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::modify_GUnitTests()) result = true;
+
+	return result;
+}
+
+/**********************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GGradientDescent::GGDOptimizationMonitor::specificTestsNoFailureExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsNoFailureExpected_GUnitTests();
+}
+
+/**********************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GGradientDescent::GGDOptimizationMonitor::specificTestsFailuresExpected_GUnitTests() {
+	// Call the parent class'es function
+	GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::specificTestsFailuresExpected_GUnitTests();
+}
+
+/**********************************************************************************/
+#endif /* GENEVATESTING */
 
 } /* namespace Geneva */
 } /* namespace Gem */

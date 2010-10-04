@@ -149,13 +149,6 @@ public:
 			, const bool&
 	) const;
 
-	/** @brief Emits information specific to this population */
-	virtual void doInfo(const infoMode&);
-
-	/** @brief Registers a function to be called when emitting information from doInfo */
-	void registerInfoFunction(boost::function<void (const infoMode&, GGradientDescent * const)>);
-
-	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&);
 
 	/** @brief Retrieves the number of starting points of the algorithm */
@@ -172,42 +165,6 @@ public:
 	void setStepSize(const float&);
 	/** @brief Retrieves the current step size */
 	float getStepSize() const;
-
-	/**************************************************************************************************/
-	/**
-	 * Emits information about the population it has been given, using a simple format. Note that we are
-	 * using a static member function in order to avoid storing a local "this" pointer in this function
-	 * when registering it in boost::function.
-	 *
-	 * Far more sophisticated setups than this information function are possible, and in general
-	 * it is recommended to register function objects instead of this function.
-	 *
-	 * @param im Indicates the information mode
-	 * @param gd A pointer to the population information should be emitted about
-	 */
-	static void simpleInfoFunction(const infoMode& im, GGradientDescent * const gd) {
-		std::ostringstream information;
-
-		switch(im){
-		case INFOINIT: // nothing
-			break;
-
-		case INFOPROCESSING:
-			{
-				information << std::setprecision(10) << "In iteration "<< gd->getIteration() << ": " << gd->getBestFitness() << std::endl;
-			}
-			break;
-
-		case INFOEND:
-			{
-				information << std::setprecision(10) << "Best fitness found: " << gd->getBestFitness() << std::endl;
-			}
-			break;
-		}
-
-		// Let the audience know
-		std::cout << information.str();
-	}
 
 protected:
 	/** @brief Loads the data of another population */
@@ -235,8 +192,6 @@ protected:
 	/** @brief Performs a step of the parent individuals */
 	virtual void updateParentIndividuals();
 
-	boost::function<void (const infoMode&, GGradientDescent * const)> infoFunction_; ///< Used to emit information with doInfo()
-
 private:
 	/**************************************************************************************************/
 	std::size_t nStartingPoints_; ///< The number of starting positions in the parameter space
@@ -257,6 +212,83 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
+
+public:
+	/**************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************/
+	/**
+	 * This class defines the interface of optimization monitors, as used
+	 * by default in the Geneva library for evolutionary algorithms.
+	 */
+	class GGDOptimizationMonitor
+		: public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
+	{
+	    ///////////////////////////////////////////////////////////////////////
+	    friend class boost::serialization::access;
+
+	    template<typename Archive>
+	    void serialize(Archive & ar, const unsigned int){
+	      using boost::serialization::make_nvp;
+
+	      ar & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this));
+	    }
+	    ///////////////////////////////////////////////////////////////////////
+
+	public:
+	    /** @brief The default constructor */
+	    GGDOptimizationMonitor();
+	    /** @brief The copy constructor */
+	    GGDOptimizationMonitor(const GGDOptimizationMonitor&);
+	    /** @brief The destructor */
+	    virtual ~GGDOptimizationMonitor();
+
+	    /** @brief A standard assignment operator */
+	    const GGDOptimizationMonitor& operator=(const GGDOptimizationMonitor&);
+	    /** @brief Checks for equality with another GParameter Base object */
+	    virtual bool operator==(const GGDOptimizationMonitor&) const;
+	    /** @brief Checks for inequality with another GGDOptimizationMonitor object */
+	    virtual bool operator!=(const GGDOptimizationMonitor&) const;
+
+	    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
+	    virtual boost::optional<std::string> checkRelationshipWith(
+	    		const GObject&
+	    		, const Gem::Common::expectation&
+	    		, const double&
+	    		, const std::string&
+	    		, const std::string&
+	    		, const bool&
+	    ) const;
+
+	protected:
+	    /** @brief A function that is called once before the optimization starts */
+	    virtual std::string firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	    /** @brief A function that is called during each optimization cycle */
+	    virtual std::string cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	    /** @brief A function that is called once at the end of the optimization cycle */
+	    virtual std::string lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+
+	    /** @brief Loads the data of another object */
+	    virtual void load_(const GObject*);
+	    /** @brief Creates a deep clone of this object */
+		virtual GObject* clone_() const;
+
+	#ifdef GENEVATESTING
+	public:
+		/** @brief Applies modifications to this object. This is needed for testing purposes */
+		virtual bool modify_GUnitTests();
+		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+		virtual void specificTestsNoFailureExpected_GUnitTests();
+		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+		virtual void specificTestsFailuresExpected_GUnitTests();
+
+		/**********************************************************************************/
+	#endif /* GENEVATESTING */
+	};
+
+	/**************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************/
 };
 
 /******************************************************************************************************/

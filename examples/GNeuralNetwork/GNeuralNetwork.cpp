@@ -54,9 +54,6 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
-// Information retrieval and printing
-#include "GInfoFunction.hpp"
-
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
@@ -298,10 +295,6 @@ int main(int argc, char **argv){
 	  break;
   }
 
-  // Create an instance of our optimization monitor, telling it to output information in given intervals
-  std::ofstream resultSummary("./result.C");
-  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(nParents, resultSummary, tF));
-
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // We can now start creating populations. We refer to them through the base class
 
@@ -364,16 +357,12 @@ int main(int argc, char **argv){
   pop_ptr->setReportIteration(reportIteration);
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
-  pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
   pop_ptr->setEmitTerminationReason(true);
   
   // Do the actual optimization
   pop_ptr->optimize();
 
   //--------------------------------------------------------------------------------------------
-
-  // Make sure we close the result file
-  resultSummary.close();
 
   // Output the result- and the visualization-program (if available)
   switch(tF) {

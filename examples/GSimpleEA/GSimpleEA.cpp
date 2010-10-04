@@ -1,5 +1,5 @@
 /**
- * @file GBrokerOverhead.cpp
+ * @file GSimpleEA.cpp
  */
 
 /*
@@ -172,14 +172,13 @@ int main(int argc, char **argv){
 
   //***************************************************************************
   // Create an instance of our optimization monitor
-  std::ofstream resultSummary("./result.C");
-  boost::shared_ptr<optimizationMonitor> om_ptr(new optimizationMonitor(df, resultSummary));
-  om_ptr->setDims(xDim, yDim);
-  om_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
-  om_ptr->setXExtremes(minVar, maxVar);
-  om_ptr->setYExtremes(minVar, maxVar);
-  om_ptr->setTrackParentRelations(trackParentRelations);
-  om_ptr->setDrawArrows(drawArrows);
+  boost::shared_ptr<progressMonitor> pm_ptr(new progressMonitor(df));
+  pm_ptr->setProgressDims(xDim, yDim);
+  pm_ptr->setFollowProgress(followProgress); // Shall we take snapshots ?
+  pm_ptr->setXExtremes(minVar, maxVar);
+  pm_ptr->setYExtremes(minVar, maxVar);
+  pm_ptr->setTrackParentRelations(trackParentRelations);
+  pm_ptr->setDrawArrows(drawArrows);
 
   //***************************************************************************
 
@@ -270,7 +269,7 @@ int main(int argc, char **argv){
   pop_ptr->setReportIteration(reportIteration);
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
-  pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om_ptr, _1, _2));
+  pop_ptr->registerOptimizationMonitor(pm_ptr);
   pop_ptr->setLogOldParents(trackParentRelations);
   
   // Do the actual optimization

@@ -188,12 +188,6 @@ public:
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(const GObject&, const Gem::Common::expectation&, const double&, const std::string&, const std::string&, const bool&) const;
 
-	/** @brief Emits information specific to this population */
-	virtual void doInfo(const infoMode&);
-
-	/** @brief Registers a function to be called when emitting information from doInfo */
-	void registerInfoFunction(boost::function<void (const infoMode&, GSwarm * const)>);
-
 	/** @brief Loads a checkpoint from disk */
 	virtual void loadCheckpoint(const std::string&);
 
@@ -302,39 +296,6 @@ public:
 #endif /* DEBUG */
 	}
 
-	/**************************************************************************************************/
-	/**
-	 * Emits information about the population it has been given, using a simple format. Note that we are
-	 * using a static member function in order to avoid storing a local "this" pointer in this function
-	 * when registering it in boost::function.
-	 *
-	 * Far more sophisticated setups than this information function are possible, and in general
-	 * it is recommended to register function objects instead of this function.
-	 *
-	 * @param im Indicates the information mode
-	 * @param gs A pointer to the population information should be emitted about
-	 */
-	static void simpleInfoFunction(const infoMode& im, GSwarm * const gs) {
-		std::ostringstream information;
-
-		switch(im){
-		case INFOINIT: // nothing
-			break;
-
-		case INFOPROCESSING:
-			{
-				information << std::setprecision(10) << "In iteration "<< gs->getIteration() << ": " << gs->getBestFitness() << std::endl;
-			}
-			break;
-
-		case INFOEND: // nothing
-			break;
-		}
-
-		// Let the audience know
-		std::cout << information.str();
-	}
-
 protected:
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
@@ -380,8 +341,10 @@ protected:
 		  , double
 		  , double
 	);
+
 	/** @brief Triggers the fitness calculation */
 	virtual void updateFitness(std::size_t, boost::shared_ptr<GParameterSet>);
+
 	/** @brief Updates the individual's position and performs the fitness calculation */
 	void updatePositionsAndFitness (
 		    std::size_t
@@ -396,8 +359,6 @@ protected:
 
     /** @brief Checks whether each neighborhood has at least the default size */
     bool neighborhoodsHaveNominalValues() const;
-
-	boost::function<void (const infoMode&, GSwarm * const)> infoFunction_; ///< Used to emit information with doInfo()
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
 	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
@@ -439,6 +400,103 @@ public:
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests();
 #endif /* GENEVATESTING */
+
+public:
+	/**************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************/
+	/**
+	 * This nested class defines the interface of optimization monitors, as used
+	 * by default in the Geneva library for swarm algorithms.
+	 */
+	class GSwarmOptimizationMonitor
+		: public GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
+	{
+	    ///////////////////////////////////////////////////////////////////////
+	    friend class boost::serialization::access;
+
+	    template<typename Archive>
+	    void serialize(Archive & ar, const unsigned int){
+	      using boost::serialization::make_nvp;
+
+	      ar & make_nvp("GOptimizationMonitorT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(*this))
+	         & BOOST_SERIALIZATION_NVP(xDim_)
+	         & BOOST_SERIALIZATION_NVP(yDim_);
+	    }
+	    ///////////////////////////////////////////////////////////////////////
+
+	public:
+	    /** @brief The default constructor */
+	    GSwarmOptimizationMonitor();
+	    /** @brief The copy constructor */
+	    GSwarmOptimizationMonitor(const GSwarmOptimizationMonitor&);
+	    /** @brief The destructor */
+	    virtual ~GSwarmOptimizationMonitor();
+
+	    /** @brief A standard assignment operator */
+	    const GSwarmOptimizationMonitor& operator=(const GSwarmOptimizationMonitor&);
+	    /** @brief Checks for equality with another GParameter Base object */
+	    virtual bool operator==(const GSwarmOptimizationMonitor&) const;
+	    /** @brief Checks for inequality with another GSwarmOptimizationMonitor object */
+	    virtual bool operator!=(const GSwarmOptimizationMonitor&) const;
+
+	    /** @brief Checks whether a given expectation for the relationship between this object and another object is fulfilled */
+	    virtual boost::optional<std::string> checkRelationshipWith(
+	    		const GObject&
+	    		, const Gem::Common::expectation&
+	    		, const double&
+	    		, const std::string&
+	    		, const std::string&
+	    		, const bool&
+	    ) const;
+
+	    /** @brief Set the dimension of the output canvas */
+	    void setDims(const boost::uint16_t&, const boost::uint16_t&);
+	    /** @brief Retrieve the x-dimesion of the output canvas */
+	    boost::uint16_t getXDim() const;
+	    /** @brief Retrieve the y-dimesion of the output canvas */
+	    boost::uint16_t getYDim() const;
+
+	protected:
+	    /** @brief A function that is called once before the optimization starts */
+	    virtual std::string firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	    /** @brief A function that is called during each optimization cycle */
+	    virtual std::string cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+	    /** @brief A function that is called once at the end of the optimization cycle */
+	    virtual std::string lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
+
+	    /** @brief A function that is called once before the optimization starts */
+	    virtual std::string swarmFirstInformation(GSwarm * const);
+	    /** @brief A function that is called during each optimization cycle */
+	    virtual std::string swarmCycleInformation(GSwarm * const);
+	    /** @brief A function that is called once at the end of the optimization cycle */
+	    virtual std::string swarmLastInformation(GSwarm * const);
+
+	    /** @brief Loads the data of another object */
+	    virtual void load_(const GObject*);
+	    /** @brief Creates a deep clone of this object */
+		virtual GObject* clone_() const;
+
+	private:
+		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
+		boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
+
+#ifdef GENEVATESTING
+	public:
+		/** @brief Applies modifications to this object. This is needed for testing purposes */
+		virtual bool modify_GUnitTests();
+		/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+		virtual void specificTestsNoFailureExpected_GUnitTests();
+		/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+		virtual void specificTestsFailuresExpected_GUnitTests();
+
+		/**********************************************************************************/
+#endif /* GENEVATESTING */
+	};
+
+	/**************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************/
 };
 
 /******************************************************************************************************/

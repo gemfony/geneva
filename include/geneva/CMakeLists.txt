@@ -23,11 +23,9 @@ SET ( OPTIMIZATIONINCLUDES
 	GDoubleGaussAdaptor.hpp
 	GDoubleObject.hpp
 	GDoubleObjectCollection.hpp
-	GEAOptimizationMonitor.hpp
 	GEAPersonalityTraits.hpp
 	GEvolutionaryAlgorithm.hpp
 	GFPNumCollectionT.hpp
-	GGDOptimizationMonitor.hpp
 	GGDPersonalityTraits.hpp
 	GGradientDescent.hpp
 	GIndividual.hpp
@@ -52,7 +50,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GObjectExpectationChecksT.hpp
 	GOptimizationAlgorithmT.hpp
 	GOptimizationEnums.hpp
-	GOptimizationMonitorT.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp
 	GParameterCollectionT.hpp
@@ -66,7 +63,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GSwarm.hpp
-	GSwarmOptimizationMonitor.hpp
 	GSwarmPersonalityTraits.hpp
 )
 

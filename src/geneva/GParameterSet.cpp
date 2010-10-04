@@ -31,11 +31,6 @@
 
 #include "geneva/GParameterSet.hpp"
 
-// Included here so no conflicts occur. See explanation at
-// http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GParameterSet)
-
 namespace Gem {
 namespace Geneva {
 
@@ -56,7 +51,6 @@ GParameterSet::GParameterSet()
  */
 GParameterSet::GParameterSet(const GParameterSet& cp)
 	: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
-	, eval_(cp.eval_)
   { /* nothing */ }
 
 /************************************************************************************************************/
@@ -142,16 +136,6 @@ boost::optional<std::string> GParameterSet::checkRelationshipWith(const GObject&
 
 /************************************************************************************************************/
 /**
- * Creates a deep clone of this object.
- *
- * @return A deep clone of this object
- */
-GObject * GParameterSet::clone_() const {
-	return new GParameterSet(*this);
-}
-
-/************************************************************************************************************/
-/**
  * Loads the data of another GParameterSet object, camouflaged as a GObject.
  *
  * @param cp A copy of another GParameterSet object, camouflaged as a GObject
@@ -163,10 +147,7 @@ void GParameterSet::load_(const GObject* cp){
 	// Load the parent class'es data
 	GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);
 
-	// Then load our local data - here the evaluation function (if any)
-	// NOTE: THIS IS DANGEROUS WHEN OPERATING IN A MULTITHREADED ENVIRONMENT.
-	// IT WILL ALSO NOT WORK IN A NETWORKED ENVIRONMENT
-	eval_ = p_load->eval_;
+	// No local data
 }
 
 /************************************************************************************************************/
@@ -204,29 +185,6 @@ bool GParameterSet::updateOnStall() {
 
 /* ----------------------------------------------------------------------------------
  * Throwing of an exception is tested in GTestIndividual1::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/************************************************************************************************************/
-/**
- * Registers an evaluation function with this class. Note that the function object
- * can not be serialized. Hence, in a networked optimization run, you need to derive
- * your own class from GParameterSet and specify an evaluation function.
- */
-void GParameterSet::registerEvaluator(const boost::function<double (const GParameterSet&)>& eval){
-	if(eval.empty()){ // empty function ?
-		std::ostringstream error;
-		error << "In GParameterSet::registerEvaluator(): Error" << std::endl
-				<< "Received empty function" << std::endl;
-
-		throw Gem::Common::gemfony_error_condition(error.str());
-	}
-
-	eval_ = eval;
-}
-
-/* ----------------------------------------------------------------------------------
- * Untested -- deprecated
  * ----------------------------------------------------------------------------------
  */
 
@@ -727,32 +685,6 @@ boost::shared_ptr<Gem::Geneva::GParameterBase> GParameterSet::at(const std::size
  * ----------------------------------------------------------------------------------
  */
 
-/************************************************************************************************************/
-/**
- * The actual fitness calculation takes place here. Note that you need
- * to overload this function if you do not want to use the GEvaluator
- * mechanism.
- *
- * @return The newly calculated fitness of this object
- */
-double GParameterSet::fitnessCalculation(){
-	if(eval_.empty()){ // Has an evaluator been stored in this class ?
-		std::ostringstream error;
-		error << "In GParameterSet::fitnessCalculation(): Error" << std::endl
-				<< "No evaluation function present" << std::endl;
-
-		throw Gem::Common::gemfony_error_condition(error.str());
-	}
-
-	// Trigger the actual calculation
-	return eval_(*this);
-}
-
-/* ----------------------------------------------------------------------------------
- * Untested -- deprecated. Will be replaced by the registration of a	 GEvaluator object
- * ----------------------------------------------------------------------------------
- */
-
 /**********************************************************************************/
 /**
  * The actual adaption operations. Easy, as we know that all objects
@@ -1222,21 +1154,3 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#ifdef GENEVATESTING
-// Tests of this class (and parent classes)
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
-/**
- * As the Gem::Geneva::GParameterSet has a private default constructor, we need to provide a
- * specialization of the factory function that creates objects of this type.
- */
-template <>
-boost::shared_ptr<Gem::Geneva::GParameterSet> TFactory_GUnitTests<Gem::Geneva::GParameterSet>() {
-	return boost::shared_ptr<Gem::Geneva::GParameterSet>(new Gem::Geneva::GParameterSet());
-}
-
-/*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
-#endif /* GENEVATESTING */

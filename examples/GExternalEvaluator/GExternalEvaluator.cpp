@@ -56,9 +56,6 @@
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
 
-// Information retrieval and printing
-#include "GInfoFunction.hpp"
-
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
@@ -157,10 +154,6 @@ int main(int argc, char **argv){
     return 0;
   }
   //***************************************************************************
-
-  // Create an instance of our optimization monitor, telling it to output information in given intervals
-  std::ofstream resultSummary("./result.C");
-  boost::shared_ptr<optimizationMonitor> om(new optimizationMonitor(nParents, resultSummary));
 
   // Tell the evaluation program to do any initial work
   GExternalEvaluatorIndividual::initialize(program, externalArguments);
@@ -264,16 +257,12 @@ int main(int argc, char **argv){
   pop_ptr->setReportIteration(reportGeneration);
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
-  pop_ptr->registerInfoFunction(boost::bind(&optimizationMonitor::informationFunction, om, _1, _2));
   pop_ptr->setMaximize(maximize);
   
   // Do the actual optimization
   pop_ptr->optimize();
 
   //--------------------------------------------------------------------------------------------
-
-  // Make sure we close the result file
-  resultSummary.close();
 
   // Tell the evaluation program to perform any necessary final work
   GExternalEvaluatorIndividual::finalize(program, externalArguments);

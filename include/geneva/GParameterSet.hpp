@@ -128,9 +128,6 @@ public:
 			, const bool&
 	) const;
 
-	/** @brief Registers an evaluation function */
-	void registerEvaluator(const boost::function<double (const GParameterSet&)>&);
-
 	/** @brief Triggers updates when the optimization process has stalled */
 	virtual bool updateOnStall();
 
@@ -238,15 +235,12 @@ protected:
 	/** @brief Loads the data of another GObject */
 	virtual void load_(const GObject*);
 	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const;
+	virtual GObject* clone_() const = 0;
 
 	/** @brief The actual fitness calculation takes place here */
-	virtual double fitnessCalculation();
+	virtual double fitnessCalculation() = 0;
 	/* @brief The actual adaption operations. */
 	virtual void customAdaptions();
-
-	/** @brief Allows to store an evaluation function for this object */
-	boost::function<double (const GParameterSet&)> eval_;
 
 private:
 	explicit GParameterSet(const float&); ///< Intentionally private and undefined
@@ -271,17 +265,12 @@ template <> std::size_t GParameterSet::countParameters<bool>() const;
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#ifdef GENEVATESTING
-// Tests of this class (and parent classes)
 /*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
-/** @brief We need to provide a specialization of the factory function that creates objects of this type. */
-template <> boost::shared_ptr<Gem::Geneva::GParameterSet> TFactory_GUnitTests<Gem::Geneva::GParameterSet>();
+/**
+ * @brief Needed for Boost.Serialization
+ */
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterSet)
 
 /*************************************************************************************************/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*************************************************************************************************/
-#endif /* GENEVATESTING */
 
 #endif /* GPARAMETERSET_HPP_ */
