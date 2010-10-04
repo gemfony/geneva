@@ -691,7 +691,7 @@ protected:
 
 private:
 	/*********************************************************************************************/
-	progressMonitor(); ///< Intentionally left undefined
+	progressMonitor(){} ///< Intentionally private, only needed for serialization
 
 	boost::uint16_t xDimProgress_; ///< The dimension of the canvas in x-direction
 	boost::uint16_t yDimProgress_; ///< The dimension of the canvas in y-direction
