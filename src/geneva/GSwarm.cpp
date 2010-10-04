@@ -61,7 +61,7 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	: GOptimizationAlgorithmT<GParameterSet>()
 	, nNeighborhoods_(nNeighborhoods?nNeighborhoods:1)
 	, defaultNNeighborhoodMembers_((nNeighborhoodMembers<=1)?2:nNeighborhoodMembers)
-	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
+	, nNeighborhoodMembers_(nNeighborhoods_)
 	, local_bests_(new boost::shared_ptr<GParameterSet>[nNeighborhoods_])
 	, c_local_(DEFAULTCLOCAL)
 	, c_global_(DEFAULTCGLOBAL)
@@ -88,7 +88,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 	: GOptimizationAlgorithmT<GParameterSet>(cp)
 	, nNeighborhoods_(cp.nNeighborhoods_)
 	, defaultNNeighborhoodMembers_(cp.defaultNNeighborhoodMembers_)
-	, nNeighborhoodMembers_(new std::size_t[nNeighborhoods_])
+	, nNeighborhoodMembers_(cp.nNeighborhoodMembers_)
 	, global_best_((cp.getIteration()>0)?(cp.global_best_)->clone<GParameterSet>():boost::shared_ptr<GParameterSet>())
 	, local_bests_(new boost::shared_ptr<GParameterSet>[nNeighborhoods_])
 	, c_local_(cp.c_local_)
@@ -96,21 +96,14 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, c_delta_(cp.c_delta_)
 	, ur_(cp.ur_)
 {
-	// Copy the current number of individuals in each neighborhood over
+	// Calculate the total number of individuals that should be present
 #ifdef DEBUG
 	std::size_t nCPIndividuals = 0;
-#endif /* DEBUG */
-
 	for(std::size_t i=0; i<nNeighborhoods_; i++) {
-		nNeighborhoodMembers_[i] = cp.nNeighborhoodMembers_[i];
 
-#ifdef DEBUG
-		// Calculate the total number of individuals that should be present
 		nCPIndividuals += nNeighborhoodMembers_[i];
-#endif /* DEBUG */
 	}
 
-#ifdef DEBUG
 	if(nCPIndividuals != cp.size()) {
 		std::ostringstream error;
 		error << "In GSwarm::GSwarm(const GSwarm& cp): Error!" << std::endl
@@ -139,7 +132,6 @@ GSwarm::GSwarm(const GSwarm& cp)
  * The standard destructor. Most work is done in the parent class.
  */
 GSwarm::~GSwarm() {
-	if(nNeighborhoodMembers_) delete [] nNeighborhoodMembers_;
 	if(local_bests_) delete [] local_bests_; // This will also get rid of the objects pointed to
 }
 
@@ -186,10 +178,10 @@ void GSwarm::load_(const GObject *cp)
 	if(nNeighborhoods_!=p_load->nNeighborhoods_ || !nNeighborhoodMembersEqual(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_)) {
 		nNeighborhoods_ = p_load->nNeighborhoods_;
 
-		delete [] nNeighborhoodMembers_;
+		nNeighborhoodMembers_.clear();
 		delete [] local_bests_;
 
-		nNeighborhoodMembers_ = new std::size_t[nNeighborhoods_];
+		nNeighborhoodMembers_.resize(nNeighborhoods_);
 		local_bests_ = new boost::shared_ptr<GParameterSet>[nNeighborhoods_];
 
 		// Copy the local bests and number of neighborhood members over
@@ -425,11 +417,11 @@ void GSwarm::finalize() {
  * @param two The second array used for the check
  * @return A boolean indicating whether both arrays are equal
  */
-bool GSwarm::nNeighborhoodMembersEqual(const std::size_t *one, const std::size_t* two) const {
-	for(std::size_t i=0; i<nNeighborhoods_; i++) {
+bool GSwarm::nNeighborhoodMembersEqual(const std::vector<std::size_t> &one, const std::vector<std::size_t>& two) const {
+	if(one.size() != two.size()) return false;
+	for(std::size_t i=0; i<one.size(); i++) {
 		if(one[i] != two[i]) return false;
 	}
-
 	return true;
 }
 
@@ -455,7 +447,7 @@ std::size_t GSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
  * @param neighborhood The id of the neighborhood for which the id of the first individual should be calculated
  * @return The position of the first individual of a neighborhood
  */
-std::size_t GSwarm::getFirstNIPosVec(const std::size_t& neighborhood, std::size_t* vec) const {
+std::size_t GSwarm::getFirstNIPosVec(const std::size_t& neighborhood, const std::vector<std::size_t>& vec) const {
 #ifdef DEBUG
 	if(neighborhood >= nNeighborhoods_) {
 		std::ostringstream error;

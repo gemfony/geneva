@@ -305,7 +305,7 @@ bool GBrokerSwarm::updateIndividualsAndIntegrate(
 void GBrokerSwarm::swarmLogic() {
 	boost::uint32_t iteration = getIteration();
 	GBrokerSwarm::iterator it;
-	std::size_t *nNeighborhoodMembersCp;
+	std::vector<std::size_t> nNeighborhoodMembersCp;
 
 	//--------------------------------------------------------------------------------
 	// Create a copy of the last iteration's individuals and the number of individuals
@@ -320,10 +320,7 @@ void GBrokerSwarm::swarmLogic() {
 		}
 
 		// Store the current amount of individuals in each neighborhood
-		nNeighborhoodMembersCp = new std::size_t[nNeighborhoods_];
-		for(std::size_t n=0; n<nNeighborhoods_; n++) {
-			nNeighborhoodMembersCp[n] = nNeighborhoodMembers_[n];
-		}
+		nNeighborhoodMembersCp = nNeighborhoodMembers_;
 	}
 
 	//--------------------------------------------------------------------------------
@@ -455,7 +452,7 @@ void GBrokerSwarm::swarmLogic() {
 		}
 
 		// Get rid of the information about old individuals
-		delete [] nNeighborhoodMembersCp;
+		nNeighborhoodMembersCp.clear();
 		oldIndividuals.clear();
 	} else { // iteration == 0: Fill up with random items
 		// At least one individual must have returned. Otherwise getFirstItem() would

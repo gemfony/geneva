@@ -112,16 +112,9 @@ class GSwarm
 
 		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
-		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_);
-
-		nNeighborhoodMembers_ = new std::size_t[nNeighborhoods_];
-		std::vector<std::size_t> nNeighborhoodMembersVec;
-		ar & BOOST_SERIALIZATION_NVP(nNeighborhoodMembersVec);
-		for(std::size_t i=0; i<nNeighborhoods_; i++) {
-			nNeighborhoodMembers_[i] = nNeighborhoodMembersVec[i];
-		}
-
-		ar & BOOST_SERIALIZATION_NVP(global_best_);
+		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_)
+		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
+		   & BOOST_SERIALIZATION_NVP(global_best_);
 
 		std::vector<boost::shared_ptr<GParameterSet> > local_bests_vec;
 		ar & BOOST_SERIALIZATION_NVP(local_bests_vec);
@@ -143,14 +136,8 @@ class GSwarm
 
 		ar & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet> >(*this))
 		   & BOOST_SERIALIZATION_NVP(nNeighborhoods_)
-		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_);
-
-		std::vector<std::size_t> nNeighborhoodMembersVec;
-		for(std::size_t i=0; i<nNeighborhoods_; i++) {
-			nNeighborhoodMembersVec.push_back(nNeighborhoodMembers_[i]);
-		}
-
-		ar & BOOST_SERIALIZATION_NVP(nNeighborhoodMembersVec)
+		   & BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_)
+		   & BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
 		   & BOOST_SERIALIZATION_NVP(global_best_);
 
 		std::vector<boost::shared_ptr<GParameterSet> > local_bests_vec;
@@ -326,7 +313,7 @@ protected:
 	/** @brief Helper function that returns the id of the first individual of a neighborhood */
 	std::size_t getFirstNIPos(const std::size_t&) const;
 	/** @brief Helper function that returns the id of the first individual of a neighborhood, using a vector of neighborhood sizes */
-	std::size_t getFirstNIPosVec(const std::size_t&, std::size_t*) const;
+	std::size_t getFirstNIPosVec(const std::size_t&, const std::vector<std::size_t>&) const;
 	/** @brief Helper function that returns the id of the last individual of a neighborhood */
 	std::size_t getLastNIPos(const std::size_t&) const;
 
@@ -362,7 +349,7 @@ protected:
 
 	std::size_t nNeighborhoods_; ///< The number of neighborhoods in the population
 	std::size_t defaultNNeighborhoodMembers_; ///< The desired number of individuals belonging to each neighborhood
-	std::size_t *nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
+	std::vector<std::size_t> nNeighborhoodMembers_; ///< The current number of individuals belonging to each neighborhood
 
 	boost::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
 	boost::shared_ptr<GParameterSet> *local_bests_; ///< The collection of best individuals from each neighborhood
@@ -385,7 +372,7 @@ protected:
 private:
 	/**************************************************************************************************/
 	/** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
-	bool nNeighborhoodMembersEqual(const std::size_t *, const std::size_t *) const;
+	bool nNeighborhoodMembersEqual(const std::vector<std::size_t>&, const std::vector<std::size_t>&) const;
 
 	/** @brief Small helper function that helps to fill up a neighborhood, if there is just one entry in it */
 	void fillUpNeighborhood1();
