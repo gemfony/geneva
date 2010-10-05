@@ -91,7 +91,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		BOOST_REQUIRE_NO_THROW(T_ptr->modify_GUnitTests());
 
 		// Copy construction
-		BOOST_REQUIRE_NO_THROW(T_ptr_cp = boost::shared_ptr<T>(new T(*T_ptr)))
+		BOOST_REQUIRE_NO_THROW(T_ptr_cp = boost::shared_ptr<T>(new T(*T_ptr)));
+		// T_ptr_cp = boost::shared_ptr<T>(new T(*T_ptr));
 
 		// Check for equivalence and similarity
 		BOOST_CHECK(gep.isEqual(*T_ptr_cp, *T_ptr));

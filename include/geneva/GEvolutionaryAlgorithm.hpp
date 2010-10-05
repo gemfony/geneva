@@ -457,9 +457,9 @@ public:
 
 	    /** @brief Set the dimension of the output canvas */
 	    void setDims(const boost::uint16_t&, const boost::uint16_t&);
-	    /** @brief Retrieve the x-dimesion of the output canvas */
+	    /** @brief Retrieve the x-dimension of the output canvas */
 	    boost::uint16_t getXDim() const;
-	    /** @brief Retrieve the y-dimesion of the output canvas */
+	    /** @brief Retrieve the y-dimension of the output canvas */
 	    boost::uint16_t getYDim() const;
 
 	    /** @brief Sets the number of individuals in the population that should be monitored */

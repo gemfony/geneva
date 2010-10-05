@@ -150,6 +150,16 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
 
 /**********************************************************************************************/
 /**
+ * Specification of different parallelization modes
+ */
+enum parMode {
+	SERIAL
+	, MULTITHREADED
+	, ASIONETWORKED
+};
+
+/**********************************************************************************************/
+/**
  * Currently three types of recombination schemes are supported:
  * - DEFAULTRECOMBINE defaults to RANDOMRECOMBINE
  * - RANDOMRECOMBINE chooses the parents to be replicated randomly from all parents
@@ -271,6 +281,12 @@ const boost::uint32_t DEFAULTBROKERWAITFACTOR = 20;
 const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
 
 /**********************************************************************************************/
+
+/** @brief Puts a Gem::Geneva::parMode into a stream. Needed also for boost::lexical_cast<> */
+std::ostream& operator<<(std::ostream&, const Gem::Geneva::parMode&);
+
+/** @brief Reads a Gem::Geneva::parMode item from a stream. Needed also for boost::lexical_cast<> */
+std::istream& operator>>(std::istream&, Gem::Geneva::parMode&);
 
 /** @brief Puts a Gem::Geneva::recoScheme into a stream. Needed also for boost::lexical_cast<> */
 std::ostream& operator<<(std::ostream&, const Gem::Geneva::recoScheme&);

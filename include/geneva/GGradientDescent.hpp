@@ -166,7 +166,63 @@ public:
 	/** @brief Retrieves the current step size */
 	float getStepSize() const;
 
+	/**************************************************************************************************/
+	/**
+	 * Retrieves the best individual of the population and casts it to the desired type.
+	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
+	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
+	 * we do not need to check convertibility using dynamic_cast<>.
+	 *
+	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
+	 */
+	template <typename parameterset_type>
+	inline boost::shared_ptr<parameterset_type> getBestIndividual(
+			typename boost::enable_if<boost::is_base_of<GParameterSet, parameterset_type> >::type* dummy = 0
+	){
+#ifdef DEBUG
+		// Check that data is present at all
+		if(data.size() < nStartingPoints_) {
+			std::ostringstream error;
+			error << "In GGradientDescent::getBestIndividual<parameterset_type>() : Error!" << std::endl
+				  << "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_ << std::endl;
+			throw Gem::Common::gemfony_error_condition(error.str());
+		}
+
+		// Check that no parent is in "dirty" state
+		for(std::size_t i=0; i<nStartingPoints_; i++) {
+			if(data.at(i)->isDirty()) {
+				std::ostringstream error;
+				error << "In GGradientDescent::getBestIndividual<parameterset_type>() : Error!" << std::endl
+					  << "Found dirty parent at position : " << i << std::endl;
+				throw Gem::Common::gemfony_error_condition(error.str());
+			}
+		}
+#endif /* DEBUG */
+
+		// Loop over all "parent" individuals and find out which one is the best
+		std::size_t pos_best=0;
+		for(std::size_t i=1; i<nStartingPoints_; i++) {
+			if(isBetter(data.at(i)->fitness(), data.at(i-1)->fitness())) {
+				pos_best=i;
+			}
+		}
+
+#ifdef DEBUG
+		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(data[pos_best]);
+
+		if(p) return p;
+		else {
+			std::ostringstream error;
+			error << "In GGradientDescent::getBestIndividual<parameterset_type>() : Conversion error!" << std::endl;
+			throw Gem::Common::gemfony_error_condition(error.str());
+		}
+#else
+		return boost::static_pointer_cast<parameterset_type>(data[pos_best]);
+#endif /* DEBUG */
+	}
+
 protected:
+	/**************************************************************************************************/
 	/** @brief Loads the data of another population */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
@@ -260,6 +316,13 @@ public:
 	    		, const bool&
 	    ) const;
 
+	    /** @brief Set the dimension of the output canvas */
+	    void setDims(const boost::uint16_t&, const boost::uint16_t&);
+	    /** @brief Retrieve the x-dimension of the output canvas */
+	    boost::uint16_t getXDim() const;
+	    /** @brief Retrieve the y-dimension of the output canvas */
+	    boost::uint16_t getYDim() const;
+
 	protected:
 	    /** @brief A function that is called once before the optimization starts */
 	    virtual std::string firstInformation(GOptimizationAlgorithmT<GParameterSet> * const);
@@ -268,10 +331,21 @@ public:
 	    /** @brief A function that is called once at the end of the optimization cycle */
 	    virtual std::string lastInformation(GOptimizationAlgorithmT<GParameterSet> * const);
 
+	    /** @brief A function that is called once before the optimization starts */
+	    virtual std::string gdFirstInformation(GGradientDescent * const);
+	    /** @brief A function that is called during each optimization cycle */
+	    virtual std::string gdCycleInformation(GGradientDescent * const);
+	    /** @brief A function that is called once at the end of the optimization cycle */
+	    virtual std::string gdLastInformation(GGradientDescent * const);
+
 	    /** @brief Loads the data of another object */
 	    virtual void load_(const GObject*);
 	    /** @brief Creates a deep clone of this object */
 		virtual GObject* clone_() const;
+
+	private:
+		boost::uint16_t xDim_; ///< The dimension of the canvas in x-direction
+		boost::uint16_t yDim_; ///< The dimension of the canvas in y-direction
 
 	#ifdef GENEVATESTING
 	public:

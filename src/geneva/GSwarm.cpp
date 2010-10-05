@@ -96,22 +96,6 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, c_delta_(cp.c_delta_)
 	, ur_(cp.ur_)
 {
-	// Calculate the total number of individuals that should be present
-#ifdef DEBUG
-	std::size_t nCPIndividuals = 0;
-	for(std::size_t i=0; i<nNeighborhoods_; i++) {
-
-		nCPIndividuals += nNeighborhoodMembers_[i];
-	}
-
-	if(nCPIndividuals != cp.size()) {
-		std::ostringstream error;
-		error << "In GSwarm::GSwarm(const GSwarm& cp): Error!" << std::endl
-			  << "Number of individuals in cp " << cp.size() << "differs from expected number " << nCPIndividuals << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
-#endif /* DEBUG */
-
 	// Note that this setting might differ from nCPIndividuals, as it is not guaranteed
 	// that cp has, at the time of copying, all individuals present in each neighborhood.
 	// Differences might e.g. occur if not all individuals return from their remote
@@ -1506,9 +1490,13 @@ void GSwarm::GSwarmOptimizationMonitor::specificTestsFailuresExpected_GUnitTests
 template <>
 boost::shared_ptr<Gem::Geneva::GSwarm> TFactory_GUnitTests<Gem::Geneva::GSwarm>() {
 	using namespace Gem::Tests;
+	const std::size_t NNEIGHBORHOODS=2;
+	const std::size_t NNEIGHBORHOODMEMBERS=3;
 	boost::shared_ptr<Gem::Geneva::GSwarm> p;
-	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSwarm>(new Gem::Geneva::GSwarm(5,10)));
-	p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
+	BOOST_CHECK_NO_THROW(p= boost::shared_ptr<Gem::Geneva::GSwarm>(new Gem::Geneva::GSwarm(NNEIGHBORHOODS, NNEIGHBORHOODMEMBERS)));
+	for(std::size_t i=0; i<NNEIGHBORHOODS*NNEIGHBORHOODMEMBERS; i++) {
+		p->push_back(boost::shared_ptr<GTestIndividual1>(new GTestIndividual1()));
+	}
 	return p;
 }
 

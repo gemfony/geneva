@@ -70,15 +70,20 @@ using namespace boost::unit_test;
 
 #include "GStandard_test.hpp"
 
+using namespace Gem::Geneva;
+
 // For reasons that are not understood, some export statements in the
 // .cpp files do not get pulled in here. We get an error "unregistered class"
 // when these statements are not present below.
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
-BOOST_CLASS_EXPORT(Gem::Geneva::GGradientDescent)
-BOOST_CLASS_EXPORT(Gem::Geneva::GSwarm)
-
-using namespace Gem::Geneva;
+BOOST_CLASS_EXPORT(GEvolutionaryAlgorithm);
+BOOST_CLASS_EXPORT(GGradientDescent);
+BOOST_CLASS_EXPORT(GSwarm);
+BOOST_CLASS_EXPORT(GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT);
+BOOST_CLASS_EXPORT(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT);
+BOOST_CLASS_EXPORT(GEvolutionaryAlgorithm::GEAOptimizationMonitor);
+BOOST_CLASS_EXPORT(GSwarm::GSwarmOptimizationMonitor);
+BOOST_CLASS_EXPORT(GGradientDescent::GGDOptimizationMonitor);
 
 /*************************************************************************************************/
 /**
@@ -135,6 +140,15 @@ public:
 		trait_types;
 
 		typedef boost::mpl::list<
+			GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT
+			, GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
+			, GEvolutionaryAlgorithm::GEAOptimizationMonitor
+			, GSwarm::GSwarmOptimizationMonitor
+			, GGradientDescent::GGDOptimizationMonitor
+		>
+		monitor_types;
+
+		typedef boost::mpl::list<
 			Gem::Tests::GTestIndividual1
 		>
 		individual_types;
@@ -152,6 +166,9 @@ public:
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, trait_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, trait_types ) );
+
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, monitor_types ) );
+		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, monitor_types ) );
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, individual_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, individual_types ) );

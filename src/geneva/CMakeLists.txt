@@ -34,6 +34,7 @@ SET ( OPTIMIZATIONSOURCES
 	GObject
 	GOptimizationAlgorithmT
 	GOptimizationEnums
+	# GOptimizer
 	GParameterBase
 	GParameterBaseWithAdaptorsT
 	GParameterObjectCollection

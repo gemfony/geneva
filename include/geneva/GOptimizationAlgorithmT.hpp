@@ -1346,6 +1346,18 @@ public:
 
 	    /**********************************************************************************/
 	    /**
+	     * The standard assignment operator.
+	     *
+	     * @param cp Another GSwarm object
+	     * @return A constant reference to this object
+	     */
+	    const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& operator=(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) {
+	    	GOptimizationMonitorT::load_(&cp);
+	    	return *this;
+	    }
+
+	    /**********************************************************************************/
+	    /**
 	     * Checks for equality with another GParameter Base object
 	     *
 	     * @param  cp A constant reference to another GOptimizationMonitorT object
@@ -1394,7 +1406,7 @@ public:
 	        using namespace Gem::Common;
 
 	    	// Check that we are indeed dealing with a GOptimizationMonitorT reference
-	    	const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT *p_load = GObject::conversion_cast<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>(&cp);
+	    	const GOptimizationMonitorT *p_load = GObject::conversion_cast<GOptimizationMonitorT>(&cp);
 
 	    	// Will hold possible deviations from the expectation, including explanations
 	        std::vector<boost::optional<std::string> > deviations;
@@ -1550,8 +1562,7 @@ public:
 	     * cp A pointer to another GOptimizationMonitorT object, camouflaged as a GObject
 	     */
 	    virtual void load_(const GObject* cp) {
-	    	const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT *p_load
-	    		= GObject::conversion_cast<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>(cp);
+	    	const GOptimizationMonitorT *p_load = GObject::conversion_cast<GOptimizationMonitorT>(cp);
 
 	    	// Load the parent classes' data ...
 	    	GObject::load_(cp);
@@ -1566,7 +1577,7 @@ public:
 	     * Creates a deep clone of this object
 	     */
 		virtual GObject* clone_() const {
-			return new GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT(*this);
+			return new typename GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT(*this);
 		}
 
 	private:

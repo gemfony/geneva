@@ -818,6 +818,38 @@ boost::optional<std::string> GGradientDescent::GGDOptimizationMonitor::checkRela
 
 /**********************************************************************************/
 /**
+ * Allows to set the dimensions of the canvas
+ *
+ * @param xDim The desired dimension of the canvas in x-direction
+ * @param yDim The desired dimension of the canvas in y-direction
+ */
+void GGradientDescent::GGDOptimizationMonitor::setDims(const boost::uint16_t& xDim, const boost::uint16_t& yDim) {
+	xDim_ = xDim;
+	yDim_ = yDim;
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the dimension of the canvas in x-direction
+ *
+ * @return The dimension of the canvas in x-direction
+ */
+boost::uint16_t GGradientDescent::GGDOptimizationMonitor::getXDim() const {
+	return xDim_;
+}
+
+/**********************************************************************************/
+/**
+ * Retrieves the dimension of the canvas in y-direction
+ *
+ * @return The dimension of the canvas in y-direction
+ */
+boost::uint16_t GGradientDescent::GGDOptimizationMonitor::getYDim() const {
+	return yDim_;
+}
+
+/**********************************************************************************/
+/**
  * A function that is called once before the optimization starts
  *
  * @param goa A pointer to the current optimization algorithm for which information should be emitted
@@ -825,7 +857,21 @@ boost::optional<std::string> GGradientDescent::GGDOptimizationMonitor::checkRela
  */
 std::string GGradientDescent::GGDOptimizationMonitor::firstInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
 	// This should always be the first statement in a custom optimization monitor
-	return GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::firstInformation(goa);
+	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::firstInformation(goa);
+
+	// Perform the conversion to the target algorithm
+#ifdef DEBUG
+	if(goa->getOptimizationAlgorithm() != GD) {
+		std::ostringstream error;
+		error << "In GGradientDescent::GGDOptimizationMonitor::firstInformation(): Error!" << std::endl
+			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+	GGradientDescent * const gd = static_cast<GGradientDescent * const>(goa);
+
+	// Output the header to the summary stream
+	return gdFirstInformation(gd);
 }
 
 /**********************************************************************************/
@@ -838,7 +884,21 @@ std::string GGradientDescent::GGDOptimizationMonitor::firstInformation(GOptimiza
  * @return A string containing information to written to the output file (if any)
  */
 std::string GGradientDescent::GGDOptimizationMonitor::cycleInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
-	return GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::cycleInformation(goa);
+	// Let the audience know what the parent has to say
+	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::cycleInformation(goa);
+
+	// Perform the conversion to the target algorithm
+#ifdef DEBUG
+	if(goa->getOptimizationAlgorithm() != GD) {
+		std::ostringstream error;
+		error << "In GGradientDescent::GGDOptimizationMonitor::cycleInformation(): Error!" << std::endl
+			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+	GGradientDescent * const gd = static_cast<GGradientDescent * const>(goa);
+
+	return gdCycleInformation(gd);
 }
 
 /**********************************************************************************/
@@ -849,8 +909,102 @@ std::string GGradientDescent::GGDOptimizationMonitor::cycleInformation(GOptimiza
  * @return A string containing information to written to the output file (if any)
  */
 std::string GGradientDescent::GGDOptimizationMonitor::lastInformation(GOptimizationAlgorithmT<GParameterSet> * const goa) {
+
+	// Perform the conversion to the target algorithm
+#ifdef DEBUG
+	if(goa->getOptimizationAlgorithm() != GD) {
+		std::ostringstream error;
+		error << "In GGradientDescent::GGDOptimizationMonitor::lastInformation(): Error!" << std::endl
+			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+	GGradientDescent * const gd = static_cast<GGradientDescent * const>(goa);
+
+	// Do the actual information gathering
+	std::ostringstream result;
+	result << gdLastInformation(gd);
+
 	// This should always be the last statement in a custom optimization monitor
-	return GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::lastInformation(goa);
+	std::cout << GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT::lastInformation(goa);
+
+	return result.str();
+}
+
+
+/**********************************************************************************/
+/**
+ * A function that is called once before the optimization starts
+ *
+ * @param gd The object for which information should be collected
+ */
+std::string GGradientDescent::GGDOptimizationMonitor::gdFirstInformation(GGradientDescent * const gd) {
+	std::ostringstream result;
+
+	// Output the header to the summary stream
+	result << "{" << std::endl
+		   << "  gROOT->Reset();" << std::endl
+		   << "  gStyle->SetOptTitle(0);" << std::endl
+		   << "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDim_ << "," << yDim_ << ");" << std::endl
+		   << std::endl
+		   << "  std::vector<long> iteration;" << std::endl
+		   << "  std::vector<double> evaluation;" << std::endl
+		   << std::endl;
+
+	return result.str();
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called during each optimization cycle
+ *
+ * @param gd The object for which information should be collected
+ */
+std::string GGradientDescent::GGDOptimizationMonitor::gdCycleInformation(GGradientDescent * const gd) {
+	std::ostringstream result;
+	bool isDirty = false;
+	double currentEvaluation = 0.;
+
+
+	result << "  iteration.push_back(" << gd->getIteration() << ");" << std::endl
+		   << "  evaluation.push_back(" <<  gd->getBestFitness() << ");" << std::endl
+	       << std::endl; // Improves readability when following the output with "tail -f"
+
+	return result.str();
+}
+
+/**********************************************************************************/
+/**
+ * A function that is called once at the end of the optimization cycle
+ *
+ * @param gd The object for which information should be collected
+ */
+std::string GGradientDescent::GGDOptimizationMonitor::gdLastInformation(GGradientDescent * const gd) {
+	std::ostringstream result;
+
+	// Output final print logic to the stream
+	result << "  // Transfer the vectors into arrays" << std::endl
+		   << "  double iteration_arr[iteration.size()];" << std::endl
+		   << "  double evaluation_arr[evaluation.size()];" << std::endl
+		   << std::endl
+		   << "  for(std::size_t i=0; i<iteration.size(); i++) {" << std::endl
+		   << "     iteration_arr[i] = (double)iteration[i];" << std::endl
+		   << "     evaluation_arr[i] = evaluation[i];" << std::endl
+		   << "  }" << std::endl
+		   << std::endl
+		   << "  // Create a TGraph object" << std::endl
+		   << "  TGraph *evGraph = new TGraph(evaluation.size(), iteration_arr, evaluation_arr);" << std::endl
+		   << std::endl
+		   << "  // Set the axis titles" << std::endl
+		   << "  evGraph->GetXaxis()->SetTitle(\"Iteration\");" << std::endl
+		   << "  evGraph->GetYaxis()->SetTitleOffset(1.1);" << std::endl
+		   << "  evGraph->GetYaxis()->SetTitle(\"Fitness\");" << std::endl
+		   << std::endl
+		   << "  // Do the actual drawing" << std::endl
+		   << "  evGraph->Draw(\"APL\");" << std::endl
+		   << "}" << std::endl;
+
+	return result.str();
 }
 
 /**********************************************************************************/
