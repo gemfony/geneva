@@ -37,6 +37,8 @@
 
 // Boost header files go here
 #include <boost/utility.hpp>
+#include <boost/function.hpp>
+#include <boost/filesystem/operations.hpp>
 
 #ifndef GOPTIMIZER_HPP_
 #define GOPTIMIZER_HPP_
@@ -78,13 +80,28 @@ class GOptimizer
 {
 public:
 	/** @brief The standard constructor. Loads the data from the configuration file */
-	explicit GOptimizer(const bool&, const std::string& fileName = "optimizationAlgorithm.cfg");
+	explicit GOptimizer(
+			const personality& pers = EA
+			, const parMode& pm = MULTITHREADED
+			, const std::string& ip = "localhost"
+			, const unsigned int& port = 10000
+			, const std::string& fileName = "optimizationAlgorithm.cfg"
+			, const bool& verbose = false
+	);
 
 	/** @brief Allows to register a function object that performs necessary initialization work */
-	void registerInitFunction(/*some boost::function object*/);
+	void registerInitFunction(boost::function<void ()>);
+	/** @brief Allows to register a function object that performs necessary initialization work for the client */
+	void registerClientInitFunction(boost::function<void ()>);
+	/** @brief Allows to register a function object that performs necessary finalization work */
+	void registerFinalizationFunction(boost::function<void ()>);
+	/** @brief Allows to register a function object that performs necessary finalization work for the client */
+	void registerClientFinalizationFunction(boost::function<void ()>);
 
-	/** @brief Allows to add individuals to the class. These will later be used to initialize the optimization algorithms. Note that the class will take ownership of the objects by cloning them */
+	/** @brief Allows to add individuals to the class. */
 	void registerParameterSet(boost::shared_ptr<GParameterSet>);
+	/** @brief Allows to add a set of individuals to the class. */
+	void registerParameterSet(const std::vector<boost::shared_ptr<GParameterSet> >&);
 
 	/** @brief Allows to specify an optimization monitor to be used with evolutionary algorithms */
 	void registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor>);
@@ -93,33 +110,352 @@ public:
 	/** @brief Allows to specify an optimization monitor to be used with gradient descents */
 	void registerOptimizationMonitor(boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor>);
 
-	/** @brief Starts the optimization cycle, using the optimization algorithm that has been requested. Returns the best individual found */
-	boost::shared_ptr<GParameterSet> optimize();
+	/**************************************************************************************/
+	/**
+	 * Starts the optimization cycle, using the optimization algorithm that has been requested.
+	 * Returns the best individual found, converted to the desired type.
+	 *
+	 * @return The best individual found during the optimization process, converted to the desired type
+	 */
+	template <typename ind_type>
+	boost::shared_ptr<ind_type> optimize() {
+		boost::shared_ptr<ind_type> result;
 
-	/** @brief Writes out descriptions in XML format of the requested number of individuals */
-	void saveResults(const std::size_t&);
+		// If an initialization function has been provided, call it as the first action
+		if(initFunction_) initFunction_();
+
+#ifdef DEBUG
+		// We need at least one individual to start with
+		if(initialParameterSets_.empty()) {
+			std::ostringstream error;
+			error << "In GOptimizer::optimize(): Error!" << std::endl
+					<< "You need to register at least one individual." << std::endl
+					<< "Found none." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#endif
+
+		// Which algorithm are we supposed to use ?
+		switch(pers_) {
+		case EA: // Evolutionary algorihms
+		{
+			result = eaOptimize<ind_type>();
+			if(finalizationFunction_) finalizationFunction_();
+			return result;
+		}
+		break;
+
+		case SWARM: // Swarm algorithms
+		{
+			result = swarmOptimize<ind_type>();
+			if(finalizationFunction_) finalizationFunction_();
+			return result;
+		}
+		break;
+
+		case GD: // Gradient descents
+		{
+			result = gdOptimize<ind_type>();
+			if(finalizationFunction_) finalizationFunction_();
+			return result;
+		}
+		break;
+
+		case NONE:
+		{
+			std::ostringstream error;
+			error << "In GOptimizer::optimize(): Error!" << std::endl
+					<< "No optimization algorithm was specified." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+		break;
+		};
+
+		// Make the compiler happy
+		return boost::shared_ptr<ind_type>(); // Empty smart pointer
+	}
+
+	/**************************************************************************************/
+
+	/** @brief Triggers execution of the client loop */
+	void clientRun();
 
 private:
 	/** @brief The default constructor. Intentionally private and undefined */
 	GOptimizer();
+
 	/** @brief Loads the configuration data from a given configuration file */
 	void loadConfigurationData(const std::string&);
 
-	/** @brief Performs an EA optimization cycle */
-	boost::shared_ptr<GParameterSet> eaOptimize();
-	/** @brief Performs a swarm optimization cycle */
-	boost::shared_ptr<GParameterSet> swarmOptimize();
-	/** @brief Performs a GD optimization cycle */
-	boost::shared_ptr<GParameterSet> gdOptimize();
+	/**************************************************************************************/
+	/**
+	 * Performs an EA optimization cycle
+	 *
+	 * @return The best individual found during the optimization process
+	 */
+	template <typename ind_type>
+	boost::shared_ptr<ind_type> eaOptimize() {
+		// This smart pointer will hold the different types of evolutionary algorithms
+		boost::shared_ptr<GEvolutionaryAlgorithm> ea_ptr;
+
+		switch(parMode_) {
+		//----------------------------------------------------------------------------------
+		case SERIAL:
+		{
+			// Create an empty population
+			ea_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
+		}
+		break;
+
+		//----------------------------------------------------------------------------------
+		case MULTITHREADED:
+		{
+			// Create the multi-threaded population
+			boost::shared_ptr<GMultiThreadedEA> eaPar_ptr(new GMultiThreadedEA());
+
+			// Population-specific settings
+			eaPar_ptr->setNThreads(nEvaluationThreads_);
+
+			// Assignment to the base pointer
+			ea_ptr = eaPar_ptr;
+		}
+		break;
+
+		//----------------------------------------------------------------------------------
+		case ASIONETWORKED:
+		{
+			// Create a network consumer and enrol it with the broker
+			boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port_));
+			gatc->setSerializationMode(serializationMode);
+			GINDIVIDUALBROKER->enrol(gatc);
+
+			// Create the actual broker population
+			boost::shared_ptr<GBrokerEA> eaBroker_ptr(new GBrokerEA());
+			eaBroker_ptr->setWaitFactor(waitFactor_);
+
+			// Assignment to the base pointer
+			ea_ptr = eaBroker_ptr;
+		}
+		break;
+
+		//----------------------------------------------------------------------------------
+		};
+
+		// Transfer the initial parameter sets to the population
+		for(std::size_t p = 0 ; p<initialParameterSets_.size(); p++) {
+			ea_ptr->push_back(initialParameterSets_[p]);
+		}
+		initialParameterSets_.clear();
+
+		// Specify some specific EA settings
+		ea_ptr->setDefaultPopulationSize(eaPopulationSize_,eaNParents_);
+		ea_ptr->setRecombinationMethod(eaRecombinationScheme_);
+		ea_ptr->setSortingScheme(eaSortingScheme_);
+		ea_ptr->setLogOldParents(eaTrackParentRelations_);
+
+		// Set some general population settings
+		ea_ptr->setMaxIteration(maxIterations_);
+		ea_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes_));
+		ea_ptr->setReportIteration(reportIteration_);
+
+		// Register the optimization monitor, if one has been provided
+		if(ea_om_ptr_) ea_ptr->registerOptimizationMonitor(ea_om_ptr_);
+
+		// Do the actual optimization
+		ea_ptr->optimize();
+
+		// Return the best individual found
+		return ea_ptr->getBestIndividual<ind_type>();
+	}
+
+	/**************************************************************************************/
+	/**
+	 * Performs a swarm optimization cycle
+	 *
+	 * @return The best individual found during the optimization process
+	 */
+	template <typename ind_type>
+	boost::shared_ptr<ind_type> swarmOptimize() {
+		// This smart pointer will hold the different types of evolutionary algorithms
+		boost::shared_ptr<GSwarm> swarm_ptr;
+
+		switch(parMode_) {
+		//----------------------------------------------------------------------------------
+		case SERIAL:
+		{
+			swarm_ptr = boost::shared_ptr<GSwarm>(new GSwarm(swarmNNeighborhoods_, swarmNNeighborhoodMembers_));
+		}
+		break;
+
+		//----------------------------------------------------------------------------------
+
+		case MULTITHREADED:
+		{
+			// Create the multi-threaded population
+			boost::shared_ptr<GMultiThreadedSwarm> swarmPar_ptr(new GMultiThreadedSwarm(swarmNNeighborhoods_, swarmNNeighborhoodMembers_));
+
+			// Population-specific settings
+			swarmPar_ptr->setNThreads(nEvaluationThreads_);
+
+			// Assignment to the base pointer
+			swarm_ptr = swarmPar_ptr;
+		}
+		break;
+
+		//----------------------------------------------------------------------------------
+
+		case ASIONETWORKED:
+		{
+			// Create a network consumer and enrol it with the broker
+			boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port_));
+			GINDIVIDUALBROKER->enrol(gatc);
+
+			// Create the actual broker population
+			boost::shared_ptr<GBrokerSwarm> swarmBroker_ptr(new GBrokerSwarm(swarmNNeighborhoods_, swarmNNeighborhoodMembers_));
+			swarmBroker_ptr->setWaitFactor(waitFactor_);
+
+			// Assignment to the base pointer
+			swarm_ptr = swarmBroker_ptr;
+		}
+		break;
+
+		//----------------------------------------------------------------------------------
+		};
+
+		// Specify some specific swarm settings
+		if(swarmRandomFillUp_) {
+			swarm_ptr->sedNeighborhoodsRandomFillUp();
+		}
+		else {
+			swarm_ptr->setNeighborhoodsEqualFillUp();
+		}
+		swarm_ptr->setCLocal(swarmCLocal_);
+		swarm_ptr->setCGlobal(swarmCGlobal_);
+		swarm_ptr->setCDelta(swarmCDelta_);
+		swarm_ptr->setUpdateRule(swarmUpdateRule_);
+
+		// Set some general population settings
+		swarm_ptr->setMaxIteration(maxIterations_);
+		swarm_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes_));
+		swarm_ptr->setReportIteration(reportIteration_);
+
+		// Register the optimization monitor (if one has been provided)
+		if(swarm_om_ptr_) swarm_ptr->registerOptimizationMonitor(swarm_om_ptr_);
+
+		// Return the best individual found
+		return swarm_ptr->getBestIndividual<ind_type>();
+	}
+
+	/**************************************************************************************/
+	/**
+	 * Performs a GD optimization cycle
+	 *
+	 * @return The best individual found during the optimization process
+	 */
+	template <typename ind_type>
+	boost::shared_ptr<ind_type> gdOptimize() {
+		// This smart pointer will hold the different types of evolutionary algorithms
+		boost::shared_ptr<GGradientDescent> gd_ptr;
+
+		switch(parMode_) {
+		//----------------------------------------------------------------------------------
+		case SERIAL:
+		{
+			// Create an empty population
+			gd_ptr = boost::shared_ptr<GGradientDescent>(new GGradientDescent(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
+		}
+		break;
+
+		//----------------------------------------------------------------------------------
+		case MULTITHREADED:
+		{
+		  // Create the multi-threaded population
+		  boost::shared_ptr<GMultiThreadedGD> gdPar_ptr(new GMultiThreadedGD(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
+
+		  // Population-specific settings
+		  gdPar_ptr->setNThreads(nEvaluationThreads_);
+
+		  // Assignment to the base pointer
+		  gd_ptr = gdPar_ptr;
+		}
+		break;
+
+		//----------------------------------------------------------------------------------
+		case ASIONETWORKED:
+		{
+			std::ostringstream error;
+			error << "In GOptimizer::gdOptimize(): Error!" << std::endl
+				  << "ASIONETWORKED mode not implemented yet for gradient descents." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+		break;
+
+		//----------------------------------------------------------------------------------
+		};
+
+		// Set some general population settings
+		gd_ptr->setMaxIteration(maxIterations_);
+		gd_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes_));
+		gd_ptr->setReportIteration(reportIteration_);
+
+		// Register the optimization monitor (if one has been provided)
+		if(gd_om_ptr_) swarm_ptr->registerOptimizationMonitor(gd_om_ptr_);
+
+		// Return the best individual found
+		return gd_ptr->getBestIndividual<ind_type>();
+	}
 
 	/**********************************************************************/
-	// Data
-	std::vector<boost::shared_ptr<GParameterSet> > initialParameterSets_; ///< Holds the individuals used for the initialization of the algorithm
-	std::string configFilename_; ///< Indicates where the configuration file is stored
-	bool serverMode_; ///< Specifies whether this object (and the executable) are running in server or client mode
+	// These parameters enter the object through the constructor
 	personality pers_; ///< Indicates which optimization algorithm should be used
 	parMode parMode_; ///< The chosen parallelization mode
+    std::string ip_; ///< Where the server can be reached
+    unsigned short port_; ///< The port on which the server answers
+	std::string configFilename_; ///< Indicates where the configuration file is stored
+	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
 
+	// Parameters registered through member functions
+	boost::function<void ()> initFunction_; ///< Actions to be performed before the optimization starts
+	boost::function<void ()> clientInitFunction_; ///< Actions to be performed for clients before the optimization starts
+	boost::function<void ()> finalizationFunction_; ///< Actions to be performed after the optimization has ended
+	boost::function<void ()> clientFinalizationFunction_; ///< Actions to be performed for clients after the client loop has ended
+	std::vector<boost::shared_ptr<GParameterSet> > initialParameterSets_;  ///< Holds the individuals used for the initialization of the algorithm
+	boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor> ea_om_ptr_; ///< Holds a specific optimization monitor used for evolutionary algorithms
+	boost::shared_ptr<GSwarm::GSwarmOptimizationMonitor> swarm_om_ptr_; ///< Holds a specific optimization monitor used for swarm algorithms
+	boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor> gd_om_ptr_; ///< Holds a specific optimization monitor used for gradient descents
+
+	//----------------------------------------------------------------------------------------------------------------
+	// These parameters are read from a configuration file
+
+	// General parameters
+    boost::uint32_t maxStalledDataTransfers_; ///< Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)
+    boost::uint32_t maxConnectionAttempts_; ///< Specifies how often a client may try to connect unsuccessfully to the server (0 means endless)
+    bool returnRegardless_; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+    boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
+    std::size_t arraySize_; ///< The size of the random number packages being transferred to the proxy RNGs
+    boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
+    Gem::Common::serializationMode serializationMode_; ///< The mode used for the (de-)serialization of objects
+    boost::uint32_t waitFactor_; ///< Influences the timeout in each iteration on the server side in networked execution
+    boost::uint32_t maxIterations_; ///< The maximum number of iterations of the optimization algorithms
+    long maxMinutes_; ///< The maximum duration of the optimization
+    boost::uint32_t reportIteration_; ///< The number of iterations after which information should be emitted
+
+    // EA parameters
+    std::size_t eaPopulationSize_; ///< The desired size of EA populations
+    std::size_t eaNParents_; ///< The number of parents in an EA population
+    recoScheme eaRecombinationScheme_; ///< The recombination scheme in EA
+    sortingMode eaSortingScheme_; ///< The sorting scheme in EA (MUCOMMANU etc.)
+    bool eaTrackParentRelations_; ///< Whether relations between children and parents should be tracked in EA
+
+    // SWARM parameters
+    std::size_t swarmNNeighborhoods_; ///< The number of neighborhoods in a swarm algorithm
+    std::size_t swarmNNeighborhoodMembers_; ///< The number of members ine ach neighborhood
+    bool swarmRandomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
+
+    // Gradient descent parameters
+    std::size_t gdNStartingPoints_;
+    float gdFiniteStep_;
+    float gdStepSize_;
 };
 
 /**************************************************************************************/

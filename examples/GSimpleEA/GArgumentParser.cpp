@@ -167,7 +167,7 @@ bool parseConfigFile(
 	boost::uint16_t evalFunction = 0;
 	bool verbose = true;
 
-	// Check the name of the configuation file
+	// Check the name of the configuration file
 	if (configFile.empty() || configFile == "empty" || configFile == "unknown") {
 		std::cerr << "Error: Invalid configuration file name given: \""
 				<< configFile << "\"" << std::endl;
@@ -175,7 +175,7 @@ bool parseConfigFile(
 	}
 
 	try {
-		// Check the configuration file line options. Uses the Boost program options library.
+		// Check the configuration file options. Uses the Boost program options library.
 		po::options_description config("Allowed options");
 		config.add_options()
 			("nProducerThreads", po::value<boost::uint16_t>(&nProducerThreads)->default_value(DEFAULTNPRODUCERTHREADS),

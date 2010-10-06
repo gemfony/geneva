@@ -216,7 +216,7 @@ int main(int argc, char **argv){
   case 1: // Multi-threaded execution
   {
 	  // Create the multi-threaded population
-	  boost::shared_ptr<GMultiThreadedGD> popPar_ptr(new GMultiThreadedGD());
+	  boost::shared_ptr<GMultiThreadedGD> popPar_ptr(new GMultiThreadedGD(nStartingPoints, finiteStep, stepSize));
 
 	  // Population-specific settings
 	  popPar_ptr->setNThreads(nEvaluationThreads);

@@ -67,6 +67,7 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	, c_global_(DEFAULTCGLOBAL)
 	, c_delta_(DEFAULTCDELTA)
 	, ur_(DEFAULTUPDATERULE)
+	, randomFillUp_(true)
 {
 	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(SWARM);
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nNeighborhoods_*defaultNNeighborhoodMembers_);
@@ -95,6 +96,7 @@ GSwarm::GSwarm(const GSwarm& cp)
 	, c_global_(cp.c_global_)
 	, c_delta_(cp.c_delta_)
 	, ur_(cp.ur_)
+	, randomFillUp_(cp.randomFillUp_)
 {
 	// Note that this setting might differ from nCPIndividuals, as it is not guaranteed
 	// that cp has, at the time of copying, all individuals present in each neighborhood.
@@ -156,6 +158,7 @@ void GSwarm::load_(const GObject *cp)
 	c_global_ = p_load->c_global_;
 	c_delta_ = p_load->c_delta_;
 	ur_ = p_load->ur_;
+	randomFillUp_ = p_load->randomFillUp_;
 
 	// We start from scratch if the number of neighborhoods or the alleged number of members in them differ
 	if(nNeighborhoods_!=p_load->nNeighborhoods_ || !nNeighborhoodMembersEqual(nNeighborhoodMembers_, p_load->nNeighborhoodMembers_)) {
@@ -280,6 +283,7 @@ boost::optional<std::string> GSwarm::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_global_, p_load->c_global_, "c_global_", "p_load->c_global_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", c_delta_, p_load->c_delta_, "c_delta_", "p_load->c_delta_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "GSwarm", ur_, p_load->ur_, "ur_", "p_load->ur_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GSwarm", randomFillUp_, p_load->randomFillUp_, "randomFillUp_", "p_load->randomFillUp_", e , limit));
 
 	// The next checks only makes sense if the number of neighborhoods are equal
 	if(nNeighborhoods_ == p_load->nNeighborhoods_) {
@@ -788,7 +792,8 @@ double GSwarm::findBests() {
  * in the nNeighborhoodMembers_ array, i.e. the current number of individuals in each neighborhood, as
  * well as the default number of individuals in each neighborhood. The function also assumes that the
  * neighborhoods have been sorted, so that the worst individuals can be found at the end of the range. It
- * will then remove the worst items only. Newly added items will start randomly initialized.
+ * will then remove the worst items only. Newly added items will start randomly initialized, as the optimization
+ * procedure is already running and it makes sense to search new areas of the parameter space.
  */
 void GSwarm::adjustNeighborhoods() {
 	// Loop over all neighborhoods
@@ -837,11 +842,11 @@ void GSwarm::adjustNeighborhoods() {
  * the purely virtual function GOptimizationAlgorithmT<GParameterSet>::adjustPopulation() .
  */
 void GSwarm::adjustPopulation() {
-	std::size_t currentSize = this->size();
-	std::size_t defaultPopSize = getDefaultPopulationSize();
+	const std::size_t currentSize = this->size();
+	const std::size_t defaultPopSize = getDefaultPopulationSize();
+	const std::size_t nNeighborhoods = getNNeighborhoods();
 
-	// Check the actual population
-	if(currentSize == 0) {
+	if(currentSize==0) {
 		std::ostringstream error;
 		error << "In GSwarm::adjustPopulation() : Error!" << std::endl
 			  << "No individuals found in the population." << std::endl
@@ -849,28 +854,31 @@ void GSwarm::adjustPopulation() {
 			  << "the call to optimize()." << std::endl;
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
-	else if(currentSize == 1) {
-		for(std::size_t i=1; i<defaultPopSize; i++) {
+	else if(currentSize==1) {
+		// Fill up with random items to the number of neighborhoods
+		for(std::size_t i=1; i<nNeighborhoods_; i++) {
 			this->push_back(this->front()->clone<GParameterSet>());
 			this->back()->randomInit();
 			this->back()->getSwarmPersonalityTraits()->setNoPositionUpdate();
 		}
 
-		// Update the number of individuals in each neighborhood
-		for(std::size_t n=0; n<nNeighborhoods_; n++) {
-			nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
-		}
-	}
-	else if(currentSize == nNeighborhoods_) {
+		// Fill in remaining items in each neighborhood. This will
+		// also take care of the above case, where only one individual
+		// has been added.
 		fillUpNeighborhood1();
 	}
-	else if(currentSize == defaultPopSize) { // The default size
+	else if(currentSize==nNeighborhoods) {
+		// Fill in remaining items in each neighborhood. This will
+		// also take care of the above case, where only one individual
+		// has been added.
+		fillUpNeighborhood1();
+	}
+	else if(currentSize == defaultPopSize) {
 		// Update the number of individuals in each neighborhood
 		for(std::size_t n=0; n<nNeighborhoods_; n++) {
 			nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
 		}
-	}
-	else {
+	} else {
 		if(currentSize < nNeighborhoods_) {
 			// First fill up the neighborhoods, if required
 			for(std::size_t m=0; m < (nNeighborhoods_-currentSize); m++) {
@@ -883,32 +891,11 @@ void GSwarm::adjustPopulation() {
 			fillUpNeighborhood1();
 		}
 		else if(currentSize > nNeighborhoods_ && currentSize < defaultPopSize) {
-			// TODO: For now we simply fill up the population with random entries.
-			// This means that there may be neighborhoods in which there is no predefined
-			// individual. In principle, though, we have enough data to "man" the
-			// first position of each neighborhood and this should be done later.
-			// Possible algorithm:
-			// -- Transfer all complete pointers to another vector b
-			// -- Initialize all local pointers with random objects
-			// -- Copy the pointers from b to the neighborhoods in a round-robin fashion
-			// or
-			// -- Transfer all complete pointers to another vector b
-			// -- while nPointers - nNeighborhoods > 0: copy as many pointers as
-			// possible into the current neighborhood
-			// -- Continue with next neighborhood
-			// -- Fill up and initialize missing entries
-
-			std::size_t nMissing = defaultPopSize - currentSize;
-			for(std::size_t m=0; m<nMissing; m++) {
-				this->push_back(this->front()->clone<GParameterSet>());
-				this->back()->randomInit();
-				this->back()->getSwarmPersonalityTraits()->setNoPositionUpdate();
-			}
-
-			// Update the number of individuals in each neighborhood
-			for(std::size_t n=0; n<nNeighborhoods_; n++) {
-				nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
-			}
+			// TODO: For now we simply resize the population to the number of neighborhoods,
+			// then fill up again. This means that we loose some predefined values, which
+			// is ugly and needs to be changed in later versions.
+			this->resize(nNeighborhoods_);
+			fillUpNeighborhood1();
 		}
 		else { // currentSize > defaultPopsize
 			// Update the number of individuals in each neighborhood
@@ -923,7 +910,9 @@ void GSwarm::adjustPopulation() {
 		}
 	}
 
-	// Cross check that we now indeed have at least the required number of individuals
+#ifdef DEBUG
+	// As the above switch statement is quite complicated, cross check that we now
+	// indeed have at least the required number of individuals
 	if(this->size() < defaultPopSize) {
 		std::ostringstream error;
 		error << "In GSwarm::adjustPopulation() : Error!" << std::endl
@@ -931,6 +920,7 @@ void GSwarm::adjustPopulation() {
 			  << "but found a size of " << this->size() << ", which is too small." << std::endl;
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
+#endif /* DEBUG */
 
 	// We do not initialize the local and global bests here, as this requires the value of
 	// all individuals to be calculated.
@@ -949,9 +939,11 @@ void GSwarm::fillUpNeighborhood1() {
 		for(std::size_t m=1; m<defaultNNeighborhoodMembers_; m++) { // m stands for "missing"
 			// Add a clone of the first individual in the neighborhood to the next position
 			this->insert(this->begin()+n+1, (*(this->begin()+n))->clone<GParameterSet>());
-			// Make sure it has a unique value
-			(*(this->begin()+n+1))->randomInit();
-			(*(this->begin()+n+1))->getSwarmPersonalityTraits()->setNoPositionUpdate();
+			// Make sure it has a unique value, if requested
+			if(randomFillUp_) {
+				(*(this->begin()+n+1))->randomInit();
+				(*(this->begin()+n+1))->getSwarmPersonalityTraits()->setNoPositionUpdate();
+			}
 		}
 
 		// Update the number of individuals in each neighborhood
@@ -1068,6 +1060,32 @@ void GSwarm::setUpdateRule(const updateRule& ur) {
  */
 updateRule GSwarm::getUpdateRule() const {
 	return ur_;
+}
+
+/************************************************************************************************************/
+/**
+ * All individuals automatically added to a neighborhood will have equal value
+ */
+void GSwarm::setNeighborhoodsEqualFillUp() {
+	randomFillUp_=false;
+}
+
+/************************************************************************************************************/
+/**
+ * All individuals automatically added to a neighborhood will have a random value
+ */
+void GSwarm::sedNeighborhoodsRandomFillUp() {
+	randomFillUp_=true;
+}
+
+/************************************************************************************************************/
+/**
+ * Allows to check whether neighborhoods are filled up with random individuals
+ *
+ * @return A boolean indicating whether neighborhoods are filled up with random values
+ */
+bool GSwarm::neighborhoodsFilledUpRandomly() const {
+	return randomFillUp_;
 }
 
 #ifdef GENEVATESTING

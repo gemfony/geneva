@@ -119,7 +119,8 @@ class GSwarm
 		   & BOOST_SERIALIZATION_NVP(c_local_)
 		   & BOOST_SERIALIZATION_NVP(c_global_)
 		   & BOOST_SERIALIZATION_NVP(c_delta_)
-		   & BOOST_SERIALIZATION_NVP(ur_);
+		   & BOOST_SERIALIZATION_NVP(ur_)
+		   & BOOST_SERIALIZATION_NVP(randomFillUp_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -171,6 +172,13 @@ public:
 	void setUpdateRule(const updateRule&);
 	/** @brief Allows to retrieve the update rule currently used by the swarm */
 	updateRule getUpdateRule() const;
+
+	/** @brief All individuals automatically added to a neighborhood will have equal value */
+	void setNeighborhoodsEqualFillUp();
+	/** @brief All individuals automatically added to a neighborhood will have a random value */
+	void sedNeighborhoodsRandomFillUp();
+	/** @brief Allows to check whether neighborhoods are filled up with random individuals */
+	bool neighborhoodsFilledUpRandomly() const;
 
 	/**************************************************************************************************/
 	/**
@@ -322,15 +330,12 @@ protected:
 	std::vector<boost::shared_ptr<GParameterSet> > local_bests_; ///< The collection of best individuals from each neighborhood
 	std::vector<boost::shared_ptr<GParameterSet> > velocities_; ///< Holds velocities, as calculated in the previous iteration
 
-	/** @brief A factor for multiplication of local bests */
-	float c_local_;
-	/** @brief A factor for multiplication of global bests */
-	float c_global_;
-	/** @brief A factor for multiplication of deltas */
-	float c_delta_;
+	float c_local_; ///< A factor for multiplication of local bests
+	float c_global_; ///< A factor for multiplication of global bests
+	float c_delta_; ///< A factor for multiplication of deltas
 
-	/** @brief Specifies how the parameters are updated */
-	updateRule ur_;
+	updateRule ur_; ///< Specifies how the parameters are updated
+	bool randomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
 
 	/** @brief The default constructor. Intentionally protected, as it is only needed for de-serialization purposes. */
 	GSwarm();
