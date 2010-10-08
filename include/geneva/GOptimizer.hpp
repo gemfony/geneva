@@ -31,6 +31,7 @@
 
 // Standard header files go here
 #include <vector>
+#include <fstream>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -61,9 +62,35 @@
 #include "geneva/GMultiThreadedGD.hpp"
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
 
 namespace Gem {
 namespace Geneva {
+
+/**************************************************************************************/
+// Default values for the variables used by the optimizer
+const boost::uint16_t GO_DEF_MAXSTALLED=0;
+const boost::uint16_t GO_DEF_MAXCONNATT=100;
+const bool GO_DEF_RETURNREGARDLESS=true;
+const boost::uint16_t GO_DEF_NPRODUCERTHREADS=0;
+const std::size_t GO_DEF_ARRAYSIZE=1000;
+const boost::uint16_t GO_DEF_NEVALUATIONTHREADS=0;
+const Gem::Common::serializationMode GO_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
+const boost::uint32_t GO_DEF_WAITFACTOR=0;
+const boost::uint32_t GO_DEF_MAXITERATIONS=1000;
+const long GO_DEF_MAXMINUTES=0;
+const boost::uint32_t GO_DEF_REPORTITERATION=1;
+const std::size_t GO_DEF_EAPOPULATIONSIZE=100;
+const std::size_t GO_DEF_EANPARENTS=1;
+const recoScheme GO_DEF_EARECOMBINATIONSCHEME=VALUERECOMBINE;
+const sortingMode GO_DEF_EASORTINGSCHEME=MUCOMMANU;
+const bool GO_DEF_EATRACKPARENTRELATIONS=false;
+const std::size_t GO_DEF_SWARMNNEIGHBORHOODS=5;
+const std::size_t GO_DEF_SWARMNNEIGHBORHOODMEMBERS=10;
+const bool GO_DEF_SWARMRANDOMFILLUP=1;
+const std::size_t GO_DEF_GDNSTARTINGPOINTS=1;
+const float GO_DEF_GDFINITESTEP=0.01;
+const float GO_DEF_GDSTEPSIZE=0.1;
 
 /**************************************************************************************/
 /**
@@ -109,6 +136,59 @@ public:
 	void registerOptimizationMonitor(boost::shared_ptr<GSwarm::GSwarmOptimizationMonitor>);
 	/** @brief Allows to specify an optimization monitor to be used with gradient descents */
 	void registerOptimizationMonitor(boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor>);
+
+	/**************************************************************************************/
+	/**
+	 * Outputs a configuration file with default values
+	 *
+	 * @param configFile The name of the file to which the configuration should be written
+	 */
+	static void writeConfigurationFile(const std::string& configFile) {
+		std::ofstream cf(configFile.c_str());
+		if(!cf) {
+			std::ostringstream error;
+			error << "In GOptimzer::writeConfigurationFile() : Error!" << std::endl
+				  << "Could not open output file " << configFile << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		cf << "#######################################################" << std::endl
+	       << "# General options applicable to all optimization algorithms" << std::endl
+	       << "maxStalledDataTransfers = " << GO_DEF_MAXSTALLED << std::endl
+	       << "maxConnectionAttempts = " << GO_DEF_MAXCONNATT << std::endl
+	       << "returnRegardless = " << GO_DEF_RETURNREGARDLESS << std::endl
+	       << "nProducerThreads = " << GO_DEF_NPRODUCERTHREADS << std::endl
+	       << "arraySize = " << GO_DEF_ARRAYSIZE << std::endl
+	       << "nEvaluationThreads = " << GO_DEF_NEVALUATIONTHREADS << std::endl
+	       << "serializationMode = " << GO_DEF_SERIALIZATIONMODE << std::endl
+	       << "waitFactor = " << GO_DEF_WAITFACTOR << std::endl
+	       << "maxIterations = " << GO_DEF_MAXITERATIONS << std::endl
+	       << "maxMinutes = " << GO_DEF_MAXMINUTES << std::endl
+	       << "reportIteration = " << GO_DEF_MAXITERATIONS << std::endl
+	       << std::endl
+	       << "#######################################################" << std::endl
+	       << "# Options applicable to evolutionary algorithms" << std::endl
+	       << "eaPopulationSize = " << GO_DEF_EAPOPULATIONSIZE << std::endl
+	       << "eaNParents = " << GO_DEF_EANPARENTS << std::endl
+	       << "eaRecombinationScheme = " << GO_DEF_EARECOMBINATIONSCHEME << std::endl
+	       << "eaSortingScheme = " << GO_DEF_EASORTINGSCHEME << std::endl
+	       << "eaTrackParentRelations = " << GO_DEF_EATRACKPARENTRELATIONS << std::endl
+	       << std::endl
+	       << "#######################################################" << std::endl
+	       << "# Options applicable to swarm algorithms" << std::endl
+	       << "swarmNNeighborhoods = " << GO_DEF_SWARMNNEIGHBORHOODS << std::endl
+	       << "swarmNNeighborhoodMembers = " << GO_DEF_SWARMNNEIGHBORHOODMEMBERS << std::endl
+	       << "swarmRandomFillUp = " << GO_DEF_SWARMRANDOMFILLUP << std::endl
+	       << std::endl
+	       << "#######################################################" << std::endl
+	       << "# Options applicable to gradient descents" << std::endl
+	       << "gdNStartingPoints = " << GO_DEF_GDNSTARTINGPOINTS << std::endl
+	       << "gdFiniteStep = " << GO_DEF_GDFINITESTEP << std::endl
+	       << "gdStepSize = " << GO_DEF_GDSTEPSIZE << std::endl;
+
+		// Clean up
+		cf.close();
+	}
 
 	/**************************************************************************************/
 	/**
@@ -225,7 +305,7 @@ private:
 		case ASIONETWORKED:
 		{
 			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port_));
+			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
 			gatc->setSerializationMode(serializationMode);
 			GINDIVIDUALBROKER->enrol(gatc);
 
@@ -307,7 +387,7 @@ private:
 		case ASIONETWORKED:
 		{
 			// Create a network consumer and enrol it with the broker
-			boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port_));
+			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
 			GINDIVIDUALBROKER->enrol(gatc);
 
 			// Create the actual broker population

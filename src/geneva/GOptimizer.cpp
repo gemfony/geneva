@@ -29,7 +29,7 @@
  * http://www.gemfony.com .
  */
 
-#include "GOptimizer.hpp"
+#include "geneva/GOptimizer.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -273,7 +273,7 @@ void GOptimizer::clientRun() {
 	}
 
 	// Instantiate the client worker
-    boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
+    boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<GIndividual> > p(new Gem::Courtier::GAsioTCPClientT<GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
 
     p->setMaxStalls(maxStalledDataTransfers_); // Set to 0 to allow an infinite number of stalls
     p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
@@ -311,7 +311,7 @@ void GOptimizer::loadConfigurationData(const std::string& configFile) {
 	try {
 		po::options_description config(configFile.c_str());
 		config.add_options()
-		("maxStalledDataTransfers", po::value<boost::uint16_t>(&maxStalledDataTransfers_)->default_value(GO_DEF_MAXSTALLED)),
+		("maxStalledDataTransfers", po::value<boost::uint16_t>(&maxStalledDataTransfers_)->default_value(GO_DEF_MAXSTALLED))
 		("maxConnectionAttempts", po::value<boost::uint16_t>(&maxConnectionAttempts_)->default_value(GO_DEF_MAXCONNATT))
 		("returnRegardless", po::value<bool>(&returnRegardless_)->default_value(GO_DEF_RETURNREGARDLESS))
 		("nProducerThreads", po::value<boost::uint16_t>(&nProducerThreads_)->default_value(GO_DEF_NPRODUCERTHREADS))
@@ -329,7 +329,7 @@ void GOptimizer::loadConfigurationData(const std::string& configFile) {
 		("eaTrackParentRelations", po::value<bool>(&eaTrackParentRelations_)->default_value(GO_DEF_EATRACKPARENTRELATIONS))
 		("swarmNNeighborhoods", po::value<std::size_t>(&swarmNNeighborhoods_)->default_value(GO_DEF_SWARMNNEIGHBORHOODS))
 		("swarmNNeighborhoodMembers", po::value<std::size_t>(&swarmNNeighborhoodMembers_)->default_value(GO_DEF_SWARMNNEIGHBORHOODMEMBERS))
-		("swarmRandomFillUp_", po::value<bool>(&swarmRandomFillUp_)->default_value(GO_DEF_SWARMRANDOMFILLUP))
+		("swarmRandomFillUp", po::value<bool>(&swarmRandomFillUp_)->default_value(GO_DEF_SWARMRANDOMFILLUP))
 		("gdNStartingPoints", po::value<std::size_t>(&gdNStartingPoints_)->default_value(GO_DEF_GDNSTARTINGPOINTS))
 		("gdFiniteStep", po::value<float>(&gdFiniteStep_)->default_value(GO_DEF_GDFINITESTEP))
 		("gdStepSize", po::value<float>(&gdStepSize_)->default_value(GO_DEF_GDSTEPSIZE))

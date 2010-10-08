@@ -1351,7 +1351,7 @@ public:
 	     * @param cp Another GSwarm object
 	     * @return A constant reference to this object
 	     */
-	    const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& operator=(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) {
+	    const GOptimizationMonitorT& operator=(const GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT& cp) {
 	    	GOptimizationMonitorT::load_(&cp);
 	    	return *this;
 	    }
