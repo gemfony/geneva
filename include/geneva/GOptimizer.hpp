@@ -40,6 +40,7 @@
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <boost/program_options.hpp>
 
 #ifndef GOPTIMIZER_HPP_
 #define GOPTIMIZER_HPP_
@@ -51,6 +52,7 @@
 
 
 // Geneva headers go here
+#include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GEvolutionaryAlgorithm.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
@@ -63,6 +65,7 @@
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GAsioTCPClientT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -88,6 +91,10 @@ const bool GO_DEF_EATRACKPARENTRELATIONS=false;
 const std::size_t GO_DEF_SWARMNNEIGHBORHOODS=5;
 const std::size_t GO_DEF_SWARMNNEIGHBORHOODMEMBERS=10;
 const bool GO_DEF_SWARMRANDOMFILLUP=1;
+const float GO_DEF_SWARMCLOCAL=2.;
+const float GO_DEF_SWARMCCGLOBAL=2.;
+const float GO_DEF_SWARMCCDELTA=0.4;
+const updateRule GO_DEF_SWARMUPDATERULE=CLASSIC;
 const std::size_t GO_DEF_GDNSTARTINGPOINTS=1;
 const float GO_DEF_GDFINITESTEP=0.01;
 const float GO_DEF_GDSTEPSIZE=0.1;
@@ -152,38 +159,123 @@ public:
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
 
-		cf << "#######################################################" << std::endl
+		cf << "################################################################" << std::endl
+		   << "# This is a configuration file for the optimization            #" << std::endl
+		   << "# algorithms implemented in the Geneva library.                #" << std::endl
+		   << "# It is meant to be accessed through the GOptimizer            #" << std::endl
+		   << "# class.                                                       #" << std::endl
+		   << "#                                                              #" << std::endl
+		   << "# This file was automatically created by the Geneva library    #" << std::endl
+		   << "################################################################" << std::endl
+		   << "#" << std::endl
 	       << "# General options applicable to all optimization algorithms" << std::endl
+	       << std::endl
+	       << "# The maximum number of data transfers without result." << std::endl
+	       << "# 0 means \"no limit\"" << std::endl
 	       << "maxStalledDataTransfers = " << GO_DEF_MAXSTALLED << std::endl
+	       << std::endl
+	       << "# The maximum number of failed connection attempts between" << std::endl
+	       << "# client and server. 0 means \"no limit\"" << std::endl
 	       << "maxConnectionAttempts = " << GO_DEF_MAXCONNATT << std::endl
+	       << std::endl
+	       << "# Indicates whether clients should return their payload even" << std::endl
+	       << "# if no better result was found" << std::endl
 	       << "returnRegardless = " << GO_DEF_RETURNREGARDLESS << std::endl
+	       << std::endl
+	       << "# Determines the number of threads simultaneously producing" << std::endl
+	       << "# random numbers. 0 means \"automatic\"" << std::endl
 	       << "nProducerThreads = " << GO_DEF_NPRODUCERTHREADS << std::endl
+	       << std::endl
+	       << "# Specifies the number of entries in random number packages" << std::endl
+	       << "# coming from the factory" << std::endl
 	       << "arraySize = " << GO_DEF_ARRAYSIZE << std::endl
+	       << std::endl
+	       << "# Determines the number of threads simultaneously performing" << std::endl
+	       << "# evaluations in multi-threaded mode. 0 means \"automatic\"" << std::endl
 	       << "nEvaluationThreads = " << GO_DEF_NEVALUATIONTHREADS << std::endl
+	       << std::endl
+	       << "# Specifies whether client-server transfers should be done in" << std::endl
+	       << "# text-mode (0), xml-mode (1) or binary-mode (2)" << std::endl
 	       << "serializationMode = " << GO_DEF_SERIALIZATIONMODE << std::endl
+	       << std::endl
+	       << "# Specifies how long the server should wait for arrivals. 1 means:" << std::endl
+	       << "\"wait the same amount it has taken the first answer to return\"" << std::endl
 	       << "waitFactor = " << GO_DEF_WAITFACTOR << std::endl
+	       << std::endl
+	       << "# Indicates the maximum number of iterations in the optimization" << std::endl
 	       << "maxIterations = " << GO_DEF_MAXITERATIONS << std::endl
+	       << std::endl
+	       << "# Specifies the maximum amount of time that may pass before the" << std::endl
+	       << "# optimization ends. 0 mean \"no limit\""
 	       << "maxMinutes = " << GO_DEF_MAXMINUTES << std::endl
+	       << std::endl
+	       << "# Specifies in which intervals information should be emitted" << std::endl
 	       << "reportIteration = " << GO_DEF_MAXITERATIONS << std::endl
+	       << std::endl
 	       << std::endl
 	       << "#######################################################" << std::endl
 	       << "# Options applicable to evolutionary algorithms" << std::endl
+	       << "#" << std::endl
+	       << std::endl
+	       << "# The size of the entire population in evolutionary algorithms" << std::endl
 	       << "eaPopulationSize = " << GO_DEF_EAPOPULATIONSIZE << std::endl
+	       << std::endl
+	       << "# The number of parents in the evolutionary algorithm" << std::endl
 	       << "eaNParents = " << GO_DEF_EANPARENTS << std::endl
+	       << std::endl
+	       << "# The type of recombination scheme: DEFAULTRECOMBINE (0)," << std::endl
+	       << "# RANDOMRECOMBINE (1) or VALUERECOMBINE(2)" << std::endl
 	       << "eaRecombinationScheme = " << GO_DEF_EARECOMBINATIONSCHEME << std::endl
+	       << std::endl
+	       << "# The sorting scheme: MUPLUSNU (0), MUCOMMANU (1) or MUNU1PRETAIN (2)" << std::endl
 	       << "eaSortingScheme = " << GO_DEF_EASORTINGSCHEME << std::endl
+	       << std::endl
+	       << "# Indicates whether the algorithm should track relationships" << std::endl
+	       << "# between old parents and new children" << std::endl
 	       << "eaTrackParentRelations = " << GO_DEF_EATRACKPARENTRELATIONS << std::endl
+	       << std::endl
 	       << std::endl
 	       << "#######################################################" << std::endl
 	       << "# Options applicable to swarm algorithms" << std::endl
+	       << "#" << std::endl
+	       << std::endl
+	       << "# The number of neighborhodds in swarm algorithms" << std::endl
 	       << "swarmNNeighborhoods = " << GO_DEF_SWARMNNEIGHBORHOODS << std::endl
+	       << std::endl
+	       << "# The number of members in each neighborhood" << std::endl
 	       << "swarmNNeighborhoodMembers = " << GO_DEF_SWARMNNEIGHBORHOODMEMBERS << std::endl
+	       << std::endl
+	       << "# Indicates whether all individuals of a neighborhood should" << std::endl
+	       << "# start at the same or a random position" << std::endl
 	       << "swarmRandomFillUp = " << GO_DEF_SWARMRANDOMFILLUP << std::endl
+	       << std::endl
+	       << "# A multiplicative factor for local updates" << std::endl
+	       << "swarmCLocal = " << GO_DEF_SWARMCLOCAL << std::endl
+	       << std::endl
+	       << "# A multiplicative factor for global updates" << std::endl
+	       << "swarmCGlobal = " << GO_DEF_SWARMCCGLOBAL << std::endl
+	       << std::endl
+	       << "# A multiplicative factor for velocities" << std::endl
+	       << "swarmCDelta = " << GO_DEF_SWARMCCDELTA << std::endl
+	       << std::endl
+	       << "# Indicates whether the linear (0) or classic (1)" << std::endl
+	       << "# update rule should be used" << std::endl
+	       << "swarmUpdateRule = " << GO_DEF_SWARMUPDATERULE << std::endl
+	       << std::endl
 	       << std::endl
 	       << "#######################################################" << std::endl
 	       << "# Options applicable to gradient descents" << std::endl
+	       << "#" << std::endl
+	       << std::endl
+	       << "# Indicates how many simultaneous gradient descents should" << std::endl
+	       << "# be started" << std::endl
 	       << "gdNStartingPoints = " << GO_DEF_GDNSTARTINGPOINTS << std::endl
+	       << std::endl
+	       << "# Specifies the size of the finite step in each direction" << std::endl
 	       << "gdFiniteStep = " << GO_DEF_GDFINITESTEP << std::endl
+	       << std::endl
+	       << "# Specifies the size of the step made into the direction" << std::endl
+	       << "# of steepest descent" << std::endl
 	       << "gdStepSize = " << GO_DEF_GDSTEPSIZE << std::endl;
 
 		// Clean up
@@ -306,7 +398,7 @@ private:
 		{
 			// Create a network consumer and enrol it with the broker
 			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
-			gatc->setSerializationMode(serializationMode);
+			gatc->setSerializationMode(serializationMode_);
 			GINDIVIDUALBROKER->enrol(gatc);
 
 			// Create the actual broker population
@@ -479,7 +571,7 @@ private:
 		gd_ptr->setReportIteration(reportIteration_);
 
 		// Register the optimization monitor (if one has been provided)
-		if(gd_om_ptr_) swarm_ptr->registerOptimizationMonitor(gd_om_ptr_);
+		if(gd_om_ptr_) gd_ptr->registerOptimizationMonitor(gd_om_ptr_);
 
 		// Return the best individual found
 		return gd_ptr->getBestIndividual<ind_type>();
@@ -531,6 +623,10 @@ private:
     std::size_t swarmNNeighborhoods_; ///< The number of neighborhoods in a swarm algorithm
     std::size_t swarmNNeighborhoodMembers_; ///< The number of members ine ach neighborhood
     bool swarmRandomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
+	float swarmCLocal_; ///< A factor for multiplication of local bests
+	float swarmCGlobal_; ///< A factor for multiplication of global bests
+	float swarmCDelta_; ///< A factor for multiplication of deltas
+	updateRule swarmUpdateRule_; ///< Specifies how the parameters are updated
 
     // Gradient descent parameters
     std::size_t gdNStartingPoints_;

@@ -40,26 +40,26 @@ namespace Geneva {
  *
  * @param ip Specifies under which address the server can be reached
  * @param port Specifies on which port the server answers
- * @param fileName The name of the configuration file
+ * @param configFilename The name of the configuration file
  */
 GOptimizer::GOptimizer(
 		const personality& pers
 		, const parMode& pm
 		, const std::string& ip
 		, const unsigned int& port
-		, const std::string& fileName
+		, const std::string& configFilename
 		, const bool& verbose
 )
 	: pers_(pers)
 	, parMode_(pm)
 	, ip_(ip)
 	, port_(port)
-	, fileName_(fileName)
+	, configFilename_(configFilename)
 	, verbose_(verbose)
 {
 	//--------------------------------------------
 	// Load further configuration options from file
-	loadConfigurationData(fileName_);
+	loadConfigurationData(configFilename_);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -124,7 +124,7 @@ void GOptimizer::registerClientInitFunction(boost::function<void ()> clientInitF
  */
 void GOptimizer::registerFinalizationFunction(boost::function<void ()> finalizationFunction) {
 	// Do some error checking
-	if(!initFunction) {
+	if(!finalizationFunction) {
 		std::ostringstream error;
 		error << "In GOptimizer::registerFinalizationFunction(): Error!" << std::endl
 			  << "Empty function object provided." << std::endl;
@@ -145,7 +145,7 @@ void GOptimizer::registerFinalizationFunction(boost::function<void ()> finalizat
  */
 void GOptimizer::registerClientFinalizationFunction(boost::function<void ()> clientFinalizationFunction) {
 	// Do some error checking
-	if(!clientInitFunction) {
+	if(!clientFinalizationFunction) {
 		std::ostringstream error;
 		error << "In GOptimizer::registerClientFinalizationFunction(): Error!" << std::endl
 			  << "Empty function object provided." << std::endl;
@@ -267,9 +267,9 @@ void GOptimizer::clientRun() {
 	// We first check if a specific initialization function for clients has been
 	// provided. If this is not the case, we try to execute the global initialization
 	// function instead.
-	if(clientInitFunction_) clientclientInitFunction_();
+	if(clientInitFunction_) clientInitFunction_();
 	else {
-		if(initFunction_) initFunction();
+		if(initFunction_) initFunction_();
 	}
 
 	// Instantiate the client worker
@@ -286,9 +286,9 @@ void GOptimizer::clientRun() {
 	// We first check if a specific finalization function for clients has been
 	// provided. If this is not the case, we try to execute the global finalization
 	// function instead.
-	if(clientFinalizationFunction_) clientclientFinalizationFunction_();
+	if(clientFinalizationFunction_) clientFinalizationFunction_();
 	else {
-		if(finalizationFunction_) finalizationFunction();
+		if(finalizationFunction_) finalizationFunction_();
 	}
 }
 
@@ -298,7 +298,7 @@ void GOptimizer::clientRun() {
  */
 void GOptimizer::loadConfigurationData(const std::string& configFile) {
 	namespace bf = boost::filesystem;
-	namespace po = boost::program_options;
+    namespace po = boost::program_options;
 
 	// Check the name of the configuration file
 	if (!bf::exists(configFile)) {
@@ -311,8 +311,8 @@ void GOptimizer::loadConfigurationData(const std::string& configFile) {
 	try {
 		po::options_description config(configFile.c_str());
 		config.add_options()
-		("maxStalledDataTransfers", po::value<boost::uint16_t>(&maxStalledDataTransfers_)->default_value(GO_DEF_MAXSTALLED))
-		("maxConnectionAttempts", po::value<boost::uint16_t>(&maxConnectionAttempts_)->default_value(GO_DEF_MAXCONNATT))
+		("maxStalledDataTransfers", po::value<boost::uint32_t>(&maxStalledDataTransfers_)->default_value(GO_DEF_MAXSTALLED))
+		("maxConnectionAttempts", po::value<boost::uint32_t>(&maxConnectionAttempts_)->default_value(GO_DEF_MAXCONNATT))
 		("returnRegardless", po::value<bool>(&returnRegardless_)->default_value(GO_DEF_RETURNREGARDLESS))
 		("nProducerThreads", po::value<boost::uint16_t>(&nProducerThreads_)->default_value(GO_DEF_NPRODUCERTHREADS))
 		("arraySize", po::value<std::size_t>(&arraySize_)->default_value(GO_DEF_ARRAYSIZE))
@@ -330,6 +330,10 @@ void GOptimizer::loadConfigurationData(const std::string& configFile) {
 		("swarmNNeighborhoods", po::value<std::size_t>(&swarmNNeighborhoods_)->default_value(GO_DEF_SWARMNNEIGHBORHOODS))
 		("swarmNNeighborhoodMembers", po::value<std::size_t>(&swarmNNeighborhoodMembers_)->default_value(GO_DEF_SWARMNNEIGHBORHOODMEMBERS))
 		("swarmRandomFillUp", po::value<bool>(&swarmRandomFillUp_)->default_value(GO_DEF_SWARMRANDOMFILLUP))
+		("swarmCLocal", po::value<float>(&swarmCLocal_)->default_value(GO_DEF_SWARMCLOCAL))
+		("swarmCGlobal", po::value<float>(&swarmCGlobal_)->default_value(GO_DEF_SWARMCCGLOBAL))
+		("swarmCDelta", po::value<float>(&swarmCDelta_)->default_value(GO_DEF_SWARMCCDELTA))
+		("swarmUpdateRule", po::value<updateRule>(&swarmUpdateRule_)->default_value(GO_DEF_SWARMUPDATERULE))
 		("gdNStartingPoints", po::value<std::size_t>(&gdNStartingPoints_)->default_value(GO_DEF_GDNSTARTINGPOINTS))
 		("gdFiniteStep", po::value<float>(&gdFiniteStep_)->default_value(GO_DEF_GDFINITESTEP))
 		("gdStepSize", po::value<float>(&gdStepSize_)->default_value(GO_DEF_GDSTEPSIZE))
@@ -352,7 +356,7 @@ void GOptimizer::loadConfigurationData(const std::string& configFile) {
 	}
 	catch(const po::error& e) {
 		std::cerr << "Error parsing the configuration file " << configFile << ":" << std::endl
-				  << e.message() << std::endl;
+				  << e.what() << std::endl;
 		exit(1);
 	}
 	catch(...) {

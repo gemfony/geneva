@@ -30,7 +30,7 @@
  */
 
 #include "geneva/GObject.hpp"
-
+#include "geneva/GObjectExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -41,6 +41,7 @@ namespace Geneva {
  * In particular, it sets the name of the Geneva object to "GObject"
  */
 GObject::GObject()
+	: mayBeSerialized_(true)
 { /* nothing */ }
 
 /**************************************************************************************************/
@@ -50,6 +51,7 @@ GObject::GObject()
  * @param cp A copy of another GObject object
  */
 GObject::GObject(const GObject& cp)
+	: mayBeSerialized_(cp.mayBeSerialized_)
 { /* nothing */ }
 
 /**************************************************************************************************/
@@ -92,8 +94,20 @@ boost::optional<std::string> GObject::checkRelationshipWith(const GObject& cp,
 					                                        const std::string& y_name,
 					                                        const bool& withMessages) const
 {
-	// no local data, hence nothing to do
-	return boost::optional<std::string>(); // default constructor equates to "false"
+    using namespace Gem::Common;
+
+    // Check that cp isn't the same object as this one
+    selfAssignmentCheck<GObject>(&cp);
+
+	// Will hold possible deviations from the expectation, including explanations
+    std::vector<boost::optional<std::string> > deviations;
+
+	// No parent classes to check...
+
+	// ... but some local data
+	deviations.push_back(checkExpectation(withMessages, "GObject", mayBeSerialized_, cp.mayBeSerialized_, "mayBeSerialized_", "cp.mayBeSerialized_", e , limit));
+
+	return evaluateDiscrepancies("GMutableSetT<T>", caller, deviations, e);
 }
 
 /**************************************************************************************************/
@@ -310,7 +324,8 @@ void GObject::load_(const GObject *cp) {
 	// Checks whether we are accidently assigning the object to itself
 	selfAssignmentCheck<GObject>(cp);
 
-	// No local data, hence nothing to do
+	// Load the local data
+	mayBeSerialized_ = cp->mayBeSerialized_;
 }
 
 /**************************************************************************************************/
@@ -346,6 +361,26 @@ boost::shared_ptr<GObject> GObject::clone() const {
  * ----------------------------------------------------------------------------------
  */
 
+/**************************************************************************************************/
+/**
+ * Sets a flag indicating whether this object may be serialized
+ *
+ * @param mayBeSerialized The desired new value of the mayBeSerialized flag
+ */
+void GObject::setMayBeSerialized(const bool& mayBeSerialized) {
+	mayBeSerialized_ = mayBeSerialized;
+}
+
+/**************************************************************************************************/
+/**
+ * Checks whether this object may currently be serialized
+ *
+ * @return A boolean indicating whether the object may be serialized
+ */
+bool GObject::mayBeSerialized() const {
+	return mayBeSerialized_;
+}
+
 #ifdef GENEVATESTING
 /**************************************************************************************************/
 /**
@@ -354,7 +389,7 @@ boost::shared_ptr<GObject> GObject::clone() const {
  * @return A boolean which indicates whether modifications were made
  */
 bool GObject::modify_GUnitTests() {
-	// There is no modifyable parent class and no local data,
+	// There is no modifiable parent class and no local data,
 	// so there is nothing we can do here in this function.
 
 	return false;

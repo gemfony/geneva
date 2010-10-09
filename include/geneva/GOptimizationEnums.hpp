@@ -253,8 +253,8 @@ const double CDELTARANGEDISABLED = -1.; ///< A value < 0 means that the delta ra
  * Specifies different update rules in swarms
  */
 enum updateRule {
-	  LINEAR
-	, CLASSIC
+	  LINEAR = 0
+	, CLASSIC = 1
 };
 
 /**********************************************************************************************/

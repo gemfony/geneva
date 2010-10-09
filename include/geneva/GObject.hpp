@@ -83,8 +83,8 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
-#include "GOptimizationEnums.hpp"
-#include "GSerializableI.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GSerializableI.hpp"
 
 #ifdef GENEVATESTING
 #include "common/GUnitTestFrameworkT.hpp"
@@ -228,6 +228,11 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const = 0;
 
+	/** @brief Sets a flag indicating whether this object may be serialized */
+	void setMayBeSerialized(const bool&);
+	/** @brief Checks whether this object may currently be serialized */
+	bool mayBeSerialized() const;
+
 	/**************************************************************************************************/
 	/**
 	 * This function checks in DEBUG mode whether a load pointer points to the current object. Note
@@ -327,6 +332,8 @@ protected:
 	/**************************************************************************************************/
 
 private:
+	bool mayBeSerialized_; ///< Indicates whether derivatives may be serialized.
+
 	/** @brief Checks for equality with another GObject object. Intentionally left undefined, as this class is abstract */
 	bool operator==(const GObject&) const;
 	/** @brief Checks inequality with another GObject object. Intentionally left undefined, as this class is abstract */
