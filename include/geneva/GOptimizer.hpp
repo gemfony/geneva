@@ -72,6 +72,8 @@ namespace Geneva {
 
 /**************************************************************************************/
 // Default values for the variables used by the optimizer
+const std::string GO_DEF_DEFAULTCONFIGFILE="optimizationAlgorithm.cfg";
+const parMode GO_DEF_DEFAULPARALLELIZATIONMODE=MULTITHREADED;
 const boost::uint16_t GO_DEF_MAXSTALLED=0;
 const boost::uint16_t GO_DEF_MAXCONNATT=100;
 const bool GO_DEF_RETURNREGARDLESS=true;
@@ -113,13 +115,16 @@ class GOptimizer
 	:boost::noncopyable
 {
 public:
+	/** @brief A constructor that first parses the command line for relevant parameters and then loads data from a config file */
+	GOptimizer(int, char **);
+
 	/** @brief The standard constructor. Loads the data from the configuration file */
 	explicit GOptimizer(
 			const personality& pers = EA
 			, const parMode& pm = MULTITHREADED
 			, const std::string& ip = "localhost"
 			, const unsigned int& port = 10000
-			, const std::string& fileName = "optimizationAlgorithm.cfg"
+			, const std::string& fileName = GO_DEF_DEFAULTCONFIGFILE
 			, const bool& verbose = false
 	);
 
@@ -143,6 +148,74 @@ public:
 	void registerOptimizationMonitor(boost::shared_ptr<GSwarm::GSwarmOptimizationMonitor>);
 	/** @brief Allows to specify an optimization monitor to be used with gradient descents */
 	void registerOptimizationMonitor(boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor>);
+
+	/** @brief Triggers execution of the client loop */
+	void clientRun();
+
+	/**************************************************************************************/
+	/**
+	 * Starts the optimization cycle, using the optimization algorithm that has been requested.
+	 * Returns the best individual found, converted to the desired type.
+	 *
+	 * @return The best individual found during the optimization process, converted to the desired type
+	 */
+	template <typename ind_type>
+	boost::shared_ptr<ind_type> optimize() {
+		boost::shared_ptr<ind_type> result;
+
+		// If an initialization function has been provided, call it as the first action
+		if(initFunction_) initFunction_();
+
+#ifdef DEBUG
+		// We need at least one individual to start with
+		if(initialParameterSets_.empty()) {
+			std::ostringstream error;
+			error << "In GOptimizer::optimize(): Error!" << std::endl
+					<< "You need to register at least one individual." << std::endl
+					<< "Found none." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#endif
+
+		// Which algorithm are we supposed to use ?
+		switch(pers_) {
+		case EA: // Evolutionary algorithms
+		{
+			result = eaOptimize<ind_type>();
+			if(finalizationFunction_) finalizationFunction_();
+			return result;
+		}
+		break;
+
+		case SWARM: // Swarm algorithms
+		{
+			result = swarmOptimize<ind_type>();
+			if(finalizationFunction_) finalizationFunction_();
+			return result;
+		}
+		break;
+
+		case GD: // Gradient descents
+		{
+			result = gdOptimize<ind_type>();
+			if(finalizationFunction_) finalizationFunction_();
+			return result;
+		}
+		break;
+
+		case NONE:
+		{
+			std::ostringstream error;
+			error << "In GOptimizer::optimize(): Error!" << std::endl
+					<< "No optimization algorithm was specified." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+		break;
+		};
+
+		// Make the compiler happy
+		return boost::shared_ptr<ind_type>(); // Empty smart pointer
+	}
 
 	/**************************************************************************************/
 	/**
@@ -282,82 +355,15 @@ public:
 		cf.close();
 	}
 
-	/**************************************************************************************/
-	/**
-	 * Starts the optimization cycle, using the optimization algorithm that has been requested.
-	 * Returns the best individual found, converted to the desired type.
-	 *
-	 * @return The best individual found during the optimization process, converted to the desired type
-	 */
-	template <typename ind_type>
-	boost::shared_ptr<ind_type> optimize() {
-		boost::shared_ptr<ind_type> result;
-
-		// If an initialization function has been provided, call it as the first action
-		if(initFunction_) initFunction_();
-
-#ifdef DEBUG
-		// We need at least one individual to start with
-		if(initialParameterSets_.empty()) {
-			std::ostringstream error;
-			error << "In GOptimizer::optimize(): Error!" << std::endl
-					<< "You need to register at least one individual." << std::endl
-					<< "Found none." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-#endif
-
-		// Which algorithm are we supposed to use ?
-		switch(pers_) {
-		case EA: // Evolutionary algorihms
-		{
-			result = eaOptimize<ind_type>();
-			if(finalizationFunction_) finalizationFunction_();
-			return result;
-		}
-		break;
-
-		case SWARM: // Swarm algorithms
-		{
-			result = swarmOptimize<ind_type>();
-			if(finalizationFunction_) finalizationFunction_();
-			return result;
-		}
-		break;
-
-		case GD: // Gradient descents
-		{
-			result = gdOptimize<ind_type>();
-			if(finalizationFunction_) finalizationFunction_();
-			return result;
-		}
-		break;
-
-		case NONE:
-		{
-			std::ostringstream error;
-			error << "In GOptimizer::optimize(): Error!" << std::endl
-					<< "No optimization algorithm was specified." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-		break;
-		};
-
-		// Make the compiler happy
-		return boost::shared_ptr<ind_type>(); // Empty smart pointer
-	}
-
-	/**************************************************************************************/
-
-	/** @brief Triggers execution of the client loop */
-	void clientRun();
-
 private:
+	/**************************************************************************************/
 	/** @brief The default constructor. Intentionally private and undefined */
 	GOptimizer();
 
 	/** @brief Loads the configuration data from a given configuration file */
-	void loadConfigurationData(const std::string&);
+	void parseConfigurationFile(const std::string&);
+	/** @brief Loads some configuration data from arguments passed on the command line */
+	void parseCommandLine(int, char **);
 
 	/**************************************************************************************/
 	/**

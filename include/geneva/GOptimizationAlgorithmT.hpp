@@ -122,6 +122,7 @@ private:
 	     & BOOST_SERIALIZATION_NVP(reportIteration_)
 	     & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
 	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
+	     & BOOST_SERIALIZATION_NVP(bestCurrentFitness_)
 	     & BOOST_SERIALIZATION_NVP(maximize_)
 	     & BOOST_SERIALIZATION_NVP(stallCounter_)
   	     & BOOST_SERIALIZATION_NVP(cpInterval_)
@@ -152,6 +153,7 @@ public:
 		, reportIteration_(DEFAULTREPORTITER)
 		, defaultPopulationSize_(0)
 		, bestPastFitness_(0.) // will be set appropriately in the optimize() function
+		, bestCurrentFitness_(0.) // will be set appropriately in the optimize() function
 		, maximize_(DEFAULTMAXMODE)
 		, stallCounter_(0)
 		, cpInterval_(DEFAULTCHECKPOINTIT)
@@ -182,6 +184,7 @@ public:
 		, reportIteration_(cp.reportIteration_)
 		, defaultPopulationSize_(cp.defaultPopulationSize_)
 		, bestPastFitness_(cp.bestPastFitness_)
+		, bestCurrentFitness_(cp.bestCurrentFitness_)
 		, maximize_(cp.maximize_)
 		, stallCounter_(cp.stallCounter_)
 		, cpInterval_(cp.cpInterval_)
@@ -420,6 +423,7 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", defaultPopulationSize_, p_load->defaultPopulationSize_, "defaultPopulationSize_", "p_load->defaultPopulationSize_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
+		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", bestCurrentFitness_, p_load->bestCurrentFitness_, "bestCurrentFitness_", "p_load->bestCurrentFitness_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", stallCounter_, p_load->stallCounter_, "stallCounter_", "p_load->stallCounter_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpInterval_, p_load->cpInterval_, "cpInterval_", "p_load->cpInterval_", e , limit));
@@ -482,6 +486,7 @@ public:
 
 		// We want to know if no better values were found for a longer period of time
 		bestPastFitness_ = getWorstCase();
+		bestCurrentFitness_ = getWorstCase();
 		stallCounter_ = 0;
 
 		// Give derived classes the opportunity to perform any necessary preparatory work.
@@ -497,7 +502,7 @@ public:
 			// Check whether a better value was found, and do the check-pointing, if necessary.
 			// Uses the output of the function that contains the actual business logic of a
 			// given optimization algorithm.
-			checkpoint(ifProgress(cycleLogic()));
+			checkpoint(ifProgress(bestCurrentFitness_ = cycleLogic()));
 
 			// Let all individuals know about the best fitness known so far
 			markBestFitness();
@@ -749,12 +754,22 @@ public:
 
 	/**************************************************************************************/
 	/**
-	 * Retrieve the current best value found
+	 * Retrieve the best value found in the entire optimization run so far
 	 *
 	 * @return The best fitness found so far
 	 */
 	double getBestFitness() const {
 		return bestPastFitness_;
+	}
+
+	/**************************************************************************************/
+	/**
+	 * Retrieves the best value found in the current iteration
+	 *
+	 * @return The best value found in the current iteration
+	 */
+	double getBestCurrentFitness() const {
+		return bestCurrentFitness_;
 	}
 
 	/**************************************************************************************/
@@ -887,6 +902,7 @@ protected:
 		reportIteration_ = p_load->reportIteration_;
 		defaultPopulationSize_ = p_load->defaultPopulationSize_;
 		bestPastFitness_ = p_load->bestPastFitness_;
+		bestCurrentFitness_ = p_load->bestCurrentFitness_;
 		maximize_ = p_load->maximize_;
 		stallCounter_ = p_load->stallCounter_;
 		cpInterval_ = p_load->cpInterval_;
@@ -1237,6 +1253,7 @@ private:
 	boost::uint32_t reportIteration_; ///< The number of generations after which a report should be issued
 	std::size_t defaultPopulationSize_; ///< The nominal size of the population
 	double bestPastFitness_; ///< Records the best fitness found in past generations
+	double bestCurrentFitness_; ///< Records the best fitness found in the current iteration
 	bool maximize_; ///< The optimization mode (minimization/false vs. maximization/true)
 	boost::uint32_t stallCounter_; ///< Counts the number of iterations without improvement
 	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
@@ -1538,7 +1555,7 @@ public:
 	     */
 	    virtual std::string cycleInformation(GOptimizationAlgorithmT<ind_type> * const goa) {
 	    	std::ostringstream result;
-	    	result << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestFitness() << std::endl;
+	    	result << std::setprecision(15) << goa->getIteration() << ": " << goa->getBestCurrentFitness() << std::endl;
 	    	return result.str();
 	    }
 

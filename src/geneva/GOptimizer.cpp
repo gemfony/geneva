@@ -36,6 +36,18 @@ namespace Geneva {
 
 /**************************************************************************************/
 /**
+ * A constructor that first parses the command line for relevant parameters and then
+ * loads data from a config file
+ *
+ * @param argc The number of command line arguments
+ * @param argv An array with the arguments
+ */
+GOptimizer::GOptimizer(int argc, char **argv) {
+
+}
+
+/**************************************************************************************/
+/**
  * The standard constructor. Loads the data from the configuration file
  *
  * @param ip Specifies under which address the server can be reached
@@ -59,7 +71,7 @@ GOptimizer::GOptimizer(
 {
 	//--------------------------------------------
 	// Load further configuration options from file
-	loadConfigurationData(configFilename_);
+	parseConfigurationFile(configFilename_);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -294,16 +306,61 @@ void GOptimizer::clientRun() {
 
 /**************************************************************************************/
 /**
+ * Loads some configuration data from arguments passed on the command line
+ *
+ * @param argc The number of command line arguments
+ * @param argv An array with the arguments
+ */
+void GOptimizer::parseCommandLine(int argc, char **argv) {
+    namespace po = boost::program_options;
+
+	try {
+		std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
+		po::options_description desc(usageString.c_str());
+		desc.add_options()
+				("help,h", "emit help message")
+				("optimizationConfig,o", po::value<std::string>(&configFilename_)->default_value(GO_DEF_DEFAULTCONFIGFILE),
+				"The name of the file holding configuration information for optimization algorithms")
+				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO_DEF_DEFAULPARALLELIZATIONMODE),
+				"Whether to perform the optimization in serial mode (0), multi-threaded (1) or networked (2) mode")
+				("serverMode,s",
+				"Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")(
+				"ip", po::value<std::string>(&ip)->default_value(DEFAULTIP),
+				"The ip of the server")("port",
+				po::value<unsigned short>(&port)->default_value(DEFAULTPORT),
+				"The port of the server")(
+				"serMode",
+				po::value<Gem::Common::serializationMode>(&serMode)->default_value(
+						DEFAULTSERMODE),
+				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
+
+		po::variables_map vm;
+		po::store(po::parse_command_line(argc, argv, desc), vm);
+		po::notify(vm);
+	}
+	catch(const po::error& e) {
+		std::cerr << "Error parsing the command line:" << std::endl
+				  << e.what() << std::endl;
+		exit(1);
+	}
+	catch(...) {
+		std::cerr << "Unknown error while parsing the command line" << configFile << std::endl;
+		exit(1);
+	}
+}
+
+/**************************************************************************************/
+/**
  * Loads the configuration data from a given configuration file
  */
-void GOptimizer::loadConfigurationData(const std::string& configFile) {
+void GOptimizer::parseConfigurationFile(const std::string& configFile) {
 	namespace bf = boost::filesystem;
     namespace po = boost::program_options;
 
 	// Check the name of the configuration file
 	if (!bf::exists(configFile)) {
 		std::ostringstream error;
-		error << "In GOptimizer::loadConfigurationData(): Error!" << std::endl
+		error << "In GOptimizer::parseConfigurationFile(): Error!" << std::endl
 			  << "Invalid file name given for configuration file: \"" << configFile << "\"" << std::endl;
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
