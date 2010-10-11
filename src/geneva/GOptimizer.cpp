@@ -57,6 +57,8 @@ GOptimizer::GOptimizer(int argc, char **argv) {
 GOptimizer::GOptimizer(
 		const personality& pers
 		, const parMode& pm
+		, const bool& serverMode
+		, const Gem::Common::serializationMode& serMode
 		, const std::string& ip
 		, const unsigned int& port
 		, const std::string& configFilename
@@ -64,6 +66,8 @@ GOptimizer::GOptimizer(
 )
 	: pers_(pers)
 	, parMode_(pm)
+	, serverMode_(serverMode)
+	, serializationMode_(serMode)
 	, ip_(ip)
 	, port_(port)
 	, configFilename_(configFilename)
@@ -272,7 +276,8 @@ void GOptimizer::registerOptimizationMonitor(boost::shared_ptr<GGradientDescent:
 
 /**************************************************************************************/
 /**
- * Triggers execution of the client loop
+ * Triggers execution of the client loop. Note that it is up to you to terminate
+ * the program after calling this function.
  */
 void GOptimizer::clientRun() {
 	// If initialization functions have been provided, call them as the first action.
@@ -306,6 +311,26 @@ void GOptimizer::clientRun() {
 
 /**************************************************************************************/
 /**
+ * Checks whether server mode has been requested for this object
+ *
+ * @return A boolean which indicates whether the server mode has been set for this object
+ */
+bool GOptimizer::serverMode() const {
+	return serverMode_;
+}
+
+/**************************************************************************************/
+/**
+ * Checks whether this object is running in client mode
+ *
+ * @return A boolean which indicates whether the client mode has been set for this object
+ */
+bool GOptimizer::clientMode() const {
+	return !serverMode_;
+}
+
+/**************************************************************************************/
+/**
  * Loads some configuration data from arguments passed on the command line
  *
  * @param argc The number of command line arguments
@@ -324,19 +349,40 @@ void GOptimizer::parseCommandLine(int argc, char **argv) {
 				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO_DEF_DEFAULPARALLELIZATIONMODE),
 				"Whether to perform the optimization in serial mode (0), multi-threaded (1) or networked (2) mode")
 				("serverMode,s",
-				"Whether to run networked execution in server or client mode. The option only gets evaluated if \"--parallelizationMode=2\"")(
-				"ip", po::value<std::string>(&ip)->default_value(DEFAULTIP),
-				"The ip of the server")("port",
-				po::value<unsigned short>(&port)->default_value(DEFAULTPORT),
-				"The port of the server")(
-				"serMode",
-				po::value<Gem::Common::serializationMode>(&serMode)->default_value(
-						DEFAULTSERMODE),
-				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
+				"Whether to run networked execution in client or server mode. This option only gets evaluated if \"--parallelizationMode=2\" is set")
+				("ip", po::value<std::string>(&ip_)->default_value(GO_DEF_IP),
+				"The ip of the server")
+				("port", po::value<unsigned short>(&port_)->default_value(GO_DEF_PORT),
+				"The port of the server")
+				("serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO_DEF_DEFAULTSERIALIZATIONMODE),
+				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+				("verbose,v", po::value<bool>(&verbose_)->default_value(GO_DEF_DEFAULTVERBOSE),
+				"Instructs the parsers to output information about configuration parameters");
 
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, desc), vm);
 		po::notify(vm);
+
+		if (parMode_ == 2  &&  vm.count("serverMode")) serverMode_ = true;
+		else serverMode_ = false;
+
+		if(verbose_) {
+			std::cout << std::endl
+					<< "Running with the following command line options:" << std::endl
+					<< "optimizationConfig = " << configFilename_ << std::endl;
+		}
+
+		// Needs to be triggered by "verbose"
+		/*
+		std::cout << std::endl
+				<< "Running with the following command line options:"
+				<< std::endl << "configFile = " << configFile << std::endl
+				<< "parallelizationMode = " << parModeString << std::endl
+				<< "serverMode = " << (serverMode ? "true" : "false")
+				<< std::endl << "ip = " << ip << std::endl << "port = "
+				<< port << std::endl << "serMode = " << serMode
+				<< std::endl << std::endl;
+		*/
 	}
 	catch(const po::error& e) {
 		std::cerr << "Error parsing the command line:" << std::endl

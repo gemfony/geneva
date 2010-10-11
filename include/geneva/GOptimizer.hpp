@@ -72,8 +72,15 @@ namespace Geneva {
 
 /**************************************************************************************/
 // Default values for the variables used by the optimizer
+const personality GO_DEF_PERSONALITY=EA;
+const parMode GO_DEF_PARALLELIZATIONMODE=MULTITHREADED;
 const std::string GO_DEF_DEFAULTCONFIGFILE="optimizationAlgorithm.cfg";
+const bool GO_DEF_SERVERMODE=true;
 const parMode GO_DEF_DEFAULPARALLELIZATIONMODE=MULTITHREADED;
+const Gem::Common::serializationMode GO_DEF_DEFAULTSERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
+const std::string GO_DEF_IP="localhost";
+const unsigned int GO_DEF_PORT=10000;
+const bool GO_DEF_DEFAULTVERBOSE=false;
 const boost::uint16_t GO_DEF_MAXSTALLED=0;
 const boost::uint16_t GO_DEF_MAXCONNATT=100;
 const bool GO_DEF_RETURNREGARDLESS=true;
@@ -120,12 +127,14 @@ public:
 
 	/** @brief The standard constructor. Loads the data from the configuration file */
 	explicit GOptimizer(
-			const personality& pers = EA
-			, const parMode& pm = MULTITHREADED
-			, const std::string& ip = "localhost"
-			, const unsigned int& port = 10000
+			const personality& pers = GO_DEF_PERSONALITY
+			, const parMode& pm = GO_DEF_PARALLELIZATIONMODE
+			, const bool& serverMode = GO_DEF_SERVERMODE
+			, const Gem::Common::serializationMode& serMode = GO_DEF_DEFAULTSERIALIZATIONMODE
+			, const std::string& ip = GO_DEF_IP
+			, const unsigned int& port = GO_DEF_PORT
 			, const std::string& fileName = GO_DEF_DEFAULTCONFIGFILE
-			, const bool& verbose = false
+			, const bool& verbose = GO_DEF_DEFAULTVERBOSE
 	);
 
 	/** @brief Allows to register a function object that performs necessary initialization work */
@@ -151,6 +160,11 @@ public:
 
 	/** @brief Triggers execution of the client loop */
 	void clientRun();
+
+	/** @brief Checks whether server mode has been requested for this object */
+	bool serverMode() const;
+	/** @brief Checks whether this object is running in client mode */
+	bool clientMode() const;
 
 	/**************************************************************************************/
 	/**
@@ -587,6 +601,8 @@ private:
 	// These parameters enter the object through the constructor
 	personality pers_; ///< Indicates which optimization algorithm should be used
 	parMode parMode_; ///< The chosen parallelization mode
+	bool serverMode_; ///< Specifies whether this object is in server (true) or client (false) mode
+	Gem::Common::serializationMode serializationMode_; ///< Indicates whether serialization should be done in Text, XML or Binary form
     std::string ip_; ///< Where the server can be reached
     unsigned short port_; ///< The port on which the server answers
 	std::string configFilename_; ///< Indicates where the configuration file is stored
