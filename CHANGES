@@ -7,20 +7,23 @@ Wishlist for Version 1.0, yet unnamed, release-date unknown
 * Version 0.8.5, yet unnamed, release-date unknown
 
 The main changes for this release include:
- - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug, really)
- - Added a set of functions that allows to extract or set all parameters of type double, boost::int32_t or
-   boolean with a single call, in the sequence in which they were registered. E.g., if a GDoubleObject,
-   GBooleanCollection and a GConstrainedDouble have been registered in this order, it would be possible 
-   to just extract or set all double values in one go, while leaving the GBooleanCollection unchanged.
- - Introduced the GOptimizationMonitorT class (and derivatives) to allow easier access to information 
-   about the optimization process, plus visualization of the optimization progress out of the box.
- - Implemented a gradient descent (so far serial and multi-threaded mode)
+ - Implemented gradient descents (so far serial and multi-threaded mode).
+ - Introduced the GOptimizationMonitorT class (and derivatives) to allow
+   easier access to information about the optimization process, plus
+   visualization of the optimization progress out of the box.
+ - Added a set of functions that allows to extract or set all parameters
+   of type double, boost::int32_t or boolean with a single call, in the
+   sequence in which they were registered. E.g., if a GDoubleObject,
+   GBooleanCollection and a GConstrainedDouble have been registered in
+   this order, it would be possible to just extract or set all double
+   values in one go, while leaving the GBooleanCollection unchanged.
+ - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug, really).
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.4, "Route Bell" - September 23, 2010
 
 The main changes for this release include:
- - Revised GAsioTCPConsumerT
+ - Revised GAsioTCPConsumerT.
  - Fixed an important bug in the broker infrastructure. As a result of that
    problem, the server sometimes didn't shut down properly at the end
    of networked optimization.
