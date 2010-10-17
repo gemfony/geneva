@@ -321,7 +321,7 @@ void GMultiThreadedEA::setNThreads(const boost::uint8_t& nThreads) {
  *
  * @return The maximum number of allowed threads
  */
-uint8_t GMultiThreadedEA::getNThreads() const  {
+boost::uint8_t GMultiThreadedEA::getNThreads() const  {
 	return nThreads_;
 }
 
