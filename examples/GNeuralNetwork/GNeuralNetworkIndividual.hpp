@@ -878,7 +878,7 @@ public:
 			            << " */" << std::endl
 			            << std::endl
 			            << "/* Copyright (C) Dr. Ruediger Berlich" << std::endl
-						<< " * Copyright (C) Forschungszentrum Karlsruhe GmbH" << std::endl
+						<< " * Copyright (C) Karlsruhe Institute of Technology" << std::endl
 						<< " *" << std::endl
 						<< " * This file is part of Geneva, Gemfony scientific's optimization library." << std::endl
 						<< " *" << std::endl
@@ -1044,7 +1044,7 @@ public:
 				<< " */" << std::endl
 				<< std::endl
 				<< "/* Copyright (C) Dr. Ruediger Berlich" << std::endl
-				<< " * Copyright (C) Forschungszentrum Karlsruhe GmbH" << std::endl
+				<< " * Copyright (C) Karlsruhe Institute of Technology" << std::endl
 				<< " *" << std::endl
 				<< " * This file is part of Geneva, Gemfony scientific's optimization library." << std::endl
 				<< " *" << std::endl
