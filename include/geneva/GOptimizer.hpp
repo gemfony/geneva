@@ -64,6 +64,7 @@
 #include "geneva/GBrokerSwarm.hpp"
 #include "geneva/GGradientDescent.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
+#include "geneva/GenevaHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
 #include "courtier/GAsioTCPConsumerT.hpp"

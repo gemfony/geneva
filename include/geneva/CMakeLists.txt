@@ -25,6 +25,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GDoubleObjectCollection.hpp
 	GEAPersonalityTraits.hpp
 	GEvolutionaryAlgorithm.hpp
+	GenevaHelperFunctionsT.hpp
 	GFPNumCollectionT.hpp
 	GGDPersonalityTraits.hpp
 	GGradientDescent.hpp

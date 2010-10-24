@@ -190,11 +190,10 @@ GOptimizer::GOptimizer(const GOptimizer& cp)
 	, gdStepSize_(cp.gdStepSize_)
 {
 	//--------------------------------------------
-	// Create clones of the other object's parameter sets
-	GOptimizer::const_iterator cit;
-	for(cit=cp.begin(); cit!=cp.end(); ++cit) {
-		data.push_back((*cit)->clone<GParameterSet>());
-	}
+	// Copy the optimization monitors over (if any)
+	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GEAOptimizationMonitor>(cp.ea_om_ptr_, ea_om_ptr_);
+	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GSwarmOptimizationMonitor>(cp.swarm_om_ptr_, swarm_om_ptr_);
+	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GGDOptimizationMonitor>(cp.gd_om_ptr_, gd_om_ptr_);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -284,6 +283,8 @@ boost::optional<std::string> GOptimizer::checkRelationshipWith(
 	// ... and then our local data
 	deviations.push_back(checkExpectation(withMessages, "GOptimizer", quiet_, p_load->quiet_, "quiet_", "p_load->quiet_", e , limit));
 
+	// TODO: fill with the variables
+
 	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
 }
 
@@ -308,6 +309,11 @@ void GOptimizer::load_(const GObject *cp) {
 	port_ = p_load->port_;
 	configFilename_ = p_load->configFilename_;
 	verbose_ = p_load->verbose_;
+
+	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GEAOptimizationMonitor>(p_load->ea_om_ptr_, ea_om_ptr_);
+	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GSwarmOptimizationMonitor>(p_load->swarm_om_ptr_, swarm_om_ptr_);
+	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GGDOptimizationMonitor>(p_load->gd_om_ptr_, gd_om_ptr_);
+
 	copyBestOnly_ = p_load->copyBestOnly_;
 	maxStalledDataTransfers_ = p_load->maxStalledDataTransfers_;
 	maxConnectionAttempts_ = p_load->maxConnectionAttempts_;
@@ -335,8 +341,6 @@ void GOptimizer::load_(const GObject *cp) {
 	gdNStartingPoints_ = p_load->gdNStartingPoints_;
 	gdFiniteStep_ = p_load->gdFiniteStep_;
 	gdStepSize_ = p_load->gdStepSize_;
-
-	// TODO: Load optimization monitors, also in copy constructor
 }
 
 /**************************************************************************************/
