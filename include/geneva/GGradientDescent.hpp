@@ -170,10 +170,10 @@ public:
 	/**
 	 * Retrieves the best individual of the population and casts it to the desired type.
 	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
-	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
-	 * we do not need to check convertibility using dynamic_cast<>.
+	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. The returned
+	 * individual is a clone, so you can act on it freely.
 	 *
-	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
+	 * @return A converted shared_ptr to the best individual of the population
 	 */
 	template <typename parameterset_type>
 	inline boost::shared_ptr<parameterset_type> getBestIndividual(
@@ -207,18 +207,7 @@ public:
 			}
 		}
 
-#ifdef DEBUG
-		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(data[pos_best]);
-
-		if(p) return p;
-		else {
-			std::ostringstream error;
-			error << "In GGradientDescent::getBestIndividual<parameterset_type>() : Conversion error!" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
-		}
-#else
-		return boost::static_pointer_cast<parameterset_type>(data[pos_best]);
-#endif /* DEBUG */
+		return data[pos_best]->clone<parameterset_type>();
 	}
 
 protected:

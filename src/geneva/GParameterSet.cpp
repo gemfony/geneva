@@ -9,7 +9,6 @@
  *
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
- * Contact: info [at] gemfony (dot) com
  *
  * This file is part of the Geneva library collection
  *

@@ -184,9 +184,10 @@ public:
 	/**
 	 * Retrieves the best individual of the population and casts it to the desired type. Note that this
 	 * function will only be accessible to the compiler if parameterset_type is a derivative of GParameterSet,
-	 * thanks to the magic of Boost's enable_if and Type Traits libraries.
+	 * thanks to the magic of Boost's enable_if and Type Traits libraries. The returned individual is a clone,
+	 * so you can act on it freely.
 	 *
-	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
+	 * @return A converted shared_ptr to a copy of the best individual of the population
 	 */
 	template <typename parameterset_type>
 	inline boost::shared_ptr<parameterset_type> getBestIndividual(
@@ -200,18 +201,9 @@ public:
 				  << "Tried to access uninitialized globally best individual." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
-
-		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(global_best_);
-
-		if(p) return p;
-		else {
-			std::ostringstream error;
-			error << "In GSwarm::getBestIndividual<>() : Conversion error" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-#else
-		return boost::static_pointer_cast<parameterset_type>(global_best_);
 #endif /* DEBUG */
+
+		return global_best_->clone<parameterset_type>();
 	}
 
 	/**************************************************************************************************/

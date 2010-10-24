@@ -129,7 +129,7 @@ public:
  	 * @param cp A copy of another GFunctionIndividual
 	 */
 	const GFunctionIndividual<dF>& operator=(const GFunctionIndividual<dF>& cp){
-		GFunctionIndividual::load_(&cp);
+		GFunctionIndividual<dF>::load_(&cp);
 		return *this;
 	}
 

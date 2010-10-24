@@ -38,9 +38,9 @@
 
 // Boost header files go here
 #include <boost/utility.hpp>
-#include <boost/function.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
+#include <boost/cast.hpp>
 
 #ifndef GOPTIMIZER_HPP_
 #define GOPTIMIZER_HPP_
@@ -54,6 +54,8 @@
 // Geneva headers go here
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GMutableSetT.hpp"
+#include "geneva/GParameterSet.hpp"
 #include "geneva/GEvolutionaryAlgorithm.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
@@ -81,6 +83,7 @@ const Gem::Common::serializationMode GO_DEF_DEFAULTSERIALIZATIONMODE=Gem::Common
 const std::string GO_DEF_IP="localhost";
 const unsigned int GO_DEF_PORT=10000;
 const bool GO_DEF_DEFAULTVERBOSE=false;
+const bool GO_DEF_COPYBESTONLY=true;
 const boost::uint16_t GO_DEF_MAXSTALLED=0;
 const boost::uint16_t GO_DEF_MAXCONNATT=100;
 const bool GO_DEF_RETURNREGARDLESS=true;
@@ -119,37 +122,86 @@ const float GO_DEF_GDSTEPSIZE=0.1;
  * the class will attempt to load the data from a default file name.
  */
 class GOptimizer
-	:boost::noncopyable
+	: public GMutablesetT<GParameterSet>
 {
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
+
+	template<typename Archive>
+	void serialize(Archive & ar, const unsigned int){
+	  using boost::serialization::make_nvp;
+
+	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GIndividual)
+		 & make_nvp("GMutableSetT_GParameterSet", boost::serialization::base_object<GMutaböeSetT<GParameterSet> >(*this))
+		 & BOOST_SERIALIZATION_NVP(pers_);
+	  	 & BOOST_SERIALIZATION_NVP(parMode_)
+	     & BOOST_SERIALIZATION_NVP(serverMode_)
+	     & BOOST_SERIALIZATION_NVP(serializationMode_)
+	     & BOOST_SERIALIZATION_NVP(ip_)
+	     & BOOST_SERIALIZATION_NVP(port_)
+	     & BOOST_SERIALIZATION_NVP(configFilename_)
+	     & BOOST_SERIALIZATION_NVP(verbose_)
+	     & BOOST_SERIALIZATION_NVP(ea_om_ptr_)
+	     & BOOST_SERIALIZATION_NVP(swarm_om_ptr_)
+	     & BOOST_SERIALIZATION_NVP(gd_om_ptr_)
+	     & BOOST_SERIALIZATION_NVP(copyBestOnly_)
+	     & BOOST_SERIALIZATION_NVP(maxStalledDataTransfers_)
+	     & BOOST_SERIALIZATION_NVP(maxConnectionAttempts_)
+	     & BOOST_SERIALIZATION_NVP(returnRegardless_)
+	     & BOOST_SERIALIZATION_NVP(nProducerThreads_)
+	     & BOOST_SERIALIZATION_NVP(arraySize_)
+	     & BOOST_SERIALIZATION_NVP(nEvaluationThreads_)
+	     & BOOST_SERIALIZATION_NVP(serializationMode_)
+	     & BOOST_SERIALIZATION_NVP(waitFactor_)
+	     & BOOST_SERIALIZATION_NVP(maxIterations_)
+	     & BOOST_SERIALIZATION_NVP(maxMinutes_)
+	     & BOOST_SERIALIZATION_NVP(reportIteration_)
+	     & BOOST_SERIALIZATION_NVP(eaPopulationSize_)
+	     & BOOST_SERIALIZATION_NVP(eaNParents_)
+	     & BOOST_SERIALIZATION_NVP(eaRecombinationScheme_)
+	     & BOOST_SERIALIZATION_NVP(eaSortingScheme_)
+	     & BOOST_SERIALIZATION_NVP(eaTrackParentRelations_)
+	     & BOOST_SERIALIZATION_NVP(swarmNNeighborhoods_)
+	     & BOOST_SERIALIZATION_NVP(swarmNNeighborhoodMembers_)
+	     & BOOST_SERIALIZATION_NVP(swarmRandomFillUp_)
+	     & BOOST_SERIALIZATION_NVP(swarmCLocal_)
+	     & BOOST_SERIALIZATION_NVP(swarmCGlobal_)
+	     & BOOST_SERIALIZATION_NVP(swarmCDelta_)
+	     & BOOST_SERIALIZATION_NVP(swarmUpdateRule_)
+	     & BOOST_SERIALIZATION_NVP(gdNStartingPoints_)
+	     & BOOST_SERIALIZATION_NVP(gdFiniteStep_)
+	     & BOOST_SERIALIZATION_NVP(gdStepSize_);
+	}
+	///////////////////////////////////////////////////////////////////////
+
 public:
+	/** @brief The default constructor */
+	GOptimizer();
 	/** @brief A constructor that first parses the command line for relevant parameters and then loads data from a config file */
 	GOptimizer(int, char **);
+	/** @brief A copy constructor */
+	GOptimizer(const GOptimizer&);
 
-	/** @brief The standard constructor. Loads the data from the configuration file */
-	explicit GOptimizer(
-			const personality& pers = GO_DEF_PERSONALITY
-			, const parMode& pm = GO_DEF_PARALLELIZATIONMODE
-			, const bool& serverMode = GO_DEF_SERVERMODE
-			, const Gem::Common::serializationMode& serMode = GO_DEF_DEFAULTSERIALIZATIONMODE
-			, const std::string& ip = GO_DEF_IP
-			, const unsigned int& port = GO_DEF_PORT
-			, const std::string& fileName = GO_DEF_DEFAULTCONFIGFILE
-			, const bool& verbose = GO_DEF_DEFAULTVERBOSE
-	);
+	/** @brief The destructor */
+	virtual ~GOptimizer();
 
-	/** @brief Allows to register a function object that performs necessary initialization work */
-	void registerInitFunction(boost::function<void ()>);
-	/** @brief Allows to register a function object that performs necessary initialization work for the client */
-	void registerClientInitFunction(boost::function<void ()>);
-	/** @brief Allows to register a function object that performs necessary finalization work */
-	void registerFinalizationFunction(boost::function<void ()>);
-	/** @brief Allows to register a function object that performs necessary finalization work for the client */
-	void registerClientFinalizationFunction(boost::function<void ()>);
+	/** @brief Standard assignment operator */
+	const GOptimizer& operator=(const GOptimizer&);
 
-	/** @brief Allows to add individuals to the class. */
-	void registerParameterSet(boost::shared_ptr<GParameterSet>);
-	/** @brief Allows to add a set of individuals to the class. */
-	void registerParameterSet(const std::vector<boost::shared_ptr<GParameterSet> >&);
+	/** @brief Checks for equality with another GOptimizer object */
+	bool operator==(const GOptimizer&) const;
+	/** @brief Checks for inequality with another GOptimizer object */
+	bool operator!=(const GOptimizer&) const;
+
+	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
+	virtual boost::optional<std::string> checkRelationshipWith(
+			const GObject&
+			, const Gem::Common::expectation&
+			, const double&
+			, const std::string&
+			, const std::string&
+			, const bool&
+	) const;
 
 	/** @brief Allows to specify an optimization monitor to be used with evolutionary algorithms */
 	void registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor>);
@@ -159,7 +211,7 @@ public:
 	void registerOptimizationMonitor(boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor>);
 
 	/** @brief Triggers execution of the client loop */
-	void clientRun();
+	bool clientRun();
 
 	/** @brief Checks whether server mode has been requested for this object */
 	bool serverMode() const;
@@ -177,12 +229,9 @@ public:
 	boost::shared_ptr<ind_type> optimize() {
 		boost::shared_ptr<ind_type> result;
 
-		// If an initialization function has been provided, call it as the first action
-		if(initFunction_) initFunction_();
-
 #ifdef DEBUG
 		// We need at least one individual to start with
-		if(initialParameterSets_.empty()) {
+		if(this->empty()) {
 			std::ostringstream error;
 			error << "In GOptimizer::optimize(): Error!" << std::endl
 					<< "You need to register at least one individual." << std::endl
@@ -196,7 +245,6 @@ public:
 		case EA: // Evolutionary algorithms
 		{
 			result = eaOptimize<ind_type>();
-			if(finalizationFunction_) finalizationFunction_();
 			return result;
 		}
 		break;
@@ -204,7 +252,6 @@ public:
 		case SWARM: // Swarm algorithms
 		{
 			result = swarmOptimize<ind_type>();
-			if(finalizationFunction_) finalizationFunction_();
 			return result;
 		}
 		break;
@@ -212,7 +259,6 @@ public:
 		case GD: // Gradient descents
 		{
 			result = gdOptimize<ind_type>();
-			if(finalizationFunction_) finalizationFunction_();
 			return result;
 		}
 		break;
@@ -265,6 +311,9 @@ public:
 	       << "# client and server. 0 means \"no limit\"" << std::endl
 	       << "maxConnectionAttempts = " << GO_DEF_MAXCONNATT << std::endl
 	       << std::endl
+	       << "# Specifies whether the optimizer should copy only the best individuals" << std::endl
+	       << "# at the end of the optimization or the entire population" << std::endl
+	       << "copyBestOnly = " << GO_DEF_COPYBESTONLY << std::endl
 	       << "# Indicates whether clients should return their payload even" << std::endl
 	       << "# if no better result was found" << std::endl
 	       << "returnRegardless = " << GO_DEF_RETURNREGARDLESS << std::endl
@@ -369,16 +418,19 @@ public:
 		cf.close();
 	}
 
-private:
 	/**************************************************************************************/
-	/** @brief The default constructor. Intentionally private and undefined */
-	GOptimizer();
-
 	/** @brief Loads the configuration data from a given configuration file */
 	void parseConfigurationFile(const std::string&);
-	/** @brief Loads some configuration data from arguments passed on the command line */
+	/** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	void parseCommandLine(int, char **);
 
+protected:
+	/** @brief Loads the data of another GOptimzer object */
+	virtual void load_(const GObject *);
+	/** @brief Creates a deep clone of this object */
+	virtual GObject *clone_() const;
+
+private:
 	/**************************************************************************************/
 	/**
 	 * Performs an EA optimization cycle
@@ -433,12 +485,6 @@ private:
 		//----------------------------------------------------------------------------------
 		};
 
-		// Transfer the initial parameter sets to the population
-		for(std::size_t p = 0 ; p<initialParameterSets_.size(); p++) {
-			ea_ptr->push_back(initialParameterSets_[p]);
-		}
-		initialParameterSets_.clear();
-
 		// Specify some specific EA settings
 		ea_ptr->setDefaultPopulationSize(eaPopulationSize_,eaNParents_);
 		ea_ptr->setRecombinationMethod(eaRecombinationScheme_);
@@ -453,11 +499,55 @@ private:
 		// Register the optimization monitor, if one has been provided
 		if(ea_om_ptr_) ea_ptr->registerOptimizationMonitor(ea_om_ptr_);
 
+		// Calculate a suitable number of individuals to copy into the algorithm
+		std::size_t nCopy = 0;
+		if(this->size() >= ea_ptr->getDefaultPopulationSize()) {
+			nCopy = ea_ptr->getDefaultPopulationSize();
+		}
+		else if(this->size() < ea_ptr->getDefaultPopulationSize()) {
+			nCopy = this->size();
+		}
+
+		// Transfer the initial parameter sets to the population
+		GOptimizer::iterator it;
+		for(it=this->begin(); it!=this->begin() + nCopy; ++it) {
+			// Note, there will not be a big space overhead here,
+			// as what is being copied are smart pointers, not
+			// the individuals themselves.
+			ea_ptr->push_back(*it);
+		}
+
+		// Get rid of the old content -- need to remove the first nCopy items
+		// GEvolutionaryAlgorithm and derivatives may or may not clean their
+		// own vector and it is safer to re-integrate them from scratch after
+		// the optimization run.
+		this->erase(this->begin(), this->begin() + nCopy);
+
 		// Do the actual optimization
 		ea_ptr->optimize();
 
+		// Transfer the best (i.e. nCopy first) individuals back into our local individual vector
+		for(int i=static_cast<int>(nCopy)-1; i>=0; i--) {
+#ifdef DEBUG
+			boost::shared_ptr<GParameterSet> p =
+					boost::dynamic_pointer_cast<GParameterSet>(ea_ptr->at(boost::numeric_cast<std::size_t>(i)));
+			this->insert(this->begin(), p);
+#else
+			this->insert(
+					this->begin()
+					, boost::static_pointer_cast<GParameterSet>(ea_ptr->at(static_cast<std::size_t>(i)))
+			);
+#endif /* DEBUG */
+		}
+
+		// Retrieve the best individual found
+		boost::shared_ptr<GParameterSet> result = ea_ptr->getBestIndividual<ind_type>();
+
+		// Make sure ea_ptr is clean again
+		ea_ptr->clear();
+
 		// Return the best individual found
-		return ea_ptr->getBestIndividual<ind_type>();
+		return result;
 	}
 
 	/**************************************************************************************/
@@ -598,7 +688,7 @@ private:
 	}
 
 	/**********************************************************************/
-	// These parameters enter the object through the constructor
+	// These parameters can enter the object through the constructor
 	personality pers_; ///< Indicates which optimization algorithm should be used
 	parMode parMode_; ///< The chosen parallelization mode
 	bool serverMode_; ///< Specifies whether this object is in server (true) or client (false) mode
@@ -608,18 +698,15 @@ private:
 	std::string configFilename_; ///< Indicates where the configuration file is stored
 	bool verbose_; ///< Whether additional information should be emitted, e.g. when parsing configuration files
 
-	// Parameters registered through member functions
-	boost::function<void ()> initFunction_; ///< Actions to be performed before the optimization starts
-	boost::function<void ()> clientInitFunction_; ///< Actions to be performed for clients before the optimization starts
-	boost::function<void ()> finalizationFunction_; ///< Actions to be performed after the optimization has ended
-	boost::function<void ()> clientFinalizationFunction_; ///< Actions to be performed for clients after the client loop has ended
-	std::vector<boost::shared_ptr<GParameterSet> > initialParameterSets_;  ///< Holds the individuals used for the initialization of the algorithm
 	boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor> ea_om_ptr_; ///< Holds a specific optimization monitor used for evolutionary algorithms
 	boost::shared_ptr<GSwarm::GSwarmOptimizationMonitor> swarm_om_ptr_; ///< Holds a specific optimization monitor used for swarm algorithms
 	boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor> gd_om_ptr_; ///< Holds a specific optimization monitor used for gradient descents
 
 	//----------------------------------------------------------------------------------------------------------------
-	// These parameters are read from a configuration file
+	// These parameters can be read from a configuration file
+
+	// Steering parameters of the optimizer
+	bool copyBestOnly_;
 
 	// General parameters
     boost::uint32_t maxStalledDataTransfers_; ///< Specifies how often a client may try to unsuccessfully retrieve data from the server (0 means endless)

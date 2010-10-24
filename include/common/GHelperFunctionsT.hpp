@@ -70,6 +70,30 @@ namespace Gem
 namespace Common
 {
 
+/**************************************************************************************************/
+/**
+ * This function takes two smart pointers and copies their contents (if any). Note that this
+ * function might yield bad results for virtual types and will not work for purely virtual types.
+ *
+ * @param from The source smart pointer
+ * @param to The target smart pointer
+ */
+template <typename T>
+void copySmartPointer (
+	const boost::shared_ptr<T>& from
+	, boost::shared_ptr<T>& to
+) {
+	// Make sure to is empty when from is empty
+	if(!from) {
+		to.reset();
+	} else {
+		if(!to) {
+			to.reset(new T(*from));
+		} else {
+			*to = *from;
+		}
+	}
+}
 
 /**************************************************************************************************/
 /**
@@ -77,14 +101,17 @@ namespace Common
  * one into the other. As we want to make a deep copy of the smart pointers' contents
  * this can be quite complicated. Note that we assume here that the objects pointed to
  * can be copied using an operator=(). The function also assumes the existence of
- * a valid copy constructor.
+ * a valid copy constructor.  Note that this function might yield bad results for
+ * virtual types.
  *
  * @param from The vector used as the source of the copying
  * @param to The vector used as the target of the copying
  */
 template <typename T>
-void copySmartPointerVector(const std::vector<boost::shared_ptr<T> >& from,
-		                            std::vector<boost::shared_ptr<T> >& to) {
+void copySmartPointerVector(
+		const std::vector<boost::shared_ptr<T> >& from
+		, std::vector<boost::shared_ptr<T> >& to
+) {
 	typename std::vector<boost::shared_ptr<T> >::const_iterator it_from;
 	typename std::vector<boost::shared_ptr<T> >::iterator it_to;
 

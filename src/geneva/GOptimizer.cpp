@@ -36,43 +36,105 @@ namespace Geneva {
 
 /**************************************************************************************/
 /**
+ * The default constructor
+ */
+GOptimizer::GOptimizer()
+	: GMutableSetT<GParameterSet>()
+	, pers_(GO_DEF_PERSONALITY)
+	, parMode_(GO_DEF_PARALLELIZATIONMODE)
+	, serverMode_(GO_DEF_SERVERMODE)
+	, serializationMode_(GO_DEF_DEFAULTSERIALIZATIONMODE)
+	, ip_(GO_DEF_IP)
+	, port_(GO_DEF_PORT)
+	, configFilename_(GO_DEF_DEFAULTCONFIGFILE)
+	, verbose_(GO_DEF_DEFAULTVERBOSE)
+	, copyBestOnly_(GO_DEF_COPYBESTONLY)
+	, maxStalledDataTransfers_(GO_DEF_MAXSTALLED)
+	, maxConnectionAttempts_(GO_DEF_MAXCONNATT)
+	, returnRegardless_(GO_DEF_RETURNREGARDLESS)
+	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
+	, arraySize_(GO_DEF_ARRAYSIZE)
+	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
+	, serializationMode_(GO_DEF_SERIALIZATIONMODE)
+	, waitFactor_(GO_DEF_WAITFACTOR)
+	, maxIterations_(GO_DEF_MAXITERATIONS)
+	, maxMinutes_(GO_DEF_MAXMINUTES)
+	, reportIteration_(GO_DEF_REPORTITERATION)
+	, eaPopulationSize_(GO_DEF_EAPOPULATIONSIZE)
+	, eaNParents_(GO_DEF_EANPARENTS)
+	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
+	, eaSortingScheme_(GO_DEF_EASORTINGSCHEME)
+	, eaTrackParentRelations_(GO_DEF_EATRACKPARENTRELATIONS)
+	, swarmNNeighborhoods_(GO_DEF_SWARMNNEIGHBORHOODS)
+	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
+	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
+	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
+	, swarmCGlobal_(GO_DEF_SWARMCCGLOBAL)
+	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
+	, swarmUpdateRule_(GO_DEF_SWARMUPDATERULE)
+	, gdNStartingPoints_(GO_DEF_GDNSTARTINGPOINTS)
+	, gdFiniteStep_(GO_DEF_GDFINITESTEP)
+	, gdStepSize_(GO_DEF_GDSTEPSIZE)
+{
+	//--------------------------------------------
+	// Random numbers are our most valuable good.
+	// Set the number of threads. GRANDOMFACTORY is
+	// a singleton that will be initialized by this call.
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
+	GRANDOMFACTORY->setArraySize(arraySize_);
+}
+
+
+/**************************************************************************************/
+/**
  * A constructor that first parses the command line for relevant parameters and then
- * loads data from a config file
+ * loads data from a configuration file
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
  */
-GOptimizer::GOptimizer(int argc, char **argv) {
-
-}
-
-/**************************************************************************************/
-/**
- * The standard constructor. Loads the data from the configuration file
- *
- * @param ip Specifies under which address the server can be reached
- * @param port Specifies on which port the server answers
- * @param configFilename The name of the configuration file
- */
-GOptimizer::GOptimizer(
-		const personality& pers
-		, const parMode& pm
-		, const bool& serverMode
-		, const Gem::Common::serializationMode& serMode
-		, const std::string& ip
-		, const unsigned int& port
-		, const std::string& configFilename
-		, const bool& verbose
-)
-	: pers_(pers)
-	, parMode_(pm)
-	, serverMode_(serverMode)
-	, serializationMode_(serMode)
-	, ip_(ip)
-	, port_(port)
-	, configFilename_(configFilename)
-	, verbose_(verbose)
+GOptimizer::GOptimizer(int argc, char **argv)
+	: GMutableSetT<GParameterSet>()
+	, pers_(GO_DEF_PERSONALITY)
+	, parMode_(GO_DEF_PARALLELIZATIONMODE)
+	, serverMode_(GO_DEF_SERVERMODE)
+	, serializationMode_(GO_DEF_DEFAULTSERIALIZATIONMODE)
+	, ip_(GO_DEF_IP)
+	, port_(GO_DEF_PORT)
+	, configFilename_(GO_DEF_DEFAULTCONFIGFILE)
+	, verbose_(GO_DEF_DEFAULTVERBOSE)
+	, copyBestOnly_(GO_DEF_COPYBESTONLY)
+	, maxStalledDataTransfers_(GO_DEF_MAXSTALLED)
+	, maxConnectionAttempts_(GO_DEF_MAXCONNATT)
+	, returnRegardless_(GO_DEF_RETURNREGARDLESS)
+	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
+	, arraySize_(GO_DEF_ARRAYSIZE)
+	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
+	, serializationMode_(GO_DEF_SERIALIZATIONMODE)
+	, waitFactor_(GO_DEF_WAITFACTOR)
+	, maxIterations_(GO_DEF_MAXITERATIONS)
+	, maxMinutes_(GO_DEF_MAXMINUTES)
+	, reportIteration_(GO_DEF_REPORTITERATION)
+	, eaPopulationSize_(GO_DEF_EAPOPULATIONSIZE)
+	, eaNParents_(GO_DEF_EANPARENTS)
+	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
+	, eaSortingScheme_(GO_DEF_EASORTINGSCHEME)
+	, eaTrackParentRelations_(GO_DEF_EATRACKPARENTRELATIONS)
+	, swarmNNeighborhoods_(GO_DEF_SWARMNNEIGHBORHOODS)
+	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
+	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
+	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
+	, swarmCGlobal_(GO_DEF_SWARMCCGLOBAL)
+	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
+	, swarmUpdateRule_(GO_DEF_SWARMUPDATERULE)
+	, gdNStartingPoints_(GO_DEF_GDNSTARTINGPOINTS)
+	, gdFiniteStep_(GO_DEF_GDFINITESTEP)
+	, gdStepSize_(GO_DEF_GDSTEPSIZE)
 {
+	//--------------------------------------------
+	// Load initial configuration options from the command line
+	parseCommandLine();
+
 	//--------------------------------------------
 	// Load further configuration options from file
 	parseConfigurationFile(configFilename_);
@@ -87,138 +149,207 @@ GOptimizer::GOptimizer(
 
 /**************************************************************************************/
 /**
- * Allows to register a function object that performs necessary initialization work.
- * It will be called both for servers (and serial/multithreaded execution) and for
- * clients. If you want a separate init function for the clients, register one with
- * registerClientInitFunction() and it will be called instead of the one registered
- * with this function.
- *
- * @param initFunction A function object performing necessary initialization work
+ * The copy constructor
  */
-void GOptimizer::registerInitFunction(boost::function<void ()> initFunction) {
-	// Do some error checking
-	if(!initFunction) {
-		std::ostringstream error;
-		error << "In GOptimizer::registerInitFunction(): Error!" << std::endl
-			  << "Empty function object provided." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+GOptimizer::GOptimizer(const GOptimizer& cp)
+	: GMutableSetT<GParameterSet>(cp)
+	, pers_(cp.pers_)
+	, parMode_(cp.parMode_)
+	, serverMode_(cp.serverMode_)
+	, serializationMode_(cp.serializationMode_)
+	, ip_(cp.ip_)
+	, port_(cp.port_)
+	, configFilename_(cp.configFilename_)
+	, verbose_(cp.verbose_)
+	, copyBestOnly_(cp.copyBestOnly_)
+	, maxStalledDataTransfers_(cp.maxStalledDataTransfers_)
+	, maxConnectionAttempts_(cp.maxConnectionAttempts_)
+	, returnRegardless_(cp.returnRegardless_)
+	, nProducerThreads_(cp.nProducerThreads_)
+	, arraySize_(cp.arraySize_)
+	, nEvaluationThreads_(cp.nEvaluationThreads_)
+	, serializationMode_(cp.serializationMode_)
+	, waitFactor_(cp.waitFactor_)
+	, maxIterations_(cp.maxIterations_)
+	, maxMinutes_(cp.maxMinutes_)
+	, reportIteration_(cp.reportIteration_)
+	, eaPopulationSize_(cp.eaPopulationSize_)
+	, eaNParents_(cp.eaNParents_)
+	, eaRecombinationScheme_(cp.eaRecombinationScheme_)
+	, eaSortingScheme_(cp.eaSortingScheme_)
+	, eaTrackParentRelations_(cp.eaTrackParentRelations_)
+	, swarmNNeighborhoods_(cp.swarmNNeighborhoods_)
+	, swarmNNeighborhoodMembers_(cp.swarmNNeighborhoodMembers_)
+	, swarmRandomFillUp_(cp.swarmRandomFillUp_)
+	, swarmCLocal_(cp.swarmCLocal_)
+	, swarmCGlobal_(cp.swarmCGlobal_)
+	, swarmCDelta_(cp.swarmCDelta_)
+	, swarmUpdateRule_(cp.swarmUpdateRule_)
+	, gdNStartingPoints_(cp.gdNStartingPoints_)
+	, gdFiniteStep_(cp.gdFiniteStep_)
+	, gdStepSize_(cp.gdStepSize_)
+{
+	//--------------------------------------------
+	// Create clones of the other object's parameter sets
+	GOptimizer::const_iterator cit;
+	for(cit=cp.begin(); cit!=cp.end(); ++cit) {
+		data.push_back((*cit)->clone<GParameterSet>());
 	}
 
-	initFunction_ = initFunction;
+	//--------------------------------------------
+	// Random numbers are our most valuable good.
+	// Set the number of threads. GRANDOMFACTORY is
+	// a singleton that will be initialized by this call.
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
+	GRANDOMFACTORY->setArraySize(arraySize_);
 }
 
 /**************************************************************************************/
 /**
- * Allows to register a function object that performs necessary initialization work
- * for networked clients. Note that, if no init function has been registered specifically
- * for the client, but one has been created using registerInitFunction(), then that
- * one will be called for the client.
- *
- * @param clientInitFunction A function object performing necessary initialization work for clients
+ * The destructor
  */
-void GOptimizer::registerClientInitFunction(boost::function<void ()> clientInitFunction) {
-	// Do some error checking
-	if(!clientInitFunction) {
-		std::ostringstream error;
-		error << "In GOptimizer::registerClientInitFunction(): Error!" << std::endl
-			  << "Empty function object provided." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
+GOptimizer::~GOptimizer()
+{ /* nothing */ }
 
-	clientInitFunction_ = clientInitFunction;
+/**************************************************************************************/
+/**
+ * A standard assignment operator
+ *
+ * @param cp A copy of another GOptimizer object
+ * @return A constant reference to this object
+ */
+const GOptimizer& GOptimizer::operator=(const GOptimizer& cp) {
+	GOptimizer::load_(&cp);
+	return *this;
 }
 
 /**************************************************************************************/
 /**
- * Allows to register a function object that performs necessary finalization work.
- * It will be called both for servers (and serial/multithreaded execution) and for
- * clients. If you want a separate finalization function for the clients, register
- * one with registerClientFinalizationFunction() and it will be called instead of
- * the one registered with this function.
+ * Checks for equality with another GOptimizer object
  *
- * @param finalizationFunction A function object performing necessary finalization work
+ * @param  cp A constant reference to another GOptimizer object
+ * @return A boolean indicating whether both objects are equal
  */
-void GOptimizer::registerFinalizationFunction(boost::function<void ()> finalizationFunction) {
-	// Do some error checking
-	if(!finalizationFunction) {
-		std::ostringstream error;
-		error << "In GOptimizer::registerFinalizationFunction(): Error!" << std::endl
-			  << "Empty function object provided." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
-
-	finalizationFunction_ = finalizationFunction_;
+bool GOptimizer::operator==(const GOptimizer&) const {
+	using namespace Gem::Common;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizer::operator==","cp", CE_SILENT);
 }
 
 /**************************************************************************************/
 /**
- * Allows to register a function object that performs necessary finalization work
- * for networked clients. Note that, if no finalization function has been registered specifically
- * for the client, but one has been created using registerFinalizationFunction(), then that
- * one will be called for the client.
+ * Checks for inequality with another GOptimizer object
  *
- * @param clientFinalizationFunction A function object performing necessary finalization work for clients
+ * @param  cp A constant reference to another GOptimizer object
+ * @return A boolean indicating whether both objects are inequal
  */
-void GOptimizer::registerClientFinalizationFunction(boost::function<void ()> clientFinalizationFunction) {
-	// Do some error checking
-	if(!clientFinalizationFunction) {
-		std::ostringstream error;
-		error << "In GOptimizer::registerClientFinalizationFunction(): Error!" << std::endl
-			  << "Empty function object provided." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
-
-	clientFinalizationFunction_ = clientFinalizationFunction;
+bool GOptimizer::operator!=(const GOptimizer&) const {
+	using namespace Gem::Common;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizer::operator!=","cp", CE_SILENT);
 }
 
 /**************************************************************************************/
 /**
- * Allows to add individuals to the class. These will later be used to initialize the
- * optimization algorithms. Note that the class will take ownership of the objects by
- * cloning them. Note that we make no attempt to check whether the individuals registered
- * through this function are of the same type.
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
  *
- * @param ps_ptr A pointer to an individual, used to initialize other individuals
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-void GOptimizer::registerParameterSet(boost::shared_ptr<GParameterSet> ps_ptr) {
-	if(!ps_ptr) {
-		std::ostringstream error;
-		error << "In GOptimizer::registerParameterSet(): Error!" << std::endl
-			  << "Empty pointer found." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
+boost::optional<std::string> GOptimizer::checkRelationshipWith(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+		, const std::string& caller
+		, const std::string& y_name
+		, const bool& withMessages
+) const {
+    using namespace Gem::Common;
 
-	initialParameterSets_.push_back(ps_ptr->clone<GParameterSet>());
+	// Check that we are indeed dealing with a GOptimizationMonitorT reference
+	const GOptimizer *p_load = GObject::conversion_cast<GOptimizer>(&cp);
+
+	// Will hold possible deviations from the expectation, including explanations
+    std::vector<boost::optional<std::string> > deviations;
+
+	// Check our parent class'es data ...
+	deviations.push_back(GMutablesetT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizer", y_name, withMessages));
+
+	// ... and then our local data
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", quiet_, p_load->quiet_, "quiet_", "p_load->quiet_", e , limit));
+
+	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
 }
 
 /**************************************************************************************/
 /**
- * Allows to add a set of individuals to the class. These will later be used to initialize the
- * optimization algorithms. Note that the class will take ownership of the objects by
- * cloning them. Note that we make no attempt to check whether the individuals registered
- * through this function are of the same type.
+ * Loads the data of another GOptimzer object
  *
- * @param ps_ptr A collection of GParameterSet derivatives
+ * @param cp A copy of another GOptimizer object, camouflaged as a GObject
  */
-void GOptimizer::registerParameterSet(const std::vector<boost::shared_ptr<GParameterSet> >& ps_collection) {
-	if(ps_collection.empty()) {
-		std::ostringstream error;
-		error << "In GOptimizer::registerParameterSet(std::vector<>): Error!" << std::endl
-			  << "Found empty collection." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
+void GOptimizer::load_(const GObject *cp) {
+	const GOptimizer *p_load = conversion_cast<GOptimizer>(cp);
 
-	for(std::size_t i=0; i<ps_collection.size(); i++) {
-		if(!ps_collection[i]) {
-			std::ostringstream error;
-			error << "In GOptimizer::registerParameterSet(std::vector<>): Error!" << std::endl
-				  << "Empty pointer found." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
+	// First load the parent class'es data ...
+	GMutableSetT<GParameterSet>::load_(cp);
 
-		initialParameterSets_.push_back(ps_collection[i]->clone<GParameterSet>());
-	}
+	// and then our local data
+	pers_ = p_load->pers_;
+	parMode_ = p_load->parMode_;
+	serverMode_ = p_load->serverMode_;
+	serializationMode_ = p_load->serializationMode_;
+	ip_ = p_load->ip_;
+	port_ = p_load->port_;
+	configFilename_ = p_load->configFilename_;
+	verbose_ = p_load->verbose_;
+	copyBestOnly_ = p_load->copyBestOnly_;
+	maxStalledDataTransfers_ = p_load->maxStalledDataTransfers_;
+	maxConnectionAttempts_ = p_load->maxConnectionAttempts_;
+	returnRegardless_ = p_load->returnRegardless_;
+	nProducerThreads_ = p_load->nProducerThreads_;
+	arraySize_ = p_load->arraySize_;
+	nEvaluationThreads_ = p_load->nEvaluationThreads_;
+	serializationMode_ = p_load->serializationMode_;
+	waitFactor_ = p_load->waitFactor_;
+	maxIterations_ = p_load->maxIterations_;
+	maxMinutes_ = p_load->maxMinutes_;
+	reportIteration_ = p_load->reportIteration_;
+	eaPopulationSize_ = p_load->eaPopulationSize_;
+	eaNParents_ = p_load->eaNParents_;
+	eaRecombinationScheme_ = p_load->eaRecombinationScheme_;
+	eaSortingScheme_ = p_load->eaSortingScheme_;
+	eaTrackParentRelations_ = p_load->eaTrackParentRelations_;
+	swarmNNeighborhoods_ = p_load->swarmNNeighborhoods_;
+	swarmNNeighborhoodMembers_ = p_load->swarmNNeighborhoodMembers_;
+	swarmRandomFillUp_ = p_load->swarmRandomFillUp_;
+	swarmCLocal_ = p_load->swarmCLocal_;
+	swarmCGlobal_ = p_load->swarmCGlobal_;
+	swarmCDelta_ = p_load->swarmCDelta_;
+	swarmUpdateRule_ = p_load->swarmUpdateRule_;
+	gdNStartingPoints_ = p_load->gdNStartingPoints_;
+	gdFiniteStep_ = p_load->gdFiniteStep_;
+	gdStepSize_ = p_load->gdStepSize_;
+
+	// TODO: Load optimization monitors, also in copy constructor
 }
+
+/**************************************************************************************/
+/**
+ * Creates a deep clone of this object
+ *
+ * @return A deep clone of this object
+ */
+GObject *GOptimizer::clone_() const {
+	return new GOptimizer(*this);
+}
+
+
 
 /**************************************************************************************/
 /**
@@ -279,33 +410,20 @@ void GOptimizer::registerOptimizationMonitor(boost::shared_ptr<GGradientDescent:
  * Triggers execution of the client loop. Note that it is up to you to terminate
  * the program after calling this function.
  */
-void GOptimizer::clientRun() {
-	// If initialization functions have been provided, call them as the first action.
-	// We first check if a specific initialization function for clients has been
-	// provided. If this is not the case, we try to execute the global initialization
-	// function instead.
-	if(clientInitFunction_) clientInitFunction_();
-	else {
-		if(initFunction_) initFunction_();
+bool GOptimizer::clientRun() {
+	if(serverMode()) {
+		return false;
 	}
-
-	// Instantiate the client worker
-    boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<GIndividual> > p(new Gem::Courtier::GAsioTCPClientT<GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
-
-    p->setMaxStalls(maxStalledDataTransfers_); // Set to 0 to allow an infinite number of stalls
-    p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
-    p->returnResultIfUnsuccessful(returnRegardless_);  // Prevent return of unsuccessful adaption attempts to the server
-
-    // Start the actual processing loop
-    p->run();
-
-	// If finalization functions have been provided, call them as the last action.
-	// We first check if a specific finalization function for clients has been
-	// provided. If this is not the case, we try to execute the global finalization
-	// function instead.
-	if(clientFinalizationFunction_) clientFinalizationFunction_();
 	else {
-		if(finalizationFunction_) finalizationFunction_();
+		// Instantiate the client worker
+		boost::shared_ptr<Gem::Courtier::GAsioTCPClientT<GIndividual> > p(new Gem::Courtier::GAsioTCPClientT<GIndividual>(ip_, boost::lexical_cast<std::string>(port_)));
+
+		p->setMaxStalls(maxStalledDataTransfers_); // Set to 0 to allow an infinite number of stalls
+		p->setMaxConnectionAttempts(maxConnectionAttempts_); // Set to 0 to allow an infinite number of failed connection attempts
+		p->returnResultIfUnsuccessful(returnRegardless_);  // Prevent return of unsuccessful adaption attempts to the server
+
+		// Start the actual processing loop
+		p->run();
 	}
 }
 
@@ -344,7 +462,7 @@ void GOptimizer::parseCommandLine(int argc, char **argv) {
 		po::options_description desc(usageString.c_str());
 		desc.add_options()
 				("help,h", "emit help message")
-				("optimizationConfig,o", po::value<std::string>(&configFilename_)->default_value(GO_DEF_DEFAULTCONFIGFILE),
+				("configFilename,c", po::value<std::string>(&configFilename_)->default_value(GO_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
 				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO_DEF_DEFAULPARALLELIZATIONMODE),
 				"Whether to perform the optimization in serial mode (0), multi-threaded (1) or networked (2) mode")
@@ -369,20 +487,13 @@ void GOptimizer::parseCommandLine(int argc, char **argv) {
 		if(verbose_) {
 			std::cout << std::endl
 					<< "Running with the following command line options:" << std::endl
-					<< "optimizationConfig = " << configFilename_ << std::endl;
+					<< "configFilename = " << configFilename_ << std::endl
+					<< "parallelizationMode = " << parallelizationMode << std::endl
+					<< "serverMode = " << serverMode_ << std::endl
+					<< "ip = " << ip << std::endl
+					<< "port = " << port << std::endl
+					<< "serializationMode = " << serializationMode << std::endl;
 		}
-
-		// Needs to be triggered by "verbose"
-		/*
-		std::cout << std::endl
-				<< "Running with the following command line options:"
-				<< std::endl << "configFile = " << configFile << std::endl
-				<< "parallelizationMode = " << parModeString << std::endl
-				<< "serverMode = " << (serverMode ? "true" : "false")
-				<< std::endl << "ip = " << ip << std::endl << "port = "
-				<< port << std::endl << "serMode = " << serMode
-				<< std::endl << std::endl;
-		*/
 	}
 	catch(const po::error& e) {
 		std::cerr << "Error parsing the command line:" << std::endl
@@ -416,6 +527,7 @@ void GOptimizer::parseConfigurationFile(const std::string& configFile) {
 		config.add_options()
 		("maxStalledDataTransfers", po::value<boost::uint32_t>(&maxStalledDataTransfers_)->default_value(GO_DEF_MAXSTALLED))
 		("maxConnectionAttempts", po::value<boost::uint32_t>(&maxConnectionAttempts_)->default_value(GO_DEF_MAXCONNATT))
+		("copyBestOnly", po::value<bool>(copyBestOnly_)->default_value(GO_DEF_COPYBESTONLY))
 		("returnRegardless", po::value<bool>(&returnRegardless_)->default_value(GO_DEF_RETURNREGARDLESS))
 		("nProducerThreads", po::value<boost::uint16_t>(&nProducerThreads_)->default_value(GO_DEF_NPRODUCERTHREADS))
 		("arraySize", po::value<std::size_t>(&arraySize_)->default_value(GO_DEF_ARRAYSIZE))
@@ -453,8 +565,35 @@ void GOptimizer::parseConfigurationFile(const std::string& configFile) {
 		notify(vm);
 
 		if(verbose_) { // Let the audience know
-			std::cout << "Found the following values in configuration file " << configFile << ":" << std::endl
-					  << "maxStalledDataTransfers = " << maxStalledDataTransfers_ << std::endl;
+			std::cout << "Found the following values in configuration file:" << configFile << ":" << std::endl
+					  << "maxStalledDataTransfers = " << maxStalledDataTransfers_ << std::endl
+					  << "maxConnectionAttempts = " << maxConnectionAttempts_ << std::endl
+					  << "copyBestOnly = " << copyBestOnly_ << std::endl
+					  << "returnRegardless = " << returnRegardless_ << std::endl
+					  << "nProducerThreads = " << nProducerThreads_ << std::endl
+					  << "arraySize = " << arraySize_ << std::endl
+					  << "nEvaluationThreads = " << nEvaluationThreads_ << std::endl
+					  << "serializationMode = " << serializationMode_ << std::endl
+					  << "waitFactor = " << waitFactor_ << std::endl
+					  << "maxIterations = " << maxIterations_ << std::endl
+					  << "maxMinutes = " << maxMinutes_ << std::endl
+					  << "reportIteration = " << reportIteration_ << std::endl
+					  << "eaPopulationSize = " << eaPopulationSize_ << std::endl
+					  << "eaNParents = " << eaNParents_ << std::endl
+					  << "eaRecombinationScheme = " << eaRecombinationScheme_ << std::endl
+					  << "eaSortingScheme = " << eaSortingScheme_ << std::endl
+					  << "eaTrackParentRelations = " << eaTrackParentRelations_ << std::endl
+					  << "swarmNNeighborhoods = " << swarmNNeighborhoods_ << std::endl
+					  << "swarmNNeighborhoodMembers = " << swarmNNeighborhoodMembers << std::endl
+					  << "swarmRandomFillUp = " << swarmRandomFillUp_ << std::endl
+					  << "swarmCLocal = " << swarmCLocal_ << std::endl
+					  << "swarmCGlobal = " << swarmCGlobal_ << std::endl
+					  << "swarmCDelta = " << swarmCDelta_ << std::endl
+					  << "swarmUpdateRule = " << swarmUpdateRule_ << std::end
+					  << "gdNStartingPoints = " << gdNStartingPoints_ << std::endl
+					  << "gdFiniteStep = " << gdFiniteStep_ << std::endl
+					  << "gdStepSize = " << gdStepSize_ << std::endl
+			;
 		}
 	}
 	catch(const po::error& e) {

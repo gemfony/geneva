@@ -196,10 +196,10 @@ public:
 	/**
 	 * Retrieves the best individual of the population and casts it to the desired type.
 	 * Note that this function will only be accessible to the compiler if individual_type is a derivative
-	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. Hence
-	 * we do not need to check convertibility using dynamic_cast<>.
+	 * of GIndividual, thanks to the magic of Boost's enable_if and Type Traits libraries. The returned
+	 * object is a clone of the original, so you can act on it freely.
 	 *
-	 * @return A converted shared_ptr to the best (i.e. first) individual of the population
+	 * @return A converted shared_ptr to a clone of the best (i.e. first) individual of the population
 	 */
 	template <typename individual_type>
 	inline boost::shared_ptr<individual_type> getBestIndividual(
@@ -212,18 +212,9 @@ public:
 				  << "Tried to access individual at position 0 even though population is empty." << std::endl;
 			throw Gem::Common::gemfony_error_condition(error.str());
 		}
-
-		boost::shared_ptr<individual_type> p = boost::dynamic_pointer_cast<individual_type>(data[0]);
-
-		if(p) return p;
-		else {
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() : Conversion error!" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
-		}
-#else
-		return boost::static_pointer_cast<individual_type>(data[0]);
 #endif /* DEBUG */
+
+		return data[0]->clone<individual_type>();
 	}
 
 	/**************************************************************************************************/
