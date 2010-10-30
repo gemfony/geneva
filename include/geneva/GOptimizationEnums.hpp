@@ -212,10 +212,10 @@ enum sortingMode {
  * in them (see the GPersonalityTraits classes).
  */
 enum personality {
-	  NONE
-	, EA
-	, GD
-	, SWARM
+	  NONE = 0
+	, EA = 1
+	, GD = 2
+	, SWARM = 3
 };
 
 /**********************************************************************************************/

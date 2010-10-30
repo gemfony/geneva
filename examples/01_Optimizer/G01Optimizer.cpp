@@ -39,7 +39,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include <geneva/GOptimizer.hpp>
+#include <geneva/GO.hpp>
 
 // The individual that should be optimized
 #include "GFunctionIndividual.hpp"
@@ -48,7 +48,7 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	GOptimizer go(argc, argv);
+	GO go(argc, argv);
 
 	//---------------------------------------------------------------------
 	// Client mode

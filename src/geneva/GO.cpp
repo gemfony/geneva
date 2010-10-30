@@ -562,6 +562,8 @@ void GO::parseCommandLine(int argc, char **argv) {
 				("help,h", "emit help message")
 				("configFilename,c", po::value<std::string>(&configFilename_)->default_value(GO_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
+				("algorithm,a", po::value<personality>(&pers_)->default_value(GO_DEF_PERSONALITY),
+				"The type of optimization algorithm: Evolutionary Algorithm (0), Gradient Descent (1), Swarm (2)")
 				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO_DEF_DEFAULPARALLELIZATIONMODE),
 				"Whether to perform the optimization in serial mode (0), multi-threaded (1) or networked (2) mode")
 				("serverMode,s",
@@ -594,7 +596,8 @@ void GO::parseCommandLine(int argc, char **argv) {
 			std::cout << std::endl
 					<< "Running with the following command line options:" << std::endl
 					<< "configFilename = " << configFilename_ << std::endl
-					<< "parMode_ = " << parMode_ << std::endl
+					<< "algorithm = " << pers_ << std::endl
+					<< "parMode = " << parMode_ << std::endl
 					<< "serverMode = " << serverMode_ << std::endl
 					<< "ip = " << ip_ << std::endl
 					<< "port = " << port_ << std::endl
