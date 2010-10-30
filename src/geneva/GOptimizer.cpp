@@ -43,7 +43,7 @@ GOptimizer::GOptimizer()
 	, pers_(GO_DEF_PERSONALITY)
 	, parMode_(GO_DEF_PARALLELIZATIONMODE)
 	, serverMode_(GO_DEF_SERVERMODE)
-	, serializationMode_(GO_DEF_DEFAULTSERIALIZATIONMODE)
+	, serializationMode_(GO_DEF_SERIALIZATIONMODE)
 	, ip_(GO_DEF_IP)
 	, port_(GO_DEF_PORT)
 	, configFilename_(GO_DEF_DEFAULTCONFIGFILE)
@@ -55,7 +55,6 @@ GOptimizer::GOptimizer()
 	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
 	, arraySize_(GO_DEF_ARRAYSIZE)
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
-	, serializationMode_(GO_DEF_SERIALIZATIONMODE)
 	, waitFactor_(GO_DEF_WAITFACTOR)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
 	, maxMinutes_(GO_DEF_MAXMINUTES)
@@ -98,7 +97,7 @@ GOptimizer::GOptimizer(int argc, char **argv)
 	, pers_(GO_DEF_PERSONALITY)
 	, parMode_(GO_DEF_PARALLELIZATIONMODE)
 	, serverMode_(GO_DEF_SERVERMODE)
-	, serializationMode_(GO_DEF_DEFAULTSERIALIZATIONMODE)
+	, serializationMode_(GO_DEF_SERIALIZATIONMODE)
 	, ip_(GO_DEF_IP)
 	, port_(GO_DEF_PORT)
 	, configFilename_(GO_DEF_DEFAULTCONFIGFILE)
@@ -110,7 +109,6 @@ GOptimizer::GOptimizer(int argc, char **argv)
 	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
 	, arraySize_(GO_DEF_ARRAYSIZE)
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
-	, serializationMode_(GO_DEF_SERIALIZATIONMODE)
 	, waitFactor_(GO_DEF_WAITFACTOR)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
 	, maxMinutes_(GO_DEF_MAXMINUTES)
@@ -133,7 +131,7 @@ GOptimizer::GOptimizer(int argc, char **argv)
 {
 	//--------------------------------------------
 	// Load initial configuration options from the command line
-	parseCommandLine();
+	parseCommandLine(argc, argv);
 
 	//--------------------------------------------
 	// Load further configuration options from file
@@ -168,7 +166,6 @@ GOptimizer::GOptimizer(const GOptimizer& cp)
 	, nProducerThreads_(cp.nProducerThreads_)
 	, arraySize_(cp.arraySize_)
 	, nEvaluationThreads_(cp.nEvaluationThreads_)
-	, serializationMode_(cp.serializationMode_)
 	, waitFactor_(cp.waitFactor_)
 	, maxIterations_(cp.maxIterations_)
 	, maxMinutes_(cp.maxMinutes_)
@@ -192,8 +189,11 @@ GOptimizer::GOptimizer(const GOptimizer& cp)
 	//--------------------------------------------
 	// Copy the optimization monitors over (if any)
 	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GEAOptimizationMonitor>(cp.ea_om_ptr_, ea_om_ptr_);
-	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GSwarmOptimizationMonitor>(cp.swarm_om_ptr_, swarm_om_ptr_);
-	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GGDOptimizationMonitor>(cp.gd_om_ptr_, gd_om_ptr_);
+	copyGenevaSmartPointer<GSwarm::GSwarmOptimizationMonitor>(cp.swarm_om_ptr_, swarm_om_ptr_);
+	copyGenevaSmartPointer<GGradientDescent::GGDOptimizationMonitor>(cp.gd_om_ptr_, gd_om_ptr_);
+
+	// Copy the best individual over (if any)
+	copyGenevaSmartPointer<GParameterSet>(cp.bestIndividual_, bestIndividual_);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -229,7 +229,7 @@ const GOptimizer& GOptimizer::operator=(const GOptimizer& cp) {
  * @param  cp A constant reference to another GOptimizer object
  * @return A boolean indicating whether both objects are equal
  */
-bool GOptimizer::operator==(const GOptimizer&) const {
+bool GOptimizer::operator==(const GOptimizer& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GOptimizer::operator==","cp", CE_SILENT);
@@ -242,7 +242,7 @@ bool GOptimizer::operator==(const GOptimizer&) const {
  * @param  cp A constant reference to another GOptimizer object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GOptimizer::operator!=(const GOptimizer&) const {
+bool GOptimizer::operator!=(const GOptimizer& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
 	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GOptimizer::operator!=","cp", CE_SILENT);
@@ -278,12 +278,47 @@ boost::optional<std::string> GOptimizer::checkRelationshipWith(
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GMutablesetT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizer", y_name, withMessages));
+	deviations.push_back(GMutableSetT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GOptimizer", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GOptimizer", quiet_, p_load->quiet_, "quiet_", "p_load->quiet_", e , limit));
-
-	// TODO: fill with the variables
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", parMode_, p_load->parMode_, "parMode_", "p_load->parMode_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", serializationMode_, p_load->serializationMode_, "serializationMode_", "p_load->serializationMode_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", ip_, p_load->ip_, "ip_", "p_load->ip_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", port_, p_load->port_, "port_", "p_load->port_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", configFilename_, p_load->configFilename_, "configFilename_", "p_load->configFilename_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", verbose_, p_load->verbose_, "verbose_", "p_load->verbose_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", ea_om_ptr_, p_load->ea_om_ptr_, "ea_om_ptr_", "p_load->ea_om_ptr_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", swarm_om_ptr_, p_load->swarm_om_ptr_, "swarm_om_ptr_", "p_load->swarm_om_ptr_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", gd_om_ptr_, p_load->gd_om_ptr_, "gd_om_ptr_", "p_load->gd_om_ptr_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", copyBestOnly_, p_load->copyBestOnly_, "copyBestOnly_", "p_load->copyBestOnly_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", maxStalledDataTransfers_, p_load->maxStalledDataTransfers_, "maxStalledDataTransfers_", "p_load->maxStalledDataTransfers_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", maxConnectionAttempts_, p_load->maxConnectionAttempts_, "maxConnectionAttempts_", "p_load->maxConnectionAttempts_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", returnRegardless_, p_load->returnRegardless_, "returnRegardless_", "p_load->returnRegardless_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", nProducerThreads_, p_load->nProducerThreads_, "nProducerThreads_", "p_load->nProducerThreads_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", arraySize_, p_load->arraySize_, "arraySize_", "p_load->arraySize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", nEvaluationThreads_, p_load->nEvaluationThreads_, "nEvaluationThreads_", "p_load->nEvaluationThreads_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", waitFactor_, p_load->waitFactor_, "waitFactor_", "p_load->waitFactor_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", maxIterations_, p_load->maxIterations_, "maxIterations_", "p_load->maxIterations_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", maxMinutes_, p_load->maxMinutes_, "maxMinutes_", "p_load->maxMinutes_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", eaPopulationSize_, p_load->eaPopulationSize_, "eaPopulationSize_", "p_load->eaPopulationSize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", eaNParents_, p_load->eaNParents_, "eaNParents_", "p_load->eaNParents_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", eaRecombinationScheme_, p_load->eaRecombinationScheme_, "eaRecombinationScheme_", "p_load->eaRecombinationScheme_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", eaSortingScheme_, p_load->eaSortingScheme_, "eaSortingScheme_", "p_load->eaSortingScheme_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", eaTrackParentRelations_, p_load->eaTrackParentRelations_, "eaTrackParentRelations_", "p_load->eaTrackParentRelations_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", swarmNNeighborhoods_, p_load->swarmNNeighborhoods_, "swarmNNeighborhoods_", "p_load->swarmNNeighborhoods_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", swarmNNeighborhoodMembers_, p_load->swarmNNeighborhoodMembers_, "swarmNNeighborhoodMembers_", "p_load->swarmNNeighborhoodMembers_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", swarmRandomFillUp_, p_load->swarmRandomFillUp_, "swarmRandomFillUp_", "p_load->swarmRandomFillUp_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", swarmCLocal_, p_load->swarmCLocal_, "swarmCLocal_", "p_load->swarmCLocal_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", swarmCGlobal_, p_load->swarmCGlobal_, "swarmCGlobal_", "p_load->swarmCGlobal_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", swarmCDelta_, p_load->swarmCDelta_, "swarmCDelta_", "p_load->swarmCDelta_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", swarmUpdateRule_, p_load->swarmUpdateRule_, "swarmUpdateRule_", "p_load->swarmUpdateRule_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", gdNStartingPoints_, p_load->gdNStartingPoints_, "gdNStartingPoints_", "p_load->gdNStartingPoints_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", gdFiniteStep_, p_load->gdFiniteStep_, "gdFiniteStep_", "p_load->gdFiniteStep_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", gdStepSize_, p_load->gdStepSize_, "gdStepSize_", "p_load->gdStepSize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "GOptimizer", bestIndividual_, p_load->bestIndividual_, "bestIndividual_", "p_load->bestIndividual_", e , limit));
 
 	return evaluateDiscrepancies("GOptimizationMonitorT", caller, deviations, e);
 }
@@ -311,8 +346,8 @@ void GOptimizer::load_(const GObject *cp) {
 	verbose_ = p_load->verbose_;
 
 	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GEAOptimizationMonitor>(p_load->ea_om_ptr_, ea_om_ptr_);
-	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GSwarmOptimizationMonitor>(p_load->swarm_om_ptr_, swarm_om_ptr_);
-	copyGenevaSmartPointer<GEvolutionaryAlgorithm::GGDOptimizationMonitor>(p_load->gd_om_ptr_, gd_om_ptr_);
+	copyGenevaSmartPointer<GSwarm::GSwarmOptimizationMonitor>(p_load->swarm_om_ptr_, swarm_om_ptr_);
+	copyGenevaSmartPointer<GGradientDescent::GGDOptimizationMonitor>(p_load->gd_om_ptr_, gd_om_ptr_);
 
 	copyBestOnly_ = p_load->copyBestOnly_;
 	maxStalledDataTransfers_ = p_load->maxStalledDataTransfers_;
@@ -321,7 +356,6 @@ void GOptimizer::load_(const GObject *cp) {
 	nProducerThreads_ = p_load->nProducerThreads_;
 	arraySize_ = p_load->arraySize_;
 	nEvaluationThreads_ = p_load->nEvaluationThreads_;
-	serializationMode_ = p_load->serializationMode_;
 	waitFactor_ = p_load->waitFactor_;
 	maxIterations_ = p_load->maxIterations_;
 	maxMinutes_ = p_load->maxMinutes_;
@@ -341,6 +375,8 @@ void GOptimizer::load_(const GObject *cp) {
 	gdNStartingPoints_ = p_load->gdNStartingPoints_;
 	gdFiniteStep_ = p_load->gdFiniteStep_;
 	gdStepSize_ = p_load->gdStepSize_;
+
+	copyGenevaSmartPointer<GParameterSet>(p_load->bestIndividual_, bestIndividual_);
 }
 
 /**************************************************************************************/
@@ -452,6 +488,64 @@ bool GOptimizer::clientMode() const {
 }
 
 /**************************************************************************************/
+/*
+ * Specifies whether only the best individuals of a population should be copied.
+ *
+ * @param copyBestOnly Specifies whether only the best individuals of a population are copied
+ */
+void GOptimizer::setCopyBestIndividualsOnly(const bool& copyBestOnly) {
+	copyBestOnly_ = copyBestOnly;
+}
+
+/**************************************************************************************/
+/**
+ * Checks whether only the best individuals are copied
+ *
+ * @return A boolean indicating whether only the best individuals of a population are copied
+ */
+bool GOptimizer::onlyBestIndividualsAreCopied() const {
+	return copyBestOnly_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to randomly initialize parameter members. Note that for this wrapper object
+ * this function doesn't make any sense. It is made available to satisfy a requirement
+ * of GIndividual.
+ */
+void GOptimizer::randomInit()
+{ /* nothing */ }
+
+/**************************************************************************************/
+/**
+ * Fitness calculation for an optimization algorithm means optimization. The fitness is
+ * then determined by the best individual which, after the end of the optimization cycle.
+ *
+ * @return The fitness of the best individual in the population
+ */
+double GOptimizer::fitnessCalculation() {
+	bool dirty = false;
+
+	boost::shared_ptr<GParameterSet> p = this->optimize<GParameterSet>();
+
+	double val = p->getCurrentFitness(dirty);
+	// is this the current fitness ? We should at this stage never
+	// run across an unevaluated individual.
+	if(dirty) {
+		std::ostringstream error;
+		error << "In GOptimizer::fitnessCalculation(): Error!" << std::endl
+			  << "Came across dirty individual" << std::endl;
+
+		// throw an exception. Add some information so that if the exception
+		// is caught through a base object, no information is lost.
+		throw Gem::Common::gemfony_error_condition(error.str());
+	}
+
+	return val;
+}
+
+
+/**************************************************************************************/
 /**
  * Loads some configuration data from arguments passed on the command line
  *
@@ -476,14 +570,22 @@ void GOptimizer::parseCommandLine(int argc, char **argv) {
 				"The ip of the server")
 				("port", po::value<unsigned short>(&port_)->default_value(GO_DEF_PORT),
 				"The port of the server")
-				("serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO_DEF_DEFAULTSERIALIZATIONMODE),
+				("serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO_DEF_SERIALIZATIONMODE),
 				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+				("writeConfigFile,w",
+				"Instructs the program to write out a configuration file and then to exit. If the configuration option \"configFileName\" has been specified, its value will be used as the name of the file")
 				("verbose,v", po::value<bool>(&verbose_)->default_value(GO_DEF_DEFAULTVERBOSE),
-				"Instructs the parsers to output information about configuration parameters");
+				"Instructs the parsers to output information about configuration parameters")
+		;
 
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, desc), vm);
 		po::notify(vm);
+
+		if(vm.count("writeConfigFile")) {
+			GOptimizer::writeConfigurationFile(configFilename_);
+			exit(0);
+		}
 
 		if (parMode_ == 2  &&  vm.count("serverMode")) serverMode_ = true;
 		else serverMode_ = false;
@@ -492,11 +594,11 @@ void GOptimizer::parseCommandLine(int argc, char **argv) {
 			std::cout << std::endl
 					<< "Running with the following command line options:" << std::endl
 					<< "configFilename = " << configFilename_ << std::endl
-					<< "parallelizationMode = " << parallelizationMode << std::endl
+					<< "parMode_ = " << parMode_ << std::endl
 					<< "serverMode = " << serverMode_ << std::endl
-					<< "ip = " << ip << std::endl
-					<< "port = " << port << std::endl
-					<< "serializationMode = " << serializationMode << std::endl;
+					<< "ip = " << ip_ << std::endl
+					<< "port = " << port_ << std::endl
+					<< "serializationMode = " << serializationMode_ << std::endl;
 		}
 	}
 	catch(const po::error& e) {
@@ -505,7 +607,7 @@ void GOptimizer::parseCommandLine(int argc, char **argv) {
 		exit(1);
 	}
 	catch(...) {
-		std::cerr << "Unknown error while parsing the command line" << configFile << std::endl;
+		std::cerr << "Unknown error while parsing the command line" << std::endl;
 		exit(1);
 	}
 }
@@ -531,7 +633,7 @@ void GOptimizer::parseConfigurationFile(const std::string& configFile) {
 		config.add_options()
 		("maxStalledDataTransfers", po::value<boost::uint32_t>(&maxStalledDataTransfers_)->default_value(GO_DEF_MAXSTALLED))
 		("maxConnectionAttempts", po::value<boost::uint32_t>(&maxConnectionAttempts_)->default_value(GO_DEF_MAXCONNATT))
-		("copyBestOnly", po::value<bool>(copyBestOnly_)->default_value(GO_DEF_COPYBESTONLY))
+		("copyBestOnly", po::value<bool>(&copyBestOnly_)->default_value(GO_DEF_COPYBESTONLY))
 		("returnRegardless", po::value<bool>(&returnRegardless_)->default_value(GO_DEF_RETURNREGARDLESS))
 		("nProducerThreads", po::value<boost::uint16_t>(&nProducerThreads_)->default_value(GO_DEF_NPRODUCERTHREADS))
 		("arraySize", po::value<std::size_t>(&arraySize_)->default_value(GO_DEF_ARRAYSIZE))
@@ -588,12 +690,12 @@ void GOptimizer::parseConfigurationFile(const std::string& configFile) {
 					  << "eaSortingScheme = " << eaSortingScheme_ << std::endl
 					  << "eaTrackParentRelations = " << eaTrackParentRelations_ << std::endl
 					  << "swarmNNeighborhoods = " << swarmNNeighborhoods_ << std::endl
-					  << "swarmNNeighborhoodMembers = " << swarmNNeighborhoodMembers << std::endl
+					  << "swarmNNeighborhoodMembers = " << swarmNNeighborhoodMembers_ << std::endl
 					  << "swarmRandomFillUp = " << swarmRandomFillUp_ << std::endl
 					  << "swarmCLocal = " << swarmCLocal_ << std::endl
 					  << "swarmCGlobal = " << swarmCGlobal_ << std::endl
 					  << "swarmCDelta = " << swarmCDelta_ << std::endl
-					  << "swarmUpdateRule = " << swarmUpdateRule_ << std::end
+					  << "swarmUpdateRule = " << swarmUpdateRule_ << std::endl
 					  << "gdNStartingPoints = " << gdNStartingPoints_ << std::endl
 					  << "gdFiniteStep = " << gdFiniteStep_ << std::endl
 					  << "gdStepSize = " << gdStepSize_ << std::endl

@@ -33,7 +33,7 @@
 #include <vector>
 
 // Includes check for correct Boost version(s)
-#include "GGlobalDefines.hpp"
+#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 #include <boost/shared_ptr.hpp>
@@ -49,6 +49,7 @@
 #endif
 
 // Our own headers go here
+#include "geneva/GObject.hpp"
 
 namespace Gem
 {
@@ -75,7 +76,7 @@ void copyGenevaSmartPointer (
 		to.reset();
 	} else {
 		if(!to) {
-			to = from->clone<T>();
+			to = from->GObject::clone<T>();
 		} else {
 			to->load(from);
 		}

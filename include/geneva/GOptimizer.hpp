@@ -41,6 +41,8 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
 #include <boost/cast.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits.hpp>
 
 #ifndef GOPTIMIZER_HPP_
 #define GOPTIMIZER_HPP_
@@ -80,7 +82,7 @@ const parMode GO_DEF_PARALLELIZATIONMODE=MULTITHREADED;
 const std::string GO_DEF_DEFAULTCONFIGFILE="optimizationAlgorithm.cfg";
 const bool GO_DEF_SERVERMODE=true;
 const parMode GO_DEF_DEFAULPARALLELIZATIONMODE=MULTITHREADED;
-const Gem::Common::serializationMode GO_DEF_DEFAULTSERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
+const Gem::Common::serializationMode GO_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_BINARY;
 const std::string GO_DEF_IP="localhost";
 const unsigned int GO_DEF_PORT=10000;
 const bool GO_DEF_DEFAULTVERBOSE=false;
@@ -91,7 +93,6 @@ const bool GO_DEF_RETURNREGARDLESS=true;
 const boost::uint16_t GO_DEF_NPRODUCERTHREADS=0;
 const std::size_t GO_DEF_ARRAYSIZE=1000;
 const boost::uint16_t GO_DEF_NEVALUATIONTHREADS=0;
-const Gem::Common::serializationMode GO_DEF_SERIALIZATIONMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
 const boost::uint32_t GO_DEF_WAITFACTOR=0;
 const boost::uint32_t GO_DEF_MAXITERATIONS=1000;
 const long GO_DEF_MAXMINUTES=0;
@@ -123,7 +124,7 @@ const float GO_DEF_GDSTEPSIZE=0.1;
  * the class will attempt to load the data from a default file name.
  */
 class GOptimizer
-	: public GMutablesetT<GParameterSet>
+	: public GMutableSetT<GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -132,9 +133,8 @@ class GOptimizer
 	void serialize(Archive & ar, const unsigned int){
 	  using boost::serialization::make_nvp;
 
-	  ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GIndividual)
-		 & make_nvp("GMutableSetT_GParameterSet", boost::serialization::base_object<GMutaböeSetT<GParameterSet> >(*this))
-		 & BOOST_SERIALIZATION_NVP(pers_);
+	  ar & make_nvp("GMutableSetT_GParameterSet", boost::serialization::base_object<GMutableSetT<GParameterSet> >(*this))
+		 & BOOST_SERIALIZATION_NVP(pers_)
 	  	 & BOOST_SERIALIZATION_NVP(parMode_)
 	     & BOOST_SERIALIZATION_NVP(serverMode_)
 	     & BOOST_SERIALIZATION_NVP(serializationMode_)
@@ -171,7 +171,8 @@ class GOptimizer
 	     & BOOST_SERIALIZATION_NVP(swarmUpdateRule_)
 	     & BOOST_SERIALIZATION_NVP(gdNStartingPoints_)
 	     & BOOST_SERIALIZATION_NVP(gdFiniteStep_)
-	     & BOOST_SERIALIZATION_NVP(gdStepSize_);
+	     & BOOST_SERIALIZATION_NVP(gdStepSize_)
+	     & BOOST_SERIALIZATION_NVP(bestIndividual_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -219,15 +220,54 @@ public:
 	/** @brief Checks whether this object is running in client mode */
 	bool clientMode() const;
 
+	/* @brief Specifies whether only the best individuals of a population should be copied */
+	void setCopyBestIndividualsOnly(const bool&);
+	/** @brief Checks whether only the best individuals are copied */
+	bool onlyBestIndividualsAreCopied() const;
+
+	/** @brief Allows to randomly initialize parameter members. Unused in this wrapper object */
+	virtual void randomInit();
+	/** @brief Triggers fitness calculation (i.e. optimization) for this object */
+	virtual double fitnessCalculation();
+
+	/**************************************************************************************/
+	/**
+	 * Retrieves a copy of the best individual (if any) and converts it to the
+	 * desired target type.
+	 *
+	 * @return A converted shared_ptr to a copy of the best individual of the population
+	 */
+	template <typename ind_type>
+	inline boost::shared_ptr<ind_type> getBestIndividual(
+			typename boost::enable_if<boost::is_base_of<GParameterSet, ind_type> >::type* dummy = 0
+	){
+#ifdef DEBUG
+		// Check that bestIndividual_ actually points somewhere
+		if(!bestIndividual_) {
+			std::ostringstream error;
+			error << "In GOptimizer::getBestIndividual<>() : Error" << std::endl
+				  << "Tried to access uninitialized best individual." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#endif /* DEBUG */
+
+		return bestIndividual_->clone<ind_type>();
+	}
+
 	/**************************************************************************************/
 	/**
 	 * Starts the optimization cycle, using the optimization algorithm that has been requested.
-	 * Returns the best individual found, converted to the desired type.
+	 * Returns the best individual found, converted to the desired type. Note that after a call
+	 * to this function, both the number of individuals stored in this object and their content
+	 * will have changed. The function can only be called if ind_type is a derivative of GParameterSet.
+	 * This enables us to store the best individual in a smart pointer to a GParameterSet object.
 	 *
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename ind_type>
-	boost::shared_ptr<ind_type> optimize() {
+	boost::shared_ptr<ind_type> optimize(
+			typename boost::enable_if<boost::is_base_of<GParameterSet, ind_type> >::type* dummy = 0
+	) {
 		boost::shared_ptr<ind_type> result;
 
 #ifdef DEBUG
@@ -244,38 +284,32 @@ public:
 		// Which algorithm are we supposed to use ?
 		switch(pers_) {
 		case EA: // Evolutionary algorithms
-		{
 			result = eaOptimize<ind_type>();
-			return result;
-		}
-		break;
+			break;
 
 		case SWARM: // Swarm algorithms
-		{
 			result = swarmOptimize<ind_type>();
-			return result;
-		}
-		break;
+			break;
 
 		case GD: // Gradient descents
-		{
 			result = gdOptimize<ind_type>();
-			return result;
-		}
-		break;
+			break;
 
 		case NONE:
-		{
-			std::ostringstream error;
-			error << "In GOptimizer::optimize(): Error!" << std::endl
-					<< "No optimization algorithm was specified." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-		break;
+			{
+				std::ostringstream error;
+				error << "In GOptimizer::optimize(): Error!" << std::endl
+						<< "No optimization algorithm was specified." << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+			break;
 		};
 
-		// Make the compiler happy
-		return boost::shared_ptr<ind_type>(); // Empty smart pointer
+		// Create a copy of the best individual for later use
+		bestIndividual_ = result->GObject::clone<GParameterSet>();
+
+		// Let the audience know
+		return result;
 	}
 
 	/**************************************************************************************/
@@ -500,49 +534,42 @@ private:
 		// Register the optimization monitor, if one has been provided
 		if(ea_om_ptr_) ea_ptr->registerOptimizationMonitor(ea_om_ptr_);
 
-		// Calculate a suitable number of individuals to copy into the algorithm
-		std::size_t nCopy = 0;
-		if(this->size() >= ea_ptr->getDefaultPopulationSize()) {
-			nCopy = ea_ptr->getDefaultPopulationSize();
-		}
-		else if(this->size() < ea_ptr->getDefaultPopulationSize()) {
-			nCopy = this->size();
-		}
-
 		// Transfer the initial parameter sets to the population
 		GOptimizer::iterator it;
-		for(it=this->begin(); it!=this->begin() + nCopy; ++it) {
+		for(it=this->begin(); it!=this->end(); ++it) {
 			// Note, there will not be a big space overhead here,
 			// as what is being copied are smart pointers, not
 			// the individuals themselves.
 			ea_ptr->push_back(*it);
 		}
 
-		// Get rid of the old content -- need to remove the first nCopy items
-		// GEvolutionaryAlgorithm and derivatives may or may not clean their
-		// own vector and it is safer to re-integrate them from scratch after
-		// the optimization run.
-		this->erase(this->begin(), this->begin() + nCopy);
+		// Clean our own vector
+		this->clear();
 
 		// Do the actual optimization
 		ea_ptr->optimize();
 
-		// Transfer the best (i.e. nCopy first) individuals back into our local individual vector
-		for(int i=static_cast<int>(nCopy)-1; i>=0; i--) {
+		// Copy all or the best set of individuals back into our own vector
+		if(copyBestOnly_) {
+			for(std::size_t i=0; i<ea_ptr->getNParents(); i++) {
 #ifdef DEBUG
-			boost::shared_ptr<GParameterSet> p =
-					boost::dynamic_pointer_cast<GParameterSet>(ea_ptr->at(boost::numeric_cast<std::size_t>(i)));
-			this->insert(this->begin(), p);
+				this->push_back(boost::dynamic_pointer_cast<GParameterSet>(ea_ptr->at(i)));
 #else
-			this->insert(
-					this->begin()
-					, boost::static_pointer_cast<GParameterSet>(ea_ptr->at(static_cast<std::size_t>(i)))
-			);
+				this->push_back(boost::static_pointer_cast<GParameterSet>(ea_ptr->at(i)));
 #endif /* DEBUG */
+			}
+		} else {
+			for(std::size_t i=0; i<ea_ptr->size(); i++) {
+#ifdef DEBUG
+				this->push_back(boost::dynamic_pointer_cast<GParameterSet>(ea_ptr->at(i)));
+#else
+				this->push_back(boost::static_pointer_cast<GParameterSet>(ea_ptr->at(i)));
+#endif /* DEBUG */
+			}
 		}
 
 		// Retrieve the best individual found
-		boost::shared_ptr<GParameterSet> result = ea_ptr->getBestIndividual<ind_type>();
+		boost::shared_ptr<ind_type> result = ea_ptr->getBestIndividual<ind_type>();
 
 		// Make sure ea_ptr is clean again
 		ea_ptr->clear();
@@ -625,8 +652,47 @@ private:
 		// Register the optimization monitor (if one has been provided)
 		if(swarm_om_ptr_) swarm_ptr->registerOptimizationMonitor(swarm_om_ptr_);
 
+		// Transfer the initial parameter sets to the population
+		GOptimizer::iterator it;
+		for(it=this->begin(); it!=this->end(); ++it) {
+			// Note, there will not be a big space overhead here,
+			// as what is being copied are smart pointers, not
+			// the individuals themselves.
+			swarm_ptr->push_back(*it);
+		}
+
+		// Clean our own vector
+		this->clear();
+
+		// Do the actual optimization
+		swarm_ptr->optimize();
+
+		// Copy all or the best set of individuals back into our own vector
+		if(copyBestOnly_) {
+			// Copy the local bests. One of them should be identical to the global best
+			for(std::size_t i=0; i<swarm_ptr->getNNeighborhoods(); i++) {
+				this->push_back(swarm_ptr->getBestNeighborhoodIndividual<GParameterSet>(i));
+			}
+		} else {
+			// First copy the local bests
+			for(std::size_t i=0; i<swarm_ptr->getNNeighborhoods(); i++) {
+				this->push_back(swarm_ptr->getBestNeighborhoodIndividual<GParameterSet>(i));
+			}
+
+			// Then copy all other individuals
+			for(std::size_t i=0; i<swarm_ptr->size(); i++) {
+				this->push_back(swarm_ptr->at(i));
+			}
+		}
+
+		// Retrieve the best individual found
+		boost::shared_ptr<ind_type> result = swarm_ptr->getBestIndividual<ind_type>();
+
+		// Make sure ea_ptr is clean again
+		swarm_ptr->clear();
+
 		// Return the best individual found
-		return swarm_ptr->getBestIndividual<ind_type>();
+		return result;
 	}
 
 	/**************************************************************************************/
@@ -684,8 +750,51 @@ private:
 		// Register the optimization monitor (if one has been provided)
 		if(gd_om_ptr_) gd_ptr->registerOptimizationMonitor(gd_om_ptr_);
 
+		// Transfer the initial parameter sets to the population. Note:
+		// It doesn't make sense to transfer more items than starting
+		// points in a gradient descent.
+		GOptimizer::iterator it;
+		for(it=this->begin(); it!=this->begin() + gdNStartingPoints_; ++it) {
+			// Note, there will not be a big space overhead here,
+			// as what is being copied are smart pointers, not
+			// the individuals themselves.
+			gd_ptr->push_back(*it);
+		}
+
+		// Clean our own vector
+		this->clear();
+
+		// Do the actual optimization
+		gd_ptr->optimize();
+
+		// Copy the best individuals over. Note: Copying the entire population doesn't
+		// make much sense for a gradient descent, but Geneva still gives you the freedom
+		// to do so
+		if(copyBestOnly_) {
+			// Copy the starting points only.
+			for(std::size_t i=0; i<gdNStartingPoints_; i++) {
+				this->push_back(gd_ptr->at(i));
+			}
+		} else {
+			// First copy the starting points.
+			for(std::size_t i=0; i<gdNStartingPoints_; i++) {
+				this->push_back(gd_ptr->at(i));
+			}
+
+			// Then copy all other individuals
+			for(std::size_t i=gdNStartingPoints_; i<gd_ptr->size(); i++) {
+				this->push_back(gd_ptr->at(i));
+			}
+		}
+
+		// Retrieve the best individual found
+		boost::shared_ptr<ind_type> result = gd_ptr->getBestIndividual<ind_type>();
+
+		// Make sure ea_ptr is clean again
+		gd_ptr->clear();
+
 		// Return the best individual found
-		return gd_ptr->getBestIndividual<ind_type>();
+		return result;
 	}
 
 	/**********************************************************************/
@@ -716,7 +825,6 @@ private:
     boost::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
     std::size_t arraySize_; ///< The size of the random number packages being transferred to the proxy RNGs
     boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
-    Gem::Common::serializationMode serializationMode_; ///< The mode used for the (de-)serialization of objects
     boost::uint32_t waitFactor_; ///< Influences the timeout in each iteration on the server side in networked execution
     boost::uint32_t maxIterations_; ///< The maximum number of iterations of the optimization algorithms
     long maxMinutes_; ///< The maximum duration of the optimization
@@ -742,6 +850,9 @@ private:
     std::size_t gdNStartingPoints_;
     float gdFiniteStep_;
     float gdStepSize_;
+
+    //----------------------------------------------------------------------------------------------------------------
+    boost::shared_ptr<GParameterSet> bestIndividual_; ///< The best individual found during an optimization
 };
 
 /**************************************************************************************/
