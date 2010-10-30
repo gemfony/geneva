@@ -1,5 +1,5 @@
 /**
- * @file GOptimizer.hpp
+ * @file GO.hpp
  */
 
 /*
@@ -44,8 +44,8 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
 
-#ifndef GOPTIMIZER_HPP_
-#define GOPTIMIZER_HPP_
+#ifndef GO_HPP_
+#define GO_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -117,13 +117,13 @@ const float GO_DEF_GDSTEPSIZE=0.1;
 /**
  * This class acts as a wrapper around the various optimization algorithms in the
  * Geneva library. Its aim is to facilitate the usage of the various algorithms,
- * relieving users from having to write any other code than is needed by their parameter
+ * relieving users from having to write much code beyond what is needed by their parameter
  * descriptions. The class parses a configuration file covering the most common options of
  * the various optimization algorithms. The class will not touch the command line. The
  * user can make the name of a configuration file known to the class. If none is provided,
  * the class will attempt to load the data from a default file name.
  */
-class GOptimizer
+class GO
 	: public GMutableSetT<GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -178,22 +178,22 @@ class GOptimizer
 
 public:
 	/** @brief The default constructor */
-	GOptimizer();
+	GO();
 	/** @brief A constructor that first parses the command line for relevant parameters and then loads data from a config file */
-	GOptimizer(int, char **);
+	GO(int, char **);
 	/** @brief A copy constructor */
-	GOptimizer(const GOptimizer&);
+	GO(const GO&);
 
 	/** @brief The destructor */
-	virtual ~GOptimizer();
+	virtual ~GO();
 
 	/** @brief Standard assignment operator */
-	const GOptimizer& operator=(const GOptimizer&);
+	const GO& operator=(const GO&);
 
-	/** @brief Checks for equality with another GOptimizer object */
-	bool operator==(const GOptimizer&) const;
-	/** @brief Checks for inequality with another GOptimizer object */
-	bool operator!=(const GOptimizer&) const;
+	/** @brief Checks for equality with another GO object */
+	bool operator==(const GO&) const;
+	/** @brief Checks for inequality with another GO object */
+	bool operator!=(const GO&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -245,7 +245,7 @@ public:
 		// Check that bestIndividual_ actually points somewhere
 		if(!bestIndividual_) {
 			std::ostringstream error;
-			error << "In GOptimizer::getBestIndividual<>() : Error" << std::endl
+			error << "In GO::getBestIndividual<>() : Error" << std::endl
 				  << "Tried to access uninitialized best individual." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
@@ -274,7 +274,7 @@ public:
 		// We need at least one individual to start with
 		if(this->empty()) {
 			std::ostringstream error;
-			error << "In GOptimizer::optimize(): Error!" << std::endl
+			error << "In GO::optimize(): Error!" << std::endl
 					<< "You need to register at least one individual." << std::endl
 					<< "Found none." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
@@ -298,7 +298,7 @@ public:
 		case NONE:
 			{
 				std::ostringstream error;
-				error << "In GOptimizer::optimize(): Error!" << std::endl
+				error << "In GO::optimize(): Error!" << std::endl
 						<< "No optimization algorithm was specified." << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
@@ -330,8 +330,7 @@ public:
 		cf << "################################################################" << std::endl
 		   << "# This is a configuration file for the optimization            #" << std::endl
 		   << "# algorithms implemented in the Geneva library.                #" << std::endl
-		   << "# It is meant to be accessed through the GOptimizer            #" << std::endl
-		   << "# class.                                                       #" << std::endl
+		   << "# It is meant to be accessed through the GO class              #" << std::endl
 		   << "#                                                              #" << std::endl
 		   << "# This file was automatically created by the Geneva library    #" << std::endl
 		   << "################################################################" << std::endl
@@ -535,7 +534,7 @@ private:
 		if(ea_om_ptr_) ea_ptr->registerOptimizationMonitor(ea_om_ptr_);
 
 		// Transfer the initial parameter sets to the population
-		GOptimizer::iterator it;
+		GO::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			// Note, there will not be a big space overhead here,
 			// as what is being copied are smart pointers, not
@@ -653,7 +652,7 @@ private:
 		if(swarm_om_ptr_) swarm_ptr->registerOptimizationMonitor(swarm_om_ptr_);
 
 		// Transfer the initial parameter sets to the population
-		GOptimizer::iterator it;
+		GO::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			// Note, there will not be a big space overhead here,
 			// as what is being copied are smart pointers, not
@@ -733,7 +732,7 @@ private:
 		case ASIONETWORKED:
 		{
 			std::ostringstream error;
-			error << "In GOptimizer::gdOptimize(): Error!" << std::endl
+			error << "In GO::gdOptimize(): Error!" << std::endl
 				  << "ASIONETWORKED mode not implemented yet for gradient descents." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
@@ -753,7 +752,7 @@ private:
 		// Transfer the initial parameter sets to the population. Note:
 		// It doesn't make sense to transfer more items than starting
 		// points in a gradient descent.
-		GOptimizer::iterator it;
+		GO::iterator it;
 		for(it=this->begin(); it!=this->begin() + gdNStartingPoints_; ++it) {
 			// Note, there will not be a big space overhead here,
 			// as what is being copied are smart pointers, not
@@ -839,7 +838,7 @@ private:
 
     // SWARM parameters
     std::size_t swarmNNeighborhoods_; ///< The number of neighborhoods in a swarm algorithm
-    std::size_t swarmNNeighborhoodMembers_; ///< The number of members ine ach neighborhood
+    std::size_t swarmNNeighborhoodMembers_; ///< The number of members in each neighborhood
     bool swarmRandomFillUp_; ///< Specifies whether neighborhoods are filled up with random values
 	float swarmCLocal_; ///< A factor for multiplication of local bests
 	float swarmCGlobal_; ///< A factor for multiplication of global bests
@@ -860,4 +859,4 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GOPTIMIZER_HPP_ */
+#endif /* GO_HPP_ */

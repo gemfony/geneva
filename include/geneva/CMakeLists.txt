@@ -47,11 +47,11 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumFPT.hpp
 	GNumIntT.hpp
 	GNumT.hpp
+	GO.hpp
 	GObject.hpp
 	GObjectExpectationChecksT.hpp
 	GOptimizationAlgorithmT.hpp
 	GOptimizationEnums.hpp
-	GOptimizer.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp
 	GParameterCollectionT.hpp

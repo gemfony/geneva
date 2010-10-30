@@ -31,10 +31,10 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedEA
 	GMultiThreadedGD
 	GMultiThreadedSwarm
+	GO
 	GObject
 	GOptimizationAlgorithmT
 	GOptimizationEnums
-	GOptimizer
 	GParameterBase
 	GParameterBaseWithAdaptorsT
 	GParameterObjectCollection
