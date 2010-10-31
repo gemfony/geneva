@@ -859,7 +859,6 @@ void GSwarm::adjustPopulation() {
 		for(std::size_t i=1; i<nNeighborhoods_; i++) {
 			this->push_back(this->front()->clone<GParameterSet>());
 			this->back()->randomInit();
-			this->back()->getSwarmPersonalityTraits()->setNoPositionUpdate();
 		}
 
 		// Fill in remaining items in each neighborhood. This will
@@ -884,7 +883,6 @@ void GSwarm::adjustPopulation() {
 			for(std::size_t m=0; m < (nNeighborhoods_-currentSize); m++) {
 				this->push_back(this->front()->clone<GParameterSet>());
 				this->back()->randomInit();
-				this->back()->getSwarmPersonalityTraits()->setNoPositionUpdate();
 			}
 
 			// Now follow the procedure used for the "nNeighborhoods_" case
@@ -931,18 +929,36 @@ void GSwarm::adjustPopulation() {
  * Small helper function that helps to fill up a neighborhood, if there is just one entry in it.
  */
 void GSwarm::fillUpNeighborhood1() {
+	// Do some error checking
+	if(this->size() != nNeighborhoods_) {
+		std::ostringstream error;
+		error << "In GSwarm::fillUpNeighborhood1(): Error!" << std::endl
+			  << "Invalid size: " << this->size() << " Expected " << nNeighborhoods_ << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
 	if(defaultNNeighborhoodMembers_==1) return; // nothing to do
 
 	// Starting with the last item, loop over all neighborhoods
-	for(std::size_t n=(nNeighborhoods_-1); n>=0; n--) {
+	for(std::size_t i=0; i<nNeighborhoods_; i++) {
+		std::size_t n = nNeighborhoods_ - 1 - i; // Calculate the correct neighborhood
+
 		// Insert the required number of clones after the existing individual
 		for(std::size_t m=1; m<defaultNNeighborhoodMembers_; m++) { // m stands for "missing"
 			// Add a clone of the first individual in the neighborhood to the next position
-			this->insert(this->begin()+n+1, (*(this->begin()+n))->clone<GParameterSet>());
+			this->insert(this->begin()+n, (*(this->begin()+n))->clone<GParameterSet>());
 			// Make sure it has a unique value, if requested
 			if(randomFillUp_) {
+#ifdef DEBUG
+				if(!(*(this->begin()+n+1))) {
+					std::ostringstream error;
+					error << "In GSwarm::fillUpNeighborhood1(): Error!" << std::endl
+						  << "Found empty position " << n << std::endl;
+					throw(Gem::Common::gemfony_error_condition(error.str()));
+				}
+#endif /* DEBUG */
+
 				(*(this->begin()+n+1))->randomInit();
-				(*(this->begin()+n+1))->getSwarmPersonalityTraits()->setNoPositionUpdate();
 			}
 		}
 

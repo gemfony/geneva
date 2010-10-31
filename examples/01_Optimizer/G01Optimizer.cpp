@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 	if(go.clientRun()) return 0;
 
 	//---------------------------------------------------------------------
-	// Server mode
+	// Server mode, serial or multi-threaded execution
 
 	// Create the first individual, using a factory function
 	boost::shared_ptr<GParameterSet> functionIndividual_ptr
