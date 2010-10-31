@@ -231,6 +231,107 @@ public:
 	virtual double fitnessCalculation();
 
 	/**************************************************************************************/
+	// The following is a trivial list of getters and setters
+	void setPersonality(const personality&);
+	personality getPersonality() const;
+
+	void setParallelizationMode(const parMode&);
+	parMode getParallelizationMode() const;
+
+	void setServerMode(const bool&);
+	bool getServerMode() const;
+
+	void setSerializationMode(const Gem::Common::serializationMode&);
+	Gem::Common::serializationMode getSerializationMode() const;
+
+	void setServerIp(const std::string&);
+	std::string getServerIp() const;
+
+	void setServerPort(const unsigned short&);
+	unsigned short getServerPort() const;
+
+	void setConfigFileName(const std::string&);
+	std::string getConfigFileName() const;
+
+	void setVerbosity(const bool&);
+	bool getVerbosity() const;
+
+	void setMaxStalledDataTransfers(const boost::uint32_t&);
+	boost::uint32_t getMaxStalledDataTransfers() const;
+
+	void setMaxConnectionAttempts(const boost::uint32_t&);
+	boost::uint32_t getMaxConnectionAttempts() const;
+
+	void setReturnRegardless(const bool&);
+	bool getReturnRegardless() const;
+
+	void setNProducerThreads(const boost::uint16_t&);
+	boost::uint16_t getNProducerThreads() const;
+
+	void setArraySize(const std::size_t&);
+	std::size_t getArraySize() const;
+
+	void setNEvaluationThreads(const boost::uint16_t&);
+	boost::uint16_t getNEvaluationThreads() const;
+
+	void setWaitFactor(const boost::uint32_t&);
+	boost::uint32_t getWaitFactor() const;
+
+	void setMaxIterations(const boost::uint32_t&);
+	boost::uint32_t getMaxIterations() const;
+
+	void setMaxMinutes(const long&);
+	long getMaxMinutes() const;
+
+	void setReportIteration(const boost::uint32_t&);
+	boost::uint32_t getReportIteration() const;
+
+	void setEAPopulationSize(const std::size_t&);
+	std::size_t getEAPopulationSize() const;
+
+	void setEANParents(const std::size_t&);
+	std::size_t getEANParents() const;
+
+	void setEARecombinationScheme(const recoScheme&);
+	recoScheme getEARecombinationScheme() const;
+
+	void setEASortingScheme(const sortingMode&);
+	sortingMode getEASortingScheme() const;
+
+	void setEATrackParentRelations(const bool&);
+	bool getEATrackParentRelations() const;
+
+	void setSwarmNNeighborhoods(const std::size_t&);
+	std::size_t getSwarmNNeighborhoods() const;
+
+	void setSwarmNNeighborhoodMembers(const std::size_t&);
+	std::size_t getSwarmNNeighborhoodMembers() const;
+
+	void setSwarmRandomFillUp(const bool&);
+	bool getSwarmRandomFillUp() const;
+
+	void setSwarmCLocal(const float&);
+	float getSwarmCLocal() const;
+
+	void setSwarmCGlobal(const float&);
+	float getSwarmCGlobal() const;
+
+	void setSwarmCDelta(const float&);
+	float getSwarmCDelta() const;
+
+	void setSwarmUpdateRule(const updateRule&);
+	updateRule getSwarmUpdateRule() const;
+
+	void setGDNStartingPoints(const std::size_t&);
+	std::size_t getGDNStartingPoints() const;
+
+	void setGDFiniteStep(const float&);
+	float getGDFiniteStep() const;
+
+	void setGDStepSize(const float&);
+	float getGDStepSize() const;
+
+	/**************************************************************************************/
 	/**
 	 * Retrieves a copy of the best individual (if any) and converts it to the
 	 * desired target type.

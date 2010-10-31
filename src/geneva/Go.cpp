@@ -544,10 +544,682 @@ double Go::fitnessCalculation() {
 	return val;
 }
 
+/**************************************************************************************/
+/**
+ * Allows to set the type of optimization algorithm to be used for the optimization
+ *
+ * @param pers The type of optimization algorithm to be used for the optimization
+ */
+void Go::setPersonality(const personality& pers) {
+	pers_ = pers;
+}
 
 /**************************************************************************************/
 /**
- * Loads some configuration data from arguments passed on the command line
+ * Allows to retrieve the type of optimization algorithm currently used for the optimization
+ *
+ * @return The type of optimization algorithm currently used for the optimization
+ */
+personality Go::getPersonality() const {
+	return pers_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the parallelization mode used for the optimization
+ *
+ * @param parMode The parallelization mode used for the optimization
+ */
+void Go::setParallelizationMode(const parMode& parMode) {
+	parMode_ = parMode;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the parallelization mode currently used for the optimization
+ *
+ * @return The parallelization mode currently used for the optimization
+ */
+parMode Go::getParallelizationMode() const {
+	return parMode_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to mark this object as belonging to a server as opposed to a client
+ *
+ * @param serverMode Allows to mark this object as belonging to a server as opposed to a client
+ */
+void Go::setServerMode(const bool& serverMode) {
+	serverMode_ = serverMode;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to check whether this object is working in server or client mode
+ *
+ * @return A boolean indicating whether this object is working in server or client mode
+ */
+bool Go::getServerMode() const {
+	return serverMode_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the serialization mode used for network transfers
+ *
+ * @param serializationMode The serialization mode used for network transfers
+ */
+void Go::setSerializationMode(const Gem::Common::serializationMode& serializationMode) {
+	serializationMode_ = serializationMode;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the serialization mode currently used for network transfers
+ */
+Gem::Common::serializationMode Go::getSerializationMode() const {
+	return serializationMode_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the ip of the server
+ *
+ * @param ip The ip of the server
+ */
+void Go::setServerIp(const std::string& ip) {
+	ip_ = ip;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the ip of the server
+ *
+ * @return The current ip used to access the server
+ */
+std::string Go::getServerIp() const {
+	return ip_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the port used to access the server
+ *
+ * @param port The port used to access the server
+ */
+void Go::setServerPort(const unsigned short& port) {
+	port_ = port;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the port currently used to access the server
+ *
+ * @return The number of the port currently used to access the server
+ */
+unsigned short Go::getServerPort() const {
+	return port_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the name of the configuration file from which further options will
+ * be read.
+ *
+ * @param configFilename The name of the file from which further options will be read
+ */
+void Go::setConfigFileName(const std::string& configFilename) {
+	configFilename_ = configFilename;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the name of the configuration file from which further options will
+ * be read
+ *
+ * @return The name of the configuration file from which further options will be read
+ */
+std::string Go::getConfigFileName() const {
+	return configFilename_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify whether further information should be emitted after parsing the
+ * command line and configuration file.
+ *
+ * @param verbose Specifies whether information about parsed variables should be emitted in a more verbose format
+ */
+void Go::setVerbosity(const bool& verbose) {
+	verbose_ = verbose;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to check whether further information should be emitted after parsing the
+ * command line and configuration file.
+ */
+bool Go::getVerbosity() const {
+	return verbose_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify the number of failed data transfers before a client terminates
+ * its work. Set this to 0 in order to loop indefinitely.
+ *
+ * @param maxStalledDataTransfers The number of failed data transfers before a client terminates its work
+ */
+void Go::setMaxStalledDataTransfers(const boost::uint32_t& maxStalledDataTransfers) {
+	maxStalledDataTransfers_ = maxStalledDataTransfers;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the number of failed data transfers before a client terminates
+ * its work. Set this to 0 in order to loop indefinitely.
+ *
+ * @return The number of failed data transfers before a client terminates its work
+ */
+boost::uint32_t Go::getMaxStalledDataTransfers() const {
+	return maxStalledDataTransfers_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify how often a client may try to connect the server without response
+ * before terminating itself.
+ *
+ * @param maxConnectionAttempts Specifies the number of failed connection attempts before the client terminates itself
+ */
+void Go::setMaxConnectionAttempts(const boost::uint32_t& maxConnectionAttempts) {
+	maxConnectionAttempts_ = maxConnectionAttempts;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the amount of times a client may try to connect the server without response
+ * before terminating itself.
+ *
+ * @return The amount of times a client may try to connect the server without response before terminating itself.
+ */
+boost::uint32_t Go::getMaxConnectionAttempts() const {
+	return maxConnectionAttempts_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify whether a client should return results even though here was no
+ * improvement.
+ *
+ * @param returnRegardless Specifies whether a client should return results even though here was no improvement
+ */
+void Go::setReturnRegardless(const bool& returnRegardless) {
+	returnRegardless_ = returnRegardless;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to check whether a client should return results even though here was no
+ * improvement.
+ *
+ * @return A boolean indicating whether a client should return results even though here was no improvement
+ */
+bool Go::getReturnRegardless() const {
+	return returnRegardless_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the number of threads that will simultaneously produce random numbers.
+ *
+ * @param nProducerThreads The number of threads that will simultaneously produce random numbers
+ */
+void Go::setNProducerThreads(const boost::uint16_t& nProducerThreads) {
+	nProducerThreads_ = nProducerThreads;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the number of threads that will simultaneously produce random numbers.
+ *
+ * @return The number of threads that will simultaneously produce random numbers
+ */
+boost::uint16_t Go::getNProducerThreads() const {
+	return nProducerThreads_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the size of the array of random numbers transferred to proxies upon request.
+ *
+ * @param arraySize The size of the array of random numbers transferred to proxies upon request
+ */
+void Go::setArraySize(const std::size_t& arraySize) {
+	arraySize_ = arraySize;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the size of the array of random numbers transferred to proxies upon request.
+ *
+ * @return The size of the array of random numbers transferred to proxies upon request
+ */
+std::size_t Go::getArraySize() const {
+	return arraySize_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the number of threads that will simultaneously evaluate individuals.
+ * Set this to 0 to set this number to the amount of CPU cores in your system.
+ *
+ * @param nEvaluationThreads The number of threads that will simultaneously evaluate individuals
+ */
+void Go::setNEvaluationThreads(const boost::uint16_t& nEvaluationThreads) {
+	nEvaluationThreads_ = nEvaluationThreads;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the number of threads that will simultaneously evaluate individuals.
+ *
+ * @return The number of threads that will simultaneously evaluate individuals
+ */
+boost::uint16_t Go::getNEvaluationThreads() const {
+	return nEvaluationThreads_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the wait factor used in each iteration to wait for further arrivals.
+ * This is interpreted as a multiple of the arrival times of the first individual.
+ *
+ * @param waitFactor The wait factor used in each iteration to wait for further arrivals
+ */
+void Go::setWaitFactor(const boost::uint32_t& waitFactor) {
+	waitFactor_ = waitFactor;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the wait factor used in each iteration to wait for further arrivals.
+ *
+ * @return The wait factor used in each iteration to wait for further arrivals
+ */
+boost::uint32_t Go::getWaitFactor() const {
+	return waitFactor_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify the maximum amount of iterations in an optimization run
+ *
+ * @param maxIterations The maximum amount of iterations in an optimization run
+ */
+void Go::setMaxIterations(const boost::uint32_t& maxIterations) {
+	maxIterations_ = maxIterations;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the maximum amount of iterations in an optimization run
+ *
+ * @return The maximum amount of iterations in an optimization run
+ */
+boost::uint32_t Go::getMaxIterations() const {
+	return maxIterations_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify the maximum amount of minutes an optimization may last
+ *
+ * @param maxMinutes The maximum amount of minutes an optimization may last
+ */
+void Go::setMaxMinutes(const long& maxMinutes) {
+	maxMinutes_ = maxMinutes;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the maximum amount of minutes an optimization may last
+ *
+ * @return The maximum amount of minutes an optimization may last
+ */
+long Go::getMaxMinutes() const {
+	return maxMinutes_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify in which intervals information about the optimization's progress should be emitted
+ *
+ * @param reportIteration The intervals in which information about the optimization's progress should be emitted
+ */
+void Go::setReportIteration(const boost::uint32_t& reportIteration) {
+	reportIteration_ = reportIteration;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to check in which intervals information about the optimization's progress should be emitted
+ *
+ * @return The intervals in which information about the optimization's progress should be emitted
+ */
+boost::uint32_t Go::getReportIteration() const {
+	return reportIteration_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the default size of an evolutionary algorithm population
+ *
+ * @param eaPopulationSize The default size of an evolutionary algorithm population
+ */
+void Go::setEAPopulationSize(const std::size_t& eaPopulationSize) {
+	eaPopulationSize_ = eaPopulationSize;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the default size of an evolutionary algorithm population
+ *
+ * @return The default size of an evolutionary algorithm population
+ */
+std::size_t Go::getEAPopulationSize() const {
+	return eaPopulationSize_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the number of parents in an evolutionary algorithm population
+ *
+ * @param eaNParents The number of parents in an evolutionary algorithm population
+ */
+void Go::setEANParents(const std::size_t& eaNParents) {
+	eaNParents_ = eaNParents;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the number of parents in an evolutionary algorithm population
+ *
+ * @return The number of parents in an evolutionary algorithm population
+ */
+std::size_t Go::getEANParents() const {
+	return eaNParents_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the recombination scheme used in evolutionary algorithms
+ *
+ * @param eaRecombinationScheme The recombination scheme used in evolutionary algorithms
+ */
+void Go::setEARecombinationScheme(const recoScheme& eaRecombinationScheme) {
+	eaRecombinationScheme_ = eaRecombinationScheme;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the recombination scheme used in evolutionary algorithms
+ *
+ * @return The recombination scheme used in evolutionary algorithms
+ */
+recoScheme Go::getEARecombinationScheme() const {
+	return eaRecombinationScheme_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the sorting scheme used in evolutionary algorithms
+ *
+ * @param eaSortingScheme The sorting scheme used in evolutionary algorithms
+ */
+void Go::setEASortingScheme(const sortingMode& eaSortingScheme) {
+	eaSortingScheme_ = eaSortingScheme;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the sorting scheme used in evolutionary algorithms
+ *
+ * @return The sorting scheme used in evolutionary algorithms
+ */
+sortingMode Go::getEASortingScheme() const {
+	return eaSortingScheme_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify whether evolutionary algorithms should track the relationship
+ * between parents and children
+ *
+ * @param eaTrackParentRelations Determines whether evolutionary algorithms should track the relationship between parents and children
+ */
+void Go::setEATrackParentRelations(const bool& eaTrackParentRelations) {
+	eaTrackParentRelations_ = eaTrackParentRelations;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to check whether evolutionary algorithms should track the relationship
+ * between parents and children
+ *
+ * @return Whether evolutionary algorithms track the relationship between parents and children
+ */
+bool Go::getEATrackParentRelations() const {
+	return eaTrackParentRelations_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the number of neighborhoods in a swarm algorithm
+ *
+ * @param swarmNNeighborhoods The number of neighborhoods in a swarm algorithm
+ */
+void Go::setSwarmNNeighborhoods(const std::size_t& swarmNNeighborhoods) {
+	swarmNNeighborhoods_ = swarmNNeighborhoods;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the number of neighborhoods in a swarm algorithm
+ *
+ * @return The number of neighborhoods in a swarm algorithm
+ */
+std::size_t Go::getSwarmNNeighborhoods() const {
+	return swarmNNeighborhoods_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the number of individuals in each neighborhood in a swarm algorithm
+ *
+ * @param swarmNNeighborhoodMembers The number of individuals in each neighborhood in a swarm algorithm
+ */
+void Go::setSwarmNNeighborhoodMembers(const std::size_t& swarmNNeighborhoodMembers) {
+	swarmNNeighborhoodMembers_ = swarmNNeighborhoodMembers;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the number of individuals in each neighborhood in a swarm algorithm
+ *
+ * @return The number of individuals in each neighborhood in a swarm algorithm
+ */
+std::size_t Go::getSwarmNNeighborhoodMembers() const {
+	return swarmNNeighborhoodMembers_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify whether missing individuals in a swarm algorithm should be initialized
+ * randomly
+ *
+ * @param swarmRandomFillUp Determines whether missing individuals should be initialized randomly
+ */
+void Go::setSwarmRandomFillUp(const bool& swarmRandomFillUp) {
+	swarmRandomFillUp_ = swarmRandomFillUp;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to check whether missing individuals in a swarm algorithm should be initialized
+ * randomly
+ *
+ * @return Determines whether missing individuals should be initialized randomly
+ */
+bool Go::getSwarmRandomFillUp() const {
+	return swarmRandomFillUp_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the desired value of the swarm algorithm's CLocal parameter
+ *
+ * @param swarmCLocal The desired value of the swarm algorithm's CLocal parameter
+ */
+void Go::setSwarmCLocal(const float& swarmCLocal) {
+	swarmCLocal_ = swarmCLocal;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the current value of the swarm algorithm's CLocal parameter
+ *
+ * @return The current value of the swarm algorithm's CLocal parameter
+ */
+float Go::getSwarmCLocal() const {
+	return swarmCLocal_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the desired value of the swarm algorithm's CGlobal parameter
+ *
+ * @param swarmCGlobal The desired value of the swarm algorithm's CGlobal parameter
+ */
+void Go::setSwarmCGlobal(const float& swarmCGlobal) {
+	swarmCGlobal_ = swarmCGlobal;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the current value of the swarm algorithm's CGlobal parameter
+ *
+ * @return The current value of the swarm algorithm's CGlobal parameter
+ */
+float Go::getSwarmCGlobal() const {
+	return swarmCGlobal_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the desired value of the swarm algorithm's CDelta parameter
+ *
+ * @param swarmCDelta The desired valuze of the swarm algorithm's CDelta parameter
+ */
+void Go::setSwarmCDelta(const float& swarmCDelta) {
+	swarmCDelta_ = swarmCDelta;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the current value of the swarm algorithm's CDelta parameter
+ *
+ * @return The current value of the swarm algorithm's CDelta parameter
+ */
+float Go::getSwarmCDelta() const {
+	return swarmCDelta_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the desired update rule used in swarm algorithms
+ *
+ * @param swarmUpdateRule The desired update rule used in swarm algorithms
+ */
+void Go::setSwarmUpdateRule(const updateRule& swarmUpdateRule) {
+	swarmUpdateRule_ = swarmUpdateRule;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the current update rule used in swarm algorithms
+ *
+ * @return The current update rule used in swarm algorithms
+ */
+updateRule Go::getSwarmUpdateRule() const {
+	return swarmUpdateRule_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the number of simultaneous starting points in a gradient descent
+ *
+ * @param gdNStartingPoints The number of simultaneous starting points in a gradient descent
+ */
+void Go::setGDNStartingPoints(const std::size_t& gdNStartingPoints) {
+	gdNStartingPoints_ = gdNStartingPoints;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the number of simultaneous starting points in a gradient descent
+ *
+ * @return The number of simultaneous starting points in a gradient descent
+ */
+std::size_t Go::getGDNStartingPoints() const {
+	return gdNStartingPoints_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to set the finite step size used in each iteration for each parameter in gradient
+ * descents.
+ *
+ * @param gdFiniteStep The finite step size used in each iteration for each parameter in gradient descents
+ */
+void Go::setGDFiniteStep(const float& gdFiniteStep) {
+	gdFiniteStep_ = gdFiniteStep;
+}
+
+/**************************************************************************************/
+/**
+ * Returns the finite step size used in each iteration for each parameter in gradient
+ * descents.
+ *
+ * @return The finite step size used in each iteration for each parameter in gradient descents
+ */
+float Go::getGDFiniteStep() const {
+	return gdFiniteStep_;
+}
+
+/**************************************************************************************/
+/**
+ * Sets the desired step size of gradient descents
+ *
+ * @param gdStepSize The desired step size of gradient descents
+ */
+void Go::setGDStepSize(const float& gdStepSize) {
+	gdStepSize_ = gdStepSize;
+}
+
+/**************************************************************************************/
+/**
+ * Returns the current step size of gradient descents
+ *
+ * @return The current step size of gradient descents
+ */
+float Go::getGDStepSize() const {
+	return gdStepSize_;
+}
+
+/**************************************************************************************/
+/**
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
