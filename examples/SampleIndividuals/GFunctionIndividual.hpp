@@ -52,6 +52,7 @@
 #include <geneva/GDoubleCollection.hpp>
 #include <geneva/GDoubleGaussAdaptor.hpp>
 #include <geneva/GParameterSet.hpp>
+#include <common/GParserBuilder.hpp>
 
 #include "GFunctionIndividualDefines.hpp"
 
@@ -239,6 +240,105 @@ public:
 			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<SALOMON> >(new GFunctionIndividual<SALOMON>());
 			break;
 		}
+
+		return functionIndividual_ptr;
+	}
+
+	/*******************************************************************************************/
+	/**
+	 * A factory function that returns a function individual, setting its values according to
+	 * the specifications of a configuration file.
+	 *
+	 * @return A function individual of the desired type
+	 */
+	static boost::shared_ptr<GParameterSet> getFunctionIndividual(const std::string& cf = "GFunctionIndividual.cfg") {
+		using namespace Gem::Common;
+
+		double adProb = 0.05;
+		boost::uint32_t adaptionThreshold = 1;
+		double sigma = 0.5;
+		double sigmaSigma = 0.8;
+		double minSigma = 0.001;
+		double maxSigma = 2.;
+		std::size_t parDim = 2;
+		double minVar = -30.;
+		double maxVar =  30.;
+		boost::uint32_t processingCycles;
+		boost::uint16_t evalFunction = 3;
+
+		// Register a number of parameters
+		GParserBuilder gpb(cf.c_str());
+		gpb.registerParameter("adProb", adProb, 0.05);
+		gpb.registerParameter("adaptionThreshold", adaptionThreshold, (boost::uint32_t)1);
+		gpb.registerParameter("sigma", sigma, 0.5);
+		gpb.registerParameter("sigma", sigmaSigma, 0.8);
+		gpb.registerParameter("minSigma", minSigma, 0.001);
+		gpb.registerParameter("maxSigma", maxSigma, 2.);
+		gpb.registerParameter("parDim", parDim, (std::size_t)2);
+		gpb.registerParameter("minVar", minVar, -30.);
+		gpb.registerParameter("maxVar", maxVar,  30.);
+		gpb.registerParameter("processingCycles", processingCycles, (boost::uint32_t)1);
+		gpb.registerParameter("evalFunction", evalFunction, (boost::uint16_t)3);
+
+		// Read the parameters from the configuration file
+		if(!gpb.parse()) {
+			std::ostringstream error;
+			error << "In GFunctionIndividual::getFunctionIndividual(const std::string&): Error!" << std::endl
+				  << "Could not parse configuration file " << cf << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		// Assign the demo function
+		if(evalFunction > (boost::uint16_t)MAXDEMOFUNCTION) {
+			std::cout << "Error: Invalid evaluation function: " << evalFunction << std::endl
+					  << "Assigning parabola instead." << std::endl;
+			evalFunction = 0;
+		}
+		demoFunction df=(demoFunction)evalFunction;
+
+		boost::shared_ptr<GParameterSet> functionIndividual_ptr;
+
+		// Set up a single function individual, depending on the expected function type
+		switch(df) {
+		case PARABOLA:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<PARABOLA> >(new GFunctionIndividual<PARABOLA>());
+			break;
+		case BERLICH:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<BERLICH> >(new GFunctionIndividual<BERLICH>());
+			break;
+		case ROSENBROCK:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<ROSENBROCK> >(new GFunctionIndividual<ROSENBROCK>());
+			break;
+		case ACKLEY:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<ACKLEY> >(new GFunctionIndividual<ACKLEY>());
+			break;
+		case RASTRIGIN:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<RASTRIGIN> >(new GFunctionIndividual<RASTRIGIN>());
+			break;
+		case SCHWEFEL:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<SCHWEFEL> >(new GFunctionIndividual<SCHWEFEL>());
+			break;
+		case SALOMON:
+			functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual<SALOMON> >(new GFunctionIndividual<SALOMON>());
+			break;
+		}
+
+		// Set up a GDoubleCollection with dimension values, each initialized
+		// with a random number in the range [min,max[
+		boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim, minVar, maxVar));
+		// Let the GDoubleCollection know about its desired initialization range
+		gdc_ptr->setInitBoundaries(minVar, maxVar);
+
+		// Set up and register an adaptor for the collection, so it
+		// knows how to be adapted.
+		boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
+		gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+		gdga_ptr->setAdaptionProbability(adProb);
+		gdc_ptr->addAdaptor(gdga_ptr);
+
+		// Make the parameter collection known to this individual
+		functionIndividual_ptr->push_back(gdc_ptr);
+		functionIndividual_ptr->setProcessingCycles(processingCycles);
 
 		return functionIndividual_ptr;
 	}

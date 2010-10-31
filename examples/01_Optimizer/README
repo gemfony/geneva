@@ -1,0 +1,3 @@
+This directory contains a simple Geneva application that searches for 
+the minimum of a function, using different algorithms. Parallelisation 
+can happen at your choice in networked mode, via threads or in serial mode.

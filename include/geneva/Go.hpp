@@ -369,7 +369,7 @@ public:
 	       << "serializationMode = " << GO_DEF_SERIALIZATIONMODE << std::endl
 	       << std::endl
 	       << "# Specifies how long the server should wait for arrivals. 1 means:" << std::endl
-	       << "\"wait the same amount it has taken the first answer to return\"" << std::endl
+	       << "# \"wait the same amount it has taken the first answer to return\"" << std::endl
 	       << "waitFactor = " << GO_DEF_WAITFACTOR << std::endl
 	       << std::endl
 	       << "# Indicates the maximum number of iterations in the optimization" << std::endl

@@ -32,14 +32,11 @@
 
 // Standard header files go here
 #include <iostream>
-#include <cmath>
-#include <sstream>
 
 // Boost header files go here
-#include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include <geneva/GO.hpp>
+#include <geneva/Go.hpp>
 
 // The individual that should be optimized
 #include "GFunctionIndividual.hpp"
@@ -48,7 +45,7 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	GO go(argc, argv);
+	Go go(argc, argv);
 
 	//---------------------------------------------------------------------
 	// Client mode
@@ -57,16 +54,15 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode
 
-	// Create the first set of individuals.
-	for(std::size_t p = 0 ; p<nParents; p++) {
-	  boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual<>::getFunctionIndividual(df);
+	// Create the first individual, using a factory function
+	boost::shared_ptr<GParameterSet> functionIndividual_ptr
+	  	  = GFunctionIndividual<>::getFunctionIndividual("GFunctionIndividual.cfg");
 
-	  // Make the parameter collection known to this individual
-	  go.push_back(functionIndividual_ptr);
-	}
+	// Make the individual known to the optimizer
+	go.push_back(functionIndividual_ptr);
 
 	// Perform the actual optimization
-	boost::shared_ptr<GParameterSet> functionIndividual_ptr = go.optimize();
+	boost::shared_ptr<GParameterSet> bestfunctionIndividual_ptr = go.optimize<GParameterSet>();
 
 	std::cout << "Done ..." << std::endl;
 	return 0;

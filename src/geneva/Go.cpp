@@ -563,7 +563,7 @@ void Go::parseCommandLine(int argc, char **argv) {
 				("configFilename,c", po::value<std::string>(&configFilename_)->default_value(GO_DEF_DEFAULTCONFIGFILE),
 				"The name of the file holding configuration information for optimization algorithms")
 				("algorithm,a", po::value<personality>(&pers_)->default_value(GO_DEF_PERSONALITY),
-				"The type of optimization algorithm: Evolutionary Algorithm (0), Gradient Descent (1), Swarm (2)")
+				"The type of optimization algorithm: Evolutionary Algorithm (1), Gradient Descent (2), Swarm (3)")
 				("parallelizationMode,p", po::value<parMode>(&parMode_)->default_value(GO_DEF_DEFAULPARALLELIZATIONMODE),
 				"Whether to perform the optimization in serial mode (0), multi-threaded (1) or networked (2) mode")
 				("serverMode,s",
@@ -584,6 +584,13 @@ void Go::parseCommandLine(int argc, char **argv) {
 		po::store(po::parse_command_line(argc, argv, desc), vm);
 		po::notify(vm);
 
+		// Emit a help message, if necessary
+		if (vm.count("help")) {
+			std::cout << desc << std::endl;
+			exit(0);
+		}
+
+		// Output the configuration file, if required
 		if(vm.count("writeConfigFile")) {
 			Go::writeConfigurationFile(configFilename_);
 			exit(0);

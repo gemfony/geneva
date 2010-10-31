@@ -5,8 +5,12 @@ SET( GENEVA_ROOT "${PROJECT_SOURCE_DIR}" )
 
 ADD_CUSTOM_TARGET( "examples"
 	# Add all the available example's targets here
-	DEPENDS GMultiPopulation GSimpleEA GSimpleSwarm GExternalEvaluator GNeuralNetwork GStartProject
+	DEPENDS 01_Optimizer GMultiPopulation GSimpleEA GSimpleSwarm GExternalEvaluator GNeuralNetwork GStartProject
 	COMMENT "Building the Geneva examples."
+)
+
+ADD_SUBDIRECTORY (
+	01_Optimizer
 )
 
 ADD_SUBDIRECTORY (
