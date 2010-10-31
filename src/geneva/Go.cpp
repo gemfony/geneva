@@ -596,8 +596,8 @@ void Go::parseCommandLine(int argc, char **argv) {
 			exit(0);
 		}
 
-		if (parMode_ == 2  &&  vm.count("serverMode")) serverMode_ = true;
-		else serverMode_ = false;
+		if (parMode_ == 2  &&  !vm.count("serverMode")) serverMode_ = false;
+		else serverMode_ = true;
 
 		if(verbose_) {
 			std::cout << std::endl

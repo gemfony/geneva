@@ -1074,7 +1074,7 @@ void GSwarm::setNeighborhoodsEqualFillUp() {
 /**
  * All individuals automatically added to a neighborhood will have a random value
  */
-void GSwarm::sedNeighborhoodsRandomFillUp() {
+void GSwarm::setNeighborhoodsRandomFillUp() {
 	randomFillUp_=true;
 }
 

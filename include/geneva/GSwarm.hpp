@@ -176,7 +176,7 @@ public:
 	/** @brief All individuals automatically added to a neighborhood will have equal value */
 	void setNeighborhoodsEqualFillUp();
 	/** @brief All individuals automatically added to a neighborhood will have a random value */
-	void sedNeighborhoodsRandomFillUp();
+	void setNeighborhoodsRandomFillUp();
 	/** @brief Allows to check whether neighborhoods are filled up with random individuals */
 	bool neighborhoodsFilledUpRandomly() const;
 

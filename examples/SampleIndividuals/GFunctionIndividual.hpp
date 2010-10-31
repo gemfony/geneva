@@ -271,7 +271,7 @@ public:
 		gpb.registerParameter("adProb", adProb, 0.05);
 		gpb.registerParameter("adaptionThreshold", adaptionThreshold, (boost::uint32_t)1);
 		gpb.registerParameter("sigma", sigma, 0.5);
-		gpb.registerParameter("sigma", sigmaSigma, 0.8);
+		gpb.registerParameter("sigmaSigma", sigmaSigma, 0.8);
 		gpb.registerParameter("minSigma", minSigma, 0.001);
 		gpb.registerParameter("maxSigma", maxSigma, 2.);
 		gpb.registerParameter("parDim", parDim, (std::size_t)2);

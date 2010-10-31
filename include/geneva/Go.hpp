@@ -348,6 +348,7 @@ public:
 	       << "# Specifies whether the optimizer should copy only the best individuals" << std::endl
 	       << "# at the end of the optimization or the entire population" << std::endl
 	       << "copyBestOnly = " << GO_DEF_COPYBESTONLY << std::endl
+	       << std::endl
 	       << "# Indicates whether clients should return their payload even" << std::endl
 	       << "# if no better result was found" << std::endl
 	       << "returnRegardless = " << GO_DEF_RETURNREGARDLESS << std::endl
@@ -633,7 +634,7 @@ private:
 
 		// Specify some specific swarm settings
 		if(swarmRandomFillUp_) {
-			swarm_ptr->sedNeighborhoodsRandomFillUp();
+			swarm_ptr->setNeighborhoodsRandomFillUp();
 		}
 		else {
 			swarm_ptr->setNeighborhoodsEqualFillUp();
