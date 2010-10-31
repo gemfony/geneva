@@ -105,7 +105,8 @@ GGradientDescent::GGradientDescent(const GGradientDescent& cp)
 	, finiteStep_(cp.finiteStep_)
 	, stepSize_(cp.stepSize_)
 {
-	// Copying / setting of the optimization algorithm id is done by the parent class
+	// Copying / setting of the optimization algorithm id is done by the parent class. The same
+	// applies to the copying of the optimization monitor.
 }
 
 /************************************************************************************************************/

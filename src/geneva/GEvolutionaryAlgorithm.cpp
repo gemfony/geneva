@@ -95,6 +95,9 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 			oldParents_.push_back((*cit)->clone<GIndividual>());
 		}
 	}
+
+	// Copying / setting of the optimization algorithm id is done by the parent class. The same
+	// applies to the copying of the optimization monitor.
 }
 
 /************************************************************************************************************/

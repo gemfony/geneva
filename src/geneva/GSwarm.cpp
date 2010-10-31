@@ -118,6 +118,9 @@ GSwarm::GSwarm(const GSwarm& cp)
 			local_bests_[i] = cp.local_bests_[i]->clone<GParameterSet>();
 		}
 	}
+
+	// Copying / setting of the optimization algorithm id is done by the parent class. The same
+	// applies to the copying of the optimization monitor.
 }
 
 /************************************************************************************************************/
