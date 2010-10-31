@@ -77,6 +77,13 @@ GSwarm::GSwarm(const std::size_t& nNeighborhoods, const std::size_t& nNeighborho
 	for(std::size_t i=0; i<nNeighborhoods_; i++) {
 		nNeighborhoodMembers_[i] = 0;
 	}
+
+	// Register the default optimization monitor
+	this->registerOptimizationMonitor(
+			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+					new GSwarmOptimizationMonitor()
+			)
+	);
 }
 
 /************************************************************************************************************/

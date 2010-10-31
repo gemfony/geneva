@@ -54,6 +54,13 @@ GGradientDescent::GGradientDescent()
 	, stepSize_(DEFAULTSTEPSIZE)
 {
 	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(GD);
+
+	// Register the default optimization monitor
+	this->registerOptimizationMonitor(
+			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+					new GGDOptimizationMonitor()
+			)
+	);
 }
 
 /************************************************************************************************************/
@@ -76,6 +83,13 @@ GGradientDescent::GGradientDescent(
 	, stepSize_(stepSize)
 {
 	GOptimizationAlgorithmT<GParameterSet>::setOptimizationAlgorithm(GD);
+
+	// Register the default optimization monitor
+	this->registerOptimizationMonitor(
+			boost::shared_ptr<GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT>(
+					new GGDOptimizationMonitor()
+			)
+	);
 }
 
 /************************************************************************************************************/
