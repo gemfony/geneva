@@ -1,5 +1,5 @@
 /**
- * @file GO.hpp
+ * @file Go.hpp
  */
 
 /*
@@ -123,7 +123,7 @@ const float GO_DEF_GDSTEPSIZE=0.1;
  * user can make the name of a configuration file known to the class. If none is provided,
  * the class will attempt to load the data from a default file name.
  */
-class GO
+class Go
 	: public GMutableSetT<GParameterSet>
 {
 	///////////////////////////////////////////////////////////////////////
@@ -178,22 +178,22 @@ class GO
 
 public:
 	/** @brief The default constructor */
-	GO();
+	Go();
 	/** @brief A constructor that first parses the command line for relevant parameters and then loads data from a config file */
-	GO(int, char **);
+	Go(int, char **);
 	/** @brief A copy constructor */
-	GO(const GO&);
+	Go(const Go&);
 
 	/** @brief The destructor */
-	virtual ~GO();
+	virtual ~Go();
 
 	/** @brief Standard assignment operator */
-	const GO& operator=(const GO&);
+	const Go& operator=(const Go&);
 
-	/** @brief Checks for equality with another GO object */
-	bool operator==(const GO&) const;
-	/** @brief Checks for inequality with another GO object */
-	bool operator!=(const GO&) const;
+	/** @brief Checks for equality with another Go object */
+	bool operator==(const Go&) const;
+	/** @brief Checks for inequality with another Go object */
+	bool operator!=(const Go&) const;
 
 	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
 	virtual boost::optional<std::string> checkRelationshipWith(
@@ -245,7 +245,7 @@ public:
 		// Check that bestIndividual_ actually points somewhere
 		if(!bestIndividual_) {
 			std::ostringstream error;
-			error << "In GO::getBestIndividual<>() : Error" << std::endl
+			error << "In Go::getBestIndividual<>() : Error" << std::endl
 				  << "Tried to access uninitialized best individual." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
@@ -274,7 +274,7 @@ public:
 		// We need at least one individual to start with
 		if(this->empty()) {
 			std::ostringstream error;
-			error << "In GO::optimize(): Error!" << std::endl
+			error << "In Go::optimize(): Error!" << std::endl
 					<< "You need to register at least one individual." << std::endl
 					<< "Found none." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
@@ -298,7 +298,7 @@ public:
 		case NONE:
 			{
 				std::ostringstream error;
-				error << "In GO::optimize(): Error!" << std::endl
+				error << "In Go::optimize(): Error!" << std::endl
 						<< "No optimization algorithm was specified." << std::endl;
 				throw(Gem::Common::gemfony_error_condition(error.str()));
 			}
@@ -322,7 +322,7 @@ public:
 		std::ofstream cf(configFile.c_str());
 		if(!cf) {
 			std::ostringstream error;
-			error << "In GOptimzer::writeConfigurationFile() : Error!" << std::endl
+			error << "In Go::writeConfigurationFile() : Error!" << std::endl
 				  << "Could not open output file " << configFile << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
@@ -330,7 +330,7 @@ public:
 		cf << "################################################################" << std::endl
 		   << "# This is a configuration file for the optimization            #" << std::endl
 		   << "# algorithms implemented in the Geneva library.                #" << std::endl
-		   << "# It is meant to be accessed through the GO class              #" << std::endl
+		   << "# It is meant to be accessed through the Go class              #" << std::endl
 		   << "#                                                              #" << std::endl
 		   << "# This file was automatically created by the Geneva library    #" << std::endl
 		   << "################################################################" << std::endl
@@ -459,7 +459,7 @@ public:
 	void parseCommandLine(int, char **);
 
 protected:
-	/** @brief Loads the data of another GOptimzer object */
+	/** @brief Loads the data of another Go object */
 	virtual void load_(const GObject *);
 	/** @brief Creates a deep clone of this object */
 	virtual GObject *clone_() const;
@@ -534,7 +534,7 @@ private:
 		if(ea_om_ptr_) ea_ptr->registerOptimizationMonitor(ea_om_ptr_);
 
 		// Transfer the initial parameter sets to the population
-		GO::iterator it;
+		Go::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			// Note, there will not be a big space overhead here,
 			// as what is being copied are smart pointers, not
@@ -652,7 +652,7 @@ private:
 		if(swarm_om_ptr_) swarm_ptr->registerOptimizationMonitor(swarm_om_ptr_);
 
 		// Transfer the initial parameter sets to the population
-		GO::iterator it;
+		Go::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
 			// Note, there will not be a big space overhead here,
 			// as what is being copied are smart pointers, not
@@ -732,7 +732,7 @@ private:
 		case ASIONETWORKED:
 		{
 			std::ostringstream error;
-			error << "In GO::gdOptimize(): Error!" << std::endl
+			error << "In Go::gdOptimize(): Error!" << std::endl
 				  << "ASIONETWORKED mode not implemented yet for gradient descents." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
@@ -752,7 +752,7 @@ private:
 		// Transfer the initial parameter sets to the population. Note:
 		// It doesn't make sense to transfer more items than starting
 		// points in a gradient descent.
-		GO::iterator it;
+		Go::iterator it;
 		for(it=this->begin(); it!=this->begin() + gdNStartingPoints_; ++it) {
 			// Note, there will not be a big space overhead here,
 			// as what is being copied are smart pointers, not

@@ -4,6 +4,7 @@ SET ( COMMONSOURCES
 	GCommonEnums
 	GHelperFunctions
 	GMathHelperFunctions
+	GParserBuilder
 	GPODExpectationChecksT
 	GThreadGroup
 	GThreadWrapper

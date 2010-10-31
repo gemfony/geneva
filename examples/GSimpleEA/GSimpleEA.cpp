@@ -61,7 +61,7 @@
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;
 using namespace Gem::Hap;
-
+using namespace Gem::Common;
 
 /************************************************************************************************/
 /**

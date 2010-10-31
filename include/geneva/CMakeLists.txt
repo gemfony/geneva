@@ -47,7 +47,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumFPT.hpp
 	GNumIntT.hpp
 	GNumT.hpp
-	GO.hpp
+	Go.hpp
 	GObject.hpp
 	GObjectExpectationChecksT.hpp
 	GOptimizationAlgorithmT.hpp

@@ -7,7 +7,9 @@ Wishlist for Version 1.0, yet unnamed, release-date unknown
 * Version 0.8.5, yet unnamed, release-date unknown
 
 The main changes for this release include:
- - Implemented gradient descents (so far serial and multi-threaded mode).
+ - Implemented gradient descents (so far serial and multi-threaded mode)
+ - Created a wrapper around all optimization algorithms in all modes
+   (serial, multithreaded, networked) that allows much easier access
  - Introduced the GOptimizationMonitorT class (and derivatives) to allow
    easier access to information about the optimization process, plus
    visualization of the optimization progress out of the box.
@@ -17,6 +19,8 @@ The main changes for this release include:
    GBooleanCollection and a GConstrainedDouble have been registered in
    this order, it would be possible to just extract or set all double
    values in one go, while leaving the GBooleanCollection unchanged.
+ - Added a "parser builder" class that allows to easily create parsers
+   for configuration files "on the fly"
  - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug, really).
 
 //------------------------------------------------------------------------------------------------------

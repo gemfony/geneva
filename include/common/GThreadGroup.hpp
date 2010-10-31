@@ -66,6 +66,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+// Standard headers go here
 #include <vector>
 
 // Includes check for correct Boost version(s)

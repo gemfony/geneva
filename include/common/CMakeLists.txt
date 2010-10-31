@@ -41,6 +41,7 @@ SET ( GENEVACOMMONINCLUDES
 	GHelperFunctions.hpp
 	GHelperFunctionsT.hpp
 	GMathHelperFunctions.hpp
+	GParserBuilder.hpp
 	GPODExpectationChecksT.hpp
 	GSerializationHelperFunctionsT.hpp
 	GSingletonT.hpp

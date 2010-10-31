@@ -1,5 +1,5 @@
 /**
- * @file GO.cpp
+ * @file Go.cpp
  */
 
 /*
@@ -29,7 +29,7 @@
  * http://www.gemfony.com .
  */
 
-#include "geneva/GO.hpp"
+#include "geneva/Go.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -38,7 +38,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GO::GO()
+Go::Go()
 	: GMutableSetT<GParameterSet>()
 	, pers_(GO_DEF_PERSONALITY)
 	, parMode_(GO_DEF_PARALLELIZATIONMODE)
@@ -92,7 +92,7 @@ GO::GO()
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
  */
-GO::GO(int argc, char **argv)
+Go::Go(int argc, char **argv)
 	: GMutableSetT<GParameterSet>()
 	, pers_(GO_DEF_PERSONALITY)
 	, parMode_(GO_DEF_PARALLELIZATIONMODE)
@@ -149,7 +149,7 @@ GO::GO(int argc, char **argv)
 /**
  * The copy constructor
  */
-GO::GO(const GO& cp)
+Go::Go(const Go& cp)
 	: GMutableSetT<GParameterSet>(cp)
 	, pers_(cp.pers_)
 	, parMode_(cp.parMode_)
@@ -207,45 +207,45 @@ GO::GO(const GO& cp)
 /**
  * The destructor
  */
-GO::~GO()
+Go::~Go()
 { /* nothing */ }
 
 /**************************************************************************************/
 /**
  * A standard assignment operator
  *
- * @param cp A copy of another GO object
+ * @param cp A copy of another Go object
  * @return A constant reference to this object
  */
-const GO& GO::operator=(const GO& cp) {
-	GO::load_(&cp);
+const Go& Go::operator=(const Go& cp) {
+	Go::load_(&cp);
 	return *this;
 }
 
 /**************************************************************************************/
 /**
- * Checks for equality with another GO object
+ * Checks for equality with another Go object
  *
- * @param  cp A constant reference to another GO object
+ * @param  cp A constant reference to another Go object
  * @return A boolean indicating whether both objects are equal
  */
-bool GO::operator==(const GO& cp) const {
+bool Go::operator==(const Go& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GO::operator==","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"Go::operator==","cp", CE_SILENT);
 }
 
 /**************************************************************************************/
 /**
- * Checks for inequality with another GO object
+ * Checks for inequality with another Go object
  *
- * @param  cp A constant reference to another GO object
+ * @param  cp A constant reference to another Go object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GO::operator!=(const GO& cp) const {
+bool Go::operator!=(const Go& cp) const {
 	using namespace Gem::Common;
 	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
-	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GO::operator!=","cp", CE_SILENT);
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"Go::operator!=","cp", CE_SILENT);
 }
 
 /**************************************************************************************/
@@ -261,7 +261,7 @@ bool GO::operator!=(const GO& cp) const {
  * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
  * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
  */
-boost::optional<std::string> GO::checkRelationshipWith(
+boost::optional<std::string> Go::checkRelationshipWith(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -272,65 +272,65 @@ boost::optional<std::string> GO::checkRelationshipWith(
     using namespace Gem::Common;
 
 	// Check that we are indeed dealing with a GOptimizationMonitorT reference
-	const GO *p_load = GObject::conversion_cast<GO>(&cp);
+	const Go *p_load = GObject::conversion_cast<Go>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations
     std::vector<boost::optional<std::string> > deviations;
 
 	// Check our parent class'es data ...
-	deviations.push_back(GMutableSetT<GParameterSet>::checkRelationshipWith(cp, e, limit, "GO", y_name, withMessages));
+	deviations.push_back(GMutableSetT<GParameterSet>::checkRelationshipWith(cp, e, limit, "Go", y_name, withMessages));
 
 	// ... and then our local data
-	deviations.push_back(checkExpectation(withMessages, "GO", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", parMode_, p_load->parMode_, "parMode_", "p_load->parMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", serializationMode_, p_load->serializationMode_, "serializationMode_", "p_load->serializationMode_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", ip_, p_load->ip_, "ip_", "p_load->ip_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", port_, p_load->port_, "port_", "p_load->port_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", configFilename_, p_load->configFilename_, "configFilename_", "p_load->configFilename_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", verbose_, p_load->verbose_, "verbose_", "p_load->verbose_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", ea_om_ptr_, p_load->ea_om_ptr_, "ea_om_ptr_", "p_load->ea_om_ptr_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", swarm_om_ptr_, p_load->swarm_om_ptr_, "swarm_om_ptr_", "p_load->swarm_om_ptr_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", gd_om_ptr_, p_load->gd_om_ptr_, "gd_om_ptr_", "p_load->gd_om_ptr_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", copyBestOnly_, p_load->copyBestOnly_, "copyBestOnly_", "p_load->copyBestOnly_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", maxStalledDataTransfers_, p_load->maxStalledDataTransfers_, "maxStalledDataTransfers_", "p_load->maxStalledDataTransfers_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", maxConnectionAttempts_, p_load->maxConnectionAttempts_, "maxConnectionAttempts_", "p_load->maxConnectionAttempts_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", returnRegardless_, p_load->returnRegardless_, "returnRegardless_", "p_load->returnRegardless_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", nProducerThreads_, p_load->nProducerThreads_, "nProducerThreads_", "p_load->nProducerThreads_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", arraySize_, p_load->arraySize_, "arraySize_", "p_load->arraySize_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", nEvaluationThreads_, p_load->nEvaluationThreads_, "nEvaluationThreads_", "p_load->nEvaluationThreads_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", waitFactor_, p_load->waitFactor_, "waitFactor_", "p_load->waitFactor_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", maxIterations_, p_load->maxIterations_, "maxIterations_", "p_load->maxIterations_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", maxMinutes_, p_load->maxMinutes_, "maxMinutes_", "p_load->maxMinutes_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", eaPopulationSize_, p_load->eaPopulationSize_, "eaPopulationSize_", "p_load->eaPopulationSize_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", eaNParents_, p_load->eaNParents_, "eaNParents_", "p_load->eaNParents_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", eaRecombinationScheme_, p_load->eaRecombinationScheme_, "eaRecombinationScheme_", "p_load->eaRecombinationScheme_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", eaSortingScheme_, p_load->eaSortingScheme_, "eaSortingScheme_", "p_load->eaSortingScheme_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", eaTrackParentRelations_, p_load->eaTrackParentRelations_, "eaTrackParentRelations_", "p_load->eaTrackParentRelations_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", swarmNNeighborhoods_, p_load->swarmNNeighborhoods_, "swarmNNeighborhoods_", "p_load->swarmNNeighborhoods_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", swarmNNeighborhoodMembers_, p_load->swarmNNeighborhoodMembers_, "swarmNNeighborhoodMembers_", "p_load->swarmNNeighborhoodMembers_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", swarmRandomFillUp_, p_load->swarmRandomFillUp_, "swarmRandomFillUp_", "p_load->swarmRandomFillUp_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", swarmCLocal_, p_load->swarmCLocal_, "swarmCLocal_", "p_load->swarmCLocal_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", swarmCGlobal_, p_load->swarmCGlobal_, "swarmCGlobal_", "p_load->swarmCGlobal_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", swarmCDelta_, p_load->swarmCDelta_, "swarmCDelta_", "p_load->swarmCDelta_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", swarmUpdateRule_, p_load->swarmUpdateRule_, "swarmUpdateRule_", "p_load->swarmUpdateRule_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", gdNStartingPoints_, p_load->gdNStartingPoints_, "gdNStartingPoints_", "p_load->gdNStartingPoints_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", gdFiniteStep_, p_load->gdFiniteStep_, "gdFiniteStep_", "p_load->gdFiniteStep_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", gdStepSize_, p_load->gdStepSize_, "gdStepSize_", "p_load->gdStepSize_", e , limit));
-	deviations.push_back(checkExpectation(withMessages, "GO", bestIndividual_, p_load->bestIndividual_, "bestIndividual_", "p_load->bestIndividual_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", pers_, p_load->pers_, "pers_", "p_load->pers_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", parMode_, p_load->parMode_, "parMode_", "p_load->parMode_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", serverMode_, p_load->serverMode_, "serverMode_", "p_load->serverMode_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", serializationMode_, p_load->serializationMode_, "serializationMode_", "p_load->serializationMode_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", ip_, p_load->ip_, "ip_", "p_load->ip_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", port_, p_load->port_, "port_", "p_load->port_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", configFilename_, p_load->configFilename_, "configFilename_", "p_load->configFilename_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", verbose_, p_load->verbose_, "verbose_", "p_load->verbose_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", ea_om_ptr_, p_load->ea_om_ptr_, "ea_om_ptr_", "p_load->ea_om_ptr_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarm_om_ptr_, p_load->swarm_om_ptr_, "swarm_om_ptr_", "p_load->swarm_om_ptr_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", gd_om_ptr_, p_load->gd_om_ptr_, "gd_om_ptr_", "p_load->gd_om_ptr_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", copyBestOnly_, p_load->copyBestOnly_, "copyBestOnly_", "p_load->copyBestOnly_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", maxStalledDataTransfers_, p_load->maxStalledDataTransfers_, "maxStalledDataTransfers_", "p_load->maxStalledDataTransfers_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", maxConnectionAttempts_, p_load->maxConnectionAttempts_, "maxConnectionAttempts_", "p_load->maxConnectionAttempts_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", returnRegardless_, p_load->returnRegardless_, "returnRegardless_", "p_load->returnRegardless_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", nProducerThreads_, p_load->nProducerThreads_, "nProducerThreads_", "p_load->nProducerThreads_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", arraySize_, p_load->arraySize_, "arraySize_", "p_load->arraySize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", nEvaluationThreads_, p_load->nEvaluationThreads_, "nEvaluationThreads_", "p_load->nEvaluationThreads_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", waitFactor_, p_load->waitFactor_, "waitFactor_", "p_load->waitFactor_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", maxIterations_, p_load->maxIterations_, "maxIterations_", "p_load->maxIterations_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", maxMinutes_, p_load->maxMinutes_, "maxMinutes_", "p_load->maxMinutes_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", eaPopulationSize_, p_load->eaPopulationSize_, "eaPopulationSize_", "p_load->eaPopulationSize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", eaNParents_, p_load->eaNParents_, "eaNParents_", "p_load->eaNParents_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", eaRecombinationScheme_, p_load->eaRecombinationScheme_, "eaRecombinationScheme_", "p_load->eaRecombinationScheme_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", eaSortingScheme_, p_load->eaSortingScheme_, "eaSortingScheme_", "p_load->eaSortingScheme_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", eaTrackParentRelations_, p_load->eaTrackParentRelations_, "eaTrackParentRelations_", "p_load->eaTrackParentRelations_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmNNeighborhoods_, p_load->swarmNNeighborhoods_, "swarmNNeighborhoods_", "p_load->swarmNNeighborhoods_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmNNeighborhoodMembers_, p_load->swarmNNeighborhoodMembers_, "swarmNNeighborhoodMembers_", "p_load->swarmNNeighborhoodMembers_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmRandomFillUp_, p_load->swarmRandomFillUp_, "swarmRandomFillUp_", "p_load->swarmRandomFillUp_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmCLocal_, p_load->swarmCLocal_, "swarmCLocal_", "p_load->swarmCLocal_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmCGlobal_, p_load->swarmCGlobal_, "swarmCGlobal_", "p_load->swarmCGlobal_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmCDelta_, p_load->swarmCDelta_, "swarmCDelta_", "p_load->swarmCDelta_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", swarmUpdateRule_, p_load->swarmUpdateRule_, "swarmUpdateRule_", "p_load->swarmUpdateRule_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", gdNStartingPoints_, p_load->gdNStartingPoints_, "gdNStartingPoints_", "p_load->gdNStartingPoints_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", gdFiniteStep_, p_load->gdFiniteStep_, "gdFiniteStep_", "p_load->gdFiniteStep_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", gdStepSize_, p_load->gdStepSize_, "gdStepSize_", "p_load->gdStepSize_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", bestIndividual_, p_load->bestIndividual_, "bestIndividual_", "p_load->bestIndividual_", e , limit));
 
-	return evaluateDiscrepancies("GO", caller, deviations, e);
+	return evaluateDiscrepancies("Go", caller, deviations, e);
 }
 
 /**************************************************************************************/
 /**
- * Loads the data of another GOptimzer object
+ * Loads the data of another Go object
  *
- * @param cp A copy of another GO object, camouflaged as a GObject
+ * @param cp A copy of another Go object, camouflaged as a GObject
  */
-void GO::load_(const GObject *cp) {
-	const GO *p_load = conversion_cast<GO>(cp);
+void Go::load_(const GObject *cp) {
+	const Go *p_load = conversion_cast<Go>(cp);
 
 	// First load the parent class'es data ...
 	GMutableSetT<GParameterSet>::load_(cp);
@@ -385,8 +385,8 @@ void GO::load_(const GObject *cp) {
  *
  * @return A deep clone of this object
  */
-GObject *GO::clone_() const {
-	return new GO(*this);
+GObject *Go::clone_() const {
+	return new Go(*this);
 }
 
 
@@ -398,10 +398,10 @@ GObject *GO::clone_() const {
  *
  * @param ea_om_ptr A pointer to an optimization monitor specific for evolutionary algorithms
  */
-void GO::registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor> ea_om_ptr) {
+void Go::registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor> ea_om_ptr) {
 	if(!ea_om_ptr) {
 		std::ostringstream error;
-		error << "In GO::registerOptimizationMonitor(): Error!" << std::endl
+		error << "In Go::registerOptimizationMonitor(): Error!" << std::endl
 			  << "Empty optimization monitor pointer found for EA" << std::endl;
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
@@ -416,10 +416,10 @@ void GO::registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::G
  *
  * @param swarm_om_ptr A pointer to an optimization monitor specific for swarm algorithms
  */
-void GO::registerOptimizationMonitor(boost::shared_ptr<GSwarm::GSwarmOptimizationMonitor> swarm_om_ptr) {
+void Go::registerOptimizationMonitor(boost::shared_ptr<GSwarm::GSwarmOptimizationMonitor> swarm_om_ptr) {
 	if(!swarm_om_ptr) {
 		std::ostringstream error;
-		error << "In GO::registerOptimizationMonitor(): Error!" << std::endl
+		error << "In Go::registerOptimizationMonitor(): Error!" << std::endl
 			  << "Empty optimization monitor pointer found for SWARM" << std::endl;
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
@@ -434,10 +434,10 @@ void GO::registerOptimizationMonitor(boost::shared_ptr<GSwarm::GSwarmOptimizatio
  *
  * @param gd_om_ptr A pointer to an optimization monitor specific for gradient descents
  */
-void GO::registerOptimizationMonitor(boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor> gd_om_ptr) {
+void Go::registerOptimizationMonitor(boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor> gd_om_ptr) {
 	if(!gd_om_ptr) {
 		std::ostringstream error;
-		error << "In GO::registerOptimizationMonitor(): Error!" << std::endl
+		error << "In Go::registerOptimizationMonitor(): Error!" << std::endl
 			  << "Empty optimization monitor pointer found for GD" << std::endl;
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
@@ -450,7 +450,7 @@ void GO::registerOptimizationMonitor(boost::shared_ptr<GGradientDescent::GGDOpti
  * Triggers execution of the client loop. Note that it is up to you to terminate
  * the program after calling this function.
  */
-bool GO::clientRun() {
+bool Go::clientRun() {
 	if(serverMode()) {
 		return false;
 	}
@@ -473,7 +473,7 @@ bool GO::clientRun() {
  *
  * @return A boolean which indicates whether the server mode has been set for this object
  */
-bool GO::serverMode() const {
+bool Go::serverMode() const {
 	return serverMode_;
 }
 
@@ -483,7 +483,7 @@ bool GO::serverMode() const {
  *
  * @return A boolean which indicates whether the client mode has been set for this object
  */
-bool GO::clientMode() const {
+bool Go::clientMode() const {
 	return !serverMode_;
 }
 
@@ -493,7 +493,7 @@ bool GO::clientMode() const {
  *
  * @param copyBestOnly Specifies whether only the best individuals of a population are copied
  */
-void GO::setCopyBestIndividualsOnly(const bool& copyBestOnly) {
+void Go::setCopyBestIndividualsOnly(const bool& copyBestOnly) {
 	copyBestOnly_ = copyBestOnly;
 }
 
@@ -503,7 +503,7 @@ void GO::setCopyBestIndividualsOnly(const bool& copyBestOnly) {
  *
  * @return A boolean indicating whether only the best individuals of a population are copied
  */
-bool GO::onlyBestIndividualsAreCopied() const {
+bool Go::onlyBestIndividualsAreCopied() const {
 	return copyBestOnly_;
 }
 
@@ -513,7 +513,7 @@ bool GO::onlyBestIndividualsAreCopied() const {
  * this function doesn't make any sense. It is made available to satisfy a requirement
  * of GIndividual.
  */
-void GO::randomInit()
+void Go::randomInit()
 { /* nothing */ }
 
 /**************************************************************************************/
@@ -523,7 +523,7 @@ void GO::randomInit()
  *
  * @return The fitness of the best individual in the population
  */
-double GO::fitnessCalculation() {
+double Go::fitnessCalculation() {
 	bool dirty = false;
 
 	boost::shared_ptr<GParameterSet> p = this->optimize<GParameterSet>();
@@ -533,7 +533,7 @@ double GO::fitnessCalculation() {
 	// run across an unevaluated individual.
 	if(dirty) {
 		std::ostringstream error;
-		error << "In GO::fitnessCalculation(): Error!" << std::endl
+		error << "In Go::fitnessCalculation(): Error!" << std::endl
 			  << "Came across dirty individual" << std::endl;
 
 		// throw an exception. Add some information so that if the exception
@@ -552,7 +552,7 @@ double GO::fitnessCalculation() {
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
  */
-void GO::parseCommandLine(int argc, char **argv) {
+void Go::parseCommandLine(int argc, char **argv) {
     namespace po = boost::program_options;
 
 	try {
@@ -585,7 +585,7 @@ void GO::parseCommandLine(int argc, char **argv) {
 		po::notify(vm);
 
 		if(vm.count("writeConfigFile")) {
-			GO::writeConfigurationFile(configFilename_);
+			Go::writeConfigurationFile(configFilename_);
 			exit(0);
 		}
 
@@ -619,14 +619,14 @@ void GO::parseCommandLine(int argc, char **argv) {
 /**
  * Loads the configuration data from a given configuration file
  */
-void GO::parseConfigurationFile(const std::string& configFile) {
+void Go::parseConfigurationFile(const std::string& configFile) {
 	namespace bf = boost::filesystem;
     namespace po = boost::program_options;
 
 	// Check the name of the configuration file
 	if (!bf::exists(configFile)) {
 		std::ostringstream error;
-		error << "In GO::parseConfigurationFile(): Error!" << std::endl
+		error << "In Go::parseConfigurationFile(): Error!" << std::endl
 			  << "Invalid file name given for configuration file: \"" << configFile << "\"" << std::endl;
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
@@ -670,8 +670,10 @@ void GO::parseConfigurationFile(const std::string& configFile) {
 			exit(1);
 		}
 
-		store(po::parse_config_file(ifs, config), vm);
-		notify(vm);
+		po::store(po::parse_config_file(ifs, config), vm);
+		po::notify(vm);
+
+		ifs.close();
 
 		if(verbose_) { // Let the audience know
 			std::cout << "Found the following values in configuration file:" << configFile << ":" << std::endl
