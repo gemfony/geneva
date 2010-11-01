@@ -91,8 +91,9 @@ Go::Go()
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
+ * @param configFileName The name of a configuration file
  */
-Go::Go(int argc, char **argv)
+Go::Go(int argc, char **argv, const std::string& configFilename)
 	: GMutableSetT<GParameterSet>()
 	, pers_(GO_DEF_PERSONALITY)
 	, parMode_(GO_DEF_PARALLELIZATIONMODE)
@@ -132,6 +133,11 @@ Go::Go(int argc, char **argv)
 	//--------------------------------------------
 	// Load initial configuration options from the command line
 	parseCommandLine(argc, argv);
+
+	// Update the name of the configuration file, if necessary
+	if(configFilename != GO_DEF_DEFAULTCONFIGFILE) {
+		configFilename_ = configFilename;
+	}
 
 	//--------------------------------------------
 	// Load further configuration options from file

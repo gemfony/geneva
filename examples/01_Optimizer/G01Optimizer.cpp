@@ -45,7 +45,7 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-	Go go(argc, argv);
+	Go go(argc, argv, "G01Optimizer.cfg");
 
 	//---------------------------------------------------------------------
 	// Client mode

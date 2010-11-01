@@ -181,7 +181,7 @@ public:
 	/** @brief The default constructor */
 	Go();
 	/** @brief A constructor that first parses the command line for relevant parameters and then loads data from a config file */
-	Go(int, char **);
+	Go(int, char **, const std::string& = GO_DEF_DEFAULTCONFIGFILE);
 	/** @brief A constructor that is given the usual command line parameters, then loads the rest of the data from a config file */
 	Go(
 		const personality& pers
