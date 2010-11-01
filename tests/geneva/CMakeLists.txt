@@ -6,23 +6,13 @@ ADD_CUSTOM_TARGET ( "geneva-tests"
 
 ADD_DEPENDENCIES ( "geneva-tests"
 	${GENEVA_LIBNAME}
-	"geneva-tests-manual"
-	"geneva-tests-performance"
 	"geneva-tests-unit"
+	"geneva-tests-performance"
+	"geneva-tests-manual"
 )
 
-ADD_SUBDIRECTORY (
-	TestIndividuals
-)
+ADD_SUBDIRECTORY ( TestIndividuals )
 
-ADD_SUBDIRECTORY (
-	ManualTests
-)
-
-ADD_SUBDIRECTORY (
-	PerformanceChecks
-)
-
-ADD_SUBDIRECTORY (
-	UnitTests
-)
+ADD_SUBDIRECTORY ( UnitTests )
+ADD_SUBDIRECTORY ( PerformanceChecks )
+ADD_SUBDIRECTORY ( ManualTests )

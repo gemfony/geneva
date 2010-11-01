@@ -6,9 +6,9 @@ ADD_CUSTOM_TARGET ( "hap-tests"
 
 ADD_DEPENDENCIES ( "hap-tests"
 	${HAP_LIBNAME}
-	"hap-tests-manual"
 	"hap-tests-unit"
+	"hap-tests-manual"
 )
 
-ADD_SUBDIRECTORY ( ManualTests )
 ADD_SUBDIRECTORY ( UnitTests )
+ADD_SUBDIRECTORY ( ManualTests )
