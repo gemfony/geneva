@@ -181,6 +181,17 @@ public:
 	Go();
 	/** @brief A constructor that first parses the command line for relevant parameters and then loads data from a config file */
 	Go(int, char **);
+	/** @brief A constructor that is given the usual command line parameters, then loads the rest of the data from a config file */
+	Go(
+		const personality& pers
+		, const parMode&
+		, const bool&
+		, const Gem::Common::serializationMode&
+		, const std::string&
+		, const unsigned short&
+		, const std::string&
+		, const bool&
+	);
 	/** @brief A copy constructor */
 	Go(const Go&);
 

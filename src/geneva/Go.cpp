@@ -147,6 +147,78 @@ Go::Go(int argc, char **argv)
 
 /**************************************************************************************/
 /**
+ * A constructor that is given the usual command line parameters, then loads the
+ * rest of the data from a config file.
+ *
+ * @param pers Specifies the optimization algorithm to be used by this object
+ * @param pM Indicates the parallelization mode (serial, multi-threaded or networked)
+ * @param serverMode Indicates whether this object should operate in server (or multithreaded + serial) or client mode
+ * @param sM Specifies whether serialization should happen in XML, Text oder Binary mode
+ * @param ip Specifies the ip under which the server can be reached
+ * @param port Specifies the port under which the server can be reached
+ * @param configFilename Determines the name of the configuration file from which additional options will be loaded
+ * @param verbose Specifies whether additional information about parsed parameters should be emitted
+ */
+Go::Go(
+	const personality& pers
+	, const parMode& pM
+	, const bool& serverMode
+	, const Gem::Common::serializationMode& sM
+	, const std::string& ip
+	, const unsigned short& port
+	, const std::string& configFilename
+	, const bool& verbose
+)
+	: GMutableSetT<GParameterSet>()
+	, pers_(pers)
+	, parMode_(pM)
+	, serverMode_(serverMode)
+	, serializationMode_(sM)
+	, ip_(ip)
+	, port_(port)
+	, configFilename_(configFilename)
+	, verbose_(verbose)
+	, copyBestOnly_(GO_DEF_COPYBESTONLY)
+	, maxStalledDataTransfers_(GO_DEF_MAXSTALLED)
+	, maxConnectionAttempts_(GO_DEF_MAXCONNATT)
+	, returnRegardless_(GO_DEF_RETURNREGARDLESS)
+	, nProducerThreads_(GO_DEF_NPRODUCERTHREADS)
+	, arraySize_(GO_DEF_ARRAYSIZE)
+	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
+	, waitFactor_(GO_DEF_WAITFACTOR)
+	, maxIterations_(GO_DEF_MAXITERATIONS)
+	, maxMinutes_(GO_DEF_MAXMINUTES)
+	, reportIteration_(GO_DEF_REPORTITERATION)
+	, eaPopulationSize_(GO_DEF_EAPOPULATIONSIZE)
+	, eaNParents_(GO_DEF_EANPARENTS)
+	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
+	, eaSortingScheme_(GO_DEF_EASORTINGSCHEME)
+	, eaTrackParentRelations_(GO_DEF_EATRACKPARENTRELATIONS)
+	, swarmNNeighborhoods_(GO_DEF_SWARMNNEIGHBORHOODS)
+	, swarmNNeighborhoodMembers_(GO_DEF_SWARMNNEIGHBORHOODMEMBERS)
+	, swarmRandomFillUp_(GO_DEF_SWARMRANDOMFILLUP)
+	, swarmCLocal_(GO_DEF_SWARMCLOCAL)
+	, swarmCGlobal_(GO_DEF_SWARMCCGLOBAL)
+	, swarmCDelta_(GO_DEF_SWARMCCDELTA)
+	, swarmUpdateRule_(GO_DEF_SWARMUPDATERULE)
+	, gdNStartingPoints_(GO_DEF_GDNSTARTINGPOINTS)
+	, gdFiniteStep_(GO_DEF_GDFINITESTEP)
+	, gdStepSize_(GO_DEF_GDSTEPSIZE)
+{
+	//--------------------------------------------
+	// Load further configuration options from file
+	parseConfigurationFile(configFilename_);
+
+	//--------------------------------------------
+	// Random numbers are our most valuable good.
+	// Set the number of threads. GRANDOMFACTORY is
+	// a singleton that will be initialized by this call.
+	GRANDOMFACTORY->setNProducerThreads(nProducerThreads_);
+	GRANDOMFACTORY->setArraySize(arraySize_);
+}
+
+/**************************************************************************************/
+/**
  * The copy constructor
  */
 Go::Go(const Go& cp)
