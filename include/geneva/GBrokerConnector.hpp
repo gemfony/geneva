@@ -164,6 +164,8 @@ protected:
 
 	/** @brief Allows to perform any work necessary to be repeated in each new iteration */
 	void markNewIteration();
+	/** @brief Resets the iteration's start time to the current time */
+	void resetIterationStartTime();
 
 	/** @brief Allows to submit GIndividual-derivatives */
 	void submit(boost::shared_ptr<GIndividual>);

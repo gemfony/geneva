@@ -284,6 +284,15 @@ void GBrokerConnector::markNewIteration() {
 
 /************************************************************************************************************/
 /**
+ * Resets the iteration's start time to the current time. This is useful when there
+ * is a need for re-submission of individuals, such as in gradient descents.
+ */
+void GBrokerConnector::resetIterationStartTime() {
+	iterationStartTime_ = boost::posix_time::microsec_clock::local_time();
+}
+
+/************************************************************************************************************/
+/**
  * Allows to submit GIndividual-derivatives.
  *
  * @param gi A boost::shared_ptr to a GIndividual-derivative

@@ -962,18 +962,10 @@ void GEvolutionaryAlgorithm::sortMuplusnuMode() {
 	if(getMaximize()){
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
 				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
-		/*
-		std::sort(data.begin(), data.end(),
-				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
-		*/
 	}
-	else{
+	else{ // Minimization
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
 				boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
-		/*
-		std::sort(data.begin(), data.end(),
-				boost::bind(&GIndividual::fitness, _1) < boost::bind(&GIndividual::fitness, _2));
-		*/
 	}
 }
 

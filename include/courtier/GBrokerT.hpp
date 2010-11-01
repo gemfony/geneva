@@ -309,7 +309,9 @@ public:
 	/**
 	 * Puts a processed item into the processed queue, observing a timeout. Note that
 	 * the item will simply be discarded if no target queue with the required id exists.
-	 * An exception will be thrown when the timeout has been reached.
+	 * An exception will be thrown when the timeout has been reached. Note that if the
+	 * timeout is reached in the last line of this function, the item will simply be
+	 * discarded.
 	 *
 	 * @param key A key that uniquely identifies the origin of p
 	 * @param p Holds the "raw" item to be submitted to the processed queue
@@ -329,11 +331,11 @@ public:
 		if(ProcessedBuffers_.find(id) != ProcessedBuffers_.end())
 		currentBuffer = ProcessedBuffers_[id];
 
-		// Make the mutex available again, as the last call in this
-		// function could block.
+		// Make the mutex available again
 		processedLock.unlock();
 
 		// Add p to the correct buffer, if it is a valid pointer
+		// NOTE: In the case of a flooded queue, this will lead to the item being discarded
 		if(currentBuffer) currentBuffer->push_front(p, timeout);
 	}
 

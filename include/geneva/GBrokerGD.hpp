@@ -93,9 +93,6 @@
 namespace Gem {
 namespace Geneva {
 
-/** @brief The default number of threads for parallelization with boost */
-const boost::uint16_t DEFAULTBOOSTTHREADSGD = 2;
-
 /*********************************************************************************/
 /**
  * A networked version of the GGradientDescent class
@@ -161,8 +158,20 @@ protected:
 	virtual double doFitnessCalculation(const std::size_t&);
 
 private:
-	/*********************************************************************************/
-	std::vector<bool> sm_value_; ///< Internal storage for server mode flags
+    /*********************************************************************************/
+    /**
+     * A simple comparison operator that helps to sort individuals according to their
+     * position in the population Smaller position numbers will end up in front.
+     */
+    struct indPositionComp {
+    	bool operator()(boost::shared_ptr<GParameterSet> x, boost::shared_ptr<GParameterSet> y) {
+    		return x->getGDPersonalityTraits()->getPopulationPosition() < y->getGDPersonalityTraits()->getPopulationPosition();
+    	}
+    };
+
+    /*********************************************************************************/
+
+    std::vector<bool> sm_value_; ///< Internal storage for server mode flags
 
 #ifdef GENEVATESTING
 public:

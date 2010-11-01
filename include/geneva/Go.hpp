@@ -66,6 +66,7 @@
 #include "geneva/GBrokerSwarm.hpp"
 #include "geneva/GGradientDescent.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
+#include "geneva/GBrokerGD.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
@@ -844,10 +845,16 @@ private:
 		//----------------------------------------------------------------------------------
 		case ASIONETWORKED:
 		{
-			std::ostringstream error;
-			error << "In Go::gdOptimize(): Error!" << std::endl
-				  << "ASIONETWORKED mode not implemented yet for gradient descents." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			// Create a network consumer and enrol it with the broker
+			boost::shared_ptr<Gem::Courtier::GAsioTCPConsumerT<GIndividual> > gatc(new Gem::Courtier::GAsioTCPConsumerT<GIndividual>(port_));
+			GINDIVIDUALBROKER->enrol(gatc);
+
+			// Create the actual broker population
+			boost::shared_ptr<GBrokerGD> gdBroker_ptr(new GBrokerGD(gdNStartingPoints_, gdFiniteStep_, gdStepSize_));
+			gdBroker_ptr->setWaitFactor(waitFactor_);
+
+			// Assignment to the base pointer
+			gd_ptr = gdBroker_ptr;
 		}
 		break;
 

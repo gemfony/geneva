@@ -195,7 +195,13 @@ public:
 	            try {
 	                GBROKER( boost::shared_ptr<processable_type> )->put(id, p, timeout);
 	            }
-	            catch(Gem::Common::condition_time_out &gucto){ /* nothing we can do */ }
+	            catch(Gem::Common::condition_time_out &gucto){
+	            	/* nothing we can do */
+#ifdef DEBUG
+	            	std::cerr << "In GAsioTCPConumerT<>::processRequest(): Had to discard an item" << std::endl
+	            			  << "Because the queue didn't accept the item in time." << std::endl;
+#endif
+	            }
 	        }
 	        else {
 	            std::ostringstream information;

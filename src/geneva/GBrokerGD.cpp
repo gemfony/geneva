@@ -253,6 +253,7 @@ void GBrokerGD::finalize() {
 double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	double bestFitness = getWorstCase(); // Holds the best fitness found so far
 	std::size_t nStartingPoints = this->getNStartingPoints();
+	boost::uint32_t iteration = getIteration();
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
@@ -289,21 +290,132 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 		GBrokerConnector::submit(this->at(i));
 	}
 
-	// Will hold returned items
-	boost::shared_ptr<GParameterSet> p;
+	//--------------------------------------------------------------------------------
+	// We can now wait for the individuals to return from their journey.
+	std::size_t nReceivedCurrent = 0;
+	std::size_t nReceivedOlder   = 0;
+	boost::shared_ptr<GParameterSet> p; // Will hold returned items
 
-	// Wait for all submitted individuals to return.
-	bool complete = false;
-	while(!complete) {
+	// As we might be forced to resubmit individuals, we cannot clear our own vector
+	// but need to store returning items in its own vector.
+	std::vector<boost::shared_ptr<GParameterSet> > gps_vec;
 
+	// First wait for the first individual of the current iteration to arrive.
+	while(true) {
+		// Note: the following call will throw if a timeout has been reached.
+		p = GBrokerConnector::retrieveFirstItem<GParameterSet>();
+
+		if(p->getParentAlgIteration() == iteration) {
+			// Store the individual locally
+			gps_vec.push_back(p);
+
+			// Give the GBrokerConnector the opportunity to perform logging
+			GBrokerConnector::log();
+
+			// Update the counter.
+			nReceivedCurrent++;
+
+			// Leave the loop
+			break;
+		} else {
+			// We just update the counter so we can do some statistics.
+			// Individuals from older iterations will simply be discarded,
+			// as they have no significance in a gradient descent
+			nReceivedOlder++;
+		}
 	}
 
-	// NOTE: Unlike swarm-algorithms and evolutionary algorithms, gradient descents
-	// cannot cope easily with missing responses. The only option would be to resubmit
-	// items that didn't return before a given deadline. This might be implemented
-	// in a later version of Geneva.
 
-	// Retrieve information about the best fitness found and disallow re-evaluation
+	// Wait for all submitted individuals to return. Unlike many other optimization algorithms,
+	// gradient descents cannot cope easily with missing responses. The only option is to resubmit
+	// items that didn't return before a given deadline.
+	bool complete = false;
+	while(!complete) {
+		if(p=GBrokerConnector::retrieveItem<GParameterSet>()) { // Did we receive a valid item ?
+			if(p->getParentAlgIteration() == iteration) {
+				// Check that the item hasn't already been received
+				std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
+				bool itemAlreadyPresent = false;
+				for(it=gps_vec.begin(); it!=gps_vec.end(); ++it) {
+					if((*it)->getGDPersonalityTraits()->getPopulationPosition() == p->getGDPersonalityTraits()->getPopulationPosition()) {
+						itemAlreadyPresent = true;
+						break; // Leave the for-loop
+					}
+				}
+
+				// We can retrieve the next item (and discard this one) if the item is already present
+				if(itemAlreadyPresent) continue;
+
+				// Store the individual locally
+				gps_vec.push_back(p);
+
+				// Give the GBrokerConnector the opportunity to perform logging
+				GBrokerConnector::log();
+
+				// Update the counter.
+				nReceivedCurrent++;
+			} else {
+				// We just update the counter so we can do some statistics.
+				// Individuals from older iterations will simply be discarded,
+				// as they have no significance in a gradient descent
+				nReceivedOlder++;
+			}
+
+			// Mark as complete, if a full set of individuals of the current iteration has returned.
+			if(nReceivedCurrent == getDefaultPopulationSize()) {
+				complete = true;
+				break; // Leave the while loop
+			}
+		} else { // We have encountered a time out. Check which items are missing and resubmit
+			// Sort the vector according to the expected position in the population
+			std::sort(gps_vec.begin(), gps_vec.end(), indPositionComp());
+
+			// Create a list of missing items
+			std::vector<std::size_t> missingItems;
+			std::size_t gps_start_pos = 0;
+			for(std::size_t pos=0; pos < finalPos; pos++) {
+				bool found = false;
+				for(std::size_t gps_pos = gps_start_pos; gps_pos<gps_vec.size(); gps_pos++) {
+					if(gps_vec[gps_pos]->getGDPersonalityTraits()->getPopulationPosition() == pos) {
+						found = true;
+						gps_start_pos = gps_pos+1; // We can start searching in the next position in the next iteration
+						break;
+					}
+				}
+
+				if(!found) missingItems.push_back(pos);
+			}
+
+			// Make sure we do not immediately run into a timeout after re-submission
+			GBrokerConnector::resetIterationStartTime();
+
+			// Resubmit the corresponding individuals
+			for(std::size_t m=0; m<missingItems.size(); m++) {
+				GBrokerConnector::submit(this->at(missingItems[m]));
+			}
+		}
+	}
+
+#ifdef DEBUG
+	// Check that we are indeed complete
+	if(gps_vec.size() != this->size()) {
+		std::ostringstream error;
+		error << "In GBrokerGD::doFitnessCalculation(): Error!" << std::endl
+			  << "Found invalid size of retrieved item vector: " << gps_vec.size() << std::endl
+			  << "Should be " << this->size() << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
+
+	// Transfer the individuals into our own collection
+	GBrokerGD::iterator it;
+	std::vector<boost::shared_ptr<GParameterSet> >::iterator pit;
+	for(it=this->begin(), pit=gps_vec.begin(); it!=this->end(); ++it, ++pit) {
+		(*it) = (*pit); // This will get rid of the old individuals
+	}
+	gps_vec.clear();
+
+	// Retrieve information about the best fitness found
 	double fitnessFound = 0.;
 	for(std::size_t i=0; i<nStartingPoints; i++) {
 		fitnessFound = this->at(i)->fitness();
