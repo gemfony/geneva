@@ -391,7 +391,7 @@ public:
 	std::size_t remainingSpace()
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		return container_.size() - capacity_;
+		return capacity_ - container_.size();
 	}
 
 protected:
