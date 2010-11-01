@@ -73,6 +73,7 @@
 #include <string>
 #include <iostream>
 #include <deque>
+#include <list>
 #include <algorithm>
 #include <stdexcept>
 
@@ -144,7 +145,8 @@ class GBoundedBufferT
 {
 public:
 
-	typedef typename std::deque<T> container_type;
+	// typedef typename std::deque<T> container_type;
+	typedef typename std::list<T> container_type;
 	typedef typename container_type::value_type value_type;
 
 	/***************************************************************/

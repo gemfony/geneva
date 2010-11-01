@@ -542,6 +542,8 @@ bool Go::clientRun() {
 
 		// Start the actual processing loop
 		p->run();
+
+		return true;
 	}
 }
 
