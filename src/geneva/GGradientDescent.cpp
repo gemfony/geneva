@@ -425,8 +425,14 @@ void GGradientDescent::updateChildParameters() {
 
 		// Loop over all directions
 		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
+			// Calculate the position of the child
+			std::size_t childPos = (i+1)*nStartingPoints_ + j;
+
 			// Load the current "parent" into the "child"
-			this->at((i+1)*nStartingPoints_ + j)->load(this->at(i));
+			this->at(childPos)->load(this->at(i));
+
+			// Update the child's position in the population
+			this->at(childPos)->getGDPersonalityTraits()->setPopulationPosition(childPos);
 
 			// Make a note of the current parameter's value
 			double origParmVal = parmVec[j];
@@ -435,7 +441,7 @@ void GGradientDescent::updateChildParameters() {
 			parmVec[j] += finiteStep_;
 
 			// Attach the feature vector to the child individual
-			this->at((i+1)*nStartingPoints_ + j)->assignValueVector(parmVec);
+			this->at(childPos)->assignValueVector(parmVec);
 
 			// Restore the original value in the feature vector
 			parmVec[j] = origParmVal;
@@ -566,7 +572,7 @@ double GGradientDescent::doFitnessCalculation(const std::size_t& finalPos) {
  * Resizes the population to the desired level and does some error checks.
  */
 void GGradientDescent::adjustPopulation() {
-	// Check how man individuals we already have
+	// Check how many individuals we already have
 	std::size_t nStart = this->size();
 
 	// Do some error checking ...
@@ -602,7 +608,7 @@ void GGradientDescent::adjustPopulation() {
 	}
 
 	// Set the default size of the population
-	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize((nStartingPoints_+1)*nFPParmsFirst_);
+	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(nStartingPoints_*(nFPParmsFirst_+1));
 
 	// First create a suitable number of start individuals and initialize them as required
 	if(nStart < nStartingPoints_) {
