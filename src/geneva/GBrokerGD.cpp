@@ -322,7 +322,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 			// Individuals from older iterations will simply be discarded,
 			// as they have no significance in a gradient descent
 			nReceivedOlder++;
-		}
+  		}
 	}
 
 	// Wait for all submitted individuals to return. Unlike many other optimization algorithms,
@@ -337,10 +337,14 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 				bool itemIsUnique = true;
 				for(it=gps_vec.begin(); it!=gps_vec.end(); ++it) {
 					if((*it)->getGDPersonalityTraits()->getPopulationPosition() == p->getGDPersonalityTraits()->getPopulationPosition()) {
-						itemIsUnique = false;;
+						itemIsUnique = false;
 						std::cout << "Found item that was already present" << std::endl
 								  << "(*it)->getGDPersonalityTraits()->getPopulationPosition() = " << (*it)->getGDPersonalityTraits()->getPopulationPosition() << std::endl
-								  << "p->getGDPersonalityTraits()->getPopulationPosition() = " << p->getGDPersonalityTraits()->getPopulationPosition() << std::endl;
+								  << "p->getGDPersonalityTraits()->getPopulationPosition() = " << p->getGDPersonalityTraits()->getPopulationPosition() << std::endl
+								  << "============= one ============" << std::endl
+								  << (*it)->report() << std::endl
+								  << "============= two ============" << std::endl
+								  << p->report() << std::endl;
 						break; // Leave the for-loop
 					}
 				}
