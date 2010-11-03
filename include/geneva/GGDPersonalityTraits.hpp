@@ -113,7 +113,7 @@ public:
 	virtual void resetCommand();
 
 	/** @brief Sets the position of the individual in the population */
-	void setPopulationPosition(std::size_t) ;
+	void setPopulationPosition(const std::size_t&) ;
 	/** @brief Retrieves the position of the individual in the population */
 	std::size_t getPopulationPosition(void) const ;
 

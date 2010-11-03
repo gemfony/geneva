@@ -226,7 +226,7 @@ void GGDPersonalityTraits::resetCommand() {
  *
  * @param popPos The new position of this individual in the population
  */
-void GGDPersonalityTraits::setPopulationPosition(std::size_t popPos) {
+void GGDPersonalityTraits::setPopulationPosition(const std::size_t& popPos) {
 	popPos_ = popPos;
 }
 

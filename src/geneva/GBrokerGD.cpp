@@ -254,6 +254,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	double bestFitness = getWorstCase(); // Holds the best fitness found so far
 	std::size_t nStartingPoints = this->getNStartingPoints();
 	boost::uint32_t iteration = getIteration();
+	bool complete = false;
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
@@ -288,6 +289,7 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 		this->at(i)->getPersonalityTraits()->setCommand("evaluate");
 
 		GBrokerConnector::submit(this->at(i));
+		std::cout << "Submitted item at position " << i << std::endl;
 	}
 
 	//--------------------------------------------------------------------------------
@@ -299,6 +301,8 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	// As we might be forced to resubmit individuals, we cannot clear our own vector
 	// but need to store returning items in its own vector.
 	std::vector<boost::shared_ptr<GParameterSet> > gps_vec;
+
+	std::cout << "Waiting for first item" << std::endl;
 
 	// First wait for the first individual of the current iteration to arrive.
 	while(true) {
@@ -315,6 +319,9 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 			// Update the counter.
 			nReceivedCurrent++;
 
+			// Mark as complete, if all submitted individuals have returned
+			if(nReceivedCurrent == finalPos) complete = true;
+
 			// Leave the loop
 			break;
 		} else {
@@ -325,10 +332,11 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
   		}
 	}
 
+	std::cout << "Received first item" << std::endl;
+
 	// Wait for all submitted individuals to return. Unlike many other optimization algorithms,
 	// gradient descents cannot cope easily with missing responses. The only option is to resubmit
 	// items that didn't return before a given deadline.
-	bool complete = false;
 	while(!complete) {
 		if(p=GBrokerConnector::retrieveItem<GParameterSet>()) { // Did we receive a valid item ?
 			if(p->getParentAlgIteration() == iteration) {
@@ -338,13 +346,6 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 				for(it=gps_vec.begin(); it!=gps_vec.end(); ++it) {
 					if((*it)->getGDPersonalityTraits()->getPopulationPosition() == p->getGDPersonalityTraits()->getPopulationPosition()) {
 						itemIsUnique = false;
-						std::cout << "Found item that was already present" << std::endl
-								  << "(*it)->getGDPersonalityTraits()->getPopulationPosition() = " << (*it)->getGDPersonalityTraits()->getPopulationPosition() << std::endl
-								  << "p->getGDPersonalityTraits()->getPopulationPosition() = " << p->getGDPersonalityTraits()->getPopulationPosition() << std::endl
-								  << "============= one ============" << std::endl
-								  << (*it)->report() << std::endl
-								  << "============= two ============" << std::endl
-								  << p->report() << std::endl;
 						break; // Leave the for-loop
 					}
 				}
@@ -361,8 +362,8 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 					// Update the counter.
 					nReceivedCurrent++;
 
-					// Mark as complete, if a full set of individuals of the current iteration has returned.
-					if(nReceivedCurrent == getDefaultPopulationSize()) {
+					// Mark as complete, if all submitted individuals have returned
+					if(nReceivedCurrent == finalPos) {
 						complete = true;
 						break; // Leave the while loop
 					}
@@ -374,8 +375,6 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 				nReceivedOlder++;
 			}
 		} else { // We have encountered a time out. Check which items are missing and resubmit
-			std::cout << "Ran into timeout" << std::endl;
-
 			// Sort the vector according to the expected position in the population
 			std::sort(gps_vec.begin(), gps_vec.end(), indPositionComp());
 
@@ -395,15 +394,12 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 				if(!found) missingItems.push_back(pos);
 			}
 
-			std::cout << "Found " << missingItems.size() << " missing items" << std::endl;
-
 			// Make sure we do not immediately run into a timeout after re-submission
 			GBrokerConnector::resetIterationStartTime();
 
 			// Resubmit the corresponding individuals
 			for(std::size_t m=0; m<missingItems.size(); m++) {
 				GBrokerConnector::submit(this->at(missingItems[m]));
-				std::cout << "Resubmitting item " << m << std::endl;
 			}
 		}
 	}
@@ -418,6 +414,9 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 #endif /* DEBUG */
+
+	// Sort the vector according to the expected position in the population
+	std::sort(gps_vec.begin(), gps_vec.end(), indPositionComp());
 
 	// Transfer the individuals into our own collection
 	GBrokerGD::iterator it;

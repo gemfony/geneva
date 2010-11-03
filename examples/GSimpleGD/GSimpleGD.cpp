@@ -1,5 +1,5 @@
 /**
- * @file GBrokerOverhead.cpp
+ * @file GSimpleGD.cpp
  */
 
 /*
@@ -42,7 +42,7 @@
 #include <courtier/GAsioHelperFunctions.hpp>
 #include <courtier/GAsioTCPClientT.hpp>
 #include <courtier/GAsioTCPConsumerT.hpp>
-#include <geneva/GBrokerEA.hpp>
+#include <geneva/GBrokerGD.hpp>
 #include <geneva/GGradientDescent.hpp>
 #include <geneva/GMultiThreadedGD.hpp>
 #include <geneva/GIndividual.hpp>
@@ -229,20 +229,17 @@ int main(int argc, char **argv){
   //-----------------------------------------------------------------------------------------------------
   case 2: // Execution with networked consumer
   {
-	  /*
 	  // Create a network consumer and enrol it with the broker
 	  boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
 	  gatc->setSerializationMode(serMode);
 	  GINDIVIDUALBROKER->enrol(gatc);
 
 	  // Create the actual broker population
-	  boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+	  boost::shared_ptr<GBrokerGD> popBroker_ptr(new GBrokerGD());
 	  popBroker_ptr->setWaitFactor(waitFactor);
 
 	  // Assignment to the base pointer
 	  pop_ptr = popBroker_ptr;
-	  */
-	  exit(1);
   }
   break;
   }

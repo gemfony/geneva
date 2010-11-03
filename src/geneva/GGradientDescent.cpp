@@ -426,7 +426,7 @@ void GGradientDescent::updateChildParameters() {
 		// Loop over all directions
 		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
 			// Calculate the position of the child
-			std::size_t childPos = (i+1)*nStartingPoints_ + j;
+			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
 
 			// Load the current "parent" into the "child"
 			this->at(childPos)->load(this->at(i));
@@ -475,7 +475,11 @@ void GGradientDescent::updateParentIndividuals() {
 		// Calculate the adaption of each parameter
 		double step = 0.;
 		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
-			step = (1./finiteStep_) * (this->at((i+1)*nStartingPoints_ + j)->fitness() - parentFitness);
+			// Calculate the position of the child
+			std::size_t childPos = nStartingPoints_ + i*nFPParmsFirst_ + j;
+
+			// Calculate the step to be performed in a given direction
+			step = (1./finiteStep_) * (this->at(childPos)->fitness() - parentFitness);
 
 			if(getMaximize()) {
 				parmVec[j] += stepSize_*step;
@@ -507,11 +511,19 @@ void GGradientDescent::init() {
  * Does any necessary finalization work
  */
 void GGradientDescent::finalize() {
-	// Make sure the fitness of the parent individuals is calculated in the final iteration
-	checkpoint(ifProgress(doFitnessCalculation(nStartingPoints_)));
-
 	// Last action
 	GOptimizationAlgorithmT<GParameterSet>::finalize();
+}
+
+/************************************************************************************************************/
+/**
+ * Performs final optimization work. In the case of (networked) gradient descents, the starting points need
+ * to be re-evaluated at the end of the optimization cycle, before the connection to the broker is cut.
+ * doFitnessCalculation is overloaded in GBrokerGD.
+ */
+void GGradientDescent::optimizationFinalize() {
+	// Make sure the fitness of the parent individuals is calculated in the final iteration
+	checkpoint(ifProgress(doFitnessCalculation(nStartingPoints_)));
 }
 
 /************************************************************************************************************/
@@ -618,20 +630,30 @@ void GGradientDescent::adjustPopulation() {
 			// Make sure our start values differ
 			this->back()->randomInit();
 		}
+	} else {
+		// Start with a defined size. This will remove surplus items.
+		this->resize(nStartingPoints_);
 	}
 
-	// Start with a defined size. This will remove surplus items.
-	this->resize(nStartingPoints_);
-
-	// Add the required number of clones for each starting point
+	// Add the required number of clones for each starting point. These will be
+	// used for the calculation of the difference quotient for each parameter
 	for(std::size_t i=0; i<nStartingPoints_; i++) {
 		for(std::size_t j=0; j<nFPParmsFirst_; j++) {
 			this->push_back(this->at(i)->clone<GParameterSet>());
 		}
 	}
 
-	// We now should have nStartingPoints_ sets of identical individuals,
+	// We now should have nStartingPoints_ sets of individuals,
 	// each of size nFPParmsFirst_.
+#ifdef DEBUG
+	if(this->size() != nStartingPoints_*(nFPParmsFirst_ + 1)) {
+		std::ostringstream error;
+		error << "In GGradientDescent::adjustPopulation(): Error!" << std::endl
+		      << "Population size is " << this->size() << std::endl
+		      << "but expected " << nStartingPoints_*(nFPParmsFirst_ + 1) << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif /* DEBUG */
 }
 
 /************************************************************************************************************/
@@ -700,9 +722,9 @@ void GGradientDescent::saveCheckpoint() const {
  * population.
  */
 void GGradientDescent::markIndividualPositions() {
-	std::size_t pos = 0;
-	std::vector<boost::shared_ptr<GParameterSet> >::iterator it;
-	for(it=data.begin(); it!=data.end(); ++it) (*it)->getGDPersonalityTraits()->setPopulationPosition(pos++);
+	for(std::size_t pos=0; pos<this->size(); pos++) {
+		this->at(pos)->getGDPersonalityTraits()->setPopulationPosition(pos);
+	}
 }
 
 #ifdef GENEVATESTING
