@@ -289,7 +289,6 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 		this->at(i)->getPersonalityTraits()->setCommand("evaluate");
 
 		GBrokerConnector::submit(this->at(i));
-		std::cout << "Submitted item at position " << i << std::endl;
 	}
 
 	//--------------------------------------------------------------------------------
@@ -302,11 +301,10 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 	// but need to store returning items in its own vector.
 	std::vector<boost::shared_ptr<GParameterSet> > gps_vec;
 
-	std::cout << "Waiting for first item" << std::endl;
-
 	// First wait for the first individual of the current iteration to arrive.
 	while(true) {
-		// Note: the following call will throw if a timeout has been reached.
+		// Retrieve the item from the server. Note that this call
+		// may throw if a timeout for the first item has been set.
 		p = GBrokerConnector::retrieveFirstItem<GParameterSet>();
 
 		if(p->getParentAlgIteration() == iteration) {
@@ -331,8 +329,6 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 			nReceivedOlder++;
   		}
 	}
-
-	std::cout << "Received first item" << std::endl;
 
 	// Wait for all submitted individuals to return. Unlike many other optimization algorithms,
 	// gradient descents cannot cope easily with missing responses. The only option is to resubmit

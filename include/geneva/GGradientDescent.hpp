@@ -224,7 +224,7 @@ protected:
 	/** @brief Does any necessary finalization work */
 	virtual void finalize();
 	/** @brief Performs final optimization work */
-	virtual void optimizationFinalize();
+	// virtual void optimizationFinalize();
 
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual void adjustPopulation();

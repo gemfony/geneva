@@ -40,7 +40,8 @@ A: The Geneva library assumes that evaluation functions run for a (possibly very
    This means that a lot of connections are opened and closed in a very short time. You might
    then quickly run out of ports, whose number is limited on Linux (you can find this out with
    the command "cat /proc/sys/net/ipv4/ip_local_port_range"). One remedy is explained here:
-   http://www.speedguide.net/read_articles.php?id=121 (search for TCP_TW_REUSE). Note that
-   you need to carefully evaluate the effects of resetting that variable on your system.
-   See also a related 2007 discussion on the Boost.Asio Usenet forum (quoted e.g. here:
+   http://www.speedguide.net/read_articles.php?id=121 (search for TCP_TW_REUSE). The command 
+   suggested there is "echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse". NOTE THAT YOU NEED TO
+   CAREFULLY EVALUATE THE EFFECTS OF SETTING THIS VARIABLE ON YOUR SYSTEM. See also a 
+   related 2007 discussion on the Boost.Asio Usenet forum (quoted e.g. here: 
    http://osdir.com/ml/lib.boost.asio.user/2007-06/msg00101.html).

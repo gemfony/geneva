@@ -538,6 +538,16 @@ public:
 
 	/**************************************************************************************/
 	/**
+	 * Returns the current offset used to calculate the current iteration
+	 *
+	 * @return The current iteration offset
+	 */
+	boost::uint32_t getOffset() const {
+		return offset_;
+	}
+
+	/**************************************************************************************/
+	/**
 	 * Emits information specific to this class. The function can be overloaded
 	 * in derived classes and it indeed makes sense to emit much more information
 	 * than is done in this simple implementation.

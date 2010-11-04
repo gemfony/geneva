@@ -7,7 +7,7 @@ Wishlist for Version 1.0, yet unnamed, release-date unknown
 * Version 0.8.5, yet unnamed, release-date unknown
 
 The main changes for this release include:
- - Implemented gradient descents (so far serial and multi-threaded mode).
+ - Implemented gradient descents in all modes (serial, multi-threaded and networked).
  - Created a wrapper around all optimization algorithms in all modes
    (serial, multithreaded, networked) that much lowers the entry threshold
    to use Geneva. This wrapper class is called Go.

@@ -311,9 +311,10 @@ boost::shared_ptr<GIndividual> GBrokerConnector::retrieveFirstItem<GIndividual>(
 	boost::shared_ptr<GIndividual> p;
 
 	if(firstTimeOut_.total_microseconds()) { // Wait for a given maximum amount of time
-		// This function will return false if we have reached the timeout
+		// This function will throw if we have reached the timeout.
 		// We cannot continue in this case. It is recommended to set this
-		// variable to a rather high value.
+		// variable to a rather high value or to set it to 0, in which case
+		// we will wait indefinitely for the first item
 		if(!CurrentBufferPort_->pop_back_processed_bool(&p, firstTimeOut_)) {
 			std::ostringstream error;
 			error << "In GBrokerConnector::retrieveFirstItem(): Error!" << std::endl

@@ -400,14 +400,17 @@ void GGradientDescent::setIndividualPersonalities() {
  * @return The value of the best individual found
  */
 double GGradientDescent::cycleLogic() {
+	if(this->getIteration() > this->getOffset()) {
+		// Update the parameters of the parent individuals. This
+		// only makes sense once the individuals have been evaluated
+		this->updateParentIndividuals();
+	}
+
 	// Update the individual parameters in each dimension of the "children"
 	this->updateChildParameters();
 
 	// Trigger value calculation for all individuals (including parents)
 	double bestFitness = doFitnessCalculation(this->size());
-
-	// Update the parameters of the parent individuals
-	this->updateParentIndividuals();
 
 	return bestFitness;
 }
@@ -521,10 +524,10 @@ void GGradientDescent::finalize() {
  * to be re-evaluated at the end of the optimization cycle, before the connection to the broker is cut.
  * doFitnessCalculation is overloaded in GBrokerGD.
  */
-void GGradientDescent::optimizationFinalize() {
+// void GGradientDescent::optimizationFinalize() {
 	// Make sure the fitness of the parent individuals is calculated in the final iteration
-	checkpoint(ifProgress(doFitnessCalculation(nStartingPoints_)));
-}
+//	checkpoint(ifProgress(doFitnessCalculation(nStartingPoints_)));
+// }
 
 /************************************************************************************************************/
 /**
