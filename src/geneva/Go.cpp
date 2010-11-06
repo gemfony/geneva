@@ -57,8 +57,10 @@ Go::Go()
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
 	, waitFactor_(GO_DEF_WAITFACTOR)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
+	, maxStallIteration_(GO_DEF_MAXSTALLITERATIONS)
 	, maxMinutes_(GO_DEF_MAXMINUTES)
 	, reportIteration_(GO_DEF_REPORTITERATION)
+	, offset_(GO_DEF_OFFSET)
 	, eaPopulationSize_(GO_DEF_EAPOPULATIONSIZE)
 	, eaNParents_(GO_DEF_EANPARENTS)
 	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
@@ -112,8 +114,10 @@ Go::Go(int argc, char **argv, const std::string& configFilename)
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
 	, waitFactor_(GO_DEF_WAITFACTOR)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
+	, maxStallIteration_(GO_DEF_MAXSTALLITERATIONS)
 	, maxMinutes_(GO_DEF_MAXMINUTES)
 	, reportIteration_(GO_DEF_REPORTITERATION)
+	, offset_(GO_DEF_OFFSET)
 	, eaPopulationSize_(GO_DEF_EAPOPULATIONSIZE)
 	, eaNParents_(GO_DEF_EANPARENTS)
 	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
@@ -193,8 +197,10 @@ Go::Go(
 	, nEvaluationThreads_(GO_DEF_NEVALUATIONTHREADS)
 	, waitFactor_(GO_DEF_WAITFACTOR)
 	, maxIterations_(GO_DEF_MAXITERATIONS)
+	, maxStallIteration_(GO_DEF_MAXSTALLITERATIONS)
 	, maxMinutes_(GO_DEF_MAXMINUTES)
 	, reportIteration_(GO_DEF_REPORTITERATION)
+	, offset_(GO_DEF_OFFSET)
 	, eaPopulationSize_(GO_DEF_EAPOPULATIONSIZE)
 	, eaNParents_(GO_DEF_EANPARENTS)
 	, eaRecombinationScheme_(GO_DEF_EARECOMBINATIONSCHEME)
@@ -246,8 +252,10 @@ Go::Go(const Go& cp)
 	, nEvaluationThreads_(cp.nEvaluationThreads_)
 	, waitFactor_(cp.waitFactor_)
 	, maxIterations_(cp.maxIterations_)
+	, maxStallIteration_(cp.maxStallIteration_)
 	, maxMinutes_(cp.maxMinutes_)
 	, reportIteration_(cp.reportIteration_)
+	, offset_(cp.offset_)
 	, eaPopulationSize_(cp.eaPopulationSize_)
 	, eaNParents_(cp.eaNParents_)
 	, eaRecombinationScheme_(cp.eaRecombinationScheme_)
@@ -379,8 +387,10 @@ boost::optional<std::string> Go::checkRelationshipWith(
 	deviations.push_back(checkExpectation(withMessages, "Go", nEvaluationThreads_, p_load->nEvaluationThreads_, "nEvaluationThreads_", "p_load->nEvaluationThreads_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", waitFactor_, p_load->waitFactor_, "waitFactor_", "p_load->waitFactor_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", maxIterations_, p_load->maxIterations_, "maxIterations_", "p_load->maxIterations_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", maxStallIteration_, p_load->maxStallIteration_, "maxStallIteration_", "p_load->maxStallIteration_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", maxMinutes_, p_load->maxMinutes_, "maxMinutes_", "p_load->maxMinutes_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", reportIteration_, p_load->reportIteration_, "reportIteration_", "p_load->reportIteration_", e , limit));
+	deviations.push_back(checkExpectation(withMessages, "Go", offset_, p_load->offset_, "offset_", "p_load->offset_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", eaPopulationSize_, p_load->eaPopulationSize_, "eaPopulationSize_", "p_load->eaPopulationSize_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", eaNParents_, p_load->eaNParents_, "eaNParents_", "p_load->eaNParents_", e , limit));
 	deviations.push_back(checkExpectation(withMessages, "Go", eaRecombinationScheme_, p_load->eaRecombinationScheme_, "eaRecombinationScheme_", "p_load->eaRecombinationScheme_", e , limit));
@@ -436,8 +446,10 @@ void Go::load_(const GObject *cp) {
 	nEvaluationThreads_ = p_load->nEvaluationThreads_;
 	waitFactor_ = p_load->waitFactor_;
 	maxIterations_ = p_load->maxIterations_;
+	maxStallIteration_ = p_load->maxStallIteration_;
 	maxMinutes_ = p_load->maxMinutes_;
 	reportIteration_ = p_load->reportIteration_;
+	offset_ = p_load->offset_;
 	eaPopulationSize_ = p_load->eaPopulationSize_;
 	eaNParents_ = p_load->eaNParents_;
 	eaRecombinationScheme_ = p_load->eaRecombinationScheme_;
@@ -954,6 +966,28 @@ boost::uint32_t Go::getMaxIterations() const {
 
 /**************************************************************************************/
 /**
+ * Allows to specify the maximum amount of iterations without improvement before the
+ * current optimization algorithm halts.
+ *
+ * @param maxStallIteration The maximum amount of iterations without improvement before the current algorithm stops
+ */
+void Go::setMaxStallIteration(const boost::uint32_t& maxStallIteration) {
+	maxStallIteration_ = maxStallIteration;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the maximum amount of iterations without improvement in an
+ * optimization run before the current optimization run halts.
+ *
+ * @return The maximum amount of iterations without improvement in an optimization run before the optimization halts
+ */
+boost::uint32_t Go::getMaxStallIteration() const {
+	return maxStallIteration_;
+}
+
+/**************************************************************************************/
+/**
  * Allows to specify the maximum amount of minutes an optimization may last
  *
  * @param maxMinutes The maximum amount of minutes an optimization may last
@@ -990,6 +1024,27 @@ void Go::setReportIteration(const boost::uint32_t& reportIteration) {
  */
 boost::uint32_t Go::getReportIteration() const {
 	return reportIteration_;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to specify the offset with which the iteration counter should start. This is
+ * important when using more than one optimization algorithm with different Go objects.
+ *
+ * @param offset The offset with which the iteration counter should start
+ */
+void Go::setOffset(const boost::uint32_t& offset) {
+	offset_ = offset;
+}
+
+/**************************************************************************************/
+/**
+ * Allows to retrieve the current offset with which the iteration counter will start
+ *
+ * @return The current offset with which the iteration counter will start
+ */
+boost::uint32_t Go::getOffset() const {
+	return offset_;
 }
 
 /**************************************************************************************/
@@ -1403,8 +1458,10 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 		("serializationMode", po::value<Gem::Common::serializationMode>(&serializationMode_)->default_value(GO_DEF_SERIALIZATIONMODE))
 		("waitFactor", po::value<boost::uint32_t>(&waitFactor_)->default_value(GO_DEF_WAITFACTOR))
 		("maxIterations", po::value<boost::uint32_t>(&maxIterations_)->default_value(GO_DEF_MAXITERATIONS))
+		("maxStallIteration", po::value<boost::uint32_t>(&maxStallIteration_)->default_value(GO_DEF_MAXSTALLITERATIONS))
 		("maxMinutes", po::value<long>(&maxMinutes_)->default_value(GO_DEF_MAXMINUTES))
 		("reportIteration", po::value<boost::uint32_t>(&reportIteration_)->default_value(GO_DEF_REPORTITERATION))
+		("offset", po::value<boost::uint32_t>(&offset_)->default_value(GO_DEF_OFFSET))
 		("eaPopulationSize", po::value<std::size_t>(&eaPopulationSize_)->default_value(GO_DEF_EAPOPULATIONSIZE))
 		("eaNParents", po::value<std::size_t>(&eaNParents_)->default_value(GO_DEF_EANPARENTS))
 		("eaRecombinationScheme", po::value<recoScheme>(&eaRecombinationScheme_)->default_value(GO_DEF_EARECOMBINATIONSCHEME))
@@ -1446,8 +1503,10 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 					  << "serializationMode = " << serializationMode_ << std::endl
 					  << "waitFactor = " << waitFactor_ << std::endl
 					  << "maxIterations = " << maxIterations_ << std::endl
+					  << "maxStallIteration = " << maxStallIteration_ << std::endl
 					  << "maxMinutes = " << maxMinutes_ << std::endl
 					  << "reportIteration = " << reportIteration_ << std::endl
+					  << "offset = " << offset_ << std::endl
 					  << "eaPopulationSize = " << eaPopulationSize_ << std::endl
 					  << "eaNParents = " << eaNParents_ << std::endl
 					  << "eaRecombinationScheme = " << eaRecombinationScheme_ << std::endl

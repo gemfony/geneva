@@ -96,8 +96,10 @@ const std::size_t GO_DEF_ARRAYSIZE=1000;
 const boost::uint16_t GO_DEF_NEVALUATIONTHREADS=0;
 const boost::uint32_t GO_DEF_WAITFACTOR=0;
 const boost::uint32_t GO_DEF_MAXITERATIONS=1000;
+const boost::uint32_t GO_DEF_MAXSTALLITERATIONS=0;
 const long GO_DEF_MAXMINUTES=0;
 const boost::uint32_t GO_DEF_REPORTITERATION=1;
+const boost::uint32_t GO_DEF_OFFSET=0;
 const std::size_t GO_DEF_EAPOPULATIONSIZE=100;
 const std::size_t GO_DEF_EANPARENTS=1;
 const recoScheme GO_DEF_EARECOMBINATIONSCHEME=VALUERECOMBINE;
@@ -156,8 +158,10 @@ class Go
 	     & BOOST_SERIALIZATION_NVP(serializationMode_)
 	     & BOOST_SERIALIZATION_NVP(waitFactor_)
 	     & BOOST_SERIALIZATION_NVP(maxIterations_)
+	     & BOOST_SERIALIZATION_NVP(maxStallIteration_)
 	     & BOOST_SERIALIZATION_NVP(maxMinutes_)
 	     & BOOST_SERIALIZATION_NVP(reportIteration_)
+	     & BOOST_SERIALIZATION_NVP(offset_)
 	     & BOOST_SERIALIZATION_NVP(eaPopulationSize_)
 	     & BOOST_SERIALIZATION_NVP(eaNParents_)
 	     & BOOST_SERIALIZATION_NVP(eaRecombinationScheme_)
@@ -292,11 +296,17 @@ public:
 	void setMaxIterations(const boost::uint32_t&);
 	boost::uint32_t getMaxIterations() const;
 
+	void setMaxStallIteration(const boost::uint32_t&);
+	boost::uint32_t getMaxStallIteration() const;
+
 	void setMaxMinutes(const long&);
 	long getMaxMinutes() const;
 
 	void setReportIteration(const boost::uint32_t&);
 	boost::uint32_t getReportIteration() const;
+
+	void setOffset(const boost::uint32_t&);
+	boost::uint32_t getOffset() const;
 
 	void setEAPopulationSize(const std::size_t&);
 	std::size_t getEAPopulationSize() const;
@@ -375,15 +385,16 @@ public:
 	 * will have changed. The function can only be called if ind_type is a derivative of GParameterSet.
 	 * This enables us to store the best individual in a smart pointer to a GParameterSet object.
 	 *
+	 * @param offset An offset for the iteration counter
 	 * @return The best individual found during the optimization process, converted to the desired type
 	 */
 	template <typename ind_type>
 	boost::shared_ptr<ind_type> optimize(
-			typename boost::enable_if<boost::is_base_of<GParameterSet, ind_type> >::type* dummy = 0
+			const boost::uint32_t& offset = 0
+			, typename boost::enable_if<boost::is_base_of<GParameterSet, ind_type> >::type* dummy = 0
 	) {
 		boost::shared_ptr<ind_type> result;
 
-#ifdef DEBUG
 		// We need at least one individual to start with
 		if(this->empty()) {
 			std::ostringstream error;
@@ -392,20 +403,19 @@ public:
 					<< "Found none." << std::endl;
 			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
-#endif
 
 		// Which algorithm are we supposed to use ?
 		switch(pers_) {
 		case EA: // Evolutionary algorithms
-			result = eaOptimize<ind_type>();
+			result = eaOptimize<ind_type>(offset);
 			break;
 
 		case SWARM: // Swarm algorithms
-			result = swarmOptimize<ind_type>();
+			result = swarmOptimize<ind_type>(offset);
 			break;
 
 		case GD: // Gradient descents
-			result = gdOptimize<ind_type>();
+			result = gdOptimize<ind_type>(offset);
 			break;
 
 		case NONE:
@@ -489,12 +499,20 @@ public:
 	       << "# Indicates the maximum number of iterations in the optimization" << std::endl
 	       << "maxIterations = " << GO_DEF_MAXITERATIONS << std::endl
 	       << std::endl
+	       << "# The maximum amount of iterations without improvement before the current" << std::endl
+	       << "# optimization algorithm halts" << std::endl
+	       << "maxStallIteration = " << GO_DEF_MAXSTALLITERATIONS << std::endl
+	       << std::endl
 	       << "# Specifies the maximum amount of time that may pass before the" << std::endl
 	       << "# optimization ends. 0 mean \"no limit\""
 	       << "maxMinutes = " << GO_DEF_MAXMINUTES << std::endl
 	       << std::endl
 	       << "# Specifies in which intervals information should be emitted" << std::endl
 	       << "reportIteration = " << GO_DEF_MAXITERATIONS << std::endl
+	       << std::endl
+	       << "# An offset used for the iteration counter. " << std::endl
+	       << "# Useful when starting several successive optimization runs" << std::endl
+	       << "offset = " << GO_DEF_OFFSET << std::endl
 	       << std::endl
 	       << std::endl
 	       << "#######################################################" << std::endl
@@ -523,7 +541,7 @@ public:
 	       << "# Options applicable to swarm algorithms" << std::endl
 	       << "#" << std::endl
 	       << std::endl
-	       << "# The number of neighborhodds in swarm algorithms" << std::endl
+	       << "# The number of neighborhoods in swarm algorithms" << std::endl
 	       << "swarmNNeighborhoods = " << GO_DEF_SWARMNNEIGHBORHOODS << std::endl
 	       << std::endl
 	       << "# The number of members in each neighborhood" << std::endl
@@ -583,10 +601,11 @@ private:
 	/**
 	 * Performs an EA optimization cycle
 	 *
+	 * @param offset An offset for the iteration counter
 	 * @return The best individual found during the optimization process
 	 */
 	template <typename ind_type>
-	boost::shared_ptr<ind_type> eaOptimize() {
+	boost::shared_ptr<ind_type> eaOptimize(const boost::uint32_t& offset = 0) {
 		// This smart pointer will hold the different types of evolutionary algorithms
 		boost::shared_ptr<GEvolutionaryAlgorithm> ea_ptr;
 
@@ -641,6 +660,7 @@ private:
 
 		// Set some general population settings
 		ea_ptr->setMaxIteration(maxIterations_);
+		ea_ptr->setMaxStallIteration(maxStallIteration_);
 		ea_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes_));
 		ea_ptr->setReportIteration(reportIteration_);
 
@@ -660,7 +680,7 @@ private:
 		this->clear();
 
 		// Do the actual optimization
-		ea_ptr->optimize();
+		ea_ptr->optimize(offset);
 
 		// Copy all or the best set of individuals back into our own vector
 		if(copyBestOnly_) {
@@ -684,6 +704,9 @@ private:
 		// Retrieve the best individual found
 		boost::shared_ptr<ind_type> result = ea_ptr->getBestIndividual<ind_type>();
 
+		// Adapt the local offset_ variable in case we intend to start another optimization run
+		offset_ = ea_ptr->getIteration() + 1;
+
 		// Make sure ea_ptr is clean again
 		ea_ptr->clear();
 
@@ -695,10 +718,11 @@ private:
 	/**
 	 * Performs a swarm optimization cycle
 	 *
+	 * @param offset An offset for the iteration counter
 	 * @return The best individual found during the optimization process
 	 */
 	template <typename ind_type>
-	boost::shared_ptr<ind_type> swarmOptimize() {
+	boost::shared_ptr<ind_type> swarmOptimize(const boost::uint32_t& offset = 0) {
 		// This smart pointer will hold the different types of evolutionary algorithms
 		boost::shared_ptr<GSwarm> swarm_ptr;
 
@@ -759,6 +783,7 @@ private:
 
 		// Set some general population settings
 		swarm_ptr->setMaxIteration(maxIterations_);
+		swarm_ptr->setMaxStallIteration(maxStallIteration_);
 		swarm_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes_));
 		swarm_ptr->setReportIteration(reportIteration_);
 
@@ -778,7 +803,7 @@ private:
 		this->clear();
 
 		// Do the actual optimization
-		swarm_ptr->optimize();
+		swarm_ptr->optimize(offset);
 
 		// Copy all or the best set of individuals back into our own vector
 		if(copyBestOnly_) {
@@ -801,6 +826,9 @@ private:
 		// Retrieve the best individual found
 		boost::shared_ptr<ind_type> result = swarm_ptr->getBestIndividual<ind_type>();
 
+		// Adapt the local offset_ variable in case we intend to start another optimization run
+		offset_ = swarm_ptr->getIteration() + 1;
+
 		// Make sure ea_ptr is clean again
 		swarm_ptr->clear();
 
@@ -812,10 +840,11 @@ private:
 	/**
 	 * Performs a GD optimization cycle
 	 *
+	 * @param offset An offset for the iteration counter
 	 * @return The best individual found during the optimization process
 	 */
 	template <typename ind_type>
-	boost::shared_ptr<ind_type> gdOptimize() {
+	boost::shared_ptr<ind_type> gdOptimize(const boost::uint32_t& offset = 0) {
 		// This smart pointer will hold the different types of evolutionary algorithms
 		boost::shared_ptr<GGradientDescent> gd_ptr;
 
@@ -863,6 +892,7 @@ private:
 
 		// Set some general population settings
 		gd_ptr->setMaxIteration(maxIterations_);
+		gd_ptr->setMaxStallIteration(maxStallIteration_);
 		gd_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes_));
 		gd_ptr->setReportIteration(reportIteration_);
 
@@ -884,7 +914,7 @@ private:
 		this->clear();
 
 		// Do the actual optimization
-		gd_ptr->optimize();
+		gd_ptr->optimize(offset);
 
 		// Copy the best individuals over. Note: Copying the entire population doesn't
 		// make much sense for a gradient descent, but Geneva still gives you the freedom
@@ -908,6 +938,9 @@ private:
 
 		// Retrieve the best individual found
 		boost::shared_ptr<ind_type> result = gd_ptr->getBestIndividual<ind_type>();
+
+		// Adapt the local offset_ variable in case we intend to start another optimization run
+		offset_ = gd_ptr->getIteration() + 1;
 
 		// Make sure ea_ptr is clean again
 		gd_ptr->clear();
@@ -946,8 +979,10 @@ private:
     boost::uint16_t nEvaluationThreads_; ///< The number of threads used for evaluations in multithreaded execution
     boost::uint32_t waitFactor_; ///< Influences the timeout in each iteration on the server side in networked execution
     boost::uint32_t maxIterations_; ///< The maximum number of iterations of the optimization algorithms
+    boost::uint32_t maxStallIteration_; ///< The maximum number of generations without improvement, after which optimization is stopped
     long maxMinutes_; ///< The maximum duration of the optimization
     boost::uint32_t reportIteration_; ///< The number of iterations after which information should be emitted
+    boost::uint32_t offset_; ///< The offset to be used when starting a new optimization run
 
     // EA parameters
     std::size_t eaPopulationSize_; ///< The desired size of EA populations
