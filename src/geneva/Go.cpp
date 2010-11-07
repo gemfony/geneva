@@ -479,8 +479,6 @@ GObject *Go::clone_() const {
 	return new Go(*this);
 }
 
-
-
 /**************************************************************************************/
 /**
  * Allows to specify an optimization monitor to be used with evolutionary algorithms.

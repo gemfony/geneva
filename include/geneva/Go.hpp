@@ -508,7 +508,7 @@ public:
 	       << "maxMinutes = " << GO_DEF_MAXMINUTES << std::endl
 	       << std::endl
 	       << "# Specifies in which intervals information should be emitted" << std::endl
-	       << "reportIteration = " << GO_DEF_MAXITERATIONS << std::endl
+	       << "reportIteration = " << GO_DEF_REPORTITERATION << std::endl
 	       << std::endl
 	       << "# An offset used for the iteration counter. " << std::endl
 	       << "# Useful when starting several successive optimization runs" << std::endl
