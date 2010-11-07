@@ -153,9 +153,9 @@ const double DEFAULTQUALITYTHRESHOLD=0.;
  * Specification of different parallelization modes
  */
 enum parMode {
-	SERIAL
-	, MULTITHREADED
-	, ASIONETWORKED
+	SERIAL = 0
+	, MULTITHREADED = 1
+	, ASIONETWORKED = 2
 };
 
 /**********************************************************************************************/
