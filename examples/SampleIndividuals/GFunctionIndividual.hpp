@@ -64,10 +64,7 @@ namespace Geneva
 /************************************************************************************************/
 /**
  * This individual searches for a minimum of a number of predefined functions, each capable
- * of processing their input in multiple dimensions. Currently implemented are:
- * - A simple parabola
- * - A "noisy" parabola, featuring an immense number of local optima
- * - The generalized Rosenbrock function
+ * of processing their input in multiple dimensions.
  *
  * Note that the free variables of this example are not equipped with boundaries.
  * See the GBoundedParabola example for ways of specifying boundaries for variables.

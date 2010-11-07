@@ -61,7 +61,8 @@
 
 // Geneva header files go here
 #include <common/GCommonEnums.hpp>
-#include "common/GHelperFunctions.hpp"
+#include <common/GHelperFunctions.hpp>
+#include <common/GParserBuilder.hpp>
 #include <dataexchange/GBoolParameter.hpp>
 #include <dataexchange/GDataExchange.hpp>
 #include <dataexchange/GDoubleParameter.hpp>
@@ -495,6 +496,52 @@ class GExternalEvaluatorIndividual
 		}
 #endif /* DEBUG */
 		bf::remove(p);
+	}
+
+	/********************************************************************************************/
+	/**
+	 * A factory function that returns a GExternalEvaluatorIndividual, setting some values according
+	 * to the specifications of a configuration file.
+	 *
+	 * @return A GExternalEvaluatorIndividual object, equipped according to the settings in a configuration file
+	 */
+	static boost::shared_ptr<GParameterSet> getExternalEvaluatorIndividual(const std::string& cf = "GExternalEvaluatorIndividual.cfg") {
+		using namespace Gem::Common;
+
+		// The variables that should be read from the configuration file
+		boost::uint32_t processingCycles;
+		std::string program;
+		std::string externalArguments;
+		boost::uint32_t adaptionThreshold;
+		double sigma;
+		double sigmaSigma;
+		double minSigma;
+		double maxSigma;
+		Gem::Geneva::dataExchangeMode exchangeMode;
+		bool randomFill;
+
+		// Register a number of parameters
+		GParserBuilder gpb(cf.c_str());
+		gpb.registerParameter("processingCycles", processingCycles, boost::uint32_t(1));
+		gpb.registerParameter("program", program, std::string("./evaluator/evaluator"));
+		gpb.registerParameter("externalArguments", externalArguments, std::string("empty"));
+		gpb.registerParameter("adaptionThreshold", adaptionThreshold, boost::uint32_t(1));
+		gpb.registerParameter("sigma", sigma, double(0.5));
+		gpb.registerParameter("sigmaSigma", sigmaSigma, double(0.8));
+		gpb.registerParameter("minSigma", minSigma, double(0.));
+		gpb.registerParameter("maxSigma", maxSigma, double(2.));
+		gpb.registerParameter("exchangeMode", exchangeMode, Gem::Geneva::dataExchangeMode(Gem::Geneva::BINARYEXCHANGE));
+		gpb.registerParameter("randomFill", randomFill, true);
+
+		// Read the parameters from the configuration file
+		if(!gpb.parse()) {
+			std::ostringstream error;
+			error << "In GFunctionIndividual::getExternalEvaluatorIndividual(const std::string&): Error!" << std::endl
+				  << "Could not parse configuration file " << cf << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+
 	}
 
  protected:
