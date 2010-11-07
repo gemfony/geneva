@@ -385,8 +385,7 @@ public:
 	/**
 	 * Retrieves the remaining space in the buffer. Note that the capacity
 	 * may change once this function has completed. The information taken
-	 * from this function can thus only serve as an indication. GRandomFactory
-	 * uses it to find out whether it should continue to produce items.
+	 * from this function can thus only serve as an indication.
 	 *
 	 * @return The currently remaining space in the buffer
 	 */
@@ -394,6 +393,36 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		return capacity_ - container_.size();
+	}
+
+	/***************************************************************/
+	/**
+	 * Retrieves the current size of the buffer. Note that the buffer
+	 * (and its size) may change immediately after this function has
+	 * completed, this value should therefore only be taken as an
+	 * indication.
+	 *
+	 * @return The current size of the buffer
+	 */
+	std::size_t size()
+	{
+		boost::mutex::scoped_lock lock(mutex_);
+		return container_.size();
+	}
+
+	/***************************************************************/
+	/**
+	 * Returns whether the buffer is empty or not. Note that the buffer
+	 * contents may change immediately after this function has
+	 * completed, this value should therefore only be taken as an
+	 * indication.
+	 *
+	 * @return True if the buffer is not empty
+	 */
+	bool isNotEmpty()
+	{
+		boost::mutex::scoped_lock lock(mutex_);
+		return (container_.size() > 0);
 	}
 
 protected:
@@ -407,7 +436,7 @@ protected:
 	 * in a safe context, where a mutex has been locked. Hence we do not need
 	 * any local synchronization.
 	 *
-	 * @return A boolean value indication whether the buffer is not empty
+	 * @return A boolean value indicating whether the buffer is not empty
 	 */
 	bool is_not_empty() const
 	{
