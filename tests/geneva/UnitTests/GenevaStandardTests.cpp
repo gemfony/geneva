@@ -65,6 +65,7 @@ using namespace boost::unit_test;
 #include "geneva/GGradientDescent.hpp"
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
+#include "geneva/Go.hpp"
 
 #include "GTestIndividual1.hpp"
 
@@ -129,6 +130,7 @@ public:
 			, GMultiThreadedSwarm
 			, GGradientDescent
 			, GMultiThreadedGD
+			, Go
 		>
 		algorithm_types;
 

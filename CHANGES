@@ -15,8 +15,8 @@ The main changes for this release include:
    easier access to information about the optimization process, plus
    visualization of the optimization progress out of the box.
  - Added a set of functions that allows to extract or set all parameters
-   of type double, boost::int32_t or boolean with a single call, in the
-   sequence in which they were registered. E.g., if a GDoubleObject,
+   of type double, boost::int32_t or boolean with a single call from an individual, 
+   in the sequence in which they were registered. E.g., if a GDoubleObject,
    GBooleanCollection and a GConstrainedDouble have been registered in
    this order, it would be possible to just extract or set all double
    values in one go, while leaving the GBooleanCollection unchanged.
