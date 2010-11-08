@@ -181,12 +181,12 @@ boost::shared_ptr<Gem::Geneva::GParameterBase> GParameterObjectCollection::at(co
  * @return A boolean which indicates whether modifications were made
  */
 bool GParameterObjectCollection::modify_GUnitTests() {
-	bool result = false;
+	this->fillWithObjects();
 
 	// Call the parent class'es function
-	if(GParameterTCollectionT<GParameterBase>::modify_GUnitTests()) result = true;
+	GParameterTCollectionT<GParameterBase>::modify_GUnitTests();
 
-	return result;
+	return true;
 }
 
 /*******************************************************************************************/
@@ -271,8 +271,17 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const double RANDLOWERBOUNDARY = 2.;
 	const double RANDUPPERBOUNDARY = 10.;
 
-	// Call the parent class'es function
-	GParameterTCollectionT<GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
+	//------------------------------------------------------------------------------
+
+	{ // Call the parent class'es function
+		boost::shared_ptr<GParameterObjectCollection> p_test = this->clone<GParameterObjectCollection>();
+
+		// Fill p_test with parameters
+		p_test->fillWithObjects();
+
+		// Run the parent class'es tests
+		p_test->GParameterTCollectionT<GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
+	}
 
 	//------------------------------------------------------------------------------
 

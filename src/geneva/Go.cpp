@@ -31,6 +31,13 @@
 
 #include "geneva/Go.hpp"
 
+/**
+ * Included here so no conflicts occur. See explanation at
+ * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
+ */
+#include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(Gem::Geneva::Go)
+
 namespace Gem {
 namespace Geneva {
 
@@ -1381,8 +1388,7 @@ void Go::parseCommandLine(int argc, char **argv) {
 				"Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 				("writeConfigFile,w",
 				"Instructs the program to write out a configuration file and then to exit. If the configuration option \"configFileName\" has been specified, its value will be used as the name of the file")
-				("verbose,v", po::value<bool>(&verbose_)->default_value(GO_DEF_DEFAULTVERBOSE),
-				"Instructs the parsers to output information about configuration parameters")
+				("verbose,v", "Instructs the parsers to output information about configuration parameters")
 		;
 
 		po::variables_map vm;
@@ -1404,7 +1410,8 @@ void Go::parseCommandLine(int argc, char **argv) {
 		if (parMode_ == 2  &&  !vm.count("serverMode")) serverMode_ = false;
 		else serverMode_ = true;
 
-		if(verbose_) {
+		if(vm.count("verbose")) {
+			verbose_ = true;
 			std::cout << std::endl
 					<< "Running with the following command line options:" << std::endl
 					<< "configFilename = " << configFilename_ << std::endl
@@ -1414,6 +1421,8 @@ void Go::parseCommandLine(int argc, char **argv) {
 					<< "ip = " << ip_ << std::endl
 					<< "port = " << port_ << std::endl
 					<< "serializationMode = " << serializationMode_ << std::endl;
+		} else {
+			verbose_ = false;
 		}
 	}
 	catch(const po::error& e) {

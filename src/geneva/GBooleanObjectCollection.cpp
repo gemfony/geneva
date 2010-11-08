@@ -172,12 +172,12 @@ void GBooleanObjectCollection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GBooleanObjectCollection::modify_GUnitTests() {
-	bool result = false;
+	this->fillWithObjects(10);
 
 	// Call the parent class'es function
-	if(GParameterTCollectionT<GBooleanObject>::modify_GUnitTests()) result = true;
+	GParameterTCollectionT<GBooleanObject>::modify_GUnitTests();
 
-	return result;
+	return true;
 }
 
 /*******************************************************************************************/
@@ -228,8 +228,17 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const double RANDLOWERBOUNDARY = 0.;
 	const double RANDUPPERBOUNDARY = 10.;
 
-	// Call the parent class'es function
-	GParameterTCollectionT<GBooleanObject>::specificTestsNoFailureExpected_GUnitTests();
+	//----------------------------------------------------------------------------
+
+	{ // Call the parent class'es function
+		boost::shared_ptr<GBooleanObjectCollection> p_test = this->clone<GBooleanObjectCollection>();
+
+		// Fill p_test with objects
+		p_test->fillWithObjects(nAddedObjects);
+
+		// Call the parent's tests
+		p_test->GParameterTCollectionT<GBooleanObject>::specificTestsNoFailureExpected_GUnitTests();
+	}
 
 	//------------------------------------------------------------------------------
 

@@ -36,8 +36,6 @@
  */
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm)
-
-#include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GEvolutionaryAlgorithm::GEAOptimizationMonitor)
 
 namespace Gem {

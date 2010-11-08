@@ -85,6 +85,7 @@ BOOST_CLASS_EXPORT(GOptimizationAlgorithmT<GParameterSet>::GOptimizationMonitorT
 BOOST_CLASS_EXPORT(GEvolutionaryAlgorithm::GEAOptimizationMonitor);
 BOOST_CLASS_EXPORT(GSwarm::GSwarmOptimizationMonitor);
 BOOST_CLASS_EXPORT(GGradientDescent::GGDOptimizationMonitor);
+BOOST_CLASS_EXPORT(Go);
 
 /*************************************************************************************************/
 /**

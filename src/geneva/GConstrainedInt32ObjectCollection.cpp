@@ -171,12 +171,12 @@ void GConstrainedInt32ObjectCollection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
-	bool result = false;
+	this->fillWithObjects(10);
 
 	// Call the parent class'es function
-	if(GParameterTCollectionT<GConstrainedInt32Object>::modify_GUnitTests()) result = true;
+	GParameterTCollectionT<GConstrainedInt32Object>::modify_GUnitTests();
 
-	return result;
+	return true;
 }
 
 /*******************************************************************************************/
@@ -227,8 +227,17 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	const double RANDLOWERBOUNDARY = 0.;
 	const double RANDUPPERBOUNDARY = 10.;
 
-	// Call the parent class'es function
-	GParameterTCollectionT<GConstrainedInt32Object>::specificTestsNoFailureExpected_GUnitTests();
+	//------------------------------------------------------------------------------
+
+	{ // Call the parent class'es function
+		boost::shared_ptr<GConstrainedInt32ObjectCollection> p_test = this->clone<GConstrainedInt32ObjectCollection>();
+
+		// Fill p_test with objects
+		p_test->fillWithObjects(nAddedObjects);
+
+		// Execute the parent class'es tests
+		p_test->GParameterTCollectionT<GConstrainedInt32Object>::specificTestsNoFailureExpected_GUnitTests();
+	}
 
 	//------------------------------------------------------------------------------
 

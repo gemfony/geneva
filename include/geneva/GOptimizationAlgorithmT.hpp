@@ -166,7 +166,7 @@ public:
 		, emitTerminationReason_(false)
 		, halted_(false)
 		, optAlg_(NONE)
-		, optimizationMonitor_ptr_(new GOptimizationMonitorT())
+		, optimizationMonitor_ptr_(new GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT())
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -197,7 +197,7 @@ public:
 		, emitTerminationReason_(cp.emitTerminationReason_)
 		, halted_(cp.halted_)
 		, optAlg_(cp.optAlg_)
-		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::clone<GOptimizationMonitorT>())
+		, optimizationMonitor_ptr_((cp.optimizationMonitor_ptr_)->GObject::clone<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>())
 	{ /* nothing */ }
 
 	/**************************************************************************************/
@@ -576,7 +576,7 @@ public:
 	 *
 	 * @param om_ptr A shared pointer to a specific optimization monitor
 	 */
-	void registerOptimizationMonitor(boost::shared_ptr<GOptimizationMonitorT> om_ptr) {
+	void registerOptimizationMonitor(boost::shared_ptr<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
 #ifdef DEBUG
 		if(!om_ptr) {
 			std::ostringstream error;
@@ -586,7 +586,7 @@ public:
 		}
 #endif /* DEBUG */
 
-		optimizationMonitor_ptr_ = om_ptr->GObject::clone<GOptimizationMonitorT>();
+		optimizationMonitor_ptr_ = om_ptr->GObject::clone<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
 	/**************************************************************************************/
@@ -892,7 +892,7 @@ public:
 	 *
 	 * @return A boost::shared_ptr to the current optimization monitor
 	 */
-	boost::shared_ptr<GOptimizationMonitorT> getOptimizationMonitor() {
+	boost::shared_ptr<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> getOptimizationMonitor() {
 		return optimizationMonitor_ptr_;
 	}
 
@@ -931,7 +931,7 @@ protected:
 		emitTerminationReason_ = p_load->emitTerminationReason_;
 		halted_ = p_load->halted_;
 		optAlg_ = p_load->optAlg_;
-		optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::clone<GOptimizationMonitorT>();
+		optimizationMonitor_ptr_ = p_load->optimizationMonitor_ptr_->GObject::clone<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT>();
 	}
 
 	/**************************************************************************************/
@@ -1305,7 +1305,7 @@ private:
 	bool emitTerminationReason_; ///< Specifies whether information about reasons for termination should be emitted
 	bool halted_; ///< Set to true when halt() has returned "true"
 	personality optAlg_; ///< Allows to identify the actual optimization algorithm built on top of this class
-	boost::shared_ptr<GOptimizationMonitorT> optimizationMonitor_ptr_;
+	boost::shared_ptr<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> optimizationMonitor_ptr_;
 
 #ifdef GENEVATESTING
 public:

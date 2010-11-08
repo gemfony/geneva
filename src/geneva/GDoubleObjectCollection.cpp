@@ -170,12 +170,12 @@ void GDoubleObjectCollection::load_(const GObject* cp){
  * @return A boolean which indicates whether modifications were made
  */
 bool GDoubleObjectCollection::modify_GUnitTests() {
-	bool result = false;
+	this->fillWithObjects(10);
 
 	// Call the parent class'es function
-	if(GParameterTCollectionT<GDoubleObject>::modify_GUnitTests()) result = true;
+	GParameterTCollectionT<GDoubleObject>::modify_GUnitTests();
 
-	return result;
+	return true;
 }
 
 /*******************************************************************************************/
@@ -226,8 +226,17 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const double RANDLOWERBOUNDARY = 0.;
 	const double RANDUPPERBOUNDARY = 10.;
 
-	// Call the parent class'es function
-	GParameterTCollectionT<GDoubleObject>::specificTestsNoFailureExpected_GUnitTests();
+	//------------------------------------------------------------------------------
+
+	{ // Call the parent class'es function
+		boost::shared_ptr<GDoubleObjectCollection> p_test = this->clone<GDoubleObjectCollection>();
+
+		// Fill p_test with objects
+		p_test->fillWithObjects(nAddedObjects);
+
+		// Execute the parent class'es tests
+		p_test->GParameterTCollectionT<GDoubleObject>::specificTestsNoFailureExpected_GUnitTests();
+	}
 
 	//------------------------------------------------------------------------------
 

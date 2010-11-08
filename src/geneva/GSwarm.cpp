@@ -36,6 +36,7 @@
  */
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GSwarm)
+BOOST_CLASS_EXPORT(Gem::Geneva::GSwarm::GSwarmOptimizationMonitor)
 
 namespace Gem {
 namespace Geneva {

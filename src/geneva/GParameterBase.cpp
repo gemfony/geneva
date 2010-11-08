@@ -598,6 +598,8 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------
 
 	{ // Test blocking and unblocking of random initialization
+		using namespace Gem::Common;
+
 		// Create two GParameterBase objects as clone of this object for further usage
 		boost::shared_ptr<GParameterBase> p_test1 = this->clone<GParameterBase>();
 		boost::shared_ptr<GParameterBase> p_test2 = this->clone<GParameterBase>();
