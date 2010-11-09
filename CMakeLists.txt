@@ -55,7 +55,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		ADD_DEFINITIONS ("-DDEBUG -g -Wall -Wno-unused -ansi -pthread -wd1572 -wd1418 -wd981 -wd444 -wd383")
 	ELSE() # e.g. g++
 	    MESSAGE ("Using g++ compiler settings")
-		# ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
+		# ADD_DEFINITIONS ("-DDEBUG -pg -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wextra -Woverloaded-virtual -Wunused -ansi -std=c++98 -pedantic -pthread")
 		ADD_DEFINITIONS ("-DDEBUG -g -fno-unsafe-math-optimizations -fno-finite-math-only -Wall -Wno-unused -ansi -pthread")
 	ENDIF()
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
