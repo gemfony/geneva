@@ -127,16 +127,9 @@ ENDIF()
 
 INCLUDE_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/include
+	${PROJECT_SOURCE_DIR}/tests/geneva/TestIndividuals
 	${Boost_INCLUDE_DIRS}
 )
-
-# Needed here because we do in-source testing and occasionally 
-# need to add GTestIndividual1 objects, if BUILDTESTCODE is defined
-IF( BUILDTESTCODE )
-	INCLUDE_DIRECTORIES ( AFTER
-		${PROJECT_SOURCE_DIR}/tests/geneva/TestIndividuals
-	)
-ENDIF()
 
 LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src/common
@@ -151,15 +144,8 @@ LINK_DIRECTORIES (
 SET ( COMMON_LIBNAME           "gemfony-common" )
 SET ( HAP_LIBNAME              "gemfony-hap" )
 SET ( COURTIER_LIBNAME         "gemfony-courtier" )
-
-# The name of the libs depend on whether or not they contain test code
-IF ( BUILDTESTCODE )
-	SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange-testing" )
-	SET ( GENEVA_LIBNAME       "gemfony-geneva-testing" )
-ELSE()
-	SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange" )
-	SET ( GENEVA_LIBNAME       "gemfony-geneva" )
-ENDIF()
+SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange" )
+SET ( GENEVA_LIBNAME       "gemfony-geneva" )
 
 ADD_SUBDIRECTORY (CMakeModules)
 ADD_SUBDIRECTORY (examples)

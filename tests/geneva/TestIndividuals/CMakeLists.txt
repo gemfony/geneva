@@ -2,7 +2,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET ( SAMPLEINFOFUNCTIONS
 	GTestIndividual1.hpp
+  GTestIndividual1.cpp
 	GDelayIndividual.hpp
+  GDelayIndividual.cpp
 )
 
 INSTALL ( FILES ${SAMPLEINFOFUNCTIONS} DESTINATION tests/geneva/TestIndividuals/

@@ -240,7 +240,7 @@ bool parseConfigFile(
 					<< "stepSize = " << stepSize << std::endl
 					<< "parDim = " << parDim << std::endl << "minVar = "
 					<< minVar << std::endl << "maxVar = " << maxVar
-					<< std::endl << "evalFunction = " << GFunctionIndividual<>::getStringRepresentation(df) << std::endl
+					<< std::endl << "evalFunction = " << df << std::endl
 					<< std::endl;
 		}
 	} catch (...) {

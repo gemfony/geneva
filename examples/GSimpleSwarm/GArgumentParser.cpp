@@ -252,7 +252,7 @@ namespace Gem
 					<< "parDim = " << parDim << std::endl
 					<< "minVar = " << minVar << std::endl
 					<< "maxVar = " << maxVar << std::endl
-					<< std::endl << "evalFunction = " << GFunctionIndividual<>::getStringRepresentation(df) << std::endl
+					<< std::endl << "evalFunction = " << df << std::endl
 					<< "cLocal = " << cLocal << std::endl
 					<< "cGlobal = " << cGlobal << std::endl
 					<< "cDelta = " << cDelta << std::endl

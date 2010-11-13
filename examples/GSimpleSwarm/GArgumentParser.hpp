@@ -59,9 +59,9 @@
 // Geneva headers go here
 #include <geneva/GOptimizationEnums.hpp>
 #include <common/GSerializationHelperFunctionsT.hpp>
+#include <geneva/GOptimizationEnums.hpp>
 
 // The individual that should be optimized
-#include "GFunctionIndividual.hpp"
 #include "GFunctionIndividualDefines.hpp"
 
 namespace Gem

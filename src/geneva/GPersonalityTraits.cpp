@@ -36,6 +36,8 @@
 #include <boost/serialization/export.hpp>
 BOOST_CLASS_EXPORT(Gem::Geneva::GPersonalityTraits)
 
+/*********************************************************************************/
+
 namespace Gem {
 namespace Geneva {
 

@@ -315,7 +315,7 @@ bool parseConfigFile(
 					<< std::endl << "maxSigma " << maxSigma << std::endl
 					<< "parDim = " << parDim << std::endl << "minVar = "
 					<< minVar << std::endl << "maxVar = " << maxVar
-					<< std::endl << "evalFunction = " << GFunctionIndividual<>::getStringRepresentation(df) << std::endl
+					<< std::endl << "evalFunction = " << df << std::endl
 					<< "xDim = " << xDim << std::endl
 					<< "yDim = " << yDim << std::endl
 					<< "followProgress = " << (followProgress?"true":"false") << std::endl

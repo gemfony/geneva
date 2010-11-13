@@ -95,15 +95,8 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 SET ( COMMON_LIBNAME "gemfony-common" )
 SET ( HAP_LIBNAME "gemfony-hap" )
 SET ( COMMUNICATION_LIBNAME "gemfony-courtier" )
-
-# The name of the libs depend on whether or not they contain test code
-IF ( BUILDTESTCODE )
-	SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange-testing" )
-	SET ( GENEVA_LIBNAME "gemfony-geneva-testing" )
-ELSE()
-	SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange" )
-	SET ( GENEVA_LIBNAME "gemfony-geneva" )
-ENDIF()
+SET ( DATAEXCHANGE_LIBNAME "gemfony-dataexchange" )
+SET ( GENEVA_LIBNAME "gemfony-geneva" )
 
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${GENEVA_LIBNAME}
