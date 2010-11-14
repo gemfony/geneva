@@ -49,8 +49,7 @@
 #include <geneva/GBrokerSwarm.hpp>
 
 // The individual that should be optimized
-#include "GFunctionIndividual.hpp"
-#include "GFunctionIndividualDefines.hpp"
+#include "geneva-individuals/GFunctionIndividual.hpp"
 
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"

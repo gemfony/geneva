@@ -58,7 +58,7 @@
 // The individual that should be optimized.
 // Represents the projection of an m-dimensional
 // data set to an n-dimensional data set.
-#include "GFunctionIndividual.hpp"
+#include "geneva-individuals/GFunctionIndividual.hpp"
 
 // Parses the command line for all required options
 #include "GCommandLineParser.hpp"

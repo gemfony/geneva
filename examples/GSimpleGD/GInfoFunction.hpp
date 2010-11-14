@@ -51,8 +51,7 @@
 #include <geneva/GDoubleCollection.hpp>
 
 // The individual that should be optimized
-#include "GFunctionIndividualDefines.hpp"
-#include "GFunctionIndividual.hpp"
+#include "geneva-individuals/GFunctionIndividual.hpp"
 
 namespace Gem {
 namespace Geneva {

@@ -559,13 +559,13 @@ private:
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // A number of specializations of fitnessCalculation() for the three function types
 
-template<> inline double GFunctionIndividual<PARABOLA>::fitnessCalculation();
-template<> inline double GFunctionIndividual<BERLICH>::fitnessCalculation();
-template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation();
-template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation();
-template<> inline double GFunctionIndividual<RASTRIGIN>::fitnessCalculation();
-template<> inline double GFunctionIndividual<SCHWEFEL>::fitnessCalculation();
-template<> inline double GFunctionIndividual<SALOMON>::fitnessCalculation();
+template<> double GFunctionIndividual<PARABOLA>::fitnessCalculation();
+template<> double GFunctionIndividual<BERLICH>::fitnessCalculation();
+template<> double GFunctionIndividual<ROSENBROCK>::fitnessCalculation();
+template<> double GFunctionIndividual<ACKLEY>::fitnessCalculation();
+template<> double GFunctionIndividual<RASTRIGIN>::fitnessCalculation();
+template<> double GFunctionIndividual<SCHWEFEL>::fitnessCalculation();
+template<> double GFunctionIndividual<SALOMON>::fitnessCalculation();
 
 /************************************************************************************************/
 

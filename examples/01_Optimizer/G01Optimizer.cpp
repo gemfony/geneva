@@ -39,8 +39,7 @@
 #include <geneva/Go.hpp>
 
 // The individual that should be optimized
-#include "GFunctionIndividual.hpp"
-#include "GFunctionIndividualDefines.hpp"
+#include "geneva-individuals/GFunctionIndividual.hpp"
 
 using namespace Gem::Geneva;
 

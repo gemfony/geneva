@@ -54,7 +54,7 @@ namespace Geneva
  *
  * @return The result of the calculation
  */
-template<> inline double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
+template<> double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
@@ -83,7 +83,7 @@ template<> inline double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
  *
  * @return The result of the calculation
  */
-template<> inline double GFunctionIndividual<BERLICH>::fitnessCalculation() {
+template<> double GFunctionIndividual<BERLICH>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
@@ -103,7 +103,7 @@ template<> inline double GFunctionIndividual<BERLICH>::fitnessCalculation() {
  *
  * @return The result of the calculation
  */
-template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
+template<> double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
@@ -134,7 +134,7 @@ template<> inline double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
  *
  * @return The result of the calculation
  */
-template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
+template<> double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
@@ -165,7 +165,7 @@ template<> inline double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
  *
  * @return The result of the calculation
  */
-template<> inline double GFunctionIndividual<RASTRIGIN>::fitnessCalculation() {
+template<> double GFunctionIndividual<RASTRIGIN>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
@@ -186,7 +186,7 @@ template<> inline double GFunctionIndividual<RASTRIGIN>::fitnessCalculation() {
  *
  * @return The result of the calculation
  */
-template<> inline double GFunctionIndividual<SCHWEFEL>::fitnessCalculation() {
+template<> double GFunctionIndividual<SCHWEFEL>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
@@ -207,7 +207,7 @@ template<> inline double GFunctionIndividual<SCHWEFEL>::fitnessCalculation() {
  *
  * @return The result of the calculation
  */
-template<> inline double GFunctionIndividual<SALOMON>::fitnessCalculation() {
+template<> double GFunctionIndividual<SALOMON>::fitnessCalculation() {
 	// Extract the GDoubleCollection object
 	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
 	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing

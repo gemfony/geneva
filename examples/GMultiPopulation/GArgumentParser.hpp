@@ -63,7 +63,7 @@
 #include <geneva/GOptimizationEnums.hpp>
 
 // Some defines for the individual that should be optimized
-#include "GFunctionIndividualDefines.hpp"
+#include "geneva-individuals/GFunctionIndividual.hpp"
 
 namespace Gem
 {
