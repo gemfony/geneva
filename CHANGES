@@ -24,6 +24,7 @@ The main changes for this release include:
    unchanged.
  - Added the GParserBuilder class that allows to easily create parsers
    for configuration files "on the fly".
+ - Moved the GSerializableI class from the Geneva to the Common library.
  - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug,
    really).
  - Ported to Boost 1.45.

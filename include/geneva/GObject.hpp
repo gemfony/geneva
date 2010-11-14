@@ -83,8 +83,8 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GSerializableI.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GSerializableI.hpp"
 
 #ifdef GENEVATESTING
 #include "common/GUnitTestFrameworkT.hpp"
@@ -102,7 +102,7 @@ namespace Geneva {
  * Further common functionality of many Geneva classes will be implemented here over time.
  */
 class GObject
-	:public GSerializableI
+	:public Gem::Common::GSerializableI
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

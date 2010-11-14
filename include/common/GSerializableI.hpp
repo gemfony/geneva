@@ -35,7 +35,7 @@
 #include <string>
 
 // Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
+#include "GGlobalDefines.hpp"
 
 // Boost header files go here
 
@@ -49,10 +49,10 @@
 
 
 // Geneva header files go here
-#include "common/GCommonEnums.hpp" // For the serialization mode
+#include "GCommonEnums.hpp" // For the serialization mode
 
 namespace Gem {
-namespace Geneva {
+namespace Common {
 
 /**************************************************************************************************/
 /**
@@ -65,13 +65,13 @@ public:
 	virtual ~GSerializableI() { /* nothing */ }
 
 	/** @brief Create a text representation from this class */
-	virtual std::string toString(const Gem::Common::serializationMode&) const = 0;
+	virtual std::string toString(const serializationMode&) const = 0;
 
 	/** @brief Initialize this class from a text representation */
-	virtual void fromString(const std::string&, const Gem::Common::serializationMode&) = 0;
+	virtual void fromString(const std::string&, const serializationMode&) = 0;
 };
 
-} /* namespace Geneva */
+} /* namespace Common */
 } /* namespace Gem */
 
 /**************************************************************************************************/
