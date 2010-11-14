@@ -49,7 +49,7 @@
 
 
 // Geneva header files go here
-#include "GOptimizationEnums.hpp" // For the serialization mode
+#include "common/GCommonEnums.hpp" // For the serialization mode
 
 namespace Gem {
 namespace Geneva {
