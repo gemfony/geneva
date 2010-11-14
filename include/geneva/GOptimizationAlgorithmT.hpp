@@ -466,7 +466,7 @@ public:
 		// Set the iteration offset
 		offset_ = offset;
 
-		// Let the audience know that the otimization process hasn't been halted yet
+		// Let the audience know that the optimization process hasn't been halted yet
 		halted_ = false;
 
 		// Resize the population to the desired size and do some error checks
