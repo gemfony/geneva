@@ -86,7 +86,7 @@
 #include "geneva/GObject.hpp"
 
 #ifdef GENEVATESTING
-#include "GTestIndividual1.hpp"
+#include "geneva-individuals/GTestIndividual1.hpp"
 #endif /* GENEVATESTING */
 
 namespace Gem {

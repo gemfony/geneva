@@ -66,8 +66,7 @@ using namespace boost::unit_test;
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/Go.hpp"
-
-#include "GTestIndividual1.hpp"
+#include "geneva-individuals/GTestIndividual1.hpp"
 
 #include "GStandard_test.hpp"
 

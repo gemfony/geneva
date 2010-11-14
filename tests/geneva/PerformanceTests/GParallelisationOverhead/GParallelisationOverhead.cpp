@@ -55,7 +55,7 @@
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
 
 // The individual that should be optimized
-#include "GDelayIndividual.hpp"
+#include "geneva-individuals/GDelayIndividual.hpp"
 
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"

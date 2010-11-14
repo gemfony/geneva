@@ -11,8 +11,6 @@ ADD_DEPENDENCIES ( "geneva-tests"
 	"geneva-tests-manual"
 )
 
-ADD_SUBDIRECTORY ( TestIndividuals )
-
 ADD_SUBDIRECTORY ( UnitTests )
 ADD_SUBDIRECTORY ( PerformanceTests )
 ADD_SUBDIRECTORY ( ManualTests )

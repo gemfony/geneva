@@ -42,7 +42,6 @@ SET ( OPTIMIZATIONSOURCES
 	GPersonalityTraits
 	GSwarm
 	GSwarmPersonalityTraits
-	${PROJECT_SOURCE_DIR}/tests/geneva/TestIndividuals/GTestIndividual1
 )
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted
