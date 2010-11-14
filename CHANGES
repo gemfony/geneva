@@ -7,7 +7,8 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 * Version 0.8.5, yet unnamed, release-date unknown
 
 The main changes for this release include:
- - Implemented gradient descents in all modes (serial, multi-threaded and networked).
+ - Implemented gradient descents in all modes (serial, multi-threaded and
+   networked).
  - Created a wrapper around all optimization algorithms in all modes
    (serial, multithreaded, networked) that much lowers the entry threshold
    to use Geneva. This wrapper class is called Go.
@@ -15,15 +16,17 @@ The main changes for this release include:
    easier access to information about the optimization process, plus
    visualization of the optimization progress out of the box.
  - Added a set of functions that allows to extract or set all parameters
-   of type double, boost::int32_t or boolean with a single call from an individual, 
-   in the sequence in which they were registered. E.g., if a GDoubleObject,
-   GBooleanCollection and a GConstrainedDouble have been registered in
-   this order, it would be possible to just extract or set all double
-   values in one go, while leaving the GBooleanCollection unchanged.
+   of type double, boost::int32_t or boolean with a single call from an
+   individual, in the sequence in which they were registered. E.g., if
+   a GDoubleObject, GBooleanCollection and a GConstrainedDouble have been
+   registered in this order, it would be possible to just extract or set
+   all double values in one go, while leaving the GBooleanCollection
+   unchanged.
  - Added the GParserBuilder class that allows to easily create parsers
    for configuration files "on the fly".
- - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug, really).
- - Ported to Boost 1.45
+ - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug,
+   really).
+ - Ported to Boost 1.45.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.4, "Route Bell" - September 23, 2010
@@ -44,7 +47,7 @@ The main changes for this release include:
    adaptors, GParameterSet and related classes). From the optimization-related
    classes only the algorithms are still lacking complete unit test
    coverage. However, through their heavy use in the actual optimization
-   problems they are nevertheless quite well tested. Corresponding tests 
+   problems they are nevertheless quite well tested. Corresponding tests
    will be added when the need arises or time permits.
 
 //------------------------------------------------------------------------------------------------------
@@ -111,8 +114,8 @@ The main changes for this release include:
    Gem::Geneva::geneva_error_condition to Gem::Common::gemfony_error_condition,
    in order to better separate different libraries.
  - Replaced usage of GDataExchangeException by Gem::Common::gemfony_error_condition.
- - Gave GParameterBase-derivatives and GParameterSet objects the ability to
-   randomly initialize a given set of data elements contained in them.
+ - Gave GParameterBase-derivatives and GParameterSet objects the ability
+   to randomly initialize a given set of data elements contained in them.
  - Update to CMake 2.8, ported to Boost 1.43.
  - Made compilation of test code optional.
  - Moved the sample programs in the 'associated' folder together with
@@ -128,7 +131,7 @@ The main changes for this release include:
    parallelization framework.
  - Gave the GAsioTCPConsumer the ability to automatically determine the
    number of listener threads. Should improve scalability of the server
-   on systems with many cores. 
+   on systems with many cores.
  - Added GDelayIndividual in order to allow measurement of the overhead
    incurred through the parallelization.
  - Reworked GExternalEvaluator example to be more usable in a production
@@ -145,7 +148,8 @@ The main changes for this release include:
  - Renamed GBasePopulation to GEvolutionaryAlgorithm, GBrokerPopulation
    to GBrokerEA and GBoostThreadPopulation to GMultiThreadedEA.
  - Implemented a new way to select views of vectors of
-   boost::shared_ptr<GIndividual>, including automatic conversion "attachViewTo<>()".
+   boost::shared_ptr<GIndividual>, including automatic conversion
+   "attachViewTo<>()".
  - Allowed adaptors to choose from "always mutate", "never mutate" and
    "mutate with a certain likelihood".
  - Added compilation warnings when using Boost 1.39 or Boost 1.41, which
@@ -163,7 +167,7 @@ The main changes for this release include:
 //------------------------------------------------------------------------------------------------------
 * Version 0.6, "Route Enrico Fermi" - September 1, 2009
 
-The main changes for this release include: 
+The main changes for this release include:
  - Added option to GBasePopulation to stop optimizing after a user-defined
    number of stalls.
  - Allowed to selectively switch off mutations (i.e. value changes) for
@@ -219,7 +223,7 @@ The main changes for this release include:
    and hasn't been updated for a while. When the Boost.Logging library will
    pass its review, it will be used in Geneva instead.
  - Added the ability to GParameterTColletionT to use a common adaptor for
-   all of its GParameterT objects. Note: Needs some more testing. 
+   all of its GParameterT objects. Note: Needs some more testing.
  - GSeed will now first try to get an initial seed from /dev/urandom, if
    available, and will then set the seed to a predefined value upon failure.
  - Removed GRandom from GObject, providing individual GRandom objects only
@@ -255,17 +259,17 @@ Again a long list of changes, too long to mention here. Check the SVN
 pages for details. Development is still very dynamic.
 
 October 23, 2008: Too many changes have been made in the software to be
-named here. This was partially in the course of searching for problems 
-that in the end turned out not to be on Geneva's side. We nevertheless 
-believe that the library has improved a lot. Not the least, we have 
-started to integrate the Boost.Test suite of unit testing tools. We will 
-aim at listing major changes in the code here in the future, as they 
+named here. This was partially in the course of searching for problems
+that in the end turned out not to be on Geneva's side. We nevertheless
+believe that the library has improved a lot. Not the least, we have
+started to integrate the Boost.Test suite of unit testing tools. We will
+aim at listing major changes in the code here in the future, as they
 occur.
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.5, "Meyrin" - September 15, 2008
 
-Complete revision of the entire project. Also moved from GNU autotools 
+Complete revision of the entire project. Also moved from GNU autotools
 to CMake. Directory structure of SVN repository has been revised.
 
 //------------------------------------------------------------------------------------------------------
