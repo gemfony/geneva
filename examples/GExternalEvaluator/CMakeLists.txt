@@ -77,7 +77,6 @@ SET ( EXECUTABLENAME GExternalEvaluator )
 SET ( ${EXECUTABLENAME}_SRCS
 	GArgumentParser
 	GExternalEvaluator
-	GExternalEvaluatorEnums
 )
 
 SET ( CONFIGFILE
@@ -85,7 +84,6 @@ SET ( CONFIGFILE
 )
 
 ADD_PCH_RULE( GArgumentParser.hpp              ${EXECUTABLENAME}_SRCS )
-ADD_PCH_RULE( GExternalEvaluatorEnums.hpp      ${EXECUTABLENAME}_SRCS )
 ADD_PCH_RULE( GExternalEvaluatorIndividual.hpp ${EXECUTABLENAME}_SRCS )
 ADD_PCH_RULE( GInfoFunction.hpp                ${EXECUTABLENAME}_SRCS )
 

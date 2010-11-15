@@ -134,6 +134,10 @@ public:
 	/** @brief Allows to randomly initialize parameter members */
 	virtual void randomInit();
 
+	/** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
+	void setMaxMode(const bool&);
+
+
 	/** @brief Multiplies with a random floating point number in a given range */
 	void fpMultiplyByRandom(const float&, const float&);
 	/** @brief Multiplies with a random floating point number in the range [0, 1[ */

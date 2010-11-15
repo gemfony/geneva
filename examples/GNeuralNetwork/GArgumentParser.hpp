@@ -64,7 +64,7 @@
 #include <geneva/GOptimizationEnums.hpp>
 
 // The individual that should be optimized
-#include "GNeuralNetworkIndividual.hpp"
+#include <geneva-individuals/GNeuralNetworkIndividual.hpp>
 
 namespace Gem
 {

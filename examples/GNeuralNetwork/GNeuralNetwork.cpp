@@ -49,7 +49,7 @@
 #include <geneva/GMultiThreadedEA.hpp>
 
 // The individual that should be optimized
-#include "GNeuralNetworkIndividual.hpp"
+#include <geneva-individuals/GNeuralNetworkIndividual.hpp>
 
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"

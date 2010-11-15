@@ -38,7 +38,7 @@ using boost::unit_test_framework::test_suite;
 using namespace boost::unit_test;
 
 // The class to be tested
-#include "GNeuralNetworkIndividual.hpp"
+#include "geneva-individuals/GNeuralNetworkIndividual.hpp"
 
 // Contains the necessary tests
 #include "GStandard_test.hpp"

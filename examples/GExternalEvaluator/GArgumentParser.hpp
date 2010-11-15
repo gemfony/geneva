@@ -58,12 +58,10 @@
 #endif
 
 // Geneva headers go here
+#include <dataexchange/GDataExchangeEnums.hpp>
 #include <common/GCommonEnums.hpp>
 #include <common/GSerializationHelperFunctionsT.hpp>
 #include <geneva/GOptimizationEnums.hpp>
-
-// The enums
-#include "GExternalEvaluatorEnums.hpp"
 
 namespace Gem
 {
@@ -93,7 +91,7 @@ namespace Gem
     const std::string DEFAULTPROGRAM="./evaluator/evaluator";
     const boost::uint32_t DEFAULTADAPTIONTHRESHOLDAP=1;
     const std::string DEFAULTEXTERNALARGUMENTS="empty";
-    const Gem::Geneva::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::Geneva::BINARYEXCHANGE;
+    const Gem::Dataexchange::dataExchangeMode DEFAULTEXCHANGEMODE=Gem::Dataexchange::BINARYEXCHANGE;
     const bool DEFAULTMAXIMIZE=false;
     const bool DEFAULTRANDOMFILL=true; // whether template data should be filled randomly
     const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::SERIALIZATIONMODE_TEXT;
@@ -132,7 +130,7 @@ namespace Gem
 		  , double& sigmaSigma
 		  , double& minSigma
 		  , double& maxSigma
-		  , Gem::Geneva::dataExchangeMode& exchangeMode
+		  , Gem::Dataexchange::dataExchangeMode& exchangeMode
 		  , bool& maximize
 		  , bool& randomFill
 	);

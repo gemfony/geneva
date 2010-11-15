@@ -124,7 +124,6 @@ private:
 	     & BOOST_SERIALIZATION_NVP(defaultPopulationSize_)
 	     & BOOST_SERIALIZATION_NVP(bestPastFitness_)
 	     & BOOST_SERIALIZATION_NVP(bestCurrentFitness_)
-	     & BOOST_SERIALIZATION_NVP(maximize_)
 	     & BOOST_SERIALIZATION_NVP(stallCounter_)
   	     & BOOST_SERIALIZATION_NVP(cpInterval_)
 	     & BOOST_SERIALIZATION_NVP(cpBaseName_)
@@ -155,7 +154,6 @@ public:
 		, defaultPopulationSize_(0)
 		, bestPastFitness_(0.) // will be set appropriately in the optimize() function
 		, bestCurrentFitness_(0.) // will be set appropriately in the optimize() function
-		, maximize_(DEFAULTMAXMODE)
 		, stallCounter_(0)
 		, cpInterval_(DEFAULTCHECKPOINTIT)
 		, cpBaseName_(DEFAULTCPBASENAME)
@@ -186,7 +184,6 @@ public:
 		, defaultPopulationSize_(cp.defaultPopulationSize_)
 		, bestPastFitness_(cp.bestPastFitness_)
 		, bestCurrentFitness_(cp.bestCurrentFitness_)
-		, maximize_(cp.maximize_)
 		, stallCounter_(cp.stallCounter_)
 		, cpInterval_(cp.cpInterval_)
 		, cpBaseName_(cp.cpBaseName_)
@@ -425,7 +422,6 @@ public:
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", defaultPopulationSize_, p_load->defaultPopulationSize_, "defaultPopulationSize_", "p_load->defaultPopulationSize_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", bestPastFitness_, p_load->bestPastFitness_, "bestPastFitness_", "p_load->bestPastFitness_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", bestCurrentFitness_, p_load->bestCurrentFitness_, "bestCurrentFitness_", "p_load->bestCurrentFitness_", e , limit));
-		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", maximize_, p_load->maximize_, "maximize_", "p_load->maximize_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", stallCounter_, p_load->stallCounter_, "stallCounter_", "p_load->stallCounter_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpInterval_, p_load->cpInterval_, "cpInterval_", "p_load->cpInterval_", e , limit));
 		deviations.push_back(checkExpectation(withMessages, "GOptimizationAlgorithmT<ind_type>", cpBaseName_, p_load->cpBaseName_, "cpBaseName_", "p_load->cpBaseName_", e , limit));
@@ -477,8 +473,8 @@ public:
 		// the required functionality.)
 		setIndividualPersonalities();
 
-		// Let individuals know whether they are part of a maximization or minimization scheme
-		setIndividualMaxMode();
+		// Check the maximization mode of all individuals and set our own mode accordingly.
+		setLocalMaxMode();
 
 		// Emit the info header, unless we do not want any info (parameter 0).
 		// Note that this call needs to come after the initialization, so we have the
@@ -791,26 +787,6 @@ public:
 
 	/**************************************************************************************/
 	/**
-	 * Specify whether we want to work in maximization or minimization mode
-	 *
-	 * @param maximize A boolean which indicates whether we should work in maximization or minimization mode
-	 */
-	void setMaximize(const bool& maximize) {
-		maximize_ = maximize;
-	}
-
-	/**************************************************************************************/
-	/**
-	 * Find out whether we work in maximization or minimization mode
-	 *
-	 * @return A boolean which indicates whether we are working in maximization or minimization mode
-	 */
-	bool getMaximize() const {
-		return maximize_;
-	}
-
-	/**************************************************************************************/
-	/**
 	 * Specifies whether information about termination reasons should be emitted
 	 *
 	 * @param etr A boolean which specifies whether reasons for the termination of the optimization run should be emitted
@@ -920,7 +896,6 @@ protected:
 		defaultPopulationSize_ = p_load->defaultPopulationSize_;
 		bestPastFitness_ = p_load->bestPastFitness_;
 		bestCurrentFitness_ = p_load->bestCurrentFitness_;
-		maximize_ = p_load->maximize_;
 		stallCounter_ = p_load->stallCounter_;
 		cpInterval_ = p_load->cpInterval_;
 		cpBaseName_ = p_load->cpBaseName_;
@@ -1042,7 +1017,7 @@ protected:
 	 * @return true of newValue is better than oldValue, otherwise false.
 	 */
 	bool isBetter(double newValue, const double& oldValue) const {
-		if(maximize_) {
+		if(this->getMaxMode()) {
 			if(newValue > oldValue) return true;
 			else return false;
 		}
@@ -1060,7 +1035,7 @@ protected:
 	 * @return The worst case value, depending on maximization or minimization
 	 */
 	double getWorstCase() const {
-		return (maximize_?-DBL_MAX:DBL_MAX);
+		return (this->getMaxMode()?-DBL_MAX:DBL_MAX);
 	}
 
 	/**************************************************************************************/
@@ -1249,11 +1224,32 @@ private:
 
 	/**************************************************************************************/
 	/**
-	 * Lets individuals know whether they are part of a maximization or minimization scheme
+	 * Retrieves the individual's maximization mode and sets our own mode accordingly. This
+	 * function effectively steers whether the entire algorithm will maximize or minimize the
+	 * evaluation function.
 	 */
-	void setIndividualMaxMode() {
-		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) (*it)->setMaxMode(maximize_);
+	void setLocalMaxMode() {
+		// Do some error checking
+		if(this->empty()) {
+			std::ostringstream error;
+			error << "In GOptimizationAlgorithmTgetIndividualMaxMode(): Error!" << std::endl
+				  << "There should at least be one individual present at this stage." << std::endl
+				  << "Found none." << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		bool localMaxMode = this->at(0)->getMaxMode();
+		for(std::size_t i=1; i<this->size(); i++) {
+			if(this->at(i)->getMaxMode() != localMaxMode) {
+				std::ostringstream error;
+				error << "In GOptimizationAlgorithmTgetIndividualMaxMode(): Error!" << std::endl
+					  << "Found individual with maximization mode " << this->at(i)->getMaxMode() << " in position " << i << std::endl
+					  << "where " << localMaxMode << " was expected." << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+		}
+
+		this->setMaxMode_(localMaxMode);
 	}
 
 	/**************************************************************************************/
@@ -1263,7 +1259,9 @@ private:
 	 */
 	void markIteration() {
 		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) (*it)->setParentAlgIteration(iteration_);
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->setParentAlgIteration(iteration_);
+		}
 	}
 
 	/**************************************************************************************/
@@ -1272,7 +1270,9 @@ private:
 	 */
 	void markBestFitness() {
 		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) (*it)->setBestKnownFitness(bestPastFitness_);
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->setBestKnownFitness(bestPastFitness_);
+		}
 	}
 
 	/**************************************************************************************/
@@ -1281,7 +1281,9 @@ private:
 	 */
 	void markNStalls() {
 		typename std::vector<boost::shared_ptr<ind_type> >::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) (*it)->setNStalls(stallCounter_);
+		for(it=this->begin(); it!=this->end(); ++it) {
+			(*it)->setNStalls(stallCounter_);
+		}
 	}
 
 	/**************************************************************************************/
@@ -1293,7 +1295,6 @@ private:
 	std::size_t defaultPopulationSize_; ///< The nominal size of the population
 	double bestPastFitness_; ///< Records the best fitness found in past generations
 	double bestCurrentFitness_; ///< Records the best fitness found in the current iteration
-	bool maximize_; ///< The optimization mode (minimization/false vs. maximization/true)
 	boost::uint32_t stallCounter_; ///< Counts the number of iterations without improvement
 	boost::int32_t cpInterval_; ///< Number of generations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	std::string cpBaseName_; ///< The base name of the checkpoint file

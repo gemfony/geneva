@@ -27,6 +27,9 @@ The main changes for this release include:
  - Moved the GSerializableI class from the Geneva to the Common library.
  - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug,
    really).
+ - Made it a property of the GParameterSet class instead of the 
+   optimization algorithm whether the GParameterSet's evaluation 
+   function should be maximized or minimized
  - Ported to Boost 1.45.
 
 //------------------------------------------------------------------------------------------------------

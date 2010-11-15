@@ -1,5 +1,5 @@
 /**
- * @file GExternalEvaluatorEnums.hpp
+ * @file GDataExchangeEnums.hpp
  */
 
 /*
@@ -29,11 +29,9 @@
  * http://www.gemfony.com .
  */
 
-
 // Standard headers go here
 #include <string>
-#include <istream>
-#include <ostream>
+#include <iostream>
 
 // Includes check for correct Boost version(s)
 #include <common/GGlobalDefines.hpp>
@@ -42,8 +40,8 @@
 #include <boost/cstdint.hpp>
 #include <boost/cast.hpp>
 
-#ifndef GEXTERNALEVALUATORENUMS_HPP_
-#define GEXTERNALEVALUATORENUMS_HPP_
+#ifndef GDATAEXCHANGEENUMS_HPP_
+#define GDATAEXCHANGEENUMS_HPP_
 
 // For Microsoft-compatible compilers
 #if defined(_MSC_VER)  &&  (_MSC_VER >= 1020)
@@ -54,7 +52,7 @@
 
 
 namespace Gem {
-namespace Geneva {
+namespace Dataexchange {
 
 /************************************************************************************************/
 /**
@@ -67,12 +65,12 @@ enum dataExchangeMode {
 
 /************************************************************************************************/
 /** @brief Puts a Gem::Geneva::dataExchangeMode into a stream. Needed also for boost::lexical_cast<> */
-std::ostream& operator<<(std::ostream&, const Gem::Geneva::dataExchangeMode&);
+std::ostream& operator<<(std::ostream&, const Gem::Dataexchange::dataExchangeMode&);
 /** @brief Reads a Gem::Geneva::dataExchangeMode from a stream. Needed also for boost::lexical_cast<> */
-std::istream& operator>>(std::istream&, Gem::Geneva::dataExchangeMode&);
+std::istream& operator>>(std::istream&, Gem::Dataexchange::dataExchangeMode&);
 /************************************************************************************************/
 
-} /* namespace Geneva */
+} /* namespace Dataexchange */
 } /* namespace Gem */
 
-#endif /* GEXTERNALEVALUATORENUMS_HPP_ */
+#endif /* GDATAEXCHANGEENUMS_HPP_ */

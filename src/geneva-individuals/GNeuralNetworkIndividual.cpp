@@ -30,10 +30,12 @@
  */
 
 
-#include "GNeuralNetworkIndividual.hpp"
+#include <geneva-individuals/GNeuralNetworkIndividual.hpp>
 
-// Make the class known to the boost serialization framework
+// Make the NN classes known to the boost serialization framework
 #include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(Gem::Geneva::trainingSet)
+BOOST_CLASS_EXPORT(Gem::Geneva::networkData)
 BOOST_CLASS_EXPORT(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::SIGMOID>)
 BOOST_CLASS_EXPORT(Gem::Geneva::GNeuralNetworkIndividual<Gem::Geneva::RBF>)
 
@@ -485,10 +487,10 @@ double GNeuralNetworkIndividual<RBF>::transfer(const double& value) const {
 }
 
 
-// Needed for testing purposes
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
+// For testing purposes
 
 #ifdef GENEVATESTING
 

@@ -755,7 +755,7 @@ double GSwarm::findBests() {
 		std::size_t lastCounter = getLastNIPos(neighborhood);
 
 		// Only partially sort the arrays
-		if(getMaximize()){
+		if(this->getMaxMode() == true){
 			std::sort(this->begin() + firstCounter, this->begin() + lastCounter,
 					boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 		}

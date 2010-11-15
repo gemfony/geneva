@@ -317,11 +317,15 @@ bool GIndividual::isDirty() const  {
 /************************************************************************************************************/
 /**
  * Specify whether we want to work in maximization (true) or minimization
- * (false) mode
+ * (false) mode. This function is protected. The idea is that GParameterSet provides a public
+ * wrapper for this function, so that a user can specify whether he wants to maximize or
+ * minimize a given evaluation function. Optimization algorithms, in turn, only check the
+ * maximization-mode of the individuals stored in them and set their own maximization mode
+ * internally accordingly, using the protected, overloaded function.
  *
  * @param mode A boolean which indicates whether we want to work in maximization or minimization mode
  */
-void GIndividual::setMaxMode(const bool& mode) {
+void GIndividual::setMaxMode_(const bool& mode) {
 	maximize_ = mode;
 }
 
@@ -940,9 +944,9 @@ void GIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test setting and retrieval of the maximization mode flag
 		boost::shared_ptr<GIndividual> p_test = this->clone<GIndividual>();
 
-		BOOST_CHECK_NO_THROW(p_test->setMaxMode(true));
+		BOOST_CHECK_NO_THROW(p_test->setMaxMode_(true));
 		BOOST_CHECK(p_test->getMaxMode() == true);
-		BOOST_CHECK_NO_THROW(p_test->setMaxMode(false));
+		BOOST_CHECK_NO_THROW(p_test->setMaxMode_(false));
 		BOOST_CHECK(p_test->getMaxMode() == false);
 	}
 

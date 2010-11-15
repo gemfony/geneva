@@ -14,10 +14,6 @@ ADD_SUBDIRECTORY (
 )
 
 ADD_SUBDIRECTORY (
-	SampleIndividuals
-)
-
-ADD_SUBDIRECTORY (
 	GMultiPopulation
 )
 

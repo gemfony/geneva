@@ -209,6 +209,26 @@ void GParameterSet::randomInit() {
 
 /************************************************************************************************************/
 /**
+ * Specify whether we want to work in maximization (true) or minimization
+ * (false) mode. This function is protected. The idea is that GParameterSet provides a public
+ * wrapper for this function, so that a user can specify whether he wants to maximize or
+ * minimize a given evaluation function. Optimization algorithms, in turn, only check the
+ * maximization-mode of the individuals stored in them and set their own maximization mode
+ * internally accordingly, using the protected, overloaded function.
+ *
+ * @param mode A boolean which indicates whether we want to work in maximization or minimization mode
+ */
+void GParameterSet::setMaxMode(const bool& mode) {
+	this->setMaxMode_(mode);
+}
+
+/* ----------------------------------------------------------------------------------
+ * So far untested
+ * ----------------------------------------------------------------------------------
+ */
+
+/************************************************************************************************************/
+/**
  * Recursively initializes floating-point-based parameters with a given value. Allows e.g. to set all
  * floating point parameters to 0. "float" is used as the largest common denominator of float, double
  * and long double.
@@ -840,6 +860,17 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 				counter++;
 			}
+		}
+
+		//-----------------------------------------------------------------
+
+		{ // Test setting and retrieval of the maximization mode flag
+			boost::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+
+			BOOST_CHECK_NO_THROW(p_test->setMaxMode(true));
+			BOOST_CHECK(p_test->getMaxMode() == true);
+			BOOST_CHECK_NO_THROW(p_test->setMaxMode(false));
+			BOOST_CHECK(p_test->getMaxMode() == false);
 		}
 
 		//-----------------------------------------------------------------

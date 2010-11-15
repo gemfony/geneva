@@ -29,8 +29,6 @@
  * http://www.gemfony.com .
  */
 
-
-
 // Standard header files go here
 #include <iostream>
 #include <cmath>
@@ -558,7 +556,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // A number of specializations of fitnessCalculation() for the three function types
-
 template<> double GFunctionIndividual<PARABOLA>::fitnessCalculation();
 template<> double GFunctionIndividual<BERLICH>::fitnessCalculation();
 template<> double GFunctionIndividual<ROSENBROCK>::fitnessCalculation();

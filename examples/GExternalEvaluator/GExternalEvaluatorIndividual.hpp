@@ -63,6 +63,7 @@
 #include <common/GCommonEnums.hpp>
 #include <common/GHelperFunctions.hpp>
 #include <common/GParserBuilder.hpp>
+#include <dataexchange/GDataExchangeEnums.hpp>
 #include <dataexchange/GBoolParameter.hpp>
 #include <dataexchange/GDataExchange.hpp>
 #include <dataexchange/GDoubleParameter.hpp>
@@ -75,9 +76,6 @@
 #include <geneva/GDoubleGaussAdaptor.hpp>
 #include <geneva/GInt32FlipAdaptor.hpp>
 #include <geneva/GParameterSet.hpp>
-
-// The enums
-#include "GExternalEvaluatorEnums.hpp"
 
 
 namespace bf = boost::filesystem; // alias for ease of use
@@ -161,7 +159,7 @@ class GExternalEvaluatorIndividual
 			const std::string& program
 			, const std::string& arguments="empty"
 			, const bool& random=false
-			, const dataExchangeMode& exchangeMode = Gem::Geneva::BINARYEXCHANGE
+			, const Gem::Dataexchange::dataExchangeMode& exchangeMode = Gem::Dataexchange::BINARYEXCHANGE
 			, boost::shared_ptr<GAdaptorT<double> > gdbl_ad_ptr = boost::shared_ptr<GAdaptorT<double> >((GAdaptorT<double> *)NULL)
 			, boost::shared_ptr<GAdaptorT<boost::int32_t> > glong_ad_ptr = boost::shared_ptr<GAdaptorT<boost::int32_t> >((GAdaptorT<boost::int32_t> *)NULL)
 			, boost::shared_ptr<GAdaptorT<bool> > gbool_ad_ptr = boost::shared_ptr<GAdaptorT<bool> >((GAdaptorT<bool> *)NULL)
@@ -219,7 +217,7 @@ class GExternalEvaluatorIndividual
 		GExternalEvaluatorIndividual::checkStringIsValid(program_); // Do some error checking
 
 		std::string commandLine;
-		if(exchangeMode_ == Gem::Geneva::BINARYEXCHANGE) {
+		if(exchangeMode_ == Gem::Dataexchange::BINARYEXCHANGE) {
 			commandLine = program_ + " -m 0 -t " +(random?std::string(" -R"):std::string("")) + " -p " + parameterFile_;
 		}
 		else {
@@ -386,14 +384,14 @@ class GExternalEvaluatorIndividual
 	/********************************************************************************************/
 	/**
 	 * Sets the exchange mode between this individual and the external program. Allowed
-	 * values are defined in the dataExchangeMode enum. As this allows a comile-time check
+	 * values are defined in the Gem::Dataexchange::dataExchangeMode enum. As this allows a comile-time check
 	 * of supplied arguments, no further error checks are needed.
 	 *
 	 * @param The current exchange mode for data
 	 * @return The previous exchange mode
 	 */
-	dataExchangeMode setDataExchangeMode(const dataExchangeMode& exchangeMode) {
-		dataExchangeMode current = exchangeMode_;
+	Gem::Dataexchange::dataExchangeMode setDataExchangeMode(const Gem::Dataexchange::dataExchangeMode& exchangeMode) {
+		Gem::Dataexchange::dataExchangeMode current = exchangeMode_;
 		exchangeMode_ = exchangeMode;
 		return current;
 	}
@@ -404,7 +402,7 @@ class GExternalEvaluatorIndividual
 	 *
 	 * @return The current exchange mode
 	 */
-	dataExchangeMode getDataExchangeMode() const {
+	Gem::Dataexchange::dataExchangeMode getDataExchangeMode() const {
 		return exchangeMode_;
 	}
 
@@ -475,7 +473,7 @@ class GExternalEvaluatorIndividual
 		GExternalEvaluatorIndividual::checkStringIsValid(program_); // Do some error checking
 
 		// Assemble command line and run the external program
-		if(exchangeMode_ == Gem::Geneva::BINARYEXCHANGE)
+		if(exchangeMode_ == Gem::Dataexchange::BINARYEXCHANGE)
 			commandLine = program_ + " -m 0  -r -p " + bestParameterSetFile;
 		else
 			commandLine = program_ + " -m 1  -r -p " + bestParameterSetFile;;
@@ -517,7 +515,7 @@ class GExternalEvaluatorIndividual
 		double sigmaSigma;
 		double minSigma;
 		double maxSigma;
-		Gem::Geneva::dataExchangeMode exchangeMode;
+		Gem::Dataexchange::dataExchangeMode exchangeMode;
 		bool randomFill;
 
 		// Register a number of parameters
@@ -530,7 +528,7 @@ class GExternalEvaluatorIndividual
 		gpb.registerParameter("sigmaSigma", sigmaSigma, double(0.8));
 		gpb.registerParameter("minSigma", minSigma, double(0.));
 		gpb.registerParameter("maxSigma", maxSigma, double(2.));
-		gpb.registerParameter("exchangeMode", exchangeMode, Gem::Geneva::dataExchangeMode(Gem::Geneva::BINARYEXCHANGE));
+		gpb.registerParameter("exchangeMode", exchangeMode, Gem::Dataexchange::dataExchangeMode(Gem::Dataexchange::BINARYEXCHANGE));
 		gpb.registerParameter("randomFill", randomFill, true);
 
 		// Read the parameters from the configuration file
@@ -601,7 +599,7 @@ class GExternalEvaluatorIndividual
 		// Assemble command line and run the external program
 		std::string commandLine;
 
-		if(exchangeMode_ == Gem::Geneva::BINARYEXCHANGE)
+		if(exchangeMode_ == Gem::Dataexchange::BINARYEXCHANGE)
 			commandLine = program_ + " -m 0  -p " + parFile;
 		else
 			commandLine = program_ + " -m 1  -p " + parFile;;
@@ -648,7 +646,7 @@ class GExternalEvaluatorIndividual
 	GExternalEvaluatorIndividual()
 		: program_("unknown")
 		, arguments_("empty")
-		, exchangeMode_(Gem::Geneva::BINARYEXCHANGE)
+		, exchangeMode_(Gem::Dataexchange::BINARYEXCHANGE)
 		, maximize_(false)
 		, parameterFile_("empty")
 		, gdbl_ptr_(boost::shared_ptr<GConstrainedDoubleObject>((GConstrainedDoubleObject *)NULL))
@@ -696,7 +694,7 @@ class GExternalEvaluatorIndividual
 		}
 
 		// At this point all necessary data should have been stored in the GDataExchange module. We can now write it to file.
-		if(exchangeMode_ == Gem::Geneva::BINARYEXCHANGE) gde_.writeToFile(fileName, true);
+		if(exchangeMode_ == Gem::Dataexchange::BINARYEXCHANGE) gde_.writeToFile(fileName, true);
 		else gde_.writeToFile(fileName, false); // TEXTEXCHANGE
 	}
 
@@ -715,7 +713,7 @@ class GExternalEvaluatorIndividual
 		gde_.resetAll();
 
 		// Read in the data
-		if(exchangeMode_ == BINARYEXCHANGE)	gde_.readFromFile(fileName,  true);
+		if(exchangeMode_ == Gem::Dataexchange::BINARYEXCHANGE)	gde_.readFromFile(fileName,  true);
 		else gde_.readFromFile(fileName, false); // TEXTEXCHANGE
 
 		if(sort) {
@@ -827,7 +825,7 @@ class GExternalEvaluatorIndividual
 
 	std::string program_; ///< The name of the external program to be executed
 	std::string arguments_; ///< Any additional arguments to be handed to the external program
-	dataExchangeMode exchangeMode_; ///< The desired method of data exchange
+	Gem::Dataexchange::dataExchangeMode exchangeMode_; ///< The desired method of data exchange
 	bool maximize_; ///< indicates whether small values of this individual are better than large values
 	std::string parameterFile_;
 

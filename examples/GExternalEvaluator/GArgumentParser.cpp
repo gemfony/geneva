@@ -142,7 +142,7 @@ bool parseConfigFile(const std::string& configFile,
 		double& sigmaSigma,
 		double& minSigma,
 		double& maxSigma,
-		Gem::Geneva::dataExchangeMode& exchangeMode,
+		Gem::Dataexchange::dataExchangeMode& exchangeMode,
 		bool& maximize,
 		bool& randomFill)
 {
@@ -201,7 +201,7 @@ bool parseConfigFile(const std::string& configFile,
 			"The minimum allowed value for sigma")
 			("maxSigma", po::value<double>(&maxSigma)->default_value(DEFAULTMAXSIGMA),
 			"The maximum allowed value for sigma")
-			("exchangeMode", po::value<Gem::Geneva::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
+			("exchangeMode", po::value<Gem::Dataexchange::dataExchangeMode>(&exchangeMode)->default_value(DEFAULTEXCHANGEMODE),
 			"Determines whether data exchange should be done in binary mode (0) or in text mode(1)")
 			("maximize", po::value<bool>(&maximize)->default_value(DEFAULTMAXIMIZE),
 			"Specifies whether the program should minimize (0) or maximize (1) evaluation function")

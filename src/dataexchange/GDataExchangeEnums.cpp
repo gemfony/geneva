@@ -1,5 +1,5 @@
 /**
- * @file GExternalEvaluatorEnums.cpp
+ * @file GDataExchangeEnums.cpp
  */
 
 /*
@@ -29,11 +29,10 @@
  * http://www.gemfony.com .
  */
 
-#include "GExternalEvaluatorEnums.hpp"
+#include "dataexchange/GDataExchangeEnums.hpp"
 
 namespace Gem {
-
-namespace Geneva {
+namespace Dataexchange {
 
 /************************************************************************************************/
 /**
@@ -43,7 +42,7 @@ namespace Geneva {
  * @param exchMode the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Geneva::dataExchangeMode& exchMode){
+std::ostream& operator<<(std::ostream& o, const Gem::Dataexchange::dataExchangeMode& exchMode){
 	boost::uint16_t tmp = static_cast<boost::uint16_t>(exchMode);
 	o << tmp;
 	return o;
@@ -57,14 +56,14 @@ std::ostream& operator<<(std::ostream& o, const Gem::Geneva::dataExchangeMode& e
  * @param exchMode The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, Gem::Geneva::dataExchangeMode& exchMode){
+std::istream& operator>>(std::istream& i, Gem::Dataexchange::dataExchangeMode& exchMode){
 	boost::uint16_t tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	exchMode = boost::numeric_cast<Gem::Geneva::dataExchangeMode>(tmp);
+	exchMode = boost::numeric_cast<Gem::Dataexchange::dataExchangeMode>(tmp);
 #else
-	exchMode = static_cast<Gem::Geneva::dataExchangeMode>(tmp);
+	exchMode = static_cast<Gem::Dataexchange::dataExchangeMode>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -72,6 +71,5 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::dataExchangeMode& exchMod
 
 /************************************************************************************************/
 
-} /* namespace Geneva */
-
+} /* namespace Dataexchange */
 } /* namespace Gem */

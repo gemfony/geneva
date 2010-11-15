@@ -484,7 +484,7 @@ void GGradientDescent::updateParentIndividuals() {
 			// Calculate the step to be performed in a given direction
 			step = (1./finiteStep_) * (this->at(childPos)->fitness() - parentFitness);
 
-			if(getMaximize()) {
+			if(this->getMaxMode()) {
 				parmVec[j] += stepSize_*step;
 			}
 			else { // Minimization

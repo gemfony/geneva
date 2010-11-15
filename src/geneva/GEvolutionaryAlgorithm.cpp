@@ -957,7 +957,7 @@ void GEvolutionaryAlgorithm::select()
  */
 void GEvolutionaryAlgorithm::sortMuplusnuMode() {
 	// Only partially sort the arrays
-	if(getMaximize()){
+	if(this->getMaxMode()){
 		std::partial_sort(data.begin(), data.begin() + nParents_, data.end(),
 				boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 	}
@@ -975,7 +975,7 @@ void GEvolutionaryAlgorithm::sortMuplusnuMode() {
  */
 void GEvolutionaryAlgorithm::sortMucommanuMode() {
 	// Only sort the children
-	if(getMaximize()){
+	if(this->getMaxMode()){
 		std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 			  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 		/*
@@ -1009,7 +1009,7 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 		sortMuplusnuMode();
 	} else {
 		// Sort the children
-		if(getMaximize()){
+		if(this->getMaxMode()){
 			std::partial_sort(data.begin() + nParents_, data.begin() + 2*nParents_, data.end(),
 				  boost::bind(&GIndividual::fitness, _1) > boost::bind(&GIndividual::fitness, _2));
 		}

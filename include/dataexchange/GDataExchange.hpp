@@ -79,11 +79,12 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
-#include "GNumericParameterT.hpp"
-#include "GBoolParameter.hpp"
-#include "GDoubleParameter.hpp"
-#include "GLongParameter.hpp"
-#include "GParameterValuePair.hpp"
+#include "dataexchange/GDataExchangeEnums.hpp"
+#include "dataexchange/GNumericParameterT.hpp"
+#include "dataexchange/GBoolParameter.hpp"
+#include "dataexchange/GDoubleParameter.hpp"
+#include "dataexchange/GLongParameter.hpp"
+#include "dataexchange/GParameterValuePair.hpp"
 
 namespace Gem
 {

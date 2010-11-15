@@ -39,6 +39,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
+#include <dataexchange/GDataExchangeEnums.hpp>
 #include <courtier/GAsioHelperFunctions.hpp>
 #include <courtier/GAsioTCPClientT.hpp>
 #include <courtier/GAsioTCPConsumerT.hpp>
@@ -47,11 +48,8 @@
 #include <geneva/GIndividual.hpp>
 #include <geneva/GMultiThreadedEA.hpp>
 
-// The enums
-#include "GExternalEvaluatorEnums.hpp"
-
 // The individual that should be optimized
-#include "GExternalEvaluatorIndividual.hpp"
+#include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 
 // Declares a function to parse the command line
 #include "GArgumentParser.hpp"
@@ -90,7 +88,7 @@ int main(int argc, char **argv){
   double sigmaSigma;
   double minSigma;
   double maxSigma;
-  Gem::Geneva::dataExchangeMode exchangeMode;
+  Gem::Dataexchange::dataExchangeMode exchangeMode;
   bool maximize;
   bool randomFill;
   Gem::Common::serializationMode serMode;
@@ -186,7 +184,7 @@ int main(int argc, char **argv){
 	);
 
 	// Set the desired maximization/minimization mode
-	gev_ptr->setMaximize(maximize);
+	gev_ptr->setMaxMode(maximize);
 
 	// Set the amount of processing cycles used in a remote individual
     gev_ptr->setProcessingCycles(processingCycles);
@@ -257,7 +255,6 @@ int main(int argc, char **argv){
   pop_ptr->setReportIteration(reportGeneration);
   pop_ptr->setRecombinationMethod(rScheme);
   pop_ptr->setSortingScheme(smode);
-  pop_ptr->setMaximize(maximize);
   
   // Do the actual optimization
   pop_ptr->optimize();
