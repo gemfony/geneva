@@ -32,198 +32,396 @@
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 #include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::PARABOLA>, "GFunctionIndividual_PARABOLA")
-BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::BERLICH>, "GFunctionIndividual_BERLICH")
-BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::ROSENBROCK>, "GFunctionIndividual_ROSENBROCK")
-BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::ACKLEY>, "GFunctionIndividual_ACKLEY")
-BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::RASTRIGIN>, "GFunctionIndividual_RASTRIGIN")
-BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::SCHWEFEL>, "GFunctionIndividual_SCHWEFEL")
-BOOST_CLASS_EXPORT_GUID(Gem::Geneva::GFunctionIndividual<Gem::Geneva::SALOMON>, "GFunctionIndividual_SALOMON")
+BOOST_CLASS_EXPORT(Gem::Geneva::GFunctionIndividual)
 
 namespace Gem
 {
 namespace Geneva
 {
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// A number of specializations of fitnessCalculation() for the three function types
-
-/************************************************************************************************/
+/********************************************************************************************/
 /**
- * A simple, multi-dimensional parabola
- *
- * @return The result of the calculation
+ * The default constructor
  */
-template<> double GFunctionIndividual<PARABOLA>::fitnessCalculation() {
-	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
-	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
+GFunctionIndividual::GFunctionIndividual()
+: demoFunction_(PARABOLA)
+{ /* nothing */ }
 
-	std::size_t parameterSize = x->size();
-	double result = 0.;
-	for(std::size_t i=0; i<parameterSize; i++) result += GSQUARED(x_ref[i]);
-	return result;
+/********************************************************************************************/
+/**
+ * Initialization with the desired demo function
+ *
+ * @param dF The id if the demo function
+ */
+GFunctionIndividual::GFunctionIndividual(const demoFunction& dF)
+: demoFunction_(dF)
+{ /* nothing */ }
 
-	/*
-	// It is now also possible to extract all double values in the following way:
+/********************************************************************************************/
+/**
+ * A standard copy constructor
+ *
+ * @param cp A copy of another GFunctionIndidivual
+ */
+GFunctionIndividual::GFunctionIndividual(const GFunctionIndividual& cp)
+: GParameterSet(cp)
+, demoFunction_(cp.demoFunction_)
+{ /* nothing */	}
+
+/********************************************************************************************/
+/**
+ * The standard destructor
+ */
+GFunctionIndividual::~GFunctionIndividual()
+{ /* nothing */	}
+
+/********************************************************************************************/
+/**
+ * A standard assignment operator
+ *
+ * @param cp A copy of another GFunctionIndividual
+ */
+const GFunctionIndividual& GFunctionIndividual::operator=(const GFunctionIndividual& cp){
+	GFunctionIndividual::load_(&cp);
+	return *this;
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for equality with another GFunctionIndividual object
+ *
+ * @param  cp A constant reference to another GFunctionIndividual object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GFunctionIndividual::operator==(const GFunctionIndividual& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of equality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_EQUALITY, 0.,"GFunctionIndividual::operator==","cp", CE_SILENT);
+}
+
+/*******************************************************************************************/
+/**
+ * Checks for inequality with another GFunctionIndividual object
+ *
+ * @param  cp A constant reference to another GFunctionIndividual object
+ * @return A boolean indicating whether both objects are in-equal
+ */
+bool GFunctionIndividual::operator!=(const GFunctionIndividual& cp) const {
+	using namespace Gem::Common;
+	// Means: The expectation of inequality was fulfilled, if no error text was emitted (which converts to "true")
+	return !checkRelationshipWith(cp, CE_INEQUALITY, 0.,"GFunctionIndividual::operator!=","cp", CE_SILENT);
+}
+
+/********************************************************************************************/
+/**
+ * Checks whether a given expectation for the relationship between this object and another object
+ * is fulfilled.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GObject
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ * @param caller An identifier for the calling entity
+ * @param y_name An identifier for the object that should be compared to this one
+ * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
+ * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
+ */
+boost::optional<std::string> GFunctionIndividual::checkRelationshipWith(const GObject& cp,
+		const Gem::Common::expectation& e,
+		const double& limit,
+		const std::string& caller,
+		const std::string& y_name,
+		const bool& withMessages) const
+{
+	using namespace Gem::Common;
+
+	// Check that we are indeed dealing with an object of the same type and that we are not
+	// accidently trying to compare this object with itself.
+	const GFunctionIndividual *p_load = conversion_cast<GFunctionIndividual>(&cp);
+
+	// Will hold possible deviations from the expectation, including explanations
+	std::vector<boost::optional<std::string> > deviations;
+
+	// Check our parent class'es data ...
+	deviations.push_back(GParameterSet::checkRelationshipWith(cp, e, limit, "GFunctionIndividual", y_name, withMessages));
+
+	// ... and then our local data
+	deviations.push_back(checkExpectation(withMessages, "GFunctionIndividual", demoFunction_, p_load->demoFunction_, "demoFunction_", "p_load->demoFunction_", e , limit));
+
+	return evaluateDiscrepancies("GFunctionIndividual", caller, deviations, e);
+}
+
+/*******************************************************************************************/
+/**
+ * Allows to set the demo function
+ *
+ * @param dF The id if the demo function
+ */
+void GFunctionIndividual::setDemoFunction(const demoFunction& dF) {
+	demoFunction_ = dF;
+}
+
+/*******************************************************************************************/
+/**
+ * Allows to retrieve the demo function
+ *
+ * @return The id of the currently selected demo function
+ */
+demoFunction GFunctionIndividual::getDemoFunction() const {
+	return demoFunction_;
+}
+
+
+/********************************************************************************************/
+/**
+ * Loads the data of another GFunctionIndividual, camouflaged as a GObject
+ *
+ * @param cp A copy of another GFunctionIndividual, camouflaged as a GObject
+ */
+void GFunctionIndividual::load_(const GObject* cp){
+	// Check that we are indeed dealing with an object of the same type and that we are not
+	// accidently trying to compare this object with itself.
+	const GFunctionIndividual *p_load = conversion_cast<GFunctionIndividual>(cp);
+
+	// Load our parent class'es data ...
+	GParameterSet::load_(cp);
+
+	// ... and then our local data
+	demoFunction_ = p_load->demoFunction_;
+}
+
+/********************************************************************************************/
+/**
+ * Creates a deep clone of this object
+ *
+ * @return A deep clone of this object, camouflaged as a GObject
+ */
+GObject* GFunctionIndividual::clone_() const {
+	return new GFunctionIndividual(*this);
+}
+
+/********************************************************************************************/
+/**
+ * The actual value calculation takes place here
+ *
+ * @return The value of this object, as calculated with the evaluation function
+ */
+double GFunctionIndividual::fitnessCalculation(){
 	double result = 0;
+
+	// Retrieve the parameters
 	std::vector<double> parVec;
-	this->streamline(parVec); // The same has been implemented for bool and boost::int32_t
+	this->streamline(parVec);
 	std::size_t parameterSize = parVec.size();
-	for(std::size_t i=0; i<parameterSize; i++) {
-		result += GSQUARED(parVec[i]);
+
+	// Perform the actual calculation
+	switch(demoFunction_) {
+	//-----------------------------------------------------------
+	// A simple, multi-dimensional parabola
+	case PARABOLA:
+	{
+		for(std::size_t i=0; i<parameterSize; i++) {
+			result += GSQUARED(parVec[i]);
+		}
 	}
-	return result;
-	*/
+	break;
+
+	//-----------------------------------------------------------
+	// A "noisy" parabola, i.e. a parabola with a very large number of overlaid local optima
+	case BERLICH:
+	{
+		double xsquared = 0.;
+		for(std::size_t i=0; i<parameterSize; i++){
+			xsquared += GSQUARED(parVec[i]);
+		}
+		result = (cos(xsquared) + 2.) * xsquared;
 	}
+	break;
 
-/************************************************************************************************/
-/**
- * A "noisy" parabola, i.e. a parabola with a very large number of local optima
- *
- * @return The result of the calculation
- */
-template<> double GFunctionIndividual<BERLICH>::fitnessCalculation() {
-	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
-	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
-
-	std::size_t parameterSize = x->size();
-	double xsquared = 0.;
-	for(std::size_t i=0; i<parameterSize; i++){
-		xsquared += GSQUARED(x_ref[i]);
-	}
-	return (cos(xsquared) + 2.) * xsquared;
-}
-
-/************************************************************************************************/
-/**
- * The generalized Rosenbrock function (see e.g. http://en.wikipedia.org/wiki/Rosenbrock_function)
- * or http://www.it.lut.fi/ip/evo/functions/node5.html .
- *
- * @return The result of the calculation
- */
-template<> double GFunctionIndividual<ROSENBROCK>::fitnessCalculation() {
-	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
-	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
-
-	std::size_t parameterSize = x->size();
-	double result = 0.;
-
+	//-----------------------------------------------------------
+	// The generalized Rosenbrock function (see e.g. http://en.wikipedia.org/wiki/Rosenbrock_function)
+	// or http://www.it.lut.fi/ip/evo/functions/node5.html .
+	case ROSENBROCK:
+	{
 #ifdef DEBUG
-	// Check the size of the parameter vector -- must be at least 2
-	if(parameterSize < 2) {
-		std::ostringstream error;
-		error << "In GFunctionIndividual<dF>::rosenbrock(): Error!" << std::endl
-			  << "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
+		// Check the size of the parameter vector -- must be at least 2
+		if(parameterSize < 2) {
+			std::ostringstream error;
+			error << "In GFunctionIndividual::fitnessCalculation() / ROSENBROCK: Error!" << std::endl
+					<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
 #endif /* DEBUG */
 
-	for(std::size_t i=0; i<(parameterSize-1); i++) {
-		result += 100.*GSQUARED(GSQUARED(x_ref[i]) - x_ref[i+1]) + GSQUARED(1.-x_ref[i]);
+		for(std::size_t i=0; i<(parameterSize-1); i++) {
+			result += 100.*GSQUARED(GSQUARED(parVec[i]) - parVec[i+1]) + GSQUARED(1.-parVec[i]);
+		}
 	}
+	break;
 
-	return result;
-}
-
-/************************************************************************************************/
-/**
- * The Ackeley function (see e.g. http://www.it.lut.fi/ip/evo/functions/node14.html)
- *
- * @return The result of the calculation
- */
-template<> double GFunctionIndividual<ACKLEY>::fitnessCalculation() {
-	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
-	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
-
-	std::size_t parameterSize = x->size();
-	double result = 0.;
-
+	//-----------------------------------------------------------
+	// The Ackeley function (see e.g. http://www.it.lut.fi/ip/evo/functions/node14.html)
+	case ACKLEY:
+	{
 #ifdef DEBUG
-	// Check the size of the parameter vector -- must be at least 2
-	if(parameterSize < 2) {
-		std::ostringstream error;
-		error << "In GFunctionIndividual<dF>::ackeley(): Error!" << std::endl
-			  << "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
+		// Check the size of the parameter vector -- must be at least 2
+		if(parameterSize < 2) {
+			std::ostringstream error;
+			error << "In GFunctionIndividual::fitnessCalculation() / ACKLEY: Error!" << std::endl
+					<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
 #endif /* DEBUG */
 
-	for(std::size_t i=0; i<(parameterSize-1); i++) {
-		result += (exp(-0.2)*sqrt(GSQUARED(x_ref[i]) + GSQUARED(x_ref[i+1])) + 3.*(cos(2.*x_ref[i]) + sin(2.*x_ref[i+1])));
+		for(std::size_t i=0; i<(parameterSize-1); i++) {
+			result += (exp(-0.2)*sqrt(GSQUARED(parVec[i]) + GSQUARED(parVec[i+1])) + 3.*(cos(2.*parVec[i]) + sin(2.*parVec[i+1])));
+		}
 	}
+	break;
 
+	//-----------------------------------------------------------
+	// The Rastrigin function (see e.g. http://www.it.lut.fi/ip/evo/functions/node6.html)
+	case RASTRIGIN:
+	{
+		double result = 10*double(parameterSize);
+
+		for(std::size_t i=0; i<parameterSize; i++) {
+			result += (GSQUARED(parVec[i]) - 10.*cos(2*M_PI*parVec[i]));
+		}
+	}
+	break;
+
+	//-----------------------------------------------------------
+	// The Schwefel function (see e.g. http://www.it.lut.fi/ip/evo/functions/node10.html)
+	case SCHWEFEL:
+	{
+		for(std::size_t i=0; i<parameterSize; i++) {
+			result += -parVec[i]*sin(sqrt(fabs(parVec[i])));
+		}
+
+		result /= parameterSize;
+	}
+	break;
+
+	//-----------------------------------------------------------
+	// The Salomon function (see e.g. http://www.it.lut.fi/ip/evo/functions/node12.html)
+	case SALOMON:
+	{
+		double sum_root = 0.;
+		for(std::size_t i=0; i<parameterSize; i++) {
+			sum_root += GSQUARED(parVec[i]);
+		}
+		sum_root=sqrt(sum_root);
+
+		result = -cos(2*M_PI*sum_root) + 0.1*sum_root + 1;
+	}
+	break;
+
+	//-----------------------------------------------------------
+	};
+
+	// Let the audience know
 	return result;
 }
 
-/************************************************************************************************/
+/********************************************************************************************/
 /**
- * The Rastrigin function (see e.g. http://www.it.lut.fi/ip/evo/functions/node6.html)
- *
- * @return The result of the calculation
+ * A factory function that returns a readily constructed object of this type, modelled after
+ * the settings in a configuration file.
  */
-template<> double GFunctionIndividual<RASTRIGIN>::fitnessCalculation() {
-	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
-	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
+template <>
+boost::shared_ptr<GFunctionIndividual> GIndividualFactoryT<GFunctionIndividual>(const std::string& cf) {
+	using namespace Gem::Common;
 
-	std::size_t parameterSize = x->size();
-	double result = 10*double(parameterSize);
+	double adProb = 0.05;
+	boost::uint32_t adaptionThreshold = 1;
+	double sigma = 0.5;
+	double sigmaSigma = 0.8;
+	double minSigma = 0.001;
+	double maxSigma = 2.;
+	std::size_t parDim = 2;
+	double minVar = -30.;
+	double maxVar =  30.;
+	boost::uint32_t processingCycles;
+	boost::uint16_t evalFunction = 3;
 
-	for(std::size_t i=0; i<parameterSize; i++) {
-		result += (GSQUARED(x_ref[i]) - 10.*cos(2*M_PI*x_ref[i]));
+	// Register a number of parameters
+	GParserBuilder gpb(cf.c_str());
+	gpb.registerParameter("adProb", adProb, 0.05);
+	gpb.registerParameter("adaptionThreshold", adaptionThreshold, (boost::uint32_t)1);
+	gpb.registerParameter("sigma", sigma, 0.5);
+	gpb.registerParameter("sigmaSigma", sigmaSigma, 0.8);
+	gpb.registerParameter("minSigma", minSigma, 0.001);
+	gpb.registerParameter("maxSigma", maxSigma, 2.);
+	gpb.registerParameter("parDim", parDim, (std::size_t)2);
+	gpb.registerParameter("minVar", minVar, -30.);
+	gpb.registerParameter("maxVar", maxVar,  30.);
+	gpb.registerParameter("processingCycles", processingCycles, (boost::uint32_t)1);
+	gpb.registerParameter("evalFunction", evalFunction, (boost::uint16_t)3);
+
+	// Read the parameters from the configuration file
+	if(!gpb.parse()) {
+		std::ostringstream error;
+		error << "In GFunctionIndividual::getFunctionIndividual(const std::string&): Error!" << std::endl
+			  << "Could not parse configuration file " << cf << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
 	}
 
-	return result;
-}
+	// Assign the demo function
+	if(evalFunction > (boost::uint16_t)MAXDEMOFUNCTION) {
+		std::cout << "Error: Invalid evaluation function: " << evalFunction << std::endl
+				  << "Assigning parabola instead." << std::endl;
+		evalFunction = 0;
+	}
+	demoFunction df=(demoFunction)evalFunction;
 
-/************************************************************************************************/
-/**
- * The Schwefel function (see e.g. http://www.it.lut.fi/ip/evo/functions/node10.html)
- *
- * @return The result of the calculation
- */
-template<> double GFunctionIndividual<SCHWEFEL>::fitnessCalculation() {
-	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
-	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
+	boost::shared_ptr<GFunctionIndividual> functionIndividual_ptr;
 
-	std::size_t parameterSize = x->size();
-	double result = 0.;
-
-	for(std::size_t i=0; i<parameterSize; i++) {
-		result += -x_ref[i]*sin(sqrt(fabs(x_ref[i])));
+	// Set up a single function individual, depending on the expected function type
+	switch(df) {
+	case PARABOLA:
+		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(PARABOLA));
+		break;
+	case BERLICH:
+		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(BERLICH));
+		break;
+	case ROSENBROCK:
+		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(ROSENBROCK));
+		break;
+	case ACKLEY:
+		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(ACKLEY));
+		break;
+	case RASTRIGIN:
+		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(RASTRIGIN));
+		break;
+	case SCHWEFEL:
+		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(SCHWEFEL));
+		break;
+	case SALOMON:
+		functionIndividual_ptr = boost::shared_ptr<GFunctionIndividual>(new GFunctionIndividual(SALOMON));
+		break;
 	}
 
-	return result/parameterSize;
+	// Set up a GDoubleCollection with dimension values, each initialized
+	// with a random number in the range [min,max[
+	boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim, minVar, maxVar));
+	// Let the GDoubleCollection know about its desired initialization range
+	gdc_ptr->setInitBoundaries(minVar, maxVar);
+
+	// Set up and register an adaptor for the collection, so it
+	// knows how to be adapted.
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));
+	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+	gdga_ptr->setAdaptionProbability(adProb);
+	gdc_ptr->addAdaptor(gdga_ptr);
+
+	// Make the parameter collection known to this individual
+	functionIndividual_ptr->push_back(gdc_ptr);
+	functionIndividual_ptr->setProcessingCycles(processingCycles);
+
+	return functionIndividual_ptr;
 }
 
-/************************************************************************************************/
-/**
- * The Salomon function (see e.g. http://www.it.lut.fi/ip/evo/functions/node12.html)
- *
- * @return The result of the calculation
- */
-template<> double GFunctionIndividual<SALOMON>::fitnessCalculation() {
-	// Extract the GDoubleCollection object
-	boost::shared_ptr<GDoubleCollection> x = at<GDoubleCollection>(0);
-	const GDoubleCollection& x_ref = *x; // Avoid frequent dereferencing
-
-	std::size_t parameterSize = x->size();
-
-	double sum_root = 0.;
-	for(std::size_t i=0; i<parameterSize; i++) {
-		sum_root += GSQUARED(x_ref[i]);
-	}
-	sum_root=sqrt(sum_root);
-
-	return -cos(2*M_PI*sum_root) + 0.1*sum_root + 1;
-}
-
-/************************************************************************************************/
+/********************************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

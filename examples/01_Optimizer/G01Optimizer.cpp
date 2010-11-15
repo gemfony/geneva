@@ -55,7 +55,8 @@ int main(int argc, char **argv) {
 
 	// Create the first individual, using a factory function
 	boost::shared_ptr<GParameterSet> functionIndividual_ptr
-		= GFunctionIndividual<>::getFunctionIndividual("GFunctionIndividual.cfg");
+		= GIndividualFactoryT<GFunctionIndividual>("GFunctionIndividual.cfg");
+
 
 	// Make the individual known to the optimizer
 	go.push_back(functionIndividual_ptr);

@@ -127,7 +127,7 @@ int main(int argc, char **argv){
 	GINDIVIDUALBROKER->enrol(gatc);
 
 	// Set up a single function individual
-	boost::shared_ptr<GFunctionIndividual<PARABOLA> > functionIndividual(new GFunctionIndividual<PARABOLA>());
+	boost::shared_ptr<GFunctionIndividual> functionIndividual(new GFunctionIndividual(PARABOLA));
 
 	// Set up a GDoubleCollection with dimension values, each initialized
 	// with a random number in the range [min,max[

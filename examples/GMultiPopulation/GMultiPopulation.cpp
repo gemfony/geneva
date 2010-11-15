@@ -175,7 +175,7 @@ int main(int argc, char **argv){
 
 	  // Create the first set of parent individuals. Initialization of parameters is done randomly.
 	  for(std::size_t psub = 0 ; psub<nParentsSub; psub++) {
-		  boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual<>::getFunctionIndividual(df);
+		  boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual::getFunctionIndividual(df);
 
 		  // Set up a GDoubleCollection with dimension values, each initialized
 		  // with a random number in the range [min,max[

@@ -225,7 +225,7 @@ boost::optional<std::string> GExternalEvaluatorIndividual::checkRelationshipWith
 {
 	using namespace Gem::Common;
 
-	// Check that we are indeed dealing with a GParamterBase reference
+	// Check that we are indeed dealing with a reference to an object of the same type
 	const GExternalEvaluatorIndividual *p_load = conversion_cast<GExternalEvaluatorIndividual>(&cp);
 
 	// Will hold possible deviations from the expectation, including explanations

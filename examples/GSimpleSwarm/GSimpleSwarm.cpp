@@ -215,7 +215,7 @@ int main(int argc, char **argv){
 	// NOTE: Unlike evolutionary algorithms, we do not have to add an adaptor to the population
 	if(allRandomInit) { // Random initialization of all individuals in the population
 		for(std::size_t p = 0 ; p<pop_ptr->getDefaultPopulationSize(); p++) {
-			boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual<>::getFunctionIndividual(df);
+			boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual::getFunctionIndividual(df);
 
 			// Set up a GDoubleCollection with dimension values, each initialized
 			// with a random number in the range [min,max[
@@ -233,7 +233,7 @@ int main(int argc, char **argv){
 	else { // Individuals of the same neighborhood start from the same location
 		for(std::size_t n=0; n<nNeighborhoods; n++) {
 			// Initialize the first individual of the neighborhood
-			boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual<>::getFunctionIndividual(df);
+			boost::shared_ptr<GParameterSet> functionIndividual_ptr = GFunctionIndividual::getFunctionIndividual(df);
 			// Set up a GDoubleCollection with dimension values, each initialized
 			// with a random number in the range [min,max[
 			boost::shared_ptr<GDoubleCollection> gdc_ptr(new GDoubleCollection(parDim,minVar,maxVar));

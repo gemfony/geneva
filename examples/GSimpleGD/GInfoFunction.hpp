@@ -431,21 +431,21 @@ private:
 		ofs << "{" << std::endl
 			<< "  gROOT->Reset();" << std::endl
 			<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0," << xDim_ << "," << yDim_ << ");" << std::endl
-			<< "  gStyle->SetTitle(\"" << (GFunctionIndividual<>::getStringRepresentation(df_) + " / iteration = " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");" << std::endl
+			<< "  gStyle->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration = " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");" << std::endl
 			<< std::endl
-		    << "  TF2 *tf = new TF2(\"tf\", \"" << GFunctionIndividual<>::get2DROOTFunction(df_) << "\", " << minX_ << ", " << maxX_ << ", " << minY_ << ", " << maxY_ << ");" << std::endl
+		    << "  TF2 *tf = new TF2(\"tf\", \"" << GFunctionIndividual::get2DROOTFunction(df_) << "\", " << minX_ << ", " << maxX_ << ", " << minY_ << ", " << maxY_ << ");" << std::endl
 			<< "  tf->SetLineWidth(0.05);" << std::endl
 			<< "  tf->SetLineColor(16);" << std::endl
 			<< "  tf->GetXaxis()->SetLabelSize(0.02);" << std::endl
 			<< "  tf->GetYaxis()->SetLabelSize(0.02);" << std::endl
-			<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual<>::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
+			<< "  tf->GetHistogram()->SetTitle(\"" << (GFunctionIndividual::getStringRepresentation(df_) + " / iteration " + boost::lexical_cast<std::string>(iteration)) + " / fitness = "<< global_best_fitness << "\");"
 			<< std::endl
 			<< "  tf->Draw();" << std::endl
 			<< std::endl;
 
 		// Draw lines where the global optima are
-		std::vector<double> f_x_mins = GFunctionIndividual<>::getXMin(df_);
-		std::vector<double> f_y_mins = GFunctionIndividual<>::getYMin(df_);
+		std::vector<double> f_x_mins = GFunctionIndividual::getXMin(df_);
+		std::vector<double> f_y_mins = GFunctionIndividual::getYMin(df_);
 		for(std::size_t i=0; i<f_x_mins.size(); i++) {
 			ofs << "  TLine *tlx" << i << " = new TLine(" << f_x_mins[i] << ", " << minY_ << ", " << f_x_mins[i] << ", " << maxY_ << ");" << std::endl
 				<< "  tlx" << i << "->SetLineStyle(5);" << std::endl

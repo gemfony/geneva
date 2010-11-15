@@ -66,10 +66,10 @@ namespace Geneva
  * @return An individual of type ind_type, constructed according to the information read from cf
  */
 template <typename ind_type>
-boost::shared_ptr<GParameterSet> GIndividualFactory(const std::string& cf)
+boost::shared_ptr<ind_type> GIndividualFactoryT(const std::string& cf)
 {
 	std::ostringstream error;
-	error << "In GIndividualFactory<ind_type>(const std::string&): Error!" << std::endl
+	error << "In GIndividualFactoryT<ind_type>(const std::string&): Error!" << std::endl
 		  << "No specialization provided." << std::endl;
 	throw(Gem::Common::gemfony_error_condition(error.str()));
 }
