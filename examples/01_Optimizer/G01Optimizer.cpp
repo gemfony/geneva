@@ -48,21 +48,27 @@ int main(int argc, char **argv) {
 
 	//---------------------------------------------------------------------
 	// Client mode
-	if(go.clientRun()) return 0;
+	if(go.clientMode()) {
+		go.clientRun();
+		return 0;
+	}
 
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
-	// Create the first individual, using a factory function
-	boost::shared_ptr<GParameterSet> functionIndividual_ptr
-		= GIndividualFactoryT<GFunctionIndividual>("GFunctionIndividual.cfg");
+	// Create a factory for GFunctionIndividual objects and perform
+	// any necessary initial work.
+	GFunctionIndividualFactory gfi("./GFunctionIndividual.cfg");
+	gfi.init();
 
-
-	// Make the individual known to the optimizer
-	go.push_back(functionIndividual_ptr);
+	// Make an individual known to the optimizer
+	go.push_back(gfi());
 
 	// Perform the actual optimization
 	boost::shared_ptr<GParameterSet> bestfunctionIndividual_ptr = go.optimize<GParameterSet>();
+
+	// Tell the evaluation program to perform any necessary final work
+	gfi.finalize();
 
 	std::cout << "Done ..." << std::endl;
 	return 0;

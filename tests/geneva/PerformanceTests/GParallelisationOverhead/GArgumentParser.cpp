@@ -141,7 +141,7 @@ bool parseConfigFile(const std::string& configFile,
 	bool verbose;
 	std::string sleepString;
 
-	// Check the name of the configuation file
+	// Check the name of the configuration file
 	if(configFile.empty() || configFile == "empty" || configFile == "unknown") {
 		std::cerr << "Error: Invalid configuration file name given: \"" << configFile << "\"" << std::endl;
 		return false;

@@ -175,7 +175,7 @@ GObject* GDelayIndividual::clone_() const {
 	return new GDelayIndividual(*this);
 }
 
-/**********************************************************************************/
+/********************************************************************************************/
 /**
  * The actual adaption operations. We want to avoid spending time on adaptions, as
  * all we want to do is measure the overhead of the parallelization. We thus simply
@@ -199,6 +199,180 @@ double GDelayIndividual::fitnessCalculation(){
 }
 
 /********************************************************************************************/
+/**
+ * Manual setting of the sleepTime_ variable
+ *
+ * @param sleepTime The desired new value of the sleepTime_ variable
+ */
+void GDelayIndividual::setSleepTime(const boost::posix_time::time_duration& sleepTime) {
+	sleepTime_ = sleepTime;
+}
 
+/********************************************************************************************/
+/**
+ * Retrieval of the current value of the sleepTime_ variable
+ *
+ * @return The current value of the sleepTime_ variable
+ */
+boost::posix_time::time_duration GDelayIndividual::getSleepTime() const {
+	return sleepTime_;
+}
+
+/********************************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////////////////
+/********************************************************************************************/
+/**
+ * The standard constructor for this class
+ */
+GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
+	: GIndividualFactoryT<GDelayIndividual>(cF)
+	, processingCycles_(1)
+	, nVariables_(100)
+	, resultFile_("networkResults.C")
+{ /* nothing */ }
+
+/********************************************************************************************/
+/**
+ * Allows to retrieve the name of the result file
+ *
+ * @return The Name of the result file
+ */
+std::string GDelayIndividualFactory::getResultFileName() const {
+	return resultFile_;
+}
+
+/********************************************************************************************/
+/**
+ * Necessary initialization work. Here we divide the delays_ string into seconds and milliseconds
+ */
+void GDelayIndividualFactory::init_() {
+	// Parse the sleep string and break it into timing values
+	std::vector<std::string> sleepTokens;
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> space_sep(" ");
+	tokenizer sleepTokenizer(delays_, space_sep);
+	tokenizer::iterator s;
+	for(s=sleepTokenizer.begin(); s!=sleepTokenizer.end(); ++s){
+		std::cout << "Sleep token is " << *s << std::endl;
+		sleepTokens.push_back(*s);
+	}
+	if(sleepTokens.empty()) { // No sleep tokens were provided
+		std::ostringstream error;
+		error << "In GDelayIndividualFactory::init_(): Error!" << std::endl
+				<< "You did not provide any delay timings" << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+
+	sleepSeconds_.clear();
+	sleepMilliSeconds_.clear();
+
+	std::vector<std::string>::iterator t;
+	for(t=sleepTokens.begin(); t!=sleepTokens.end(); ++t) {
+		// Split the string
+		boost::char_separator<char> slash_sep("/");
+		tokenizer delayTokenizer(*t, slash_sep);
+
+		// Loop over the results (there should be exactly two) and assign to the corresponding vectors
+		tokenizer::iterator d;
+		boost::uint32_t tokenCounter=0;
+		for(d=delayTokenizer.begin(); d!=delayTokenizer.end(); ++d){
+			switch(tokenCounter++){
+			case 0:
+				try{
+					sleepSeconds_.push_back(boost::lexical_cast<long>(*d));
+				}
+				catch(...) {
+					std::ostringstream error;
+					error << "In GDelayIndividualFactory::init_(): Error (1)!" << std::endl
+							<< "Could not transfer string " << *d << " to a numeric value" << std::endl;
+					throw(Gem::Common::gemfony_error_condition(error.str()));
+				}
+				break;
+
+			case 1:
+				try{
+					sleepMilliSeconds_.push_back(boost::lexical_cast<long>(*d));
+				}
+				catch(...) {
+					std::ostringstream error;
+					error << "In GDelayIndividualFactory::init_(): Error (2)!" << std::endl
+							<< "Could not transfer string " << *d << " to a numeric value" << std::endl;
+					throw(Gem::Common::gemfony_error_condition(error.str()));
+				}
+				break;
+
+			default:
+				{
+					std::ostringstream error;
+					error << "In GDelayIndividualFactory::init_(): Error!" << std::endl
+							<< "tokenCounter has reached invalid value " << tokenCounter << std::endl;
+					throw(Gem::Common::gemfony_error_condition(error.str()));
+				}
+			}
+		}
+	}
+}
+
+/********************************************************************************************/
+/**
+ * Allows to describe configuration options of GDelayIndividual objects
+ */
+void GDelayIndividualFactory::describeConfigurationOptions_() {
+	gpb.registerParameter("processingCycles", processingCycles_, processingCycles_);
+	gpb.registerParameter("nVariables", nVariables_, nVariables_);
+	gpb.registerParameter("delays", delays_, std::string(""));
+	gpb.registerParameter("resultFile", resultFile_, resultFile_);
+}
+
+/********************************************************************************************/
+/**
+ * Creates individuals of the desired type. We return valid individuals as often as there
+ * are test cases in the delays_ string.
+ *
+ * @param id An enumerator to the number of calls to this function
+ * @return An object of the desired type
+ */
+boost::shared_ptr<GDelayIndividual> GDelayIndividualFactory::getIndividual_(const std::size_t& id) {
+	boost::shared_ptr<GDelayIndividual> result;
+
+	if(id < sleepSeconds_.size()) {
+		// Calculate the current sleep time
+		boost::posix_time::time_duration sleepTime =
+				boost::posix_time::seconds(sleepSeconds_.at(id)) +
+				boost::posix_time::milliseconds(sleepMilliSeconds_.at(id));
+
+		std::cout << "Producing an individual with sleep time = " << sleepTime.total_milliseconds() << std::endl;
+
+		boost::shared_ptr<GDelayIndividual> gdi_ptr(new GDelayIndividual(sleepTime));
+		gdi_ptr->setProcessingCycles(processingCycles_);
+
+		// Set up a GConstrainedDoubleObjectCollection
+		boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc_ptr(new GConstrainedDoubleObjectCollection());
+
+		// Set up nVariables GConstrainedDoubleObject objects in the desired value range,
+		// and register them with the collection. The configuration parameters don't matter for this use case
+		for(std::size_t var=0; var<nVariables_; var++) {
+			boost::shared_ptr<GConstrainedDoubleObject> gbd_ptr(new GConstrainedDoubleObject(0.,1.));
+			boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.1, 0.5, 0., 1.));
+			gdga_ptr->setAdaptionThreshold(1);
+			gbd_ptr->addAdaptor(gdga_ptr);
+
+			// Make the GConstrainedDoubleObject known to the collection
+			gbdc_ptr->push_back(gbd_ptr);
+		}
+
+		// Make the GConstrainedDoubleObjectCollection known to the individual
+		gdi_ptr->push_back(gbdc_ptr);
+
+		// Assign to the result item
+		result = gdi_ptr;
+	} else {
+		std::cout << "Reached the end of production." << std::endl;
+	}
+
+	return result;
+}
+
+/********************************************************************************************/
 } /* namespace Tests */
 } /* namespace Gem */

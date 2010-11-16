@@ -76,7 +76,7 @@
 #include <geneva/GDoubleGaussAdaptor.hpp>
 #include <geneva/GInt32FlipAdaptor.hpp>
 #include <geneva/GParameterSet.hpp>
-
+#include <geneva-individuals/GIndividualFactoryT.hpp>
 
 namespace bf = boost::filesystem; // alias for ease of use
 
@@ -95,7 +95,7 @@ namespace Geneva
  * External programs should understand the following command line arguments
  * -i / --initialize : gives the external program the opportunity to do any needed
  *                          preliminary work (e.g. downloading files, setting up directories, ...)
- * -f / -- finilize :   Allows the external program to clean up after work. Compare the -i switch.
+ * -f / -- finalize :   Allows the external program to clean up after work. Compare the -i switch.
  * -p / --paramfile <filename>: The name of the file through which data is exchanged
  *     This switch is needed for the following options:
  *     -t / --template: asks the external program to write a description of the individual
@@ -220,52 +220,6 @@ class GExternalEvaluatorIndividual
 		Gem::Common::runExternalCommand(commandLine);
 	}
 
-	/********************************************************************************************/
-	/**
-	 * A factory function that returns a GExternalEvaluatorIndividual, setting some values according
-	 * to the specifications of a configuration file.
-	 *
-	 * @return A GExternalEvaluatorIndividual object, equipped according to the settings in a configuration file
-	 */
-	static boost::shared_ptr<GParameterSet> getExternalEvaluatorIndividual(const std::string& cf = "GExternalEvaluatorIndividual.cfg") {
-		using namespace Gem::Common;
-
-		// The variables that should be read from the configuration file
-		boost::uint32_t processingCycles;
-		std::string program;
-		std::string externalArguments;
-		boost::uint32_t adaptionThreshold;
-		double sigma;
-		double sigmaSigma;
-		double minSigma;
-		double maxSigma;
-		Gem::Dataexchange::dataExchangeMode exchangeMode;
-		bool randomFill;
-
-		// Register a number of parameters
-		GParserBuilder gpb(cf.c_str());
-		gpb.registerParameter("processingCycles", processingCycles, boost::uint32_t(1));
-		gpb.registerParameter("program", program, std::string("./evaluator/evaluator"));
-		gpb.registerParameter("externalArguments", externalArguments, std::string("empty"));
-		gpb.registerParameter("adaptionThreshold", adaptionThreshold, boost::uint32_t(1));
-		gpb.registerParameter("sigma", sigma, double(0.5));
-		gpb.registerParameter("sigmaSigma", sigmaSigma, double(0.8));
-		gpb.registerParameter("minSigma", minSigma, double(0.));
-		gpb.registerParameter("maxSigma", maxSigma, double(2.));
-		gpb.registerParameter("exchangeMode", exchangeMode, Gem::Dataexchange::dataExchangeMode(Gem::Dataexchange::BINARYEXCHANGE));
-		gpb.registerParameter("randomFill", randomFill, true);
-
-		// Read the parameters from the configuration file
-		if(!gpb.parse()) {
-			std::ostringstream error;
-			error << "In GFunctionIndividual::getExternalEvaluatorIndividual(const std::string&): Error!" << std::endl
-				  << "Could not parse configuration file " << cf << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
-
-
-	}
-
  protected:
 	/********************************************************************************************/
 	/** @brief Loads the data of another GExternalEvaluatorIndividual */
@@ -314,12 +268,46 @@ class GExternalEvaluatorIndividual
 	Gem::Dataexchange::GDataExchange gde_; ///< takes care of the data exchange with external programs
  };
 
+// Needed for testing purposes
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * A factory for GExternalEvaluatorIndividual objects
+ */
+class GExternalEvaluatorIndividualFactory :public GIndividualFactoryT<GExternalEvaluatorIndividual>
+{
+public:
+	/** @brief The standard constructor for this class */
+	GExternalEvaluatorIndividualFactory(const std::string&);
+
+protected:
+	/** @brief Performs necessary initialization work */
+	virtual void init_();
+	/** @brief Performs any required finalization work */
+	virtual void finalize_();
+	/** @brief Allows to describe configuration options in derived classes */
+	virtual void describeConfigurationOptions_();
+	/** @brief Creates individuals of the desired type */
+	virtual boost::shared_ptr<GExternalEvaluatorIndividual> getIndividual_(const std::size_t&);
+
+private:
+	double sigma;
+	double sigmaSigma;
+	double minSigma;
+	double maxSigma;
+	boost::uint32_t adaptionThreshold;
+	std::string program;
+	std::string externalArguments;
+	bool randomFill;
+	Gem::Dataexchange::dataExchangeMode exchangeMode;
+	bool maximize;
+	boost::uint32_t processingCycles;
+};
+
 } /* namespace Geneva */
 } /* namespace Gem */
 
-
-
-// Needed for testing purposes
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
@@ -327,7 +315,7 @@ class GExternalEvaluatorIndividual
 #ifdef GENEVATESTING
 
 /**
- * As the Gem::Geneva::Gem::Geneva::GExternalEvaluatorIndividual has a private default constructor, we need to provide a
+ * As the GExternalEvaluatorIndividual has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <> boost::shared_ptr<Gem::Geneva::GExternalEvaluatorIndividual> TFactory_GUnitTests<Gem::Geneva::GExternalEvaluatorIndividual>();

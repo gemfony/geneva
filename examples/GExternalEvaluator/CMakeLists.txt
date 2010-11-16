@@ -75,7 +75,6 @@ LINK_DIRECTORIES (
 SET ( EXECUTABLENAME GExternalEvaluator )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GArgumentParser
 	GExternalEvaluator
 )
 
@@ -83,9 +82,7 @@ SET ( CONFIGFILE
 	GExternalEvaluator.cfg
 )
 
-ADD_PCH_RULE( GArgumentParser.hpp              ${EXECUTABLENAME}_SRCS )
 ADD_PCH_RULE( GExternalEvaluatorIndividual.hpp ${EXECUTABLENAME}_SRCS )
-ADD_PCH_RULE( GInfoFunction.hpp                ${EXECUTABLENAME}_SRCS )
 
 ADD_EXECUTABLE( ${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}

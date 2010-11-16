@@ -336,9 +336,37 @@ private:
 };
 
 /************************************************************************************************/
-// A factory function that returns a readily constructed object of this type, modelled after
-// the settings in a configuration file.
-template <> boost::shared_ptr<GFunctionIndividual> GIndividualFactoryT<GFunctionIndividual>(const std::string&);
+//////////////////////////////////////////////////////////////////////////////////////////////////
+/************************************************************************************************/
+/**
+ * A factory for GFunctionIndividual objects
+ */
+class GFunctionIndividualFactory :public GIndividualFactoryT<GFunctionIndividual>
+{
+public:
+	/** @brief The standard constructor for this class */
+	GFunctionIndividualFactory(const std::string&);
+
+protected:
+	/** @brief Allows to describe configuration options in derived classes */
+	virtual void describeConfigurationOptions_();
+	/** @brief Creates individuals of the desired type */
+	virtual boost::shared_ptr<GFunctionIndividual> getIndividual_(const std::size_t&);
+
+private:
+	double adProb;
+	boost::uint32_t adaptionThreshold;
+	double sigma;
+	double sigmaSigma;
+	double minSigma;
+	double maxSigma;
+	std::size_t parDim;
+	double minVar;
+	double maxVar;
+	boost::uint32_t processingCycles;
+	boost::uint16_t evalFunction;
+};
+
 
 /************************************************************************************************/
 

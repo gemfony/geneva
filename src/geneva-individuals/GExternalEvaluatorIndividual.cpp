@@ -597,13 +597,116 @@ double GExternalEvaluatorIndividual::readParametersFromFile(const std::string& f
 	return 0.;
 }
 
-/********************************************************************************************/
+
+/*************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*************************************************************************************************/
+/**
+ * The standard constructor for this class
+ *
+ * @param cF The name of the configuration file
+ */
+GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(const std::string& cF)
+	: GIndividualFactoryT<GExternalEvaluatorIndividual>(cF)
+	, sigma(0.5)
+	, sigmaSigma(0.8)
+	, minSigma(0.001)
+	, maxSigma(2.)
+	, adaptionThreshold(1)
+	, program("./evaluator/evaluator")
+	, externalArguments("empty")
+	, randomFill(true)
+	, exchangeMode(Gem::Dataexchange::BINARYEXCHANGE)
+	, maximize(false)
+	, processingCycles(1)
+{ /* nothing */ }
+
+/*************************************************************************************************/
+/**
+ * Performs necessary initialization work
+ */
+void GExternalEvaluatorIndividualFactory::init_()
+{
+  // Tells the external evaluation program to do any necessary initial work
+  GExternalEvaluatorIndividual::initialize(program, externalArguments);
+}
+
+/*************************************************************************************************/
+/**
+ * Performs any required finalization work
+ */
+void GExternalEvaluatorIndividualFactory::finalize_()
+{
+  // Tell the evaluation program to perform any necessary finalization work
+  GExternalEvaluatorIndividual::finalize(program, externalArguments);
+}
+
+/*************************************************************************************************/
+/**
+ * Allows to describe configuration options in derived classes
+ */
+void GExternalEvaluatorIndividualFactory::describeConfigurationOptions_()
+{
+	gpb.registerParameter("sigma", sigma, sigma);
+	gpb.registerParameter("sigmaSigma", sigmaSigma, sigmaSigma);
+	gpb.registerParameter("minSigma", minSigma, minSigma);
+	gpb.registerParameter("maxSigma", maxSigma, maxSigma);
+	gpb.registerParameter("adaptionThreshold", adaptionThreshold, adaptionThreshold);
+	gpb.registerParameter("program", program, program);
+	gpb.registerParameter("externalArguments", externalArguments, externalArguments);
+	gpb.registerParameter("randomFill", randomFill, randomFill);
+	gpb.registerParameter("exchangeMode", exchangeMode, exchangeMode);
+	gpb.registerParameter("maximize", maximize, maximize);
+	gpb.registerParameter("processingCycles", processingCycles, processingCycles);
+}
+
+/*************************************************************************************************/
+/**
+ * Creates individuals of the desired type. Here, the id is used to give users the choice
+ * whether they want to initialize the first object randomly. Random initialization is
+ * enforced for all following calls to this function.
+ *
+ * @param id The number of calls to this function
+ */
+boost::shared_ptr<GExternalEvaluatorIndividual> GExternalEvaluatorIndividualFactory::getIndividual_(const std::size_t& id)
+{
+	// Create a number of adaptors to be used in the individual
+	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
+	boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
+	boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor());
+
+	// Set the adaption threshold
+	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
+	gifa_ptr->setAdaptionThreshold(adaptionThreshold);
+	gba_ptr->setAdaptionThreshold(adaptionThreshold);
+
+	// Create an initial individual (it will get the necessary information
+	// from the external executable)
+	boost::shared_ptr<GExternalEvaluatorIndividual> gev_ptr(
+			new GExternalEvaluatorIndividual(
+					program,
+					externalArguments,
+					0==id?randomFill:true, // Allow choice whether the first parent is filled with random data or not
+					exchangeMode,
+					gdga_ptr,
+					gifa_ptr,
+					gba_ptr
+			)
+	);
+
+	// Set the desired maximization/minimization mode
+	gev_ptr->setMaxMode(maximize);
+
+	// Set the amount of processing cycles used in a remote individual
+    gev_ptr->setProcessingCycles(processingCycles);
+
+    // Let the audience know
+    return gev_ptr;
+}
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-
-// Needed for testing purposes
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
@@ -611,7 +714,7 @@ double GExternalEvaluatorIndividual::readParametersFromFile(const std::string& f
 #ifdef GENEVATESTING
 
 /**
- * As the Gem::Geneva::GExternalEvaluatorIndividual has a private default constructor, we need to provide a
+ * As the GExternalEvaluatorIndividual has a private default constructor, we need to provide a
  * specialization of the factory function that creates GStartProjectIndividual objects
  */
 template <>
@@ -624,4 +727,3 @@ boost::shared_ptr<Gem::Geneva::GExternalEvaluatorIndividual> TFactory_GUnitTests
 /*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
-

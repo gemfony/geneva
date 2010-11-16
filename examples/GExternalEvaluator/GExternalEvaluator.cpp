@@ -29,241 +29,47 @@
  * http://www.gemfony.com .
  */
 
-
 // Standard header files go here
 #include <iostream>
-#include <cmath>
-#include <sstream>
 
 // Boost header files go here
-#include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include <dataexchange/GDataExchangeEnums.hpp>
-#include <courtier/GAsioHelperFunctions.hpp>
-#include <courtier/GAsioTCPClientT.hpp>
-#include <courtier/GAsioTCPConsumerT.hpp>
-#include <geneva/GBrokerEA.hpp>
-#include <geneva/GEvolutionaryAlgorithm.hpp>
-#include <geneva/GIndividual.hpp>
-#include <geneva/GMultiThreadedEA.hpp>
+#include <geneva/Go.hpp>
 
 // The individual that should be optimized
 #include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 
-// Declares a function to parse the command line
-#include "GArgumentParser.hpp"
-
 using namespace Gem::Geneva;
-using namespace Gem::Courtier;
-using namespace Gem::Hap;
 
-/************************************************************************************************/
-/**
- * The main function.
- */
-int main(int argc, char **argv){
-  std::string configFile;		  
-  boost::uint16_t parallelizationMode;
-  bool serverMode;
-  std::string ip;
-  unsigned short port;
-  boost::uint16_t nProducerThreads;
-  boost::uint16_t nEvaluationThreads;
-  std::size_t populationSize;
-  std::size_t nParents;
-  boost::uint32_t maxGenerations;
-  long maxMinutes;
-  boost::uint32_t reportGeneration;
-  recoScheme rScheme;
-  std::size_t arraySize;
-  sortingMode smode;
-  boost::uint32_t processingCycles;
-  bool returnRegardless;
-  boost::uint32_t waitFactor;
-  std::string program;
-  std::string externalArguments;
-  boost::uint32_t adaptionThreshold;
-  double sigma;
-  double sigmaSigma;
-  double minSigma;
-  double maxSigma;
-  Gem::Dataexchange::dataExchangeMode exchangeMode;
-  bool maximize;
-  bool randomFill;
-  Gem::Common::serializationMode serMode;
+int main(int argc, char **argv) {
+	Go go(argc, argv, "GExternalEvaluator.cfg");
 
-  if(!parseCommandLine(argc, argv,
-		       configFile,			  
-		       parallelizationMode,
-		       serverMode,
-		       ip,
-		       port,
-		       serMode)
-     ||
-     !parseConfigFile(configFile,
-		      nProducerThreads,
-		      nEvaluationThreads,
-		      populationSize,
-		      nParents,
-		      maxGenerations,
-		      maxMinutes,
-		      reportGeneration,
-		      rScheme,
-		      smode,
-		      arraySize,
-		      processingCycles,
-		      returnRegardless,
-		      waitFactor,
-		      program,
-		      externalArguments,
-		      adaptionThreshold,
-		      sigma,
-		      sigmaSigma,
-		      minSigma,
-		      maxSigma,
-		      exchangeMode,
-		      maximize,
-		      randomFill))
-    {
-	  std::cout << "Error parsing the command line or the configuration file. Leaving ..." << std::endl;
-	  exit(1);
-    }
+	//---------------------------------------------------------------------
+	// Client mode
+	if(go.clientMode()) {
+		go.clientRun();
+		return 0;
+	}
 
-  // Random numbers are our most valuable good. Set the number of threads
-  GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
-  GRANDOMFACTORY->setArraySize(arraySize);
-  
-  //***************************************************************************
-  // If this is a client in networked mode, we can just start the listener and
-  // return when it has finished
-  if(parallelizationMode==2 && !serverMode) {
-    boost::shared_ptr<GAsioTCPClientT<GIndividual> > p(new GAsioTCPClientT<GIndividual>(ip, boost::lexical_cast<std::string>(port)));
+	//---------------------------------------------------------------------
+	// Server mode, serial or multi-threaded execution
 
-    p->setMaxStalls(0); // An infinite number of stalled data retrievals
-    p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
+	// Create a factory for GExternalEvaluatorIndividual objects and perform
+	// any necessary initial work.
+	GExternalEvaluatorIndividualFactory gef("./GExternalEvaluatorIndividual.cfg");
+	gef.init();
 
-    // Possibly prevent return of unsuccessful adaption attempts to the server
-    p->returnResultIfUnsuccessful(returnRegardless);
+	// Make an individual known to the optimizer
+	go.push_back(gef());
 
-    // Start the actual processing loop
-    p->run();
+	// Perform the actual optimization
+	boost::shared_ptr<GExternalEvaluatorIndividual> bestfunctionIndividual_ptr
+		= go.optimize<GExternalEvaluatorIndividual>();
 
-    return 0;
-  }
-  //***************************************************************************
+	// Tell the evaluation program to perform any necessary final work
+	gef.finalize();
 
-  // Tell the evaluation program to do any initial work
-  GExternalEvaluatorIndividual::initialize(program, externalArguments);
-
-  // Create the first set of parent individuals. Initialization of parameters is done randomly.
-  std::vector<boost::shared_ptr<GExternalEvaluatorIndividual> > parentIndividuals;
-  for(std::size_t p = 0 ; p<nParents; p++) {
-	// Create a number of adaptors to be used in the individual
-	boost::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma,sigmaSigma,minSigma,maxSigma));
-	boost::shared_ptr<GInt32FlipAdaptor> gifa_ptr(new GInt32FlipAdaptor());
-	boost::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor());
-
-	// Set the adaption threshold
-	gdga_ptr->setAdaptionThreshold(adaptionThreshold);
-	gifa_ptr->setAdaptionThreshold(adaptionThreshold);
-	gba_ptr->setAdaptionThreshold(adaptionThreshold);
-
-	// Create an initial individual (it will get the necessary information
-	// from the external executable)
-	boost::shared_ptr<GExternalEvaluatorIndividual> gev_ptr(
-			new GExternalEvaluatorIndividual(
-					program,
-					externalArguments,
-					p==0?randomFill:true, // Allow choice whether the first parent is filled with random data or not
-					exchangeMode,
-					gdga_ptr,
-					gifa_ptr,
-					gba_ptr
-			)
-	);
-
-	// Set the desired maximization/minimization mode
-	gev_ptr->setMaxMode(maximize);
-
-	// Set the amount of processing cycles used in a remote individual
-    gev_ptr->setProcessingCycles(processingCycles);
-
-    // Store the newly created individual
-    parentIndividuals.push_back(gev_ptr);
-  }
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // We can now start creating populations. We refer to them through the base class
-
-  // This smart pointer will hold the different population types
-  boost::shared_ptr<GEvolutionaryAlgorithm> pop_ptr;
-
-  // Create the actual populations
-  switch (parallelizationMode) {
-    //-----------------------------------------------------------------------------------------------------
-  case 0: // Serial execution
-    // Create an empty population
-    pop_ptr = boost::shared_ptr<GEvolutionaryAlgorithm>(new GEvolutionaryAlgorithm());
-    break;
-
-    //-----------------------------------------------------------------------------------------------------
-  case 1: // Multi-threaded execution
-    {
-      // Create the multi-threaded population
-      boost::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
-
-      // Population-specific settings
-      popPar_ptr->setNThreads(nEvaluationThreads);
-
-      // Assignment to the base pointer
-      pop_ptr = popPar_ptr;
-    }
-    break;
-
-    //-----------------------------------------------------------------------------------------------------
-  case 2: // Networked execution (server-side)
-    {
-      // Create a network consumer and enrol it with the broker
-      boost::shared_ptr<GAsioTCPConsumerT<GIndividual> > gatc(new GAsioTCPConsumerT<GIndividual>(port));
-      gatc->setSerializationMode(serMode);
-      GINDIVIDUALBROKER->enrol(gatc);
-
-      // Create the actual broker population
-      boost::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
-      popBroker_ptr->setWaitFactor(waitFactor);
-
-      // Assignment to the base pointer
-      pop_ptr = popBroker_ptr;
-    }
-    break;
-  }
-
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Now we have suitable populations and can fill them with data
-
-  // Add individuals to the population
-  for(std::size_t p = 0 ; p<nParents; p++) {
-    pop_ptr->push_back(parentIndividuals[p]);
-  }
- 
-  // Specify some general population settings
-  pop_ptr->setDefaultPopulationSize(populationSize,nParents);
-  pop_ptr->setMaxIteration(maxGenerations);
-  pop_ptr->setMaxTime(boost::posix_time::minutes(maxMinutes));
-  pop_ptr->setReportIteration(reportGeneration);
-  pop_ptr->setRecombinationMethod(rScheme);
-  pop_ptr->setSortingScheme(smode);
-  
-  // Do the actual optimization
-  pop_ptr->optimize();
-
-  //--------------------------------------------------------------------------------------------
-
-  // Tell the evaluation program to perform any necessary final work
-  GExternalEvaluatorIndividual::finalize(program, externalArguments);
-
-  std::cout << "Done ..." << std::endl;
-  return 0;
+	std::cout << "Done ..." << std::endl;
+	return 0;
 }

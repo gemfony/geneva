@@ -36,6 +36,7 @@
 
 // Boost header files go here
 #include <boost/shared_ptr.hpp>
+#include <boost/utility.hpp>
 
 #ifndef GINDIVIDUALFACTORYT_HPP_
 #define GINDIVIDUALFACTORYT_HPP_
@@ -57,22 +58,129 @@ namespace Geneva
 
 /*******************************************************************************************/
 /**
- * A factory function that returns GParameterSet-derivatives of type ind_type . These are
+ * A factory class that returns GParameterSet-derivatives of type ind_type . These are
  * constructed according to specifications read from a configuration file. The actual work
- * needs to be done in functions that are written independently for each individual separately.
- * This function is a trap to catch cases, where no independent factory function was created.
- *
- * @param cf The name of a configuration file holding information about individuals of type ind_type
- * @return An individual of type ind_type, constructed according to the information read from cf
+ * needs to be done in functions that are implemented in derived classes for each individual
+ * independently.
  */
 template <typename ind_type>
-boost::shared_ptr<ind_type> GIndividualFactoryT(const std::string& cf)
+class GIndividualFactoryT :private boost::noncopyable
 {
-	std::ostringstream error;
-	error << "In GIndividualFactoryT<ind_type>(const std::string&): Error!" << std::endl
-		  << "No specialization provided." << std::endl;
-	throw(Gem::Common::gemfony_error_condition(error.str()));
-}
+public:
+	/***************************************************************************************/
+	/**
+	 * The standard constructor
+	 *
+	 * @param configFile The name of a configuration file holding information about individuals of type ind_type
+	 */
+	GIndividualFactoryT(const std::string& configFile)
+		: configFile_(configFile)
+		, id_(std::size_t(0))
+		, initialized_(false)
+		, finalized_(false)
+		, gpb(configFile_)
+	{ /* nothing */ }
+
+	/***************************************************************************************/
+	/**
+	 * Triggers the creation of objects of the desired type
+	 *
+	 * @return An individual of the desired type
+	 */
+	boost::shared_ptr<ind_type> operator()() {
+#ifdef DEBUG
+		// It is an error if this function is called on a finalized object
+		if(finalized_) {
+			std::ostringstream error;
+			error << "In GIndividualFactoryT<ind_type>::operator()(): Error!" << std::endl
+				  << "Tried to retrieve individual when object has already been finalized!" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+#endif /* DEBUG */
+
+		this->init(); // This function will do nothing when called more than once
+		return this->getIndividual_(id_++); // Retrieve the actual individual
+	}
+
+	/***************************************************************************************/
+	/**
+	 * Performs necessary initialization work. This function will do nothing when
+	 * called more than once.
+	 */
+	virtual void init() {
+		if(!initialized_) {
+			// It is an error if this function is called on a finalized object
+			if(finalized_) {
+				std::ostringstream error;
+				error << "In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
+					  << "Tried to initialize object which has already been finalized" << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+
+			// Execute the user-defined configuration specifications
+			this->describeConfigurationOptions_();
+
+			// Read the configuration parameters from file
+			if(!gpb.parse()) {
+				std::ostringstream error;
+				error << "In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
+					  << "Could not parse configuration file " << configFile_ << std::endl;
+				throw(Gem::Common::gemfony_error_condition(error.str()));
+			}
+
+			// Perform the user-defined initialization work
+			this->init_();
+
+			initialized_ = true;
+		}
+	}
+
+	/***************************************************************************************/
+	/**
+	 * Performs any required finalization work. This function does nothing when called more
+	 * than once.
+	 */
+	virtual void finalize(){
+		// The object should always have been initialized before the finalize() function is called
+		if(!initialized_) {
+			std::ostringstream error;
+			error << "In GIndividualFactoryT<ind_type>::finalize(): Error!" << std::endl
+				  << "Function called on un-initialized object" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
+		}
+
+		if(!finalized_) {
+			this->finalize_();
+			finalized_ = true;
+		}
+	}
+
+protected:
+	/***************************************************************************************/
+	/** @brief Performs necessary initialization work */
+	virtual void init_() {}
+	/** @brief Performs any required finalization work */
+	virtual void finalize_(){}
+	/** @brief Allows to describe configuration options in derived classes */
+	virtual void describeConfigurationOptions_() = 0;
+	/** @brief Creates individuals of the desired type */
+	virtual boost::shared_ptr<ind_type> getIndividual_(const std::size_t&) = 0;
+
+private:
+	/***************************************************************************************/
+	GIndividualFactoryT(); ///< The default constructor. Intentionally private and undefined
+
+	std::string configFile_; ///< The name of the configuration file
+	std::size_t id_; ///< The id/number of the individual currently being created
+	bool initialized_; ///< Indicates whether the configuration file has already been parsed
+	bool finalized_;
+
+protected:
+	/***************************************************************************************/
+	Gem::Common::GParserBuilder gpb; ///< The parser who reads data from the configuration file
+};
+
+/*******************************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

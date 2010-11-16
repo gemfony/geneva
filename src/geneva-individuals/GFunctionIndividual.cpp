@@ -324,48 +324,56 @@ double GFunctionIndividual::fitnessCalculation(){
 }
 
 /********************************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////////////////
+/********************************************************************************************/
 /**
- * A factory function that returns a readily constructed object of this type, modelled after
- * the settings in a configuration file.
+ * The standard constructor for this class
+ *
+ * @param cF The name of the configuration file
  */
-template <>
-boost::shared_ptr<GFunctionIndividual> GIndividualFactoryT<GFunctionIndividual>(const std::string& cf) {
-	using namespace Gem::Common;
+GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string& cF)
+	: GIndividualFactoryT<GFunctionIndividual>(cF)
+	, adProb(0.05)
+	, adaptionThreshold(1)
+	, sigma(0.5)
+	, sigmaSigma(0.8)
+	, minSigma(0.001)
+	, maxSigma(2.)
+	, parDim(2)
+	, minVar(-30.)
+	, maxVar(30.)
+	, processingCycles(1)
+	, evalFunction(3)
+{ /* nothing */ }
 
-	double adProb = 0.05;
-	boost::uint32_t adaptionThreshold = 1;
-	double sigma = 0.5;
-	double sigmaSigma = 0.8;
-	double minSigma = 0.001;
-	double maxSigma = 2.;
-	std::size_t parDim = 2;
-	double minVar = -30.;
-	double maxVar =  30.;
-	boost::uint32_t processingCycles;
-	boost::uint16_t evalFunction = 3;
+/********************************************************************************************/
+/**
+ * Allows to describe configuration options in derived classes
+ */
+void GFunctionIndividualFactory::describeConfigurationOptions_() {
+	gpb.registerParameter("adProb", adProb, adProb);
+	gpb.registerParameter("adaptionThreshold", adaptionThreshold, adaptionThreshold);
+	gpb.registerParameter("sigma", sigma, sigma);
+	gpb.registerParameter("sigmaSigma", sigmaSigma, sigmaSigma);
+	gpb.registerParameter("minSigma", minSigma, minSigma);
+	gpb.registerParameter("maxSigma", maxSigma, maxSigma);
+	gpb.registerParameter("parDim", parDim, parDim);
+	gpb.registerParameter("minVar", minVar, minVar);
+	gpb.registerParameter("maxVar", maxVar,  maxVar);
+	gpb.registerParameter("processingCycles", processingCycles, processingCycles);
+	gpb.registerParameter("evalFunction", evalFunction, evalFunction);
+}
 
-	// Register a number of parameters
-	GParserBuilder gpb(cf.c_str());
-	gpb.registerParameter("adProb", adProb, 0.05);
-	gpb.registerParameter("adaptionThreshold", adaptionThreshold, (boost::uint32_t)1);
-	gpb.registerParameter("sigma", sigma, 0.5);
-	gpb.registerParameter("sigmaSigma", sigmaSigma, 0.8);
-	gpb.registerParameter("minSigma", minSigma, 0.001);
-	gpb.registerParameter("maxSigma", maxSigma, 2.);
-	gpb.registerParameter("parDim", parDim, (std::size_t)2);
-	gpb.registerParameter("minVar", minVar, -30.);
-	gpb.registerParameter("maxVar", maxVar,  30.);
-	gpb.registerParameter("processingCycles", processingCycles, (boost::uint32_t)1);
-	gpb.registerParameter("evalFunction", evalFunction, (boost::uint16_t)3);
-
-	// Read the parameters from the configuration file
-	if(!gpb.parse()) {
-		std::ostringstream error;
-		error << "In GFunctionIndividual::getFunctionIndividual(const std::string&): Error!" << std::endl
-			  << "Could not parse configuration file " << cf << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
-	}
-
+/********************************************************************************************/
+/**
+ * Creates individuals of the desired type. The argument "id" gives the function a means
+ * of detecting how often it has been called before. The id will be incremented for each call.
+ * This can e.g. be used to act differently for the first call to this function.
+ *
+ * @param id The id of the individual to be created
+ * @return An individual of the desired type
+ */
+boost::shared_ptr<GFunctionIndividual> GFunctionIndividualFactory::getIndividual_(const std::size_t& id) {
 	// Assign the demo function
 	if(evalFunction > (boost::uint16_t)MAXDEMOFUNCTION) {
 		std::cout << "Error: Invalid evaluation function: " << evalFunction << std::endl

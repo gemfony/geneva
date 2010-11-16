@@ -43,6 +43,8 @@
 #include <boost/date_time/posix_time/time_serialize.hpp>
 #include <boost/date_time/gregorian/greg_serialize.hpp>
 #include <boost/thread.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
 
 #ifndef GDELAYINDIVIDUAL_HPP_
 #define GDELAYINDIVIDUAL_HPP_
@@ -56,6 +58,7 @@
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva-individuals/GIndividualFactoryT.hpp"
 
 namespace Gem
 {
@@ -110,6 +113,11 @@ public:
 			const std::string&,
 			const bool&) const;
 
+	/** @brief Manual setting of the sleepTime_ variable */
+	void setSleepTime(const boost::posix_time::time_duration&);
+	/** @brief Retrieval of the current value of the sleepTime_ variable */
+	boost::posix_time::time_duration getSleepTime() const;
+
 protected:
 	/** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
 	virtual void load_(const GObject*);
@@ -129,7 +137,37 @@ private:
 };
 
 /************************************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////////////////////
+/************************************************************************************************/
+/**
+ * A factory for GDelayIndividual objects
+ */
+class GDelayIndividualFactory :public GIndividualFactoryT<GDelayIndividual>
+{
+public:
+	/** @brief The standard constructor for this class */
+	GDelayIndividualFactory(const std::string&);
 
+	/** @brief Allows to retrieve the name of the result file */
+	std::string getResultFileName() const;
+
+protected:
+	/** @brief Necessary initialization work */
+	virtual void init_();
+	/** @brief Allows to describe configuration options in derived classes */
+	virtual void describeConfigurationOptions_();
+	/** @brief Creates individuals of the desired type */
+	virtual boost::shared_ptr<GDelayIndividual> getIndividual_(const std::size_t&);
+
+private:
+	boost::uint32_t processingCycles_;
+	std::size_t nVariables_;
+	std::string delays_;
+	std::vector<long> sleepSeconds_, sleepMilliSeconds_;
+	std::string resultFile_;
+};
+
+/************************************************************************************************/
 } /* namespace Tests */
 } /* namespace Gem */
 

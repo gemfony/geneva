@@ -59,8 +59,8 @@ namespace Dataexchange {
  * The allowed modes during data exchange with external programs
  */
 enum dataExchangeMode {
-          BINARYEXCHANGE
-        , TEXTEXCHANGE
+          BINARYEXCHANGE = 0
+        , TEXTEXCHANGE = 1
 };
 
 /************************************************************************************************/
