@@ -36,6 +36,94 @@
 #include <fstream>
 #include <sstream>
 
+// Boost header files go here
+
+// Geneva header files go here
+#include <geneva/Go.hpp>
+
+// The individual that should be optimized
+#include "geneva-individuals/GDelayIndividual.hpp"
+
+using namespace Gem::Geneva;
+
+int main(int argc, char **argv) {
+	Go go(argc, argv, "GParallelisationOverhead.cfg");
+
+	//---------------------------------------------------------------------
+	// Client mode
+	if(go.clientMode()) {
+		go.clientRun();
+		return 0;
+	}
+
+	//---------------------------------------------------------------------
+	// Server mode, serial or multi-threaded execution
+
+	// Create a factory for GFunctionIndividual objects and perform
+	// any necessary initial work.
+	GDelayIndividualFactory gdi("./GDelayIndividual.cfg");
+	gdi.init();
+
+	//---------------------------------------------------------------------
+	// Prepare the output file used to record the measurements
+	std::ofstream result(gdi.getResultFileName().c_str());
+	result
+	<< "{" << std::endl
+	<< "  gStyle->SetOptTitle(0);" << std::endl
+	<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,600);" << std::endl
+	<< std::endl
+	<< "  std::vector<double> sleepTime; // The amount of time each individual sleeps" << std::endl
+	<< "  std::vector<double> averageProcessingTime; // The average processing time per generation" << std::endl
+	<< std::endl;
+
+	// Make an individual known to the optimizer
+	go.push_back(gdi());
+
+	// Perform the actual optimization
+	boost::shared_ptr<GDelayIndividual> bestfunctionIndividual_ptr = go.optimize<GDelayIndividual>();
+
+	//---------------------------------------------------------------------
+	// Tell the evaluation program to perform any necessary final work
+	gdi.finalize();
+
+	//---------------------------------------------------------------------
+	// Output the footer of the result file
+	result << std::endl
+		   << "  // Transfer of vectors into arrays" << std::endl
+		   << "  double sleepTimeArr[" << nMeasurements << "];" << std::endl
+		   << "  double averageProcessingTimeArr[" << nMeasurements << "];" << std::endl
+		   << std::endl
+		   << "  for(int i=0; i< " << nMeasurements << "; i++) {" << std::endl
+		   << "    sleepTimeArr[i] = sleepTime.at(i);" << std::endl
+		   << "    averageProcessingTimeArr[i] = averageProcessingTime.at(i);" << std::endl
+		   << "  }" << std::endl
+	       << std::endl
+	       << "  // Creation of TGraph objects and data transfer into the objects" << std::endl
+	       << "  TGraph *evGraph = new TGraph(" << nMeasurements << ", sleepTimeArr, averageProcessingTimeArr);" << std::endl
+	       << std::endl
+	       << "  evGraph->SetMarkerStyle(2);" << std::endl
+	       << "  evGraph->SetMarkerSize(1.0);" << std::endl
+	       << "  evGraph->Draw(\"ACP\");" << std::endl
+	       << "  evGraph->GetXaxis()->SetTitle(\"Evaluation time/individual [s]\");" << std::endl
+	       << "  evGraph->GetYaxis()->SetTitle(\"Average processing time/generation [s]\");" << std::endl
+	       << "}" << std::endl;
+
+	 // Close the result file
+	result.close();
+
+	std::cout << "Done ..." << std::endl;
+	return 0;
+}
+
+
+
+// Standard header files go here
+#include <iostream>
+#include <cmath>
+#include <string>
+#include <fstream>
+#include <sstream>
+
 
 // Boost header files go here
 #include <boost/filesystem.hpp>

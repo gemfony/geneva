@@ -29,7 +29,6 @@
  * http://www.gemfony.com .
  */
 
-
 // Standard header files go here
 #include <iostream>
 

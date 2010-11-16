@@ -4,11 +4,11 @@ SET (EXECUTABLENAME GParallelisationOverhead)
 
 SET (${EXECUTABLENAME}_SRCS
 	GParallelisationOverhead
-	GArgumentParser
 )
 
 SET (CONFIGURATIONFILES
     GParallelisationOverhead.cfg
+    GDelayIndividual.cfg
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
