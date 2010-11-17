@@ -6,9 +6,9 @@ ADD_DEPENDENCIES ( "geneva-tests-performance"
 	# Add all the available tests targets (EXECUTABLENAMEs) here
 	GBrokerOverhead
 	GBrokerSelfCommunication
-	# GParallelisationOverhead
+	GParallelisationOverhead
 )
 
 ADD_SUBDIRECTORY ( GBrokerOverhead )
 ADD_SUBDIRECTORY ( GBrokerSelfCommunication )
-# ADD_SUBDIRECTORY ( GParallelisationOverhead )
+ADD_SUBDIRECTORY ( GParallelisationOverhead )

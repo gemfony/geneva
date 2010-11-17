@@ -11,6 +11,7 @@ SET ( SAMPLEINDIVIDUALINCLUDES
 )
 
 SET ( SAMPLEINDIVIDUALCONFIGS
+  GDelayIndividual.cfg
   GExternalEvaluatorIndividual.cfg
   GFunctionIndividual.cfg
 )

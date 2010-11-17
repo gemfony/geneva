@@ -150,6 +150,8 @@ public:
 
 	/** @brief Allows to retrieve the name of the result file */
 	std::string getResultFileName() const;
+	/** @brief Allows to retrieve the number of measurements to be made */
+	std::size_t getNMeasurements() const;
 
 protected:
 	/** @brief Necessary initialization work */

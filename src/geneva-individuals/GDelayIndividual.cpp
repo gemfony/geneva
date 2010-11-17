@@ -243,6 +243,16 @@ std::string GDelayIndividualFactory::getResultFileName() const {
 
 /********************************************************************************************/
 /**
+ * Allows to retrieve the number of measurements to be made
+ *
+ * @return The number of measurements that will be made
+ */
+std::size_t GDelayIndividualFactory::getNMeasurements() const {
+	return sleepSeconds_.size();
+}
+
+/********************************************************************************************/
+/**
  * Necessary initialization work. Here we divide the delays_ string into seconds and milliseconds
  */
 void GDelayIndividualFactory::init_() {
