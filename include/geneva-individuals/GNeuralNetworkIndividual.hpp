@@ -269,7 +269,7 @@ class GNeuralNetworkIndividual
 		   & BOOST_SERIALIZATION_NVP(networkDataFile_);
 	}
 
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
 
 	///////////////////////////////////////////////////////////////////////
 
