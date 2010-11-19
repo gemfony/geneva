@@ -613,7 +613,7 @@ GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(const s
 	, minSigma(0.001)
 	, maxSigma(2.)
 	, adaptionThreshold(1)
-	, program("./evaluator/evaluator")
+	, program("./SampleEvaluator/sampleEvaluator")
 	, externalArguments("empty")
 	, randomFill(true)
 	, exchangeMode(Gem::Dataexchange::BINARYEXCHANGE)

@@ -66,11 +66,14 @@ int main(int argc, char **argv)
 	std::string identifyer;
 
 	// Parse the command line
-	if(!parseCommandLine(argc, argv,
-												executionMode,
-												paramfile,
-												transferMode,
-												identifyer))
+	if(!parseCommandLine(
+			argc
+			, argv
+			, executionMode
+			, paramfile
+			, transferMode
+			, identifyer
+	))
 	{exit(1);}
 
 	switch(transferMode) {

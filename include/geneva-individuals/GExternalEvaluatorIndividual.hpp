@@ -198,7 +198,9 @@ class GExternalEvaluatorIndividual
 		GExternalEvaluatorIndividual::checkStringIsValid(program); // Do some error checking
 
 		std::string commandLine = program + " -i ";
-		if(!arguments.empty() && arguments != "empty") commandLine += (" " + arguments);
+		if(!arguments.empty() && arguments != "empty") {
+			commandLine += (" " + arguments);
+		}
 
 		Gem::Common::runExternalCommand(commandLine);
 	}
@@ -215,7 +217,9 @@ class GExternalEvaluatorIndividual
 		GExternalEvaluatorIndividual::checkStringIsValid(program); // Do some error checking
 
 		std::string commandLine = program + " -f ";
-		if(!arguments.empty() && arguments != "empty") commandLine += (" " + arguments);
+		if(!arguments.empty() && arguments != "empty") {
+			commandLine += (" " + arguments);
+		}
 
 		Gem::Common::runExternalCommand(commandLine);
 	}

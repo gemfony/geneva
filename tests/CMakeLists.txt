@@ -4,7 +4,8 @@ ADD_CUSTOM_TARGET ( "tests"
 	COMMENT "Building the tests."
 )
 
-ADD_DEPENDENCIES ( "tests"
+ADD_DEPENDENCIES ( 
+	"tests"
 	"dataexchange-tests"
 	"hap-tests"
 	"courtier-tests"

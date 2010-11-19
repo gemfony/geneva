@@ -6,7 +6,7 @@ SET ( SAMPLEINDIVIDUALINCLUDES
 	GFunctionIndividual.hpp
 	GIndividualFactoryT.hpp
 	GNeuralNetworkIndividual.hpp
-# GOpenCLIndividual.hpp
+	# GOpenCLIndividual.hpp
 	GTestIndividual1.hpp
 )
 
