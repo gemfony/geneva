@@ -73,6 +73,7 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "hap/GRandomT.hpp"
+#include "hap/GRandomFactory.hpp"
 #include "GAsioHelperFunctions.hpp"
 #include "GBrokerT.hpp"
 #include "GCourtierEnums.hpp"
