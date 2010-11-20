@@ -16,6 +16,11 @@ SET ( SAMPLEINDIVIDUALCONFIGS
   GFunctionIndividual.cfg
 )
 
+# Copy the config files to the build tree for easier testing
+FOREACH ( file IN LISTS SAMPLEINDIVIDUALCONFIGS )
+	CONFIGURE_FILE ( ${file} . COPYONLY )
+ENDFOREACH ()
+
 INSTALL ( FILES ${SAMPLEINDIVIDUALINCLUDES} DESTINATION include/geneva-individuals
 	PERMISSIONS
 	OWNER_READ OWNER_WRITE

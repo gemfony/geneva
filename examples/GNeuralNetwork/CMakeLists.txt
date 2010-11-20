@@ -22,7 +22,7 @@ SET (CMAKE_EXE_LINKER_FLAGS "-lpthread")
 SET (Boost_USE_MULTITHREADED ON)
 
 # Set the build type to Debug by default or in case GENEVA_BUILD_TYPE
-# was set to Debug. Set it to Release if GENEVA_BUILD_TYPE was set 
+# was set to Debug. Set it to Release if GENEVA_BUILD_TYPE was set
 # accordingly. Complain in all other cases.
 IF(NOT DEFINED GENEVA_BUILD_TYPE OR GENEVA_BUILD_TYPE STREQUAL "Release")
 	MESSAGE ("Setting the build type to default value Release")
@@ -34,7 +34,7 @@ ELSE()
 	MESSAGE (FATAL_ERROR "Unkown compilation mode " ${GENEVA_BUILD_TYPE})
 ENDIF()
 
-# At least Boost 1.36 must be installed 
+# At least Boost 1.36 must be installed
 FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
 	date_time
 	system
@@ -55,9 +55,9 @@ IF( BUILDTESTCODE )
 	MESSAGE ("=======================")
 	MESSAGE ("Building with test code")
 	MESSAGE ("=======================")
-	
+
 	FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
-		test_exec_monitor		
+		test_exec_monitor
 	)
 ENDIF()
 
@@ -89,6 +89,11 @@ ADD_PCH_RULE( GInfoFunction.hpp            ${EXECUTABLENAME}_SRCS )
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
+
+# Copy the config files to the build tree for easier testing
+FOREACH ( file IN LISTS CONFIGFILE )
+	CONFIGURE_FILE ( ${file} . COPYONLY )
+ENDFOREACH ()
 
 SET ( COMMON_LIBNAME "gemfony-common" )
 SET ( HAP_LIBNAME "gemfony-hap" )

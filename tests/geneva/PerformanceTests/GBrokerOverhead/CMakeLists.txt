@@ -15,6 +15,11 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}
 )
 
+# Copy the config files to the build tree for easier testing
+FOREACH ( file IN LISTS CONFIGURATIONFILES )
+	CONFIGURE_FILE ( ${file} . COPYONLY )
+ENDFOREACH ()
+
 INCLUDE_DIRECTORIES (AFTER
 	${PROJECT_SOURCE_DIR}/examples/SampleIndividuals
 )
