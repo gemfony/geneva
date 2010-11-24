@@ -4,8 +4,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 # Set the library/package version
 SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "8")
-SET(VERSION_PATCH "5rc0")
+SET(VERSION_MINOR "9")
+SET(VERSION_PATCH "0")
 
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
 # it was not deployed in one of the standard system locations. Otherwise,

@@ -4,7 +4,7 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
  - Revision network client
 
 //------------------------------------------------------------------------------------------------------
-* Version 0.8.5, yet unnamed, release-date unknown
+* Version 0.9, "Alice" - November 24, 2010
 
 The main changes for this release include:
  - Implemented gradient descents in all modes (serial, multi-threaded and
@@ -22,14 +22,14 @@ The main changes for this release include:
    registered in this order, it would be possible to just extract or set
    all double values in one go, while leaving the GBooleanCollection
    unchanged.
+ - Made it a property of the GParameterSet class, instead of the
+   optimization algorithm, whether GParameterSet's evaluation function
+   should be maximized or minimized.
  - Added the GParserBuilder class that allows to easily create parsers
    for configuration files "on the fly".
  - Moved the GSerializableI class from the Geneva to the Common library.
  - Worked around a problem in conjunction with g++ 4.1.2 (a compiler bug,
    really).
- - Made it a property of the GParameterSet class instead of the 
-   optimization algorithm whether the GParameterSet's evaluation 
-   function should be maximized or minimized
 
 Recommended version of Boost: 1.43
 
