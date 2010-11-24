@@ -112,8 +112,14 @@ int main(int argc, char **argv)
 			ge.readFromFile(paramfile, binary);
 
 			// Loop over all parameter sets and do the actual calculation
-			int i=0;
 			do {
+#ifdef DEBUG
+				if(ge.hasValue()) {
+					std::cerr << "Error: Found set value when it shouldn't be" << std::endl;
+					std::terminate();
+				}
+#endif
+
 				double result = 0.;
 				// Loop over all double values and calculate summed squares ("a parabola")
 				std::size_t nDoubles = ge.size<double>(); // The amount of doubles in the current data set
@@ -134,7 +140,7 @@ int main(int argc, char **argv)
 		{
 			// Here we simply want PARABOLADIM double values with boundaries [PARABOLAMIN:PARABOLAMAX]
 			for(std::size_t i=0; i<PARABOLADIM; i++) {
-				ge.append(boost::shared_ptr<Gem::Dataexchange::GDoubleParameter>(new Gem::Dataexchange::GDoubleParameter(100., PARABOLAMIN, PARABOLAMAX)));
+				ge.append(boost::shared_ptr<Gem::Dataexchange::GDoubleParameter>(new Gem::Dataexchange::GDoubleParameter(99.999, PARABOLAMIN, PARABOLAMAX)));
 			}
 
 			ge.writeToFile(paramfile, binary);

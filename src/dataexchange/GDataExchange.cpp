@@ -312,11 +312,11 @@ std::streamsize GDataExchange::getPrecision() const {
  * @param value The value to assign to the current data set
  */
 void GDataExchange::setValue(double value){
-	// Prevent setting of a value of one has already been assigned
+	// Prevent setting of a value if one has already been assigned
 	if((*current_)->hasValue_) {
 		std::ostringstream error;
 		error << "In GDataExchange::setValue(): Error!" << std::endl
-		        << "Trying to assign a value to the current" << std::endl
+		        << "Trying to assign a value to the current data set" << std::endl
 		        << "when one has already been assigned. Leaving ..." << std::endl;
 
 		throw(Gem::Common::gemfony_error_condition(error.str()));
@@ -373,9 +373,13 @@ void GDataExchange::gotoStart() {
  *
  */
 bool GDataExchange::nextDataSet() {
-	if(++current_ != parameterValueSet_.end()) return true;
-	current_ = parameterValueSet_.begin();
-	return false;
+	current_++;
+	if(current_ != parameterValueSet_.end()) {
+		return true;
+	} else {
+		current_ = parameterValueSet_.begin();
+		return false;
+	}
 }
 
 /**************************************************************************/

@@ -460,7 +460,7 @@ void GExternalEvaluatorIndividual::writeParametersToFile(const std::string& file
 	// Make sure we are dealing with a clean exchange module
 	gde_.resetAll();
 
-	// Retrieve pointers to the four containers and add their data to the GDataExchange module
+	// Retrieve pointers to the three containers and add their data to the GDataExchange module
 
 	// A GConstrainedDoubleObjectCollection can mostly be treated like a std::vector<boost::shared_ptr<GConstrainedDoubleObject> >
 	boost::shared_ptr<GConstrainedDoubleObjectCollection> gbdc = at<GConstrainedDoubleObjectCollection>(0);
@@ -488,6 +488,16 @@ void GExternalEvaluatorIndividual::writeParametersToFile(const std::string& file
 	// At this point all necessary data should have been stored in the GDataExchange module. We can now write it to file.
 	if(exchangeMode_ == Gem::Dataexchange::BINARYEXCHANGE) gde_.writeToFile(fileName, true);
 	else gde_.writeToFile(fileName, false); // TEXTEXCHANGE
+
+#ifdef DEBUG
+	gde_.gotoStart();
+	if(gde_.hasValue()) {
+		std::ostringstream error;
+		error << "In GExternalEvaluatorIndividual::writeParametersToFile() : Error!" << std::endl
+			  << "Found data set with assigned value when there should be none." << std::endl;
+		throw(Gem::Common::gemfony_error_condition(error.str()));
+	}
+#endif
 }
 
 /********************************************************************************************/
