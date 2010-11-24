@@ -18,7 +18,8 @@ The build system uses CMake in version 2.6 or later.
 
 You will also need the Boost libraries (see http://www.boost.org) in version
 1.36 or newer. See either the Appendix "Installing Boost in Debian/Ubuntu" or
-the Appendix "Compiling Boost" below for more details.
+the Appendix "Compiling Boost" below for more details. We currently recommend 
+Boost 1.43 .
 
 To build the Geneva library use one of the two procedures enumerated below.
 In case you encounter any bugs or issues please let us know through the Geneva

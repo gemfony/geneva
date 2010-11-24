@@ -30,7 +30,8 @@ The main changes for this release include:
  - Made it a property of the GParameterSet class instead of the 
    optimization algorithm whether the GParameterSet's evaluation 
    function should be maximized or minimized
- - Ported to Boost 1.45.
+
+Recommended version of Boost: 1.43
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.8.4, "Route Bell" - September 23, 2010
