@@ -76,6 +76,7 @@ using namespace Gem::Geneva;
 // .cpp files do not get pulled in here. We get an error "unregistered class"
 // when these statements are not present below.
 #include <boost/serialization/export.hpp>
+BOOST_CLASS_EXPORT(GEvolutionaryAlgorithm);
 BOOST_CLASS_EXPORT(GGradientDescent);
 BOOST_CLASS_EXPORT(GSwarm);
 BOOST_CLASS_EXPORT(GOptimizationAlgorithmT<GIndividual>::GOptimizationMonitorT);

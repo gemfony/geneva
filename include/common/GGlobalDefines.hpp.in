@@ -50,15 +50,11 @@
 #include <boost/version.hpp>
 
 /** The minimum allowed version of the Boost library */
-#define MIN_BOOST_VERSION 103600
+#define MIN_BOOST_VERSION 104000
 
 #if BOOST_VERSION < MIN_BOOST_VERSION
 #error "Boost version is too old !"
 #endif /* MIN_BOOST_VERSION */
-
-#if BOOST_VERSION == 103900
-#warning "Programs might segfault on exit when compiled with Boost 1.39. This will likely have no effect on program results, though."
-#endif /* BOOST 1.39 */
 
 #if BOOST_VERSION == 104100
 #warning "There seems to be a memory leak in conjunction with Boost 1.41"
