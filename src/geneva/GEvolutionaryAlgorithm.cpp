@@ -640,12 +640,14 @@ boost::uint32_t GEvolutionaryAlgorithm::getMicroTrainingInterval() const {
 /************************************************************************************************************/
 /**
  * Retrieve the number of parents as set by the user. This is a fixed parameter and
- * should not be changed after it has first been set.
+ * should not be changed after it has first been set. Note that, if the size of the
+ * population is smaller than the alleged number of parents, the function will return
+ * the size of the population instead, thus interpreting its individuals as parents.
  *
  * @return The number of parents in the population
  */
 std::size_t GEvolutionaryAlgorithm::getNParents() const {
-	return nParents_;
+	return std::min(data.size(), nParents_);
 }
 
 /************************************************************************************************************/
@@ -656,7 +658,13 @@ std::size_t GEvolutionaryAlgorithm::getNParents() const {
  * @return The number of children in the population
  */
 std::size_t GEvolutionaryAlgorithm::getNChildren() const {
-	return data.size() - nParents_;
+	if(data.size() <= nParents_) {
+		// This will happen, when only the default population size has been set,
+		// but no individuals have been added yet
+		return 0;
+	} else {
+		return data.size() - nParents_;
+	}
 }
 
 /************************************************************************************************************/
@@ -1116,11 +1124,77 @@ bool GEvolutionaryAlgorithm::modify_GUnitTests() {
 
 /************************************************************************************************************/
 /**
+ * Fills the collection with individuals.
+ *
+ * @param nIndividuals The number of individuals that should be added to the collection
+ */
+void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t& nIndividuals) {
+	// Clear the collection, so we can start fresh
+	BOOST_CHECK_NO_THROW(this->clear());
+
+	// Add some some
+	for(std::size_t i=0; i<nIndividuals; i++) {
+		this->push_back(boost::shared_ptr<Gem::Tests::GTestIndividual1>(new Gem::Tests::GTestIndividual1()));
+	}
+
+	// Make sure we have unique data items
+	this->randomInit();
+}
+
+/************************************************************************************************************/
+/**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
 void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
-	// Call the parent class'es function
-	GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::specificTestsNoFailureExpected_GUnitTests();
+
+	//------------------------------------------------------------------------------
+
+	{ // Call the parent class'es function
+		boost::shared_ptr<GEvolutionaryAlgorithm> p_test = this->clone<GEvolutionaryAlgorithm>();
+
+		// Fill p_test with individuals
+		p_test->fillWithObjects();
+
+		// Run the parent class'es tests
+		p_test->GOptimizationAlgorithmT<GIndividual>::specificTestsNoFailureExpected_GUnitTests();
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Check setting and retrieval of the population size and number of parents/childs
+		boost::shared_ptr<GEvolutionaryAlgorithm> p_test = this->clone<GEvolutionaryAlgorithm>();
+
+		// Set the default population size and number of children to different numbers
+		for(std::size_t nChildren=5; nChildren<10; nChildren++) {
+			for(std::size_t nParents=1; nParents < nChildren; nParents++) {
+				// Clear the collection
+				BOOST_CHECK_NO_THROW(p_test->clear());
+
+				// Add the required number of individuals
+				p_test->fillWithObjects(nParents + nChildren);
+
+				BOOST_CHECK_NO_THROW(p_test->setDefaultPopulationSize(nParents+nChildren, nParents));
+
+				// Check that the number of parents is as expected
+				BOOST_CHECK_MESSAGE(p_test->getNParents() == nParents,
+					   "p_test->getNParents() == " << p_test->getNParents()
+					<< ", nParents = " << nParents
+					<< ", size = " << p_test->size());
+
+				// Check that the number of children is as expected
+				// BOOST_CHECK_MESSAGE(p_test->getDefaultNChildren() == nChildren,
+				//		"p_test->getDefaultNChildren() = " << p_test->getDefaultNChildren()
+				//		<< ", nChildren = " << nChildren);
+
+				// Check that the actual number of children has the same value
+				BOOST_CHECK_MESSAGE(p_test->getNChildren() == nChildren,
+						"p_test->getNChildren() = " << p_test->getNChildren()
+						<< ", nChildren = " << nChildren);
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------
 }
 
 /************************************************************************************************************/

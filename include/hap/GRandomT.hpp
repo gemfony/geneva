@@ -273,7 +273,7 @@ public:
 	 */
 	GRandomT()
 		: Gem::Hap::GRandomBaseT<fp_type, int_type>()
-		, linCongr_(GRANDOMFACTORY->getSeed())
+		, linCongr_(boost::numeric_cast<boost::uint64_t>(GRANDOMFACTORY->getSeed()))
 	{ /* nothing */ }
 
 	/************************************************************************/
@@ -284,7 +284,7 @@ public:
 	 */
 	explicit GRandomT(const seed_type& seed)
 		: Gem::Hap::GRandomBaseT<fp_type, int_type>(seed)
-		, linCongr_(seed)
+		, linCongr_(boost::numeric_cast<boost::uint64_t>(seed))
 	{ /* nothing */ }
 
 	/************************************************************************/

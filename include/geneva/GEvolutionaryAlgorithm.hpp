@@ -37,6 +37,7 @@
 #include <sstream>
 #include <cmath>
 #include <cfloat>
+#include <algorithm>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -79,6 +80,10 @@
 #include "geneva/GIndividual.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+
+#ifdef GENEVATESTING
+#include "geneva-individuals/GTestIndividual1.hpp"
+#endif /* GENEVATESTING */
 
 namespace Gem {
 namespace Geneva {
@@ -390,6 +395,8 @@ public:
 	/**************************************************************************************************/
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual bool modify_GUnitTests();
+	/** @brief Fills the collection with individuals */
+	void fillWithObjects(const std::size_t& = 10);
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
 	virtual void specificTestsNoFailureExpected_GUnitTests();
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
