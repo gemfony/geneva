@@ -1,7 +1,7 @@
 Eclipse setup for Geneva development
 ====================================
 
-Follow these steps to download and setup a customized Eclipse package for Geneva 
+Follow these steps to download and setup a customized Eclipse package for Geneva
 development:
 
 1 - go to the "Geneva C++ development" package page on the Yoxos On Demand site:
@@ -37,7 +37,7 @@ development:
       "Workspace Provisioning pending"
     Click on it. See below in case this dialog does not show a pending WS Provisioning.
 
-8 - now the Yoxos Workspace Provisioning dialog should pop-up, showing a 
+8 - now the Yoxos Workspace Provisioning dialog should pop-up, showing a
       "Geneva C++ development" profile. Select it and click "Apply Selected".
 
 9 - your Eclipse installation should be now ready to use, with a "Geneva" project on
@@ -97,9 +97,9 @@ of Geneva in Eclipse, and in particular of CMake.
 
        # You can hard-code the Boost paths here, if you compiled Boost yourself and
        #   it was not deployed in one of the standard system locations
-       #SET (BOOST_ROOT "/opt/boost142")
-       #SET (BOOST_INCLUDEDIR "/opt/boost142/include/boost-1_42")
-       #SET (BOOST_LIBRARYDIR "/opt/boost142/lib")
+       #SET (BOOST_ROOT "/opt/boost143")
+       #SET (BOOST_INCLUDEDIR "/opt/boost143/include/boost")
+       #SET (BOOST_LIBRARYDIR "/opt/boost143/lib")
 
        # Set once for Eclipse to find the boost libraries, you can then comment
        #   it out again

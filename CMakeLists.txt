@@ -11,9 +11,9 @@ SET(VERSION_PATCH "1rc0")
 # it was not deployed in one of the standard system locations. Otherwise,
 # see the comments in the INSTALL file on how to set the path on the
 # command line.
-#SET (BOOST_ROOT "/opt/boost142")
-#SET (BOOST_INCLUDEDIR "/opt/boost142/include/boost")
-#SET (BOOST_LIBRARYDIR "/opt/boost142/lib")
+#SET (BOOST_ROOT "/opt/boost143")
+#SET (BOOST_INCLUDEDIR "/opt/boost143/include/boost")
+#SET (BOOST_LIBRARYDIR "/opt/boost143/lib")
 
 # Uncomment this if you want to see compiler options
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
@@ -98,7 +98,7 @@ ENDIF()
 SET (Boost_USE_MULTITHREAD ON)
 SET (Boost_ADDITIONAL_VERSIONS "1.44" "1.44.0" "1.45" "1.45.0")
 
-FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
+FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
 	date_time
 	filesystem
 	program_options
@@ -120,7 +120,7 @@ IF( BUILDTESTCODE )
 	MESSAGE ("Building with test code")
 	MESSAGE ("=======================")
 
-	FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
+	FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
 		test_exec_monitor
 	)
 ENDIF()
@@ -228,22 +228,22 @@ SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}
 )
 SET(CPACK_DEBIAN_PACKAGE_SECTION "Science")
 SET(CPACK_DEBIAN_PACKAGE_PRIORITY "Extra")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-dev (>= 1.38.1),
-	libboost-date-time-dev (>= 1.38.1),
-	libboost-filesystem-dev (>= 1.38.1),
-	libboost-program-options-dev (>= 1.38.1),
-	libboost-regex-dev (>= 1.38.1),
-	libboost-serialization-dev (>= 1.38.1),
-	libboost-system-dev (>= 1.38.1),
-	libboost-thread-dev (>= 1.38.1),
-	libboost-test-dev (>= 1.38.1)"
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-dev (>= 1.40.0),
+	libboost-date-time-dev (>= 1.40.0),
+	libboost-filesystem-dev (>= 1.40.0),
+	libboost-program-options-dev (>= 1.40.0),
+	libboost-regex-dev (>= 1.40.0),
+	libboost-serialization-dev (>= 1.40.0),
+	libboost-system-dev (>= 1.40.0),
+	libboost-thread-dev (>= 1.40.0),
+	libboost-test-dev (>= 1.40.0)"
 )
 
 # RPM specific variables
 SET(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_AUX_PACKAGE_DESCRIPTION})
 SET(CPACK_RPM_PACKAGE_LICENSE "Affero GPL v3")
 SET(CPACK_RPM_PACKAGE_GROUP "Sciences/Libraries")
-SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= 1.36")
+SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= 1.40")
 
 # Detect the distribution to autoselect the package generator...
 EXECUTE_PROCESS(COMMAND lsb_release -is

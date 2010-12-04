@@ -34,8 +34,8 @@ ELSE()
 	MESSAGE (FATAL_ERROR "Unkown compilation mode " ${GENEVA_BUILD_TYPE})
 ENDIF()
 
-# At least Boost 1.36 must be installed
-FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
+# At least Boost 1.40 must be installed
+FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
 	date_time
 	system
 	thread
@@ -56,7 +56,7 @@ IF( BUILDTESTCODE )
 	MESSAGE ("Building with test code")
 	MESSAGE ("=======================")
 
-	FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
+	FIND_PACKAGE( Boost 1.40 REQUIRED COMPONENTS
 		test_exec_monitor
 	)
 ENDIF()
