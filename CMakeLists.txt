@@ -40,7 +40,7 @@ ELSEIF(GENEVA_BUILD_TYPE STREQUAL "Release")
 	MESSAGE ("Setting the build type to Release")
 	SET(CMAKE_BUILD_TYPE Release)
 ELSE()
-	MESSAGE (FATAL_ERROR "Unkown compilation mode " ${GENEVA_BUILD_TYPE})
+	MESSAGE (FATAL_ERROR "Unknown compilation mode " ${GENEVA_BUILD_TYPE})
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -130,6 +130,10 @@ INCLUDE_DIRECTORIES (
 	${Boost_INCLUDE_DIRS}
 )
 
+MESSAGE ("=======================")
+MESSAGE ("Building with boost include file location ${Boost_INCLUDE_DIRS}")
+MESSAGE ("=======================")
+
 LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src/common
 	${PROJECT_SOURCE_DIR}/src/dataexchange
@@ -138,6 +142,10 @@ LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src/geneva
 	${Boost_LIBRARY_DIRS}
 )
+
+MESSAGE ("=======================")
+MESSAGE ("Building with boost library location ${Boost_LIBRARY_DIRS}")
+MESSAGE ("=======================")
 
 # The names of the libraries that will be built
 SET ( COMMON_LIBNAME            "gemfony-common" )
