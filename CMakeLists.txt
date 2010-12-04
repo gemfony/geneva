@@ -5,11 +5,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 # Set the library/package version
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "9")
-SET(VERSION_PATCH "0")
+SET(VERSION_PATCH "1rc0")
 
 # You can hard-code the Boost paths here, if you compiled Boost yourself and
 # it was not deployed in one of the standard system locations. Otherwise,
-# see the comments in the INSTALL file on how to set the path on the 
+# see the comments in the INSTALL file on how to set the path on the
 # command line.
 #SET (BOOST_ROOT "/opt/boost142")
 #SET (BOOST_INCLUDEDIR "/opt/boost142/include/boost")
@@ -44,7 +44,7 @@ ELSE()
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	# Use this for debug builds.    
+	# Use this for debug builds.
 	MESSAGE ("======================")
 	MESSAGE ("Building in Debug mode")
 	MESSAGE ("======================")
@@ -119,9 +119,9 @@ IF( BUILDTESTCODE )
 	MESSAGE ("=======================")
 	MESSAGE ("Building with test code")
 	MESSAGE ("=======================")
-	
+
 	FIND_PACKAGE( Boost 1.36 REQUIRED COMPONENTS
-		test_exec_monitor		
+		test_exec_monitor
 	)
 ENDIF()
 
@@ -192,7 +192,7 @@ INSTALL ( FILES ${INFORMATIONFILES} DESTINATION .
 #########################################################
 # Code for package generation with CPack.
 # This is experimental and the packages don't
-# satisfy the Linux FHS yet. Use with care. 
+# satisfy the Linux FHS yet. Use with care.
 # An RPM or DEB package can be created using
 #   umask 022 && fakeroot make package
 
