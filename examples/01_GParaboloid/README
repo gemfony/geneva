@@ -1,0 +1,6 @@
+This directory contains a simple Geneva application that searches for 
+the minimum of a parabola, using variables whose value range is constrained.
+Program options are specified through a configuration file. The example
+can be easily adapted to specific problems by changing the evaluation
+function and adding further, custom code. It is self-contained and can be 
+compiled outside of the Geneva source tree.
