@@ -548,7 +548,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	// Remove the test adaptor
+	// Restore the adaptor to pristine condition
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
@@ -579,7 +579,7 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterT<bool>::specificTestsFailuresExpected_GUnitTests();
 
-	// Remove the test adaptor
+	// Restore the adaptor to pristine condition
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed

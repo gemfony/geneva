@@ -18,6 +18,7 @@ SET ( OPTIMIZATIONSOURCES
 	GDoubleObject
 	GDoubleObjectCollection
 	GEAPersonalityTraits
+	GenevaHelperFunctionsT
 	GEvolutionaryAlgorithm
 	GGDPersonalityTraits
 	GGradientDescent

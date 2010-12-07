@@ -58,15 +58,15 @@ LINK_DIRECTORIES (
 SET ( EXECUTABLENAME GParaboloid )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GParaboloid
-	GParaboloidIndividual
+	GParaboloid2D
+	GParaboloidIndividual2D
 )
 
 SET ( CONFIGFILE
-	GParaboloid.cfg
+	GParaboloid2D.cfg
 )
 
-ADD_PCH_RULE( GParaboloidIndividual.hpp ${EXECUTABLENAME}_SRCS )
+ADD_PCH_RULE( GParaboloidIndividual2D.hpp ${EXECUTABLENAME}_SRCS )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
 	${${EXECUTABLENAME}_SRCS}

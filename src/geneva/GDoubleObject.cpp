@@ -329,14 +329,13 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test resetting, adding and retrieval of adaptors in GParameterBaseWithAdaptorsT<T>
 		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
-		// Remove any available local adaptor and cross-check
+		// Reset the local adaptor to its pristine condition
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-		BOOST_CHECK(p_test->hasAdaptor() == false);
 
 		// Add a new adaptor. This should clone the adaptor
 		BOOST_CHECK_NO_THROW(p_test->addAdaptor(gdga_ptr));
 
-		// Check that we again have an adaptor
+		// Check that we indeed have an adaptor (should always be the case)
 		BOOST_CHECK(p_test->hasAdaptor() == true);
 
 		// Retrieve a pointer to the adaptor
@@ -360,6 +359,28 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 		// The adaptors should otherwise be identical
 		BOOST_CHECK(*gdga_clone_ptr == *gdga_ptr);
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that retrieval of adaptor doesn't throw in GParameterBaseWithAdaptorsT<T>::getAdaptor() after calling resetAdaptor() (Note: This is the non-templated version of the function)
+		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+
+		// Make sure the adaptor is in pristine condition
+		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+		BOOST_CHECK(p_test->hasAdaptor() == true);
+		BOOST_CHECK_NO_THROW(p_test->getAdaptor());
+	}
+
+	//------------------------------------------------------------------------------
+
+	{ // Test that retrieval of an adaptor doesn't throw in GParameterBaseWithAdaptorsT<T>::getAdaptor<>() after calling resetAdaptor() (Note: This is the templated version of the function)
+		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
+
+		// Make sure no adaptor is present
+		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+		BOOST_CHECK(p_test->hasAdaptor() == true);
+		BOOST_CHECK_NO_THROW(p_test->getAdaptor<GDoubleGaussAdaptor>());
 	}
 
 	//------------------------------------------------------------------------------
@@ -400,43 +421,12 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	{ // Test of GParameterBaseWithAdaptorsT<T>::addAdaptor() in case of an empty adaptor pointer
 		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
-		// Make sure no adaptor is present
+		// Make sure the object is in pristine condition
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-		BOOST_CHECK(p_test->hasAdaptor() == false);
 
 		// Add an empty boost::shared_ptr<GDoubleGaussAdaptor>. This should throw
 		BOOST_CHECK_THROW(p_test->addAdaptor(boost::shared_ptr<GDoubleGaussAdaptor>()), Gem::Common::gemfony_error_condition);
 	}
-
-	//------------------------------------------------------------------------------
-
-#ifdef DEBUG
-	{ // Test that retrieval of an empty adaptor throws in GParameterBaseWithAdaptorsT<T>::getAdaptor() (Note: This is the non-templated version of the function)
-		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
-
-		// Make sure no adaptor is present
-		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-		BOOST_CHECK(p_test->hasAdaptor() == false);
-
-		BOOST_CHECK_THROW(p_test->getAdaptor(), Gem::Common::gemfony_error_condition);
-	}
-#endif /* DEBUG */
-
-	//------------------------------------------------------------------------------
-
-#ifdef DEBUG
-	{ // Test that retrieval of an empty adaptor throws in GParameterBaseWithAdaptorsT<T>::getAdaptor<>() (Note: This is the templated version of the function)
-		boost::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
-
-		// Make sure no adaptor is present
-		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-		BOOST_CHECK(p_test->hasAdaptor() == false);
-
-		BOOST_CHECK_THROW(p_test->getAdaptor<GDoubleGaussAdaptor>(), Gem::Common::gemfony_error_condition);
-	}
-#endif /* DEBUG */
-
-	// Note: Test for invalid conversion is done in GInt32Object
 
 	//------------------------------------------------------------------------------
 

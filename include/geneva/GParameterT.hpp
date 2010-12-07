@@ -51,8 +51,8 @@
 
 
 // Geneva header files go here
-#include "GObject.hpp"
-#include "GParameterBaseWithAdaptorsT.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GParameterBaseWithAdaptorsT.hpp"
 #include "common/GExceptions.hpp"
 
 namespace Gem {

@@ -526,7 +526,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	// Remove the test adaptor
+	// Restore the object to its pristine condition
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed
@@ -562,7 +562,7 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Remove the test adaptor
 	this->resetAdaptor();
 
-	// Load the old adaptor, if needed
+	// Restore the adaptor to its pristine condition
 	if(adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}

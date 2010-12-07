@@ -31,6 +31,7 @@
 
 // Standard headers go here
 #include <vector>
+#include <sstream>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -39,6 +40,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/cstdint.hpp>
 
 #ifndef GENEVAHELPERFUNCTIONST_HPP_
 #define GENEVAHELPERFUNCTIONST_HPP_
@@ -49,7 +51,10 @@
 #endif
 
 // Our own headers go here
+#include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GObject.hpp"
+#include "geneva/GAdaptorT.hpp"
+#include "common/GExceptions.hpp"
 
 namespace Gem
 {
@@ -82,6 +87,26 @@ void copyGenevaSmartPointer (
 		}
 	}
 }
+
+/**************************************************************************************************/
+/**
+ * This factory function returns default adaptors for a given base type. This function is a trap.
+ * Specializations are responsible for the actual implementation.
+ *
+ * @return The default adaptor for a given base type
+ */
+template <typename T>
+boost::shared_ptr<GAdaptorT<T> > getDefaultAdaptor() {
+	std::ostringstream error;
+	error << "In getDefaultAdaptor(): Error!" << std::endl
+		  << "Function called with invalid type." << std::endl;
+	throw(Gem::Common::gemfony_error_condition(error.str()));
+}
+
+// Specializations for double, boost::int32_t and bool
+template <> boost::shared_ptr<GAdaptorT<double> > getDefaultAdaptor<double>();
+template <> boost::shared_ptr<GAdaptorT<boost::int32_t> > getDefaultAdaptor<boost::int32_t>();
+template <> boost::shared_ptr<GAdaptorT<bool> > getDefaultAdaptor<bool>();
 
 /**************************************************************************************************/
 

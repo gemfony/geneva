@@ -286,12 +286,11 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test different ways of adding an adaptor (Test of GParameterBaseWithAdaptorsT<T> functions)
 		boost::shared_ptr<GInt32Object> p_test = this->clone<GInt32Object>();
 
-		// Make sure no adaptor is present and cross-check
+		// Make sure we start in pristine condition. This will add a GInt32FlipAdaptor.
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-		BOOST_CHECK(p_test->hasAdaptor() == false);
 
 		//********************************
-		// Adding an adaptor when no adaptor is present should clone the adaptor
+		// Adding an adaptor of different type present should clone the adaptor
 		BOOST_CHECK_NO_THROW(p_test->addAdaptor(giga_ptr));
 
 		// Check that the addresses of both adaptors differ
@@ -316,22 +315,11 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(ptr_store == giga_clone2_ptr.get());
 
 		//********************************
-		// Adding an adaptor of different type should clone the adaptor and replace the stored adaptor's address
-
-		// Add the adaptor
-		boost::shared_ptr<GInt32FlipAdaptor> p_intFlip(new GInt32FlipAdaptor());
-		BOOST_CHECK_NO_THROW(p_test->addAdaptor(boost::shared_ptr<GInt32FlipAdaptor>(p_intFlip)));
-
-		// Retrieve the new adaptor's address
-		GInt32FlipAdaptor *ptr2_store = p_intFlip.get();
-
-		// Compare with ptr_store -- should be different
-		BOOST_CHECK((void *)ptr_store != (void *)ptr2_store);
 	}
 
 	//------------------------------------------------------------------------------
 
-	// Remove the test adaptor
+	// Reset to the original state
 	this->resetAdaptor();
 
 	// Load the old adaptor, if needed

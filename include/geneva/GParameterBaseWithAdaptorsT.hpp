@@ -58,9 +58,10 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "GAdaptorT.hpp"
-#include "GObject.hpp"
-#include "GParameterBase.hpp"
+#include "geneva/GAdaptorT.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GParameterBase.hpp"
+#include "geneva/GenevaHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -76,8 +77,7 @@ namespace Geneva {
  * GParameterSet collections.
  */
 template <typename T>
-class GParameterBaseWithAdaptorsT:
-	public GParameterBase
+class GParameterBaseWithAdaptorsT:	public GParameterBase
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -94,12 +94,12 @@ class GParameterBaseWithAdaptorsT:
 public:
 	/*******************************************************************************************/
 	/**
-	 * The default constructor. adaptor_ is not initialized with an object and will thus
-	 * contain a NULL pointer (which is o.k.).
+	 * The default constructor. adaptor_ will be initialized with the default adaptor for this
+	 * type
 	 */
 	GParameterBaseWithAdaptorsT()
 		: GParameterBase()
-		, adaptor_(boost::shared_ptr<GAdaptorT<T> >())
+		, adaptor_(getDefaultAdaptor<T>())
 	{ /* nothing */	}
 
 	/*******************************************************************************************/
@@ -110,18 +110,15 @@ public:
 	 */
 	GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
 		: GParameterBase(cp)
-		, adaptor_(cp.adaptor_?(cp.adaptor_)->GObject::clone<GAdaptorT<T> >():boost::shared_ptr<GAdaptorT<T> >())
+		, adaptor_((cp.adaptor_)->GObject::clone<GAdaptorT<T> >())
 	{ /* nothing */ }
 
 	/*******************************************************************************************/
 	/**
-	 * The destructor.
+	 * The destructor. All cleanup work is done by boost::shared_ptr.
 	 */
-	virtual ~GParameterBaseWithAdaptorsT(){
-		// boost::shared_ptr takes care of the deletion of
-		// adaptors in the vector (if we hold the only copy)
-		adaptor_.reset();
-	}
+	virtual ~GParameterBaseWithAdaptorsT()
+	{ /* nothing */ }
 
 	/*******************************************************************************************/
 	/**
@@ -212,9 +209,12 @@ public:
 				adaptor_ = gat_ptr->GObject::clone<GAdaptorT<T> >();
 			}
 		}
-		// None there ? Clone and assign gat_ptr
+		// None there ? This should not happen
 		else {
-			adaptor_ = gat_ptr->GObject::clone<GAdaptorT<T> >();
+			std::ostringstream error;
+			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+				  << "Found no local adaptor. This should not happen!" << std::endl;
+			throw Gem::Common::gemfony_error_condition(error.str());
 		}
 
 		// Make our local random number generator known to the adaptor
@@ -304,7 +304,7 @@ public:
 	 * This function resets the local adaptor_ pointer.
 	 */
 	void resetAdaptor() {
-		adaptor_.reset();
+		adaptor_ = getDefaultAdaptor<T>();
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -419,21 +419,22 @@ protected:
 		GParameterBase::load_(cp);
 
 		// and then our local data
-
-		// Only act if the other object actually holds an adaptor
-		if(p_load->adaptor_) {
-			// Same type: We can just load the data
-		    if (adaptor_ && (adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId())) {
-				adaptor_->GObject::load(p_load->adaptor_);
-			}
-			// Different type - need to convert
-			else {
-				adaptor_ = p_load->adaptor_->GObject::clone<GAdaptorT<T> >();
-			}
+#ifdef DEBUG
+		// Check that both we and the "foreign" object have an adaptor
+		if(!adaptor_ || !p_load->adaptor_) {
+			std::ostringstream error;
+			error << "In GParameterBaseWithAdaptorsT<T>::load_(): Error!" << std::endl
+				  << "Missing adaptor!" << std::endl;
+			throw(Gem::Common::gemfony_error_condition(error.str()));
 		}
+#endif
+		// Same type: We can just load the data
+		if (adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId()) {
+			adaptor_->GObject::load(p_load->adaptor_);
+		}
+		// Different type - need to convert
 		else {
-			// Make sure our adaptor is also empty
-			adaptor_.reset();
+			adaptor_ = p_load->adaptor_->GObject::clone<GAdaptorT<T> >();
 		}
 	}
 
@@ -451,9 +452,7 @@ protected:
 	 */
 	void applyAdaptor(T &value) {
 #ifdef DEBUG
-		if (adaptor_) {
-			adaptor_->adapt(value);
-		} else {
+		if (!adaptor_) {
 			std::ostringstream error;
 			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(T& value):" << std::endl
 				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
@@ -461,9 +460,9 @@ protected:
 
 			throw Gem::Common::gemfony_error_condition(error.str());
 		}
-#else
-		adaptor_->adapt(value);
 #endif /* DEBUG */
+
+		adaptor_->adapt(value);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -567,6 +566,36 @@ public:
 		}
 
 		//------------------------------------------------------------------------------
+
+		{ // Test that trying to reset the adaptor will not remove it
+			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
+
+			// Make sure no adaptor is present
+			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			BOOST_CHECK(p_test->hasAdaptor() == true);
+
+			T testVal = T(0);
+			// We have a local adaptor, so trying to call the applyAdaptor() function should not throw
+			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal));
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to call applyAdaptor(collection) after resetting the adaptor works
+			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
+
+			// Make sure no adaptor is present
+			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			BOOST_CHECK(p_test->hasAdaptor() == true);
+
+			std::vector<T> testVec;
+			for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
+			// We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
+			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec));
+		}
+
+		//------------------------------------------------------------------------------
+
 	}
 
 	/*******************************************************************************************/
@@ -576,41 +605,6 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests() {
 		// Call the parent classes' functions
 		GParameterBase::specificTestsFailuresExpected_GUnitTests();
-
-		//------------------------------------------------------------------------------
-
-#ifdef DEBUG
-		{ // Test that trying to call applyAdaptor(singleVal) with no adaptor present throws
-			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
-
-			// Make sure no adaptor is present
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			BOOST_CHECK(p_test->hasAdaptor() == false);
-
-			T testVal = T(0);
-			// We have no local adaptor, so trying to call the applyAdaptor() function should throw in DEBUG mode
-			BOOST_CHECK_THROW(p_test->applyAdaptor(testVal), Gem::Common::gemfony_error_condition);
-		}
-#endif /* DEBUG */
-
-		//------------------------------------------------------------------------------
-
-#ifdef DEBUG
-		{ // Test that trying to call applyAdaptor(collection) with no adaptor present throws
-			boost::shared_ptr<GParameterBaseWithAdaptorsT<T> > p_test = this->clone<GParameterBaseWithAdaptorsT<T> >();
-
-			// Make sure no adaptor is present
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			BOOST_CHECK(p_test->hasAdaptor() == false);
-
-			std::vector<T> testVec;
-			for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
-			// We have no local adaptor, so trying to call the applyAdaptor(collection) function should throw
-			BOOST_CHECK_THROW(p_test->applyAdaptor(testVec), Gem::Common::gemfony_error_condition);
-		}
-#endif /* DEBUG */
-
-		//------------------------------------------------------------------------------
 	}
 #endif /* GENEVATESTING */
 };
