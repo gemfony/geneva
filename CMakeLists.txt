@@ -136,7 +136,6 @@ MESSAGE ("=======================")
 
 LINK_DIRECTORIES (
 	${PROJECT_SOURCE_DIR}/src/common
-	${PROJECT_SOURCE_DIR}/src/dataexchange
 	${PROJECT_SOURCE_DIR}/src/random
 	${PROJECT_SOURCE_DIR}/src/courtier
 	${PROJECT_SOURCE_DIR}/src/geneva
@@ -151,7 +150,6 @@ MESSAGE ("=======================")
 SET ( COMMON_LIBNAME            "gemfony-common" )
 SET ( HAP_LIBNAME               "gemfony-hap" )
 SET ( COURTIER_LIBNAME          "gemfony-courtier" )
-SET ( DATAEXCHANGE_LIBNAME      "gemfony-dataexchange" )
 SET ( GENEVA_LIBNAME            "gemfony-geneva" )
 SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals")
 
@@ -168,8 +166,6 @@ ENDIF()
 # Custom targets for building single libraries only
 ADD_CUSTOM_TARGET( "common"       DEPENDS ${COMMON_LIBNAME}
 				COMMENT "Building only the Common library." )
-ADD_CUSTOM_TARGET( "dataexchange" DEPENDS ${DATAEXCHANGE_LIBNAME}
-				COMMENT "Building only the Dataexchange library." )
 ADD_CUSTOM_TARGET( "hap"          DEPENDS ${HAP_LIBNAME}
 				COMMENT "Building only the Hap library." )
 ADD_CUSTOM_TARGET( "courtier"     DEPENDS ${COURTIER_LIBNAME}
