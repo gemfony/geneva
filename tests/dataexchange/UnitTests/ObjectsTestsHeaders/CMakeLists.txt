@@ -1,4 +1,0 @@
-SET ( ${EXECUTABLENAME}_HEADERS
-	GDataExchange_test.hpp
-	PARENT_SCOPE
-)

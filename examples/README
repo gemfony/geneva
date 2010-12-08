@@ -18,8 +18,6 @@ You will also find here some more complete programs, which are intended
 as starting points for your own work and might, in some cases, also be
 used directly without adaption. These are:
 
-- GExternalEvaluator: a framework for using external evaluation programs
-                      for the evaluation step.
 - GNeuralNetwork:     an implementation of feed forward neural networks,
                       which are trained with Geneva.
 - GStartProject:      a framework meant as a starting point for your own
