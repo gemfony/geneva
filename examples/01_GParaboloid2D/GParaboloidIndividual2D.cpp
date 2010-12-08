@@ -51,12 +51,11 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
 	, PAR_MAX_(10.)
 {
 	for(std::size_t npar=0; npar<2; npar++) {
-		// GConstrainedDoubleObject cannot assume value below or above MIN/MAX
+		// GConstrainedDoubleObject cannot assume value below or above PAR_MIN_/MAX_
 		boost::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(PAR_MIN_, PAR_MAX_));
 		// Assign a random value in the expected range
 		gcdo_ptr->setValue(gr.uniform_real(PAR_MIN_, PAR_MAX_));
-
-		// Add the parameter to this individual
+		// Add the parameters to this individual
 		this->push_back(gcdo_ptr);
 	}
 }
@@ -106,6 +105,9 @@ void GParaboloidIndividual2D::load_(const GObject* cp)
 
 	// Load our parent's data
 	GParameterSet::load_(cp);
+
+	// No local data
+	// sampleVariable = p_load->sampleVariable;
 }
 
 /********************************************************************************************/

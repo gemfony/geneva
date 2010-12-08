@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 	// Perform the actual optimization
 	boost::shared_ptr<GParaboloidIndividual2D> bestIndividual_ptr = go.optimize<GParaboloidIndividual2D>();
 
-	// Do something with the individual
+	// Do something with the best result
 
 	std::cout << "Done ..." << std::endl;
 	return 0;
