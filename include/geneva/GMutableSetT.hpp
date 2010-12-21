@@ -30,17 +30,8 @@
  */
 
 // Standard header files go here
-#include <sstream>
-#include <vector>
-#include <typeinfo>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 #ifndef GMUTABLESETT_HPP_
 #define GMUTABLESETT_HPP_
@@ -54,10 +45,10 @@
 // Geneva headers go here
 #include "hap/GRandomT.hpp"
 #include "common/GHelperFunctionsT.hpp"
-#include "GIndividual.hpp"
-#include "GObject.hpp"
-#include "GParameterBase.hpp"
-#include "GStdPtrVectorInterfaceT.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GIndividual.hpp"
+#include "geneva/GParameterBase.hpp"
+#include "geneva/GStdPtrVectorInterfaceT.hpp"
 
 namespace Gem {
 namespace Geneva {

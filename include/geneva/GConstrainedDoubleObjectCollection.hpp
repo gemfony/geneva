@@ -32,17 +32,8 @@
 
 
 // Standard header files go here
-#include <sstream>
-#include <vector>
-#include <algorithm>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 #ifndef GCONSTRAINEDDOUBLECOLLECTION_HPP_
 #define GCONSTRAINEDDOUBLECOLLECTION_HPP_
@@ -54,9 +45,9 @@
 
 
 // Geneva header files go here
-#include "GConstrainedDoubleObject.hpp"
-#include "GParameterTCollectionT.hpp"
-#include "GDoubleGaussAdaptor.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
+#include "geneva/GParameterTCollectionT.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -123,5 +114,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleObjectCollection)
 
 #endif /* GCONSTRAINEDDOUBLECOLLECTION_HPP_ */

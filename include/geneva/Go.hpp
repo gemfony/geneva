@@ -30,19 +30,8 @@
  */
 
 // Standard header files go here
-#include <vector>
-#include <fstream>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-#include <boost/utility.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/program_options.hpp>
-#include <boost/cast.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
 
 #ifndef GO_HPP_
 #define GO_HPP_
@@ -54,6 +43,10 @@
 
 
 // Geneva headers go here
+#include "common/GExceptions.hpp"
+#include "hap/GRandomT.hpp"
+#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GAsioTCPClientT.hpp"
 #include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GMutableSetT.hpp"
@@ -68,10 +61,6 @@
 #include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GBrokerGD.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
-#include "common/GExceptions.hpp"
-#include "hap/GRandomT.hpp"
-#include "courtier/GAsioTCPConsumerT.hpp"
-#include "courtier/GAsioTCPClientT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -1013,5 +1002,7 @@ private:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Go)
 
 #endif /* GO_HPP_ */

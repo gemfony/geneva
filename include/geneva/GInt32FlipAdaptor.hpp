@@ -31,16 +31,8 @@
 
 
 // Standard header files go here
-#include <string>
-#include <sstream>
-#include <vector>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GINT32FLIPADAPTOR_HPP_
 #define GINT32FLIPADAPTOR_HPP_
@@ -54,7 +46,6 @@
 // Geneva header files go here
 
 #include "GIntFlipAdaptorT.hpp"
-
 
 namespace Gem {
 namespace Geneva {
@@ -123,5 +114,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32FlipAdaptor)
 
 #endif /* GINT32FLIPADAPTOR_HPP_ */

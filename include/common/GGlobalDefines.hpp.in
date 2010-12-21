@@ -56,9 +56,15 @@
 #error "Boost version is too old !"
 #endif /* MIN_BOOST_VERSION */
 
-#if BOOST_VERSION == 104100
-#warning "There seems to be a memory leak in conjunction with Boost 1.41"
-#endif /* Boost 1.41 */
+/* 
+ * This workaround allows us to use the old Boost 1.40 (used e.g. in Ubuntu 10.04 LTS.
+ * BOOST_CLASS_EXPORT_IMPLEMENT and BOOST_CLASS_EXPORT_KEY have only been introduced
+ * with Boost 1.41.
+*/
+#if BOOST_VERSION == 104000
+#define BOOST_CLASS_EXPORT_IMPLEMENT(T) BOOST_CLASS_EXPORT(T)
+#define BOOST_CLASS_EXPORT_KEY(T)
+#endif /* BOOST_VERSION == 104000 */ 
 
 /** The current version of the Geneva library */
 #define GENEVAVERSION @GENEVA_API_VERSION@

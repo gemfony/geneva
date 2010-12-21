@@ -29,22 +29,9 @@
  * http://www.gemfony.com .
  */
 
-
-
 // Standard headers go here
-#include <string>
-#include <sstream>
-#include <vector>
-#include <iomanip>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
-#include <boost/cast.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/mpl/assert.hpp>
 
 #ifndef GNUMFPT_HPP_
 #define GNUMFPT_HPP_
@@ -54,9 +41,8 @@
 #pragma once
 #endif
 
-
 // Geneva headers go here
-#include "GNumT.hpp"
+#include "geneva/GNumT.hpp"
 
 namespace Gem {
 namespace Geneva {

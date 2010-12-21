@@ -31,17 +31,8 @@
 
 
 // Standard header files go here
-#include <sstream>
-#include <vector>
-#include <algorithm>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 #ifndef GPARAMETROBJECTCOLLECTION_HPP_
 #define GPARAMETROBJECTCOLLECTION_HPP_
@@ -51,16 +42,15 @@
 #pragma once
 #endif
 
-
 // Geneva header files go here
-#include "GParameterBase.hpp"
-#include "GParameterTCollectionT.hpp"
-#include "GBooleanAdaptor.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GInt32GaussAdaptor.hpp"
-#include "GBooleanObject.hpp"
-#include "GInt32Object.hpp"
-#include "GDoubleObject.hpp"
+#include "geneva/GParameterBase.hpp"
+#include "geneva/GParameterTCollectionT.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GBooleanObject.hpp"
+#include "geneva/GInt32Object.hpp"
+#include "geneva/GDoubleObject.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -160,5 +150,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterObjectCollection)
 
 #endif /* GPARAMETROBJECTCOLLECTION_HPP_ */

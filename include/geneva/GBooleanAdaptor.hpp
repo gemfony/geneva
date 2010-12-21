@@ -31,14 +31,8 @@
 
 
 // Standard headers go here
-#include <sstream>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GBOOLEANADAPTOR_HPP_
 #define GBOOLEANADAPTOR_HPP_
@@ -131,5 +125,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanAdaptor)
 
 #endif /* GBOOLEANADAPTOR_HPP_ */

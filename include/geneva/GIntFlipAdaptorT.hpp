@@ -31,19 +31,8 @@
 
 
 // Standard headers go here
-#include <cmath>
-#include <string>
-#include <sstream>
-#include <utility> // For std::pair
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
-#include <boost/limits.hpp>
-#include <boost/cast.hpp>
 
 #ifndef GINTFLIPADAPTORT_HPP_
 #define GINTFLIPADAPTORT_HPP_

@@ -31,20 +31,8 @@
 
 
 // Standard header files go here
-#include <string>
-#include <sstream>
-#include <vector>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/cast.hpp>
-#include <boost/mpl/assert.hpp>
 
 #ifndef GINTNUMCOLLECTIONT_HPP_
 #define GINTNUMCOLLECTIONT_HPP_
@@ -57,7 +45,7 @@
 
 // Geneva header files go here
 
-#include "GNumCollectionT.hpp"
+#include "geneva/GNumCollectionT.hpp"
 
 namespace Gem {
 namespace Geneva {

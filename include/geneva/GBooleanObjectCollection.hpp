@@ -31,9 +31,6 @@
 
 // Standard header files go here
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost header files go here
 
 #ifndef GBOOLEANOBJECTCOLLECTION_HPP_
@@ -46,9 +43,9 @@
 
 
 // Geneva header files go here
-#include "GBooleanObject.hpp"
-#include "GParameterTCollectionT.hpp"
-#include "GBooleanAdaptor.hpp"
+#include "geneva/GBooleanObject.hpp"
+#include "geneva/GParameterTCollectionT.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -115,5 +112,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanObjectCollection)
 
 #endif /* GBOOLEANOBJECTCOLLECTION_HPP_ */

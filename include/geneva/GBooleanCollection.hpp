@@ -31,14 +31,8 @@
 
 
 // Standard headers go here
-#include <sstream>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GBOOLEANCOLLECTION_HPP_
 #define GBOOLEANCOLLECTION_HPP_
@@ -51,9 +45,9 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "GOptimizationEnums.hpp"
-#include "GParameterCollectionT.hpp"
-#include "GBooleanAdaptor.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GParameterCollectionT.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
 
 namespace Gem
 {
@@ -143,5 +137,7 @@ namespace Geneva
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanCollection)
 
 #endif /* GBOOLEANCOLLECTION_HPP_ */

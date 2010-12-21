@@ -29,15 +29,9 @@
  * http://www.gemfony.com .
  */
 
-
 // Standard headers go here
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GDOUBLEOBJECT_HPP_
 #define GDOUBLEOBJECT_HPP_
@@ -49,8 +43,8 @@
 
 // Geneva headers go here
 
-#include "GNumFPT.hpp"
-#include "GDoubleGaussAdaptor.hpp"
+#include "geneva/GNumFPT.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -131,5 +125,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleObject)
 
 #endif /* GDOUBLEOBJECT_HPP_ */

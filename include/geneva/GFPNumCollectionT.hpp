@@ -31,19 +31,8 @@
 
 
 // Standard header files go here
-#include <string>
-#include <sstream>
-#include <vector>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
-#include <boost/cast.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/mpl/assert.hpp>
 
 #ifndef GNUMCOLLECTIONFPT_HPP_
 #define GNUMCOLLECTIONFPT_HPP_
@@ -55,10 +44,10 @@
 
 
 // Geneva header files go here
+#include "geneva/GObject.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GNumCollectionT.hpp"
 #include "common/GExceptions.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GObject.hpp"
-#include "GNumCollectionT.hpp"
 
 namespace Gem {
 namespace Geneva {

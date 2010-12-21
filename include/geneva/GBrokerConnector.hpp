@@ -74,8 +74,8 @@
 #include "common/GExceptions.hpp"
 #include "common/GPODExpectationChecksT.hpp"
 #include "courtier/GBufferPortT.hpp"
-#include "GOptimizationEnums.hpp"
-#include "GIndividual.hpp"
+#include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GIndividual.hpp"
 
 namespace Gem {
 namespace Geneva {

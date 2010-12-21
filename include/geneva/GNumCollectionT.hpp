@@ -30,17 +30,8 @@
  */
 
 // Standard header files go here
-#include <string>
-#include <sstream>
-#include <vector>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-#include <boost/cstdint.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/shared_ptr.hpp>
 
 #ifndef GNUMCOLLECTIONT_HPP_
 #define GNUMCOLLECTIONT_HPP_
@@ -52,10 +43,10 @@
 
 
 // Geneva header files go here
+#include "geneva/GObject.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GParameterCollectionT.hpp"
 #include "common/GExceptions.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GObject.hpp"
-#include "GParameterCollectionT.hpp"
 
 namespace Gem {
 namespace Geneva {

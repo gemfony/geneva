@@ -32,28 +32,8 @@
 
 
 // Standard headers go here
-#include <string>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/export.hpp>
-
 
 #ifndef GEAPERSONALITYTRAITS_HPP_
 #define GEAPERSONALITYTRAITS_HPP_
@@ -65,7 +45,7 @@
 
 
 // Geneva headers go here
-#include "GPersonalityTraits.hpp"
+#include "geneva/GPersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -168,6 +148,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEAPersonalityTraits)
 
 #endif /* GEAPERSONALITYTRAITS_HPP_ */
 

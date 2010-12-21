@@ -31,15 +31,8 @@
 
 
 // Standard header files go here
-#include <sstream>
-#include <cmath>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GPARAMETERT_HPP_
 #define GPARAMETERT_HPP_

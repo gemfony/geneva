@@ -30,20 +30,8 @@
 
 
 // Standard headers go here
-#include <vector>
-#include <sstream>
-#include <cmath>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
-#include <boost/cast.hpp> // For boost::numeric_cast<>
-#include <boost/cstdint.hpp>
 
 #ifndef GCONSTRAINEDINT32OBJECT_HPP_
 #define GCONSTRAINEDINT32OBJECT_HPP_
@@ -53,10 +41,9 @@
 #pragma once
 #endif
 
-
 // Geneva headers go here
-#include "GConstrainedIntT.hpp"
-#include "GInt32GaussAdaptor.hpp"
+#include "geneva/GConstrainedIntT.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
 
 namespace Gem
 {
@@ -142,5 +129,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedInt32Object)
 
 #endif /* GCONSTRAINEDINT32OBJECT_HPP_ */

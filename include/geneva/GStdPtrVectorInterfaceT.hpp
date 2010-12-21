@@ -43,6 +43,11 @@
 #include <boost/cstdint.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/logic/tribool.hpp>
+#include <boost/bind.hpp>
+#include <boost/optional.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -57,10 +62,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/logic/tribool.hpp>
-#include <boost/bind.hpp>
-#include <boost/optional.hpp>
-#include <boost/iterator/iterator_facade.hpp>
 
 #ifndef GSTDPTRVECTORINTERFACET_HPP_
 #define GSTDPTRVECTORINTERFACET_HPP_
@@ -72,8 +73,8 @@
 
 // Geneva headers go here
 #include "common/GHelperFunctionsT.hpp"
-#include "GObject.hpp"
-#include "GObjectExpectationChecksT.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GObjectExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Geneva {

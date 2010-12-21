@@ -32,20 +32,7 @@
 
 // Standard headers go here
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost headers go here
-
-#include <boost/cast.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/bind.hpp>
-#include <boost/utility.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/thread/xtime.hpp>
-#include <common/thirdparty/boost/threadpool.hpp>
 
 #ifndef GMULTITHREADEDSWARM_HPP_
 #define GMULTITHREADEDSWARM_HPP_
@@ -172,5 +159,7 @@ template <> boost::shared_ptr<Gem::Geneva::GMultiThreadedSwarm> TFactory_GUnitTe
 /*************************************************************************************************/
 
 #endif /* GENEVATESTING */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiThreadedSwarm)
 
 #endif /* GMULTITHREADEDSWARM_HPP_ */

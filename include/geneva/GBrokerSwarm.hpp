@@ -32,22 +32,7 @@
 
 // Standard headers go here
 
-#include <sstream>
-#include <algorithm>
-#include <vector>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/date_time.hpp>
-#include <boost/date_time/gregorian/greg_serialize.hpp>
-#include <boost/date_time/posix_time/time_serialize.hpp>
 
 #ifndef GBROKERSWARM_HPP_
 #define GBROKERSWARM_HPP_
@@ -171,5 +156,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerSwarm)
 
 #endif /* GBROKERSWARM_HPP_ */

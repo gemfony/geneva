@@ -32,20 +32,8 @@
 
 
 // Standard header files go here
-#include <sstream>
-#include <vector>
-#include <algorithm>
-#include <string>
-#include <sstream>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
 
 #ifndef GPARAMETERBASEWITHADAPTORST_HPP_
 #define GPARAMETERBASEWITHADAPTORST_HPP_

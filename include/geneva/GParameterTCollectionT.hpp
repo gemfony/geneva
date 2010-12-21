@@ -31,17 +31,8 @@
 
 
 // Standard header files go here
-#include <sstream>
-#include <vector>
-#include <algorithm>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
 
 #ifndef GPARAMETERTCOLLECTIONT_HPP_
 #define GPARAMETERTCOLLECTIONT_HPP_
@@ -51,12 +42,11 @@
 #pragma once
 #endif
 
-
 // Geneva header files go here
 #include "common/GHelperFunctionsT.hpp"
-#include "GParameterBase.hpp"
-#include "GParameterT.hpp"
-#include "GStdPtrVectorInterfaceT.hpp"
+#include "geneva/GParameterBase.hpp"
+#include "geneva/GParameterT.hpp"
+#include "geneva/GStdPtrVectorInterfaceT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -743,12 +733,24 @@ public:
 #endif /* GENEVATESTING */
 };
 
-
 /***********************************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
-/**************************************************************************************************/
+/***********************************************************************************************/
+/** @brief Mark this class as abstract. This is the content of
+ * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
+
+namespace boost {
+	namespace serialization {
+		template<typename T>
+		struct is_abstract<Gem::Geneva::GParameterTCollectionT<T> > : public boost::true_type {};
+		template<typename T>
+		struct is_abstract< const Gem::Geneva::GParameterTCollectionT<T> > : public boost::true_type {};
+	}
+}
+
+/***********************************************************************************************/
 
 #endif /* GPARAMETERTCOLLECTIONT_HPP_ */

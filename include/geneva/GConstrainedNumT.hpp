@@ -31,24 +31,8 @@
 
 
 // Standard headers go here
-#include <vector>
-#include <sstream>
-#include <cmath>
-#include <typeinfo>
-#include <limits>
-#include <utility> // for std::pair
-#include <algorithm> // for min<T>, max<T>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
-#include <boost/cast.hpp> // For boost::numeric_cast<>
-#include <boost/limits.hpp>
 
 #ifndef GCONSTRAINEDNUMT_HPP_
 #define GCONSTRAINEDNUMT_HPP_
@@ -59,11 +43,11 @@
 #endif
 
 // Geneva headers go here
+#include "geneva/GObject.hpp"
+#include "geneva/GParameterT.hpp"
+#include "geneva/GConstrainedValueLimit.hpp"
 #include "common/GExceptions.hpp"
 #include "hap/GRandomT.hpp"
-#include "GObject.hpp"
-#include "GParameterT.hpp"
-#include "GConstrainedValueLimit.hpp"
 
 namespace Gem {
 namespace Geneva {

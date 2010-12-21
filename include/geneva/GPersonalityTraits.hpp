@@ -31,29 +31,8 @@
 
 
 // Standard headers go here
-#include <string>
-#include <sstream>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-#include <boost/cstdint.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/export.hpp>
-
 
 #ifndef GPERSONALITYTRAITS_HPP_
 #define GPERSONALITYTRAITS_HPP_
@@ -66,8 +45,8 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "GObject.hpp"
-#include "GObjectExpectationChecksT.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GObjectExpectationChecksT.hpp"
 
 namespace Gem {
 namespace Geneva {

@@ -32,32 +32,8 @@
 
 
 // Standard headers go here
-#include <cmath>
-#include <string>
-#include <sstream>
-#include <utility> // For std::pair
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
-#include <boost/limits.hpp>
-#include <boost/cast.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/export.hpp>
 
 #ifndef GGAUSSADAPTORT_HPP_
 #define GGAUSSADAPTORT_HPP_
@@ -69,10 +45,10 @@
 
 
 // Geneva headers go here
+#include "geneva/GObject.hpp"
+#include "geneva/GAdaptorT.hpp"
+#include "geneva/GOptimizationEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "GAdaptorT.hpp"
-#include "GObject.hpp"
-#include "GOptimizationEnums.hpp"
 
 namespace Gem {
 namespace Geneva {

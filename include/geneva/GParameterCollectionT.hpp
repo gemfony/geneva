@@ -31,16 +31,8 @@
 
 
 // Standard header files go here
-#include <sstream>
-#include <vector>
-#include <cmath>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GPARAMETERCOLLECTIONT_HPP_
 #define GPARAMETERCOLLECTIONT_HPP_
@@ -50,11 +42,10 @@
 #pragma once
 #endif
 
-
 // Geneva header files go here
-#include "GObject.hpp"
-#include "GParameterBaseWithAdaptorsT.hpp"
-#include "GStdSimpleVectorInterfaceT.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GParameterBaseWithAdaptorsT.hpp"
+#include "geneva/GStdSimpleVectorInterfaceT.hpp"
 
 namespace Gem {
 namespace Geneva {

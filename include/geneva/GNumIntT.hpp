@@ -33,15 +33,7 @@
 
 // Standard headers go here
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/mpl/assert.hpp>
 
 #ifndef GNUMINTT_HPP_
 #define GNUMINTT_HPP_
@@ -54,9 +46,9 @@
 
 // Geneva headers go here
 
-#include "GNumT.hpp"
-#include "GInt32GaussAdaptor.hpp"
-#include "GInt32FlipAdaptor.hpp"
+#include "geneva/GNumT.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GInt32FlipAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {

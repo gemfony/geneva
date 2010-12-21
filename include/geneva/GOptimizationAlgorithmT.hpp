@@ -31,28 +31,8 @@
 
 
 // Standard header files go here
-#include <sstream>
-#include <cmath>
-#include <cfloat>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/cast.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/date_time.hpp>
-#include <boost/date_time/gregorian/greg_serialize.hpp>
-#include <boost/date_time/posix_time/time_serialize.hpp>
-#include <boost/cast.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMT_HPP_
 #define GOPTIMIZATIONALGORITHMT_HPP_
@@ -65,9 +45,11 @@
 /**************************************************************************************/
 
 // Geneva headers go here
-#include "geneva/GMutableSetT.hpp"
 #include "geneva/GObject.hpp"
+#include "geneva/GMutableSetT.hpp"
 #include "geneva/GIndividual.hpp"
+
+#include "geneva/GParameterSet.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -1700,6 +1682,11 @@ namespace boost {
     struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<ind_type> > : public boost::true_type {};
   }
 }
+
+/******************************************************************************************/
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GIndividual>::GOptimizationMonitorT);
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>::GOptimizationMonitorT);
 
 /******************************************************************************************/
 

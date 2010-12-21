@@ -32,22 +32,7 @@
 
 // Standard headers go here
 
-#include <sstream>
-#include <algorithm>
-#include <vector>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/date_time.hpp>
-#include <boost/date_time/gregorian/greg_serialize.hpp>
-#include <boost/date_time/posix_time/time_serialize.hpp>
 
 #ifndef GBROKEREA_HPP_
 #define GBROKEREA_HPP_
@@ -60,10 +45,10 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "courtier/GBufferPortT.hpp"
-#include "GEAPersonalityTraits.hpp"
-#include "GEvolutionaryAlgorithm.hpp"
-#include "GBrokerConnector.hpp"
-#include "GIndividual.hpp"
+#include "geneva/GEAPersonalityTraits.hpp"
+#include "geneva/GEvolutionaryAlgorithm.hpp"
+#include "geneva/GBrokerConnector.hpp"
+#include "geneva/GIndividual.hpp"
 
 namespace Gem
 {
@@ -166,5 +151,7 @@ namespace Geneva
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerEA)
 
 #endif /* GBROKEREA_HPP_ */

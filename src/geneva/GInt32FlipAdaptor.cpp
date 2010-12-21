@@ -31,12 +31,8 @@
 
 #include "geneva/GInt32FlipAdaptor.hpp"
 
-/**
- * Included here so no conflicts occur. See explanation at
- * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
- */
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GInt32FlipAdaptor)
+// Make sure the class gets instantiated at least once
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GInt32FlipAdaptor)
 
 namespace Gem {
 namespace Geneva {

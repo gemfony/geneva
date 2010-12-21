@@ -31,17 +31,8 @@
 
 
 // Standard header files go here
-#include <sstream>
-#include <vector>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/shared_ptr.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/function.hpp>
 
 #ifndef GPARAMETERSET_HPP_
 #define GPARAMETERSET_HPP_
@@ -54,19 +45,19 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "GMutableSetT.hpp"
-#include "GObject.hpp"
-#include "GParameterBase.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GMutableSetT.hpp"
+#include "geneva/GParameterBase.hpp"
 
 #ifdef GENEVATESTING
+#include "geneva/GBooleanObject.hpp"
+#include "geneva/GConstrainedInt32Object.hpp"
+#include "geneva/GConstrainedDoubleObject.hpp"
+#include "geneva/GConstrainedDoubleObjectCollection.hpp"
+#include "geneva/GDoubleCollection.hpp"
+#include "geneva/GDoubleObject.hpp"
+#include "geneva/GInt32Collection.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
-#include "GBooleanObject.hpp"
-#include "GConstrainedInt32Object.hpp"
-#include "GConstrainedDoubleObject.hpp"
-#include "GConstrainedDoubleObjectCollection.hpp"
-#include "GDoubleCollection.hpp"
-#include "GDoubleObject.hpp"
-#include "GInt32Collection.hpp"
 #include "hap/GRandomT.hpp"
 #endif /* GENEVATESTING */
 

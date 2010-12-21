@@ -31,16 +31,8 @@
 
 
 // Standard header files go here
-#include <string>
-#include <sstream>
-#include <vector>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GINT32COLLECTION_HPP_
 #define GINT32COLLECTION_HPP_
@@ -53,8 +45,8 @@
 
 // Geneva header files go here
 
-#include "GIntNumCollectionT.hpp"
-#include "GInt32GaussAdaptor.hpp"
+#include "geneva/GIntNumCollectionT.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -126,5 +118,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32Collection)
 
 #endif /* GINT32COLLECTION_HPP_ */

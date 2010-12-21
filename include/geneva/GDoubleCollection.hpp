@@ -30,16 +30,8 @@
  */
 
 // Standard header files go here
-#include <string>
-#include <sstream>
-#include <vector>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GDOUBLECOLLECTION_HPP_
 #define GDOUBLECOLLECTION_HPP_
@@ -49,10 +41,9 @@
 #pragma once
 #endif
 
-
 // Geneva header files go here
-#include "GFPNumCollectionT.hpp"
-#include "GDoubleGaussAdaptor.hpp"
+#include "geneva/GFPNumCollectionT.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -126,5 +117,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleCollection)
 
 #endif /* GDOUBLECOLLECTION_HPP_ */

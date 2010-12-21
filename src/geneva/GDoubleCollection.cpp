@@ -31,13 +31,7 @@
 
 #include "geneva/GDoubleCollection.hpp"
 
-/**
- * Included here so no conflicts occur. See explanation at
- * http://www.boost.org/libs/serialization/doc/special.html#derivedpointers
- */
-#include <boost/serialization/export.hpp>
-BOOST_CLASS_EXPORT(Gem::Geneva::GDoubleCollection)
-
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleCollection)
 
 namespace Gem {
 namespace Geneva {

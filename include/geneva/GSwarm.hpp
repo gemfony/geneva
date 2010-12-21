@@ -31,39 +31,9 @@
 
 
 // Standard headers go here
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-#include <cfloat>
-#include <vector>
-#include <algorithm>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
-#include <boost/cstdint.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/cast.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/date_time.hpp>
-#include <boost/date_time/gregorian/greg_serialize.hpp>
-#include <boost/date_time/posix_time/time_serialize.hpp>
-#include <boost/cast.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
-
-/**
- * Check that we have support for threads
- */
-#ifndef BOOST_HAS_THREADS
-#error "Error: Support for multi-threading does not seem to be available."
-#endif
 
 #ifndef GSWARM_HPP_
 #define GSWARM_HPP_
@@ -466,5 +436,8 @@ template <> boost::shared_ptr<Gem::Geneva::GSwarm> TFactory_GUnitTests<Gem::Gene
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 #endif /* GENEVATESTING */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarm)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarm::GSwarmOptimizationMonitor)
 
 #endif /* GSWARM_HPP_ */

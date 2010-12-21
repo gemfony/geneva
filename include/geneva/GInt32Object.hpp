@@ -29,16 +29,9 @@
  * http://www.gemfony.com .
  */
 
-
-
 // Standard headers go here
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GINT32OBJECT_HPP_
 #define GINT32OBJECT_HPP_
@@ -51,9 +44,9 @@
 
 // Geneva headers go here
 
-#include "GNumIntT.hpp"
-#include "GInt32GaussAdaptor.hpp"
-#include "GInt32FlipAdaptor.hpp"
+#include "geneva/GNumIntT.hpp"
+#include "geneva/GInt32GaussAdaptor.hpp"
+#include "geneva/GInt32FlipAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -138,5 +131,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32Object)
 
 #endif /* GINT32OBJECT_HPP_ */

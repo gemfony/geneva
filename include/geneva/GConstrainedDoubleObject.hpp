@@ -31,20 +31,8 @@
 
 
 // Standard headers go here
-#include <vector>
-#include <sstream>
-#include <cmath>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
-#include <boost/cast.hpp> // For boost::numeric_cast<>
-#include <boost/cstdint.hpp>
 
 #ifndef GCONSTRAINEDDOUBLEOBJECT_HPP_
 #define GCONSTRAINEDDOUBLEOBJECT_HPP_
@@ -54,10 +42,9 @@
 #pragma once
 #endif
 
-
 // Geneva headers go here
-#include "GConstrainedFPT.hpp"
-#include "GDoubleGaussAdaptor.hpp"
+#include "geneva/GConstrainedFPT.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
 
 namespace Gem
 {
@@ -140,5 +127,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleObject)
 
 #endif /* GCONSTRAINEDDOUBLEOBJECT_HPP_ */

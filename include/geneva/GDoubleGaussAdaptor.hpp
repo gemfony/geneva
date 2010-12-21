@@ -30,26 +30,8 @@
  */
 
 // Standard headers go here
-#include <cmath>
-#include <string>
-#include <sstream>
-#include <utility> // For std::pair
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/utility.hpp>
 
 #ifndef GDOUBLEGAUSSADAPTOR_HPP_
 #define GDOUBLEGAUSSADAPTOR_HPP_
@@ -61,7 +43,7 @@
 
 
 // Geneva headers go here
-#include "GNumGaussAdaptorT.hpp"
+#include "geneva/GNumGaussAdaptorT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -141,5 +123,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleGaussAdaptor)
 
 #endif /* GDOUBLEGAUSSADAPTOR_HPP_ */

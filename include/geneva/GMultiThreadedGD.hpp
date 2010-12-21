@@ -30,43 +30,9 @@
  */
 
 // Standard headers go here
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-#include <cfloat>
-#include <vector>
-#include <algorithm>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost headers go here
 
-#include <boost/cstdint.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/cast.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/date_time.hpp>
-#include <boost/date_time/gregorian/greg_serialize.hpp>
-#include <boost/date_time/posix_time/time_serialize.hpp>
-#include <boost/cast.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/thread/xtime.hpp>
-#include <common/thirdparty/boost/threadpool.hpp>
-/**
- * Check that we have support for threads
- */
-#ifndef BOOST_HAS_THREADS
-#error "Error: Support for multi-threading does not seem to be available."
-#endif
 
 #ifndef GMULTITHREADEDGD_HPP_
 #define GMULTITHREADEDGD_HPP_
@@ -79,15 +45,16 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "geneva/GGradientDescent.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GThreadWrapper.hpp"
+#include "geneva/GGradientDescent.hpp"
 #include "geneva/GIndividual.hpp"
 #include "geneva/GObject.hpp"
 
 #ifdef GENEVATESTING
 #include "geneva-individuals/GTestIndividual1.hpp"
 #endif /* GENEVATESTING */
+
 
 namespace Gem {
 namespace Geneva {
@@ -194,5 +161,7 @@ template <> boost::shared_ptr<Gem::Geneva::GMultiThreadedGD> TFactory_GUnitTests
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 #endif /* GENEVATESTING */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiThreadedGD)
 
 #endif /* GMULTITHREADEDGD_HPP_ */

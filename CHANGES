@@ -4,7 +4,7 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9.1, yet unnamed - release-date unknown
- - Bumped the minimal Boost version to 1.40
+ - Bumped the minimal Boost version to 1.41
  - Made sure that parameter objects always have an adaptor loaded. Before this it
    was empty by default.
 

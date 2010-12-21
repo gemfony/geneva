@@ -31,9 +31,6 @@
 
 // Standard header files go here
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost header files go here
 
 #ifndef GDOUBLEOBJECTCOLLECTION_HPP_
@@ -45,9 +42,9 @@
 #endif
 
 // Geneva header files go here
-#include "GDoubleObject.hpp"
-#include "GDoubleGaussAdaptor.hpp"
-#include "GParameterTCollectionT.hpp"
+#include "geneva/GDoubleObject.hpp"
+#include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GParameterTCollectionT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -114,5 +111,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleObjectCollection)
 
 #endif /* GDOUBLEOBJECTCOLLECTION_HPP_ */

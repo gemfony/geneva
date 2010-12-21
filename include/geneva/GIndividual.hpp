@@ -31,21 +31,8 @@
 
 
 // Standard header files go here
-#include <sstream>
-#include <string>
-#include <cmath>
-
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-#include <boost/variant.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/variant.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits.hpp>
 
 #ifndef GINDIVIDUAL_HPP_
 #define GINDIVIDUAL_HPP_
@@ -59,12 +46,12 @@
 // Geneva header files go here
 #include "common/GExceptions.hpp"
 #include "courtier/GBrokerT.hpp"         // Just for the GINDIVIDUALBROKER macro
-#include "GEAPersonalityTraits.hpp"
-#include "GGDPersonalityTraits.hpp"
-#include "GMutableI.hpp"
-#include "GObject.hpp"
-#include "GRateableI.hpp"
-#include "GSwarmPersonalityTraits.hpp"
+#include "geneva/GObject.hpp"
+#include "geneva/GEAPersonalityTraits.hpp"
+#include "geneva/GGDPersonalityTraits.hpp"
+#include "geneva/GMutableI.hpp"
+#include "geneva/GRateableI.hpp"
+#include "geneva/GSwarmPersonalityTraits.hpp"
 
 namespace Gem {
 namespace Tests {
@@ -313,7 +300,6 @@ public:
  * refer to GINDIVIDUALBROKER.
  */
 #define GINDIVIDUALBROKER GBROKER(boost::shared_ptr<Gem::Geneva::GIndividual>)
-
 
 /**************************************************************************************************/
 /**

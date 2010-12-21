@@ -36,8 +36,9 @@
 #include "GGlobalDefines.hpp"
 
 // Boost headers go here
-#include <boost/logic/tribool.hpp>
 #include <boost/serialization/split_free.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/logic/tribool.hpp>
 #include <boost/cstdint.hpp>
 
 #ifndef GTRIBOOLSERIALIZATION_HPP_

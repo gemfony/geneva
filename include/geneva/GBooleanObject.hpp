@@ -32,12 +32,7 @@
 
 // Standard headers go here
 
-// Includes check for correct Boost version(s)
-#include "common/GGlobalDefines.hpp"
-
 // Boost headers go here
-
-#include <boost/cstdint.hpp>
 
 #ifndef GBOOLEANOBJECT_HPP_
 #define GBOOLEANOBJECT_HPP_
@@ -49,8 +44,8 @@
 
 
 // Geneva headers go here
-#include "GParameterT.hpp"
-#include "GBooleanAdaptor.hpp"
+#include "geneva/GParameterT.hpp"
+#include "geneva/GBooleanAdaptor.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -137,5 +132,7 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanObject)
 
 #endif /* GBOOLEANOBJECT_HPP_ */

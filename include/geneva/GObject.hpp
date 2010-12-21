@@ -31,24 +31,26 @@
 
 
 // Standard header files go here
-
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <cstdlib>
+#include <algorithm>
+#include <assert.h>
 #include <cmath>
-#include <typeinfo>
+#include <cfloat>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
 #include <map>
+#include <sstream>
+#include <string>
+#include <typeinfo>
+#include <utility> // For std::pair
 #include <vector>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-
-#include <boost/cstdint.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -56,20 +58,49 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/serialization/export.hpp>
+
+#include <boost/bind.hpp>
+#include <boost/cast.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/date_time.hpp>
+#include <boost/date_time/gregorian/greg_serialize.hpp>
+#include <boost/date_time/posix_time/time_serialize.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/function.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/limits.hpp>
 #include <boost/logic/tribool.hpp>
+#include <boost/logic/tribool_io.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/optional.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/program_options.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
+#include <boost/thread/xtime.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/utility.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/variant.hpp>
 
 #ifdef GENEVATESTING
 #include <boost/test/unit_test.hpp>
 #endif /* GENEVATESTING */
+
+/** Check that we have support for threads */
+#ifndef BOOST_HAS_THREADS
+#error "Error: Support for multi-threading does not seem to be available."
+#endif
 
 #ifndef GOBJECT_HPP_
 #define GOBJECT_HPP_
@@ -84,6 +115,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GSerializableI.hpp"
+#include "common/thirdparty/boost/threadpool.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
 #ifdef GENEVATESTING
