@@ -281,13 +281,18 @@ public:
 	void setAdaptionProbability(const double& probability) {
 		// Check the supplied probability value
 		if(probability < 0. || probability > 1.) {
-			std::ostringstream error;
+			raiseException(
+					"In GAdaptorT<T>::setAdaptionProbability(const double&):" << std::endl
+					<< "Bad probability value given: " << probability
+			);
+
+			/*std::ostringstream error;
 			error << "In GAdaptorT<T>::setAdaptionProbability(const double&) : Error!" << std::endl
 				  << "Bad probability value given: " << probability << std::endl;
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
-			throw Gem::Common::gemfony_error_condition(error.str());
+			throw Gem::Common::gemfony_error_condition(error.str());*/
 		}
 
 		adProb_ = probability;

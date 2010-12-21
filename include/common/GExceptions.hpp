@@ -32,6 +32,7 @@
 // Standard header files go here
 
 #include <string>
+#include <sstream>
 #include <exception>
 
 // Includes check for correct Boost version(s)
@@ -74,5 +75,34 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
+
+/**************************************************************************************************/
+/**
+ * This define allows easy access to throwing exceptions.
+ */
+#define raiseException(E)                                                                                \
+  {						                                                                                 \
+    std::ostringstream error;			                                                                 \
+    error                                                                                                \
+       << std::endl                                                                                      \
+       << "================================================" << std::endl                                \
+       << "ERROR" << std::endl                                                                           \
+       << "in file " << __FILE__ << std::endl                                                            \
+       << "near line " << __LINE__ << " with description:" << std::endl                                  \
+       << std::endl                                                                                      \
+       << E << std::endl							                                                     \
+       << std::endl                                                                                      \
+       << "If you suspect that this error is due to Geneva," << std::endl                                \
+       << "then please consider filing a bug via" << std::endl                                           \
+       << "http://www.gemfony.com (link \"Bug Reports\") or" << std::endl                                \
+       << "through http://www.launchpad.net/geneva" << std::endl                                         \
+       << std::endl                                                                                      \
+       << "We appreciate your help!" << std::endl                                                        \
+       << "The Geneva team" << std::endl                                                                 \
+       << "================================================" << std::endl;                               \
+    throw(Gem::Common::gemfony_error_condition(error.str()));                                            \
+  }                                                                                                      \
+
+/**************************************************************************************************/
 
 #endif /* GEXCEPTIONS_HPP_ */
