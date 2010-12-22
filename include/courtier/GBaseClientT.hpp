@@ -176,11 +176,10 @@ public:
 
 		// Only allow "real" values
 		if(maxDuration.is_special() || maxDuration.is_negative()) {
-			std::ostringstream error;
-			error << "In GBaseClientT<T>::setMaxTime() : Error!" << std::endl
-				  << "Invalid maxDuration." << std::endl;
-
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GBaseClientT<T>::setMaxTime():" << std::endl
+					<< "Invalid maxDuration."
+			);
 		}
 
 		maxDuration_ = maxDuration;

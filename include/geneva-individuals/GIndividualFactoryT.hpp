@@ -91,10 +91,10 @@ public:
 #ifdef DEBUG
 		// It is an error if this function is called on a finalized object
 		if(finalized_) {
-			std::ostringstream error;
-			error << "In GIndividualFactoryT<ind_type>::operator()(): Error!" << std::endl
-				  << "Tried to retrieve individual when object has already been finalized!" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GIndividualFactoryT<ind_type>::operator()(): Error!" << std::endl
+					<< "Tried to retrieve individual when object has already been finalized!"
+			);
 		}
 #endif /* DEBUG */
 
@@ -111,10 +111,10 @@ public:
 		if(!initialized_) {
 			// It is an error if this function is called on a finalized object
 			if(finalized_) {
-				std::ostringstream error;
-				error << "In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
-					  << "Tried to initialize object which has already been finalized" << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
+						<< "Tried to initialize object which has already been finalized"
+				);
 			}
 
 			// Execute the user-defined configuration specifications
@@ -122,10 +122,10 @@ public:
 
 			// Read the configuration parameters from file
 			if(!gpb.parse()) {
-				std::ostringstream error;
-				error << "In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
-					  << "Could not parse configuration file " << configFile_ << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GIndividualFactoryT<ind_type>::init(): Error!" << std::endl
+						<< "Could not parse configuration file " << configFile_
+				);
 			}
 
 			// Perform the user-defined initialization work
@@ -143,10 +143,10 @@ public:
 	virtual void finalize(){
 		// The object should always have been initialized before the finalize() function is called
 		if(!initialized_) {
-			std::ostringstream error;
-			error << "In GIndividualFactoryT<ind_type>::finalize(): Error!" << std::endl
-				  << "Function called on un-initialized object" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GIndividualFactoryT<ind_type>::finalize(): Error!" << std::endl
+					<< "Function called on un-initialized object"
+			);
 		}
 
 		if(!finalized_) {

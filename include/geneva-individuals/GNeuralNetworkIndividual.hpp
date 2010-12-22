@@ -303,10 +303,10 @@ public:
 		std::size_t nLayers = nD_->size();
 
 		if(nLayers < 2){ // Two layers are required at the minimum (3 and 4 layers are useful)
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::GNeuralNetworkIndividual<tF>([...]) : Error!" << std::endl
-				  << "Invalid number of layers supplied. Did you set up the network architecture ?" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GNeuralNetworkIndividual::GNeuralNetworkIndividual<tF>([...]) : Error!" << std::endl
+					<< "Invalid number of layers supplied. Did you set up the network architecture ?"
+			);
 		}
 
 		networkData::iterator layerIterator;
@@ -345,11 +345,11 @@ public:
 				layerNumber++;
 			}
 			else {
-				std::ostringstream error;
-				error << "In GNeuralNetworkIndividual<tF>::GNeuralNetworkIndividual([...]) : Error!" << std::endl
-					  << "Found invalid number of nodes in layer: " << *layerIterator << std::endl
-					  << "Did you set up the network architecture ?" << std::endl;
-				throw Gem::Common::gemfony_error_condition(error.str());
+				raiseException(
+						"In GNeuralNetworkIndividual<tF>::GNeuralNetworkIndividual([...]) : Error!" << std::endl
+						<< "Found invalid number of nodes in layer: " << *layerIterator << std::endl
+						<< "Did you set up the network architecture ?"
+				);
 			}
 		}
 	}
@@ -471,19 +471,19 @@ public:
 
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
-				  << "Got invalid number of layers: " << architecture.size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
+					<< "Got invalid number of layers: " << architecture.size()
+			);
 		}
 
 		// Check that the output layer has exactly one node
 		if(architecture.back() != 1) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
-				  << "The output layer must have exactly one node for this training data." << std::endl
-				  << "Got " << architecture.back() << " instead." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
+					<< "The output layer must have exactly one node for this training data." << std::endl
+					<< "Got " << architecture.back() << " instead."
+			);
 		}
 
 		// Create a local random number generator.
@@ -499,10 +499,10 @@ public:
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
 			if(*it == 0) {
-				std::ostringstream error;
-				error << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
-					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
+						<< "Layer " << layerCounter << "has invalid size " << *it << std::endl
+				);
 			}
 
 			nD->push_back(*it);
@@ -555,19 +555,19 @@ public:
 
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
-				  << "Got invalid number of layers: " << architecture.size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
+					<< "Got invalid number of layers: " << architecture.size()
+			);
 		}
 
 		// Check that the output layer has exactly one node
 		if(architecture.back() != 1) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
-				  << "The output layer must have exactly one node for this training data." << std::endl
-				  << "Got " << architecture.back() << " instead." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
+					<< "The output layer must have exactly one node for this training data." << std::endl
+					<< "Got " << architecture.back() << " instead."
+			);
 		}
 
 		// Create a local random number generator.
@@ -583,10 +583,10 @@ public:
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
 			if(*it == 0) {
-				std::ostringstream error;
-				error << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
-					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
+						<< "Layer " << layerCounter << "has invalid size " << *it
+				);
 			}
 
 			nD->push_back(*it);
@@ -683,19 +683,19 @@ public:
 
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
-				  << "Got invalid number of layers: " << architecture.size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
+					<< "Got invalid number of layers: " << architecture.size()
+			);
 		}
 
 		// Check that the output layer has exactly one node
 		if(architecture.back() != 1) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
-				  << "The output layer must have exactly one node for this training data." << std::endl
-				  << "Got " << architecture.back() << " instead." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
+					<< "The output layer must have exactly one node for this training data." << std::endl
+					<< "Got " << architecture.back() << " instead."
+			);
 		}
 
 		// Create a local random number generator.
@@ -711,10 +711,10 @@ public:
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
 			if(*it == 0) {
-				std::ostringstream error;
-				error << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
-					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
+						<< "Layer " << layerCounter << "has invalid size " << *it
+				);
 			}
 
 			nD->push_back(*it);
@@ -779,28 +779,28 @@ public:
 
 		// Check the number of supplied layers
 		if(architecture.size() < 2) { // We need at least an input- and an output-layer
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
-				  << "Got invalid number of layers: " << architecture.size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+					<< "Got invalid number of layers: " << architecture.size()
+			);
 		}
 
 		// Check that the output layer has exactly one node
 		if(architecture.back() != 1) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
-				  << "The output layer must have exactly one node for this training data." << std::endl
-				  << "Got " << architecture.back() << " instead." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+					<< "The output layer must have exactly one node for this training data." << std::endl
+					<< "Got " << architecture.back() << " instead."
+			);
 		}
 
 		// We require the input dimension to be 2
 		if(architecture.front() != 2) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
-				  << "The input layer must have exactly two node for this example." << std::endl
-				  << "Got " << architecture.front() << " instead." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+					<< "The input layer must have exactly two node for this example." << std::endl
+					<< "Got " << architecture.front() << " instead."
+			);
 		}
 
 		// Create a local random number generator.
@@ -813,10 +813,10 @@ public:
 		std::size_t layerCounter = 0;
 		for(it=architecture.begin(); it!=architecture.end(); ++it, ++layerCounter) {
 			if(*it == 0) {
-				std::ostringstream error;
-				error << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
-					  << "Layer " << layerCounter << "has invalid size " << *it << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+						<< "Layer " << layerCounter << "has invalid size " << *it
+				);
 			}
 
 			nD->push_back(*it);
@@ -853,18 +853,18 @@ public:
 	 */
 	void writeVisualizationFile(const std::string& visFile) {
 		if(visFile == "" || visFile.empty()) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) : Error" << std::endl
-				  << "Received empty file name." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) : Error" << std::endl
+					<< "Received empty file name."
+			);
 		}
 
 		std::ofstream visProgram(visFile.c_str());
 		if(!visProgram) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
-				  << "Attempt to open output file " << visFile << " for writing failed." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
+					<< "Attempt to open output file " << visFile << " for writing failed."
+			);
 		}
 
 		// The following only makes sense if the input dimension is 2
@@ -1005,6 +1005,7 @@ public:
 			error << "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) : Warning!" << std::endl
 				  << "Request to create visualization program for more than two input dimensions!" << std::endl
 				  << "No action taken." << std::endl;
+			std::cerr << error.str();
 		}
 
 		// Clean up
@@ -1021,18 +1022,18 @@ public:
 	 */
 	void writeTrainedNetwork(const std::string& headerFile) {
 		if(headerFile == "" || headerFile.empty()) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) : Error" << std::endl
-				  << "Received empty file name." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) : Error" << std::endl
+					<< "Received empty file name."
+			);
 		}
 
 		std::ofstream header(headerFile.c_str());
 		if(!header) {
-			std::ostringstream error;
-			error << "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
-				  << "Error writing output file " << headerFile << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl
+					<< "Error writing output file " << headerFile
+			);
 		}
 
 		header << "/**" << std::endl
@@ -1322,10 +1323,10 @@ private:
 	 * A trap transfer function to capture invalid uses of this class
 	 */
 	double transfer(const double& value) const {
-		std::ostringstream error;
-		error << "In GNeuralNetworkIndividual::transfer(): Error!" << std::endl
-			  << "Class was instantiated with invalid value for template parameter tF" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GNeuralNetworkIndividual::transfer(): Error!" << std::endl
+				<< "Class was instantiated with invalid value for template parameter tF"
+		);
 	}
 
 	/********************************************************************************************/

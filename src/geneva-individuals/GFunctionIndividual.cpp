@@ -245,10 +245,10 @@ double GFunctionIndividual::fitnessCalculation(){
 #ifdef DEBUG
 		// Check the size of the parameter vector -- must be at least 2
 		if(parameterSize < 2) {
-			std::ostringstream error;
-			error << "In GFunctionIndividual::fitnessCalculation() / ROSENBROCK: Error!" << std::endl
-					<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GFunctionIndividual::fitnessCalculation() / ROSENBROCK: Error!" << std::endl
+					<< "Need to use at least two input dimensions, but got " << parameterSize
+			);
 		}
 #endif /* DEBUG */
 
@@ -265,10 +265,10 @@ double GFunctionIndividual::fitnessCalculation(){
 #ifdef DEBUG
 		// Check the size of the parameter vector -- must be at least 2
 		if(parameterSize < 2) {
-			std::ostringstream error;
-			error << "In GFunctionIndividual::fitnessCalculation() / ACKLEY: Error!" << std::endl
-					<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GFunctionIndividual::fitnessCalculation() / ACKLEY: Error!" << std::endl
+					<< "Need to use at least two input dimensions, but got " << parameterSize
+			);
 		}
 #endif /* DEBUG */
 

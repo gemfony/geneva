@@ -54,11 +54,11 @@ GRandomFactory::GRandomFactory()
 {
 	boost::mutex::scoped_lock lk(factory_creation_mutex_);
 	if(multiple_call_trap_ > 0) {
-		std::ostringstream error;
-		error << "Error in GRandomFactory::GRandomFactory():" << std::endl
-		         << "Class has been instantiated before." << std::endl
-		         << "and may be instantiated only once" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"Error in GRandomFactory::GRandomFactory():" << std::endl
+				<< "Class has been instantiated before." << std::endl
+				<< "and may be instantiated only once"
+		);
 	}
 	else {
 		multiple_call_trap_++;
@@ -87,10 +87,10 @@ GRandomFactory::~GRandomFactory() {
  */
 void GRandomFactory::setArraySize(const std::size_t& arraySize) {
 	if(arraySize == 0) {
-		std::ostringstream error;
-		error << "In GRandomFactory::setArraySize(): Error" << std::endl
-		      << "Requested array size is 0: " << arraySize << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GRandomFactory::setArraySize(): Error" << std::endl
+				<< "Requested array size is 0: " << arraySize
+		);
 	}
 
 	{ // explicit scope

@@ -218,10 +218,10 @@ private:
 			current01_ = 1; // Position 0 is the array size
 		}
 		else {
-			std::ostringstream error;
-			error << "In GRandomT<RANDOMPROXY, fp_type, int_type>::getNewP01(): Error!" << std::endl
-				  << "No connection to GRandomFactory object." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GRandomT<RANDOMPROXY, fp_type, int_type>::getNewP01(): Error!" << std::endl
+					<< "No connection to GRandomFactory object."
+			);
 		}
 
 		// We should now have a valid p01_ in any case

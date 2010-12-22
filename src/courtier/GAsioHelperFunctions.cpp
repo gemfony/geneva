@@ -65,9 +65,9 @@ std::size_t extractDataSize(const char* ds, const std::size_t& sz){
   std::istringstream is(std::string(ds, sz));
   std::size_t inboundDataSize = 0;
   if (!(is >> std::hex >> inboundDataSize)) {
-	  std::ostringstream error;
-	  error << "In extractDataSize: Got invalid header!" << std::endl;
-	  throw Gem::Common::gemfony_error_condition(error.str());
+	  raiseException(
+			  "In extractDataSize: Got invalid header!"
+	  );
   }
 
   return inboundDataSize;

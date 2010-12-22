@@ -80,11 +80,11 @@ void runExternalCommand(const std::string& command) {
 #endif /* PRINTCOMMANDLINE */
 
 	if(errorCode) {
-		std::ostringstream error;
-		error << "In runExternalCommand(): Error" << std::endl
-			  << "Command: " << command << std::endl
-			  << "Error code: " << errorCode << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In runExternalCommand(): Error" << std::endl
+				<< "Command: " << command << std::endl
+				<< "Error code: " << errorCode
+		);
 	}
 }
 

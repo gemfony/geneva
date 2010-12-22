@@ -260,11 +260,10 @@ void networkData::saveToDisk(const std::string& networkDataFile) const {
 	std::ofstream trDat(networkDataFile.c_str());
 
 	if(!trDat.good()){
-		std::ostringstream error;
-		error << "In networkData::saveToDisk(const std::string&) : Error!" << std::endl
-			  << "Data file " << networkDataFile << " could not be opened for writing." << std::endl;
-
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In networkData::saveToDisk(const std::string&) : Error!" << std::endl
+				<< "Data file " << networkDataFile << " could not be opened for writing."
+		);
 	}
 
 	// Load the data, using the Boost.Serialization library
@@ -289,14 +288,14 @@ void networkData::loadFromDisk(const std::string& networkDataFile) {
 
 	if(!trDat.good()){
 		std::ostringstream error;
-		error << "In networkData::loadFromDisk(const std::string&) : Error!" << std::endl
+		error << "In networkData::loadFromDisk(const std::string&):" << std::endl
 			  << "Data file " << networkDataFile << " could not be opened for reading." << std::endl;
 
 		if(!boost::filesystem::exists(networkDataFile.c_str())) {
 			error << "File does not exist." << std::endl;
 		}
 
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(error.str());
 	}
 
 	// Load the data into nD, using the Boost.Serialization library

@@ -267,10 +267,10 @@ void GDelayIndividualFactory::init_() {
 		sleepTokens.push_back(*s);
 	}
 	if(sleepTokens.empty()) { // No sleep tokens were provided
-		std::ostringstream error;
-		error << "In GDelayIndividualFactory::init_(): Error!" << std::endl
-				<< "You did not provide any delay timings" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GDelayIndividualFactory::init_(): Error!" << std::endl
+				<< "You did not provide any delay timings"
+		);
 	}
 
 	sleepSeconds_.clear();
@@ -292,10 +292,10 @@ void GDelayIndividualFactory::init_() {
 					sleepSeconds_.push_back(boost::lexical_cast<long>(*d));
 				}
 				catch(...) {
-					std::ostringstream error;
-					error << "In GDelayIndividualFactory::init_(): Error (1)!" << std::endl
-							<< "Could not transfer string " << *d << " to a numeric value" << std::endl;
-					throw(Gem::Common::gemfony_error_condition(error.str()));
+					raiseException(
+							"In GDelayIndividualFactory::init_(): Error (1)!" << std::endl
+							<< "Could not transfer string " << *d << " to a numeric value"
+					);
 				}
 				break;
 
@@ -304,19 +304,19 @@ void GDelayIndividualFactory::init_() {
 					sleepMilliSeconds_.push_back(boost::lexical_cast<long>(*d));
 				}
 				catch(...) {
-					std::ostringstream error;
-					error << "In GDelayIndividualFactory::init_(): Error (2)!" << std::endl
-							<< "Could not transfer string " << *d << " to a numeric value" << std::endl;
-					throw(Gem::Common::gemfony_error_condition(error.str()));
+					raiseException(
+							"In GDelayIndividualFactory::init_(): Error (2)!" << std::endl
+							<< "Could not transfer string " << *d << " to a numeric value"
+					);
 				}
 				break;
 
 			default:
 				{
-					std::ostringstream error;
-					error << "In GDelayIndividualFactory::init_(): Error!" << std::endl
-							<< "tokenCounter has reached invalid value " << tokenCounter << std::endl;
-					throw(Gem::Common::gemfony_error_condition(error.str()));
+					raiseException(
+							"In GDelayIndividualFactory::init_(): Error!" << std::endl
+							<< "tokenCounter has reached invalid value " << tokenCounter
+					);
 				}
 			}
 		}
