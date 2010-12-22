@@ -225,12 +225,12 @@ public:
 	void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {
-			std::ostringstream error;
-			error << "In GNumT<T>::setInitBoundaries(): Error!" << std::endl
-				  << "Invalid boundaries provided: " << std::endl
-				  << "lowerInitBoundary = " << lowerInitBoundary << std::endl
-				  << "upperInitBoundary = " << upperInitBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GNumT<T>::setInitBoundaries():" << std::endl
+					<< "Invalid boundaries provided: " << std::endl
+					<< "lowerInitBoundary = " << lowerInitBoundary << std::endl
+					<< "upperInitBoundary = " << upperInitBoundary
+			);
 		}
 
 		lowerInitBoundary_ = lowerInitBoundary;

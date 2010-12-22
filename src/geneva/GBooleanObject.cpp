@@ -249,10 +249,10 @@ void GBooleanObject::assignBooleanValueVector(const std::vector<bool>& parVec, s
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-		std::ostringstream error;
-		error << "In GBooleanObject::assignBooleanValueVector(const std::vector<bool>&, std::size_t&): Error!" << std::endl
-			  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GBooleanObject::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
+				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+		);
 	}
 #endif
 

@@ -265,11 +265,10 @@ public:
 	void setSigma(const double& sigma)
 	{
 		if(sigma < 0.) {
-			std::ostringstream error;
-			error << "In GNumGaussAdaptorT::setSigma(const double&): Error!" << std::endl
-			  	  << "sigma is negative: " << sigma << std::endl;
-
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GNumGaussAdaptorT::setSigma(const double&):" << std::endl
+					<< "sigma is negative: " << sigma
+			);
 		}
 
 		double tmpSigma;
@@ -279,14 +278,13 @@ public:
 		// Sigma must be in the allowed value range
 		if(tmpSigma < minSigma_ || tmpSigma > maxSigma_)
 		{
-			std::ostringstream error;
-			error << "In GNumGaussAdaptorT::setSigma(const double&): Error!" << std::endl
-			  	  << "sigma is not in the allowed range: " << std::endl
-			  	  << tmpSigma << " " << minSigma_ << " " << maxSigma_ << std::endl
-			  	  << "If you want to use these values you need to" << std::endl
-			  	  << "adapt the allowed range first." << std::endl;
-
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GNumGaussAdaptorT::setSigma(const double&):" << std::endl
+					<< "sigma is not in the allowed range: " << std::endl
+					<< tmpSigma << " " << minSigma_ << " " << maxSigma_ << std::endl
+					<< "If you want to use these values you need to" << std::endl
+					<< "adapt the allowed range first."
+			);
 		}
 
 		sigma_ = tmpSigma;
@@ -320,11 +318,10 @@ public:
 
 		// Do some error checks
 		if(tmpMinSigma<=0. || minSigma >= maxSigma){ // maxSigma will automatically be > 0. now
-			std::ostringstream error;
-			error << "In GNumGaussAdaptorT::setSigmaRange(const double&, const double&): Error!" << std::endl
-				  << "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma << std::endl;
-
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GNumGaussAdaptorT::setSigmaRange(const double&, const double&):" << std::endl
+					<< "Invalid values for minSigma and maxSigma given:" << tmpMinSigma << " " << maxSigma
+			);
 		}
 
 		minSigma_ = tmpMinSigma;
@@ -372,11 +369,10 @@ public:
 		// A value of sigmaSigma <= 0. is not useful.
 		if(sigmaSigma <= 0.)
 		{
-			std::ostringstream error;
-			error << "In GNumGaussAdaptorT::setSigmaSigma(double, double): Error!" << std::endl
-				  << "Bad value for sigmaSigma given: " << sigmaSigma << std::endl;
-
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GNumGaussAdaptorT::setSigmaSigma(double, double):" << std::endl
+					<< "Bad value for sigmaSigma given: " << sigmaSigma
+			);
 		}
 
 		sigmaSigma_ = sigmaSigma;
@@ -433,10 +429,10 @@ public:
 	 * @return The id of the adaptor
 	 */
 	virtual Gem::Geneva::adaptorId getAdaptorId() const {
-		std::ostringstream error;
-		error << "In Gem::Geneva::adaptorId GNumGaussAdaptorT::getAdaptorId(): Error!" << std::endl
-			  << "Function used with a type it was not designed for" << std::endl;
-		throw (Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In Gem::Geneva::adaptorId GNumGaussAdaptorT::getAdaptorId():" << std::endl
+				<< "Function used with a type it was not designed for"
+		);
 	}
 
 protected:

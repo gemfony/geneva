@@ -182,10 +182,10 @@ public:
 	){
 #ifdef DEBUG
 		if(data.empty()) {
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() : Error!" << std::endl
-				  << "Tried to access individual at position 0 even though population is empty." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GEvolutionaryAlgorithm::getBestIndividual<individual_type>() :" << std::endl
+					<< "Tried to access individual at position 0 even though population is empty."
+			);
 		}
 #endif /* DEBUG */
 
@@ -209,10 +209,10 @@ public:
 #ifdef DEBUG
 		// Check that the parent id is in a valid range
 		if(parentId >= this->getNParents()) {
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getParentIndividual<>() : Error" << std::endl
-				  << "Requested parent id which does not exist: " << parentId << " / " << this->getNParents() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GEvolutionaryAlgorithm::getParentIndividual<>() : Error" << std::endl
+					<< "Requested parent id which does not exist: " << parentId << " / " << this->getNParents()
+			);
 		}
 
 		// Retrieve a pointer to the parent individual
@@ -220,19 +220,19 @@ public:
 
 		// Check that the pointer actually points somewhere
 		if(!parent_ptr) {
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getParentIndividual<>() : Error" << std::endl
-				  << "Tried to access uninitialized parent individual." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GEvolutionaryAlgorithm::getParentIndividual<>() : Error" << std::endl
+					<< "Tried to access uninitialized parent individual."
+			);
 		}
 
 		boost::shared_ptr<individual_type> converted_parent_pointer = boost::dynamic_pointer_cast<individual_type>(parent_ptr);
 
 		if(converted_parent_pointer) return converted_parent_pointer;
 		else {
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getParentIndividual<>(): Conversion error" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GEvolutionaryAlgorithm::getParentIndividual<>(): Conversion error"
+			);
 		}
 #else
 		return boost::static_pointer_cast<individual_type>(*(this->begin() + parentId));
@@ -256,18 +256,18 @@ public:
 #ifdef DEBUG
 		// Check that we have indeed logged parents
 		if(!logOldParents_) {
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
-				  << "Requested logged parent individual when no logging is done" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
+					<< "Requested logged parent individual when no logging is done"
+			);
 		}
 
 		// Check that the parent id is in a valid range
 		if(parentId >= oldParents_.size()) {
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
-				  << "Requested parent id which does not exist: " << parentId << " / " << oldParents_.size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
+					<< "Requested parent id which does not exist: " << parentId << " / " << oldParents_.size()
+			);
 		}
 
 		// Retrieve a pointer to the parent individual
@@ -275,19 +275,19 @@ public:
 
 		// Check that the pointer actually points somewhere
 		if(!parent_ptr) {
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
-				  << "Tried to access uninitialized parent individual." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Error" << std::endl
+					<< "Tried to access uninitialized parent individual."
+			);
 		}
 
 		boost::shared_ptr<individual_type> converted_parent_pointer = boost::dynamic_pointer_cast<individual_type>(parent_ptr);
 
 		if(converted_parent_pointer) return converted_parent_pointer;
 		else {
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Conversion error" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GEvolutionaryAlgorithm::getOldParentIndividual<>() : Conversion error"
+			);
 		}
 #else
 		return boost::static_pointer_cast<individual_type>(*(oldParents_.begin() + parentId));

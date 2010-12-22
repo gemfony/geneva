@@ -168,10 +168,10 @@ bool GParameterSet::updateOnStall() {
 	{
 		// This function should only be called for parents. Check ...
 		if(!getEAPersonalityTraits()->isParent()) {
-			std::ostringstream error;
-			error << "In GParameterSet::updateOnStall() (called for EA personality): Error!" << std::endl
-					<< "This function should only be called for parent individuals." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterSet::updateOnStall() (called for EA personality):" << std::endl
+					<< "This function should only be called for parent individuals."
+			);
 		}
 	}
 #endif /* DEBUG */
@@ -326,10 +326,10 @@ void GParameterSet::fpMultiplyByRandom() {
 void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
 	// Some error checking
 	if(p->size() != this->size()) {
-		std::ostringstream error;
-		error << "In GParameterSet::fpAdd(): Error! " << std::endl
-			  << "Sizes do not match: " << this->size() << " " << p->size() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GParameterSet::fpAdd():" << std::endl
+				<< "Sizes do not match: " << this->size() << " " << p->size()
+		);
 	}
 
 	// Loop over all GParameterBase objects in this and the other object
@@ -360,10 +360,10 @@ void GParameterSet::fpAdd(boost::shared_ptr<GParameterSet> p) {
 void GParameterSet::fpSubtract(boost::shared_ptr<GParameterSet> p) {
 	// Some error checking
 	if(p->size() != this->size()) {
-		std::ostringstream error;
-		error << "In GParameterSet::fpAdd(): Error! " << std::endl
-			  << "Sizes do not match: " << this->size() << " " << p->size() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GParameterSet::fpAdd():" << std::endl
+				<< "Sizes do not match: " << this->size() << " " << p->size()
+		);
 	}
 
 	// Loop over all GParameterBase objects in this and the other object
@@ -529,10 +529,10 @@ std::size_t GParameterSet::countParameters<bool>() const {
 void GParameterSet::assignValueVector(const std::vector<double>& parVec) {
 #ifdef DEBUG
 	if(countParameters<double>() != parVec.size()) {
-		std::ostringstream error;
-		error << "In GParameterSet::assignValueVector(const std::vector<double>&): Error!" << std::endl
-			  << "Sizes don't match: " <<  countParameters<double>() << " / " << parVec.size() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GParameterSet::assignValueVector(const std::vector<double>&):" << std::endl
+				<< "Sizes don't match: " <<  countParameters<double>() << " / " << parVec.size()
+		);
 	}
 #endif /* DEBUG */
 
@@ -559,10 +559,10 @@ void GParameterSet::assignValueVector(const std::vector<double>& parVec) {
 void GParameterSet::assignValueVector(const std::vector<boost::int32_t>& parVec) {
 #ifdef DEBUG
 	if(countParameters<boost::int32_t>() != parVec.size()) {
-		std::ostringstream error;
-		error << "In GParameterSet::assignValueVector(const std::vector<boost::int32_t>&): Error!" << std::endl
-			  << "Sizes don't match: " <<  countParameters<boost::int32_t>() << " / " << parVec.size() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GParameterSet::assignValueVector(const std::vector<boost::int32_t>&):" << std::endl
+				<< "Sizes don't match: " <<  countParameters<boost::int32_t>() << " / " << parVec.size()
+		);
 	}
 #endif /* DEBUG */
 
@@ -589,10 +589,10 @@ void GParameterSet::assignValueVector(const std::vector<boost::int32_t>& parVec)
 void GParameterSet::assignValueVector(const std::vector<bool>& parVec) {
 #ifdef DEBUG
 	if(countParameters<bool>() != parVec.size()) {
-		std::ostringstream error;
-		error << "In GParameterSet::assignValueVector(const std::vector<bool>&): Error!" << std::endl
-			  << "Sizes don't match: " <<  countParameters<bool>() << " / " << parVec.size() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GParameterSet::assignValueVector(const std::vector<bool>&):" << std::endl
+				<< "Sizes don't match: " <<  countParameters<bool>() << " / " << parVec.size()
+		);
 	}
 #endif /* DEBUG */
 

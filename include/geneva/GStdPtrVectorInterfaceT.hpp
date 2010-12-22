@@ -306,11 +306,10 @@ public:
 	template <typename item_type>
 	size_type count(const boost::shared_ptr<item_type>& item) const {
 		if(!item) { // Check that item actually contains something useful
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::count(item): Error!"
-				  << "Tried to count an empty smart pointer." << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterTCollectionT<T>::count(item):"
+					<< "Tried to count an empty smart pointer."
+			);
 		}
 
 		if(typeid(item_type) == typeid(T)) {
@@ -336,11 +335,10 @@ public:
 	template <typename item_type>
 	const_iterator find(const boost::shared_ptr<item_type>& item) const {
 		if(!item) { // Check that item actually contains something useful
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::find(item): Error!"
-				     << "Tried to find an empty smart pointer." << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterTCollectionT<T>::find(item):"
+					<< "Tried to find an empty smart pointer."
+			);
 		}
 
 		if(typeid(item_type) == typeid(T)) {
@@ -421,11 +419,10 @@ public:
 	 */
 	iterator insert_noclone(iterator pos, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr): Error!"
-				     << "Tried to insert an empty smart pointer." << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr):"
+					<< "Tried to insert an empty smart pointer."
+			);
 		}
 
 		return data.insert(pos, item_ptr);
@@ -448,11 +445,10 @@ public:
 	 */
 	iterator insert_clone(iterator pos, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr): Error!"
-				     << "Tried to insert an empty smart pointer." << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterTCollectionT<T>::insert_clone(pos, item_ptr):"
+					<< "Tried to insert an empty smart pointer."
+			);
 		}
 
 		return data.insert(pos, item_ptr->GObject::clone<T>());
@@ -492,11 +488,10 @@ public:
 	 */
 	void insert_clone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::insert_clone(pos, amount, item): Error!"
-				     << "Tried to insert an empty smart pointer." << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterTCollectionT<T>::insert_clone(pos, amount, item):"
+					<< "Tried to insert an empty smart pointer."
+			);
 		}
 
 		std::size_t iterator_pos = pos - data.begin();
@@ -524,12 +519,11 @@ public:
 	 */
 	void insert_noclone(iterator pos, size_type amount, boost::shared_ptr<T> item_ptr) {
 		if(!item_ptr) { // Check that item actually contains something useful
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item): Error!"
-				     << "Tried to insert an empty smart pointer." << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
-		}
+			raiseException(
+					"In GParameterTCollectionT<T>::insert_noclone(pos, amount, item):"
+					<< "Tried to insert an empty smart pointer."
+			);
+ 		}
 
 		std::size_t iterator_pos = pos - data.begin();
 		// Create (amount-1) clones
@@ -573,11 +567,10 @@ public:
 	 */
 	void push_back_noclone(boost::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::push_back(item): Error!"
-				     << "Tried to insert an empty smart pointer." << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterTCollectionT<T>::push_back(item):"
+					<< "Tried to insert an empty smart pointer."
+			);
 		}
 
 		data.push_back(item_ptr);
@@ -599,11 +592,10 @@ public:
 	 */
 	void push_back_clone(boost::shared_ptr<T> item_ptr){
 		if(!item_ptr) { // Check that item actually contains something useful
-			std::ostringstream error;
-			error << "In GStdPtrVectorInterface<T>::push_back_clone(item): Error!"
-				     << "Tried to insert an empty smart pointer." << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GStdPtrVectorInterface<T>::push_back_clone(item):"
+					<< "Tried to insert an empty smart pointer."
+			);
 		}
 
 		data.push_back(item_ptr->GObject::clone<T>());
@@ -629,12 +621,12 @@ public:
 	 */
 	void resize(size_type amount) {
 		if(this->empty() && amount != 0) {
-			std::ostringstream error;
-			error << "In GStdPtrVectorInterface<T>::resize(size_type): Error!"
-				     << "Tried to increase the size even though the vector is empty." << std::endl
-				     << "Use a resize-version that allows you to specify the objects" << std::endl
-				     << "to be added." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GStdPtrVectorInterface<T>::resize(size_type):"
+					<< "Tried to increase the size even though the vector is empty." << std::endl
+					<< "Use a resize-version that allows you to specify the objects" << std::endl
+					<< "to be added."
+			);
 		}
 
 		this->resize_clone(amount, this->at(0));
@@ -682,11 +674,10 @@ public:
 		else if(amount > dataSize) {
 			// Check that item is not empty
 			if(!item_ptr) { // Check that item actually contains something useful
-				std::ostringstream error;
-				error << "In GParameterTCollectionT<T>::resize(amount, item): Error!"
-					     << "Tried to insert an empty smart pointer." << std::endl;
-
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GParameterTCollectionT<T>::resize(amount, item):"
+						<< "Tried to insert an empty smart pointer."
+				);
 			}
 
 			// Create a (amount - dataSize -1) clones
@@ -722,11 +713,10 @@ public:
 		else if(amount > dataSize) {
 			// Check that item is not empty
 			if(!item_ptr) { // Check that item actually contains something useful
-				std::ostringstream error;
-				error << "In GParameterTCollectionT<T>::resize(amount, item): Error!"
-					     << "Tried to insert an empty smart pointer." << std::endl;
-
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GParameterTCollectionT<T>::resize(amount, item):"
+						<< "Tried to insert an empty smart pointer."
+				);
 			}
 
 			for(std::size_t i=dataSize; i<amount; i++) {
@@ -860,17 +850,17 @@ public:
 		boost::shared_ptr<derivedType> dereference() const {
 #ifdef DEBUG
 			if(current_ == end_) {
-				std::ostringstream error;
-				error << "In conversion_iterator::dereference(): Error:" << std::endl
-					  << "current position at end of sequence" << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In conversion_iterator::dereference(): Error:" << std::endl
+						<< "current position at end of sequence"
+				);
 			}
 
 			if(p) return p;
 			else {
-				std::ostringstream error;
-				error << "In conversion_iterator::dereference(): Error: empty pointer" << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In conversion_iterator::dereference(): Error: empty pointer"
+				);
 			}
 #else
 			return p;
@@ -928,9 +918,9 @@ protected:
 				result = (*item == *(boost::dynamic_pointer_cast<item_type>(cont_item)));
 			}
 			catch(...) {
-				std::ostringstream error;
-				error << "Unknown error in bool vi_equal_to::operator()" << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"Unknown error in bool vi_equal_to::operator()"
+				);
 			}
 #else
 			result = (*item == *(boost::static_pointer_cast<item_type>(cont_item)));

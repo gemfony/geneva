@@ -189,12 +189,12 @@ protected:
 			// to a rather high value or to alternatively disable it completely by setting it
 			// to EMPTYDURATION.
 			if(!CurrentBufferPort_->pop_back_processed_bool(&p, firstTimeOut_)) {
-				std::ostringstream error;
-				error << "In GBrokerConnector::retrieveFirstItem(): Error!" << std::endl
-					  << "Timeout for first item reached." << std::endl
-					  << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
-					  << "You can change this value with the setFirstTimeOut() function." << std::endl;
-				throw Gem::Common::gemfony_error_condition(error.str());
+				raiseException(
+						"In GBrokerConnector::retrieveFirstItem():" << std::endl
+						<< "Timeout for first item reached." << std::endl
+						<< "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
+						<< "You can change this value with the setFirstTimeOut() function."
+				);
 			}
 		}
 		else { // Wait indefinitely for the first item to return
@@ -212,18 +212,14 @@ protected:
 #ifdef DEBUG
 		// Check that p actually points somewhere
 		if(!p) {
-			std::ostringstream error;
-			error << "In GBrokerConnector::retrieveFirstItem<ind_type>(): Empty pointer found" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException("In GBrokerConnector::retrieveFirstItem<ind_type>(): Empty pointer found");
 		}
 
 		boost::shared_ptr<ind_type> p_converted = boost::dynamic_pointer_cast<ind_type>(p);
 
 		if(p_converted) return p_converted;
 		else {
-			std::ostringstream error;
-			error << "In GBrokerConnector::retrieveFirstItem<ind_type>(): Conversion error" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException("In GBrokerConnector::retrieveFirstItem<ind_type>(): Conversion error");
 		}
 #else
 		return boost::static_pointer_cast<ind_type>(p);
@@ -258,18 +254,18 @@ protected:
 #ifdef DEBUG
 		// Check that p actually points somewhere
 		if(!p) {
-			std::ostringstream error;
-			error << "In GBrokerConnector::retrieveItem<ind_type>(): Empty pointer found" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GBrokerConnector::retrieveItem<ind_type>(): Empty pointer found"
+			);
 		}
 
 		p_converted = boost::dynamic_pointer_cast<ind_type>(p);
 
 		if(p_converted) return p_converted;
 		else {
-			std::ostringstream error;
-			error << "In GBrokerConnector::retrieveItem<ind_type>(): Conversion error" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GBrokerConnector::retrieveItem<ind_type>(): Conversion error"
+			);
 		}
 #else
 		return boost::static_pointer_cast<ind_type>(p);

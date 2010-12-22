@@ -181,11 +181,11 @@ public:
 	void addAdaptor(boost::shared_ptr<GAdaptorT<T> > gat_ptr) {
 		// Check that we have indeed been given an adaptor
 		if(!gat_ptr){
-			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-				  << "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
-				  << "Error: Empty adaptor provided." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
+					<< "Error: Empty adaptor provided."
+			);
 		}
 
 		if(adaptor_) { // Is an adaptor already present ?
@@ -199,10 +199,10 @@ public:
 		}
 		// None there ? This should not happen
 		else {
-			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-				  << "Found no local adaptor. This should not happen!" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+					<< "Found no local adaptor. This should not happen!"
+			);
 		}
 
 		// Make our local random number generator known to the adaptor
@@ -226,11 +226,11 @@ public:
 	boost::shared_ptr<GAdaptorT<T> > getAdaptor() const {
 #ifdef DEBUG
 		if(!adaptor_) {
-			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT::getAdaptor() : Error!" << std::endl
-				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
-				  << "Tried to retrieve adaptor while none is present" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GParameterBaseWithAdaptorsT::getAdaptor() :" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Tried to retrieve adaptor while none is present"
+			);
 		}
 #endif /* DEBUG */
 
@@ -260,20 +260,20 @@ public:
 	) const {
 #ifdef DEBUG
 		if(!adaptor_) {
-			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << std::endl
-				  << "with typeid(T).name() = " << typeid(T).name() << " : Error!" << std::endl
-				  << "Tried to access empty adaptor pointer." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
+					<< "Tried to access empty adaptor pointer."
+			);
 		}
 
 		boost::shared_ptr<adaptor_type> p = boost::dynamic_pointer_cast<adaptor_type>(adaptor_);
 
 		if(p) return p;
 		else {
-			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>() : Conversion error!" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>() : Conversion error!"
+			);
 		}
 #else
 		return boost::static_pointer_cast<adaptor_type>(adaptor_);
@@ -410,10 +410,10 @@ protected:
 #ifdef DEBUG
 		// Check that both we and the "foreign" object have an adaptor
 		if(!adaptor_ || !p_load->adaptor_) {
-			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT<T>::load_(): Error!" << std::endl
-				  << "Missing adaptor!" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterBaseWithAdaptorsT<T>::load_():" << std::endl
+					<< "Missing adaptor!"
+			);
 		}
 #endif
 		// Same type: We can just load the data
@@ -441,12 +441,11 @@ protected:
 	void applyAdaptor(T &value) {
 #ifdef DEBUG
 		if (!adaptor_) {
-			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(T& value):" << std::endl
-				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
-				  << "Error: No adaptor was found." << std::endl;
-
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GParameterBaseWithAdaptorsT<T>::applyAdaptor(T& value):" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Error: No adaptor was found."
+			);
 		}
 #endif /* DEBUG */
 
@@ -469,11 +468,11 @@ protected:
 	void applyAdaptor(std::vector<T> &collection) {
 #ifdef DEBUG
 		if(!adaptor_) {
-			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<T>& collection):" << std::endl
-				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
-				  << "Error: No adaptor was found." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<T>& collection):" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Error: No adaptor was found."
+			);
 		}
 #endif /* DEBUG */
 

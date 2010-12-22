@@ -48,10 +48,10 @@ template<>
 void GParameterBaseWithAdaptorsT<bool>::applyAdaptor(std::vector<bool>& collection) {
 #ifdef DEBUG
 		if(!adaptor_) {
-			std::ostringstream error;
-			error << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
-				  << "Error: No adaptor was found." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
+					<< "Error: No adaptor was found."
+			);
 		}
 #endif /* DEBUG */
 

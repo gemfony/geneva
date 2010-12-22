@@ -220,10 +220,10 @@ boost::optional<std::string> GParameterBase::checkRelationshipWith(const GObject
  */
 void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
 		if(!gr_cp) {
-			std::ostringstream error;
-			error << "In GParameterBase::assignGRandomPointer() : Error!" << std::endl
-				  << "Tried to assign NULL pointer" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterBase::assignGRandomPointer() :" << std::endl
+					<< "Tried to assign NULL pointer"
+			);
 		}
 
 	gr = gr_cp;
@@ -242,10 +242,10 @@ void GParameterBase::assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::
 void GParameterBase::resetGRandomPointer() {
 	if(gr_local) gr = gr_local;
 	else {
-		std::ostringstream error;
-		error << "In GParameterBase::resetGRandomPointer() : Error!" << std::endl
-			  << "Tried to assign NULL pointer" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GParameterBase::resetGRandomPointer() :" << std::endl
+				<< "Tried to assign NULL pointer"
+		);
 	}
 
 	gr = gr_local;

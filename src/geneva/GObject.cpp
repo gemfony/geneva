@@ -269,10 +269,10 @@ void GObject::toFile(const std::string& fileName, const Gem::Common::serializati
 	std::ofstream ofstr(fileName.c_str());
 
 	if(!ofstr) {
-		std::ostringstream error;
-		error << "In GObject::toFile(): Error!" << std::endl
-			  << "Problems connecting to file " << fileName << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GObject::toFile():" << std::endl
+				<< "Problems connecting to file " << fileName
+		);
 	}
 
 	toStream(ofstr, serMod);
@@ -298,10 +298,10 @@ void GObject::fromFile(const std::string& fileName, const Gem::Common::serializa
 	std::ifstream ifstr(fileName.c_str());
 
 	if(!ifstr) {
-		std::ostringstream error;
-		error << "In GObject::fromFile(): Error!" << std::endl
-			  << "Problems connecting to file " << fileName << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GObject::fromFile():" << std::endl
+				<< "Problems connecting to file " << fileName
+		);
 	}
 
 	fromStream(ifstr, serMod);

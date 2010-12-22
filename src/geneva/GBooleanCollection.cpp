@@ -143,10 +143,10 @@ namespace Geneva
   void GBooleanCollection::randomInit_(const double& probability) {
 	  // Do some error checking
 	  if(probability<0. || probability>1.) {
-		  std::ostringstream error;
-		  error << "In GBooleanCollection::randomInit_(" << probability << "): Error!" << std::endl
-				<< "Requested probability outside of allowed range [0:1]" << std::endl;
-		  throw(Gem::Common::gemfony_error_condition(error.str()));
+		  raiseException(
+				  "In GBooleanCollection::randomInit_(" << probability << "):" << std::endl
+				  << "Requested probability outside of allowed range [0:1]"
+		  );
 	  }
 
 	  for(std::size_t i=0; i<this->size(); i++) (*this)[i] = gr->weighted_bool(probability);
@@ -268,10 +268,10 @@ namespace Geneva
 #ifdef DEBUG
 		  // Do we have a valid position ?
 		  if(pos >= parVec.size()) {
-			  std::ostringstream error;
-			  error << "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, std::size_t&): Error!" << std::endl
-					  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
-			  throw(Gem::Common::gemfony_error_condition(error.str()));
+			  raiseException(
+					  "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
+					  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+			  );
 		  }
 #endif
 

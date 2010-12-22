@@ -166,10 +166,10 @@ public:
 #ifdef DEBUG
 		// Check that global_best_ actually points somewhere
 		if(!global_best_) {
-			std::ostringstream error;
-			error << "In GSwarm::getBestIndividual<>() : Error" << std::endl
-				  << "Tried to access uninitialized globally best individual." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GSwarm::getBestIndividual<>() : Error" << std::endl
+					<< "Tried to access uninitialized globally best individual."
+			);
 		}
 #endif /* DEBUG */
 
@@ -193,27 +193,27 @@ public:
 #ifdef DEBUG
 		// Check that the neighborhood is in a valid range
 		if(neighborhood >= nNeighborhoods_) {
-			std::ostringstream error;
-			error << "In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
-				  << "Requested neighborhood which does not exist: " << neighborhood << " / " << nNeighborhoods_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
+					<< "Requested neighborhood which does not exist: " << neighborhood << " / " << nNeighborhoods_
+			);
 		}
 
 		// Check that pointer actually points somewhere
 		if(!local_bests_[neighborhood]) {
-			std::ostringstream error;
-			error << "In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
-				  << "Tried to access uninitialized locally best individual." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
+					<< "Tried to access uninitialized locally best individual."
+			);
 		}
 
 		boost::shared_ptr<parameterset_type> p = boost::dynamic_pointer_cast<parameterset_type>(local_bests_[neighborhood]);
 
 		if(p) return p;
 		else {
-			std::ostringstream error;
-			error << "In GSwarm::getBestNeighborhoodIndividual<>() : Conversion error" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GSwarm::getBestNeighborhoodIndividual<>() : Conversion error"
+			);
 		}
 #else
 		return boost::static_pointer_cast<parameterset_type>(local_bests_[neighborhood]);

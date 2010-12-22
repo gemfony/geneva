@@ -151,19 +151,19 @@ public:
 #ifdef DEBUG
 		// Check that data is present at all
 		if(data.size() < nStartingPoints_) {
-			std::ostringstream error;
-			error << "In GGradientDescent::getBestIndividual<parameterset_type>() : Error!" << std::endl
-				  << "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_ << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GGradientDescent::getBestIndividual<parameterset_type>() : Error!" << std::endl
+					<< "Population has fewer individuals than starting points: " << data.size() << " / " << nStartingPoints_
+			);
 		}
 
 		// Check that no parent is in "dirty" state
 		for(std::size_t i=0; i<nStartingPoints_; i++) {
 			if(data.at(i)->isDirty()) {
-				std::ostringstream error;
-				error << "In GGradientDescent::getBestIndividual<parameterset_type>() : Error!" << std::endl
-					  << "Found dirty parent at position : " << i << std::endl;
-				throw Gem::Common::gemfony_error_condition(error.str());
+				raiseException(
+						"In GGradientDescent::getBestIndividual<parameterset_type>() : Error!" << std::endl
+						<< "Found dirty parent at position : " << i
+				);
 			}
 		}
 #endif /* DEBUG */

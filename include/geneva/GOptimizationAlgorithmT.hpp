@@ -269,27 +269,27 @@ public:
 	void setCheckpointBaseName(const std::string& cpDirectory, const std::string& cpBaseName) {
 		// Do some basic checks
 		if(cpBaseName == "empty" || cpBaseName.empty()) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-				  << "Error: Invalid cpBaseName: " << cpBaseName << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+					<< "Error: Invalid cpBaseName: " << cpBaseName
+			);
 		}
 
 		if(cpDirectory == "empty" || cpDirectory.empty()) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-				  << "Error: Invalid cpDirectory: " << cpDirectory << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+					<< "Error: Invalid cpDirectory: " << cpDirectory
+			);
 		}
 
 		cpBaseName_ = cpBaseName;
 
 		// Check that the provided directory exists
 		if(!boost::filesystem::exists(cpDirectory) || !boost::filesystem::is_directory(cpDirectory)) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
-				  << "Error: directory does not exist: " << cpDirectory << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+					<< "Error: directory does not exist: " << cpDirectory
+			);
 		}
 
 		// Add a trailing slash to the directory name, if necessary
@@ -432,10 +432,10 @@ public:
 	virtual void optimize(const boost::uint32_t& offset = 0) {
 		// Check that we are dealing with an "authorized" optimization algorithm
 		if(this->getOptimizationAlgorithm() == NONE) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<T>::optimize(): Error!" << std::endl
-				  << "The id of the optimization algorithm hasn't been set." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GOptimizationAlgorithmT<T>::optimize():" << std::endl
+					<< "The id of the optimization algorithm hasn't been set."
+			);
 		}
 
 		// Reset the generation counter
@@ -536,10 +536,10 @@ public:
 	virtual void doInfo(const infoMode& im) {
 #ifdef DEBUG
 		if(!optimizationMonitor_ptr_) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<ind_type>::doInfo(): Error!" << std::endl
-				  << "optimizationMonitor_ptr_ is empty when it shouldn't be." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::doInfo():" << std::endl
+					<< "optimizationMonitor_ptr_ is empty when it shouldn't be."
+			);
 		}
 #endif /* DEBUG */
 
@@ -558,10 +558,10 @@ public:
 	void registerOptimizationMonitor(boost::shared_ptr<GOptimizationAlgorithmT<ind_type>::GOptimizationMonitorT> om_ptr) {
 #ifdef DEBUG
 		if(!om_ptr) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<ind_type>::registerOptimizationMonitor(): Error!" << std::endl
-				  << "om_ptr is empty when it shouldn't be." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::registerOptimizationMonitor():" << std::endl
+					<< "om_ptr is empty when it shouldn't be."
+			);
 		}
 #endif /* DEBUG */
 
@@ -643,11 +643,10 @@ public:
 
 		// Only allow "real" values
 		if(maxDuration.is_special() || maxDuration.is_negative()) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<ind_type>::setMaxTime() : Error!" << std::endl
-				  << "Invalid maxDuration." << std::endl;
-
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::setMaxTime() :" << std::endl
+					<< "Invalid maxDuration."
+			);
 		}
 
 		maxDuration_ = maxDuration;
@@ -807,19 +806,19 @@ public:
 	) {
 #ifdef DEBUG
 		if(pos >= this->size()) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Error" << std::endl
-				  << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Error" << std::endl
+					<< "Tried to access position " << pos << " which is >= array size " << this->size()
+			);
 		}
 
 		boost::shared_ptr<target_type> p = boost::dynamic_pointer_cast<target_type>(this->at(pos));
 
 		if(p) return p;
 		else {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Conversion error" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::individual_cast<>() : Conversion error"
+			);
 		}
 #else
 		return boost::static_pointer_cast<target_type>((*this)[pos]);
@@ -969,13 +968,10 @@ protected:
 		// is this the current fitness ? We should at this stage never
 		// run across an unevaluated individual.
 		if(dirty) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmT<ind_type>::fitnessCalculation(): Error!" << std::endl
-				  << "Came across dirty individual" << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GOptimizationAlgorithmT<ind_type>::fitnessCalculation():" << std::endl
+					<< "Came across dirty individual"
+			);
 		}
 		return val;
 	}
@@ -1213,21 +1209,21 @@ private:
 	void setLocalMaxMode() {
 		// Do some error checking
 		if(this->empty()) {
-			std::ostringstream error;
-			error << "In GOptimizationAlgorithmTgetIndividualMaxMode(): Error!" << std::endl
-				  << "There should at least be one individual present at this stage." << std::endl
-				  << "Found none." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GOptimizationAlgorithmTgetIndividualMaxMode():" << std::endl
+					<< "There should at least be one individual present at this stage." << std::endl
+					<< "Found none."
+			);
 		}
 
 		bool localMaxMode = this->at(0)->getMaxMode();
 		for(std::size_t i=1; i<this->size(); i++) {
 			if(this->at(i)->getMaxMode() != localMaxMode) {
-				std::ostringstream error;
-				error << "In GOptimizationAlgorithmTgetIndividualMaxMode(): Error!" << std::endl
-					  << "Found individual with maximization mode " << this->at(i)->getMaxMode() << " in position " << i << std::endl
-					  << "where " << localMaxMode << " was expected." << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GOptimizationAlgorithmTgetIndividualMaxMode():" << std::endl
+						<< "Found individual with maximization mode " << this->at(i)->getMaxMode() << " in position " << i << std::endl
+						<< "where " << localMaxMode << " was expected."
+				);
 			}
 		}
 
@@ -1476,10 +1472,10 @@ public:
 	    		// Make sure we have an output path
 	    		summary_.open(resultFile_.c_str());
 	    		if(!summary_) {
-	    			std::ostringstream error;
-	    			error << "In GOptimizationMonitorT<T>::informationFunction(): Error!" << std::endl
-	    				  << "Could not open output file \"" << resultFile_ << "\"" << std::endl;
-	    			throw(Gem::Common::gemfony_error_condition(error.str()));
+	    			raiseException(
+	    					"In GOptimizationMonitorT<T>::informationFunction():" << std::endl
+	    					<< "Could not open output file \"" << resultFile_ << "\""
+	    			);
 	    		}
 
 	    		// Emit the header and perform any necessary initialization work

@@ -215,10 +215,10 @@ void GBrokerGD::init() {
 void GBrokerGD::finalize() {
 #ifdef DEBUG
 	if(data.size() != sm_value_.size()) {
-		std::ostringstream error;
-		error << "In GBrokerSwarm::finalize(): Error!" << std::endl
-			  << "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GBrokerSwarm::finalize():" << std::endl
+				<< "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size()
+		);
 	}
 #endif /* DEBUG */
 
@@ -253,17 +253,17 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
-		std::ostringstream error;
-		error << "In GBrokerGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-			  << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
+				<< "Got invalid final position: " << finalPos << "/" << this->size()
+		);
 	}
 
 	if(finalPos < nStartingPoints) {
-		std::ostringstream error;
-		error << "In GBrokerGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-			  << "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
+				<< "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos
+		);
 	}
 #endif
 
@@ -272,10 +272,10 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
 		if(!this->at(i)->isDirty()) {
-			std::ostringstream error;
-			error << "In GBrokerGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-				  << "Found individual in position " << i << " whose dirty flag isn't set" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GBrokerGD::doFitnessCalculation(const std::size_t&):" << std::endl
+					<< "Found individual in position " << i << " whose dirty flag isn't set"
+			);
 		}
 #endif /* DEBUG*/
 
@@ -398,11 +398,11 @@ double GBrokerGD::doFitnessCalculation(const std::size_t& finalPos) {
 #ifdef DEBUG
 	// Check that we are indeed complete
 	if(gps_vec.size() != this->size()) {
-		std::ostringstream error;
-		error << "In GBrokerGD::doFitnessCalculation(): Error!" << std::endl
-			  << "Found invalid size of retrieved item vector: " << gps_vec.size() << std::endl
-			  << "Should be " << this->size() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GBrokerGD::doFitnessCalculation():" << std::endl
+				<< "Found invalid size of retrieved item vector: " << gps_vec.size() << std::endl
+				<< "Should be " << this->size()
+		);
 	}
 #endif /* DEBUG */
 

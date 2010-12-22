@@ -207,10 +207,10 @@ double GIndividual::fitness() {
 	if (dirtyFlag_) {
 		// Re-evaluation is not allowed on the server
 		if (serverMode_) {
-			std::ostringstream error;
-			error << "In GIndividual::fitness(): Error!" << std::endl
-				  << "Tried to perform re-evaluation in server-mode" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GIndividual::fitness():" << std::endl
+					<< "Tried to perform re-evaluation in server-mode"
+			);
 		}
 
 		currentFitness_ = fitnessCalculation();
@@ -464,10 +464,10 @@ boost::shared_ptr<GPersonalityTraits> GIndividual::getPersonalityTraits() {
 #ifdef DEBUG
 	// Do some error checking
 	if(!pt_ptr_) {
-		std::ostringstream error;
-		error << "In GIndividual::getPersonalityTraits(): Error!" << std::endl
-			  << "Pointer to personality traits object is empty." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GIndividual::getPersonalityTraits():" << std::endl
+				<< "Pointer to personality traits object is empty."
+		);
 	}
 #endif
 
@@ -620,9 +620,9 @@ bool GIndividual::process(){
 #ifdef DEBUG
 					// Individuals that arrive here for adaption should be "clean"
 					if(isDirty) {
-						std::ostringstream error;
-						error << "In GIndividual::process(): Dirty flag set when it shouldn't be!" << std::endl;
-						throw Gem::Common::gemfony_error_condition(error.str());
+						raiseException(
+								"In GIndividual::process(): Dirty flag set when it shouldn't be!"
+						);
 					}
 #endif /* DEBUG */
 
@@ -664,10 +664,10 @@ bool GIndividual::process(){
 				gotUsefulResult = true;
 			}
 			else {
-				std::ostringstream error;
-				error << "In GIndividual::process(//EA//): Unknown command: \""
-						<< getPersonalityTraits()->getCommand() << "\"" << std::endl;
-				throw Gem::Common::gemfony_error_condition(error.str());
+				raiseException(
+						"In GIndividual::process(//EA//): Unknown command: \""
+						<< getPersonalityTraits()->getCommand() << "\""
+				);
 			}
 		}
 		break;
@@ -680,10 +680,10 @@ bool GIndividual::process(){
 				fitness();
 			}
 			else {
-				std::ostringstream error;
-				error << "In GIndividual::process(//SWARM//): Unknown command: \""
-					  << getPersonalityTraits()->getCommand() << "\"" << std::endl;
-				throw Gem::Common::gemfony_error_condition(error.str());
+				raiseException(
+						"In GIndividual::process(//SWARM//): Unknown command: \""
+						<< getPersonalityTraits()->getCommand() << "\""
+				);
 			}
 
 			// Processing in swarms will always yield useful results, regardless of
@@ -700,10 +700,10 @@ bool GIndividual::process(){
 				fitness();
 			}
 			else {
-				std::ostringstream error;
-				error << "In GIndividual::process(//GD//): Unknown command: \""
-					  << getPersonalityTraits()->getCommand() << "\"" << std::endl;
-				throw Gem::Common::gemfony_error_condition(error.str());
+				raiseException(
+						"In GIndividual::process(//GD//): Unknown command: \""
+						<< getPersonalityTraits()->getCommand() << "\""
+				);
 			}
 
 			// Processing in gradient descents will always yield useful results, regardless of
@@ -715,10 +715,10 @@ bool GIndividual::process(){
 	//-------------------------------------------------------------------------------------------------------
 	default:
 		{
-			std::ostringstream error;
-			error << "In GIndividual::process(): Error" << std::endl
-				  << "Processing for invalid algorithm requested" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GIndividual::process(): Error" << std::endl
+					<< "Processing for invalid algorithm requested"
+			);
 		}
 		break;
 	}

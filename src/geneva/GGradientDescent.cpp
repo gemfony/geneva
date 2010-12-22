@@ -130,10 +130,10 @@ std::size_t GGradientDescent::getNStartingPoints() const {
 void GGradientDescent::setNStartingPoints(const std::size_t& nStartingPoints) {
 	// Do some error checking
 	if(nStartingPoints == 0) {
-		std::ostringstream error;
-		error << "In GGradientDescent::setNStartingPoints(const std::size_t&): Error!" << std::endl
-			  << "Got invalid number of starting points." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::setNStartingPoints(const std::size_t&):" << std::endl
+				<< "Got invalid number of starting points."
+		);
 	}
 
 	nStartingPoints_ = nStartingPoints;
@@ -148,10 +148,10 @@ void GGradientDescent::setNStartingPoints(const std::size_t& nStartingPoints) {
 void GGradientDescent::setFiniteStep(const float& finiteStep) {
 	// Do some error checking
 	if(finiteStep <= 0.) {
-		std::ostringstream error;
-		error << "In GGradientDescent::setFiniteStep(const float&): Error!" << std::endl
-			  << "Got invalid finite step size: " << finiteStep << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::setFiniteStep(const float&):" << std::endl
+				<< "Got invalid finite step size: " << finiteStep
+		);
 	}
 
 	finiteStep_ = finiteStep;
@@ -176,10 +176,10 @@ float GGradientDescent::getFiniteStep() const {
 void GGradientDescent::setStepSize(const float& stepSize) {
 	// Do some error checking
 	if(stepSize <= 0.) {
-		std::ostringstream error;
-		error << "In GGradientDescent::setStepSize(const float&): Error!" << std::endl
-			  << "Got invalid step size: " << stepSize << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::setStepSize(const float&):" << std::endl
+				<< "Got invalid step size: " << stepSize
+		);
 	}
 
 	stepSize_ = stepSize;
@@ -282,19 +282,19 @@ void GGradientDescent::loadCheckpoint(const std::string& cpFile) {
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
-		std::ostringstream error;
-		error << "In GGradientDescent::loadCheckpoint(const std::string&)" << std::endl
-			  << "Got invalid checkpoint file name " << cpFile << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GGradientDescent::loadCheckpoint(const std::string&)" << std::endl
+				<< "Got invalid checkpoint file name " << cpFile
+		);
 	}
 
 	// Create the input stream and check that it is in good order
 	std::ifstream checkpointStream(cpFile.c_str());
 	if(!checkpointStream) {
-		std::ostringstream error;
-		error << "In GGradientDescent::loadCheckpoint(const std::string&)" << std::endl
-			  << "Error: Could not open input file";
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GGradientDescent::loadCheckpoint(const std::string&)" << std::endl
+				<< "Error: Could not open input file"
+		);
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -460,10 +460,10 @@ void GGradientDescent::updateParentIndividuals() {
 #ifdef DEBUG
 		// Make sure the parents are clean
 		if(this->at(i)->isDirty()) {
-			std::ostringstream error;
-			error << "In GGradientDescent::updateParentIndividuals(): Error!" << std::endl
-				  << "Found individual in position " << i << " with active dirty flag" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GGradientDescent::updateParentIndividuals():" << std::endl
+					<< "Found individual in position " << i << " with active dirty flag"
+			);
 		}
 #endif /* DEBUG*/
 
@@ -537,17 +537,17 @@ double GGradientDescent::doFitnessCalculation(const std::size_t& finalPos) {
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
-		std::ostringstream error;
-		error << "In GGradientDescent::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-			  << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::doFitnessCalculation(const std::size_t&):" << std::endl
+				<< "Got invalid final position: " << finalPos << "/" << this->size()
+		);
 	}
 
 	if(finalPos < nStartingPoints_) {
-		std::ostringstream error;
-		error << "In GGradientDescent::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-			  << "We require finalPos to be at least " << nStartingPoints_ << ", but got " << finalPos << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::doFitnessCalculation(const std::size_t&):" << std::endl
+				<< "We require finalPos to be at least " << nStartingPoints_ << ", but got " << finalPos
+		);
 	}
 #endif
 
@@ -557,10 +557,10 @@ double GGradientDescent::doFitnessCalculation(const std::size_t& finalPos) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
 		if(!this->at(i)->isDirty()) {
-			std::ostringstream error;
-			error << "In GGradientDescent::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-				  << "Found individual in position " << i << " whose dirty flag isn't set" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GGradientDescent::doFitnessCalculation(const std::size_t&):" << std::endl
+					<< "Found individual in position " << i << " whose dirty flag isn't set"
+			);
 		}
 #endif /* DEBUG*/
 
@@ -589,10 +589,10 @@ void GGradientDescent::adjustPopulation() {
 
 	// We need at least one individual
 	if(nStart == 0) {
-		std::ostringstream error;
-		error << "In GGradientDescent::adjustPopulation(): Error!" << std::endl
-			  << "You didn't add any individuals to the collection. We need at least one." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::adjustPopulation():" << std::endl
+				<< "You didn't add any individuals to the collection. We need at least one."
+		);
 	}
 
 	// Update the number of floating point parameters in the individuals
@@ -600,20 +600,20 @@ void GGradientDescent::adjustPopulation() {
 
 	// Check that the first individual has floating point parameters (double for the moment)
 	if(nFPParmsFirst_ == 0) {
-		std::ostringstream error;
-		error << "In GGradientDescent::adjustPopulation(): Error!" << std::endl
-			  << "No floating point parameters in individual." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::adjustPopulation():" << std::endl
+				<< "No floating point parameters in individual."
+		);
 	}
 
 	// Check that all individuals currently available have the same amount of parameters
 	for(std::size_t i=1; i<this->size(); i++) {
 		if(this->at(i)->countParameters<double>() != nFPParmsFirst_) {
-			std::ostringstream error;
-			error << "In GGradientDescent::adjustPopulation(): Error!" << std::endl
-				  << "Found individual in position " <<  i << " with different" << std::endl
-				  << "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>() << "/" << nFPParmsFirst_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GGradientDescent::adjustPopulation():" << std::endl
+					<< "Found individual in position " <<  i << " with different" << std::endl
+					<< "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>() << "/" << nFPParmsFirst_
+			);
 		}
 	}
 
@@ -645,11 +645,11 @@ void GGradientDescent::adjustPopulation() {
 	// each of size nFPParmsFirst_.
 #ifdef DEBUG
 	if(this->size() != nStartingPoints_*(nFPParmsFirst_ + 1)) {
-		std::ostringstream error;
-		error << "In GGradientDescent::adjustPopulation(): Error!" << std::endl
-		      << "Population size is " << this->size() << std::endl
-		      << "but expected " << nStartingPoints_*(nFPParmsFirst_ + 1) << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::adjustPopulation():" << std::endl
+				<< "Population size is " << this->size() << std::endl
+				<< "but expected " << nStartingPoints_*(nFPParmsFirst_ + 1)
+		);
 	}
 #endif /* DEBUG */
 }
@@ -678,10 +678,10 @@ void GGradientDescent::saveCheckpoint() const {
 	// Create the output stream and check that it is in good order
 	std::ofstream checkpointStream(outputFile.c_str());
 	if(!checkpointStream) {
-		std::ostringstream error;
-		error << "In GGradientDescent::saveCheckpoint()" << std::endl
-			  << "Error: Could not open output file " << outputFile.c_str() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GGradientDescent::saveCheckpoint()" << std::endl
+				<< "Error: Could not open output file " << outputFile.c_str()
+		);
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -903,10 +903,10 @@ std::string GGradientDescent::GGDOptimizationMonitor::firstInformation(GOptimiza
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != GD) {
-		std::ostringstream error;
-		error << "In GGradientDescent::GGDOptimizationMonitor::firstInformation(): Error!" << std::endl
-			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::GGDOptimizationMonitor::firstInformation():" << std::endl
+				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
+		);
 	}
 #endif /* DEBUG */
 	GGradientDescent * const gd = static_cast<GGradientDescent * const>(goa);
@@ -931,10 +931,10 @@ std::string GGradientDescent::GGDOptimizationMonitor::cycleInformation(GOptimiza
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != GD) {
-		std::ostringstream error;
-		error << "In GGradientDescent::GGDOptimizationMonitor::cycleInformation(): Error!" << std::endl
-			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::GGDOptimizationMonitor::cycleInformation():" << std::endl
+				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
+		);
 	}
 #endif /* DEBUG */
 	GGradientDescent * const gd = static_cast<GGradientDescent * const>(goa);
@@ -954,10 +954,10 @@ std::string GGradientDescent::GGDOptimizationMonitor::lastInformation(GOptimizat
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != GD) {
-		std::ostringstream error;
-		error << "In GGradientDescent::GGDOptimizationMonitor::lastInformation(): Error!" << std::endl
-			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GGradientDescent::GGDOptimizationMonitor::lastInformation():" << std::endl
+				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
+		);
 	}
 #endif /* DEBUG */
 	GGradientDescent * const gd = static_cast<GGradientDescent * const>(goa);

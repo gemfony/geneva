@@ -254,21 +254,21 @@ public:
 
 		// Check that the boundaries make sense
 		if(lower > upper) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
-				     << "with typeid(T).name() = " << typeid(T).name() << " : Error" << std::endl
-				     << "Lower and/or upper boundary has invalid value : " << lower << " " << upper << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
+					<< "Lower and/or upper boundary has invalid value : " << lower << " " << upper
+			);
 		}
 
 		// Check that the value is inside the allowed range
 		if(currentValue < lower || currentValue > upper){
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) : Error!" << std::endl
-				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
-				  << "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
-				  << "with existing value  " << currentValue << " outside of this range." << std::endl;
+			raiseException(
+					"In GConstrainedNumT<T>::setBoundaries(const T&, const T&) :" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
+					<< "with existing value  " << currentValue << " outside of this range."
+			);
 
 			// throw an exception. Add some information so that if the exception
 			// is caught through a base object, no information is lost.
@@ -295,12 +295,12 @@ public:
 	virtual void setValue(const T& val)  {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setValue(val): Error!" << std::endl
-				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setValue(val):" << std::endl
+					<< "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					<< "upperBoundary_ = " << upperBoundary_
+			);
 		}
 
 		// O.k., assign value
@@ -320,11 +320,11 @@ public:
 
 		// Do the boundaries make sense ?
 		if(lowerBoundary > upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setValue(val,lower,upper): Error!" << std::endl
-				  << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+					<< "upperBoundary_ = " << upperBoundary_
+			);
 		}
 
 		// O.k., assign the boundaries
@@ -333,12 +333,12 @@ public:
 
 		// Is the desired new value in the allowed range ?
 		if(val < lowerBoundary_ || val > upperBoundary_) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setValue(val,lower,upper): Error!" << std::endl
-				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
+					<< "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					<< "upperBoundary_ = " << upperBoundary_
+			);
 		}
 
 		// O.k., assign value

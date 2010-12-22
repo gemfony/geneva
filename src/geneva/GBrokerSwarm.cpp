@@ -210,10 +210,10 @@ void GBrokerSwarm::init() {
 void GBrokerSwarm::finalize() {
 #ifdef DEBUG
 	if(data.size() != sm_value_.size()) {
-		std::ostringstream error;
-		error << "In GBrokerSwarm::finalize(): Error!" << std::endl
-			  << "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GBrokerSwarm::finalize():" << std::endl
+				<< "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size()
+		);
 	}
 #endif /* DEBUG */
 
@@ -422,10 +422,10 @@ void GBrokerSwarm::swarmLogic() {
 
 #ifdef DEBUG
 					if((*(insert_it+firstNIPos))->getSwarmPersonalityTraits()->getNeighborhood() != n) {
-						std::ostringstream error;
-						error << "In GBrokerSwarm::swarmLogic(): Error!" << std::endl
-							  << "Found invalid neighborhood in copy: " << (*(insert_it+firstNIPos))->getSwarmPersonalityTraits()->getNeighborhood() << "/" << n << std::endl;
-						throw(Gem::Common::gemfony_error_condition(error.str()));
+						raiseException(
+								"In GBrokerSwarm::swarmLogic():" << std::endl
+								<< "Found invalid neighborhood in copy: " << (*(insert_it+firstNIPos))->getSwarmPersonalityTraits()->getNeighborhood() << "/" << n
+						);
 					}
 #endif /* DEBUG */
 
@@ -436,10 +436,10 @@ void GBrokerSwarm::swarmLogic() {
 					nNeighborhoodMembers_[n] += 1;
 #ifdef DEBUG
 					if(nNeighborhoodMembersCp[n] <= 0) {
-						std::ostringstream error;
-						error << "In GBrokerSwarm::swarmLogic(): Error!" << std::endl
-							  << "Found copy of neighborhood without entries." << std::endl;
-						throw(Gem::Common::gemfony_error_condition(error.str()));
+						raiseException(
+								"In GBrokerSwarm::swarmLogic():" << std::endl
+								<< "Found copy of neighborhood without entries."
+						);
 					}
 #endif /* DEBUG */
 					nNeighborhoodMembersCp[n] -= 1;

@@ -97,10 +97,10 @@ void copyGenevaSmartPointer (
  */
 template <typename T>
 boost::shared_ptr<GAdaptorT<T> > getDefaultAdaptor() {
-	std::ostringstream error;
-	error << "In getDefaultAdaptor(): Error!" << std::endl
-		  << "Function called with invalid type." << std::endl;
-	throw(Gem::Common::gemfony_error_condition(error.str()));
+	raiseException(
+			"In getDefaultAdaptor():" << std::endl
+			<< "Function called with invalid type."
+	);
 }
 
 // Specializations for double, boost::int32_t and bool

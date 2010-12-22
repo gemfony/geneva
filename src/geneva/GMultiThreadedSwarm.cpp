@@ -200,10 +200,10 @@ void GMultiThreadedSwarm::init() {
 void GMultiThreadedSwarm::finalize() {
 #ifdef DEBUG
 	if(data.size() != sm_value_.size()) {
-		std::ostringstream error;
-		error << "In GMultiThreadedSwarm::finalize(): Error!" << std::endl
-			  << "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GMultiThreadedSwarm::finalize():" << std::endl
+				<< "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size()
+		);
 	}
 #endif /* DEBUG */
 
@@ -233,17 +233,17 @@ void GMultiThreadedSwarm::swarmLogic() {
 #ifdef DEBUG
 		if(getIteration() > 0) {
 			if(!local_bests_[neighborhood]) {
-				std::ostringstream error;
-				error << "In GMultiThreadedSwarm::swarmLogic(): Error!" << std::endl
-					  << "local_bests[" << neighborhood << "] is empty." << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GMultiThreadedSwarm::swarmLogic():" << std::endl
+						<< "local_bests[" << neighborhood << "] is empty."
+				);
 			}
 
 			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
-				std::ostringstream error;
-				error << "In GMultiThreadedSwarm::swarmLogic(): Error!" << std::endl
-					  << "global_best_ is empty." << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GMultiThreadedSwarm::swarmLogic():" << std::endl
+						<< "global_best_ is empty."
+				);
 			}
 		}
 #endif /* DEBUG */

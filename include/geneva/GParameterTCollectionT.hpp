@@ -291,10 +291,10 @@ public:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::fpAdd(): Error!" << std::endl
-				  << "Collections have different sizes: " << this->size() << " " << p->size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterTCollectionT<T>::fpAdd():" << std::endl
+					<< "Collections have different sizes: " << this->size() << " " << p->size()
+			);
 		}
 
 		// Call fpAdd on all objects stored in this collection
@@ -323,10 +323,10 @@ public:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::fpSubtract(): Error!" << std::endl
-				  << "Collections have different sizes: " << this->size() << " " << p->size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterTCollectionT<T>::fpSubtract():" << std::endl
+					<< "Collections have different sizes: " << this->size() << " " << p->size()
+			);
 		}
 
 		// Call fpAdd on all objects stored in this collection
@@ -505,10 +505,10 @@ public:
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
 		// Do some error checking
 		if(!gr_cp) {
-			std::ostringstream error;
-			error << "In GParameterTCollectionT<T>::assignGRandomPointer(): Error!" << std::endl
-				  << "Tried to assign a NULL pointer" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterTCollectionT<T>::assignGRandomPointer():" << std::endl
+					<< "Tried to assign a NULL pointer"
+			);
 		}
 
 		// Assign the foreign pointer to all objects stored in this collection

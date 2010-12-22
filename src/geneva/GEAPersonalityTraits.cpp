@@ -266,9 +266,9 @@ std::size_t GEAPersonalityTraits::getPopulationPosition(void) const {
  */
 void GEAPersonalityTraits::setCommand(const std::string& command) {
 	if(command != "evaluate" && command != "adapt") { // The allowed "grammar"
-		std::ostringstream error;
-		error << "In GEAPersonalityTraits::setCommand(): Got invalid command " << command << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GEAPersonalityTraits::setCommand(): Got invalid command " << command
+		);
 	}
 
 	command_ = command;
@@ -290,10 +290,10 @@ std::string GEAPersonalityTraits::getCommand() const {
 #ifdef DEBUG
 	// Some error checking
 	if(command_.empty() || command_=="" || command_=="empty") {
-		std::ostringstream error;
-		error << "In GEAPersonalityTraits::getCommand(): Error " << std::endl
-			  << "Tried to retrieve a command while a command hasn't been set" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GEAPersonalityTraits::getCommand(): Error " << std::endl
+				<< "Tried to retrieve a command while a command hasn't been set"
+		);
 	}
 #endif /* DEBUG */
 
@@ -344,10 +344,10 @@ void GEAPersonalityTraits::setParentId(const std::size_t& parentId) {
 std::size_t GEAPersonalityTraits::getParentId() const {
 	if(parentId_ >= 0) return parentId_;
 	else {
-		std::ostringstream error;
-		error << "In GEAPersonalityTraits::getParentId(): Error!" << std::endl
-			  << "parentId_ is unset" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GEAPersonalityTraits::getParentId():" << std::endl
+				<< "parentId_ is unset"
+		);
 	}
 }
 

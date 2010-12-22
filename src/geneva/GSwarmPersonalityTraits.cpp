@@ -233,9 +233,9 @@ std::size_t GSwarmPersonalityTraits::getNeighborhood(void) const {
  */
 void GSwarmPersonalityTraits::setCommand(const std::string& command) {
 	if(command != "evaluate") { // The allowed "grammar"
-		std::ostringstream error;
-		error << "In GSwarmPersonalityTraits::setCommand(): Got invalid command " << command << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarmPersonalityTraits::setCommand(): Got invalid command " << command
+		);
 	}
 
 	command_ = command;
@@ -257,10 +257,10 @@ std::string GSwarmPersonalityTraits::getCommand() const {
 #ifdef DEBUG
 	// Some error checking
 	if(command_.empty() || command_=="" || command_=="empty") {
-		std::ostringstream error;
-		error << "In GSwarmPersonalityTraits::getCommand(): Error " << std::endl
-			  << "Tried to retrieve a command while a command hasn't been set" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarmPersonalityTraits::getCommand(): Error " << std::endl
+				<< "Tried to retrieve a command while a command hasn't been set"
+		);
 	}
 #endif /* DEBUG */
 

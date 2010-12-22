@@ -177,9 +177,9 @@ public:
 
 		if(p) return p;
 		else {
-			std::ostringstream error;
-			error << "In GParameterSet::at<>() : Conversion error" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GParameterSet::at<>() : Conversion error"
+			);
 		}
 #else
 		return boost::static_pointer_cast<par_type>(data[pos]);

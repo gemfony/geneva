@@ -252,10 +252,10 @@ public:
 
 		// Do some error checking
 		if(this->size() != p->size()) {
-			std::ostringstream error;
-			error << "In GFPNumCollectionT<fp_type>::fpAdd(): Error!" << std::endl
-				  << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GFPNumCollectionT<fp_type>::fpAdd():" << std::endl
+					<< "Collection sizes don't match: " << this->size() << " " << p->size()
+			);
 		}
 
 		typename GFPNumCollectionT<fp_type>::iterator it, it_p;
@@ -282,10 +282,10 @@ public:
 
 		// Do some error checking
 		if(this->size() != p->size()) {
-			std::ostringstream error;
-			error << "In GFPNumCollectionT<fp_type>::fpSubtract(): Error!" << std::endl
-				  << "Collection sizes don't match: " << this->size() << " " << p->size() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GFPNumCollectionT<fp_type>::fpSubtract():" << std::endl
+					<< "Collection sizes don't match: " << this->size() << " " << p->size()
+			);
 		}
 
 		typename GFPNumCollectionT<fp_type>::iterator it, it_p;

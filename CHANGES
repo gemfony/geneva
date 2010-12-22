@@ -7,6 +7,10 @@ Wishlist for version 1.0, yet unnamed, release-date unknown
  - Bumped the minimal Boost version to 1.41
  - Made sure that parameter objects always have an adaptor loaded. Before this it
    was empty by default.
+ - Moved from BOOST_CLASS_EXPORT to the BOOST_CLASS_EXPORT_KEY/BOOST_CLASS_EXPORT_IMPLEMENTATION
+   combo for serialization (except for Boost 1.40, where these macros didn't exist).
+ - Cleaned up the header files (surplus includes) 
+ - Introduced more verbatim exceptions
 
 //------------------------------------------------------------------------------------------------------
 * Version 0.9, "Alice" - November 24, 2010

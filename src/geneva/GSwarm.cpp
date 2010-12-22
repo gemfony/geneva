@@ -328,10 +328,10 @@ void GSwarm::saveCheckpoint() const {
 #ifdef DEBUG
 	// Check that the global best has been initialized
 	if(!global_best_) {
-		std::ostringstream error;
-		error << "In GSwarm::saveCheckpoint(): Error!" << std::endl
-			  << "global_best_ has not yet been initialized!" << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GSwarm::saveCheckpoint():" << std::endl
+				<< "global_best_ has not yet been initialized!"
+		);
 	}
 #endif /* DEBUG */
 
@@ -340,10 +340,10 @@ void GSwarm::saveCheckpoint() const {
 
 #ifdef DEBUG
 	if(isDirty) {
-		std::ostringstream error;
-		error << "In GSwarm::saveCheckpoint(): Error!" << std::endl
-			  << "global_best_ has dirty flag set!" << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GSwarm::saveCheckpoint():" << std::endl
+				<< "global_best_ has dirty flag set!"
+		);
 	}
 #endif
 
@@ -443,12 +443,12 @@ std::size_t GSwarm::getFirstNIPos(const std::size_t& neighborhood) const {
 std::size_t GSwarm::getFirstNIPosVec(const std::size_t& neighborhood, const std::vector<std::size_t>& vec) const {
 #ifdef DEBUG
 	if(neighborhood >= nNeighborhoods_) {
-		std::ostringstream error;
-		error << "In GSwarm::getFirstNIPosVec(): Error!" << std::endl
-			  << "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
-			  << "The number of neighborhoods is " << nNeighborhoods_ << "," << std::endl
-			  << "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::getFirstNIPosVec():" << std::endl
+				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
+				<< "The number of neighborhoods is " << nNeighborhoods_ << "," << std::endl
+				<< "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "."
+		);
 	}
 #endif
 
@@ -478,12 +478,12 @@ std::size_t GSwarm::getFirstNIPosVec(const std::size_t& neighborhood, const std:
 std::size_t GSwarm::getLastNIPos(const std::size_t& neighborhood) const {
 #ifdef DEBUG
 	if(neighborhood >= nNeighborhoods_) {
-		std::ostringstream error;
-		error << "In GSwarm::getLastNIPos(): Error!" << std::endl
-			  << "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
-			  << "The number of neighborhoods is " << nNeighborhoods_ << " ." << std::endl
-			  << "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::getLastNIPos():" << std::endl
+				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
+				<< "The number of neighborhoods is " << nNeighborhoods_ << " ." << std::endl
+				<< "hence the maximum allowed value of the id is " << nNeighborhoods_-1 << "."
+		);
 	}
 #endif
 
@@ -529,26 +529,26 @@ void GSwarm::swarmLogic() {
 #ifdef DEBUG
 		if(iteration > 0) {
 			if(!local_bests_[neighborhood]) {
-				std::ostringstream error;
-				error << "In GSwarm::swarmLogic(): Error!" << std::endl
-					  << "local_bests[" << neighborhood << "] is empty." << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GSwarm::swarmLogic():" << std::endl
+						<< "local_bests[" << neighborhood << "] is empty."
+				);
 			}
 
 			if(neighborhood==0 && !global_best_) { // Only check for the first neighborhood
-				std::ostringstream error;
-				error << "In GSwarm::swarmLogic(): Error!" << std::endl
-					  << "global_best_ is empty." << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GSwarm::swarmLogic():" << std::endl
+						<< "global_best_ is empty."
+				);
 			}
 		}
 
 		if(nNeighborhoodMembers_[neighborhood] != defaultNNeighborhoodMembers_) {
-			std::ostringstream error;
-			error << "In GSwarm::swarmLogic(): Error!" << std::endl
-				  << "nNeighborhoodMembers_[" << neighborhood << "] should be " << defaultNNeighborhoodMembers_ << std::endl
-				  << "but has value " << nNeighborhoodMembers_[neighborhood] << " instead" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GSwarm::swarmLogic():" << std::endl
+					<< "nNeighborhoodMembers_[" << neighborhood << "] should be " << defaultNNeighborhoodMembers_ << std::endl
+					<< "but has value " << nNeighborhoodMembers_[neighborhood] << " instead"
+			);
 		}
 #endif /* DEBUG */
 
@@ -609,31 +609,31 @@ void GSwarm::updatePositions(
 #ifdef DEBUG
 	// Do some error checking
 	if(!ind) {
-		std::ostringstream error;
-		error << "In GSwarm::updatePositions(): Error!" << std::endl
-			  << "Found empty individual \"ind\"" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"ind\""
+		);
 	}
 
 	if(!local_best_tmp) {
-		std::ostringstream error;
-		error << "In GSwarm::updatePositions(): Error!" << std::endl
-			  << "Found empty individual \"local_best_tmp\"" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"local_best_tmp\""
+		);
 	}
 
 	if(!global_best_tmp) {
-		std::ostringstream error;
-		error << "In GSwarm::updatePositions(): Error!" << std::endl
-			  << "Found empty individual \"global_best_tmp\"" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"global_best_tmp\""
+		);
 	}
 
 	if(!velocity) {
-		std::ostringstream error;
-		error << "In GSwarm::updatePositions(): Error!" << std::endl
-			  << "Found empty individual \"velocity\"" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::updatePositions():" << std::endl
+				<< "Found empty individual \"velocity\""
+		);
 	}
 
 #endif /* DEBUG */
@@ -823,10 +823,10 @@ void GSwarm::adjustNeighborhoods() {
 #ifdef DEBUG
 			// This number shouldn't equal the default number of entries
 			if(nMissing == defaultNNeighborhoodMembers_) {
-				std::ostringstream error;
-				error << "In GSwarm::adjustNeighborhoods(): Error!" << std::endl
-					  << "Found no entries in the neighborhood." << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GSwarm::adjustNeighborhoods():" << std::endl
+						<< "Found no entries in the neighborhood."
+				);
 			}
 #endif /* DEBUG */
 
@@ -853,12 +853,12 @@ void GSwarm::adjustPopulation() {
 	const std::size_t nNeighborhoods = getNNeighborhoods();
 
 	if(currentSize==0) {
-		std::ostringstream error;
-		error << "In GSwarm::adjustPopulation() : Error!" << std::endl
-			  << "No individuals found in the population." << std::endl
-			  << "You need to add at least one individual before" << std::endl
-			  << "the call to optimize()." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::adjustPopulation() :" << std::endl
+				<< "No individuals found in the population." << std::endl
+				<< "You need to add at least one individual before" << std::endl
+				<< "the call to optimize()."
+		);
 	}
 	else if(currentSize==1) {
 		// Fill up with random items to the number of neighborhoods
@@ -918,11 +918,11 @@ void GSwarm::adjustPopulation() {
 	// As the above switch statement is quite complicated, cross check that we now
 	// indeed have at least the required number of individuals
 	if(this->size() < defaultPopSize) {
-		std::ostringstream error;
-		error << "In GSwarm::adjustPopulation() : Error!" << std::endl
-			  << "Expected at least a population size of " << defaultPopSize << std::endl
-			  << "but found a size of " << this->size() << ", which is too small." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::adjustPopulation() :" << std::endl
+				<< "Expected at least a population size of " << defaultPopSize << std::endl
+				<< "but found a size of " << this->size() << ", which is too small."
+		);
 	}
 #endif /* DEBUG */
 
@@ -937,10 +937,10 @@ void GSwarm::adjustPopulation() {
 void GSwarm::fillUpNeighborhood1() {
 	// Do some error checking
 	if(this->size() != nNeighborhoods_) {
-		std::ostringstream error;
-		error << "In GSwarm::fillUpNeighborhood1(): Error!" << std::endl
-			  << "Invalid size: " << this->size() << " Expected " << nNeighborhoods_ << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::fillUpNeighborhood1():" << std::endl
+				<< "Invalid size: " << this->size() << " Expected " << nNeighborhoods_
+		);
 	}
 
 	if(defaultNNeighborhoodMembers_==1) return; // nothing to do
@@ -957,10 +957,10 @@ void GSwarm::fillUpNeighborhood1() {
 			if(randomFillUp_) {
 #ifdef DEBUG
 				if(!(*(this->begin()+n+1))) {
-					std::ostringstream error;
-					error << "In GSwarm::fillUpNeighborhood1(): Error!" << std::endl
-						  << "Found empty position " << n << std::endl;
-					throw(Gem::Common::gemfony_error_condition(error.str()));
+					raiseException(
+							"In GSwarm::fillUpNeighborhood1():" << std::endl
+							<< "Found empty position " << n
+					);
 				}
 #endif /* DEBUG */
 
@@ -1298,10 +1298,10 @@ std::string GSwarm::GSwarmOptimizationMonitor::firstInformation(GOptimizationAlg
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != SWARM) {
-		std::ostringstream error;
-		error << "In GSwarm::GSwarmOptimizationMonitor::firstInformation(): Error!" << std::endl
-			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::GSwarmOptimizationMonitor::firstInformation():" << std::endl
+				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
+		);
 	}
 #endif /* DEBUG */
 	GSwarm * const swarm = static_cast<GSwarm * const>(goa);
@@ -1326,10 +1326,10 @@ std::string GSwarm::GSwarmOptimizationMonitor::cycleInformation(GOptimizationAlg
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != SWARM) {
-		std::ostringstream error;
-		error << "In GSwarm::GSwarmOptimizationMonitor::cycleInformation(): Error!" << std::endl
-			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::GSwarmOptimizationMonitor::cycleInformation():" << std::endl
+				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
+		);
 	}
 #endif /* DEBUG */
 	GSwarm * const swarm = static_cast<GSwarm * const>(goa);
@@ -1349,10 +1349,10 @@ std::string GSwarm::GSwarmOptimizationMonitor::lastInformation(GOptimizationAlgo
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != SWARM) {
-		std::ostringstream error;
-		error << "In GSwarm::GSwarmOptimizationMonitor::lastInformation(): Error!" << std::endl
-			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GSwarm::GSwarmOptimizationMonitor::lastInformation():" << std::endl
+				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
+		);
 	}
 #endif /* DEBUG */
 	GSwarm * const swarm = static_cast<GSwarm * const>(goa);

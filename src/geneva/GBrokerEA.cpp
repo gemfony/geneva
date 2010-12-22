@@ -196,11 +196,11 @@ void GBrokerEA::init() {
 			if(p) {
 				// Conversion was successful - this should not be, as there are not to supposed to be
 				// any GBrokerEA objects inside itself.
-				std::ostringstream error;
-				error << "In GBrokerEA::optimize(): Error" << std::endl
-				      << "GBrokerEA stored as an individual inside of" << std::endl
-				      << "a population of the same type" << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In GBrokerEA::optimize(): Error" << std::endl
+						<< "GBrokerEA stored as an individual inside of" << std::endl
+						<< "a population of the same type"
+				);
 			}
 		}
 	}
@@ -228,10 +228,10 @@ void GBrokerEA::init() {
 void GBrokerEA::finalize() {
 #ifdef DEBUG
 	if(data.size() != sm_value_.size()) {
-		std::ostringstream error;
-		error << "In GBrokerEA::finalize(): Error!" << std::endl
-			  << "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GBrokerEA::finalize():" << std::endl
+				<< "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size()
+		);
 	}
 #endif /* DEBUG */
 
@@ -403,11 +403,10 @@ void GBrokerEA::adaptChildren() {
 	if(iteration==0 && (getSortingScheme()==MUPLUSNU || getSortingScheme()==MUNU1PRETAIN)){
 		// Have any individuals returned at all ?
 		if(data.size()==0) { // No way out ...
-			std::ostringstream error;
-			error << "In GBrokerEA::adaptChildren() : Error!" << std::endl
-				  << "Population is empty when it shouldn't be." << std::endl;
-
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GBrokerEA::adaptChildren() :" << std::endl
+					<< "Population is empty when it shouldn't be."
+			);
 		}
 
 		// Sort according to parent/child tag. We do not know in what order individuals have returned.

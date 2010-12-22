@@ -127,11 +127,11 @@ public:
 		// The following is a stronger requirement than used in our
 		// parent class, as the "real" upper boundary is defined by "upper_closed_".
 		if(lowerBoundary >= upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<fp_type>::GConstrainedFPT(lower,upper): Error!" << std::endl
-				  << "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedFPT<fp_type>::GConstrainedFPT(lower,upper):" << std::endl
+					<< "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
+					<< "upperBoundary = " << upperBoundary
+			);
 		}
 
 		// Assign a correct value to the upper_closed_ variable
@@ -161,21 +161,21 @@ public:
 		// The following is a stronger requirement than used in our
 		// parent class, as the "real" upper boundary is defined by "upper_closed_".
 		if(lowerBoundary >= upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<fp_type>::GConstrainedFPT(lower,upper): Error!" << std::endl
-				  << "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedFPT<fp_type>::GConstrainedFPT(lower,upper):" << std::endl
+					<< "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
+					<< "upperBoundary = " << upperBoundary
+			);
 		}
 
 		// The upper boundary is not included for floating point values
 		if(val >= upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<fp_type>::GConstrainedFPT(val,lower,upper): Error!" << std::endl
-				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary = " << lowerBoundary << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedFPT<fp_type>::GConstrainedFPT(val,lower,upper):" << std::endl
+					<< "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+					<< "lowerBoundary = " << lowerBoundary << std::endl
+					<< "upperBoundary = " << upperBoundary
+			);
 		}
 
 		// Assign a correct value to the upper_closed_ variable
@@ -290,11 +290,11 @@ public:
 		// we need to enforce a more stringent check than is used
 		// in GConstrainedNumT.
 		if(val >= GConstrainedNumT<fp_type>::getUpperBoundary()) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<fp_type>::operator=(val): Error!" << std::endl
-				  << "Assigned value " << val << " is above upper boundary: " << std::endl
-				  << "upperBoundary = " << GConstrainedNumT<fp_type>::getUpperBoundary() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedFPT<fp_type>::operator=(val):" << std::endl
+					<< "Assigned value " << val << " is above upper boundary: " << std::endl
+					<< "upperBoundary = " << GConstrainedNumT<fp_type>::getUpperBoundary()
+			);
 		}
 
 		return GConstrainedNumT<fp_type>::operator=(val);
@@ -318,11 +318,11 @@ public:
 		// we need to enforce a more stringent check than is used
 		// in GConstrainedNumT.
 		if(val >= GConstrainedNumT<fp_type>::getUpperBoundary()) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<fp_type>::setValue(val): Error!" << std::endl
-				  << "Assigned value " << val << " is >= upper boundary: " << std::endl
-				  << "upperBoundary = " << GConstrainedNumT<fp_type>::getUpperBoundary() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedFPT<fp_type>::setValue(val):" << std::endl
+					<< "Assigned value " << val << " is >= upper boundary: " << std::endl
+					<< "upperBoundary = " << GConstrainedNumT<fp_type>::getUpperBoundary()
+			);
 		}
 
 		GConstrainedNumT<fp_type>::setValue(val);
@@ -348,22 +348,22 @@ public:
 		// The following is a stronger requirement than used in our
 		// parent class, as the "real" upper boundary is defined by "upper_closed_".
 		if(lowerBoundary >= upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<fp_type>::setValue(val, lower,upper): Error!" << std::endl
-				  << "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedFPT<fp_type>::setValue(val, lower,upper):" << std::endl
+					<< "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
+					<< "upperBoundary = " << upperBoundary
+			);
 		}
 
 		// The upper boundary is not included for fp values. Hence
 		// we need to enforce a more stringent check than is used
 		// in GConstrainedNumT.
 		if(val >= upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<fp_type>::setValue(val, lower, upper): Error!" << std::endl
-				  << "Assigned value " << val << " is >= upper boundary: " << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedFPT<fp_type>::setValue(val, lower, upper):" << std::endl
+					<< "Assigned value " << val << " is >= upper boundary: " << std::endl
+					<< "upperBoundary = " << upperBoundary
+			);
 		}
 
 		GConstrainedNumT<fp_type>::setValue(val, lowerBoundary, upperBoundary);
@@ -391,22 +391,22 @@ public:
 		// The following is a stronger requirement than used in our
 		// parent class, as the "real" upper boundary is defined by "upper_closed_".
 		if(lowerBoundary >= upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<fp_type>::setValue(val, lower,upper): Error!" << std::endl
-				  << "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedFPT<fp_type>::setValue(val, lower,upper):" << std::endl
+					<< "lowerBoundary = " << lowerBoundary << "is >= than" << std::endl
+					<< "upperBoundary = " << upperBoundary
+			);
 		}
 
 		// The upper boundary is not included for fp values. Hence
 		// we need to enforce a more stringent check than is used
 		// in GConstrainedNumT.
 		if(this->value() >= upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedFPT<fp_type>::setBoundaries(lower, upper): Error!" << std::endl
-				  << "Assigned value " << this->value() << " is >= upper boundary: " << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedFPT<fp_type>::setBoundaries(lower, upper):" << std::endl
+					<< "Assigned value " << this->value() << " is >= upper boundary: " << std::endl
+					<< "upperBoundary = " << upperBoundary
+			);
 		}
 
 		// Set the actual boundaries

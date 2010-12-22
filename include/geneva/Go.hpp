@@ -356,10 +356,10 @@ public:
 #ifdef DEBUG
 		// Check that bestIndividual_ actually points somewhere
 		if(!bestIndividual_) {
-			std::ostringstream error;
-			error << "In Go::getBestIndividual<>() : Error" << std::endl
-				  << "Tried to access uninitialized best individual." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In Go::getBestIndividual<>() : Error" << std::endl
+					<< "Tried to access uninitialized best individual."
+			);
 		}
 #endif /* DEBUG */
 
@@ -386,11 +386,11 @@ public:
 
 		// We need at least one individual to start with
 		if(this->empty()) {
-			std::ostringstream error;
-			error << "In Go::optimize(): Error!" << std::endl
+			raiseException(
+					"In Go::optimize():" << std::endl
 					<< "You need to register at least one individual." << std::endl
-					<< "Found none." << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+					<< "Found none."
+			);
 		}
 
 		// Which algorithm are we supposed to use ?
@@ -409,10 +409,10 @@ public:
 
 		case NONE:
 			{
-				std::ostringstream error;
-				error << "In Go::optimize(): Error!" << std::endl
-						<< "No optimization algorithm was specified." << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				raiseException(
+						"In Go::optimize():" << std::endl
+						<< "No optimization algorithm was specified."
+				);
 			}
 			break;
 		};
@@ -433,10 +433,10 @@ public:
 	static void writeConfigurationFile(const std::string& configFile) {
 		std::ofstream cf(configFile.c_str());
 		if(!cf) {
-			std::ostringstream error;
-			error << "In Go::writeConfigurationFile() : Error!" << std::endl
-				  << "Could not open output file " << configFile << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In Go::writeConfigurationFile() :" << std::endl
+					<< "Could not open output file " << configFile
+			);
 		}
 
 		cf << "################################################################" << std::endl

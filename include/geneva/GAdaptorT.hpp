@@ -144,7 +144,7 @@ public:
 	{
 		// Do some error checking
 		if(prob < 0. || prob > 1.) {
-			std::cerr << "In GAdaptorT<T>::GadaptorT(const double& prob): Error!" << std::endl
+			std::cerr << "In GAdaptorT<T>::GadaptorT(const double& prob):" << std::endl
 					  << "Provided daption probability is invalid: " << prob << std::endl;
 			std::terminate();
 		}
@@ -285,14 +285,6 @@ public:
 					"In GAdaptorT<T>::setAdaptionProbability(const double&):" << std::endl
 					<< "Bad probability value given: " << probability
 			);
-
-			/*std::ostringstream error;
-			error << "In GAdaptorT<T>::setAdaptionProbability(const double&) : Error!" << std::endl
-				  << "Bad probability value given: " << probability << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw Gem::Common::gemfony_error_condition(error.str());*/
 		}
 
 		adProb_ = probability;
@@ -329,13 +321,10 @@ public:
 	void setAdaptAdaptionProbability(const double& probability) {
 		// Check the supplied probability value
 		if(probability < 0. || probability > 1.) {
-			std::ostringstream error;
-			error << "In GAdaptorT<T>::setAdaptAdaptionProbability(const double&) : Error!" << std::endl
-				  << "Bad probability value given: " << probability << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GAdaptorT<T>::setAdaptAdaptionProbability(const double&) :" << std::endl
+					<< "Bad probability value given: " << probability
+			);
 		}
 
 		adaptAdaptionProbability_ = probability;
@@ -489,10 +478,10 @@ public:
 	virtual void assignGRandomPointer(Gem::Hap::GRandomBaseT<double, boost::int32_t> *gr_cp) {
 #ifdef DEBUG
 		if(!gr_cp) {
-			std::ostringstream error;
-			error << "In GAdaptorT<T>::assignGRandomPointer() : Error!" << std::endl
-				  << "Tried to assign NULL pointer" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GAdaptorT<T>::assignGRandomPointer() :" << std::endl
+					<< "Tried to assign NULL pointer"
+			);
 		}
 #endif
 
@@ -512,10 +501,10 @@ public:
 	virtual void resetGRandomPointer() {
 		if(gr_local) gr = gr_local;
 		else {
-			std::ostringstream error;
-			error << "In GAdaptorT<T>::resetGRandomPointer() : Error!" << std::endl
-				  << "Tried to assign NULL pointer" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GAdaptorT<T>::resetGRandomPointer() :" << std::endl
+					<< "Tried to assign NULL pointer"
+			);
 		}
 	}
 

@@ -316,12 +316,12 @@ boost::shared_ptr<GIndividual> GBrokerConnector::retrieveFirstItem<GIndividual>(
 		// variable to a rather high value or to set it to 0, in which case
 		// we will wait indefinitely for the first item
 		if(!CurrentBufferPort_->pop_back_processed_bool(&p, firstTimeOut_)) {
-			std::ostringstream error;
-			error << "In GBrokerConnector::retrieveFirstItem(): Error!" << std::endl
-				  << "Timeout for first item reached." << std::endl
-				  << "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
-				  << "You can change this value with the setFirstTimeOut() function." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GBrokerConnector::retrieveFirstItem():" << std::endl
+					<< "Timeout for first item reached." << std::endl
+					<< "Current timeout setting in microseconds is " << firstTimeOut_.total_microseconds() << std::endl
+					<< "You can change this value with the setFirstTimeOut() function."
+			);
 		}
 	}
 	else { // Wait indefinitely for the first item to return

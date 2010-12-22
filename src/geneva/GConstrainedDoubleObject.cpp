@@ -223,10 +223,10 @@ void GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-		std::ostringstream error;
-		error << "In GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&): Error!" << std::endl
-			  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
+				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+		);
 	}
 #endif
 

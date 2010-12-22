@@ -118,23 +118,23 @@ public:
 	{
 		// Naturally the upper boundary should be > the lower boundary
 		if(lowerBoundary_ > upperBoundary_) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper): Error!" << std::endl
-				  << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+					<< "upperBoundary_ = " << upperBoundary_
+			);
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < -GConstrainedValueLimit<T>::max() || upperBoundary > GConstrainedValueLimit<T>::max()) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::GConstrainedNumT(lower,upper): Error!" << std::endl
-				  << "lower and/or upper limit outside of allowed value range:" << std::endl
-				  << "lowerBoundary = " << lowerBoundary << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl
-				  << "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
-				  << " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::GConstrainedNumT(lower,upper):" << std::endl
+					<< "lower and/or upper limit outside of allowed value range:" << std::endl
+					<< "lowerBoundary = " << lowerBoundary << std::endl
+					<< "upperBoundary = " << upperBoundary << std::endl
+					<< "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
+					<< " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max()
+			);
 		}
 
 	}
@@ -154,33 +154,33 @@ public:
 	{
 		// Do some error checking
 		if(lowerBoundary_ > upperBoundary_) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper): Error!" << std::endl
-				  << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+					<< "upperBoundary_ = " << upperBoundary_
+			);
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < -GConstrainedValueLimit<T>::max() || upperBoundary > GConstrainedValueLimit<T>::max()) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper): Error!" << std::endl
-				  << "lower and/or upper limit outside of allowed value range:" << std::endl
-				  << "lowerBoundary = " << lowerBoundary << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl
-				  << "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
-				  << " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::GConstrainedNumT(val, lower,upper):" << std::endl
+					<< "lower and/or upper limit outside of allowed value range:" << std::endl
+					<< "lowerBoundary = " << lowerBoundary << std::endl
+					<< "upperBoundary = " << upperBoundary << std::endl
+					<< "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
+					<< " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max()
+			);
 		}
 
 		// Check that the value is inside of the allowed value range
 		if(val < lowerBoundary_ || val > upperBoundary_) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper): Error!" << std::endl
-				  << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::GConstrainedNumT(val,lower,upper):" << std::endl
+					<< "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					<< "upperBoundary_ = " << upperBoundary_
+			);
 		}
 	}
 
@@ -354,37 +354,33 @@ public:
 
 		// Check that the boundaries make sense
 		if(lowerBoundary > upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
-				     << "with typeid(T).name() = " << typeid(T).name() << " : Error" << std::endl
-				     << "Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary << std::endl;
-
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setBoundaries(const T&, const T&)" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
+					<< "Lower and/or upper boundary has invalid value : " << lowerBoundary << " " << upperBoundary
+			);
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < -GConstrainedValueLimit<T>::max() || upperBoundary > GConstrainedValueLimit<T>::max()) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&): Error!" << std::endl
-				  << "lower and/or upper limit outside of allowed value range:" << std::endl
-				  << "lowerBoundary = " << lowerBoundary << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl
-				  << "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
-				  << " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setBoundaries(const T&, const T&):" << std::endl
+					<< "lower and/or upper limit outside of allowed value range:" << std::endl
+					<< "lowerBoundary = " << lowerBoundary << std::endl
+					<< "upperBoundary = " << upperBoundary << std::endl
+					<< "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
+					<< " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max()
+			);
 		}
 
 		// Check that the value is inside the allowed range
 		if(currentValue < lowerBoundary || currentValue > upperBoundary){
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setBoundaries(const T&, const T&) : Error!" << std::endl
-				  << "with typeid(T).name() = " << typeid(T).name() << std::endl
-				  << "Attempt to set new boundaries [" << lowerBoundary << ":" << upperBoundary << "]" << std::endl
-				  << "with existing value  " << currentValue << " outside of this range." << std::endl;
-
-			// throw an exception. Add some information so that if the exception
-			// is caught through a base object, no information is lost.
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GConstrainedNumT<T>::setBoundaries(const T&, const T&) :" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Attempt to set new boundaries [" << lowerBoundary << ":" << upperBoundary << "]" << std::endl
+					<< "with existing value  " << currentValue << " outside of this range."
+			);
 		}
 
 		lowerBoundary_ = lowerBoundary;
@@ -415,12 +411,12 @@ public:
 	virtual void setValue(const T& val)  {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setValue(val): Error!" << std::endl
-				  << "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setValue(val):" << std::endl
+					<< "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					<< "upperBoundary_ = " << upperBoundary_
+			);
 		}
 
 		// O.k., assign value
@@ -446,33 +442,33 @@ public:
 
 		// Do the boundaries make sense ?
 		if(lowerBoundary > upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setValue(val,lower,upper): Error!" << std::endl
-				  << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-				  << "upperBoundary_ = " << upperBoundary_ << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
+					<< "upperBoundary_ = " << upperBoundary_
+			);
 		}
 
 		// We might have constraints regarding the allowed boundaries. Cross-check
 		if(lowerBoundary < -GConstrainedValueLimit<T>::max() || upperBoundary > GConstrainedValueLimit<T>::max()) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setValue(val,lower,upper): Error!" << std::endl
-				  << "lower and/or upper limit outside of allowed value range:" << std::endl
-				  << "lowerBoundary = " << lowerBoundary << std::endl
-				  << "upperBoundary = " << upperBoundary << std::endl
-				  << "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
-				  << " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max() << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
+					<< "lower and/or upper limit outside of allowed value range:" << std::endl
+					<< "lowerBoundary = " << lowerBoundary << std::endl
+					<< "upperBoundary = " << upperBoundary << std::endl
+					<< "-GConstrainedValueLimit<T>::max() = " << -GConstrainedValueLimit<T>::max() << std::endl
+					<< " GConstrainedValueLimit<T>::max() = " <<  GConstrainedValueLimit<T>::max()
+			);
 		}
 
 		// Check that the value is inside of the allowed value range
 		if(val < lowerBoundary || val > upperBoundary) {
-			std::ostringstream error;
-			error << "In GConstrainedNumT<T>::setValue(val,lower,upper): Error!" << std::endl
-				  << "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
-				  << "lowerBoundary  = " << lowerBoundary << std::endl
-				  << "upperBoundary  = " << upperBoundary << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GConstrainedNumT<T>::setValue(val,lower,upper):" << std::endl
+					<< "Assigned value = " << val << " is outside of its allowed boundaries: " << std::endl
+					<< "lowerBoundary  = " << lowerBoundary << std::endl
+					<< "upperBoundary  = " << upperBoundary
+			);
 		}
 
 		// O.k., assign the boundaries

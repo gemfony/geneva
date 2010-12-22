@@ -490,10 +490,10 @@ GObject *Go::clone_() const {
  */
 void Go::registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::GEAOptimizationMonitor> ea_om_ptr) {
 	if(!ea_om_ptr) {
-		std::ostringstream error;
-		error << "In Go::registerOptimizationMonitor(): Error!" << std::endl
-			  << "Empty optimization monitor pointer found for EA" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In Go::registerOptimizationMonitor():" << std::endl
+				<< "Empty optimization monitor pointer found for EA"
+		);
 	}
 
 	ea_om_ptr_ = ea_om_ptr->clone<GEvolutionaryAlgorithm::GEAOptimizationMonitor>();
@@ -508,10 +508,10 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GEvolutionaryAlgorithm::G
  */
 void Go::registerOptimizationMonitor(boost::shared_ptr<GSwarm::GSwarmOptimizationMonitor> swarm_om_ptr) {
 	if(!swarm_om_ptr) {
-		std::ostringstream error;
-		error << "In Go::registerOptimizationMonitor(): Error!" << std::endl
-			  << "Empty optimization monitor pointer found for SWARM" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In Go::registerOptimizationMonitor():" << std::endl
+				<< "Empty optimization monitor pointer found for SWARM"
+		);
 	}
 
 	swarm_om_ptr_ = swarm_om_ptr->clone<GSwarm::GSwarmOptimizationMonitor>();
@@ -526,10 +526,10 @@ void Go::registerOptimizationMonitor(boost::shared_ptr<GSwarm::GSwarmOptimizatio
  */
 void Go::registerOptimizationMonitor(boost::shared_ptr<GGradientDescent::GGDOptimizationMonitor> gd_om_ptr) {
 	if(!gd_om_ptr) {
-		std::ostringstream error;
-		error << "In Go::registerOptimizationMonitor(): Error!" << std::endl
-			  << "Empty optimization monitor pointer found for GD" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In Go::registerOptimizationMonitor():" << std::endl
+				<< "Empty optimization monitor pointer found for GD"
+		);
 	}
 
 	gd_om_ptr_ = gd_om_ptr->clone<GGradientDescent::GGDOptimizationMonitor>();
@@ -624,13 +624,10 @@ double Go::fitnessCalculation() {
 	// is this the current fitness ? We should at this stage never
 	// run across an unevaluated individual.
 	if(dirty) {
-		std::ostringstream error;
-		error << "In Go::fitnessCalculation(): Error!" << std::endl
-			  << "Came across dirty individual" << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In Go::fitnessCalculation():" << std::endl
+				<< "Came across dirty individual"
+		);
 	}
 
 	return val;
@@ -1441,10 +1438,10 @@ void Go::parseConfigurationFile(const std::string& configFile) {
 
 	// Check the name of the configuration file
 	if (!bf::exists(configFile)) {
-		std::ostringstream error;
-		error << "In Go::parseConfigurationFile(): Error!" << std::endl
-			  << "Invalid file name given for configuration file: \"" << configFile << "\"" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In Go::parseConfigurationFile():" << std::endl
+				<< "Invalid file name given for configuration file: \"" << configFile << "\""
+		);
 	}
 
 	try {

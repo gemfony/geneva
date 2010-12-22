@@ -204,10 +204,10 @@ void GDoubleObject::assignDoubleValueVector(const std::vector<double>& parVec, s
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-		std::ostringstream error;
-		error << "In GBooleanObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&): Error!" << std::endl
-			  << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GBooleanObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
+				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos
+		);
 	}
 #endif
 

@@ -203,10 +203,10 @@ void GMultiThreadedEA::init() {
 void GMultiThreadedEA::finalize() {
 #ifdef DEBUG
 	if(data.size() != sm_value_.size()) {
-		std::ostringstream error;
-		error << "In GMultiThreadedEA::finalize(): Error!" << std::endl
-			  << "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GMultiThreadedEA::finalize():" << std::endl
+				<< "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size()
+		);
 	}
 #endif /* DEBUG */
 

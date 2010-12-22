@@ -185,10 +185,10 @@ public:
 		boost::shared_ptr<load_type> p = boost::dynamic_pointer_cast<load_type>(load_ptr);
 		if(p) return p;
 		else {
-			std::ostringstream error;
-			error << "In boost::shared_ptr<load_type> GParameterBase::conversion_cast<load_type>() : Error!" << std::endl
-				  << "Invalid conversion" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In boost::shared_ptr<load_type> GParameterBase::conversion_cast<load_type>() :" << std::endl
+					<< "Invalid conversion"
+			);
 		}
 #else
 		return boost::static_pointer_cast<load_type>(load_ptr);

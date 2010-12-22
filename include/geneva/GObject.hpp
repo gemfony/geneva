@@ -238,10 +238,10 @@ public:
 		boost::shared_ptr<clone_type> p = boost::dynamic_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
 		if(p) return p;
 		else {
-			std::ostringstream error;
-			error << "In boost::shared_ptr<clone_type> GObject::clone<load_type>() : Error!" << std::endl
-				  << "Invalid conversion" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In boost::shared_ptr<clone_type> GObject::clone<load_type>() :" << std::endl
+					<< "Invalid conversion"
+			);
 		}
 #else
 		return boost::static_pointer_cast<clone_type>(boost::shared_ptr<GObject>(this->clone_()));
@@ -278,10 +278,10 @@ protected:
 #ifdef DEBUG
 		// Check that this object is not accidentally assigned to itself.
 		if (load_ptr == this) {
-			std::ostringstream error;
-			error << "In GObject::selfAssignmentCheck<load_type>() : Error!" << std::endl
-				  << "Tried to assign an object to or compare with itself." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GObject::selfAssignmentCheck<load_type>() :" << std::endl
+					<< "Tried to assign an object to or compare with itself."
+			);
 		}
 #endif
 	}
@@ -308,10 +308,10 @@ protected:
 		const load_type *p = dynamic_cast<const load_type *>(load_ptr);
 		if(p) return p;
 		else {
-			std::ostringstream error;
-			error << "In const GObject* GObject::conversion_cast<load_type>() : Error!" << std::endl
-				  << "Invalid conversion" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In const GObject* GObject::conversion_cast<load_type>() :" << std::endl
+					<< "Invalid conversion"
+			);
 		}
 #else
 		return static_cast<const load_type *>(load_ptr);
@@ -345,10 +345,10 @@ protected:
 		boost::shared_ptr<load_type> p = boost::dynamic_pointer_cast<load_type>(load_ptr);
 		if(p) return p;
 		else {
-			std::ostringstream error;
-			error << "In boost::shared_ptr<load_type> GObject::conversion_cast<load_type>() : Error!" << std::endl
-				  << "Invalid conversion" << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In boost::shared_ptr<load_type> GObject::conversion_cast<load_type>() :" << std::endl
+					<< "Invalid conversion"
+			);
 		}
 #else
 		return boost::static_pointer_cast<load_type>(load_ptr);

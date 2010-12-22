@@ -276,10 +276,10 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 
 #ifdef DEBUG // Cross check so we do not accidently trigger value calculation
 	if(this->at(0)->isDirty()) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::saveCheckpoint():" << std::endl
-			  << "Error: class member has the dirty flag set" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GEvolutionaryAlgorithm::saveCheckpoint():" << std::endl
+				<< "Error: class member has the dirty flag set"
+		);
 	}
 #endif /* DEBUG */
 	double newValue = this->at(0)->fitness();
@@ -291,10 +291,10 @@ void GEvolutionaryAlgorithm::saveCheckpoint() const {
 	// Create the output stream and check that it is in good order
 	std::ofstream checkpointStream(outputFile.c_str());
 	if(!checkpointStream) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::saveCheckpoint()" << std::endl
-			  << "Error: Could not open output file" << outputFile.c_str() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GEvolutionaryAlgorithm::saveCheckpoint()" << std::endl
+				<< "Error: Could not open output file" << outputFile.c_str()
+		);
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -339,19 +339,19 @@ void GEvolutionaryAlgorithm::loadCheckpoint(const std::string& cpFile) {
 
 	// Check that the file indeed exists
 	if(!boost::filesystem::exists(cpFile)) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
-			  << "Got invalid checkpoint file name " << cpFile << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
+				<< "Got invalid checkpoint file name " << cpFile
+		);
 	}
 
 	// Create the input stream and check that it is in good order
 	std::ifstream checkpointStream(cpFile.c_str());
 	if(!checkpointStream) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
-			  << "Error: Could not open input file";
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GEvolutionaryAlgorithm::loadCheckpoint(const std::string&)" << std::endl
+				<< "Error: Could not open input file"
+		);
 	}
 
 	switch(getCheckpointSerializationMode()) {
@@ -480,9 +480,9 @@ double GEvolutionaryAlgorithm::cycleLogic() {
 
 #ifdef DEBUG
 	if(isDirty) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::cycleLogic(): Found dirty individual when it should not be" << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GEvolutionaryAlgorithm::cycleLogic(): Found dirty individual when it should not be"
+		);
 	}
 #endif /* DEBUG */
 
@@ -516,7 +516,7 @@ void GEvolutionaryAlgorithm::init() {
 	if(((smode_==MUCOMMANU || smode_==MUNU1PRETAIN) && (popSize < 2*nParents_)) || (smode_==MUPLUSNU && popSize<=nParents_))
 	{
 		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::init() : Error!" << std::endl
+		error << "In GEvolutionaryAlgorithm::init() :" << std::endl
 			  << "Requested size of population is too small :" << popSize << " " << nParents_ << std::endl
 		      << "Sorting scheme is ";
 
@@ -532,9 +532,10 @@ void GEvolutionaryAlgorithm::init() {
 			break;
 		}
 
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				error.str()
+		);
+
 	}
 
 	// Let parents know they are parents
@@ -568,34 +569,31 @@ void GEvolutionaryAlgorithm::finalize() {
 void GEvolutionaryAlgorithm::adjustPopulation() {
 	// Has the population size been set at all ?
 	if(getDefaultPopulationSize() == 0) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::adjustPopulation() : Error!" << std::endl
-			  << "The population size is 0." << std::endl
-			  << "Did you call GOptimizationAlgorithmT<Gem::Geneva::GIndividual>:setDefaultPopulationSize() ?" << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GEvolutionaryAlgorithm::adjustPopulation() :" << std::endl
+				<< "The population size is 0." << std::endl
+				<< "Did you call GOptimizationAlgorithmT<Gem::Geneva::GIndividual>:setDefaultPopulationSize() ?"
+		);
 	}
 
 	// Check how many individuals have been added already. At least one is required.
 	std::size_t this_sz = data.size();
 	if(this_sz == 0) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::adjustPopulation() : Error!" << std::endl
-			  << "size of population is 0. Did you add any individuals?" << std::endl
-			  << "We need at least one local individual" << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GEvolutionaryAlgorithm::adjustPopulation() :" << std::endl
+				<< "size of population is 0. Did you add any individuals?" << std::endl
+				<< "We need at least one local individual"
+		);
 	}
 
 	// Do the smart pointers actually point to any objects ?
 	std::vector<boost::shared_ptr<GIndividual> >::iterator it;
 	for(it=data.begin(); it!=data.end(); ++it) {
 		if(!(*it)) { // shared_ptr can be implicitly converted to bool
-			std::ostringstream error;
-			error << "In GEvolutionaryAlgorithm::adjustPopulation() : Error!" << std::endl
-				  << "Found empty smart pointer." << std::endl;
-			throw Gem::Common::gemfony_error_condition(error.str());
+			raiseException(
+					"In GEvolutionaryAlgorithm::adjustPopulation() :" << std::endl
+					<< "Found empty smart pointer."
+			);
 		}
 	}
 
@@ -704,14 +702,11 @@ void GEvolutionaryAlgorithm::recombine()
 	// children is present. If individuals can get lost in your setting,
 	// you must add mechanisms to "repair" the population.
 	if((data.size()-nParents_) < defaultNChildren_){
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::recombine(): Error!" << std::endl
-			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
-			  << "but was expecting at least " << defaultNChildren_ << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GEvolutionaryAlgorithm::recombine():" << std::endl
+				<< "Too few children. Got " << data.size()-nParents_ << "," << std::endl
+				<< "but was expecting at least " << defaultNChildren_
+		);
 	}
 #endif
 
@@ -855,13 +850,10 @@ void GEvolutionaryAlgorithm::valueRecombine(boost::shared_ptr<GIndividual>& p, c
 	}
 
 	if(!done) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::valueRecombine(): Error!" << std::endl
-			  << "Could not recombine." << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GEvolutionaryAlgorithm::valueRecombine():" << std::endl
+				<< "Could not recombine."
+		);
 	}
 }
 
@@ -911,14 +903,11 @@ void GEvolutionaryAlgorithm::select()
 	// children is present. If individuals can get lost in your setting,
 	// you must add mechanisms to "repair" the population.
 	if((data.size()-nParents_) < defaultNChildren_){
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::select(): Error!" << std::endl
-			  << "Too few children. Got " << data.size()-nParents_ << "," << std::endl
-			  << "but was expecting at least " << defaultNChildren_ << std::endl;
-
-		// throw an exception. Add some information so that if the exception
-		// is caught through a base object, no information is lost.
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GEvolutionaryAlgorithm::select():" << std::endl
+				<< "Too few children. Got " << data.size()-nParents_ << "," << std::endl
+				<< "but was expecting at least " << defaultNChildren_
+		);
 	}
 #endif /* DEBUG */
 
@@ -1326,10 +1315,10 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::firstInformation(GOp
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != EA) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::GEAOptimizationMonitor::firstInformation(): Error!" << std::endl
-			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GEvolutionaryAlgorithm::GEAOptimizationMonitor::firstInformation():" << std::endl
+				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
+		);
 	}
 #endif /* DEBUG */
 	GEvolutionaryAlgorithm * const ea = static_cast<GEvolutionaryAlgorithm * const>(goa);
@@ -1361,10 +1350,10 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::cycleInformation(GOp
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != EA) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::GEAOptimizationMonitor::cycleInformation(): Error!" << std::endl
-			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GEvolutionaryAlgorithm::GEAOptimizationMonitor::cycleInformation():" << std::endl
+				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
+		);
 	}
 #endif /* DEBUG */
 	GEvolutionaryAlgorithm * const ea = static_cast<GEvolutionaryAlgorithm * const>(goa);
@@ -1383,10 +1372,10 @@ std::string GEvolutionaryAlgorithm::GEAOptimizationMonitor::lastInformation(GOpt
 	// Perform the conversion to the target algorithm
 #ifdef DEBUG
 	if(goa->getOptimizationAlgorithm() != EA) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::GEAOptimizationMonitor::lastInformation(): Error!" << std::endl
-			  << "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GEvolutionaryAlgorithm::GEAOptimizationMonitor::lastInformation():" << std::endl
+				<< "Provided optimization algorithm has wrong type: " << goa->getOptimizationAlgorithm()
+		);
 	}
 #endif /* DEBUG */
 	GEvolutionaryAlgorithm * const ea = static_cast<GEvolutionaryAlgorithm * const>(goa);
@@ -1543,10 +1532,10 @@ boost::uint16_t GEvolutionaryAlgorithm::GEAOptimizationMonitor::getYDim() const 
  */
 void GEvolutionaryAlgorithm::GEAOptimizationMonitor::setNMonitorIndividuals(const std::size_t& nMonitorInds) {
 	if(nMonitorInds == 0) {
-		std::ostringstream error;
-		error << "In GEvolutionaryAlgorithm::GEAOptimizationMonitor::setNMonitorIndividuals(): Error!" << std::endl
-		      << "Number of monitored individuals is set to 0." << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GEvolutionaryAlgorithm::GEAOptimizationMonitor::setNMonitorIndividuals():" << std::endl
+				<< "Number of monitored individuals is set to 0."
+		);
 	}
 
 	nMonitorInds_ = nMonitorInds;

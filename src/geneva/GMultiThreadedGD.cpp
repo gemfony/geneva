@@ -242,10 +242,10 @@ void GMultiThreadedGD::init() {
 void GMultiThreadedGD::finalize() {
 #ifdef DEBUG
 	if(data.size() != sm_value_.size()) {
-		std::ostringstream error;
-		error << "In GMultiThreadedGD::finalize(): Error!" << std::endl
-			  << "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size() << std::endl;
-		throw Gem::Common::gemfony_error_condition(error.str());
+		raiseException(
+				"In GMultiThreadedGD::finalize():" << std::endl
+				<< "Invalid number of serverMode flags: " << data.size() << "/" << sm_value_.size()
+		);
 	}
 #endif /* DEBUG */
 
@@ -275,17 +275,17 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 
 #ifdef DEBUG
 	if(finalPos > this->size()) {
-		std::ostringstream error;
-		error << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-			  << "Got invalid final position: " << finalPos << "/" << this->size() << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
+				<< "Got invalid final position: " << finalPos << "/" << this->size()
+		);
 	}
 
 	if(finalPos < nStartingPoints) {
-		std::ostringstream error;
-		error << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-			  << "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos << std::endl;
-		throw(Gem::Common::gemfony_error_condition(error.str()));
+		raiseException(
+				"In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
+				<< "We require finalPos to be at least " << nStartingPoints << ", but got " << finalPos
+		);
 	}
 #endif
 
@@ -294,10 +294,10 @@ double GMultiThreadedGD::doFitnessCalculation(const std::size_t& finalPos) {
 #ifdef DEBUG
 		// Make sure the evaluated individuals have the dirty flag set
 		if(!this->at(i)->isDirty()) {
-			std::ostringstream error;
-			error << "In GMultiThreadedGD::doFitnessCalculation(const std::size_t&): Error!" << std::endl
-				  << "Found individual in position " << i << " whose dirty flag isn't set" << std::endl;
-			throw(Gem::Common::gemfony_error_condition(error.str()));
+			raiseException(
+					"In GMultiThreadedGD::doFitnessCalculation(const std::size_t&):" << std::endl
+					<< "Found individual in position " << i << " whose dirty flag isn't set"
+			);
 		}
 #endif /* DEBUG*/
 
