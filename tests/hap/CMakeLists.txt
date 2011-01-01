@@ -12,3 +12,4 @@ ADD_DEPENDENCIES ( "hap-tests"
 
 ADD_SUBDIRECTORY ( UnitTests )
 ADD_SUBDIRECTORY ( ManualTests )
+ADD_SUBDIRECTORY ( DocuPrograms )
