@@ -471,8 +471,6 @@ protected:
 	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
-	 *
-	 * TODO: Recursively adapt until a sigma in the allowed range is found ??
 	 */
 	virtual void adaptAdaption()
 	{
